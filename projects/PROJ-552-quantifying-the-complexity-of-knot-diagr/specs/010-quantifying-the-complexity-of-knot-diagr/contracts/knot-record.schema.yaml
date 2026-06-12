@@ -1,0 +1,55 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "KnotRecord"
+description: "Represents a single prime knot with attributes including crossing number, braid index, alternating classification, and hyperbolic volume"
+type: "object"
+properties:
+  knot_id:
+    type: "string"
+    description: "Unique identifier for the knot (e.g., \"10_123\")"
+    pattern: "^[0-9]+_[0-9]+$"
+  crossing_number:
+    type: "integer"
+    description: "Number of crossings in minimal diagram"
+    minimum: 1
+  braid_index:
+    type: "integer"
+    description: "Minimum number of strands in braid representation"
+    minimum: 1
+  hyperbolic_volume:
+    type: "number"
+    description: "Hyperbolic volume (null for torus/satellite knots)"
+    minimum: 0
+    nullable: true
+  is_alternating:
+    type: "boolean"
+    description: "Alternating vs. non-alternating classification"
+    nullable: true
+  dt_code:
+    type: "string"
+    description: "Dowker-Thistlethwaite code representation"
+    nullable: true
+  braid_word:
+    type: "string"
+    description: "Braid word representation"
+    nullable: true
+  data_quality_flags:
+    type: "array"
+    description: "General data quality issues (null values, format failures, duplicates)"
+    items:
+      type: "string"
+    nullable: true
+  missing_invariant_flags:
+    type: "array"
+    description: "Invariants not computable from available diagram representations"
+    items:
+      type: "string"
+    nullable: true
+  validation_status:
+    type: "string"
+    description: "Status of validation against reference values"
+    nullable: true
+required:
+  - knot_id
+  - crossing_number
+  - braid_index
+additionalProperties: false

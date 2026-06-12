@@ -1,0 +1,77 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "RegressionModel"
+description: "Represents fitted model with attributes including model type, coefficients, goodness-of-fit metrics, and training/validation split information"
+type: "object"
+properties:
+  model_id:
+    type: "string"
+    description: "Unique identifier for model"
+    pattern: "^[a-z0-9-]+$"
+  model_type:
+    type: "string"
+    description: "Type of regression model"
+    enum:
+      - "linear"
+      - "polynomial"
+      - "logarithmic"
+  predictor_variables:
+    type: "array"
+    description: "List of predictor variables used"
+    items:
+      type: "string"
+  coefficients:
+    type: "object"
+    description: "Model coefficients"
+    additionalProperties:
+      type: "number"
+  r_squared:
+    type: "number"
+    description: "Coefficient of determination"
+    minimum: 0
+    maximum: 1
+  aic:
+    type: "number"
+    description: "Akaike Information Criterion"
+  bic:
+    type: "number"
+    description: "Bayesian Information Criterion"
+  mae:
+    type: "number"
+    description: "Mean Absolute Error"
+    minimum: 0
+  vif_crossing:
+    type: "number"
+    description: "Variance Inflation Factor for crossing_number"
+    minimum: 1
+  vif_braid:
+    type: "number"
+    description: "Variance Inflation Factor for braid_index"
+    minimum: 1
+  residual_std:
+    type: "number"
+    description: "Standard deviation of residuals"
+    minimum: 0
+  outlier_families:
+    type: "array"
+    description: "Knot families with residuals ≥2 standard deviations"
+    items:
+      type: "string"
+    nullable: true
+  fitted_timestamp:
+    type: "string"
+    description: "When model was fitted"
+    format: "date-time"
+required:
+  - model_id
+  - model_type
+  - predictor_variables
+  - coefficients
+  - r_squared
+  - aic
+  - bic
+  - mae
+  - vif_crossing
+  - vif_braid
+  - residual_std
+  - fitted_timestamp
+additionalProperties: false

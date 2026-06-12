@@ -1,70 +1,46 @@
-resolved_at: '2026-06-11T17:13:58.845861+00:00'
+resolved_at: '2026-06-12T03:04:16.231165+00:00'
 datasets:
-- intent: 10.1142/S0218216519500020
+- intent: FR-001
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://figshare.com/articles/journal_contribution/Athlete_Fit_Tool_-_Coach_Athlete_Version/32649306
+  - url: https://figshare.com/articles/dataset/Call_07076040542_Lagos_State_University_of_Education_2026_2027_Diploma_Form_Sandwich_Form_is_on_sales_07076040542_TO_APPLY_AND_FURTHER_ADMISSION_GUIDELINES_BEFORE_THE_CLOSING_DATE_CALL_2347076040542/32655009
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/2026_2027_Madonna_University_Application_Forms_Out_Call_O70_3636_6909_O7036366909_Admissions_are_now_open_for_the_2026_2027_academic_session_Interested_candidates_are_advised_to_obtain_and_complete_their_admission_forms_before_the_closing_d/32649804
+  - url: https://figshare.com/articles/poster/_234_706_514_5132_-Pan-Atlantic_University_Lagos_for_the_2026_2027_academic_session_welcoming_applications_into_Undergraduate_programs_Direct_Entry_Pre-Degree_Foundation_studies_and_advanced_Postgraduate_pathways_including_PGD_Master_s_MPhi/32655006
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Analytic_Nonadiabatic_Derivative_Couplings_Using_Noncollinear_Spin-Flip_TDDFT/32649798
+  - url: https://figshare.com/articles/media/Call_07076040542_Imo_State_University_of_Agriculture_and_Environmental_Sciences_2026_2027_Diploma_Form_Sandwich_Form_is_on_sales_07076040542_TO_APPLY_AND_FURTHER_ADMISSION_GUIDELINES_BEFORE_THE_CLOSING_DATE_CALL_2347076040542/32655003
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Bandage-Type_Autocatalytic_PdCl_sub_2_sub_Containing_Film_as_Visual_Hydrogen_Sensor_for_Noninvasive_Monitoring_of_Mg-Alloy_Biodegradation/32649779
+  - url: https://figshare.com/articles/figure/Call_07076040542_Imo_State_University_of_Agriculture_and_Environmental_Sciences_2026_2027_Diploma_Form_Sandwich_Form_is_on_sales_07076040542_TO_APPLY_AND_FURTHER_ADMISSION_GUIDELINES_BEFORE_THE_CLOSING_DATE_CALL_2347076040542/32655000
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Intermolecular_Asymmetric_Iodoazolation_of_Alkenyl_Ethers_Catalyzed_by_Chiral_Dinuclear_Zinc_Bis_aminoimino_binaphthoxide_Complex/32649776
+  - url: https://figshare.com/articles/online_resource/Tutorial_estad_stica_descriptiva_en_r/32654982
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-- intent: FR-002
-  status: unresolved
-  candidates: []
-  candidates_tried:
-  - url: https://figshare.com/articles/journal_contribution/Athlete_Fit_Tool_-_Coach_Athlete_Version/32649306
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/2026_2027_Madonna_University_Application_Forms_Out_Call_O70_3636_6909_O7036366909_Admissions_are_now_open_for_the_2026_2027_academic_session_Interested_candidates_are_advised_to_obtain_and_complete_their_admission_forms_before_the_closing_d/32649804
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Analytic_Nonadiabatic_Derivative_Couplings_Using_Noncollinear_Spin-Flip_TDDFT/32649798
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Bandage-Type_Autocatalytic_PdCl_sub_2_sub_Containing_Film_as_Visual_Hydrogen_Sensor_for_Noninvasive_Monitoring_of_Mg-Alloy_Biodegradation/32649779
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Intermolecular_Asymmetric_Iodoazolation_of_Alkenyl_Ethers_Catalyzed_by_Chiral_Dinuclear_Zinc_Bis_aminoimino_binaphthoxide_Complex/32649776
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10358914
+  - url: https://zenodo.org/records/19059431
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/5604171
+  - url: https://zenodo.org/records/17936025
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/5604159
+  - url: https://zenodo.org/records/10337909
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/5604137
+  - url: https://zenodo.org/records/5604131
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/5603470
+  - url: https://zenodo.org/records/6373741
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -72,23 +48,22 @@ datasets:
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20635248
+  - url: https://zenodo.org/records/20617597
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20564541
+  - url: https://zenodo.org/records/20615303
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20564417
+  - url: https://zenodo.org/records/20615161
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://doi.org/10.5281/zenodo.20470525
+  - url: https://zenodo.org/records/20614569
     source: datacite
-    status: unreachable
-    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
-      port=443): Read timed out. (read timeout=20.0)'
+    status: wrong_format
+    reason: unrecognized/non-dataset content
 - intent: MUST
   status: verified
   candidates:
@@ -115,23 +90,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://opticapublishing.figshare.com/articles/dataset/Performance_of_SPGD_MOBO_in_practical_experiments/32508975
+  - url: https://figshare.com/articles/media/Call_07076040542_Shehu_Shagari_University_of_Education_Sokoto_2026_2027_Diploma_Form_Sandwich_Form_is_on_sales_07076040542_TO_APPLY_AND_FURTHER_ADMISSION_GUIDELINES_BEFORE_THE_CLOSING_DATE_CALL_2347076040542/32655015
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://opticapublishing.figshare.com/articles/dataset/Additional_performance_comparison_results_under_other_turbulence_conditions_/32508987
+  - url: https://figshare.com/articles/dataset/Call_07076040542_Lagos_State_University_of_Education_2026_2027_Diploma_Form_Sandwich_Form_is_on_sales_07076040542_TO_APPLY_AND_FURTHER_ADMISSION_GUIDELINES_BEFORE_THE_CLOSING_DATE_CALL_2347076040542/32655009
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://opticapublishing.figshare.com/articles/dataset/Performance_of_CoolMomentum-SPGD_MOBO_in_practical_experiments/32509011
+  - url: https://figshare.com/articles/poster/_234_706_514_5132_-Pan-Atlantic_University_Lagos_for_the_2026_2027_academic_session_welcoming_applications_into_Undergraduate_programs_Direct_Entry_Pre-Degree_Foundation_studies_and_advanced_Postgraduate_pathways_including_PGD_Master_s_MPhi/32655006
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://opticapublishing.figshare.com/articles/dataset/Performance_comparison_of_MOBO-tuned_and_grid-search-tuned_SPGD_at_D_r0_5/32508897
+  - url: https://figshare.com/articles/media/Call_07076040542_Imo_State_University_of_Agriculture_and_Environmental_Sciences_2026_2027_Diploma_Form_Sandwich_Form_is_on_sales_07076040542_TO_APPLY_AND_FURTHER_ADMISSION_GUIDELINES_BEFORE_THE_CLOSING_DATE_CALL_2347076040542/32655003
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://opticapublishing.figshare.com/articles/dataset/Performance_comparison_of_MOBO-tuned_and_grid-search-tuned_CoolMomentum-SPGD_at_D_r0_15/32508915
+  - url: https://figshare.com/articles/figure/Call_07076040542_Imo_State_University_of_Agriculture_and_Environmental_Sciences_2026_2027_Diploma_Form_Sandwich_Form_is_on_sales_07076040542_TO_APPLY_AND_FURTHER_ADMISSION_GUIDELINES_BEFORE_THE_CLOSING_DATE_CALL_2347076040542/32655000
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -143,11 +118,11 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/8056637
+  - url: https://zenodo.org/records/15420758
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/15420758
+  - url: https://zenodo.org/records/8056637
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -155,254 +130,205 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20647225
+  - url: https://knowledge.uchicago.edu/records/n7cad-ak740
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20647225
+  - url: https://knowledge.uchicago.edu/records/n7cad-ak740
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20647242
+  - url: https://knowledge.uchicago.edu/records/vsy1m-41s04
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20647242
+  - url: https://knowledge.uchicago.edu/records/vsy1m-41s04
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20647121
+  - url: https://knowledge.uchicago.edu/records/q1ht2-zm057
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-- intent: III
+- intent: JSON
   status: verified
   candidates:
-  - url: https://huggingface.co/datasets/Donghyun99/Oxford-IIIT-Pet/resolve/main/data/test-00000-of-00001-fcb5a4d7cd48c7db.parquet
+  - url: https://huggingface.co/datasets/paraloq/json_data_extraction/resolve/main/data.parquet
     source: huggingface
     format: parquet
-    relevance: 0.0
+    relevance: 1.0
     sample_check:
       downloaded_bytes: 262144
       parsed: true
-  - url: https://huggingface.co/datasets/davanstrien/iiif_manuscripts_label_ge_50/resolve/main/data/train-00000-of-00005.parquet
+  - url: https://huggingface.co/datasets/MasterControlAIML/JSON-Unstructured-Structured/resolve/main/input_data.csv
     source: huggingface
-    format: parquet
-    relevance: 0.0
+    format: csv
+    relevance: 1.0
     sample_check:
       downloaded_bytes: 262144
       parsed: true
-  - url: https://huggingface.co/datasets/davanstrien/manuscript_iiif_test/resolve/main/data/train-00000-of-00005.parquet
+  - url: https://huggingface.co/datasets/a3xrfgb/ideogram-v4-Json-prompts/resolve/main/idev4-json
+      (1).json
     source: huggingface
-    format: parquet
-    relevance: 0.0
+    format: json
+    relevance: 1.0
     sample_check:
-      downloaded_bytes: 262144
+      downloaded_bytes: 2769
       parsed: true
   candidates_tried:
-  - url: https://huggingface.co/datasets/Donghyun99/Oxford-IIIT-Pet/resolve/main/data/test-00000-of-00001-fcb5a4d7cd48c7db.parquet
+  - url: https://huggingface.co/datasets/paraloq/json_data_extraction/resolve/main/data.parquet
     source: huggingface
     status: verified
     format: parquet
-  - url: https://huggingface.co/datasets/davanstrien/iiif_manuscripts_label_ge_50/resolve/main/data/train-00000-of-00005.parquet
+  - url: https://huggingface.co/datasets/MasterControlAIML/JSON-Unstructured-Structured/resolve/main/input_data.csv
     source: huggingface
     status: verified
-    format: parquet
-  - url: https://huggingface.co/datasets/davanstrien/manuscript_iiif_test/resolve/main/data/train-00000-of-00005.parquet
+    format: csv
+  - url: https://huggingface.co/api/resolve-cache/datasets/gitcat-404/SVG-1M-Json/c0cefd93c8ceb2b64d491ee2716e16d4f09bdded/RL_data.json?%2Fdatasets%2Fgitcat-404%2FSVG-1M-Json%2Fresolve%2Fmain%2FRL_data.json=&etag=%22279f8715eb99ac9eb2826cea0586d32d7e6d0454%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/a3xrfgb/ideogram-v4-Json-prompts/resolve/main/idev4-json
+      (1).json
     source: huggingface
     status: verified
-    format: parquet
-  - url: https://huggingface.co/datasets/davanstrien/test_iiif/resolve/main/data/train-00000-of-00001.parquet
+    format: json
+  - url: https://figshare.com/articles/media/Call_07076040542_Enugu_State_University_of_Medical_and_Applied_Sciences_2026_2027_Diploma_Form_Sandwich_Form_is_on_sales_07076040542_TO_APPLY_AND_FURTHER_ADMISSION_GUIDELINES_BEFORE_THE_CLOSING_DATE_CALL_2347076040542/32655021
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Call_07076040542_Shehu_Shagari_University_of_Education_Sokoto_2026_2027_Diploma_Form_Sandwich_Form_is_on_sales_07076040542_TO_APPLY_AND_FURTHER_ADMISSION_GUIDELINES_BEFORE_THE_CLOSING_DATE_CALL_2347076040542/32655015
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Call_07076040542_Lagos_State_University_of_Education_2026_2027_Diploma_Form_Sandwich_Form_is_on_sales_07076040542_TO_APPLY_AND_FURTHER_ADMISSION_GUIDELINES_BEFORE_THE_CLOSING_DATE_CALL_2347076040542/32655009
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/_234_706_514_5132_-Pan-Atlantic_University_Lagos_for_the_2026_2027_academic_session_welcoming_applications_into_Undergraduate_programs_Direct_Entry_Pre-Degree_Foundation_studies_and_advanced_Postgraduate_pathways_including_PGD_Master_s_MPhi/32655006
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Call_07076040542_Imo_State_University_of_Agriculture_and_Environmental_Sciences_2026_2027_Diploma_Form_Sandwich_Form_is_on_sales_07076040542_TO_APPLY_AND_FURTHER_ADMISSION_GUIDELINES_BEFORE_THE_CLOSING_DATE_CALL_2347076040542/32655003
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7482801
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7482807
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17351756
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3687363
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12574738
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://data.mendeley.com/datasets/nvjydxpxjr/3
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://data.mendeley.com/datasets/nvjydxpxjr/3
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://data.mendeley.com/datasets/f38s4tnbsd/2
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://data.mendeley.com/datasets/f38s4tnbsd/2
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20647832
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CSV
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/nateraw/dummy-csv-dataset/resolve/main/data.csv
     source: huggingface
-    status: verified
-    format: parquet
-  - url: https://opticapublishing.figshare.com/articles/dataset/Performance_of_SPGD_MOBO_in_practical_experiments/32508975
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://opticapublishing.figshare.com/articles/dataset/Additional_performance_comparison_results_under_other_turbulence_conditions_/32508987
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://opticapublishing.figshare.com/articles/dataset/Performance_of_CoolMomentum-SPGD_MOBO_in_practical_experiments/32509011
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://opticapublishing.figshare.com/articles/dataset/Performance_comparison_of_MOBO-tuned_and_grid-search-tuned_SPGD_at_D_r0_5/32508897
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://opticapublishing.figshare.com/articles/dataset/Performance_comparison_of_MOBO-tuned_and_grid-search-tuned_CoolMomentum-SPGD_at_D_r0_15/32508915
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20103118
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/2527914
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/3341783
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10373581
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/8295786
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20647225
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20647225
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20596651
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20596651
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/19490282
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-- intent: FR-003
-  status: unresolved
-  candidates: []
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 31
+      parsed: true
   candidates_tried:
-  - url: https://opticapublishing.figshare.com/articles/dataset/Performance_of_SPGD_MOBO_in_practical_experiments/32508975
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://opticapublishing.figshare.com/articles/dataset/Additional_performance_comparison_results_under_other_turbulence_conditions_/32508987
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://opticapublishing.figshare.com/articles/dataset/Performance_of_CoolMomentum-SPGD_MOBO_in_practical_experiments/32509011
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://opticapublishing.figshare.com/articles/dataset/Performance_comparison_of_MOBO-tuned_and_grid-search-tuned_SPGD_at_D_r0_5/32508897
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://opticapublishing.figshare.com/articles/dataset/Performance_comparison_of_MOBO-tuned_and_grid-search-tuned_CoolMomentum-SPGD_at_D_r0_15/32508915
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/3841160
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10364827
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/6373741
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/13213336
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10384626
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20635248
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20635248
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20564541
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20564417
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://doi.org/10.5281/zenodo.20470525
-    source: datacite
+  - url: https://huggingface.co/datasets/L-NLProc/LegalSeg_CSV/resolve/main/test.csv
+    source: huggingface
     status: unreachable
-    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
-      port=443): Read timed out. (read timeout=20.0)'
-- intent: FR-014
-  status: unresolved
-  candidates: []
-  candidates_tried:
-  - url: https://opticapublishing.figshare.com/articles/dataset/Performance_of_SPGD_MOBO_in_practical_experiments/32508975
+    reason: 'reachability failed: HTTP 401'
+  - url: https://huggingface.co/datasets/nateraw/dummy-csv-dataset/resolve/main/data.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://figshare.com/articles/poster/_234_706_514_5132_-Covenant_University_Ota_for_the_2026_2027_academic_session_welcoming_applications_into_Undergraduate_programs_Direct_Entry_Pre-Degree_Foundation_studies_and_advanced_Postgraduate_pathways_including_PGD_Master_s_MPhil_and_/32655030
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://opticapublishing.figshare.com/articles/dataset/Additional_performance_comparison_results_under_other_turbulence_conditions_/32508987
+  - url: https://figshare.com/articles/dataset/Call_07076040542_Emmanuel_Alayande_University_of_Education_2026_2027_Diploma_Form_Sandwich_Form_is_on_sales_07076040542_TO_APPLY_AND_FURTHER_ADMISSION_GUIDELINES_BEFORE_THE_CLOSING_DATE_CALL_2347076040542/32655033
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://opticapublishing.figshare.com/articles/dataset/Performance_of_CoolMomentum-SPGD_MOBO_in_practical_experiments/32509011
+  - url: https://figshare.com/articles/media/Call_07076040542_University_of_Ilesa_2026_2027_Diploma_Form_Sandwich_Form_is_on_sales_07076040542_TO_APPLY_AND_FURTHER_ADMISSION_GUIDELINES_BEFORE_THE_CLOSING_DATE_CALL_2347076040542/32655024
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://opticapublishing.figshare.com/articles/dataset/Performance_comparison_of_MOBO-tuned_and_grid-search-tuned_SPGD_at_D_r0_5/32508897
+  - url: https://griffith.figshare.com/articles/composition/Chroma_Whisper_Raw/30690032
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://opticapublishing.figshare.com/articles/dataset/Performance_comparison_of_MOBO-tuned_and_grid-search-tuned_CoolMomentum-SPGD_at_D_r0_15/32508915
+  - url: https://figshare.com/articles/media/Call_07076040542_Enugu_State_University_of_Medical_and_Applied_Sciences_2026_2027_Diploma_Form_Sandwich_Form_is_on_sales_07076040542_TO_APPLY_AND_FURTHER_ADMISSION_GUIDELINES_BEFORE_THE_CLOSING_DATE_CALL_2347076040542/32655021
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/3627657
+  - url: https://zenodo.org/records/19566985
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10299128
+  - url: https://zenodo.org/records/6334972
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10166876
+  - url: https://zenodo.org/records/3681161
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10229940
+  - url: https://zenodo.org/records/16712241
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10294916
+  - url: https://zenodo.org/records/6557219
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20635248
+  - url: https://zenodo.org/records/20652898
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20635248
+  - url: https://zenodo.org/records/20652898
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20615161
+  - url: https://knowledge.uchicago.edu/records/z7nbk-5bk41
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://doi.org/10.5281/zenodo.20470525
+  - url: https://knowledge.uchicago.edu/records/z7nbk-5bk41
     source: datacite
-    status: unreachable
-    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
-      port=443): Read timed out. (read timeout=20.0)'
-  - url: https://zenodo.org/records/20469943
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://knowledge.uchicago.edu/records/pq6mh-gth16
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -410,23 +336,23 @@ datasets:
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://opticapublishing.figshare.com/articles/dataset/Performance_of_SPGD_MOBO_in_practical_experiments/32508975
+  - url: https://figshare.com/articles/media/Call_07076040542_Kogi_State_University_2026_2027_Diploma_Form_Sandwich_Form_is_on_sales_07076040542_TO_APPLY_AND_FURTHER_ADMISSION_GUIDELINES_BEFORE_THE_CLOSING_DATE_CALL_2347076040542/32655036
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://opticapublishing.figshare.com/articles/dataset/Additional_performance_comparison_results_under_other_turbulence_conditions_/32508987
+  - url: https://figshare.com/articles/poster/_234_706_514_5132_-Covenant_University_Ota_for_the_2026_2027_academic_session_welcoming_applications_into_Undergraduate_programs_Direct_Entry_Pre-Degree_Foundation_studies_and_advanced_Postgraduate_pathways_including_PGD_Master_s_MPhil_and_/32655030
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://opticapublishing.figshare.com/articles/dataset/Performance_of_CoolMomentum-SPGD_MOBO_in_practical_experiments/32509011
+  - url: https://figshare.com/articles/dataset/Call_07076040542_Emmanuel_Alayande_University_of_Education_2026_2027_Diploma_Form_Sandwich_Form_is_on_sales_07076040542_TO_APPLY_AND_FURTHER_ADMISSION_GUIDELINES_BEFORE_THE_CLOSING_DATE_CALL_2347076040542/32655033
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://opticapublishing.figshare.com/articles/dataset/Performance_comparison_of_MOBO-tuned_and_grid-search-tuned_SPGD_at_D_r0_5/32508897
+  - url: https://figshare.com/articles/media/Call_07076040542_University_of_Ilesa_2026_2027_Diploma_Form_Sandwich_Form_is_on_sales_07076040542_TO_APPLY_AND_FURTHER_ADMISSION_GUIDELINES_BEFORE_THE_CLOSING_DATE_CALL_2347076040542/32655024
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://opticapublishing.figshare.com/articles/dataset/Performance_comparison_of_MOBO-tuned_and_grid-search-tuned_CoolMomentum-SPGD_at_D_r0_15/32508915
+  - url: https://griffith.figshare.com/articles/composition/Chroma_Whisper_Raw/30690032
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -454,7 +380,108 @@ datasets:
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-- intent: FR-001
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.mpg4f4rgk
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20512108
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.5281/zenodo.20470525
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
+      port=443): Read timed out. (read timeout=20.0)'
+  - url: https://zenodo.org/records/20469943
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: SC-013
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: FR-002
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: III
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: IDs
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: FR-009
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: FR-003
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: SHOULD
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: NOT
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: FR-005
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: AND
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: OEIS
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: A002863
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: AIC
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: BIC
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: MAE
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: ANOVA
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: VIF
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: FR-006
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: FR-007
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: FR-012
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: SC-002
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: SC-006
   status: unresolved
   candidates: []
   candidates_tried: []
@@ -462,15 +489,11 @@ datasets:
   status: unresolved
   candidates: []
   candidates_tried: []
-- intent: SC-008
+- intent: SC-010
   status: unresolved
   candidates: []
   candidates_tried: []
 - intent: SC-012
-  status: unresolved
-  candidates: []
-  candidates_tried: []
-- intent: SC-013
   status: unresolved
   candidates: []
   candidates_tried: []

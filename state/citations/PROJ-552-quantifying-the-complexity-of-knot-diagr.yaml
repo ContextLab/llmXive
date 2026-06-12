@@ -775,3 +775,47 @@
   verification_status: verified
   verified_against_url: https://oeis.org/A002863
   verified_at: '2026-06-12T02:52:59.794986Z'
+- artifact_hash: 9002f7fe8e230f50fabd75b89d1a1bf698645b9677ebeb68c5339531571765c2
+  artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Knot Atlas
+  kind: url
+  value: https://katlas.org
+  verification_status: verified
+  verified_against_url: https://katlas.org/wiki/Main_Page
+  verified_at: '2026-06-12T03:44:57.049958Z'
+- artifact_hash: 9002f7fe8e230f50fabd75b89d1a1bf698645b9677ebeb68c5339531571765c2
+  artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: A002863 - OEIS
+  kind: url
+  value: https://oeis.org/A002863
+  verification_status: verified
+  verified_against_url: https://oeis.org/A002863
+  verified_at: '2026-06-12T03:44:57.049958Z'
+- artifact_hash: b3f77b279380cdfdceca7ba30ec4ff98f55172a6cba2845f2a86a48a5372fb3f
+  artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/quickstart.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Knot Atlas
+  kind: url
+  value: https://katlas.org
+  verification_status: verified
+  verified_against_url: https://katlas.org/wiki/Main_Page
+  verified_at: '2026-06-12T03:45:32.971797Z'
+- artifact_hash: e05c67a707ccea1a26d90e6b4ff4ececcd602f3a0bcad086c3e10bf2915a605f
+  artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Knot Atlas
+  kind: url
+  value: https://katlas.org
+  verification_status: verified
+  verified_against_url: https://katlas.org/wiki/Main_Page
+  verified_at: '2026-06-12T04:17:09.267735Z'
