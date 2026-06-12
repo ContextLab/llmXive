@@ -45,7 +45,12 @@ STYLE_DIR = REPO / "papers" / ".style"
 # .cls conflicts. See scripts/extract_paper_content.py for the rationale.
 RESTYLE_SCRIPT = REPO / "scripts" / "extract_paper_content.py"
 LUALATEX_PASSES = 3        # 1: write aux  2: read aux + bib  3: settle refs
-COMPILE_TIMEOUT_S = 600    # per-pass timeout — a single complex paper can be slow
+# Per-pass timeout. 600s starved genuinely-slow-but-finite compiles:
+# PROJ-683's appendix is a multi-page longtable of dozens of huge
+# multi-paragraph cells — legitimate work, not a hang. 30 min/pass is the
+# ceiling for "slow but real"; anything past that is treated as a hung TeX
+# run and falls back honestly.
+COMPILE_TIMEOUT_S = 1800
 # Bounded llmxive-restyle retries for a paper already serving its arXiv
 # fallback. Each scheduled sweep may re-attempt the themed compile until this
 # many failures are recorded (paper_status.llmxive_compile_attempts); after
