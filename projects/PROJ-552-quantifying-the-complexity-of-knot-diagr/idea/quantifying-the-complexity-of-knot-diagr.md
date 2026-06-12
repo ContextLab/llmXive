@@ -13,31 +13,32 @@ To what extent do crossing number and braid index jointly predict the hyperbolic
 
 ## Motivation
 
-Crossing number and braid index are combinatorial invariants derived from diagrammatic representations, whereas hyperbolic volume is a geometric invariant derived from the knot complement. While bounds exist linking these quantities, the precise functional relationship across large datasets of **hyperbolic** prime knots remains empirical. Quantifying this link would clarify how much geometric complexity is encoded in standard diagrammatic measures, potentially improving classification heuristics and theoretical bound tightening. The restriction to hyperbolic knots is mathematically forced (torus and satellite knots lack hyperbolic structure), and the overwhelming majority of prime knots at ≤13 crossings are hyperbolic per Thurston's classification.
+Crossing number and braid index are combinatorial invariants derived from diagrammatic representations, whereas hyperbolic volume is a geometric invariant derived from the knot complement. While theoretical bounds exist linking these quantities, the precise functional relationship across large datasets of **hyperbolic prime knots** remains empirically unquantified. Quantifying this link would clarify how much geometric complexity is encoded in standard diagrammatic measures, potentially improving classification heuristics and theoretical bound tightening. The restriction to hyperbolic knots is mathematically necessary (torus and satellite knots lack hyperbolic structure), and the majority of prime knots at ≤13 crossings are hyperbolic per Thurston's classification.
 
 ## Literature gap analysis
 
 ### What we searched
 
-Searched Semantic Scholar, arXiv, and OpenAlex using queries: (1) "crossing number braid index hyperbolic volume knot" and (2) "knot invariants correlation geometric complexity". Retrieved 17 verified citations spanning 2003-2025.
+Searched Semantic Scholar, arXiv, and OpenAlex using two distinct queries: (1) "crossing number braid index hyperbolic volume knot" and (2) "knot invariants correlation geometric complexity". Retrieved 17 verified citations spanning 2003-2025.
 
 ### What is known
 
 - [Minimal grid diagrams of the prime knots with crossing number 13 and arc index 13 (2024)](https://arxiv.org/abs/2402.02717) — Provides empirical dataset of 9,988 prime knots with crossing number 13, enabling large-scale correlation analysis.
 - [Bisected vertex leveling of plane graphs: Braid index, arc index and delta diagrams (2018)](https://www.worldscientific.com/doi/abs/10.1142/S021821651850044X) — Presents upper bounds for braid index in terms of crossing number using planar graph embeddings.
 - [Seifert circles, crossing number and the braid index of generalized knots and links (2022)](https://arxiv.org/abs/2212.14737) — Extends Ohyama's inequality to virtual links and generalizes the relationship framework.
+- [Braid index bounds ropelength from below (2019)](https://www.worldscientific.com/doi/abs/10.1142/S0218216520500194) — Establishes theoretical connections between braid index and geometric measures (ropelength), supporting the premise that diagrammatic invariants encode geometric information.
 
 ### What is NOT known
 
-No published work has systematically quantified the predictive relationship between crossing number, braid index, and hyperbolic volume across large hyperbolic prime knot datasets with stratified alternating/non-alternating analysis. Existing work provides theoretical bounds but lacks empirical regression analysis with statistical power assessment.
+No published work has systematically quantified the predictive relationship between crossing number, braid index, and hyperbolic volume across large hyperbolic prime knot datasets with stratified alternating/non-alternating analysis. Existing work provides theoretical bounds but lacks empirical regression analysis with statistical power assessment and hold-out validation.
 
 ### Why this gap matters
 
-Quantifying this relationship enables more accurate classification heuristics for unknown knots and constrains theoretical bounds on geometric complexity. Practically, this informs which diagrammatic invariants carry the most geometric information for knot identification tasks.
+Quantifying this relationship enables more accurate classification heuristics for unknown knots and constrains theoretical bounds on geometric complexity. Practically, this informs which diagrammatic invariants carry the most geometric information for knot identification tasks and reveals whether alternating vs. non-alternating structure affects the encoding of geometric data.
 
 ### How this project addresses the gap
 
-The regression analysis pipeline directly measures the predictive power of crossing number and braid index on hyperbolic volume, with explicit stratification by alternating class, producing previously-unavailable empirical evidence on the strength and form of these relationships.
+The regression analysis pipeline directly measures the predictive power of crossing number and braid index on hyperbolic volume, with explicit stratification by alternating class and hold-out validation, producing previously-unavailable empirical evidence on the strength and form of these relationships.
 
 ## Expected results
 
@@ -59,7 +60,7 @@ We expect to find that crossing number and braid index jointly explain a signifi
 - **Validation target**: Validate computed invariants against KnotInfo reference values where available; validation target (hyperbolic volume) is measured independently from crossing number and braid index (different mathematical constructions: geometric complement vs. diagrammatic representation).
 - **Reproducibility**: Document all code and data transformations for reproducibility within a single GitHub Actions job (6h time limit, 7GB RAM, 2 CPU cores).
 - **No GPU/HPC**: All computation performed on CPU-only; no fine-tuning of large models; data size kept within 7GB RAM envelope.
-- **Future work**: Additional invariants (arc index, Seifert circle count, bridge number) may be explored in Phase 2 but are excluded from Phase 1 methodology.
+- **Phase 2 boundary**: Additional invariants (arc index, Seifert circle count, bridge number) are explicitly excluded from Phase 1 and reserved for exploratory extension only after primary results are established.
 
 ## Duplicate-check
 
@@ -70,7 +71,7 @@ We expect to find that crossing number and braid index jointly explain a signifi
 
 ## Search trail
 
-**Generated by**: librarian (prompt v1.6.0) on 2026-06-11T22:01:32Z
+**Generated by**: librarian (prompt v1.6.0) on 2026-06-12T02:21:47Z
 **Outcome**: success
 **Original term**: Quantifying the Complexity of Knot Diagrams via Crossing Number and Braid Index mathematics
 **Verified citation count**: 17
