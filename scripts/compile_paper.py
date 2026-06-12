@@ -46,6 +46,17 @@ STYLE_DIR = REPO / "papers" / ".style"
 RESTYLE_SCRIPT = REPO / "scripts" / "extract_paper_content.py"
 LUALATEX_PASSES = 3        # 1: write aux  2: read aux + bib  3: settle refs
 COMPILE_TIMEOUT_S = 600    # per-pass timeout — a single complex paper can be slow
+# Bounded llmxive-restyle retries for a paper already serving its arXiv
+# fallback. Each scheduled sweep may re-attempt the themed compile until this
+# many failures are recorded (paper_status.llmxive_compile_attempts); after
+# that the paper is an honest `compile-exhausted` skip — the fallback keeps
+# serving, the status record carries why, and a human can reset the counter
+# after fixing the source. Without the cap a permanently-hanging source would
+# burn COMPILE_TIMEOUT_S on every sweep forever; without the RETRY the old
+# `_has_pdf` gate made the first fallback PERMANENT (a fallback PDF counted as
+# "compiled", so the paper was never restyled into the llmxive theme — the
+# PROJ-669/671 class).
+MAX_LLMXIVE_COMPILE_ATTEMPTS = 3
 
 ARXIV_PDF_URL = "https://arxiv.org/pdf/{arxiv_id}.pdf"
 
@@ -91,6 +102,34 @@ def _has_pdf(project: Path) -> bool:
         if b"%%EOF" in data[-1024:] and len(data) > 4096:
             return True
     return False
+
+
+def _has_llmxive_pdf(project: Path) -> bool:
+    """True iff the CANONICAL restyled main-llmxive.pdf exists and is valid.
+
+    Defect (PROJ-669/671 class): `_has_pdf` also accepts the `<arxiv-id>.pdf`
+    FALLBACK, which is correct for "something renders in the modal" but must
+    not mean "this paper is done" — a fallback-only paper still needs the
+    llmxive-theme restyle on later sweeps (bounded by
+    MAX_LLMXIVE_COMPILE_ATTEMPTS).
+    """
+    p = project / "paper" / "pdf" / "main-llmxive.pdf"
+    try:
+        data = p.read_bytes()
+    except Exception:
+        return False
+    return b"%%EOF" in data[-1024:] and len(data) > 4096
+
+
+def _llmxive_attempts(project: Path) -> int:
+    """Read the persisted failed-restyle attempt count from paper_status."""
+    try:
+        from llmxive.state.paper_status import load as _load_status
+        rec = _load_status(project.name, repo_root=REPO) or {}
+        n = rec.get("llmxive_compile_attempts", 0)
+        return int(n) if isinstance(n, int) and n >= 0 else 0
+    except Exception:
+        return 0
 
 
 def _entry_tex(project: Path, metadata: dict[str, Any]) -> str | None:
@@ -235,8 +274,21 @@ def _run_lualatex(project: Path, wrapper: Path) -> tuple[bool, str]:
             "-output-directory", str(pdf_dir),
             str(wrapper),
         ]
-        proc = subprocess.run(cmd, capture_output=True, text=True,
-                              cwd=str(REPO), env=env, timeout=COMPILE_TIMEOUT_S)
+        try:
+            proc = subprocess.run(cmd, capture_output=True, text=True,
+                                  cwd=str(REPO), env=env, timeout=COMPILE_TIMEOUT_S)
+        except subprocess.TimeoutExpired:
+            # A hung TeX run (infinite macro loop, interactive prompt slipped
+            # through nonstopmode, …) is a COMPILE FAILURE for this paper —
+            # not a lane-killer. The uncaught TimeoutExpired previously
+            # crashed the whole sweep, so every scheduled run died at the
+            # same poisoned paper and everything queued behind it never got
+            # restyled (the systemic cause of the missing themed PDFs).
+            _clean_partial_outputs(pdf_dir, wrapper.stem)
+            return False, (
+                f"lualatex timed out after {COMPILE_TIMEOUT_S}s on pass {i} "
+                "(hung TeX run — likely an infinite loop in the source)"
+            )
         last_tail = (proc.stdout or "").splitlines()[-30:]
         last_tail = "\n".join(last_tail)
         # Between passes 1 and 2, run bibtex if a .bib exists. bibtex
@@ -248,17 +300,21 @@ def _run_lualatex(project: Path, wrapper: Path) -> tuple[bool, str]:
             base = wrapper.stem
             aux_path = pdf_dir / f"{base}.aux"
             if aux_path.is_file():
-                bproc = subprocess.run(
-                    ["bibtex", base],
-                    capture_output=True, text=True,
-                    cwd=str(pdf_dir), env=env,
-                    timeout=120,
-                )
-                # Surface bibtex output into last_tail so failures are
-                # diagnosable from the result dict.
-                bib_out = (bproc.stdout or "") + (bproc.stderr or "")
-                if bib_out.strip():
-                    last_tail = last_tail + "\n--bibtex--\n" + bib_out[-1500:]
+                try:
+                    bproc = subprocess.run(
+                        ["bibtex", base],
+                        capture_output=True, text=True,
+                        cwd=str(pdf_dir), env=env,
+                        timeout=120,
+                    )
+                except subprocess.TimeoutExpired:
+                    last_tail += "\n--bibtex--\nbibtex timed out after 120s"
+                else:
+                    # Surface bibtex output into last_tail so failures are
+                    # diagnosable from the result dict.
+                    bib_out = (bproc.stdout or "") + (bproc.stderr or "")
+                    if bib_out.strip():
+                        last_tail = last_tail + "\n--bibtex--\n" + bib_out[-1500:]
     out_pdf = pdf_dir / f"{wrapper.stem}.pdf"
     # A "fatal error" PDF written by lualatex can still be tiny / empty.
     # Require a valid trailer to consider the compile successful; on
@@ -343,9 +399,24 @@ def compile_project(project: Path) -> dict[str, Any]:
     """
     result: dict[str, Any] = {"project": project.name, "ok": False,
                               "strategy": None, "pdf": None, "errors": []}
-    if _has_pdf(project):
+    if _has_llmxive_pdf(project):
         result.update(ok=True, strategy="already-present",
-                      pdf=str(next((project / "paper" / "pdf").glob("*.pdf"))))
+                      pdf=str(project / "paper" / "pdf" / "main-llmxive.pdf"))
+        return result
+    # A fallback-only paper is SERVING but not DONE: re-attempt the themed
+    # compile until the bounded attempt budget is exhausted, then skip
+    # honestly (the fallback stays; the status record carries why).
+    fallback_only = _has_pdf(project)
+    if fallback_only and _llmxive_attempts(project) >= MAX_LLMXIVE_COMPILE_ATTEMPTS:
+        result.update(
+            ok=True, strategy="compile-exhausted",
+            pdf=str(next((project / "paper" / "pdf").glob("*.pdf"))),
+            errors=[
+                f"llmxive restyle failed {MAX_LLMXIVE_COMPILE_ATTEMPTS}x — "
+                "serving the arXiv fallback; reset llmxive_compile_attempts "
+                "in state/paper_status/ after fixing the source"
+            ],
+        )
         return result
 
     metadata = _load_metadata(project)
@@ -361,6 +432,7 @@ def compile_project(project: Path) -> dict[str, Any]:
             if wrapper is None:
                 result["errors"].append("restyle step failed")
             else:
+                result["llmxive_attempted"] = True
                 ok, tail = _run_lualatex(project, wrapper)
                 if ok:
                     pdf = _pdf_dir(project) / f"{wrapper.stem}.pdf"
@@ -376,6 +448,12 @@ def compile_project(project: Path) -> dict[str, Any]:
                 else:
                     result["errors"].append(f"lualatex failed:\n{tail[-2000:]}")
 
+    if fallback_only:
+        # The fallback PDF is already on disk — keep serving it; the recorded
+        # errors (and llmxive_attempted) carry why the themed compile failed.
+        result.update(ok=True, strategy="arxiv-fallback",
+                      pdf=str(next((project / "paper" / "pdf").glob("*.pdf"))))
+        return result
     if arxiv_id:
         pdf = _fetch_arxiv_fallback(project, arxiv_id)
         if pdf is not None:
@@ -427,7 +505,14 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.all:
         all_projects = sorted([p for p in (REPO / "projects").iterdir() if p.is_dir()])
-        targets = [p for p in all_projects if (p / "paper" / "source").is_dir() and not _has_pdf(p)]
+        # Fallback-only papers stay in the sweep (the per-project attempt
+        # budget bounds the cost) — only a valid CANONICAL main-llmxive.pdf
+        # means "done". The old `not _has_pdf` filter made the first arXiv
+        # fallback permanent (PROJ-669/671 class).
+        targets = [
+            p for p in all_projects
+            if (p / "paper" / "source").is_dir() and not _has_llmxive_pdf(p)
+        ]
         if args.max:
             targets = targets[: args.max]
     else:
@@ -439,7 +524,16 @@ def main(argv: list[str] | None = None) -> int:
 
     fail_count = 0
     for project in targets:
-        res = compile_project(project)
+        # The sweep must survive ANY single project — compile_project's
+        # "never raises" contract was violated by an uncaught
+        # subprocess.TimeoutExpired, which killed every scheduled run at the
+        # same hung paper and starved the whole queue behind it.
+        try:
+            res = compile_project(project)
+        except Exception as exc:
+            res = {"project": project.name, "ok": False, "strategy": None,
+                   "pdf": None,
+                   "errors": [f"compile_project raised {type(exc).__name__}: {exc}"]}
         _record_status(project, res)
         if res["ok"]:
             print(f"[compile] {project.name}: {res['strategy']} → {Path(res['pdf']).name}")

@@ -412,6 +412,12 @@ _SAFE_FORWARD_PACKAGES = {
     "algorithm", "algorithmic", "algorithm2e", "algpseudocode",
     "subcaption", "subfig", "subfigure",
     "multirow", "makecell", "longtable", "tabularx", "colortbl",
+    # arydshln: \cdashline/\hdashline in tables. Dropping it left the body's
+    # \cdashline undefined inside a tabular — a "Missing \cr inserted"
+    # cascade with NO output PDF (PROJ-669 canary). Loaded by the wrapper
+    # AFTER array/colortbl (class-loaded), matching arydshln's documented
+    # load-order requirement.
+    "arydshln",
     "enumitem",
     "pifont", "wasysym",
     "url",
@@ -1014,9 +1020,44 @@ def build_wrapper(
         parts.append("\\begin{abstract}")
         parts.append(abstract.strip())
         parts.append("\\end{abstract}")
-    parts.append(body.strip())
+    parts.append(_ensure_bibliographystyle(body.strip()))
     parts.append("\\end{document}\n")
     return "\n".join(parts)
+
+
+def _ensure_bibliographystyle(body: str) -> str:
+    """Inject a default `\\bibliographystyle` when the body cites a
+    bibliography without one.
+
+    Venue classes/styles often declare `\\bibliographystyle{...}` inside
+    their own .sty/.cls (e.g. acl.sty line 195: `acl_natbib`), which the
+    extractor DISCARDS — leaving the body's `\\bibliography{...}` orphaned.
+    bibtex then fails with "I found no \\bibstyle command", no .bbl is
+    built, and every citation renders as `[?]` (PROJ-669 canary, visible on
+    page 1 of the themed PDF). `plainnat` matches the natbib setup
+    llmxive.cls auto-loads.
+    """
+    def _commented(line: str, col: int) -> bool:
+        # An unescaped % before the match comments it out.
+        return bool(re.search(r"(?<!\\)%", line[:col]))
+
+    lines = body.splitlines()
+    has_style = False
+    bib_line_idx: int | None = None
+    for i, ln in enumerate(lines):
+        for m in re.finditer(r"\\bibliographystyle\s*\{", ln):
+            if not _commented(ln, m.start()):
+                has_style = True
+        if bib_line_idx is None:
+            # (?!style) — \bibliography{...} only, not \bibliographystyle{...}.
+            for m in re.finditer(r"\\bibliography(?!style)\s*\{", ln):
+                if not _commented(ln, m.start()):
+                    bib_line_idx = i
+                    break
+    if has_style or bib_line_idx is None:
+        return body
+    lines.insert(bib_line_idx, r"\bibliographystyle{plainnat}")
+    return "\n".join(lines)
 
 
 # ───────────────────────────────────────────────────────────────────────

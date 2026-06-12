@@ -104,6 +104,18 @@ def record_compile_result(
     }
     pdf_name = Path(str(pdf)).name if pdf else ""
     is_restyled = pdf_name.startswith("main-llmxive") or strategy == "llmxive-compile"
+    # Bounded llmxive-restyle retry bookkeeping (defect: a fallback used to be
+    # permanent). compile_paper marks each REAL themed-compile attempt with
+    # ``llmxive_attempted``; failures increment the counter, a restyled
+    # success resets it. ``compile-exhausted`` sweep skips don't re-count.
+    attempts = existing.get("llmxive_compile_attempts", 0)
+    attempts = int(attempts) if isinstance(attempts, int) and attempts >= 0 else 0
+    if result.get("ok") and is_restyled:
+        record["llmxive_compile_attempts"] = 0
+    elif result.get("llmxive_attempted"):
+        record["llmxive_compile_attempts"] = attempts + 1
+    else:
+        record["llmxive_compile_attempts"] = attempts
     if result.get("ok") and is_restyled:
         # A fresh restyled compile invalidates any prior audit verdict.
         prior_audit = existing.get("audit") if strategy == "already-present" else None
