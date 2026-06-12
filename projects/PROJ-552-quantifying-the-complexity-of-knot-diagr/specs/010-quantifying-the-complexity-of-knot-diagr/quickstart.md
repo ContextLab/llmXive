@@ -75,6 +75,7 @@ python code/src/clean.py --input data/raw/knot_atlas_raw.parquet --output data/p
 - Flag records with data quality issues
 - Apply tie-breaking rules for diagram representation ties
 - Generate `data_quality_report.md` in `docs/reproducibility/`
+- Generate `excluded_knots.md` with exclusion counts and percentages
 
 ### Validate Cleaned Data
 
@@ -119,7 +120,7 @@ python code/src/analysis.py --task regression --input data/processed/knot_record
 python code/src/clean.py --filter hyperbolic --input data/processed/knot_records_clean.parquet --output data/processed/knot_records_hyperbolic.parquet
 ```
 
-**Note**: This applies FR-012 filtering (volume > 0). Excluded knots documented in `docs/reproducibility/excluded_knots.md`.
+**Note**: This applies FR-012 filtering (volume > 0). Excluded knots documented in `docs/reproducibility/excluded_knots.md` with percentage of total dataset.
 
 ## Reproducibility Documentation
 
@@ -176,8 +177,14 @@ Tests validate individual functions and modules.
 To restrict analysis to validated data:
 
 ```bash
-python code/src/analysis.py --crossing-limit 10 --input data/processed/knot_records_clean.parquet
+python code/src/analysis.py --validated-only --input data/processed/knot_records_clean.parquet
 ```
+
+**Note**: The `--validated-only` flag strictly enforces `crossing_number <= 10` filter before any statistical computation, preventing cross-contamination between validated and exploratory data.
+
+## Statistical Output Disclaimer
+
+All statistical outputs include explicit disclaimer: "p-values are not applicable for census data. This dataset represents complete enumeration of prime knots ≤13 crossings. Effect sizes are the primary metrics for all statistical claims."
 
 ## Troubleshooting
 
@@ -201,6 +208,7 @@ If knots have ambiguous alternating/non-alternating classification, they will ei
 ## Next Steps
 
 1. Review `docs/reproducibility/data_quality_report.md` for data quality metrics
-2. Review `docs/reproducibility/hyperbolic_volume_validation.md` for validation results
-3. Proceed to regression analysis with filtered hyperbolic dataset
-4. Document findings with explicit acknowledgment of Phase 1 scope limitations
+2. Review `docs/reproducibility/excluded_knots.md` for exclusion counts and percentages
+3. Review `docs/reproducibility/hyperbolic_volume_validation.md` for validation results
+4. Proceed to regression analysis with filtered hyperbolic dataset
+5. Document findings with explicit acknowledgment of Phase 1 scope limitations and census data statistical disclaimer

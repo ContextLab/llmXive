@@ -11,10 +11,12 @@ required:
   - r_squared
   - fitted_timestamp
   - random_seed
+  - census_data_flag
 properties:
   model_id:
     type: string
     description: "Unique identifier for the model"
+    pattern: "^[a-z]+_[0-9]{14}$"
   model_type:
     type: string
     enum:
@@ -71,6 +73,14 @@ properties:
         type: integer
         minimum: 0
         description: "Total number of outlier knots identified"
+  census_data_flag:
+    type: boolean
+    const: true
+    description: "Always true for this census dataset; indicates p-values are not applicable"
+  p_value_disclaimer:
+    type: string
+    description: "Explicit disclaimer text for p-values in census data"
+    const: "p-values are not applicable for census data. This dataset represents complete enumeration of prime knots ≤13 crossings. Effect sizes are the primary metrics for all statistical claims."
   fitted_timestamp:
     type: string
     format: date-time

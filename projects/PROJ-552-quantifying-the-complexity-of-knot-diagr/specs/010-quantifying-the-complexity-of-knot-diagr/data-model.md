@@ -18,6 +18,7 @@ Represents a single prime knot with attributes including crossing number, braid 
 - `source`: String, data source identifier (e.g., "knot_atlas")
 - `download_timestamp`: ISO 8601 timestamp, when data was downloaded
 - `checksum`: String, SHA-256 checksum of raw record
+- `validation_status`: String, validation status (validated, exploratory) based on crossing number range
 
 ### InvariantsDataset
 Aggregated collection of KnotRecord entities with computed relationships and metadata about data source and computation timestamps.
@@ -50,6 +51,8 @@ Represents fitted model with attributes including model type, coefficients, good
 - `mae`: Float, Mean Absolute Error
 - `vif_values`: Dict, variance inflation factors for each predictor
 - `residual_analysis`: Dict, residual analysis results including outlier families
+- `census_data_flag`: Boolean, always true for this census dataset
+- `p_value_disclaimer`: String, explicit disclaimer text for p-values
 - `fitted_timestamp`: ISO 8601 timestamp
 - `random_seed`: Integer, random seed used for model fitting
 
@@ -80,19 +83,19 @@ graph TD
 - **Input**: `data/raw/knot_atlas_raw.parquet`
 - **Output**: `data/processed/knot_records_clean.parquet`
 - **Transformation**: Parse, clean, flag quality issues, apply tie-breaking rules
-- **Validation**: Format validation, duplicate detection, null percentage <1%
+- **Validation**: Format validation, duplicate detection, null percentage <1% (crossing number, hyperbolic volume); braid index <5% with algorithmic fallback
 
 ### Step 3: Invariant Computation (Phase 2+)
 - **Input**: `data/processed/knot_records_clean.parquet`
 - **Output**: `data/processed/invariants_computed.parquet`
 - **Transformation**: Compute arc index, Seifert circle count, bridge number from available representations
-- **Validation**: Algorithm validation against KnotInfo with ≥90% match threshold
+- **Validation**: Algorithm validation against KnotInfo with ≥90% match threshold; Seifert circle computation per math/0303273 (https://arxiv.org/abs/math/0303273); bridge number via Schubert's bridge decomposition (2-bridge knot, https://en.wikipedia.org/wiki/2-bridge_knot)
 
 ### Step 4: Regression Analysis
 - **Input**: `data/processed/invariants_computed.parquet` (or clean dataset for Phase 1)
 - **Output**: `data/processed/regression_results.json`
 - **Transformation**: Fit linear, polynomial, logarithmic models; compute goodness-of-fit metrics
-- **Validation**: VIF assessment, residual analysis for outlier families
+- **Validation**: VIF assessment, residual analysis for outlier families; census_data_flag set to true with p-value disclaimers
 
 ### Step 5: Reproducibility Documentation
 - **Input**: All data files and transformation outputs
@@ -119,6 +122,7 @@ graph TD
 - `data_quality_flags`
 - `missing_invariant_flags`
 - `checksum`
+- `validation_status`
 
 ## File Organization
 
@@ -144,7 +148,8 @@ data/
 All data files MUST conform to schema definitions in `contracts/` directory. Validation performed via jsonschema/pydantic.
 
 ### Data Completeness
-- Required invariant fields null percentage <1% (SC-013)
+- Required invariant fields null percentage <1% (SC-013) for crossing number and hyperbolic volume
+- Braid index null percentage <5% for tabulated values with algorithmic computation fallback documented
 - Format validation pass rate ≥95% (SC-013)
 - Duplicate count = 0 (SC-013)
 
@@ -153,3 +158,4 @@ All data files MUST conform to schema definitions in `contracts/` directory. Val
 - All derivation notes present with formula citations
 - All random seeds documented
 - All timestamped logs complete
+- All p-values explicitly marked as 'not applicable for census data'
