@@ -1,17 +1,18 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-04-29T02:44:28.710016Z'
-current_stage: flesh_out_complete
+current_stage: validated
 failed_stage: null
 field: biology
 human_escalation_reason: null
 id: PROJ-003-single-cell-trajectories-of-t-cell-exhau
-last_run_id: 556e55fd-ba64-4d44-9870-03d6938b7981
+last_run_id: 7e5ff137-96ab-4f75-9c01-dd240dc3ce51
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
+revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: Single-Cell Trajectories of T-Cell Exhaustion
-updated_at: '2026-04-30T05:17:43.438672Z'
+updated_at: '2026-06-12T13:53:13.001155Z'
