@@ -1,12 +1,7 @@
-last_used: richard-feynman
-last_used_at: '2026-06-12T11:52:46.492258+00:00'
-last_outcome: triage_rejected_advanced_as_abstain
+last_used: rosalind-franklin
+last_used_at: '2026-06-12T13:09:25.290451+00:00'
+last_outcome: committed
 history:
-- slug: freeman-dyson
-  started_at: '2026-06-01T23:12:20.667535+00:00'
-  ended_at: '2026-06-01T23:59:02.463481+00:00'
-  outcome: triage_rejected_advanced_as_abstain
-  action: comment
 - slug: geoffrey-west
   started_at: '2026-06-01T23:59:02.463481+00:00'
   ended_at: '2026-06-02T00:42:22.162539+00:00'
@@ -1130,3 +1125,10 @@ history:
   ended_at: '2026-06-12T11:52:46.492258+00:00'
   outcome: triage_rejected_advanced_as_abstain
   action: comment
+- slug: rosalind-franklin
+  started_at: '2026-06-12T11:52:46.492258+00:00'
+  ended_at: '2026-06-12T13:09:25.290451+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/reviews/research/rosalind-franklin-simulated__2026-06-12__research.md
