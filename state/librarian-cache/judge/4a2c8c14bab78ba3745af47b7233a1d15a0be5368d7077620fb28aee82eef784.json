@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2306.14753",
+  "judged_at": "2026-06-12T11:37:29Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "physbrain 1.0 technical report computer science",
+  "rationale": "The user is searching for a specific technical report (\"PhysBrain 1.0\"), but the candidate paper proposes a different neural network architecture (\"Deep Arbitrary Polynomial Chaos Neural Network\") without mentioning the queried system or establishing a connection to the specific \"PhysBrain\" construct. This falls under the rejection rule for distinct constructs sharing only general domain keywords (neural networks/computer science) without a measurable connection to the user's specific entity or ",
+  "relevant": false
+}

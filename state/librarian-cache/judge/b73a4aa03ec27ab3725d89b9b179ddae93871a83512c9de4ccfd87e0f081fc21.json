@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2408.16969",
+  "judged_at": "2026-06-12T11:43:43Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "physbrain 1.0 technical report computer science",
+  "rationale": "The query requests a specific technical report (\"PhysBrain 1.0\"), but the candidate paper describes a different architecture (\"Point Neuron Learning\") applied to a different domain (sound field reconstruction vs. implied brain modeling), representing a distinct construct sharing only keyword overlap (\"Phys\", \"Neural\").",
+  "relevant": false
+}

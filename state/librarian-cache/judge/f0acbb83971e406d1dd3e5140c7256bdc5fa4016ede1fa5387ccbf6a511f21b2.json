@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2009.04544",
+  "judged_at": "2026-06-12T11:40:20Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "physbrain 1.0 technical report computer science",
+  "rationale": "The query \"PhysBrain 1.0\" strongly implies a system utilizing Physics-Informed Neural Networks (PINNs), and the candidate paper investigates the same core mechanism (PINNs and adaptive training methodologies), satisfying category (a) Same-mechanism evidence. Even if \"PhysBrain 1.0\" is a specific implementation, foundational or related work on the underlying PINN architecture is required for a literature review on that system.",
+  "relevant": true
+}

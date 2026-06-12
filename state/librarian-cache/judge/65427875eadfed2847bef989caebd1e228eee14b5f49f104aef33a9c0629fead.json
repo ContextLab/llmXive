@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2403.17618",
+  "judged_at": "2026-06-12T11:31:40Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "physbrain 1.0 technical report computer science",
+  "rationale": "The paper describes the Pollux information service for Political Science, which is off-domain entirely from the user's query for the \"PhysBrain 1.0\" computer science system, sharing only the generic format of a \"Technical Report\" without any connection to the specific subject matter or domain.",
+  "relevant": false
+}

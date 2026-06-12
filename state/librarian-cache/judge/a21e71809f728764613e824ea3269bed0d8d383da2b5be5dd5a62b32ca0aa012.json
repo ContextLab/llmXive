@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2307.05639",
+  "judged_at": "2026-06-12T11:44:52Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "physbrain 1.0 technical report computer science",
+  "rationale": "The candidate paper is a general machine learning methodology study on RBF neural networks and feature selection that does not mention \"PhysBrain 1.0\" or the specific domain implied by the user's query for a technical report on that system. It fails to meet any inclusion criteria (a-f) and falls under the rejection rule for having no measurable connection to the user's specific entity, mechanism, or domain.",
+  "relevant": false
+}

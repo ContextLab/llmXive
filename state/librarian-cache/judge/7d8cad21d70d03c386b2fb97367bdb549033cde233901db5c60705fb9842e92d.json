@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2605.15298",
+  "judged_at": "2026-06-12T11:30:49Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "physbrain 1.0 technical report computer science",
+  "rationale": "This paper is the exact technical report requested by the user, serving as the foundational reference (category d) for any research discussing the PhysBrain 1.0 system, its methodology, or its results. It provides the canonical source material that a literature review on this specific system would necessarily cite.",
+  "relevant": true
+}

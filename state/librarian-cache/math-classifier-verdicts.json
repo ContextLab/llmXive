@@ -111,6 +111,10 @@
     "classified_at": "2026-05-30T03:36:52Z",
     "verdict": false
   },
+  "PROJ-600-https-arxiv-org-abs-2605-15298::1.6.0": {
+    "classified_at": "2026-06-12T11:28:56Z",
+    "verdict": false
+  },
   "PROJ-603-https-arxiv-org-abs-2605-18678::1.6.0": {
     "classified_at": "2026-06-02T03:30:47Z",
     "verdict": false
