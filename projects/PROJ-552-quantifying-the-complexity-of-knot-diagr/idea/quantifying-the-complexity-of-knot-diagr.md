@@ -9,11 +9,11 @@ submitter: google.gemma-3-27b-it
 
 ## Research question
 
-To what extent do crossing number and braid index jointly predict the hyperbolic volume of **hyperbolic prime knots**, and does this relationship differ systematically between alternating and non-alternating classes?
+To what extent do crossing number and braid index jointly explain variation in hyperbolic volume across the complete census of hyperbolic prime knots with ≤ 13 crossings, stratified by alternating/non-alternating classification?
 
 ## Motivation
 
-Crossing number and braid index are combinatorial invariants derived from diagrammatic representations, whereas hyperbolic volume is a geometric invariant derived from the knot complement. While theoretical bounds exist linking these quantities, the precise functional relationship across large datasets of **hyperbolic prime knots** remains empirically unquantified. Quantifying this link would clarify how much geometric complexity is encoded in standard diagrammatic measures, potentially improving classification heuristics and theoretical bound tightening. The restriction to hyperbolic knots is mathematically necessary (torus and satellite knots lack hyperbolic structure), and the majority of prime knots at ≤13 crossings are hyperbolic per Thurston's classification.
+Crossing number and braid index are combinatorial invariants derived from diagrammatic representations, whereas hyperbolic volume is a geometric invariant derived from the knot complement. While theoretical bounds exist linking these quantities, the precise functional relationship across large datasets of hyperbolic prime knots remains empirically unquantified. Quantifying this link would clarify how much geometric complexity is encoded in standard diagrammatic measures, potentially improving classification heuristics and theoretical bound tightening. The restriction to hyperbolic knots is mathematically necessary (torus and satellite knots lack hyperbolic structure), and the majority of prime knots at ≤ 13 crossings are hyperbolic per Thurston's classification.
 
 ## Literature gap analysis
 
@@ -30,7 +30,7 @@ Searched Semantic Scholar, arXiv, and OpenAlex using two distinct queries: (1) "
 
 ### What is NOT known
 
-No published work has systematically quantified the predictive relationship between crossing number, braid index, and hyperbolic volume across large hyperbolic prime knot datasets with stratified alternating/non-alternating analysis. Existing work provides theoretical bounds but lacks empirical regression analysis with statistical power assessment and hold-out validation.
+No published work has systematically quantified the explanatory relationship between crossing number, braid index, and hyperbolic volume across large hyperbolic prime knot datasets with stratified alternating/non-alternating analysis. Existing work provides theoretical bounds but lacks empirical regression analysis on the complete census with goodness-of-fit metrics and residual identification.
 
 ### Why this gap matters
 
@@ -38,7 +38,7 @@ Quantifying this relationship enables more accurate classification heuristics fo
 
 ### How this project addresses the gap
 
-The regression analysis pipeline directly measures the predictive power of crossing number and braid index on hyperbolic volume, with explicit stratification by alternating class and hold-out validation, producing previously-unavailable empirical evidence on the strength and form of these relationships.
+The regression analysis pipeline directly measures the explanatory power of crossing number and braid index on hyperbolic volume, with explicit stratification by alternating class and residual identification, producing previously-unavailable empirical evidence on the strength and form of these relationships across the complete census.
 
 ## Expected results
 
@@ -50,13 +50,12 @@ We expect to find that crossing number and braid index jointly explain a signifi
 - **Data retrieval**: Use `wget` or `curl` to fetch CSV/JSON data files; verify file integrity with checksums.
 - **Parsing**: Parse data to align knot identifiers across the crossing number, braid index, and volume columns using Python (pandas).
 - **Filtering**: Retain only **hyperbolic prime knots** where (a) hyperbolic volume is numerically defined (>0), (b) crossing number and braid index are both populated, and (c) alternating classification is explicitly marked. **Report exact excluded count** of non-hyperbolic knots (torus/satellite) as dataset statistic.
-- **Scope confirmation**: Primary analysis limited to knots ≤10 crossings (validated data); knots with 11-13 crossings analyzed as exploratory extension only, with conclusions explicitly qualified as preliminary.
-- **Stratification**: Split dataset into training (80%) and hold-out test (20%) sets **stratified by alternating/non-alternating classification** (not by crossing number).
+- **Scope confirmation**: Primary analysis limited to knots ≤ 10 crossings (validated data); knots with 11-13 crossings analyzed as exploratory extension only, with conclusions explicitly qualified as preliminary.
+- **Full census analysis**: Analyze the complete dataset (no train/test split) as the full population of hyperbolic prime knots with ≤ 13 crossings.
 - **Model fitting**: Fit multiple regression models predicting hyperbolic volume from crossing number and braid index only (linear, polynomial, and logarithmic forms) using scikit-learn. **No additional invariants** (arc index, Seifert circle count, bridge number) in Phase 1.
-- **Model selection**: Select the model achieving best cross-validated R-squared on training set; document all transformations with formula citations and step-by-step logic in code comments.
-- **Evaluation**: Evaluate model performance on hold-out set using Mean Absolute Error (MAE) and R-squared metrics.
-- **Statistical testing**: Apply ANOVA to compare model fit between alternating and non-alternating subsets to test for systematic differences.
-- **Residual analysis**: Analyze residuals to identify specific knot families (e.g., pretzel knots) that deviate significantly from the global trend.
+- **Model selection**: Select the model achieving best goodness-of-fit on full census: R², AIC/BIC, and MAE documented with formula citations and step-by-step logic in code comments.
+- **Group comparison**: Compute descriptive statistics for alternating vs. non-alternating subsets: mean differences and variance ratios (exact population parameters; no inferential testing).
+- **Residual analysis**: Identify hyperbolic knot families that deviate by ≥ 2 standard deviations from the fitted trend (e.g., pretzel knots, torus knots with hyperbolic complements).
 - **Validation target**: Validate computed invariants against KnotInfo reference values where available; validation target (hyperbolic volume) is measured independently from crossing number and braid index (different mathematical constructions: geometric complement vs. diagrammatic representation).
 - **Reproducibility**: Document all code and data transformations for reproducibility within a single GitHub Actions job (6h time limit, 7GB RAM, 2 CPU cores).
 - **No GPU/HPC**: All computation performed on CPU-only; no fine-tuning of large models; data size kept within 7GB RAM envelope.
@@ -71,7 +70,7 @@ We expect to find that crossing number and braid index jointly explain a signifi
 
 ## Search trail
 
-**Generated by**: librarian (prompt v1.6.0) on 2026-06-12T02:21:47Z
+**Generated by**: librarian (prompt v1.6.0) on 2026-06-12T02:27:34Z
 **Outcome**: success
 **Original term**: Quantifying the Complexity of Knot Diagrams via Crossing Number and Braid Index mathematics
 **Verified citation count**: 17
