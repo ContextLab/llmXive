@@ -1,10 +1,10 @@
 {
   "schema": "llmxive-summary/1",
-  "root_hash": "89dec451a0d9ab64",
+  "root_hash": "d231324540a88848",
   "goal": "extract every FR/SC id verbatim and every spec constraint; the tasks must cover all of them",
   "model": "qwen.qwen3.5-122b",
   "token_budget": 4000,
-  "created_at": "2026-06-12T05:01:58.414029+00:00",
+  "created_at": "2026-06-12T05:20:05.288368+00:00",
   "entries": [
     {
       "element_id": "e000",
@@ -61,7 +61,7 @@
         "281",
         "127",
         "-138",
-        "https://en.wikipedia.org/wiki/2-bridge_knot",
+        "https://en.wikipedia.org/wiki/-bridge_knot",
         "90%"
       ],
       "summary": "3. **Given** a knot has ambiguous alternating/non-alternating classification, **When** stratified analysis runs, **Then** the record is either excluded (with count logged) or marked as \"unclassifiable\"\n4. **Given** diagram representation ties exist, **When** invariant computations run, **Then** documented tie-breaking rules are applied consistently across all records\n5. **Given** all data transformations complete, **When** reproducibility check runs, **Then** all required artifacts (SHA-256 checksums, derivation notes, random seeds, timestamped logs) are present in docs/reproducibility/ direct [... full chunk preserved on disk; desummarize() to retrieve.]"
@@ -131,9 +131,10 @@
         "10",
         "11",
         "-13",
+        "https://oeis.org/",
+        "5%",
         "002863",
         "https://oeis.org/A002863",
-        "5%",
         "SC-002"
       ],
       "summary": "- **FR-008**: System MUST implement retry logic with exponential backoff (initial=1s, max=32s, multiplier=2) when Knot Atlas is unavailable or rate-limited during download. Retry sequence: initial delay followed by exponential backoff up to a maximum threshold. Partial results MUST be cached to disk after 3 consecutive failures. *Traceability: Anchored to User Story 4 (edge cases/data quality/reproducibility) as part of robustness requirements.*\n\n- **FR-009**: System MUST flag records with missing_invariant_flags rather than silently excluding knots where invariants are not computable from ava [... full chunk preserved on disk; desummarize() to retrieve.]"

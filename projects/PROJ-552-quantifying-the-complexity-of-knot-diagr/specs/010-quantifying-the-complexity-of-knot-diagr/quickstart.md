@@ -3,184 +3,182 @@
 ## Prerequisites
 
 - Python 3.11 or higher
-- Stable internet connection (for downloading data from Knot Atlas)
-- At least 2GB available disk space
+- Stable internet connectivity (for Knot Atlas data download)
+- 2GB available disk space (for data and plots)
 - Git for version control
 
 ## Installation
 
-### Step 1: Clone Repository
-
 ```bash
-git clone <repository-url>
-cd projects/PROJ-552-quantifying-the-complexity-of-knot-diagr
+# Clone the repository
+git clone
+cd quantifying-knot-complexity
+
+# Create virtual environment
+python -m venv venv
+source venv/bin/activate # On Windows: venv\Scripts\activate
+
+# Install dependencies
+pip install -r projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/requirements.txt
 ```
 
-### Step 2: Create Virtual Environment
-
-```bash
-python -m venv .venv
-source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-```
-
-### Step 3: Install Dependencies
-
-```bash
-pip install -r requirements.txt
-```
-
-**Dependencies** (pinned in requirements.txt):
-- pandas
-- numpy
-- scipy
-- statsmodels
-- matplotlib
-- seaborn
-- requests
-- pyyaml
-- pytest
-
-### Step 4: Verify Installation
-
-```bash
-pytest tests/unit/
-```
-
-## Running the Analysis Pipeline
+## Quick Start
 
 ### Step 1: Download Knot Data
 
 ```bash
-python code/main.py --task download
+# Execute download with retry logic (exponential backoff: initial=1s, max=32s, multiplier=2)
+python projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/code/download.py \
+ --output data/raw/knot_atlas_raw.csv \
+ --max-retries 3
 ```
 
-**Expected Behavior**:
-- Downloads knot data from Knot Atlas (https://katlas.org)
-- Implements retry logic with exponential backoff (initial=1s, max=32s, multiplier=2)
-- Caches partial results after 3 consecutive failures
-- Saves raw data to data/raw/knot_atlas_raw.json
-
-**Note**: If Knot Atlas is unavailable, check docs/reproducibility/validation_scope.md for status.
+This will:
+- Download prime knot data from Knot Atlas (crossing number ≤13)
+- Apply exponential backoff retry logic on failures
+- Cache partial results to disk after 3 consecutive failures
+- Generate checksum file: `data/raw/knot_atlas_raw.csv.sha256`
 
 ### Step 2: Parse and Clean Data
 
 ```bash
-python code/main.py --task clean
+python projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/code/parse.py \
+ --input data/raw/knot_atlas_raw.csv \
+ --output data/processed/knots_cleaned.csv
 ```
 
-**Expected Behavior**:
-- Parses raw JSON and extracts consistent representations
-- Flags records with data quality issues
-- Filters to hyperbolic knots (volume > 0)
-- Saves cleaned data to data/processed/knots_cleaned.csv
+This will:
+- Parse Knot Atlas data format
+- Clean and validate invariant fields
+- Flag records with data quality issues
+- Generate checksum file: `data/processed/knots_cleaned.csv.sha256`
 
-### Step 3: Generate Exploratory Plots
+### Step 3: Exploratory Analysis
 
 ```bash
-python code/main.py --task exploratory
+python projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/code/analysis.py \
+ --input data/processed/knots_cleaned.csv \
+ --plots-dir data/plots \
+ --random-seed 42
 ```
 
-**Expected Behavior**:
-- Creates scatter plots of crossing number vs. braid index
-- Stratifies by alternating/non-alternating classification
-- Saves PNG files to data/plots/ with minimum resolution 1200x900 pixels
+This will:
+- Generate scatter plots (crossing number vs. braid index)
+- Stratify by alternating/non-alternating classification
+- Output PNG files with minimum resolution 1200x900 pixels
 
-### Step 4: Fit Regression Models
+### Step 4: Regression Analysis
 
 ```bash
-python code/main.py --task regression
+python projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/code/analysis.py \
+ --input data/processed/knots_cleaned.csv \
+ --models linear,polynomial,logarithmic \
+ --output-dir data/models \
+ --random-seed 42
 ```
 
-**Expected Behavior**:
-- Fits linear, polynomial, and logarithmic regression models
-- Computes goodness-of-fit metrics (R², AIC/BIC, MAE)
-- Performs multicollinearity assessment (VIF)
-- Saves model results to analysis/regression_models/
+This will:
+- Fit linear, polynomial, and logarithmic regression models
+- Compute goodness-of-fit metrics (R², AIC/BIC, MAE)
+- Compute Variance Inflation Factor (VIF) for multicollinearity assessment
+- Save fitted models to `data/models/`
 
-### Step 5: Perform Residual Analysis
+### Step 5: Generate Reproducibility Artifacts
 
 ```bash
-python code/main.py --task residuals
+python projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/code/reproducibility.py \
+ --data-dir data \
+ --output-dir docs/reproducibility
 ```
 
-**Expected Behavior**:
-- Identifies knot families with residuals ≥2 standard deviations from global trend
-- Documents specific hyperbolic knot families that deviate significantly
-- Saves results to docs/reproducibility/residual_analysis.md
+This will generate:
+- SHA-256 checksums for all data files
+- Derivation notes with formula citations
+- Timestamped operation logs
+- Random seed documentation
 
-### Step 6: Generate Reproducibility Documentation
+## Validation
+
+### Data Quality Check
 
 ```bash
-python code/main.py --task reproducibility
+python projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/code/parse.py \
+ --validate-only \
+ --input data/processed/knots_cleaned.csv
 ```
 
-**Expected Behavior**:
-- Generates SHA-256 checksums for all data files
-- Creates timestamped logs
-- Documents random seed values
-- Generates derivation notes with formula citations
+Checks:
+- Null percentage <5% in required invariant fields
+- Format validation pass rate ≥95%
+- Zero duplicates in output dataset
 
-## Verifying Results
-
-### Contract Tests
+### Tie-Breaking Validation (FR-011)
 
 ```bash
-pytest tests/contract/
+python projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/code/reproducibility.py \
+ --validate-tie-breaking \
+ --input data/processed/knots_cleaned.csv
 ```
 
-**Expected**: All contract tests pass against schema definitions in contracts/
+Validates:
+- Tie-breaking rules applied consistently across all records
+- Returns exit code 0 on consistency check
 
-### Integration Tests
+## Output Files
 
-```bash
-pytest tests/integration/
+After successful execution, you should have:
+
+```
+data/
+├── raw/
+│ ├── knot_atlas_raw.csv
+│ └── knot_atlas_raw.csv.sha256
+├── processed/
+│ ├── knots_cleaned.csv
+│ ├── knots_cleaned.csv.sha256
+│ └── knots_hyperbolic.csv
+├── plots/
+│ ├── crossing_vs_braid.png
+│ └── alternating_stratified.png
+└── models/
+ ├── regression_linear.pkl
+ ├── regression_polynomial.pkl
+ └── regression_logarithmic.pkl
+
+docs/reproducibility/
+├── checksums.md
+├── derivation_notes.md
+├── logs/
+│ └── pipeline_run_2026-06-12.log
+├── random_seeds.md
+├── data_quality_report.md
+├── excluded_knots.md
+├── hyperbolic_volume_validation.md
+├── invariant_coverage.md
+├── multicollinearity_assessment.md
+├── residual_analysis.md
+├── tie_breaking_rules.md
+├── validation_status.md
+└── alternating_comparison.md
 ```
 
-**Expected**: Pipeline executes end-to-end without errors
+## Troubleshooting
 
-### Validation Status
+### Knot Atlas Unavailable
 
-Check validation status in:
-- docs/reproducibility/validation_status.md (tie-breaking validation)
-- docs/reproducibility/data_quality_report.md (data quality metrics)
-- docs/reproducibility/hyperbolic_volume_validation.md (volume validation against KnotInfo)
+If the Knot Atlas is unavailable during download:
+- Retry logic applies exponential backoff (1s → 2s → 4s → 8s → 16s → 32s)
+- After 3 consecutive failures, partial results are cached to disk
+- Check `data/raw/knot_atlas_raw_partial.csv` for available data
 
-## Common Issues
+### Missing Invariant Data
 
-### Issue 1: Knot Atlas Unavailable
+If invariants are missing for some knots:
+- Records are flagged with `missing_invariant_flags` rather than silently excluded
+- Check `docs/reproducibility/uncomputable_invariants.md` for details
 
-**Symptom**: Download fails with connection error
+### Validation Fails
 
-**Solution**: 
-- Retry logic automatically applies exponential backoff
-- Partial results cached after 3 consecutive failures
-- Check docs/reproducibility/validation_scope.md for status
-
-### Issue 2: Missing Invariant Data
-
-**Symptom**: Records flagged with missing_invariant_flags
-
-**Solution**:
-- Records are NOT silently excluded
-- Check docs/reproducibility/data_quality_report.md for flag summary
-- Phase 1 conclusions limited to validated crossing number ≤10 data
-
-### Issue 3: Validation Script Fails
-
-**Symptom**: Non-zero exit code from validation script
-
-**Solution**:
-- Check docs/reproducibility/validation_status.md for error details
+If validation scripts return non-zero exit code:
+- Check `docs/reproducibility/validation_status.md` for error details
 - Re-run invariant computations before proceeding to downstream analysis
-- Ensure tie-breaking rules applied consistently
-
-## Next Steps
-
-After completing the quickstart:
-
-1. Review docs/reproducibility/ for full reproducibility documentation
-2. Examine data/plots/ for exploratory analysis visualizations
-3. Read analysis/regression_models/ for model comparison results
-4. Consult docs/reproducibility/residual_analysis.md for outlier family identification
-
-For Phase 2+ scope (additional invariants: arc index, Seifert circle count, bridge number), refer to FR-003 for implementation requirements.

@@ -1,0 +1,67 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "InvariantsDataset"
+description: "Schema for aggregated collection of knot records with metadata"
+type: "object"
+properties:
+  dataset_id:
+    type: "string"
+    description: "Unique dataset identifier"
+  data_source:
+    type: "string"
+    description: "Source database (e.g., Knot Atlas)"
+    enum:
+      - "Knot Atlas"
+      - "KnotInfo"
+      - "Hoste-Thistlethwaite-Weeks"
+  created_at:
+    type: "string"
+    description: "Dataset creation timestamp (ISO 8601)"
+    format: "date-time"
+  checksum_sha256:
+    type: "string"
+    description: "SHA-256 checksum of dataset file"
+    pattern: "^[a-f0-9]{64}$"
+  crossing_number_range:
+    type: "string"
+    description: "Range of crossing numbers included"
+    pattern: "^[0-9]+-[0-9]+$"
+  validated_range:
+    type: "string"
+    description: "Range with validated completeness"
+    pattern: "^[0-9]+-[0-9]+$"
+  total_records:
+    type: "integer"
+    description: "Total number of knot records"
+    minimum: 0
+  hyperbolic_records:
+    type: "integer"
+    description: "Number of hyperbolic knots (volume > 0)"
+    minimum: 0
+  null_percentage_crossing:
+    type: "number"
+    description: "Null percentage in crossing number field"
+    minimum: 0
+    maximum: 100
+  null_percentage_braid:
+    type: "number"
+    description: "Null percentage in braid index field"
+    minimum: 0
+    maximum: 100
+  null_percentage_volume:
+    type: "number"
+    description: "Null percentage in hyperbolic volume field"
+    minimum: 0
+    maximum: 100
+required:
+  - dataset_id
+  - data_source
+  - created_at
+  - checksum_sha256
+  - crossing_number_range
+  - validated_range
+  - total_records
+  - hyperbolic_records
+  - null_percentage_crossing
+  - null_percentage_braid
+  - null_percentage_volume
+additionalProperties: false
