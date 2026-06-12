@@ -35,7 +35,7 @@ As a researcher, I need to establish precision thresholds for crossing number an
 1. **Given** the parsed dataset, **When** the precision validation module runs, **Then** each knot record includes crossing number and braid index values where available from Knot Atlas
 2. **Given** the computed invariants, **When** exploratory plots are generated, **Then** scatter plots show crossing number vs. braid index with distinct stratification for alternating and non-alternating prime knots
 
-**Phase 2+ Deferred Note**: Algorithm validation for additional invariants (arc index, Seifert circle count, bridge number) against KnotInfo reference values with ≥90% match threshold is deferred to Phase 2+. If reference coverage is ≥90% but match rate is <90%, validation fails and limitation documented. This acceptance scenario is not applicable to Phase 1 implementation.
+**Phase 2+ Deferred Note**: Algorithm validation for additional invariants (arc index, Seifert circle count, bridge number) against KnotInfo reference values with a high match threshold is deferred to Phase 2+. If reference coverage is ≥90% but match rate is <90%, validation fails and limitation documented. This acceptance scenario is not applicable to Phase 1 implementation.
 
 ---
 

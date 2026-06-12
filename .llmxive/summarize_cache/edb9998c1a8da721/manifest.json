@@ -1,10 +1,10 @@
 {
   "schema": "llmxive-summary/1",
-  "root_hash": "12c7d40a5c0c843a",
+  "root_hash": "edb9998c1a8da721",
   "goal": "extract every FR/SC id verbatim and every spec constraint; the tasks must cover all of them",
   "model": "qwen.qwen3.5-122b",
   "token_budget": 4000,
-  "created_at": "2026-06-12T07:55:49.250536+00:00",
+  "created_at": "2026-06-12T08:40:32.678101+00:00",
   "entries": [
     {
       "element_id": "e000",
@@ -62,7 +62,7 @@
         "127",
         "-138",
         "https://arxiv.org/abs/math/[identifier",
-        "https://en.wikipedia.org/wiki/2-bridge_knot",
+        "https://en.wikipedia.org/wiki/-bridge_knot",
         "90%"
       ],
       "summary": "3. **Given** a knot has ambiguous alternating/non-alternating classification, **When** stratified analysis runs, **Then** the record is either excluded (with count logged) or marked as \"unclassifiable\"\n4. **Given** diagram representation ties exist, **When** invariant computations run, **Then** documented tie-breaking rules are applied consistently across all records\n5. **Given** all data transformations complete, **When** reproducibility check runs, **Then** all required artifacts (SHA-256 checksums, derivation notes, random seeds, timestamped logs) are present in docs/reproducibility/ direct [... full chunk preserved on disk; desummarize() to retrieve.]"

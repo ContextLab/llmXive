@@ -1,0 +1,20 @@
+3. **Given** a knot has ambiguous alternating/non-alternating classification, **When** stratified analysis runs, **Then** the record is either excluded (with count logged) or marked as "unclassifiable"
+4. **Given** diagram representation ties exist, **When** invariant computations run, **Then** documented tie-breaking rules are applied consistently across all records
+5. **Given** all data transformations complete, **When** reproducibility check runs, **Then** all required artifacts (SHA-256 checksums, derivation notes, random seeds, timestamped logs) are present in docs/reproducibility/ directory
+
+### Edge Cases
+
+- What happens when Knot Atlas is unavailable or rate-limited during download? (System should implement retry logic with exponential backoff and cache partial results)
+- How does system handle knots where braid index, hyperbolic volume, or other invariants are not computable from available diagram representations? (Records should be flagged with missing_invariant_flags rather than silently excluded)
+- What happens when alternating vs. non-alternating classification is ambiguous or missing for a knot? (System should either exclude from stratified analysis or mark as unclassifiable)
+- How does system handle diagram representation ties when determining "minimal" representations? (Document tie-breaking rules and ensure consistency across all invariant computations)
+- What happens when hyperbolic volume is zero or undefined (e.g., for torus or satellite knots)? (Records should be flagged and excluded from volume prediction analysis with count logged)
+
+## Requirements *(mandatory)*
+
+### Functional Requirements
+
+- **FR-001**: System MUST download knot data from Knot Atlas (https://katlas.org) including crossing numbers, braid indices, hyperbolic volume, and alternating/non-alternating classification for all prime knots with crossing number up to a predefined complexity limit. Data format follows Knot Atlas JSON schema or CSV export with documented column mapping. **Scope Distinction**: Data availability extends to crossing number ≤13, but validated completeness for Phase 1 focuses on crossing number ≤10 (per SC-001). This distinction must be maintained throughout implementation and reporting. **Phase 1 Conclusion Limitation**: All Phase 1 conclusions must be explicitly qualified as limited to validated crossing number ≤10 data; any analysis using crossing number 11-13 data must be marked as exploratory/unvalidated in final reports. **Data Quality Reference**: Required invariant fields (crossing number, braid index, hyperbolic volume) must have null percentage within acceptable limits across all records in the validated dataset subset for hyperbolic prime knots (volume > 0), per SC-013.
+
+- **FR-002**: System MUST parse and clean the dataset to extract consistent representations of crossing number, braid index, and hyperbolic volume for each prime knot, creating new derived dataset files (no in-place modification per Constitution Principle III). **Data Quality Definition**: 'Clean' means: (1) null percentage < a negligible threshold in required invariant fields (crossing number, braid index, hyperbolic volume), (2) format validation passes for all records (valid DT code format, valid braid word format where present), (3) no duplicate knot IDs in output dataset. Any record failing these conditions is flagged with data_quality_flags and documented in `docs/reproducibility/data_quality_report.md`. **Flag Distinction**: data_quality_flags is used for general data quality issues (null values, format failures, duplicates); missing_invariant_flags (per FR-009) is used specifically when invariants cannot be computed from available diagram representations. These are distinct flag categories with different triggering conditions.
+

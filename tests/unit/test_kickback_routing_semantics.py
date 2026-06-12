@@ -70,32 +70,39 @@ def test_spec_gap_routes_rerun_the_artifact_owner():
 
 def test_all_routes_are_valid_transitions_and_dispatchable():
     """Every routing target must be (a) a valid lifecycle transition from
-    the stage the panel runs at and (b) a stage the graph can dispatch."""
-    run_stage_by_label = {
-        "plan": Stage.CLARIFIED,
-        "tasks": Stage.PLANNED,
-        "paper_plan": Stage.PAPER_CLARIFIED,
-        "paper_tasks": Stage.PAPER_PLANNED,
-        "spec": Stage.SPECIFIED,
-        "paper_spec": Stage.PAPER_SPECIFIED,
+    EVERY stage the panel runs at and (b) a stage the graph can dispatch.
+
+    Spec 023 defect #22: the tasks / paper-tasks panels run at TWO stages
+    (the tasker drives both the planned and the tasked/analyze passes), so
+    each route must be reachable from BOTH — the original single-run-stage
+    check missed TASKED -> CLARIFIED, and a live kickback from tasked
+    burned a full panel run then died on "invalid transition".
+    """
+    run_stages_by_label = {
+        "plan": [Stage.CLARIFIED],
+        "tasks": [Stage.PLANNED, Stage.TASKED],
+        "paper_plan": [Stage.PAPER_CLARIFIED],
+        "paper_tasks": [Stage.PAPER_PLANNED, Stage.PAPER_TASKED],
+        "spec": [Stage.SPECIFIED],
+        "paper_spec": [Stage.PAPER_SPECIFIED],
     }
     checked = 0
     for label, spec in _all_static_specs().items():
-        run_stage = run_stage_by_label[label]
-        for sev, target in spec.kickback_routing.items():
-            target_stage = Stage(target)
-            # A stay-put route (target == the stage the panel runs at) is a
-            # no-op transition: graph.run_one_step only validates/applies a
-            # transition when next_stage != current_stage, so the same
-            # stage's agent simply re-runs next tick (spec 023 defect #19 —
-            # in-place revision instead of regeneration).
-            if target_stage != run_stage:
-                assert is_valid_transition(run_stage, target_stage), (
-                    f"{label} panel {sev}: {run_stage.value} -> {target} is not "
-                    "an allowed lifecycle transition"
+        for run_stage in run_stages_by_label[label]:
+            for sev, target in spec.kickback_routing.items():
+                target_stage = Stage(target)
+                # A stay-put route (target == the stage the panel runs at) is a
+                # no-op transition: graph.run_one_step only validates/applies a
+                # transition when next_stage != current_stage, so the same
+                # stage's agent simply re-runs next tick (spec 023 defect #19 —
+                # in-place revision instead of regeneration).
+                if target_stage != run_stage:
+                    assert is_valid_transition(run_stage, target_stage), (
+                        f"{label} panel {sev}: {run_stage.value} -> {target} is "
+                        "not an allowed lifecycle transition"
+                    )
+                assert target_stage in STAGE_TO_AGENT, (
+                    f"{label} panel {sev}: target {target} has no dispatchable agent"
                 )
-            assert target_stage in STAGE_TO_AGENT, (
-                f"{label} panel {sev}: target {target} has no dispatchable agent"
-            )
-            checked += 1
-    assert checked >= 24, f"only {checked} routes checked"
+                checked += 1
+    assert checked >= 34, f"only {checked} routes checked"

@@ -87,7 +87,17 @@ ALLOWED_TRANSITIONS: dict[Stage, set[Stage]] = {
         Stage.PLANNED, Stage.TASKED, Stage.HUMAN_INPUT_NEEDED,
         Stage.CLARIFIED,  # spec 023 defect #14: tasks panel plan-flaw kickback (planner re-runs at CLARIFIED)
     },
-    Stage.TASKED: {Stage.ANALYZE_IN_PROGRESS, Stage.ANALYZED},
+    # Spec 023 defect #22: the tasks convergence panel runs at BOTH planned
+    # and tasked (the tasker drives analyze from tasked). Its plan-flaw
+    # kickback (REQUIREMENT+ → "clarified", defect-#14 semantics) and its
+    # cap escalation must therefore be reachable from TASKED as well —
+    # without these edges every kickback from tasked burned a full panel
+    # run then died on "invalid transition tasked -> clarified" (observed
+    # live on PROJ-552).
+    Stage.TASKED: {
+        Stage.ANALYZE_IN_PROGRESS, Stage.ANALYZED,
+        Stage.CLARIFIED, Stage.HUMAN_INPUT_NEEDED,
+    },
     Stage.ANALYZE_IN_PROGRESS: {Stage.ANALYZED, Stage.HUMAN_INPUT_NEEDED},
     Stage.ANALYZED: {Stage.IN_PROGRESS},
     Stage.IN_PROGRESS: {Stage.RESEARCH_COMPLETE, Stage.IN_PROGRESS, Stage.HUMAN_INPUT_NEEDED},
@@ -153,7 +163,10 @@ ALLOWED_TRANSITIONS: dict[Stage, set[Stage]] = {
         Stage.PAPER_SPECIFIED,  # spec 023 defect #14: paper-plan spec-gap kickback
         Stage.PAPER_CLARIFIED,  # paper tasks panel plan-flaw kickback target
     },
-    Stage.PAPER_TASKED: {Stage.PAPER_ANALYZED},
+    # Spec 023 defect #22 (paper twin): see Stage.TASKED above.
+    Stage.PAPER_TASKED: {
+        Stage.PAPER_ANALYZED, Stage.PAPER_CLARIFIED, Stage.HUMAN_INPUT_NEEDED,
+    },
     Stage.PAPER_ANALYZED: {Stage.PAPER_IN_PROGRESS},
     Stage.PAPER_IN_PROGRESS: {Stage.PAPER_COMPLETE, Stage.PAPER_IN_PROGRESS},
     # paper_complete is now a brief checkpoint where the 12 paper
