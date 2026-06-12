@@ -1,26 +1,26 @@
-resolved_at: '2026-06-12T07:08:04.844990+00:00'
+resolved_at: '2026-06-12T10:07:51.773176+00:00'
 datasets:
 - intent: FR-001
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://figshare.com/articles/dataset/original_data/32657019
+  - url: https://repository.mmu.ac.uk/articles/online_resource/Country_diary_butterflies_instinctively_make_chemistry_sexy/32455551
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/poster/CALL_2347026924202_for_Imo_State_College_of_Nursing_Sciences_Umulogho-Obowo_2026_2027_Admission_form_Form_Is_OUT_CALL_070-269_24202_OR_2347026924202_The_Management_Of_The_School_Hereby_Inform_The_general_Public_On_The_Sale/32657235
+  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_1_A_coordinated_network_of_ABA_signaling_photorespiratory_and_proteostasis_in_EMS-induced_maize_mutant_with_enhanced_drought_resistance_docx/32658129
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/conference_contribution/CALL_2347026924202_for_Imo_State_College_of_Nursing_Sciences_Mbano_2026_2027_Admission_form_Form_Is_OUT_CALL_070-269_24202_OR_2347026924202_The_Management_Of_The_School_Hereby_Inform_The_general_Public_On_The_Sales/32657229
+  - url: https://preprints.opticaopen.org/articles/preprint/Deep_lensless_imaging_with_non-iterative_output-constraint_satisfaction/32651544
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/_b_Remains_of_bunodont_mastodons_from_the_central_Ciscaucasia_Russia_Stavropol_Krai_b_/31562296
+  - url: https://tandf.figshare.com/articles/journal_contribution/Septin9_gene_methylation_in_plasma_for_gastric_cancer_detection_a_systematic_review_and_meta-analysis/32658126
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/media/Superhydrophobic_and_Water-Repellent_Coatings_with_Dual-Scale_Roughness_Based_on_Waterborne_MXene_Nanocomposites/32657225
+  - url: https://repository.mmu.ac.uk/articles/online_resource/A_brief_history_of_transgender_issues/32456022
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -39,7 +39,8 @@ datasets:
   - url: https://zenodo.org/records/5604131
     source: zenodo
     status: wrong_format
-    reason: unrecognized/non-dataset content
+    reason: 'HTTPSConnectionPool(host=''zenodo.org'', port=443): Read timed out. (read
+      timeout=20)'
   - url: https://zenodo.org/records/10501050
     source: zenodo
     status: wrong_format
@@ -90,23 +91,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/dataset/original_data/32657019
+  - url: https://figshare.com/articles/presentation/Web_Development/32658132
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/poster/CALL_2347026924202_for_Imo_State_College_of_Nursing_Sciences_Umulogho-Obowo_2026_2027_Admission_form_Form_Is_OUT_CALL_070-269_24202_OR_2347026924202_The_Management_Of_The_School_Hereby_Inform_The_general_Public_On_The_Sale/32657235
+  - url: https://repository.mmu.ac.uk/articles/online_resource/Country_diary_gatecrashing_an_extraordinary_party_of_orchids/32455548
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/conference_contribution/CALL_2347026924202_for_Imo_State_College_of_Nursing_Sciences_Mbano_2026_2027_Admission_form_Form_Is_OUT_CALL_070-269_24202_OR_2347026924202_The_Management_Of_The_School_Hereby_Inform_The_general_Public_On_The_Sales/32657229
+  - url: https://repository.mmu.ac.uk/articles/online_resource/Country_diary_butterflies_instinctively_make_chemistry_sexy/32455551
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/_b_Remains_of_bunodont_mastodons_from_the_central_Ciscaucasia_Russia_Stavropol_Krai_b_/31562296
+  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_1_A_coordinated_network_of_ABA_signaling_photorespiratory_and_proteostasis_in_EMS-induced_maize_mutant_with_enhanced_drought_resistance_docx/32658129
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/media/Superhydrophobic_and_Water-Repellent_Coatings_with_Dual-Scale_Roughness_Based_on_Waterborne_MXene_Nanocomposites/32657225
+  - url: https://preprints.opticaopen.org/articles/preprint/Deep_lensless_imaging_with_non-iterative_output-constraint_satisfaction/32651544
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -130,23 +131,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://knowledge.uchicago.edu/records/s29yw-ez872
+  - url: https://zenodo.org/records/20518448
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/19809579
+  - url: https://zenodo.org/records/20518448
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/19809579
+  - url: https://zenodo.org/records/20643696
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://knowledge.uchicago.edu/records/20vd5-f8a44
+  - url: https://zenodo.org/records/20643696
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://knowledge.uchicago.edu/records/20vd5-f8a44
+  - url: https://zenodo.org/records/20440141
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -193,23 +194,23 @@ datasets:
     source: huggingface
     status: verified
     format: json
-  - url: https://figshare.com/articles/dataset/original_data/32657019
+  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Validation_of_LEEDR_Calculated_Aerosol_Extinction_using_Micro-_and_Nano-Particle_Concentration_Inputs_at_North_American_Locations_-_7859798_pdf/32465415
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/poster/CALL_2347026924202_for_Imo_State_College_of_Nursing_Sciences_Umulogho-Obowo_2026_2027_Admission_form_Form_Is_OUT_CALL_070-269_24202_OR_2347026924202_The_Management_Of_The_School_Hereby_Inform_The_general_Public_On_The_Sale/32657235
+  - url: https://tandf.figshare.com/articles/journal_contribution/Mango_floral_induction_nutritional_strategies_with_molybdenum_and_nitrate_to_improve_flowering/32658010
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/conference_contribution/CALL_2347026924202_for_Imo_State_College_of_Nursing_Sciences_Mbano_2026_2027_Admission_form_Form_Is_OUT_CALL_070-269_24202_OR_2347026924202_The_Management_Of_The_School_Hereby_Inform_The_general_Public_On_The_Sales/32657229
+  - url: https://figshare.com/articles/presentation/Web_Development/32658132
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/_b_Remains_of_bunodont_mastodons_from_the_central_Ciscaucasia_Russia_Stavropol_Krai_b_/31562296
+  - url: https://repository.mmu.ac.uk/articles/online_resource/Country_diary_gatecrashing_an_extraordinary_party_of_orchids/32455548
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/media/Superhydrophobic_and_Water-Repellent_Coatings_with_Dual-Scale_Roughness_Based_on_Waterborne_MXene_Nanocomposites/32657225
+  - url: https://repository.mmu.ac.uk/articles/online_resource/Country_diary_butterflies_instinctively_make_chemistry_sexy/32455551
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -233,23 +234,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20658280
+  - url: https://figshare.com/articles/conference_contribution/Replication_Package_for_the_paper_Changing_Nothing_Yet_Changing_Everything_Exploring_Rug_Pulls_in_GitHub_Workflows_/30734789/3
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20658280
+  - url: https://figshare.com/articles/conference_contribution/Replication_Package_for_the_paper_Changing_Nothing_Yet_Changing_Everything_Exploring_Rug_Pulls_in_GitHub_Workflows_/30734789
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://knowledge.uchicago.edu/records/133qq-m3935
+  - url: https://figshare.com/articles/conference_contribution/Replication_Package_for_the_paper_Changing_Nothing_Yet_Changing_Everything_Exploring_Rug_Pulls_in_GitHub_Workflows_/30734789/2
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://knowledge.uchicago.edu/records/133qq-m3935
+  - url: https://figshare.com/articles/software/Decision-Space_Counterfactual_Auditing_for_Prompt_Injection_Defense_in_Tool-Using_LLM_Agents_Code_and_Evaluation_Artifacts/32657856/1
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20657629
+  - url: https://figshare.com/articles/software/Decision-Space_Counterfactual_Auditing_for_Prompt_Injection_Defense_in_Tool-Using_LLM_Agents_Code_and_Evaluation_Artifacts/32657856
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -272,23 +273,23 @@ datasets:
     source: huggingface
     status: verified
     format: csv
-  - url: https://figshare.com/articles/dataset/original_data/32657019
+  - url: https://figshare.com/articles/presentation/Panel_Saw_Machine/32658090
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/poster/CALL_2347026924202_for_Imo_State_College_of_Nursing_Sciences_Umulogho-Obowo_2026_2027_Admission_form_Form_Is_OUT_CALL_070-269_24202_OR_2347026924202_The_Management_Of_The_School_Hereby_Inform_The_general_Public_On_The_Sale/32657235
+  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Validation_of_LEEDR_Calculated_Aerosol_Extinction_using_Micro-_and_Nano-Particle_Concentration_Inputs_at_North_American_Locations_-_7859798_pdf/32465415
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/conference_contribution/CALL_2347026924202_for_Imo_State_College_of_Nursing_Sciences_Mbano_2026_2027_Admission_form_Form_Is_OUT_CALL_070-269_24202_OR_2347026924202_The_Management_Of_The_School_Hereby_Inform_The_general_Public_On_The_Sales/32657229
+  - url: https://tandf.figshare.com/articles/journal_contribution/Mango_floral_induction_nutritional_strategies_with_molybdenum_and_nitrate_to_improve_flowering/32658010
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/_b_Remains_of_bunodont_mastodons_from_the_central_Ciscaucasia_Russia_Stavropol_Krai_b_/31562296
+  - url: https://figshare.com/articles/presentation/Web_Development/32658132
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/media/Superhydrophobic_and_Water-Repellent_Coatings_with_Dual-Scale_Roughness_Based_on_Waterborne_MXene_Nanocomposites/32657225
+  - url: https://repository.mmu.ac.uk/articles/online_resource/Country_diary_gatecrashing_an_extraordinary_party_of_orchids/32455548
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -312,23 +313,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20420277
+  - url: https://figshare.com/articles/conference_contribution/Replication_Package_for_the_paper_Changing_Nothing_Yet_Changing_Everything_Exploring_Rug_Pulls_in_GitHub_Workflows_/30734789/2
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20420277
+  - url: https://figshare.com/articles/conference_contribution/Replication_Package_for_the_paper_Changing_Nothing_Yet_Changing_Everything_Exploring_Rug_Pulls_in_GitHub_Workflows_/30734789/3
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20630411
+  - url: https://figshare.com/articles/conference_contribution/Replication_Package_for_the_paper_Changing_Nothing_Yet_Changing_Everything_Exploring_Rug_Pulls_in_GitHub_Workflows_/30734789
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20630411
+  - url: https://zenodo.org/records/20627787
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20657668
+  - url: https://zenodo.org/records/20627787
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -336,23 +337,23 @@ datasets:
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://figshare.com/articles/dataset/original_data/32657019
+  - url: https://figshare.com/articles/presentation/Panel_Saw_Machine/32658090
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/poster/CALL_2347026924202_for_Imo_State_College_of_Nursing_Sciences_Umulogho-Obowo_2026_2027_Admission_form_Form_Is_OUT_CALL_070-269_24202_OR_2347026924202_The_Management_Of_The_School_Hereby_Inform_The_general_Public_On_The_Sale/32657235
+  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Validation_of_LEEDR_Calculated_Aerosol_Extinction_using_Micro-_and_Nano-Particle_Concentration_Inputs_at_North_American_Locations_-_7859798_pdf/32465415
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/conference_contribution/CALL_2347026924202_for_Imo_State_College_of_Nursing_Sciences_Mbano_2026_2027_Admission_form_Form_Is_OUT_CALL_070-269_24202_OR_2347026924202_The_Management_Of_The_School_Hereby_Inform_The_general_Public_On_The_Sales/32657229
+  - url: https://tandf.figshare.com/articles/journal_contribution/Mango_floral_induction_nutritional_strategies_with_molybdenum_and_nitrate_to_improve_flowering/32658010
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/_b_Remains_of_bunodont_mastodons_from_the_central_Ciscaucasia_Russia_Stavropol_Krai_b_/31562296
+  - url: https://figshare.com/articles/presentation/Web_Development/32658132
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/media/Superhydrophobic_and_Water-Repellent_Coatings_with_Dual-Scale_Roughness_Based_on_Waterborne_MXene_Nanocomposites/32657225
+  - url: https://repository.mmu.ac.uk/articles/online_resource/Country_diary_gatecrashing_an_extraordinary_party_of_orchids/32455548
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -388,28 +389,10 @@ datasets:
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://doi.org/10.5281/zenodo.20470525
-    source: datacite
-    status: unreachable
-    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
-      port=443): Read timed out. (read timeout=20.0)'
-  - url: https://doi.org/10.5281/zenodo.20469943
-    source: datacite
-    status: unreachable
-    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
-      port=443): Read timed out. (read timeout=20.0)'
 - intent: SC-013
   status: unresolved
   candidates: []
-  candidates_tried:
-  - url: https://figshare.com/articles/dataset/original_data/32657019
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/poster/CALL_2347026924202_for_Imo_State_College_of_Nursing_Sciences_Umulogho-Obowo_2026_2027_Admission_form_Form_Is_OUT_CALL_070-269_24202_OR_2347026924202_The_Management_Of_The_School_Hereby_Inform_The_general_Public_On_The_Sale/32657235
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
+  candidates_tried: []
 - intent: FR-002
   status: unresolved
   candidates: []

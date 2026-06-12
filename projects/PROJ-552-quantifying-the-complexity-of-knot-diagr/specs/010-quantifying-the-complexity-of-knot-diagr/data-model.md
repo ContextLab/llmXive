@@ -8,17 +8,18 @@ Represents a single prime knot with attributes including crossing number, braid 
 
 | Field | Type | Required | Description | Constraints |
 |-------|------|----------|-------------|-------------|
-| knot_id | string | Yes | Unique identifier (e.g., "K11n34") | Non-empty, unique |
-| crossing_number | integer | Yes | Number of crossings in minimal diagram | ≥1 |
-| braid_index | integer | No | Minimum number of strands in braid representation | ≥1, ≤crossing_number |
-| hyperbolic_volume | float | No | Volume of hyperbolic complement | >0 for hyperbolic knots |
-| is_alternating | boolean | No | Whether knot is alternating | null if ambiguous |
-| dt_code | string | No | Dowker-Thistlethwaite code | Valid DT format |
-| braid_word | string | No | Braid word representation | Valid braid word format |
-| data_quality_flags | string | No | Flags for data quality issues | Comma-separated |
-| missing_invariant_flags | string | No | Flags for missing computable invariants | Comma-separated |
-| data_source | string | Yes | Data source (e.g., "Knot Atlas") | Non-empty |
-| download_timestamp | datetime | Yes | When data was downloaded | ISO 8601 format |
+| knot_id | string | Yes | Unique identifier from Knot Atlas (e.g., "8_19") | Format: "{crossing number}_{sequence number}" |
+| crossing_number | integer | Yes | Minimum number of crossings in any diagram | Range: 1-13 |
+| braid_index | integer | Yes | Minimum number of strands in any braid representation | Range: 1 ≤ braid_index ≤ crossing_number |
+| hyperbolic_volume | float | Conditional | Volume of knot complement (hyperbolic knots only) | Must be > 0 for hyperbolic knots; null for torus/satellite |
+| is_alternating | boolean | Conditional | Whether knot is alternating or non-alternating | May be null if classification ambiguous |
+| dt_code | string | Optional | Dowker-Thistlethwaite code for diagram representation | May be null if representation unavailable |
+| braid_word | string | Optional | Braid word representation | May be null if representation unavailable |
+| data_quality_flags | array[string] | Yes | Flags for data quality issues | Values: "null_crossing", "null_braid", "null_volume", "format_invalid", "duplicate_id" |
+| missing_invariant_flags | array[string] | Yes | Flags for uncomputable invariants | Values: "no_representation", "algorithm_not_implemented" |
+| source_url | string | Yes | Source URL for data | Must be https://katlas.org |
+| checksum | string | Yes | SHA-256 checksum of record | Format: 64-character hex string |
+| timestamp | string | Yes | Data extraction timestamp | ISO 8601 format |
 
 ### InvariantsDataset
 
@@ -26,91 +27,74 @@ Aggregated collection of KnotRecord entities with computed relationships and met
 
 | Field | Type | Description |
 |-------|------|-------------|
-| dataset_id | string | Unique dataset identifier |
-| version | string | Semantic version (e.g., "1.0.0") |
-| total_knots | integer | Total number of KnotRecord entities |
-| hyperbolic_knots | integer | Count of knots with hyperbolic_volume > 0 |
-| alternating_knots | integer | Count of knots with is_alternating = true |
-| non_alternating_knots | integer | Count of knots with is_alternating = false |
-| unclassifiable_knots | integer | Count of knots with is_alternating = null |
-| null_percentage_crossing | float | Percentage of null values in crossing_number |
-| null_percentage_braid | float | Percentage of null values in braid_index |
-| null_percentage_volume | float | Percentage of null values in hyperbolic_volume |
-| checksum_sha256 | string | SHA-256 checksum of dataset file |
-| created_at | datetime | Dataset creation timestamp |
-| source_checksum | string | SHA-256 checksum of raw source data |
+| dataset_id | string | Unique identifier for dataset version |
+| total_records | integer | Total number of knots in dataset |
+| hyperbolic_records | integer | Number of knots with volume > 0 |
+| alternating_count | integer | Number of alternating knots |
+| non_alternating_count | integer | Number of non-alternating knots |
+| null_crossing_percentage | float | Percentage of records with null crossing number |
+| null_braid_percentage | float | Percentage of records with null braid index |
+| null_volume_percentage | float | Percentage of records with null hyperbolic volume |
+| validation_status | string | Overall validation status | Values: "passed", "failed", "partial" |
+| validation_notes | string | Notes on validation outcomes |
+| created_at | string | Dataset creation timestamp | ISO 8601 format |
+| checksum | string | SHA-256 checksum of dataset file | 64-character hex string |
 
 ### RegressionModel
 
 Represents fitted model with attributes including model type, coefficients, goodness-of-fit metrics, and training/validation split information.
 
-| Field | Type | Description |
-|-------|------|-------------|
-| model_id | string | Unique model identifier |
-| model_type | string | "linear", "polynomial", or "logarithmic" |
-| predictor_variables | list | List of predictor variables (e.g., ["crossing_number", "braid_index"]) |
-| coefficients | dict | Model coefficients |
-| r_squared | float | Coefficient of determination |
-| aic | float | Akaike Information Criterion |
-| bic | float | Bayesian Information Criterion |
-| mae | float | Mean Absolute Error |
-| vif_crossing | float | Variance Inflation Factor for crossing_number |
-| vif_braid | float | Variance Inflation Factor for braid_index |
-| residual_std | float | Standard deviation of residuals |
-| outlier_families | list | Knot families with residuals ≥2 standard deviations |
-| fitted_at | datetime | Model fitting timestamp |
-| random_seed | integer | Random seed used for fitting |
+| Field | Type | Description | Constraints |
+|-------|------|-------------|-------------|
+| model_id | string | Unique identifier for model | Format: "{model_type}_{timestamp}" |
+| model_type | string | Type of regression model | Values: "linear", "polynomial", "logarithmic" |
+| predictors | array[string] | Predictor variables used | Values: "crossing_number", "braid_index" |
+| coefficients | object | Model coefficients | Varies by model type |
+| r_squared | float | Coefficient of determination | Range: 0-1 |
+| aic | float | Akaike Information Criterion | Lower is better |
+| bic | float | Bayesian Information Criterion | Lower is better |
+| mae | float | Mean Absolute Error | Non-negative |
+| vif_crossing | float | Variance Inflation Factor for crossing number | Expected to be high due to mathematical constraint |
+| vif_braid | float | Variance Inflation Factor for braid index | Expected to be high due to mathematical constraint |
+| residual_families | array[string] | Families with significant residual deviations | Values: "pretzel", "hyperbolic_non_alternating", etc. |
+| dataset_checksum | string | Checksum of training dataset | Links to InvariantsDataset |
+| created_at | string | Model creation timestamp | ISO 8601 format |
 
-## Data Flow
-
-```
-┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
-│   Knot Atlas    │────▶│  Raw Data File  │────▶│  Cleaned Data   │
-│   (download)    │     │  (data/raw/)    │     │  (data/processed/)│
-└─────────────────┘     └─────────────────┘     └─────────────────┘
-                                                        │
-                                                        ▼
-                                              ┌─────────────────┐
-                                              │  Analysis Output│
-                                              │  (data/plots/)  │
-                                              └─────────────────┘
-```
-
-## File Organization
+## Data Flow Diagram
 
 ```
-data/
-├── raw/
-│   ├── knot_atlas_raw.csv          # Unmodified downloaded data
-│   └── knot_atlas_raw.csv.sha256   # Checksum for raw data
-├── processed/
-│   ├── knots_cleaned.csv           # Cleaned dataset (no in-place modification)
-│   ├── knots_cleaned.csv.sha256    # Checksum for cleaned data
-│   └── knots_hyperbolic.csv        # Filtered to volume > 0
-├── plots/
-│   ├── crossing_vs_braid.png       # Scatter plot (1200x900 min resolution)
-│   └── alternating_stratified.png  # Stratified by alternating classification
-└── models/
-    ├── regression_linear.pkl       # Fitted linear model
-    ├── regression_polynomial.pkl   # Fitted polynomial model
-    └── regression_logarithmic.pkl  # Fitted logarithmic model
+Knot Atlas (https://katlas.org)
+        ↓ [FR-001, FR-008: Download with retry]
+raw/knot_atlas_export.csv [checksummed]
+        ↓ [FR-002: Parse and clean]
+processed/knots_cleaned.parquet [checksummed]
+        ↓ [FR-012: Filter to hyperbolic]
+processed/knots_hyperbolic.parquet [checksummed]
+        ↓ [FR-004: Exploratory plots]
+plots/crossing_vs_braid_*.png
+        ↓ [FR-005: Regression models]
+analysis/regression_models.parquet
+        ↓ [FR-006: Statistical tests]
+analysis/statistics_summary.parquet
+        ↓ [FR-007: Reproducibility docs]
+docs/reproducibility/*
 ```
 
 ## Validation Rules
 
-### Data Quality (FR-002)
+1. **Crossing Number Range**: Must be integer in range [1, 13]
+2. **Braid Index Constraint**: Must satisfy 1 ≤ braid_index ≤ crossing_number
+3. **Hyperbolic Volume**: Must be > 0 for hyperbolic knots; null for torus/satellite
+4. **No Duplicates**: knot_id must be unique within dataset
+5. **Checksum Verification**: All data files must have valid SHA-256 checksums
+6. **Flag Consistency**: data_quality_flags and missing_invariant_flags must be mutually exclusive categories (per FR-002 and FR-009 distinction)
 
-1. **Null Percentage**: Required invariant fields must have null percentage <5% in validated dataset subset
-2. **Format Validation**: Valid DT code format, valid braid word format where present
-3. **Duplicate Detection**: Zero duplicates in output dataset
+## Tabulation vs Computation Boundary (SC-010, FR-003)
 
-### Filtering (FR-012)
+**Core invariants (crossing number, braid index) are TABULATED from Knot Atlas per SC-008 and FR-003, NOT computed.** Algorithm validation applies ONLY to Phase 2+ additional invariants (arc index, Seifert circle count, bridge number).
 
-- Filter to knots with hyperbolic_volume > 0 for volume prediction analysis
-- Exclude torus/satellite knots (volume = 0 or undefined)
-- Excluded records documented in `docs/reproducibility/excluded_knots.md`
+The `docs/reproducibility/algorithm_validation.md` document is reserved **exclusively** for Phase 2+ invariant computation validation. Phase 1 does not perform algorithm validation on core invariants because they are tabulated from Knot Atlas, not computed. This semantic boundary is enforced in the task definitions and validation workflow.
 
-### Flag Distinction
+**Phase 1 Scope**: Core invariants validated via cross-reference consistency checks (Knot Atlas vs KnotInfo), not algorithm implementation validation.
 
-- **data_quality_flags**: General data quality issues (null values, format failures, duplicates)
-- **missing_invariant_flags**: Specifically when invariants cannot be computed from available diagram representations
+**Phase 2+ Scope**: Additional invariants (arc index, Seifert circle count, bridge number) will be computed via implemented algorithms and documented in `algorithm_validation.md` per SC-010.

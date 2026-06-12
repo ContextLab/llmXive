@@ -17,7 +17,7 @@ properties:
     type: "string"
     description: "Dataset creation timestamp (ISO 8601)"
     format: "date-time"
-  checksum_sha256:
+  checksum:
     type: "string"
     description: "SHA-256 checksum of dataset file"
     pattern: "^[a-f0-9]{64}$"
@@ -56,7 +56,7 @@ required:
   - dataset_id
   - data_source
   - created_at
-  - checksum_sha256
+  - checksum
   - crossing_number_range
   - validated_range
   - total_records
