@@ -1,18 +1,19 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-04-29T03:39:55.508035Z'
-current_stage: flesh_out_complete
+current_stage: flesh_out_in_progress
 failed_stage: null
 field: ocean science
 human_escalation_reason: null
 id: PROJ-021-understanding-oceanic-phytoplankton-comm
-last_run_id: 9717845c-2c10-4d1b-b48a-9f54801356fe
+last_run_id: c4e60412-372c-4e83-96b8-163b4d36b6ab
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
+revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: Understanding Oceanic Phytoplankton Communities through Remote Sensing and
   Oceanographic Data
-updated_at: '2026-04-30T03:20:10.772670Z'
+updated_at: '2026-06-12T15:53:55.723855Z'
