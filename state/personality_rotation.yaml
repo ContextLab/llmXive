@@ -1,12 +1,7 @@
-last_used: david-krakauer
-last_used_at: '2026-06-11T23:32:29.800525+00:00'
+last_used: eric-kandel
+last_used_at: '2026-06-12T00:08:41.817458+00:00'
 last_outcome: triage_rejected_advanced_as_abstain
 history:
-- slug: albert-einstein
-  started_at: '2026-06-01T09:19:31.945046+00:00'
-  ended_at: '2026-06-01T11:20:38.126797+00:00'
-  outcome: target_missing
-  action: comment
 - slug: albert-einstein
   started_at: '2026-06-01T11:20:38.126797+00:00'
   ended_at: '2026-06-01T13:24:32.199944+00:00'
@@ -1127,5 +1122,10 @@ history:
 - slug: david-krakauer
   started_at: '2026-06-11T22:37:24.424521+00:00'
   ended_at: '2026-06-11T23:32:29.800525+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
+- slug: eric-kandel
+  started_at: '2026-06-11T23:32:29.800525+00:00'
+  ended_at: '2026-06-12T00:08:41.817458+00:00'
   outcome: triage_rejected_advanced_as_abstain
   action: comment
