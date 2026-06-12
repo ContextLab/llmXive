@@ -44,6 +44,18 @@ A Markdown document conforming to the `spec_template` structure:
   invent material the idea didn't claim.
 - Keep `[NEEDS CLARIFICATION: …]` markers for genuinely ambiguous
   decisions; the Clarifier Agent will resolve them. Cap at 3.
+- Design targets MUST be concrete, operator-led values. Every
+  threshold, tolerance, retry count, time bound, coverage target, or
+  budget you state must carry an explicit number with a bound operator
+  (e.g., "≥ 95% of diagrams", "within 60 seconds", "after 3 failed
+  attempts", "at most 2 retries"). NEVER write vague placeholders such
+  as "a specified threshold", "high completeness", "acceptable
+  precision", "sufficiently large", or "reasonable performance" —
+  testability reviewers reject every one of them, wasting a full
+  review cycle. If the idea does not fix the value, pick a defensible
+  community-standard default and record it under `## Assumptions`.
+  (Bound-led design targets are kept by the claims layer; only
+  world-claims are deferred — stating a concrete target is safe.)
 - NEVER invent URLs or citations. If the idea Markdown's
   `Related work` section has citations, copy them verbatim. Do NOT
   add new ones, do NOT add `(verified YYYY-MM-DD)` annotations,

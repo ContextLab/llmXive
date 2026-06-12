@@ -679,6 +679,47 @@ def _write_kickback_feedback(project_dir: Path, decision: KickbackDecision) -> N
     )
 
 
+def _write_doc_kickback_feedback(
+    project_dir: Path, decision: KickbackDecision
+) -> None:
+    """Persist a consumed kickback's diagnosis for a DOC-stage re-dispatch.
+
+    Spec 023 defect #19 companion: when a kickback routes to a speckit doc
+    stage (specified / clarified / planned / tasked / paper twins) instead of
+    the idea root, the sentinel — and with it the panel's unresolved-concern
+    bodies — was consumed with NO hand-off: the re-dispatched agent (e.g. the
+    clarifier revising spec.md in place) ran blind and the next panel had to
+    rediscover the same residue from scratch. Write the diagnosis to
+    ``.specify/memory/kickback_feedback.md``; every speckit command injects it
+    via ``_comments_context.render_recent_comments_block`` and the graph
+    deletes it once the panel at that stage converges (the same place the
+    kickback counter resets).
+    """
+    memory_dir = project_dir / ".specify" / "memory"
+    memory_dir.mkdir(parents=True, exist_ok=True)
+    lines = [
+        "# Unresolved panel concerns (address in this revision)",
+        "",
+        "The convergence panel for this stage could not resolve the concerns "
+        "below within its round cap and kicked the project back for an "
+        "IN-PLACE revision of the existing artifact. Revise the document to "
+        "RESOLVE each concern — do NOT regenerate the document from scratch, "
+        "and do NOT drop content that is not implicated by a concern.",
+        "",
+        f"**Why it was kicked back**: {decision.reason}",
+        "",
+        "## Unresolved concerns",
+        "",
+    ]
+    if decision.unresolved_concerns:
+        lines.extend(f"- {c}" for c in decision.unresolved_concerns)
+    else:
+        lines.append("- (no per-concern bodies were carried; see the reason above)")
+    (memory_dir / KICKBACK_FEEDBACK_FILENAME).write_text(
+        "\n".join(lines) + "\n", encoding="utf-8"
+    )
+
+
 def _archive_idea_files(project_dir: Path) -> list[tuple[str, str]]:
     """Move the canonical idea .md bodies into ``idea/.archive/`` and return
     ``(filename, text)`` pairs so the constrained re-brainstorm can show the
@@ -870,6 +911,12 @@ def _decide_next_stage(
         # human+LLM-readable markdown note the agent ingests on its next run.
         if target_stage in {Stage.FLESH_OUT_IN_PROGRESS, Stage.BRAINSTORMED}:
             _write_kickback_feedback(project_dir, decision)
+        else:
+            # Doc-stage target (specified / clarified / planned / tasked /
+            # paper twins): the re-dispatched speckit agent revises the
+            # EXISTING artifact in place and needs the panel's diagnosis
+            # (spec 023 defect #19 companion — see _write_doc_kickback_feedback).
+            _write_doc_kickback_feedback(project_dir, decision)
         logger.info(
             "adaptive convergence kickback: %s -> %s (count=%d, stage=%s)",
             project.id, target_stage.value, decision.count,
@@ -886,6 +933,11 @@ def _decide_next_stage(
     if panel_label is not None:
         for mem_dir in _convergence_kickback_memory_dirs(project_dir):
             reset_kickback_count(mem_dir, panel_label)
+        # The doc-stage kickback diagnosis is consumed: the panel at this
+        # stage converged, so the persisted unresolved concerns are stale.
+        (project_dir / ".specify" / "memory" / KICKBACK_FEEDBACK_FILENAME).unlink(
+            missing_ok=True
+        )
 
     if _human_input_marker(project_dir):
         return Stage.HUMAN_INPUT_NEEDED

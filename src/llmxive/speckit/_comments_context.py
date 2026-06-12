@@ -41,16 +41,25 @@ def render_recent_comments_block(
     comments` heading so prompt templates can search for and remove it
     safely on re-render. Each comment is preceded by its filename
     (which encodes persona + date) so the LLM can attribute correctly.
+
+    Spec 023 defect #19 companion: when a convergence kickback routed the
+    project back to a doc stage for an IN-PLACE revision, the graph
+    persisted the panel's unresolved concerns to
+    ``.specify/memory/kickback_feedback.md`` (deleted again once the panel
+    converges). That diagnosis is PREPENDED here so every speckit agent
+    prompt that injects this block sees exactly what must be fixed.
     """
+    kickback_block = _render_kickback_feedback_block(project_dir)
+
     reviews_dir = project_dir / "reviews" / "research"
     if not reviews_dir.is_dir():
-        return ""
+        return kickback_block
     # Newest-first. Filenames look like
     # `ada-lovelace-simulated__2026-05-15__research.md`, which sorts
     # naturally by date — lexicographic descending = newest first.
     files = sorted(reviews_dir.glob("*.md"), reverse=True)
     if not files:
-        return ""
+        return kickback_block
 
     lines: list[str] = [
         "# Recent reviewer / personality comments",
@@ -73,7 +82,26 @@ def render_recent_comments_block(
         lines.append("")
         lines.append(body)
         lines.append("")
-    return "\n".join(lines).rstrip() + "\n"
+    comments = "\n".join(lines).rstrip() + "\n"
+    if kickback_block:
+        return kickback_block + "\n" + comments
+    return comments
+
+
+def _render_kickback_feedback_block(project_dir: Path) -> str:
+    """Return the persisted doc-stage kickback diagnosis verbatim, or ``""``.
+
+    Written by ``graph._write_doc_kickback_feedback`` on a doc-stage
+    convergence kickback; deleted by the graph once the panel converges.
+    The file is already a clearly-headed Markdown note, so it is injected
+    as-is.
+    """
+    note = project_dir / ".specify" / "memory" / "kickback_feedback.md"
+    try:
+        body = note.read_text(encoding="utf-8", errors="replace").strip()
+    except OSError:
+        return ""
+    return (body + "\n") if body else ""
 
 
 __all__ = ["DEFAULT_LIMIT", "PER_COMMENT_MAX_CHARS", "render_recent_comments_block"]

@@ -159,9 +159,21 @@ def _spec_research_spec() -> ReviewSpec:
             prompt_task="T050", wiring_task="T054",
         ),
         reviser=_TodoReviser("specifier+clarifier", wiring_task="T054"),
+        # Spec 023 defect #19 (the PROJ-552 regeneration loop): a kickback's
+        # to_stage names the stage WHOSE AGENT must re-run (defect #14
+        # semantics). The old WRITING/REQUIREMENT route "project_initialized"
+        # re-ran the SPECIFIER, which minted a fresh specs/NNN dir and
+        # regenerated the whole document — destroying all in-panel revision
+        # progress and presenting the panel a brand-new doc with a fresh crop
+        # of nits (observed live: dirs 004→010, concern counts oscillating
+        # 24→10→3→5→4→1→11 instead of converging). Writing/requirement
+        # residue is a spec.md-level defect: route to "specified" so the
+        # CLARIFIER re-runs and the spec panel (whose SpecReviser edits
+        # spec.md IN PLACE) gets another bounded round on the SAME document.
+        # Only idea-root causes (methodology/science/fatal) regenerate.
         kickback_routing={
-            Severity.WRITING: "project_initialized",
-            Severity.REQUIREMENT: "project_initialized",
+            Severity.WRITING: "specified",  # in-place clarify + re-review
+            Severity.REQUIREMENT: "specified",
             Severity.METHODOLOGY: "flesh_out_in_progress",  # idea-root cause
             Severity.SCIENCE: "flesh_out_in_progress",
             Severity.FATAL: "flesh_out_in_progress",
@@ -266,9 +278,15 @@ def _spec_paper_spec() -> ReviewSpec:
             prompt_task="T053", wiring_task="T055",
         ),
         reviser=_TodoReviser("paper_specifier+paper_clarifier", wiring_task="T055"),
+        # Spec 023 defect #19 (paper twin of the research-spec fix above):
+        # "paper_drafting_init" re-ran the PAPER SPECIFIER — fresh
+        # paper/specs/NNN dir + full regeneration. Writing/requirement
+        # residue is a paper-spec.md-level defect: route to
+        # "paper_specified" so the paper clarifier + paper-spec panel
+        # revise the SAME document in place.
         kickback_routing={
-            Severity.WRITING: "paper_drafting_init",
-            Severity.REQUIREMENT: "paper_drafting_init",
+            Severity.WRITING: "paper_specified",  # in-place clarify + re-review
+            Severity.REQUIREMENT: "paper_specified",
             Severity.METHODOLOGY: "clarified",  # science-root → research side
             Severity.SCIENCE: "clarified",
             Severity.FATAL: "clarified",

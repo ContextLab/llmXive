@@ -22,17 +22,65 @@ class PaperSpecifierAgent(SlashCommandAgent):
     def _paper_dir(self, ctx: SlashCommandContext) -> Path:
         return ctx.project_dir / "paper"
 
+    def _research_spec_path(self, ctx: SlashCommandContext) -> Path | None:
+        """Resolve the CURRENT research spec.md via the project pointer.
+
+        Spec 023 defect #17 class: the old first-glob (`sorted(...)[0]`)
+        picked the OLDEST specs/NNN dir — stale after any spec-cycle
+        regeneration. SSoT: llmxive.speckit._feature_dir.
+        """
+        from llmxive.speckit._feature_dir import resolve_feature_dir
+        try:
+            spec_path = resolve_feature_dir(ctx) / "spec.md"
+        except FileNotFoundError:
+            return None
+        return spec_path if spec_path.exists() else None
+
+    def _reusable_feature_dir(self, ctx: SlashCommandContext) -> Path | None:
+        """Return the pointer paper feature dir when it holds a mature spec.md.
+
+        Spec 023 defect #19 (paper twin): a re-specify must revise IN
+        PLACE, not mint a sibling paper/specs/NNN dir.
+        """
+        repo = ctx.project_dir.parent.parent
+        from llmxive.state import project as project_store
+        try:
+            project = project_store.load(ctx.project_id, repo_root=repo)
+        except FileNotFoundError:
+            return None
+        pointer = project.speckit_paper_dir
+        if not pointer:
+            return None
+        candidate = repo / pointer
+        spec_md = candidate / "spec.md"
+        try:
+            if spec_md.is_file() and spec_md.read_text(encoding="utf-8").strip():
+                return candidate
+        except OSError:
+            return None
+        return None
+
     def mechanical_step(self, ctx: SlashCommandContext) -> dict[str, Any]:
+        # Spec 023 defect #19 (paper twin): reuse the pointer dir on a
+        # re-specify — see SpecifierAgent.mechanical_step for rationale.
+        reused = self._reusable_feature_dir(ctx)
+        if reused is not None:
+            repo = ctx.project_dir.parent.parent
+            return {
+                "FEATURE_DIR": str(reused.relative_to(repo)),
+                "BRANCH_NAME": "",
+                "FEATURE_NUM": reused.name.split("-", 1)[0],
+                "REUSED_FEATURE_DIR": True,
+            }
         paper_dir = self._paper_dir(ctx)
         script = paper_dir / ".specify" / "scripts" / "bash" / "create-new-feature.sh"
         short_name = "paper"
-        descriptions: list[str] = []
-        for sp in sorted(ctx.project_dir.glob("specs/*/spec.md")):
-            descriptions.append(sp.read_text(encoding="utf-8"))
-            break
-        if not descriptions:
-            descriptions.append(f"Paper for {ctx.project_id}")
-        description = (descriptions[0] or "")[:4000]
+        research_spec_path = self._research_spec_path(ctx)
+        description = (
+            research_spec_path.read_text(encoding="utf-8")
+            if research_spec_path is not None
+            else f"Paper for {ctx.project_id}"
+        )[:4000]
         out = run_script(
             str(script),
             "--json",
@@ -58,16 +106,17 @@ class PaperSpecifierAgent(SlashCommandAgent):
         research_spec = ""
         research_plan = ""
         research_tasks = ""
-        for sp in sorted(ctx.project_dir.glob("specs/*/spec.md")):
-            research_spec = sp.read_text(encoding="utf-8")
-            base = sp.parent
+        # Spec 023 defect #17 class: pointer-first resolution, not first-glob.
+        research_spec_path = self._research_spec_path(ctx)
+        if research_spec_path is not None:
+            research_spec = research_spec_path.read_text(encoding="utf-8")
+            base = research_spec_path.parent
             plan_path = base / "plan.md"
             tasks_path = base / "tasks.md"
             if plan_path.exists():
                 research_plan = plan_path.read_text(encoding="utf-8")
             if tasks_path.exists():
                 research_tasks = tasks_path.read_text(encoding="utf-8")
-            break
 
         spec_template_path = paper_dir / ".specify" / "templates" / "spec-template.md"
         spec_template = spec_template_path.read_text(encoding="utf-8") if spec_template_path.exists() else ""
@@ -91,6 +140,29 @@ class PaperSpecifierAgent(SlashCommandAgent):
         from llmxive.agents.research_reviewer import _summarize_tree
         code_summary = _summarize_tree(ctx.project_dir / "code")
         data_summary = _summarize_tree(ctx.project_dir / "data")
+        # Spec 023 defect #19 (paper twin): on an in-place re-specify the
+        # mature paper spec is the revision base — preserve it, don't
+        # regenerate from scratch.
+        revision_block = ""
+        if mechanical_output.get("REUSED_FEATURE_DIR"):
+            feature_dir = Path(str(mechanical_output.get("FEATURE_DIR", "")))
+            if not feature_dir.is_absolute():
+                feature_dir = repo / feature_dir
+            own_spec = feature_dir / "spec.md"
+            if own_spec.is_file():
+                prior_text = own_spec.read_text(encoding="utf-8").strip()
+                if prior_text:
+                    revision_block = (
+                        "# Prior paper spec (revision base)\n\n"
+                        "A prior version of this paper spec already exists "
+                        "below. You are RE-specifying — not starting fresh. "
+                        "REVISE the prior version: preserve every still-valid "
+                        "requirement, success criterion, and section; only "
+                        "change what the feedback actually requires.\n\n"
+                        "```markdown\n"
+                        f"{prior_text}\n"
+                        "```\n\n"
+                    )
         user = (
             f"# Research-stage spec.md\n\n{research_spec}\n\n"
             f"# Research-stage plan.md\n\n{research_plan}\n\n"
@@ -98,6 +170,7 @@ class PaperSpecifierAgent(SlashCommandAgent):
             f"# code_summary\n\n{code_summary}\n\n"
             f"# data_summary\n\n{data_summary}\n\n"
             f"# Paper spec template\n\n{spec_template}\n\n"
+            + revision_block
             + (comments_block + "\n\n" if comments_block else "")
             + "# Task\n\nProduce the final paper-stage spec.md."
         )

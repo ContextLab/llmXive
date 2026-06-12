@@ -189,7 +189,10 @@ def test_run_engine_for_project_kickback_writes_nothing(tmp_path: Path):
     assert result.convergence.kickback is not None
     # Kickback target is a real Stage enum value (no typos).
     assert result.convergence.kickback.to_stage in {s.value for s in Stage}
-    assert result.convergence.kickback.to_stage == "planned"  # METHODOLOGY → planned
+    # Spec 023 defect #14: a plan flaw flagged at the tasks panel is fixed
+    # by the PLANNER, which the graph dispatches at "clarified" — routing to
+    # "planned" would re-run the TASKER against the same defective plan.
+    assert result.convergence.kickback.to_stage == "clarified"  # METHODOLOGY → planner re-runs
     # write_back=False → tasks.md unchanged on disk.
     assert paths["tasks_md"].read_text() == original_tasks_content
     assert result.files_written == []

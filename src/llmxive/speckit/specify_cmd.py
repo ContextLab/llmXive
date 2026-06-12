@@ -62,7 +62,49 @@ class SpecifierAgent(SlashCommandAgent):
     def claim_stage_label(self) -> str | None:
         return "spec"  # spec 020 FR-001: planning → references-only + strip/smooth
 
+    def _reusable_feature_dir(self, ctx: SlashCommandContext) -> Path | None:
+        """Return the pointer feature dir when it holds a mature spec.md.
+
+        Spec 023 defect #19: a re-specify must revise IN PLACE, not mint a
+        sibling dir. Reusable iff the project's ``speckit_research_dir``
+        pointer is set, exists on disk, and contains a non-empty spec.md.
+        """
+        repo = ctx.project_dir.parent.parent
+        from llmxive.state import project as project_store
+        try:
+            project = project_store.load(ctx.project_id, repo_root=repo)
+        except FileNotFoundError:
+            return None
+        pointer = project.speckit_research_dir
+        if not pointer:
+            return None
+        candidate = repo / pointer
+        spec_md = candidate / "spec.md"
+        try:
+            if spec_md.is_file() and spec_md.read_text(encoding="utf-8").strip():
+                return candidate
+        except OSError:
+            return None
+        return None
+
     def mechanical_step(self, ctx: SlashCommandContext) -> dict[str, Any]:
+        # Spec 023 defect #19: on a RE-specify (post-kickback re-entry) the
+        # project already carries an authoritative ``speckit_research_dir``
+        # pointer with a mature spec.md. Minting a fresh specs/NNN dir here
+        # (the old unconditional behavior) proliferated sibling dirs
+        # (PROJ-552 reached specs/010) and made every re-entry a full
+        # regeneration. Reuse the pointer dir: the spec is REVISED in place
+        # and downstream artifacts (plan/tasks) stay co-located. First-time
+        # specs (no pointer / no non-empty spec.md) are UNCHANGED.
+        reused = self._reusable_feature_dir(ctx)
+        if reused is not None:
+            repo = ctx.project_dir.parent.parent
+            return {
+                "FEATURE_DIR": str(reused.relative_to(repo)),
+                "BRANCH_NAME": "",
+                "FEATURE_NUM": reused.name.split("-", 1)[0],
+                "REUSED_FEATURE_DIR": True,
+            }
         # The per-project create-new-feature.sh resolves spec dirs
         # relative to the cwd the script is invoked from. To keep all
         # artifacts under projects/<id>/ we MUST run with cwd=project_dir
@@ -138,7 +180,19 @@ class SpecifierAgent(SlashCommandAgent):
             current_feature_dir = Path(feature_dir_str)
             if not current_feature_dir.is_absolute():
                 current_feature_dir = repo / current_feature_dir
-            prior_spec = _find_prior_spec(current_feature_dir=current_feature_dir)
+            # Spec 023 defect #19: on an in-place re-specify (pointer dir
+            # reused — see mechanical_step) the mature spec IS the current
+            # dir's spec.md; prefer it over sibling lookup.
+            prior_spec: Path | None = None
+            own_spec = current_feature_dir / "spec.md"
+            if (
+                mechanical_output.get("REUSED_FEATURE_DIR")
+                and own_spec.is_file()
+                and own_spec.read_text(encoding="utf-8").strip()
+            ):
+                prior_spec = own_spec
+            else:
+                prior_spec = _find_prior_spec(current_feature_dir=current_feature_dir)
             if prior_spec is not None:
                 prior_text = prior_spec.read_text(encoding="utf-8")
                 revision_block = (

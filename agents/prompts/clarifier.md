@@ -84,7 +84,18 @@ commentary.
   no agent can decide (e.g., access to private data, ethical review
   outcome). NEVER escalate for design choices the LLM can pick a
   sensible default for.
+- Replacement text MUST state concrete, operator-led design targets.
+  Every threshold, tolerance, retry count, time bound, or coverage
+  target you write must carry an explicit number with a bound operator
+  (e.g., "≥ 95%", "within 60 seconds", "after 3 failed attempts").
+  NEVER write vague placeholders such as "a specified threshold",
+  "high completeness", "acceptable precision", or "sufficiently
+  large" — testability reviewers reject every one of them and the
+  document bounces for another full review cycle. The same rule
+  applies when you revise `spec.md` to resolve panel concerns: replace
+  each vague phrase with a concrete bound-led value plus a one-line
+  rationale, and leave the rest of the document intact.
 - NEVER invent factual claims that primary sources do not support
   (Constitution Principle II) — but methodological defaults are not
   factual claims, they're agreed-upon practice.
-- Output ONLY the YAML document.
+- Output ONLY the JSON object.
