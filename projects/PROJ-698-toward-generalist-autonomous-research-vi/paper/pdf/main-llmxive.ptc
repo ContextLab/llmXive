@@ -1,0 +1,108 @@
+\contentsline {section}{\numberline {1}Introduction}{1}{section.1}%
+\contentsline {section}{\numberline {2}Related Work}{4}{section.2}%
+\contentsline {subsection}{\numberline {2.1}Autonomous Research Agent}{4}{subsection.2.1}%
+\contentsline {subsection}{\numberline {2.2}Long-Horizon Agent}{5}{subsection.2.2}%
+\contentsline {subsection}{\numberline {2.3}Benchmark for Autonomous Research}{5}{subsection.2.3}%
+\contentsline {section}{\numberline {3}Task Formulation}{6}{section.3}%
+\contentsline {section}{\numberline {4}The {\llmxmono \color {llmxGreenDeep}Arbor}{} Framework}{7}{section.4}%
+\contentsline {subsection}{\numberline {4.1}Overview}{7}{subsection.4.1}%
+\contentsline {subsection}{\numberline {4.2}Hypothesis Tree as Research State}{8}{subsection.4.2}%
+\contentsline {subsection}{\numberline {4.3}Hypothesis Tree Refinement}{9}{subsection.4.3}%
+\contentsline {subsubsection}{\numberline {4.3.1}Coordinator: Evidence-Aware Frontier Control}{10}{subsubsection.4.3.1}%
+\contentsline {subsubsection}{\numberline {4.3.2}Executor: Hypothesis-Bound Experimentation}{11}{subsubsection.4.3.2}%
+\contentsline {section}{\numberline {5}Experiments}{11}{section.5}%
+\contentsline {subsection}{\numberline {5.1}AO Task Suite}{11}{subsection.5.1}%
+\contentsline {paragraph}{Model training.}{11}{paragraph*.4}%
+\contentsline {paragraph}{Harness engineering.}{12}{paragraph*.5}%
+\contentsline {paragraph}{Data synthesis.}{12}{paragraph*.6}%
+\contentsline {subsection}{\numberline {5.2}Experimental Setup}{12}{subsection.5.2}%
+\contentsline {paragraph}{Benchmarks.}{12}{paragraph*.8}%
+\contentsline {paragraph}{Baselines.}{12}{paragraph*.9}%
+\contentsline {paragraph}{Metrics.}{13}{paragraph*.10}%
+\contentsline {paragraph}{Implementation details.}{13}{paragraph*.11}%
+\contentsline {subsection}{\numberline {5.3}Main Results on Real Research Tasks}{14}{subsection.5.3}%
+\contentsline {paragraph}{Arbor gives stronger and more general held-out gains.}{15}{paragraph*.13}%
+\contentsline {paragraph}{The dev/test split exposes overfitting during autonomous search.}{15}{paragraph*.14}%
+\contentsline {subsection}{\numberline {5.4}Results on MLE-Bench Lite}{15}{subsection.5.4}%
+\contentsline {subsection}{\numberline {5.5}Backbone Generality}{16}{subsection.5.5}%
+\contentsline {subsection}{\numberline {5.6}Cross-Task Idea Transfer}{16}{subsection.5.6}%
+\contentsline {subsection}{\numberline {5.7}Ablations}{17}{subsection.5.7}%
+\contentsline {paragraph}{HTR improves refinement rather than executability.}{18}{paragraph*.18}%
+\contentsline {paragraph}{The tree is useful only when evidence can accumulate over it.}{18}{paragraph*.19}%
+\contentsline {paragraph}{Tree structure and insight feedback are complementary.}{18}{paragraph*.20}%
+\contentsline {subsection}{\numberline {5.8}Token Consumption and Search Cost}{18}{subsection.5.8}%
+\contentsline {paragraph}{Structured search rather than larger sampling.}{18}{paragraph*.22}%
+\contentsline {paragraph}{Dev improvements are filtered by held-out admission.}{18}{paragraph*.23}%
+\contentsline {section}{\numberline {6}Discussion}{19}{section.6}%
+\contentsline {subsection}{\numberline {6.1}Hypothesis Refinement Analysis}{19}{subsection.6.1}%
+\contentsline {paragraph}{Takeaway.}{20}{paragraph*.26}%
+\contentsline {subsection}{\numberline {6.2}Search Efficiency Analysis}{20}{subsection.6.2}%
+\contentsline {paragraph}{Takeaway.}{21}{paragraph*.27}%
+\contentsline {subsection}{\numberline {6.3}Idea Quality Analysis}{22}{subsection.6.3}%
+\contentsline {paragraph}{Takeaway.}{23}{paragraph*.29}%
+\contentsline {section}{\numberline {7}Conclusion}{23}{section.7}%
+\ttl@starttoc {sections@1}
+\ttl@change@i {\@ne }{section}{2.6em}{\addvspace {0.35em}\small \bfseries }{\contentslabel {2.3em}}{}{\titlerule *[0.45pc]{.}\contentspage }\relax 
+\ttl@change@v {section}{}{}{}\relax 
+\ttl@change@i {\@ne }{subsection}{3.9em}{\small }{\contentslabel {2.8em}}{}{\titlerule *[0.45pc]{.}\contentspage }\relax 
+\ttl@change@v {subsection}{}{}{}\relax 
+\ttl@change@i {\@ne }{subsubsection}{6.2em}{\footnotesize }{\contentslabel {3.5em}}{}{\titlerule *[0.45pc]{.}\contentspage }\relax 
+\ttl@change@v {subsubsection}{}{}{}\relax 
+\contentsline {section}{\numberline {A}Limitations and Future Work}{32}{appendix.A}%
+\contentsline {paragraph}{Evaluation scope.}{32}{paragraph*.30}%
+\contentsline {paragraph}{Objective design.}{32}{paragraph*.31}%
+\contentsline {paragraph}{Idea generation.}{33}{paragraph*.32}%
+\contentsline {paragraph}{Cost and infrastructure.}{33}{paragraph*.33}%
+\contentsline {paragraph}{Model capability.}{33}{paragraph*.34}%
+\contentsline {section}{\numberline {B}Details of {\llmxmono \color {llmxGreenDeep}Arbor}{}}{33}{appendix.B}%
+\contentsline {subsection}{\numberline {B.1}Prompts}{33}{subsection.B.1}%
+\contentsline {subsubsection}{\numberline {B.1.1}Coordinator Prompt}{34}{subsubsection.B.1.1}%
+\contentsline {subsubsection}{\numberline {B.1.2}Executor Prompt}{36}{subsubsection.B.1.2}%
+\contentsline {subsection}{\numberline {B.2}Algorithm Workflow}{36}{subsection.B.2}%
+\contentsline {subsection}{\numberline {B.3}Key Design of {\llmxmono \color {llmxGreenDeep}Arbor}{} Framework}{36}{subsection.B.3}%
+\contentsline {paragraph}{Hypothesis-tree management.}{37}{paragraph*.37}%
+\contentsline {paragraph}{Experiment management.}{37}{paragraph*.38}%
+\contentsline {paragraph}{Long-horizon operation.}{38}{paragraph*.39}%
+\contentsline {paragraph}{Functional extensibility (skills and plugins).}{38}{paragraph*.40}%
+\contentsline {subsection}{\numberline {B.4}Agent Tools and Hyperparameter Settings}{39}{subsection.B.4}%
+\contentsline {subsubsection}{\numberline {B.4.1}Coordinator Tools}{39}{subsubsection.B.4.1}%
+\contentsline {subsubsection}{\numberline {B.4.2}Executor Tools}{40}{subsubsection.B.4.2}%
+\contentsline {subsubsection}{\numberline {B.4.3}Evaluation and Merge Tools}{41}{subsubsection.B.4.3}%
+\contentsline {subsection}{\numberline {B.5}Idea Tree Data Structure and Storage}{42}{subsection.B.5}%
+\contentsline {paragraph}{Logical schema.}{42}{paragraph*.43}%
+\contentsline {paragraph}{Persistent storage.}{42}{paragraph*.45}%
+\contentsline {paragraph}{Agent-facing access.}{42}{paragraph*.46}%
+\contentsline {section}{\numberline {C}Details of the AO Test Suite}{47}{appendix.C}%
+\contentsline {subsection}{\numberline {C.1}Optimizer Design}{47}{subsection.C.1}%
+\contentsline {paragraph}{Baseline.}{47}{paragraph*.47}%
+\contentsline {paragraph}{Development and test split.}{47}{paragraph*.48}%
+\contentsline {paragraph}{Evaluator.}{47}{paragraph*.49}%
+\contentsline {paragraph}{Agent instruction.}{47}{paragraph*.50}%
+\contentsline {subsection}{\numberline {C.2}Architecture Design}{48}{subsection.C.2}%
+\contentsline {paragraph}{Baseline.}{48}{paragraph*.51}%
+\contentsline {paragraph}{Development and test split.}{48}{paragraph*.52}%
+\contentsline {paragraph}{Evaluator.}{48}{paragraph*.53}%
+\contentsline {paragraph}{Agent instruction.}{48}{paragraph*.54}%
+\contentsline {subsection}{\numberline {C.3}Terminal-Bench 2.0}{49}{subsection.C.3}%
+\contentsline {paragraph}{Baseline.}{49}{paragraph*.55}%
+\contentsline {paragraph}{Development and test split.}{49}{paragraph*.56}%
+\contentsline {paragraph}{Evaluator.}{49}{paragraph*.57}%
+\contentsline {paragraph}{Agent instruction.}{49}{paragraph*.58}%
+\contentsline {subsection}{\numberline {C.4}BrowseComp}{50}{subsection.C.4}%
+\contentsline {paragraph}{Baseline.}{50}{paragraph*.59}%
+\contentsline {paragraph}{Development and test split.}{50}{paragraph*.60}%
+\contentsline {paragraph}{Evaluator.}{50}{paragraph*.61}%
+\contentsline {paragraph}{Search and tool configuration.}{51}{paragraph*.62}%
+\contentsline {paragraph}{Transfer-test protocol.}{51}{paragraph*.63}%
+\contentsline {paragraph}{Agent instruction.}{51}{paragraph*.64}%
+\contentsline {subsection}{\numberline {C.5}Search-Agent Data Synthesis}{51}{subsection.C.5}%
+\contentsline {paragraph}{Baseline.}{52}{paragraph*.65}%
+\contentsline {paragraph}{Development and test split.}{52}{paragraph*.66}%
+\contentsline {paragraph}{Evaluator.}{52}{paragraph*.67}%
+\contentsline {paragraph}{Agent instruction.}{52}{paragraph*.68}%
+\contentsline {subsection}{\numberline {C.6}Math-Reasoning Data Synthesis}{53}{subsection.C.6}%
+\contentsline {paragraph}{Baseline.}{53}{paragraph*.69}%
+\contentsline {paragraph}{Development and test split.}{53}{paragraph*.70}%
+\contentsline {paragraph}{Evaluator.}{53}{paragraph*.71}%
+\contentsline {paragraph}{Agent instruction.}{53}{paragraph*.72}%
+\contentsfinish 

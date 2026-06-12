@@ -1,0 +1,10 @@
+{
+  "pdf": "/Users/jmanning/llmXive/projects/PROJ-695-claw-swe-bench-a-benchmark-for-evaluatin/paper/pdf/main-llmxive.pdf",
+  "audit": null,
+  "repair_rounds": 0,
+  "llmxive_compile_attempts": 0,
+  "status": "restyled_unaudited",
+  "failure": null,
+  "paper_id": "PROJ-695-claw-swe-bench-a-benchmark-for-evaluatin",
+  "updated_at": "2026-06-12T13:03:37.959872+00:00"
+}

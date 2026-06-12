@@ -1,49 +1,57 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "KnotRecord Schema"
-description: "Schema for individual knot record with topological invariants"
+title: "KnotRecord"
+description: "Represents a single prime knot with attributes including crossing number, braid index, alternating classification, and hyperbolic volume"
 type: "object"
-required:
-  - "knot_id"
-  - "crossing_number"
-  - "data_quality_flags"
-  - "missing_invariant_flags"
 properties:
   knot_id:
     type: "string"
-    description: "Unique identifier from Knot Atlas"
+    description: "Unique identifier (e.g., \"10_123\" for crossing number 10, knot 123)"
+    pattern: "^[0-9]+_[0-9]+$"
   crossing_number:
     type: "integer"
+    description: "Minimal number of crossings in any diagram representation"
     minimum: 1
-    description: "Minimal crossing number (tabulated)"
+    maximum: 13
   braid_index:
-    type: "integer"
+    type: ["integer", "null"]
+    description: "Minimal number of strands in any braid representation"
     minimum: 1
-    nullable: true
-    description: "Minimal braid index (tabulated); null if unavailable"
   hyperbolic_volume:
-    type: "number"
-    nullable: true
-    description: "Hyperbolic volume in units of volume; null for torus/satellite knots"
+    type: ["number", "null"]
+    description: "Hyperbolic volume (0 or undefined for torus/satellite knots)"
+    minimum: 0
   is_alternating:
-    type: "boolean"
-    nullable: true
-    description: "Alternating classification; null if ambiguous"
+    type: ["boolean", "null"]
+    description: "True if knot is alternating; null if ambiguous/missing"
   dt_code:
-    type: "string"
-    nullable: true
-    description: "Dowker-Thistlethwaite code representation"
+    type: ["string", "null"]
+    description: "Dowker-Thistlethwaite code for minimal crossing diagram"
   braid_word:
-    type: "string"
-    nullable: true
-    description: "Braid word representation"
+    type: ["string", "null"]
+    description: "Braid word representation if available"
   data_quality_flags:
     type: "array"
+    description: "Flags for general data quality issues (null values, format failures, duplicates)"
     items:
       type: "string"
-    description: "General data quality flags (null values, format failures, duplicates)"
   missing_invariant_flags:
     type: "array"
+    description: "Flags for invariants not computable from available diagram representations"
     items:
       type: "string"
-    description: "Specific invariant computation flags (per FR-009)"
+  source:
+    type: "string"
+    description: "Data source (e.g., \"knot_atlas\")"
+    const: "knot_atlas"
+  download_timestamp:
+    type: "string"
+    description: "When record was downloaded"
+    format: "date-time"
+required:
+  - knot_id
+  - crossing_number
+  - data_quality_flags
+  - missing_invariant_flags
+  - source
+  - download_timestamp
 additionalProperties: false

@@ -1,0 +1,14 @@
+{
+  "pdf": "/Users/jmanning/llmXive/projects/PROJ-683-researchclawbench-a-benchmark-for-end-to/paper/pdf/2606.07591.pdf",
+  "audit": null,
+  "repair_rounds": 0,
+  "llmxive_compile_attempts": 1,
+  "status": "fallback_original",
+  "failure": {
+    "stage": "compile",
+    "reason": "lualatex failed:\nlualatex timed out after 600s on pass 1 (hung TeX run \u2014 likely an infinite loop in the source)",
+    "log_excerpt": "lualatex failed:\nlualatex timed out after 600s on pass 1 (hung TeX run \u2014 likely an infinite loop in the source)"
+  },
+  "paper_id": "PROJ-683-researchclawbench-a-benchmark-for-end-to",
+  "updated_at": "2026-06-12T13:01:09.953825+00:00"
+}

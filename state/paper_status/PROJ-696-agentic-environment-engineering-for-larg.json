@@ -1,0 +1,14 @@
+{
+  "pdf": "/Users/jmanning/llmXive/projects/PROJ-696-agentic-environment-engineering-for-larg/paper/pdf/2606.12191.pdf",
+  "audit": null,
+  "repair_rounds": 0,
+  "llmxive_compile_attempts": 1,
+  "status": "fallback_original",
+  "failure": {
+    "stage": "compile",
+    "reason": "lualatex failed:\n\n! Undefined control sequence.\n\\getanddefine@fonts ...\\textfont #1\\textfont@name \n                                                  \\scriptfont #1\\scriptfont@...\n\nl.1221 ...action spaces, $\\boldsymbol{\\mathcal{A}}\n                                                   = \\mathcal{A}^1 \\times \\d...\n\n! Undefined control sequence.\n\\getanddefine@fonts ...iptfont #1\\scriptfont@name \n                                                  \\scriptscriptfont #1\\font@...\n\nl.1221 ...action spaces, $\\boldsymbol{\\mathcal{A}}\n                                                   = \\mathcal{A}^1 \\times \\d...\n\n! TeX capacity exceeded, sorry [input stack size=10000].\n\\reserved@a ->\\def \\reserved@a \n                               *{\\@vspacer }\\reserved@a \nl.1221 ...action spaces, $\\boldsymbol{\\mathcal{A}}\n                                                   = \\mathcal{A}^1 \\times \\d...\n\n 127646 words of node memory still in use:\n   331 hlist, 8 vlist, 16 rule, 3 mark, 838 disc, 77 local_par, 2 dir, 25",
+    "log_excerpt": "lualatex failed:\n\n! Undefined control sequence.\n\\getanddefine@fonts ...\\textfont #1\\textfont@name \n                                                  \\scriptfont #1\\scriptfont@...\n\nl.1221 ...action spaces, $\\boldsymbol{\\mathcal{A}}\n                                                   = \\mathcal{A}^1 \\times \\d...\n\n! Undefined control sequence.\n\\getanddefine@fonts ...iptfont #1\\scriptfont@name \n                                                  \\scriptscriptfont #1\\font@...\n\nl.1221 ...action spaces, $\\boldsymbol{\\mathcal{A}}\n                                                   = \\mathcal{A}^1 \\times \\d...\n\n! TeX capacity exceeded, sorry [input stack size=10000].\n\\reserved@a ->\\def \\reserved@a \n                               *{\\@vspacer }\\reserved@a \nl.1221 ...action spaces, $\\boldsymbol{\\mathcal{A}}\n                                                   = \\mathcal{A}^1 \\times \\d...\n\n 127646 words of node memory still in use:\n   331 hlist, 8 vlist, 16 rule, 3 mark, 838 disc, 77 local_par, 2 dir, 25 math,\n 3158 glue, 634 kern, 619 penalty, 117 margin_kern, 11011 glyph, 2303 attribute\n, 85 glue_spec, 2303 attribute_list, 2 temp, 5 if_stack, 12 write, 6 pdf_dest, \n23 pdf_colorstack nodes\n   avail lists: 1:37,2:338,3:140,4:121,5:2449,6:32,7:4640,8:75,9:620,10:29,11:4\n55\n!  ==> Fatal error occurred, no output PDF file produced!\nTranscript written on main-llmxive.log."
+  },
+  "paper_id": "PROJ-696-agentic-environment-engineering-for-larg",
+  "updated_at": "2026-06-12T13:03:55.934246+00:00"
+}
