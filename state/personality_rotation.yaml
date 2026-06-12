@@ -1,12 +1,7 @@
-last_used: geoffrey-west
-last_used_at: '2026-06-12T05:11:54.559117+00:00'
-last_outcome: committed
+last_used: john-von-neumann
+last_used_at: '2026-06-12T07:04:25.764989+00:00'
+last_outcome: triage_rejected_advanced_as_abstain
 history:
-- slug: dan-rockmore
-  started_at: '2026-06-01T15:37:17.099116+00:00'
-  ended_at: '2026-06-01T19:50:11.687729+00:00'
-  outcome: triage_rejected_advanced_as_abstain
-  action: comment
 - slug: daniel-kahneman
   started_at: '2026-06-01T19:50:11.687729+00:00'
   ended_at: '2026-06-01T21:15:23.100886+00:00'
@@ -1132,3 +1127,8 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-178-investigating-the-correlation-between-mi/reviews/research/geoffrey-west-simulated__2026-06-12__research.md
+- slug: john-von-neumann
+  started_at: '2026-06-12T05:11:54.559117+00:00'
+  ended_at: '2026-06-12T07:04:25.764989+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
