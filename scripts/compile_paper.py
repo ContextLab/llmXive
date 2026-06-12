@@ -392,6 +392,48 @@ def _fetch_arxiv_fallback(project: Path, arxiv_id: str) -> Path | None:
     return out
 
 
+_UNREADABLE_PDF_RE = re.compile(
+    r"\(file ([^)]+\.pdf)\) \(pdf inclusion\): reading image failed"
+)
+
+
+def _repair_unreadable_pdf_assets(project: Path, log_tail: str) -> list[Path]:
+    """Ghostscript-rewrite figure PDFs lualatex could not embed.
+
+    Returns the list of repaired paths (empty when nothing matched / gs
+    missing / rewrite failed). The original is kept as ``<name>.orig``.
+    """
+    import shutil
+    repaired: list[Path] = []
+    gs = shutil.which("gs")
+    if not gs:
+        return repaired
+    src = project / "paper" / "source"
+    # TeX wraps log lines at ~79 columns, splitting the message (and even
+    # the filename) mid-word — de-wrap before matching.
+    dewrapped = (log_tail or "").replace("\n", "")
+    for m in _UNREADABLE_PDF_RE.finditer(dewrapped):
+        rel = m.group(1).strip()
+        asset = (src / rel).resolve() if not Path(rel).is_absolute() else Path(rel)
+        if not asset.is_file():
+            continue
+        backup = asset.with_suffix(asset.suffix + ".orig")
+        tmp = asset.with_suffix(".gsfix.pdf")
+        proc = subprocess.run(
+            [gs, "-q", "-o", str(tmp), "-sDEVICE=pdfwrite", str(asset)],
+            capture_output=True, text=True, timeout=120,
+        )
+        if proc.returncode == 0 and tmp.is_file() and tmp.stat().st_size > 1024:
+            if not backup.exists():
+                asset.rename(backup)
+            tmp.rename(asset)
+            repaired.append(asset)
+            print(f"[compile] gs-repaired unreadable figure: {asset.name}")
+        else:
+            tmp.unlink(missing_ok=True)
+    return repaired
+
+
 def compile_project(project: Path) -> dict[str, Any]:
     """Try to produce at least one PDF under project/paper/pdf/.
 
@@ -434,6 +476,16 @@ def compile_project(project: Path) -> dict[str, Any]:
             else:
                 result["llmxive_attempted"] = True
                 ok, tail = _run_lualatex(project, wrapper)
+                if not ok:
+                    # Self-heal: lualatex's pdf-inclusion reader chokes on
+                    # some valid-per-pdfinfo assets ("(pdf inclusion):
+                    # reading image failed" — PROJ-655's
+                    # scale_out_teaser.pdf). A ghostscript pdfwrite
+                    # round-trip normalizes the asset; repair every named
+                    # offender once and retry the compile.
+                    repaired = _repair_unreadable_pdf_assets(project, tail)
+                    if repaired:
+                        ok, tail = _run_lualatex(project, wrapper)
                 if ok:
                     pdf = _pdf_dir(project) / f"{wrapper.stem}.pdf"
                     # Scan the lualatex log for severe Overfull warnings —

@@ -729,3 +729,93 @@ class TestTcolorboxForwarding:
         src = r"\newtcolorbox{b}{colback=red, title={A {nested} title}}"
         out = ex._forwarded_tcolorbox(src)
         assert len(out) == 1 and out[0].count("{") == out[0].count("}")
+
+
+# ── Deep-dive hardening (PROJ-635/646/655/665/682/683/684/607) ──────────────
+
+class TestDeepDiveHardening:
+    def test_subcaption_subfigure_conflict_env_form(self, ex) -> None:
+        pkgs = ["\\usepackage{subcaption}", "\\usepackage{subfigure}"]
+        out = ex._resolve_package_family_conflicts(pkgs, "\\begin{subfigure} x \\end{subfigure}")
+        assert "\\usepackage{subcaption}" in out
+        assert "\\usepackage{subfigure}" not in out
+
+    def test_subcaption_subfigure_conflict_cmd_form(self, ex) -> None:
+        pkgs = ["\\usepackage{subcaption}", "\\usepackage{subfigure}"]
+        out = ex._resolve_package_family_conflicts(pkgs, "uses \\subfigure[a]{b}")
+        assert "\\usepackage{subfigure}" in out
+        assert "\\usepackage{subcaption}" not in out
+
+    def test_algpseudocode_algorithmic_conflict(self, ex) -> None:
+        pkgs = ["\\usepackage{algpseudocode}", "\\usepackage{algorithmic}"]
+        assert ex._resolve_package_family_conflicts(pkgs, "\\STATE x \\WHILE y") == \
+            ["\\usepackage{algorithmic}"]
+        assert ex._resolve_package_family_conflicts(pkgs, "\\State x") == \
+            ["\\usepackage{algpseudocode}"]
+
+    def test_body_redefinition_neutralized(self, ex) -> None:
+        body = "\\newcommand{\\cmark}{x} and \\newcommand*{\\other}{y}"
+        out = ex._neutralize_body_redefinitions(body, ["\\providecommand{\\cmark}{x}"])
+        assert "\\renewcommand{\\cmark}" in out
+        assert "\\newcommand*{\\other}" in out  # not forwarded → untouched
+
+    def test_body_redefinition_neutralizes_shims(self, ex) -> None:
+        # \bm is a known shim; a body \newcommand{\bm} must demote to renew.
+        out = ex._neutralize_body_redefinitions("\\newcommand{\\bm}[1]{x}", [])
+        assert "\\renewcommand{\\bm}" in out
+
+    def test_definecolor_inside_macro_skipped(self, ex) -> None:
+        src = (r"\newcommand{\stepclr}[1]{\definecolor{tmp}{HTML}{#1}}"
+               r" \definecolor{good}{HTML}{FFAA00}")
+        assert ex._forwarded_definecolor(src) == [r"\definecolor{good}{HTML}{FFAA00}"]
+
+    def test_newenvironment_forwarded_guarded(self, ex) -> None:
+        out = ex._forwarded_newenvironments(
+            r"\newenvironment{compactitem}{\begin{itemize}[nosep]}{\end{itemize}}")
+        assert len(out) == 1 and "compactitem" in out[0] and "@ifundefined" in out[0]
+
+    def test_newcolumntype_forwarded(self, ex) -> None:
+        out = ex._forwarded_newcolumntypes(
+            r"\newcolumntype{M}[1]{>{\centering\arraybackslash}m{#1}}")
+        assert out == [r"\newcolumntype{M}[1]{>{\centering\arraybackslash}m{#1}}"]
+
+    def test_tikz_directives_forwarded_when_pkg_present(self, ex) -> None:
+        out = ex._forwarded_tikz_directives(
+            "\\usepgfplotslibrary{groupplots}\n\\usetikzlibrary{arrows.meta}\n\\pgfplotsset{compat=1.14}",
+            ["\\usepackage{pgfplots}"])
+        assert "\\usepgfplotslibrary{groupplots}" in out
+        assert "\\pgfplotsset{compat=1.14}" in out
+
+    def test_tikz_directives_skipped_without_pkg(self, ex) -> None:
+        assert ex._forwarded_tikz_directives(
+            "\\usetikzlibrary{x}", ["\\usepackage{graphicx}"]) == []
+
+    def test_heading_math_texorpdfstring(self, ex) -> None:
+        out = ex._texorpdfstring_heading_math(
+            r"\subsection{The Effect of Filtering Ratio \(\tau\)}")
+        assert "texorpdfstring" in out
+        assert ex._texorpdfstring_heading_math(r"\section{Plain}") == r"\section{Plain}"
+
+    def test_strip_leading_title_block_keeps_teaser(self, ex) -> None:
+        body = ("\\begin{center}My Great Paper\\end{center}\nauthors\n"
+                "\\begin{figure}\\includegraphics{teaser}\\caption{c}\\end{figure}\n"
+                "\\section{Intro}\nx")
+        out = ex._strip_leading_title_block(body, "My Great Paper")
+        assert "My Great Paper" not in out
+        assert "teaser" in out and out.index("teaser") < out.index("\\section")
+
+    def test_strip_leading_bare_graphics(self, ex) -> None:
+        body = ("\\begin{center}\\includegraphics{logos/yale}\\end{center}\n"
+                "\\begin{figure}\\includegraphics{teaser}\\end{figure}\n"
+                "\\section{Intro}\n\\includegraphics{body_fig}")
+        out = ex._strip_leading_bare_graphics(body)
+        assert "logos/yale" not in out
+        assert "teaser" in out and "body_fig" in out
+
+    def test_endinput_truncates_inlined_file(self, ex, tmp_path) -> None:
+        (tmp_path / "pal.tex").write_text(
+            "\\definecolor{a}{HTML}{FFFFFF}\n\\endinput\nGARBAGE\n")
+        (tmp_path / "main.tex").write_text(
+            "before\n\\input{pal}\nafter\n\\end{document}\n")
+        out = ex._resolve_tex(tmp_path, tmp_path / "main.tex")
+        assert "GARBAGE" not in out and "\\endinput" not in out and "after" in out

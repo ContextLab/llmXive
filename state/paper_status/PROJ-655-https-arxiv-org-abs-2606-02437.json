@@ -1,14 +1,10 @@
 {
-  "pdf": "/Users/jmanning/llmXive/projects/PROJ-655-https-arxiv-org-abs-2606-02437/paper/pdf/2606.02437.pdf",
+  "pdf": "/Users/jmanning/llmXive/projects/PROJ-655-https-arxiv-org-abs-2606-02437/paper/pdf/main-llmxive.pdf",
   "audit": null,
   "repair_rounds": 0,
-  "llmxive_compile_attempts": 2,
-  "status": "fallback_original",
-  "failure": {
-    "stage": "compile",
-    "reason": "lualatex failed:\nPackage natbib Warning: Citation `maharana2024longmemory' on page 2 undefined o\nn input line 1438.\n\n\nPackage natbib Warning: Citation `yang2018hotpotqa' on page 2 undefined on inpu\nt line 1438.\n\n\n! LaTeX Error: Not in outer par mode.\n\nSee the LaTeX manual or LaTeX Companion for explanation.\nType  H <return>  for immediate help.\n ...                                              \n                                                  \nl.1624 \\begin{figure}[tbp]\n                          \n! Undefined control sequence.\n\\@float@Hx ...ltovf \\fi \\global \\setbox \\@currbox \n                                                  \\color@vbox \\normalcolor \\...\n\nl.1624 \\begin{figure}[tbp]\n                          \n! Missing number, treated as zero.\n<to be read again> \n                   \\vbox \nl.1624 \\begin{figure}[tbp]\n                          \n! error:  (file figures/scale_out/scale_out_teaser.pdf) (pdf inclusion): readin\ng image failed\n!  ==> Fatal error occurred, no output PDF file pro",
-    "log_excerpt": "lualatex failed:\nPackage natbib Warning: Citation `maharana2024longmemory' on page 2 undefined o\nn input line 1438.\n\n\nPackage natbib Warning: Citation `yang2018hotpotqa' on page 2 undefined on inpu\nt line 1438.\n\n\n! LaTeX Error: Not in outer par mode.\n\nSee the LaTeX manual or LaTeX Companion for explanation.\nType  H <return>  for immediate help.\n ...                                              \n                                                  \nl.1624 \\begin{figure}[tbp]\n                          \n! Undefined control sequence.\n\\@float@Hx ...ltovf \\fi \\global \\setbox \\@currbox \n                                                  \\color@vbox \\normalcolor \\...\n\nl.1624 \\begin{figure}[tbp]\n                          \n! Missing number, treated as zero.\n<to be read again> \n                   \\vbox \nl.1624 \\begin{figure}[tbp]\n                          \n! error:  (file figures/scale_out/scale_out_teaser.pdf) (pdf inclusion): readin\ng image failed\n!  ==> Fatal error occurred, no output PDF file produced!"
-  },
+  "llmxive_compile_attempts": 0,
+  "status": "restyled_unaudited",
+  "failure": null,
   "paper_id": "PROJ-655-https-arxiv-org-abs-2606-02437",
-  "updated_at": "2026-06-12T13:19:04.943935+00:00"
+  "updated_at": "2026-06-12T14:48:59.524646+00:00"
 }

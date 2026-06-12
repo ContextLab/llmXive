@@ -159,3 +159,26 @@ class TestCleanPartialOutputs:
         assert (tmp_path / "other.pdf").is_file()
         for suffix in (".pdf", ".log", ".aux", ".out", ".toc", ".bbl", ".blg"):
             assert not (tmp_path / f"main-llmxive{suffix}").exists()
+
+
+class TestHasLlmxivePdf:
+    def test_canonical_pdf_counts(self, cp, tmp_path: Path) -> None:
+        _make_pdf(tmp_path / "paper" / "pdf" / "main-llmxive.pdf", body_size=20_000)
+        assert cp._has_llmxive_pdf(tmp_path) is True
+
+    def test_arxiv_fallback_does_not_count_as_themed(self, cp, tmp_path: Path) -> None:
+        # The fallback <arxiv-id>.pdf satisfies _has_pdf but NOT
+        # _has_llmxive_pdf — a fallback-only paper must stay in the sweep.
+        _make_pdf(tmp_path / "paper" / "pdf" / "2606.04743.pdf", body_size=20_000)
+        assert cp._has_pdf(tmp_path) is True
+        assert cp._has_llmxive_pdf(tmp_path) is False
+
+
+class TestUnreadablePdfRegex:
+    def test_matches_dewrapped_message(self, cp) -> None:
+        # TeX wraps the message mid-word across lines; the caller de-wraps.
+        tail = ("! error:  (file figures/scale_out/scale_out_teaser.pdf) "
+                "(pdf inclusion): readin\ng image failed")
+        m = cp._UNREADABLE_PDF_RE.search(tail.replace("\n", ""))
+        assert m is not None
+        assert m.group(1).endswith("scale_out_teaser.pdf")

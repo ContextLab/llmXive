@@ -15,9 +15,9 @@
 \usepackage{amsfonts}
 \usepackage{graphicx}
 \usepackage{multirow}
+\usepackage[usestackEOL]{stackengine}
 \usepackage{algorithm}
 \usepackage{algpseudocode}
-\usepackage{algorithmic}
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{makecell}
@@ -30,6 +30,8 @@
 %% ── Shim layer (venue macros made into no-ops) ────────────────
 \makeatletter
 \providecommand{\TODO}[1]{}
+\providecommand{\abscontent}{}
+\providecommand{\absfont}{}
 \providecommand{\acknowledgments}{\section*{Acknowledgments}}
 \providecommand{\address}[1]{}
 \providecommand{\affiliation}[1]{}
@@ -54,7 +56,9 @@
 \providecommand{\institute}[1]{}
 \providecommand{\keywords}[1]{\par\noindent\textbf{Keywords:} #1}
 \providecommand{\neuripsfinalcopy}{}
+\providecommand{\orcid}[1]{}
 \providecommand{\tablecite}[1]{\cite{#1}}
+\providecommand{\theabstract}{}
 \providecommand{\titlerunning}[1]{}
 \providecommand{\todo}[1]{}
 \providecommand{\wrt}{w.r.t.\xspace}

@@ -88,6 +88,21 @@ def _resolve_tex(src_root: Path, entry: Path, *,
             return f"% [llmxive-extract] missing input: {entry.name}\n"
     _seen.add(entry)
     text = entry.read_text(encoding="utf-8", errors="replace")
+    # \endinput stops TeX reading THE CURRENT FILE. Inlined verbatim into
+    # the parent, it would stop the parent instead — PROJ-665's inlined
+    # palette file ended with \endinput, so lualatex never saw the
+    # remaining 4500 lines (incl. \end{document}) and aborted with
+    # "no legal \end found". Honor its semantics at inline time: truncate
+    # this file's contribution there and drop the token.
+    if _depth > 0:
+        # Find the first non-commented \endinput and truncate there.
+        for m_ei in re.finditer(r"\\endinput\b", text):
+            line_start = text.rfind("\n", 0, m_ei.start()) + 1
+            prefix = text[line_start:m_ei.start()]
+            if re.search(r"(?<!\\)%", prefix):
+                continue  # commented out
+            text = text[:m_ei.start()]
+            break
 
     def _repl(m: re.Match[str]) -> str:
         target = m.group(1).strip()
@@ -311,6 +326,24 @@ _KNOWN_SHIMS: dict[str, str] = {
     # fontspec+unicode-math — see the _SAFE_FORWARD_PACKAGES note); map
     # \bm onto amsmath's \boldsymbol, which unicode-math handles natively.
     "bm":               r"\providecommand{\bm}[1]{\boldsymbol{#1}}",
+    # Venue abstract machinery (colm/iclr-style classes build the abstract
+    # via \absfont/\theabstract/\abscontent in the BODY). The wrapper
+    # already extracted and typeset the abstract on the themed title page —
+    # no-op these so the leftover invocation doesn't crash (PROJ-665's
+    # "Undefined control sequence \absfont … \abscontent" → Emergency stop).
+    "abscontent":       r"\providecommand{\abscontent}{}",
+    "absfont":          r"\providecommand{\absfont}{}",
+    "theabstract":      r"\providecommand{\theabstract}{}",
+    # Venue author-metadata machinery. The forwarded venue \orcid def drags
+    # in internals (\IfBeginWith, \num@authors) that don't exist outside
+    # the venue class — 67x "Extra \fi" cascade on PROJ-682. Shimming here
+    # also BLOCKS the broken def from being forwarded (forwarding skips
+    # names present in _KNOWN_SHIMS).
+    "orcid":            r"\providecommand{\orcid}[1]{}",
+    # acmart author-note machinery left in bodies (PROJ-682's
+    # \authornotemark[1] after the title block).
+    "authornote":       r"\providecommand{\authornote}[1]{}",
+    "authornotemark":   r"\providecommand{\authornotemark}[1][]{}",
     # common formatting/aux macros (NAME → \providecommand body)
     "todo":             r"\providecommand{\todo}[1]{}",
     "TODO":             r"\providecommand{\TODO}[1]{}",
@@ -454,6 +487,12 @@ _SAFE_FORWARD_PACKAGES = {
     "appendix",
     "xspace",
     "hyphenat", "parskip",
+    # stackengine: \Centerstack{a\\b} in tables (PROJ-635 — dropping it
+    # left \Centerstack undefined inside tabular → Missing-} cascade).
+    "stackengine",
+    # paralist: compactitem/compactenum environments (PROJ-683 — dropping
+    # it broke every list and cascaded into a hung TeX run).
+    "paralist",
     # NOTE: `setspace` is intentionally NOT forwarded — the llmxive class
     # provides \singlespacing / \onehalfspacing / \doublespacing as no-op
     # stubs (`\providecommand` in llmxive.cls:197-209), and the class
@@ -573,6 +612,50 @@ def _resolve_algorithm_conflict(pkgs: list[str], body: str) -> list[str]:
             continue
         out.append(p)
     return out
+
+
+def _pkg_name(line: str) -> str:
+    m = re.search(r"\{([^}]+)\}\s*$", line)
+    return (m.group(1).strip() if m else "").lower()
+
+
+def _resolve_package_family_conflicts(pkgs: list[str], body: str) -> list[str]:
+    """Drop all but ONE member of mutually-exclusive package families.
+
+    Observed live (deep-dive on the 6 unthemed stragglers):
+
+    * ``subcaption`` + ``subfigure`` (PROJ-646/655 — sloppy originals load
+      both; venue classes guard the clash, a clean wrapper doesn't):
+      both define the ``subfigure`` counter → ``\\c@subfigure already
+      defined`` and a 100-error cascade. Keep ``subcaption`` when the body
+      uses the env form (``\\begin{subfigure}``) or nothing; keep
+      ``subfigure``/``subfig`` only when the body calls ``\\subfigure[``.
+    * ``algpseudocode`` + ``algorithmic`` (PROJ-635): both define
+      ``\\algorithmicindent`` etc. Keep whichever matches the body's
+      command casing (``\\State`` → algpseudocode, ``\\STATE`` →
+      algorithmic); tie → algpseudocode.
+    """
+    names = {_pkg_name(p) for p in pkgs}
+
+    drop: set[str] = set()
+    sub_family = names & {"subcaption", "subfig", "subfigure"}
+    if len(sub_family) > 1:
+        uses_cmd_form = bool(re.search(r"\\subfigure\s*[\[{]", body))
+        keep = ("subfig" if "subfig" in sub_family else "subfigure") \
+            if uses_cmd_form else ("subcaption" if "subcaption" in sub_family
+                                   else sorted(sub_family)[0])
+        drop |= sub_family - {keep}
+
+    alg_family = names & {"algpseudocode", "algorithmic"}
+    if len(alg_family) > 1:
+        caps_hits = len(re.findall(r"\\(?:STATE|REQUIRE|ENSURE|WHILE|FORALL)\b", body))
+        camel_hits = len(re.findall(r"\\(?:State|Require|Ensure|While|ForAll|Procedure)\b", body))
+        keep = "algorithmic" if caps_hits > camel_hits else "algpseudocode"
+        drop |= alg_family - {keep}
+
+    if not drop:
+        return pkgs
+    return [p for p in pkgs if _pkg_name(p) not in drop]
 
 
 # Layout / sizing / margin commands we explicitly DROP from preambles —
@@ -799,10 +882,156 @@ def _forwarded_definecolor(source: str) -> list[str]:
         if spec is None:
             i = m.end()
             continue
+        # A `#N` in any arg means this \definecolor lives INSIDE a macro
+        # definition (e.g. `\newcommand{\stepclr}[1]{\definecolor{tmp}{HTML}{#1}}`)
+        # — hoisting it standalone emits a bare parameter token → "Illegal
+        # parameter number in definition of \@@clr" (PROJ-646). The macro
+        # itself is forwarded separately; skip the inner directive.
+        if "#" in name or "#" in model or "#" in spec:
+            i = idx
+            continue
         if name not in seen:
             seen.add(name)
             out.append(rf"\definecolor{{{name}}}{{{model}}}{{{spec}}}")
         i = idx
+    return out
+
+
+def _forwarded_tikz_directives(preamble: str, fwd_pkgs: list[str]) -> list[str]:
+    """Forward tikz/pgfplots SETUP directives alongside the packages.
+
+    ``\\usetikzlibrary{...}`` / ``\\usepgfplotslibrary{...}`` /
+    ``\\pgfplotsset{...}`` from the original preamble were dropped, so a
+    body using e.g. the ``groupplot`` environment died with "Environment
+    groupplot undefined" plus a 40-error key-parsing cascade (PROJ-646:
+    ``\\usepgfplotslibrary{groupplots}`` + ``compat=1.14``). Only forwarded
+    when the corresponding package survived package forwarding.
+    """
+    names = {_pkg_name(p) for p in fwd_pkgs}
+    out: list[str] = []
+    if "tikz" in names or "pgfplots" in names:
+        for m in re.finditer(r"\\usetikzlibrary\s*\{([^}]*)\}", preamble):
+            out.append(rf"\usetikzlibrary{{{m.group(1)}}}")
+    if "pgfplots" in names:
+        for m in re.finditer(r"\\usepgfplotslibrary\s*\{([^}]*)\}", preamble):
+            out.append(rf"\usepgfplotslibrary{{{m.group(1)}}}")
+        for m in re.finditer(r"\\pgfplotsset\s*", preamble):
+            body, _ = _capture_braced_arg(preamble, m.end())
+            if body is not None and "#" not in body:
+                out.append(rf"\pgfplotsset{{{body}}}")
+    # Dedupe, preserving order.
+    seen: set[str] = set()
+    deduped = []
+    for line in out:
+        if line not in seen:
+            seen.add(line)
+            deduped.append(line)
+    return deduped
+
+
+def _forwarded_newcolumntypes(preamble: str) -> list[str]:
+    """Forward PREAMBLE ``\\newcolumntype{X}[n]{spec}`` definitions.
+
+    Custom column types defined in the original preamble (PROJ-655:
+    ``\\newcolumntype{M}[1]{>{\\centering\\arraybackslash}m{#1}}``) were
+    dropped — every table using them died with array's "Illegal
+    pream-token (M)". Guarded per-name so a package-provided column type
+    wins.
+    """
+    out: list[str] = []
+    seen: set[str] = set()
+    pat = re.compile(r"\\newcolumntype\s*\{([A-Za-z])\}(?:\s*\[(\d+)\])?")
+    for m in pat.finditer(preamble):
+        name, arity = m.group(1), m.group(2)
+        if name in seen:
+            continue
+        spec, _ = _capture_braced_arg(preamble, m.end())
+        if spec is None:
+            continue
+        declared = int(arity) if arity else 0
+        max_param = max((int(x) for x in re.findall(r"#(\d)", spec)), default=0)
+        if max_param > declared:
+            continue
+        seen.add(name)
+        arity_s = f"[{arity}]" if arity else ""
+        out.append(rf"\newcolumntype{{{name}}}{arity_s}{{{spec}}}")
+    return out
+
+
+_HEADING_MATH_RE = re.compile(
+    r"(\\(?:section|subsection|subsubsection|paragraph)\*?\s*)\{((?:[^{}]|\{[^{}]*\})*)\}"
+)
+
+
+def _texorpdfstring_heading_math(body: str) -> str:
+    """Wrap inline math inside sectioning titles in ``\\texorpdfstring``.
+
+    hyperref builds a PDF bookmark string from each heading; under
+    unicode-math a bare ``\\(\\tau\\)`` in a ``\\subsection{...}`` explodes
+    during that expansion (PROJ-682: 67x "Extra \\fi" from hyperref's
+    pdfstring arithmetic). Standard LaTeX practice is
+    ``\\texorpdfstring{<math>}{<plain>}`` — automate it: the plain branch
+    is the math content with control sequences stripped.
+    """
+    math_re = re.compile(r"(\\\(.*?\\\)|\$[^$]+\$)")
+
+    def _plain(math: str) -> str:
+        inner = math
+        for a, b in (("\\(", ""), ("\\)", ""), ("$", "")):
+            inner = inner.replace(a, b)
+        inner = re.sub(r"\\[A-Za-z@]+\s*", "", inner)
+        return re.sub(r"[{}^_]", "", inner).strip()
+
+    def _fix_heading(m: re.Match[str]) -> str:
+        head, arg = m.group(1), m.group(2)
+        if "texorpdfstring" in arg or not math_re.search(arg):
+            return m.group(0)
+        new_arg = math_re.sub(
+            lambda mm: rf"\texorpdfstring{{{mm.group(0)}}}{{{_plain(mm.group(0))}}}",
+            arg,
+        )
+        return f"{head}{{{new_arg}}}"
+
+    return _HEADING_MATH_RE.sub(_fix_heading, body)
+
+
+def _forwarded_newenvironments(preamble: str) -> list[str]:
+    """Forward PREAMBLE ``\\newenvironment{X}[n]{begin}{end}`` definitions.
+
+    Papers that define list/wrapper environments in their own preamble
+    (PROJ-683: ``\\newenvironment{compactitem}{\\begin{itemize}[...]}{\\end{itemize}}``)
+    lost them entirely — the body's ``\\begin{compactitem}`` died with
+    "Environment compactitem undefined" and every ``\\item`` after it
+    cascaded. Emitted guarded (``\\@ifundefined``) so a class/package
+    that already defines the environment wins — provide-style semantics.
+    Only simple ``{begin}{end}`` pairs are forwarded; optional-default
+    forms beyond ``[n]`` are skipped as too risky to round-trip.
+    """
+    out: list[str] = []
+    seen: set[str] = set()
+    pat = re.compile(r"\\newenvironment\*?\s*\{([A-Za-z@*]+)\}(?:\s*\[(\d+)\])?")
+    for m in pat.finditer(preamble):
+        name, arity = m.group(1), m.group(2)
+        if name in seen:
+            continue
+        begin_body, idx = _capture_braced_arg(preamble, m.end())
+        if begin_body is None:
+            continue
+        end_body, _ = _capture_braced_arg(preamble, idx)
+        if end_body is None:
+            continue
+        # Same parameter-sanity rule as macro forwarding.
+        declared = int(arity) if arity else 0
+        max_param = max((int(x) for x in re.findall(r"#(\d)", begin_body + end_body)),
+                        default=0)
+        if max_param > declared:
+            continue
+        seen.add(name)
+        arity_s = f"[{arity}]" if arity else ""
+        out.append(
+            rf"\@ifundefined{{{name}}}{{\newenvironment{{{name}}}{arity_s}"
+            rf"{{{begin_body}}}{{{end_body}}}}}{{}}"
+        )
     return out
 
 
@@ -821,6 +1050,101 @@ def _forwarded_newcommands_filtered(source: str, *, keep: set[str]) -> list[str]
         if m and m.group(1) in keep:
             out.append(line)
     return out
+
+
+def _neutralize_body_redefinitions(body: str, forwarded_lines: list[str]) -> str:
+    """Demote body-side ``\\newcommand{\\X}`` to ``\\renewcommand`` for every
+    macro X the wrapper already defines — hoisted forwards AND shims (see
+    the call-site comment — deep-dive fix A')."""
+    names = list(_KNOWN_SHIMS)
+    for line in forwarded_lines:
+        m = re.search(r"\\providecommand\s*\{\\([A-Za-z@]+)\}", line)
+        if m:
+            names.append(m.group(1))
+    for name in names:
+        body = re.sub(
+            rf"\\newcommand(\*?)\s*\{{\\{re.escape(name)}\}}",
+            rf"\\renewcommand\1{{\\{name}}}",
+            body,
+        )
+    return body
+
+
+def _strip_leading_title_block(body: str, title: str | None) -> str:
+    """Drop a hand-rolled title block at the START of the body.
+
+    Some sources build their title page inline (logo minipages, rules,
+    custom-font title, author/affiliation lines) instead of \\maketitle —
+    PROJ-684 rendered the themed header AND the original Microsoft-logo
+    title block stacked on one page. Conservative conditions, ALL required:
+
+    * a \\section-level command exists within the first 12k chars;
+    * the leading chunk before it contains the EXTRACTED TITLE text
+      (normalized) — proof it is a title block, not real content;
+    * the leading chunk contains no figure/table environment (a teaser
+      figure before §1 is real content and must survive).
+    """
+    if not title:
+        return body
+    m = re.search(r"\\(?:section\*?|chapter\*?)\b", body)
+    if not m or m.start() > 12000:
+        return body
+    lead, rest = body[: m.start()], body[m.start():]
+
+    # Floats in the lead (teaser figures/tables) are REAL content: keep
+    # them verbatim and consider only the non-float text for the title
+    # test + removal (PROJ-684's lead = title block + teaser figure).
+    float_re = re.compile(
+        r"\\begin\{(figure\*?|table\*?|teaserfigure)\}.*?\\end\{\1\}", re.S
+    )
+    floats = [fm.group(0) for fm in float_re.finditer(lead)]
+    nonfloat = float_re.sub(" ", lead)
+
+    def _norm(s: str) -> str:
+        s = re.sub(r"\\[A-Za-z@]+\*?", " ", s)  # drop TeX commands
+        return re.sub(r"[^a-z0-9]+", "", s.lower())
+
+    if _norm(title) and _norm(title) in _norm(nonfloat):
+        return "\n".join(floats) + ("\n" if floats else "") + rest
+    return body
+
+
+def _strip_leading_bare_graphics(body: str) -> str:
+    """Remove BARE ``\\includegraphics`` from the pre-section lead.
+
+    Affiliation/university logo rows from the original title area survive
+    extraction as raw ``\\includegraphics`` outside any float (PROJ-607:
+    Yale/Penn/UNC logos rendered mid-page before §1; PROJ-684's sponsor
+    logo). Graphics inside ``figure``/``table``/``teaserfigure``
+    environments in the lead are REAL content (teasers) and are preserved
+    — only float-less graphics are scrubbed, and only before the first
+    sectioning command.
+    """
+    m = re.search(r"\\(?:section\*?|chapter\*?)\b", body)
+    if not m or m.start() > 12000:
+        return body
+    lead, rest = body[: m.start()], body[m.start():]
+
+    # Mask float spans so their graphics are untouched.
+    float_spans: list[tuple[int, int]] = []
+    for fm in re.finditer(
+        r"\\begin\{(figure\*?|table\*?|teaserfigure)\}.*?\\end\{\1\}",
+        lead, re.S,
+    ):
+        float_spans.append(fm.span())
+
+    def _in_float(pos: int) -> bool:
+        return any(s <= pos < e for s, e in float_spans)
+
+    out: list[str] = []
+    last = 0
+    for gm in re.finditer(r"\\includegraphics\s*(?:\[[^\]]*\])?\s*\{[^}]*\}", lead):
+        if _in_float(gm.start()):
+            continue
+        out.append(lead[last: gm.start()])
+        last = gm.end()
+    out.append(lead[last:])
+    return "".join(out) + rest
 
 
 def _forwarded_newcommands(source: str) -> list[str]:
@@ -1131,8 +1455,19 @@ def _clean_title(title: str | None, source_dir: Path) -> str | None:
     """If the extracted `\\title{...}` carries layout/styling markup (a
     baked-in subtitle, decorative symbols, font switches), prefer the clean
     `metadata.json::title`. Falls back to the raw title when no clean
-    metadata title is available."""
-    if not title or not _TITLE_MARKUP_RE.search(title):
+    metadata title is available.
+
+    A source with NO ``\\title{}`` macro at all (PROJ-684 hand-rolls its
+    title block inline) also falls back to the metadata title — without
+    this the themed page rendered with no title AND the inline-title-block
+    strip (which keys on the title text) could never fire.
+    """
+    if not title:
+        meta_title = _metadata_field(source_dir, "title")
+        if isinstance(meta_title, str) and meta_title.strip():
+            return meta_title.strip()
+        return title
+    if not _TITLE_MARKUP_RE.search(title):
         return title
     meta_title = _metadata_field(source_dir, "title")
     if isinstance(meta_title, str) and meta_title.strip():
@@ -2029,12 +2364,22 @@ def extract(
     # mismatch leaks a ~1-inch text column across the whole document
     # (PROJ-571). Keep whichever family the body actually uses.
     fwd_pkgs = _resolve_algorithm_conflict(fwd_pkgs, body)
+    # Mutually-exclusive families (subcaption|subfigure,
+    # algpseudocode|algorithmic): sloppy originals load both behind a venue
+    # class that guards the clash; a clean wrapper must pick one.
+    fwd_pkgs = _resolve_package_family_conflicts(fwd_pkgs, body)
     # Forward user macros from the WHOLE inlined source — preamble +
     # body + every \input{}ed file (per the user's request: "if any
     # macros are defined directly in the document, or even in an
     # included file, those can be programmatically replaced too").
     fwd_cmds = _forwarded_newcommands(full_tex)
-
+    # Preamble-defined ENVIRONMENTS (PROJ-683's compactitem) — guarded so a
+    # class/package definition wins.
+    fwd_cmds.extend(_forwarded_newenvironments(preamble))
+    # Custom column types (PROJ-655's M/L/C) and tikz/pgfplots setup
+    # directives (PROJ-646's groupplots library + compat level).
+    fwd_cmds.extend(_forwarded_newcolumntypes(preamble))
+    fwd_cmds.extend(_forwarded_tikz_directives(preamble, fwd_pkgs))
     # Then SELECTIVELY scan bundled .cls files: forward any user-style
     # macros the BODY actually references but that aren't in the kernel
     # / LaTeX2e / forwarded-so-far set. Bundled classes define lots of
@@ -2075,6 +2420,24 @@ def extract(
     # agentscope). Appended AFTER the \color scrub above so the boxes' colour
     # KEYS (colback=, colframe=) survive verbatim.
     fwd_cmds.extend(_forwarded_tcolorbox(full_tex + "\n".join(cls_sources)))
+
+    # A def that lives INSIDE the body is hoisted above AND remains in the
+    # body — the body-side \newcommand then dies with "already defined"
+    # (PROJ-683's \cmark, PROJ-665's \resultsOverviewCornerCell). Demote
+    # those body occurrences to \renewcommand: correct in both worlds.
+    # MUST run on body_clean (what build_wrapper receives) with the FINAL
+    # fwd_cmds (cls + color + tcolorbox forwards included).
+    body_clean = _neutralize_body_redefinitions(body_clean, fwd_cmds)
+    # Hand-rolled inline title blocks duplicate the themed title page
+    # (PROJ-684's Microsoft-logo block) — strip when provably a title block.
+    body_clean = _strip_leading_title_block(body_clean, title)
+    # Float-less affiliation/sponsor logos in the lead (PROJ-607's
+    # university-logo row) — teaser figures inside floats are preserved.
+    body_clean = _strip_leading_bare_graphics(body_clean)
+    # Bare math in sectioning titles explodes in hyperref's bookmark
+    # expansion under unicode-math (PROJ-682's \(\tau\)) — auto-wrap in
+    # \texorpdfstring.
+    body_clean = _texorpdfstring_heading_math(body_clean)
 
     wrapper = build_wrapper(
         title=title, author=author,

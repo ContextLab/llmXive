@@ -20,7 +20,6 @@
 \usepackage{enumitem}
 \usepackage{wrapfig}
 \usepackage{cleveref}
-\usepackage{subfigure}
 \usepackage{tabularx}
 \usepackage{amsfonts}
 \usepackage{float}
@@ -44,6 +43,8 @@
 %% ── Shim layer (venue macros made into no-ops) ────────────────
 \makeatletter
 \providecommand{\TODO}[1]{}
+\providecommand{\abscontent}{}
+\providecommand{\absfont}{}
 \providecommand{\acknowledgments}{\section*{Acknowledgments}}
 \providecommand{\address}[1]{}
 \providecommand{\affiliation}[1]{}
@@ -51,6 +52,8 @@
 \providecommand{\animategraphics}[5][]{\includegraphics[#1]{#3#4}}
 \providecommand{\argmax}{\mathop{\mathrm{arg\,max}}}
 \providecommand{\argmin}{\mathop{\mathrm{arg\,min}}}
+\providecommand{\authornote}[1]{}
+\providecommand{\authornotemark}[1][]{}
 \providecommand{\authorrunning}[1]{}
 \providecommand{\blfootnote}[1]{\footnote{#1}}
 \providecommand{\bm}[1]{\boldsymbol{#1}}
@@ -68,7 +71,9 @@
 \providecommand{\institute}[1]{}
 \providecommand{\keywords}[1]{\par\noindent\textbf{Keywords:} #1}
 \providecommand{\neuripsfinalcopy}{}
+\providecommand{\orcid}[1]{}
 \providecommand{\tablecite}[1]{\cite{#1}}
+\providecommand{\theabstract}{}
 \providecommand{\titlerunning}[1]{}
 \providecommand{\todo}[1]{}
 \providecommand{\wrt}{w.r.t.\xspace}
@@ -128,6 +133,9 @@
 \providecommand{\TaxonomyLabelingSize}{\normalsize}
 \providecommand{\SafeCaseSize}{\tiny}
 \providecommand{\UnsafeCaseSize}{\tiny}
+\usetikzlibrary{arrows.meta}
+\usepgfplotslibrary{groupplots}
+\pgfplotsset{compat=1.14}
 \definecolor{green}{RGB}{0,150,10}
 \definecolor{blue}{RGB}{0,148,181}
 \definecolor{orange}{RGB}{194,153,107}
@@ -144,7 +152,6 @@
 \definecolor{evidbgcolor}{HTML}{FFE6E6}
 \definecolor{stepbgcolor}{HTML}{F0F0F0}
 \definecolor{evidfgcolor}{HTML}{CC0000}
-\definecolor{tempstepcolor}{HTML}{#1}
 \definecolor{lightred}{RGB}{255,200,200}
 \definecolor{Blue4Head}{RGB}{58,104,153}
 \definecolor{medgray55}{gray}{0.55}
@@ -244,10 +251,10 @@ Modern open-world agents such as OpenClaw exhibit powerful cross-environment exe
 
 
 % centered caption
-\newcommand{\ccaption}[1]{\captionsetup{justification=centering}\caption{#1}}
+\renewcommand{\ccaption}[1]{\captionsetup{justification=centering}\caption{#1}}
 
 % shifted and rotated text for tabular
-\newcommand{\shiftrotate}[2]{\raisebox{#1}{\rotatebox[origin=c]{90}{#2}}}
+\renewcommand{\shiftrotate}[2]{\raisebox{#1}{\rotatebox[origin=c]{90}{#2}}}
 
 % colours
 \definecolor{medgray55}{gray}{0.55}
@@ -277,15 +284,15 @@ Modern open-world agents such as OpenClaw exhibit powerful cross-environment exe
   moredelim=[is][]{!!}{!!}
 }
 
-\newcommand{\gblue}{\cellcolor{gblue}}
-\newcommand{\gred}{\cellcolor{gred}}
-\newcommand{\gyellow}{\cellcolor{gyellow}}
-\newcommand{\ggreen}{\cellcolor{ggreen}}
-\newcommand{\gorange}{\cellcolor{gorange}}
+\renewcommand{\gblue}{\cellcolor{gblue}}
+\renewcommand{\gred}{\cellcolor{gred}}
+\renewcommand{\gyellow}{\cellcolor{gyellow}}
+\renewcommand{\ggreen}{\cellcolor{ggreen}}
+\renewcommand{\gorange}{\cellcolor{gorange}}
 
 \definecolor{citrine}{rgb}{0.89, 0.82, 0.04}
-\newcommand{\easy}{{()}}
-\newcommand{\medium}{{()}}
+\renewcommand{\easy}{{()}}
+\renewcommand{\medium}{{()}}
 
 \newcolumntype{P}[1]{>{\centering\arraybackslash}p{#1}}
 
@@ -297,20 +304,20 @@ Modern open-world agents such as OpenClaw exhibit powerful cross-environment exe
   breaklines,
   formatcom=
 }
-\newcommand{\inlineprompt}[1]{\EscVerb[breaklines, formatcom=]{#1}}
+\renewcommand{\inlineprompt}[1]{\EscVerb[breaklines, formatcom=]{#1}}
 
-\newcommand{\rowspacing}[1]{\renewcommand{\arraystretch}{#1}}
+\renewcommand{\rowspacing}[1]{\renewcommand{\arraystretch}{#1}}
 
-\newcommand{\rowsep}{\\ \arrayrulecolor{medgray55} \cline{2-3} \arrayrulecolor{black}}
+\renewcommand{\rowsep}{\\ \arrayrulecolor{medgray55} \cline{2-3} \arrayrulecolor{black}}
 
-\newcommand{\nosep}{\vspace{-4mm}}
+\renewcommand{\nosep}{\vspace{-4mm}}
 
 
-\newcommand{\cmark}{{}}
-\newcommand{\xmark}{{}}
+\renewcommand{\cmark}{{}}
+\renewcommand{\xmark}{{}}
 
-\newcommand{\yes}{{}}
-\newcommand{\no}{{}}
+\renewcommand{\yes}{{}}
+\renewcommand{\no}{{}}
 
 
 Large language models (LLMs)~\citep{openai_gpt54_2026, anthropic_claude_opus_46_2026, glm5team2026glm5, gemini3} have driven the rapid development of agentic AI systems, which are increasingly being deployed in practical settings such as research assistance \citep{zheng2025deepresearcher}, software engineering \citep{jimenez2023swe}, information retrieval~\citep{zhao2025tura}, and workflow automation~\citep{wang2024agentworkflowmemory}. OpenClaw~\citep{steinberger2026openclaw} and Hermes~\citep{nousresearch2026hermes} agents significantly improve the environmental interaction and execution capabilities of cross-application, rather than restrict themselves to a fixed or closed workspace \citep{verge_moltbot_2026, wired_moltbot_2026}. Therefore, the near-infinite breadth of their action space introduces substantial and under-explored risk surfaces \citep{kim2026attack, wang2025comprehensive}. Furthermore, the frontier AI models (\emph{e.g., }Claude Mythos Preview~\citep{Mythos_Preview}) substantially reduce the technical barriers to adversarial attacks on agentic systems. The combination of versatile sources of agentic risk and universally accessible adversarial techniques renders current agent safety and security frameworks fragile.
@@ -986,7 +993,7 @@ in Appendix~\ref{tem:Unified template}.
 
 \setlength{\tabcolsep}{1pt}
 \renewcommand{\arraystretch}{1.12}
-\newcommand{\rot}[1]{\rotatebox{80}{#1}}
+\renewcommand{\rot}[1]{\rotatebox{80}{#1}}
 
 \resizebox{\textwidth}{!}{%
 \large
@@ -1784,10 +1791,10 @@ Several limitations remain. First, \agentdog{} operates primarily on text-based 
 
 \definecolor{occustom}{RGB}{255,239,224}
 \definecolor{codcustom}{RGB}{232,242,255}
-\newcommand{\occustomcell}[1]{\cellcolor{occustom}#1}
-\newcommand{\codcustomcell}[1]{\cellcolor{codcustom}#1}
-\newcommand{\ocnote}[1]{#1}
-\newcommand{\codnote}[1]{#1}
+\renewcommand{\occustomcell}[1]{\cellcolor{occustom}#1}
+\renewcommand{\codcustomcell}[1]{\cellcolor{codcustom}#1}
+\renewcommand{\ocnote}[1]{#1}
+\renewcommand{\codnote}[1]{#1}
 
 \section{Detailed Customized Safety Taxonomy Tables}
 \label{app:openclaw_taxonomy}
@@ -2125,11 +2132,11 @@ Compliance, Legal, and Auditability Harm & \occustomcell{Customized item for com
 
 % Layout parameters - User can adjust these to control the height/length of each figure
 % Options: \tiny, \scriptsize, \footnotesize, \small, \normalsize
-\newcommand{\QualityScoringSize}{\normalsize}       % Size for Quality Scoring Prompt
-\newcommand{\BinaryVerdictSize}{\normalsize}        % Size for Binary Verdict Prompt
-\newcommand{\TaxonomyLabelingSize}{\normalsize} % Size for Fine-Grained Taxonomy Prompt (Set smaller to fit better)
-\newcommand{\SafeCaseSize}{\tiny}             % Size for Safe Case
-\newcommand{\UnsafeCaseSize}{\tiny}           % Size for Unsafe Case
+\renewcommand{\QualityScoringSize}{\normalsize}       % Size for Quality Scoring Prompt
+\renewcommand{\BinaryVerdictSize}{\normalsize}        % Size for Binary Verdict Prompt
+\renewcommand{\TaxonomyLabelingSize}{\normalsize} % Size for Fine-Grained Taxonomy Prompt (Set smaller to fit better)
+\renewcommand{\SafeCaseSize}{\tiny}             % Size for Safe Case
+\renewcommand{\UnsafeCaseSize}{\tiny}           % Size for Unsafe Case
 
 
 \section{Benchmark Construction Details}

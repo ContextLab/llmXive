@@ -1,14 +1,10 @@
 {
-  "pdf": "/Users/jmanning/llmXive/projects/PROJ-646-agentdog-1-5-a-lightweight-and-scalable/paper/pdf/2605.29801.pdf",
+  "pdf": "/Users/jmanning/llmXive/projects/PROJ-646-agentdog-1-5-a-lightweight-and-scalable/paper/pdf/main-llmxive.pdf",
   "audit": null,
   "repair_rounds": 0,
-  "llmxive_compile_attempts": 2,
-  "status": "fallback_original",
-  "failure": {
-    "stage": "compile",
-    "reason": "lualatex failed:\n                   Y\nl.1232 ..., anchor=south west] at (axis cs:4.6,78)\n                                                   {\\toolAG{}-4B};\n! Missing number, treated as zero.\n<to be read again> \n                   \\global \nl.1232 ..., anchor=south west] at (axis cs:4.6,78)\n                                                   {\\toolAG{}-4B};\n! Illegal unit of measure (pt inserted).\n<to be read again> \n                   \\global \nl.1232 ..., anchor=south west] at (axis cs:4.6,78)\n                                                   {\\toolAG{}-4B};\n! Undefined control sequence.\nl.1234 \\nextgroupplot\n                     [title={ATBench-Claw}, ylabel={}]\n! Undefined control sequence.\nl.1235 \\addplot\n               [densely dashed, line width=0.6pt, teal!65!black] coordinates...\n\n(That makes 100 errors; please try again.)\n 54328 words of node memory still in use:\n   323 hlist, 5 vlist, 169 rule, 259 disc, 9 local_par, 5 dir, 2 math, 1232 glu\ne, 307 kern, 61 penalty, 15 margin_ke",
-    "log_excerpt": "lualatex failed:\n                   Y\nl.1232 ..., anchor=south west] at (axis cs:4.6,78)\n                                                   {\\toolAG{}-4B};\n! Missing number, treated as zero.\n<to be read again> \n                   \\global \nl.1232 ..., anchor=south west] at (axis cs:4.6,78)\n                                                   {\\toolAG{}-4B};\n! Illegal unit of measure (pt inserted).\n<to be read again> \n                   \\global \nl.1232 ..., anchor=south west] at (axis cs:4.6,78)\n                                                   {\\toolAG{}-4B};\n! Undefined control sequence.\nl.1234 \\nextgroupplot\n                     [title={ATBench-Claw}, ylabel={}]\n! Undefined control sequence.\nl.1235 \\addplot\n               [densely dashed, line width=0.6pt, teal!65!black] coordinates...\n\n(That makes 100 errors; please try again.)\n 54328 words of node memory still in use:\n   323 hlist, 5 vlist, 169 rule, 259 disc, 9 local_par, 5 dir, 2 math, 1232 glu\ne, 307 kern, 61 penalty, 15 margin_kern, 4470 glyph, 861 attribute, 108 glue_sp\nec, 861 attribute_list, 4 temp, 7 write, 150 pdf_literal, 4 pdf_dest, 119 pdf_c\nolorstack, 20 pdf_setmatrix, 20 pdf_save, 20 pdf_restore nodes\n   avail lists: 1:31,2:946,3:50,4:960,5:2281,6:57,7:10117,8:126,9:3302,10:28,11\n:603\n!  ==> Fatal error occurred, no output PDF file produced!\nTranscript written on main-llmxive.log."
-  },
+  "llmxive_compile_attempts": 0,
+  "status": "restyled_unaudited",
+  "failure": null,
   "paper_id": "PROJ-646-agentdog-1-5-a-lightweight-and-scalable",
-  "updated_at": "2026-06-12T13:18:56.445204+00:00"
+  "updated_at": "2026-06-12T14:29:55.313914+00:00"
 }

@@ -1,14 +1,10 @@
 {
-  "pdf": "/Users/jmanning/llmXive/projects/PROJ-635-evalverse-pipeline-aware-and-expert-cali/paper/pdf/2605.23271.pdf",
+  "pdf": "/Users/jmanning/llmXive/projects/PROJ-635-evalverse-pipeline-aware-and-expert-cali/paper/pdf/main-llmxive.pdf",
   "audit": null,
   "repair_rounds": 0,
-  "llmxive_compile_attempts": 2,
-  "status": "fallback_original",
-  "failure": {
-    "stage": "compile",
-    "reason": "lualatex failed:\n<inserted text> }\n                 \nl.718 }\n       \n! Missing } inserted.\n<inserted text> \n                }\nl.718 }\n       \n! Extra }, or forgotten \\endgroup.\n<inserted text> }\n                 \nl.718 }\n       \n! Missing } inserted.\n<inserted text> \n                }\nl.718 }\n       \n(That makes 100 errors; please try again.)\n 43773 words of node memory still in use:\n   205 hlist, 20 vlist, 69 rule, 6 mark, 434 disc, 25 local_par, 8 dir, 17 math\n, 743 glue, 196 kern, 103 penalty, 7 unset, 27 margin_kern, 3695 glyph, 14 alig\nn_record, 1 span, 506 attribute, 98 glue_spec, 506 attribute_list, 14 temp, 1 a\nlign_stack, 19 write, 24 pdf_literal, 10 pdf_dest, 121 pdf_colorstack, 6 pdf_se\ntmatrix, 6 pdf_save, 6 pdf_restore nodes\n   avail lists: 1:4,2:1034,3:138,4:99,5:3364,6:36,7:7390,8:51,9:2213,10:27,11:6\n47\n!  ==> Fatal error occurred, no output PDF file produced!\nTranscript written on main-llmxive.log.",
-    "log_excerpt": "lualatex failed:\n<inserted text> }\n                 \nl.718 }\n       \n! Missing } inserted.\n<inserted text> \n                }\nl.718 }\n       \n! Extra }, or forgotten \\endgroup.\n<inserted text> }\n                 \nl.718 }\n       \n! Missing } inserted.\n<inserted text> \n                }\nl.718 }\n       \n(That makes 100 errors; please try again.)\n 43773 words of node memory still in use:\n   205 hlist, 20 vlist, 69 rule, 6 mark, 434 disc, 25 local_par, 8 dir, 17 math\n, 743 glue, 196 kern, 103 penalty, 7 unset, 27 margin_kern, 3695 glyph, 14 alig\nn_record, 1 span, 506 attribute, 98 glue_spec, 506 attribute_list, 14 temp, 1 a\nlign_stack, 19 write, 24 pdf_literal, 10 pdf_dest, 121 pdf_colorstack, 6 pdf_se\ntmatrix, 6 pdf_save, 6 pdf_restore nodes\n   avail lists: 1:4,2:1034,3:138,4:99,5:3364,6:36,7:7390,8:51,9:2213,10:27,11:6\n47\n!  ==> Fatal error occurred, no output PDF file produced!\nTranscript written on main-llmxive.log."
-  },
+  "llmxive_compile_attempts": 0,
+  "status": "restyled_unaudited",
+  "failure": null,
   "paper_id": "PROJ-635-evalverse-pipeline-aware-and-expert-cali",
-  "updated_at": "2026-06-12T13:19:39.701119+00:00"
+  "updated_at": "2026-06-12T13:42:16.774990+00:00"
 }

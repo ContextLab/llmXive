@@ -39,6 +39,8 @@
 %% ── Shim layer (venue macros made into no-ops) ────────────────
 \makeatletter
 \providecommand{\TODO}[1]{}
+\providecommand{\abscontent}{}
+\providecommand{\absfont}{}
 \providecommand{\acknowledgments}{\section*{Acknowledgments}}
 \providecommand{\address}[1]{}
 \providecommand{\affiliation}[1]{}
@@ -48,6 +50,7 @@
 \providecommand{\argmin}{\mathop{\mathrm{arg\,min}}}
 \providecommand{\authorrunning}[1]{}
 \providecommand{\blfootnote}[1]{\footnote{#1}}
+\providecommand{\bm}[1]{\boldsymbol{#1}}
 \providecommand{\corresponding}{}
 \providecommand{\correspondingauthor}[1]{}
 \providecommand{\eg}{e.g.,\xspace}
@@ -62,7 +65,9 @@
 \providecommand{\institute}[1]{}
 \providecommand{\keywords}[1]{\par\noindent\textbf{Keywords:} #1}
 \providecommand{\neuripsfinalcopy}{}
+\providecommand{\orcid}[1]{}
 \providecommand{\tablecite}[1]{\cite{#1}}
+\providecommand{\theabstract}{}
 \providecommand{\titlerunning}[1]{}
 \providecommand{\todo}[1]{}
 \providecommand{\wrt}{w.r.t.\xspace}
@@ -221,9 +226,9 @@ Correspondence to: \href{mailto:jinbiao.wei@yale.edu}{jinbiao.wei@yale.edu}, \hr
 {}
 {%
     \raisebox{-6pt}{%
-        \includegraphics[height=1.1cm]{logo/yale.png}\hspace{0.1cm}%
-        \raisebox{0.2cm}{\includegraphics[height=0.65cm]{logo/uppen.png}}\hspace{0.35cm}%
-        \raisebox{0.1cm}{\includegraphics[height=0.9cm]{logo/unc.png}}\hspace{0.3cm}%
+        \hspace{0.1cm}%
+        \raisebox{0.2cm}{}\hspace{0.35cm}%
+        \raisebox{0.1cm}{}\hspace{0.3cm}%
     }%
 }
 {\thepage}

@@ -31,7 +31,6 @@
 \usepackage{xspace}
 \usepackage{makecell}
 \usepackage{float}
-\usepackage{subfigure}
 \usepackage{algorithm}
 \usepackage[noend]{algorithmic}
 \usepackage{colortbl}
@@ -50,6 +49,8 @@
 %% ── Shim layer (venue macros made into no-ops) ────────────────
 \makeatletter
 \providecommand{\TODO}[1]{}
+\providecommand{\abscontent}{}
+\providecommand{\absfont}{}
 \providecommand{\acknowledgments}{\section*{Acknowledgments}}
 \providecommand{\address}[1]{}
 \providecommand{\affiliation}[1]{}
@@ -57,6 +58,8 @@
 \providecommand{\animategraphics}[5][]{\includegraphics[#1]{#3#4}}
 \providecommand{\argmax}{\mathop{\mathrm{arg\,max}}}
 \providecommand{\argmin}{\mathop{\mathrm{arg\,min}}}
+\providecommand{\authornote}[1]{}
+\providecommand{\authornotemark}[1][]{}
 \providecommand{\authorrunning}[1]{}
 \providecommand{\blfootnote}[1]{\footnote{#1}}
 \providecommand{\bm}[1]{\boldsymbol{#1}}
@@ -74,7 +77,9 @@
 \providecommand{\institute}[1]{}
 \providecommand{\keywords}[1]{\par\noindent\textbf{Keywords:} #1}
 \providecommand{\neuripsfinalcopy}{}
+\providecommand{\orcid}[1]{}
 \providecommand{\tablecite}[1]{\cite{#1}}
+\providecommand{\theabstract}{}
 \providecommand{\titlerunning}[1]{}
 \providecommand{\todo}[1]{}
 \providecommand{\wrt}{w.r.t.\xspace}
@@ -102,6 +107,10 @@
 \providecommand{\arraystretch}{1.20}
 \providecommand{\Stop}{2.20}
 \providecommand{\Sbot}{-2.10}
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+\newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
+\newcolumntype{M}[1]{>{\centering\arraybackslash}m{#1}}
+\usetikzlibrary{shapes.geometric, arrows.meta, positioning, calc, fit, backgrounds}
 \providecommand{\abstract}[1]{  \def\@tempa{#1}  \ifx\@tempa\empty\hasabstractfalse\else\hasabstracttrue\fi
   \def\abstractlist{{#1}}}
 \providecommand{\bmhead}[1]{\section*{#1}}
@@ -128,23 +137,6 @@
 
 \pony{Taken together, these results suggest that PEFT is more than a budget-conscious substitute for full fine-tuning. A personal model built on a strong shared prior can preserve continuity across repeated interaction, serve as a stable user simulator for agents that treat the user as part of their environment, and contribute to collective performance through diversity-based aggregation. The broader ambition is a world where strong foundation models support not one universal assistant, but millions of persistent personal ones.}
 \end{abstract}
-\title{On the Scaling of PEFT: Towards Million Personal Models of Trillion Parameters}
-
-\author{Mind Lab}
-\correspondence{\email{contact@mindlab.ltd}}
-\date{May 2026}
-
-\abstract{
-\pony{Parameter-efficient fine-tuning (PEFT) is usually evaluated as a cheaper alternative to full fine-tuning. This paper studies a broader possibility: whether small trainable adapters can serve as persistent local state on top of strong shared foundation models. In this view, a base model supplies common competence, while adapters may carry part of an instance-specific behavioral state, such as preferences, skills, tool habits, or memory-like updates. This framing is deliberately bounded: PEFT does not store the whole person or replace retrieval, but it may provide a compact unit of adaptive state that can be trained, evaluated, served, and composed at population scale.}
-
-\pony{We study this possibility through three coupled scaling problems that must reinforce one another. \textbf{Scale Up} asks whether a stronger shared base model makes small local updates more useful. We study large-prior LoRA reinforcement learning, routing-aware correction, and training--serving consistency at trillion-scale MoE. \textbf{Scale Down} asks how small the local adaptive state can become while still learning reliably. We analyze rank regimes, low-rank instability, RL-native initialization, hyperparameter transfer, and memory-oriented adapter designs such as $\delta$-mem. \textbf{Scale Out} asks what becomes possible when many persistent adapted instances coexist. We examine LoRA memory capacity, context-to-parameter learning, per-user adapter simulation, and diversity-based majority voting. MinT \citep{mindlab2026mint} provides one concrete infrastructure example for supporting all three axes: adapter identity, policy revision, training provenance, evaluation, and serving residency are the mechanisms that let large shared priors, small local adapters, and large adapter populations coexist.}
-
-\pony{Taken together, these results suggest that PEFT is more than a budget-conscious substitute for full fine-tuning. A personal model built on a strong shared prior can preserve continuity across repeated interaction, serve as a stable user simulator for agents that treat the user as part of their environment, and contribute to collective performance through diversity-based aggregation. The broader ambition is a world where strong foundation models support not one universal assistant, but millions of persistent personal ones.}
-}
-
-
-
-
 \section{Introduction}\label{sec:introduction}
 
 \begin{figure}[t]
