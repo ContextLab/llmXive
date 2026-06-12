@@ -40,6 +40,7 @@ from ._reviser_response import (
     RESPONSE_FORMAT_BLOCK,
     build_concern_responses,
     parse_reviser_response,
+    pick_expected_artifact,
     run_pass_with_artifact_retry,
 )
 from ._self_consistency import (
@@ -297,11 +298,14 @@ class _AbstractTasksReviser:
                 f"{exc}; first 200 chars: {response_text[:200]!r}"
             ) from exc
 
-        new_tasks = artifacts_by_path.get(tasks_path)
+        # Defect #20c: tolerate a hallucinated dir slug on the BEGIN line —
+        # exact path first, else the unique same-basename artifact.
+        new_tasks = pick_expected_artifact(artifacts_by_path, tasks_path)
         if not isinstance(new_tasks, str) or not new_tasks.strip():
             raise RuntimeError(
                 f"{type(self).__name__}: response JSON has no usable "
-                f"'new_tasks_md' string; got: {type(new_tasks).__name__}"
+                f"'new_tasks_md' string; got: {type(new_tasks).__name__}; "
+                f"artifact paths in reply: {sorted(artifacts_by_path)!r}"
             )
 
         responses = build_concern_responses(

@@ -35,6 +35,7 @@ from ._reviser_response import (
     RESPONSE_FORMAT_BLOCK,
     build_concern_responses,
     parse_reviser_response,
+    pick_expected_artifact,
     run_pass_with_artifact_retry,
 )
 from ._self_consistency import (
@@ -257,11 +258,14 @@ class FleshOutReviser:
                 f"first 200 chars of response: {response_text[:200]!r}"
             ) from exc
 
-        new_idea = artifacts_by_path.get(idea_path)
+        # Defect #20c: tolerate a hallucinated dir slug on the BEGIN line —
+        # exact path first, else the unique same-basename artifact.
+        new_idea = pick_expected_artifact(artifacts_by_path, idea_path)
         if not isinstance(new_idea, str) or not new_idea.strip():
             raise RuntimeError(
                 "FleshOutReviser: response JSON has no usable 'new_idea_md' "
-                f"string; got: {type(new_idea).__name__}"
+                f"string; got: {type(new_idea).__name__}; "
+                f"artifact paths in reply: {sorted(artifacts_by_path)!r}"
             )
 
         responses = build_concern_responses(

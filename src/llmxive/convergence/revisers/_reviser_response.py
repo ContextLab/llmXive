@@ -426,6 +426,50 @@ MISSING_ARTIFACTS_REPROMPT = (
 )
 
 
+def pick_expected_artifact(
+    artifacts_by_path: dict[str, str], expected_path: str
+) -> str | None:
+    """Return the reply body for ``expected_path``, tolerating a wrong dir slug.
+
+    Spec 023 defect #20c (observed live via a captured real qwen reply on
+    PROJ-552): the model emitted its artifact block as
+    ``===BEGIN_ARTIFACT projects/<id>/specs/001-knot-complexity-analysis/tasks.md===``
+    — a feature-dir slug copied from stale path references inside the document
+    body — while the reviser expected
+    ``projects/<id>/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md``.
+    The exact-match ``.get(expected_path)`` returned ``None`` and the whole
+    (perfectly good) revision was discarded as "no usable 'new_tasks_md'".
+
+    Resolution order:
+
+    1. Exact match — unchanged fast path.
+    2. Exactly ONE returned artifact whose basename equals the expected
+       basename → take it (log a warning naming both paths). The caller keys
+       the body back under the CANONICAL expected path, so downstream guards
+       and writebacks never see the hallucinated slug.
+    3. Ambiguous (zero or 2+ same-basename candidates) → ``None`` (the caller
+       raises its honest error).
+    """
+    import logging
+
+    exact = artifacts_by_path.get(expected_path)
+    if isinstance(exact, str):
+        return exact
+    want_base = expected_path.rsplit("/", 1)[-1]
+    candidates = [
+        (p, body) for p, body in artifacts_by_path.items()
+        if p.rsplit("/", 1)[-1] == want_base and isinstance(body, str)
+    ]
+    if len(candidates) != 1:
+        return None
+    path, body = candidates[0]
+    logging.getLogger(__name__).warning(
+        "reviser emitted artifact under %r; expected %r — same basename, "
+        "accepting and re-keying to the canonical path", path, expected_path,
+    )
+    return body
+
+
 def run_pass_with_artifact_retry(run_pass, *, reviser_name: str):
     """Call ``run_pass()``; on the zero-artifact RuntimeError, make ONE
     corrective re-pass with :data:`MISSING_ARTIFACTS_REPROMPT` appended to
@@ -454,5 +498,6 @@ __all__ = [
     "RESPONSE_FORMAT_BLOCK",
     "build_concern_responses",
     "parse_reviser_response",
+    "pick_expected_artifact",
     "run_pass_with_artifact_retry",
 ]

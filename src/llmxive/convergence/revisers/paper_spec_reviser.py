@@ -33,6 +33,7 @@ from ._reviser_response import (
     RESPONSE_FORMAT_BLOCK,
     build_concern_responses,
     parse_reviser_response,
+    pick_expected_artifact,
     run_pass_with_artifact_retry,
 )
 from ._self_consistency import (
@@ -279,11 +280,14 @@ class PaperSpecReviser:
                 f"{exc}; first 200 chars: {response_text[:200]!r}"
             ) from exc
 
-        new_spec = artifacts_by_path.get(spec_path)
+        # Defect #20c: tolerate a hallucinated dir slug on the BEGIN line —
+        # exact path first, else the unique same-basename artifact.
+        new_spec = pick_expected_artifact(artifacts_by_path, spec_path)
         if not isinstance(new_spec, str) or not new_spec.strip():
             raise RuntimeError(
                 "PaperSpecReviser: response JSON has no usable 'new_spec_md' "
-                f"string; got: {type(new_spec).__name__}"
+                f"string; got: {type(new_spec).__name__}; "
+                f"artifact paths in reply: {sorted(artifacts_by_path)!r}"
             )
 
         responses = build_concern_responses(

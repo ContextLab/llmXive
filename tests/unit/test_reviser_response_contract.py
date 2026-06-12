@@ -265,7 +265,7 @@ def test_run_pass_with_artifact_retry_corrects_zero_artifact_reply():
             )
         return {"a/plan.md": "fixed"}, []
 
-    arts, responses = run_pass_with_artifact_retry(run_pass, reviser_name="PlanReviser")
+    arts, _responses = run_pass_with_artifact_retry(run_pass, reviser_name="PlanReviser")
     assert arts == {"a/plan.md": "fixed"}
     assert calls == ["", MISSING_ARTIFACTS_REPROMPT]
 
@@ -287,3 +287,69 @@ def test_run_pass_with_artifact_retry_propagates_other_errors():
 
     with pytest.raises(RuntimeError, match="outside the plan set"):
         run_pass_with_artifact_retry(config_error, reviser_name="X")
+
+
+# --- defect #20c: hallucinated dir slug on the BEGIN_ARTIFACT line ----------
+
+
+def test_pick_expected_artifact_exact_match_wins():
+    from llmxive.convergence.revisers._reviser_response import pick_expected_artifact
+
+    arts = {"projects/P/specs/010-x/tasks.md": "right", "other/tasks.md": "wrong"}
+    # Exact match returns even when another same-basename candidate exists.
+    assert pick_expected_artifact(arts, "projects/P/specs/010-x/tasks.md") == "right"
+
+
+def test_pick_expected_artifact_rekeys_unique_same_basename():
+    """The PROJ-552 live failure (captured real qwen reply): the model copied a
+    stale feature-dir slug from the document body onto the BEGIN line
+    ('specs/001-knot-complexity-analysis/tasks.md') while the reviser expected
+    'specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md'. The unique
+    same-basename artifact must be accepted (re-keyed to the canonical path by
+    the caller) instead of discarding the whole revision."""
+    from llmxive.convergence.revisers._reviser_response import pick_expected_artifact
+
+    arts = {
+        "projects/P/specs/001-knot-complexity-analysis/tasks.md": "# revised tasks\n",
+    }
+    got = pick_expected_artifact(
+        arts, "projects/P/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md"
+    )
+    assert got == "# revised tasks\n"
+
+
+def test_pick_expected_artifact_ambiguous_or_absent_returns_none():
+    from llmxive.convergence.revisers._reviser_response import pick_expected_artifact
+
+    # Two same-basename candidates → ambiguous → None.
+    arts = {"a/tasks.md": "one", "b/tasks.md": "two"}
+    assert pick_expected_artifact(arts, "c/tasks.md") is None
+    # No same-basename candidate → None.
+    assert pick_expected_artifact({"a/spec.md": "s"}, "c/tasks.md") is None
+
+
+def test_tasks_reviser_accepts_hallucinated_slug_reply():
+    """End-to-end through TasksReviser._parse_response with the exact reply
+    SHAPE captured live (small change-log json + one artifact block under a
+    hallucinated dir slug)."""
+    from llmxive.convergence.revisers.tasks_reviser import TasksReviser
+
+    expected = "projects/P/specs/010-real-slug/tasks.md"
+    reply = (
+        "```json\n"
+        '{"responses": [{"concern_id": "F001", "response": "fixed",'
+        ' "what_changed": "...", "artifacts_changed": []}]}\n'
+        "```\n\n"
+        "===BEGIN_ARTIFACT projects/P/specs/001-hallucinated/tasks.md===\n"
+        "# tasks v2\n- [ ] T001 do A\n"
+        "===END_ARTIFACT===\n"
+    )
+    concerns = [
+        Concern(id="F001", reviewer="analyze", severity=Severity.WRITING,
+                artifact=expected, text="x"),
+    ]
+    rev = TasksReviser.__new__(TasksReviser)
+    new_tasks, responses = rev._parse_response(reply, concerns, expected)
+    assert "# tasks v2" in new_tasks
+    assert responses[0].concern_id == "F001"
+    assert responses[0].response == "fixed"
