@@ -1,0 +1,81 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "RegressionModel"
+description: "Represents fitted model with attributes including model type, coefficients, goodness-of-fit metrics, and training/validation split information"
+type: object
+required:
+  - model_id
+  - model_type
+  - predictors
+  - target
+  - coefficients
+  - r_squared
+  - fitted_timestamp
+  - random_seed
+properties:
+  model_id:
+    type: string
+    description: "Unique identifier for the model"
+  model_type:
+    type: string
+    enum:
+      - linear
+      - polynomial
+      - logarithmic
+    description: "Type of regression (linear, polynomial, logarithmic)"
+  predictors:
+    type: array
+    items:
+      type: string
+    description: "Predictor variable names"
+  target:
+    type: string
+    description: "Target variable name"
+  coefficients:
+    type: object
+    additionalProperties:
+      type: number
+    description: "Model coefficients with variable names as keys"
+  r_squared:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "R² goodness-of-fit metric (descriptive for census data)"
+  aic:
+    type: ["number", "null"]
+    description: "Akaike Information Criterion"
+  bic:
+    type: ["number", "null"]
+    description: "Bayesian Information Criterion"
+  mae:
+    type: number
+    minimum: 0
+    description: "Mean Absolute Error"
+  vif_values:
+    type: object
+    additionalProperties:
+      type: number
+    description: "Variance inflation factors for each predictor"
+  residual_analysis:
+    type: object
+    description: "Residual analysis results including outlier families"
+    properties:
+      outlier_families:
+        type: array
+        items:
+          type: string
+        description: "Knot families with residuals ≥2 standard deviations from global mean"
+      threshold:
+        type: number
+        description: "Threshold used for outlier identification (default: 2.0)"
+      total_outliers:
+        type: integer
+        minimum: 0
+        description: "Total number of outlier knots identified"
+  fitted_timestamp:
+    type: string
+    format: date-time
+    description: "ISO 8601 timestamp when model was fitted"
+  random_seed:
+    type: integer
+    description: "Random seed used for model fitting"
+additionalProperties: false

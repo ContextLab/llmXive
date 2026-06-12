@@ -3,108 +3,204 @@
 ## Prerequisites
 
 - Python 3.11 or higher
-- Access to stable internet connectivity for downloading data from Knot Atlas
 - Git for version control
-- Standard CI/runner resources (GitHub Actions compatible)
+- Stable internet connectivity (for downloading Knot Atlas data)
+- At least 5GB disk space for data and analysis artifacts
 
 ## Installation
 
-1. Clone the repository and navigate to the project directory:
+### 1. Clone Repository
+
 ```bash
+git clone <repository-url>
 cd projects/PROJ-552-quantifying-the-complexity-of-knot-diagr
 ```
 
-2. Create and activate a virtual environment:
+### 2. Create Virtual Environment
+
 ```bash
 python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 ```
 
-3. Install dependencies:
+### 3. Install Dependencies
+
 ```bash
 pip install -r requirements.txt
 ```
 
-## Running the Pipeline
+**requirements.txt** contains pinned versions of all dependencies:
+- pandas
+- numpy
+- scikit-learn
+- matplotlib
+- seaborn
+- requests
+- pyyaml
+- jsonschema
+- arxiv
 
-### Step 1: Download Knot Data
+## Data Download
+
+### Run Download Script
 
 ```bash
-python code/download/download_knot_data.py
+python code/src/download.py --crossing-limit 13 --output data/raw/knot_atlas_raw.parquet
 ```
 
-This will:
-- Download prime knot data from Knot Atlas (https://katlas.org)
-- Apply retry logic with exponential backoff on failures
-- Cache partial results after 3 consecutive failures
-- Save raw data to `data/raw/knot_atlas_export.csv`
+**Options**:
+- `--crossing-limit`: Maximum crossing number to download (default: 13, validated for ≤10 in Phase 1)
+- `--output`: Output file path for downloaded data
 
-### Step 2: Validate and Clean Data
+**Retry Behavior**: Exponential backoff (initial=1s, max=32s, multiplier=2) on API failures. Partial results cached after 3 consecutive failures.
+
+### Verify Download
 
 ```bash
-python code/analysis/precision_validation.py
+python code/src/reproducibility.py --verify-checksums data/raw/knot_atlas_raw.parquet
 ```
 
-This will:
-- Parse and clean the dataset
-- Flag records with missing invariant data
+Expected output: Checksum verification passed, null percentage <1%.
+
+## Data Cleaning
+
+### Run Cleaning Script
+
+```bash
+python code/src/clean.py --input data/raw/knot_atlas_raw.parquet --output data/processed/knot_records_clean.parquet
+```
+
+**Actions**:
+- Parse and clean dataset
+- Flag records with data quality issues
 - Apply tie-breaking rules for diagram representation ties
-- Save cleaned data to `data/processed/cleaned_knots.csv`
+- Generate `data_quality_report.md` in `docs/reproducibility/`
 
-### Step 3: Run Exploratory Analysis
-
-```bash
-python code/analysis/exploratory_analysis.py
-```
-
-This will:
-- Generate scatter plots of crossing number vs. braid index
-- Stratify by alternating/non-alternating classification
-- Save plots to `data/plots/` directory (minimum 1200x900 pixels)
-
-### Step 4: Fit Regression Models
+### Validate Cleaned Data
 
 ```bash
-python code/analysis/regression_models.py
+python code/src/reproducibility.py --validate-schema data/processed/knot_records_clean.parquet
 ```
 
-This will:
-- Fit linear, polynomial, and logarithmic regression models
-- Compute goodness-of-fit metrics (R², AIC/BIC, MAE)
-- Perform residual analysis to identify deviating knot families
-- Save results to `data/processed/regression_results.json`
+Expected output: Schema validation passed, no duplicates detected.
 
-### Step 5: Generate Reproducibility Documentation
+## Exploratory Analysis
+
+### Generate Scatter Plots
 
 ```bash
-python code/reproducibility/checksums.py
-python code/reproducibility/logs.py
+python code/src/analysis.py --task exploratory --input data/processed/knot_records_clean.parquet
 ```
 
-This will:
-- Generate SHA-256 checksums for all data files
-- Create timestamped logs for all operations
-- Document random seed values used
+**Outputs**:
+- `data/plots/crossing_vs_braid_alternating.png`
+- `data/plots/crossing_vs_braid_non_alternating.png`
 
-## Verifying Results
+**Resolution**: Minimum 1200x900 pixels (per FR-004).
 
-Run the validation script to ensure reproducibility:
+## Regression Analysis
+
+### Fit Regression Models
 
 ```bash
-python code/reproducibility/validation_scripts.py
+python code/src/analysis.py --task regression --input data/processed/knot_records_clean.parquet --model-types linear,polynomial,logarithmic
 ```
 
-This checks:
-- All checksums match recorded values
-- Tie-breaking rules applied consistently
-- All required documentation files present
-- Exit code 0 on successful validation
+**Outputs**:
+- `data/processed/regression_results.json`
+- `docs/reproducibility/multicollinearity_assessment.md`
+- `docs/reproducibility/residual_analysis.md`
+
+**Model Types**: Linear, polynomial, and logarithmic regression (per FR-005).
+
+### Filter to Hyperbolic Knots
+
+```bash
+python code/src/clean.py --filter hyperbolic --input data/processed/knot_records_clean.parquet --output data/processed/knot_records_hyperbolic.parquet
+```
+
+**Note**: This applies FR-012 filtering (volume > 0). Excluded knots documented in `docs/reproducibility/excluded_knots.md`.
+
+## Reproducibility Documentation
+
+### Generate All Artifacts
+
+```bash
+python code/src/reproducibility.py --generate-all --input data/processed/
+```
+
+**Outputs**:
+- SHA-256 checksums for all data files
+- Derivation notes with formula citations
+- Timestamped logs
+- Random seed documentation
+
+### Verify Reproducibility
+
+```bash
+python code/src/reproducibility.py --verify-reproducibility
+```
+
+Expected output: All reproducibility artifacts present and verified.
+
+## Testing
+
+### Run Contract Tests
+
+```bash
+pytest tests/contract/ -v
+```
+
+Tests validate that all data files conform to schema definitions in `contracts/` directory.
+
+### Run Integration Tests
+
+```bash
+pytest tests/integration/ -v
+```
+
+Tests validate end-to-end pipeline execution.
+
+### Run Unit Tests
+
+```bash
+pytest tests/unit/ -v
+```
+
+Tests validate individual functions and modules.
+
+## Phase 1 Scope Limitation
+
+**Important**: All Phase 1 conclusions must be explicitly qualified as limited to validated crossing number ≤10 data. Any analysis using crossing number 11-13 data must be marked as exploratory/unvalidated in final reports.
+
+To restrict analysis to validated data:
+
+```bash
+python code/src/analysis.py --crossing-limit 10 --input data/processed/knot_records_clean.parquet
+```
 
 ## Troubleshooting
 
-| Issue | Solution |
-|-------|----------|
-| Knot Atlas unavailable | Check network connectivity; retry logic will apply exponential backoff automatically |
-| Missing invariant data | Check `docs/reproducibility/data_quality_report.md` for flagged records |
-| Ambiguous alternating classification | Records marked "unclassifiable" in dataset; excluded from stratified analysis |
-| Zero hyperbolic volume | Records filtered out for volume prediction analysis; count logged in `docs/reproducibility/excluded_knots.md` |
+### API Unavailable
+
+If Knot Atlas is unavailable, the download script will:
+1. Retry with exponential backoff (1s, 2s, 4s, 8s, 16s, 32s)
+2. Cache partial results after 3 consecutive failures
+3. Log all retry attempts in timestamped logs
+
+Check `docs/reproducibility/download_logs.md` for retry details.
+
+### Missing Invariants
+
+If knots have missing invariant data, they will be flagged with `missing_invariant_flags` rather than silently excluded. Check `docs/reproducibility/uncomputable_invariants.md` for details.
+
+### Ambiguous Classification
+
+If knots have ambiguous alternating/non-alternating classification, they will either be excluded from stratified analysis (with count logged) or marked as "unclassifiable". Check `docs/reproducibility/data_quality_report.md` for counts.
+
+## Next Steps
+
+1. Review `docs/reproducibility/data_quality_report.md` for data quality metrics
+2. Review `docs/reproducibility/hyperbolic_volume_validation.md` for validation results
+3. Proceed to regression analysis with filtered hyperbolic dataset
+4. Document findings with explicit acknowledgment of Phase 1 scope limitations

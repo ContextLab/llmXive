@@ -32,6 +32,8 @@
 %% ── Shim layer (venue macros made into no-ops) ────────────────
 \makeatletter
 \providecommand{\TODO}[1]{}
+\providecommand{\abscontent}{}
+\providecommand{\absfont}{}
 \providecommand{\acknowledgments}{\section*{Acknowledgments}}
 \providecommand{\address}[1]{}
 \providecommand{\affiliation}[1]{}
@@ -39,8 +41,11 @@
 \providecommand{\animategraphics}[5][]{\includegraphics[#1]{#3#4}}
 \providecommand{\argmax}{\mathop{\mathrm{arg\,max}}}
 \providecommand{\argmin}{\mathop{\mathrm{arg\,min}}}
+\providecommand{\authornote}[1]{}
+\providecommand{\authornotemark}[1][]{}
 \providecommand{\authorrunning}[1]{}
 \providecommand{\blfootnote}[1]{\footnote{#1}}
+\providecommand{\bm}[1]{\boldsymbol{#1}}
 \providecommand{\corresponding}{}
 \providecommand{\correspondingauthor}[1]{}
 \providecommand{\eg}{e.g.,\xspace}
@@ -55,7 +60,9 @@
 \providecommand{\institute}[1]{}
 \providecommand{\keywords}[1]{\par\noindent\textbf{Keywords:} #1}
 \providecommand{\neuripsfinalcopy}{}
+\providecommand{\orcid}[1]{}
 \providecommand{\tablecite}[1]{\cite{#1}}
+\providecommand{\theabstract}{}
 \providecommand{\titlerunning}[1]{}
 \providecommand{\todo}[1]{}
 \providecommand{\wrt}{w.r.t.\xspace}
@@ -121,6 +128,7 @@
 \providecommand{\thesection}{\Alph{section}}
 \providecommand{\thesubsection}{\Alph{section}.\arabic{subsection}}
 \providecommand{\thesubsubsection}{\Alph{section}.\arabic{subsection}.\arabic{subsubsection}}
+\@ifundefined{compactitem}{\newenvironment{compactitem}{\begin{itemize}[nosep,leftmargin=*]}{\end{itemize}}}{}
 \definecolor{DeepPurple}{HTML}{5C3A96}
 \definecolor{LighterGray}{HTML}{F7F7FA}
 \definecolor{White}{HTML}{FFFFFF}
@@ -187,12 +195,12 @@ Compared with static scientific benchmarks, another line of work evaluates agent
 \definecolor{rcbCheckGreen}{RGB}{37,150,94}
 \definecolor{rcbCrossRed}{RGB}{196,70,70}
 \definecolor{rcbPartialYellow}{RGB}{214,170,64}
-\newcommand{\cmark}{\(\checkmark\)}
-\newcommand{\xmark}{\(\times\)}
-\newcommand{\pmark}{\(\triangle\)}
-\newcommand{\dgood}[1]{\textbf{#1}}
-\newcommand{\dpart}[1]{\textbf{#1}}
-\newcommand{\dnarrow}[1]{\textbf{#1}}
+\renewcommand{\cmark}{\(\checkmark\)}
+\renewcommand{\xmark}{\(\times\)}
+\renewcommand{\pmark}{\(\triangle\)}
+\renewcommand{\dgood}[1]{\textbf{#1}}
+\renewcommand{\dpart}[1]{\textbf{#1}}
+\renewcommand{\dnarrow}[1]{\textbf{#1}}
 \refstepcounter{table}\label{tab:benchmark-comparison}
 \TableCaption{Comparison between ResearchClawBench and existing scientific or research-agent benchmarks. We compare grounding in real papers, raw data, executable interaction, end-to-end reports, broad domains, and open research scope; the Domains column reports the number of broad disciplinary fields rather than task themes or ML subareas. Green \cmark indicates yes, yellow \pmark partial support, and red \xmark means no.}
 
@@ -267,25 +275,25 @@ RCBench does not design merely ``research-like'' tasks. Instead, it preserves th
 \scriptsize
 \setlength{\tabcolsep}{3pt}
 \renewcommand{\arraystretch}{1.12}
-\newcommand{\RcbDashedRule}{\makebox[\linewidth][s]{\leaders\hbox{\rule[0.55ex]{5pt}{0.35pt}\hskip2.5pt}\hfill\kern0pt}}
-\newcommand{\RcbSolidRule}{\noindent\rule{\linewidth}{0.45pt}\par\nointerlineskip}
-\newcommand{\RcbHeaderBlock}[1]{%
+\renewcommand{\RcbDashedRule}{\makebox[\linewidth][s]{\leaders\hbox{\rule[0.55ex]{5pt}{0.35pt}\hskip2.5pt}\hfill\kern0pt}}
+\renewcommand{\RcbSolidRule}{\noindent\rule{\linewidth}{0.45pt}\par\nointerlineskip}
+\renewcommand{\RcbHeaderBlock}[1]{%
   \RcbSolidRule
   \begingroup\setlength{\fboxsep}{0pt}%
   \noindent\colorbox{RcbHighlightPurple}{%
     \parbox{\linewidth}{#1\par\vspace{-0.35ex}\RcbDashedRule\par\vspace{-0.7ex}}}%
   \endgroup\par\nointerlineskip}
-\newcommand{\RcbHeaderTwo}[2]{%
+\renewcommand{\RcbHeaderTwo}[2]{%
   \RcbHeaderBlock{%
     \begin{tabularx}{\linewidth}{@{}>{\arraybackslash}p{0.25\linewidth}>{\arraybackslash}X@{}}
     \textbf{#1} & \textbf{#2}
     \end{tabularx}}}
-\newcommand{\RcbHeaderOne}[1]{%
+\renewcommand{\RcbHeaderOne}[1]{%
   \RcbHeaderBlock{%
     \begin{tabularx}{\linewidth}{@{}>{\arraybackslash}X@{}}
     \textbf{#1}
     \end{tabularx}}}
-\newcommand{\RcbHeaderRubrics}{%
+\renewcommand{\RcbHeaderRubrics}{%
   \RcbHeaderBlock{%
     \begin{tabularx}{\linewidth}{@{}>{\arraybackslash}X>{\centering\arraybackslash}p{0.10\linewidth}@{}}
     \textbf{Rubrics Content} & \textbf{Weight}
@@ -440,25 +448,25 @@ This re-discovery-oriented evaluation measures whether a system recovers target 
 \section{Experiments}
 
 \definecolor{rcbScorePurple}{HTML}{5C3A96}
-\newcommand{\ScoreCell}[2]{\cellcolor{rcbScorePurple!#1!white}#2}
-\newcommand{\BestScore}[2]{\ScoreCell{#1}{\textbf{#2}}}
-\newcommand{\SecondScore}[2]{\ScoreCell{#1}{\underline{#2}}}
-\newcommand{\DimCell}[2]{\cellcolor{rcbScorePurple!#1!white}#2}
-\newcommand{\RcbIcon}[1]{\raisebox{-0.12em}{\includegraphics[height=0.9em]{imgs/logos/#1.png}}\hspace{0.25em}}
-\newcommand{\ClaudeIcon}{\RcbIcon{anthropic}}
-\newcommand{\OpenAIIcon}{\RcbIcon{openai}}
-\newcommand{\ArisIcon}{\RcbIcon{asx}}
-\newcommand{\OpenClawIcon}{\RcbIcon{openclaw}}
-\newcommand{\NanobotIcon}{\RcbIcon{nanobot}}
-\newcommand{\EvoIcon}{\RcbIcon{evo}}
-\newcommand{\ResearchClawIcon}{\RcbIcon{researchclaw}}
-\newcommand{\GlmIcon}{\RcbIcon{glm}}
-\newcommand{\GeminiIcon}{\RcbIcon{gemini}}
-\newcommand{\DeepSeekIcon}{\RcbIcon{deepseek}}
-\newcommand{\GrokIcon}{\RcbIcon{grok}}
-\newcommand{\KimiIcon}{\RcbIcon{kimi}}
-\newcommand{\MimoIcon}{\RcbIcon{mimo}}
-\newcommand{\QwenIcon}{\RcbIcon{qwen}}
+\renewcommand{\ScoreCell}[2]{\cellcolor{rcbScorePurple!#1!white}#2}
+\renewcommand{\BestScore}[2]{\ScoreCell{#1}{\textbf{#2}}}
+\renewcommand{\SecondScore}[2]{\ScoreCell{#1}{\underline{#2}}}
+\renewcommand{\DimCell}[2]{\cellcolor{rcbScorePurple!#1!white}#2}
+\renewcommand{\RcbIcon}[1]{\raisebox{-0.12em}{\includegraphics[height=0.9em]{imgs/logos/#1.png}}\hspace{0.25em}}
+\renewcommand{\ClaudeIcon}{\RcbIcon{anthropic}}
+\renewcommand{\OpenAIIcon}{\RcbIcon{openai}}
+\renewcommand{\ArisIcon}{\RcbIcon{asx}}
+\renewcommand{\OpenClawIcon}{\RcbIcon{openclaw}}
+\renewcommand{\NanobotIcon}{\RcbIcon{nanobot}}
+\renewcommand{\EvoIcon}{\RcbIcon{evo}}
+\renewcommand{\ResearchClawIcon}{\RcbIcon{researchclaw}}
+\renewcommand{\GlmIcon}{\RcbIcon{glm}}
+\renewcommand{\GeminiIcon}{\RcbIcon{gemini}}
+\renewcommand{\DeepSeekIcon}{\RcbIcon{deepseek}}
+\renewcommand{\GrokIcon}{\RcbIcon{grok}}
+\renewcommand{\KimiIcon}{\RcbIcon{kimi}}
+\renewcommand{\MimoIcon}{\RcbIcon{mimo}}
+\renewcommand{\QwenIcon}{\RcbIcon{qwen}}
 
 
 \begin{table}[t]

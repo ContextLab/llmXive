@@ -1,57 +1,57 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "KnotRecord"
 description: "Represents a single prime knot with attributes including crossing number, braid index, alternating classification, and hyperbolic volume"
-type: "object"
-properties:
-  knot_id:
-    type: "string"
-    description: "Unique identifier (e.g., \"10_123\" for crossing number 10, knot 123)"
-    pattern: "^[0-9]+_[0-9]+$"
-  crossing_number:
-    type: "integer"
-    description: "Minimal number of crossings in any diagram representation"
-    minimum: 1
-    maximum: 13
-  braid_index:
-    type: ["integer", "null"]
-    description: "Minimal number of strands in any braid representation"
-    minimum: 1
-  hyperbolic_volume:
-    type: ["number", "null"]
-    description: "Hyperbolic volume (0 or undefined for torus/satellite knots)"
-    minimum: 0
-  is_alternating:
-    type: ["boolean", "null"]
-    description: "True if knot is alternating; null if ambiguous/missing"
-  dt_code:
-    type: ["string", "null"]
-    description: "Dowker-Thistlethwaite code for minimal crossing diagram"
-  braid_word:
-    type: ["string", "null"]
-    description: "Braid word representation if available"
-  data_quality_flags:
-    type: "array"
-    description: "Flags for general data quality issues (null values, format failures, duplicates)"
-    items:
-      type: "string"
-  missing_invariant_flags:
-    type: "array"
-    description: "Flags for invariants not computable from available diagram representations"
-    items:
-      type: "string"
-  source:
-    type: "string"
-    description: "Data source (e.g., \"knot_atlas\")"
-    const: "knot_atlas"
-  download_timestamp:
-    type: "string"
-    description: "When record was downloaded"
-    format: "date-time"
+type: object
 required:
   - knot_id
   - crossing_number
-  - data_quality_flags
-  - missing_invariant_flags
+  - braid_index
   - source
   - download_timestamp
+properties:
+  knot_id:
+    type: string
+    description: "Unique identifier for the knot (e.g., \"10_123\", \"11n42\")"
+    pattern: "^[0-9]+[a-zA-Z]?[0-9]*$"
+  crossing_number:
+    type: integer
+    minimum: 1
+    description: "Number of crossings in minimal diagram (tabulated from Knot Atlas)"
+  braid_index:
+    type: integer
+    minimum: 1
+    description: "Minimum number of strands for braid representation (tabulated from Knot Atlas)"
+  hyperbolic_volume:
+    type: ["number", "null"]
+    minimum: 0
+    description: "Hyperbolic volume of knot complement (NULL for torus/satellite knots)"
+  is_alternating:
+    type: ["boolean", "null"]
+    description: "Alternating classification (NULL if ambiguous)"
+  dt_code:
+    type: ["string", "null"]
+    description: "Dowker-Thistlethwaite code representation"
+  braid_word:
+    type: ["string", "null"]
+    description: "Braid word representation"
+  data_quality_flags:
+    type: array
+    items:
+      type: string
+    description: "General data quality issues (null values, format failures, duplicates)"
+  missing_invariant_flags:
+    type: array
+    items:
+      type: string
+    description: "Invariants not computable from available representations"
+  source:
+    type: string
+    description: "Data source identifier (e.g., \"knot_atlas\")"
+  download_timestamp:
+    type: string
+    format: date-time
+    description: "ISO 8601 timestamp when data was downloaded"
+  checksum:
+    type: string
+    description: "SHA-256 checksum of raw record"
 additionalProperties: false

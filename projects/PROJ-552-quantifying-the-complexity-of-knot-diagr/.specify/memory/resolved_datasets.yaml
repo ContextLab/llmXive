@@ -1,26 +1,26 @@
-resolved_at: '2026-06-12T12:52:43.833925+00:00'
+resolved_at: '2026-06-12T14:23:53.926368+00:00'
 datasets:
 - intent: FR-001
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://tandf.figshare.com/articles/journal_contribution/Older_immigrants_use_of_general_practice_in_Denmark_a_register-based_cohort_study/32248926
+  - url: https://repository.mmu.ac.uk/articles/online_resource/From_Protests_to_England_s_Early_Exit_Brazil_2014_Has_Anyone_Even_Mentioned_the_Health_Legacy_of_the_World_Cup_/32454612
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/presentation/_07033307887_Achievers_University_Owo_07033307887_announces_that_the_2026_2027_Post_UTME_Admission_Application_form_is_out_and_on_sale_Call_07033307887_-_234-07033307887_/32660340
+  - url: https://figshare.com/articles/book/Freshwater_Ecosystems_Under_Interacting_Stressors/32660658
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://su.figshare.com/articles/media/C2_System_Design_Survey_Questions/32647971
+  - url: https://repository.mmu.ac.uk/articles/online_resource/Austerity_Cuts_to_Local_Leisure_Services_is_a_False_Economy/32454615
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/SpatialFHE/32658171
+  - url: https://repository.mmu.ac.uk/articles/online_resource/Austerity_and_sport_for_health/32454618
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://su.figshare.com/articles/media/C2_System_Design_Evaluation_Video/32648136
+  - url: https://repository.mmu.ac.uk/articles/online_resource/Resilience_and_the_Homeless_World_Cup/32454621
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -90,23 +90,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/conference_contribution/K_07033307887_Achievers_University_Owo_07033307887_announces_that_the_2026_2027_Post_UTME_Admission_Application_form_is_out_and_on_sale_Call_07033307887_-_234-07033307887_Applications_are_invited_from_suitably_qualified_candidates_for_admis/32660349
+  - url: https://researchdata.up.ac.za/articles/dataset/Perspectives_of_children_on_risk_reduction_and_adaptation_strategies_to_floods_in_a_township/32536953
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/PROCEDURE_WITHOUT_PREFRONTAL_DOMINANCE/32660322
+  - url: https://repository.mmu.ac.uk/articles/online_resource/From_Protests_to_England_s_Early_Exit_Brazil_2014_Has_Anyone_Even_Mentioned_the_Health_Legacy_of_the_World_Cup_/32454612
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Older_immigrants_use_of_general_practice_in_Denmark_a_register-based_cohort_study/32248926
+  - url: https://figshare.com/articles/book/Freshwater_Ecosystems_Under_Interacting_Stressors/32660658
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/presentation/_07033307887_Achievers_University_Owo_07033307887_announces_that_the_2026_2027_Post_UTME_Admission_Application_form_is_out_and_on_sale_Call_07033307887_-_234-07033307887_/32660340
+  - url: https://repository.mmu.ac.uk/articles/online_resource/Austerity_Cuts_to_Local_Leisure_Services_is_a_False_Economy/32454615
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://su.figshare.com/articles/media/C2_System_Design_Survey_Questions/32647971
+  - url: https://repository.mmu.ac.uk/articles/online_resource/Austerity_and_sport_for_health/32454618
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -130,23 +130,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://archaeologydataservice.ac.uk/library/browse/issue.xhtml?recordId=1253615
-    source: datacite
-    status: wrong_format
-    reason: HTTP 403
-  - url: https://zenodo.org/records/18236551
+  - url: https://zenodo.org/records/20656937
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/18236551
+  - url: https://zenodo.org/records/20656937
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/19809579
+  - url: https://zenodo.org/records/20667130
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/19809579
+  - url: https://zenodo.org/records/20667130
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19446164
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -193,23 +193,23 @@ datasets:
     source: huggingface
     status: verified
     format: json
-  - url: https://repository.mmu.ac.uk/articles/online_resource/Football_agents_should_not_be_sent_off_they_just_need_a_better_set_of_rules/32454747
+  - url: https://repository.mmu.ac.uk/articles/online_resource/How_Investment_in_Sport_has_Helped_Medellin_Shake_off_its_Violent_Past/32454609
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/conference_contribution/K_07033307887_Achievers_University_Owo_07033307887_announces_that_the_2026_2027_Post_UTME_Admission_Application_form_is_out_and_on_sale_Call_07033307887_-_234-07033307887_Applications_are_invited_from_suitably_qualified_candidates_for_admis/32660349
+  - url: https://researchdata.up.ac.za/articles/dataset/Perspectives_of_children_on_risk_reduction_and_adaptation_strategies_to_floods_in_a_township/32536953
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/PROCEDURE_WITHOUT_PREFRONTAL_DOMINANCE/32660322
+  - url: https://repository.mmu.ac.uk/articles/online_resource/From_Protests_to_England_s_Early_Exit_Brazil_2014_Has_Anyone_Even_Mentioned_the_Health_Legacy_of_the_World_Cup_/32454612
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Older_immigrants_use_of_general_practice_in_Denmark_a_register-based_cohort_study/32248926
+  - url: https://figshare.com/articles/book/Freshwater_Ecosystems_Under_Interacting_Stressors/32660658
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/presentation/_07033307887_Achievers_University_Owo_07033307887_announces_that_the_2026_2027_Post_UTME_Admission_Application_form_is_out_and_on_sale_Call_07033307887_-_234-07033307887_/32660340
+  - url: https://repository.mmu.ac.uk/articles/online_resource/Austerity_Cuts_to_Local_Leisure_Services_is_a_False_Economy/32454615
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -233,23 +233,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20665977
+  - url: https://zenodo.org/records/20667646
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20665977
+  - url: https://zenodo.org/records/20667646
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20665204
+  - url: https://zenodo.org/records/20667611
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20665204
+  - url: https://zenodo.org/records/20667611
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20665871
+  - url: https://zenodo.org/records/13798783
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -272,23 +272,23 @@ datasets:
     source: huggingface
     status: verified
     format: csv
-  - url: https://figshare.com/articles/dataset/SIG_estimation_SUPPLEMENTARY_MATERIALS_S-1_Krbec_all_data_and_calculations/32325519
+  - url: https://repository.mmu.ac.uk/articles/online_resource/How_Investment_in_Sport_has_Helped_Medellin_Shake_off_its_Violent_Past/32454609
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://repository.mmu.ac.uk/articles/online_resource/Football_agents_should_not_be_sent_off_they_just_need_a_better_set_of_rules/32454747
+  - url: https://researchdata.up.ac.za/articles/dataset/Perspectives_of_children_on_risk_reduction_and_adaptation_strategies_to_floods_in_a_township/32536953
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/conference_contribution/K_07033307887_Achievers_University_Owo_07033307887_announces_that_the_2026_2027_Post_UTME_Admission_Application_form_is_out_and_on_sale_Call_07033307887_-_234-07033307887_Applications_are_invited_from_suitably_qualified_candidates_for_admis/32660349
+  - url: https://repository.mmu.ac.uk/articles/online_resource/From_Protests_to_England_s_Early_Exit_Brazil_2014_Has_Anyone_Even_Mentioned_the_Health_Legacy_of_the_World_Cup_/32454612
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/PROCEDURE_WITHOUT_PREFRONTAL_DOMINANCE/32660322
+  - url: https://figshare.com/articles/book/Freshwater_Ecosystems_Under_Interacting_Stressors/32660658
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Older_immigrants_use_of_general_practice_in_Denmark_a_register-based_cohort_study/32248926
+  - url: https://repository.mmu.ac.uk/articles/online_resource/Austerity_Cuts_to_Local_Leisure_Services_is_a_False_Economy/32454615
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -312,23 +312,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20628313
+  - url: https://dataverse.ird.fr/dataset.xhtml?persistentId=doi:10.23708/UMPMKI
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20628313
+  - url: https://zenodo.org/records/19446164
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20182593
+  - url: https://zenodo.org/records/19446164
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20182593
+  - url: https://zenodo.org/records/20591610
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://iris.unimore.it/handle/11380/1182469
+  - url: https://zenodo.org/records/20591610
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -336,23 +336,23 @@ datasets:
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://figshare.com/articles/dataset/SIG_estimation_SUPPLEMENTARY_MATERIALS_S-1_Krbec_all_data_and_calculations/32325519
+  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Nanosensitive_optical_coherence_tomography_to_monitor_corneal_burn_and_treatment_response_in_vivo_-_7938499_pdf/32613570
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://repository.mmu.ac.uk/articles/online_resource/Football_agents_should_not_be_sent_off_they_just_need_a_better_set_of_rules/32454747
+  - url: https://figshare.com/articles/presentation/THE_TROLLEYBUS_Course_Notes/32660661
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/conference_contribution/K_07033307887_Achievers_University_Owo_07033307887_announces_that_the_2026_2027_Post_UTME_Admission_Application_form_is_out_and_on_sale_Call_07033307887_-_234-07033307887_Applications_are_invited_from_suitably_qualified_candidates_for_admis/32660349
+  - url: https://repository.mmu.ac.uk/articles/online_resource/How_Investment_in_Sport_has_Helped_Medellin_Shake_off_its_Violent_Past/32454609
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/PROCEDURE_WITHOUT_PREFRONTAL_DOMINANCE/32660322
+  - url: https://researchdata.up.ac.za/articles/dataset/Perspectives_of_children_on_risk_reduction_and_adaptation_strategies_to_floods_in_a_township/32536953
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Older_immigrants_use_of_general_practice_in_Denmark_a_register-based_cohort_study/32248926
+  - url: https://repository.mmu.ac.uk/articles/online_resource/From_Protests_to_England_s_Early_Exit_Brazil_2014_Has_Anyone_Even_Mentioned_the_Health_Legacy_of_the_World_Cup_/32454612
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -388,11 +388,11 @@ datasets:
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20470525
+  - url: https://doi.org/10.5281/zenodo.20470525
     source: datacite
-    status: wrong_format
-    reason: 'HTTPSConnectionPool(host=''zenodo.org'', port=443): Read timed out. (read
-      timeout=20)'
+    status: unreachable
+    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
+      port=443): Read timed out. (read timeout=20.0)'
   - url: https://zenodo.org/records/20469943
     source: datacite
     status: wrong_format
@@ -402,23 +402,23 @@ datasets:
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://repository.mmu.ac.uk/articles/online_resource/Children_youth_and_physical_activity_in_schools_during_leisure_time/32454741
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_5_Effects_of_a_postpartum_depression_intervention_subgroup_analyses_from_a_cluster_randomized_trial_docx/32660679
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Artifact_An_In-Depth_Systematic_Analysis_of_the_Security_Usability_and_Automation_Capabilities_of_Password_Update_Processes_on_Top-Ranked_Websites/28741874
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_4_Effects_of_a_postpartum_depression_intervention_subgroup_analyses_from_a_cluster_randomized_trial_docx/32660682
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://repository.mmu.ac.uk/articles/online_resource/The_Networked_rise_and_power_of_the_Football_Super-Agent/32454744
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Effects_of_a_postpartum_depression_intervention_subgroup_analyses_from_a_cluster_randomized_trial_docx/32660673
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/SIG_estimation_SUPPLEMENTARY_MATERIALS_S-1_Krbec_all_data_and_calculations/32325519
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_6_Effects_of_a_postpartum_depression_intervention_subgroup_analyses_from_a_cluster_randomized_trial_docx/32660676
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://repository.mmu.ac.uk/articles/online_resource/Football_agents_should_not_be_sent_off_they_just_need_a_better_set_of_rules/32454747
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_2_Effects_of_a_postpartum_depression_intervention_subgroup_analyses_from_a_cluster_randomized_trial_docx/32660670
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -447,11 +447,6 @@ datasets:
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://doi.org/10.5281/zenodo.20470525
-    source: datacite
-    status: unreachable
-    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
-      port=443): Read timed out. (read timeout=20.0)'
-  - url: https://doi.org/10.5281/zenodo.20469943
     source: datacite
     status: unreachable
     reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
@@ -529,6 +524,10 @@ datasets:
   candidates: []
   candidates_tried: []
 - intent: FR-012
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: A002863
   status: unresolved
   candidates: []
   candidates_tried: []
