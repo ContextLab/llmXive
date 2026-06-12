@@ -1,14 +1,10 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-12T17:34:15.485482Z'
-current_stage: human_input_needed
+current_stage: specified
 failed_stage: null
 field: mathematics
-human_escalation_reason: 'Convergence kickback cap exceeded: the ''plan'' convergence
-  panel kicked the project back 4 time(s) (cap=3) without reaching unanimous acceptance.
-  A human must intervene. Last reason: 16 concern(s) remained unresolved after 3 round(s)
-  at stage ''planned''; worst unresolved severity = ''science''. Routing to ''specified''
-  with full provenance so the next worker can address the root cause.'
+human_escalation_reason: null
 id: PROJ-552-quantifying-the-complexity-of-knot-diagr
 last_run_id: 64ab9009-9307-4ac7-8802-4f3cba705a4a
 last_run_status: null
