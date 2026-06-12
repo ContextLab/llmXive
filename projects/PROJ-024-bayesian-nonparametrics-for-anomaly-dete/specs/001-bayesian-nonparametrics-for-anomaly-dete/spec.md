@@ -86,7 +86,7 @@
 - `code/tests/` - All test files (contract/, unit/, integration/)
 - `state/projects/` - Project state files with checksums
 - `logs/elbo/` - ELBO convergence logs per Constitution Principle VI
-- `code/config.yaml` - Configuration file with hyperparameters, seeds, and base paths (<2KB)
+- `code/config.yaml` - Configuration file with hyperparameters, seeds, and base paths (minimal size)
 
 **State File Path**: `state/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-detection.yaml`
 - Contains SHA256 checksums for all data artifacts
@@ -115,7 +115,7 @@ The following test infrastructure verification tasks require explicit command ev
 
 ### Contract Tests
 **Location**: `code/tests/contract/`  
-**Total Files**: 8 (6 schema tests + 2 service interface tests)  
+**Total Files**: multiple (including schema tests and service interface tests)  
 **Coverage Requirement**: ≥80% line coverage (verified in T249 final gate, T163 preliminary check)
 
 ### Independent Test Scenarios
@@ -128,11 +128,11 @@ The following test infrastructure verification tasks require explicit command ev
 | ID | Criterion | Verification Task |
 |----|-----------|------------------|
 | SC-001 | Univariate time series only | T139, T140, T141 |
-| SC-002 | ≥1000 observations per dataset | T173 |
-| SC-003 | 3 UCI datasets (Electricity, Traffic, Synthetic Control) | T155, T156, T170, T171, T172 |
+| SC-002 | sufficient observations per dataset | T173 |
+| SC-003 | Multiple UCI datasets (Electricity, Traffic, Synthetic Control) | T155, T156, T170, T171, T172 |
 | SC-004 | No PEMS-SF files in data/raw | T155, T216, T217, T240 |
 | SC-005 | SHA256 checksums for all data artifacts | T011, T157, T158, T232, T234, T245 |
-| SC-006 | config.yaml <2KB, derived stats in state file | T210, T211, T212, T233, T243 |
+| SC-006 | config.yaml < minimal size, derived stats in state file | T210, T211, T212, T233, T243 |
 
 ## Status Tracking Mechanism
 

@@ -1,0 +1,13 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "AnomalyDetector"
+type: object
+required:
+  - model_type
+  - convergence_threshold
+properties:
+  model_type:
+    type: string
+  n_components:
+    type: integer
+  convergence_threshold:
+    type: number

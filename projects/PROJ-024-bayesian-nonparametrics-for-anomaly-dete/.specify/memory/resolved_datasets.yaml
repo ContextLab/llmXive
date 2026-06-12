@@ -1,0 +1,329 @@
+resolved_at: '2026-06-12T16:12:45.554048+00:00'
+datasets:
+- intent: CSVs
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/sulaimank/swahili-csvs/resolve/main/all_audios_ALFFA.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Thorkage/icebridge_arcticseaice_csvs/resolve/main/unified_20090331.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/AstraTeam/generated-csvs/resolve/main/ER-all.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/api/resolve-cache/datasets/vhada/Roco-csvs/5983bc5817e2c88e9185350e715d1e6503083d65/test.csv?%2Fdatasets%2Fvhada%2FRoco-csvs%2Fresolve%2Fmain%2Ftest.csv=&etag=%22a066c1958bf6911561f708219c010eea4bd1a16c%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/sulaimank/swahili-csvs/resolve/main/all_audios_ALFFA.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/Thorkage/icebridge_arcticseaice_csvs/resolve/main/unified_20090331.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/AstraTeam/generated-csvs/resolve/main/ER-all.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/api/resolve-cache/datasets/aq1048576/red_team_agent_analysis_rl_csvs_bob/8c941b057af1518c76681e928665e7f23d85bec7/data.csv?%2Fdatasets%2Faq1048576%2Fred_team_agent_analysis_rl_csvs_bob%2Fresolve%2Fmain%2Fdata.csv=&etag=%221863f480f208f098af760a80cdd7e5470d19fcb8%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/An_Ultrasoft_Initiator-Free_Eutectogel_for_Strain_Sensing_and_Gesture_Recognition_Assisted_by_Machine_Learning/32660943
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Structure-Performance_Relationship_of_Morphology-Dependent_CeO_sub_2_sub_Catalysts_in_Toluene_Oxidation/32660941
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/A_Catalyst-Free_Polyester_Vitrimer_via_Synergistically_Blending_High-_and_Low-Viscosity_PET_Enhanced_Creep_Resistance_Reprocessability_Foamability_and_Mechanical_Properties/32660940
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Refining_adjuvant_therapy_options_in_patients_with_stage_II_melanoma/32660938
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Solvent-Mediated_Structural_Control_of_Single-Molecule_Magnet_Performance_in_Tetranuclear_Dysprosium_Clusters/32660937
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3659329
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5695654
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1402269
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17709462
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8087474
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20591610
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20591610
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20665420
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20665420
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://mountainscholar.org/handle/10217/238482
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: SC-002
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://acs.figshare.com/articles/journal_contribution/Electrostatic_Gating_of_Ionic_Conductance_through_Heterogeneous_van_der_Waals_Nanopores/32660950
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/media/An_Ultrasoft_Initiator-Free_Eutectogel_for_Strain_Sensing_and_Gesture_Recognition_Assisted_by_Machine_Learning/32660946
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/An_Ultrasoft_Initiator-Free_Eutectogel_for_Strain_Sensing_and_Gesture_Recognition_Assisted_by_Machine_Learning/32660943
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Structure-Performance_Relationship_of_Morphology-Dependent_CeO_sub_2_sub_Catalysts_in_Toluene_Oxidation/32660941
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/A_Catalyst-Free_Polyester_Vitrimer_via_Synergistically_Blending_High-_and_Low-Viscosity_PET_Enhanced_Creep_Resistance_Reprocessability_Foamability_and_Mechanical_Properties/32660940
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16877562
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16898107
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16898112
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16898125
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16898117
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20635092
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20512108
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.5281/zenodo.20470525
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
+      port=443): Read timed out. (read timeout=20.0)'
+  - url: https://doi.org/10.5281/zenodo.20469943
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
+      port=443): Read timed out. (read timeout=20.0)'
+  - url: https://zenodo.org/records/20453648
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: T173
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://acs.figshare.com/articles/journal_contribution/Uni-Macro_A_Flexible_3D_Transformer_for_Multicomponent_Molecular_Systems_with_Insights_into_Polymer_Deep_Learning_Paradigms/32660963
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Photocatalytic_Activation_of_Alkyl_Diazirine_Probes_for_In_Situ_Drug_Profiling_and_Extracellular_Vesicle-Based_Diagnostics/32660953
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Isobaric_Vapor_Liquid_Equilibrium_Experiments_of_Butyl_Acetate_Butanol_with_Different_Ionic_Liquids_at_101_3_kPa/32660951
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Electrostatic_Gating_of_Ionic_Conductance_through_Heterogeneous_van_der_Waals_Nanopores/32660950
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/media/An_Ultrasoft_Initiator-Free_Eutectogel_for_Strain_Sensing_and_Gesture_Recognition_Assisted_by_Machine_Learning/32660946
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4355721
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4359483
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17355341
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4357348
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16727430
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20651979
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20651979
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20633767
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20633767
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20616221
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: SC-003
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.arts.ac.uk/articles/conference_contribution/Zone_of_Abandonment_Representing_Desertion_of_Witnessing_in_Joe_Sacco_s_Footnotes_in_Gaza_Layla_Rosser/32660907
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''figshare.arts.ac.uk'',
+      port=443): Max retries exceeded with url: /articles/conference_contribution/Zone_of_Abandonment_Representing_Desertion_of_Witnessing_in_Joe_Sacco_s_Footnotes_in_Gaza_Layla_Rosser/32660907
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://acs.figshare.com/articles/journal_contribution/Single-Molecule_Triad_6_MCA_Additive_Synchronizes_Defect_Passivation_Morphology_Control_and_Moisture_Blockade_for_Efficient_and_Stable_Perovskite_Solar_Cells/32660965
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Uni-Macro_A_Flexible_3D_Transformer_for_Multicomponent_Molecular_Systems_with_Insights_into_Polymer_Deep_Learning_Paradigms/32660963
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Photocatalytic_Activation_of_Alkyl_Diazirine_Probes_for_In_Situ_Drug_Profiling_and_Extracellular_Vesicle-Based_Diagnostics/32660953
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Isobaric_Vapor_Liquid_Equilibrium_Experiments_of_Butyl_Acetate_Butanol_with_Different_Ionic_Liquids_at_101_3_kPa/32660951
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3841160
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10389753
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13843104
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10384626
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10123574
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20635092
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20512108
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.5281/zenodo.20470525
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
+      port=443): Read timed out. (read timeout=20.0)'
+  - url: https://zenodo.org/records/20469943
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20453648
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: UCI
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: T155
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: T156
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: T170
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: T171
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: T172
+  status: unresolved
+  candidates: []
+  candidates_tried: []

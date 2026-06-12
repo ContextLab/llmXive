@@ -1,56 +1,152 @@
-# Plan: Bayesian Nonparametrics for Anomaly Detection in Time Series
+# Implementation Plan: Bayesian Nonparametrics for Anomaly Detection in Time Series
 
-## Schema-Test Mapping
+**Branch**: `feature/bayesian-anomaly-detection` | **Date**: 2026-06-12 | **Spec**: [link to spec.md]  
+**Input**: Feature specification from `/specs/001-bayesian-nonparametrics-for-anomaly-dete/spec.md`
 
-| Schema File | Contract Test File | Schema Creation Phase | Test Execution Phase | Task ID |
-|-------------|-------------------|----------------------|---------------------|----------|
-| `specs/contracts/dataset.schema.yaml` | `code/tests/contract/test_dataset_schema.py` | Phase 8 (T184) | Phase 9 (T226) | T184, T226 |
-| `specs/contracts/anomaly_score.schema.yaml` | `code/tests/contract/test_anomaly_score_schema.py` | Phase 8 (T184) | Phase 9 (T226) | T184, T226 |
-| `specs/contracts/evaluation_metrics.schema.yaml` | `code/tests/contract/test_metrics_schema.py` | Phase 8 (T184) | Phase 9 (T226) | T184, T226 |
-| `specs/contracts/threshold_calibrator.schema.yaml` | `code/tests/contract/test_threshold_schema.py` | Phase 8 (T184) | Phase 9 (T226) | T184, T226 |
-| `specs/contracts/anomaly_detector.schema.yaml` | `code/tests/contract/test_anomaly_detector_schema.py` | Phase 8 (T184) | Phase 9 (T226) | T184, T226 |
-| `specs/contracts/dpgmm.schema.yaml` | `code/tests/contract/test_dp_gmm_schema.py` | Phase 8 (T184) | Phase 9 (T226) | T184, T226 |
-| `specs/contracts/threshold_calibrator_service.schema.yaml` | `code/tests/contract/test_threshold_calibrator_service.py` | Phase 8 (T184) | Phase 9 (T226) | T184, T226 |
-| `specs/contracts/anomaly_detector_service.schema.yaml` | `code/tests/contract/test_anomaly_detector_service.py` | Phase 8 (T184) | Phase 9 (T226) | T184, T226 |
+## Summary
+Implement a streaming anomaly detection service based on Dirichlet Process Gaussian Mixture Models (DP‑GMM). The system will ingest univariate time‑series observations, maintain a posterior over mixture components, and output calibrated anomaly scores with uncertainty estimates. A complementary threshold calibrator will adapt decision boundaries from score distributions. All artifacts will obey the project constitution (reproducibility, data hygiene, numerical stability, etc.).
 
-**Total Contract Test Files**: 8 (6 schema tests + 2 service interface validation tests)
+**Note on Streaming**: "Streaming" refers to mini-batch updates on sliding windows (not true online ADVI). The `StreamingDPGMM` service wrapper maintains window state and performs incremental posterior updates at periodic intervals on a specified observation window.
 
-**Mapping Verification Task**: T226 verifies all eight contract tests are present and executable AFTER T184 completes. **T226 has explicit dependency on T184 in tasks.md Phase 9**.
+## Technical Context
+- **Language/Version**: Python 3.11
+- **Primary Dependencies**:  
+  - `numpy==1.26.*`  
+  - `pandas==2.2.*`  
+  - `scipy==1.13.*`  
+  - `torch==2.3.*` (for Pyro)  
+  - `pyro-ppl==1.9.*` (ADVI inference)  
+  - `scikit-learn==1.5.*` (baseline models)  
+  - `pyyaml==6.0.*` (config handling)  
+  - `pytest==8.2.*` (testing)  
+  - `jsonschema==4.22.*` (contract validation)  
+- **Storage**: File‑based CSVs under `data/raw/`; processed artefacts under `data/processed/`; model checkpoints under `state/projects/`.
+- **Testing**: `pytest` with `pytest-cov` for coverage; contract tests under `code/tests/contract/`.
+- **Target Platform**: Linux (GitHub Actions runner)  
+- **Project Type**: Library + CLI (`code/src/cli/run_detection.py`)  
+- **Performance Goals**: Process ≥10 k observations per minute on a single‑core VM; ELBO convergence within a predefined number of iterations.  
+- **Constraints**: `code/config.yaml` < 2 KB; all raw data immutable; reproducible seeds pinned in config.
 
-**Schema Validation Task**: T185 validates all 8 schema files with YAML linter and stores validation logs in `code/tests/schema_validation_report.md` before contract test execution in Phase 9. **T185 is added to this mapping table for traceability**.
+## Constitution Check
+| Principle | Requirement | How the plan satisfies it |
+|-----------|-------------|---------------------------|
+| **I. Reproducibility** | Pin all random seeds; deterministic data download URLs; CI script re‑runs entire pipeline. | `code/config.yaml` contains `seed: 42`; data download scripts use ucimlrepo loader for deterministic access; GitHub Actions workflow defined in `.github/workflows/ci.yml`. |
+| **II. Verified Accuracy** | No external citation without validator confirmation. | UCI datasets fetched via ucimlrepo loader (canonical source). The ucimlrepo loader IS the verified canonical access method—Principle II's citation verification applies to paper/technical-design citations, not to dataset access methods. No unverified URLs cited. Anomaly injection parameters documented in config.yaml. |
+| **III. Data Hygiene** | Checksums recorded; raw data never overwritten. | `state/projects/PROJ-024-...yaml` will store SHA256 hashes for each raw file; transformations write to new files under `data/processed/`. |
+| **IV. Single Source of Truth** | Every figure/metric traced to a data row & code block. | Evaluation scripts emit JSON with provenance fields (`data_file`, `code_line`). The paper generation step pulls directly from these JSON artefacts. |
+| **V. Versioning Discipline** | Content hashes for all artefacts; state file timestamp updated on change. | CI step computes hashes via `sha256sum`; updates `state/projects/...yaml` with `updated_at`. |
+| **VI. Numerical Stability & Convergence** | ELBO logs recorded; non‑convergent runs flagged. | ELBO values written to `logs/elbo/` each iteration; a post‑run validator aborts if ELBO improvement < 1e‑4 after 500 steps. |
+| **VII. Prior Sensitivity Analysis** | Vary DP concentration and report robustness. | Sensitivity script `code/src/analysis/prior_sensitivity.py` sweeps `alpha` and `gamma`; results stored in `data/processed/results/prior_sensitivity.json`. |
+| **VIII. (Implicit) Project Governance** | All changes go through PR & CI. | Standard GitHub workflow enforced. |
 
-**Schema-Service Interface Validation Task**: T186 validates that the 8 schema YAML files match service interface method counts (AnomalyDetectorService=7, ThresholdCalibratorService=6) as defined in spec.md Service Interfaces section. **T186 is added to this mapping table for traceability**.
+## Project Structure
+```text
+specs/001-bayesian-nonparametrics-for-anomaly-dete/
+├── plan.md
+├── research.md
+├── data-model.md
+├── quickstart.md
+└── contracts/
+    ├── dataset.schema.yaml
+    ├── anomaly_score.schema.yaml
+    ├── evaluation_metrics.schema.yaml
+    ├── threshold_calibrator.schema.yaml
+    ├── anomaly_detector.schema.yaml
+    ├── dpgmm.schema.yaml
+    ├── streaming_dpgmm.schema.yaml
+    ├── anomaly_detector_service.schema.yaml
+    ├── threshold_calibrator_service.schema.yaml
+    └── time_series_dataset.schema.yaml
 
-**Contract Test File Creation Schedule**:
-- Phase 3 (T016): Creates 4 schema test FILES (dataset, anomaly_score, anomaly_detector, dpgmm) - test files reference schemas that will be created later
-- Phase 4 (T025): Creates 1 schema test FILE (evaluation_metrics)
-- Phase 5 (T034): Creates 1 schema test FILE (threshold_calibrator generic schema)
-- Phase 6 (T162): Creates 2 service test FILES (anomaly_detector_service, threshold_calibrator_service)
+code/
+├── src/
+│   ├── models/
+│   │   └── dpgmm.py
+│   ├── services/
+│   │   ├── anomaly_detector.py
+│   │   └── threshold_calibrator.py
+│   ├── data/
+│   │   └── download_datasets.py
+│   ├── evaluation/
+│   │   └── metrics.py
+│   ├── analysis/
+│   │   ├── prior_sensitivity.py
+│   │   └── plot_results.py
+│   ├── baselines/
+│   │   └── arima.py
+│   ├── cli/
+│   │   └── run_detection.py
+│   └── utils/
+│       └── logger.py
+├── tests/
+│   ├── contract/
+│   │   ├── test_dataset_schema.py
+│   │   ├── test_anomaly_score_schema.py
+│   │   ├── test_evaluation_metrics_schema.py
+│   │   ├── test_threshold_calibrator_schema.py
+│   │   ├── test_anomaly_detector_schema.py
+│   │   ├── test_dpgmm_schema.py
+│   │   ├── test_streaming_dpgmm_schema.py
+│   │   ├── test_anomaly_detector_service_schema.py
+│   │   └── test_threshold_calibrator_service_schema.py
+│   ├── unit/
+│   │   └── test_anomaly_detector.py
+│   └── integration/
+│       └── test_end_to_end.py
+├── config.yaml          # <2 KB, hyper‑params & seeds only
+└── requirements.txt
 
-**Note**: T016 creates 4 test FILES (dataset, anomaly_score, anomaly_detector, dpgmm schemas), T025 creates 1 (metrics), T034 creates 1 (threshold_calibrator generic schema), T162 creates 2 service test FILES. Total = 8 unique contract test FILES (4+1+1+2=8).
+data/
+├── raw/
+│   ├── electricity.csv
+│   ├── traffic.csv
+│   └── synthetic_control.csv
+└── processed/
+    └── results/
+        ├── model_checkpoints/
+        ├── evaluation_metrics.json
+        ├── prior_sensitivity.json
+        └── figures/
 
-**Ordering Guarantee**: T226 is explicitly scheduled in Phase 9 AFTER T184 (Phase 8) completes. T184 must be marked [X] before T226 can be executed. **This ordering is enforced in tasks.md Phase 9 with explicit dependency declaration [DEPENDS: T016, T025, T034, T162, T184]**.
+state/
+└── projects/
+    └── PROJ-024-bayesian-nonparametrics-for-anomaly-detection.yaml
 
-**Schema File Creation**: All 8 schema YAML files are created in Phase 8 (T184-T185) per spec.md Schema Definitions section. Contract test files are created in Phases 3-6 and validate schema compliance AFTER schemas are created in Phase 8. Schema files are validated in Phase 8 (T185) before contract tests in Phase 9 (T225-T228) can execute against them.
+logs/
+└── elbo/
+    └── dpgmm_elbo.log
+```
 
-**Critical Distinction**: T016/T025/T034/T162 create CONTRACT TEST FILES (*.py) that validate schema compliance. T184 creates SCHEMA YAML FILES (*.yaml) that define the data contracts. Test files are created early but DO NOT validate schemas until schemas exist in Phase 8. Contract test execution in Phase 9 validates against Phase 8 schemas. This ordering eliminates the logical impossibility by separating test FILE creation from test EXECUTION.
+**Structure Decision**: Single‑project layout (Option 1) with a clear `code/src/` package hierarchy; all tests live under `code/tests/` as required by the spec.
 
-**T150 Moved to Phase 9**: T150 (verify 8 contract test files executable) has been moved from Phase 7 to Phase 9 and consolidated into T225-T226 to ensure schemas exist before test execution verification.
+**Test Schema Alignment Note**: Spec.md requires multiple total contract test files (6 schema tests + 2 service interface tests). The 9 schema files above include time_series_dataset.schema.yaml which serves as the master dataset schema; the 6 core schema tests are: dataset, anomaly_score, evaluation_metrics, threshold_calibrator, anomaly_detector, dpgmm. The streaming_dpgmm schema validates the StreamingDPGMM wrapper configuration. The 2 service interface tests cover AnomalyDetectorService and ThresholdCalibratorService.
 
-**T223 External Verification Requirement**: T223 (re-run final_acceptance_verification.py) is added to plan.md Section 9.2 as an EXTERNAL VERIFICATION REQUIREMENT for T145 Final Acceptance. T145 cannot mark itself [X] until T223 shows exit code 0 in final_acceptance_report.md.
+## Implementation Phases & Ordering
+| Phase | Description | Key Outputs | Dependencies |
+|-------|-------------|-------------|--------------|
+| **0 – Research** | Literature review, define priors, select datasets, specify anomaly injection methodology. | `research.md`, `data-model.md` | – |
+| **1 – Data Acquisition** | Download UCI Electricity, Traffic, Synthetic Control CSVs via ucimlrepo; compute SHA256 checksums; store under `data/raw/`; apply temporal preprocessing (lag features, rolling stats). | `state/projects/...yaml` (artifact_hashes), raw CSVs, processed CSVs | Phase 0 |
+| **2 – Model Development** | Implement DPGMM with Pyro ADVI; expose `AnomalyDetectorService` API; add checkpointing; implement `StreamingDPGMM` wrapper for sliding-window updates. | `code/src/models/dpgmm.py`, `code/src/services/anomaly_detector.py` | Phase 1 |
+| **3 – Threshold Calibration** | Implement `ThresholdCalibratorService` (percentile‑based, adaptive). | `code/src/services/threshold_calibrator.py` | Phase 2 |
+| **4 – Evaluation & Metrics** | Compute F1, precision, recall, AUC‑ROC on synthetic test set with injected anomalies; log ELBO convergence on original data (unsupervised). | `data/processed/results/evaluation_metrics.json`, ELBO logs | Phases 2‑3 |
+| **5 – Prior Sensitivity** | Run sweep over `alpha`/`gamma`; store results. | `data/processed/results/prior_sensitivity.json` | Phase 4 |
+| **6 – Contract & Test Suite** | Create JSON‑Schema contracts; write corresponding contract test files; achieve ≥80 % coverage. | `contracts/*.schema.yaml`, `code/tests/contract/` | Phases 2‑5 |
+| **7 – Documentation & Quickstart** | Write `quickstart.md`; generate figures from results; ensure all artefacts traceable. | `quickstart.md`, figure PNGs | Phases 4‑6 |
+| **8 – Cleanup & Verification (Phase 9.5‑9.6)** | Verify filesystem layout (T240-T245), config size (<2KB), checksum integrity, log ELBO, run contract test coverage, document commands. | Command‑line evidence scripts (`scripts/verify.sh`) | All previous phases |
+| **9 – Final Acceptance (T145)** | Run full CI pipeline; ensure all success criteria SC‑001 – SC‑006 satisfied. | CI badge, acceptance report | Phase 8 |
 
-## 9.2 Deletion Traceability
+**Phase Ordering Notes**:
+- Data download (Phase 1) precedes model development (Phase 2).
+- Contracts (Phase 6) precede documentation (Phase 7) that references them.
+- Evaluation metrics (Phase 4) precede sensitivity analysis (Phase 5).
 
-**Phase 11 Deletion**: All original Phase 11 tasks (T237-T265) have been REDISTRIBUTED into Phase 2.5 and Phase 9 to eliminate logical contradictions and redundant task definitions. **New tasks T240-T250 in Phase 9.5/9.6 are ADDITIONAL filesystem verification tasks, NOT from original Phase 11**. This redistribution is documented in tasks.md Phase 10 footer and is tracked as a design decision in this section.
+**Data Split Strategy**: A majority portion for training (unsupervised), [deferred] threshold calibration (unsupervised), [deferred] supervised evaluation with injected anomalies. This separates US3 (unsupervised threshold) from F1 computation (supervised).
 
-**T224 Deletion**: Task T224 (mark T145 as [X]) has been removed to eliminate circular dependency where T224 depended on T145 while T145 was the final acceptance gate. T145 now directly marks itself [X] after completing its own verification with external verification tasks (T222, T223, T226, T186) completing first. This deletion is documented in tasks.md Phase 10 footer and is tracked as a design decision in this section. **T145 Final Acceptance requires external verification evidence from T222 **(Phase 9 verification)
+**Config.yaml Size Enforcement**: The `code/config.yaml` file MUST remain under 2KB (2048 bytes). Only hyperparameters, random seeds, and base paths are permitted. Derived statistics, checksums, and computed values MUST be stored in `state/projects/PROJ-024-...yaml`. Violation of this constraint will be caught by T243 verification task and block Phase 9.5 completion.
 
-**Consolidation Decisions**:
-- T160 removed - T037 is the single implementation task for ThresholdCalibratorService (Phase 5)
-- T159 dependency on T037 removed - AnomalyDetectorService is independent per spec.md
-- T023 and T177 consolidated - T177 creates directory, T023 logs to it
-- T174 removed - T232-T236 are the verification tasks, T174 removed from dependency chain
-- T153 and T214 consolidated - T214 is the verification task, T153 removed
-- T165 consolidated into T163 - T163 now includes coverage verification
+**Directory Structure Enforcement**: The following directories are FORBIDDEN and must not exist:
+- `data/results/` (legacy; all results must be in `data/processed/results/`)
+- `data/raw/raw/` (nested raw directories)
+- `data/raw/pems_sf*` (PEMS-SF files per SC-004)
 
-**Phase 9.5/9.6 Consolidation Rationale**: Phase 9.5/9.6 tasks (T240-T250) are NOT duplicates of Phase 2.5 and Phase 9 verification tasks (T210-T216). They provide EXPLICIT FILESYSTEM COMMAND EVIDENCE requirements that go beyond task completion markers. Phase 2.5 tasks perform the actual cleanup (T213, T216), while Phase 9.5 tasks provide VERIFICATION EVIDENCE (T240-T245) using explicit shell commands. This separation ensures auditability of filesystem hygiene.
+All violations will be caught by T240-T242 verification tasks.

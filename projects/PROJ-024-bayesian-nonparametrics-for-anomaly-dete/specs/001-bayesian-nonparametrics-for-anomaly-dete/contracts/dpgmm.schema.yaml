@@ -1,16 +1,14 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "EvaluationMetrics"
+title: "DPGMM"
 type: object
 required:
-  - f1_score
-  - precision
-  - recall
+  - alpha
+  - gamma
+  - concentration_prior
 properties:
-  f1_score:
+  alpha:
     type: number
-  precision:
+  gamma:
     type: number
-  recall:
-    type: number
-  auc_roc:
+  concentration_prior:
     type: number

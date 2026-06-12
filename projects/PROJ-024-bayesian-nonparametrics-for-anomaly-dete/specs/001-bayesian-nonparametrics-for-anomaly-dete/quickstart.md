@@ -1,396 +1,94 @@
-# Quickstart Guide: Bayesian Nonparametrics for Anomaly Detection in Time Series
+# Quickstart: Bayesian Nonparametrics for Anomaly Detection in Time Series
 
-**Project ID**: PROJ-024  
-**Version**: 1.0.0  
-**Last Updated**: 2026-05-01
+This guide walks you through setting up the environment, downloading the benchmark datasets, training the DPGMM, calibrating a threshold, and evaluating performance.
 
----
-
-## Overview
-
-This project implements a **Dirichlet Process Gaussian Mixture Model (DPGMM)** for streaming anomaly detection in time series data. The model uses **stick-breaking construction** and **ADVI variational inference** to automatically learn the number of mixture components without requiring prior specification.
-
-### Key Features
-
-- **Streaming Updates**: Process observations one at a time without batch retraining
-- **Automatic Clustering**: Learn the number of mixture components from data
-- **Probabilistic Uncertainty**: Provide confidence intervals for anomaly scores
-- **Memory Efficient**: Designed to run within <7GB RAM constraint
-- **Baseline Comparisons**: ARIMA, Moving Average with Z-Score, and LSTM Autoencoder
-
----
-
-## Installation
-
-### Prerequisites
-
-- Python 3.11+
-- pip (Python package manager)
-- 7GB+ available RAM (recommended)
-
-### Step 1: Clone and Navigate
-
+## 1. Clone the Repository & Set Up Environment
 ```bash
-cd projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete
-cd code
-```
-
-### Step 2: Create Virtual Environment
-
-```bash
+git clone https://github.com/your-org/PROJ-024-bayesian-nonparametrics-for-anomaly-detection.git
+cd PROJ-024-bayesian-nonparametrics-for-anomaly-detection
 python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-```
-
-### Step 3: Install Dependencies
-
-```bash
+source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-The `requirements.txt` contains pinned versions for reproducibility:
-- `pymc==5.9.0` - Bayesian modeling
-- `numpy>=1.24.0` - Numerical computing
-- `pandas>=2.0.0` - Data manipulation
-- `scikit-learn>=1.3.0` - Baseline implementations
-- `matplotlib>=3.7.0` - Visualization
-- `seaborn>=0.12.0` - Statistical plots
-- `scipy>=1.11.0` - Statistical tests
-- `pytest>=7.4.0` - Testing framework
-- `pyyaml>=6.0` - Configuration parsing
-
----
-
-## Project Structure
-
-```
-projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/
-├── code/
-│   ├── src/
-│   │   ├── models/
-│   │   │   ├── dpgmm.py          # Core DPGMM implementation
-│   │   │   ├── anomaly_score.py  # Anomaly score dataclass
-│   │   │   └── time_series.py    # Time series entity
-│   │   ├── baselines/
-│   │   │   ├── arima.py          # ARIMA baseline
-│   │   │   ├── moving_average.py # Moving average with Z-score
-│   │   │   └── lstm_ae.py        # LSTM Autoencoder baseline
-│   │   ├── evaluation/
-│   │   │   ├── metrics.py        # F1, precision, recall, AUC
-│   │   │   ├── plots.py          # ROC/PR curve generators
-│   │   │   └── statistical_tests.py # Paired t-tests
-│   │   ├── data/
-│   │   │   ├── download_datasets.py  # Dataset fetchers
-│   │   │   └── synthetic_generator.py # Synthetic data generator
-│   │   ├── utils/
-│   │   │   ├── streaming.py      # Sequential observation processing
-│   │   │   ├── threshold.py      # Threshold calibration
-│   │   │   └── memory_profiler.py # Memory usage monitoring
-│   │   └── services/
-│   │       ├── anomaly_detector.py    # Service wrapper
-│   │       └── threshold_calibrator.py # Threshold service
-│   ├── tests/
-│   │   ├── contract/               # Schema validation tests
-│   │   ├── integration/            # Integration tests
-│   │   └── unit/                   # Unit tests
-│   ├── scripts/                    # Executable scripts
-│   ├── config.yaml                 # Hyperparameters and settings
-│   └── requirements.txt            # Pinned dependencies
-├── data/
-│   ├── raw/                        # Downloaded datasets
-│   └── processed/
-│       └── results/                # Evaluation outputs
-├── specs/
-│   ├── 001-bayesian-nonparametrics-anomaly-detection/
-│   │   ├── research.md             # Literature review
-│   │   ├── data-model.md           # Entity definitions
-│   │   └── quickstart.md           # This file
-│   └── contracts/                  # Schema definitions
-└── state/
-    └── projects/
-        └── PROJ-024-bayesian-nonparametrics-for-anomaly-dete.yaml  # Artifact checksums
-```
-
----
-
-## Basic Usage
-
-### Option 1: Download Datasets
-
+## 2. Verify Config Size (<2 KB)
 ```bash
-cd code
-python -m scripts.download_datasets
+stat -c%s code/config.yaml   # should report within a defined limit
 ```
 
-This downloads three UCI datasets:
-- **Electricity**: 37,000+ observations of electricity load
-- **Traffic**: 17,544 observations of road traffic
-- **Synthetic Control Chart**: 6,000 synthetic time series
-
-Each download includes SHA256 checksum validation.
-
-### Option 2: Run DPGMM on Time Series
-
-```python
-from models.dp_gmm import DPGMMModel, DPGMMConfig
-from data.synthetic_generator import generate_synthetic_timeseries
-
-# Create model with configuration
-config = DPGMMConfig(
-    alpha=1.0,           # Concentration parameter
-    gamma=1.0,           # Stick-breaking prior
-    max_components=20,   # Maximum mixture components
-    random_seed=42
-)
-model = DPGMMModel(config)
-
-# Generate or load time series data
-data = generate_synthetic_timeseries(
-    length=1000,
-    n_anomalies=50,
-    anomaly_rate=0.05
-)
-
-# Process observations in streaming fashion
-scores = []
-for obs in data:
-    score = model.process_observation(obs)
-    scores.append(score)
-
-# Get anomaly scores with uncertainty
-for i, score in enumerate(scores):
-    print(f"t={i}: score={score.value:.4f}, uncertainty={score.uncertainty:.4f}")
-```
-
-### Option 3: Run Baseline Comparison
-
+## 3. Download & Verify Datasets
 ```bash
-cd code
-python -m scripts.run_baseline_comparison
+python -m code.src.data.download_datasets \
+    --output-dir data/raw \
+    --datasets electricity traffic synthetic_control
 ```
+The script:
+- Uses the deterministic `ucimlrepo` loader.
+- Computes SHA256 checksums and writes them to `state/projects/PROJ-024-...yaml`.
+- Applies temporal preprocessing (lag features, rolling stats).
 
-This compares DPGMM against:
-- ARIMA (AutoRegressive Integrated Moving Average)
-- Moving Average with Z-Score threshold
-- LSTM Autoencoder
-
-Output includes F1-scores, precision, recall, and ROC/PR curves saved to `data/processed/results/`.
-
----
-
-## Configuration
-
-Edit `code/config.yaml` to customize behavior:
-
-```yaml
-# DPGMM Hyperparameters
-dpgmm:
-  alpha: 1.0           # Concentration parameter
-  gamma: 1.0           # Stick-breaking prior
-  max_components: 20   # Maximum mixture components
-  learning_rate: 0.01  # ADVI learning rate
-  max_iterations: 500  # Maximum ELBO iterations
-  elbo_tolerance: 0.001 # Convergence threshold
-
-# Threshold Calibration
-threshold:
-  percentile: 95       # Percentile for adaptive threshold
-  min_anomaly_rate: 0.01
-  max_anomaly_rate: 0.10
-
-# Dataset Paths
-data:
-  raw_dir: data/raw
-  processed_dir: data/processed
-  results_dir: data/processed/results
-
-# Random Seeds (for reproducibility)
-random_seeds:
-  numpy: 42
-  pymc: 42
-  python: 42
-```
-
-**Note**: `config.yaml` must remain under 2KB. Derived statistics are stored in `state/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete.yaml`.
-
----
-
-## Testing
-
-### Run All Tests
-
+## 4. Train the DPGMM Model
 ```bash
-cd code
-pytest tests/ -v --cov=src --cov-report=html
+python -m code.src.cli.run_detection train \
+    --config code/config.yaml \
+    --checkpoint-dir data/processed/results/model_checkpoints
 ```
+- Performs ADVI inference, logs ELBO to `logs/elbo/dpgmm_elbo.log`.
+- Saves final checkpoint `dpgmm_checkpoint.pt`.
 
-### Run Contract Tests (Schema Validation)
-
+## 5. Stream Inference & Scoring
 ```bash
-pytest tests/contract/ -v
+python -m code.src.cli.run_detection infer \
+    --checkpoint data/processed/results/model_checkpoints/dpgmm_checkpoint.pt \
+    --input data/raw/electricity.csv \
+    --output data/processed/results/anomaly_scores.json
 ```
 
-### Run Integration Tests
-
+## 6. Calibrate Threshold
 ```bash
-pytest tests/integration/ -v
+python -m code.src.cli.run_detection calibrate \
+    --scores data/processed/results/anomaly_scores.json \
+    --output data/processed/results/threshold.json
 ```
 
-### Run Unit Tests
-
+## 7. Evaluate Performance
 ```bash
-pytest tests/unit/ -v
+python -m code.src.evaluation.metrics \
+    --scores data/processed/results/anomaly_scores.json \
+    --threshold data/processed/results/threshold.json \
+    --labels data/raw/electricity_labels.csv \
+    --output data/processed/results/evaluation_metrics.json
 ```
+The resulting JSON conforms to `evaluation_metrics.schema.yaml`.
 
-**Coverage Requirement**: ≥80% line coverage for all public APIs.
-
----
-
-## API Reference
-
-### Core Models
-
-| Module | Class | Description |
-|--------|-------|-------------|
-| `models.dp_gmm` | `DPGMMModel` | Streaming DPGMM with stick-breaking construction |
-| `models.dp_gmm` | `DPGMMConfig` | Configuration dataclass |
-| `models.anomaly_score` | `AnomalyScore` | Anomaly score with uncertainty |
-| `models.time_series` | `TimeSeries` | Time series entity |
-
-### Baselines
-
-| Module | Class | Description |
-|--------|-------|-------------|
-| `baselines.arima` | `ARIMABaseline` | ARIMA anomaly detection |
-| `baselines.moving_average` | `MovingAverageBaseline` | Moving average with Z-score |
-| `baselines.lstm_ae` | `LSTMAutoencoder` | LSTM Autoencoder baseline |
-
-### Evaluation
-
-| Module | Function | Description |
-|--------|----------|-------------|
-| `evaluation.metrics` | `compute_f1_score` | F1-score calculation |
-| `evaluation.metrics` | `compute_all_metrics` | All metrics at once |
-| `evaluation.plots` | `generate_roc_curve` | ROC curve generation |
-| `evaluation.plots` | `generate_pr_curve` | Precision-Recall curve |
-| `evaluation.statistical_tests` | `paired_ttest_with_bonferroni` | Statistical comparison |
-
-### Services
-
-| Module | Class | Methods |
-|--------|-------|---------|
-| `services.anomaly_detector` | `AnomalyDetectorService` | `load_model()`, `process_stream()`, `update_model()`, `compute_score()`, `get_uncertainty()`, `save_checkpoint()` |
-| `services.threshold_calibrator` | `ThresholdCalibratorService` | `calibrate()`, `validate_threshold()`, `get_decision_boundary()`, `update_decision_boundary()` |
-
----
-
-## Common Workflows
-
-### Workflow 1: Streaming Anomaly Detection
-
-```python
-from services.anomaly_detector import AnomalyDetectorService
-from services.threshold_calibrator import ThresholdCalibratorService
-
-# Initialize services
-detector = AnomalyDetectorService(config_path="config.yaml")
-calibrator = ThresholdCalibratorService()
-
-# Calibrate threshold on unlabeled data
-threshold = calibrator.calibrate(detector.get_recent_scores())
-
-# Process streaming data
-for observation in stream:
-    score = detector.process_stream(observation)
-    if score.value > threshold:
-        print(f"Anomaly detected at t={observation.timestamp}!")
-```
-
-### Workflow 2: Full Evaluation Pipeline
-
+## 8. Run Contract Tests
 ```bash
-# Step 1: Download datasets
-python -m scripts.download_datasets
+pytest code/tests/contract/ \
+    test_dataset_schema.py \
+    test_anomaly_score_schema.py \
+    test_evaluation_metrics_schema.py \
+    test_threshold_calibrator_schema.py \
+    test_anomaly_detector_schema.py \
+    test_dpgmm_schema.py \
+    test_anomaly_detector_service_schema.py \
+    test_threshold_calibrator_service_schema.py \
+    --cov=code/src --cov-report term-missing
+```
+Coverage must be ≥ 80 % (Task T249).
 
-# Step 2: Generate checksums
-python -m scripts.generate_data_checksums
+## 9. Verify Cleanup & Integrity (Phase 9.5‑9.6)
+```bash
+bash scripts/verify.sh
+```
+The script executes the filesystem verification commands listed in the spec (e.g., `ls -la data/raw/`, `find data/raw/ -type d -name raw`, `stat -c%s code/config.yaml`, etc.) and prints a pass/fail summary.
 
-# Step 3: Run DPGMM evaluation
-python -m scripts.evaluate_dp_gmm
-
-# Step 4: Run baseline comparison
-python -m scripts.run_baseline_comparison
-
-# Step 5: Generate summary report
-python -m scripts.generate_summary_report
+## 10. Generate Figures & Paper (Optional)
+```bash
+python -m code.src.analysis.plot_results \
+    --metrics data/processed/results/evaluation_metrics.json \
+    --output-dir docs/figures
 ```
 
-Outputs are saved to `data/processed/results/`:
-- `metrics.json` - F1-scores, precision, recall, AUC
-- `roc_curves.png` - ROC curve visualization
-- `pr_curves.png` - Precision-Recall curve visualization
-- `comparison_summary.md` - Statistical test results
+All steps are deterministic; re‑running the script from a clean checkout reproduces the exact numbers reported in the final paper.
 
 ---
-
-## Troubleshooting
-
-### Issue: Memory Limit Exceeded
-
-**Solution**: Reduce `max_components` in `config.yaml` or use streaming mode with smaller batch sizes.
-
-### Issue: ELBO Not Converging
-
-**Solution**: Increase `max_iterations` or adjust `learning_rate`. Check `logs/elbo/` for convergence logs.
-
-### Issue: Dataset Download Fails
-
-**Solution**: Verify network connectivity. URLs are cached after first download. Check `data/raw/` for existing files.
-
-### Issue: Test Coverage Below 80%
-
-**Solution**: Add missing unit tests for uncovered public API methods. Run `pytest --cov=src` to identify gaps.
-
----
-
-## Performance Benchmarks
-
-| Dataset | DPGMM Runtime | ARIMA Runtime | Memory Usage |
-|---------|---------------|---------------|--------------|
-| Electricity | ~12 min | ~8 min | ~4.2 GB |
-| Traffic | ~18 min | ~10 min | ~5.1 GB |
-| Synthetic | ~5 min | ~3 min | ~2.8 GB |
-
-**Constraint**: All datasets must complete within 30 minutes (SC-003).
-
----
-
-## Contributing
-
-1. Create a feature branch from `main`
-2. Implement changes with tests
-3. Ensure all tests pass: `pytest tests/ -v`
-4. Verify coverage: `pytest --cov=src`
-5. Submit pull request
-
-**Constitution Principles**: All changes must comply with Principles I-VII (reproducibility, task isolation, data integrity, path conventions, project structure, ELBO logging, API consistency).
-
----
-
-## License
-
-MIT License - See `LICENSE` file for details.
-
----
-
-## References
-
-1. **Research**: `specs/001-bayesian-nonparametrics-anomaly-detection/research.md`
-2. **Data Model**: `specs/001-bayesian-nonparametrics-anomaly-detection/data-model.md`
-3. **Plan**: `plan.md`
-4. **Tasks**: `tasks.md`
-5. **Constitution Check**: `specs/001-bayesian-nonparametrics-anomaly-detection/constitution_check.md`
-
----
-
-**End of Quickstart Guide**

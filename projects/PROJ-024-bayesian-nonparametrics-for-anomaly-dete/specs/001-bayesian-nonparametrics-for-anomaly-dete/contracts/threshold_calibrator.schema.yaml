@@ -1,0 +1,14 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ThresholdCalibrator"
+type: object
+required:
+  - threshold
+  - percentile
+  - adaptive
+properties:
+  threshold:
+    type: number
+  percentile:
+    type: number
+  adaptive:
+    type: boolean

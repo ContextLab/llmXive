@@ -1,66 +1,19 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Dataset Schema
-description: Schema for raw and processed time series datasets
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Dataset"
 type: object
 required:
-  - dataset_name
-  - source
-  - checksum
-  - observations
+  - series_id
+  - values
 properties:
-  dataset_name:
+  series_id:
     type: string
-    description: Unique identifier for the dataset
-    pattern: "^[a-z0-9_]+$"
-  source:
-    type: string
-    description: Source of the dataset (e.g., UCI, NAB)
-    enum:
-      - UCI
-      - NAB
-  url:
-    type: string
-    description: Canonical URL for dataset source
-    format: uri
-  checksum:
-    type: string
-    description: SHA256 checksum of raw data file
-    pattern: "^[a-f0-9]{64}$"
-  observations:
+  values:
     type: array
-    description: Time series observations
     items:
-      type: object
-      required:
-        - value
-        - index
-      properties:
-        value:
-          type: number
-        index:
-          type: integer
-        timestamp:
-          type: string
-          format: date-time
-        label:
-          type: integer
-          enum: [0, 1]
-          description: 0=normal, 1=anomaly
-    minItems: 1
-  metadata:
-    type: object
-    properties:
-      n_observations:
-        type: integer
-      n_anomalies:
-        type: integer
-      mean:
-        type: number
-      std:
-        type: number
-  created_at:
-    type: string
-    format: date-time
-  processed_at:
-    type: string
-    format: date-time
+      type: number
+    minItems: 1000
+  timestamp:
+    type: array
+    items:
+      type: string
+      format: date-time

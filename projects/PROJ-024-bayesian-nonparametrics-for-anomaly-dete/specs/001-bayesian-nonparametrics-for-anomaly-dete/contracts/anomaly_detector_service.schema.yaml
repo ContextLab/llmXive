@@ -1,0 +1,15 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "AnomalyDetectorService"
+type: object
+required:
+  - service_name
+  - method_count
+  - type_hints_compliant
+properties:
+  service_name:
+    type: string
+  method_count:
+    type: integer
+    const: 7
+  type_hints_compliant:
+    type: boolean

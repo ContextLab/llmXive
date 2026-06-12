@@ -1,65 +1,14 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Anomaly Score Schema
-description: Schema for anomaly detection scores from DPGMM and baselines
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "AnomalyScore"
 type: object
 required:
-  - dataset_name
-  - method
-  - scores
+  - score
+  - timestamp
 properties:
-  dataset_name:
-    type: string
-    description: Dataset identifier
-    pattern: "^[a-z0-9_]+$"
-  method:
-    type: string
-    description: Detection method used
-    enum:
-      - DPGMM
-      - ARIMA
-      - MOVING_AVERAGE
-  scores:
-    type: array
-    description: Anomaly scores for each observation
-    items:
-      type: object
-      required:
-        - index
-        - value
-        - score
-        - is_anomaly
-      properties:
-        index:
-          type: integer
-          description: Observation index
-        value:
-          type: number
-          description: Original observation value
-        score:
-          type: number
-          description: Anomaly score (negative log posterior probability)
-        is_anomaly:
-          type: boolean
-          description: Whether observation flagged as anomaly
-        threshold_used:
-          type: number
-          description: Threshold applied for flagging
-        posterior_uncertainty:
-          type: number
-          description: Uncertainty estimate (optional)
-    minItems: 1
-  threshold:
+  score:
     type: number
-    description: Global threshold used for anomaly flagging
-  n_anomalies_detected:
-    type: integer
-    description: Total anomalies detected
-  n_total_observations:
-    type: integer
-    description: Total observations processed
-  random_seed:
-    type: integer
-    description: Random seed for reproducibility
-  created_at:
+  timestamp:
     type: string
     format: date-time
+  uncertainty:
+    type: number
