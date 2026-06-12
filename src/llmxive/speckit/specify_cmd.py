@@ -268,24 +268,19 @@ class SpecifierAgent(SlashCommandAgent):
         # tightened.
         from llmxive.speckit._diff_guard import refuse_if_diff
         refuse_if_diff(llm_response.text, artifact_kind="spec.md")
+        # Defect #21: an in-place re-specify (pointer-dir reuse) overwrites
+        # the mature spec — capture it so a guard refusal RESTORES it
+        # instead of leaving no spec.md on disk.
+        prior_spec = (
+            spec_path.read_text(encoding="utf-8") if spec_path.exists() else None
+        )
         spec_path.write_text(llm_response.text.strip() + "\n", encoding="utf-8")
 
         # Spec 009 FR-009 + FR-010: real-only guard. If the emitter produced a
-        # template-classified artifact, delete it, log the actionable error,
-        # and DO NOT advance project progression points (SC-004).
-        from llmxive.speckit._real_only_guard import (
-            TemplateRefused,
-            assert_real_or_raise,
-        )
-        try:
-            assert_real_or_raise(spec_path, repo_root=repo)
-        except TemplateRefused as exc:
-            spec_path.unlink(missing_ok=True)
-            import logging
-            logging.getLogger(__name__).error(
-                "speckit specify refused template emission: %s", exc
-            )
-            raise
+        # template-classified artifact, discard it (restoring any prior spec),
+        # log the actionable error, and DO NOT advance progression (SC-004).
+        from llmxive.speckit._real_only_guard import guard_emit
+        guard_emit(spec_path, repo_root=repo, previous_content=prior_spec)
 
         # Persist speckit_research_dir on project state so the Project
         # validator allows the `specified` stage. The directory is

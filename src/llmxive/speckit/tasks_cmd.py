@@ -185,10 +185,15 @@ class TaskerAgent(SlashCommandAgent):
                 f"Tasker produced only {len(task_id_lines)} task IDs "
                 f"(need >= 5; total chars: {len(text)}). Re-running on next cycle."
             )
+        # Defect #21: a re-task overwrites the existing tasks.md — capture it
+        # so a guard refusal RESTORES it instead of leaving no file on disk.
+        prior_tasks = (
+            tasks_path.read_text(encoding="utf-8") if tasks_path.exists() else None
+        )
         tasks_path.write_text(text + "\n", encoding="utf-8")
         # FR-009: real-only guard — refuse to commit a template tasks.md
         from llmxive.speckit._real_only_guard import guard_emit
-        guard_emit(tasks_path, repo_root=repo)
+        guard_emit(tasks_path, repo_root=repo, previous_content=prior_tasks)
         written = [str(tasks_path.relative_to(repo))]
 
         # Now run the analyze-resolve loop. Backend failures here are

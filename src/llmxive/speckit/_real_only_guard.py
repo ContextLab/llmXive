@@ -98,13 +98,20 @@ def is_real(path: Path | str, *, repo_root: Path | str = ".",
 def guard_emit(path: Path | str, *, repo_root: Path | str = ".",
                templates_dir: Path | str | None = None,
                unlink_on_fail: bool = True,
+               previous_content: str | None = None,
                logger: _logging_module.Logger | None = None) -> None:
-    """Convenience: assert_real_or_raise + on-fail unlink + structured log.
+    """Convenience: assert_real_or_raise + on-fail unlink/restore + structured log.
 
     Used at every speckit emit site as a one-liner per FR-009. On failure the
-    file is removed (so the offending stub doesn't pollute the tree) and the
-    actionable error is logged BEFORE the exception propagates so callers see
-    the missing-context hint even if they catch the exception.
+    offending emission is removed (so the stub doesn't pollute the tree) and
+    the actionable error is logged BEFORE the exception propagates so callers
+    see the missing-context hint even if they catch the exception.
+
+    Spec 023 defect #21: when the emit OVERWROTE a pre-existing good artifact
+    (re-task / re-specify / engine writeback), unlinking destroyed real state —
+    observed live on PROJ-552, which reached `tasked` with NO tasks.md on disk.
+    Callers that replaced existing content pass it as ``previous_content``;
+    on refusal the prior artifact is RESTORED instead of deleted.
     """
     import logging
     log = logger or logging.getLogger(__name__)
@@ -113,6 +120,12 @@ def guard_emit(path: Path | str, *, repo_root: Path | str = ".",
         assert_real_or_raise(path, repo_root=repo_root, templates_dir=templates_dir)
     except TemplateRefused as exc:
         log.error("speckit guard refused emission: %s", exc)
-        if unlink_on_fail and path.exists():
+        if previous_content is not None and previous_content.strip():
+            path.write_text(previous_content, encoding="utf-8")
+            log.error(
+                "speckit guard restored the previous %s (refused emission "
+                "discarded; prior artifact preserved)", path.name,
+            )
+        elif unlink_on_fail and path.exists():
             path.unlink()
         raise

@@ -63,3 +63,38 @@ class TestRealOnlyGuard(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestGuardEmitRestore(unittest.TestCase):
+    """Spec 023 defect #21: a refused emission that OVERWROTE a pre-existing
+    good artifact must RESTORE it — unlinking destroyed real state (observed
+    live: PROJ-552 reached `tasked` with NO tasks.md on disk after a re-task
+    draft full of `[Reviewer: ...]` markers was refused and deleted)."""
+
+    def test_refusal_restores_previous_content(self):
+        import shutil
+        import tempfile
+
+        from llmxive.speckit._real_only_guard import guard_emit
+
+        with tempfile.TemporaryDirectory() as td:
+            path = Path(td) / "tasks.md"
+            shutil.copyfile(FIXTURE_TEMPLATE, path)  # the refused emission
+            prior = "# good tasks\n- [ ] T001 real work\n"
+            with self.assertRaises(TemplateRefused):
+                guard_emit(path, repo_root=REPO_ROOT, previous_content=prior)
+            self.assertTrue(path.exists(), "prior artifact must be restored")
+            self.assertEqual(path.read_text(encoding="utf-8"), prior)
+
+    def test_refusal_without_prior_still_unlinks(self):
+        import shutil
+        import tempfile
+
+        from llmxive.speckit._real_only_guard import guard_emit
+
+        with tempfile.TemporaryDirectory() as td:
+            path = Path(td) / "tasks.md"
+            shutil.copyfile(FIXTURE_TEMPLATE, path)
+            with self.assertRaises(TemplateRefused):
+                guard_emit(path, repo_root=REPO_ROOT, previous_content=None)
+            self.assertFalse(path.exists(), "first-time stub is removed")

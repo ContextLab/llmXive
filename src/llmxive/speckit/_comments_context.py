@@ -68,7 +68,12 @@ def render_recent_comments_block(
          "carefully and let them shape your decisions — call out any concrete "
          "objections, integrate concrete suggestions, and feel free to push "
          "back on weak or contradictory feedback. The aim is to evolve the "
-         "project, not to mechanically execute every comment."),
+         "project, not to mechanically execute every comment. NEVER copy "
+         "bracketed attribution markers (e.g. `[Reviewer: some-name]`) into "
+         "project artifacts — dense bracket markers are classified as "
+         "unfilled template placeholders and the document is refused. When "
+         "attribution matters, write it in plain prose (e.g. \"per reviewer "
+         "some-name\")."),
         "",
     ]
     for f in files[:limit]:

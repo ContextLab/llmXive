@@ -90,10 +90,15 @@ class PaperTaskerAgent(SlashCommandAgent):
         repo = ctx.project_dir.parent.parent
         tasks_path = Path(mechanical_output["tasks_path"])
         tasks_path.parent.mkdir(parents=True, exist_ok=True)
+        # Defect #21: capture any existing tasks.md so a guard refusal
+        # restores it instead of leaving no file on disk.
+        prior_tasks = (
+            tasks_path.read_text(encoding="utf-8") if tasks_path.exists() else None
+        )
         tasks_path.write_text(llm_response.text.strip() + "\n", encoding="utf-8")
         # FR-009: real-only guard — refuse template tasks emissions
         from llmxive.speckit._real_only_guard import guard_emit
-        guard_emit(tasks_path, repo_root=repo)
+        guard_emit(tasks_path, repo_root=repo, previous_content=prior_tasks)
         written = [str(tasks_path.relative_to(repo))]
 
         spec_path = Path(mechanical_output["spec_path"])

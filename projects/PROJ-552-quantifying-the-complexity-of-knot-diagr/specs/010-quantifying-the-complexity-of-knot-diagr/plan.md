@@ -100,4 +100,4 @@ projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| N/A | Constitution Check passed with all 7 principles | No violations requiring justification |
+| N/A | Constitution Check passed with all Key principles | No violations requiring justification |
