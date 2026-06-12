@@ -1,13 +1,14 @@
 {
-  "pdf": "projects/PROJ-666-https-arxiv-org-abs-2606-05121/paper/pdf/2606.05121.pdf",
+  "pdf": "/home/runner/work/llmXive/llmXive/projects/PROJ-666-https-arxiv-org-abs-2606-05121/paper/pdf/2606.05121.pdf",
   "audit": null,
   "repair_rounds": 0,
+  "llmxive_compile_attempts": 1,
   "status": "fallback_original",
   "failure": {
-    "stage": "restyle",
-    "reason": "restyle step failed or never ran (pre-023 silent fallback; status reconstructed at spec-023 backfill \u2014 the served PDF is the original arXiv version)",
-    "log_excerpt": "restyle step failed or never ran (pre-023 silent fallback; status reconstructed at spec-023 backfill \u2014 the served PDF is the original arXiv version)"
+    "stage": "compile",
+    "reason": "lualatex failed:\n(/usr/share/texlive/texmf-dist/tex/latex/trimspaces/trimspaces.sty)))\n(/usr/share/texlive/texmf-dist/tex/latex/fontawesome5/fontawesome5.sty\n(/usr/share/texlive/texmf-dist/tex/latex/fontawesome5/fontawesome5-utex-helper.\nsty (/usr/share/texlive/texmf-dist/tex/luatex/luatexbase/luatexbase.sty\n(/usr/share/texlive/texmf-dist/tex/luatex/ctablestack/ctablestack.sty))\n(/usr/share/texlive/texmf-dist/tex/latex/fontawesome5/tufontawesomefree.fd)\n(/usr/share/texlive/texmf-dist/tex/latex/fontawesome5/tufontawesomebrands.fd)))\n (/usr/share/texlive/texmf-dist/tex/latex/multirow/multirow.sty)\n(/usr/share/texlive/texmf-dist/tex/latex/caption/subcaption.sty)\n(/usr/share/texlive/texmf-dist/tex/latex/psnfss/pifont.sty\n(/usr/share/texlive/texmf-dist/tex/latex/psnfss/upzd.fd)\n(/usr/share/texlive/texmf-dist/tex/latex/psnfss/upsy.fd))\n\n! LaTeX Error: File `ulem.sty' not found.\n\nType X to quit or <RETURN> to proceed,\nor enter new name. (Default extension: sty)\n\nEnter file name: \n! Emergency ",
+    "log_excerpt": "lualatex failed:\n(/usr/share/texlive/texmf-dist/tex/latex/trimspaces/trimspaces.sty)))\n(/usr/share/texlive/texmf-dist/tex/latex/fontawesome5/fontawesome5.sty\n(/usr/share/texlive/texmf-dist/tex/latex/fontawesome5/fontawesome5-utex-helper.\nsty (/usr/share/texlive/texmf-dist/tex/luatex/luatexbase/luatexbase.sty\n(/usr/share/texlive/texmf-dist/tex/luatex/ctablestack/ctablestack.sty))\n(/usr/share/texlive/texmf-dist/tex/latex/fontawesome5/tufontawesomefree.fd)\n(/usr/share/texlive/texmf-dist/tex/latex/fontawesome5/tufontawesomebrands.fd)))\n (/usr/share/texlive/texmf-dist/tex/latex/multirow/multirow.sty)\n(/usr/share/texlive/texmf-dist/tex/latex/caption/subcaption.sty)\n(/usr/share/texlive/texmf-dist/tex/latex/psnfss/pifont.sty\n(/usr/share/texlive/texmf-dist/tex/latex/psnfss/upzd.fd)\n(/usr/share/texlive/texmf-dist/tex/latex/psnfss/upsy.fd))\n\n! LaTeX Error: File `ulem.sty' not found.\n\nType X to quit or <RETURN> to proceed,\nor enter new name. (Default extension: sty)\n\nEnter file name: \n! Emergency stop.\n<read *> \n   \nl.35 \\usepackage\n              {natbib}\n 611 words of node memory still in use:\n   5 hlist, 1 vlist, 2 rule, 1 dir, 4 kern, 1 glyph, 8 attribute, 79 glue_spec,\n 8 attribute_list, 2 write, 2 pdf_colorstack nodes\n   avail lists: 1:1,2:24,3:1,5:5,7:5,8:2,9:2\n!  ==> Fatal error occurred, no output PDF file produced!\nTranscript written on main-llmxive.log."
   },
   "paper_id": "PROJ-666-https-arxiv-org-abs-2606-05121",
-  "updated_at": "2026-06-11T03:02:50.765047+00:00"
+  "updated_at": "2026-06-12T12:52:50.143482+00:00"
 }

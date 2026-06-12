@@ -1,13 +1,14 @@
 {
-  "pdf": "projects/PROJ-635-evalverse-pipeline-aware-and-expert-cali/paper/pdf/2605.23271.pdf",
+  "pdf": "/home/runner/work/llmXive/llmXive/projects/PROJ-635-evalverse-pipeline-aware-and-expert-cali/paper/pdf/2605.23271.pdf",
   "audit": null,
   "repair_rounds": 0,
+  "llmxive_compile_attempts": 1,
   "status": "fallback_original",
   "failure": {
-    "stage": "restyle",
-    "reason": "restyle step failed or never ran (pre-023 silent fallback; status reconstructed at spec-023 backfill \u2014 the served PDF is the original arXiv version)",
-    "log_excerpt": "restyle step failed or never ran (pre-023 silent fallback; status reconstructed at spec-023 backfill \u2014 the served PDF is the original arXiv version)"
+    "stage": "compile",
+    "reason": "lualatex failed:\n<inserted text> }\n \nl.717 }\n     \n! Missing } inserted.\n<inserted text> \n}\nl.717 }\n     \n! Extra }, or forgotten \\endgroup.\n<inserted text> }\n \nl.717 }\n     \n! Missing } inserted.\n<inserted text> \n}\nl.717 }\n     \n(That makes 100 errors; please try again.)\n 31301 words of node memory still in use:\n   154 hlist, 19 vlist, 63 rule, 298 disc, 20 local_par, 8 dir, 533 glue, 180 k\nern, 73 penalty, 7 unset, 11 margin_kern, 2540 glyph, 14 align_record, 1 span, \n405 attribute, 97 glue_spec, 405 attribute_list, 14 temp, 1 align_stack, 13 wri\nte, 24 pdf_literal, 7 pdf_dest, 110 pdf_colorstack, 6 pdf_setmatrix, 6 pdf_save\n, 6 pdf_restore nodes\n   avail lists: 1:5,2:1279,3:180,4:123,5:1076,6:44,7:8726,8:51,9:2266,10:29,11:\n819\n!  ==> Fatal error occurred, no output PDF file produced!\nTranscript written on main-llmxive.log.",
+    "log_excerpt": "lualatex failed:\n<inserted text> }\n \nl.717 }\n     \n! Missing } inserted.\n<inserted text> \n}\nl.717 }\n     \n! Extra }, or forgotten \\endgroup.\n<inserted text> }\n \nl.717 }\n     \n! Missing } inserted.\n<inserted text> \n}\nl.717 }\n     \n(That makes 100 errors; please try again.)\n 31301 words of node memory still in use:\n   154 hlist, 19 vlist, 63 rule, 298 disc, 20 local_par, 8 dir, 533 glue, 180 k\nern, 73 penalty, 7 unset, 11 margin_kern, 2540 glyph, 14 align_record, 1 span, \n405 attribute, 97 glue_spec, 405 attribute_list, 14 temp, 1 align_stack, 13 wri\nte, 24 pdf_literal, 7 pdf_dest, 110 pdf_colorstack, 6 pdf_setmatrix, 6 pdf_save\n, 6 pdf_restore nodes\n   avail lists: 1:5,2:1279,3:180,4:123,5:1076,6:44,7:8726,8:51,9:2266,10:29,11:\n819\n!  ==> Fatal error occurred, no output PDF file produced!\nTranscript written on main-llmxive.log."
   },
   "paper_id": "PROJ-635-evalverse-pipeline-aware-and-expert-cali",
-  "updated_at": "2026-06-11T03:02:50.759756+00:00"
+  "updated_at": "2026-06-12T12:51:24.960155+00:00"
 }

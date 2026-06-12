@@ -1,13 +1,14 @@
 {
-  "pdf": "projects/PROJ-665-https-arxiv-org-abs-2606-02800/paper/pdf/2606.02800.pdf",
+  "pdf": "/home/runner/work/llmXive/llmXive/projects/PROJ-665-https-arxiv-org-abs-2606-02800/paper/pdf/2606.02800.pdf",
   "audit": null,
   "repair_rounds": 0,
+  "llmxive_compile_attempts": 1,
   "status": "fallback_original",
   "failure": {
-    "stage": "restyle",
-    "reason": "restyle step failed or never ran (pre-023 silent fallback; status reconstructed at spec-023 backfill \u2014 the served PDF is the original arXiv version)",
-    "log_excerpt": "restyle step failed or never ran (pre-023 silent fallback; status reconstructed at spec-023 backfill \u2014 the served PDF is the original arXiv version)"
+    "stage": "compile",
+    "reason": "lualatex failed:\n\n\nLaTeX Warning: Reference `LastPage' on page 46 undefined on input line 1645.\n\n[46]\n\nLaTeX Warning: Reference `fig:joint_dataloader' on page 1 undefined on input li\nne 1656.\n\n\nLaTeX Warning: Reference `LastPage' on page 47 undefined on input line 1678.\n\n[47]\n\nLaTeX Warning: Reference `fig:lookahead_dataloader' on page 1 undefined on inpu\nt line 1679.\n\n)\n! Emergency stop.\n<*> ...g-abs-2606-02800/paper/source/main-llmxive.tex\n                                                  \n 25555 words of node memory still in use:\n   94 hlist, 5 vlist, 20 rule, 208 disc, 6 local_par, 1 dir, 23 math, 434 glue,\n 152 kern, 17 penalty, 11 margin_kern, 2368 glyph, 190 attribute, 84 glue_spec,\n 190 attribute_list, 4 write, 24 pdf_literal, 2 pdf_dest, 42 pdf_colorstack, 1 \npdf_setmatrix, 1 pdf_save, 1 pdf_restore nodes\n   avail lists: 1:10,2:1976,3:525,4:1431,5:2020,6:73,7:7622,8:63,9:2954,10:28,1\n1:773,12:1\n!  ==> Fatal error occurred, no output PDF file produced!\nTranscript written on mai",
+    "log_excerpt": "lualatex failed:\n\n\nLaTeX Warning: Reference `LastPage' on page 46 undefined on input line 1645.\n\n[46]\n\nLaTeX Warning: Reference `fig:joint_dataloader' on page 1 undefined on input li\nne 1656.\n\n\nLaTeX Warning: Reference `LastPage' on page 47 undefined on input line 1678.\n\n[47]\n\nLaTeX Warning: Reference `fig:lookahead_dataloader' on page 1 undefined on inpu\nt line 1679.\n\n)\n! Emergency stop.\n<*> ...g-abs-2606-02800/paper/source/main-llmxive.tex\n                                                  \n 25555 words of node memory still in use:\n   94 hlist, 5 vlist, 20 rule, 208 disc, 6 local_par, 1 dir, 23 math, 434 glue,\n 152 kern, 17 penalty, 11 margin_kern, 2368 glyph, 190 attribute, 84 glue_spec,\n 190 attribute_list, 4 write, 24 pdf_literal, 2 pdf_dest, 42 pdf_colorstack, 1 \npdf_setmatrix, 1 pdf_save, 1 pdf_restore nodes\n   avail lists: 1:10,2:1976,3:525,4:1431,5:2020,6:73,7:7622,8:63,9:2954,10:28,1\n1:773,12:1\n!  ==> Fatal error occurred, no output PDF file produced!\nTranscript written on main-llmxive.log."
   },
   "paper_id": "PROJ-665-https-arxiv-org-abs-2606-02800",
-  "updated_at": "2026-06-11T03:02:50.764888+00:00"
+  "updated_at": "2026-06-12T12:52:43.022516+00:00"
 }
