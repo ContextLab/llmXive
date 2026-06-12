@@ -307,6 +307,10 @@ def _strip_body_commands(body: str) -> str:
 # macros in the body don't crash the build. Each is a low-fidelity shim:
 # we keep the text, drop the formatting.
 _KNOWN_SHIMS: dict[str, str] = {
+    # bm.sty is NOT forwarded (it breaks under the class's
+    # fontspec+unicode-math — see the _SAFE_FORWARD_PACKAGES note); map
+    # \bm onto amsmath's \boldsymbol, which unicode-math handles natively.
+    "bm":               r"\providecommand{\bm}[1]{\boldsymbol{#1}}",
     # common formatting/aux macros (NAME → \providecommand body)
     "todo":             r"\providecommand{\todo}[1]{}",
     "TODO":             r"\providecommand{\TODO}[1]{}",
@@ -407,7 +411,14 @@ def _shim_block() -> str:
 # Packages safe to forward from the original preamble (the llmxive class
 # does NOT load these by default). Anything not listed is dropped.
 _SAFE_FORWARD_PACKAGES = {
-    "amsmath", "amssymb", "amsfonts", "amsthm", "mathtools", "bm",
+    "amsmath", "amssymb", "amsfonts", "amsthm", "mathtools",
+    # NOTE: `bm` is INTENTIONALLY excluded. llmxive.cls loads
+    # fontspec+unicode-math (lualatex); bm.sty's \bm chokes on
+    # unicode-math's math setup — observed as "Illegal parameter number in
+    # definition of \inaccessible" (PROJ-682, \bm{W_\mathcal{U}}) and
+    # "Undefined control sequence \getanddefine@fonts ... \textfont@name"
+    # (PROJ-696, \boldsymbol under bm's pollution). The shim layer maps
+    # \bm → \boldsymbol (amsmath), which unicode-math supports natively.
     "natbib", "biblatex",      # bibliography styles
     "algorithm", "algorithmic", "algorithm2e", "algpseudocode",
     "subcaption", "subfig", "subfigure",

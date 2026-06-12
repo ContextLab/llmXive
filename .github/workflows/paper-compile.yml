@@ -58,10 +58,15 @@ jobs:
       - name: Install TeX Live (lualatex + fontspec + standard collections)
         run: |
           sudo apt-get update -qq
+          # texlive-plain-generic: Ubuntu ships soul.sty / ulem.sty under
+          # tex/generic/ in THIS package, not latex-extra — without it any
+          # paper forwarding soul/ulem dies with "File soul.sty not found"
+          # (PROJ-646/655 class).
           sudo apt-get install -y --no-install-recommends \
             texlive-luatex texlive-fonts-recommended texlive-fonts-extra \
             texlive-latex-recommended texlive-latex-extra texlive-science \
             texlive-publishers texlive-bibtex-extra biber \
+            texlive-plain-generic \
             ghostscript
           which lualatex && lualatex --version | head -1
       - name: Install llmxive package
