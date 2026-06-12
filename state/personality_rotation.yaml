@@ -1,12 +1,7 @@
-last_used: dan-rockmore
-last_used_at: '2026-06-12T20:47:06.092668+00:00'
+last_used: daniel-kahneman
+last_used_at: '2026-06-12T21:35:32.938860+00:00'
 last_outcome: triage_rejected_advanced_as_abstain
 history:
-- slug: stephen-wolfram
-  started_at: '2026-06-02T10:37:09.421092+00:00'
-  ended_at: '2026-06-02T12:21:35.953243+00:00'
-  outcome: triage_rejected_advanced_as_abstain
-  action: comment
 - slug: ada-lovelace
   started_at: '2026-06-02T12:21:35.953243+00:00'
   ended_at: '2026-06-02T13:52:20.190146+00:00'
@@ -1132,5 +1127,10 @@ history:
 - slug: dan-rockmore
   started_at: '2026-06-12T19:42:26.952560+00:00'
   ended_at: '2026-06-12T20:47:06.092668+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
+- slug: daniel-kahneman
+  started_at: '2026-06-12T20:47:06.092668+00:00'
+  ended_at: '2026-06-12T21:35:32.938860+00:00'
   outcome: triage_rejected_advanced_as_abstain
   action: comment
