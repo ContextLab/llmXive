@@ -1,0 +1,150 @@
+\section{Lite-80 Construction Detail}\label{appendix:lite}
+
+This appendix records the released Lite-80 construction used in
+Section~\ref{sec:lite}.  The current release is the cost-aware
+17-column version built from the LeakFix combined-350 data and the
+5-claw cross-harness grid.  It supersedes the earlier resolve-only
+variant.
+
+\subsection{Calibration Pool and Constraints}
+
+Lite selection is calibrated on 17 evaluation columns: 9 openclaw model
+columns plus 8 non-openclaw cross-claw columns.  The latter are the four
+additional claws (\textsc{hermes}, \textsc{nanobot}, \textsc{zeroclaw},
+\textsc{generic}) evaluated on the two shared models, GLM~5.1 and
+Qwen~3.6-flash.  The ranking and cost gates also use the corresponding
+5-claw $\times$ 2-model universe when checking within-model claw
+comparisons.
+
+For each language, the released subset selects exactly 10 instances.
+Within a language, the 10 selected instances must follow the fixed
+$2/3/3/2$ allocation over difficulty quartiles $Q_1/Q_2/Q_3/Q_4$.
+Quartiles are computed from the mean resolved rate across the
+calibration pool, so the strata reflect multi-model and multi-claw
+difficulty rather than a single harness's behavior.
+
+\subsection{Objective and Solver}
+
+Let $x_i\in\{0,1\}$ indicate whether instance $i$ is selected.  The
+selection loss combines three terms.  First, a resolve-rate L1 term
+matches Lite-implied and full-350 rates over the $17\times 8$ grid of
+calibration column by language.  Second, a pairwise ranking hinge
+penalizes column inversions: for column pairs whose full-set rates
+differ by more than $\texttt{RANK\_EPS}=0.03$, the loss is active when
+the Lite-predicted ordering is wrong or within a margin of $0.05$.
+The released setting uses $\lambda=1.0$.  Third, a cost term with
+$\texttt{cost\_alpha}=1$ matches Lite and full costs in log space, so
+the subset preserves the operating-cost structure rather than only the
+resolve-rate structure.
+
+The constrained search is run independently per language with 200
+random restarts followed by same-quartile 1-swap local search.  Because
+all swaps stay inside the same quartile, every candidate subset remains
+feasible with respect to both language count and difficulty allocation.
+
+\subsection{K-sweep Decision}
+
+The released size is selected by sweeping $K$ instances per language and
+checking resolve, cost, and operational gates under sensitivity
+scenarios.  Table~\ref{tab:lite-k-sweep} shows the resulting minimum
+passing $K$ values.  The band is $K^*\in[8,10]$; the release chooses the
+conservative maximum $K=10$, yielding $8\times10=80$ instances.  At
+this point all resolve gates (R-A/R-B/R-C), cost gates (C-A/C-B/C-C),
+and the operational composite gate pass.
+
+\begin{table}[h]
+\centering
+\small
+\caption{Sensitivity envelope for the Lite size decision.  Each row
+reports the smallest passing $K$ under one perturbation scenario.}
+\label{tab:lite-k-sweep}
+\begin{tabular}{llr}
+\toprule
+Scenario & Driver class & $K^*_{\mathrm{scenario}}$ \\
+\midrule
+main & -- & 9 \\
+MARGIN\_0 & margin & 10 \\
+MARGIN\_0.5overK & margin & 10 \\
+restart\_50 & restart & 10 \\
+restart\_500 & restart & 8 \\
+seed\_offset\_1000 & seed & 8 \\
+seed\_offset\_2000 & seed & 10 \\
+mirror\_B & mirror parity & 9 \\
+mirror\_A & mirror parity & 9 \\
+\midrule
+\textbf{release} & $K^*_{\max}$ & \textbf{10} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Distribution and Cross-claw Validation}
+
+Table~\ref{tab:lite-perlang} reports the per-language distribution
+match.  Averaged over all 17 calibration columns, full-350 has Pass@1
+$0.639$ and Lite-80 has Pass@1 $0.643$, a $+0.4$ percentage-point
+difference.
+
+\begin{table}[h]
+\centering
+\small
+\caption{Per-language distribution match for the released cost-aware
+Lite-80.  Rates are unweighted averages over the 17 calibration
+columns.}
+\label{tab:lite-perlang}
+\begin{tabular}{lrrrrr}
+\toprule
+Language & Full count & Lite count & Full rate & Lite rate & $\Delta$ \\
+\midrule
+Java   & 43 & 10 & 0.699 & 0.694 & $-0.005$ \\
+Go     & 42 & 10 & 0.476 & 0.476 & $+0.000$ \\
+Rust   & 43 & 10 & 0.748 & 0.741 & $-0.007$ \\
+JS/TS  & 43 & 10 & 0.616 & 0.612 & $-0.004$ \\
+C/C++  & 42 & 10 & 0.647 & 0.676 & $+0.029$ \\
+Ruby   & 44 & 10 & 0.603 & 0.629 & $+0.027$ \\
+PHP    & 43 & 10 & 0.647 & 0.641 & $-0.006$ \\
+Python & 50 & 10 & 0.666 & 0.671 & $+0.005$ \\
+\midrule
+\textbf{Total} & \textbf{350} & \textbf{80} & \textbf{0.639} & \textbf{0.643} & \textbf{$+0.004$} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Table~\ref{tab:lite-crossclaw} reports the direct cross-claw parity
+check on the 5-claw $\times$ 2-model grid.  The mean absolute Lite-vs-full
+gap is $1.88$ percentage points, and the maximum gap is $3.68$ percentage
+points.
+
+\begin{table}[h]
+\centering
+\small
+\caption{Cross-claw parity on the two shared models.  $\Delta$ is
+Lite-80 Pass@1 minus full-350 Pass@1.}
+\label{tab:lite-crossclaw}
+\begin{tabular}{llrrr}
+\toprule
+Claw & Model & Full rate & Lite rate & $\Delta$ \\
+\midrule
+openclaw & GLM~5.1 & 0.734 & 0.750 & $+0.016$ \\
+openclaw & Qwen~3.6-flash & 0.660 & 0.688 & $+0.028$ \\
+hermes & GLM~5.1 & 0.711 & 0.738 & $+0.026$ \\
+hermes & Qwen~3.6-flash & 0.626 & 0.613 & $-0.013$ \\
+zeroclaw & GLM~5.1 & 0.703 & 0.725 & $+0.022$ \\
+zeroclaw & Qwen~3.6-flash & 0.583 & 0.575 & $-0.008$ \\
+nanobot & GLM~5.1 & 0.609 & 0.600 & $-0.009$ \\
+nanobot & Qwen~3.6-flash & 0.474 & 0.438 & $-0.037$ \\
+generic & GLM~5.1 & 0.631 & 0.625 & $-0.006$ \\
+generic & Qwen~3.6-flash & 0.386 & 0.362 & $-0.023$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Coverage and Cost}
+
+The released Lite-80 contains 34 unique repositories, covering
+$34/43=79\%$ of the repositories in the full benchmark.  Its full-run
+resource ratio is close to the raw instance ratio: true cost is about
+$22.9\%$ of full-350, input tokens about $22.2\%$, output tokens about
+$23.6\%$, cache-read tokens about $22.6\%$, and wall-clock duration
+about $23.0\%$.  This supports the intended use of Lite as an
+approximately four-times cheaper evaluation surface for debugging,
+regression testing, and preliminary model or claw comparisons.

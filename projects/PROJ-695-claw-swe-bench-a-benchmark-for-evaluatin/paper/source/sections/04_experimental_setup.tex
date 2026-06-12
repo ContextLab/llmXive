@@ -1,0 +1,33 @@
+\section{Experimental Setup}
+\label{sec:experiments}
+
+We use \textsc{Claw-SWE-Bench} to study two sources of variation in SWE-style coding-agent evaluation: the LLM, and the claw that wraps the LLM into an autonomous coding system. We report two complementary experimental grids rather than an exhaustive claw $\times$ model grid over all 350 instances. First, we fix a reference claw and sweep the model axis. Second, we fix two representative models and sweep the claw axis. Finally, we validate whether the Lite subset preserves the trend of the full set.
+
+\textbf{Claws.}
+We evaluate five claws: \textsc{openclaw}~\cite{steinberger_openclaw}, \textsc{hermes-agent}~\cite{nous_hermes_agent}, \textsc{zeroclaw}~\cite{zeroclaw_labs}, \textsc{nanobot}~\cite{hkuds_nanobot}, and a \textsc{GenericAgent}~\cite{generic_agent_2026}. In this paper, a claw is the harness-specific agent loop running inside the standardized \textsc{Claw-SWE-Bench} protocol. All claws receive the same task prompt, run in the same SWE-bench Docker workspace, and obey the same outer budget.
+
+\textbf{Models.}
+The model sweep uses \textsc{openclaw} with nine LLMs spanning a broad capability and cost range: GPT 5.5~\cite{openai_gpt_55}, Claude Opus 4.7~\cite{anthropic_claude_opus_47}, GLM 5.1~\cite{zai_glm_51}, DeepSeek-V4 Pro~\cite{deepseek_v4_pro}, DeepSeek-V4 Flash~\cite{deepseek_v4_flash}, Kimi 2.6~\cite{moonshot_kimi_k26}, Qwen 3.6-flash~\cite{alibaba_qwen36_flash}, MiniMax M2.7~\cite{minimax_m27}, and Seed 2.0-mini~\cite{bytedance_seed_20_mini}. The claw sweep uses two representative models: \textsc{GLM 5.1}, a stronger mid-tier model, and \textsc{Qwen 3.6-flash}, a lower-cost small model. This two-model claw sweep exposes both high-capability behavior, where ceiling effects may reduce visible claw differences, and small-model behavior, where harness brittleness and stopping policy often matter more. Model inference is routed through external API providers; provider mappings and model identifiers are listed in the reproducibility appendix.
+
+\textbf{Evaluation metrics.}
+The primary metric is \textsc{Pass@1}, defined as the fraction of instances whose submitted patch is marked \textsc{Resolved} by the SWE-bench evaluator:
+\[
+\textsc{Pass@1} = \frac{\#\textsc{Resolved}}{\#\textsc{Instances}}.
+\]
+In addition to accuracy, we report two classes of efficiency metrics. The first class is end-to-end run cost, including \textsc{Total Cost} (USD) for the full 350-instance run and mean wall-clock duration. \textsc{Total Cost} comes from the corresponding API provider or cache-proxy billing logs and measures the actual resource cost of a full evaluation; duration is recorded by the outer runner and includes remote API latency. The second class is cache-use diagnostics. We report \textsc{Cache Hit Rate}:
+\[
+\textsc{CacheHit} = \frac{\#\textsc{CacheReadTokens}}{\#\textsc{InputTokens}+\#\textsc{CacheReadTokens}}.
+\]
+Cache hit rate affects actual API cost and should therefore be disclosed with cost, but it is not a coding-capability metric: it depends on provider cache policy, adapter call paths, and context-reuse strategy.
+
+\textbf{Lite held-out validation.}
+In addition to the full-350 main experiments, we use \textsc{OpenSQuILLA} as a held-out system to check whether Lite-80 reproduces the aggregate evaluation scale of the full benchmark. \textsc{OpenSQuILLA} is not used to construct or calibrate the Lite subset. The experiment only compares \textsc{OpenSQuILLA}'s \textsc{Pass@1} on Lite-80 and full-350. Both runs use the same adapter protocol, outer budget, and SWE-bench evaluator, and we measure approximation quality by the percentage-point gap between the Lite-80 rate and the full-350 rate.
+
+\textbf{Runtime configuration.}
+All experiments use the same outer runtime configuration. Each instance runs in its SWE-bench evaluation image, with the repository checkout located at \texttt{/testbed}. The instantiated task prompt, patch collector, evaluator, and aggregation code are shared across all claws and models. A per-instance wall-clock timeout of 3600 seconds, one run per instance, and worker concurrency fixed at 3. Experiments run on a 16-core CPU server with 61 GiB of memory and no local GPU; all model inference is performed through remote APIs.
+
+\textbf{Adapter diagnostic.}
+Beyond the main experiments, we run a bare-vs-full adapter diagnostic with GLM 5.1. Both conditions use the same full-350 workload and SWE-bench evaluator. The bare adapter provides only minimal Docker access and fairness restrictions, and asks the model to output a unified diff directly. The full adapter uses workspace preparation, the shared prompt, Git-based patch extraction, and patch cleaning from our protocol. This diagnostic quantifies the effect of the complete adapter on scorable evaluation, and should not be interpreted as a single-component ablation.
+
+\textbf{Leak-fix evaluation protocol.}
+The main experiments use results after cleaning future-commit visibility. Specifically, for the seven non-Python SWE-bench-Multilingual task languages, each instance preparation removes reachable Git history later than \texttt{base\_commit} and then runs under the same adapter protocol. The Python portion comes from SWE-bench-Verified-Mini and is not affected by this Multilingual container issue. Except for the before/after cleanup comparison reported in \S\ref{sec:leak_fix}, all Multilingual results in the following tables and figures use the cleanup setting.

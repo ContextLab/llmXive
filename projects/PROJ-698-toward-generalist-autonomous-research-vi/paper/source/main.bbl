@@ -1,0 +1,401 @@
+\begin{thebibliography}{59}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[{Anthropic}(2025)]{claudecode}
+{Anthropic}.
+\newblock {Claude Code}.
+\newblock \url{https://github.com/anthropics/claude-code}, 2025.
+\newblock Agentic coding tool for terminal, IDE, and GitHub workflows. Accessed: 2026-06-02.
+
+\bibitem[Chai et~al.(2025)Chai, Tang, Ye, Du, Zhu, Zhou, Wang, E, Zhang, Zhang, and Chen]{scimaster}
+Jingyi Chai, Shuo Tang, Rui Ye, Yuwen Du, Xinyu Zhu, Mengcheng Zhou, Yanfeng Wang, Weinan E, Yuzhi Zhang, Linfeng Zhang, and Siheng Chen.
+\newblock Scimaster: Towards general-purpose scientific {AI} agents, part i. x-master as foundation: Can we lead on humanity's last exam?
+\newblock \emph{CoRR}, abs/2507.05241, 2025.
+\newblock \doi{10.48550/ARXIV.2507.05241}.
+\newblock \url{https://doi.org/10.48550/arXiv.2507.05241}.
+
+\bibitem[Chan et~al.(2024)Chan, Chowdhury, Jaffe, Aung, Sherburn, Mays, Starace, Liu, Maksin, Patwardhan, Weng, and Madry]{mlebench}
+Jun~Shern Chan, Neil Chowdhury, Oliver Jaffe, James Aung, Dane Sherburn, Evan Mays, Giulio Starace, Kevin Liu, Leon Maksin, Tejal Patwardhan, Lilian Weng, and Aleksander Madry.
+\newblock Mle-bench: Evaluating machine learning agents on machine learning engineering.
+\newblock \emph{CoRR}, abs/2410.07095, 2024.
+\newblock \doi{10.48550/ARXIV.2410.07095}.
+\newblock \url{https://doi.org/10.48550/arXiv.2410.07095}.
+
+\bibitem[Chen et~al.(2026{\natexlab{a}})Chen, Chen, Chen, Zhao, Meng, Zhao, Song, Chen, Wen, and Jia]{aiscientist_long}
+Guoxin Chen, Jie Chen, Lei Chen, Jiale Zhao, Fanzhe Meng, Wayne~Xin Zhao, Ruihua Song, Cheng Chen, Ji{-}Rong Wen, and Kai Jia.
+\newblock Toward autonomous long-horizon engineering for {ML} research.
+\newblock \emph{CoRR}, abs/2604.13018, 2026{\natexlab{a}}.
+\newblock \doi{10.48550/ARXIV.2604.13018}.
+\newblock \url{https://doi.org/10.48550/arXiv.2604.13018}.
+
+\bibitem[Chen et~al.(2026{\natexlab{b}})Chen, Mishra, Nam, Meng, Pfister, and Yoon]{mars}
+Jiefeng Chen, Bhavana~Dalvi Mishra, Jaehyun Nam, Rui Meng, Tomas Pfister, and Jinsung Yoon.
+\newblock {MARS:} modular agent with reflective search for automated {AI} research.
+\newblock \emph{CoRR}, abs/2602.02660, 2026{\natexlab{b}}.
+\newblock \doi{10.48550/ARXIV.2602.02660}.
+\newblock \url{https://doi.org/10.48550/arXiv.2602.02660}.
+
+\bibitem[Chen et~al.(2024)Chen, Chen, Ning, Zhang, Wang, Yu, Li, Liao, Wei, Lu, Dey, Xue, Baker, Burns, Adu{-}Ampratwum, Huang, Ning, Gao, Su, and Sun]{scienceagentbench}
+Ziru Chen, Shijie Chen, Yuting Ning, Qianheng Zhang, Boshi Wang, Botao Yu, Yifei Li, Zeyi Liao, Chen Wei, Zitong Lu, Vishal Dey, Mingyi Xue, Frazier~N. Baker, Benjamin Burns, Daniel Adu{-}Ampratwum, Xuhui Huang, Xia Ning, Song Gao, Yu~Su, and Huan Sun.
+\newblock Scienceagentbench: Toward rigorous assessment of language agents for data-driven scientific discovery.
+\newblock \emph{CoRR}, abs/2410.05080, 2024.
+\newblock \doi{10.48550/ARXIV.2410.05080}.
+\newblock \url{https://doi.org/10.48550/arXiv.2410.05080}.
+
+\bibitem[Chi et~al.(2026)Chi, Hong, Jiang, Luo, Yang, Zhang, Cao, Fan, He, Hao, Jin, Lei, Liu, Qian, Wang, Wang, Zheng, Zhou, Xiao, Cai, and Na]{frontiereng}
+Yizhe Chi, Deyao Hong, Dapeng Jiang, Tianwei Luo, Kaisen Yang, Boshi Zhang, Zhe Cao, Xiaoyan Fan, Bingxiang He, Han Hao, Weiyang Jin, Dianqiao Lei, Qingle Liu, Houde Qian, Bowen Wang, Situ Wang, Youjie Zheng, Yifan Zhou, Calvin Xiao, Eren Cai, and Qinhuai Na.
+\newblock Frontier-eng: Benchmarking self-evolving agents on real-world engineering tasks with generative optimization.
+\newblock \emph{CoRR}, abs/2604.12290, 2026.
+\newblock \doi{10.48550/ARXIV.2604.12290}.
+\newblock \url{https://doi.org/10.48550/arXiv.2604.12290}.
+
+\bibitem[Du et~al.(2026)Du, Yang, Zhou, Liu, Lei, Chen, Liu, Wu, Cai, Liu, Zhu, Wang, Zhang, Qian, and Chen]{datamaster}
+Yaxin Du, Xiyuan Yang, Zhifan Zhou, Wanxu Liu, Zixing Lei, Zimeng Chen, Fenyi Liu, Haotian Wu, Yuzhu Cai, Zexi Liu, Xinyu Zhu, WenHao Wang, Linfeng Zhang, Chen Qian, and Siheng Chen.
+\newblock Datamaster: Data-centric autonomous ai research, 2026.
+\newblock \url{https://arxiv.org/abs/2605.10906}.
+
+\bibitem[Gasteiger et~al.(2025)Gasteiger, Khan, Bowman, Mikulik, Perez, and Roger]{gasteiger2025automated}
+Johannes Gasteiger, Akbir Khan, Sam Bowman, Vladimir Mikulik, Ethan Perez, and Fabien Roger.
+\newblock Automated researchers can subtly sandbag, March 2025.
+\newblock \url{https://alignment.anthropic.com/2025/automated-researchers-sandbag/}.
+
+\bibitem[Hu et~al.(2025)Hu, Liu, Yue, Zhang, Liu, Zhu, Lin, Guo, Dou, Xi, Jin, Tan, Yin, Liu, Zhang, Sun, Zhu, Sun, Peng, Cheng, Fan, Guo, Yu, Zhou, Hu, Huo, Wang, Niu, Wang, Yin, Hu, Liao, Li, Wang, Zhou, Liu, Cheng, Zhang, Gui, Pan, Zhang, Torr, Dou, Wen, Huang, Jiang, and Yan]{memorysurvey}
+Yuyang Hu, Shichun Liu, Yanwei Yue, Guibin Zhang, Boyang Liu, Fangyi Zhu, Jiahang Lin, Honglin Guo, Shihan Dou, Zhiheng Xi, Senjie Jin, Jiejun Tan, Yanbin Yin, Jiongnan Liu, Zeyu Zhang, Zhongxiang Sun, Yutao Zhu, Hao Sun, Boci Peng, Zhenrong Cheng, Xuanbo Fan, Jiaxin Guo, Xinlei Yu, Zhenhong Zhou, Zewen Hu, Jiahao Huo, Junhao Wang, Yuwei Niu, Yu~Wang, Zhenfei Yin, Xiaobin Hu, Yue Liao, Qiankun Li, Kun Wang, Wangchunshu Zhou, Yixin Liu, Dawei Cheng, Qi~Zhang, Tao Gui, Shirui Pan, Yan Zhang, Philip Torr, Zhicheng Dou, Ji{-}Rong Wen, Xuanjing Huang, Yu{-}Gang Jiang, and Shuicheng Yan.
+\newblock Memory in the age of {AI} agents.
+\newblock \emph{CoRR}, abs/2512.13564, 2025.
+\newblock \doi{10.48550/ARXIV.2512.13564}.
+\newblock \url{https://doi.org/10.48550/arXiv.2512.13564}.
+
+\bibitem[Hu et~al.(2026{\natexlab{a}})Hu, Qian, Wang, Liu, Zhao, Li, Liu, and Dou]{agentfugue}
+Yuyang Hu, Hongjin Qian, Shuting Wang, Jiongnan Liu, Tong Zhao, Xiaoxi Li, Zheng Liu, and Zhicheng Dou.
+\newblock Agentfugue: Agent scaling for long-horizon tasks through collective reasoning, 2026{\natexlab{a}}.
+\newblock \url{https://arxiv.org/abs/2605.24486}.
+
+\bibitem[Hu et~al.(2026{\natexlab{b}})Hu, Qian, Wang, Liu, Zhao, Tan, Liu, and Dou]{sam}
+Yuyang Hu, Hongjin Qian, Shuting Wang, Jiongnan Liu, Ziliang Zhao, Jiejun Tan, Zheng Liu, and Zhicheng Dou.
+\newblock Sam: State-adaptive memory for long-horizon reasoning agent, 2026{\natexlab{b}}.
+\newblock \url{https://arxiv.org/abs/2605.24468}.
+
+\bibitem[Huang et~al.(2024)Huang, Vora, Liang, and Leskovec]{mlagentbench}
+Qian Huang, Jian Vora, Percy Liang, and Jure Leskovec.
+\newblock Mlagentbench: Evaluating language agents on machine learning experimentation.
+\newblock In Ruslan Salakhutdinov, Zico Kolter, Katherine~A. Heller, Adrian Weller, Nuria Oliver, Jonathan Scarlett, and Felix Berkenkamp, editors, \emph{Forty-first International Conference on Machine Learning, {ICML} 2024, Vienna, Austria, July 21-27, 2024}, Proceedings of Machine Learning Research, pages 20271--20309. {PMLR} / OpenReview.net, 2024.
+\newblock \url{https://proceedings.mlr.press/v235/huang24y.html}.
+
+\bibitem[Jiang et~al.(2025)Jiang, Schmidt, Srikanth, Xu, Kaplan, Jacenko, and Wu]{aide}
+Zhengyao Jiang, Dominik Schmidt, Dhruv Srikanth, Dixing Xu, Ian Kaplan, Deniss Jacenko, and Yuxiang Wu.
+\newblock {AIDE:} ai-driven exploration in the space of code.
+\newblock \emph{CoRR}, abs/2502.13138, 2025.
+\newblock \doi{10.48550/ARXIV.2502.13138}.
+\newblock \url{https://doi.org/10.48550/arXiv.2502.13138}.
+
+\bibitem[Jordan and contributors(2025)]{nanogptbench}
+Keller Jordan and contributors.
+\newblock {NanoGPT-Bench}: {NanoGPT} training speedrun benchmark.
+\newblock \url{https://github.com/KellerJordan/modded-nanogpt}, 2025.
+
+\bibitem[Karpathy(2026)]{autoresearch}
+Andrej Karpathy.
+\newblock autoresearch: {AI} agents running research on single-{GPU} nanochat training automatically.
+\newblock \url{https://github.com/karpathy/autoresearch}, 2026.
+
+\bibitem[Kwa et~al.(2025)Kwa, West, Becker, Deng, Garcia, Hasin, Jawhar, Kinniment, Rush, von Arx, Bloom, Broadley, Du, Goodrich, Jurkovic, Miles, Nix, Lin, Parikh, Rein, Sato, Wijk, Ziegler, Barnes, and Chan]{metr}
+Thomas Kwa, Ben West, Joel Becker, Amy Deng, Katharyn Garcia, Max Hasin, Sami Jawhar, Megan Kinniment, Nate Rush, Sydney von Arx, Ryan Bloom, Thomas Broadley, Haoxing Du, Brian Goodrich, Nikola Jurkovic, Luke~Harold Miles, Seraphina Nix, Tao Lin, Neev Parikh, David Rein, Lucas Jun~Koba Sato, Hjalmar Wijk, Daniel~M. Ziegler, Elizabeth Barnes, and Lawrence Chan.
+\newblock Measuring {AI} ability to complete long tasks.
+\newblock \emph{CoRR}, abs/2503.14499, 2025.
+\newblock \doi{10.48550/ARXIV.2503.14499}.
+\newblock \url{https://doi.org/10.48550/arXiv.2503.14499}.
+
+\bibitem[Lee et~al.(2026)Lee, Nair, Zhang, Lee, Khattab, and Finn]{metaharness}
+Yoonho Lee, Roshen Nair, Qizheng Zhang, Kangwook Lee, Omar Khattab, and Chelsea Finn.
+\newblock Meta-harness: End-to-end optimization of model harnesses.
+\newblock \emph{CoRR}, abs/2603.28052, 2026.
+\newblock \doi{10.48550/ARXIV.2603.28052}.
+\newblock \url{https://doi.org/10.48550/arXiv.2603.28052}.
+
+\bibitem[Li et~al.(2025)Li, Wu, Ge, Chong, Hou, Cao, Ju, Wu, Li, Zhang, Feng, Zhao, Qiu, Yang, Zhang, Zhu, Sun, Sun, Yan, Liu, Yin, and Shen]{famouagent}
+Annan Li, Chufan Wu, Zengle Ge, Yee~Hin Chong, Zhinan Hou, Lizhe Cao, Cheng Ju, Jianmin Wu, Huaiming Li, Haobo Zhang, Shenghao Feng, Mo~Zhao, Fengzhi Qiu, Rui Yang, Mengmeng Zhang, Wenyi Zhu, Yingying Sun, Quan Sun, Shunhao Yan, Danyu Liu, Dawei Yin, and Dou Shen.
+\newblock The {FM} agent.
+\newblock \emph{CoRR}, abs/2510.26144, 2025.
+\newblock \doi{10.48550/ARXIV.2510.26144}.
+\newblock \url{https://doi.org/10.48550/arXiv.2510.26144}.
+
+\bibitem[Lin et~al.(2026)Lin, Liu, Pan, Lin, Dou, Huang, Yan, Han, and Gui]{ahe}
+Jiahang Lin, Shichun Liu, Chengjun Pan, Lizhi Lin, Shihan Dou, Xuanjing Huang, Hang Yan, Zhenhua Han, and Tao Gui.
+\newblock Agentic harness engineering: Observability-driven automatic evolution of coding-agent harnesses.
+\newblock \emph{CoRR}, abs/2604.25850, 2026.
+\newblock \doi{10.48550/ARXIV.2604.25850}.
+\newblock \url{https://doi.org/10.48550/arXiv.2604.25850}.
+
+\bibitem[Liu et~al.(2025{\natexlab{a}})Liu, Zhu, Bai, He, Liao, Que, Wang, Zhang, Zhang, Zhang, Zhang, Chen, Guo, Li, Liu, Shan, Song, Tian, Wu, Zhou, Zhu, Feng, Gao, He, Li, Liu, Meng, Su, Tan, Wang, Yang, Ye, Zheng, Zhou, Huang, Li, and Zhang]{longcontextsurvey}
+Jiaheng Liu, Dawei Zhu, Zhiqi Bai, Yancheng He, Huanxuan Liao, Haoran Que, Zekun Wang, Chenchen Zhang, Ge~Zhang, Jiebin Zhang, Yuanxing Zhang, Zhuo Chen, Hangyu Guo, Shilong Li, Ziqiang Liu, Yong Shan, Yifan Song, Jiayi Tian, Wenhao Wu, Zhejian Zhou, Ruijie Zhu, Junlan Feng, Yang Gao, Shizhu He, Zhoujun Li, Tianyu Liu, Fanyu Meng, Wenbo Su, Yingshui Tan, Zili Wang, Jian Yang, Wei Ye, Bo~Zheng, Wangchunshu Zhou, Wenhao Huang, Sujian Li, and Zhaoxiang Zhang.
+\newblock A comprehensive survey on long context language modeling.
+\newblock \emph{CoRR}, abs/2503.17407, 2025{\natexlab{a}}.
+\newblock \doi{10.48550/ARXIV.2503.17407}.
+\newblock \url{https://doi.org/10.48550/arXiv.2503.17407}.
+
+\bibitem[Liu et~al.(2025{\natexlab{b}})Liu, Cai, Zhu, Zheng, Chen, Wen, Wang, E, and Chen]{mlmaster}
+Zexi Liu, Yuzhu Cai, Xinyu Zhu, Yujie Zheng, Runkun Chen, Ying Wen, Yanfeng Wang, Weinan E, and Siheng Chen.
+\newblock Ml-master: Towards ai-for-ai via integration of exploration and reasoning.
+\newblock \emph{CoRR}, abs/2506.16499, 2025{\natexlab{b}}.
+\newblock \doi{10.48550/ARXIV.2506.16499}.
+\newblock \url{https://doi.org/10.48550/arXiv.2506.16499}.
+
+\bibitem[Lou et~al.(2026)Lou, L{\'{a}}zaro{-}Gredilla, Dedieu, Wendelken, Lehrach, and Murphy]{autoharness}
+Xinghua Lou, Miguel L{\'{a}}zaro{-}Gredilla, Antoine Dedieu, Carter Wendelken, Wolfgang Lehrach, and Kevin~P. Murphy.
+\newblock Autoharness: improving {LLM} agents by automatically synthesizing a code harness.
+\newblock \emph{CoRR}, abs/2603.03329, 2026.
+\newblock \doi{10.48550/ARXIV.2603.03329}.
+\newblock \url{https://doi.org/10.48550/arXiv.2603.03329}.
+
+\bibitem[Lu et~al.(2024)Lu, Lu, Lange, Foerster, Clune, and Ha]{aiscientist}
+Chris Lu, Cong Lu, Robert~Tjarko Lange, Jakob~N. Foerster, Jeff Clune, and David Ha.
+\newblock The {AI} scientist: Towards fully automated open-ended scientific discovery.
+\newblock \emph{CoRR}, abs/2408.06292, 2024.
+\newblock \doi{10.48550/ARXIV.2408.06292}.
+\newblock \url{https://doi.org/10.48550/arXiv.2408.06292}.
+
+\bibitem[Merrill et~al.(2026)Merrill, Shaw, Carlini, Li, Raj, Bercovich, Shi, Shin, Walshe, Buchanan, Shen, Ye, Lin, Poulos, Wang, Nezhurina, Jitsev, Lu, Menis{-}Mastromichalakis, Xu, Chen, Liu, Zhang, Chen, Kashyap, Uslu, Li, Wu, Yan, Bian, Sharma, Sun, Dillmann, Anand, Lanpouthakoun, Koopah, Hu, Guha, Dreiman, Zhu, Krauth, Zhong, Muennighoff, Amanfu, Tan, Pimpalgaonkar, Aggarwal, Lin, Lan, Zhao, Liang, Wang, Wang, Zhou, Heineman, Liu, Trivedi, Yang, Lin, Shetty, Yang, Omi, Raoof, Li, Zhuo, Lin, Dai, Wang, Chai, Zhou, Wahdany, She, Hu, Dong, Zhu, Cui, Saiyed, Kolbeinsson, Hu, Rytting, Marten, Wang, Dimakis, Konwinski, and Schmidt]{terminalbench}
+Mike~A. Merrill, Alexander~Glenn Shaw, Nicholas Carlini, Boxuan Li, Harsh Raj, Ivan Bercovich, Lin Shi, Jeong~Yeon Shin, Thomas Walshe, Estefany~Kelly Buchanan, Junhong Shen, Guanghao Ye, Haowei Lin, Jason Poulos, Maoyu Wang, Marianna Nezhurina, Jenia Jitsev, Di~Lu, Orfeas Menis{-}Mastromichalakis, Zhiwei Xu, Zizhao Chen, Yue Liu, Robert Zhang, Leon~Liangyu Chen, Anurag Kashyap, Jan{-}Lucas Uslu, Jeffrey Li, Jianbo Wu, Minghao Yan, Song Bian, Vedang Sharma, Ke~Sun, Steven Dillmann, Akshay Anand, Andrew Lanpouthakoun, Bardia Koopah, Changran Hu, Etash~Kumar Guha, Gabriel H.~S. Dreiman, Jiacheng Zhu, Karl Krauth, Li~Zhong, Niklas Muennighoff, Robert Amanfu, Shangyin Tan, Shreyas Pimpalgaonkar, Tushar Aggarwal, Xiangning Lin, Xin Lan, Xuandong Zhao, Yiqing Liang, Yuanli Wang, Zilong Wang, Changzhi Zhou, David Heineman, Hange Liu, Harsh Trivedi, John Yang, Junhong Lin, Manish Shetty, Michael Yang, Nabil Omi, Negin Raoof, Shanda Li, Terry~Yue Zhuo, Wuwei Lin, Yiwei Dai, Yuxin Wang, Wenhao Chai, Shang Zhou, Dariush
+  Wahdany, Ziyu She, Jiaming Hu, Zhikang Dong, Yuxuan Zhu, Sasha Cui, Ahson Saiyed, Arinbj{\"{o}}rn Kolbeinsson, Jesse Hu, Christopher~Michael Rytting, Ryan Marten, Yixin Wang, Alex Dimakis, Andy Konwinski, and Ludwig Schmidt.
+\newblock Terminal-bench: Benchmarking agents on hard, realistic tasks in command line interfaces.
+\newblock \emph{CoRR}, abs/2601.11868, 2026.
+\newblock \doi{10.48550/ARXIV.2601.11868}.
+\newblock \url{https://doi.org/10.48550/arXiv.2601.11868}.
+
+\bibitem[Nadafian et~al.(2026)Nadafian, Mohammadshahi, and Yazdani]{kapso}
+Alireza Nadafian, Alireza Mohammadshahi, and Majid Yazdani.
+\newblock {KAPSO:} {A} knowledge-grounded framework for autonomous program synthesis and optimization.
+\newblock \emph{CoRR}, abs/2601.21526, 2026.
+\newblock \doi{10.48550/ARXIV.2601.21526}.
+\newblock \url{https://doi.org/10.48550/arXiv.2601.21526}.
+
+\bibitem[Novikov et~al.(2025)Novikov, Vu, Eisenberger, Dupont, Huang, Wagner, Shirobokov, Kozlovskii, Ruiz, Mehrabian, Kumar, See, Chaudhuri, Holland, Davies, Nowozin, Kohli, and Balog]{alphaevolve}
+Alexander Novikov, Ng{\^{a}}n Vu, Marvin Eisenberger, Emilien Dupont, Po{-}Sen Huang, Adam~Zsolt Wagner, Sergey Shirobokov, Borislav Kozlovskii, Francisco J.~R. Ruiz, Abbas Mehrabian, M.~Pawan Kumar, Abigail See, Swarat Chaudhuri, George Holland, Alex Davies, Sebastian Nowozin, Pushmeet Kohli, and Matej Balog.
+\newblock Alphaevolve: {A} coding agent for scientific and algorithmic discovery.
+\newblock \emph{CoRR}, abs/2506.13131, 2025.
+\newblock \doi{10.48550/ARXIV.2506.13131}.
+\newblock \url{https://doi.org/10.48550/arXiv.2506.13131}.
+
+\bibitem[{OpenAI}(2025)]{codex}
+{OpenAI}.
+\newblock {Codex CLI}.
+\newblock \url{https://github.com/openai/codex}, 2025.
+\newblock Lightweight coding agent that runs locally on a user's computer. Accessed: 2026-06-02.
+
+\bibitem[Park et~al.(2023)Park, O'Brien, Cai, Morris, Liang, and Bernstein]{generativeagent}
+Joon~Sung Park, Joseph~C. O'Brien, Carrie~Jun Cai, Meredith~Ringel Morris, Percy Liang, and Michael~S. Bernstein.
+\newblock Generative agents: Interactive simulacra of human behavior.
+\newblock In Sean Follmer, Jeff Han, J{\"{u}}rgen Steimle, and Nathalie~Henry Riche, editors, \emph{Proceedings of the 36th Annual {ACM} Symposium on User Interface Software and Technology, {UIST} 2023, San Francisco, CA, USA, 29 October 2023- 1 November 2023}, pages 2:1--2:22. {ACM}, 2023.
+\newblock \doi{10.1145/3586183.3606763}.
+\newblock \url{https://doi.org/10.1145/3586183.3606763}.
+
+\bibitem[Press et~al.(2025)Press, Amos, Zhao, Wu, Ainsworth, Krupke, Kidger, Sajed, Stellato, Park, Bosch, Meril, Steppi, Zharmagambetov, Zhang, Perez{-}Pineiro, Mercurio, Zhan, Abramovich, Lieret, Zhang, Huang, Bethge, and Press]{algotune}
+Ori Press, Brandon Amos, Haoyu Zhao, Yikai Wu, Samuel~K. Ainsworth, Dominik Krupke, Patrick Kidger, Touqir Sajed, Bartolomeo Stellato, Jisun Park, Nathanael Bosch, Eli Meril, Albert Steppi, Arman Zharmagambetov, Fangzhao Zhang, David Perez{-}Pineiro, Alberto Mercurio, Ni~Zhan, Talor Abramovich, Kilian Lieret, Hanlin Zhang, Shirley Huang, Matthias Bethge, and Ofir Press.
+\newblock Algotune: Can language models speed up general-purpose numerical programs?
+\newblock \emph{CoRR}, abs/2507.15887, 2025.
+\newblock \doi{10.48550/ARXIV.2507.15887}.
+\newblock \url{https://doi.org/10.48550/arXiv.2507.15887}.
+
+\bibitem[Qiang et~al.(2025)Qiang, Zhuang, Li, K, Zhang, Li, Wong, Yang, Liang, Zhang, and Dai]{mledojo}
+Rushi Qiang, Yuchen Zhuang, Yinghao Li, Dingu Sagar~V. K, Rongzhi Zhang, Changhao Li, Ian~Shu{-}Hei Wong, Sherry Yang, Percy Liang, Chao Zhang, and Bo~Dai.
+\newblock Mle-dojo: Interactive environments for empowering {LLM} agents in machine learning engineering.
+\newblock \emph{CoRR}, abs/2505.07782, 2025.
+\newblock \doi{10.48550/ARXIV.2505.07782}.
+\newblock \url{https://doi.org/10.48550/arXiv.2505.07782}.
+
+\bibitem[Qin et~al.(2024)Qin, Liang, Ye, Zhu, Yan, Lu, Lin, Cong, Tang, Qian, Zhao, Hong, Tian, Xie, Zhou, Gerstein, Li, Liu, and Sun]{toolllm}
+Yujia Qin, Shihao Liang, Yining Ye, Kunlun Zhu, Lan Yan, Yaxi Lu, Yankai Lin, Xin Cong, Xiangru Tang, Bill Qian, Sihan Zhao, Lauren Hong, Runchu Tian, Ruobing Xie, Jie Zhou, Mark Gerstein, Dahai Li, Zhiyuan Liu, and Maosong Sun.
+\newblock Toolllm: Facilitating large language models to master 16000+ real-world apis.
+\newblock In \emph{The Twelfth International Conference on Learning Representations, {ICLR} 2024, Vienna, Austria, May 7-11, 2024}. OpenReview.net, 2024.
+\newblock \url{https://openreview.net/forum?id=dHng2O0Jjr}.
+
+\bibitem[Rank et~al.(2026)Rank, Bhatnagar, Prabhu, Eisenberg, Nguyen, Bethge, and Andriushchenko]{posttrainbench}
+Ben Rank, Hardik Bhatnagar, Ameya Prabhu, Shira Eisenberg, Karina Nguyen, Matthias Bethge, and Maksym Andriushchenko.
+\newblock Posttrainbench: Can {LLM} agents automate {LLM} post-training?
+\newblock \emph{CoRR}, abs/2603.08640, 2026.
+\newblock \doi{10.48550/ARXIV.2603.08640}.
+\newblock \url{https://doi.org/10.48550/arXiv.2603.08640}.
+
+\bibitem[Rein et~al.(2025)Rein, Becker, Deng, Nix, Canal, O'Connel, Arnott, Bloom, Broadley, Garcia, Goodrich, Hasin, Jawhar, Kinniment, Kwa, Lajko, Rush, Sato, von Arx, West, Chan, and Barnes]{hcast}
+David Rein, Joel Becker, Amy Deng, Seraphina Nix, Chris Canal, Daniel O'Connel, Pip Arnott, Ryan Bloom, Thomas Broadley, Katharyn Garcia, Brian Goodrich, Max Hasin, Sami Jawhar, Megan Kinniment, Thomas Kwa, Aron Lajko, Nate Rush, Lucas Jun~Koba Sato, Sydney von Arx, Ben West, Lawrence Chan, and Elizabeth Barnes.
+\newblock {HCAST:} human-calibrated autonomy software tasks.
+\newblock \emph{CoRR}, abs/2503.17354, 2025.
+\newblock \doi{10.48550/ARXIV.2503.17354}.
+\newblock \url{https://doi.org/10.48550/arXiv.2503.17354}.
+
+\bibitem[Romera{-}Paredes et~al.(2024)Romera{-}Paredes, Barekatain, Novikov, Balog, Kumar, Dupont, Ruiz, Ellenberg, Wang, Fawzi, Kohli, and Fawzi]{funsearch}
+Bernardino Romera{-}Paredes, Mohammadamin Barekatain, Alexander Novikov, Matej Balog, M.~Pawan Kumar, Emilien Dupont, Francisco J.~R. Ruiz, Jordan~S. Ellenberg, Pengming Wang, Omar Fawzi, Pushmeet Kohli, and Alhussein Fawzi.
+\newblock Mathematical discoveries from program search with large language models.
+\newblock \emph{Nat.}, 625\penalty0 (7995):\penalty0 468--475, 2024.
+\newblock \doi{10.1038/S41586-023-06924-6}.
+\newblock \url{https://doi.org/10.1038/s41586-023-06924-6}.
+
+\bibitem[Schick et~al.(2023)Schick, Dwivedi{-}Yu, Dess{\`{\i}}, Raileanu, Lomeli, Hambro, Zettlemoyer, Cancedda, and Scialom]{toolformer}
+Timo Schick, Jane Dwivedi{-}Yu, Roberto Dess{\`{\i}}, Roberta Raileanu, Maria Lomeli, Eric Hambro, Luke Zettlemoyer, Nicola Cancedda, and Thomas Scialom.
+\newblock Toolformer: Language models can teach themselves to use tools.
+\newblock In Alice Oh, Tristan Naumann, Amir Globerson, Kate Saenko, Moritz Hardt, and Sergey Levine, editors, \emph{Advances in Neural Information Processing Systems 36: Annual Conference on Neural Information Processing Systems 2023, NeurIPS 2023, New Orleans, LA, USA, December 10 - 16, 2023}, 2023.
+\newblock \url{http://papers.nips.cc/paper\_files/paper/2023/hash/d842425e4bf79ba039352da0f658a906-Abstract-Conference.html}.
+
+\bibitem[Schmidgall et~al.(2025)Schmidgall, Su, Wang, Sun, Wu, Yu, Liu, Liu, and Barsoum]{agentlaboratory}
+Samuel Schmidgall, Yusheng Su, Ze~Wang, Ximeng Sun, Jialian Wu, Xiaodong Yu, Jiang Liu, Zicheng Liu, and Emad Barsoum.
+\newblock Agent laboratory: Using {LLM} agents as research assistants.
+\newblock \emph{CoRR}, abs/2501.04227, 2025.
+\newblock \doi{10.48550/ARXIV.2501.04227}.
+\newblock \url{https://doi.org/10.48550/arXiv.2501.04227}.
+
+\bibitem[Shinn et~al.(2023)Shinn, Cassano, Gopinath, Narasimhan, and Yao]{reflexion}
+Noah Shinn, Federico Cassano, Ashwin Gopinath, Karthik Narasimhan, and Shunyu Yao.
+\newblock Reflexion: language agents with verbal reinforcement learning.
+\newblock In Alice Oh, Tristan Naumann, Amir Globerson, Kate Saenko, Moritz Hardt, and Sergey Levine, editors, \emph{Advances in Neural Information Processing Systems 36: Annual Conference on Neural Information Processing Systems 2023, NeurIPS 2023, New Orleans, LA, USA, December 10 - 16, 2023}, 2023.
+\newblock \url{http://papers.nips.cc/paper\_files/paper/2023/hash/1b44b878bb782e6954cd888628510e90-Abstract-Conference.html}.
+
+\bibitem[Sinha et~al.(2025)Sinha, Arun, Goel, Staab, and Geiping]{longhorizonexecution}
+Akshit Sinha, Arvindh Arun, Shashwat Goel, Steffen Staab, and Jonas Geiping.
+\newblock The illusion of diminishing returns: Measuring long horizon execution in llms.
+\newblock \emph{CoRR}, abs/2509.09677, 2025.
+\newblock \doi{10.48550/ARXIV.2509.09677}.
+\newblock \url{https://doi.org/10.48550/arXiv.2509.09677}.
+
+\bibitem[Starace et~al.(2025)Starace, Jaffe, Sherburn, Aung, Chan, Maksin, Dias, Mays, Kinsella, Thompson, Heidecke, Glaese, and Patwardhan]{paperbench}
+Giulio Starace, Oliver Jaffe, Dane Sherburn, James Aung, Jun~Shern Chan, Leon Maksin, Rachel Dias, Evan Mays, Benjamin Kinsella, Wyatt Thompson, Johannes Heidecke, Amelia Glaese, and Tejal Patwardhan.
+\newblock Paperbench: Evaluating ai's ability to replicate {AI} research.
+\newblock \emph{CoRR}, abs/2504.01848, 2025.
+\newblock \doi{10.48550/ARXIV.2504.01848}.
+\newblock \url{https://doi.org/10.48550/arXiv.2504.01848}.
+
+\bibitem[Team(2026)]{internagent}
+InternScience Team.
+\newblock Internagent-1.5: {A} unified agentic framework for long-horizon autonomous scientific discovery.
+\newblock \emph{CoRR}, abs/2602.08990, 2026.
+\newblock \doi{10.48550/ARXIV.2602.08990}.
+\newblock \url{https://doi.org/10.48550/arXiv.2602.08990}.
+
+\bibitem[Tie et~al.(2025)Tie, Zhou, and Sun]{aiscientistsurvey}
+Guiyao Tie, Pan Zhou, and Lichao Sun.
+\newblock A survey of {AI} scientists.
+\newblock \emph{CoRR}, abs/2510.23045, 2025.
+\newblock \doi{10.48550/ARXIV.2510.23045}.
+\newblock \url{https://doi.org/10.48550/arXiv.2510.23045}.
+
+\bibitem[Toledo et~al.(2025)Toledo, Hambardzumyan, Josifoski, Hazra, Baldwin, Audran{-}Reiss, Kuchnik, Magka, Jiang, Lupidi, Lupu, Raileanu, Niu, Shavrina, Gagnon{-}Audet, Shvartsman, Sodhani, Miller, Charnalia, Dunfield, Wu, Stenetorp, Cancedda, Foerster, and Bachrach]{airadojo}
+Edan Toledo, Karen Hambardzumyan, Martin Josifoski, Rishi Hazra, Nicolas~Mario Baldwin, Alexis Audran{-}Reiss, Michael Kuchnik, Despoina Magka, Minqi Jiang, Alisia~Maria Lupidi, Andrei Lupu, Roberta Raileanu, Kelvin Niu, Tatiana Shavrina, Jean{-}Christophe Gagnon{-}Audet, Michael Shvartsman, Shagun Sodhani, Alexander~H. Miller, Abhishek Charnalia, Derek Dunfield, Carole{-}Jean Wu, Pontus Stenetorp, Nicola Cancedda, Jakob~Nicolaus Foerster, and Yoram Bachrach.
+\newblock {AI} research agents for machine learning: Search, exploration, and generalization in mle-bench.
+\newblock \emph{CoRR}, abs/2507.02554, 2025.
+\newblock \doi{10.48550/ARXIV.2507.02554}.
+\newblock \url{https://doi.org/10.48550/arXiv.2507.02554}.
+
+\bibitem[Wan et~al.(2025)Wan, Dai, Wang, Li, Wang, Mao, Lan, and Xiao]{loongflow}
+Chunhui Wan, Xunan Dai, Zhuo Wang, Minglei Li, Yanpeng Wang, Yinan Mao, Yu~Lan, and Zhiwen Xiao.
+\newblock Loongflow: Directed evolutionary search via a cognitive plan-execute-summarize paradigm.
+\newblock \emph{CoRR}, abs/2512.24077, 2025.
+\newblock \doi{10.48550/ARXIV.2512.24077}.
+\newblock \url{https://doi.org/10.48550/arXiv.2512.24077}.
+
+\bibitem[Wang et~al.(2026)Wang, Lin, Hu, Jiao, Chowdhury, Chang, and Patwardhan]{frontierscience}
+Miles Wang, Robi Lin, Kat Hu, Joy Jiao, Neil Chowdhury, Ethan Chang, and Tejal Patwardhan.
+\newblock Frontierscience: Evaluating ai's ability to perform expert-level scientific tasks.
+\newblock \emph{CoRR}, abs/2601.21165, 2026.
+\newblock \doi{10.48550/ARXIV.2601.21165}.
+\newblock \url{https://doi.org/10.48550/arXiv.2601.21165}.
+
+\bibitem[Wang et~al.(2025)Wang, Li, Song, Xu, Tang, Zhuge, Pan, Song, Li, Singh, Tran, Li, Ma, Zheng, Qian, Shao, Muennighoff, Zhang, Hui, Lin, and et~al.]{openhands}
+Xingyao Wang, Boxuan Li, Yufan Song, Frank~F. Xu, Xiangru Tang, Mingchen Zhuge, Jiayi Pan, Yueqi Song, Bowen Li, Jaskirat Singh, Hoang~H. Tran, Fuqiang Li, Ren Ma, Mingzhang Zheng, Bill Qian, Yanjun Shao, Niklas Muennighoff, Yizhe Zhang, Binyuan Hui, Junyang Lin, and et~al.
+\newblock Openhands: An open platform for {AI} software developers as generalist agents.
+\newblock In \emph{The Thirteenth International Conference on Learning Representations, {ICLR} 2025, Singapore, April 24-28, 2025}. OpenReview.net, 2025.
+\newblock \url{https://openreview.net/forum?id=OJd3ayDDoF}.
+
+\bibitem[Wei et~al.(2025)Wei, Sun, Papay, McKinney, Han, Fulford, Chung, Passos, Fedus, and Glaese]{browsecomp}
+Jason Wei, Zhiqing Sun, Spencer Papay, Scott McKinney, Jeffrey Han, Isa Fulford, Hyung~Won Chung, Alex~Tachard Passos, William Fedus, and Amelia Glaese.
+\newblock Browsecomp: {A} simple yet challenging benchmark for browsing agents.
+\newblock \emph{CoRR}, abs/2504.12516, 2025.
+\newblock \doi{10.48550/ARXIV.2504.12516}.
+\newblock \url{https://doi.org/10.48550/arXiv.2504.12516}.
+
+\bibitem[Wijk et~al.(2024)Wijk, Lin, Becker, Jawhar, Parikh, Broadley, Chan, Chen, Clymer, Dhyani, Ericheva, Garcia, Goodrich, Jurkovic, Kinniment, Lajko, Nix, Sato, Saunders, Taran, West, and Barnes]{rebench}
+Hjalmar Wijk, Tao Lin, Joel Becker, Sami Jawhar, Neev Parikh, Thomas Broadley, Lawrence Chan, Michael Chen, Joshua Clymer, Jai Dhyani, Elena Ericheva, Katharyn Garcia, Brian Goodrich, Nikola Jurkovic, Megan Kinniment, Aron Lajko, Seraphina Nix, Lucas Sato, William Saunders, Maksym Taran, Ben West, and Elizabeth Barnes.
+\newblock Re-bench: Evaluating frontier {AI} r{\&}d capabilities of language model agents against human experts.
+\newblock \emph{CoRR}, abs/2411.15114, 2024.
+\newblock \doi{10.48550/ARXIV.2411.15114}.
+\newblock \url{https://doi.org/10.48550/arXiv.2411.15114}.
+
+\bibitem[Yamada et~al.(2025)Yamada, Lange, Lu, Hu, Lu, Foerster, Clune, and Ha]{aiscientistv2}
+Yutaro Yamada, Robert~Tjarko Lange, Cong Lu, Shengran Hu, Chris Lu, Jakob~N. Foerster, Jeff Clune, and David Ha.
+\newblock The {AI} scientist-v2: Workshop-level automated scientific discovery via agentic tree search.
+\newblock \emph{CoRR}, abs/2504.08066, 2025.
+\newblock \doi{10.48550/ARXIV.2504.08066}.
+\newblock \url{https://doi.org/10.48550/arXiv.2504.08066}.
+
+\bibitem[Yang et~al.(2025)Yang, Yang, Fang, Xian, Li, Wang, Xu, Pan, Hong, Liu, Shen, Chen, and Bian]{rdagent}
+Xu~Yang, Xiao Yang, Shikai Fang, Bowen Xian, Yuante Li, Jian Wang, Minrui Xu, Haoran Pan, Xinpeng Hong, Weiqing Liu, Yelong Shen, Weizhu Chen, and Jiang Bian.
+\newblock R{\&}d-agent: Automating data-driven {AI} solution building through llm-powered automated research, development, and evolution.
+\newblock \emph{CoRR}, abs/2505.14738, 2025.
+\newblock \doi{10.48550/ARXIV.2505.14738}.
+\newblock \url{https://doi.org/10.48550/arXiv.2505.14738}.
+
+\bibitem[Yao et~al.(2023{\natexlab{a}})Yao, Yu, Zhao, Shafran, Griffiths, Cao, and Narasimhan]{treeofthoughts}
+Shunyu Yao, Dian Yu, Jeffrey Zhao, Izhak Shafran, Thomas~L. Griffiths, Yuan Cao, and Karthik Narasimhan.
+\newblock Tree of thoughts: Deliberate problem solving with large language models.
+\newblock \emph{CoRR}, abs/2305.10601, 2023{\natexlab{a}}.
+\newblock \doi{10.48550/ARXIV.2305.10601}.
+\newblock \url{https://doi.org/10.48550/arXiv.2305.10601}.
+
+\bibitem[Yao et~al.(2023{\natexlab{b}})Yao, Zhao, Yu, Du, Shafran, Narasimhan, and Cao]{react}
+Shunyu Yao, Jeffrey Zhao, Dian Yu, Nan Du, Izhak Shafran, Karthik~R. Narasimhan, and Yuan Cao.
+\newblock React: Synergizing reasoning and acting in language models.
+\newblock In \emph{The Eleventh International Conference on Learning Representations, {ICLR} 2023, Kigali, Rwanda, May 1-5, 2023}. OpenReview.net, 2023{\natexlab{b}}.
+\newblock \url{https://openreview.net/forum?id=WE\_vluYUL-X}.
+
+\bibitem[Zhang et~al.(2025{\natexlab{a}})Zhang, Hu, Lu, Lange, and Clune]{darwinmachine}
+Jenny Zhang, Shengran Hu, Cong Lu, Robert~T. Lange, and Jeff Clune.
+\newblock Darwin godel machine: Open-ended evolution of self-improving agents.
+\newblock \emph{CoRR}, abs/2505.22954, 2025{\natexlab{a}}.
+\newblock \doi{10.48550/ARXIV.2505.22954}.
+\newblock \url{https://doi.org/10.48550/arXiv.2505.22954}.
+
+\bibitem[Zhang et~al.(2025{\natexlab{b}})Zhang, Xiang, Yu, Teng, Chen, Chen, Zhuge, Cheng, Hong, Wang, Zheng, Liu, Luo, and Wu]{aflow}
+Jiayi Zhang, Jinyu Xiang, Zhaoyang Yu, Fengwei Teng, Xionghui Chen, Jiaqi Chen, Mingchen Zhuge, Xin Cheng, Sirui Hong, Jinlin Wang, Bingnan Zheng, Bang Liu, Yuyu Luo, and Chenglin Wu.
+\newblock Aflow: Automating agentic workflow generation.
+\newblock In \emph{The Thirteenth International Conference on Learning Representations, {ICLR} 2025, Singapore, April 24-28, 2025}. OpenReview.net, 2025{\natexlab{b}}.
+\newblock \url{https://openreview.net/forum?id=z5uVAKwmjf}.
+
+\bibitem[Zhang et~al.(2025{\natexlab{c}})Zhang, Hu, Upasani, Ma, Hong, Kamanuru, Rainton, Wu, Ji, Li, Thakker, Zou, and Olukotun]{ace}
+Qizheng Zhang, Changran Hu, Shubhangi Upasani, Boyuan Ma, Fenglu Hong, Vamsidhar Kamanuru, Jay Rainton, Chen Wu, Mengmeng Ji, Hanchen Li, Urmish Thakker, James Zou, and Kunle Olukotun.
+\newblock Agentic context engineering: Evolving contexts for self-improving language models.
+\newblock \emph{CoRR}, abs/2510.04618, 2025{\natexlab{c}}.
+\newblock \doi{10.48550/ARXIV.2510.04618}.
+\newblock \url{https://doi.org/10.48550/arXiv.2510.04618}.
+
+\bibitem[Zhang et~al.(2026)Zhang, Qin, Cao, Zhang, and Xie]{aibuildai}
+Ruiyi Zhang, Peijia Qin, Qi~Cao, Li~Zhang, and Pengtao Xie.
+\newblock Aibuildai: An {AI} agent for automatically building {AI} models.
+\newblock \emph{CoRR}, abs/2604.14455, 2026.
+\newblock \doi{10.48550/ARXIV.2604.14455}.
+\newblock \url{https://doi.org/10.48550/arXiv.2604.14455}.
+
+\bibitem[Zhao et~al.(2025)Zhao, Magka, Jiang, Li, Raileanu, Shavrina, Gagnon{-}Audet, Niu, Sodhani, Shvartsman, Lupu, Lupidi, Toledo, Hambardzumyan, Josifoski, Foster, Cipolina{-}Kun, Charnalia, Dunfield, Miller, Aodha, Foerster, and Bachrach]{nanogptspeedrunning}
+Bingchen Zhao, Despoina Magka, Minqi Jiang, Xian Li, Roberta Raileanu, Tatiana Shavrina, Jean{-}Christophe Gagnon{-}Audet, Kelvin Niu, Shagun Sodhani, Michael Shvartsman, Andrei Lupu, Alisia~Maria Lupidi, Edan Toledo, Karen Hambardzumyan, Martin Josifoski, Thomas Foster, Lucia Cipolina{-}Kun, Abhishek Charnalia, Derek Dunfield, Alexander~H. Miller, Oisin~Mac Aodha, Jakob~N. Foerster, and Yoram Bachrach.
+\newblock The automated {LLM} speedrunning benchmark: Reproducing nanogpt improvements.
+\newblock \emph{CoRR}, abs/2506.22419, 2025.
+\newblock \doi{10.48550/ARXIV.2506.22419}.
+\newblock \url{https://doi.org/10.48550/arXiv.2506.22419}.
+
+\bibitem[Zhou et~al.(2023)Zhou, Yan, Shlapentokh{-}Rothman, Wang, and Wang]{lats}
+Andy Zhou, Kai Yan, Michal Shlapentokh{-}Rothman, Haohan Wang, and Yu{-}Xiong Wang.
+\newblock Language agent tree search unifies reasoning acting and planning in language models.
+\newblock \emph{CoRR}, abs/2310.04406, 2023.
+\newblock \doi{10.48550/ARXIV.2310.04406}.
+\newblock \url{https://doi.org/10.48550/arXiv.2310.04406}.
+
+\bibitem[Zhu et~al.(2026)Zhu, Cai, Liu, Zheng, Wang, Ye, Chen, Wang, Wang, Zhang, Zhang, E, Jin, Chen, and Wang]{mlmaster2}
+Xinyu Zhu, Yuzhu Cai, Zexi Liu, Bingyang Zheng, Cheng Wang, Rui Ye, Jiaao Chen, Hanrui Wang, Wei{-}Chen Wang, Yuzhi Zhang, Linfeng Zhang, Weinan E, Di~Jin, Siheng Chen, and Yanfeng Wang.
+\newblock Toward ultra-long-horizon agentic science: Cognitive accumulation for machine learning engineering.
+\newblock \emph{CoRR}, abs/2601.10402, 2026.
+\newblock \doi{10.48550/ARXIV.2601.10402}.
+\newblock \url{https://doi.org/10.48550/arXiv.2601.10402}.
+
+\end{thebibliography}

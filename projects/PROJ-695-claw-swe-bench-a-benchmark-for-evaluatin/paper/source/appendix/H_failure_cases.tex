@@ -1,0 +1,202 @@
+% ==================================================================
+% APPENDIX H (Failure Case Studies) -- TEMPORARILY RETIRED
+% ------------------------------------------------------------------
+% This appendix documented five case studies organized around the
+% three-mode Empty-Patch taxonomy (fast-giveup / slow-giveup /
+% burn-out Unresolved) and referenced \ref{sec:error_analysis}, which
+% no longer exists in the main text. The Empty-Patch accounting it was
+% built on has been found unreliable and the corresponding analysis
+% has been removed from the paper body. The raw trajectory excerpts
+% below are kept (commented out) so the cases can be re-classified
+% once the failure-mode analysis is refreshed against the leak-fix
+% instance-level artifacts.
+% ==================================================================
+
+% \section{ Failure Case Studies}\label{appendix:failures}
+%
+% Section~\ref{sec:error_analysis} introduces a three-mode Empty-Patch taxonomy
+% (\emph{fast-giveup} / \emph{slow-giveup} / \emph{burn-out Unresolved}) and a
+% $\sim$20\% cross-harness common-failure finding. This appendix documents
+% five representative case studies illustrating these modes, drawn from the
+% harness-ablation grid. Each case lists the instance setup, a
+% 6--10 line excerpt from the agent stdout / session log, the failure-mode
+% classification, and a harness-design implication.
+%
+% \subsection*{Case G.1 --- Cross-harness common failure on \texttt{caddyserver\_\_caddy-5404} (GLM-5.1)}
+%
+% \paragraph{Setup.} Go HTTP-server bug: Caddyfile lexer's
+% \texttt{finalizeHeredoc} mixes byte and rune indices, panicking with
+% \texttt{slice bounds out of range [4:2]} on multi-byte UTF-8 input. All four
+% harnesses produced non-empty patches but none passed the evaluator.
+%
+% \paragraph{Trajectory excerpt} (\texttt{X\_openclaw-glm51-caddy5404}, session log; the four
+% harnesses converge on the same diagnosis):
+% \begin{verbatim}
+% Phase 2 & 3: The brute force with ASCII chars didn't find it.
+% The bug likely involves multi-byte UTF-8 characters. The
+% finalizeHeredoc function uses strings.LastIndex (byte-based)
+% on a string converted from []rune, then uses that byte index to
+% slice the rune array -- mixing byte and rune indices!
+% With <<E\n界\nE: val (rune slice) = ['界','\n','E'] (3 runes);
+% string(val) = "界\nE" (5 bytes); lastNewline = 3 (byte position
+% of \n); val[4:2] -> PANIC!
+% Phase 6: convert val to a string at the top of finalizeHeredoc
+% and use byte indices consistently throughout.
+% \end{verbatim}
+%
+% \paragraph{Cross-harness outcome.}
+% \begin{center}
+% \begin{tabular}{llrll}
+% \toprule
+% harness & finish & duration & patch & result \\
+% \midrule
+% \texttt{openclaw} & stop & 601\,s  & non-empty & Unresolved \\
+% \texttt{hermes}   & stop & 704\,s  & non-empty & Unresolved \\
+% \texttt{zeroclaw} & stop & 642\,s  & non-empty & Unresolved \\
+% \texttt{nanobot}  & stop & 535\,s  & non-empty & Unresolved \\
+% \bottomrule
+% \end{tabular}
+% \end{center}
+%
+% \paragraph{Failure mode.} \emph{Task-difficulty bound.} All four harnesses
+% diagnose the same root cause and emit a focused patch in 9--12 minutes with
+% \texttt{exit\_code=0}, yet every one is marked Unresolved by the hidden
+% tests --- the fix is plausible in shape but misses oracle conditions.
+%
+% \paragraph{Lesson.} On GLM-5.1, $68/350$ (19.4\%) Combined-350 instances are
+% Unresolved/Empty across all four harnesses (Qwen-3.6-Flash: $79/350=22.6\%$);
+% $\sim$20\% of SWE-bench failures are task-bound and orthogonal to harness
+% design.
+%
+% \subsection*{Case G.2 --- zeroclaw slow-giveup Empty Patch on \texttt{apache\_\_druid-13704} (Qwen-3.6-Flash)}
+%
+% \paragraph{Setup.} Feature request: add \texttt{pow(f1,f2)} post-aggregation
+% to Apache Druid (Java). Agent ran $1020.8$\,s (117 turns, $8.85$\,M input
+% tokens), \texttt{finish\_reason=stop}, \texttt{patch\_empty=True}.
+%
+% \paragraph{Trajectory excerpt} (\texttt{B\_zeroclaw-qwen-druid13704-EMPTY/agent\_stdout.log},
+% final turn):
+% \begin{verbatim}
+% Summary of Findings:
+% 1. Pow class (Function.java lines 1869-1888) extends
+%    DoubleBivariateMathFunction, returns "pow", uses Math.pow(x,y).
+% 2. doublePower method (VectorMathProcessors.java 691-720) handles
+%    LONG/LONG with special case, falls back to power().
+% 3. power method (VectorMathProcessors.java 634-689) covers all
+%    four type combinations.
+% The pow function appears to be fully implemented! ... If there
+% are any specific issues or missing functionality you'd like me
+% to investigate further, please let me know!
+% \end{verbatim}
+%
+% \paragraph{Failure mode.} \emph{Slow-giveup Empty Patch.} The agent
+% explores for 17 minutes, locates the relevant classes, concludes the
+% feature ``appears to be fully implemented,'' and exits without a single
+% edit. zeroclaw's stop signal fires on LLM-declared completion with no
+% patch-non-empty check.
+%
+% \paragraph{Lesson.} zeroclaw's slow-giveup is sharply model-sensitive:
+% $53/350$ Empty on Qwen-3.6-Flash vs.\ $11/350$ on GLM-5.1 ($5\times$).
+%
+% \subsection*{Case G.3 --- zeroclaw slow-giveup persists on stronger model: \texttt{projectlombok\_\_lombok-3594} (GLM-5.1)}
+%
+% \paragraph{Setup.} Lombok bug:
+% \texttt{HandleSuperBuilder.getTypeParamExpressions} drops
+% \texttt{JCAnnotatedType} type arguments (e.g.\ \texttt{Parent<@ValidDouble
+% Double>}), giving the builder wrong arity. zeroclaw $\times$ GLM-5.1 ran
+% $1139.1$\,s (300 turns --- the cap), \texttt{patch\_empty=True}.
+%
+% \paragraph{Trajectory excerpt} (\texttt{B\_zeroclaw-glm51-lombok3594-EMPTY/agent\_stdout.log}):
+% \begin{verbatim}
+% The getTypeParamExpressions method only handles JCTypeParameter,
+% JCIdent, JCFieldAccess, and JCTypeApply. When a type argument has
+% an annotation like @ValidDouble Double, it's a JCAnnotatedType,
+% which is silently skipped, causing the type parameter to be
+% dropped entirely.
+% ... The file doesn't exist at that path. Let me check if it's an
+% inner class of JavacHandlerUtil ...
+% WARN zeroclaw_runtime::agent::loop_: Max iterations reached,
+% requesting final summary  max_iterations=300
+% ## Summary of Analysis and Fix  [no edit tool calls follow]
+% \end{verbatim}
+%
+% \paragraph{Failure mode.} \emph{Slow-giveup Empty Patch (iteration cap).}
+% The agent correctly identifies the missing \texttt{JCAnnotatedType} branch
+% and drafts the fix in prose, but its file-search tool repeatedly fails on
+% absolute paths, and the 300-turn cap fires before any \texttt{edit} call
+% lands. Same shape as Case G.2; only the trigger (cap vs.\ self-declared
+% completion) differs.
+%
+% \paragraph{Lesson.} zeroclaw's slow-giveup is harness-bound, not purely
+% model-driven: GLM-5.1 (62.9\% Resolved on zeroclaw) still produces
+% $11/350$ Empty Patches via the same long-exploration path.
+%
+% \subsection*{Case G.4 --- openclaw fast-giveup Empty Patch on \texttt{google\_\_gson-2061} (GLM-5.1)}
+%
+% \paragraph{Setup.} Gson bug: \texttt{JsonReader.hasNext()} returns
+% \texttt{true} at \texttt{END\_DOCUMENT} because it omits a
+% \texttt{PEEKED\_EOF} check. openclaw $\times$ GLM-5.1 ran $128.8$\,s with
+% $1224$ input / $65$ output tokens (\texttt{lastCallUsage}),
+% \texttt{patch\_empty=True}.
+%
+% \paragraph{Trajectory excerpt} (\texttt{C\_openclaw-glm51-gson2061-EMPTY}, session log; the
+% \emph{entire} agent output before stop):
+% \begin{verbatim}
+% "Now I understand the problem. The hasNext() method only checks
+%  for PEEKED_END_OBJECT and PEEKED_END_ARRAY but doesn't check for
+%  PEEKED_EOF, which represents END_DOCUMENT. When at the end of
+%  the document, hasNext() incorrectly returns true. Let me look
+%  at existing tests and then create a reproduction script:"
+% "Now let me create a reproduction script:"
+% [stopReason: stop, durationMs: 96701, aborted: false]
+% \end{verbatim}
+%
+% \paragraph{Failure mode.} \emph{Fast-giveup Empty Patch.} The agent
+% diagnoses the bug in two turns, announces it will create a reproduction
+% script, then halts --- $65$ output tokens total. The stop signal fires
+% before any \texttt{edit} or \texttt{write} call.
+%
+% \paragraph{Lesson.} ``Empty Patch'' is not a single concept. openclaw stops
+% after $\sim$2 turns of $108$\,s with the right idea but no edits; zeroclaw
+% stops after $17$--$19$ minutes of exhaustive exploration. Aggregating both
+% obscures a $10\times$ difference in compute spent.
+%
+% \subsection*{Case G.5 --- hermes burn-out Unresolved on \texttt{briannesbitt\_\_carbon-3005} (GLM-5.1)}
+%
+% \paragraph{Setup.} PHP serialisation bug: a \texttt{CarbonInterval} from
+% \texttt{diffAsCarbonInterval()} carries a \texttt{localTranslator} with
+% \texttt{Closure} entries, triggering \texttt{Serialization of 'Closure' is
+% not allowed}. hermes $\times$ GLM-5.1 ran $3422.5$\,s ($\approx 57$\,min,
+% near the 3600\,s cap), \texttt{patch\_empty=False}.
+%
+% \paragraph{Trajectory excerpt} (\texttt{D\_hermes-glm51-carbon3005-LONG-UNRESOLVED/agent\_stdout.log},
+% final summary):
+% \begin{verbatim}
+% Fix: Added __serialize() and __unserialize() methods to
+% CarbonInterval that:
+%  1. __serialize() only saves DateInterval base properties
+%     (y,m,d,h,i,s,f,invert,days), timezoneSetting, startDate,
+%     endDate, rawInterval, initialValues, dumpLocale; skips
+%     localTranslator, step (Closure), clock, localMacros, ...
+%  2. __unserialize() reconstructs from spec, calls
+%     parent::__construct(), reattaches translator from locale.
+% [reflection-based test fixup follows; eval still Unresolved]
+% \end{verbatim}
+%
+% \paragraph{Failure mode.} \emph{Burn-out Unresolved.} hermes never produces
+% an Empty Patch ($0/700$ in the harness-ablation grid) because its loop continues until a
+% non-empty patch is committed or wall-clock expires. On hard instances this
+% manifests as a 50--57 minute grind ending in a non-empty patch that fails
+% the hidden tests.
+%
+% \paragraph{Lesson.} hermes's ``must output'' design achieves $0/700$ Empty
+% Patches and the highest Resolved rate ($479/700=68.4\%$) of the four
+% harnesses, but trades wall-clock for the same Unresolved outcome that
+% openclaw, zeroclaw, and nanobot reach faster via Empty Patches. Empty
+% Patch rate and Unresolved rate are two settings on the same dial.
+%
+% \paragraph{Synthesis.} G.1--G.5 substantiate the §\ref{sec:error_analysis}
+% taxonomy: $\sim$20\% task-bound (G.1); within the rest, zeroclaw favours
+% slow-giveup (G.2, G.3), openclaw favours fast-giveup (G.4), hermes
+% substitutes burn-out for any giveup (G.5). Empty Patch counts should not be
+% compared across harnesses without inspecting trajectory length.

@@ -1,0 +1,1244 @@
+\section*{Appendix}
+\label{app:contents}
+\providecommand{\ours}{\arbor}
+\startcontents[sections]
+\setupappendixtoc
+{\hypersetup{linkcolor=AppendixTOCSection}
+\printcontents[sections]{l}{1}{\setcounter{tocdepth}{3}}}
+
+\section{Limitations and Future Work}
+\label{app:limitations-future}
+
+Although the empirical results demonstrate the promise of \arbor{} for
+autonomous research, this study has several limitations. We discuss these
+limitations below and outline the corresponding directions for future work.
+
+\paragraph{Evaluation scope.}
+Our experiments are an initial probe of autonomous research rather than a
+complete benchmark for scientific discovery. The current AO task suite covers
+model training, harness engineering, and data synthesis, but it does not yet
+span the full diversity of research problems. Within AI, future tasks should
+include settings such as low-level kernel optimization, pretraining data-mixture
+design, and more open-ended system design. Beyond AI, domains such as biology,
+mathematics, and physics require benchmarks where valuable hypotheses are harder
+to specify and validate. A broader suite should therefore evaluate not only
+metric improvement, but also whether the generated ideas are scientifically
+meaningful, reproducible, and transferable.
+
+\paragraph{Objective design.}
+The present AO interface mainly optimizes a fixed scalar objective defined by a
+task-specific evaluator. This is useful for controlled experiments, but it is a
+simplification of real research. Scientific objectives are often multi-dimensional:
+performance, resource use, robustness, interpretability, novelty, and safety may
+all matter, and improving one can hurt another. Future AO systems should support
+multi-objective search, explicit constraints, Pareto-style comparison, and
+adaptive scheduling between competing criteria. This would also reduce the risk
+that an agent overfits to a narrow benchmark metric while missing the broader
+research goal.
+
+\paragraph{Idea generation.}
+We observe that agents can read evaluation feedback carefully and propose useful
+local refinements, but their research ability remains far from that of expert
+human researchers. In difficult tasks, they may fail to identify a genuinely new
+mechanism, abandon a promising direction after early failures, or reverse-engineer
+solutions from observed scores instead of reasoning from first principles. A more
+fine-grained study of agent idea formation is therefore needed. Promising
+directions include better uncertainty tracking, explicit reuse of negative
+evidence, mechanisms for revisiting suspended branches, and training or prompting
+methods that encourage causal and first-principles hypotheses rather than only
+result-driven fixes.
+
+\paragraph{Cost and infrastructure.}
+Long-horizon autonomous research is limited not only by idea quality, but also
+by systems engineering. In our runs, performance and efficiency depend on details
+such as prompt caching, evaluator scheduling, isolated environment startup,
+parallel worktree execution, and the reliability of inter-agent coordination.
+Large numbers of model calls, evaluator calls, and artifact handoffs can make a
+successful search expensive even when each individual step is simple. Future work
+should develop cost-aware tree policies, adaptive evaluator allocation, stronger
+caching and checkpointing, and more robust execution infrastructure so that AO
+systems can scale without turning search breadth into uncontrolled compute cost.
+
+\paragraph{Model capability.}
+Finally, \arbor{} inherits the strengths and weaknesses of the underlying LLMs.
+Current models are often capable of coding, summarizing results, and making
+plausible local hypotheses, but they can still struggle with deep domain
+knowledge, long chains of causal reasoning, and genuinely creative problem
+reformulation. Stronger foundation models will likely improve AO directly, but
+model scaling alone may not be sufficient. Future systems should combine LLMs
+with domain knowledge bases, specialized tools, simulators, formal checkers, and
+training signals targeted at scientific hypothesis generation. In this sense,
+\arbor{} provides a structure for accumulating and testing ideas, while the
+quality of those ideas remains an important frontier.
+
+\section{Details of \texorpdfstring{\ours{}}{Arbor}}
+\label{app:arbor-details}
+
+Figure~\ref{fig:appendix-overall-framework} summarizes the implementation-level
+agent internals used by \ours{}. 
+
+\begin{figure}[!t]
+  \centering
+  \includegraphics[width=\linewidth]{fig/appendix_workflow.pdf}
+  \caption{Agent-level implementation details of \ours{}.}
+  \label{fig:appendix-overall-framework}
+\end{figure}
+
+\subsection{Prompts}
+\label{app:prompts}
+
+\subsubsection{Coordinator Prompt}
+\label{app:meta-agent-prompt}
+
+\begin{promptbox}[title=\textbf{Coordinator Prompt}]
+\noindent\textbf{Role.}~You are the persistent coordinator in \arbor{}.
+Your job is to maintain the hypothesis tree as the shared research state,
+choose which hypotheses deserve execution, and convert experimental feedback
+into reusable evidence. You do not edit the target artifact directly. All
+implementation work is delegated to short-lived Executors, while you own the
+tree, the research frontier, and the merge/prune/stop decisions.
+
+\smallskip
+\noindent\textbf{Runtime and durable state.}~You run in a single persistent
+ReAct loop. When the conversation approaches the context limit, older turns may
+be compressed; the on-disk hypothesis tree is therefore the source of truth.
+Every controlled mutation is saved as JSON for tools and regenerated as
+Markdown for human inspection. Operator messages prefixed with
+\texttt{[user note]} are instructions or questions that must be handled at the
+next safe point before launching new Executors or merging branches.
+
+\smallskip
+\noindent\textbf{Research contract.}~At initialization, inspect the target
+codebase and record the AO contract via \texttt{TreeSetMeta}: the objective,
+metric direction, development evaluator $\Eval_\dev$, held-out evaluator
+$\Eval_\test$, dataset paths, baseline score, and evaluation commands. Commands
+must use the template variables \texttt{\{cwd\}} and \texttt{\{node\_id\}} so
+that the same contract can be injected safely into isolated executor worktrees.
+
+\smallskip
+\noindent\textbf{Hypothesis tree.}~The root node represents the initial
+artifact. Depth-1 children are broad research directions; deeper nodes are more
+specific refinements, alternatives, or corrections under their parent. Each
+node stores a lifecycle status (\texttt{pending}, \texttt{running},
+\texttt{done}, \texttt{merged}, or \texttt{pruned}), a dev score, a factual
+result, a structured insight, and a git branch reference \texttt{code\_ref}.
+The tree is not a transcript of tool calls: it is the compact record of what
+was tried, what happened, why it happened, and how that evidence should shape
+future hypotheses.
+
+\smallskip
+\noindent\textbf{Coordinator loop.}~Repeat the following cycle until the
+budget is exhausted, no promising frontier remains, or the objective has been
+satisfied.
+\begin{enumerate}[label=\textbf{\arabic*.},leftmargin=1.6em,itemsep=2pt,topsep=2pt]
+  \item \textbf{Observe.} Read the current tree with \texttt{TreeView}; inspect
+  the current best artifact, recent executor reports, and experiment logs when
+  needed. Reconstruct the live research frontier from the persisted tree rather
+  than from memory alone.
+  \item \textbf{Constrain.} Use \texttt{TreeView(format=``constraints'')} to
+  load tree shape, root insight, pruned lessons, and validated findings. Treat
+  pruned lessons as negative constraints and validated findings as assumptions
+  to build on.
+  \item \textbf{Ideate.} Select a parent node and propose a small set of
+  executable child hypotheses. Each candidate added with \texttt{TreeAddNode}
+  must state its mechanism, hypothesis, observable success condition, and known
+  conflicts or risks. Do not add candidates that merely repeat a pruned failure
+  mode.
+  \item \textbf{Select.} Choose pending leaves for the next batch using
+  accumulated evidence, expected impact, implementation cost, and diversity
+  across active directions. Prefer hypotheses that can teach the tree something
+  useful even when they fail.
+  \item \textbf{Execute.} Dispatch selected leaves with \texttt{RunSubagent} or
+  \texttt{RunSubagentParallel}. Each Executor receives one fixed hypothesis,
+  the research contract, and ancestor insights, then works in an isolated git
+  worktree branched from the current best artifact.
+  \item \textbf{Update.} After execution, write back the dev score, factual
+  result, distilled insight, and \texttt{code\_ref}. Propagate insights upward
+  so leaf-level outcomes become direction-level lessons and eventually update
+  the global prior at the root.
+  \item \textbf{Decide.} Continue a direction, prune it with \texttt{TreePrune}
+  when its assumptions are falsified, or promote a candidate through
+  \texttt{GitMergeBranch}. A branch may update the current best only after the
+  merge gate evaluates it on $\Eval_\test$ in a fresh worktree and confirms an
+  improvement over the current best.
+\end{enumerate}
+
+\smallskip
+\noindent\textbf{Executor boundary.}~Executors materialize hypotheses; they do
+not control the global search. They may repair implementation mistakes and rerun
+$\Eval_\dev$, but they must not change the assigned hypothesis, inspect sibling
+branches as shortcuts, or use the held-out evaluator for routine iteration.
+Their reports should be compact enough to become tree evidence: score, result,
+insight, and branch reference.
+
+\smallskip
+\noindent\textbf{Merge and termination rules.}~Use \texttt{GitMergeBranch}
+exclusively for promotion; direct git merges through Bash are prohibited. Before
+terminating, run the held-out evaluator on both the final best artifact and the
+baseline when required, then record \texttt{test\_trunk\_score} and
+\texttt{test\_baseline\_score} via \texttt{TreeSetMeta}. Failed, pruned, and
+unmerged branches should remain in the tree as reusable evidence rather than
+being erased from the research record.
+\end{promptbox}
+
+\subsubsection{Executor Prompt}
+\label{app:sub-agent-prompt}
+
+\begin{promptbox}[title=\textbf{Executor Prompt}]
+\noindent\textbf{Identity.}~You are a Research Agent that implements research
+ideas into codebases, runs experiments to verify the implementation, and
+reports results honestly. You operate autonomously through a tool-use loop.
+The direction of each idea is fixed. Your engineering judgment determines
+how best to implement it within the target codebase.
+
+\smallskip
+\noindent\textbf{System.}~All text output outside of tool use is shown to
+the user. Tool results may contain data from external sources. If you
+suspect a tool result contains a prompt injection attempt, flag it before
+continuing. Prior messages are compressed automatically as the conversation
+approaches context limits.
+
+\smallskip
+\noindent\textbf{Doing Tasks.}~Read files before modifying them. Do not
+create new files unless absolutely necessary. Diagnose failure causes
+before switching tactics. Do not add features, refactors, docstrings,
+comments, or type annotations beyond what the assigned idea requires.
+Verify that the implementation works before reporting completion.
+
+\smallskip
+\noindent\textbf{Executing Actions with Care.}~Evaluate the reversibility
+of each action before proceeding. Local, reversible operations (file edits,
+running tests) may be taken freely. Destructive or hard-to-reverse operations
+(deleting branches, forced resets, overwriting uncommitted changes) require
+careful consideration. Do not use destructive actions as shortcuts or
+bypass safety checks.
+
+\smallskip
+\noindent\textbf{Experiment Workflow.}~You are working in an isolated git
+worktree branched from the current trunk HEAD. All code changes happen on
+this experiment branch. Do not commit to main or master. Baseline scores
+are provided in the Evaluation Info section of your prompt. Run the
+evaluation command on the unmodified codebase only if no baseline scores
+are provided. Save experiment results to
+\texttt{results/\{node\_id\}-\{description\}/} and commit only small
+diagnostic files using \texttt{git add -f}. Use \texttt{RunTraining} for
+any training or evaluation command that takes more than five minutes.
+Do not use polling loops. At the end, provide a concise report with
+the following sections: Idea, Changes, Implementation Choices,
+Baseline vs.\ Result, Analysis, and Insights.
+
+\smallskip
+\noindent\textbf{Critical Rules.}~The idea direction is non-negotiable.
+You may not substitute a fundamentally different approach. Implementation
+choices (specific architecture, hyperparameters, code placement) are yours.
+Report significant implementation choices explicitly. If the idea
+underperforms after a good-faith implementation, that is the finding to report.
+\end{promptbox}
+
+\subsection{Algorithm Workflow}
+\label{app:algorithm-flow}
+
+Algorithm~\ref{alg:appendix-htr} expands the HTR pseudocode from the main
+paper (Algorithm~\ref{alg:htr}) with implementation-level detail. Notation
+follows the main paper: $\iota_n$ denotes the insight recorded at node $n$,
+$b_n$ the git branch reference, $s_n$ the $\Eval_\dev$ score, $r_n$ the
+factual result, and $\iota_{\mathrm{anc}(n)}$ the concatenated insights on
+the path from $n_0$ to $n$'s parent.
+
+\begin{algorithm}[!t]
+\small
+\DontPrintSemicolon
+\SetKwInOut{Input}{Input}\SetKwInOut{Output}{Output}
+\SetKwProg{Fn}{Procedure}{:}{}
+\SetKwFunction{Exec}{Executor}
+\caption{Hypothesis Tree Refinement (HTR) with expanded implementation detail.
+  The coordinator owns $\Tree$, and each \textsc{Executor} owns one worktree.}
+\label{alg:appendix-htr}
+\Input{$\mathcal{P}=(\Mat_0,\Obj,\Eval_{\dev},\Eval_{\test})$, budget $B$, branching $k$, parallelism $P$}
+\Output{best artifact $\Mat^\star$, annotated hypothesis tree $\Tree$, and run summary report}
+
+\tcp{Initialization}
+init $\Tree=(\{n_0\},\emptyset)$, $b_{n_0}\leftarrow\Mat_0$, $\Mat_{\mathrm{best}}\leftarrow\Mat_0$\;
+run $\Eval_{\dev}(\Mat_0)$ and record baseline score and eval command in $\Tree.\mathrm{meta}$ via \texttt{TreeSetMeta}\;
+
+\tcp{Main coordinator loop}
+\While{$B$ left $\wedge$ pending leaves exist $\wedge$ no stop signal}{
+  \tcp{Step 1: OBSERVE, build constraint view}
+  $\mathcal{V}\leftarrow\textsc{Observe}(\Tree,\Mat_{\mathrm{best}})$
+    \tcp*{shape, root insight, pruned lessons, validated findings}
+
+  \tcp{Step 2: IDEATE, skill-gated hypothesis proposal}
+  $\mathcal{V}_c \leftarrow \texttt{TreeView}(\mathrm{format}{=}\texttt{constraints})$
+    \tcp*{hard constraints: no re-tread of pruned directions}
+  load \texttt{idea\_drafting} skill via \texttt{LoadSkill}
+    \tcp*{mandatory gate: must precede any candidate proposal}
+  $p\leftarrow\textsc{Select}_{\textsf{parent}}(\mathcal{V})$\;
+  \ForEach{surviving candidate after Fatal-Flaw Scan}{
+    attach pending child $n^{(i)}$ with hypothesis $h^{(i)}$ = (Mechanism, Hypothesis, Observable, Conflicts)\;
+    $\iota_{\mathrm{anc}(n^{(i)})}\leftarrow$ insights on $\textsf{path}(n_0\to p)$
+      \tcp*{injected into Executor prompt}
+    prune \texttt{idea\_drafting} scratch from coordinator context
+      \tcp*{elide skill body + reasoning post-TreeAddNode}
+  }
+
+  \tcp{Step 3: SELECT frontier for parallel dispatch}
+  $L\leftarrow$ up to $P$ pending leaves under $\textsc{Select}_{\textsf{frontier}}(\mathcal{V})$\;
+
+  \tcp{Step 4: DISPATCH, parallel Executor dispatch}
+  $\{(s_n,r_n,\iota_n,b_n)\}_{n\in L}\leftarrow\textbf{parallel }\Exec(h_n,\iota_{\mathrm{anc}(n)},\Mat_{\mathrm{best}})$\;
+
+  \tcp{Step 5: UPDATE, write back and propagate}
+  \ForEach{$n\in L$, $a\in\textsf{path}(n_0\to n)$}{
+    write back $(s_n,r_n,\iota_n,b_n)$ to node $n$ in $\Tree$ and set $n.\mathrm{status}\leftarrow\texttt{done}$\;
+    $\iota_a\leftarrow\textsc{Abstract}(\{\iota_c\}_{c\in\textsf{ch}(a)})$
+      \tcp*{propagate insights upward to root}
+  }
+  check convergence: inject intervention if $\geq w$ consecutive non-improving experiments\;
+
+  \tcp{Step 6: DECIDE, merge gate or prune}
+  $n^\dagger\leftarrow\arg\max_{n\in L}\,s_n$\;
+  \If{$s_{n^\dagger}$ exceeds best score by $\geq\theta$}{
+    create detached worktree at $b_{n^\dagger}$ and run $\Eval_{\test}$ with template substitution\;
+    \lIf{$S_{\test}(b_{n^\dagger})>S_{\test}(\Mat_{\mathrm{best}})$}{
+      $\Mat_{\mathrm{best}}\leftarrow\textsf{merge}(b_{n^\dagger})$ and update $\Tree.\mathrm{meta}.\mathrm{trunk\_score}$
+    }
+  }
+  prune subtrees falsified by $\{\iota_n\}_{n\in L}$ and persist $\Tree$ to JSON + Markdown\;
+}
+run $\Eval_{\test}(\Mat_{\mathrm{best}})$ and record \texttt{test\_trunk\_score} and \texttt{test\_baseline\_score}\;
+\Return{$\Mat^\star\leftarrow\Mat_{\mathrm{best}}$, $\Tree$, run summary}\;
+
+\BlankLine
+\Fn{\Exec{$h_n,\,\iota_{\mathrm{anc}(n)},\,\Mat_{\mathrm{best}}$}}{
+  branch name $\leftarrow \textsf{slug}(\mathrm{node\_id}) + \textsf{slug}(h_n) + \mathrm{SHA1}(h_n)_{[:8]}$\;
+  create worktree $W_n$ in $\texttt{/tmp/}$ from current best branch HEAD on a fresh branch\;
+  inject eval command (with \texttt{\{cwd\}$\to W_n$}, \texttt{\{node\_id\}$\to n$}) and $\iota_{\mathrm{anc}(n)}$ into prompt\;
+  \Repeat{run ok $\wedge$ $h_n$-path exercised, or turn cap reached}{
+    $\Delta\leftarrow\textsf{Implement}(h_n,\iota_{\mathrm{anc}(n)},W_n)$\;
+    $(s_n,r_n)\leftarrow\Eval_{\dev}(\textsf{apply}(\Delta,W_n))$
+      \tcp*{repair $\Delta$ only, direction $h_n$ is fixed}
+  }
+  filter $\Delta$: commit implementation files only, skip logs/checkpoints/caches\;
+  remove worktree directory and retain branch $b_n$ for later merge gate\;
+  \Return{$(s_n,\;r_n,\;\textsc{Distill}(h_n,\Delta,r_n),\;b_n)$}\;
+}
+\end{algorithm}
+
+\subsection{Key Design of \arbor{} Framework}
+\label{app:framework-key-design}
+General-purpose coding agents such as Codex and Claude Code are built for
+general-purpose software tasks: they chain tool calls on a single working tree
+to edit, test, and fix code against a goal that is already well specified.
+\arbor{} instead targets the auto-research setting, and we make a series of
+engineering choices that specialize the agent for it so that the system can
+flexibly adapt to different research needs and manage many experiments over a
+long horizon. We group its key engineering designs into four areas: (i)~hypothesis-tree management,
+(ii)~experiment management, (iii)~long-horizon operation, and (iv)~functional
+extensibility through skills and plugins.
+
+\paragraph{Hypothesis-tree management.}
+Unlike a code agent whose memory is the linear chat transcript, \arbor{}
+externalizes its research state into an explicit hypothesis tree (the
+\emph{idea tree}), an in-memory object that is the single authoritative record
+of a run. Each node holds a hierarchical dotted address (e.g.\ \texttt{ROOT},
+\texttt{1}, \texttt{1.1}) that encodes its path from the root, its
+\texttt{parent\_id} and \texttt{children\_ids}, a once-written
+\texttt{hypothesis}, a \texttt{status} field tracing the lifecycle
+\texttt{pending}\,$\to$\,\texttt{running}\,$\to$\,\texttt{done}\,$\to$\,%
+\{\texttt{merged},\,\texttt{pruned}\}, a development \texttt{score}, a factual
+\texttt{result}, a distilled \texttt{insight}, and a \texttt{code\_ref} branch
+pointer to the artifact. Depth-1 nodes are broad directions and deeper nodes are
+concrete refinements, so edges encode hypothesis refinement rather than
+chronological actions. The coordinator never touches the raw structure; it
+operates the tree only through a small set of typed tools
+(\texttt{TreeAddNode}, \texttt{TreeUpdateNode}, \texttt{TreePrune},
+\texttt{TreeSetMeta}, \texttt{TreePropagate}) and read projections
+(\texttt{TreeView}). Storing an experiment is thus a controlled mutation: the
+executor's structured report is parsed and written into the node's
+\texttt{score}/\texttt{result}/\texttt{insight}/\texttt{code\_ref} fields, and
+the tree is serialized to JSON (and rendered to Markdown) after \emph{every}
+mutation. Crucially, when a node finishes \arbor{} \emph{backpropagates} its
+insight: \texttt{propagate\_insights} walks from the node's parent to the root
+and, at each ancestor, an LLM synthesizes the insights of that ancestor's
+children into a concise ($<$200-word) summary. Leaf insights describe concrete
+implementations, parent insights summarize families of interventions, and the
+root insight maintains a global understanding of the problem. This layerwise
+abstraction lets the coordinator reason at the right granularity without
+rereading raw logs. The concrete schema and persistence format are detailed in
+Section~\ref{app:idea-tree-storage}.
+
+\paragraph{Experiment management.}
+Each pending node is executed by an executor dispatched through
+\texttt{RunSubagent} or \texttt{RunSubagentParallel}. Rather than editing the
+shared working tree in place, \arbor{} creates a fresh git worktree branched
+from the current trunk \texttt{HEAD} for each candidate, so every hypothesis gets
+a clean, independently recoverable experimental boundary and several executors
+can edit overlapping files concurrently without corrupting the trunk or one
+another. At launch the executor is injected with the assigned hypothesis, the
+ancestor insights along its path, and the task
+objective, development evaluator $\Eval_\dev$, held-out evaluator $\Eval_\test$,
+metric direction, data split, and baseline score stored in the tree metadata
+via \texttt{TreeSetMeta}. Its permission boundary is deliberately narrow: the
+executor's tools (Table~\ref{tab:sub-agent-tools}) act \emph{only} within its
+own worktree. It cannot read the trunk, inspect sibling branches, mutate the
+tree, or run $\Eval_\test$. It may repair implementation bugs and choose
+reasonable engineering details, but it may not swap the assigned hypothesis for
+a different research direction, which keeps the returned evidence attributable
+to the node actually tested. The executor reports back four separated fields:
+the development score $s_n$, a factual \texttt{result} $r_n$ (raw observations
+such as errors, curves, and metric breakdowns), a distilled \texttt{insight}
+$\iota_n$ (the causal lesson), and the branch reference $b_n$. The coordinator
+auto-extracts these, updates the node, and decides admission: a result counts as
+a \emph{useful gain} only when it improves $\Eval_\dev$ over the trunk by at
+least the merge threshold, which triggers the \texttt{GitMergeBranch} held-out
+gate that re-runs $\Eval_\test$ in a separate detached worktree and promotes the
+artifact only if it strictly beats the current best. Every other outcome is
+treated as \emph{failure evidence} rather than noise: the node's insight and, if
+the direction is abandoned, its \texttt{TreePrune} reason are aggregated into
+the constraint view (\texttt{TreeView(format="constraints")}) that conditions
+the next \textsc{Ideate} step, so negative results actively narrow the search
+space. Tool-level details of dispatch, score extraction, template-variable
+substitution (\texttt{\{cwd\}}, \texttt{\{node\_id\}}), and artifact filtering
+are given in Section~\ref{app:agent-tools-params}.
+
+\paragraph{Long-horizon operation.}
+A single auto-research run can span hundreds of turns and many hours of
+evaluation, far beyond one context window, so \arbor{} adds explicit mechanisms
+to keep the search productive instead of stalling on early failures or chasing
+noisy evaluation swings. First, because all durable state lives in the persisted
+idea tree rather than the transcript, the run survives crashes, agent restarts,
+and context compression; post-commit context pruning further elides spent
+\textsc{Ideate} scratch work and loaded skill bodies once a candidate is
+committed, bounding context growth. Second, long training or evaluation commands
+are routed through \texttt{RunTraining}, which blocks until completion or timeout
+while continuously capturing partial metrics, progress logs, and checkpoints, so
+even a run that times out at 80\% of its epochs returns actionable evidence
+instead of a silent failure. Third, a \emph{convergence detector} monitors
+recent score velocity over a sliding window and counts consecutive
+non-improving experiments, escalating through \texttt{warn}, \texttt{paradigm\_shift},
+and \texttt{stop} signals; it also flags \emph{parent exhaustion} when a parent's
+recent children all fail to beat the trunk, prompting the coordinator to
+summarize the failure pattern and open a fresh depth-1 direction rather than
+over-exploring a dead branch. A meaningful-improvement threshold prevents a
+single noisy uptick from resetting this signal, balancing premature stagnation
+against unbounded exploration.
+
+\paragraph{Functional extensibility (skills and plugins).}
+To remain adaptable across research domains without changing the core loop,
+\arbor{} exposes two extension surfaces. \emph{Skills} are markdown documents
+with YAML frontmatter, discovered by a registry from both the built-in directory
+and a project-local \texttt{.research\_agent/skills/} override, and loaded on
+demand via \texttt{LoadSkill}. The \textsc{Ideate} protocol, for instance, loads
+\texttt{idea\_drafting}, \texttt{first\_principles\_probe}, and
+\texttt{fatal\_flaw\_scan} before proposing candidates, then prunes their bodies
+from context after each commit, so reasoning guidance is injected just-in-time
+and does not permanently inflate context. \emph{Plugins} are YAML domain
+adapters that specialize the system declaratively rather than through code: each
+plugin can inject domain guidance at six prompt points (coordinator/executor
+init, ideate, decide, preamble, and workflow), declare an evaluation contract,
+mark protected paths and required outputs for the merge guard, override runtime
+configuration through named profiles, and tune convergence thresholds. For
+example, the \texttt{mle\_kaggle} plugin configures a Kaggle/MLE-bench task with
+its metric direction, evaluation command, protected data paths, and time-budget
+profiles entirely in YAML. Together, skills and plugins let \arbor{} adapt to new
+artifacts and evaluation regimes while keeping the hypothesis-tree machinery and
+agent contracts unchanged.
+
+\subsection{Agent Tools and Hyperparameter Settings}
+\label{app:agent-tools-params}
+
+\subsubsection{Coordinator Tools}
+\label{app:meta-agent-tools}
+
+The coordinator's tool set reflects a strict division of labor: it may read
+any file in the repository and inspect the tree in any projection, but it
+may never edit code directly. All implementation work is delegated to
+executors via \texttt{RunSubagent} or \texttt{RunSubagentParallel}. This
+design is intentional. If the coordinator could edit code directly, it
+would be tempted to make small local fixes without creating a new tree
+node, which would break the invariant that every code change is traceable
+to a hypothesis. Enforcing the edit boundary at the tool level makes this
+invariant a system property rather than a behavioral expectation.
+
+Table~\ref{tab:meta-agent-tools} lists the full tool set. The tree tools
+(\texttt{TreeView}, \texttt{TreeAddNode}, \texttt{TreeUpdateNode},
+\texttt{TreePrune}, \texttt{TreeSetMeta}, \texttt{TreePropagate}) are the
+primary interface through which the coordinator manages the shared research
+state. The dispatch tools (\texttt{RunSubagent},
+\texttt{RunSubagentParallel}) are the boundary through which the coordinator
+hands off implementation to executors and receives structured evidence back.
+The merge tool (\texttt{GitMergeBranch}) is the only path through which a
+candidate branch can be promoted to the current best, enforcing the held-out gate at the
+tool level rather than relying on the coordinator to remember to verify
+before merging. Table~\ref{tab:meta-agent-hyperparams} reports the key
+hyperparameters used across all experiments.
+
+\begingroup
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.02}
+\setlength{\LTpre}{4pt}
+\setlength{\LTpost}{6pt}
+\begin{xltabular}{\linewidth}{>{\raggedright\arraybackslash}p{3.8cm}>{\raggedright\arraybackslash}X}
+\caption{Tools available to the coordinator.}
+\label{tab:meta-agent-tools}\\
+\toprule
+\textbf{Tool} & \textbf{Description} \\
+\midrule
+\endfirsthead
+\caption[]{Tools available to the coordinator (continued).}\\
+\toprule
+\textbf{Tool} & \textbf{Description} \\
+\midrule
+\endhead
+\midrule
+\multicolumn{2}{r}{\footnotesize continued on next page}\\
+\endfoot
+\bottomrule
+\endlastfoot
+\texttt{TreeView} & Inspect the idea tree in five formats: \texttt{compact} (status overview), \texttt{full} (Markdown rendering), \texttt{node} (single-node detail), \texttt{pending} (pending leaf list), and \texttt{constraints} (aggregated pruned lessons and validated findings used as hard constraints in the IDEATE phase). \\
+\texttt{TreeAddNode} & Add a child node to the tree with a four-field hypothesis block (Mechanism, Hypothesis, Observable, Conflicts). Triggers IDEATE context pruning after each commit. \\
+\texttt{TreeUpdateNode} & Update mutable fields of an existing node (\texttt{status}, \texttt{insight}, \texttt{score}, \texttt{result}, \texttt{code\_ref}, \texttt{related\_work}). \\
+\texttt{TreePrune} & Mark a node and its subtree as pruned with a written reason. The reason is aggregated into the constraints block for future IDEATE rounds. \\
+\texttt{TreeSetMeta} & Write evaluation metadata to the tree root: evaluation commands (\texttt{eval\_cmd}, \texttt{eval\_cmd\_test}), dataset paths, baseline score, best score, and test scores. Automatically injected into every Executor's prompt. \\
+\texttt{TreePropagate} & Re-propagate insights from a node upward to the root after manual corrections via \texttt{TreeUpdateNode}. \\
+\texttt{RunSubagent} & Dispatch a single Executor to implement and evaluate a pending tree node. Creates an isolated git worktree from trunk HEAD, injects ancestor insights and evaluation metadata, auto-extracts results from the structured report, and updates the tree node. \\
+\texttt{RunSubagentParallel} & Dispatch two to four Executors concurrently on independent tree nodes. Each Executor runs in its own isolated worktree. \\
+\texttt{GitMergeBranch} & Validate and promote a candidate branch to the current best. Creates a temporary detached worktree at the source branch, runs $\Eval_\test$ with score extraction, and merges only if the validated test score exceeds the current best score. Protected branches (main, master) cannot be merge targets. \\
+\texttt{Bash} & Execute shell commands for read-only codebase inspection and environment queries. The coordinator never uses Bash to edit code. \\
+\texttt{FileRead} & Read the contents of a file within the target repository. \\
+\texttt{Grep} & Search for a text pattern across repository files. \\
+\texttt{Glob} & Find files matching a glob pattern within the repository. \\
+\texttt{LoadSkill} & Load a skill document on demand from the registry. In the IDEATE protocol, \texttt{idea\_drafting}, \texttt{first\_principles\_probe}, and \texttt{fatal\_flaw\_scan} are loaded before proposing candidates. Loaded content is pruned from context after each \texttt{TreeAddNode} commit. \\
+\texttt{SearchIdeaContext} & Dispatch a SearchAgent in the background to annotate a tree node with related work. Returns immediately. The SearchAgent runs concurrently with ongoing IDEATE and dispatch work and writes a structured annotation (summary, novelty assessment, related papers) to \texttt{node.related\_work} when finished. \\
+\texttt{SearchIdeaContextParallel} & Dispatch multiple background SearchAgents concurrently for a list of node IDs. \\
+\texttt{SearchStatus} & Return the count of in-flight background SearchAgent tasks. \\
+\end{xltabular}
+\endgroup
+
+\begin{table}[!htbp]
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.08}
+\caption{Key hyperparameters for the \arbor{} coordinator and executors.}
+\label{tab:meta-agent-hyperparams}
+\begin{tabularx}{\linewidth}{>{\raggedright\arraybackslash}p{4.8cm}>{\raggedright\arraybackslash}p{2.4cm}>{\raggedright\arraybackslash}X}
+\toprule
+\textbf{Parameter} & \textbf{Default} & \textbf{Description} \\
+\midrule
+Backbone model & Claude Opus 4.6 & LLM for both coordinator and executors (configurable per role) \\
+Max cycles & 20 & Hard cap on total completed experiments \\
+Max coordinator turns & 500 & Maximum ReAct turns for the persistent coordinator loop \\
+Executor max turns & 50 & Maximum turns per executor \\
+Executor timeout & 48\,h & Wall-clock limit per executor \\
+Context window & 200\,K tokens & Coordinator context limit \\
+Compression threshold & 0.80 & Compress context when it reaches 80\% of the context window \\
+Kept recent turns & 20 & Number of most recent turns preserved after each compression \\
+Merge threshold & 5.0\% & Minimum $\Eval_\dev$ improvement required to invoke the merge gate \\
+$\Eval_\test$ evaluation retries & 1 & Additional held-out evaluation attempts after a transient failure \\
+Convergence window & 5 & Sliding window size for score velocity computation \\
+Convergence warn / stop & 3 / 8 & Consecutive non-improving experiments to trigger warning / stop \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsubsection{Executor Tools}
+\label{app:sub-agent-tools}
+
+The executor's tool set is designed around a single constraint: every action
+must be local to its worktree. The executor has no tools for reading the
+current best, inspecting sibling branches, or modifying the shared tree. This
+isolation is not merely a safety measure. It is what allows multiple
+executors to run concurrently on overlapping codebases without coordination
+overhead. Each executor operates as if it has an exclusive copy of the
+repository, because its worktree is literally a separate checked-out
+directory that shares the git object store but maintains its own HEAD and
+index. The \texttt{RunTraining} tool deserves special mention: for experiments
+that involve multi-hour training runs, using \texttt{Bash} with a timeout
+would either cut the run short or block the executor for an unbounded
+duration. \texttt{RunTraining} instead blocks until the command terminates
+or the configured timeout is reached, continuously capturing intermediate
+metrics, progress logs, and checkpoints so that even a timed-out run
+returns actionable partial evidence. This matters in practice: a training
+run that completes 80\% of its epochs before timing out often reveals enough
+about a direction's trajectory to inform a principled prune or continuation
+decision, which is more useful than a silent timeout that leaves the
+coordinator without evidence.
+
+\begin{table}[!htbp]
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.08}
+\caption{Tools available to each executor.}
+\label{tab:sub-agent-tools}
+\begin{tabularx}{\linewidth}{>{\raggedright\arraybackslash}p{2.8cm}>{\raggedright\arraybackslash}X}
+\toprule
+\textbf{Tool} & \textbf{Description} \\
+\midrule
+\texttt{Bash} & Execute shell commands in the worktree with configurable per-call timeouts (default 600\,s, maximum 86{,}400\,s). \\
+\texttt{RunTraining} & Execute a long-running training or evaluation command and block until completion or timeout. Automatically captures partial metrics, progress logs, and checkpoints. Supports staged budgets (smoke, pilot, full) with configurable wall-times. Maximum timeout is 604{,}800\,s (seven days). \\
+\texttt{FileRead} & Read the full contents of a file within the worktree. \\
+\texttt{FileEdit} & Edit a file by replacing an exact string match with new content, enabling surgical edits that minimize unintended side effects. \\
+\texttt{FileWrite} & Write the complete contents of a file, creating or overwriting it. \\
+\texttt{Grep} & Search for a text or regex pattern across files in the worktree. \\
+\texttt{Glob} & Find files matching a glob pattern within the worktree. \\
+\texttt{SubAgent} & Spawn a nested executor with a custom prompt for modular decomposition of complex implementation tasks. The nested agent inherits the same tool set and worktree context. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsubsection{Evaluation and Merge Tools}
+\label{app:evaluation-merge-tools}
+
+A recurring challenge in multi-agent systems is ensuring that evaluation
+commands measure the right code. In \arbor{}, each executor runs in a
+different directory, on a different branch, with potentially different data
+locations. A naively hardcoded evaluation command would silently evaluate
+the wrong artifact. The template variable system addresses this by requiring
+the coordinator to specify evaluation commands using two placeholders:
+\texttt{\{cwd\}} is substituted with the executor's worktree path before
+the command reaches the executor's prompt, and \texttt{\{node\_id\}} is
+substituted with the tree node identifier so that results from concurrent
+experiments are written to distinct output locations and never overwrite
+one another. The coordinator is also explicitly prohibited from hardcoding
+absolute paths in evaluation commands. Only \texttt{\{cwd\}}-relative
+paths are permitted.
+
+Score extraction from evaluator output follows a two-stage pipeline
+that handles the diversity of real evaluation scripts. Many harnesses
+already emit a structured JSON block with a \texttt{score} key. The system
+attempts to parse this first. If no valid JSON block is found, as is
+common with training scripts that report loss or accuracy in free-form
+log lines, a secondary LLM call reads the full command output and
+extracts the primary metric as a percentage. The distinction between a
+primary metric and ancillary logging is task-specific, so the LLM call
+uses a concise system prompt that instructs it to return only a single
+JSON object and to pick the most prominent performance figure if multiple
+metrics appear.
+
+The held-out evaluator $\Eval_\test$ is architecturally separated from
+the development loop. Executors are instructed never to run $\Eval_\test$.
+It is accessible only through the \texttt{GitMergeBranch} tool, which
+creates a fresh detached worktree at the candidate branch's HEAD, applies
+the same template substitution, and runs \texttt{eval\_cmd\_test} in
+complete isolation from the main repository. Configurable retry logic
+with exponential backoff handles transient infrastructure failures such as
+gpu allocation timeouts or flaky network reads. The merge is admitted only
+if the extracted test score strictly exceeds the current best score under
+the metric direction specified in the task. This two-worktree design uses one
+worktree for development evaluation inside the executor and one for held-out
+evaluation inside the merge gate. It ensures that neither the executor nor
+the coordinator
+ever evaluates the candidate artifact in the same directory as the current best,
+eliminating any risk of result leakage between branches.
+
+Before a worktree branch is committed, \arbor{} applies artifact filtering
+to separate implementation changes from generated outputs. The system
+inspects the full worktree diff and classifies changed paths as either
+implementation files or artifacts. Raw logs, model checkpoints,
+cache directories, generated data, and large binary files are excluded
+from the commit, keeping experiment branches compact and ensuring that
+subsequent three-way merges into the current best branch involve only meaningful code
+differences. This filtering is conservative by design: a borderline file
+is included rather than excluded, because a missing implementation file
+breaks the merge, whereas a spurious large file only adds storage overhead.
+
+\subsection{Idea Tree Data Structure and Storage}
+\label{app:idea-tree-storage}
+
+The implementation stores \arbor{}'s hypothesis tree as an idea-tree object.
+This object is the primary durable data structure of a run: it records the
+research frontier, completed experiments, rejected directions, accepted
+artifacts, and reusable insights in one inspectable state.
+
+\paragraph{Logical schema.}
+The root node anchors the initial artifact and task contract. Depth-1 nodes
+represent broad research directions, while deeper nodes represent concrete
+refinements, alternatives, or corrections under their parent. Edges therefore
+encode hypothesis refinement rather than chronological agent actions. During a
+run, pending leaves form the executable frontier; completed, merged, and pruned
+nodes remain in the tree as evidence for future proposal and selection.
+Each node carries the fields listed in Table~\ref{tab:node-fields}.
+
+\begin{table}[ht]
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.10}
+\caption{Fields of a single node in the idea tree.
+The first four fields form the structural skeleton;
+the remaining fields are populated progressively as the node
+moves through its status lifecycle.}
+\label{tab:node-fields}
+\begin{tabularx}{\linewidth}{>{\raggedright\arraybackslash}p{2.4cm}%
+>{\raggedright\arraybackslash}p{2.8cm}>{\raggedright\arraybackslash}X}
+\toprule
+Field & Type & Description \\
+\midrule
+\texttt{id} & string
+  & Hierarchical address encoding position in the tree
+    (e.g.\ \texttt{"ROOT"}, \texttt{"1"}, \texttt{"1.1"}).
+    The dot-separated prefix gives the unique path from root. \\
+\texttt{parent\_id} & string\,\textbar\,null
+  & Identifier of the parent node. \texttt{null} for the root. \\
+\texttt{children\_ids} & list[string]
+  & Ordered identifiers of child nodes, appended as the
+    coordinator expands the tree during \textsc{Ideate}. \\
+\texttt{depth} & int
+  & Integer depth: $0$~=~root, $1$~=~direction node,
+    $2$~=~branch node.
+    The maximum depth is governed by \texttt{max\_depth}. \\
+\addlinespace
+\texttt{hypothesis} & string
+  & Research hypothesis assigned before execution.
+    Written once by the coordinator during \textsc{Ideate} and
+    never modified thereafter. \\
+\texttt{status} & \{pending, running,\newline done, merged, pruned\}
+  & Status lifecycle: \texttt{pending}~$\to$~\texttt{running}~$\to$~%
+    \texttt{done}, then \texttt{done}~$\to$~\texttt{merged}
+    if the merge gate passes, or \texttt{done}~$\to$~\texttt{pruned}
+    otherwise. \\
+\texttt{score} & float\,\textbar\,null
+  & Absolute scalar score on $\Eval_{\dev}$ as reported by the executor.
+    Null until the node has been executed and scored. \\
+\texttt{result} & string
+  & Factual record of the experiment outcome, written by the executor
+    as a direct observational report before any interpretation is applied. \\
+\texttt{insight} & string
+  & Structured lesson extracted by \textsc{Distill} from the outcome,
+    then backpropagated and aggregated at each ancestor up to the root. \\
+\texttt{code\_ref} & string\,\textbar\,null
+  & Git branch name pointing to the implementation artifact produced
+    by the executor.
+    Null if no artifact was committed. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\paragraph{Persistent storage.}
+The idea tree is serialized to JSON after every controlled mutation and serves
+as the sole authoritative record of research state accumulated during a run.
+No hypothesis, score, artifact reference, or lesson exists outside this
+structure. The same state is also rendered to Markdown for dashboards and human
+inspection. The JSON representation is consumed by tools, while the Markdown
+view provides a readable account of the research process. Since every mutation
+is persisted immediately, the run can recover from crashes, agent restarts, and
+context-window compression without relying on conversational memory.
+
+\paragraph{Agent-facing access.}
+Agents do not edit the raw JSON file directly. The coordinator accesses the
+tree through controlled read views and mutation tools: compact frontier views,
+single-node views, pending-leaf views, and the constraint view used before
+ideation; plus mutations for adding nodes, updating lifecycle fields, pruning
+subtrees, setting metadata, and propagating insights. Executors receive only the
+assigned hypothesis, the research contract, and ancestor insights. This access
+pattern keeps the tree as a shared state object rather than a low-level log of
+tool traces.
+
+\FloatBarrier
+
+\section{Details of the AO Test Suite}
+\label{app:ao-suite-details}
+\label{app:benchmark-details}
+
+\subsection{Optimizer Design}
+\label{app:benchmark-optimizer-design}
+
+NanoGPT-Bench~\citep{nanogptbench} Track~3 is a collaborative benchmark
+for discovering efficient neural network optimizers.
+Unlike the main NanoGPT speedrun, which minimizes wall-clock time by any
+means, Track~3 targets \emph{step count}: methods that are slow in
+wall-clock terms but reach the target loss in fewer steps are valid and
+desirable.
+All optimizer designs are evaluated on the same fixed architecture, dataset,
+and training script, so the only lever available is the optimization
+algorithm and its hyperparameters.
+
+\paragraph{Baseline.}
+We initialize from the official tuned Muon optimizer setting provided by the
+benchmark authors.
+This configuration applies Muon to transformer block weights and AdamW to
+embeddings, the output projection, and scalar parameters (biases and gains).
+With these tuned hyperparameters, the baseline reaches a FineWeb validation
+loss of $\leq 3.28$ in 3{,}325 steps.
+Selecting a well-tuned official baseline as the starting material is
+intentional: it places the agent in a regime where naive hyperparameter
+sweeps are unlikely to yield large gains, thereby testing the agent's ability
+to identify and implement genuinely novel optimizer improvements rather than
+harvesting easy wins from an undertuned starting point.
+
+\paragraph{Development and test split.}
+Agents iterate with the development evaluator throughout the search loop.
+After the search completes, the selected optimizer is re-evaluated with two
+held-out random seeds, and the reported test score is the average step count
+across those runs.
+
+\paragraph{Evaluator.}
+The evaluator runs the benchmark's official evaluation script
+\texttt{run\_eval.py}.
+The script launches the training job, monitors validation loss, and
+terminates as soon as \texttt{val\_loss} $\leq 3.28$ is first reached.
+The score is the step count at termination, with lower being better.
+If the target is never reached, a penalty score exceeding 7{,}000 is
+assigned.
+All evaluation runs are executed on four NVIDIA A100-80\,GB GPUs using the
+official benchmark evaluation code.
+
+\paragraph{Agent instruction.}
+The agent is initialized with the following task description.
+
+\begin{promptbox}[title=\textbf{Optimizer Design Task Instruction}]
+Improve the training-step efficiency of the NanoGPT optimizer on FineWeb.
+The training script \texttt{train\_gpt\_simple.py} trains a 124\,M-parameter
+GPT-2 on FineWeb using Muon for transformer weights and AdamW for embeddings,
+output projection, and scalar parameters.
+
+\smallskip
+\noindent\textbf{Goal.}~Minimize the number of training steps required to
+reach \texttt{val\_loss}~$\leq 3.28$.
+The current baseline achieves this target in 3{,}325 steps.
+
+\smallskip
+\noindent\textbf{Evaluation.}~Run \texttt{python run\_eval.py} from the
+project directory.
+The script launches training, monitors validation loss, and terminates at the
+first step where \texttt{val\_loss}~$\leq 3.28$.
+The score is the step count at termination, with lower being better.
+If the target is never reached, a penalty score exceeding 7{,}000 is assigned.
+
+\smallskip
+\noindent\textbf{Constraints.}~Only \texttt{train\_gpt\_simple.py} may be
+modified.
+The dataset, batch size, and model architecture must remain unchanged.
+Adjusting \texttt{train\_steps} in isolation is not a valid improvement.
+Multiple forward passes per step are not permitted.
+\end{promptbox}
+
+\subsection{Architecture Design}
+\label{app:benchmark-architecture-design}
+
+Architecture Design uses the \texttt{autoresearch} benchmark~\citep{autoresearch},
+a compact LLM pretraining task designed for closed-loop research on a real
+training codebase.
+The agent receives a single-file training implementation and must improve the
+final validation loss under a fixed wall-clock training budget.
+Unlike Optimizer Design, where the model architecture is fixed and only the
+optimizer is modified, this task exposes the full training recipe: model shape,
+attention pattern, initialization, optimizer hyperparameters, learning-rate
+schedules, batch sizing, and training-loop details may all be changed as long
+as the benchmark evaluator and data preparation remain fixed.
+
+\paragraph{Baseline.}
+The initial material is the default \texttt{autoresearch} repository.
+The main artifact is \texttt{train.py}, a single-GPU decoder-only Transformer
+pretraining script derived from \texttt{nanochat}.
+Data preparation, tokenization, validation-token selection, and evaluation
+helpers live outside the editable artifact, primarily in \texttt{prepare.py}.
+The development evaluator uses the fixed validation shard provided by the benchmark.
+The default model is a roughly 50M-parameter Transformer, and the baseline
+reports the final validation bits-per-byte after the fixed training run.
+
+\paragraph{Development and test split.}
+During search, agents optimize only against the development evaluator, which
+runs the training script on the benchmark's fixed prepared data and reports the
+final validation loss.
+The held-out score reported in the main experiments is obtained by rerunning
+the selected \texttt{train.py} with two held-out random seeds and averaging the
+resulting final losses.
+This separates the fast, single-run feedback used for hypothesis exploration
+from the seed-averaged score used for final comparison.
+
+\paragraph{Evaluator.}
+The evaluator executes
+\texttt{uv run train.py} from the benchmark repository.
+At the end of training the script prints a structured summary including
+\texttt{val\_bpb}, \texttt{peak\_vram\_mb}, \texttt{training\_seconds},
+\texttt{num\_steps}, and \texttt{mfu\_percent}.
+The primary score is the final \texttt{val\_bpb}, with lower values better.
+The training script enforces a 300-second training budget; runs that crash,
+time out, fail to fit in memory, or do not emit a parseable final
+\texttt{val\_bpb} are treated as failed experiments.
+The agent may use secondary diagnostics such as step count and peak memory to
+interpret failures, but merge decisions are based on the loss metric.
+
+\paragraph{Agent instruction.}
+The agent is initialized with the following task description.
+
+\begin{promptbox}[title=\textbf{Architecture Design Task Instruction}]
+Follow \texttt{program.md} as the authoritative task specification for the
+\texttt{autoresearch} repository.
+
+\smallskip
+\noindent\textbf{Goal.}~Minimize the validation bits-per-byte
+(\texttt{val\_bpb}) reported by \texttt{uv run train.py}.
+Lower is better.
+
+\smallskip
+\noindent\textbf{Evaluation.}~Run \texttt{uv run train.py} from the project
+directory and extract the final \texttt{val\_bpb}, together with
+\texttt{peak\_vram\_mb}, \texttt{training\_seconds}, \texttt{num\_steps},
+and \texttt{mfu\_percent} for diagnostics.
+The script has a fixed 5-minute training budget.
+If a run crashes, runs out of memory, exceeds the allowed wall-clock budget, or
+does not produce a parseable final loss, treat it as a failed experiment unless
+there is an obvious implementation bug that can be corrected quickly.
+
+\smallskip
+\noindent\textbf{Constraints.}~Only \texttt{train.py} may be modified.
+Architecture, hyperparameters, optimizer behavior, batch size, model size,
+attention pattern, initialization, schedules, and training-loop details are in
+scope.
+Do not modify \texttt{prepare.py}, especially \texttt{TIME\_BUDGET},
+\texttt{MAX\_SEQ\_LEN}, \texttt{EVAL\_TOKENS}, \texttt{make\_dataloader}, or
+\texttt{evaluate\_bpb}.
+Do not modify data files, tokenizer artifacts, \texttt{pyproject.toml},
+\texttt{uv.lock}, or install new dependencies.
+\end{promptbox}
+
+\subsection{Terminal-Bench 2.0}
+\label{app:benchmark-terminal-bench}
+
+Terminal-Bench~2.0~\citep{terminalbench} is a benchmark for evaluating
+terminal agents on realistic command-line tasks executed inside isolated
+Docker containers.
+Tasks span 16 categories, including software engineering, security,
+scientific computing, data science, games, debugging, and others, across
+easy, medium, and hard difficulty levels.
+The full task pool contains 89 tasks.
+
+\paragraph{Baseline.}
+Prior harness-engineering studies may begin from codebase variants that
+differ in interface extensibility, tool set, or prompt structure, creating
+comparison confounds.
+To ensure a fair and reproducible starting point we use the official
+terminal-agent codebase (\texttt{terminus-2}) distributed with the
+benchmark verbatim, without any modifications and without introducing
+additional interfaces.
+The backbone model is GPT-5.5.
+The agent operates as a ReAct-style loop that issues tmux keystrokes to
+a persistent terminal session.
+
+\paragraph{Development and test split.}
+We stratify the 89 tasks by difficulty and sample a 36-task development
+set and a 53-task held-out test set.
+The stratification ensures that both splits have balanced difficulty
+coverage, preventing a scenario where the agent is evaluated on an
+atypically easy or hard subset.
+Agents iterate exclusively on the development set during the research
+loop.
+The test set is evaluated only once after the search completes, to
+report held-out performance.
+
+\paragraph{Evaluator.}
+The evaluator is the official Harbor evaluation harness distributed with
+Terminal-Bench~2.0.
+Both development and test evaluations use 8 concurrent workers.
+The evaluator reports pass rate as the fraction of tasks solved correctly,
+with higher being better.
+The baseline achieves 58.33\% on the development set (21 out of 36 tasks).
+
+\paragraph{Agent instruction.}
+The agent is initialized with the following task description.
+
+\begin{promptbox}[title=\textbf{Terminal-Bench 2.0 Task Instruction}]
+Improve the pass rate of a terminal agent on Terminal-Bench~2.0.
+The current baseline achieves 58.33\% on the 36-task development set
+using GPT-5.5.
+
+\smallskip
+\noindent\textbf{Goal.}~Maximize pass rate on the development split.
+Iterate on the development split exclusively.
+Evaluate the held-out test split only after achieving a meaningful
+improvement on development.
+
+\smallskip
+\noindent\textbf{Evaluation.}~Development: \texttt{HARBOR\_N\_CONCURRENT=8 python3 run\_eval.py --data data/dev.json}.
+Test: \texttt{HARBOR\_N\_CONCURRENT=8 python3 run\_eval.py --data data/test.json}.
+The score is the fraction of tasks solved correctly, with higher being better.
+
+\smallskip
+\noindent\textbf{Constraints.}~Modifiable components include the system
+prompt, per-task extra instructions, the agent subclass, the base agent
+and its ReAct loop, response parsers, terminal session management, and
+new files under the agent or prompts directories.
+The evaluation harness, task data files, API configuration, and baseline
+reference record must not be modified.
+\end{promptbox}
+
+\subsection{BrowseComp}
+\label{app:benchmark-browsecomp}
+
+BrowseComp~\citep{browsecomp} is a search-agent benchmark for
+multi-step question answering.
+The material to be optimized is not the benchmark data itself, but a minimal
+ReAct-style browsing harness~\citep{react} that answers BrowseComp questions
+using search and page-reading tools.
+The task measures whether an autonomous research agent can improve the control
+logic around a search agent while leaving the evaluator and question sets
+fixed.
+
+\paragraph{Baseline.}
+The initial material is a simple ReAct-based search harness centered
+on \texttt{single\_agent\_gpt.py}.
+For each question, a \texttt{GPTAgent} runs a single ReAct trajectory with a
+system prompt, issues web-search and page-visit tool calls, and returns a
+short final answer.
+The online BrowseComp setting uses \texttt{SearchTool} and \texttt{VisitTool};
+the local-corpus tool variants are available in the codebase but are not the
+primary path for this benchmark.
+The baseline uses the simple-evals BrowseComp query template and grader
+template, with the same model family used for the answering agent and the
+grader in the reported runs.
+
+\paragraph{Development and test split.}
+The development split contains 50 BrowseComp questions and is used for all
+iterative optimization.
+The held-out test split contains 300 non-overlapping BrowseComp questions and
+is reserved for final verification.
+In the released harness, these splits are exposed as
+\texttt{data/bc\_val.jsonl} and \texttt{data/bc\_test.jsonl}.
+Agents may inspect and evaluate on the development split during the search
+loop, but they may not edit either data file or use the test split for
+iteration.
+
+\paragraph{Evaluator.}
+The development evaluator is
+\texttt{uv run python run\_eval.py --data data/bc\_val.jsonl --workers 8 --run-name \{node\_id\}}.
+The held-out evaluator uses the same entry point with
+\texttt{data/bc\_test.jsonl} and a distinct run name.
+The evaluator sends each question to the harness, collects the final answer,
+normalizes it through the fixed BrowseComp answer-grading path, and reports
+accuracy as \texttt{correct}/\texttt{total}.
+Items with repeated execution errors or unparsable final answers are counted as
+errors and do not contribute to the correct count.
+The primary metric is accuracy, with higher values better.
+
+\paragraph{Search and tool configuration.}
+The harness exposes two browsing tools to the answering agent.
+\texttt{SearchTool} accepts one or more search queries and returns compact web
+search results, while \texttt{VisitTool} fetches and cleans page content for a
+selected URL.
+The tool names and argument schemas are fixed so that alternative harness
+designs remain compatible with the same ReAct agent interface.
+Agents may change the system prompt, rollout orchestration, response parsing,
+candidate aggregation, and other harness code, but the evaluation script,
+question files, grader template, and reference answers are fixed.
+
+\paragraph{Transfer-test protocol.}
+After optimization on BrowseComp, the resulting search harness is frozen and
+evaluated directly on unseen search-agent tasks, including HLE and
+DeepSearchQA, without additional task-specific optimization.
+The same code path, search/visit tool interface, and answer-production protocol
+are reused.
+This transfer test checks whether the discovered harness changes improve
+general browsing behavior rather than merely fitting the BrowseComp development
+questions.
+
+\paragraph{Agent instruction.}
+The agent is initialized with the following task description.
+
+\begin{promptbox}[title=\textbf{BrowseComp Task Instruction}]
+Optimize BrowseComp search-agent accuracy starting from the simple baseline on
+the current main branch.
+Do not use prior optimized branches, cached scores, or old result directories
+as the starting point.
+
+\smallskip
+\noindent\textbf{Goal.}~Maximize answer accuracy on the BrowseComp
+development split.
+Use development feedback to propose and evaluate harness changes, and reserve
+the held-out test split for final verification.
+
+\smallskip
+\noindent\textbf{Evaluation.}~Development:
+\texttt{uv run python run\_eval.py --data data/bc\_val.jsonl --workers 8 --run-name \{node\_id\}}.
+Test:
+\texttt{uv run python run\_eval.py --data data/bc\_test.jsonl --workers 8 --run-name \{node\_id\}\_test}.
+The evaluator uses the fixed simple-evals BrowseComp prompt and LLM grader.
+The score is accuracy, with higher values better.
+
+\smallskip
+\noindent\textbf{Constraints.}~The agent may modify the search harness,
+including \texttt{single\_agent\_gpt.py}, prompts, agent-control logic,
+response parsers, rollout strategies, and aggregation code.
+Do not modify \texttt{run\_eval.py}, the development or test data files, API
+configuration, the grader template, or cached reference records.
+\end{promptbox}
+
+\subsection{Search-Agent Data Synthesis}
+\label{app:benchmark-search-agent-data}
+
+Search-Agent Data Synthesis is a pipeline-optimization benchmark that
+evaluates whether a research agent can improve a synthetic question-answering
+generation system.
+The system begins from Wikipedia-derived topic seeds and produces
+BrowseComp-style information-retrieval questions.
+A high-quality generated item must satisfy three properties simultaneously:
+structural well-formedness, answerability by a search-enabled model, and
+sufficient difficulty that the solver does not answer it reliably in a single
+attempt.
+The task therefore measures not only whether generated questions are
+answerable, but also whether they require multi-step evidence gathering rather
+than surface-level lookup.
+
+\paragraph{Baseline.}
+The initial material is the unmodified default data-synthesis pipeline
+distributed with the benchmark.
+The baseline pipeline consists of five stages: extracting candidate facts from
+a topic seed, rating facts by information value, constructing a question whose
+answer is one selected fact, obfuscating the topic with supporting constraints,
+and applying structural verification.
+The generator, solver, and judge use GPT-5.5 through an OpenAI-compatible
+interface.
+
+\paragraph{Development and test split.}
+The benchmark provides frozen seed snapshots for both evaluation splits.
+The development split contains 50 seeds and is used exclusively for iterative
+optimization.
+The held-out test split contains 100 seeds and is reserved for final
+verification after the search loop completes.
+The pipeline generates at most one QA item per seed.
+Fixing the seed snapshots makes the benchmark self-contained and ensures that
+measured improvements reflect changes to the synthesis mechanism rather than
+changes to the data distribution.
+
+\paragraph{Evaluator.}
+The evaluator is the benchmark's fixed \texttt{run\_eval.py} entry point.
+It loads the requested seed split, runs the synthesis pipeline, solves each
+generated item four times with a web-search-enabled ReAct model, and reports
+a JSON summary on the final line of standard output.
+The primary metric is:
+\[
+\mathrm{score}
+\;=\;
+\frac{1}{N}\sum_{i=1}^{N}
+\bigl(\mathrm{pass@4} - \mathrm{pass@1}\bigr),
+\]
+where $\mathrm{pass@1}$ is $1$ if the first attempt is judged correct, and
+$\mathrm{pass@4}$ is $1$ if at least one of four attempts is correct.
+Higher scores indicate questions that remain solvable in principle but are
+not answered reliably on the first attempt.
+
+\paragraph{Agent instruction.}
+The agent is initialized with the following task description.
+
+\begin{promptbox}[title=\textbf{Search-Agent Data Synthesis Task Instruction}]
+Improve the quality of generated search-intensive QA items by optimizing
+the data-synthesis pipeline.
+The goal metric rewards items that are solvable under repeated attempts but
+not answered reliably on the first attempt:
+\[
+\mathrm{score}
+\;=\;
+\mathrm{mean}(\mathrm{pass@4} - \mathrm{pass@1}).
+\]
+
+\smallskip
+\noindent\textbf{Goal.}~Maximize the score on the development split.
+Prefer mechanism-level improvements that preserve well-formedness and
+solvability while increasing multi-step evidence gathering.
+
+\smallskip
+\noindent\textbf{Evaluation.}~Development: \texttt{python run\_eval.py --split dev}.
+Test: \texttt{python run\_eval.py --split test}.
+Iterate on the development split. Run the test split only after a
+meaningful improvement.
+
+\smallskip
+\noindent\textbf{Constraints.}~Only the synthesis pipeline under
+\texttt{pipeline/} may be modified, including pipeline steps, the async
+runner, the step registry, pipeline configuration, and prompt files.
+The scoring module, evaluation harness, benchmark configuration, and
+frozen seed snapshots must not be modified.
+\end{promptbox}
+
+\subsection{Math-Reasoning Data Synthesis}
+\label{app:benchmark-math-reasoning-data}
+\label{app:math-case-study}
+
+Math-Reasoning Data Synthesis is a pipeline-optimization benchmark that
+evaluates whether a research agent can improve a system for generating
+mathematical contest problems.
+The pipeline starts from fixed AIME/AIMO/NuminaMath-style seeds and produces
+original problems with exact integer answers in the range 0--999.
+The research target is the data-construction mechanism itself: generated
+problems must be valid, novel, diverse, mathematically well specified, and
+calibrated so that a fixed reference solver does not answer them trivially.
+
+\paragraph{Baseline.}
+The initial material is the unmodified default synthesis pipeline distributed
+with the benchmark.
+The pipeline takes each seed, generates several candidate contest problems,
+filters candidates for answer format, rationale consistency, held-out overlap,
+and near-duplicate overlap, and evaluates surviving candidates with a fixed
+solver.
+The default generator uses GPT-5.5-mini and the reference solver uses GPT-5.5.
+The answer policy is \texttt{integer\_0\_999}.
+
+\paragraph{Development and test split.}
+The benchmark uses locked seed files for both evaluation splits.
+The development split contains 10 seeds with 5 generated candidates per seed,
+yielding up to 50 candidates total.
+The held-out test split contains 12 seeds with 8 generated candidates per seed,
+yielding up to 96 candidates total.
+Each seed specifies a mathematical topic, technique, and target difficulty.
+Agents iterate exclusively on the development split during the research loop.
+the test split is reserved for milestone and final verification.
+
+\paragraph{Evaluator.}
+The evaluator is the fixed \texttt{run\_eval.py} entry point.
+It loads the requested split, runs the synthesis pipeline, applies validity
+and novelty filters, evaluates each surviving candidate with the fixed solver,
+and prints a JSON metrics object on the final line of standard output.
+The primary metric is:
+\[
+\mathrm{score}
+\;=\;
+\frac{1}{N}
+\sum_{i=1}^{N}
+\bigl(\mathrm{pass@4} - \mathrm{pass@1}\bigr),
+\]
+where $N$ is the number of generated candidates before filtering,
+$\mathrm{pass@1}$ indicates whether the first solver sample is correct,
+and $\mathrm{pass@4}$ indicates whether at least one of four solver
+samples is correct.
+Filtered candidates are treated as zero.
+This metric rewards problems that are solvable under repeated attempts but
+not immediately solved on the first sample.
+
+\paragraph{Agent instruction.}
+The agent is initialized with the following task description.
+
+\begin{promptbox}[title=\textbf{Math-Reasoning Data Synthesis Task Instruction}]
+Improve a pipeline that generates AIME/NuminaMath-style contest problems
+with exact integer answers in the range 0--999.
+Generated problems must be valid, novel, diverse, and calibrated so that the
+fixed reference solver fails on the first sample but succeeds within four
+samples.
+The primary metric is $\mathrm{mean}(\mathrm{pass@4} - \mathrm{pass@1})$ over all
+generated candidates.
+
+\smallskip
+\noindent\textbf{Goal.}~Maximize the primary metric reported on the final
+standard-output line of the evaluator.
+Prefer mechanism-level improvements such as structured or parametric
+generation, programmatic answer computation, and difficulty calibration.
+
+\smallskip
+\noindent\textbf{Evaluation.}~Development: \texttt{uv run python run\_eval.py --split dev}.
+Test: \texttt{uv run python run\_eval.py --split test}.
+Iterate on the development split. Run the test split only for milestone or
+final verification.
+
+\smallskip
+\noindent\textbf{Constraints.}~Modifiable files include
+\texttt{configs/pipeline.yaml}, \texttt{prompts/generate\_problem.md},
+\texttt{src/math\_synth\_bench/baseline.py}, and new modules under
+\texttt{src/math\_synth\_bench/}.
+The benchmark harness, seed files, evaluation references, metrics module,
+and verification module must not be modified.
+\end{promptbox}
+
+\FloatBarrier

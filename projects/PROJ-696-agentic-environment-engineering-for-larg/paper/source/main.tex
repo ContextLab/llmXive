@@ -1,0 +1,353 @@
+% \documentclass[lettersize,journal]{IEEEtran}
+\documentclass[10pt,journal,compsoc,x11names]{IEEEtran}
+
+\DeclareUnicodeCharacter{FF0C}{,}
+\usepackage{amsmath, amsfonts}
+\usepackage{algorithmic}
+\usepackage{algorithm}
+\usepackage{array}
+\usepackage[caption=false,font=normalsize,labelfont=sf,textfont=sf]{subfig}
+\usepackage{textcomp}
+\usepackage{stfloats}
+\usepackage{url}
+\usepackage{verbatim}
+\usepackage{graphicx}
+\usepackage{cite}
+\usepackage{multirow}
+% \usepackage{natbib}
+\hyphenation{op-tical net-works semi-conduc-tor IEEE-Xplore}
+% updated with editorial comments 8/9/2021
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+
+\usepackage{hyperref}
+% \hypersetup{
+%     colorlinks=true,      % 启用彩色链接
+%     linkcolor=blue,       % 设置章节、图表等的链接颜色
+%     citecolor=red,        % 设置参考文献的链接颜色
+%     filecolor=magenta,    % 设置文件链接的颜色
+%     urlcolor=blue        % 设置网址链接的颜色
+% }
+\usepackage{fontawesome5}
+\usepackage{forest}
+\useforestlibrary{edges}
+\usepackage{makecell}
+\usetikzlibrary{shadows}
+\usepackage{amsmath}
+\let\Bbbk\relax
+\usepackage{amssymb}
+\usepackage{cleveref}
+\usepackage{tikz}
+\usepackage{amssymb}
+\newcommand\encircle[2][]{\tikz[overlay]\node[fill=blue!20,inner sep=2pt, anchor=text, rectangle, rounded corners=1.5mm,#1] {#2};\phantom{#2}}
+% \usepackage{natbib}
+\usetikzlibrary{trees,positioning,shapes,shadows,arrows.meta}
+
+% color
+\definecolor{hidden-red}{RGB}{205, 44, 36}
+\definecolor{hidden-blue}{RGB}{194,232,247}
+\definecolor{hidden-orange}{RGB}{243,202,120}
+\definecolor{hidden-green}{RGB}{34,139,34}
+\definecolor{hidden-pink}{RGB}{255,245,247}
+\definecolor{hidden-black}{RGB}{20,68,106}
+\definecolor{purple}{RGB}{144,153,196}
+\definecolor{yellow}{RGB}{255,228,123}
+\definecolor{hidden-yellow}{RGB}{255,248,203}
+\definecolor{tkcolor}{RGB}{224,223,255}
+\definecolor{darkblue}{rgb}{0, 0.40, 0.75}
+\newcommand{\eg}{\textit{e.g.,}\xspace}
+\newcommand{\ie}{\textit{i.e.,}\xspace}
+\definecolor{lightblue}{RGB}{220,235,250}
+\hypersetup{colorlinks=true, citecolor=darkblue, linkcolor=darkblue, urlcolor=darkblue}
+
+
+\definecolor{refred}{HTML}{BD114A}
+\definecolor{refblue}{HTML}{5E7AC4}
+\definecolor{textgreen}{HTML}{508D69}
+\definecolor{textred}{HTML}{FF5555}
+\definecolor{textyellow}{HTML}{F0A202}
+\definecolor{frameblue}{HTML}{9DBDFF}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=refblue,     % 普通链接
+    citecolor=refred,      % 参考文献引用颜色
+    urlcolor=.
+}
+
+
+
+
+\crefformat{section}{Sec. #2#1#3} 
+\crefformat{subsection}{Sec. #2#1#3}
+\crefformat{subsubsection}{Sec. #2#1#3}
+
+% Math
+\usepackage{amsthm}
+\usepackage{amsmath}%
+\usepackage{MnSymbol}%
+% \usepackage{wasysym}%
+\newcommand\smallO{
+  \mathchoice
+    {{\scriptstyle\mathcal{O}}}% \displaystyle
+    {{\scriptstyle\mathcal{O}}}% \textstyle
+    {{\scriptscriptstyle\mathcal{O}}}% \scriptstyle
+    {\scalebox{.7}{$\scriptscriptstyle\mathcal{O}$}}%\scriptscriptstyle
+  }
+\makeatletter
+\newtheorem*{rep@theorem}{\rep@title}
+\newcommand{\newreptheorem}[2]{%
+\newenvironment{rep#1}[1]{%
+ \def\rep@title{#2 \ref{##1}}%
+ \begin{rep@theorem}}%
+ {\end{rep@theorem}}}
+\makeatother
+\newtheorem{theorem}{Theorem}[section]
+\newreptheorem{theorem}{Theorem}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{lemma}[theorem]{Lemma}
+\newreptheorem{lemma}{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newreptheorem{proposition}{proposition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{assumption}[theorem]{Assumption}
+\newtheorem{remark}[theorem]{Remark}
+\usepackage{bm}
+\usepackage{xspace}
+
+% Tables
+\usepackage{booktabs}
+\usepackage{xcolor,pifont}
+\usepackage{bbding}
+\usepackage{colortbl}
+\usepackage{tcolorbox}
+\tcbuselibrary{skins, breakable, theorems}
+\usepackage{soul}
+
+\definecolor{TakeawayBg}{HTML}{F4F5FF} % 盒子浅紫色
+\definecolor{TakeawayLabel}{HTML}{666666} % 标签灰色
+\definecolor{TakeawayText}{HTML}{000000}  % 正文文字色
+\sethlcolor{TakeawayBg}
+
+
+\definecolor{hidden-draw}{RGB}{20,68,106}
+\definecolor{hidden-pink}{RGB}{255,245,247}
+\definecolor{c0}{HTML}{7d9bbc} % Soft mint green
+\definecolor{c1}{HTML}{b3d2f4} % Soft sky blue98b0a8
+\definecolor{c2}{HTML}{92d9da} % Warm coral orange
+\definecolor{c3}{HTML}{c1f6e5}  % Dusty rose
+
+\definecolor{light-blue}{RGB}{206,225,242}
+
+
+
+% --- 自定义 tcolorbox 样式 -------------------------------
+\tcbset{
+  takeaway/.style={
+    enhanced,
+    colback=TakeawayBg,
+    colframe=TakeawayText,
+    arc=2mm,
+    boxrule=0.8pt,
+    left=3mm,right=3mm,
+    top=2mm,bottom=2mm,
+    fonttitle=\bfseries,
+    coltitle=white,
+    attach boxed title to top left={
+      yshift=-2mm,
+      xshift=3mm
+    },
+    boxed title style={
+      colback=TakeawayLabel,
+      colframe=TakeawayLabel,
+      arc=1mm,            % ← 将标题也设置为圆角
+      left=2mm,right=2mm,
+      top=0.1mm,bottom=0.1mm
+    },
+  }
+}
+
+% List
+\usepackage[inline,shortlabels]{enumitem}
+
+
+\newcommand{\Text}{
+  \begin{tikzpicture}[baseline=(char.base)]
+    \fill[textgreen!50] (0,0) circle (0.18);
+    \node[white, font=\scriptsize\rmfamily, inner sep=0pt] (char) at (0,0) {T};
+  \end{tikzpicture}
+}
+\newcommand{\Image}{
+  \begin{tikzpicture}[baseline=(char.base)]
+    \fill[textred!50] (0,0) circle (0.18);
+    \node[white, font=\scriptsize\rmfamily, inner sep=0pt] (char) at (0,0) {I};
+  \end{tikzpicture}
+}
+\newcommand{\Video}{
+  \begin{tikzpicture}[baseline=(char.base)]
+    \fill[textyellow!50] (0,0) circle (0.18);
+    \node[white, font=\scriptsize\rmfamily, inner sep=0pt] (char) at (0,0) {V};
+  \end{tikzpicture}
+}
+\newcommand{\Embed}{
+  \begin{tikzpicture}[baseline=(char.base)]
+    \fill[frameblue!50] (0,0) circle (0.18);
+    \node[white, font=\scriptsize\rmfamily, inner sep=0pt] (char) at (0,0) {E};
+  \end{tikzpicture}
+}
+\newcommand{\Result}{
+  \begin{tikzpicture}[baseline=(char.base)]
+    \fill[textgreen!50] (0,0) circle (0.18);
+    \node[white, font=\scriptsize\rmfamily, inner sep=0pt] (char) at (0,0) {A};
+  \end{tikzpicture}
+}
+\newcommand{\Format}{
+  \begin{tikzpicture}[baseline=(char.base)]
+    \fill[textred!50] (0,0) circle (0.18);
+    \node[white, font=\scriptsize\rmfamily, inner sep=0pt] (char) at (0,0) {F};
+  \end{tikzpicture}
+}
+\newcommand{\Efficient}{
+  \begin{tikzpicture}[baseline=(char.base)]
+    \fill[textyellow!50] (0,0) circle (0.18);
+    \node[white, font=\scriptsize\rmfamily, inner sep=0pt] (char) at (0,0) {E};
+  \end{tikzpicture}
+}
+\newcommand{\Process}{
+  \begin{tikzpicture}[baseline=(char.base)]
+    \fill[frameblue!50] (0,0) circle (0.18);
+    \node[white, font=\scriptsize\rmfamily, inner sep=0pt] (char) at (0,0) {P};
+  \end{tikzpicture}
+}
+
+\newcommand{\Filtering}{
+  \begin{tikzpicture}[baseline=(char.base)]
+    \fill[textgreen!50] (0,0) circle (0.18);
+    \node[white, font=\scriptsize\rmfamily, inner sep=0pt] (char) at (0,0) {F};
+  \end{tikzpicture}
+}
+\newcommand{\Verification}{
+  \begin{tikzpicture}[baseline=(char.base)]
+    \fill[textred!50] (0,0) circle (0.18);
+    \node[white, font=\scriptsize\rmfamily, inner sep=0pt] (char) at (0,0) {V};
+  \end{tikzpicture}
+}
+\newcommand{\Iterative }{
+  \begin{tikzpicture}[baseline=(char.base)]
+    \fill[textyellow!50] (0,0) circle (0.18);
+    \node[white, font=\scriptsize\rmfamily, inner sep=0pt] (char) at (0,0) {I};
+  \end{tikzpicture}
+}
+\newcommand{\Correction}{
+  \begin{tikzpicture}[baseline=(char.base)]
+    \fill[frameblue!50] (0,0) circle (0.18);
+    \node[white, font=\scriptsize\rmfamily, inner sep=0pt] (char) at (0,0) {C};
+  \end{tikzpicture}
+}
+
+\newcommand{\Correctness}{
+  \begin{tikzpicture}[baseline=(char.base)]
+    \fill[textgreen!50] (-0.18,-0.18) rectangle (0.18,0.18);
+    \node[white, font=\scriptsize\rmfamily, inner sep=0pt] (char) at (0,0) {C};
+  \end{tikzpicture}
+}
+
+
+\newcommand{\ghlink}[1]{\href{#1}{\faIcon{github}}}
+\newcommand{\hflink}[1]{\href{#1}{\includegraphics[height=1em]{images/hf-logo.pdf}}}
+\newcommand{\Yes}{\textcolor{textgreen}{\ding{51}}}
+\newcommand{\No}{\textcolor{textred}{\ding{55}}}  
+
+
+
+
+
+
+
+\begin{document}
+
+
+\title{Agentic Environment Engineering for Large Language Models: A Survey of Environment Modeling, Synthesis, Evaluation, and Application}
+% 
+% , and Agent-Environment Co-Evolution
+% : \\ A Systematic Perspective on Understanding, Building, and Co-Evolving Environments
+
+\author{
+Jiachun~Li$^{*}$, 
+Zhuoran~Jin$^{*}$, 
+Tianyi~Men$^{*}$, 
+Yupu~Hao$^{*}$, 
+Kejian~Zhu$^{*}$,
+Lingshuai~Wang$^{*}$, 
+Dongqi~Huang$^{*}$, 
+Longxiang~Wang$^{*}$,
+Shengjia~Hua$^{*}$, 
+Lu~Wang$^{*}$, 
+Jinshan~Gao$^{*}$,
+Hongbang Yuan,
+Ruilin Xu,
+\\
+Kang Liu,
+Jun Zhao$^\dagger$
+
+% Dong~Yu\orcidA{},~\IEEEmembership{Fellow,~IEEE}, Qianli~Ma$^\dagger$,~\IEEEmembership{Member,~IEEE}% <-this % stops a space
+\thanks{Version: v1 (major update on May 19, 2026)}
+\thanks{$^\dagger$Corresponding author: Jun Zhao.}
+\thanks{$^{*}$These authors contributed equally to this work.}
+\thanks{Jiachun Li, Zhuoran Jin, Tianyi Men, Yupu Hao, Kejian Zhu, Lingshuai Wang, Dongqi Huang, Longxiang Wang, Shengjia Hua, Lu Wang, Jinshan Gao, Hongbang Yuan, Ruilin Xu, Kang Liu, Jun Zhao are with the Key Laboratory of Cognition and Decision Intelligence for Complex Systems, Institute of Automation, Chinese Academy of Sciences, Beijing 100191, China (E-mail: jiachun.li@nlpr.ia.ac.cn, zhuoran.jin@nlpr.ia.ac.cn, tianyi.men@nlpr.ia.ac.cn, kliu@nlpr.ia.ac.cn, jzhao@nlpr.ia.ac.cn ).}}
+% <-this % stops a space
+% \thanks{Manuscript received April 19, 2021; revised August 16, 2021.}}
+
+
+% The paper headers
+\markboth{Journal of \LaTeX\ Class Files, January 2025}%
+{Shell \MakeLowercase{\textit{et al.}}: A Sample Article Using IEEEtran.cls for IEEE Journals}
+
+% \IEEEpubid{0000--0000/00\$00.00~\copyright~2021 IEEE}
+% Remember, if you use this you must call \IEEEpubidadjcol in the second
+% column for its text to clear the IEEEpubid mark.
+
+
+\IEEEtitleabstractindextext{
+
+\input{sections/0_abstract}
+
+\begin{IEEEkeywords}
+Agentic Environment Engineering, Large Language Model, Reinforcement Learning, World Model, Agent Evolution
+\end{IEEEkeywords}
+}
+
+
+\maketitle
+
+% table 6 CHECK
+
+
+\input{sections/1_introduction}
+\input{sections/environment_taxonomy}
+\input{sections/evolution_taxonomy}
+
+\input{sections/2_preliminaries}
+
+
+\input{sections/3_env_attribute}
+
+\input{sections/4_env_domain}
+\input{sections/5_env_synthesis}
+\input{sections/6_agent_evolution}
+\input{sections/7_env_evolution}
+\input{sections/8_future_work}
+
+
+\bibliography{reference}
+% \bibliography{new_reference}
+\bibliographystyle{IEEEtran}
+
+\input{sections/appendix}
+
+
+\vfill
+
+\end{document}
+
+

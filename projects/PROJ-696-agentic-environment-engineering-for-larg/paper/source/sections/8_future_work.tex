@@ -1,0 +1,136 @@
+
+\section{Challenges \& Future Directions}\label{sec:future}
+
+\subsection{Environment-as-a-Service}
+
+
+Current research faces a fundamental challenge due to the lack of standardization in environment interfaces. 
+Existing environments differ substantially in their definitions of observations, action spaces, reward functions, and interaction paradigms, forcing agents to rely on environment-specific adaptations and limiting their ability to generalize across environments. 
+Such heterogeneity also hinders unified benchmarking and undermines reproducibility.
+In addition, environment deployment remains a major bottleneck for scaling agent systems.
+Many environments rely on complex software infrastructures and tightly coupled runtime conditions, such as simulators, web browsers, graphical interfaces, or physical devices, making them difficult to reproduce and deploy across platforms. 
+As a result, deployment overhead often becomes a system-level constraint, hindering large-scale training and evaluation.
+
+To address these challenges, we advocate the concept of \textbf{Environment-as-a-Service (EaaS)}. The key idea is to standardize environment interfaces and provide them as cloud-hosted services, decoupling agent development from environment implementation and deployment. Under this paradigm, environments are encapsulated behind unified APIs, allowing researchers to interact with diverse environments through a consistent interface without managing underlying dependencies or runtime configurations.
+% 统一规范化环境，环境即服务
+
+
+\subsection{The Evolution of Environment Properties}
+% 环境属性的演化
+
+Current environments are still predominantly designed around static, short-horizon, closed-world, and single-modality settings.
+While such formulations simplify environment construction and evaluation, they fail to reflect the complexity and variability of real-world scenarios.
+In practice, real-world environments are often dynamic and continuously evolving.
+Environment states may change while agents are interacting with them, requiring agents to make not only accurate but also timely decisions.
+At the same time, many real-world tasks involve long-horizon interactions, where actions can influence future states far beyond immediate observations, significantly increasing the difficulty of planning and credit assignment.
+Moreover, real environments are inherently open-ended, with continuously emerging tasks, expanding state spaces, and evolving interaction patterns, making it difficult for agents to rely solely on fixed task distributions.
+In addition, the growing emergence of multimodal environments introduces diverse inputs, including text, images, videos, audio, and sensor signals, requiring agents to jointly understand and integrate heterogeneous modalities.
+These trends fundamentally reshape the capability requirements of agents.
+Accordingly, developing realistic environments that are dynamic, long-horizon, open-ended, and omni-modal will become a critical direction for advancing practical agent systems.
+
+\subsection{From Single-agent to Multi-agent Environments}
+
+Existing research has predominantly focused on single-agent environments, where the environment is typically modeled as a static and passive system. 
+In such settings, an agent interacts with the environment independently, receives feedback, and optimizes its policy within a relatively controlled and static framework.
+While this approach simplifies the problem, it fails to capture the complexity of real-world scenarios.
+In practice, many tasks inherently involve multiple agents interacting within a shared environment, where decisions are interdependent and outcomes are jointly determined. Capturing such scenarios requires moving beyond single-agent environments to multi-agent environments, which better reflect the dynamics of cooperation, competition, and strategic interaction.
+
+In multi-agent settings, the environment becomes a dynamic system shaped by interactions among agents. Each agent’s behavior influences others, leading to increased non-stationarity and complexity.
+This shift introduces new challenges. Agents must continuously adapt their strategies in response to other agents, resulting in a more uncertain and evolving decision space. At the same time, inter-agent dependencies make credit assignment and stable reinforcement learning significantly more difficult. 
+More importantly, complex multi-agent interactions may also give rise to emergent capabilities and behaviors that are difficult to observe in single-agent settings.
+Understanding how such emergent behaviors arise from environment dynamics and agent interactions remains an important open problem for future research.
+
+
+% 合成环境的可靠性，符号环境，神经环境的融合，sim2real gap
+
+
+\subsection{Neural-Symbolic Environments}
+
+Existing environment designs can be broadly categorized into neural and symbolic paradigms, each with distinct advantages and limitations.
+Neural environments, typically built upon learned models or simulators, offer strong expressiveness and flexibility. They can capture complex, high-dimensional dynamics and support rich multimodal interactions. However, such environments are often opaque and lack interpretability, making it difficult to analyze underlying mechanisms or verify correctness. Moreover, neural environments may suffer from instability, distribution shift, and limited controllability, which can lead to unreliable feedback for agent learning.
+In contrast, symbolic environments rely on rule-based systems or explicitly defined state transitions, providing clear semantics and high interpretability. Their structured nature enables precise control, reproducibility, and ease of analysis. However, symbolic environments are typically limited in expressiveness and scalability, making it challenging to model complex, real-world scenarios or handle high-dimensional observations.
+These limitations highlight the need for neural-symbolic integration in environment design. By combining the expressiveness of neural models with the interpretability and controllability of symbolic systems, hybrid environments have the potential to provide both realistic dynamics and reliable structure. Developing such integrated environments remains an important direction for building robust and generalizable agent systems.
+
+\subsection{Bridging the Sim-to-Real Gap in Environments}
+
+Despite recent advances in generative and simulated environments, a substantial sim-to-real gap still exists between synthetic environments and real-world environments. 
+Current environments are often constructed through hand-crafted rules or LLM-driven generation, aiming to provide scalable and controllable platforms for agent training and evaluation.
+However, due to the inherent complexity, dynamics, and openness of the real world, existing synthetic environments still struggle to faithfully approximate real-world environments from multiple perspectives.
+
+First, from the perspective of correctness, synthetic environments may contain factual errors and logical inconsistencies.
+For example, webpages automatically generated by LLMs may exhibit invalid state transitions, incorrect feedback signals, or inconsistent interaction logic.
+Such issues can lead agents to learn spurious policies that fail to generalize effectively to real-world environments.
+Second, in terms of difficulty, many synthetic environments are simplified approximations of real-world problems.
+To reduce construction and training costs, existing environments often simplify state spaces, action spaces, and task procedures, making it difficult to capture the long-horizon dependencies and complex interactions present in realistic scenarios.
+As a result, agents that achieve strong performance in synthetic environments may still struggle to generalize effectively to more complex real-world tasks.
+Moreover, regarding diversity, current synthetic environments are often constrained by predefined templates and fixed task distributions.
+Compared with the continuously evolving and open-ended nature of real-world environments, synthetic environments typically provide limited scenarios and task distributions, which can easily cause agents to overfit to specific patterns.
+From the perspective of fidelity, substantial discrepancies still exist between synthetic and real-world environments. 
+In digital environments such as GUIs or web systems, real user behaviors, system latency, and dynamic interface changes are often insufficiently modeled. 
+Therefore, an important future direction is to develop more realistic, diverse, and high-fidelity environments that better capture real-world complexity while maintaining scalability and controllability for large-scale agent training and evaluation.
+
+\subsection{Co-Evolution of Agents and Environments}
+
+Traditional research typically treats environments as fixed and passive systems, primarily focusing on how to optimize agent policies within predefined environments.
+However, as environments become increasingly complex, the relationship between agents and environments is gradually evolving from one-way adaptation to bidirectional co-evolution.
+Beyond requiring agents to adapt to environments, environments themselves should also evolve in response to agents by dynamically adjusting task difficulty and environment rules according to the agents' current capabilities, thereby forming a continual co-evolution mechanism.
+For example, environments may progressively introduce more challenging tasks, longer interaction horizons, and increasingly complex feedback mechanisms as agent capabilities improve.
+Environment generators may continuously create new tasks, tools, and interaction patterns based on the weaknesses or emerging capabilities of agents.
+
+\subsection{Towards Unified Offline–Online Learning}
+Current agent training methods can generally be categorized into two paradigms: offline training and online training.
+Offline training relies on high-quality target trajectories generated by external expert models, allowing agents to imitate stronger policies while improving data efficiency and reducing the reliance on costly environment interaction.
+However, it is limited by fixed data distributions and the lack of continual interaction with real environments, which can lead to distributional mismatch and reduced adaptability to evolving dynamics.
+In contrast, online training relies on trajectories generated through the model’s direct interaction with environments, allowing policies to continuously adapt to evolving environment dynamics.
+Such a paradigm more naturally reflects real-world agent behavior, but typically requires extensive interaction and often suffers from sparse rewards and high exploration costs.
+
+Consequently, integrating offline and online paradigms is emerging as an increasingly important direction for agent training.
+On-Policy Distillation (OPD) \cite{OPD} combines online trajectory generation with high-performing teacher supervision, where the student first explores through on-policy interaction and then receives dense corrective feedback from stronger teacher models.
+However, the application of OPD to agentic settings remains largely underexplored.
+Extending OPD to multi-turn agent environments introduces challenges fundamentally different from those in conventional single-turn tasks.
+Errors made during early interaction steps not only affect the current output, but also alter subsequent environment states and future trajectories, leading to long-horizon error accumulation and increasingly inconsistent teacher supervision.
+In addition, an important future direction is to investigate how to effectively integrate accurate environment feedback with fine-grained teacher supervision.
+
+
+\subsection{Science of Environment Engineering}
+
+Despite the rapid progress in agentic environments, current environment construction remains largely empirical and still lacks a systematic scientific foundation.
+As environments become increasingly important for agent training, evaluation, and capability development, establishing a more principled understanding of environment engineering is emerging as a critical research direction.
+
+One important future direction is to investigate the scaling laws of environments, namely how factors such as the number of environments, environment diversity, interaction horizon, and environment complexity influence the formation, generalization, and emergence of agent capabilities.
+Understanding these relationships may help establish more principled guidelines for environment construction and scaling.
+Beyond environment scale, another fundamental question is whether an environment itself is learnable by agents.
+Not all environments are equally suitable for agent training, as overly sparse rewards, excessively large state spaces, or long interaction horizons may prevent agents from obtaining effective learning signals, leading to unstable training or even failure to converge.
+Future research should therefore investigate environment learnability, namely what types of environments are more conducive to stable and efficient agent learning.
+More importantly, environments and agent capabilities are inherently coupled.
+Different environments may naturally encourage the development of different capabilities.
+However, there is still a lack of systematic understanding of what types of environments cultivate what kinds of capabilities.
+An important future direction is to establish the mapping between environments and agent capabilities, enabling targeted environment construction for developing specific meta-capabilities such as long-term memory, task decomposition, world modeling, and strategic planning.
+
+% More importantly, environments and agent capabilities are tightly coupled.
+% Different environments may naturally encourage the development of different capabilities, such as long-horizon planning, real-time decision making, multimodal understanding, or multi-agent coordination.
+% However, there is still a lack of systematic understanding of what types of environments cultivate what kinds of capabilities.
+% An important future direction is to establish the relationship between environments and capability evolution, and to analyze how different environment characteristics influence capability formation, transfer, and generalization.
+
+% Studying such environment–capability coupling mechanisms may ultimately facilitate a transition from empirically constructing environments toward a new paradigm of designing environments for capability development.
+
+% Current LLM research has established relatively mature scaling laws, showing that model performance improves predictably with increasing model size, data scale, and computational resources.
+% However, compared with models and data, the role of environments in shaping agent capability evolution remains far less understood.
+% An important future direction is to investigate the scaling laws of environments, namely how factors such as the number of environments, environment diversity, interaction horizon, and environment complexity influence the formation, generalization, and emergence of agent capabilities.
+% Not all environments are equally suitable for agent training.
+% In some environments, overly sparse rewards, excessively large state spaces, or long interaction horizons may prevent agents from obtaining effective learning signals, leading to unstable training or even failure to converge.
+% Future research should further investigate environment learnability, namely what types of environments are more conducive to stable and efficient agent learning.
+% At present, there is still a lack of systematic understanding of what types of environments cultivate what kinds of capabilities.
+% An important future direction is to establish the relationship between environments and capability evolution, and to analyze how different environment characteristics influence capability formation, transfer, and generalization.
+% Studying such environment–capability coupling mechanisms may facilitate a transition from empirically constructing environments toward a new paradigm of designing environments for capability development.
+
+% 环境的科学性，机理
+
+% 环境和智能体协同进化
+
+% 人在回路的环境
+
+% 环境知识图谱
+
+% 离线在线算法结合，教师的信息和奖励信息
+

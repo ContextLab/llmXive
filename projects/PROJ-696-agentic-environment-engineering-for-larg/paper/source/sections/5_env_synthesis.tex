@@ -1,0 +1,394 @@
+\section{Environment Synthesis}\label{sec:env_syn}
+
+\begin{figure*}[t]
+    \centering
+    \includegraphics[width=1\textwidth]{images/symbolic_synthesis.pdf }
+    \caption{
+    Three symbolic environment synthesis methods are presented: Task-Driven Synthesis, Real-World-Driven Synthesis, and De Novo Synthesis. From left to right, the methods offer increasing degrees of freedom and require more verification logic.
+    }
+    \label{fig:symbolic_synthesis}
+\end{figure*}
+
+
+
+
+% \renewcommand{\arraystretch}{1.5} 
+% --- END OF LINK ---
+% \begin{table*}
+% \resizebox{\textwidth}{!}{
+% \begin{tabular}{lcccccc}
+% \toprule
+% \textbf{Name} &
+%   \textbf{Modality} &
+%  \textbf{Architecture} &   \textbf{Base Model} &
+%   \textbf{Task Domain} &
+%   \textbf{Data Source}  & \textbf{Application}\\ \midrule
+
+% \rowcolor{gray!10!white} \multicolumn{7}{c}{\textbf{\textit{Task-Driven Synthesis}}}\\
+
+% \rowcolor{gray!10!white} \multicolumn{7}{c}{\textbf{\textit{Real-World-Driven Synthesis}}}\\
+
+% \rowcolor{gray!10!white} \multicolumn{7}{c}{\textbf{\textit{Synthesis from Scratch}}}\\
+%  gg-bench\cite{gg-bench} & \Text & LLM & OpenAI o1 & Game & - & Evaluation \\
+%  AutoEnv\cite{AutoEnv} & \Text & LLM & Claude-4-Sonnet & Domain & - & Training,Evaluation \\
+%  AutoForge\cite{AutoForge} & \Text & LLM & Qwen3-Thinking & Code, Tool & - & Training,Evaluation \\
+%  SWE-Playground\cite{SWE-Playground} & \Text & LLM & Gemini 2.5, GPT-4.1... & Code & - & Training \\
+%  Endless Terminals\cite{Endless_Terminals} & \Text & LLM & o3 & Code & - & Training,Evaluation \\
+%  Agent World Model\cite{Agent_world_model} & \Text & LLM & GPT-5 & Tool & - & Training \\
+%  ScaleEnv\cite{ScaleEnv} & \Text & LLM & Deepseek-V3.2, GPT-5.1... & Code & - & Training \\
+%  LOGIGEN\cite{LOGIGEN} & \Text & LLM & DeepSeek-V3.2 & Domain-Specific & - & Training \\
+
+% \bottomrule
+% \end{tabular}}
+% \end{table*}
+
+Large-scale, high-quality training environments are crucial for improving the capabilities of agents. However, relying on manual construction severely limits the scalability of both environment quantity and diversity. Consequently, recent research increasingly explores automated approaches to synthesize training environments at scale. Based on the form of the resulting environments, we categorize these methods into \textbf{Symbolic Synthesis} (\cref{sec:Symbolic Synthesis}) and \textbf{Neural Synthesis} (\cref{sec:Neural Synthesis}). Symbolic synthesis constructs environments using symbolic rules such as code, while the environment in neural synthesis is represented by a neural model (e.g., a world model).
+
+\subsection{Symbolic Synthesis}
+\label{sec:Symbolic Synthesis}
+
+Formally, a symbolic environment can be defined as a tuple $\mathcal{E} = \langle \mathcal{S}, \mathcal{A}, \mathcal{P}, \mathcal{R} \rangle$. Here $\mathcal{S}$ and $\mathcal{A}$ represent the state and action spaces. The core characteristic of symbolic synthesis is that the state transition ${\mathcal{P}}: \mathcal{S} \times \mathcal{A} \rightarrow \mathcal{S}$ and the feedback mechanism $\mathcal{R}$ are explicitly controlled by a set of symbolic rules or executable code $\mathcal{C}$. These environments are driven by underlying rules to ensure reliable feedback. To facilitate agent training, symbolic synthesis is widely used to obtain diverse, high-quality, and verifiable environments at scale \cite{DeepSeek-V3.2, LongCat-Flash-Thinking-2601, MiMo-V2-Flash}. As shown in Fig. \ref{fig:symbolic_synthesis}, based on the source of synthesis logic and the degree of design freedom, we categorize these methods into three types: \textbf{(1) Task-Driven Synthesis} (\cref{sec:task driven synthesis}), which transforms static datasets such as mathematics and coding problems into interactive environments through code encapsulation; \textbf{(2) Real-World-Driven Synthesis} (\cref{sec:real world driven synthesis}), which constructs simplified virtual mappings of real-world complex interactive environments like web pages and operating systems; \textbf{(3) De Novo Synthesis} (\cref{sec:synthesis from scratch}), which leverages generative models to autonomously build environments equipped with tool and verification logic without relying on predefined instances.
+
+
+
+\subsubsection{Task-Driven Synthesis}
+\label{sec:task driven synthesis}
+
+Task-driven synthesis denotes transforming existing static tasks \cite{Generalized_Planning, BYTESIZED32, Exploration_Walk, Text2World, WorldCoder} and data such as tool-calling \cite{EnvScaler, AgentScaler, Agent_CPT} or mathematical data \cite{Nemotron-Terminal, LLM-in-Sandbox} into interactive environments by wrapping them with programmatic rules, as shown in Fig. \ref{fig:symbolic_synthesis}. This approach leverages the abundance of high-quality static data to ensure the correctness and scalability of the environments. Next, we introduce in detail the developmental trajectory of these methods.
+
+% \noindent
+\textbf{A significant portion of task-driven synthesis methods focus on coding agent environments \cite{CodeGym, Agent2World}.} Early work includes SWE-Gym \cite{SWE-Gym} which packages issues and pull requests (PRs) from 11 Python repositories sourced from GitHub into executable Python environments using Docker. To overcome the limited scale of early work, recent research explores fully automated scaling \cite{R2E-Gym,Nemotron-Terminal}. For example, Scale-SWE \cite{Scale-SWE} and SWE-Hub \cite{SWE-Hub} propose an automated environment synthesis paradigm based on multi-agent collaboration. Scale-SWE \cite{Scale-SWE} decomposes the synthesis task into three agents: Environment Builder, Unit-test Creator, and Problem Statement Writer. SWE-Hub \cite{SWE-Hub} proposes a similar concept (e.g., Env Agent, Bug Agent) and further emphasizes the automatic generation of more realistic and complex bug tasks at the system level. SCALER \cite{SCALER} utilizes competitive programming data to synthesize verifiable environments with adjustable difficulty, providing stable reward signals for RL. As environment volumes grow, environment configuration costs escalate, prompting efficiency optimizations. MEnvAgent \cite{MEnvAgent} employs an incremental patching mechanism to enable environment reuse, while SWE-smith \cite{SWE-smith} proposes sharing a single environment image across thousands of tasks within the same repository. Conversely, DockSmith \cite{DockSmith} trains specialized models to automate the generation and repair of Dockerfiles to improve construction efficiency. Beyond standard software engineering, CLI-Gym \cite{CLI-Gym} shifts focus to command line interfaces through an agentic environment inversion paradigm where agents intentionally break environments to generate historical error data. 
+
+% \noindent
+\textbf{Beyond coding tasks, other studies explore broader tool usage environments.} AgentScaler \cite{AgentScaler} focuses on the number and breadth of environments by using 30,000 heterogeneous APIs gathered from existing datasets to construct diverse environments. EnvScaler \cite{EnvScaler} focuses on synthesizing complex state dependencies to increase the difficulty and depth of environments through programmatic synthesis and dual agent filtering strategies. Additionally, Agentic CPT \cite{Agent_CPT} extends this paradigm by transforming unstructured corpora from Wikipedia or CommonCrawl into interactive environments for continual pre-training.
+
+% \noindent
+\textbf{Further research investigates knowledge intensive environments in vertical domains.} MedAgentGym \cite{MedAgentGym} standardizes static biomedical datasets into code centric reasoning tasks. SciAgentGym \cite{SciAgentGym} introduces execution grounded synthesis by equipping existing scientific benchmarks with real tools and verification mechanisms. PaperArena \cite{PaperArena} constructs literature analysis environments for complex cross document reasoning. FinMTM \cite{FinMTM} synthesizes financial environments based on industrial reports for interaction through MCP. V-GameGym \cite{V-GameGym} incorporates visual rendering as feedback, marking the evolution of environment synthesis from text-only to multimodal streams. 
+
+% \noindent
+\textbf{Finally, recent efforts integrate multi domain tasks to explore idealized environment synthesis.} LLM-in-Sandbox \cite{LLM-in-Sandbox} presents a unified perspective by utilizing standard operating systems as universal sandboxes for all tasks. This demonstrates that non-coding tasks like mathematics can also achieve substantial performance gains through interaction within encapsulated environments.
+
+\subsubsection{Real-World-Driven Synthesis}
+\label{sec:real world driven synthesis}
+
+Real-world-driven synthesis projects real-world complex interaction mediums (e.g., Web and Game) into simplified virtual environments for training and evaluation \cite{AgentSynth, AI_GAMESTORE, LMGAME-BENCH, GameDevBench, VeriEnv, AutoWebWorld, GLM-5, MiMo-V2-Flash, DIVE, KAT-Coder-V2}. Given the immense volume and vast action spaces of real world systems, this paradigm achieves significantly greater scalability than task driven approaches. Illustrated by Fig. \ref{fig:symbolic_synthesis}, these methods basically project complex, diverse real-world environments into simplified forms.
+
+
+% \noindent
+\textbf{Traditional real world computing systems include GUI, OS, and complex software tools.} Some frameworks leverage these authentic applications to construct massive scale environments \cite{Agent2World, SWE-Universe} designed to generate high quality and long horizon trajectory data. To automate scaling, AgentSynth \cite{AgentSynth} exploits information asymmetry where progressively generating and executing simple subtasks is significantly easier than solving complex long horizon problems in a single attempt. This mechanism enables the low cost synthesis of extensive planning tasks with controllable difficulty. TaskCraft \cite{TaskCraft} similarly automates the synthesis of tool invocation environments with adjustable difficulty levels grounded in external web environments. Recently, the emergence of the MCP addresses the fragmentation of real-world interfaces. OSWorld-MCP \cite{OSWorld-MCP} pioneers the integration of GUI with standardized protocol tool invocations within synthetic environments to bridge the gap between pure visual interactions and text based tool usage. VeriEnv \cite{VeriEnv} utilizes generative models to directly clone real-world websites for virtual environments. To stress test agent capabilities in realistic settings, MCPMark \cite{MCPMark} synthesizes complex tasks with profound operational depth directly upon authentic protocol servers (e.g., GitHub and Notion). Applying this technology to vertical domains, MedMCP-Calc \cite{MedMCP-Calc} constructs highly rigorous healthcare environments by integrating real electronic medical record databases and clinical guideline retrieval systems. 
+
+% \noindent
+\textbf{Recent research also simulates environments with visual feedback and physical constraints.} AI Gamestore \cite{AI_GAMESTORE} proposes a multiverse of human games as a novel standard for evaluating models by synthesizing open-ended evaluation environments from digital platforms like Steam. lmgame-Bench \cite{LMGAME-BENCH} encapsulates diverse video games into standardized Gymnasium style APIs through modular harnesses. Shifting focus to game development, GameDevBench \cite{GameDevBench} leverages video tutorials and testing frameworks inherent to game engines. This approach translates hard to quantify visual feedback into executable testing tasks to evaluate agent proficiency in multimodal code generation. Finally, EmbodiedBench \cite{EmbodiedBench} achieves the systematic synthesis ranging from high level semantic planning to low level micro control (e.g., manipulation of robotic arms). 
+
+\subsubsection{De Novo Synthesis}
+\label{sec:synthesis from scratch}
+
+Emerging de novo synthesis methods aim to directly generate diverse interactive environments utilizing minimal seed examples or zero shot approaches, as demonstrated in Fig. \ref{fig:symbolic_synthesis}. Compared to previous paradigms, this method offers the highest degree of freedom and the most expansive environmental space \cite{DeepSeek-V3.2, LongCat-Flash-Thinking-2601, AutoEnv, LOGIGEN, InfiniteWeb, NL2Plan, RandomWorld, MiMo-V2-Flash}. It closely approximates the ideal scenario of freely scalable environments.
+
+% \noindent
+\textbf{The primary challenge of de novo synthesis involves ensuring rigorous internal logic within generated systems.} AutoForge \cite{AutoForge} addresses the instability of previous reverse synthesis by prompting generative models to first construct scalable state structures and model underlying logic graphs based on tool invocation relationships before producing code. LOGIGEN \cite{LOGIGEN} advances this by introducing logic driven forward deductive synthesis. This framework utilizes an architect agent to compile rules into physical environments supported by SQLite databases, fundamentally altering traditional reverse synthesis pathways. AutoEnv \cite{AutoEnv} focuses on cross domain generalized generation by hierarchically decoupling the underlying logic of the environment from the surface interaction, successfully yielding datasets for numerous highly heterogeneous environments entirely from scratch.
+
+% \noindent
+\textbf{Automated verification is equally crucial since generated environments inevitably suffer from model hallucinations.} Within SWE domains, ScaleEnv \cite{ScaleEnv} proposes methodologies based on procedural testing and graph expansion to guarantee code correctness and task diversity without human intervention. Agent World Model \cite{Agent_world_model} ensures quality stability during massive scaling by accurately restoring the software development process and embedding execution level self correction mechanisms. Furthermore, SWE-Playground \cite{SWE-Playground} constructs a pioneering purely synthetic training pipeline that completely removes the dependency on external data sources like GitHub. 
+
+% \noindent
+\textbf{Fully automated synthesis extends broadly to other domains.} Endless Terminals \cite{Endless_Terminals} synthesizes thousands of terminal environments from scratch by sampling dimensions such as file operations and network configurations. To mitigate data contamination, gg-bench \cite{gg-bench} employs random sampling to invent entirely novel two-player games. These games are then automatically encapsulated into standard Gymnasium interfaces to establish dynamic benchmarks.
+
+\subsubsection{Summary}
+
+% Overall, from task-driven to real-world-driven, and then to synthesis from scratch, the degrees of freedom and synthetic environment space of these three types of environment synthesis methods are gradually increasing. This trajectory closely aligns with the core vision and ultimate objective of environment scaling in contemporary agent research \cite{silver2025welcome}. However, as they gradually move away from dependence on real-world data, synthetic environments also encounter critical challenges. To ensure robust training, critical issues concerning \textbf{task diversity}, environmental \textbf{complexity}, execution \textbf{correctness}, generation \textbf{quality}, and \textbf{distributional bias} relative to real world scenarios must be concurrently resolved.
+
+
+
+\begin{tcolorbox}[takeaway,title={Takeaway 5.1}]
+\begin{itemize}
+    \item \textbf{Evolution of Scalability:} The progression from task driven to real world driven and to de novo synthesis methods represents a continuous expansion in synthesis freedom and overall environment space. This trajectory closely aligns with the core vision and ultimate objective of environment scaling in contemporary agent research \cite{silver2025welcome}.
+    
+    \item \textbf{Future Directions:} As paradigms gradually reduce dependence on real-world data, synthetic environments also encounter critical challenges. To ensure robust training, critical issues concerning \textbf{task diversity}, environmental \textbf{complexity}, execution \textbf{correctness}, generation \textbf{quality}, and \textbf{distributional bias} relative to real world scenarios must be concurrently resolved.
+\end{itemize}
+\end{tcolorbox}
+
+\renewcommand{\arraystretch}{1.5} 
+\begin{table*}[htbp]
+ \caption{
+   Representative works for symbolic synthesis. \textbf{Base Model} refers to the model used for environment synthesis; ``-'' indicates that no model was used or that it was not specified. \textbf{Data Source} refers to the data on which the environment synthesis was based.
+    }
+\resizebox{\textwidth}{!}{
+\begin{tabular}{lccccccc}
+\toprule
+\textbf{Name} &
+  \textbf{Modality} &
+ \textbf{Architecture} &   \textbf{Base Model} &
+  \textbf{Task Domain} &
+  \textbf{Data Source}  & \textbf{Evaluation}\\ \midrule
+\rowcolor{gray!10!white} \multicolumn{7}{c}{\textbf{\textit{Task-Driven Synthesis (\cref{sec:task driven synthesis})}}}\\ 
+ Planetarium\cite{Planetarium} &\Text & LLM & - &  Code & IPC & Correctness, Complexity  \\ 
+ SWE-Gym\cite{SWE-Gym} &\Text & LLM & - &  Code & GitHub & Correctness \\
+ R2E-Gym\cite{R2E-Gym} & \Text & LLM & Sonnet-3.5-V2 & Code & GitHub & Correctness, Complexity \\
+ VML PDDL\cite{VML_PDDL} &\Text & LLM & Qwen2.5-Coder &  Code & IPC & Correctness \\
+ TheoryCoder\cite{TheoryCoder} &\Text & LLM & GPT-4o &  Game & VGDL, BabyAI, etc. & Correctness \\ 
+ SWE-smith\cite{SWE-smith} & \Text & LLM & o3, Claude 3.7 & Code & GitHub & Correctness, Complexity \\
+ MedAgentGym\cite{MedAgentGym} & \Text & LLM & GPT-4.1-mini, etc. & Domain-Specific & MIMIC-III, eICU, etc. & Correctness, Complexity, Fidelity \\
+ V-GameGym\cite{V-GameGym} & \Text\hspace{-0.4em}\Image\hspace{-0.4em}\Video & VLM & Claude-Sonnet-4 & Game & OpenCoder, The Stack v2 & Correctness, Diversity, Complexity \\
+ Agentic CPT\cite{Agent_CPT} & \Text & LLM & LLM & Tool & CommonCrawl, Wikipedia,etc. & Correctness \\
+ AgentScaler\cite{AgentScaler} & \Text & LLM & LLM & Tool & ToolBench, API-Gen & Correctness \\
+ PaperArena\cite{PaperArena} & \Text\hspace{-0.4em}\Image & VLM & GPT-5, Claude 4, Gemini-2.5 & Domain-Specific & OpenReview, Open Access & Diversity, Complexity \\
+ Agent2World\cite{Agent2World} & \Text & LLM & GPT-4.1-mini, Llama-3.1-8b & Domain & LIMA & Correctness, Fidelity \\
+ SCALER\cite{SCALER} & \Text & LLM & GLM-4.6 & Domain & CodeContests & Correctness, Diversity, Complexity \\
+ MEnvAgent\cite{MEnvAgent} & \Text & LLM & Kimi-K2, Gemini-3, Claude-4.5 & Code & GitHub & Correctness, Complexity \\
+ EnvScaler\cite{EnvScaler} & \Text & LLM & GPT-4.1, Qwen3-235B & Tool & API-Bank, ToolACE & Correctness, Diversity, Complexity \\
+ LLM-in-Sandbox\cite{LLM-in-Sandbox} & \Text & LLM & - & Domain & Instruction Pre-Training, etc. & Correctness \\
+ DockSmith\cite{DockSmith} & \Text & LLM & Qwen3* & Code & GitHub & Correctness, Complexity \\
+ Scale-SWE\cite{Scale-SWE} & \Text & LLM & DeepSeek, Gemini-3 & Code & GitHub, PyPI & Correctness, Diversity \\
+ SciAgentGym\cite{SciAgentGym} & \Text\hspace{-0.4em}\Image & VLM & - & Domain-Specific & SciInstruct, GPQA, BMMR, etc. & Correctness, Diversity, Complexity, Fidelity \\
+ CLI-Gym\cite{CLI-Gym} & \Text & LLM & LLM & Code & SWE-smith, GitHub & Correctness \\
+ FinMTM\cite{FinMTM} & \Text\hspace{-0.4em}\Image & VLM & Gemini-3-Pro & Domain-Specific & - & Correctness, Diversity, Complexity \\
+ Nemotron-Terminal\cite{Nemotron-Terminal} & \Text & LLM & DeepSeek-V3.2 & Code & OpenMathReasoning, etc. & Correctness \\
+ Hybrid-Gym\cite{HYBRID-GYM} & \Text & LLM & GPT-4o-mini, Claude-4.5, etc. & Code & GitHub, SWE-Gym, RepoST & Correctness, Diversity \\
+ SWE-Hub\cite{SWE-Hub} & \Text & LLM & LLM & Code & GitHub & Correctness, Diversity \\
+
+\midrule
+\rowcolor{gray!10!white} \multicolumn{7}{c}{\textbf{\textit{Real-World-Driven Synthesis (\cref{sec:real world driven synthesis})}}}\\ 
+
+ EnvGen\cite{EnvGen} & \Text\hspace{-0.4em}\Image & VLM & GPT-4 & Embodied & Crafter,Heist & Correctness, Fidelity \\
+ EmbodiedBench\cite{EmbodiedBench} & \Text\hspace{-0.4em}\Image & VLM & GPT-4 & Embodied & ALFRED, AI2-THOR, etc. & Correctness, Fidelity \\
+ lmgame-Bench\cite{LMGAME-BENCH} & \Text\hspace{-0.4em}\Image & VLM & o3 & Game & video games & Correctness, Complexity \\
+ AgentSynth\cite{AgentSynth} &\Text\hspace{-0.4em}\Image & VLM & GPT-4.1 & Domain & OSWorld,persona hub & Correctness, Complexity \\
+ TaskCraft\cite{TaskCraft} & \Text\hspace{-0.4em}\Image & VLM & GPT-4.1 & GUI, Tool & Web & Correctness, Complexity \\
+ OSWorld-MCP\cite{OSWorld-MCP} & \Text\hspace{-0.4em}\Image & VLM & o3 & GUI & OSWorld & Correctness, Complexity \\
+ MedMCP-Calc\cite{MedMCP-Calc} & \Text & LLM & GPT-OSS, DeepSeek-V3.1, etc. & Domain-Specific & MDCalc, MIMIC-IV, etc. & Correctness \\
+ AI GameStore\cite{AI_GAMESTORE} & \Text\hspace{-0.4em}\Image & VLM & Claude-4.5, Gemini-2.5 & Game & App Store, Steam & Correctness, Complexity, Fidelity \\
+ GameDevBench\cite{GameDevBench} & \Text\hspace{-0.4em}\Image\hspace{-0.4em}\Video & VLM & GPT-5 & Game & YouTube, Godot 4 & Correctness, Complexity, Fidelity \\
+ AutoWebWorld\cite{AutoWebWorld} & \Text\hspace{-0.4em}\Image & VLM & GPT-5.1, Gemini-3, etc. & GUI & Facebook, Gmail, etc. & Correctness, Complexity \\
+ SWE-Universe\cite{SWE-Universe} & \Text & LLM & Qwen-Next-80B-A3B* & Code & GitHub & Correctness \\
+ VeriEnv\cite{VeriEnv} & \Text\hspace{-0.4em}\Image  & VLM & GPT-5.2 & GUI & Web & Correctness, Complexity, Fidelity \\
+ DIVE\cite{DIVE} & \Text  & LLM & Claude-4-Sonnet & Tool & Wikipedia, PubMed, etc. & Correctness, Complexity \\
+ KAT-Coder-V2\cite{KAT-Coder-V2} & \Text  & LLM & Claude & Code & GitHub, etc. & Correctness, Complexity \\
+ \midrule
+\rowcolor{gray!10!white} \multicolumn{7}{c}{\textbf{\textit{De Novo Synthesis (\cref{sec:synthesis from scratch})}}}\\ 
+
+ RandomWorld\cite{RandomWorld} & \Text & LLM & GPT-4o & Tool & - & Correctness, Complexity \\
+ NL2Plan\cite{NL2Plan} & \Text & LLM & GPT-4o & Tool & - & Correctness, Complexity, Fidelity \\
+ gg-bench\cite{gg-bench} & \Text & LLM & OpenAI o1 & Game & - & Correctness, Diversity, Complexity \\
+ AutoEnv\cite{AutoEnv} & \Text & LLM & Claude-4-Sonnet & Domain & - & Correctness, Diversity, Complexity \\
+ AutoForge\cite{AutoForge} & \Text & LLM & Qwen3-Thinking & Code, Tool & - & Correctness, Diversity, Complexity \\
+ SWE-Playground\cite{SWE-Playground} & \Text & LLM & Gemini-2.5, GPT-4.1, etc. & Code & - & Correctness \\
+ InfiniteWeb\cite{InfiniteWeb} & \Text\hspace{-0.4em}\Image & VLM & GPT-5 & GUI & - & Correctness, Diversity \\
+ Endless Terminals\cite{Endless_Terminals} & \Text & LLM & o3 & Code & - & Correctness, Complexity \\
+Agent World Model\cite{Agent_world_model} &\Text\hspace{-0.4em}\Image & LLM & GPT-5 & Tool & - & Correctness, Diversity \\
+ ScaleEnv\cite{ScaleEnv} & \Text & LLM & Deepseek-V3.2, GPT-5.1, etc. & Code & - & Correctness, Diversity, Complexity \\
+ LOGIGEN\cite{LOGIGEN} & \Text & LLM & DeepSeek-V3.2 & Tool & - & Correctness, Complexity \\
+
+\bottomrule
+
+\end{tabular}
+}
+\end{table*}
+
+\subsection{Neural Synthesis}
+\label{sec:Neural Synthesis}
+
+\begin{figure*}[t]
+    \centering
+    \includegraphics[width=1\textwidth]{images/world_model.pdf }
+    \caption{
+    Three neural environment synthesis paradigms are presented: Pixel-Level Modeling, Word-Level Modeling, and Latent-Level Modeling, trading off fidelity and abstraction.
+    }
+    \label{fig:Neural_synthesis}
+\end{figure*}
+
+
+Neural synthesis refers to modeling the environment using a neural network. Such approaches are typically centered around world models, which are neural models that learn to simulate the environment's state transitions and observations, enabling agents to interact with a learned environment instead of the real one. Depending on the form of representation used for environment modeling, we categorize them into three types: \textbf{(1) Pixel-Level Modeling} (\cref{sec:Pixel-level Modeling}), which directly models environment dynamics from pixel-level observations such as images or videos; \textbf{(2) Word-Level Modeling} (\cref{sec:Word-level Modeling}), which represents environment states in natural language; and \textbf{(3) Latent-Level Modeling} (\cref{sec:Latent-level Modeling}), which learns structured representations of the environment in a latent space and captures the dynamics through low-dimensional embeddings. An overview of these paradigms is illustrated in Fig. \ref{fig:Neural_synthesis}.
+
+
+\subsubsection{Pixel-Level Modeling}
+\label{sec:Pixel-level Modeling}
+Pixel-level modeling refers to modeling the environment directly in the raw visual observation space. Rather than relying on semantic abstraction or representation compression, this paradigm learns environment dynamics from high-dimensional visual signals \cite{DIAMOND, DreamGen, Pandora}, thereby preserving richer physical detail and scene information. 
+
+\textbf{Some approaches focus primarily on modeling the temporal evolution of the visual world with limited emphasis on complex interaction.} 
+A representative approach \cite{Recurrent_World_Models_Facilitate_Policy_Evolution} simulates game environments using a world model that compresses spatial representations with a VAE and models temporal dynamics as a probability distribution with an MDN-RNN, where the stochasticity is controlled via a temperature parameter. Subsequent research shifts toward using world models for agent decision-making and interaction, introducing action-conditioned modeling so that the model can predict future visual observations given agent behavior. In embodied tasks, EVA \cite{EVA} integrates a vision-language model with a video generative model, enabling the framework to generate future visual observations conditioned on language-described actions. In GUI tasks, ViMo \cite{ViMo} uses natural language instructions rather than abstract action codes, and trains an image predictor with both visual features and text instructions as dual conditioning inputs.
+
+\textbf{Other approaches extend world models to support long-horizon interactive environments.} 
+Matrix-Game \cite{Matrix-Game} trains on a large-scale Minecraft dataset to enable interactive video generation conditioned on continuous keyboard and mouse inputs, supporting temporally extended trajectories rather than short clips. Its successor Matrix-Game 2.0 \cite{Matrix-Game_2.0} further improves long-horizon consistency by introducing a scalable data production pipeline and a frame-level action injection module, enabling stable interactive generation at the minute scale. 
+NeuralOS \cite{NeuralOS} targets operating system environments with persistent and evolving states. It models long-range dependencies by maintaining system state with a hierarchical RNN, while combining diffusion-based rendering and multi-stage training to mitigate exposure bias over extended interaction sequences.
+
+
+\subsubsection{Word-Level Modeling}
+\label{sec:Word-level Modeling}
+
+Word-level modeling benefits from the expressive and general-purpose nature of natural language, making it well-suited for modeling environments across diverse domains \cite{GTM, CWM, ITP}. Compared to pixel-level modeling, it provides a higher-level representation with lower computational cost, and is more capable of handling complex reasoning and long-horizon planning tasks.
+
+\textbf{A line of work focuses on using language models to represent environment knowledge.} WKM \cite{WKM} synthesizes task knowledge (i.e., knowledge required to accomplish a task) and state knowledge (i.e., summaries of environment states based on historical actions), providing prior guidance and constraints for action generation during agent reasoning. Complementary to this, retrieval-augmented approaches extend language world models with external knowledge sources. Specifically, R-WoM \cite{R-WoM} enhances environment understanding by retrieving tutorial knowledge and integrating it into reasoning, improving long-horizon simulation through reasoning-aware retrieval and listwise reward estimation. 
+
+\textbf{Other research turns to using language world models to perform dynamic reasoning over the environment.} MobileDreamer \cite{MobileDreamer} represents key GUI elements in structured text and introduces a rollout imagination strategy that constructs a tree of predictions to enable multi-step lookahead, thereby improving action selection. Also targeting GUI tasks, Code2World \cite{Code2World} proposes representing GUI states as renderable code, and using a language model to generate code to express GUI state transitions. However, reasoning with language world models inevitably suffers from hallucination, inconsistency, and long-horizon drift, making verifiability a critical concern. RAP \cite{RAP} incorporates Monte Carlo Tree Search to explore multiple reasoning trajectories and selects the optimal path, ensuring that the output is traceable and more reliable.
+
+
+\subsubsection{Latent-level Modeling}
+\label{sec:Latent-level Modeling}
+Unlike pixel-level methods that directly model raw visual observations and word-level approaches that describe environments through linguistic symbols, latent-level modeling operates in a learned representation space \cite{IWM, DINO-WM, seq-JEPA}. 
+\textbf{By shifting prediction from the observation space to the latent space, models can focus on the structural information that is most relevant to semantics and dynamics.} I-JEPA \cite{I-JEPA} predicts representations of image patches in latent space rather than pixels. By masking large target blocks and leveraging spatially distributed context blocks, it encourages the model to learn semantic representations, achieving improvements in both performance and efficiency. seq-JEPA \cite{seq-JEPA} extends this framework from single images to action-observation sequences, introducing inductive biases to separate equivariant and invariant representations within a single model. This enables the model to perform classification with invariant representations and fine-grained discrimination with equivariant representations, while generalizing to sequential tasks such as gaze prediction and path integration.
+
+\textbf{However, learning latent representations from scratch is costly.} Subsequent research therefore turns to reusing representations from pretrained foundation models, enabling cross-domain generalization and diverse applications. A line of work \cite{DINO-WM, DINO-world, DINO-Foresight} leverages frozen pretrained visual representations from DINOv2 to model environment and temporal dynamics in latent space. These methods avoid learning visual representations from scratch, and train dynamics models on offline video data or trajectories, supporting efficient future forecasting, generalization, and task-adaptive planning. V-JEPA 2 \cite{V-JEPA_2}, pretrained on one million hours of internet video, requires only 62 hours of robot data to fine-tune and achieves zero-shot robot planning, highlighting the potential of pretrained foundation models to enable scalable and generalizable world modeling.
+
+
+\subsubsection{Summary}
+
+% In summary, neural synthesis based on world models can be categorized into pixel-level, word-level, and latent-level modeling. Pixel-level modeling operates at low abstraction with high fidelity, but suffers from information redundancy; word-level modeling provides high abstraction with lower fidelity, often leading to information loss due to compression; latent-level modeling lies between the two, aiming to balance representation compactness and predictive capability, while facing challenges in interpretability and reliance on learned representations. As world models continue to evolve, maintaining long-horizon consistency, preserving essential information, and achieving efficient modeling remain fundamental challenges. Addressing these issues, together with improving controllability and integration across different representation spaces, is critical for building robust and general-purpose neural environment modeling systems.
+
+% \vspace{-3pt}
+\begin{tcolorbox}[takeaway,title={Takeaway 5.2}]
+\begin{itemize}
+\item \textbf{Pros and Cons:} Each modeling paradigm involves inherent trade-offs.
+Pixel-level modeling operates at low abstraction with high fidelity, but suffers from information redundancy. 
+Word-level modeling provides high abstraction with lower fidelity, often leading to information loss due to compression. 
+Latent-level modeling aims to balance representation compactness and predictive capability, while facing challenges in interpretability and reliance on learned representations.
+
+\item \textbf{Future Directions:} Maintaining long-horizon consistency, preserving essential information, and achieving efficient modeling remain fundamental challenges. Addressing these issues, together with improving controllability and integration across different representation spaces, is critical for building robust and general-purpose neural environment modeling systems.
+\end{itemize}
+\end{tcolorbox}
+% \vspace{-5pt}
+\renewcommand{\arraystretch}{1.5} 
+\begin{table*}
+\caption{Representative methods in neural synthesis. \textbf{Modality} refers to the output modality of the model. \textbf{Base Model} marked as "-" indicates that no pre-existing foundation model is used, while "base model*" denotes that the base model is fine-tuned.}
+\resizebox{\textwidth}{!}{
+\begin{tabular}{lccccccc}
+\toprule
+\textbf{Name} &
+  \textbf{Modality} &
+ \textbf{Architecture} &   \textbf{Base Model} &
+  \textbf{Task Domain} &
+  \textbf{Data Source}  & \textbf{Evaluation}\\ \midrule
+\rowcolor{gray!10!white} \multicolumn{7}{c}{\textbf{\textit{Pixel-Level Modeling (\cref{sec:Pixel-level Modeling})}}}\\ 
+ EVA \cite{EVA} &\Video & VLM,Diffusion & ChatUniVi*,Dynamicrafter* &  Embodied & COCO,CC3M,etc. & Correctness, Fidelity \\
+ ViMo \cite{ViMo} &\Text\hspace{-0.4em}\Image & Diffusion,VLM & Stable Diffusion*,GPT-4o &  GUI & Android Control,etc. & Correctness, Complexity, Fidelity \\
+ Matrix-Game \cite{Matrix-Game} &\Video & Diffusion & HunyuanVideo* &  Game & MineDojo,etc. & Correctness, Diversity, Fidelity \\
+ Matrix-Game 2.0 \cite{Matrix-Game_2.0} &\Video & Diffusion & SkyReelsV2* &  Game & Sekai,etc. & Correctness, Diversity, Fidelity \\
+ DIAMOND \cite{DIAMOND} &\Image & Diffusion & - &  Game & Atari 100k & Correctness, Diversity, Complexity, Fidelity \\
+ GameNGen \cite{GameNGen} &\Video & Diffusion & Stable Diffusion v1.4* &  Game & ViZDoom & Correctness, Complexity, Fidelity \\
+ DreamGen \cite{DreamGen} &\Video & Diffusion & WAN2.1* &  Embodied & RoboCasa,DROID & Correctness, Diversity, Fidelity \\
+ EnerVerse \cite{EnerVerse} &\Video & Diffusion & DynamicCrafter* &  Embodied & RT1,Taco-Play,etc. & Correctness, Complexity, Fidelity \\
+ Genie Envisioner \cite{Genie_Envisioner} &\Video & Diffusion & LTX-Video 2B*,COSMOS2 2B* &  Embodied & AgiBot-World-Beta & Correctness, Diversity, Fidelity \\
+ KeyWorld \cite{KeyWorld} &\Video & Diffusion & - &  Embodied & LIBERO & Correctness, Complexity, Fidelity \\
+ MineWorld \cite{MINEWORLD} &\Video & LLM,VAE & LLaMA*,VQ-VAE* &  Game & Video PreTraining & Correctness, Fidelity \\
+ NeuralOS \cite{NeuralOS} &\Image & RNN,Diffusion & - &  GUI & private & Correctness, Complexity, Fidelity \\
+ FlowDreamer \cite{FlowDreamer} &\Video & Diffusion & Stable Diffusion 2.1* &  Embodied & RT-1,Language Table,etc. & Correctness, Fidelity \\
+ Cosmos Policy \cite{Cosmos_Policy} &\Video & Diffusion & Cosmos-Predict2-2B* &  Embodied & LIBERO,RoboCasa,etc. & Correctness, Fidelity \\
+ DreamZero \cite{DreamZero} &\Video & Diffusion & Wan2.1-I2V-14B* &  Embodied & DROID,etc. & Correctness, Diversity, Fidelity\\
+ GAIA-2 \cite{GAIA-2} &\Video & Diffusion & - & Embodied & private & Correctness, Diversity, Fidelity \\
+ Cosmos-Drive \cite{Cosmos-Drive} &\Video & Diffusion & Cosmos-7B-Text2World* & Embodied & Real Driving Scene,etc. & Complexity, Diversity, Fidelity\\
+ PEWM \cite{PEWM} &\Video & Diffusion & DynamiCrafter* & Embodied & RLBench,LIBERO,etc. & Correctness, Fidelity \\
+ AdaWorld \cite{AdaWorld} &\Video & Diffusion & Stable Video Diffusion* & Embodied,Game & Gym Retro,etc. & Correctness, Diversity, Fidelity\\
+ LingBot-VA \cite{LingBot-VA} &\Video & Diffusion & Wan2.2-5B* & Embodied & Agibot,RoboMind,etc. & Correctness, Complexity, Fidelity\\
+ MeWM \cite{MeWM} &\Text\hspace{-0.4em}\Image & VLM,Diffusion & - & Domain-Specific & HCC-TACE-Seg,etc. & Correctness, Fidelity\\
+ Cosmos \cite{Cosmos} &\Video & Diffusion & - & Embodied & private & Correctness, Diversity, Fidelity\\
+ Pandora \cite{Pandora} &\Video & VLM,Diffusion & Chat-Univi*,DynamiCrafter* & Cross-Domain & WebVid-10M,etc. & Correctness\\
+ LIVE \cite{LIVE} &\Video & Diffusion & NFD* & Embodied,Game & RealEstate10K,etc. & Correctness, Fidelity\\
+ \midrule
+\rowcolor{gray!10!white} \multicolumn{7}{c}{\textbf{\textit{Word-Level Modeling (\cref{sec:Word-level Modeling})}}}\\ 
+ GTM \cite{GTM} &\Text & LLM & Qwen2.5-1.5B* &  Tool & KernelBench,etc. & Correctness, Fidelity \\
+ WKM \cite{WKM} &\Text & LLM & Mistral-7B-Instruct-v0.2* &  Cross-Domain & ALFWorld,WebShop,etc. & Correctness \\
+ Code2World \cite{Code2World} &\Text & VLM & Qwen3-VL-8B-Instruct* &  GUI & Android Control & Correctness, Fidelity \\
+ CWM \cite{CWM} &\Text & LLM & - &  Code & OpenCodeReasoning,etc. & Correctness, Complexity \\
+ Dyna-Think \cite{Dyna-Think} &\Text & LLM & Qwen2.5-32B-Instruct* &  GUI & private & Correctness, Fidelity \\
+ ITP \cite{ITP} &\Text & LLM & Qwen3-8B* &  Embodied & ALFWorld,ScienceWorld & Correctness \\
+ WebDreamer \cite{WebDreamer} &\Text & VLM & GPT-4o,Qwen2-VL-7B-Instruct* &  GUI & private & Correctness, Complexity, Fidelity \\
+ MobileDreamer \cite{MobileDreamer} &\Text & LLM & Qwen3-8B* &  GUI & Android Control & Correctness, Complexity, Fidelity \\
+ VLWM \cite{VLWM} &\Text & VLM & PerceptionLM-8B* &  Cross-Domain & COIN,CrossTask,etc.  & Correctness, Complexity \\
+ R-WoM \cite{R-WoM} &\Text & VLM & Qwen2.5-VL-72B-Instruct &  GUI & -  &  Correctness, Complexity \\
+ RAP \cite{RAP} &\Text & LLM & LLaMA-33B &  Game & -  & Correctness, Complexity \\
+ SimuRA \cite{SimuRA} &\Text & LLM & GPT-4o &  Cross-Domain & -  & Correctness \\
+ FPWC \cite{FPWC} &\Text & VLM & GPT-4V &  GUI & -  & Correctness, Complexity \\
+ WWM \cite{WWM} &\Text & LLM & Gemini 2.5 Flash &  GUI & -  & Correctness, Diversity \\
+ DyMo \cite{DyMo} &\Text & LLM & Cohere's R7B* &  Tool & BFCL  & Correctness \\
+ Simia \cite{Simia} &\Text & LLM & o4-mini & Cross-Domain & - & Correctness, Diversity, Fidelity \\
+ WebWorld \cite{WebWorld} &\Text & LLM & Qwen3-8/14/32B* & GUI & private & Correctness, Diversity, Fidelity \\
+ gWorld \cite{gWorld} &\Text & VLM & Qwen3-VL-8/32B* & GUI & Android in the Wild,etc. & Correctness, Fidelity \\
+ SWE-World \cite{SWE-World} & \Text & LLM & Qwen2.5-32B/72B* & Code & GitHub, SWE-bench, etc. & Correctness \\
+
+\midrule
+\rowcolor{gray!10!white} \multicolumn{7}{c}{\textbf{\textit{Latent-Level Modeling (\cref{sec:Latent-level Modeling})}}}\\ 
+V-JEPA 2 \cite{V-JEPA_2} &\Embed & JEPA & - & Cross-Domain & VideoMix22M & Correctness, Fidelity \\
+I-JEPA \cite{I-JEPA} &\Embed & JEPA & - & Cross-Domain & ImageNet-1K & Correctness, Diversity \\
+IWM \cite{IWM} &\Embed & JEPA & - & Cross-Domain & ImageNet & Correctness, Fidelity \\
+DINO-world \cite{DINO-world} &\Embed & ViT & DINOv2 & Cross-Domain & private & Correctness \\
+EchoJEPA \cite{EchoJEPA} &\Embed & JEPA & - & Domain-Specific & MIMIC-IV-Echo,etc. & Correctness \\
+DINO-WM \cite{DINO-WM} &\Embed & ViT & DINOv2 & Cross-Domain & private & Correctness, Fidelity \\
+DINO-Foresight \cite{DINO-Foresight} &\Embed & ViT & DINOv2 & Embodied & Cityscapes,nuScenes & Correctness, Complexity, Fidelity \\
+seq-JEPA \cite{seq-JEPA} &\Embed & JEPA & - & Cross-Domain & 3DIEBench,CIFAR100,etc. & Correctness, Complexity \\
+
+\bottomrule
+
+\end{tabular}}
+\end{table*}
+
+
+
+
+\subsection{Quality Control and Evaluation of Environments}
+
+After synthesizing environments, a central question is how to evaluate and control their quality, namely whether these environments can serve as reliable substrates for training and evaluation. We summarize existing evaluation practices along four complementary dimensions: \textbf{correctness}, \textbf{diversity}, \textbf{complexity}, and \textbf{fidelity}. We next discuss how prior work assesses environment quality from these perspectives.
+
+\subsubsection{Correctness}
+
+Correctness is the most fundamental requirement for synthesized agentic environments. It requires not only that the environment has valid state transitions, but also that the synthesized tasks can be legally executed, have valid solutions, and are paired with reliable verifiers that provide correct reward signals \cite{SWE-smith, R2E-Gym, CLI-Gym}.
+
+A common strategy for symbolic environment is program execution and unit testing \cite{SWE-Hub}. In coding and software environments, many works use sandboxes or unit tests to check whether generated environments can run, while filtering runtime errors and timeout cases \cite{SWE-Universe, SWE-Hub, MCP-Universe}. For example, SWE-Gym \cite{SWE-Gym} and Scale-SWE \cite{Scale-SWE} validate patches or generated tasks through execution tests. GameDevBench \cite{GameDevBench} uses deterministic tests in the Godot scripting framework, V-GameGym \cite{V-GameGym} executes and repairs generated code in a UI sandbox. ScaleEnv \cite{ScaleEnv} verifies generated tools and database code through procedural testing, while Endless Terminals \cite{Endless_Terminals} validates container construction, initial-state tests, and final completion tests before retaining a task.
+
+Other works focus more on solvability and trajectory validation. Tool-based environments often execute golden tool sequences or expert trajectories, and use final-state comparison to determine whether the task can be truly completed \cite{Agent2World, SciAgentGym, AgentGen}. For instance, AutoForge \cite{AutoForge} obtains the target state by executing golden tool sequences, while AgentSynth \cite{AgentSynth} uses a verifier to estimate long-horizon task completion.
+
+Some works also evaluate the reliability of the verifier itself. In OS, GUI, and Web environments, task completion often cannot be judged by simple string matching. Execution-based evaluators or expert reviews are therefore used to prevent failed trajectories from being falsely accepted \cite{OSWorld-MCP, EnvScaler, AutoWebWorld}. For example, MCP-Universe \cite{MCP-Universe} uses static and dynamic evaluators instead of relying on unstable LLM-as-a-judge evaluation, while OSWorld-MCP \cite{OSWorld-MCP} combines execution validation with expert review to ensure tool correctness. InterCode \cite{InterCode} checks custom reward functions with gold commands, and Mobile-Env \cite{Mobile-Env} combines system signals such as screen text and user responses to improve state estimation and outcome evaluation. Some works further measure the agreement between LLM or human verifiers and ground-truth task completion \cite{AgentSynth, Terminal-Bench, SciAgentGym}.
+
+% Thus, correctness in environment synthesis is not merely about whether an environment can run. It requires a complete validation loop covering execution, trajectory feasibility and reward reliability.
+
+Unlike the aforementioned evaluation approaches based on explicit execution and verifiers, correctness in neural environment synthesis is difficult to assess through executable tests due to the widespread multi-modal content (e.g., videos and images) in neurally synthesized environments. As a result, correctness is often reformulated as measuring whether the synthesized outputs satisfy predefined constraints. Such methods typically perform evaluation from semantic consistency, interaction consistency, and trajectory deviation. For instance, DreamGen \cite{DreamGen} employs Qwen-VL-2.5 to score generated videos and determine whether they faithfully follow the given language instructions, further incorporating human annotations to improve reliability. Matrix-Game \cite{Matrix-Game}, on the other hand, utilizes a pretrained inverse dynamics model to infer actions from generated videos and compares them with ground-truth keyboard inputs using average accuracy to evaluate interaction correctness. At a finer granularity, Genie Envisioner \cite{Genie_Envisioner} combines LLM-based semantic evaluation with rule-based metrics, using symmetric Hausdorff distance to measure spatial deviations between generated and reference trajectories, and normalized dynamic time warping (NDTW) to capture temporal alignment of action sequences. For GUI scenarios, MobileDreamer \cite{MobileDreamer} introduces the mIoU metric to assess spatial accuracy by computing the overlap between predicted and ground-truth element bounding boxes. In addition, some works \cite{WKM, Dyna-Think} directly adopt final task completion as an overall criterion to evaluate the validity of synthesized environments.
+
+\subsubsection{Diversity}
+
+Diversity concerns whether a synthesized environment collection provides broad and non-redundant coverage over task spaces, state spaces, tool spaces, and linguistic expressions. This is crucial for agent training and evaluation: if environments are too homogeneous, agents may overfit to surface patterns rather than acquire generalizable interaction abilities. A high-quality environment set should therefore cover different task types, capabilities, tools, and interaction patterns \cite{SWE-World}.
+
+Some methods in symbolic environments use similarity filtering to avoid generating many semantically redundant samples \cite{InfiniteWeb}. For example, Agent World Model \cite{Agent_world_model} adopts embedding-based deduplication to prevent scenario collapse, EnvScaler \cite{EnvScaler} uses embedding similarity and t-SNE visualization to analyze topic dispersion, and V-GameGym \cite{V-GameGym} applies clustering to select diverse game seeds from large code repositories.
+
+Other methods expand diversity through structured coverage. Tool environments often track tool categories and API combinations \cite{ToolBench, API-Bank}, while OS, GUI, and Web environments emphasize coverage over web tasks, operation types and distractor tools \cite{Mind2Web, WebArena, Mobile-Env}. For example, AutoForge \cite{AutoForge} uses random walks over tool dependency graphs to generate diverse tool sequences. MCP-Universe \cite{MCP-Universe} covers multiple real MCP servers and task domains. And other methods improve diversity through the generation process itself \cite{AgentBench, AI_GAMESTORE}. TaskCraft \cite{TaskCraft} synthesizes multi-hop tool-use tasks from Web, PDF, and image sources.
+
+In neural environment synthesis, beyond improving diversity through expanded task and environment coverage as discussed above, diversity is also commonly characterized by the richness of the model’s output distribution under identical input conditions, namely, whether it can produce multiple valid outputs that are semantically consistent yet diverse in details. For example, Genie Envisioner \cite{Genie_Envisioner} generates multiple videos under the same language instruction and computes pairwise similarities based on CLIP global video embeddings as a diversity score, thereby evaluating the model’s ability to produce diverse yet valid trajectories. GAIA-2 \cite{GAIA-2} perturbs latent representations extracted from real videos and performs conditional denoising to generate diverse environment variants while preserving core semantics and ego-motion trajectories. Furthermore, some works decouple actions from context to verify the model's ability to synthesize diverse environments with consistent core actions. For instance, AdaWorld \cite{AdaWorld} transfers identical actions to different contexts to evaluate generalization across diverse environments. Similarly, I-JEPA \cite{I-JEPA} performs multiple stochastic decodings for the same input and target location using the RCDM framework, and assesses diversity by comparing variations in core semantics, object structures, and low-level details across samples.
+
+
+\subsubsection{Complexity}
+
+Complexity measures whether synthesized environments have appropriate difficulty. A useful environment should be neither too simple nor systematically impossible. If tasks are too easy, they may fail to improve agent capabilities and can even lead to overfitting; if tasks are too hard or unsolvable, evaluation results provide little useful feedback. Thus, complexity evaluation should not simply increase task length, but construct solvable task distributions that can distinguish agents with different abilities \cite{AgentSynth, TaskCraft, VeriEnv}.
+
+Some methods quantify complexity through structure parameters. Many symbolic environments report interaction steps, number of tools, API calls, state entities, or lines of code to describe structural difficulty \cite{PaperArena, MedAgentBench}. For example, AutoForge \cite{AutoForge} increases the logical complexity of tool-use tasks through DAG structures. OSWorld-MCP \cite{OSWorld-MCP} characterizes difficulty by the number of tool-calling rounds. LOGIGEN \cite{LOGIGEN} controls complexity by injecting multi-variable conditions, state-dependent constraints, role permissions, and irreversible transitions into the compiled policy environment. NL2Plan \cite{NL2Plan} stratifies planning tasks by expected optimal plan length, dividing problems into short, medium, and long settings.
+
+Other methods calibrate complexity using strong-model or human performance \cite{SWE-smith, gg-bench, AI_GAMESTORE}. gg-bench \cite{gg-bench} filters games using win-rate disparity from RL self-play to remove tasks with insufficient discriminative power. In more realistic task settings, AI GameStore \cite{AI_GAMESTORE} uses expert cognitive ratings and human median performance to calibrate game difficulty.
+
+Complexity in neural environment synthesis is often reflected in the reasoning depth and width explored during the generation process. For example, WebDreamer \cite{WebDreamer} adjusts the planning horizon (1/2/3 steps) to control multi-step prediction depth, thereby influencing task complexity. MobileDreamer \cite{MobileDreamer} varies the number of candidate actions per node to modulate the branching factor of the search space. VLWM \cite{VLWM} regulates complexity by adjusting the number of candidate plans in the System-2 stage, while RAP \cite{RAP} increases complexity by scaling the number of Monte Carlo Tree Search iterations, thereby expanding search depth.
+
+
+\begin{figure*}[htbp]
+    \centering
+    \includegraphics[width=1\textwidth]{images/agent_evo.pdf }
+    \caption{
+    Overview of agent evolution paradigms. Existing methods are organized into four categories: Memory-Centric Experience Evolution, which enhances agent capabilities through accumulated experiences; Orchestration-Centric Workflow Evolution, which adapts agent workflows to optimize task performance; Trajectory-Centric Offline Evolution, which refines agent behavior through synthetic task interaction data; and Exploration-Centric Online Evolution, which strengthens agent capabilities through real-time learning and adaptation via reinforcement.
+    }
+    \label{fig:agent_evo}
+\end{figure*}
+\subsubsection{Fidelity}
+
+Fidelity concerns whether synthesized environments faithfully reflect the real systems, physical dynamics or user behaviors they aim to model. It is related to, but distinct from, correctness. A task may be executable inside a synthesized simulator, but if its dynamics, API behavior, or user workflow diverges from the real world, it may still have low fidelity. Fidelity therefore asks a higher-level question: an environment should not only work, but work in a way that resembles the target setting \cite{WebArena, Genie_Envisioner, Matrix-Game}.
+
+For symbolic synthesis, fidelity is mainly evaluated through consistency between symbolic rules and reference environments. In PDDL and rule-based game environments, fidelity comes from the alignment between synthesized rules and the original task intent or human intuition \cite{VML_PDDL, Exploration_Walk, GVGAI-LLM}. For example, some PDDL-generation works manually compare generated instances with original natural language intents and measure how many edits are needed to make the task semantically correct \cite{VML_PDDL}. OSWorld-MCP \cite{OSWorld-MCP} uses expert reviews to check whether synthesized tools have real practical value. Therefore, fidelity in symbolic environments mainly emphasizes realistic task logic and real user needs, rather than visual or physical realism.
+
+In neural environment synthesis, fidelity primarily depends on the consistency between synthesized and real environments in terms of perceptual appearance and dynamic evolution, namely, whether generated outputs resemble real-world environments in visual, physical, and temporal aspects. In embodied, gaming, and GUI scenarios, some works \cite{DIAMOND, GameNGen, GAIA-2} employ metrics such as FID, FVD, and LPIPS to measure the similarity between synthesized and real environments in perceptual distributions. DreamGen \cite{DreamGen} further evaluates fidelity from a physical perspective by quantifying the realism of rigid-body motion, collisions, gravity, and contact forces, thereby capturing dynamic consistency. Additionally, some approaches assess fidelity from a subjective perspective. For example, WebWorld \cite{WebWorld} introduces the Web Turing Score, in which a large language model is tasked with distinguishing between real and synthesized environments, thereby measuring perceptual realism and overall plausibility. From a temporal perspective, dynamic consistency is also considered a key factor. For instance, GAIA-2 \cite{GAIA-2} adopts Frechet Video Motion Distance (FVMD) to compare motion patterns between generated and real videos based on keypoint trajectories, while EnerVerse \cite{EnerVerse} incorporates expert evaluations of continuity and stability in robotic behaviors to assess fidelity in long-horizon interactions.
+
+
+
+\subsubsection{Summary}
+\begin{tcolorbox}[takeaway,title={Takeaway 5.3}]
+\begin{itemize}
+\item \textbf{Dimensions:} Quality covers not only \textbf{instance-level} correctness, but also \textbf{distribution-level} diversity, complexity, and fidelity.
+
+\item \textbf{Direction:} Existing work has moved from post generation filtering toward closed-loop generation with continuous validation and refinement for quality-controlled environment synthesis.
+
+\item \textbf{Limitations:} While correctness has developed well-established evaluation frameworks, the study of diversity, complexity, and fidelity remains preliminary, which affects the credibility.
+\end{itemize}
+\end{tcolorbox}

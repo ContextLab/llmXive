@@ -1,0 +1,495 @@
+\section{Harness Configurations}\label{appendix:harness}
+
+All five claws use the IDENTICAL prompt template (D.0), the IDENTICAL run-time parameters ( per-instance timeout 3600\,s, concurrency 3, repeats 1), and the IDENTICAL outer orchestration pattern (build prompt $\rightarrow$ \texttt{docker exec} $\rightarrow$ collect \texttt{git diff}). The only variation is the inner harness implementation (D.1--D.5): the CLI surface, the agent loop, the tool set, and the model adapter. This is the methodological foundation for the claw sweep in \S\ref{sec:variation_harnesses}: prompt and run-time budget are held constant, and the claw becomes the experimental variable.
+
+\subsection*{D.0 Shared prompt template (verbatim)}
+
+\begin{verbatim}
+You are working directly inside a development environment.
+The code repository is at /testbed.
+
+IMPORTANT - ENVIRONMENT RULES:
+- Do NOT run git add or git commit. Just edit the files and stop.
+- Do NOT modify any test files.
+
+Examples:
+- List files:     ls /testbed/
+- Read a file:    cat /testbed/path/to/file
+- Search code:    grep -rn "keyword" /testbed/src/
+- Edit a file:    sed -i "s/old_text/new_text/g" /testbed/path/to/file
+- Run tests:      cd /testbed && <test command>
+- Check diff:     cd /testbed && git diff
+- Write a script: cat > /tmp/fix.py << "EOF"
+import re
+# your script here
+EOF
+python3 /tmp/fix.py
+
+Consider the following issue description:
+
+<issue_description>
+{problem_statement}
+</issue_description>
+
+Can you help me implement the necessary changes to the
+repository so that the requirements specified in the
+<issue_description> are met?
+I've already taken care of all changes to any of the test
+files described in the <issue_description>. This means you
+DON'T have to modify the testing logic or any of the tests
+in any way!
+The development environment is already set up for you (i.e.,
+all dependencies already installed), so you don't need to
+install other packages.
+Your task is to make the minimal changes to non-test files
+in the /testbed directory to ensure the <issue_description>
+is satisfied.
+
+Follow these phases to resolve the issue:
+
+Phase 1. READING: read the problem and reword it in clearer
+                  terms
+   1.1 If there are code or config snippets, express in words
+       any best practices or conventions in them.
+   1.2 Highlight message errors, method names, variables,
+       file names, stack traces, and technical details.
+   1.3 Explain the problem in clear terms.
+   1.4 Enumerate the steps to reproduce the problem.
+   1.5 Highlight any best practices to take into account when
+       testing and fixing the issue.
+
+Phase 2. RUNNING: figure out how to build and run the tests
+                  on the repository
+   2.1 Explore the repo structure to find build scripts,
+       Makefiles, or test configurations.
+   2.2 Try running existing tests to understand the test
+       framework and commands.
+   2.3 If tests fail due to setup, investigate and fix the
+       environment.
+
+Phase 3. EXPLORATION: find the files that are related to the
+                      problem and possible solutions
+   3.1 Use grep to search for relevant methods, classes,
+       keywords, and error messages.
+   3.2 Identify all files related to the problem statement.
+   3.3 Propose the methods and files to fix the issue and
+       explain why.
+   3.4 From the possible file locations, select the most
+       likely location to fix the issue.
+
+Phase 4. TEST CREATION: before implementing any fix, create
+                        a script to reproduce and verify the
+                        issue.
+   4.1 Look at existing test files in the repository to
+       understand the test format/structure.
+   4.2 Create a minimal reproduction script that reproduces
+       the located issue.
+   4.3 Run the reproduction script to confirm you are
+       reproducing the issue.
+   4.4 Adjust the reproduction script as necessary.
+
+Phase 5. FIX ANALYSIS: state clearly the problem and how to
+                       fix it
+   5.1 State clearly what the problem is.
+   5.2 State clearly where the problem is located.
+   5.3 State clearly how the test reproduces the issue.
+   5.4 State clearly the best practices to take into account
+       in the fix.
+   5.5 State clearly how to fix the problem.
+
+Phase 6. FIX IMPLEMENTATION: Edit the source code to
+                             implement your chosen solution.
+   6.1 Make minimal, focused changes to fix the issue.
+
+Phase 7. VERIFICATION: Test your implementation thoroughly.
+   7.1 Run your reproduction script to verify the fix works.
+   7.2 Add edge cases to your test script to ensure
+       comprehensive coverage.
+   7.3 Run existing tests related to the modified code to
+       ensure you haven't broken anything.
+
+Phase 8. FINAL REVIEW: Carefully re-read the problem
+                       description and compare your changes
+                       with the base commit {base_commit}.
+   8.1 Ensure you've fully addressed all requirements.
+   8.2 Run any tests in the repository related to:
+     8.2.1 The issue you are fixing
+     8.2.2 The files you modified
+     8.2.3 The functions you changed
+   8.3 If any tests fail, revise your implementation until
+       all tests pass.
+
+Be thorough in your exploration, testing, and reasoning.
+It's fine if your thinking process is lengthy - quality and
+completeness are more important than brevity.
+\end{verbatim}
+
+This template is rendered with \texttt{\{problem\_statement\}} and \texttt{\{base\_commit\}} substituted from each instance, then handed to the harness CLI verbatim. It is identical across openclaw, hermes-agent, zeroclaw, and nanobot; the generic baseline uses a variant that adds three lines naming GenericAgent's tools and disabling its web tools (see D.5), since GenericAgent exposes no config-level tool toggle.
+
+\subsection*{D.1 openclaw}
+
+\paragraph{Adapter wrapper.}
+openclaw is a stateful Node.js harness. The adapter creates a temporary per-instance openclaw agent with its own workspace and session directory, sets a tool deny-list to disable memory, web, session-spawning, sub-agent, cron, and image tools, and invokes the task-solving loop through \texttt{openclaw agent} inside the SWE-bench container. openclaw emits structured JSON output, from which the adapter extracts the finish reason, session identifier, and available token-usage metadata. Session JSONL files are backed up before the temporary agent is deleted.
+
+
+\paragraph{Implementation.}
+Node.js-based agent (entry point \texttt{openclaw.mjs}) with full agent lifecycle (create/delete temporary agents per instance), tool deny-list config support, and session backup. It is the only harness with real per-instance agent isolation: each SWE-bench instance gets its own openclaw agent (own workspace, own session store, own memory directory).
+
+\paragraph{Tool inventory.}
+openclaw has a rich tool surface. The harness creates per-instance agents and explicitly \emph{denies} several built-in tools to keep the agent focused on code editing. Tool deny-list is set per-agent by directly editing \texttt{\textasciitilde/.openclaw/openclaw.json} (because \texttt{openclaw config set} addresses agents by list index).
+
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+\textbf{Status} & \textbf{Tool} & \textbf{Notes} \\
+\midrule
+Allowed & \texttt{read} & File read \\
+Allowed & \texttt{write} & File write \\
+Allowed & \texttt{edit} & File edit \\
+Allowed & \texttt{exec} & Shell exec inside container \\
+Allowed & \texttt{process} & Process management \\
+Denied & \texttt{memory\_search}, \texttt{memory\_get} & No cross-instance memory \\
+Denied & \texttt{web\_search}, \texttt{web\_fetch} & No web access \\
+Denied & \texttt{sessions\_list}, \texttt{sessions\_history}, & Disabled \\
+        & \texttt{sessions\_send}, \texttt{sessions\_yield}, & \\
+        & \texttt{sessions\_spawn} & \\
+Denied & \texttt{subagents} & Disabled \\
+Denied & \texttt{session\_status} & Disabled \\
+Denied & \texttt{cron} & Disabled \\
+Denied & \texttt{image} & Disabled \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\paragraph{Scaffolding / reasoning loop.}
+\begin{verbatim}
+For each SWE-bench instance:
+  agent_id = f"swe-{instance_id}"
+
+  # Per-instance isolation (unique to openclaw - others are stateless)
+  openclaw agents add <agent_id> \
+      --workspace /tmp/openclaw-swe-workspaces/<agent_id> \
+      --model <model>
+  set tools.deny=[memory_*, web_*, sessions_*,
+                  subagents, session_status, cron, image]
+  on ~/.openclaw/openclaw.json (thread-safe via _config_lock)
+
+  start docker container sweb.eval.x86_64.<instance>
+  prepare_instance(base_commit, setup_gitignore)
+  prompt = render_template(instance)
+
+  docker exec <container> \
+      node /usr/lib/node_modules/openclaw/openclaw.mjs \
+      agent --agent <agent_id> --message <prompt> \
+      --timeout 1200 --json
+
+  # openclaw runs ReAct-style reasoning + tool calls
+  # until LLM returns final answer
+  # Output is JSON in stdout (gateway mode) or embedded mode
+
+  collect_patch via git diff
+  backup_session:
+    copy ~/.openclaw/agents/<agent_id>/sessions/*.jsonl
+      -> artifact_dir
+  openclaw agents delete <agent_id> --force  # clean state
+\end{verbatim}
+
+\paragraph{Stopping conditions.}
+\begin{itemize}
+  \item \textbf{Timeout}: 3600\,s (60\,min) per instance at run time (CLI override; \texttt{config.py} default 1200\,s not used). Subprocess wrapper adds 60\,s buffer.
+  \item \textbf{Finish reasons}: \texttt{stop} (success), \texttt{error} (non-zero exit / unparseable JSON / status \texttt{!=} ok), \texttt{empty} (no payloads or all ``couldn't generate''), \texttt{timeout}.
+  \item \textbf{Retries}: \texttt{DEFAULT\_MAX\_RETRIES = 1}.
+\end{itemize}
+
+\paragraph{Distinctive notes.}
+\begin{itemize}
+  \item Node.js implementation (lib at \texttt{/usr/lib/}\allowbreak\texttt{node\_modules/openclaw/openclaw.mjs}).
+  \item Only harness with real per-instance agent isolation: each instance has its own workspace, session store, memory directory.
+  \item Only harness with a tool deny-list: explicitly disables memory/web/sessions/subagents to keep behavior reproducible and fair vs.\ simpler harnesses.
+  \item Only harness with a structured JSON output protocol: parses \texttt{\{"status":"ok",} \\\texttt{"result":\{"payloads":[...],} \texttt{"meta":\{...\}\}\}} or embedded mode \texttt{\{"payloads":[...],} \texttt{"meta":\{...\}\}}. Other harnesses parse plain stdout.
+  \item Default model: \texttt{openrouter/anthropic/claude-opus-4.6}; actual runs override the model per cell through the run-time model flag.
+\end{itemize}
+
+\subsection*{D.2 hermes-agent}
+
+\paragraph{Adapter wrapper.}
+hermes is invoked statelessly through a standalone CPython runtime and virtual environment mounted into the container. The adapter calls \texttt{hermes chat} with \texttt{--yolo}, the shared task prompt, the selected model, and the restricted \texttt{terminal,file} toolsets. hermes does not require an agent lifecycle; \texttt{create\_agent}, \texttt{delete\_agent}, and \texttt{backup\_session} are no-ops. The adapter classifies the run outcome from the subprocess exit code, stdout, and timeout status.
+
+
+\paragraph{Implementation.}
+Python-based agent invoked as a module via uv-installed standalone Python (CPython 3.12.13). CLI invocation is stateless (\texttt{--yolo}); \texttt{create\_agent} / \texttt{delete\_agent} / \texttt{backup\_session} are no-ops.
+
+\paragraph{Tool inventory.}
+Set via CLI flag \texttt{--toolsets terminal,file}. The two toolsets imply:
+
+\begin{center}
+\begin{tabular}{ll}
+\toprule
+\textbf{Toolset} & \textbf{Tools (typical hermes capabilities)} \\
+\midrule
+\texttt{terminal} & shell exec inside the container \\
+\texttt{file}     & read / write / edit files \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+No web, no memory, no sub-agents, no images. hermes's full tool registry is internal to the \texttt{hermes} package and not enumerated in the harness adapter -- only the toolset names are passed.
+
+\paragraph{Scaffolding / reasoning loop.}
+\begin{verbatim}
+For each SWE-bench instance:
+  start docker container sweb.eval.x86_64.<instance>
+  prepare_instance(base_commit, setup_gitignore)
+  prompt = render_template(instance)
+
+  # Stateless invocation - no agent lifecycle
+  docker exec <container> \
+    -e PYTHONPATH=/opt/hermes-env/lib/python3.12/\
+site-packages \
+    -e HERMES_HOME=/opt/hermes-config \
+    -e OPENROUTER_API_KEY=... \
+    -e ANTHROPIC_API_KEY=... \
+    /root/.local/share/uv/python/\
+cpython-3.12.13-linux-x86_64-gnu/bin/python3.12 -c '
+      import sys
+      sys.argv = ["hermes", "chat", "-q", <prompt>,
+                  "--quiet", "--yolo",
+                  "--max-turns", "300",
+                  "--toolsets", "terminal,file",
+                  "--model", <model>]
+      from hermes_cli.main import main
+      sys.exit(main())'
+
+  # hermes runs internal reasoning + tool-call loop up to 300 turns
+  # No JSON output - parses by exit code + stdout presence
+
+  collect_patch via git diff
+\end{verbatim}
+
+\paragraph{Stopping conditions.}
+\begin{itemize}
+  \item \textbf{Timeout}: 3600\,s (60\,min) per instance at run time (CLI override; \texttt{config.py} default 1800\,s not used). Subprocess wrapper adds 120\,s buffer.
+  \item \textbf{Finish reasons} (derived from exit code + stdout): \texttt{stop} -- exit 0 + non-empty stdout; \texttt{empty} -- exit 0 + empty stdout; \texttt{error} -- exit $\neq$ 0; \texttt{timeout}.
+  \item \textbf{Retries}: \texttt{DEFAULT\_MAX\_RETRIES = 1}.
+\end{itemize}
+
+\paragraph{Distinctive notes.}
+\begin{itemize}
+  \item No agent lifecycle: each \texttt{--yolo} invocation is fully stateless.
+  \item Same wall-clock budget as others: with timeout (3600\,s) held equal, hermes-specific behavior comes from its CLI surface and toolset, not from a different reasoning budget.
+  \item No structured output: relies on exit code + stdout content for finish-reason classification.
+  \item Run via Python \texttt{-c}: avoids shebang path mismatch by importing \texttt{hermes\_cli.main} directly.
+  \item Default model: \texttt{glm-5.1}.
+  \item Implementation: Python (CPython 3.12.13 in \texttt{/opt/hermes-env}).
+\end{itemize}
+
+\subsection*{D.3 zeroclaw}
+
+\paragraph{Adapter wrapper.}
+zeroclaw is a stateless Rust-binary harness. The adapter bind-mounts the zeroclaw binary into the container, copies its configuration into a temporary workspace, sets \texttt{ZEROCLAW\_WORKSPACE}, and invokes \texttt{zeroclaw agent} with the shared prompt. This adapter represents a low-dependency single-binary harness design: the same runner lifecycle and patch collector apply even though the internal agent loop is opaque to the benchmark.
+
+
+\paragraph{Implementation.}
+Single-binary Rust agent (${\sim}37$\,MB, no runtime dependencies). CLI invocation is stateless. Native cost tracking via \texttt{costs.jsonl}.
+
+\paragraph{Tool inventory.}
+The adapter does not enumerate tools (tools are compiled into the Rust binary). The agent operates inside \texttt{/tmp/zeroclaw-workspace} (set via env \texttt{ZEROCLAW\_WORKSPACE}), reading and editing files in \texttt{/testbed} from within the container. The only externally observable tool surface from the adapter:
+
+\begin{center}
+\begin{tabular}{ll}
+\toprule
+\textbf{Surface} & \textbf{Mechanism} \\
+\midrule
+File read/edit          & Through Rust binary's internal tools \\
+Shell exec              & Through Rust binary's internal tools \\
+Cost / usage logging    & \texttt{costs.jsonl} written to \\
+                        & \texttt{/tmp/zeroclaw-workspace/workspace/state/} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textit{[Not extracted in source: \texttt{tool list / signatures (compiled into Rust binary)}]}
+
+\paragraph{Scaffolding / reasoning loop.}
+\begin{verbatim}
+For each SWE-bench instance:
+  start docker container sweb.eval.x86_64.<instance>
+  prepare_instance(base_commit, setup_gitignore)
+  prompt = render_template(instance)
+
+  docker exec <container> \
+    -e ZEROCLAW_WORKSPACE=/tmp/zeroclaw-workspace \
+    zeroclaw agent -m <prompt>
+
+  # Rust binary runs internal agent loop up to 50 turns
+  # Cost data written to
+  #   /tmp/zeroclaw-workspace/workspace/state/costs.jsonl
+  # On each turn: input/output/total token counts logged
+
+  copy /tmp/zeroclaw-workspace/workspace/state/costs.jsonl
+       -> artifact_dir/costs.jsonl
+  collect_patch via git diff
+\end{verbatim}
+
+After agent run, the orchestrator parses \texttt{costs.jsonl} to extract per-instance metrics: \texttt{turns} (count of cost lines = turns), and \texttt{input\_tokens}, \texttt{output\_tokens}, \texttt{total\_tokens} summed across turns.
+
+\paragraph{Stopping conditions.}
+\begin{itemize}
+  \item \textbf{Timeout}: 3600\,s (60\,min) per instance at run time (CLI override; \texttt{config.py} default 1200\,s not used). Subprocess wrapper adds 120\,s buffer.
+  \item \textbf{Finish reasons} (derived from exit code + stdout): \texttt{stop} -- exit 0 + non-empty stdout; \texttt{empty} -- exit 0 + empty stdout; \texttt{error} -- exit $\neq$ 0; \texttt{timeout}.
+  \item \textbf{Retries}: \texttt{DEFAULT\_MAX\_RETRIES = 1}.
+\end{itemize}
+
+\paragraph{Distinctive notes.}
+\begin{itemize}
+  \item Only harness implemented in Rust: single 37\,MB binary at \texttt{/usr/local/bin/zeroclaw}. No Python venv, no Node modules.
+  \item Only harness with native per-turn cost logging: \texttt{costs.jsonl} records \texttt{\{turn, usage:} \texttt{\{input\_tokens, output\_tokens,} \texttt{total\_tokens\}\}} per turn. Useful for the cost analysis in \S\ref{sec:cost_perf}.
+  \item No agent lifecycle: stateless invocation. Workspace is \texttt{/tmp/zeroclaw-workspace} (shared per container instance, not per-instance).
+  \item Default model: \texttt{glm-5.1}.
+  \item Implementation: Rust binary, bind-mounted into container.
+  \item \textit{[Not extracted in source: \texttt{internal reasoning loop type (ReAct? Reflection?)}]}.
+\end{itemize}
+
+\subsection*{D.4 nanobot}
+
+\paragraph{Adapter wrapper.}
+nanobot is a stateless Python harness that runs with \texttt{/testbed} as its workspace. During execution, nanobot creates workspace metadata files such as \texttt{AGENTS.md}, \texttt{SOUL.md}, \texttt{TOOLS.md}, \texttt{USER.md}, \texttt{memory/}, and \texttt{sessions/}. The adapter therefore copies the session JSONL log out of the container and then removes these metadata files before patch collection, ensuring that the final diff reflects source-code edits rather than harness bookkeeping.
+
+
+\paragraph{Implementation.}
+Python-based agent invoked via uv-installed standalone Python (CPython 3.12.13). The harness creates filesystem metadata files (\texttt{AGENTS.md}, \texttt{SOUL.md}, etc.) in the workspace which the harness scrubs before patch collection.
+
+\paragraph{Tool inventory.}
+The adapter does not enumerate tools (tools come from the \texttt{nanobot} package internals; configured via \texttt{/opt/nanobot-config/config.json}). External observation:
+
+\begin{center}
+\begin{tabular}{ll}
+\toprule
+\textbf{Surface} & \textbf{Mechanism} \\
+\midrule
+File read/edit  & Within \texttt{-w /testbed} workspace \\
+Shell exec      & Internal nanobot tools \\
+Session log     & \texttt{/testbed/sessions/cli\_direct.jsonl} \\
+                & (full conversation w/ tool calls) \\
+Metadata files  & \texttt{AGENTS.md}, \texttt{HEARTBEAT.md}, \texttt{SOUL.md}, \\
+                & \texttt{TOOLS.md}, \texttt{USER.md}, \texttt{memory/}, \\
+                & \texttt{sessions/} in \texttt{/testbed} (pollution) \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Output flags: \texttt{--no-markdown} (suppresses markdown formatting in stdout), \texttt{--no-logs} (suppresses verbose logging). \textit{[Not extracted in source: \texttt{contents of /opt/nanobot-config/config.json}]}.
+
+\paragraph{Scaffolding / reasoning loop.}
+\begin{verbatim}
+For each SWE-bench instance:
+  start docker container sweb.eval.x86_64.<instance>
+  prepare_instance(base_commit, setup_gitignore)
+  prompt = render_template(instance)
+
+  docker exec <container> \
+    -e PYTHONPATH=/opt/nanobot-env/lib/python3.12/\
+site-packages \
+    /root/.local/share/uv/python/\
+cpython-3.12.13-linux-x86_64-gnu/bin/python3.12 -c '
+      import sys
+      sys.argv = ["nanobot", "agent", "-m", <prompt>,
+                  "-c", "/opt/nanobot-config/config.json",
+                  "-w", "/testbed",
+                  "--no-markdown", "--no-logs"]
+      from nanobot.cli.commands import app
+      app()'
+
+  # nanobot runs internal agent loop up to 30 turns
+  # Session log auto-saved to
+  #   /testbed/sessions/cli_direct.jsonl
+
+  # AFTER run, BEFORE patch collection:
+  copy /testbed/sessions/cli_direct.jsonl
+       -> artifact_dir/session.jsonl
+  docker exec rm -rf \
+      /testbed/{AGENTS,HEARTBEAT,SOUL,TOOLS,USER}.md \
+      /testbed/memory/ /testbed/sessions/   # scrub
+
+  collect_patch via git diff   # now clean
+\end{verbatim}
+
+\paragraph{Stopping conditions.}
+\begin{itemize}
+  \item \textbf{Timeout}: 3600\,s (60\,min) per instance at run time (CLI override; \texttt{config.py} default 1200\,s not used). Subprocess wrapper adds 120\,s buffer.
+  \item \textbf{Finish reasons} (derived from exit code + stdout): \texttt{stop} -- exit 0 + non-empty stdout; \texttt{empty} -- exit 0 + empty stdout; \texttt{error} -- exit $\neq$ 0; \texttt{timeout}.
+  \item \textbf{Retries}: \texttt{DEFAULT\_MAX\_RETRIES = 1}.
+\end{itemize}
+
+\paragraph{Distinctive notes.}
+\begin{itemize}
+  \item Workspace pollution + scrub is the main nanobot-specific operational concern.
+  \item nanobot writes its own metadata files (\texttt{AGENTS.md}, \texttt{SOUL.md}, \texttt{TOOLS.md}, \texttt{USER.md}, \texttt{memory/}, \texttt{sessions/}) into the workspace \texttt{/testbed}. The harness deletes these \emph{before} \texttt{git diff} to keep the patch clean. Other harnesses do not have this concern.
+  \item Session log preservation: harness copies the full conversation JSONL out before scrub -- this gives the richest per-turn audit trail (better than zeroclaw's \texttt{costs.jsonl} which only has token counts).
+  \item Model in config, not CLI: nanobot has no \texttt{--model} flag;\\model is configured in \texttt{/opt/nanobot-config/config.json}. Default = \texttt{glm-5.1}.
+  \item Implementation: Python (CPython 3.12.13 in \texttt{/opt/nanobot-env}).
+\end{itemize}
+
+\subsection*{D.5 generic (GenericAgent)}
+
+\paragraph{Role.}
+The generic baseline is the fifth claw of the claw sweep
+(\S\ref{sec:variation_harnesses}). It wraps the open-source
+\texttt{lsdefine/GenericAgent} project, is registered in the harness map under
+the string ID \texttt{generic}, and runs under the same adapter protocol,
+shared prompt template (D.0), and outer wall-clock budget as the other four
+claws. It is distinct from the \emph{bare adapter} diagnostic of
+\S\ref{sec:adapter_diagnostic}: the generic claw edits files in
+\texttt{/testbed} and has its patch exported from Git state by the runner,
+whereas the bare adapter asks the model to emit a unified diff directly in its
+final response.
+
+\paragraph{Adapter wrapper.}
+GenericAgent provides a headless task mode in which the agent reads
+\texttt{temp/<id>/input.txt}, runs its agent loop, and writes
+\texttt{temp/<id>/output.txt} terminated by a literal \texttt{[ROUND END]}
+sentinel. The adapter bind-mounts the host GenericAgent install, its
+\texttt{uv}-managed CPython~3.12 virtualenv, and a per-instance writable temp
+directory into the SWE-bench container; pre-writes \texttt{input.txt} with the
+rendered task prompt; launches the agent via \texttt{docker exec} with working
+directory \texttt{/testbed}
+(\texttt{agentmain.py --task <id> --llm\_no <n> --nobg --verbose});
+and polls \texttt{output.txt} every 2 seconds for the sentinel. The patch is
+collected runner-side via \texttt{git diff} against the base commit, identical
+to the other claws. Provider and model are selected by the \texttt{--llm\_no}
+index into a key-configuration file rather than a \texttt{--model} flag.
+
+\paragraph{Tool inventory.}
+GenericAgent ships a fixed function-calling tool schema:
+\texttt{code\_run}, \texttt{file\_read}, \texttt{file\_patch},
+\texttt{file\_write}, \texttt{web\_scan}, \texttt{web\_execute\_js},
+\texttt{update\_working\_checkpoint}, \texttt{ask\_user}, and
+\texttt{start\_long\_term\_update}. The harness exposes no CLI flag for
+disabling individual tools, so the web tools (\texttt{web\_scan},
+\texttt{web\_execute\_js}) and network access are disabled by prompt
+instruction, with no source patches to GenericAgent itself.
+
+\paragraph{Stopping conditions.}
+\begin{itemize}
+  \item \textbf{Timeout}: 3600\,s (60\,min) per instance at run time (CLI
+  override; the adapter's 1800\,s default is not used). Subprocess wrapper
+  adds a 120\,s buffer.
+  \item \textbf{Finish reasons}: \texttt{stop} -- \texttt{[ROUND END]}
+  sentinel observed; \texttt{timeout} -- deadline reached without the
+  sentinel; \texttt{error} -- the process exits without producing the
+  sentinel.
+  \item \textbf{Retries}: \texttt{DEFAULT\_MAX\_RETRIES = 1}.
+\end{itemize}
+
+\paragraph{Distinctive notes.}
+\begin{itemize}
+  \item Only claw driven through a file-based input/output contract
+  (\texttt{input.txt} / \texttt{output.txt} with sentinel polling) rather than
+  a CLI conversation or structured JSON output.
+  \item Token usage (input / output / cache-read / cache-write) is parsed from
+  the agent's stdout accounting lines and stored in per-instance
+  \texttt{metadata.json}; DashScope-routed runs go through a local
+  cache-accounting proxy.
+  \item Implementation: Python (\texttt{uv}-managed CPython 3.12 virtualenv),
+  function-calling agent loop.
+\end{itemize}

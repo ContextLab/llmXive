@@ -1,0 +1,107 @@
+\section{Per-Language Breakdown}\label{appendix:per-repo}
+
+This appendix expands on \S\ref{sec:results} with the full per-language breakdown
+tables that did not fit in the main text. All numbers are computed directly from
+the released result workbooks (the leak-fix combined-350 model-sweep report and
+the cache-fixed 5-claw cross report; see \S\ref{appendix:reproducibility}); no
+values are estimated. All Multilingual results use the future-commit cleanup
+setting of \S\ref{sec:leak_fix}.
+
+\subsection{Per-Language Resolved Rate (openclaw $\times$ 9 models)}
+\label{appendix:per-repo:g1}
+
+Table~\ref{tab:appG-per-lang-A} reports resolve rate on the 350-instance benchmark,
+disaggregated by language, for the 9 models evaluated under the openclaw harness
+(the model sweep across LLMs, \S\ref{sec:variation_llms}). Models are listed in
+descending order of overall resolve rate; totals match Table~\ref{tab:a2} in the
+main text.
+
+\begin{table}[h]
+\centering
+\small
+\caption{Per-language resolved rate (\%) under the openclaw harness for each of
+the 9 models, leak-fix accounting. Best language per model in \textbf{bold},
+worst \underline{underlined}. The Total column matches Table~\ref{tab:a2}.}
+\label{tab:appG-per-lang-A}
+\begin{tabular}{lcccccccc|c}
+\toprule
+Model & Java & Go & Rust & JS/TS & C/C++ & Ruby & PHP & Python & Total \\
+\midrule
+GPT 5.5           & 86.0          & \underline{61.9} & \textbf{93.0} & 79.1          & 81.0          & 70.5 & 74.4 & 78.0 & 78.0 \\
+Claude Opus 4.7   & 86.0          & \underline{61.9} & \textbf{88.4} & 81.4          & 71.4          & 68.2 & 76.7 & 82.0 & 77.1 \\
+GLM 5.1           & 76.7          & \underline{57.1} & \textbf{86.0} & 74.4          & 81.0          & 68.2 & 72.1 & 72.0 & 73.4 \\
+DeepSeek-V4 Pro   & \textbf{79.1} & \underline{50.0} & \textbf{79.1} & 74.4          & 73.8          & 72.7 & 76.7 & 68.0 & 71.7 \\
+DeepSeek-V4 Flash & \textbf{81.4} & \underline{50.0} & 79.1          & 74.4          & 73.8          & 63.6 & 69.8 & 70.0 & 70.3 \\
+Kimi 2.6          & 69.8          & \underline{50.0} & \textbf{74.4} & 65.1          & 71.4          & 68.2 & 69.8 & 66.0 & 66.9 \\
+Qwen 3.6-flash    & \textbf{83.7} & \underline{54.8} & 74.4          & 58.1          & 66.7          & 59.1 & 62.8 & 68.0 & 66.0 \\
+MiniMax M2.7      & 65.1          & \underline{47.6} & \textbf{76.7} & 55.8          & 61.9          & 61.4 & 55.8 & 66.0 & 61.4 \\
+Seed 2.0-mini     & \textbf{60.5} & \underline{33.3} & 55.8          & 44.2          & 54.8          & 36.4 & 48.8 & 54.0 & 48.6 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Commentary.}
+Java and Rust dominate the per-model maxima: Rust is the best language for 5 of
+9 models, Java for 3, and the two tie for DeepSeek-V4 Pro. Go is the worst
+language for all 9 models without exception (range 33.3--61.9\%), sitting
+11--22~pp below each model's overall mean. The two leaders differ in profile:
+GPT 5.5 peaks sharply on Rust (93.0\%), while Claude Opus 4.7 carries the
+column maxima for JS/TS (81.4\%) and Python (82.0\%). Qwen 3.6-flash shows the
+most Java-skewed profile of the sweep (83.7\% Java against a 66.0\% overall
+mean).
+
+\subsection{Per-Language Resolved Rate (claw sweep, 5 claws $\times$ 2 models)}
+\label{appendix:per-repo:g2}
+
+Table~\ref{tab:appG-per-lang-B} reports the analogous breakdown for the claw
+sweep (\S\ref{sec:variation_harnesses}): five claws on GLM 5.1 and
+Qwen 3.6-flash, 10 cells in total. Each row is one (claw, model) cell; columns
+are the 8 languages plus overall. Totals match Table~\ref{tab:b}.
+
+\begin{table}[h]
+\centering
+\small
+\caption{Per-language resolved rate (\%) for each of the 10 (claw, model) cells
+in the claw sweep. \textbf{Bold} = best language in row;
+\underline{underline} = worst.}
+\label{tab:appG-per-lang-B}
+\begin{tabular}{llcccccccc|c}
+\toprule
+Claw & Model & Java & Go & Rust & JS/TS & C/C++ & Ruby & PHP & Python & Total \\
+\midrule
+openclaw & GLM 5.1        & 76.7          & \underline{57.1} & \textbf{86.0} & 74.4 & 81.0 & 68.2 & 72.1 & 72.0 & 73.4 \\
+hermes   & GLM 5.1        & 72.1          & \underline{54.8} & \textbf{81.4} & 72.1 & 73.8 & 72.7 & 72.1 & 70.0 & 71.1 \\
+zeroclaw & GLM 5.1        & 83.7          & \underline{50.0} & \textbf{86.0} & 69.8 & 69.0 & 65.9 & 69.8 & 68.0 & 70.3 \\
+generic  & GLM 5.1        & 65.1          & \underline{47.6} & 69.8          & 55.8 & 66.7 & 63.6 & 65.1 & \textbf{70.0} & 63.1 \\
+nanobot  & GLM 5.1        & 65.1          & \underline{38.1} & \textbf{67.4} & 58.1 & 61.9 & 61.4 & \textbf{67.4} & 66.0 & 60.9 \\
+\midrule
+openclaw & Qwen 3.6-flash & \textbf{83.7} & \underline{54.8} & 74.4          & 58.1 & 66.7 & 59.1 & 62.8 & 68.0 & 66.0 \\
+hermes   & Qwen 3.6-flash & 65.1          & \underline{42.9} & \textbf{74.4} & 58.1 & 61.9 & 65.9 & 65.1 & 66.0 & 62.6 \\
+zeroclaw & Qwen 3.6-flash & 62.8          & \underline{47.6} & \textbf{72.1} & 55.8 & \underline{47.6} & 56.8 & 55.8 & 66.0 & 58.3 \\
+nanobot  & Qwen 3.6-flash & 41.9          & 42.9             & \textbf{58.1} & \underline{37.2} & 45.2 & 45.5 & 48.8 & 58.0 & 47.4 \\
+generic  & Qwen 3.6-flash & 44.2          & \underline{19.0} & \textbf{55.8} & 32.6 & 38.1 & 25.0 & 48.8 & 44.0 & 38.6 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Commentary.}
+Go remains the hardest language in 8 of 10 cells; the exceptions are
+nanobot $\times$ Qwen 3.6-flash, whose weakest language is JS/TS (37.2\%), and
+zeroclaw $\times$ Qwen 3.6-flash, where Go ties C/C++ (47.6\%). The
+within-model claw spread is strongly language-dependent and widens on the small
+model: on GLM 5.1 the largest per-language claw spread is 19.0~pp (Go,
+38.1--57.1\%), whereas on Qwen 3.6-flash it reaches 41.8~pp on Java
+(41.9--83.7\%), 40.9~pp on Ruby (25.0--65.9\%), and 35.8~pp on Go
+(19.0--54.8\%). The generic baseline collapses hardest on Go (19.0\%) and Ruby
+(25.0\%) under Qwen 3.6-flash, consistent with the aggregate $27.4$~pp spread
+reported in \S\ref{sec:variation_harnesses}. zeroclaw $\times$ GLM 5.1 posts
+the best Java cell of the grid (83.7\%) despite its mid-pack overall rate,
+showing that claw rankings can invert across languages even within one model.
+
+% ------------------------------------------------------------------
+% G.3 (Top-20 repos by failure count) and G.4 (cross-harness failure
+% overlap) were computed from the pre-leak-fix 4-harness x 2-model grid
+% and from the retired Empty-Patch failure accounting. They are removed
+% pending regeneration from the leak-fix instance-level artifacts of the
+% 5-claw x 2-model grid.
+% ------------------------------------------------------------------

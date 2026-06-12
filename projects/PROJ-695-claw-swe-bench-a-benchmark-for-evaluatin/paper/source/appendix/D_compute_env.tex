@@ -1,0 +1,140 @@
+\section{ Compute and Environment Details}\label{appendix:compute}
+
+This appendix documents the hardware, software, run-time parameters, and aggregate
+wall-clock cost of the experiments reported in Section~\ref{sec:experiments}. All five
+claws (\textsc{openclaw}, \textsc{hermes-agent}, \textsc{zeroclaw}, \textsc{nanobot},
+and the \textsc{generic} baseline)
+were executed on a single host with identical run-time parameters; the claw
+implementation is the only experimental variable.
+
+\subsection{Hardware}
+
+\begin{table}[h]
+\centering
+\small
+\begin{tabular}{ll}
+\toprule
+\textbf{Item} & \textbf{Value} \\
+\midrule
+Architecture & x86\_64 \\
+OS           & Linux 6.8.0-106-generic (Ubuntu) \\
+CPU cores    & 16 \\
+RAM          & 61~GiB total ($\sim$44~GiB available) \\
+Disk         & 99~GiB volume, $\sim$75~GiB free \\
+GPU          & None (model inference is API-only) \\
+\bottomrule
+\end{tabular}
+\caption{Host hardware. Model inference runs on remote provider APIs, so no local
+GPU is required; the host is used only for harness orchestration, Docker
+containers, and patch evaluation.}
+\label{tab:appx-d-hardware}
+\end{table}
+
+\subsection{Software stack}
+
+\begin{table}[h]
+\centering
+\small
+\begin{tabular}{ll}
+\toprule
+\textbf{Component} & \textbf{Version / Path} \\
+\midrule
+Docker (eval images)               & \texttt{sweb.eval.x86\_64.<instance>:latest} \\
+SWE-bench harness                  & \texttt{/data/swe-bench-env/} \\
+Standalone Python (hermes-agent/nanobot) & CPython 3.12.13 (\texttt{uv}-installed) \\
+hermes virtualenv                  & \texttt{/opt/hermes-env/} (80~MB) \\
+nanobot virtualenv                 & \texttt{/opt/nanobot-env/} (211~MB) \\
+openclaw runtime                   & Node.js 22+; \texttt{npm install -g openclaw} \\
+zeroclaw binary                    & Rust v0.7.3 (37~MB), bind-mount \texttt{/usr/local/bin/zeroclaw} \\
+generic (GenericAgent) runtime     & CPython 3.12 (\texttt{uv} venv), bind-mounted GA install \\
+\bottomrule
+\end{tabular}
+\caption{Software stack per claw. Standalone Python and the harness virtualenvs
+are bind-mounted into the SWE-bench evaluation container so that the agent loop
+runs inside the same container as the patched code.}
+\label{tab:appx-d-software}
+\end{table}
+
+\subsection{Run-time parameters (held equal across all five claws)}
+
+\begin{table}[h]
+\centering
+\small
+\begin{tabular}{ll}
+\toprule
+\textbf{Parameter} & \textbf{Value} \\
+\midrule
+Per-instance timeout                                & 3600~s (60~min) \\
+Repeats per instance                                & 1 \\
+Concurrency                                         & 3 threads \\
+\texttt{reasoning\_effort} (hermes only)            & high \\
+Shell tool timeout (each harness)                   & 180~s \\
+\bottomrule
+\end{tabular}
+\caption{Run-time parameters. These are overridden via CLI flags so that all five
+claws see the same per-instance budget; the prompt template
+(Appendix~\ref{appendix:harness}) is also identical across claws.}
+\label{tab:appx-d-runtime}
+\end{table}
+
+\subsection{API providers}
+
+\begin{table}[h]
+\centering
+\small
+\begin{tabular}{ll}
+\toprule
+\textbf{Provider} & \textbf{Use} \\
+\midrule
+OpenRouter           & Default routing (Anthropic, Z-AI/GLM, Qwen, etc.) \\
+DashScope (Alibaba)  & Qwen series; some hermes / nanobot runs \\
+Infini-AI            & Kimi; some GLM hermes runs \\
+DeepSeek (official)  & DeepSeek-V4 Pro / Flash \\
+\bottomrule
+\end{tabular}
+\caption{API providers used during experiments. Only base URLs and model
+identifiers are released as part of the artifact; \textbf{API keys are NOT
+included in any released artifact} (see Appendix~\ref{appendix:license}).}
+\label{tab:appx-d-providers}
+\end{table}
+
+\subsection{ Compute cost (aggregate)}
+
+The main experiments cover 17 unique (claw, model) columns of 350 instances
+each: the openclaw $\times$ 9-model sweep (Table~\ref{tab:a2}) plus the 8
+non-openclaw cells of the 5-claw $\times$ 2-model sweep
+(Table~\ref{tab:b}; the two openclaw cells are shared between the grids).
+Per-cell mean wall-clock durations are reported in the \textbf{Dur} columns of
+those tables. Summing the per-cell means over instances, the 17 columns
+account for approximately \textbf{1{,}148 hours} of end-to-end wall-clock
+($\approx$47.8 days of single-thread execution; $\approx$15.9 days on the
+3-thread schedule actually used), of which the model sweep contributes
+$\approx$671 hours and the non-openclaw claw cells $\approx$477 hours. These
+figures exclude the bare-adapter diagnostic (\S\ref{sec:adapter_diagnostic}),
+the pre-cleanup runs of the future-commit comparison (\S\ref{sec:leak_fix}),
+and Lite-80 validation runs. Total API cost per column is reported directly in
+Tables~\ref{tab:a2} and~\ref{tab:b}; duration includes remote API latency and
+is therefore an end-to-end operating measure rather than pure local compute.
+
+% \subsection{Per-instance USD cost}
+
+% We deliberately do \emph{not} report per-instance USD cost, for two reasons:
+
+% \begin{enumerate}
+% \item \textbf{Provider-dependent pricing.} The same model is reachable through
+% multiple providers (e.g., GLM-5.1 via OpenRouter, Infini-AI, or the Z-AI direct
+% endpoint), each with different per-token rates. A single USD figure would not be
+% meaningful unless the provider is fixed.
+% \item \textbf{Time-dependent pricing.} Provider rates change between the time of
+% our runs and the time of replication. A USD figure published in this paper would
+% be stale by the time readers attempt to reproduce.
+% \end{enumerate}
+
+% Instead, we publish \emph{token totals} per (harness, model, instance) in the
+% released artifact (\texttt{data/B\_long\_format.csv} columns
+% \texttt{Avg Input Tokens}, \texttt{Avg Output Tokens}, \texttt{Turns}). Readers
+% can multiply these by their preferred provider's current published rate to obtain
+% a current USD estimate. We confirm that \textbf{no API keys, billing identifiers,
+% or provider account metadata are included in any released artifact}; only base
+% URLs and public model identifiers are exposed (see
+% Appendix~\ref{appendix:license}).

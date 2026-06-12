@@ -1,0 +1,940 @@
+\section{Agent Evolution} \label{sec:agent_evo}
+\begin{table*}[tbp]
+\caption{The statistics of Memory-Centric Experience Evolution methods. }
+\centering
+\renewcommand{\arraystretch}{1.5}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lccccc}\toprule
+\textbf{Name} &
+ \textbf{Task} &
+ \textbf{Model} &
+  \textbf{Generalization} &
+  \textbf{Experience Update} &
+ \textbf{Train} \\ \midrule
+
+
+\rowcolor{gray!10!white} \multicolumn{6}{c}{\textbf{\textit{Instance Trajectory Experience (\cref{sec:instance_trajectory_experience})}}} % \multicolumn{6}{c}{}
+\\
+OpenAgent \cite{OpenAgent} &
+  Code &
+  GPT-4, GPT-3.5-Turbo &
+  \Yes &
+  \Yes &
+  \No \\
+
+CoPS \cite{CoPS} &
+  Cross-Domain &
+  Llama 3.1 8B Instruct, Llama 3.1 70B Instruct &
+  \Yes &
+  \Yes &
+  \No \\
+
+ELLMER \cite{ELLMER} &
+  Embodied &
+  GPT-4, DALL-E &
+  \Yes &
+  \Yes &
+  \No \\
+
+Memp \cite{Memp} &
+  Cross-Domain &
+  GPT-4o, Qwen2.5-72B &
+  \No &
+  \Yes &
+  \No \\
+
+Synapse \cite{Synapse} &
+  GUI &
+  CodeLlama-7B, GPT-3.5 &
+  \Yes &
+  \Yes &
+  \No \\
+
+WorldMM \cite{WorldMM} &
+  Image \& Video &
+  Qwen3-VL-8B-Instruct &
+  \No &
+  \Yes &
+  \No % &
+  \\ 
+
+DGM \cite{DGM} &
+  Code &
+  o3-mini, Claude-3.5-Sonnet &
+  \Yes &
+  \Yes &
+  \No % &
+  \\ 
+   \midrule
+\rowcolor{gray!10!white} \multicolumn{6}{c}{\textbf{\textit{Abstract Scripts Experience (\cref{sec:abstract_scripts_experience})}}}   \\
+Reasoning Bank \cite{Reasoning-Bank} &
+  Cross-Domain &
+  Gemini-2.5-flash, Gemini-2.5-pro, Claude-3.7-sonnet &
+  \Yes &
+  \Yes &
+  \No % &
+  \\
+  
+Agent-Pro \cite{Agent-Pro} &
+  Game &
+  GPT-3.5-Turbo-0613, GPT-4-0613, etc. &
+  \No &
+  \Yes &
+  \No \\
+
+Agent-KB \cite{AGENTKB_2} &
+  Cross-Domain &
+  GPT-4o, GPT-4.1, etc. &
+  \Yes &
+  \Yes &
+  \No \\
+
+DeepAgent \cite{DeepAgent} &
+  Tool &
+  QwQ-32B &
+  \Yes &
+  \Yes &
+  \Yes \\
+
+FLEX \cite{FLEX} &
+  Cross-Domain &
+  Claude-Sonnet-4, DeepSeek-V3.1-Terminus, etc. &
+  \No &
+  \Yes &
+  \No \\
+
+O-Mem \cite{O-Mem} &
+  Cross-Domain &
+  GPT-4.1, GPT-4o-mini &
+  \No &
+  \Yes &
+  \No \\
+
+H-EPM \cite{H-EPM} &
+  Tool &
+  GPT-4.1-mini, GPT-4.1, etc. &
+  \Yes &
+  \Yes &
+  \Yes \\
+
+Reme \cite{Reme} &
+  Tool &
+  Qwen3-8B, Qwen3-32B &
+  \No &
+  \Yes &
+  \No \\
+
+BIFROST \cite{BIFROST} &
+  DeepResearch &
+  Llama-3.2-3B-Instruct, etc. &
+  \Yes &
+  \No &
+  \No \\
+
+PhysMem \cite{PhysMem} &
+  Embodied &
+  Gemini-3.0-Flash, Qwen3-VL &
+  \Yes &
+  \Yes &
+  \No \\
+
+AWM \cite{AWM} &
+  GUI &
+  GPT-3.5, GPT-4 &
+  \Yes &
+  \Yes &
+  \No \\
+  \midrule
+\rowcolor{gray!10!white} \multicolumn{6}{c}{\textbf{\textit{Structured Skill Experience (\cref{sec:structure_skill_experience})}}} % \multicolumn{6}{c}{} 
+\\
+SAGE \cite{SAGE} &
+  Tool &
+  Qwen2.5-32B-Instruct &
+  \No &
+  \Yes &
+  \Yes \\
+
+ASI \cite{ASI} &
+  Cross-Domain &
+  GPT-4o, Claude-3.5-sonnet &
+  \Yes &
+  \Yes &
+  \No \\
+
+SkillWeaver \cite{SkillWeaver} &
+  DeepResearch &
+  GPT-4o, GPT-4o-mini &
+  \No &
+  \Yes &
+  \No \\
+
+SkillRL \cite{SkillRL_2} &
+  Cross-Domain &
+  Qwen2.5-7B-Instruct &
+  \Yes &
+  \Yes &
+  \Yes \\
+
+SkillOrchestra \cite{SkillOrchestra} &
+  Tool &
+  Qwen2.5-3B &
+  \Yes &
+  \Yes &
+  \Yes \\
+
+\bottomrule
+\end{tabular}%
+}
+\label{tab:experience}
+\end{table*}
+\textbf{Agent Evolution} refers to the process by which an agent’s capabilities advance through various mechanisms, typically realized through continuous interaction with the external environment. This process encompasses both external structural adaptations and internal parametric changes. Specifically, external structural adaptations include \textbf{Memory-Centric Experience Evolution} (\cref{sec:agent_evo_experience_utilization}), which enhances the model's task-processing capabilities by accumulating and leveraging experience from the external environment, and \textbf{Orchestration-Centric Workflow Evolution} (\cref{sec:agent_evo_agentic_workflow_design}), which adapts to diverse environmental tasks through the design of specialized architectures. The internal parametric changes include \textbf{Trajectory-Centric Offline Evolution} (\cref{sec:agent_evo_synthetic_data_generation}), which improves the model’s task adaptation by synthesizing and designing complex data generation pipelines, and \textbf{Exploration-Centric Online Evolution} (\cref{sec:agent_evo_reinforcement_learning_optimization}), which strengthens the model's capabilities through reinforcement learning processes within specific environments. The framework is shown as Fig. \ref{fig:agent_evo}.
+
+\subsection{Memory-Centric Experience Evolution}
+\label{sec:agent_evo_experience_utilization}
+Experience helps agents better understand and master their current capabilities \cite{survey_Memory_in, survey_Rethinking_Memory_in, survey_Rethinking_Memory,Think_While_Watching,Learning_How_to_Remember}. These methods typically involve storing trajectories, experiences, or process knowledge in an external memory base, and then retrieving relevant information to enhance the model’s ability to handle problems. Through leveraging experience at different levels of granularity and diverse utilization strategies, the model can maintain long-term memory, strengthen its ability to handle specific problems, and enable the co-evolution of an agent’s memory and capabilities across tasks. Based on how experience is summarized and represented, we categorize it into the following types: (1) \textbf{Instance Trajectory Experience}: This refers to the complete interaction trajectories and actions of an agent with the environment. (2) \textbf{Abstract Scripts Experience}: This type of experience abstracts and summarizes multiple trajectories into reusable script-like knowledge, enabling more efficient reuse across similar tasks. (3) \textbf{Structured Skill Experience}: Skills represent a highly structured form of externalized experience that can be modularly stored and invoked on demand.
+
+
+
+
+\subsubsection{Instance Trajectory Experience}
+\label{sec:instance_trajectory_experience}
+\textbf{Instance Trajectory Experience represents the most fundamental and specific type of experience, referring to the complete record of actions an agent takes during its interaction with the environment}. Instance trajectories directly reflect the agent's decision-making process in a specific task context by recording the correct or incorrect actions, or other agent operations, providing the most detailed information. However, they are highly context-dependent and have limited generalization ability. 
+For example, Synapse \cite{Synapse} provides the LLM with entire trajectories to improve the performance in Web tasks. WorldMM \cite{WorldMM} utilizes the multiple categories of memory, where the visual memory provides the detailed scenes of the targets. The maintenance of experience is also crucial. Existing methods typically organize experiences into databases and perform maintenance operations to ensure their effectiveness \cite{Memp, CoPS}. For example, Memp \cite{Memp} refines historical task trajectories into both fine-grained instructions and high-level abstract scripts, systematically exploring strategies for building, retrieving, and updating procedural memories. 
+
+
+
+\subsubsection{Abstract Scripts Experience}
+\label{sec:abstract_scripts_experience}
+\textbf{Abstract Scripts Experience is derived by generalizing across multiple instance trajectories to capture reusable task execution patterns}. Compared to individual trajectories, script-level experience no longer focuses on specific environment states, but instead extracts the typical sequence of steps or operational logic underlying a class of tasks. By abstracting trajectories into scripts, such experience achieves stronger generalization and enables cross-domain retrieval \cite{AGENTKB_2, BIFROST, AWM}. Reasoning-Bank \cite{Reasoning-Bank} extracts generalizable reasoning strategies from the agent’s successful and failed experiences and stores them in a structured memory bank. During testing, relevant memories are retrieved to guide decision-making. Besides, some works \cite{MemGPT, O-Mem} focus on utilizing the memory to maintain the long-horizon information of previous works, rather than to handle specific problems. For instance, O-Mem \cite{O-Mem} further organizes experience into structured categories, including persona memory, working memory, and episodic memory, thereby supporting personalized and consistent long-term interactions. 
+In addition, some approaches focus on how memory is utilized during decision-making \cite{Voyager, H-EPM}. For example, H-EPM \cite{H-EPM} integrates tool graphs with procedural memory to guide execution, where each edge in the graph serves as a compact representation of procedural summaries. 
+
+Other works emphasize the maintenance and evolution of such experiences to enable continuous self-improvement \cite{Agent-Pro, FLEX, Training-Free_GRPO}. For instance, Agent-Pro \cite{Agent-Pro} enhances performance through iteratively reflecting on previous actions and fine-tuning to correct the wrong steps, while FLEX \cite{FLEX} and Reme \cite{Reme} reflect on both successful and failed experiences to construct and maintain structured experience repositories, facilitating ongoing agent evolution.
+
+\subsubsection{Structured Skill Experience}
+\label{sec:structure_skill_experience}
+\textbf{Skills are the experience organization mechanism to expand the LLM's capabilities}. Skills have gained widespread attention due to their detail and comprehensiveness. Many methods focus on exploring the automatic synthesis of skills to enhance the capabilities and efficiency of intelligent agents.
+
+Some methods automatically induce and generate procedural skills through interaction with the environment to help the agent complete tasks. ASI \cite{ASI} induces procedural skills automatically through interaction with the environment, helping the agent execute tasks. SkillWeaver \cite{SkillWeaver} enables the agent to autonomously discover and transform website features into reusable Python API skills. 
+
+As research progresses, more works are focused on using skills to complete tasks. By building a skill library, SAGE \cite{SAGE} enhances the self-evolving capabilities of large language model agents. It uses a sequential rollout mechanism to reuse programming skills and integrates skill-based rewards to motivate the generation and utilization of high-quality skills. SkillRL \cite{SkillRL_2} distills redundant raw interaction trajectories into a hierarchical skill bank and co-evolves it with policy learning, thus improving the agent's task success rate and reasoning efficiency.
+
+
+\subsubsection{Summary}
+
+\begin{tcolorbox}[takeaway,title={Takeaway 6.1}]
+\begin{itemize}
+\item \textbf{Comparative Analysis:} The granularity of experience and its utilization strategies have become central research focuses. The former concerns how experience is acquired and represented, while the latter emphasizes how experience is adapted and evolved for downstream tasks. 
+In this context, both the scale and effectiveness of experience are critical, which has led to increasing attention on \textbf{skills} as a structured and reusable form of experience. 
+
+\item \textbf{Future Directions:} An important direction is to develop more systematic and fine-grained frameworks for experience management and utilization. Such systems should be capable of aggregating and integrating large-scale experiences from human contributions and open-source resources. 
+Especially, current experience management mechanisms remain relatively underdeveloped, with limited support for comprehensive operations such as insertion, deletion, updating, and retrieval, and lacking principled design for scalable and efficient management. This is an important direction for experience utilization.
+\end{itemize}
+\end{tcolorbox}
+
+
+
+
+
+
+
+
+% update by hongbang in 20260407
+\renewcommand{\arraystretch}{1.1} 
+\begin{table*}[htbp]
+\caption{The statistics of Orchestration-Centric Workflow Evolution methods.}
+\resizebox{\textwidth}{!}{
+\begin{tabular}{lccccc}\toprule
+\textbf{Name} & \textbf{Task} & \textbf{Collaboration} & \textbf{Model} & \textbf{Train} & \textbf{Multi-Agent} \\ \midrule
+\rowcolor{gray!10!white} 
+\multicolumn{6}{c}{\textbf{\textit{Fixed Workflow (\cref{sec:fixed_workflow})}}} \\
+Simulate Before Act \cite{Simulate_Before_Act} & DeepResearch & Tree & GPT-4o & \No & \No \\
+WebVoyager \cite{WebVoyager} & DeepResearch & Sequential & GPT-4-V, Claude-3-O, GPT-4o & \No & \No \\
+ManuSearch \cite{ManuSearch} & DeepResearch & Sequential & QwQ-32B, DeepSeek-R1, etc. & \No & \Yes \\
+% Multimodal DeepResearcher \cite{Multimodal_DeepResearcher} & DeepResearch & Sequential + Iterative & Claude-3.7-S, Qwen3-235B, etc. & \No & \Yes \\
+Open Deep Search \cite{Open_Deep_Search} & DeepResearch & Sequential & DeepSeek-R1, Llama-3.1-70B & \No & \No \\
+Search-o1 \cite{Search_o1} & DeepResearch & Sequential & QwQ-32B-P & \No & \No \\
+SearchAgent-X \cite{SearchAgent_X} & DeepResearch & Sequential & Qwen-7/14B & \No & \No \\
+Thought of Search \cite{Thought_of_Search} & DeepResearch & Sequential & GPT-4 & \No & \No \\
+WKM \cite{WKM} & Domain-Specific & Sequential & Mistral-7B, Llama-3-8B, etc. & \Yes & \No \\
+MedAgent-Zero \cite{MedAgent_Zero} & Domain-Specific & Iterative & GPT-3.5/4/o, o1-P & \No & \Yes \\
+QuantAgent \cite{QuantAgent} & Domain-Specific & Iterative & GPT-4 (0125-P) & \No & \Yes \\
+Agentless \cite{Agentless} & Code & Sequential & GPT-4o, o1 & \No & \No \\
+AutoCodeRover \cite{AutoCodeRover} & Code & Sequential & GPT-4 (0125-P) & \No & \Yes \\
+CodeNav \cite{CodeNav} & Code & Iterative & GPT-4, Mixtral-8x22B-IT, etc. & \No & \No \\
+CodeR \cite{CodeR} & Code & Graph & GPT-4 (1106) & \No & \Yes \\
+MAGIS \cite{MAGIS} & Code & Sequential + Iterative & GPT-4, GPT-3.5, Claude-2, etc. & \No & \Yes \\
+MetaGPT \cite{METAGPT} & Code & Sequential & GPT-4, GPT-3.5-T, etc. & \No & \Yes \\
+% OpenHands \cite{OpenHands} & Code & Iterative & Claude-4.5/4-S, GPT-5, etc. & \No & \No \\
+SWE-agent \cite{SWE_agent} & Code & Sequential & GPT-4-T, Claude-3-O & \No & \No \\
+VideoAgent \cite{VideoAgent} & Video & Sequential & GPT-4, CogAgent, LaViLa & \No & \No \\
+AgileThinker \cite{AgileThinker} & Game & Sequential & DeepSeek-V3/R1, Gemini-2.5-Flash & \No & \No \\
+LVAgent \cite{LVAgent} & Video & Iterative & Qwen2-VL, InternVL-2.5, etc. & \Yes & \No \\
+Explorer \cite{Explorer} & GUI & Sequential & Phi-3.5V, Qwen2-VL-7B & \Yes & \Yes \\
+\midrule
+\rowcolor{gray!10!white} 
+\multicolumn{6}{c}{\textbf{\textit{Automated Workflow (\cref{sec:automated_workflow})}}} \\
+AutoFlow \cite{AutoFlow} & Cross-Domain & Graph & GPT-4-1106-preview, Mixtral-8x7B & \Yes & \Yes \\
+ScoreFlow \cite{ScoreFlow} & Cross-Domain & Graph & Llama-3.1-8B-Instruct, GPT-4o-mini, etc. & \Yes & \Yes \\
+RobustFlow \cite{RobustFlow} & Cross-Domain & Graph & Qwen3-32B, GPT-4o-mini, etc. & \Yes & \Yes \\
+DyFlow \cite{DyFlow} & Cross-Domain & DAG & Phi-4, GPT-4.1, GPT-4o-mini, etc. & \Yes & \Yes \\
+AgentFLow \cite{AgentFlow} & Cross-Domain & Sequential + Iterative & Qwen2.5-7B-IT & \Yes & \Yes \\
+MaAS \cite{MaAS} & Cross-Domain & DAG & GPT-4o-mini, Qwen-2.5-72B-Instruct, etc. & \Yes & \Yes \\
+FlowReasoner \cite{FlowReasoner} & Code & Graph & DeepSeek-R1-Distill-Qwen-7B, etc. & \Yes & \Yes \\
+% Kimi K2.5 \cite{Kimi_K2.5} & Cross-Domain & Graph & Kimi K2.5 & \Yes & \Yes \\
+Mindsearch \cite{Mindsearch} & DeepResearch & DAG & GPT-4o, InternLM2.5-7B, etc. & \No & \Yes \\
+WideSeek-R1 \cite{wideseek_r1} & DeepResearch & Tree & Qwen3-4B & \Yes & \Yes \\
+Workflow-R1 \cite{Workflow_R1} & DeepResearch & Sequential & Qwen2.5-7B-Instruct, etc. & \Yes & \Yes \\
+ResearStudio \cite{ResearStudio} & DeepResearch & Sequential & GPT-4.1, o4, o3, GPT-4o, etc. & \No & \No \\
+Webpilot \cite{Webpilot} & DeepResearch & Iterative & GPT-4o, GPT-3.5 & \No & \Yes \\
+Plan-and-act \cite{PLAN_AND_ACT} & Domain-Specific & Sequential & Llama-3.3-70B-I, QWQ-32B & \Yes & \Yes \\
+AOrchestra \cite{AORCHESTRA} & Domain-Specific & Sequential & Gemini-3-Flash, DeepSeek-V3.2, etc. & \Yes & \Yes \\
+Dr. MAS \cite{Dr_MAS} & Domain-Specific & Tree + Iterative & Qwen3-4/8B, Qwen2.5-3/7B-I & \Yes & \Yes \\
+Workforce \cite{OWL} & Domain-Specific & Sequential & Qwen2.5-32B-I, GPT-4o, Claude-3.7-S & \Yes & \Yes \\
+ControlLLM \cite{ControlLLM} & Embodied & DAG & ChatGPT, Llama-7/13B, GPT-4 & \Yes & \No \\
+HuggingGPT \cite{HuggingGPT} & Embodied & DAG & GPT-3.5-T, GPT-4, Alpaca, etc. & \No & \No \\
+HyperAgent \cite{HYPERAGENT} & Code & DAG & Claude-3-S/H, Llama-3-70B, etc. & \Yes & \No \\
+RepairAgent \cite{RepairAgent} & Code & Graph & GPT-3.5 & \No & \No \\
+SWE-Search \cite{SWE_Search} & Code & Tree & GPT-4o, Qwen2.5-72B-IT, etc. & \Yes & \No \\
+Alibaba LingmaAgent \cite{Alibaba_LingmaAgent} & Code & Tree & GPT-4-T, GPT-4o, Claude-3-O/S & \No & \No \\
+MindAgent \cite{MINDAGENT} & Embodied & Tree & GPT-4 (0613) & \No & \Yes \\
+Code Researcher \cite{Code_Researcher} & Code & Graph & GPT-4o, o1 & \No & \No \\
+SCLPlan \cite{SCLPlan} & Embodied & Sequential + Iterative & Llama-3.1-8B, Llama-3-70B & \No & \No \\
+MGA \cite{MGA} & GUI & Sequential + Iterative & O3 & \Yes & \Yes \\
+\midrule
+\rowcolor{gray!10!white} 
+\multicolumn{6}{c}{\textbf{\textit{Evolving Workflow (\cref{sec:evolving_workflow})}}} \\
+AFlow \cite{AFlow} & Cross-Domain & Graph & GPT-4o-mini, DeepSeek-V2.5, etc. & \No & \No \\
+AgentSquare \cite{AgentSquare} & Cross-Domain & Graph & GPT-4o, GPT-3.5-turbo & \No & \No \\
+Puppeteer \cite{Puppeteer} & Cross-Domain & Graph & Qwen2.5, Llama-3.1, etc. & \No & \Yes \\
+ADAS \cite{ADAS} & Cross-Domain & Graph & GPT-4, GPT-3.5, Claude-Haiku, etc. & \No & \No \\
+ReasonRAG \cite{ReasonRAG} & DeepResearch & Iterative & Qwen2.5-7B-IT & \Yes & \No \\
+MUSE \cite{MUSE} & Domain-Specific & Sequential + Iterative & Gemini-2.5-Flash, DeepSeek-V3 & \No & \No \\
+AvaTaR \cite{AVATAR} & Domain-Specific & Sequential + Iterative & Claude-3-O, GPT-4/o & \No & \No \\
+ReCreate \cite{ReCreate} & Domain-Specific & Iterative & GPT-5, Claude-4.5-O & \Yes & \No \\
+Yunjue Agent \cite{Yunjue_Agent} & Domain-Specific & Iterative & Gemini-3-Pro, GPT-5, GPT-5 & \No & \Yes \\
+Chain-of-Agents \cite{Chain-of-Agents} & Domain-Specific & Sequential & Qwen2.5-3/7/32B-IT & \Yes & \Yes \\
+ClinicalReTrial \cite{ClinicalReTrial} & Domain-Specific & Iterative & DeepSeek-V3, Claude & \No & \Yes \\
+EvoClinician \cite{EvoClinician} & Domain-Specific & Iterative & Gemini-3-Pro, GPT-5.1, MedGemma & \No & \Yes \\
+Grammar-based Search \cite{Grammar_based_Search} & Domain-Specific & Sequential & GPT-4o, GPT-4.1, GPT-5 & \No & \Yes \\
+CASCADE \cite{CASCADE} & Domain-Specific & DAG & GPT-5, O3, Claude-4.5-S, etc. & \No & \Yes \\
+STEVE \cite{STEVE} & Embodied & Sequential & Llama-2-7/13B & \Yes & \Yes \\
+LATM \cite{LATM} & Cross-Domain & Iterative & GPT-4, GPT-3.5, etc. & \No & \Yes \\
+Criticize-Reflect \cite{Criticize_Reflect} & Embodied & Graph & Llama2-70B, GPT-4, GPT-3.5 & \No & \Yes \\
+\bottomrule
+\end{tabular}
+}
+\end{table*}
+
+
+\subsection{Orchestration-Centric Workflow Evolution}
+\label{sec:agent_evo_agentic_workflow_design}
+A \textbf{Workflow} is a graph-based topology of multi-step processes powered by LLMs, where nodes encompass LLM calls, tool executions, subagents, or functions, and edges dictate the fixed, conditional, or cyclic routing \cite{ToT,ReAct,ReWoo,Self-Refine,LLM+P}. The approach centers on decomposing objectives into detailed steps, enabling the agent to navigate complex environments. Harness frameworks like AutoGen  \cite{autogen} and OpenHands \cite{OpenHands} facilitate the deployment of these systems by providing the essential infrastructure and interfaces for inter-agent communication. Based on the degree of structural autonomy, we categorize these methods into three types: \textbf{(1) Fixed Workflow}, characterized by explicit data flow and predefined roles; \textbf{(2) Automated Workflow}, where a designated orchestrator agent dynamically coordinates the available worker agents; and \textbf{(3) Evolving Workflow}, where the entire structure undergoes persistent evolution through interaction with the environment.
+
+\subsubsection{Fixed Workflow}
+\label{sec:fixed_workflow}
+\textbf{Fixed Workflow} constitutes a task execution framework with a deterministic logical topology, predefined by developers during the system design phase. The framework incorporates hard-coded sequential logic \cite{Explorer, Simulate_Before_Act}, conditional branching \cite{CodeR, VideoAgent}, and local loops including prespecified error retry protocols \cite{LVAgent, QuantAgent}. Within this configuration, the agent functions as a modular unit tasked with performing specific atomic operations. Consequently, the agent has no authority over the global workflow topology and its decision making is bounded by the localized task node. Recent studies demonstrate the utility of this framework in complex engineering scenarios. MetaGPT \cite{METAGPT} codifies standard operating procedures for software development into multi-agent pipelines, leveraging role specialization to ensure stability and efficiency. For knowledge-intensive domains, works such as Multimodal DeepResearcher \cite{Multimodal_DeepResearcher} structure report generation as a four-stage pipeline ``Researching, Textualization, Planning, and Generation'' to replicate the procedural standards of human experts. Moreover, Agentless \cite{Agentless} avoids complex autonomous interactions, showing that a fixed three stage pipeline of localization, repair, and validation is more effective than dynamic agent planning for software bug fixing. Overall, Fixed Workflow aims to codify human expertise into explicit execution logic. By decomposing tasks into multi-stage pipelines, it moves beyond single-shot invocation and enables the model to handle complex tasks in specific scenarios.
+
+\subsubsection{Automated Workflow}
+\label{sec:automated_workflow}
+\textbf{Automated Workflow} typically consists of a central orchestrator agent and a series of worker agents. Based on the input task, the orchestrator autonomously constructs the workflow \cite{HuggingGPT, Mindsearch, Cognitive_Kernel_Pro}, or intervenes to adjust the existing topology \cite{PLAN_AND_ACT, Agent_e,Webpilot}. By decomposing the objective into specific execution steps, the orchestrator manages the coordination logic among execution nodes and may also adjust the subsequent path based on real-time feedback. For tool invocation, works such as ControlLLM, Tool-Planner, and ToolChain* employ task decomposition and structured search for tool workflow planning, while frameworks like OctoTools facilitate extensible tool use through standardized tool cards \cite{ControlLLM,ToolPlanner,ToolChainStar,OctoTools}. In terms of domain generalization and multi-agent system scalability, Workforce~\cite{OWL} separates strategic planning from specialized execution. It relies on a domain-agnostic ``Planner Agent'' to decompose tasks, a ``Coordinator Agent'' to orchestrate subtasks, and specialized ``Worker Nodes'' to carry out execution. AORCHESTRA \cite{AORCHESTRA} further extends this flexibility by creating specific configurations for each task node, allowing the orchestrator to instantiate customized subagents on demand rather than relying on a static pool of predefined workers. Overall, Automated Workflow aims to handle open-ended tasks where execution paths cannot be exhaustively listed. By decoupling high-level planning from low-level execution, it adapts to dynamic environments.
+
+\subsubsection{Evolving Workflow}
+\label{sec:evolving_workflow}
+\textbf{Evolving Workflow} refers to a persistently evolving framework where the topological structure adapts to the environment as tasks accumulate, distinguishing it from patterns that merely change states in response to different tasks. This evolution manifests as long-term modifications to task topology \cite{MUSE, ReCreate, Criticize_Reflect, GPTSwarm}, the autonomous introduction and persistent storage of new tools or roles during runtime \cite{Yunjue_Agent, STEVE}, or behavioral shifts in agents simulating the entire workflow after training \cite{Chain-of-Agents, ReasonRAG}. In this setting, the workflow is no longer a static program, but a dynamic system that expands functional boundaries or optimizes coordination paths through autonomous iteration. Work such as LATM \cite{LATM} enables an agent to act as a tool maker, coding Python functions into a persistent cache to broaden the range of tasks the system can handle. Criticize-Reflect \cite{Criticize_Reflect} and ReCreate \cite{ReCreate} further extend this approach by allowing the system to iteratively rewrite its own organizational prompts and execution logic based on feedback, dynamically altering the entire workflow structure. Alternatively, Chain-of-Agents \cite{Chain-of-Agents} demonstrates that such multi-agent workflows can even be fully internalized into a single model through distillation. Overall, Evolving Workflow aims to break the boundaries between predefined logic and individual tasks. By internalizing empirical insights from execution into the workflow, the agent system develops the ability to improve itself across tasks.
+
+\subsubsection{Summary}
+
+\begin{tcolorbox}[takeaway,title={Takeaway 6.2}]
+\begin{itemize}
+\item \textbf{Comparative Analysis:} Beyond model training, workflows serve as a method to enhance agent capabilities. In \textbf{Fixed Workflow}, since role functions are relatively decentralized and static, improving overall coordination through training faces challenges. In contrast, \textbf{Automated Workflow} offers a more explicit entry point: by specifically training the central orchestrator, the collective performance of the entire system can be elevated more directly.  
+
+\item \textbf{Future Directions:} \textbf{Evolving Workflow} represents an advanced direction for managing complex and dynamic environments. In highly variable environments, training individual agents in isolation often struggles to meet practical demands. Rather than fragmented training at single nodes, this collective evolution allows the entire system to better adapt to increasingly complex future environments.
+\end{itemize}
+\end{tcolorbox}
+
+
+
+\begin{table*}[!htbp]
+\label{tab:trajectory}
+\caption{The statistics of Trajectory-Centric Offline Evolution Methods. \protect\Filtering refers to Filtering, \protect\Correction refers to Correction, \protect\Iterative refers to Iterative Refinement.}
+\setlength{\tabcolsep}{3pt}
+\resizebox{\textwidth}{!}{
+\begin{tabular}{lcccccc}
+\toprule
+\textbf{Name} & \textbf{Domain}          & \textbf{Data Size}  & \textbf{Teacher Model}                             & \textbf{Task Source} & \textbf{Trajectory Source} & \textbf{Refinement} \\ 
+
+\midrule
+\rowcolor{gray!10!white} 
+\multicolumn{7}{c}{\textbf{\textit{Task Synthesis (\cref{sec:task_synthesis})}}} \\ 
+BAGEL~\cite{BAGEL}                                 & Cross-Domain       & 260                  & PaLM-2                                     & Reverse                                 & Sequential Interaction                              & \Filtering                                      \\
+ToolACE~\cite{ToolACE}                               & Tool            & 180,000                 & -                                          & Structural                         & Model Simulation                              & \Filtering                                   \\
+OS-Genesis~\cite{OS-Genesis}                            & GUI             & 1,000                   & GPT-4o                                     & Reverse                                  & Sequential Interaction                              & \Filtering                                      \\
+Insta~\cite{Insta}                                 & GUI             & 150,000                 & Qwen3-235B                                 & Reverse                           & Sequential Interaction                              & \Filtering                                      \\
+APIGen-MT~\cite{APIGen-MT}\                             & Tool            & 5,000                   & GPT-4o, DeepSeek V3                        & Structural                         & Model Simulation                              & \Filtering                                      \\
+% WebDancer~\cite{WebDancer}                             & Deep Research   & 14,228                 & GPT-4o, QwQ-Plus                           & Transformation                                     & Sequential Interaction                              & \Filtering                                      \\
+WebSailor~\cite{WebSailor}                             & Deep Research   & 2,000                   & QwQ-32B                                    & Structural                         & Sequential Interaction                    & \Filtering                                      \\
+WebShaper~\cite{WebShaper}                             & Deep Research   & 5,000                   & QwQ-32B                                        & Structural                          & Sequential Interaction                              & \Filtering                                      \\
+WebWatcher~\cite{WebWatcher}                            & Deep Research   & 8,000                   & GPT-4o                                     & Transformation                                     & Sequential Interaction                              & \Filtering                                      \\
+Cognitive Kernel-Pro~\cite{Cognitive_Kernel_Pro}                  & Deep Research   & 47,314               & GPT-4.1                                    & Reverse                                             & Sequential Interaction                              & \Correction                                      \\
+Mobile-Agent-v3.5~\cite{Mobile-Agent-v3.5}                     & GUI             & -                    & GUI-Owl                                    & Structural                         & Sequential Interaction                              & \Iterative                           \\
+WebExplorer~\cite{WebExplorer}                           & Deep Research   & 13,000                  & -                                          & Reverse                            & Sequential Interaction                              & \Filtering                                      \\
+DeepDive~\cite{DeepDive}                              & Deep Research   & 858                  & Claude-4-Sonnet-T   & Structural                        & Sequential Interaction                              & \Filtering                                      \\
+% WebSailor-V2~\cite{WebSailor-V2}                          & Deep Research   & -                    & QwQ-32B                                    & Structural                          & Sequential Interaction                              & \Filtering                                      \\
+% AgentScaler~\cite{AgentScaler}                           & Tool            & -                    & -                                          & Structural                          & Model Simulation                              & \Filtering                                      \\
+AutoPlay~\cite{AutoPlay}                              & GUI             & 11,500                & GPT-4o, UI-TARS-1.5-7B                     & Reverse                                 & Sequential Interaction                              & \Filtering                                   \\
+AgentFounder~\cite{AgentFounder}                          & Cross-Domain    & -                    & -                                          & Transformation                                     & Augmentation                                                 & \Filtering\hspace{-0.4em}\Correction                          \\
+WebAggregator~\cite{WebAggregator} & Deep Research   & 6,184                & GPT-4.1                                    & Reverse                                     & Sequential Interaction                              & \Filtering                                      \\
+CRMWeaver~\cite{CRMWeaver}                             & Domain-Specific & 3,000                   & GPT-4.1                                    & Structural                          & Sequential Interaction                              & \Filtering                                      \\
+WebLeaper~\cite{WebLeaper}                             & Deep Research   & 20,000                  & -                                          & Structural                          & Sequential Interaction                              & \Filtering                                      \\
+AgentEvolver~\cite{AgentEvolver}                          & Cross-Domain    & -                    & Qwen-Plus                                  & Reverse                                  & Sequential Interaction                              & \Filtering                                      \\
+% MagicAgent~\cite{MagicAgent}                            & Tool            & -                    & -                                          & Structural                          & Model Simulation                              & \Filtering\hspace{-0.4em}\Correction                          \\
+VSearcher~\cite{VSearcher}                             & Deep Research   & 1,308                 & Gemini-3-Pro-T                     & Transformation                                     & Sequential Interaction                              & \Filtering                                      \\
+OpenSeeker~\cite{OpenSeeker}  & Deep Research   & 11,700  & - & Reverse & Sequential Interaction & - \\
+\midrule
+\rowcolor{gray!10!white} 
+\multicolumn{7}{c}{\textbf{\textit{Trajectory Synthesis (\cref{sec:Trajectory_synthesis})}}} \\ 
+ToolCoder~\cite{ToolCoder}                             & Code            & 53,000                  & GPT-3.5-turbo                              & Transformation                                     & Augmentation                                                 & \Filtering                                      \\
+ToolBench~\cite{ToolBench}                               & Tool            & 126,486              & GPT-3.5-turbo                              & Transformation                                     & Tree Search                                & \Filtering                                      \\
+ToolAlpaca~\cite{ToolAlpaca}  &  Tool   &  3,938 &  
+GPT-3.5 & Transformation & Model Simulation& \Filtering \\
+AgentTuning~\cite{AgentTuning}                           & Cross-Domain    & 1,866                & GPT-3.5, GPT-4                             & Reuse                                              & Sequential Interaction                              & \Filtering                                      \\
+Lingma SWE-GPT~\cite{Lingma_SWE-GPT}                        & Code            & -                    & GPT-4o    & Transformation                                     & Sequential Interaction                              & \Filtering                                      \\
+Aguvis~\cite{Aguvis}                                & GUI             & 35,000                & GPT-4o                                     & Transformation                                              &  Augmentation                                               & -                                              \\
+% FlowReasoner~\cite{FlowReasoner}                          & Code            & 1,400                 & DeepSeek-R1-671B                           & Reuse                                              & Sequential Interaction                              & -                                              \\
+MaskSearch~\cite{MaskSearch}                            & Deep Research   & 58,000                  & Qwen-Max                                  & Transformation                                     & Sequential Interaction                              & \Filtering                                      \\
+DreamGen~\cite{DreamGen}                              & Embodied        & 240,000                 & WAN2.1, IDM                                & Human\&Reuse                                       & Model Simulation                              & \Filtering                                   \\
+% WebResearcher~\cite{WebResearcher}                         & Deep Research   & -                    & -                                          & Transformation                                     & Sequential Interaction                              & \Filtering                                      \\
+% WebWeaver~\cite{WebWeaver}                             & Deep Research   & 6,400                 & -                                          & Transformation                                     & Sequential Interaction                              & \Filtering                                      \\
+Tongyi DeepResearch~\cite{Tongyi_DeepResearch}                   & Deep Research   & -                    & -                                          & Structural                         & Sequential Interaction                              & \Filtering                                      \\
+% Game-TARS~\cite{Game-TARS}                             & Game            & 20,000                  & Human                                      & Human                                              & Human                                            & \Filtering                                                    \\
+AgentFold~\cite{AgentFold}                             & Deep Research   & -                    & GLM-4.5, DeepSeek-V3.1                     &   Reuse                                            & Sequential Interaction                              & \Filtering                                      \\
+SIMA2~\cite{SIMA2}                                & Embodied        & -                    & Human                                      & Transformation                              & Human\&Augmentation                                  & \Iterative                           \\
+O-Researcher~\cite{O-Researcher}                          & Deep Research   & 3,500                 & -                                          & Transformation                              & Sequential Interaction                              & \Filtering                                      \\
+Pixels2Play~\cite{Pixels2Play}                           & Game            & -         & Human                                      & Reverse                                  & Human\&Augmentation                                  & \Filtering                                      \\
+ToolACE-MCP~\cite{ToolACE-MCP}                           & Tool            & 15,092               & GPT-4o                                     & Structural                          & Model Simulation                              & -                                              \\
+ProAct~\cite{ProAct}                                & Game    & 33,000                  & -                                          & Reuse                                              & Tree Search                                & \Correction                                     \\
+OpenResearcher~\cite{OpenResearcher}                        & Deep Research   & 97,000                  & GPT-OSS-120B                               & Reuse                                              & Model Simulation                              & \Filtering                                      \\
+HATS~\cite{HATS}                                  & GUI             & 1,000                   & GPT-4o                                     & Reverse                                  & Tree Search                                & \Correction                                 \\
+\midrule
+\rowcolor{gray!10!white} 
+\multicolumn{7}{c}{\textbf{\textit{Trajectory Refinement (\cref{sec:trajectory_refinement})}}} \\ 
+Toolformer~\cite{Toolformer}                            & Tool            & 68,000                 & GPT-J-6.7B                               & Transformation                                     & Augmentation                                                 & \Filtering                                      \\
+ETO~\cite{ETO}       & Cross-Domain    & 7651                 & GPT-4                                      & Reuse                                              & Sequential Interaction                              & \Iterative                           \\
+Agent-FLAN~\cite{Agent-FLAN}                            & Cross-Domain            & 24,703               & GPT-3.5-turbo                              & Transformation                              & Augmentation                                                 & \Filtering                                      \\
+Self-Improvement~\cite{Self-Improvement}                      & GUI             & 58                   & Qwen-1.5-72B-Chat                          & Transformation                              & Sequential Interaction                              & \Filtering                                      \\
+UI-TARS~\cite{UI-TARS}                               & GUI             & -               & UI-TARS                                    & Human                                              & Human\&Augmentation                                  & \Iterative                           \\
+\(\mu\)Code~\cite{muCode}                                 & Code            & -                    & Llama-3.1-8B-I                     & Reuse                                              & Sequential Interaction                              & \Correction                                     \\
+SimpleDeepSearcher~\cite{SimpleDeepSearcher}                    & Deep Research   & 871                  & QwQ-32B                                    & Reuse                                              & Sequential Interaction                              & \Filtering                                      \\
+EvolveSearch~\cite{EvolveSearch}                          & Deep Research   & 80,000                  & Qwen2.5-7B-I                       & Reuse                                              & Sequential Interaction                              & \Iterative                           \\
+GUI-Reflection~\cite{GUI-Reflection}                        & GUI             & 32,951               & Gemini-2.0-Flash, Gemini-2.5-Pro           & Transformation                                     & Augmentation                                                 & \Correction                                     \\
+Agent-Reward~\cite{Agent-Reward}                          & Cross-Domain    & 1,136                & GPT-4o                                     & Transformation                                     & Augmentation                                                 & \Filtering                                      \\
+WebSynthesis~\cite{WebSynthesis}                          & GUI             & 4,000                   & GPT-4o                                     & Reuse                                              & Model Simulation                              & \Filtering\hspace{-0.4em}\Correction                          \\
+TiG~\cite{TiG}                                   & Game            & -                    & DeepSeek-R1                                & Human                                              & Human                                            & \Correction                                     \\
+ToolRM~\cite{ToolRM}                                & Tool            & 180,000 & Qwen2.5-32B-I, Granite-20b, etc.                     & Structural                         & Human\&Augmentation                                  & \Filtering                                   \\
+Tool-Reflection~\cite{Tool-Reflection}                       & Tool            & 6,000                   & Human                                      & Transformation                              & Model Simulation                              & \Correction                                     \\
+% UI-TARS-2~\cite{UI-TARS-2}                             & GUI             & -                    & UI-TARS-2                                  & Transformation                              & Human               & \Iterative                           \\
+AgentFrontier~\cite{AgentFrontier}                         & Deep Research   & 12,000                  & -                                          & Structural                         & Sequential Interaction                              & \Iterative                           \\
+WebSTAR~\cite{WebSTAR} & GUI & 13,300 & GPT-4o & Reuse & Sequential Interaction & \Filtering \\ 
+SynthAgent~\cite{SynthAgent}                            & GUI             & 2,500                   & GPT-4.1                                    & Reverse                                  & Sequential Interaction                              & \Correction                                     \\
+SERA~\cite{SERA}                                  & Code            & 200,000                 & GLM-4.5-Air, GLM-4.6                       & Reverse                                  & Sequential Interaction                              & \Filtering\hspace{-0.4em}\Correction                        \\
+% UI-Venus-1.5~\cite{UI-Venus-1.5}                          & GUI             & 30,000                  & Qwen3-VL-235B                              & Reverse                                  & Sequential Interaction                              & \Filtering\hspace{-0.4em}\Correction                         \\
+TopoCurate~\cite{TopoCurate}  &  Tool  & 2,400 & Claude-4.5-Sonnet & Reuse  & Sequential Interaction & \Filtering \\
+\bottomrule
+\end{tabular}
+}
+\end{table*}
+
+% \renewcommand{\arraystretch}{0.8} 
+\subsection{Trajectory-Centric Offline Evolution}
+\label{sec:agent_evo_synthetic_data_generation}
+\textbf{Trajectory-Centric Offline Evolution} primarily refers to agentic SFT, which leverages interaction trajectories to enhance an agent's capabilities. These trajectories may include environment states, action choices, tool calls, external feedback, intermediate reasoning, and even error recovery. In practice, the process of trajectory synthesis usually consists of three stages, as illustrated in Fig.~\ref{fig:parametric_synthesis}: \textbf{(1) Task Synthesis} (\cref{sec:task_synthesis}), which determines what tasks the agent should solve; \textbf{(2) Trajectory Synthesis} (\cref{sec:Trajectory_synthesis}), which turns these tasks into interaction trajectories; and \textbf{(3) Trajectory Refinement} (\cref{sec:trajectory_refinement}), which improves the quality and reliability of the synthesized trajectories before training.
+
+
+
+\subsubsection{Task Synthesis}
+\label{sec:task_synthesis}
+Based on the task construction paradigm, existing approaches can be categorized into three types: \textbf{Resource Transformation}, \textbf{Reverse Synthesis}, and \textbf{Structure-based Synthesis}.
+
+
+
+%Reuse&Transformation
+\textbf{Resource Transformation} refers to performing transformations based on prior resources. Typical approaches include adding tool-use annotations via LLMs~\cite{Toolformer, ToolCoder, ToolBench}, masking answers~\cite{MaskSearch}, replacing entities with target information~\cite{VSearcher, WebWatcher}, or utilizing existing resources as seeds and prompting LLMs to synthesize novel tasks~\cite{Self-Improvement, Lingma_SWE-GPT}.
+% \textbf{Reuse\&Transformation}: Early works often reuse prior datasets\cite{AgentTuning, Aguvis}
+% or do some transformation based on existing resources. Many early works use LLMs to annotate existing texts\cite{Toolformer,ToolCoder,ToolBench}. Typically, for example, Toolformer\cite{Toolformer} uses a language model to annotate a large language modeling dataset with potential API calls. Similarly, ToolCoder\cite{ToolCoder} uses GPT-3.5 to add tool usage information into the source code data. Self-Improvement\cite{Self-Improvement} uses WebArena examples as seeds and prompt LLM to synthesize out-of-domain tasks. Lingma SWE-GPT\cite{Lingma_SWE-GPT} constructs task instances by collecting issues, corresponding PRs, and codebases from public GitHub repositories. WebDancer\cite{WebDancer} generates tasks in two ways: synthesizing QA pairs from recursively crawled subpages of knowledgeable websites, and iteratively rewriting simple questions with newly retrieved entity-related information to make them progressively more challenging while preserving the answer. Starting from authoritative sources such as Wikipedia, arXiv, and GitHub, WebWatcher\cite{WebWatcher} recursively traverses hyperlinks to build multi-hop QA pairs, rewrites target entities into visual references, and grounds the resulting VQA queries in authentic web images. VSearcher\cite{VSearcher} generates tasks by starting from a rare Wikidata seed, iteratively replacing selected entities with rarely known information, and then injecting a critical image to form a challenging multimodal browsing task.
+
+
+\textbf{Reverse Synthesis} denotes a paradigm where agents first explore the environment and then synthesize task instructions from observations or interaction trajectories. This is particularly common in the GUI~\cite{OS-Genesis, AutoPlay, HATS} and Deep Research~\cite{BAGEL, Explorer, Insta, Cognitive_Kernel_Pro, WebExplorer, WebAggregator, SynthAgent, AgentEvolver} domains. To be more specific, WebExplorer~\cite{WebExplorer} leverages LLMs to navigate the web and synthesize corresponding QA pairs. OS-Genesis~\cite{OS-Genesis} performs step-wise interactions in GUI environments and retrospectively derives tasks from the resulting transitions. Going beyond naive exploration, HATS~\cite{HATS} generates tasks through hardness-driven exploration, targeting ambiguous interactions during exploration and validating synthesized instructions through iterative alignment.
+
+% For GUI and Search tasks, a common way is environment exploration\cite{WebExplorer,WebAggregatora, SynthAgent, AgentEvolver}. 
+% Explorer\cite{Explorer} uses a bottom-up web trajectory synthesis pipeline that starts with an abstract task proposal and iteratively refines it into a more specific task through web exploration. Insta\cite{Insta} uses a language model task proposer that guides exploration on a website via an initial easy task and then, conditioned on a trajectory that deeply explores the website, creates a harder, grounded task.  AutoPlay\cite{AutoPlay} explores GUI environments with an MLLM explorer, then uses the resulting trajectories to synthesize environment-grounded tasks.
+
+
+
+% Typically, BAGEL\cite{BAGEL} let the agent explore the environment without conditioning on any natural language instruction, and then use a language model to relabel the whole trajectory. Further, OS-Genesis\cite{OS-Genesis} first performs step-wise interactions in GUI environments and then retrospectively derives high-quality tasks from the observed state changes. HATS\cite{HATS} generates tasks via hardness-driven exploration with an HD-MCTS policy that targets under-represented yet semantically challenging and informative interactions, then iteratively replays, verifies, and refines the instruction until it is executable and semantically aligned.
+
+\textbf{Structure-based Synthesis} synthesizes tasks based on explicit structural representations, including graphs, trees, schemas, abstract syntax trees (ASTs), etc. Some methods leverage trees~\cite{ToolACE,WebLeaper}, such as ToolACE~\cite{ToolACE}, which builds a hierarchical API context tree and synthesizes APIs through a speciation-adaptation-evolution process. Many instead rely on graphs~\cite{WebSailor,DeepDive,AgentScaler,Tongyi_DeepResearch,CRMWeaver,ToolACE-MCP,MagicAgent,OpenSeeker}, including API dependency graph, knowledge graph, database graph, etc. For instance, DeepDive~\cite{DeepDive} operates over knowledge graphs, constructing QA pairs via random walks and enriching paths with node attributes before using an LLM to obfuscate key cues into complex questions. In contrast, Mobile-Agent-v3.5 ~\cite{Mobile-Agent-v3.5} relies on mobile DAGs annotated by humans, sampling realistic interaction paths and synthesizing user instructions with LLMs/VLMs. Specifically, WebShaper ~\cite{WebShaper} uses set operations over knowledge projections, where an agentic Expander progressively increases task complexity.
+
+\subsubsection{Trajectory Synthesis}
+\label{sec:Trajectory_synthesis}
+In terms of how trajectories are generated, recent studies mainly adopt four kinds of approaches: \textbf{Trajectory Augmentation}, \textbf{Sequential Interaction}, \textbf{Tree Search}, and \textbf{Model Simulation}.
+
+
+\textbf{Trajectory Augmentation} includes rewriting~\cite{Agent-FLAN}, enriching~\cite{Aguvis,UI-TARS,SIMA2} and expanding~\cite{AgentFounder} existing trajectories. Typically, Agent-FLAN~\cite{Agent-FLAN} rewrites ReAct-style trajectories into multi-turn chat-style conversations. Aguvis ~\cite{Aguvis} first generates trajectories through automated programs and then augments them with reasoning traces produced by GPT-4o. AgentFounder~\cite{AgentFounder} first generates multi-step reasoning and tool-action sequences, and then expands them into diverse decision paths through higher-order action synthesis.
+
+
+\textbf{Sequential Interaction} means that trajectories are primarily generated through a single forward interaction chain. Among relevant approaches, the ReAct framework is widely adopted~\cite{AgentTuning, WebDancer, VSearcher}, while some methods further optimize via complex workflow pipelines~\cite{Lingma_SWE-GPT} or multi-agent systems~\cite{FlowReasoner, MaskSearch, WebWeaver, O-Researcher}. As an example, Lingma SWE-GPT~\cite{Lingma_SWE-GPT} synthesizes development trajectories with a three-stage workflow: Repository Understanding, Fault Localization, and Patch Generation. MaskSearch~\cite{MaskSearch} uses a multi-agent system involving a planner, rewriter, and observer. To manage context, Tongyi DeepResearch~\cite{Tongyi_DeepResearch} summarizes context into an evolving report to preserve essential information. Moreover, AgentFold~\cite{AgentFold} adopts a more fine-grained context-folding strategy, performing either granular condensation of the Latest Interaction or deep consolidation of it with prior summaries into a coarser state summary.
+
+
+\textbf{Tree Search} denotes a class of work that identifies higher-quality trajectories using tree search algorithms such as depth-first search (DFS) and Monte Carlo Tree Search (MCTS). In particular, ToolBench~\cite{ToolBench} uses DFS to search for a valid solution path to avoid being trapped in a single ReACT trajectory. ProAct~\cite{ProAct} generates trajectories by running MCTS from the current state, sampling both optimal and suboptimal/dead-end paths.
+
+
+\textbf{Model Simulation} is another type of method that generates trajectories in simulated environments through components including simulated users~\cite{APIGen-MT, AgentScaler,ToolACE-MCP}, tools~\cite{ToolAlpaca,ToolACE,ToolRM,MagicAgent}, and world models~\cite{DreamGen, WebSynthesis}. Specifically, ToolACE-MCP~\cite{ToolACE-MCP} generates multi-turn dialogue trajectories through role-based simulation, with planner, user, assistant, and tool roles simulated by LLMs. ToolRM~\cite{ToolRM} uses an LLM to simulate the tool’s error feedback. DreamGen~\cite{DreamGen} generates neural trajectories by prompting a robot-adapted video world model. 
+
+\subsubsection{Trajectory Refinement}
+\label{sec:trajectory_refinement}
+\textbf{Trajectory Refinement} determines which trajectories are ultimately incorporated into the training set. We broadly classify it into three methods, namely, \textbf{Filtering}, \textbf{Correction}, and \textbf{Iterative Refinement}.
+
+
+\textbf{Filtering} removes low-quality samples using rules~\cite{Toolformer,Lingma_SWE-GPT,SimpleDeepSearcher, WebResearcher, WebLeaper}, structure-based scoring~\cite{TopoCurate}, LLM-as-judge~\cite{OS-Genesis, Insta, MaskSearch, WebSTAR, Agent-Reward, AutoPlay}, or model self-scoring~\cite{Self-Improvement}. In detail, Lingma SWE-GPT~\cite{Lingma_SWE-GPT} applies rejection sampling based on two criteria: fault localization accuracy and patch similarity. TopoCurate~\cite{TopoCurate} computes three structure-aware metrics on an interaction topology to filter trajectories.  WebSTAR~\cite{WebSTAR} performs step-level filtering using a grading model. Self-Improvement~\cite{Self-Improvement} filters out trajectories in which the model self-detected a failure, producing a refusal.
+
+\textbf{Correction} chooses to correct~\cite{GUI-Reflection,AgentFounder}, rewrite~\cite{ToolRM,UI-Venus-1.5,HATS}, relabel~\cite{muCode} or edit~\cite{SynthAgent} erroneous trajectories instead of simply discarding them. 
+For example, GUI-Reflection~\cite{GUI-Reflection} identifies the first incorrect action in a trajectory and generates post-error reflection and correction actions for it. WebSynthesis~\cite{WebSynthesis} leverages GPT-4 to synthesize reflections for failed branches, tracing back to the common ancestor node and identifying "go\_back" as the corrective action for rollback trajectory construction. $\mu$Code~\cite{muCode} relabels the collected data with the optimal solutions selected by a local search expert. SynthAgent~\cite{SynthAgent} applies Remove, Reorder, Drop, or Keep edits to trajectories to eliminate task-irrelevant, redundant, or misaligned actions.
+
+
+
+\textbf{Iterative Refinement} connects generation, filtering, verification, correction, and retraining into a closed loop, allowing the refinement process to directly shape the data distribution of the next iteration~\cite{ETO, UI-TARS, EvolveSearch, Mobile-Agent-v3.5, UI-TARS-2, AgentFrontier}. Among these, ETO~\cite{ETO} updates the agent policy through an iterative cycle of trajectory collection and training. EvolveSearch~\cite{EvolveSearch} iteratively alternates between RL exploration and SFT optimization, using high-quality and diverse rollouts collected during RL as the SFT training set. AgentFrontier~\cite{AgentFrontier} generates complex-reasoning data within the LLM’s Zone of Proximal Development (ZPD), targeting tasks situated at the model’s capability frontier and, as the model learns, its ZPD advances, enabling a continuously adaptive curriculum.
+
+
+
+\subsubsection{Summary}
+\begin{tcolorbox}[takeaway,title={Takeaway 6.3}] %
+\begin{itemize}
+\item \textbf{Comparative Analysis:} For task synthesis, current research mainly focuses on making tasks more complex and realistic. Thus, methods have evolved from corpus transformation to reverse and structure-based synthesis. Trajectories are expected to better capture high-level abilities, such as planning, reflection, and recovery, resulting in increasingly sophisticated workflows. At the same time, maintaining verifiable quality boundaries while scaling up requires refinement strategies to shift from simple filtering toward a closed-loop pipeline that includes generation, verification, correction, and retraining.
+
+\item \textbf{Future Directions:} It is likely that the next competitive edge will no longer lie in simply scaling up data, but in several fundamental directions: how to improve the alignment between synthesized trajectories and training objectives, how to build low-cost but high-trust verification mechanisms for long-horizon trajectories, how to turn failure and recovery processes into stable training assets, and how to prevent models from continually reinforcing their own biases in a self-bootstrapping data flywheel. Whoever can solve these problems more effectively will be more likely to truly advance trajectory synthesis from ``sample production'' to ``capability'' engineering.”
+
+
+\end{itemize}
+\end{tcolorbox}
+
+
+
+% Nemotron-Cascade-2
+
+
+\renewcommand{\arraystretch}{1.5} 
+\begin{table*}[]
+\label{tab:rl}
+\caption{The statistics of Exploration-Centric Online Evolution Methods. \protect\Result refers to outcome reward, \protect\Process refers to process reward, \protect\Efficient refers to efficient reward and \protect\Format refers to format reward.}
+\resizebox{\textwidth}{!}{
+\begin{tabular}{lcccccc}
+\toprule
+\textbf{Name} &
+ \textbf{Task} &
+ \textbf{RL Algorithm} &
+  \textbf{Model} &
+  \textbf{Training Data} &
+  \textbf{Reward} \\ \midrule
+
+  
+\rowcolor{gray!10!white} \multicolumn{6}{c}{\textbf{\textit{Reasoning Structure Design (\cref{sec:reasoning_structure})}}} \\
+DeepRetrieval \cite{Deepretrieval} &
+  DeepResearch &
+  PPO &
+  Qwen2.5-3B-I, LLaMA-3.2-3B, etc. &
+  NQ, HotpotQA, etc. &
+  \Result\hspace{-0.4em}\Format \\
+
+Search-R1 \cite{Search-r1} &
+  DeepResearch &
+  PPO &
+  Qwen2.5-3/7B, etc. &
+  NQ, HotpotQA &
+  \Result  \\
+
+ReSearch\cite{ReSearch_2} &
+  DeepResearch &
+  GRPO &
+  Qwen2.5-7/32B, etc. &
+  MuSiQue &
+  \Result\hspace{-0.4em}\Format \\
+
+AutoRefine \cite{AutoRefine} &
+  DeepResearch &
+  GRPO &
+  Qwen2.5-3/7B, &
+  Natural Questions, HotpotQA &
+  \Result\hspace{-0.4em}\Process \\
+
+SEEA-R1 \cite{SEEA-R1} &
+  Embodied &
+  Tree-GRPO &
+  Qwen2.5-VL-7B-I &
+  ALFWorld, Customize &
+  \Result \\
+
+M3-Agent \cite{M3-Agent} &
+  Image \& Video &
+   DAPO &
+  Qwen2.5-Omni-7B, Qwen3-32B, etc. &
+  Customize &
+  \Result \\
+
+Video-Thinker \cite{Video-Thinker} &
+  Image \& Video &
+  GRPO &
+  Qwen2.5-VL-7B-I &
+  ActivityNet, YouCook2, etc. &
+  \Result\hspace{-0.4em}\Format \\
+
+
+
+
+
+\midrule  
+\rowcolor{gray!10!white} \multicolumn{6}{c}{\textbf{\textit{Training Reward Design (\cref{sec:reward_shaping})}}} \\
+  
+MaskSearch \cite{MaskSearch} &
+  DeepResearch &
+  DAPO &
+  Qwen2.5-1.5/3B, etc. &
+  Wikipedia, HotpotQA, etc. &
+  \Result\hspace{-0.4em}\Format  \\
+
+R1-Searcher \cite{R1-Searcher} &
+  DeepResearch &
+  Reinforce++ &
+  Qwen-2.5-7B, Llama-3.1-8B-I&
+  HotpotQA, 2WikiMultiHopQA &
+  \Result\hspace{-0.4em}\Format\hspace{-0.4em}\Process \\
+
+ToolRL \cite{ToolRL} &
+  Tool &
+  GRPO &
+  Qwen2.5-1.5/3B-I, &
+  ToolACE, xLAM, etc. &
+  \Result\hspace{-0.4em}\Format\hspace{-0.4em}\Process \\
+
+OTC-PO \cite{OTC-PO} &
+  Cross-Domain &
+  PPO, GRPO &
+  Qwen2.5-3/7B &
+  NQ, HotpotQA, etc. &
+  \Result\hspace{-0.4em}\Format\hspace{-0.4em}\Process\hspace{-0.4em}\Efficient \\
+
+Tool-N1 \cite{Tool-N1} &
+  Tool &
+  GRPO &
+  Qwen2.5-7/14B-I &
+  xLAM, ToolACE &
+  \Result\hspace{-0.4em}\Format \\
+
+ARTIST \cite{ARTIST} &
+  Cross-Domain &
+  GRPO &
+  Qwen2.5-7/14B-I &
+  NuminaMath, BFCL v3 &
+  \Result\hspace{-0.4em}\Format\hspace{-0.4em}\Process \\
+
+
+
+VLA-RL \cite{VLA-RL} &
+  Embodied &
+  PPO &
+  OpenVLA-7B &
+  LIBERO &
+  \Result\hspace{-0.4em}\Process \\
+
+VRAG-RL \cite{VRAG-RL} &
+  Image \& Video &
+  GRPO &
+  Qwen2.5-VL-3/7B-I &
+  Customize &
+  \Result\hspace{-0.4em}\Format\hspace{-0.4em}\Efficient \\
+
+
+
+R-Search \cite{R-Search} &
+  DeepResearch &
+  PPO, GRPO &
+  Qwen2.5-3/7B-I &
+  2WikiMultiHopQA &
+  \Result\hspace{-0.4em}\Format\hspace{-0.4em}\Process \\
+
+Chain-of-Agents \cite{Chain-of-Agents} &
+  Cross-Domain &
+  DAPO &
+  Qwen2.5-3/7/32B-I &
+  NQ, HotpotQA, etc. &
+  \Result\hspace{-0.4em}\Format \\
+
+Video-MTR \cite{Video-MTR} &
+  Image \& Video &
+  PPO &
+  Qwen2.5-VL-7B &
+  NExT-GQA, QVHighlights &
+  \Result\hspace{-0.4em}\Format\hspace{-0.4em}\Process \\
+
+Agent-R1 \cite{Agent-R1} &
+  Cross-Domain &
+  PPO, GRPO, etc. &
+  Qwen2.5-3B-I &
+  HotpotQA, 2WikiMultiHopQA &
+  \Result\hspace{-0.4em}\Process \\
+
+ToolOrchestra \cite{ToolOrchestra} &
+  Tool &
+  GRPO &
+  Qwen3-8B &
+  ToolScale, GeneralThought-430K &
+  \Result\hspace{-0.4em}\Efficient\hspace{-0.4em}\Process \\
+
+VideoMem \cite{VideoMem} &
+  Image \& Video &
+  PRPO &
+  Qwen3-VL-8B&
+  VideoMarathon, LLaVA-Video-178K &
+  \Result\hspace{-0.4em}\Process\hspace{-0.4em}\Efficient \\
+
+
+
+GDPO \cite{GDPO} &
+  Tool &
+  GDPO &
+  Qwen2.5-1.5/3B-I &
+  ToolACE, xLAM, etc. &
+  \Result\hspace{-0.4em}\Format \\
+
+FlowSteer \cite{FlowSteer} &
+  Tool &
+  CWRPO &
+  Qwen3-8B &
+  GSM8K, MATH, etc. &
+  \Result\hspace{-0.4em}\Format\hspace{-0.4em}\Process \\
+
+IntentRL \cite{IntentRL} &
+  DeepResearch &
+  GRPO &
+  Qwen2.5-7B &
+  DeepResearch Bench &
+  \Result\hspace{-0.4em}\Format\hspace{-0.4em}\Process\hspace{-0.4em}\Efficient \\
+
+
+
+SHARP \cite{SHARP} &
+  Tool &
+   GRPO &
+  LLaMA-3.1-8B, Qwen3-8B &
+  MuSiQue &
+  \Result\hspace{-0.4em}\Process \\
+
+\midrule
+
+
+\rowcolor{gray!10!white} \multicolumn{6}{c}{\textbf{\textit{Training Algorithm Optimization (\cref{sec:algorithmic_optimization})}}}\\
+
+
+RAGEN \cite{RAGEN} &
+  Cross-Domain & StarPO &
+  Qwen2.5-0.5/3B-I &
+  WebShop &
+  \Result\hspace{-0.4em}\Format  \\
+ZeroSearch \cite{ZeroSearch} &
+  DeepResearch & ZeroSearch &
+  Qwen2.5-3/7B, etc. &
+  NQ, HotpotQA &
+  \Result \\
+GiGPO \cite{GiGPO} &
+  Cross-Domain & GiGPO &
+  Qwen2.5-1.5/3/7B-I &
+  ALFWorld, WebShop, etc. &
+  \Result\hspace{-0.4em}\Process \\
+
+  
+WebAgent-R1 \cite{WebAgent-R1} &
+  GUI & M-GRPO &
+  Qwen-2.5-3B,Llama-3.1-8B &
+  WebArena &
+  \Result \\
+EvolveSearch \cite{EvolveSearch} &
+  DeepResearch &  GRPO &
+  Qwen2.5-7B-I &
+  NQ, HotpotQA, etc. &
+  \Result\hspace{-0.4em}\Format \\
+Embodied Planner-R1 \cite{Embodied_Planner-R1} &
+  Embodied & IPO &
+  Qwen2.5-7B-I &
+  ALFWorld, ScienceWorld &
+  \Result \\
+SPIRAL \cite{SPIRAL} &
+  Game & SPIRAL &
+  Qwen3-4/8B, etc. &
+  Customize &
+  \Result \\
+MobileGUI-RL \cite{MobileGUI-RL} &
+  GUI & 
+  MobGRPO & 
+  Qwen2.5-VL-7/32B &
+  AndroidWorldAvd &
+  \Result\hspace{-0.4em}\Efficient \\
+ARPO \cite{ARPO} &
+  Cross-Domain &
+  ARPO &
+  Qwen2.5-3B-I, Llama3.1-8B-I, etc. &
+  Tool-Star, STILL, etc. &
+  \Result\hspace{-0.4em}\Format\hspace{-0.4em}\Process \\
+Thinking With Videos \cite{Thinking_With_Videos} &
+  Image \& Video &
+  DGRPO &
+  Qwen2.5-VL-7B &
+  MTVR-CoT, MTVR-RL, etc. &
+  \Result\hspace{-0.4em}\Format\hspace{-0.4em}\Process \\
+ComputerRL \cite{ComputerRL} &
+  GUI &
+  ComputerRL &
+  GLM-4-9B-0414, GLM-4.1V-9B-T &
+  Customize &
+  \Result \\
+ExIt \cite{ExIt} &
+  Cross-Domain &
+  ExIt &
+  Llama-3.2-3B-I, Qwen2.5-7B-I, etc. &
+  NuminaMath, BFCL-v3, etc. &
+  \Result \\
+AgentGym-RL \cite{AgentGym-RL} &
+  Cross-Domain &
+   ScalingInter-RL &
+  Qwen2.5-3/7B &
+  WebArena, NQ, etc. &
+  \Result \\
+UI-S1 \cite{UI-S1} &
+  GUI &
+  SOPO &
+  Qwen2.5VL-3/7/32B &
+  AndroidControl-Train, Amex &
+  \Result\hspace{-0.4em}\Format\hspace{-0.4em}\Process \\
+SPEAR \cite{SPEAR} &
+  Cross-Domain &
+  SPEAR &
+  Qwen2.5-1.5/7B-I, etc. &
+  ALFWorld, WebShop, etc. &
+  \Result\hspace{-0.4em}\Format\hspace{-0.4em}\Process \\
+AgentRL \cite{AgentRL} &
+  Cross-Domain &
+  AgentRL &
+  Qwen2.5-3/7B-I, etc. &
+  ALFWorld, WebShop, etc. &
+  \Result\hspace{-0.4em}\Format \\
+Stronger-MAS \cite{STRONGER-MAS} &
+  Cross-Domain &
+  AT-GRPO &
+  Qwen3-1.7/8B &
+  Sudoku, Sokoban, etc. &
+  \Result\hspace{-0.4em}\Process \\
+VAGEN \cite{VAGEN} &
+  Cross-Domain &
+  PPO &
+  Qwen2.5-VL-3B &
+  Sokoban, FrozenLake, etc. &
+  \Result\hspace{-0.4em}\Format\hspace{-0.4em}\Process \\
+
+
+GTR-Turbo \cite{GTR-Turbo} &
+  Cross-Domain &
+  GTR &
+  Qwen2.5-VL-7B, Qwen3-VL-8B &
+  Points24, ALFWorld &
+  \Result\hspace{-0.4em}\Process \\
+
+
+
+SeeUPO \cite{SeeUPO} &
+  Tool &
+  SeeUPO &
+  Qwen3-14B, Qwen2.5-14B-I &
+  AppWorld, BFCL v4 &
+  \Result\hspace{-0.4em}\Process\\
+
+
+
+HGPO \cite{HGPO} &
+  Cross-Domain &
+  HGPO &
+  Qwen2.5-1.5/7B-I & % , Qwen2.5-B-I
+  ALFWorld, WebShop &
+  \Result \\
+
+DeepSWE \cite{DeepSWE} &
+  Code &
+  GRPO++ &
+  Qwen3-32B &
+  R2E-Gym &
+  \Result\hspace{-0.4em}\Efficient  \\
+
+ \bottomrule
+
+\end{tabular}
+}
+
+\end{table*}
+
+\subsection{Exploration-Centric Online Evolution}
+\label{sec:agent_evo_reinforcement_learning_optimization}
+\textbf{Reinforcement learning} is a crucial method for agent evolution \cite{PPO, GRPO, RLVE}. Through reinforcement learning, the model can not only enhance its capabilities but also mitigate catastrophic forgetting, thereby achieving better performance across multiple tasks \cite{SayCan, ReTool, GUI-R1, ARLArena, CM2, SimpleTIR, GEM, WebRL, WebArbiter}. By modifying the model's reasoning paradigms, setting up reward mechanisms, or improving training algorithms, reinforcement learning encourages the model to achieve targeted improvements in specific tasks or behaviors \cite{Agent-RRM, MetaClaw, ZeroGUI, DistRL}. We summarize the reinforcement learning training process into three parts: \textbf{(1) Reasoning Structure Design}: Modifying the model's reasoning structure in downstream tasks and designing corresponding reinforcement learning algorithms. \textbf{(2) Training Reward Design}: Designing more effective reward signals to encourage the model to explore and optimize more efficiently. \textbf{(3) Training Algorithm Optimization}: Optimizing the training algorithm to enhance the model's stability and effectiveness in complex tasks.
+
+\subsubsection{Reasoning Structure Design}
+\label{sec:reasoning_structure}
+\textbf{The research on inference structure design primarily focuses on how agents organize decision-making and reasoning processes in complex tasks}. In recent years, various methods have been proposed to enhance task-solving capabilities by designing specialized inference structures, often integrated with the training process. For example, Search-R1 \cite{Search-r1} introduces special tags in the reasoning process to differentiate between the thinking, search, feedback, and answer processes, while ReSearch \cite{ReSearch_2} and DeepRetrieval \cite{Deepretrieval} enhance the model's reasoning capability by incorporating format correctness rewards to ensure the accuracy of generated labels and the correct reasoning format, to promote the effectiveness of structured output. 
+
+As research progresses, more works are designing complex inference structures or workflows to further improve model performance. For instance, AutoRefine \cite{AutoRefine} introduces an explicit refinement step into the inference loop. In this paradigm, after obtaining retrieved documents, the model must first filter, refine, and organize the evidence, extracting key facts. Based on this refined information, the model then decides whether to conduct another search or generate the final answer.
+
+Additionally, in multimodal and embodied systems, Video-Thinker \cite{Video-Thinker} enables the model to think about videos by integrating time localization and content understanding into the reasoning process using special tokens. M3-Agent \cite{M3-Agent} enhances the handling of audiovisual tasks by incorporating external memory tools to establish connections between roles and memories before the reasoning process. ITP \cite{ITP} introduces world models to simulate environmental dynamics, supporting more complex reasoning tasks.
+
+\subsubsection{Training Reward Design}
+\label{sec:reward_shaping}
+\textbf{The core of reward design lies in modeling refined signals to guide agents in exploring and identifying optimal strategies}. The reward mechanism has evolved from early, purely result-oriented systems that focused on the correctness of the outcome to a multi-dimensional, task-specific optimization framework.
+
+In terms of efficiency optimization, researchers have introduced a cost penalty mechanism to reduce the agent's over-reliance on tools or redundant searches. For example, OTC-PO \cite{OTC-PO} penalizes redundant calls by rewarding the product of correctness and efficiency, ReasonRAG \cite{ReasonRAG} drives minimalist reasoning by applying a path-length penalty factor, and VRAG-RL \cite{VRAG-RL} and VideoMem \cite{VideoMem} impose sparsity constraints on the RAG process or memory module, respectively, through retrieval time rewards and memory capacity penalties, aiming to solve problems with minimal cost.
+
+In the domain of goal alignment and stability, many methods combine rewards to help models better understand tasks. For example, IntentRL \cite{IntentRL} combines answer reward, format compliance, and repetition penalties, while SHARP \cite{SHARP} uses the Shapley Value for marginal contribution attribution, effectively solving the credit assignment problem. GDPO \cite{GDPO} introduces a decoupled normalization mechanism, independently processing accuracy, format, and length rewards to prevent signal collapse. At the same time, FlowSteer \cite{FlowSteer} employs a conditional release strategy. Final answer rewards are activated only when intermediate metrics of diversity are satisfied. Similarly, Video-MTR \cite{Video-MTR} uses this strategy, where process answer rewards are triggered only when final answer validity meets the required criteria. For multi-agent frameworks like Chain-of-Agents \cite{Chain-of-Agents}, the correctness reward and format reward are composed to formulate the final reward.
+
+In terms of process supervision, format rewards have become a universal constraint across tasks, while VLA-RL \cite{VLA-RL} uses a robot process reward model (RPRM), which provides high-density pseudo-reward signals through visual milestones.
+
+\subsubsection{Training Algorithm Optimization}
+\label{sec:algorithmic_optimization}
+\textbf{The optimization design of reinforcement learning algorithms focuses on improving training stability and sample efficiency in complex tasks through innovations in underlying architectures}.
+In the area of credit allocation, DigiRL \cite{DigiRL} proposes an advantage-weighted RL with advanced advantage estimators to account for stochasticity, coupled with an automatic curriculum that derives maximal learning signals. To address the challenge of sparse rewards due to long-range interactions, GiGPO \cite{GiGPO} introduces Anchor State Grouping, which aggregates different actions originating from the same state into step-level groups for optimization. The contextual consistency cluster of historical contexts and adaptive weighting in HGPO \cite{HGPO}, along with the world modeling reward and Bi-layer Generalized Advantage Estimation mechanism in VAGEN \cite{VAGEN}, enables precise reward propagation from macro-level episode rewards to micro-level step-level rewards. SPIRAL \cite{SPIRAL}, through Role-Conditioned Advantage Estimation (RAE), effectively mitigates asymmetric variance risk in multi-agent games.
+
+
+For objective function optimization, AEPO \cite{AEPO} introduces entropy-balanced rollout mechanism and optimization to prevent traditional algorithms from excessively suppressing high-entropy exploration signals, while CEMs \cite{CEMs} impose an information-theoretic metric term to encourage the model to learn efficient communication topologies.
+
+Regarding sampling structures, RAGEN \cite{RAGEN} retains trajectories with high reward variance during the sampling process, avoiding overfitting to specific samples. Stronger-MAS \cite{STRONGER-MAS} employs tree-structured sampling to ensure statistical validity deep within conversations, while WebSailor \cite{WebSailor} improves gradient efficiency by dynamically replicating non-zero variance samples, and AgentRL \cite{AgentRL} uses cross-policy sampling to enable stabilization. 
+
+Finally, in terms of training mechanisms, ComputerRL \cite{ComputerRL} introduces the novel concept of alternating RL and supervised fine-tuning updates, forcibly injecting successful experiences to tackle the issue of entropy collapse in online RL during later stages. This establishes a systematic optimization paradigm that evolves from local credit alignment to global strategy robustness.
+
+
+\subsubsection{Summary}
+\begin{tcolorbox}[takeaway,title={Takeaway 6.4}] % RL
+\begin{itemize}
+\item \textbf{Comparative Analysis:}  The design of the reinforcement learning process remains one of the key challenges in post-training. Current research focuses on improving more efficient reasoning paradigms, designing fine-grained reward signals, enhancing training stability, and enabling more effective exploration. Among these, training algorithm optimization is particularly critical, as it is more tightly coupled with parameter updates and thus offers a more general and scalable solution.
+
+\item \textbf{Future Directions:} Looking ahead, there are two promising directions. One is to integrate new concepts and capabilities into the training process, such as experience, skills, and personalization, enabling more adaptive and intelligent agents. The other is to develop more general-purpose algorithms that can be reliably deployed in real-world systems, bridging the gap between research and practical applications.
+\end{itemize}
+\end{tcolorbox}
+
+
+
+
+
+
+
+
+
+
+
+
+%%%%%%%%%%%%
+%%%%%%%%%%%%
+%%%%%%%%%%%%
+%%%%%%%%%%
+

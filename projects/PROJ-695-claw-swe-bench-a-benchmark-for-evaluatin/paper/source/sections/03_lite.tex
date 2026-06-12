@@ -1,0 +1,51 @@
+\section{Claw-SWE-Bench Lite}
+\label{sec:lite}
+
+The full 350-instance benchmark is the standard evaluation surface in this paper, but it is not suitable as the feedback loop for every development iteration. A full-350 run requires substantial token usage, API cost, wall-clock time, and log inspection effort. During adapter debugging, prompt modification, model replacement, or regression testing, repeatedly running the full set can make evaluation itself the bottleneck. \textsc{Claw-SWE-Bench Lite} is therefore designed as a low-cost companion to the full benchmark rather than as a replacement leaderboard: with 80 instances, it approximates the Pass@1 scale, per-language distribution, cross-claw relative behavior, and run-cost structure of full-350, allowing researchers to triage system changes with a shorter feedback loop before returning to full-350 for final reporting.
+
+\subsection{Lite Subset Definition}
+\label{sec:lite-def}
+
+Lite-80 selects 10 instances from each of the 8 languages in full-350. The 70 non-Python instances come from SWE-bench-Multilingual, and the 10 Python instances come from SWE-bench-Verified-Mini~\cite{swebench_verified_mini}, matching the source of the Python portion of the full set. In addition to language balance, Lite enforces a fixed within-language difficulty-quartile quota of $2/3/3/2$ over $Q_1/Q_2/Q_3/Q_4$, avoiding implicit resampling of any language toward unusually easy or unusually hard tasks. The final subset covers 34 of the 43 repositories in full-350 ($79\%$), preserving a substantial amount of repository diversity.
+
+Lite is not a simple random sample. It is fitted to full-350 behavior over 17 calibration columns. These columns include 9 OpenClaw model columns and 8 cross-claw columns from 4 non-openclaw claws (hermes, nanobot, zeroclaw, and generic) evaluated on two shared models, GLM 5.1 and Qwen 3.6-flash. This calibration pool spans both model variation and claw variation. Lite's objective therefore goes beyond preserving an average resolved rate: it aims to preserve the comparability scale of different systems on the full benchmark.
+
+\begin{figure}[t]
+  \centering
+  \begin{minipage}[t][\dimexpr 0.32\linewidth + 14pt\relax][t]{0.32\linewidth}
+    \vspace*{0pt}\centering
+    \includegraphics[width=\linewidth]{figs/F2a_per_lang_parity.pdf}
+    \vfill
+    {\footnotesize (a) Per-language parity (17-column mean)}
+  \end{minipage}\hfill
+  \begin{minipage}[t][\dimexpr 0.32\linewidth + 14pt\relax][t]{0.32\linewidth}
+    \vspace*{0pt}\centering
+    \includegraphics[width=\linewidth]{figs/F2b_cross_harness_parity.pdf}
+    \vfill
+    {\footnotesize (b) Cross-claw parity}
+  \end{minipage}\hfill
+  \begin{minipage}[t][\dimexpr 0.32\linewidth + 14pt\relax][t]{0.32\linewidth}
+    \vspace*{0pt}\centering
+    \includegraphics[width=\linewidth]{figs/F2c_k_sweep_envelope.pdf}
+    \vfill
+    {\footnotesize (c) K-sweep sensitivity envelope}
+  \end{minipage}
+  \caption{Lite-80 parity with full-350. \textbf{(a)} Per-language comparison between full-350 and Lite-80 Pass@1, averaged uniformly over the 17 calibration columns. \textbf{(b)} Cross-claw Pass@1 comparison between full-350 and Lite-80 over 5 claws $\times$ 2 shared models. \textbf{(c)} K-sweep sensitivity envelope; the minimum acceptable $K$ falls in $[8,10]$ across scenarios, and the release uses the conservative stable point $K{=}10$, or 10 instances per language.}
+  \label{fig:dist}
+  % \vspace{-3mm}
+\end{figure}
+
+\subsection{Cost-Aware, Rank-Aware Selection}
+\label{sec:lite-method}
+
+We formulate Lite selection as a binary selection problem over the 350 full-set instances. The variable $x_i\in\{0,1\}$ indicates whether instance $i$ is included in Lite. Hard constraints require selecting 10 instances per language and satisfying the fixed $2/3/3/2$ difficulty-quartile quota within that language. Difficulty quartiles are computed from the mean resolved rate over the calibration pool, so they reflect relative difficulty under multiple models and claws rather than under a single system.
+
+The objective controls three sources of bias. The first term is resolve-rate parity: over the $17\times 8$ grid of calibration columns by language, it minimizes the L1 difference between the Lite-estimated rate and the true full-350 rate. The second term is a pairwise ranking hinge: when two calibration columns differ by more than $\textrm{RANK\_EPS}=0.03$ on full-350, a penalty is applied if Lite reverses the order or falls within a $0.05$ margin ($\lambda=1.0$). The third term is cost parity: for each calibration column, it minimizes the log-cost discrepancy between Lite and full-350 ($\textrm{cost\_alpha}=1$), preventing the subset from matching resolved rate while being biased toward unusually cheap or expensive instances. Optimization uses per-language 200-restart within-quartile 1-swap local search, which keeps all hard constraints satisfied throughout the search and avoids reliance on an external solver.
+
+\subsection{Validation Results and the 80-Instance Scale}
+
+Figure~\ref{fig:dist} summarizes the main validation results for Lite-80. Across the 17 calibration columns, mean Pass@1 is $0.639$ on full-350 and $0.643$ on Lite-80, a difference of about $+0.4$\,pp. Per-language deviations are small overall: Go, JS/TS, PHP, and Python are all within $1$\,pp; the two largest deviations are C/C++ ($+2.94$\,pp) and Ruby ($+2.65$\,pp). In the 5 claws $\times$ 2 models cross-claw check, which is closer to how leaderboards are used, the mean absolute Lite--full difference is $1.88$\,pp and the maximum difference is $3.68$\,pp (nanobot $\times$ Qwen 3.6-flash). These results indicate that Lite-80 does not merely fit one local OpenClaw model, but preserves a cross-model and cross-claw evaluation scale.
+
+The cost side must also be checked. Lite-80's actual per-instance cost is close to that of full-350; because the number of instances falls from 350 to 80, a full Lite run costs about $22.9\%$ of a full run. Broken down by resource type, the full-run ratios for input tokens, output tokens, cache-read tokens, and wall-clock duration are approximately $22.2\%$, $23.6\%$, $22.6\%$, and $23.0\%$, respectively. Lite therefore provides an evaluation surface at roughly one quarter of the cost, rather than lowering cost by selecting anomalously cheap examples.
+
+The choice of 80 instances also comes from an explicit K-sweep rather than a convenient round number. We scan subset size in units of $K$ instances per language and repeat selection and validation across different margin, restart, seed, and mirror-parity scenarios. Sensitivity analysis finds that the minimum acceptable size lies in $K^*\in[8,10]$: two scenarios pass at $K{=}8$, three require $K{=}9$, and four structural-perturbation scenarios require $K{=}10$. We release $K^*_{\max}=10$, or 8 languages $\times$ 10 instances = 80 instances. At this size, the resolve gates (R-A/R-B/R-C), cost gates (C-A/C-B/C-C), and operational composite gate all pass. Lite-80 is therefore the smallest conservative stable release point under the sensitivity envelope: smaller $K$ values can work in some configurations, but are not robust enough to serve as the default reusable low-cost benchmark.

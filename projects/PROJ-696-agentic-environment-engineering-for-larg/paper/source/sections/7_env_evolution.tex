@@ -1,0 +1,344 @@
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure*}[t]
+    \centering
+    \includegraphics[width=1\textwidth]{images/env_evo.pdf}
+    \caption{
+    \textbf{Overview of environment evolution paradigms.} Existing methods are organized into three categories: Neural-Driven Evolution, which evolves environments through self-play or world models; Difficulty-Driven Evolution, which adapts task difficulty via explicit curriculum signals or implicit curriculum mechanisms; and Scaling-Driven Evolution, which expands environment diversity at the scenario or environment level.
+    }
+    \label{fig:parametric_synthesis}
+\end{figure*}
+\section{Environment Evolution}\label{sec:env_evo}
+% Environment evolution focuses on how training environments can be adapted to improve agent capability.
+Environment evolution focuses on how training environments are progressively evolved to support the continuous improvement of agent capability.
+%
+Existing approaches can be categorized into three paradigms according to how the environment is evolved:
+% \textbf{(1) Parameter-Driven Evolution} (\cref{sec:param_evo}) focuses on modeling environment dynamics through world models, enabling agents to simulate interactions before execution;
+\textbf{(1) Neural-Driven Evolution} (\cref{sec:neural_evo}) instantiates the environment as a learned neural model, and evolves the environment by optimizing this model to provide adaptive interactions or simulated transitions for agent learning;
+\textbf{(2) Difficulty-Driven Evolution} (\cref{sec:diff_evo}) regulates environment complexity to match the agent's capability through curriculum learning;
+\textbf{(3) Scaling-Driven Evolution} (\cref{sec:scaling_evo}) expands the environment distribution itself by increasing scenario diversity or introducing new environment structures.
+%
+This categorization highlights different ways in which environments can be adapted to support agent learning, and provides a structured view of the design space of environment evolution.
+%
+% \subsection{Parameter-Driven Evolution}\label{sec:param_evo}
+% Parameter-driven environment evolution typically relies on \textbf{world models} to model environment dynamics, enabling agents to simulate potential interactions before executing actions in real environments.
+% Existing approaches mainly differ in how the world model is obtained: some methods \textbf{learn environment dynamics} directly from interaction data~\cite{Code2World,WebEvolver,WebWorld}, while others leverage the prior knowledge of foundation models through \textbf{prompting} to simulate environment transitions at inference time~\cite{WebDreamer,UI-Simulator,WAC}.
+% These two directions introduce different trade-offs between training cost, scalability, and simulation fidelity.
+% \subsubsection{Learning-based World Model}
+% Learning-based world models obtain the simulator by explicitly learning environment transitions from interaction data.
+% Code2World~\cite{Code2World} models GUI transitions as renderable code, generating  the next interface as HTML and aligning predictions with visual outcomes via render-aware reinforcement learning. 
+% WebEvolver~\cite{WebEvolver} extends this paradigm by jointly evolving the world model and agent policy, where the learned model is used both to generate training trajectories and to simulate future interactions for planning.
+% WebWorld~\cite{WebWorld} further scales this line by training a web simulator on over one million real-world interaction trajectories, enabling long-horizon and structured state prediction at scale.
+% % \subsubsection{Prompt-based World Model}
+% \subsubsection{Inference-Based World Model}
+% In contrast, inference-based world models rely on the reasoning and prior knowledge of foundation models to simulate environment transitions without explicitly training a dedicated simulator. 
+% WebDreamer~\cite{WebDreamer} demonstrates that a strong LLM can function as a web world model via direct prompting, predicting potential state changes for candidate actions and enabling model-predictive planning before real interaction. 
+% UI-Simulator~\cite{UI-Simulator} constructs an LLM-based simulator that generates future UI states from prior context and actions, while guided rollouts and trajectory wrappers are introduced to synthesize scalable training data. 
+% WAC~\cite{WAC} integrates a world model as an environment expert within a multi-agent pipeline, where simulated outcomes are used to support candidate action generation and pre-execution correction. 
+%
+
+% \begin{table*}
+% \caption{The statistics of Environment Evolution Methods. \textbf{Feedback} describes environment observations, where \textbf{Str} stands for structured text and \textbf{Err} for error messages. \textbf{Source} indicates environment origin, where \textbf{Syn.} stands for synthetic. \textbf{NA} means not applicable or unspecified.}
+% \resizebox{\textwidth}{!}{
+% \begin{tabular}{lcccccc}
+% \toprule
+% \textbf{Name} &
+% \textbf{Trait} &
+% \textbf{Domain} &
+% \textbf{Feedback} &
+% \textbf{Evo Criterion} &
+% \textbf{Source} &
+% \textbf{Process Reward} \\
+% \midrule
+
+% \rowcolor{gray!10!white}
+% \multicolumn{7}{c}{\textbf{\textit{Neural-Driven Evolution (\cref{sec:neural_evo})}}} \\
+
+% Absolute zero~\cite{Absolute_zero} & Self-Play & Code & Str & Success Rate & Syn. & \No \\
+% Self-Challenging~\cite{Self-Challenging} & Self-Play & Tool & Str, Tool Response & NA & Syn. & \No \\
+% Vision-zero~\cite{Vision-zero} & Self-Play & Chart, Vision & Image, Str & Accuracy, N/A Rate
+%  & Syn. & \No \\
+% SSR~\cite{SSR} & Self-Play & Code & Str, JSON & Success Rate & Syn. & \No \\
+% Active Zero~\cite{Active_Zero} & Self-Play & Vision, Math & Image, Str & Solver Uncertainty, Repetition Penalty & Syn. & \No \\
+
+% WebDreamer~\cite{WebDreamer} & World Model & GUI & Image, Str & NA & Syn. & \No \\
+% UI-Simulator~\cite{UI-Simulator} & World Model & GUI & Str, List & Teacher-forcing Loss & Syn. & \No \\
+% WebEvolver~\cite{WebEvolver} & World Model & GUI & Str, List & NA & Syn. & \No \\
+% Code2World~\cite{Code2World} & World Model & GUI & Str, Image  & NA & Syn. & \No \\
+% WAC~\cite{WAC} & World Model & GUI & Str & NA & Syn. & \No \\
+% WebWorld~\cite{WebWorld} & World Model & GUI & Str, List & NA & Syn. & \No \\
+
+% \midrule
+% \rowcolor{gray!10!white}
+% \multicolumn{7}{c}{\textbf{\textit{Difficulty-Driven Evolution (\cref{sec:diff_evo})}}} \\
+
+% POET~\cite{POET} & Implicit Signals & Robotics & State & NA & Syn. & \Yes \\
+% PAIRED~\cite{PAIRED} & Explicit Signals & Game & State & Regret & Syn. & Partial \\
+% DCD~\cite{DCD} & Explicit Signals & Game, Robotics & State, Image & Regret & Syn. & Partial \\
+% ACCEL~\cite{ACCEL} & Explicit Signals & Game, Robotics & State & Regret & Syn. & Partial \\
+% MAESTRO~\cite{MAESTRO} & Explicit Signals & Game & State & Regret & Syn. & Partial \\
+% ReMiDi~\cite{ReMiDi} & Explicit Signals & Game & State & Regret & Syn. & Partial \\
+% EnvGen~\cite{EnvGen} & Explicit Signals & Game & Image & Success Rate & Syn. & \No \\
+% AgentGen~\cite{AgentGen} & Implicit Signals & Embodied & Str & NA & Syn. & \No \\
+% DataEnvGym~\cite{DataEnvGym} & Explicit Signals & Math, Code, Vision, Tool & Str & Student Feedback & Syn. & \No \\
+% Eurekaverse~\cite{Eurekaverse} & Explicit Signals & Embodied & NA & Success Rate & Syn. & \Yes \\
+% Environment Tuning~\cite{Environment_Tuning} & Implicit Signals & Tool & Hint, Str, Err & Curriculum Schedule & Syn. & \Yes \\
+% SEC~\cite{SEC} & Implicit Signals & Math, Reasoning & Str & NA & Syn. & \No \\
+% Reasoning Core~\cite{Reasoning_Core} & Implicit Signals & Reasoning, Planning, Logic & Str, Err & External Curriculum Policy & Syn. & \No \\
+% DreamGym~\cite{DreamGym} & Implicit Signals & GUI, Embodied & Str & NA & Syn. & \No \\
+% RLVE~\cite{RLVE} & Explicit Signals & Math, Algorithm & Str & Success Rate & Human & \No \\
+% CuES~\cite{CuES} & Explicit Signals & Tool, GUI & Str, Err & Curiosity & Syn. & \No \\
+% GenEnv~\cite{GenEnv} & Explicit Signals & Tool, Embodied, Reasoning & Str, Err & $\alpha$-Curriculum Reward & Syn. & \No \\
+% SCALER~\cite{SCALER} & Explicit Signals & Math & Str, Err & Accuracy & Syn. & \No \\
+
+% \midrule
+% \rowcolor{gray!10!white}
+% \multicolumn{7}{c}{\textbf{\textit{Scaling-Driven Evolution (\cref{sec:scaling_evo})}}} \\
+
+% FTRL~\cite{FTRL} & Scenario-Level & Tool & Str, Err & NA & Syn. & \Yes \\
+% ARE~\cite{ARE} & Environment-Level & GUI, Tool & Str, Tool Response & NA & Syn. & \No \\
+% AgentScaler~\cite{AgentScaler} & Scenario-Level & Tool & Str, Err & NA & Syn. & \No \\
+% AutoEnv~\cite{AutoEnv} & Environment-Level & Reasoning, Game & Str & NA & Syn. & \No \\
+% AutoForge~\cite{AutoForge} & Scenario-Level & Tool & Str, Err & NA & Syn. & \No \\
+% EnvScaler~\cite{EnvScaler} & Scenario-Level & Tool & Str, Err & NA & Syn. & \Yes \\
+% InfiniteWeb~\cite{InfiniteWeb} & Scenario-Level & GUI & Image, Str & NA & Syn. & \Yes \\
+% Agent World Model~\cite{Agent_world_model} & Scenario-Level & Tool & Dict, Str, Err & NA & Syn. & \Yes \\
+% AutoWebWorld~\cite{AutoWebWorld} & Scenario-Level & GUI & Image, Str & NA & Syn. & \Yes \\
+
+% \bottomrule
+% \end{tabular}}
+% \end{table*}
+\begin{table*}
+\caption{The statistics of Environment Evolution Methods. \textbf{Str} stands for structured text, \textbf{Err} for error messages, and \textbf{NA} means not applicable or unspecified.}
+\resizebox{\textwidth}{!}{
+\begin{tabular}{lccccc}
+\toprule
+\textbf{Name} &
+\textbf{Trait} &
+\textbf{Domain} &
+\textbf{Feedback} &
+\textbf{Evo Criterion} &
+\textbf{Process Reward} \\
+\midrule
+
+\rowcolor{gray!10!white}
+\multicolumn{6}{c}{\textbf{\textit{Neural-Driven Evolution (\cref{sec:neural_evo})}}} \\
+
+Absolute zero~\cite{Absolute_zero} & Self-Play & Code & Str & Success Rate & \No \\
+Self-Challenging~\cite{Self-Challenging} & Self-Play & Tool & Str, Tool Response & NA & \No \\
+Vision-zero~\cite{Vision-zero} & Self-Play & Chart, Vision & Image, Str & Accuracy, N/A Rate & \No \\
+SSR~\cite{SSR} & Self-Play & Code & Str, JSON & Success Rate & \No \\
+Active Zero~\cite{Active_Zero} & Self-Play & Vision, Math & Image, Str & Solver Uncertainty, Repetition Penalty & \No \\
+
+WebDreamer~\cite{WebDreamer} & World Model & GUI & Image, Str & NA & \No \\
+UI-Simulator~\cite{UI-Simulator} & World Model & GUI & Str, List & Teacher-forcing Loss & \No \\
+WebEvolver~\cite{WebEvolver} & World Model & GUI & Str, List & NA & \No \\
+Code2World~\cite{Code2World} & World Model & GUI & Str, Image & NA & \No \\
+WAC~\cite{WAC} & World Model & GUI & Str & NA & \No \\
+WebWorld~\cite{WebWorld} & World Model & GUI & Str, List & NA & \No \\
+
+\midrule
+\rowcolor{gray!10!white}
+\multicolumn{6}{c}{\textbf{\textit{Difficulty-Driven Evolution (\cref{sec:diff_evo})}}} \\
+
+POET~\cite{POET} & Implicit Signals & Robotics & State & NA & \Yes \\
+PAIRED~\cite{PAIRED} & Explicit Signals & Game & State & Regret & Partial \\
+DCD~\cite{DCD} & Explicit Signals & Game, Robotics & State, Image & Regret & Partial \\
+ACCEL~\cite{ACCEL} & Explicit Signals & Game, Robotics & State & Regret & Partial \\
+MAESTRO~\cite{MAESTRO} & Explicit Signals & Game & State & Regret & Partial \\
+ReMiDi~\cite{ReMiDi} & Explicit Signals & Game & State & Regret & Partial \\
+EnvGen~\cite{EnvGen} & Explicit Signals & Game & Image & Success Rate & \No \\
+AgentGen~\cite{AgentGen} & Implicit Signals & Embodied & Str & NA & \No \\
+DataEnvGym~\cite{DataEnvGym} & Explicit Signals & Math, Code, Vision, Tool & Str & Student Feedback & \No \\
+Eurekaverse~\cite{Eurekaverse} & Explicit Signals & Embodied & NA & Success Rate & \Yes \\
+Environment Tuning~\cite{Environment_Tuning} & Implicit Signals & Tool & Hint, Str, Err & Curriculum Schedule & \Yes \\
+SEC~\cite{SEC} & Implicit Signals & Math, Reasoning & Str & NA & \No \\
+Reasoning Core~\cite{Reasoning_Core} & Implicit Signals & Reasoning, Planning, Logic & Str, Err & External Curriculum Policy & \No \\
+DreamGym~\cite{DreamGym} & Implicit Signals & GUI, Embodied & Str & NA & \No \\
+RLVE~\cite{RLVE} & Explicit Signals & Math, Algorithm & Str & Success Rate & \No \\
+CuES~\cite{CuES} & Explicit Signals & Tool, GUI & Str, Err & Curiosity & \No \\
+GenEnv~\cite{GenEnv} & Explicit Signals & Tool, Embodied, Reasoning & Str, Err & $\alpha$-Curriculum Reward & \No \\
+SCALER~\cite{SCALER} & Explicit Signals & Math & Str, Err & Accuracy & \No \\
+
+\midrule
+\rowcolor{gray!10!white}
+\multicolumn{6}{c}{\textbf{\textit{Scaling-Driven Evolution (\cref{sec:scaling_evo})}}} \\
+
+FTRL~\cite{FTRL} & Scenario-Level & Tool & Str, Err & NA & \Yes \\
+ARE~\cite{ARE} & Environment-Level & GUI, Tool & Str, Tool Response & NA & \No \\
+AgentScaler~\cite{AgentScaler} & Scenario-Level & Tool & Str, Err & NA & \No \\
+AutoEnv~\cite{AutoEnv} & Environment-Level & Reasoning, Game & Str & NA & \No \\
+AutoForge~\cite{AutoForge} & Scenario-Level & Tool & Str, Err & NA & \No \\
+EnvScaler~\cite{EnvScaler} & Scenario-Level & Tool & Str, Err & NA & \Yes \\
+InfiniteWeb~\cite{InfiniteWeb} & Scenario-Level & GUI & Image, Str & NA & \Yes \\
+Agent World Model~\cite{Agent_world_model} & Scenario-Level & Tool & Dict, Str, Err & NA & \Yes \\
+AutoWebWorld~\cite{AutoWebWorld} & Scenario-Level & GUI & Image, Str & NA & \Yes \\
+
+\bottomrule
+\end{tabular}}
+\end{table*}
+\subsection{Neural-Driven Evolution}\label{sec:neural_evo}
+Neural-Driven environment evolution treats the environment itself as a learned neural model.
+In this paradigm, the environment is no longer a fixed external simulator or a manually specified interaction process, but a trainable model that directly embodies either self-generated interactive dynamics or learned environment dynamics.
+Accordingly, environment evolution is realized through the optimization of this model, so that the environment can adapt together with agent learning by providing adaptive interactions or simulated transitions.
+Existing approaches in this direction can be broadly divided into two categories.
+The first relies on \textbf{self-play}, where the environment is effectively instantiated by the agent itself through self-generated tasks, challenges, or role-based interactions~\cite{Absolute_zero,Self-Challenging,Vision-zero,SSR,Active_Zero}.
+The second relies on \textbf{world models}, where the environment is instantiated as a separately learned simulator that approximates environment dynamics and provides environment-like feedback~\cite{Code2World,WebEvolver,WebWorld,WebDreamer,UI-Simulator,WAC}.
+%
+\subsubsection{Self-Play}\label{sec:self-play}
+Self-play constructs an effective training environment from the agent itself or its role-specialized variants.
+Through self-generated tasks, the agent not only learns within the environment but also participates in shaping the environment it learns from, making environment evolution endogenous to self-play.
+%
+Absolute zero~\cite{Absolute_zero} represents the clearest form of this paradigm: a unified model simultaneously plays the roles of proposer and solver, generating tasks that maximize its own learning progress and then improving by solving them.
+Self-Challenging~\cite{Self-Challenging} extends this paradigm to tool-use settings, where the same model first acts as a challenger to synthesize verifiable tasks and then switches to an executor role to learn from them.
+%
+Beyond direct task generation, some methods realize self-play through structured role interaction.
+Vision-zero~\cite{Vision-zero} formulates self-improvement as a gamified visual reasoning process, where role-based interactions over visual inputs create increasingly informative training challenges.
+SSR~\cite{SSR} grounds self-play in software engineering, allowing a single model to alternate between bug injection and bug fixing so that increasingly realistic coding tasks emerge from the self-play loop itself.
+Active Zero~\cite{Active_Zero} further generalizes this formulation by introducing multiple co-evolving roles, such as Searcher, Questioner, and Solver, enabling the agent to actively retrieve frontier examples and construct adaptive visual reasoning tasks.
+%
+\subsubsection{World Model}\label{sec:world_model}
+World-model-based neural evolution instantiates the environment as a separately learned simulator that approximates environment dynamics and provides environment-like feedback for agent learning.
+%
+Existing approaches mainly differ in how the world model is obtained: some methods learn environment dynamics directly from interaction data~\cite{Code2World,WebEvolver,WebWorld}, while others leverage the prior knowledge of foundation models through prompting to simulate environment transitions at inference time~\cite{WebDreamer,UI-Simulator,WAC}.
+These two directions introduce different trade-offs between training cost, scalability, and simulation fidelity.
+%
+\textbf{Learning-based World Models} obtain the simulator by explicitly learning environment transitions from interaction data.
+Code2World~\cite{Code2World} models GUI transitions as renderable code, generating the next interface as HTML and aligning predictions with visual outcomes via render-aware reinforcement learning.
+WebEvolver~\cite{WebEvolver} extends this paradigm by jointly evolving the world model and agent policy, where the learned model is used both to generate training trajectories and to simulate future interactions for planning.
+WebWorld~\cite{WebWorld} further scales this line by training a web simulator on over one million real-world interaction trajectories, enabling long-horizon and structured state prediction at scale.
+%
+\textbf{Inference-based World Models} rely on the reasoning and prior knowledge of foundation models to simulate environment transitions without explicitly training a dedicated simulator.
+WebDreamer~\cite{WebDreamer} demonstrates that a strong LLM can function as a web world model via direct prompting, predicting potential state changes for candidate actions and enabling model-predictive planning before real interaction.
+UI-Simulator~\cite{UI-Simulator} constructs an LLM-based simulator that generates future UI states from prior context and actions, while guided rollouts and trajectory wrappers are introduced to synthesize scalable training data.
+WAC~\cite{WAC} integrates a world model as an environment expert within a multi-agent pipeline, where simulated outcomes are used to support candidate action generation and pre-execution correction.
+%
+\subsection{Difficulty-Driven Evolution}\label{sec:diff_evo}
+Complementary to neural-driven evolution, difficulty-driven environment evolution commonly adopts \textbf{curriculum learning}, where environments are progressively adjusted to match the evolving capabilities of agents.
+% The goal is to maintain tasks near the agent’s capability frontier—avoiding tasks that are too easy to provide useful learning signals or too difficult to enable effective exploration.
+Existing approaches can be broadly divided into two categories. 
+The first relies on \textbf{explicit curriculum signals}, where environment difficulty is directly regulated by clearly defined signals such as accuracy, regret, reward or curiosity~\cite{RLVE,SCALER,GenEnv,CuES}. 
+The second relies on \textbf{implicit curriculum mechanisms}, where curriculum progression is not explicitly controlled by a measurable signal but instead emerges from adaptive task generation, environment construction, or manually designed curricula~\cite{DreamGym,AgentGen,Reasoning_Core,Environment_Tuning}. 
+\subsubsection{Explicit Curriculum Signals}\label{sec:Explicit Curriculum Signals}
+Explicit curriculum signals regulate environment difficulty through clearly defined metrics that determine how tasks should be generated or adapted during training. 
+%
+% RLVE~\cite{RLVE}, SCALER~\cite{SCALER}, and GenEnv~\cite{GenEnv} all exemplify success-rate-aligned curriculum signals, though they differ in their adaptation mechanisms. 
+% Most existing approaches adopt success rate as the primary signal to regulate environment difficulty, though they differ in their adaptation mechanisms.
+Most existing approaches adopt performance-related signals as the primary basis for curriculum control, though they differ in their adaptation mechanisms.
+%
+A common strategy is to use success rate or accuracy as the main curriculum signal.
+RLVE~\cite{RLVE} primarily performs forward difficulty evolution: each adaptive verifiable environment shifts its problem distribution toward harder instances once the empirical success rate on the current upper-bound difficulty exceeds a predefined threshold. 
+SCALER~\cite{SCALER} adopts a broader co-adaptive strategy, using an online difficulty controller to adjust instance difficulty based on rollout accuracy so as to maintain training near a target success-rate band, while further reorganizing the training distribution through active environment curation. 
+GenEnv~\cite{GenEnv} instead formulates this principle as a reward-driven curriculum policy, where the $\alpha$-Curriculum Reward encourages the generation of tasks whose empirical success rate stays close to a target band, thereby aligning difficulty with the agent's current capability.
+EnvGen~\cite{EnvGen} extends this idea to game environments by adapting environment configurations according to task-specific success and failure statistics, so that the generated environments increasingly target the agent's weak skills.
+Eurekaverse~\cite{Eurekaverse} similarly evolves embodied training terrains using policy training statistics, especially success rate and reward-related signals, to iteratively generate more suitable parkour environments.
+%
+Another important line of work comes from unsupervised environment design, where explicit signals such as regret are used to regulate the evolution of parameterized environments or replayable levels~\cite{PAIRED,DCD,MAESTRO,ACCEL,ReMiDi}.
+PAIRED~\cite{PAIRED} uses regret between antagonist and protagonist returns to train an adversarial environment generator, thereby steering the environment toward tasks that are difficult yet still learnable.
+ACCEL~\cite{ACCEL} further develops this paradigm in replay-based settings by editing and preserving high-value levels according to regret-style signals, enabling continual environment evolution while avoiding curriculum collapse.
+%
+Beyond direct performance signals, some methods rely on richer external feedback.
+DataEnvGym~\cite{DataEnvGym} uses student feedback, such as errors and weak skills, to guide teacher-side data and environment generation, turning student performance into an explicit curriculum signal.
+CuES~\cite{CuES} instead uses intrinsic curiosity as an explicit signal to drive exploration and task synthesis in environments without predefined tasks, enabling the agent to autonomously discover and organize useful training tasks.  
+%
+% Overall, these approaches make curriculum progression directly observable and controllable by grounding difficulty adaptation in explicit signals such as success rate, reward, or curiosity.
+\subsubsection{Implicit Curriculum Mechanisms}\label{sec:Implicit Curriculum Mechanisms}
+% In contrast, implicit curriculum mechanisms do not regulate difficulty through an explicitly defined signal. Instead, curriculum progression arises from the generation and organization of tasks and environments during training. 
+Implicit curriculum mechanisms do not rely on explicit signals, with curriculum progression emerging from task generation and environment construction during training.
+%
+POET~\cite{POET} exemplifies this paradigm by jointly evolving environments and agents through mutation, minimal-criterion filtering, and transfer, allowing progressively more complex obstacle courses to emerge without an explicit difficulty controller.
+DreamGym~\cite{DreamGym} induces curriculum through adaptive task generation, synthesizing tasks that challenge the current policy and prioritizing those with high reward entropy to construct progressively more informative training experiences.
+AgentGen~\cite{AgentGen} similarly relies on task evolution by constructing tasks of increasing difficulty within generated environments and refining the progression through bidirectional evolution over both easier and harder instances.
+%
+Reasoning Core~\cite{Reasoning_Core} exemplifies curriculum emerging from environment construction. It emphasizes scalable symbolic reasoning environments with continuous difficulty control and large-scale problem generation, enabling increasingly challenging instances to arise as training progresses.
+%
+SEC~\cite{SEC} instead realizes curriculum progression through adaptive category selection, dynamically reallocating training focus across problem types during training without relying on a manually specified curriculum schedule.
+%
+Environment Tuning~\cite{Environment_Tuning} instead reflects manually designed curricula, organizing training through structured curricula, environment augmentation, and progress-based feedback.
+%
+% Overall, these approaches demonstrate that curriculum-like progression can emerge without explicit signal control, arising instead from task generation, environment construction, or manually designed curricula.
+
+\subsection{Scaling-Driven Evolution}\label{sec:scaling_evo}
+Beyond adjusting environment parameters or curriculum difficulty, scaling-driven environment evolution focuses on expanding the breadth of the \textbf{environment distribution} itself.
+The goal is to expose agents to substantially richer interaction spaces by increasing either the diversity of scenarios within a given environment family or the coverage of fundamentally different domains and environment structures.
+Existing approaches in this direction can be broadly divided into two categories.
+The first emphasizes \textbf{scenario-level scaling}, where evolution is achieved by synthesizing more diverse tasks, trajectories, websites, or tool-use workflows within a shared interaction paradigm~\cite{EnvScaler,AutoForge,AgentScaler,InfiniteWeb,AutoWebWorld}.
+The second emphasizes \textbf{environment-level scaling}, where evolution is driven by extending environments across multiple domains and applications, together with their transition, observation, and reward structures, thereby pushing agents toward broader cross-environment generalization~\cite{ARE,AutoEnv}.
+\subsubsection{Scenario-Level Scaling}\label{sec:Scenario-Level Scaling}
+Scenario-level scaling expands environment diversity primarily by increasing the number and variety of tasks, trajectories, and interaction scenarios within a shared environment paradigm.
+In tool-use settings, several works~\cite{EnvScaler,AutoForge,AgentScaler} follow this paradigm by automatically constructing executable tool-interaction scenarios.
+EnvScaler~\cite{EnvScaler} adopts a two-stage pipeline that first builds environment skeletons and then instantiates them into concrete scenarios with initial states, task descriptions, and rule-based validation.
+AutoForge~\cite{AutoForge} further extends this pipeline by composing more challenging workflows from tool dependencies and reasoning constraints, while also introducing RL to stabilize training over synthesized environments.
+AgentScaler~\cite{AgentScaler} provides a more structured formulation by abstracting function calling as read and write operations over databases, thereby systematically expanding the combinatorial space of tools, user intents, and execution paths.
+A similar trend appears in GUI environments. 
+InfiniteWeb~\cite{InfiniteWeb} enables scalable web-agent training by automatically generating functional websites from lightweight specifications, along with corresponding tasks and reward evaluators.
+AutoWebWorld~\cite{AutoWebWorld} further improves controllability and verifiability by modeling websites as finite state machines, enabling systematic trajectory enumeration and verification over explicit state spaces.
+%
+% Overall, scenario-level scaling treats environment evolution as a problem of scenario expansion.
+% By increasing the diversity of tasks, trajectories, and interaction patterns within a fixed environment paradigm, these methods provide agents with broader and more informative training experiences.
+% \subsubsection{Domain-based Scaling}
+\subsubsection{Environment-Level Scaling}\label{sec:Environment-Level Scaling}
+
+By comparison, environment-level scaling extends the environment distribution itself by introducing diverse application settings and heterogeneous environment structures.
+%
+% ARE~\cite{ARE} and AutoEnv~\cite{AutoEnv} represent two complementary approaches to environment-level scaling, both focusing on expanding the environment space rather than increasing the number of task instances.
+Current works focus on expanding the environment space rather than increasing the number of task instances.
+%
+ARE~\cite{ARE} provides a general platform for constructing and orchestrating agent environments across heterogeneous applications, supporting both synthetic environments and real-world application integration.
+By enabling flexible configuration of rules, tools, content, and evaluation protocols, it expands the environment ecosystem in which agents are developed and evaluated.
+%
+AutoEnv~\cite{AutoEnv}, in contrast, offers a more fundamental formulation by modeling environments as factorizable distributions over transitions, observations, and rewards.
+This abstraction allows heterogeneous environments with different dynamics and feedback structures to be generated in a unified manner, effectively scaling the space of environment factors and enabling systematic study of cross-environment learning and generalization.
+%
+% Overall, environment-level scaling reframes environment evolution as an expansion of the environment distribution itself.
+% By exposing agents to diverse application settings and heterogeneous environment structures, these approaches move beyond scenario diversity toward a more fundamental form of generalization.
+%
+\subsection{Summary}
+% Environment evolution provides a unified perspective on how training environments can be systematically adapted to improve agent capability.
+% Across existing approaches, three complementary paradigms can be identified, each targeting a distinct aspect of the environment.
+
+% \textbf{Parameter-driven evolution} focuses on modeling environment dynamics through world models, enabling agents to simulate interactions before acting in real environments.
+% The key distinction lies in how simulation capability is obtained: learning-based methods explicitly train simulators from interaction data, while inference-based methods leverage pretrained models to perform simulation at inference time.
+% %
+% This paradigm primarily improves sample efficiency and planning ability by enabling model-based interaction.
+
+% \textbf{Difficulty-driven evolution} adapts the complexity of training environments to match the agent's capability, typically through curriculum learning.
+% Existing approaches can be broadly divided into two categories: those that regulate difficulty using explicit signals such as success rate, reward, or curiosity, and those in which curricula emerge implicitly from task generation and environment construction.
+% %
+% This paradigm aims to keep training aligned with the agent's capability frontier, thereby improving learning stability and efficiency.
+
+% \textbf{Scaling-driven evolution} expands the breadth of the environment distribution itself.
+% Scenario-level scaling increases the diversity of tasks and interaction patterns within a fixed environment paradigm, while environment-level scaling introduces heterogeneous application settings and environment structures.
+% %
+% Compared to the previous two paradigms, this direction shifts the focus from optimizing within a given environment to broadening the space of environments in which agents are trained.
+
+% Taken together, these paradigms highlight a progressive shift in environment evolution: from improving \textbf{\emph{how agents interact with a given environment}} (parameter-driven), to controlling \textbf{\emph{what difficulty of tasks agents experience}} (difficulty-driven), and ultimately to expanding \textbf{\emph{which environments agents are exposed to}} (scaling-driven).
+% This perspective suggests that advancing agent capability requires not only better policies, but also treating environment evolution as a core component of agent learning.
+
+\begin{tcolorbox}[takeaway,title={Takeaway 7}]
+\begin{itemize}
+\item \textbf{Unified Perspective:}
+% Taken together, these paradigms highlight a progressive shift in environment evolution: from improving how agents interact with a given environment (neural-driven), to controlling what difficulty of tasks agents experience (difficulty-driven), and ultimately to expanding which environments agents are exposed to (scaling-driven).
+%
+% Taken together, these paradigms highlight a progressive broadening of environment evolution:
+% from representing the environment as a learned model (neural-driven),
+% to adapting the difficulty of training environments to the agent's capability (difficulty-driven),
+% and ultimately to expanding the environment distribution itself (scaling-driven).
+%
+Taken together, these paradigms reveal three complementary ways of evolving training environments for agent learning:
+Neural-Driven Evolution represents the environment itself as a learned model,
+Difficulty-Driven Evolution adapts environment difficulty to match the agent's capability,
+and Scaling-Driven Evolution expands the environment distribution by broadening scenario diversity or environment structures.
+%
+% This progression provides a unified perspective on how environments can be systematically adapted to support agent learning.
+% It also suggests that advancing agent capability requires not only stronger policies, but also treating environment evolution as a core component of the training process.
+\item \textbf{Future Directions:} From this unified perspective, advancing agent capability requires not only stronger policies, but also treating environment evolution as a core component of the training process.
+% Looking forward, training environments may need to evolve toward greater realism, with richer feedback, more diverse structures, and closer alignment with real-world interaction settings, eventually giving rise to \emph{environment engineering} as a systematic foundation for agent development.
+Looking forward, training environments may need to evolve toward greater realism, with richer feedback, more diverse structures, and closer alignment with real-world interaction settings for agent development.
+
+
+\end{itemize}
+\end{tcolorbox}

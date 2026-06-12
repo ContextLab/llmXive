@@ -1,0 +1,1011 @@
+\ifdefined\pdfobjcompresslevel
+\pdfobjcompresslevel=0
+\fi
+\PassOptionsToPackage{table,dvipsnames}{xcolor}
+\documentclass[]{selfevolagent}
+% Option "twocolumn" available, but please prioritize single-column
+\usepackage{microtype}
+\usepackage{amsfonts}
+\usepackage{xcolor}
+\definecolor{lavender}{RGB}{230,230,250}
+\definecolor{softlavender}{RGB}{238, 223, 255}
+\definecolor{selfevolagent}{RGB}{220,211,237}
+\usepackage{wrapfig}
+\usepackage{float}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{subcaption}
+\usepackage{makecell}
+\usepackage{multirow}
+\usepackage{algpseudocode}
+\usepackage[linesnumbered,lined,boxed,commentsnumbered,ruled,longend]{algorithm2e}
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{assumption}[theorem]{Assumption}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+\usepackage{enumitem}
+\usepackage{pifont}
+\usepackage[edges]{forest}
+\usetikzlibrary{arrows.meta}
+\usepackage{tikz}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage[most]{tcolorbox}
+\usepackage{url}
+\usepackage{tabularx}
+\usepackage{fontawesome5}
+\usepackage{svg}
+\usepackage{xltabular}
+\usepackage{caption}
+\usepackage{titletoc}
+
+\usetikzlibrary{
+  positioning,
+  calc,
+  shapes.symbols,
+  shapes.geometric,
+  shapes.misc
+}
+\ifPDFTeX
+\usepackage[T1]{fontenc}
+\fi
+\definecolor{selfevolagent_dark}{HTML}{37D2A6}
+\definecolor{selfevolagent_light}{HTML}{9BE9D3}
+\definecolor{selfevolagent_lighter}{HTML}{CDF4E9}
+\definecolor{deltaaccent}{HTML}{23725F}
+\newcommand{\deltacell}[1]{\cellcolor{selfevolagent_lighter!28}#1}
+\newcommand{\deltalabel}{\deltacell{\textcolor{deltaaccent}{\textbf{$\Delta$ vs. init}}}}
+
+
+\newcommand\blfootnote[1]{%
+  \begingroup
+  \renewcommand\thefootnote{}\footnote{#1}%
+  \addtocounter{footnote}{-1}%
+  \endgroup
+}
+
+\newcommand{\ghlink}[1]{\faIcon{github}\,\href{#1}{GitHub}}
+\newcommand{\weblink}[1]{\faIcon{globe}\,\href{#1}{Website}}
+
+\newcommand{\cmark}{\textcolor{green}{\ding{52}}}
+\newcommand{\xmark}{\textcolor{red}{\ding{56}}}
+
+\newcommand{\ie}{\textit{i.e.}}
+\newcommand{\eg}{\textit{e.g.}}
+\newcommand{\arbor}{\texttt{Arbor}}
+\newcommand{\htr}{\textsc{HTR}}
+\newcommand{\oao}{\textsc{OAO}}
+
+% Symbols used throughout the paper.
+\newcommand{\Mat}{\mathcal{M}}
+\newcommand{\Obj}{\mathcal{O}}
+\newcommand{\Eval}{\mathcal{E}}
+\newcommand{\Tree}{\mathcal{T}\!\textit{ree}}
+\newcommand{\dev}{\mathrm{dev}}
+\newcommand{\test}{\mathrm{test}}
+\newcommand{\tbd}{\textnormal{\textbackslash}}
+
+\definecolor{rootcolor}{RGB}{101, 45, 144}
+\definecolor{catcolor}{RGB}{255, 192, 0}
+\definecolor{subcatcolor}{RGB}{237, 125, 49}
+\definecolor{papercolor}{RGB}{68, 114, 196}
+
+\definecolor{prompttitle}{HTML}{2896FD}
+\definecolor{promptbg}{HTML}{EDF2FB}
+\definecolor{AppendixTOCSection}{HTML}{1E7F68}
+\definecolor{AppendixTOCSubsection}{HTML}{2EA78A}
+\definecolor{AppendixTOCSubsubsection}{HTML}{5E8F83}
+\newcommand{\setupappendixtoc}{%
+    \titlecontents{section}
+        [2.6em]
+        {\addvspace{0.35em}\small\bfseries\color{AppendixTOCSection}}
+        {\contentslabel{2.3em}}
+        {}
+        {\titlerule*[0.45pc]{.}\contentspage}
+    \titlecontents{subsection}
+        [3.9em]
+        {\small\color{AppendixTOCSubsection}}
+        {\contentslabel{2.8em}}
+        {}
+        {\titlerule*[0.45pc]{.}\contentspage}
+    \titlecontents{subsubsection}
+        [6.2em]
+        {\footnotesize\color{AppendixTOCSubsubsection}}
+        {\contentslabel{3.5em}}
+        {}
+        {\titlerule*[0.45pc]{.}\contentspage}%
+}
+
+\newtcolorbox{promptbox}[1][]{
+  colback=promptbg,
+  colframe=prompttitle,
+  coltitle=white,
+  boxrule=0.5pt,
+  breakable,
+  arc=2pt,
+  left=5pt, right=5pt, top=5pt, bottom=5pt,
+  fontupper=\small,
+  title=\textbf{System Prompt},
+  #1
+}
+\newtcolorbox{toolbox}[1][]{
+  colback=promptbg,
+  colframe=prompttitle,
+  coltitle=white,
+  boxrule=0.5pt,
+  breakable,
+  arc=2pt,
+  left=5pt, right=5pt, top=5pt, bottom=5pt,
+  fontupper=\small,
+  title=\textbf{Tool Definition},
+  #1
+}
+
+\newcommand{\param}[2]{\texttt{\textbf{#1}} \textit{(#2)}}
+
+% \title{Arbor: General Hypothesis-Tree Framework for Autonomous Research}
+\title{Toward Generalist Autonomous Research via Hypothesis-Tree Refinement}
+
+\author[1,\dagger,\ddagger]{Jiajie Jin}
+\author[1,\dagger]{Yuyang Hu}
+\author[2]{Kai Qiu}
+\author[2]{Qi Dai}
+\author[2]{Chong Luo}
+\author[1]{Guanting Dong}
+\author[1]{Xiaoxi Li}
+\author[1]{Tong Zhao}
+\author[2]{Xiaolong Ma}
+\author[2]{Gongrui Zhang}
+\author[2]{Zhirong Wu}
+\author[2]{Bei Liu}
+\author[2]{Zhengyuan Yang}
+\author[2]{Linjie Li}
+\author[2]{Lijuan Wang}
+\author[1]{Hongjin Qian}
+\author[1]{Yutao Zhu}
+\author[1,*]{Zhicheng Dou}
+
+\affiliation[1]{Gaoling School of Artificial Intelligence, Renmin University of China}
+\affiliation[2]{Microsoft Research}
+\contribution[\dagger]{Equal contribution}
+\contribution[\ddagger]{Work done during an internship at MSRA}
+\contribution[*]{Corresponding author}
+
+\abstract{%
+Scientific progress depends on a repeated loop of exploration, experimentation, and abstraction. Researchers test candidate directions, interpret the evidence, and carry the resulting lessons into later attempts. We study how an AI agent can run this loop autonomously over long horizons. We introduce \arbor{}, a general framework for autonomous research that combines a long-lived coordinator, short-lived executors, and Hypothesis Tree Refinement (HTR), a persistent tree that links hypotheses, artifacts, evidence, and distilled insights across time. The coordinator manages global research strategy over the tree, while executors implement and test individual hypotheses in isolated worktrees. As results return, \arbor{} updates the tree, propagates reusable lessons, refines the search frontier, and admits verified improvements. This design turns autonomous research from a sequence of local attempts into a cumulative process in which strategy, execution, and evidence are carried across time.
+We evaluate \arbor{} under \emph{Autonomous Optimization} (AO), an operational setting where an agent improves an initial research artifact through iterative experimentation without step-level human supervision. Across six real research tasks in model training, harness engineering, and data synthesis, \arbor{} achieves the best held-out result on all six tasks, attaining more than $2.5\times$ the average relative held-out gain of Codex and Claude Code under the same task interface and resource budget. On MLE-Bench Lite, \arbor{} reaches 86.36\% Any Medal with GPT-5.5, the strongest result in our comparison. 
+
+\textit{Note: This is a living technical report for an ongoing project. We will continue to refine and expand the scope of evaluation as the project evolves, and will update this report accordingly.}
+}
+% \date{\today}
+% You can add additional metadata fields as follows 
+\metadata[\faEnvelope\ Contact]{jinjiajie@ruc.edu.cn, dou@ruc.edu.cn}
+
+\metadata[{\raisebox{-0.2ex}{\includegraphics[height=1.1em]{fig/github-mark.png}}\ Code}]{\url{https://github.com/RUC-NLPIR/Arbor}}
+
+\begin{document}
+
+ \maketitle
+
+\vspace{-0.3cm}
+ \begin{figure}[H]
+    \centering
+  \includegraphics[width=\linewidth]{fig/arbor_teaser.pdf}
+  \caption{\arbor{} at a glance. \textbf{(a)} Hypothesis tree and \textbf{(b)}
+  development score from one Math-Reasoning Data Synthesis run. \textbf{(c)}
+  Normalized held-out gains across all tasks.}
+    \label{fig:teaser}
+\end{figure}
+
+
+\section{Introduction}\label{sec:intro}
+
+Scientific research is a central form of long-horizon human intelligence~\citep{aiscientist_long,aiscientistsurvey}. Its difficulty lies not only in solving isolated problems, but in sustaining progress across uncertain hypotheses, costly experiments, failed attempts, and delayed feedback. A researcher must maintain an evolving understanding of the problem so that each attempt can reshape what should be tried next~\citep{memorysurvey}. Recent LLM agents can now edit code, call tools, retrieve information, and run experiments for extended periods~\citep{react,toolformer,toolllm}, and systems such as Codex~\citep{codex}, Claude Code~\citep{claudecode}, and OpenHands~\citep{openhands} make sustained progress in real codebases, making autonomous research an increasingly concrete systems problem. Yet longer execution alone does not guarantee research progress. The open challenge is how an agent can maintain a research state that turns many local attempts into cumulative hypothesis refinement and verified artifact improvement.
+
+We formalize this problem as \emph{Autonomous Optimization} (AO), which captures the core operational form of autonomous research. In AO, an agent begins with an initial artifact and a research objective, then improves the artifact through experimental feedback without step-level human supervision. This setting is difficult because research feedback is delayed, experiments can be expensive, and failed attempts often contain information that should guide later search. As the horizon grows, an agent that treats each trial as an independent local attempt loses the structure of the research process. Effective AO therefore requires a persistent research state that records what has been tried, what evidence was obtained, and how each result changes the space of future hypotheses.
+
+Despite recent progress, current agent systems still do not provide a general framework for running autonomous research over long horizons~\citep{metaharness,autoharness}. General coding agents can edit code, invoke tools, and run experiments for many hours, but their autonomy is mostly expressed as persistent task execution. Scientific-agent systems move closer to research automation, yet many still follow predefined workflows or revise a single line of work at a time~\citep{aiscientist,agentlaboratory,aflow}. They therefore lack the mechanism that makes human research cumulative: the ability to maintain competing directions, test them through concrete experiments~\citep{treeofthoughts,lats}, interpret both successes and failures~\citep{memorysurvey}, and let those lessons reshape later exploration. For AO, the key challenge is to build this mechanism into the agent system itself, so that long-running experimentation becomes a self-directed research process rather than an extended sequence of local attempts.
+
+We argue that a general AO system should automate the long-horizon work that a human researcher normally performs during iterative research. Starting from an open objective, it should form research directions, test them through concrete artifact changes, and turn the resulting evidence into memory that shapes later exploration. Progress should not depend on a human repeatedly choosing the next attempt or interpreting what previous trials mean. Instead, the system needs a framework that keeps directions, experiments, artifacts, results, and failures connected across time, turning autonomous research into a persistent cycle of exploration and verified improvement.
+
+We introduce \textbf{Arbor}, a general framework and open-source research system for AO. \arbor{} separates autonomous research into a long-lived coordinator and short-lived executors. The coordinator owns the global research state and decides how the search frontier should evolve, while each executor tests one hypothesis in an isolated worktree and returns structured evidence. \arbor{} makes this two-level process cumulative through Hypothesis Tree Refinement (HTR). HTR represents the research process as a persistent tree in which each node binds a hypothesis, the artifact version that realizes it, the experimental evidence it produces, and the distilled insight that should shape later decisions. When executor results return, \arbor{} writes evidence back to the executed nodes, abstracts local findings upward, and uses the updated tree to decide which directions to expand, prune, or merge, promoting a candidate to the current best only when it improves a held-out evaluation. The tree therefore acts as the operational research state of the system: it is simultaneously the search frontier, the memory of past attempts, and the audit trail for verified artifact improvement.
+
+To evaluate \arbor{}, we construct six AO tasks from real research settings across model training~\citep{nanogptbench,autoresearch}, harness engineering~\citep{terminalbench,browsecomp}, and data synthesis. Each task specifies an initial artifact, a natural-language objective, a task-native metric, and a development/test protocol that separates exploratory feedback from final scoring. \arbor{} achieves the best held-out result on all six tasks, with more than $2.5\times$ the average relative gain of Codex and Claude Code under the same task interface and resource budget. On MLE-Bench Lite~\citep{mlebench}, \arbor{} further reaches 86.36\% Any Medal with GPT-5.5, the strongest result in our comparison. Ablations, backbone studies, transfer experiments, and cost analyses show that these gains come from \arbor{}'s evidence-structured research process: hypotheses remain grounded in executable artifacts, local findings become reusable insights, and later decisions are made over an explicit research state.
+
+Our contributions are summarized as follows:
+
+\begin{itemize}
+\item We formulate \emph{Autonomous Optimization} (AO) as a class of long-horizon research tasks in which an agent must iteratively improve an artifact under a fixed objective and evaluator without step-level human supervision.
+\item We introduce \textbf{Arbor}, a general framework for AO that organizes research through \emph{Hypothesis Tree Refinement} (HTR), pairing a persistent coordinator with isolated executors so that hypotheses, artifact versions, experimental evidence, and distilled insights accumulate into an auditable research state; we release it as an open-source research system.
+\item We construct six AO tasks from real research settings and show, together with MLE-Bench Lite, that \arbor{} delivers the strongest held-out gains and that persistent hypothesis management and insight propagation are the key drivers of its performance.
+\end{itemize}
+
+
+
+\section{Related Work}\label{sec:related}
+\subsection{Autonomous Research Agent}
+LLM-based automated research systems first appeared as end-to-end pipelines. The AI Scientist~\citep{aiscientist} connected idea generation, implementation, execution, result interpretation and paper writing in a mostly automated loop, while Agent Laboratory~\citep{agentlaboratory} organized similar stages as a human-supervised multi-agent research-assistant workflow. The next wave made the search process more explicit: AIDE~\citep{aide} explored ML engineering as iterative code search, AI Scientist-v2~\citep{aiscientistv2} introduced agentic tree search over research plans and experiments, and multi-agent systems such as AI-Researcher, R\&D-Agent~\citep{rdagent} and Loongflow~\citep{loongflow} refined the literature-to-experiment loop through more specialized roles and summarization mechanisms. In parallel, FunSearch~\citep{funsearch} and AlphaEvolve~\citep{alphaevolve} treated LLMs as program mutation operators selected by executable fitness signals, and SciMaster~\citep{scimaster} broadened automated research from ML experimentation to general-purpose scientific reasoning with tool-augmented, breadth-and-depth search.
+
+Recent systems expand the object of search itself. MARS~\citep{mars} modularizes automated AI research into reflective components; AutoHarness~\citep{autoharness}, Meta-Harness~\citep{metaharness} and AHE~\citep{ahe} search or evolve the code harness surrounding an agent; and DataMaster~\citep{datamaster} moves the search target to data, using DataTree, Data Pool and Global Memory to organize autonomous data discovery and validation. Arbor instead stores research state in a persistent hypothesis tree. A long-running coordinator expands and updates the tree, while short-lived executors implement individual hypotheses in isolated git worktrees. This design makes hypotheses, failures, evidence and merge decisions auditable. It also addresses gaps noted by recent surveys and sandbagging studies: weak evidence preservation, loose dev/test discipline and silent metric chasing~\citep{aiscientistsurvey,gasteiger2025automated}.
+
+\subsection{Long-Horizon Agent}
+As language agents have improved, the key question has shifted from whether they can complete isolated tool-use episodes to how long they can remain coherent on real tasks~\citep{longcontextsurvey,longhorizonexecution,agentfugue}. Early systems such as Reflexion~\citep{reflexion} and Generative Agents~\citep{generativeagent} extended single-run behavior with natural-language memories or reflections across trials, making experience accumulation part of the agent loop. Later human-calibrated evaluations made this horizon measurable: some tasks compare agents with human time-to-complete~\citep{rebench,hcast,metr}, while others~\citep{nanogptspeedrunning,posttrainbench} show that agents still struggle to preserve and reuse evidence across long optimization histories, even when the environment provides executable feedback.
+
+Recent approaches therefore increasingly treat long-horizon agency as a problem of externalized state organization rather than only prompt design. Some systems organize prior experience into persistent context, using curated playbooks~\citep{ace}, state-adaptive trajectory retrieval~\citep{sam}, or cognitive caches~\citep{mlmaster2} so that later decisions can draw on earlier failures and successes. Others push the same idea into the scaffold around the model, coordinating agents through persistent workspaces~\citep{aiscientist_long}, recursively modifying agent code~\citep{darwinmachine}, or evolving harnesses that shape tool use and execution constraints~\citep{autoharness}. Arbor follows this state-externalization trend, but its persistent object is specifically a research tree: each node binds a hypothesis, implementation branch, result, score, related work and learned insight, so progress accumulates through branch expansion, insight backpropagation, merge decisions and pruning rather than through an ever-growing context window.
+
+\subsection{Benchmark for Autonomous Research}
+Research-agent benchmarks have progressed along several complementary directions. MLAgentBench~\citep{mlagentbench}, MLE-bench~\citep{mlebench} and MLE-Dojo~\citep{mledojo} evaluate agents on executable ML-engineering workflows with objective task metrics. ScienceAgentBench~\citep{scienceagentbench}, PaperBench~\citep{paperbench}, and FrontierScience~\citep{frontierscience}focus on programmatic discovery, or paper reproduction under expert-designed questions and rubrics. RE-Bench~\citep{rebench}, HCAST~\citep{hcast}, AlgoTune~\citep{algotune}, NanoGPT speedrunning~\citep{nanogptspeedrunning}, PostTrainBench~\citep{posttrainbench} and Frontier-Eng~\citep{frontiereng} further emphasize long-horizon engineering, human-calibrated difficulty, executable feedback and iterative self-improvement.
+
+These benchmarks measure important outcomes, but many evaluations still use incomplete settings: some lack a clear dev/test split, making iterative search prone to overfitting, while others rely on one or two task types and leave generality under-tested. Arbor therefore evaluates across multiple tasks and enforces a stricter protocol: data and evaluation harnesses are immutable, the dev set supports iterative search, the test set is reserved for merge or final validation, and each experiment is tied to branch-level artifacts and hypothesis-tree records.
+
+
+\begin{figure}[t]
+    \centering
+  \includegraphics[width=\linewidth]{fig/main_framework.pdf}
+    \caption{Overall framework of \arbor{}. A persistent coordinator maintains
+    the research state as a hypothesis tree, iteratively exploring ideas,
+    dispatching executors to implement them, and using evaluation feedback to
+    refine the tree and update the current best artifact.}
+    \label{fig:architecture}
+\end{figure}
+
+
+\section{Task Formulation}\label{sec:task}\label{sec:ao-interface}
+We model auto-research as an instance of \emph{Autonomous Optimization}
+(AO), which can be represented as a tuple
+\[
+\mathcal{P}=(\Mat_0,\Obj,\Eval_{\dev},\Eval_{\test}).
+\]
+The material $\Mat_0$ is the mutable artifact the agent may inspect and
+modify, typically a codebase together with its associated data. The
+objective $\Obj$ specifies what it means for a modified material $\Mat'$
+to be better, for example a metric direction defined over the artifact's
+output. The two evaluators instantiate the same objective on different
+evidence: $\Eval_{\dev}$ returns feedback the agent may freely use
+during search, while the held-out $\Eval_{\test}$ measures whether the
+dev-driven improvement transfers beyond the feedback used for
+exploration. Let $S_{\dev}(\Mat')$ and $S_{\test}(\Mat')$ denote the
+scalar scores returned by these two evaluators under the metric
+direction specified by $\Obj$, so that larger values are better; a
+candidate that exploits idiosyncrasies of the dev split may improve
+$S_{\dev}$ but is not a successful AO solution unless the gain also
+transfers to $S_{\test}$.
+
+During a run, the agent adaptively generates, implements, and evaluates
+candidate materials using $\Eval_{\dev}$. Let $\mathcal{A}$ be the set
+of candidates produced. The artifact-level goal is to return
+\[
+\Mat^\star = \arg\max_{\Mat' \in \mathcal{A}} S_{\test}(\Mat'),
+\]
+subject to the constraint that hypotheses and implementation decisions
+are made without using $\Eval_{\test}$ as an exploration oracle.
+
+
+\section{The \arbor{} Framework}\label{sec:framework}
+
+\subsection{Overview}\label{sec:framework-overview}
+
+We propose \arbor{}, a general framework for autonomous research under the AO interface defined in Section~\ref{sec:ao-interface}. AO differs from ordinary agentic tool use in that the target is not a single response or code patch, but a sustained research trajectory. An agent must propose hypotheses, materialize them as artifact changes, interpret experimental feedback, and decide which directions should be refined, merged, or abandoned. The central design problem is therefore how to convert many transient trials into cumulative research progress.
+
+This problem imposes three requirements on the system design:
+
+\begin{itemize}[leftmargin=*]
+
+    \item \textbf{Branching with coherence.} Research exploration must branch because multiple competing hypotheses may be plausible at the same time. However, unrestricted branching can degenerate into an unstructured log of attempts. The system must therefore maintain a frontier in which competing directions coexist while remaining organized, comparable, and actionable.
+
+    \item \textbf{Global strategy with local execution.} Strategic decisions depend on evidence accumulated across the whole run, whereas implementing a single hypothesis requires short-horizon code editing, debugging, and evaluation. These two levels should be separated so that low-level execution traces do not obscure the global research state, and experimental outcomes remain attributable to the hypotheses that produced them.
+
+    \item \textbf{Exploration with held-out admission.} Development feedback should guide hypothesis search, but artifact-level progress should be admitted only when it transfers beyond the feedback used during exploration. The system must therefore distinguish exploratory improvement on $E_{\mathrm{dev}}$ from verified improvement under the held-out evaluator $E_{\mathrm{test}}$.
+
+\end{itemize}
+
+\arbor{} addresses these requirements through Hypothesis Tree Refinement (HTR), as illustrated in Figure~\ref{fig:architecture}. Its central state is a persistent hypothesis tree whose nodes bind together a research hypothesis, the artifact version that realizes it, the evaluation evidence it produces, and the distilled insight that should influence later decisions. A long-lived coordinator maintains this tree as the global research state: it observes the current frontier, proposes refinements, selects promising leaves, integrates returned evidence, propagates insights upward, and decides whether to continue, prune, or merge a candidate branch. Short-lived executors test selected hypotheses in isolated worktrees and return compact reports containing scores, factual results, distilled insights, and artifact references. A held-out merge gate promotes a candidate to the current best artifact only when its improvement transfers beyond the development evaluator. In this way, \arbor{} organizes AO as evidence-structured refinement over a durable research state rather than repeated local trial-and-error. Section~\ref{sec:framework-htr} describes the hypothesis-tree representation, and Section~\ref{sec:framework-loop} presents the coordinator--executor loop that maintains it.
+
+\subsection{Hypothesis Tree as Research State}
+\label{sec:framework-htr}
+The center of Figure~\ref{fig:architecture} shows the hypothesis tree that serves as \arbor{}'s persistent research state. In AO, the intermediate state is not only the latest artifact or its evaluation score, but also the structure of exploration: which hypotheses have been considered, how they relate to one another, what evidence they produced, and what lessons should constrain future trials. A tree is a natural representation for this state because it preserves both the branching structure of research exploration and the abstraction hierarchy from broad directions to executable interventions.
+
+Let $\mathcal{T}=(\mathcal{V}, \mathcal{E})$ denote a rooted hypothesis tree with root node $n_0$. Each node $n\in\mathcal{V}$ is a research unit
+\[
+n = \langle h_n, \iota_n, \mu_n \rangle,
+\]
+where the three fields separate the semantic content of a hypothesis, the reusable evidence derived from it, and the executable record that grounds it:
+
+\begin{itemize}
+    \item \textbf{Hypothesis $h_n$.} 
+    The hypothesis describes a verifiable or falsifiable claim about how the material should be changed to improve the objective. Its granularity depends on the node depth: nodes close to the root describe broad research directions, while deeper nodes specify concrete interventions that can be implemented and evaluated by an executor. This allows \arbor{} to organize exploration as progressive refinement rather than as a flat sequence of independent trials.
+
+    \item \textbf{Insight $\iota_n$.} 
+    The insight stores the reusable interpretation of evidence associated with the hypothesis. For an executed leaf, it summarizes what was tried, what happened, and why the result supports, weakens, or constrains the hypothesis. For an internal node, it abstracts over the insights of its children and summarizes the current understanding of that research direction. Thus, $\iota_n$ is not an execution transcript, but a compact semantic memory for later hypothesis generation and selection.
+
+    \item \textbf{Metadata $\mu_n$.} 
+    The metadata connects the semantic hypothesis to executable evidence. It includes the node status, development score when available, factual result record, implementation reference such as a git branch or commit, and optional background evidence. The material itself is not duplicated in the tree; instead, the tree stores references to external artifact states produced in isolated worktrees. This keeps the research state compact while ensuring that each hypothesis remains grounded in a verifiable implementation.
+\end{itemize}
+
+The tree separates internal direction nodes from executable leaf nodes. Internal nodes maintain abstract research directions and accumulated lessons, whereas leaves represent candidate interventions that can be dispatched for implementation and evaluation. After a leaf is executed, its score, result, artifact reference, and distilled insight are written back to the corresponding node. The insight is then propagated upward by updating the ancestors along the path to the root. Through this abstraction process, local experimental outcomes become direction-level lessons and eventually contribute to a compact global understanding of the run.
+
+In this way, the hypothesis tree serves three roles simultaneously. It is a search frontier that records which directions remain active, validated, or pruned; a long-term memory that stores reusable evidence from both successes and failures; and an auditable research record that links each artifact change to the hypothesis and evidence that motivated it. This persistent state provides the substrate on which the coordinator can make strategic decisions across long-horizon autonomous optimization.
+
+\begin{algorithm}[!t]
+\footnotesize
+\DontPrintSemicolon
+\SetKwInOut{Input}{Input}\SetKwInOut{Output}{Output}
+\SetKwProg{Fn}{Procedure}{:}{}
+\SetKwFunction{Exec}{Executor}
+\Input{$\mathcal{P}=(\Mat_0,\Obj,\Eval_{\dev},\Eval_{\test})$, budget $B$, branching $k$}
+\Output{best artifact $\Mat^\star$ and hypothesis tree $\Tree$}
+init $\Tree=(\{n_0\},\emptyset)$, $b_{n_0}\leftarrow\Mat_0$, $\Mat_{\mathrm{best}}\leftarrow\Mat_0$\;
+\While{$B$ left $\wedge$ pending leaves exist}{
+  $\mathcal{V}\leftarrow\textsc{Observe}(\Tree,\Mat_{\mathrm{best}})$
+    \tcp*{\textsc{Observe}: shape, root insight, pruned/validated lessons}
+  $p\leftarrow$ choose parent under $\mathcal{V}$;\quad
+  attach $k$ pending children $\{n^{(i)}:h^{(i)}\}\leftarrow\textsc{Ideate}(p,\mathcal{V})$
+    \tcp*{\textsc{Ideate}}
+  $L\leftarrow$ pending leaves under $\textsc{Select}(\mathcal{V})$
+    \tcp*{\textsc{Select}: frontier control}
+  $\{(s_n,r_n,\iota_n,b_n)\}_{n\in L}\leftarrow\textbf{parallel }\Exec(h_n,\iota_{\mathrm{anc}(n)},\Mat_{\mathrm{best}})$
+    \tcp*{\textsc{Dispatch}}
+  \ForEach{$n\in L$, $a\in\textsf{path}(n_0\to n)$}{
+    write back $(s_n,r_n,\iota_n,b_n)$;\quad
+    $\iota_a\leftarrow\textsc{Abstract}(\{\iota_c\}_{c\in\textsf{ch}(a)})$
+      \tcp*{\textsc{Backpropagate}}
+  }
+  $n^\dagger\leftarrow\arg\max_{n\in L}s_n$
+    \tcp*{\textsc{Decide}: held-out merge gate, then prune}
+  \lIf{$\Obj(\Eval_{\test}(b_{n^\dagger}))>\Obj(\Eval_{\test}(\Mat_{\mathrm{best}}))$}
+      {$\Mat_{\mathrm{best}}\leftarrow\textsf{merge}(b_{n^\dagger})$}
+  prune subtrees falsified by $\{\iota_n\}_{n\in L}$;\quad persist $\Tree$\;
+}
+\Return{$\Mat^\star\leftarrow\Mat_{\mathrm{best}}$, $\Tree$}\;
+\Fn{\Exec{$h_n,\iota_{\mathrm{anc}(n)},\Mat_{\mathrm{best}}$}}{
+  fresh worktree $W_n\leftarrow\Mat_{\mathrm{best}}$\;
+  \Repeat{run ok $\wedge$ $h_n$-path exercised, or cap reached}{
+    $\Delta\leftarrow\textsf{Implement}(h_n,\iota_{\mathrm{anc}(n)},W_n)$;\quad
+    $(s_n,r_n)\leftarrow\Eval_{\dev}(\textsf{apply}(\Delta,W_n))$
+      \tcp*{repair $\Delta$ only; $h_n$ is fixed}
+  }
+  \Return{$(s_n,\,r_n,\,\textsc{Distill}(h_n,\Delta,r_n),\,\textsf{commit}(W_n))$}\;
+}
+\caption{Hypothesis Tree Refinement (HTR). Coordinator owns $\Tree$; \textsc{Executor} owns one worktree.}
+\label{alg:htr}
+\end{algorithm}
+
+\subsection{Hypothesis Tree Refinement}
+\label{sec:framework-loop}
+\label{sec:framework-roles}
+To maintain the tree over a long-horizon AO run, \arbor{} separates global
+frontier control from local experimental execution. A persistent
+\emph{coordinator} owns the shared tree and decides where to expand, which
+evidence to trust, which directions to prune, and when a candidate should be
+merged. Short-lived \emph{executors} are invoked only to test individual
+hypotheses: each executor receives one tree node, materializes the corresponding
+intervention in an isolated git worktree, evaluates it, and returns structured
+evidence to the coordinator.
+
+During the research process, the coordinator sees the whole research
+frontier but does not directly perform every low-level implementation step; the
+executor performs grounded engineering work but does not modify the shared tree
+or redirect the search objective. As a result, exploratory code changes remain
+isolated until they pass the merge gate, while the tree records only
+decision-relevant evidence: scores, factual outcomes, artifact references, and
+distilled insights. This boundary allows \arbor{} to turn transient execution
+traces into a persistent research state without reducing the tree to a raw log
+of tool calls.
+
+\subsubsection{Coordinator: Evidence-Aware Frontier Control}
+\label{sec:framework-loop-policy}
+The coordinator updates $\Tree$ through a repeated six-step procedure:
+\textsc{Observe}, \textsc{Ideate}, \textsc{Select}, \textsc{Dispatch},
+\textsc{Backpropagate}, and \textsc{Decide}. Each step operates on the tree
+through a narrow interface for adding nodes, dispatching executors, updating
+node evidence, propagating insights, pruning subtrees, and merging verified
+branches. The key point is that the LLM policy chooses how to interpret the
+research state, while all durable state changes are expressed as controlled
+mutations of the hypothesis tree.
+
+\textbf{\textsc{Observe}.}
+At the beginning of each cycle, the coordinator re-grounds itself in the current
+research state by reading a structured projection of $\Tree$, including active
+frontier nodes, recently returned evidence, ancestor insights, and the current
+best artifact $\Mat_{\mathrm{best}}$. This step makes the tree the authoritative
+state after context compression and prevents the coordinator from relying on a
+lossy conversational history.
+
+\textbf{\textsc{Ideate}.}
+The coordinator selects a parent node and proposes a small set of child
+hypotheses beneath it. Each child represents a refinement, alternative, or
+correction of the parent hypothesis and is initialized as a pending node. Unlike
+free-form brainstorming, ideation is conditioned on accumulated tree evidence:
+validated insights provide assumptions to build on, pruned nodes provide
+negative constraints, and recent executor reports suggest which interventions
+are feasible or under-tested.
+
+\textbf{\textsc{Select}.}
+The coordinator chooses pending nodes to execute next. Selection balances the
+expected utility of a hypothesis with the evidence already accumulated around
+its ancestors and siblings. A direction may be selected because it has strong
+prior evidence, because its siblings expose an unresolved ambiguity, or because
+its failure would clarify an important assumption. Thus selection is not merely
+score maximization; it is frontier control under partial and delayed feedback.
+
+\textbf{\textsc{Dispatch}.}
+Selected hypotheses are dispatched to independent executors. Each executor
+materializes its assigned hypothesis in a fresh worktree, evaluates the modified
+artifact on $\Eval_{\dev}$, and returns a compact report containing the dev
+score, factual result, distilled insight, and branch reference. Parallel
+execution of sibling hypotheses provides comparative evidence within the same
+research direction, which is useful for later pruning and abstraction.
+
+\textbf{\textsc{Backpropagate}.}
+When executor reports return, the coordinator writes their evidence into the
+corresponding leaf nodes and updates insights along the path to the root. The
+propagated signal is not only a scalar score. It also includes causal
+attributions, applicability conditions, and reusable lessons extracted from the
+experiment. A leaf-level observation such as a data-interface mismatch can
+therefore become a direction-level constraint, and eventually a global prior
+that shapes future ideation.
+
+\textbf{\textsc{Decide}.}
+After the tree absorbs the new evidence, the coordinator decides whether to
+continue expanding a direction, prune a falsified subtree, stop the run, or
+attempt to merge a candidate branch. Promotion is guarded by a held-out merge
+gate: the candidate is evaluated on $\Eval_{\test}$ in a fresh worktree and is
+merged into $\Mat_{\mathrm{best}}$ only if it improves over the current best
+under the objective $\Obj$. This gate separates exploratory success on
+$\Eval_{\dev}$ from verified artifact-level progress.
+
+\subsubsection{Executor: Hypothesis-Bound Experimentation}
+\label{sec:framework-executor}
+An executor implements one local experiment for one assigned hypothesis. Given a node $n$, it receives the hypothesis $h_n$, relevant ancestor insights, the
+current best artifact, and the development evaluator $\Eval_{\dev}$. It then
+creates an isolated worktree, applies the minimal intervention needed to realize
+$h_n$, runs the evaluator, inspects failures or inactive code paths, and repairs
+its own implementation when necessary. This local loop may involve multiple
+edits and reruns, but it remains bound to the assigned hypothesis.
+
+The executor returns exactly the evidence consumed by the coordinator's tree
+interface: a comparable dev score for selection, a factual result for future
+ideation, a distilled insight for backpropagation, and a branch reference for
+held-out verification. This contract is important. If an executor were allowed
+to change the hypothesis when the metric stalls, the returned score would no
+longer be evidence about the assigned node, and ancestor-level insights would
+become difficult to interpret. By keeping executors hypothesis-bound, \arbor{}
+keeps local engineering flexibility while preserving the semantic meaning of
+tree updates. Algorithm~\ref{alg:htr} summarizes the full HTR procedure.
+
+
+
+
+
+\FloatBarrier
+
+\section{Experiments}
+\label{sec:experiments}
+
+\subsection{AO Task Suite}
+\label{sec:ao-task-suite}
+
+To test whether \arbor{} can improve real research artifacts, we first construct
+several AO tasks from actual research tasks. Each task consists of an initial
+material $\Mat_0$, a natural language objective $\Obj$, an executable
+development evaluator $\Eval_{\dev}$, a held-out test evaluator $\Eval_{\test}$,
+and a task-native metric. Table~\ref{tab:ao-tasks} gives a compact summary; the
+task details are described below.
+
+\paragraph{Model training.}
+The model-training tasks evaluate whether an agent can improve training
+algorithms under expensive experimental feedback. In \textbf{Optimizer Design},
+we use NanoGPT-Bench~\citep{nanogptbench}, a benchmark for accelerating
+NanoGPT training. The initial material is the official tuned Muon optimizer
+baseline distributed with NanoGPT-Bench, and the objective is to reach the
+target NanoGPT validation loss in as few optimization steps as possible. The
+development evaluator uses the standard NanoGPT-Bench task during search, while
+the test evaluator reruns the selected optimizer with two held-out random seeds
+and reports the average number of steps. In \textbf{Architecture Design}, we use
+the \texttt{autoresearch} benchmark~\citep{autoresearch}. The agent modifies a
+given LLM training codebase, with the goal of obtaining a lower final loss under
+a fixed time budget. The test evaluator again averages two held-out random-seed
+runs.
+
+\paragraph{Harness engineering.}
+The harness-engineering tasks evaluate whether an agent can improve the control
+logic around another agent. In \textbf{Terminal-Bench 2.0}, the initial material
+is the standard official terminal-agent codebase for Terminal-Bench
+2.0~\citep{terminalbench}, and the objective is to improve pass rate on
+terminal-based code and shell tasks. We stratify the 89 tasks by difficulty into
+36 development tasks and 53 held-out test tasks, rather than optimizing on the
+full benchmark. In \textbf{BrowseComp}, the initial material is our standard
+minimal ReAct-style search harness~\citep{react,browsecomp}. The objective is to
+improve answer accuracy on browsing questions; the development and test sets are
+50 and 300 non-overlapping BrowseComp questions, respectively.
+
+\paragraph{Data synthesis.}
+The data-synthesis tasks evaluate whether an agent can improve a generation
+pipeline whose output is judged by downstream model behavior. In
+\textbf{Search-Agent Data Synthesis}, the initial material is a hand-designed
+pipeline for generating search-agent questions from seed knowledge. Development
+uses 50 seed items and test uses 100 disjoint seed items. In
+\textbf{Math-Reasoning Data Synthesis}, the initial material is a hand-designed
+pipeline for generating AIME-style reasoning problems; development generates 50
+problems with 10 seed and test generates 96 problems with 12 seed. Both tasks are scored by the mean
+$\mathrm{pass@4}-\mathrm{pass@1}$ gap under a strong GPT-5.5-based ReAct
+evaluator. This metric rewards problems that are not solved immediately but can
+be solved with additional attempts.
+
+\begin{table}[t]
+\centering
+\small
+\setlength{\tabcolsep}{3.0pt}
+\renewcommand{\arraystretch}{1.08}
+\caption{Compact summary of the AO tasks. Detailed task definitions are given in
+Section~\ref{sec:ao-task-suite}.}
+\label{tab:ao-tasks}
+\begin{tabularx}{\linewidth}{>{\raggedright\arraybackslash}p{0.17\linewidth}>{\raggedright\arraybackslash}p{0.24\linewidth}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}p{0.20\linewidth}}
+\toprule
+Type & Task & Initial material & Metric and split \\
+\midrule
+Model Training & Optimizer Design & NanoGPT-Bench; tuned Muon baseline & Steps to
+target loss ($\downarrow$); test averages two seeds \\
+Model Training & Architecture Design & \texttt{autoresearch} LLM training
+codebase & Final loss ($\downarrow$); test averages two seeds \\
+Harness Engineering & Terminal-Bench 2.0 & Official terminal-agent codebase &
+Pass rate ($\uparrow$); 36 dev / 53 test tasks \\
+Harness Engineering & BrowseComp & Minimal ReAct-style search harness &
+Accuracy ($\uparrow$); 50 dev / 300 test questions \\
+Data Synthesis & Search-Agent Data Synthesis & Hand-designed search-data
+pipeline & Mean pass gap ($\uparrow$); 50 dev / 100 test seeds \\
+Data Synthesis & Math-Reasoning Data Synthesis & Hand-designed math-data
+pipeline & Mean pass gap ($\uparrow$); 50 dev / 96 test problems \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Experimental Setup}
+\label{sec:exp-setup}
+
+\paragraph{Benchmarks.}
+Our evaluation uses two complementary types of benchmarks. The first is the AO
+Task Suite in Section~\ref{sec:ao-task-suite}, which consists of real research
+tasks with task-specific materials, objectives, development evaluators, and
+held-out test evaluators. The second is MLE-Bench Lite, a long-horizon machine
+learning engineering benchmark derived from MLE-bench~\citep{mlebench}, which
+allows comparison against established benchmark systems under the official task
+setup and reporting protocol. 
+
+\paragraph{Baselines.}
+For the real research tasks, we compare against two strong coding-agent
+baselines: Codex~\citep{codex} using GPT-5.5 and Claude Code~\citep{claudecode} using Claude Opus 4.6. Each
+baseline receives the same initial material, objective, evaluator, and resource
+budget as \arbor{}, and is allowed to inspect files, edit code, run experiments,
+and iterate until the budget is exhausted. For MLE-Bench Lite, we compare
+against reported benchmark systems, including AIDE~\citep{aide},
+ML-Master~\citep{mlmaster} and ML-Master 2.0~\citep{mlmaster2},
+AIRA-dojo~\citep{airadojo}, InternAgent~\citep{internagent},
+R\&D-Agent~\citep{rdagent}, Famou-Agent 2.0~\citep{famouagent},
+MARS~\citep{mars}, Leeroo~\citep{kapso},
+AIBuildAI~\citep{aibuildai}, LoongFlow~\citep{loongflow}, and
+AI-Scientist-style systems~\citep{aiscientist,aiscientist_long}. The baseline numbers in Table~\ref{tab:mle-lite} are adopted from the
+official MLE-Bench leaderboard and the AI-Scientist paper~\cite{aiscientist_long}.
+
+\paragraph{Metrics.}
+We report native task metrics in the main results, using the direction indicated
+in Table~\ref{tab:ao-tasks}. For cross-task averages and ablations, we also
+report a normalized held-out improvement over the initial material after
+orienting all metrics so larger is better. For $\Delta$ rows,
+percentage-valued metrics use absolute changes; non-percentage metrics such as
+steps and loss use the relative improvement below:
+\[
+  \Delta_{\test}(\Mat^\star)
+  = \frac{\tilde{S}_{\test}(\Mat^\star)-\tilde{S}_{\test}(\Mat_0)}
+         {|\tilde{S}_{\test}(\Mat_0)|+\epsilon},
+\]
+where $\tilde{S}$ is the native score for higher-is-better metrics and the
+negated native score for lower-is-better metrics. To measure reliability, we run
+each stochastic method three times and report Avg@3 with standard deviation
+unless otherwise specified. For MLE-Bench Lite, we report the official benchmark
+metrics, including valid-submission rate, above-median rate, any-medal rate, and
+medal breakdown.
+
+\paragraph{Implementation details.}
+Unless otherwise noted, both the coordinator and executors use
+Claude Opus 4.6 as the backbone model. All real-research-task runs, including
+Codex~\citep{codex}, Claude Code~\citep{claudecode}, and \arbor{}, use a 48-hour wall-clock limit. To keep the
+two single-agent baselines running over this long horizon without manual
+intervention, we launch Codex and Claude Code through their official
+\texttt{/goal} mode, which lets each agent autonomously sustain a long-running
+task and avoid mid-trajectory interruptions; \arbor{} is launched through its
+own coordinator loop. The default \arbor{} budget is 20 coordinator cycles
+with maximum tree depth 2. Executor parallelism is bounded by the available
+evaluator resources, and all wall-clock time, token usage, and evaluator calls
+are counted when comparing against baselines. The same prompt-level task
+description is used across methods; \arbor{} receives no task-specific search
+strategy beyond the adapter that runs the evaluator and parses scores. For
+MLE-Bench Lite, every task is optimized on a single NVIDIA A100 GPU under the
+official benchmark resource budget.
+
+\subsection{Main Results on Real Research Tasks}
+\label{sec:exp-main}
+
+
+\begin{table}[t]
+\centering
+\small
+\setlength{\tabcolsep}{1.8pt}
+\renewcommand{\arraystretch}{1.12}
+\caption{Main results on real research tasks. Each task reports native
+development and held-out test metrics for the initial material, single-agent
+baselines, and \arbor{}; the task label shows the native metric direction.
+Shaded $\Delta$ rows report relative improvements over the initial material
+for Model Training tasks, and absolute changes for all other tasks.}
+\label{tab:main-ao}
+\begin{tabularx}{\linewidth}{@{}>{\centering\arraybackslash}p{0.14\linewidth}>{\centering\arraybackslash}p{0.18\linewidth}*{8}{>{\centering\arraybackslash}X}@{}}
+\toprule
+\multirow[c]{2}{*}{Type} & \multirow[c]{2}{*}{Task} & \multicolumn{2}{c}{Initial} & \multicolumn{2}{c}{Codex} & \multicolumn{2}{c}{Claude Code} & \multicolumn{2}{c}{\arbor{} (Ours)} \\
+\cmidrule(lr){3-4}\cmidrule(lr){5-6}\cmidrule(lr){7-8}\cmidrule(l){9-10}
+& & Dev & Test & Dev & Test & Dev & Test & Dev & Test \\
+\midrule
+\multirow[c]{4}{*}{\makecell[c]{Model\\Training}} & \makecell[c]{Optimizer\\Design\\(steps $\downarrow$)} & 3325 & 3325 & 3325 & 3325 & 3275 & 3287.5 & \textbf{3225} & \textbf{3237.5} \\
+& \deltalabel & \deltacell{--} & \deltacell{--} & \deltacell{+0.00\%} & \deltacell{+0.00\%} & \deltacell{+1.50\%} & \deltacell{+1.13\%} & \deltacell{\textbf{+3.01\%}} & \deltacell{\textbf{+2.63\%}} \\
+& \makecell[c]{Architecture\\Design\\(loss $\downarrow$)} & 1.096 & 1.098 & 1.089 & 1.083 & 1.033 & 1.033 & \textbf{1.029} & \textbf{1.028} \\
+& \deltalabel & \deltacell{--} & \deltacell{--} & \deltacell{+0.64\%} & \deltacell{+1.37\%} & \deltacell{+5.75\%} & \deltacell{+5.92\%} & \deltacell{\textbf{+6.11\%}} & \deltacell{\textbf{+6.38\%}} \\
+\addlinespace[0.35ex]
+\multirow[c]{4}{*}{\makecell[c]{Harness\\Engineering}} & \makecell[c]{Terminal-Bench 2.0\\(pass $\uparrow$)} & 58.33 & 69.81 & 63.89 & 73.59 & \textbf{75.00} & 71.70 & 72.22 & \textbf{77.36} \\
+& \deltalabel & \deltacell{--} & \deltacell{--} & \deltacell{+5.56} & \deltacell{+3.78} & \deltacell{\textbf{+16.67}} & \deltacell{+1.89} & \deltacell{+13.89} & \deltacell{\textbf{+7.55}} \\
+& \makecell[c]{BrowseComp\\(acc. $\uparrow$)} & 52.50 & 45.33 & 57.50 & 50.00 & 55.00 & 53.33 & \textbf{72.50} & \textbf{67.67} \\
+& \deltalabel & \deltacell{--} & \deltacell{--} & \deltacell{+5.00} & \deltacell{+4.67} & \deltacell{+2.50} & \deltacell{+8.00} & \deltacell{\textbf{+20.00}} & \deltacell{\textbf{+22.34}} \\
+\addlinespace[0.35ex]
+\multirow[c]{4}{*}{\makecell[c]{Data\\Synthesis}} & \makecell[c]{Search-Agent\\(gap $\uparrow$)} & 4.00 & 5.00 & 12.00 & 9.00 & 12.00 & 12.00 & \textbf{16.00} & \textbf{18.00} \\
+& \deltalabel & \deltacell{--} & \deltacell{--} & \deltacell{+8.00} & \deltacell{+4.00} & \deltacell{+8.00} & \deltacell{+7.00} & \deltacell{\textbf{+12.00}} & \deltacell{\textbf{+13.00}} \\
+& \makecell[c]{Math-Reasoning\\(gap $\uparrow$)} & 2.00 & 1.04 & 6.00 & 6.25 & 8.00 & 8.33 & \textbf{24.00} & \textbf{20.83} \\
+& \deltalabel & \deltacell{--} & \deltacell{--} & \deltacell{+4.00} & \deltacell{+5.21} & \deltacell{+6.00} & \deltacell{+7.29} & \deltacell{\textbf{+22.00}} & \deltacell{\textbf{+19.79}} \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+
+Table~\ref{tab:main-ao} compares Arbor with Codex and Claude Code on six real research tasks. We focus on two observations.
+
+\paragraph{Arbor gives stronger and more general held-out gains.}
+Arbor obtains the best held-out result on all six tasks, covering three different types of research artifacts: training algorithms, agent harnesses, and data-generation pipelines. The same controller and hypothesis-tree depth are used across these tasks; only the initial material and evaluator are changed. This suggests that the improvement comes from the search procedure itself rather than from task-specific tuning.
+The gains are also larger than those of single-trajectory coding agents. On BrowseComp, Arbor improves held-out accuracy from $45.33$ to $67.67$, while Codex and Claude Code reach $50.00$ and $53.33$. On Math-Reasoning Data Synthesis, Arbor improves the held-out pass-gap by $19.79$ points, compared with $5.21$ and $7.29$ points for Codex and Claude Code. The baselines can still make progress, but their gains are smaller and less stable across task types. This supports our main hypothesis: in AO, the bottleneck is not only local code editing, but organizing many trials into a coherent exploration process. The cost results in Section~\ref{sec:exp-cost} further show that Arbor achieves these gains without relying on substantially larger token budgets.
+
+\paragraph{The dev/test split exposes overfitting during autonomous search.}
+Development feedback is useful for guiding exploration, but it is not a reliable admission criterion. Because the agent repeatedly optimizes against $E_{\mathrm{dev}}$, it can overfit to the development split or exploit evaluator-specific patterns. This is especially visible on Terminal-Bench: Claude Code achieves the highest development score ($75.00$), but its held-out score drops to $71.70$; Arbor has a lower development score ($72.22$), but reaches the best held-out score ($77.36$).
+This gap motivates the held-out merge gate in Arbor. We use $E_{\mathrm{dev}}$ to guide hypothesis search, but promote a candidate artifact only when it improves $E_{\mathrm{test}}$. This separates exploratory feedback from verified progress. It also makes dev/test disagreement informative: a high-dev, low-test candidate is treated not as a success, but as evidence that the current direction may be exploiting the feedback signal rather than producing a transferable improvement.
+
+\begin{table}[t]
+\centering
+\scriptsize
+\setlength{\tabcolsep}{3.0pt}
+\renewcommand{\arraystretch}{1.08}
+\caption{MLE-Bench Lite results under the official evaluation protocol. All
+entries are percentages.}
+\label{tab:mle-lite}
+\resizebox{0.93\linewidth}{!}{%
+\begin{tabular}{llcccccc}
+\toprule
+Method & Model & \makecell{Valid sub.} & \makecell{Above\ median} & Bronze & Silver & Gold & \makecell{Any\ medal} \\
+\midrule
+InternAgent & DeepSeek-R1 & 100.00 & 78.79 & 10.61 & 16.67 & 34.85 & 62.12 \\
+ML-Master & DeepSeek-R1 & 100.00 & 74.24 & 4.55 & 13.64 & 30.30 & 48.48 \\
+AIRA-dojo & o3 & 100.00 & 70.45 & 7.95 & 12.73 & 34.32 & 55.00 \\
+ML-Master 2.0 & DeepSeekV3.2-Spe & 100.00 & 84.85 & 13.64 & 31.82 & 30.30 & 75.76 \\
+R\&D-Agent & GPT-5 & 77.27 & 74.24 & 12.12 & 22.73 & 33.33 & 68.18 \\
+Famou-Agent 2.0 & Gemini-2.5-Pro & 100.00 & 86.36 & 15.15 & 19.70 & 40.91 & 75.76 \\
+MARS & Gemini-3-Pro & 100.00 & 89.39 & 6.06 & 15.15 & 53.03 & 74.24 \\
+Leeroo & Gemini-3-Pro & 68.18 & 68.18 & 18.18 & 19.70 & 30.30 & 68.18 \\
+AIBuildAI & Claude-Opus-4.6 & 100.00 & 81.82 & 13.64 & 25.76 & 37.88 & 77.27 \\
+AIDE & Gemini-3-Flash & 77.27 & 54.55 & 4.55 & 9.09 & 31.82 & 45.45 \\
+LoongFlow & Gemini-3-Flash & 77.27 & 77.27 & 12.12 & 25.76 & 39.39 & 77.27 \\
+Codex & GPT-5.5 (xhigh) & 100.00 & 81.82 & 1.52 & 19.70 & 46.97 & 68.18 \\
+AI-Scientist & Gemini-3-Flash & 100.00 & 86.36 & 18.18 & 31.82 & 31.82 & \underline{81.82} \\
+\midrule
+\rowcolor{selfevolagent_lighter!55}
+\arbor{} & Gemini-3-Flash & 100.00 & 86.36 & 13.64 & 27.27 & 40.90 & \underline{81.82} \\
+\rowcolor{selfevolagent_lighter!55}
+\arbor{} & GPT-5.5 & 100.00 & 95.45 & 0.00 & 9.09 & 77.27 & \textbf{86.36} \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+\subsection{Results on MLE-Bench Lite}
+\label{sec:exp-mle}
+
+We also evaluate \arbor{} on MLE-Bench Lite under the official protocol.
+Unlike our AO task suite, this benchmark fixes the competition-style ML tasks,
+scoring rules, and medal thresholds, so it tests whether the same controller can
+turn repeated experiments into stronger runnable submissions. \arbor{} uses the
+same controller as before, adding only an adapter for workspace setup and
+submission formatting. Table~\ref{tab:mle-lite} reports the results.
+
+With a matched Gemini-3-Flash backbone, \arbor{} reaches 100\% valid
+submissions, 86.36\% above-median rate, and 81.82\% any-medal rate, tying the
+best same-backbone any-medal result while obtaining a higher gold rate than
+AI-Scientist and LoongFlow. Replacing the backbone with GPT-5.5, without
+changing the controller, depth, scheduler, or adapter, further raises any-medal
+to 86.36\% and gold to 77.27\%, the highest values in
+Table~\ref{tab:mle-lite}. These results suggest that the hypothesis-tree organization transfers beyond
+our constructed AO tasks to established long-horizon ML engineering benchmarks.
+
+\subsection{Backbone Generality}
+\label{sec:exp-generality}
+
+We next test whether \arbor{}'s gains are tied to a particular backbone model. We repeat representative
+runs with different backbones. As shown in Figure~\ref{fig:section45-46-results}(a), \arbor{} is not tied to a single frontier model: even with Gemini-3-Flash, a lighter backbone than the Claude and GPT variants, the same controller still improves both browsecomp and MLE-Bench Lite. This suggests that \htr{} provides a
+model-agnostic structure for exploration and memory rather than depending on a
+specific model.
+
+\begin{figure}[t]
+    \centering
+  % Generated by fig/make_section45_46_results.py.
+  \includegraphics[width=\linewidth]{fig/section45_46_results.pdf}
+  \caption{Backbone generality and cross-task transfer. \textbf{(a)}
+  \arbor{} is rerun with different backbone models while keeping the
+  controller, evaluator budget, and task adapters fixed. \textbf{(b)}
+  A BrowseComp-evolved search harness is frozen and evaluated on held-out
+  search-agent tasks without further task-specific optimization.}
+    \label{fig:section45-46-results}
+\end{figure}
+
+We also notice that backbone effects are task-dependent. Although
+\htr{} provides a common structure for exploration and memory, final
+performance is mediated by the compatibility between a model's capabilities and
+the task requirements. Claude Opus 4.6 performs best on BrowseComp, where
+improving a search harness relies heavily on broad reasoning and error
+diagnosis. In contrast, GPT-5.5 performs best on MLE-Bench Lite, where gains are
+more closely tied to ML-engineering knowledge, including data processing,
+training recipes, and leaderboard-oriented optimization. Thus, \arbor{} is
+model-agnostic at the framework level, but its empirical ceiling depends on
+task--backbone fit.
+
+
+\subsection{Cross-Task Idea Transfer}
+\label{sec:exp-transfer}
+
+A stronger test of generality is whether an optimized artifact transfers beyond the benchmark used for search. This is important for auto-research and auto-harness systems: an agent may improve on a source evaluator by exploiting benchmark-specific patterns rather than discovering generally useful design changes.
+
+We therefore evaluate transfer in the harness-engineering setting. \arbor{} is first run on BrowseComp, using only BrowseComp development feedback to propose, implement, and merge search-harness changes. After the run, we freeze the resulting harness and evaluate it directly on two unseen search-agent tasks, HLE and DeepSearchQA, without further task-specific optimization.
+
+Figure~\ref{fig:section45-46-results}(b) shows that the learned harness transfers. The optimized harness improves BrowseComp held-out accuracy from 45.33\% to 67.67\%. More importantly, the same frozen codebase also improves HLE from 25.50\% to 31.50\% and DeepSearchQA from $61.00\pm6.76\%$ to $69.00\pm6.41\%$. Since these two tasks are never used during BrowseComp optimization, the gains indicate that Arbor can discover harness-level changes that survive a shift in task distribution, rather than only fitting the source benchmark.
+
+\begin{table}[!t]
+\centering
+\begin{minipage}[t]{0.53\linewidth}
+\vspace{0pt}
+\centering
+\scriptsize
+\setlength{\tabcolsep}{1.3pt}
+\renewcommand{\arraystretch}{1.08}
+\caption{Component ablations on MLE-Bench Lite (Claude Opus 4.6 backbone).
+Entries are percentages.}
+\label{tab:mle-ablation}
+\begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}lcccccc@{}}
+\toprule
+Variant & \makecell{Valid\\sub.} & \makecell{Above\\median} & Bronze & Silver & Gold & \makecell{Any\\medal} \\
+\midrule
+Full \arbor{} & 100.00 & 90.91 & 4.55 & 27.27 & 50.00 & \textbf{81.82} \\
+w/o tree & 100.00 & 72.72 & 9.09 & 22.73 & 31.82 & 63.64 \\
+w/o insight feedback & 100.00 & 77.27 & 4.55 & 13.64 & 36.36 & 54.54 \\
+\bottomrule
+\end{tabular*}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.43\linewidth}
+\vspace{0pt}
+\centering
+\scriptsize
+\setlength{\tabcolsep}{1.2pt}
+\renewcommand{\arraystretch}{1.08}
+\caption{\arbor{}'s node statistics. Dev+ means nodes that improve over the baseline on the dev set.}
+\label{tab:search-trace}
+\begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}lcccccc@{}}
+\toprule
+\makecell[l]{Node\\num.} & \makecell[c]{Opt.\\Design} & \makecell[c]{Arch.\\Design} & \makecell[c]{Terminal\\Bench} & \makecell[c]{Browse\\Comp} & \makecell[c]{Search\\Agent} & \makecell[c]{Math\\Reason.} \\
+\midrule
+All & 26 & 150 & 17 & 26 & 15 & 15 \\
+Dev+ & 13 & 15 & 7 & 10 & 10 & 6 \\
+Merged & 2 & 9 & 3 & 3 & 4 & 4 \\
+\bottomrule
+\end{tabular*}
+\end{minipage}
+\end{table}
+
+\subsection{Ablations}
+\label{sec:exp-ablation}
+
+We ablate the two components most central to HTR on MLE-Bench Lite: the hierarchical hypothesis tree and insight feedback. The \textit{w/o tree} variant reduces search to a flat experiment queue, with all experiments attached directly to the root. The \textit{w/o insight feedback} variant keeps the tree structure but disables upward propagation of distilled lessons. Both variants use the same tool access, workspace budget, evaluation protocol, and Claude Opus 4.6 backbone as the full system.
+
+\paragraph{HTR improves refinement rather than executability.}
+Table~\ref{tab:mle-ablation} shows that all variants obtain 100\% valid submissions, indicating that the ablation gap is not caused by basic execution failure. The difference instead appears in outcome quality. Full Arbor reaches 81.82\% Any Medal, compared with 63.64\% for \textit{w/o tree} and 54.54\% for \textit{w/o insight feedback}. The same pattern appears in stronger categories such as Above Median, Silver, and Gold. This suggests that HTR mainly improves later-stage research refinement: once a runnable solution exists, the tree helps the agent decide which directions to extend, revise, or abandon.
+
+\paragraph{The tree is useful only when evidence can accumulate over it.}
+Removing insight feedback while keeping the tree causes a larger drop than removing the tree entirely. This result suggests that hierarchy alone is not sufficient. A tree without propagated lessons can still organize experiments syntactically, but it does not provide the semantic memory needed for later decisions. In contrast, full Arbor uses the tree as a substrate for accumulating evidence: leaf-level results are abstracted into direction-level lessons, which then constrain future ideation and selection.
+
+\paragraph{Tree structure and insight feedback are complementary.}
+The full system outperforms both ablations, indicating that the two components address different parts of the search problem. The tree defines where competing hypotheses are stored and compared, while insight feedback determines what reusable information is carried forward. Their combination allows Arbor to convert local experimental outcomes into persistent constraints on future search, rather than treating each experiment as an isolated trial.
+
+\subsection{Token Consumption and Search Cost}
+\label{sec:exp-cost}
+
+\begin{figure}[!t]
+\centering
+\includegraphics[width=0.88\linewidth]{fig/token_cost_gain.pdf}
+\caption{Token budget and relative held-out gain across completed AO cost logs. Token totals sum input
+and output tokens; for \arbor{}, the total further sums coordinator and executor
+usage. The y-axis reports percent improvement over each task's initial held-out
+score.}
+\label{fig:token-cost-gain}
+\end{figure}
+
+We further examine whether \arbor{}'s gains mainly come from increased model budget. Figure~\ref{fig:token-cost-gain} reports total token consumption and relative held-out gain, while Table~\ref{tab:search-trace} summarizes the corresponding tree traces.
+
+\paragraph{Structured search rather than larger sampling.}
+Across the six completed cost logs, \arbor{} uses 20.12M--43.19M tokens, a comparable scale to the single-trajectory baselines. Within this budget, \arbor{} achieves larger held-out gains on most tasks. This suggests that the improvement is not simply due to spending substantially more tokens, but to how the budget is organized: tokens are used to maintain competing hypotheses, run isolated executions, compare evidence, and update the search tree.
+
+\paragraph{Dev improvements are filtered by held-out admission.}
+Table~\ref{tab:search-trace} also shows that many nodes improve the development score, but only a smaller subset are merged. This gap is expected. A dev-improving node may still be worse than the current best artifact, or may overfit the development evaluator and fail to transfer to the held-out test. The merge gate therefore prevents local development gains from being mistaken for artifact-level progress. In this sense, the tree trace records broad exploration, while the held-out gate admits only verified improvements into the final artifact.
+
+\begin{figure}[t]
+\centering
+% Generated by fig/make_discussion_insights.py.
+\includegraphics[width=\linewidth]{fig/discussion_insights.pdf}
+\caption{\textbf{Exploration efficiency on the six AO tasks} (one panel per
+task). Curves show the best-so-far development gain over the run, normalized to
+\arbor{}'s final gain, so \arbor{} (solid) ends at $100\%$ and the Claude Code
+baseline (dashed) at its own relative ceiling. Stars mark each method's
+held-out test maximum, annotated with the test score from
+Table~\ref{tab:main-ao}. }
+\label{fig:discussion-insights}
+\end{figure}
+
+\section{Discussion}
+\label{sec:discussion}
+
+We analyze \arbor{}'s internal research traces to understand how autonomous research progresses once the agent starts running experiments. We focus on three questions: how hypotheses change over time (Section~\ref{sec:discussion-refinement}), when useful improvements appear (Section~\ref{sec:discussion-timing}), and what kinds of ideas the Hypothesis Tree produces (Section~\ref{sec:discussion-ideas}).
+ 
+\subsection{Hypothesis Refinement Analysis}
+\label{sec:discussion-refinement}
+ 
+%--- Figure: BrowseComp insight evolution ---%
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{fig/discussion_case.pdf}
+\caption{Evolution of task understanding across the BrowseComp run.
+Each upper-tier box states the current problem framing, the fix attempted, and the mechanistic finding that drove the next shift.
+The lower tier shows the experimental nodes behind each transition.}
+\label{fig:bc-insight-evolution}
+\end{figure}
+ 
+We analyze the BrowseComp hypothesis tree, reporting the main hypothesis shifts, the nodes that triggered them, and the final design selected by the merge gate. Figure~\ref{fig:bc-insight-evolution} traces all three contractions of task understanding alongside the experimental nodes that drove each transition. We find that:
+ 
+\textbf{Early nodes test whether a broad mechanism holds.}
+The run begins from a coarse hypothesis and uses the first experiments to confirm or reject it. In BrowseComp, the initial hypothesis is that search agents produce near-miss answers by matching salient cues while missing fine-grained constraints; constraint-decomposed verification and hostile-contradiction checking both improve development accuracy, confirming that fine-grained answer checking is a valid source of gain.
+ 
+\textbf{Later nodes localize the bottleneck by probing the mechanism's boundary.}
+Once a mechanism is confirmed, the tree tests where it stops working rather than pushing it further. In BrowseComp, the verifier nodes can judge candidates produced by the search process but rarely recover candidates that were never surfaced, and part of the hostile-verifier gain comes from answer normalization rather than reliable evidence discovery. This shifts the main design target from stricter verification to broader evidence coverage.
+ 
+\textbf{Ancestor insights compress these results into the constraints that shape the final design.}
+The accumulated positive and negative findings define what the successful design must satisfy. In BrowseComp, the evidence-dossier aggregator preserves candidates and supporting evidence across independent rollouts, recovering correct answers that appear in only a minority of trajectories; follow-up nodes then rule out persona-diverse rollouts (which only rerank within the same retrieval frontier), the search-augmented judge (which overfits development questions), and shared decomposition (which reduces trajectory independence). \arbor{} thus learns that BrowseComp benefits from sharing evidence while keeping search trajectories independent.
+ 
+\paragraph{Takeaway.}
+Hypothesis refinement in HTR is a \textbf{deepening of task understanding}: early nodes test broad mechanisms, later nodes identify their limits, and ancestor insights summarize these results into constraints for the next round of proposals. This constraint accumulation is the core process-level benefit over flat trial-and-error.
+ 
+\subsection{Search Efficiency Analysis}
+\label{sec:discussion-timing}
+ 
+We analyze when the best candidates appear during a run, using each node's execution time and development gain. We find that:
+ 
+\textbf{Strong candidates often appear after the search state has accumulated constraints.}
+Across tasks, \arbor{} frequently reaches its best candidate in the middle or later part of the run. These improvements are supported by earlier nodes that identify useful mechanisms, rule out weak variants, and narrow the design space.
+ 
+\textbf{Later proposals are more targeted than early proposals.}
+In BrowseComp, the final evidence-sharing design appears only after several failed or partially successful verifier variants establish that fine-grained checking matters, that candidate coverage is the bottleneck, and that judge-side search and shared decomposition introduce new failure modes. The final proposal is therefore generated from a more informative research state than the initial proposals.
+ 
+\textbf{The tree improves search by changing the proposal distribution over time.}
+\arbor{} does not simply allocate budget uniformly over independent attempts: its later nodes are conditioned on accumulated evidence from ancestors and siblings. Successful mechanisms become priors, failed variants become negative constraints, and partial gains become starting points for refined hypotheses.
+ 
+\paragraph{Takeaway.}
+\textbf{Earlier experiments persistently reduce the arbitrariness of later search, placing mid-to-late improvements on a higher information baseline.}
+The relevant notion of efficiency is whether the same budget produces a less repetitive and more constrained evidence chain, rather than running long enough to stumble onto a result by chance.
+ 
+\subsection{Idea Quality Analysis}
+\label{sec:discussion-ideas}
+ 
+%--- Figure: Representative ideas box ---%
+\begin{figure}[t]
+\centering
+\newtcolorbox{ideacard}[1]{%
+  enhanced, breakable=false, sharp corners=all,
+  colback=selfevolagent_lighter!22, colframe=selfevolagent_dark,
+  boxrule=0.6pt, left=7pt, right=7pt, top=5pt, bottom=5pt,
+  fonttitle=\bfseries\small\color{white},
+  coltitle=white, colbacktitle=deltaaccent,
+  attach boxed title to top left={xshift=6pt, yshift=-3pt},
+  boxed title style={sharp corners=all, boxrule=0pt, left=5pt, right=5pt, top=1.5pt, bottom=1.5pt},
+  title={#1}, fontupper=\scriptsize, before upper=\setlength{\parskip}{3pt},
+}
+\newcommand{\idea}[1]{\textcolor{selfevolagent_dark}{\ding{228}}~#1\par}
+\begin{tcbraster}[raster columns=2, raster column skip=5pt, raster row skip=5pt,
+                  raster equal height=rows, raster width=\linewidth]
+  \begin{ideacard}{BrowseComp \textnormal{\textemdash{} harness engineering}}
+    \idea{Run independent ReAct rollouts, then select the answer whose evidence dossier covers the most question constraints, rather than taking a majority vote.}
+    \idea{In the second round, share only answer candidates and their evidence dossiers across agents---never plans, personas, or decompositions.}
+  \end{ideacard}
+  \begin{ideacard}{Search-Agent \textnormal{\textemdash{} data synthesis}}
+    \idea{Strip entity surface forms before generation so the model cannot copy answer tokens from the question; re-inject obfuscated aliases only at retrieval time.}
+    \idea{After generating a candidate task, have a separate agent attempt it adversarially and discard any task solved on the first try.}
+  \end{ideacard}
+  \begin{ideacard}{Math-Reasoning \textnormal{\textemdash{} data synthesis}}
+    \idea{Instantiate each problem family from a parametric template with randomised seeds, so difficulty is controlled at the family level rather than per instance.}
+    \idea{Identify families where pass@4 clusters near 0 or 1 and apply targeted re-sampling to shift them into the target difficulty band.}
+  \end{ideacard}
+  \begin{ideacard}{Architecture Design \textnormal{\textemdash{} model training}}
+    \idea{Bracket warmdown schedule length as an independent knob and test three settings before varying other hyperparameters.}
+    \idea{Disable weight tying between embedding and unembedding layers and measure whether the freed capacity is absorbed by attention or the feed-forward stack.}
+  \end{ideacard}
+\end{tcbraster}
+\caption{Representative ideas generated by \arbor{} across tasks. Each idea is procedural rather than instance-specific, and each was proposed only after preceding nodes had ruled out broader directions.}
+\label{fig:representative-ideas}
+\end{figure}
+ 
+We analyze representative ideas generated across model training, harness engineering, and data synthesis tasks, classifying each by its granularity, implementation target, and relation to previous evidence. Figure~\ref{fig:representative-ideas} shows representative examples. We find that:
+ 
+\textbf{Most useful ideas are local and executable.}
+In model training, ideas usually modify a specific optimizer component, training recipe, or architecture choice. In harness engineering, they change concrete parts of the agent loop, such as retrieval, aggregation, verification, or context management. In data synthesis, they refine generation, filtering, difficulty calibration, or verification modules. This locality makes each idea easy to implement, evaluate, and attribute to a tree node.
+ 
+\textbf{Useful ideas are often evidence-conditioned.}
+Many successful proposals directly respond to earlier observations: the BrowseComp evidence-dossier design follows from the failure mode of verifier-only approaches, and similar patterns appear in data synthesis, where later nodes repair specific weaknesses in difficulty calibration or answer verification. HTR therefore helps convert local failures into new design constraints, and ensures that ``half-right'' results become the starting point for a more precise hypothesis rather than a reason to abandon the direction.
+ 
+\textbf{High-level problem formulation remains important.}
+\arbor{} is strongest when the objective can be improved through a sequence of concrete refinements, and less reliable when progress requires a new high-level formulation weakly connected to the existing tree. The Architecture Design task ultimately acknowledged that single-knob tuning had reached diminishing returns and a larger algorithmic move was needed, but identifying that move still depended on prior judgment rather than anything the tree could automatically generate. This highlights the role of human-provided task design: the initial artifact, evaluator, metric, and search interface shape the kinds of ideas the agent can discover.
+ 
+\paragraph{Takeaway.}
+As the tree grows, what has been ruled out, validated, and found to have boundary conditions all become priors constraining the next round of proposals.
+\arbor{}'s ideas are therefore not isolated guesses but local advances relative to a known task understanding. Together with the refinement and timing results above, this paints the complete picture of HTR as a process mechanism that makes autonomous research cumulative: not more attempts, but less repetitive and more memory-aware search.
+ 
+\FloatBarrier
+
+\section{Conclusion}\label{sec:conclusion}
+
+We presented \arbor{} as a framework for Autonomous Optimization, where a
+research agent must improve a real artifact through long-horizon experimental
+feedback rather than execute a single predefined trajectory. The core idea is
+to make the research state persistent and operational: \arbor{} represents
+competing hypotheses, artifact versions, evaluation results, failure
+attributions, and reusable insights in a durable hypothesis tree. A coordinator
+uses this tree to manage strategic search, while short-lived executors ground
+individual hypotheses in isolated worktrees and return structured evidence.
+Together with insight propagation and a held-out admission gate, this design
+turns trial and error into an auditable process of branching, falsification,
+and evidence-constrained improvement.
+
+Across the AO settings studied here, this organization provides consistent
+evidence of value. On six real-research tasks spanning model training, harness
+engineering, and data synthesis, \arbor{} achieves the strongest held-out
+results among the compared methods; on MLE-Bench Lite, the same controller
+transfers to an established long-horizon ML-engineering benchmark. The transfer
+study shows that a BrowseComp-optimized harness can improve unseen search-agent
+tasks, and the ablations indicate that the hypothesis tree and insight feedback
+are most useful when they operate together. These results support the view that
+persistent hypothesis management is a useful abstraction for autonomous
+research, while the limitations of the current task suite, scalar objectives,
+model capabilities, and search cost leave substantial room for broader and more
+rigorous future evaluations.
+
+\FloatBarrier
+
+\input{main.bbl}
+
+\appendix
+
+\newpage
+\input{appendix}
+
+\end{document}

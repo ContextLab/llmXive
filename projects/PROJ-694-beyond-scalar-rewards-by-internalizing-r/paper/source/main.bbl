@@ -1,0 +1,213 @@
+\begin{thebibliography}{10}
+\providecommand{\url}[1]{\texttt{#1}}
+\providecommand{\urlprefix}{URL }
+\providecommand{\doi}[1]{https://doi.org/#1}
+
+\bibitem{Agarwal2023OnPolicyDO}
+Agarwal, R., Vieillard, N., Zhou, Y., Stańczyk, P., Ramos, S., Geist, M., Bachem, O.: On-policy distillation of language models: Learning from self-generated mistakes. In: International Conference on Learning Representations (2023), \url{https://api.semanticscholar.org/CorpusID:263610088}
+
+\bibitem{black2024trainingdiffusionmodelsreinforcement}
+Black, K., Janner, M., Du, Y., Kostrikov, I., Levine, S.: Training diffusion models with reinforcement learning (2024), \url{https://arxiv.org/abs/2305.13301}
+
+\bibitem{Bradley1952RANKAO}
+Bradley, R.A., Terry, M.E.: Rank analysis of incomplete block designs the method of paired comparisons. Biometrika  \textbf{39},  324--345 (1952), \url{https://api.semanticscholar.org/CorpusID:121987403}
+
+\bibitem{chen2024mllmjudge}
+Chen, D., Chen, R., Zhang, S., Wang, Y., Liu, Y., Zhou, H., Zhang, Q., Wan, Y., Zhou, P., Sun, L.: {MLLM}-as-a-judge: Assessing multimodal {LLM}-as-a-judge with vision-language benchmark. In: Proceedings of the 41st International Conference on Machine Learning. Proceedings of Machine Learning Research, vol.~235, pp. 6562--6595. PMLR (2024), \url{https://proceedings.mlr.press/v235/chen24h.html}
+
+\bibitem{chen2024mjbench}
+Chen, Z., Du, Y., Wen, Z., Zhou, Y., Cui, C., Weng, Z., Tu, H., Wang, C., Tong, Z., Huang, Q., Chen, C., Ye, Q., Zhu, Z., Zhang, Y., Zhou, J., Zhao, Z., Rafailov, R., Finn, C., Yao, H.: {MJ-Bench}: Is your multimodal reward model really a good judge for text-to-image generation? (2024), \url{https://arxiv.org/abs/2407.04842}
+
+\bibitem{Christiano2017DeepRL}
+Christiano, P.F., Leike, J., Brown, T.B., Martic, M., Legg, S., Amodei, D.: Deep reinforcement learning from human preferences (2017), \url{https://arxiv.org/abs/1706.03741}
+
+\bibitem{clark2024directlyfinetuningdiffusionmodels}
+Clark, K., Vicol, P., Swersky, K., Fleet, D.J.: Directly fine-tuning diffusion models on differentiable rewards (2024), \url{https://arxiv.org/abs/2309.17400}
+
+\bibitem{cui2026briefoverviewonpolicyselfdistillation}
+Cui, F., Li, S., Li, J.: A brief overview: On-policy self-distillation in large language models (2026), \url{https://arxiv.org/abs/2605.18141}
+
+\bibitem{davani2022dealing}
+Davani, A.M., D{\'i}az, M., Prabhakaran, V.: Dealing with disagreements: Looking beyond the majority vote in subjective annotations. Transactions of the Association for Computational Linguistics  \textbf{10},  92--110 (2022). \doi{10.1162/tacl\_a\_00449}, \url{https://aclanthology.org/2022.tacl-1.6}
+
+\bibitem{diaz2019soft}
+Diaz, R., Marathe, A.: Soft labels for ordinal regression. In: Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) (June 2019)
+
+\bibitem{fan2023dpok}
+Fan, Y., Watkins, O., Du, Y., Liu, H., Ryu, M., Boutilier, C., Abbeel, P., Ghavamzadeh, M., Lee, K., Lee, K.: {DPOK}: Reinforcement learning for fine-tuning text-to-image diffusion models. In: Advances in Neural Information Processing Systems. vol.~36 (2023)
+
+\bibitem{fu2026revisitingonpolicydistillationempirical}
+Fu, Y., Huang, H., Jiang, K., Liu, J., Jiang, Z., Zhu, Y., Zhao, D.: Revisiting on-policy distillation: Empirical failure modes and simple fixes (2026), \url{https://arxiv.org/abs/2603.25562}
+
+\bibitem{gao2023scaling}
+Gao, L., Schulman, J., Hilton, J.: Scaling laws for reward model overoptimization. In: Proceedings of the 40th International Conference on Machine Learning. Proceedings of Machine Learning Research, vol.~202, pp. 10835--10866. PMLR (2023), \url{https://proceedings.mlr.press/v202/gao23h.html}
+
+\bibitem{ghosh2023geneval}
+Ghosh, D., Hajishirzi, H., Schmidt, L.: Geneval: An object-focused framework for evaluating text-to-image alignment. In: Advances in Neural Information Processing Systems. vol.~36 (2023)
+
+\bibitem{gu2024surveyllmasajudge}
+Gu, J., Jiang, X., Shi, Z., Tan, H., Zhai, X., Xu, C., Li, W., Shen, Y., Ma, S., Liu, H., Wang, S., Zhang, K., Wang, Y., Gao, W., Ni, L., Guo, J.: A survey on llm-as-a-judge (2024), \url{https://arxiv.org/abs/2411.15594}
+
+\bibitem{gu2024minillm}
+Gu, Y., Dong, L., Wei, F., Huang, M.: Minillm: Knowledge distillation of large language models. In: The Twelfth International Conference on Learning Representations (2024), \url{https://openreview.net/forum?id=5h0qf7IBZZ}
+
+\bibitem{guo2026leveraging}
+Guo, H., Wu, J., Liu, J., Gao, Y., Ye, Z., Yuan, L., Wang, X., Yu, Y., Huang, W.: Leveraging verifier-based reinforcement learning in image editing. In: Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition. pp. 34343--34352 (2026)
+
+\bibitem{he2026selfdistillationzeroselfrevisionturns}
+He, Y., Kaur, S., Bhaskar, A., Yang, Y., Liu, J., Ri, N., Fowl, L., Panigrahi, A., Chen, D., Arora, S.: Self-distillation zero: Self-revision turns binary rewards into dense supervision (2026), \url{https://arxiv.org/abs/2604.12002}
+
+\bibitem{hessel2021clipscore}
+Hessel, J., Holtzman, A., Forbes, M., Le~Bras, R., Choi, Y.: {CLIPScore}: A reference-free evaluation metric for image captioning. In: Proceedings of the 2021 Conference on Empirical Methods in Natural Language Processing. pp. 7514--7528. Association for Computational Linguistics (2021). \doi{10.18653/v1/2021.emnlp-main.595}, \url{https://aclanthology.org/2021.emnlp-main.595}
+
+\bibitem{hinton2015distilling}
+Hinton, G., Vinyals, O., Dean, J.: Distilling the knowledge in a neural network (2015), \url{https://arxiv.org/abs/1503.02531}
+
+\bibitem{hsieh2023distilling}
+Hsieh, C.Y., Li, C.L., Yeh, C.K., Nakhost, H., Fujii, Y., Ratner, A., Krishna, R., Lee, C.Y., Pfister, T.: Distilling step-by-step! outperforming larger language models with less training data and smaller model sizes. In: Findings of the Association for Computational Linguistics: ACL 2023. pp. 8003--8017. Association for Computational Linguistics (2023). \doi{10.18653/v1/2023.findings-acl.507}, \url{https://aclanthology.org/2023.findings-acl.507}
+
+\bibitem{hu2023tifa}
+Hu, Y., Liu, B., Kasai, J., Wang, Y., Ostendorf, M., Krishna, R., Smith, N.A.: Tifa: Accurate and interpretable text-to-image faithfulness evaluation with question answering. In: Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV). pp. 20406--20417 (October 2023)
+
+\bibitem{huang2023t2icompbench}
+Huang, K., Sun, K., Xie, E., Li, Z., Liu, X.: T2i-compbench: A comprehensive benchmark for open-world compositional text-to-image generation. In: Advances in Neural Information Processing Systems. vol.~36 (2023)
+
+\bibitem{huang2024vbench}
+Huang, Z., He, Y., Yu, J., Zhang, F., Si, C., Jiang, Y., Zhang, Y., Wu, T., Jin, Q., Chanpaisit, N., Wang, Y., Chen, X., Wang, L., Lin, D., Qiao, Y., Liu, Z.: {VBench}: Comprehensive benchmark suite for video generative models. In: Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR). pp. 21807--21818 (2024)
+
+\bibitem{jang2026stableonpolicydistillationadaptive}
+Jang, I., Yeom, J., Yeo, J., Lim, H., Kim, T.: Stable on-policy distillation through adaptive target reformulation (2026), \url{https://arxiv.org/abs/2601.07155}
+
+\bibitem{kim2016sequence}
+Kim, Y., Rush, A.M.: Sequence-level knowledge distillation. In: Proceedings of the 2016 Conference on Empirical Methods in Natural Language Processing. pp. 1317--1327. Association for Computational Linguistics, Austin, Texas (2016). \doi{10.18653/v1/D16-1139}, \url{https://aclanthology.org/D16-1139}
+
+\bibitem{kirstain2023pickapicopendatasetuser}
+Kirstain, Y., Polyak, A., Singer, U., Matiana, S., Penna, J., Levy, O.: Pick-a-pic: An open dataset of user preferences for text-to-image generation (2023), \url{https://arxiv.org/abs/2305.01569}
+
+\bibitem{li2024evaluating}
+Li, B., Lin, Z., Pathak, D., Li, J., Fei, Y., Wu, K., Xia, X., Zhang, P., Neubig, G., Ramanan, D.: Evaluating and improving compositional text-to-visual generation. In: Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) Workshops. pp. 5290--5301 (June 2024)
+
+\bibitem{li2026rethinkingonpolicydistillationlarge}
+Li, Y., Zuo, Y., He, B., Zhang, J., Xiao, C., Qian, C., Yu, T., ang Gao, H., Yang, W., Liu, Z., Ding, N.: Rethinking on-policy distillation of large language models: Phenomenology, mechanism, and recipe (2026), \url{https://arxiv.org/abs/2604.13016}
+
+\bibitem{liang2024rich}
+Liang, Y., He, J., Li, G., Li, P., Klimovskiy, A., Carolan, N., Sun, J., Pont-Tuset, J., Young, S., Yang, F., Ke, J., Dvijotham, K.D., Collins, K.M., Luo, Y., Li, Y., Kohlhoff, K.J., Ramachandran, D., Navalpakkam, V.: Rich human feedback for text-to-image generation. In: Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR). pp. 19401--19411 (June 2024)
+
+\bibitem{lin2024evaluating}
+Lin, Z., Pathak, D., Li, B., Li, J., Xia, X., Neubig, G., Zhang, P., Ramanan, D.: Evaluating text-to-visual generation with image-to-text generation (2024), \url{https://arxiv.org/abs/2404.01291}
+
+\bibitem{liu2025improvingvideogenerationhuman}
+Liu, J., Liu, G., Liang, J., Yuan, Z., Liu, X., Zheng, M., Wu, X., Wang, Q., Xia, M., Wang, X., Liu, X., Yang, F., Wan, P., Zhang, D., Gai, K., Yang, Y., Ouyang, W.: Improving video generation with human feedback (2025), \url{https://arxiv.org/abs/2501.13918}
+
+\bibitem{liu2025pairjudgermperformbestofn}
+Liu, Y., Yao, Z., Min, R., Cao, Y., Hou, L., Li, J.: Pairjudge rm: Perform best-of-n sampling with knockout tournament (2025), \url{https://arxiv.org/abs/2501.13007}
+
+\bibitem{liu2025inferencetimescalinggeneralistreward}
+Liu, Z., Wang, P., Xu, R., Ma, S., Ruan, C., Li, P., Liu, Y., Wu, Y.: Inference-time scaling for generalist reward modeling (2025), \url{https://arxiv.org/abs/2504.02495}
+
+\bibitem{lu2025onpolicy}
+Lu, K., {Thinking Machines Lab}: On-policy distillation. Thinking Machines Lab: Connectionism (2025), \url{https://thinkingmachines.ai/blog/on-policy-distillation}, accessed: 2026-06-03
+
+\bibitem{ma2025hpsv3widespectrumhumanpreference}
+Ma, Y., Shui, Y., Wu, X., Sun, K., Li, H.: Hpsv3: Towards wide-spectrum human preference score (2025), \url{https://arxiv.org/abs/2508.03789}
+
+\bibitem{murray2012ava}
+Murray, N., Marchesotti, L., Perronnin, F.: Ava: A large-scale database for aesthetic visual analysis. In: 2012 IEEE Conference on Computer Vision and Pattern Recognition. pp. 2408--2415 (2012). \doi{10.1109/CVPR.2012.6247954}
+
+\bibitem{otani2023toward}
+Otani, M., Togashi, R., Sawai, Y., Ishigami, R., Nakashima, Y., Rahtu, E., Heikkil{\"a}, J., Satoh, S.: Toward verifiable and reproducible human evaluation for text-to-image generation (2023), \url{https://arxiv.org/abs/2304.01816}
+
+\bibitem{Ouyang2022TrainingLM}
+Ouyang, L., Wu, J., Jiang, X., Almeida, D., Wainwright, C.L., Mishkin, P., Zhang, C., Agarwal, S., Slama, K., Ray, A., Schulman, J., Hilton, J., Kelton, F., Miller, L.E., Simens, M., Askell, A., Welinder, P., Christiano, P.F., Leike, J., Lowe, R.J.: Training language models to follow instructions with human feedback (2022), \url{https://arxiv.org/abs/2203.02155}
+
+\bibitem{penaloza2026privileged}
+Penaloza, E., Vattikonda, D., Gontier, N., Lacoste, A., Charlin, L., Caccia, M.: Privileged information distillation for language models (2026), \url{https://arxiv.org/abs/2602.04942}
+
+\bibitem{prabhudesai2024alignprop}
+Prabhudesai, M., Goyal, A., Pathak, D., Fragkiadaki, K.: Aligning text-to-image diffusion models with reward backpropagation. In: The Twelfth International Conference on Learning Representations (2024), \url{https://openreview.net/forum?id=Vaf4sIrRUC}
+
+\bibitem{qwen3.5}
+{Qwen Team}: {Qwen3.5}: Towards native multimodal agents (February 2026), \url{https://qwen.ai/blog?id=qwen3.5}
+
+\bibitem{rafailov2024scaling}
+Rafailov, R., Chittepu, Y., Park, R., Sikchi, H., Hejna, J., Knox, W.B., Finn, C., Niekum, S.: Scaling laws for reward model overoptimization in direct alignment algorithms. In: Advances in Neural Information Processing Systems. vol.~37, pp. 126207--126242 (2024)
+
+\bibitem{rafailov2023direct}
+Rafailov, R., Sharma, A., Mitchell, E., Ermon, S., Manning, C.D., Finn, C.: Direct preference optimization: Your language model is secretly a reward model. In: Advances in Neural Information Processing Systems. vol.~36, pp. 53728--53741 (2023)
+
+\bibitem{saharia2022photorealistic}
+Saharia, C., Chan, W., Saxena, S., Li, L., Whang, J., Denton, E.L., Ghasemipour, K., Gontijo~Lopes, R., Ayan, B.K., Salimans, T., Ho, J., Fleet, D.J., Norouzi, M.: Photorealistic text-to-image diffusion models with deep language understanding. In: Advances in Neural Information Processing Systems. vol.~35, pp. 36479--36494 (2022)
+
+\bibitem{Sang2026CRISPCR}
+Sang, H., Xu, Y., Zhou, Z., He, R., Wang, Z., Sun, J.: Crisp: Compressed reasoning via iterative self-policy distillation (2026), \url{https://api.semanticscholar.org/CorpusID:286255699}
+
+\bibitem{deepseek-math}
+Shao, Z., Wang, P., Zhu, Q., Xu, R., Song, J., Zhang, M., Li, Y.K., Wu, Y., Guo, D.: Deepseekmath: Pushing the limits of mathematical reasoning in open language models (2024), \url{https://arxiv.org/abs/2402.03300}
+
+\bibitem{shenfeld2026selfdistillationenablescontinuallearning}
+Shenfeld, I., Damani, M., Hübotter, J., Agrawal, P.: Self-distillation enables continual learning (2026), \url{https://arxiv.org/abs/2601.19897}
+
+\bibitem{song2026surveyonpolicydistillationlarge}
+Song, M., Zheng, M.: A survey of on-policy distillation for large language models (2026), \url{https://arxiv.org/abs/2604.00626}
+
+\bibitem{talebi2018nima}
+Talebi, H., Milanfar, P.: Nima: Neural image assessment. IEEE Transactions on Image Processing  \textbf{27}(8),  3998--4011 (2018). \doi{10.1109/TIP.2018.2831899}
+
+\bibitem{Team2025ZImageAE}
+Team, Z.I., Cai, H., Cao, S., Du, R., Gao, P., Hoi, S., Hou, Z., Huang, S., Jiang, D., Jin, X., Li, L., Li, Z., Li, Z.Y., Liu, D., Liu, D., Shi, J., Wu, Q., Yu, F., Zhang, C., Zhang, S., Zhou, S.: Z-image: An efficient image generation foundation model with single-stream diffusion transformer (2025), \url{https://arxiv.org/abs/2511.22699}
+
+\bibitem{uma2021learning}
+Uma, A.N., Fornaciari, T., Hovy, D., Paun, S., Plank, B., Poesio, M.: Learning from disagreement: A survey. Journal of Artificial Intelligence Research  \textbf{72},  1385--1470 (2021). \doi{10.1613/jair.1.12752}
+
+\bibitem{wallace2024diffusion}
+Wallace, B., Dang, M., Rafailov, R., Zhou, L., Lou, A., Purushwalkam, S., Ermon, S., Xiong, C., Joty, S., Naik, N.: Diffusion model alignment using direct preference optimization. In: Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR). pp. 8228--8238 (June 2024)
+
+\bibitem{wang2025worldpmscalinghumanpreference}
+Wang, B., Lin, R., Lu, K., Yu, L., Zhang, Z., Huang, F., Zheng, C., Dang, K., Fan, Y., Ren, X., Yang, A., Hui, B., Liu, D., Gui, T., Zhang, Q., Huang, X., Jiang, Y.G., Yu, B., Zhou, J., Lin, J.: Worldpm: Scaling human preference modeling (2025), \url{https://arxiv.org/abs/2505.10527}
+
+\bibitem{wang2026unifiedrewardmodelmultimodal}
+Wang, Y., Zang, Y., Li, H., Jin, C., Wang, J.: Unified reward model for multimodal understanding and generation (2026), \url{https://arxiv.org/abs/2503.05236}
+
+\bibitem{wen2023ordinal}
+Wen, C., Zhang, X., Yao, X., Yang, J.: Ordinal label distribution learning. In: Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV). pp. 23424--23434 (October 2023)
+
+\bibitem{wu2023qalign}
+Wu, H., Zhang, Z., Zhang, W., Chen, C., Li, C., Liao, L., Wang, A., Zhang, E., Sun, W., Yan, Q., Min, X., Zhai, G., Lin, W.: Q-align: Teaching lmms for visual scoring via discrete text-defined levels (2023), \url{https://arxiv.org/abs/2312.17090}
+
+\bibitem{wu2025rewarddancerewardscalingvisual}
+Wu, J., Gao, Y., Ye, Z., Li, M., Li, L., Guo, H., Liu, J., Xue, Z., Hou, X., Liu, W., Zeng, Y., Huang, W.: Rewarddance: Reward scaling in visual generation (2025), \url{https://arxiv.org/abs/2509.08826}
+
+\bibitem{wu2023humanpreferencescorev2}
+Wu, X., Hao, Y., Sun, K., Chen, Y., Zhu, F., Zhao, R., Li, H.: Human preference score v2: A solid benchmark for evaluating human preferences of text-to-image synthesis (2023), \url{https://arxiv.org/abs/2306.09341}
+
+\bibitem{xu2026visionrewardfinegrainedmultidimensionalhuman}
+Xu, J., Huang, Y., Cheng, J., Yang, Y., Xu, J., Wang, Y., Duan, W., Yang, S., Jin, Q., Li, S., Teng, J., Yang, Z., Zheng, W., Liu, X., Zhang, D., Ding, M., Zhang, X., Gu, X., Huang, S., Huang, M., Tang, J., Dong, Y.: Visionreward: Fine-grained multi-dimensional human preference learning for image and video generation (2026), \url{https://arxiv.org/abs/2412.21059}
+
+\bibitem{xu2023imagereward}
+Xu, J., Liu, X., Wu, Y., Tong, Y., Li, Q., Ding, M., Tang, J., Dong, Y.: Imagereward: Learning and evaluating human preferences for text-to-image generation. Advances in Neural Information Processing Systems  \textbf{36},  15903--15935 (2023)
+
+\bibitem{yang2024adensereward}
+Yang, S., Chen, T., Zhou, M.: A dense reward view on aligning text-to-image diffusion with preference. In: Forty-first International Conference on Machine Learning (2024), \url{https://openreview.net/forum?id=xVXnXk9I3I}
+
+\bibitem{yang2026joint}
+Yang, Y., Long, Y., Wei, H., Chen, W., Zhang, T., Jiang, K., Fan, H., Liu, C., Chen, J., Tang, K., et~al.: Joint reward modeling: Internalizing chain-of-thought for efficient visual reward models (2026), \url{https://arxiv.org/abs/2602.07533}
+
+\bibitem{you2025teachinglargelanguagemodels}
+You, Z., Cai, X., Gu, J., Xue, T., Dong, C.: Teaching large language models to regress accurate image quality scores using score distribution (2025), \url{https://arxiv.org/abs/2501.11561}
+
+\bibitem{zhang2025generativeverifiersrewardmodeling}
+Zhang, L., Hosseini, A., Bansal, H., Kazemi, M., Kumar, A., Agarwal, R.: Generative verifiers: Reward modeling as next-token prediction (2025), \url{https://arxiv.org/abs/2408.15240}
+
+\bibitem{zhang2024learning_mps}
+Zhang, S., Wang, B., Wu, J., Li, Y., Gao, T., Zhang, D., Wang, Z.: Learning multi-dimensional human preference for text-to-image generation (2024), \url{https://arxiv.org/abs/2405.14705}
+
+\bibitem{zhao2026selfdistilledreasoneronpolicyselfdistillation}
+Zhao, S., Xie, Z., Liu, M., Huang, J., Pang, G., Chen, F., Grover, A.: Self-distilled reasoner: On-policy self-distillation for large language models (2026), \url{https://arxiv.org/abs/2601.18734}
+
+\bibitem{zheng2023judging}
+Zheng, L., Chiang, W.L., Sheng, Y., Zhuang, S., Wu, Z., Zhuang, Y., Lin, Z., Li, Z., Li, D., Xing, E.P., Zhang, H., Gonzalez, J.E., Stoica, I.: Judging llm-as-a-judge with mt-bench and chatbot arena. In: Advances in Neural Information Processing Systems. vol.~36, pp. 46595--46623 (2023)
+
+\bibitem{zhu2026facesonpolicydistillationpitfalls}
+Zhu, S., Ye, X., Lu, H., Shi, W., Liu, G.: The many faces of on-policy distillation: Pitfalls, mechanisms, and fixes (2026), \url{https://arxiv.org/abs/2605.11182}
+
+\end{thebibliography}

@@ -1,0 +1,160 @@
+\documentclass[11pt, a4paper, logo, nonumbering]{style}
+\usepackage[numbers, sort&compress]{natbib}
+\usepackage{dblfloatfix}
+\usepackage{caption}
+\captionsetup{
+labelsep=period,
+justification=raggedright,
+singlelinecheck=false
+}
+\usepackage{xspace}
+\usepackage{pifont}
+\usepackage{multirow}
+\usepackage{tcolorbox}
+\usepackage{longtable}
+\usepackage{hyperref}
+\interfootnotelinepenalty=10000
+
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{adjustbox}
+
+\usepackage[bottom]{footmisc}
+\usepackage{listings}
+\usepackage{setspace}
+
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{booktabs}
+
+\usepackage{multicol}
+
+% NeurIPS author-checklist response macros (A_author_checklist.tex uses them)
+\newcommand{\answerYes}[1][]{\textcolor{blue}{[Yes] #1}}
+\newcommand{\answerNo}[1][]{\textcolor{orange}{[No] #1}}
+\newcommand{\answerNA}[1][]{\textcolor{gray}{[N/A] #1}}
+\newcommand{\answerTODO}[1][]{\textcolor{red}{[TODO]}}
+\newcommand{\justificationTODO}{\textcolor{red}{[TODO: fill in justification]}}
+
+% CJK support (xeCJK + Fandol fonts, portable across local tectonic and Overleaf TeX Live)
+%\usepackage{xeCJK}
+%\setCJKmainfont{FandolSong-Regular}[
+ %   Extension      = .otf,
+%    BoldFont       = FandolSong-Bold,
+%    ItalicFont     = FandolKai-Regular
+%]
+%\setCJKsansfont{FandolHei-Regular}[Extension = .otf]
+%\setCJKmonofont{FandolFang-Regular}[Extension = .otf]
+
+% Code listing style (kept from template, in case appendix verbatim blocks use it)
+\definecolor{codebackground}{rgb}{0.95,0.95,0.95}
+\definecolor{codeframe}{rgb}{0.8,0.8,0.8}
+\definecolor{keyword}{rgb}{0.0,0.0,0.55}
+\definecolor{stringcolor}{rgb}{0.65,0.13,0.13}
+\definecolor{commentcolor}{rgb}{0.0,0.5,0.0}
+
+\lstdefinestyle{code}{
+    backgroundcolor=\color{codebackground},
+    frame=single,
+    rulecolor=\color{codeframe},
+    basicstyle=\ttfamily\footnotesize,
+    keywordstyle=\bfseries,
+    stringstyle=\color{stringcolor},
+    commentstyle=\itshape\color{commentcolor},
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=4,
+    captionpos=b,
+    breaklines=true,
+    breakatwhitespace=true,
+    sensitive=true,
+    breakindent=0pt,
+}
+
+\makeatletter
+\def\@BTrule[#1]{%
+  \ifx\longtable\undefined
+    \let\@BTswitch\@BTnormal
+  \else\ifx\hline\LT@hline
+    \nobreak
+    \let\@BTswitch\@BLTrule
+  \else
+     \let\@BTswitch\@BTnormal
+  \fi\fi
+  \global\@thisrulewidth=#1\relax
+  \ifnum\@thisruleclass=\tw@\vskip\@aboverulesep\else
+  \ifnum\@lastruleclass=\z@\vskip\@aboverulesep\else
+  \ifnum\@lastruleclass=\@ne\vskip\doublerulesep\fi\fi\fi
+  \@BTswitch}
+\makeatother
+
+\addto\extrasenglish{
+    \def\sectionautorefname{Section}%
+    \def\tableautorefname{Table}%
+    \def\equationautorefname{Equation}%
+}
+
+\bibliographystyle{abbrvnat}
+
+\renewcommand{\today}{}
+
+\title{\centering  Claw-SWE-Bench: A Benchmark for Evaluating OpenClaw-style Agent Harnesses on Coding Tasks}
+\renewcommand\Authfont{\normalfont\normalsize\centering}
+\renewcommand\Affilfont{\normalfont\small\centering}
+\setlength{\affilsep}{4pt}
+
+\author[1]{\mbox{Mengyu Zheng}}
+\author[1]{\mbox{Kai Han}}
+\author[2]{Boxun Li}
+\author[2]{Haiyang Xu}
+\author[5,1]{\mbox{Yuchuan Tian}}
+\author[1]{Wei He}
+\author[1]{Hang Zhou}
+\author[3]{Jianyuan Guo}
+\author[1]{Hailin Hu}
+\author[4]{Lin Ma}
+\author[5]{Chao Xu}
+\author[6,2]{Guohao Dai}
+\author[2]{Lixue Xia}
+\author[7]{\mbox{Yunchao Wei}}
+\author[1]{\mbox{Yunhe Wang}}
+\author[8]{Yu Wang}
+\affil[1]{\mbox{TokenRhythm Technologies}}
+\affil[2]{\mbox{Infinigence AI}}
+\affil[3]{\mbox{City University of Hong Kong}}
+\affil[4]{\mbox{SEE Fund}}
+\affil[5]{\mbox{Peking University}}
+\affil[6]{\mbox{Shanghai Jiaotong University}}
+\affil[7]{\mbox{Beijing Jiaotong University}}
+\affil[8]{\mbox{Tsinghua University}\protect\\[3pt]\protect\normalfont\footnotesize\texttt{\{mengyu.zheng,\,kai.han,\,yunhe.wang\}@tokenrhythm.ai}\quad\texttt{yu-wang@mail.tsinghua.edu.cn}}
+
+\input{commands.tex}
+
+\input{sections/00_abstract}
+
+\begin{document}
+\maketitle
+
+\input{sections/01_introduction}
+\input{sections/02_clawswebench}
+\input{sections/03_lite}
+\input{sections/04_experimental_setup}
+\input{sections/05_results}
+\input{sections/06_related_work}
+\input{sections/07_conclusion}
+
+\bibliography{sn-bibliography}
+
+\appendix
+\input{appendix/B_datasheet}
+\input{appendix/C_reproducibility}
+\input{appendix/D_compute_env}
+\input{appendix/E_harness_configs}
+\input{appendix/F_lite_construction}
+\input{appendix/G_per_repo_breakdown}
+\input{appendix/H_failure_cases}
+\input{appendix/I_license_ethics}
+
+\end{document}

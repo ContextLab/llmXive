@@ -1,0 +1,257 @@
+\tikzstyle{my-box}=[
+rectangle,
+draw=hidden-black,
+rounded corners,
+text opacity=1,
+minimum height=1.5em,
+minimum width=5em,
+inner sep=2pt,
+align=left,
+fill opacity=.5,
+]
+\tikzstyle{leaf6}=[
+my-box,
+minimum height=1.5em,
+fill=purple!30,
+text=black,
+align=left,
+font=\normalsize,
+inner xsep=5pt,
+inner ysep=4pt,
+]
+\tikzstyle{leaf4}=[
+my-box,
+minimum height=1.5em,
+fill=hidden-blue!57,
+text=black,
+align=left,
+font=\normalsize,
+inner xsep=5pt,
+inner ysep=4pt,
+]
+\tikzstyle{leaf2}=[
+my-box,
+minimum height=1.5em,
+fill=hidden-green!20,
+text=black,
+align=left,
+font=\normalsize,
+inner xsep=5pt,
+inner ysep=4pt,
+]
+\tikzstyle{leaf}=[
+my-box,
+minimum height=1.5em,
+fill=hidden-red!20,
+text=black,
+align=left,
+font=\normalsize,
+inner xsep=5pt,
+inner ysep=4pt,
+]
+\tikzstyle{leaf5}=[
+my-box,
+minimum height=1.5em,
+fill=darkblue!15,
+text=black,
+align=left,
+font=\normalsize,
+inner xsep=5pt,
+inner ysep=4pt,
+]
+\begin{figure*}[!t]
+        \vspace{-2mm}
+        \centering
+        \resizebox{0.96\textwidth}{!}{
+                \begin{forest}
+                        forked edges,
+                        for tree={
+                        grow=east,
+                        reversed=true,
+                        anchor=base west,
+                        parent anchor=east,
+                        child anchor=west,
+                        base=left,
+                        font=\normalsize,
+                        rectangle,
+                        draw=hidden-black,
+                        rounded corners,
+                        align=left,
+                        minimum width=4em,
+                        edge+={darkgray, line width=1pt},
+                        edge path={
+                          \noexpand\path[\forestoption{edge}]
+                          (!u.parent anchor) -- +(6pt,0) |- (.child anchor)
+                          \forestoption{edge label};
+                        },
+                        s sep=3pt,
+                        inner xsep=2pt,
+                        inner ysep=4pt,
+                        line width=1.1pt,
+                        ver/.style={rotate=90, child anchor=north, parent anchor=south, anchor=center},
+                        },
+                        where level=1{text width=12em,font=\normalsize,align=center,}{},
+                        where level=2{text width=11em,font=\normalsize,align=center,}{},
+                        where level=3{text width=14em,font=\normalsize,align=center,}{},
+                        where level=4{text width=12em,font=\normalsize,align=left,}{},
+                        where level=5{text width=50em,font=\normalsize,align=left}{},
+                        [\ \ Evolution\ \ \ , ver
+                        % 3
+                    [\ \ \ \ \ \ \ \ \   Agent \\ \ \ \ \ \ \ \ \ \ Evolution~(\S\ref{sec:agent_evo}), ver
+                        % 4.1
+                        [\ \ \ \ Memory-Centric \\ \ \ Experience Evolution \\ \ ~(\S\ref{sec:agent_evo_experience_utilization})
+                            %4.1.1
+                            [\ \ \ \ \ \ \ \ \   Instance Trajectory \\ \ \ \ \ \ \ \ \   Experience ~(\S\ref{sec:instance_trajectory_experience})
+                                [\eg ~ OpenAgent~\cite{OpenAgent}{,} CoPS~\cite{CoPS}{,} ELLMER~\cite{ELLMER}{,}           Synapse~\cite{Synapse}{,} WorldMM~\cite{WorldMM}{,} 
+                                \textit{etc.}, leaf2, text width=44em] 
+                            ]
+                            [\ \ \ \ \ \ \ \ \   Abstract Scripts \\ \ \ \ \ \ \ \ \  Experience~(\S\ref{sec:abstract_scripts_experience})
+                                [\eg ~Reasoning Bank~\cite{Reasoning-Bank}{,} Agent-KB~\cite{AGENTKB_2}{,} DeepAgent~\cite{DeepAgent}{,} FLEX~\cite{FLEX}{,} O-Mem~\cite{O-Mem}{,} \\ Reme~\cite{Reme}{,} AWM~\cite{AWM}{,} PhysMem~\cite{PhysMem}{,} Agent-Pro~\cite{Agent-Pro}{,} BIFROST~\cite{BIFROST}{,}           
+                                \textit{etc.}, leaf2, text width=44em] 
+                            ]
+                            [\ \ \ \ \ \ \ \ \   Structured Skill \\ \ \ \ \ \ \ \ \  Experience~(\S\ref{sec:structure_skill_experience})
+                                [\eg ~SAGE~\cite{SAGE}{,} ASI~\cite{ASI}{,} SkillWeaver~\cite{SkillWeaver}{,} SkillRL~\cite{SkillRL_2}{,} SkillOrchestra~\cite{SkillOrchestra}{,}            
+                                \textit{etc.}, leaf2, text width=44em] 
+                            ]
+                        ]
+                        [ \ \ Orchestration-Centric \\ \ \ Workflow Evolution \\ \ ~(\S\ref{sec:agent_evo_agentic_workflow_design})
+                            %4.1.1
+                            [\ \ \ \ \  Fixed Workflow 
+                            (\S\ref{sec:fixed_workflow})
+                                [\eg~MetaGPT~\cite{METAGPT}{,} Agentless~\cite{Agentless}{,} 
+                                CAMEL~\cite{CAMEL}{,} 
+                                WebVoyager~\cite{WebVoyager}{,} 
+                                MedAgent-Zero~\cite{MedAgent_Zero}{,} \\
+                                OpenHands~\cite{OpenHands}{,}
+                                SWE-agent~\cite{SWE_agent}{,}
+                                \textit{etc.}, leaf2, text width=44em] 
+                            ]
+                            [\ \ Automated Workflow
+                         (\S\ref{sec:automated_workflow})
+                                [\eg~MaAS~\cite{MaAS}{,} HuggingGPT~\cite{HuggingGPT}{,}  
+                                AutoFlow~\cite{AutoFlow}{,}
+                                Workforce~\cite{OWL}{,}
+                                SWE-search~\cite{SWE_Search}{,} \\
+                                Plan-and-act~\cite{PLAN_AND_ACT}{,}
+                            HyperAgent~\cite{HYPERAGENT}{,}
+                                Webpilot~\cite{Webpilot}{,}
+                        RepairAgent~\cite{RepairAgent}{,} 
+                                \textit{etc.}, leaf2, text width=44em] 
+                            ]
+                            [\ \ \ Evolving Workflow
+                            (\S\ref{sec:evolving_workflow})
+                                [\eg~AFlow~\cite{AFlow}{,} 
+                                ADAS~\cite{ADAS}{,}
+                                ReasonRAG~\cite{ReasonRAG}{,} 
+                                TextGrad~\cite{TextGrad}{,}
+                                GPTSwarm~\cite{GPTSwarm}{,} 
+                                DSPy~\cite{DSPy}{,} \\
+                                Chain-of-Agents~\cite{Chain-of-Agents}{,}
+                                Criticize-Reflect~\cite{Criticize_Reflect}{,}
+                                \textit{etc.}, leaf2, text width=44em] 
+                            ]
+                        ]    
+                        [\ \ \ \ \ Trajectory-Centric \\ \ \ \ \ Offline Evolution \\ \ \ \ ~(\S\ref{sec:agent_evo_synthetic_data_generation})
+                            %4.1.1
+                            [\ \ \ \ \ \ Task Synthesis~(\S\ref{sec:task_synthesis})\ \ \
+                                [\eg ~BAGEL~\cite{BAGEL}{,} OS-Genesis~\cite{OS-Genesis}{,} Insta~\cite{Insta}{,} APIGen-MT~\cite{APIGen-MT}{,} WebShaper~\cite{WebShaper}{,}\\ WebWatcher~\cite{WebWatcher}{,}
+                                WebExplorer~\cite{WebExplorer}{,} AutoPlay~\cite{AutoPlay}{,} CRMWeaver~\cite{CRMWeaver}{,} WebLeaper~\cite{WebLeaper}{,}              
+                                \textit{etc.}, leaf2, text width=44em] 
+                            ]
+                            [\ \ Trajectory Synthesis~(\S\ref{sec:Trajectory_synthesis})\ \ \
+                                [\eg ~ToolAlpaca~\cite{ToolAlpaca}{,} Lingma SWE-GPT~\cite{Lingma_SWE-GPT}{,} Aguvis~\cite{Aguvis}{,} FlowReasoner~\cite{FlowReasoner}{,}\\ WebSynthesis~\cite{WebSynthesis}{,} AgentFold~\cite{AgentFold}{,} ToolACE-MCP~\cite{ToolACE-MCP}{,} ProAct~\cite{ProAct}{,}  
+                                \textit{etc.}, leaf2, text width=44em] 
+                            ]
+                            [\  Trajectory Refinement~(\S\ref{sec:trajectory_refinement})\ \ \
+                                [\eg ~Toolformer~\cite{Toolformer}{,} ETO~\cite{ETO}{,} Self-Improvement~\cite{Self-Improvement}{,} GUI-Reflection~\cite{GUI-Reflection}{,} TiG~\cite{TiG}{,}\\ AgentFrontier~\cite{AgentFrontier}{,} WebSTAR~\cite{WebSTAR}{,} 
+                                SynthAgent~\cite{SynthAgent}{,} TopoCurate~\cite{TopoCurate}{,}            
+                                \textit{etc.}, leaf2, text width=44em] 
+                            ]
+                        ]  
+                        [\ \ \ Exploration-Centric \\ \ \ \ Online Evolution \\ \ \ ~(\S\ref{sec:agent_evo_reinforcement_learning_optimization})
+                            %4.1.1
+                            [\ \ Reasoning Structure~(\S\ref{sec:reasoning_structure})
+                                [\eg ~DeepRetrieval~\cite{Deepretrieval}{,} Search-R1~\cite{Search-r1}{,} AutoRefine~\cite{AutoRefine}{,} SEEA-R1~\cite{SEEA-R1}{,} M3-Agent~\cite{M3-Agent}{,} \\ Video-Thinker~\cite{Video-Thinker}{,} ReSearch~\cite{ReSearch_2}{,}      
+                                \textit{etc.}, leaf2, text width=44em] 
+                            ]
+                            [\ \ \ \ \  Reward Shaping~(\S\ref{sec:reward_shaping})
+                                [\eg ~Agent-R1~\cite{Agent-R1}{,}  ToolRL~\cite{ToolRL}{,} Chain-of-Agents~\cite{Chain-of-Agents}{,} VRAG-RL~\cite{VRAG-RL}{,} GDPO~\cite{GDPO}{,}  \\ FlowSteer~\cite{FlowSteer}{,} Tool-N1~\cite{Tool-N1}{,} ToolOrchestra~\cite{ToolOrchestra}{,}     
+                                \textit{etc.}, leaf2, text width=44em] 
+                            ]
+                            [\ \ \ \ \    Algorithmic \\ \ \  \ \ \ \ \  Optimization~(\S\ref{sec:algorithmic_optimization})
+                                [\eg ~RAGEN~\cite{RAGEN}{,} ZeroSearch~\cite{ZeroSearch}{,} EvolveSearch~\cite{EvolveSearch}{,} GiGPO~\cite{GiGPO}{,} ARPO~\cite{ARPO}{,} \\ MobileGUI-RL~\cite{MobileGUI-RL}{,} SPEAR~\cite{SPEAR}{,} VAGEN~\cite{VAGEN}{,} SeeUPO~\cite{SeeUPO}{,}     
+                                \textit{etc.}, leaf2, text width=44em] 
+                            ]
+                        ]
+                    ]
+                    % 4
+                    [\ \ \ \ \ \ \ \ \ Environment \\ \ \ \ \ \ \ \ \ \ Evolution~(\S\ref{sec:env_evo}),ver
+                        % 3.1
+                        [\ \ \ \ \ Neural-Driven \\ \ \ \ \ \ \ Evolution~(\S\ref{sec:neural_evo})\ \ \
+                            %3.1.1
+                            [\ \ \ \ \ \ \ \ \ \ \ Self-Play~(\S\ref{sec:self-play})
+                                [\eg ~Absolute Zero~\cite{Absolute_zero}{,}
+                                Self-Challenging~\cite{Self-Challenging}{,}
+                                Active Zero~\cite{Active_Zero}{,}
+                                Vision-zero~\cite{Vision-zero}{,}
+                                \textit{etc.}, leaf4, text width=44em]  
+                            ]
+                            %3.1.2
+                            [\ \ \ \ \ \ \ World Model~(\S\ref{sec:world_model})
+                                [\eg ~WebDreamer~\cite{WebDreamer}{,} 
+                               UI-Simulator~\cite{UI-Simulator}{,} Code2World~\cite{Code2World}{,} WebWorld~\cite{WebWorld} {,}
+                                \textit{etc.}, leaf4, text width=44em]  
+                            ]
+                        ]
+                        [\ \ \ \ \ Difficulty-Driven \\ \ \ \ \ \ \ Evolution~(\S\ref{sec:diff_evo})\ \ \
+                            %3.1.1
+                            [\ \ \ \ \ \ \ \ Explicit Curriculum \\ \ \ \ \ \ \ \ \ \ Signals~(\S\ref{sec:Explicit Curriculum Signals})
+                                [\eg ~POET~\cite{POET}{,} 
+                                    AgentGen~\cite{AgentGen}{,} 
+                                    Environment Tuning~\cite{Environment_Tuning}{,} 
+                                    SEC~\cite{SEC}{,} 
+                                    Reasoning Core~\cite{Reasoning_Core}{,} \\ 
+                                    DreamGym~\cite{DreamGym} {,}
+                                \textit{etc.}, leaf4, text width=44em]  
+                            ]
+                            %3.1.2
+                            [\ \ \ \ \ \ \ \ Implicit Curriculum \\ \ \ \ \ \ \ \ \ Mechanisms~(\S\ref{sec:Implicit Curriculum Mechanisms})
+                                [\eg ~PAIRED~\cite{PAIRED}{,} 
+                                        DCD~\cite{DCD}{,} 
+                                        ACCEL~\cite{ACCEL}{,} 
+                                        MAESTRO~\cite{MAESTRO}{,} 
+                                        ReMiDi~\cite{ReMiDi}{,} 
+                                        EnvGen~\cite{EnvGen}{,} \\
+                                        DataEnvGym~\cite{DataEnvGym}{,}
+                                        Eurekaverse~\cite{Eurekaverse}{,} 
+                                        RLVE~\cite{RLVE}{,} 
+                                        CuES~\cite{CuES}{,} 
+                                        GenEnv~\cite{GenEnv}{,} 
+                                        SCALER~\cite{SCALER} {,}
+                                \textit{etc.}, leaf4, text width=44em]  
+                            ]
+                        ]
+                        [\ \ \ \ \ Scaling-Driven \\ \ \ \ \ \ \ Evolution~(\S\ref{sec:scaling_evo})\ \ \
+                            %3.1.1
+                            [\ \ \ \ \ \ \ \ \ \ \ Scenario-Level \\ \ \ \ \ \ \ \ \ \ \ \ Scaling~(\S\ref{sec:Scenario-Level Scaling})
+                                [\eg ~FTRL~\cite{FTRL}{,} 
+                                        AgentScaler~\cite{AgentScaler}{,} 
+                                        AutoForge~\cite{AutoForge}{,} 
+                                        EnvScaler~\cite{EnvScaler}{,} 
+                                        InfiniteWeb~\cite{InfiniteWeb}{,} \\
+                                        Agent World Model~\cite{Agent_world_model}{,} 
+                                        AutoWebWorld~\cite{AutoWebWorld} {,}
+                                \textit{etc.}, leaf4, text width=44em]  
+                            ]
+                            %3.1.2
+                            [\ \ \ \ \ \ \ \ Environment-Level \\ \ \ \ \ \ \ \ \ Scaling~(\S\ref{sec:Environment-Level Scaling})
+                                [\eg ~ARE~\cite{ARE}{,} 
+                                AutoEnv~\cite{AutoEnv} {,} \textit{etc.}, leaf4, text width=44em]  
+                            ]
+                        ]
+                    ]
+                ]
+                \end{forest}
+                }
+        \caption{Taxonomy of the main content of this survey.}\label{fig:taxonomy}
+\end{figure*}

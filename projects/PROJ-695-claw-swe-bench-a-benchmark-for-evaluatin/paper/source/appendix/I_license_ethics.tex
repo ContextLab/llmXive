@@ -1,0 +1,42 @@
+\section{ License and Ethics}\label{appendix:license}
+
+\paragraph{License of the released artifact.}
+This benchmark is derived from two upstream sources, both released under MIT.
+\textbf{(i) SWE-bench Multilingual} (Khandpur, Lieret, Jimenez, Press, Yang;
+\cite{swe_smith}) is hosted at
+\url{huggingface.co/datasets/SWE-bench/SWE-bench_Multilingual}, released as
+part of the official SWE-bench project.
+\textbf{(ii) SWE-bench Verified-Mini} (Hobbhahn; \cite{swebench_verified_mini})
+is an MIT-licensed subset of SWE-bench Verified (the OpenAI-validated
+500-instance Python subset), hosted at
+\url{github.com/mariushobbhahn/SWEBench-verified-mini}.
+
+We retain both upstream LICENSE files and citations. The underlying source
+code in each task instance retains the license of its original GitHub
+repository; both upstream datasets aggregate real-world repositories with
+heterogeneous licenses, including BSD (Django, Flask, sympy, astropy,
+sphinx), Apache~2.0 (requests, xarray, caddyserver/caddy), MIT, and a
+small number of GPL-licensed projects (notably pylint, GPL-2). Users
+redistributing patches or derivative work must comply with the
+per-repository license. \texttt{REPO\_LICENSES.md} in the released artifact
+lists every underlying repository and its current upstream license.
+
+% \paragraph{Our additional contributions.}
+% The merged 350-instance set, the Lite-80 subset selection algorithm, the
+% harness-adapter protocol, evaluation scripts, and figures are released
+% under MIT.
+
+\paragraph{Broader impacts and ethical considerations.}
+Claw-SWE-Bench measures coding-agent capability on real software bugs.
+This dual-use surface mirrors that of upstream SWE-bench: stronger
+coding-agent performance benefits software maintenance and accessibility,
+but the same capability can in principle be applied to autonomous
+exploitation of vulnerable software. We mitigate by releasing only the
+benchmark protocol and the instance \texttt{instance\_id} list (not
+vulnerable patches as targets), inheriting the upstream curation that
+excludes security-sensitive issues.
+
+% \paragraph{Compliance.}
+% \textit{[USER FILL before camera-ready: (i) any IRB / ethics review status;
+% (ii) confirmation that no internal company data was used; (iii) any
+% institutional disclosure constraints.]}

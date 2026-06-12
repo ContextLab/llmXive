@@ -1,0 +1,102 @@
+\section{Introduction}
+\label{sec:introduction}
+
+
+
+
+
+
+
+\IEEEPARstart{L}{arge} language models (LLMs) have demonstrated remarkable performance across a wide range of tasks, from basic factual question answering to complex reasoning tasks, with their capabilities continuing to evolve \cite{Qwen3,DeepSeek-R1,GEM,HLE}. Recently, representative advanced models such as GPT-5.4 \cite{gpt-5.4}, Gemini-3.1-Pro \cite{gemini3.1}, and Kimi K2.5 \cite{Kimi_K2.5} have demonstrated strong agentic capabilities, particularly in complex tool calling, long-horizon planning, and self-improving \cite{ToolRL, TravelPlanner, Self-Refine}. To rigorously benchmark and further unlock the potential of these models, researchers draw inspiration from how humans continuously acquire experience and develop capabilities through interaction with environments, and accordingly design \textbf{agentic environments} for LLM agents.
+
+% To evaluate and improve these models, researchers draw inspiration from the evolutionary process of human interaction with the natural environment to design \textbf{agentic environments} as interactive counterparts for the models.
+
+
+An agentic environment is a dynamic system that simulates a real-world scenario that models can interact with. While models require interaction with the real world to acquire human-level skills, such interactions are often infeasible in practice due to multiple limitations, including high costs, safety risks, and data privacy concerns \cite{Agent_world_model, RWKU, Troublemaker}. Furthermore, real-world environments are inherently irreproducible, rendering operational failures exceptionally costly. Conversely, manually engineering simulated alternatives is not only resource-intensive but also suffers from constrained scenario coverage. For example, allowing an autonomous driving system to directly control a vehicle on real roads is not only highly inefficient but also poses significant risks of accidents. Agentic environments effectively address these challenges by incorporating sophisticated tools and reward signals that closely approximate real-world conditions. In addition, by interacting with simulated environments, large-scale trajectory data can be generated. In this way, continual evolution could be thereby enabled. Consequently, the agentic environment has become an inseparable twin of the agent throughout different stages, such as capability evaluation \cite{DAComp, WebShop, SWE-Bench}, inference-time reasoning enhancement \cite{ReAct,Fixing_the_Broken_Compass,Omni-Reward}, and reinforcement learning training \cite{GRPO,DAPO,reinforce_internal,towards_agentic_llm}.
+
+% An agentic environment can be viewed as a stochastic dynamical system that interacts with the model. The model generates experience trajectories by acting according to instructions and tools provided in the environment, while feedback signals from the environment indicate the optimization direction of the corresponding trajectories. This process enables the environment to support multiple applications, including capability evaluation, inference-time reasoning enhancement, and reinforcement learning training. This interaction paradigm enables the environment to support multiple applications for the model, including capability evaluation \cite{AgentsCourt, MMR-V, MMR-Life, DAComp}, inference-time reasoning enhancement \cite{ReAct,Fixing_the_Broken_Compass,Omni-Reward,planning_survey}, and reinforcement learning training \cite{GRPO,DAPO,reinforce_internal,towards_agentic_llm}.
+
+
+\begin{figure*}[t]
+    \centering
+    \includegraphics[width=\textwidth]{images/intro.pdf}
+    \caption{An overview of agentic environment engineering.} 
+    \label{fig:env_attribute}
+\end{figure*}
+
+Nevertheless, agentic environments have not yet been systematically organized and analyzed in the recent literature \cite{survey_agent_reason, planning_survey, Commonsense_Survey}. To bridge this gap, this paper systematically reviews the whole lifecycle of \textbf{agentic environment engineering}, including environment modeling, automated environment synthesis, evaluation of environment quality, and environment applications.
+Specifically, our survey is organized around the following three research questions:
+\begin{itemize}
+    \item \textbf{RQ1:} What are the key characteristics and categories of agentic environments? (See \cref{sec:env_attr} and \cref{sec:env_domain})
+    \item \textbf{RQ2:} How can agentic environments be systematically constructed and evaluated? (See \cref{sec:env_syn})
+    \item \textbf{RQ3:} How do agentic environments facilitate the closed-loop co-evolution process of agent and environment? (See \cref{sec:agent_evo} and \cref{sec:env_evo})
+\end{itemize}
+
+\textbf{To answer RQ1}, this paper begins by formally defining key concepts related to environments, clarifying their core components and mechanisms, and introducing the main focus of this survey. Then, existing environments are analyzed from the perspective of their attributes, including representation, feedback, timing, observability, stochasticity, continuity, modality, and cardinality.
+Through comparative analysis, we observe that existing environments are inadequately suited for multi-agent settings.
+Moreover, there is significant potential for improvement in striking a balance between the engineering reliability of symbolic systems and the infinite generative scalability of neural models.
+
+To fully demonstrate the types of existing environments, the paper further introduces current benchmarks from the task domain. Specifically, we classify all environments into eight representative domains: GUI \cite{WorkArena, OSWorld, WebShop}, Deep Research \cite{SimpleQA, GAIA, BrowseComp}, Embodied \cite{ALFRED, ALFWorld, ScienceWorld}, Game \cite{GameArena, BabaIsAI, GAMEBENCH}, Tool \cite{ToolBench, tau-bench, API-Bank}, Code \cite{MBPP, Terminal-Bench, KernelBench}, Domain-Specific \cite{MedAgentBench, ScienceAgentBench, DSBench}, and Cross-Domain \cite{Openai_gym, GEM, AgentBench}. Related works are categorized into each domain, and detailed descriptions of their development trajectories and core agent capabilities are provided.
+
+\textbf{To answer RQ2}, the paper emphasizes the environment synthesis methods and quality evaluation. \textbf{On environment synthesis}, all existing works are divided into two types based on the environment synthesis forms: 
+
+\begin{itemize}
+
+\item \textit{Symbolic Synthesis} uses symbolic rules with different forms (\textit{e.g.}, code) to synthesize environments, employing verifiable rubrics to ensure reliable environmental feedback. Following this approach, this survey identifies an evolution of scalability.
+Specifically, the transition from task-driven to real-world–driven synthesis paradigms, and ultimately to \textit{de novo} synthesis methods, signifies a continuous expansion in both synthesis flexibility and the breadth of the environmental space.
+\item \textit{Neural Synthesis} parameterizes the environment using a neural network (particularly a world model), and constructs function mappings based on the model's parameters to enable dynamic interactions with the agent. This paper systematically separates neural synthesis into three fine-grained paradigms based on the form of environment representation: Pixel-level, Word-level, and Latent-level Modeling.
+
+\end{itemize}
+
+\textbf{On environment evaluation}, the paper discusses commonly used quality control techniques in four perspectives: correctness, diversity, complexity, and fidelity. We highlight that, while correctness has been well-established and there exist several evaluation frameworks, the study of evaluating diversity, complexity, and fidelity remains under-researched \cite{AgentsCourt, MMR-V, MMR-Life}. Actually, these dimensions are crucial not only for assessing the environmental reliability but also for ensuring the environments' effectiveness in training agents across a wide range of tasks.
+
+
+\textbf{To answer RQ3}, this survey discusses the application of environments from two complementary perspectives: agent evolution and environment evolution. 
+\textbf{On agent evolution}, the agent’s capabilities advance through continuous interaction with the environment. Existing agent evolutionary methods are classified into four categories:
+
+% Memory-Centric Experience Evolution, Orchestration-Centric Workflow Evolution, Trajectory-Centric Offline Evolution, and Exploration-Centric Online Evolution. 
+
+
+\begin{itemize}
+
+\item \textit{Memory-Centric Experience Evolution} enhances task-processing capabilities by accumulating and leveraging experiences from past interactions. 
+
+\item \textit{Orchestration-Centric Workflow Evolution} focuses on the dynamic coordination and adaptation of task sequences and multi-agent interactions within a workflow, thereby optimizing performance and efficiency across diverse environments. 
+
+\item \textit{Trajectory-Centric Offline Evolution} generates high-quality task interaction trajectories, which subsequently facilitate refining agent behavior by simulating high-fidelity and multifaceted environments. 
+
+\item \textit{Exploration-Centric Online Evolution} leverages reinforcement learning  to refine agent capabilities dynamically, enabling the agent to continuously adapt and optimize its performance.
+
+\end{itemize}
+
+
+\textbf{On environment evolution}, this survey focuses on how environments are progressively evolved to support the continuous improvement of agent capability. We categorize this paradigm into three types based on the aspects of environmental changes:
+
+\begin{itemize}
+
+\item \textit{Neural-Driven Evolution} adjusts the environment’s internal parameters to simulate a variety of potential states and outcomes, helping the agent to prepare for diverse scenarios. 
+
+\item \textit{Difficulty-Driven Evolution} adapts the complexity of tasks in the environment to match the agent's evolving capabilities, typically through curriculum learning. 
+
+\item \textit{Scaling-Driven Evolution} aims to expand the range of environments by increasing scenario diversity or introducing entirely new structures, which pushes agents towards broader generalization across different contexts.
+
+\end{itemize}
+
+
+Finally, current challenges and future research directions are highlighted. Specifically, this paper emphasizes Environment-as-a-Service as a potential paradigm for standardized, scalable, and reproducible environment deployment. We then discuss the ongoing evolution of environments toward dynamic, long-horizon, open-ended, multimodal, and multi-agent settings, which impose fundamentally new requirements on agent capabilities. Moreover, emerging directions such as Neural-Symbolic Environments, sim-to-real alignment, and agent–environment co-evolution are introduced for developing more reliable and adaptive agent systems. Looking ahead, the paper argues that establishing a scientific foundation for environment engineering, including environment scaling laws and environment–capability relationships, will be crucial for advancing the next generation of LLM agents.
+
+\vspace{3pt}
+
+In summary, this survey is organized as follows: 
+\begin{itemize}
+    \item \cref{sec:prelimi} introduces the necessary preliminaries and highlights the gap between environment engineering and traditional data engineering.
+    \item \cref{sec:env_attr} introduces the key properties of environments, provides their formal definitions, and offers detailed explanations with concrete examples.
+    \item \cref{sec:env_domain} categorizes existing environments from the perspective of tasks, and provides a detailed overview of the specific tasks and representative environments in domains such as GUI, Deep Research, and Embodied.
+    \item \cref{sec:env_syn} introduces existing methods of automatic environment synthesis in both symbolic and neural perspectives, and analyzes their respective development pathways and evaluating solutions.
+    \item \cref{sec:agent_evo} presents how environments facilitate agent evolution, including Experience Utilization, Agentic Workflow Design, Synthetic Data Generation, and Reinforcement Learning Optimization.
+    \item \cref{sec:env_evo} focuses on the main paradigms of environment evolution, explaining how environments adapt to the agent’s training from three perspectives (neural, difficulty, and scaling).
+    \item \cref{sec:future} summarizes the main challenges of existing environment-related research and discusses potential future directions.
+\end{itemize}
+
+
+

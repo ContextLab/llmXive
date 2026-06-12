@@ -1,0 +1,376 @@
+\tikzstyle{my-box}=[
+rectangle,
+draw=hidden-black,
+rounded corners,
+text opacity=1,
+minimum height=1.5em,
+minimum width=5em,
+inner sep=2pt,
+align=left,
+fill opacity=.5,
+]
+\tikzstyle{leaf3}=[
+my-box,
+minimum height=1.5em,
+fill=yellow!32,
+text=black,
+align=left,
+font=\normalsize,
+inner xsep=5pt,
+inner ysep=4pt,
+align=left,
+text width=45em,
+]
+\tikzstyle{leaf6}=[
+my-box,
+minimum height=1.5em,
+fill=purple!30,
+text=black,
+align=left,
+font=\normalsize,
+inner xsep=5pt,
+inner ysep=4pt,
+]
+\tikzstyle{leaf4}=[
+my-box,
+minimum height=1.5em,
+fill=hidden-blue!57,
+text=black,
+align=left,
+font=\normalsize,
+inner xsep=5pt,
+inner ysep=4pt,
+]
+\tikzstyle{leaf2}=[
+my-box,
+minimum height=1.5em,
+fill=hidden-green!20,
+text=black,
+align=left,
+font=\normalsize,
+inner xsep=5pt,
+inner ysep=4pt,
+]
+\tikzstyle{leaf}=[
+my-box,
+minimum height=1.5em,
+fill=hidden-red!20,
+text=black,
+align=left,
+font=\normalsize,
+inner xsep=5pt,
+inner ysep=4pt,
+]
+\tikzstyle{leaf5}=[
+my-box,
+minimum height=1.5em,
+fill=darkblue!15,
+text=black,
+align=left,
+font=\normalsize,
+inner xsep=5pt,
+inner ysep=4pt,
+]
+\begin{figure*}[!t]
+        \vspace{-2mm}
+        \centering
+        \resizebox{0.96\textwidth}{!}{
+                \begin{forest}
+                        forked edges,
+                        for tree={
+                        grow=east,
+                        reversed=true,
+                        anchor=base west,
+                        parent anchor=east,
+                        child anchor=west,
+                        base=left,
+                        font=\normalsize,
+                        rectangle,
+                        draw=hidden-black,
+                        rounded corners,
+                        align=left,
+                        minimum width=4em,
+                        edge+={darkgray, line width=1pt},
+                        edge path={
+                          \noexpand\path[\forestoption{edge}]
+                          (!u.parent anchor) -- +(6pt,0) |- (.child anchor)
+                          \forestoption{edge label};
+                        },
+                        s sep=3pt,
+                        inner xsep=2pt,
+                        inner ysep=4pt,
+                        line width=1.1pt,
+                        ver/.style={rotate=90, child anchor=north, parent anchor=south, anchor=center},
+                        },
+                        where level=1{text width=12em,font=\normalsize,align=center,}{},
+                        where level=2{text width=11em,font=\normalsize,align=center,}{},
+                        where level=3{text width=14em,font=\normalsize,align=center,}{},
+                        where level=4{text width=12em,font=\normalsize,align=left,}{},
+                        where level=5{text width=50em,font=\normalsize,align=left}{},
+                        [\ \ Environment\ \ \ , ver
+                        % 3
+                    [\ \ \ \ \ \ \ \ \   Environment \\ \ \ \ \ \ \ \ \ \  \ Domain~(\S\ref{sec:env_domain}), ver
+                        % 4.1
+                        [\ \ \ \ \ \ \ \ \ \  GUI~(\S\ref{GUI}) 
+                            %4.1.1
+                            [\ \ \ \ \ \ \  Desktop GUI~(\S\ref{Desktop GUI}) \ \ \ \ \ \
+                                [\eg ~WorkArena~\cite{WorkArena}{,} 
+                                OSWorld~\cite{OSWorld}{,}  WindowsAgentArena~\cite{WindowsAgentArena}{,}
+                                OSWorld-MCP~\cite{OSWorld-MCP}{,}
+                                \textit{etc.}, leaf3, text width=44em] 
+                            ]
+                            [\ \ \ \ \ \ \ \  Mobile GUI~(\S\ref{Mobile GUI}) \ \ \ \ \ \
+                                [\eg ~Mobile-Env~\cite{Mobile-Env}{,}
+                                AitW~\cite{AitW}{,}
+                                AndroidWorld~\cite{AndroidWorld}{,}
+                                MobileWorld~\cite{MobileWorld}{,}
+                                Mobile-Bench~\cite{Mobile-Bench}{,}
+                                \textit{etc.}, leaf3, text width=44em] 
+                            ]
+                            [\ \ \ \ \ \ \ \ \ \ Web GUI~(\S\ref{Web GUI}) \ \ \ \ \ \
+                                [\eg ~WebShop~\cite{WebShop}{,} Mind2Web~\cite{Mind2Web}{,}
+                                WebArena~\cite{WebArena}{,}
+                                VisualWebArena~\cite{VisualWebArena}{,}
+                                \textit{etc.}, leaf3, text width=44em] 
+                            ]
+                        ]
+                        [\ \ \  Deep Research~(\S\ref{sec:Deep Research}) \ \ \ \ \ \ \ \ \
+                            %4.1.1
+                            [\ \ \   Information Search~(\S\ref{Information Search}) \ \ \ \ \ \ \ \ \ \ \ \
+                                [\eg ~SimpleQA~\cite{SimpleQA}{,} WideSearch~\cite{WideSearch}{,} InfoDeepSeek~\cite{InfoDeepSeek}{,} InfoSeek~\cite{InfoSeek}{,}          
+                                \textit{etc.}, leaf3, text width=44em] 
+                            ]
+                            [\ \ \ \ \ Multi-Source Reasoning \\ \ ~(\S\ref{Multi-Source Reasoning})
+                                [\eg ~MMDR-Bench~\cite{MMDeepResearch_Bench}{,} WebWalker~\cite{WebWalker}{,} BrowseComp~\cite{BrowseComp}{,} Conflicts~\cite{Conflicts}{,} 
+                                BrowseComp-ZH~\cite{BrowseComp-ZH}{,} \\ LiveDRBench~\cite{LiveDRBench}{,} OmniGAIA~\cite{OmniGAIA}{,} GAIA~\cite{GAIA}{,} 
+                                \textit{etc.}, leaf3, text width=44em] 
+                            ]
+                            [\ \ \ \ \ Research Report Writing \\ \ ~(\S\ref{Research Report Writing})
+                                [\eg ~DeepResearch Bench~\cite{DeepResearch-Bench}{,} Multimodal-DeepResearcher~\cite{Multimodal_DeepResearcher}{,} DR-BENCH~\cite{DR_BENCH}{,} SurveyGen~\cite{SurveyGen}{,} \\ ReportBench~\cite{ReportBench}{,} ScholarQABench~\cite{ScholarQABench}{,} ProxyQA~\cite{ProxyQA}{,}  DeepResearchGym~\cite{DeepResearchGym}{,}
+                                \textit{etc.}, leaf3, text width=44em] 
+                            ]
+                        ]    
+                        [\ \ \ \ \ \ Embodied~(\S\ref{Embodied})
+                            %4.1.1
+                            [\ \ \ \   Spatial Navigation~(\S\ref{Spatial Navigation})
+                                [\eg ~Habitat~\cite{Habitat}{,} 
+                                Room-to-Room~\cite{Room-to-Room}{,}
+                                MetaDrive~\cite{MetaDrive}{,}
+                                Room-Across-Room~\cite{Room-Across-Room}{,}
+                                VLN-CE~\cite{VLN-CE}{,}
+                                \textit{etc.}, leaf3, text width=44em] 
+                            ]
+                            [\ \ \ \ \ \ Physical Manipulation \\ \ \ \ ~(\S\ref{Physical Manipulation})
+                                [\eg ~RLBench~\cite{RLBench}{,} BEHAVIOR~\cite{BEHAVIOR}{,}
+                                panda-gym~\cite{panda-gym}{,}
+                                Robocasa~\cite{Robocasa}{,}
+                                RoboFactory~\cite{RoboFactory}{,}
+                                \textit{etc.}, leaf3, text width=44em] 
+                            ]
+                            [\ \ \ \ \  Long-Horizon Planning \\ \ \ ~(\S\ref{Long-Horizon Planning})
+                                [\eg ~ALFRED~\cite{ALFRED}{,}  
+                                ALFWorld~\cite{ALFWorld}{,}
+                                ScienceWorld~\cite{ScienceWorld}{,}
+                                ET-Plan-Bench~\cite{ET-Plan-Bench}{,}
+                                LEGENT~\cite{LEGENT}{,}
+                                % EmbodiedBench~\cite{EmbodiedBench}{,}
+                                % SimuHome~\cite{SimuHome}{,}
+                                \textit{etc.}, leaf3, text width=44em] 
+                            ]
+                        ]  
+                        [\ \ \ \ \ \ \ \ \  Game~(\S\ref{Game})
+                            %4.1.1
+                            [\ \ \    Open World Games~(\S\ref{Open World Games})
+                                [\eg ~MineDojo~\cite{MineDojo}{,}  MC-Planner~\cite{MC-Planner}{,} MineWorld~\cite{MINEWORLD}{,}
+                                \textit{etc.}, leaf3, text width=44em] 
+                            ]
+                            [\ \ \ \   Puzzle Reasoning Games \\ ~(\S\ref{Puzzle Reasoning Games})
+                                [\eg ~Baba Is AI~\cite{BabaIsAI}{,} GameTraversalBenchmark~\cite{GameTraversalBenchmark}{,} SmartPlay~\cite{SMARTPLAY}{,} TextGames~\cite{TEXTGAMES}{,} \\ Minigrid \& Miniworld~\cite{Minigrid_Miniworld}{,} Clembench~\cite{clembench} {,} LMRL Gym~\cite{LMRLGym} {,}      
+                                \textit{etc.}, leaf3, text width=44em] 
+                            ]
+                            [\ \ \ \ \  Social Deduction Games \\ ~(\S\ref{Social Deduction Games})
+                                [\eg ~AvalonBench~\cite{AvalonBench}{,} Werewolf~\cite{Werewolf}{,} WhodunitBench~\cite{WhodunitBench}{,} TextArena~\cite{TextArena}{,}      ReCon~\cite{ReCon}{,}     
+                                \textit{etc.}, leaf3, text width=44em] 
+                            ]
+                            [\ \ \ \   Adventure Quest Games \\ ~(\S\ref{Adventure Quest Games})
+                                [\eg ~FlashAdventure~\cite{FlashAdventure}{,} BALROG~\cite{BALROG}{,} GameArena~\cite{GameArena}{,} VideoGameBench~\cite{VideoGameBench}{,} \\ Lmgame-Bench~\cite{LMGAME-BENCH}{,} AI Gamestore~\cite{AI_GAMESTORE}{,}          
+                                \textit{etc.}, leaf3, text width=44em] 
+                            ]
+                            [\    Strategy Management Games \\ ~(\S\ref{Strategy Management Games})
+                                [\eg ~CivRealm~\cite{CivRealm}{,} Factorio Learning Environment~\cite{FactorioLearningEnvironment}{,} GTBench~\cite{GTBENCH}{,} HLA~\cite{HLA}{,} OGC~\cite{OGC}{,} \\ Collab-Overcooked~\cite{Collab_Overcooked}{,} LLMArena~\cite{LLMARENA}{,} GAMEBoT~\cite{GAMEBoT}{,} GameBench~\cite{GAMEBENCH}{,}           
+                                \textit{etc.}, leaf3, text width=44em] 
+                            ]
+                        ]
+                        [\ \ \ \ \ \ \ \ \ \ Tool~(\S\ref{Tool})
+                            %4.1.1
+                            [\ \ \ \ \ \ Conventional Tool Use \\ \ ~ (\S\ref{Conventional Tool Use})
+                                [\eg ~API-Bank~\cite{API-Bank}{,} 
+                                ToolBench~\cite{ToolBench}{,}
+                                AppWorld~\cite{AppWorld2024}{,}
+                                BFCL~\cite{BFCL}{,}
+                                StableToolBench~\cite{StableToolBench}{,}
+                                \textit{etc.}, leaf3, text width=44em] 
+                            ]
+                            [\ \ \ \  User-Simulated Tool Use \\ \ ~(\S\ref{User-Simulated Tool Use})
+                                [\eg ~$\tau$-bench~\cite{tau-bench}{,} 
+                                $\tau$2-bench~\cite{tau2-bench}{,}
+                                UserBench~\cite{UserBench}{,}
+                                ToolTalk~\cite{ToolTalk}{,}
+                                MINT~\cite{MINT}{,}
+                                \textit{etc.}, leaf3, text width=44em] 
+                            ]
+                            [\ \ \ \ \ \ \  MCP-based Tool Use \\ \ \ \ ~(\S\ref{MCP-based Tool Use})
+                                [\eg ~MCPVerse~\cite{MCPVerse}{,} 
+                                MCP-Universe~\cite{MCP-Universe}{,}
+                                MCP-Bench~\cite{MCP-Bench}{,}
+                                MCPToolBench++~\cite{MCPToolBench++}{,}
+                                \textit{etc.}, leaf3, text width=44em] 
+                            ]
+                        ]  
+                        [\ \ \ \ \ \ \ \ \ Code~(\S\ref{Code})
+                            %4.1.1
+                            [\ \ \ \ \   Code Generation~(\S\ref{Code Generation})
+                                [\eg ~CodeAgent~\cite{CodeAgent}{,} FEA-Bench~\cite{FEA_Bench}{,}     BigCodeBench~\cite{BigCodeBench}{,} LiveCodeBench~\cite{LiveCodeBench}{,}  
+                                \textit{etc.}, leaf3, text width=44em] 
+                            ]
+                            [\ \   Code Understanding~(\S\ref{Code Understanding})
+                                [\eg ~CRUXEval~\cite{CRUXEval}{,} NL2Repo-bench~\cite{NL2Repo_Bench}{,}
+                                 SWE-bench Multimodal~\cite{SWE-bench_Multimodal}{,}
+                                \textit{etc.}, leaf3, text width=44em] 
+                            ]
+                            [\ \ \ \ \  Code Verification~(\S\ref{Code Verification})
+                                [\eg ~CSR-Bench~\cite{CSR-Bench}{,} SWT-Bench~\cite{SWT_Bench}{,}        Terminal-Bench~\cite{Terminal-Bench}{,}  KernelBench~\cite{KernelBench}{,} MBPP~\cite{MBPP}{,}
+                                \textit{etc.}, leaf3, text width=44em] 
+                            ]
+                            [\ \ \ \ \  Code Debugging~(\S\ref{Code Debugging})
+                                [\eg ~InterCode~\cite{InterCode}{,} SWE-Bench~\cite{SWE-Bench}{,}       SWE-Bench Pro~\cite{SWE-Bench_Pro}{,} DebugBench~\cite{DebugBench}{,}   
+                                \textit{etc.}, leaf3, text width=44em] 
+                            ]
+                        ] 
+                        [\ \ \ \ \ \ Domain-Specific \\ \ \ \ ~(\S\ref{Domain-Specific})
+                            %4.1.1
+                            [\ \ \    Biomedical and Healthcare \\ ~(\S\ref{Biomedical and Healthcare})
+                                [\eg ~MedAgentBench~\cite{MedAgentBench}{,}
+                                MedAgentGym~\cite{MedAgentGym}{,}         
+                                BioAgent Bench~\cite{BioAgent_Bench}{,}
+                                Biocoder~\cite{Biocoder}{,}
+                                \textit{etc.}, leaf3, text width=44em] 
+                            ]
+                            [\ \ \ \ \  Science and Technology \\ \ ~(\S\ref{Science and Technology})
+                                [\eg ~DSEval~\cite{DSEval}{,} 
+                                DSBench~\cite{DSBench}{,}
+                                ScienceAgentBench~\cite{ScienceAgentBench}{,}
+                                MLE-bench~\cite{MLE-bench}{,}
+                                MLE-Dojo~\cite{MLE-Dojo}{,}
+                                \textit{etc.}, leaf3, text width=44em] 
+                            ]
+                            [\ \ \ \ \  Finance and Investment \\ \ ~(\S\ref{Finance})
+                                [\eg ~FinDeepResearch~\cite{FinDeepResearch}{,} StockBench~\cite{StockBench}{,}
+                                % CRMArena-Pro~\cite{CRMArena-Pro}{,}
+                                Finance Agent Benchmark~\cite{Finance_Agent_Benchmark}{,}
+                                \textit{etc.}, leaf3, text width=44em]
+                            ]
+                        ] 
+                        [\ \ \    Cross-Domain~(\S\ref{Cross-Domain})
+                            %4.1.1
+                            [\ \ \ \ \ \ \ \   Cross-Domain~(\S\ref{Cross-Domain})
+                                [\eg ~OpenAI Gym~\cite{Openai_gym}{,}
+                                HuggingGPT~\cite{HuggingGPT}{,}
+                                AgentBench~\cite{AgentBench}{,}
+                                AgentBoard~\cite{AgentBoard}{,}
+                                % AgentGym~\cite{AgentGym}{,}
+                                GEM~\cite{GEM}{,}
+                                \textit{etc.}, leaf3, text width=44em] 
+                            ]
+                        ] 
+                    ]
+                    % 4
+                    [\ \ \ \ \ \ \ \ \   Environment \\ \ \ \ \ \ \ \ \ \ \ Synthesis~(\S\ref{sec:env_syn}),ver
+                        % 3.1
+                        [ \ \ \ \  Symbolic Synthesis \\ \ \ ~(\S\ref{sec:Symbolic Synthesis})\ \ \
+                            %3.1.1
+                            [\ \ \ \ \ \ Task-Driven Synthesis \\ \ \ \ ~(\S\ref{sec:task driven synthesis})
+                                [\eg ~SWE-Gym~\cite{SWE-Gym}{,} 
+                                SWE-smith~\cite{SWE-smith}{,} 
+                                AgentScaler~\cite{AgentScaler}{,} 
+                                Agent2World~\cite{Agent2World}{,} 
+                                Text2World~\cite{Text2World}{,} \\ 
+                                WorldCoder~\cite{WorldCoder}{,} 
+                                LLM-in-Sandbox~\cite{LLM-in-Sandbox}{,} 
+                                R2E-Gym~\cite{R2E-Gym}{,}
+                                Scale-SWE~\cite{Scale-SWE}{,}
+                                EnvScaler~\cite{EnvScaler}{,}
+                                \textit{etc.}, leaf, text width=44em]  
+                            ]
+                            %3.1.2
+                            [\ \ Real-World-Driven Synthesis \\   ~(\S\ref{sec:real world driven synthesis})
+                                [\eg ~AgentSynth~\cite{AgentSynth}{,} 
+                                EnvGen~\cite{EnvGen}{,} 
+                                EmbodiedBench~\cite{EmbodiedBench}{,}
+                                TaskCraft~\cite{TaskCraft}{,} 
+                                OSWorld-MCP~\cite{OSWorld-MCP}{,} \\
+                                DIVE~\cite{DIVE}{,} 
+                                VeriEnv~\cite{VeriEnv}{,} 
+                                AI Gamestore~\cite{AI_GAMESTORE}{,} 
+                                AutoWebWorld~\cite{AutoWebWorld}{,} 
+                                MedMCP-Calc~\cite{MedMCP-Calc}{,} 
+                                \textit{etc.}, leaf, text width=44em]  
+                            ]
+                            [\ \ \  De Novo Synthesis~(\S\ref{sec:synthesis from scratch})
+                                [\eg ~AutoEnv~\cite{AutoEnv}{,}
+                                LOGIGEN~\cite{LOGIGEN}{,} 
+                                InfiniteWeb~\cite{InfiniteWeb}{,} 
+                                NL2Plan~\cite{NL2Plan}{,} 
+                                Agent World Model~\cite{Agent_world_model}{,} \\
+                                ScaleEnv~\cite{ScaleEnv}{,} 
+                                AutoForge~\cite{AutoForge}{,} 
+                                SWE-Playground~\cite{SWE-Playground}{,} 
+                                RandomWorld~\cite{RandomWorld}{,} 
+                                \textit{etc.}, leaf, text width=44em]  
+                            ]
+                        ]
+                        [ \ Neural Synthesis~(\S\ref{sec:Neural Synthesis})\ \ \
+                            %3.1.1
+                            [ \ Pixel-Level Modeling~(\S\ref{sec:Pixel-level Modeling})
+                                [\eg ~EVA~\cite{EVA}{,} 
+                                ViMo ~\cite{ViMo}{,} 
+                                DIAMOND~\cite{DIAMOND}{,}
+                                NeuralOS~\cite{NeuralOS}{,}
+                                Pandora~\cite{Pandora}{,}
+                                MeWM~\cite{MeWM}{,} \\
+                                DreamZero~\cite{DreamZero}{,}
+                                AdaWorld~\cite{AdaWorld}{,}
+                                Cosmos~\cite{Cosmos}{,}
+                                Cosmos-Drive~\cite{Cosmos-Drive}{,}
+                                \textit{etc.}, leaf, text width=44em]  
+                            ]
+                            %3.1.2
+                            [\  Word-Level Modeling~(\S\ref{sec:Word-level Modeling})
+                                [\eg ~RAP~\cite{RAP}{,}
+                                WKM~\cite{WKM}{,} 
+                                Code2World~\cite{Code2World}{,} 
+                                CWM~\cite{CWM}{,}
+                                WebDreamer~\cite{WebDreamer}{,}
+                                Simia~\cite{Simia}{,} \\
+                                GTM~\cite{GTM}{,}
+                                VLWM~\cite{VLWM}{,}
+                                Dyna-Think~\cite{Dyna-Think}{,}
+                                WWM~\cite{WWM}{,}
+                                SWE-World~\cite{SWE-World}{,}
+                                \textit{etc.}, leaf, text width=44em]  
+                            ]
+                            [\ Latent-Level Modeling~(\S\ref{sec:Latent-level Modeling})
+                                [\eg ~V-JEPA 2~\cite{V-JEPA_2}{,} 
+                                I-JEPA~\cite{I-JEPA}{,} 
+                                seq-JEPA~\cite{seq-JEPA}{,}
+                                DINO-world~\cite{DINO-world}{,}
+                                DINO-Foresight~\cite{DINO-Foresight}{,}
+                                \textit{etc.}, leaf, text width=44em]  
+                            ]
+                        ]
+                    ]
+                ]
+                \end{forest}
+        }
+        \caption{Taxonomy of the main content of this survey.}\label{fig:taxonomy}
+\end{figure*}

@@ -1,0 +1,47 @@
+\section{Reproducibility Statement}\label{appendix:reproducibility}
+
+This appendix consolidates the artefacts and protocol required to reproduce every cell of \S\ref{sec:experiments}.
+
+\subsection{Code release}
+
+\paragraph{Harness adapters.} Five claw-adapter packages -- \texttt{openclaw\_swebench}, \texttt{hermes\_swebench}, \texttt{zeroclaw\_swebench}, \texttt{nanobot\_swebench}, and the \texttt{generic} baseline adapter -- are released. Each ships \verb|run_infer.py| and \verb|run_eval.py| together with the per-harness orchestrator, agent adapter, and workspace modules. The same registry also hosts the minimal \emph{bare adapter} used for the diagnostic in \S\ref{sec:adapter_diagnostic}.
+
+\paragraph{Lite construction scripts.} A Node.js toolkit implements the cost-aware rank-aware Lite selection, K-sweep, sensitivity checks, quartile-stratification logic, and final-report generators.
+
+\paragraph{Figure-generation scripts.} \texttt{matplotlib} scripts that regenerate the cost--accuracy Pareto figure, the future-commit-cleanup comparison, and the Lite parity panels from the released result workbooks are in the \texttt{scripts/} directory of the release (\texttt{generate\_pareto\_figure.py}, \texttt{generate\_leak\_fix\_figure.py}, \texttt{generate\_lite\_figures.py}).
+
+\subsection{Data release}
+
+\textbf{Claw-SWE-Bench} (350 instance IDs plus metadata) and \textbf{Claw-SWE-Bench-Lite} (80 instance IDs with cost-aware selection metadata) are released as JSON files. The underlying issues and repositories are hosted on the upstream SWE-bench-Multilingual and SWE-bench-Verified-Mini sources \cite{swe_smith, swebench_verified_mini}; we redistribute only the curated ID sets and metadata.
+
+\subsection{Reproduction protocol}
+
+\paragraph{Per-instance run.}
+\begin{verbatim}
+python3 run_infer.py \
+    --harness <openclaw|hermes|zeroclaw|nanobot|generic> \
+    --dataset multilingual \
+    --model <provider/model_name> \
+    --run_id <run_label> \
+    --timeout 3600 \
+    --workers 3
+\end{verbatim}
+
+\paragraph{Evaluation.}
+\begin{verbatim}
+python3 run_eval.py \
+    --predictions artifacts/<run_id>/predictions.jsonl \
+    --dataset_name SWE-bench/SWE-bench_Multilingual \
+    --run_id <run_id> \
+    --max_workers 8
+\end{verbatim}
+
+The CLI surface is identical across all five claws; per-harness adapter flags are documented in Appendix~\ref{appendix:harness}.
+
+\subsection{Random seeds and runs}
+
+A single run per (instance, harness, model) cell is executed with 3-thread concurrency. The 1-repeat choice is a cost-driven trade-off; multi-seed validation on a 50-instance slice is left to future work.
+
+\subsection{Compute requirements}
+
+Full hardware and cost figures are in Appendix~\ref{appendix:compute}. In summary: a single 16-core / 61\,GiB-RAM Linux server is sufficient, with no GPU required since all model inference is routed through external APIs.
