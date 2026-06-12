@@ -1,0 +1,49 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "KnotRecord Schema"
+description: "Schema for individual knot record with topological invariants"
+type: "object"
+required:
+  - "knot_id"
+  - "crossing_number"
+  - "data_quality_flags"
+  - "missing_invariant_flags"
+properties:
+  knot_id:
+    type: "string"
+    description: "Unique identifier from Knot Atlas"
+  crossing_number:
+    type: "integer"
+    minimum: 1
+    description: "Minimal crossing number (tabulated)"
+  braid_index:
+    type: "integer"
+    minimum: 1
+    nullable: true
+    description: "Minimal braid index (tabulated); null if unavailable"
+  hyperbolic_volume:
+    type: "number"
+    nullable: true
+    description: "Hyperbolic volume in units of volume; null for torus/satellite knots"
+  is_alternating:
+    type: "boolean"
+    nullable: true
+    description: "Alternating classification; null if ambiguous"
+  dt_code:
+    type: "string"
+    nullable: true
+    description: "Dowker-Thistlethwaite code representation"
+  braid_word:
+    type: "string"
+    nullable: true
+    description: "Braid word representation"
+  data_quality_flags:
+    type: "array"
+    items:
+      type: "string"
+    description: "General data quality flags (null values, format failures, duplicates)"
+  missing_invariant_flags:
+    type: "array"
+    items:
+      type: "string"
+    description: "Specific invariant computation flags (per FR-009)"
+additionalProperties: false
