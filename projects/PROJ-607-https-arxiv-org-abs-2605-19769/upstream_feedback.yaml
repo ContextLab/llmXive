@@ -1,0 +1,162 @@
+project_id: PROJ-607-https-arxiv-org-abs-2605-19769
+arxiv_id: '2605.19769'
+schema_version: 1
+rounds:
+- round_number: 1
+  triggered_at: '2026-06-12T11:37:07.622237+00:00'
+  verdict_class: science
+  note: ''
+  action_items:
+  - id: 87fd1a7ee664
+    text: Code repository (verifiers, generators, tests) not included in input. Cannot
+      verify modularity, test coverage, or dependency hygiene.
+    severity: science
+  - id: 75cdc0b6687e
+    text: Add an explicit license declaration for the benchmark dataset and verifier
+      code in the main text or repository README.
+    severity: writing
+  - id: 08afd595343f
+    text: Clarify the provenance and licensing of seed files (e.g., piano_sketch.mscz)
+      in the methodology section to ensure redistribution rights.
+    severity: writing
+  - id: 688b895a9756
+    text: Include a version tag or commit hash for the released repository to ensure
+      reproducibility and link stability.
+    severity: writing
+  - id: 71fd509295fe
+    text: Increase font size in figure/compare_with_llm_as_judge.tex TikZ plot from
+      7.5pt to at least 9pt to ensure legibility at standard conference print scales.
+    severity: writing
+  - id: 668509dd01a7
+    text: Add visual annotations (e.g., arrows or boxes) to image/llm_as_judge_error_1.png
+      to explicitly highlight the cell boundary error, as the caption notes the visual
+      difference is subtle.
+    severity: writing
+  - id: 65a091541bcd
+    text: Verify color contrast in figure/compare_with_llm_as_judge.tex for grayscale
+      printing; the black!45 judge bar may be too light compared to the teal verifier
+      bar.
+    severity: writing
+  - id: 47eb9c99cfda
+    text: 'Define all major acronyms at first use: LLM (large language model), CLI
+      (command-line interface), GUI (graphical user interface), API (application programming
+      interface), RL (reinforcement learning), SFT (supervised fine-tuning), JSON
+      (JavaScript Object Notation). These appear throughout without definition.'
+    severity: writing
+  - id: 6bb2d7af13e5
+    text: 'Replace jargon-heavy phrases: verifier-grounded framework to framework
+      using programmatic verification, execution-grounded feedback to feedback from
+      actual task execution, calibration executions to test runs, trajectory to sequence
+      of actions.'
+    severity: writing
+  - id: cbe8c0e59c07
+    text: Simplify Section 2 Problem Setup mathematical notation. The formal notation
+      tau equals x comma e comma c, s zero tilde e, etc. excludes non-specialist readers
+      without adding clarity.
+    severity: writing
+  - id: c268407477f3
+    text: Define verifier clearly at first use. The term appears approximately 100
+      times but no explicit definition exists for what a verifier is a program that
+      checks task completion.
+    severity: writing
+  - id: d74401762008
+    text: Replace frontier agents with state-of-the-art agents and partial-credit
+      rewards with partial scores for accessibility.
+    severity: writing
+  - id: e85759b7070a
+    text: Temper the claim in the Abstract and Experiment section that model performance
+      drops expose a 'persistent gap in robust computer automation.' This conflates
+      metric strictness with capability; clarify that stricter verification naturally
+      lowers pass rates compared to looser benchmarks.
+    severity: writing
+  - id: aab4cf1d0d16
+    text: Qualify the Conclusion's claim that the framework preserves 'the diversity
+      and realism of real software workflows.' Acknowledge that visually-grounded
+      workflows (excluded per Appendix/limitations.tex) are part of realistic workflows
+      but omitted for verifiability.
+    severity: writing
+  - id: 5f9d6f09067a
+    text: Add explicit IRB approval statement or ethics exemption regarding human
+      annotators mentioned in Section 4.1, including consent and compensation details.
+    severity: writing
+  - id: f44c77594806
+    text: Include a Dual-Use and Responsible Release discussion addressing potential
+      misuse of the agent framework for unauthorized automation or malicious tasks.
+    severity: writing
+  - id: fd8d8b6a3407
+    text: Explicitly confirm that all benchmark data (e.g., zotero.sqlite, commissions.xlsx)
+      is synthetically generated and contains no real user PII in the Data Availability
+      or Limitations section.
+    severity: writing
+  - id: 0682a0db6707
+    text: Report standard deviations or confidence intervals for success rates in
+      Table 1 (figure/benchmark_result.tex) to account for LLM stochasticity.
+    severity: science
+  - id: 7a30b712e88b
+    text: Clarify the number of random seeds used per task in the evaluation harness
+      (Section 4.1) to ensure result reproducibility.
+    severity: science
+  - id: 0023a4fb0466
+    text: Perform statistical significance testing (e.g., McNemar's test) for the
+      LLM Judge vs. Verifier human alignment results (Section 4.1).
+    severity: science
+  - id: c745092b0d3b
+    text: Analyze the distribution of the 17 excluded tasks (Appendix/limitations.tex)
+      to assess potential selection bias in the benchmark.
+    severity: science
+  - id: b33ab4c5ba7c
+    text: Add standard deviations or 95% confidence intervals to Table 1 (figure/benchmark_result.tex)
+      for all reported metrics (Success Rate, Avg Reward, Steps, Time).
+    severity: science
+  - id: 1742891b1115
+    text: Report variance or multiple-seed results for the CLI vs. GUI timing comparison
+      in Section 4.2 (figure/gui_and_cli.tex) to validate efficiency claims.
+    severity: science
+  - id: d9e0114d110a
+    text: Perform significance testing (e.g., McNemar's test) on the human alignment
+      study (Section 4.1) and ablation results (Section 4.3) to support claims of
+      improvement.
+    severity: science
+  - id: c5f0c0fe1854
+    text: Remove duplicate color definitions in commands.tex to avoid LaTeX redefinition
+      warnings.
+    severity: writing
+  - id: c2f20bffc0dd
+    text: 'Consolidate package imports: eliminate redundant subcaption and wrapfig
+      statements.'
+    severity: writing
+  - id: 9c580c12ba1f
+    text: Standardize figure environments for all floating figures.
+    severity: writing
+  - id: fdd649d52346
+    text: Ensure every caption appears before its corresponding label in all floats.
+    severity: writing
+  - id: 268f8c078828
+    text: 'Check heading hierarchy: all top-level sections use section, subsections
+      use subsection.'
+    severity: writing
+  - id: 81cf061f069b
+    text: Remove unused macro definitions or replace their usage with standard LaTeX
+      commands.
+    severity: writing
+  - id: 3b918459c7d5
+    text: Verify that all cross-references resolve correctly.
+    severity: writing
+  - id: 158e79d3c77f
+    text: Align table column specifications with content width consistently.
+    severity: writing
+  - id: 997aed28ba50
+    text: Add a newline after begin document before title to improve readability.
+    severity: writing
+  - id: a8e57f0bd39b
+    text: Consider moving the thispagestyle fancy block after maketitle.
+    severity: writing
+  - id: ee2fd63673cb
+    text: 'In sections/methodology.tex, correct subject-verb agreement: ''The agent
+      treat verifiers'' to ''treats'', ''the agent implement query endpoints'' to
+      ''implements'', and ''the agent generate rich synthetic artifacts'' to ''generates''.'
+    severity: writing
+  - id: 05e69c513a23
+    text: 'In sections/introduction.tex, fix parallelism in paragraph 2: change ''and
+      ensures'' to ''ensure'' to match ''design'' and ''prepare''.'
+    severity: writing

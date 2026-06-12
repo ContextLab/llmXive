@@ -6,13 +6,13 @@ failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-607-https-arxiv-org-abs-2605-19769
-last_run_id: null
+last_run_id: a1779c94-d6a0-4c89-a0bc-2f0c39b9cf31
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
-revision_spec_path: null
+revision_spec_path: specs/auto-revisions/PROJ-607-https-arxiv-org-abs-2605-19769/round-1
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'OpenComputer: Verifiable Software Worlds for Computer-Use Agents'
-updated_at: '2026-05-21T13:09:12.653634Z'
+updated_at: '2026-06-12T11:37:07.692766Z'

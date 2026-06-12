@@ -369,3 +369,6 @@ ready:
 - project_id: PROJ-601-https-arxiv-org-abs-2605-12882
   revision_spec_path: specs/auto-revisions/PROJ-601-https-arxiv-org-abs-2605-12882/round-1
   queued_at: '2026-06-12T07:36:53.313927+00:00'
+- project_id: PROJ-607-https-arxiv-org-abs-2605-19769
+  revision_spec_path: specs/auto-revisions/PROJ-607-https-arxiv-org-abs-2605-19769/round-1
+  queued_at: '2026-06-12T11:37:07.642808+00:00'
