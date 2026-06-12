@@ -258,3 +258,76 @@ def test_engine_path_reraises_transient_backend_error(tmp_path, monkeypatch):
     # advance) — the transient error propagates so the project stays at PLANNED.
     marker = project_dir / ".specify" / "memory" / "tasker_rounds.yaml"
     assert not marker.exists()
+
+
+def test_engine_path_non_transient_failure_escalates_not_advances(tmp_path, monkeypatch):
+    """Spec 023 defect #20: a NON-transient engine failure (e.g. the reviser
+    could not produce a parseable revision even after its corrective re-pass +
+    the engine's retry) must ESCALATE (StagePanelEscalation), NOT be swallowed
+    into a converged:False marker that lets run_one_step advance an unreviewed
+    tasks.md straight into implementation (observed live on PROJ-552). Parity
+    with run_stage_panel's engine-failure path.
+    """
+    import pytest
+
+    from llmxive.backends import router as backend_router
+    from llmxive.speckit import _stage_panel, tasks_cmd
+    from llmxive.speckit import _tasker_engine_bridge as bridge
+    from llmxive.speckit.slash_command import SlashCommandContext
+    from llmxive.state import escalations
+    from llmxive.types import BackendName
+
+    project_dir = tmp_path / "projects" / "PROJ-904"
+    (project_dir / ".specify" / "memory").mkdir(parents=True)
+    spec_path = project_dir / "spec.md"
+    plan_path = project_dir / "plan.md"
+    tasks_path = project_dir / "tasks.md"
+    for p in (spec_path, plan_path, tasks_path):
+        p.write_text("# doc\n", encoding="utf-8")
+
+    monkeypatch.setattr(tasks_cmd, "run_analyze", lambda **kw: "NOT CLEAN: issues")
+    monkeypatch.setattr(tasks_cmd, "is_clean", lambda report: False)
+    # The engine resolve raises the exact reviser-parse failure seen live.
+    def _boom(**kw):
+        raise RuntimeError(
+            "TasksReviser: response JSON has no usable 'new_tasks_md' string; "
+            "got: NoneType"
+        )
+    monkeypatch.setattr(bridge, "run_tasker_via_engine", _boom)
+    monkeypatch.setattr(backend_router, "make_backend", lambda name: object())
+    # Issue filing is a collaborator (network); stub it to record the call.
+    filed: list[dict] = []
+    monkeypatch.setattr(
+        escalations, "file_engine_failure_issue",
+        lambda **kw: filed.append(kw) or 1,
+    )
+
+    ctx = SlashCommandContext(
+        project_id="PROJ-904",
+        project_dir=project_dir,
+        run_id="r1",
+        task_id="t1",
+        inputs=[],
+        expected_outputs=["tasks.md"],
+        prompt_template_path=Path("prompts/x.md"),
+        default_backend=BackendName.DARTMOUTH,
+        fallback_backends=[],
+        default_model="m",
+        prompt_version="1.0.0",
+        agent_name="tasker",
+    )
+    agent = tasks_cmd.TaskerAgent.__new__(tasks_cmd.TaskerAgent)
+    agent._inspection_rounds = []
+
+    with pytest.raises(_stage_panel.StagePanelEscalation):
+        agent._run_engine_path(
+            ctx=ctx, repo=tmp_path, tasks_path=tasks_path, spec_path=spec_path,
+            plan_path=plan_path, written=[],
+        )
+    # MUST NOT have written a converged:False marker — escalation keeps the
+    # project at PLANNED (schedulable), it does NOT advance.
+    marker = project_dir / ".specify" / "memory" / "tasker_rounds.yaml"
+    assert not marker.exists()
+    # The engine-failure issue was filed with the tasks stage + the error.
+    assert filed and filed[0]["stage"] == "tasks"
+    assert "new_tasks_md" in filed[0]["error"]

@@ -569,19 +569,39 @@ class TaskerAgent(SlashCommandAgent):
             # failure and advancing to TASKED as though the panel had accepted.
             raise
         except Exception as exc:
+            # Spec 023 defect #20: a non-transient engine failure (e.g. the
+            # reviser could not produce a parseable revision even after its
+            # corrective re-pass + the engine's one retry) MUST NOT advance
+            # the tasks stage. The old behavior wrote tasker_rounds.yaml
+            # converged:False and RETURNED — so run_one_step advanced the
+            # project as though the panel had ACCEPTED, pushing an
+            # unreviewed/unrevised tasks.md straight into implementation
+            # (observed live on PROJ-552: tasks panel raised at both planned
+            # and tasked, yet the project sailed to in_progress). Parity with
+            # run_stage_panel's engine-failure path: file a tracked issue with
+            # the evidence and raise StagePanelEscalation so the project STAYS
+            # at its current stage, schedulable, recovering automatically once
+            # the defect is fixed. Transient/outage errors are handled above
+            # and never reach here.
             print(
                 f"[tasker/engine] engine path raised: {exc}; "
-                "marking non-converged + leaving on-disk artifacts unchanged"
+                "filing engine-failure issue + escalating (project stays put, "
+                "no advance)"
             )
-            rounds_marker = (
-                ctx.project_dir / ".specify" / "memory" / "tasker_rounds.yaml"
-            )
-            rounds_marker.parent.mkdir(parents=True, exist_ok=True)
-            rounds_marker.write_text(
-                yaml.safe_dump({"rounds_used": 1, "converged": False}),
-                encoding="utf-8",
-            )
-            return
+            from llmxive.speckit._stage_panel import StagePanelEscalation
+            from llmxive.state.escalations import file_engine_failure_issue
+            try:
+                file_engine_failure_issue(
+                    project_id=ctx.project_id,
+                    stage="tasks",
+                    error=f"{type(exc).__name__}: {exc}",
+                    repo_root=repo,
+                )
+            except Exception as file_exc:  # best-effort — never mask the failure
+                print(f"[tasker/engine] issue filing failed: {file_exc}")
+            raise StagePanelEscalation(
+                f"tasks panel engine failure: {type(exc).__name__}: {exc}"
+            ) from exc
 
         # Adaptive kickback (spec-015 F-20 Part B) — parity with the spec/plan
         # panels: when the tasks convergence panel does NOT converge, emit the

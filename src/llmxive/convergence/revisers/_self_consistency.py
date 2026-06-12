@@ -44,7 +44,7 @@ import yaml
 
 from llmxive.agents.prompts import load_prompt
 from llmxive.backends.base import ChatMessage
-from llmxive.backends.router import reasoning_chat
+from llmxive.backends.router import GENERATION_MAX_TOKENS, reasoning_chat
 
 from ..types import Concern, ConcernResponse
 
@@ -150,9 +150,24 @@ def invoke_reviser_backend(reviser: Any, messages: list[ChatMessage]) -> str:
     Every reviser's ``_call_backend`` delegates here so the model-or-no-model
     ``backend.chat`` branch is written once. Returns the response text (or ""
     when the backend yields no text).
+
+    Spec 023 defect #20: a revision turn REGENERATES a whole document
+    (spec.md / plan.md / tasks.md, up to a few hundred lines) plus a
+    per-concern change-log — it is a *generation* call, not the "short
+    structured" reasoning call ``reasoning_chat`` defaults to. The default
+    ``REASONING_MAX_TOKENS`` (32K) is consumed by a reasoning model's hidden
+    chain-of-thought before the artifact block completes, truncating it →
+    ``parse_reviser_response`` finds no complete ``===BEGIN_ARTIFACT`` block →
+    "no usable new_<doc>_md". This was the structural cause of PROJ-552's
+    tasks-panel reviser failures (63 tasks / 277 lines) and the historical
+    plan-panel "26 padded <missing> responses". Use the generation budget so
+    the full document + change-log fit.
     """
     model = getattr(reviser, "_model", None)
-    response = reasoning_chat(reviser._backend, messages, model=model)
+    response = reasoning_chat(
+        reviser._backend, messages, model=model,
+        max_tokens=GENERATION_MAX_TOKENS,
+    )
     return getattr(response, "text", "") or ""
 
 

@@ -464,6 +464,32 @@ def test_invoke_reviser_backend_uses_fallback():
     assert text == "peer revision"
 
 
+def test_invoke_reviser_backend_uses_generation_budget():
+    """Spec 023 defect #20: a revision turn REGENERATES a whole document plus
+    a per-concern change-log — a *generation* call. It MUST carry the
+    generation-size token budget, not the small reasoning-safe default, or a
+    reasoning model's hidden chain-of-thought truncates the artifact block →
+    "no usable new_<doc>_md" (the PROJ-552 tasks/plan reviser failures). We
+    inject a backend that records the max_tokens it received and assert it is
+    the generation budget."""
+    from llmxive.backends.router import GENERATION_MAX_TOKENS, REASONING_MAX_TOKENS
+
+    class _Reviser:
+        def __init__(self, backend):
+            self._backend = backend
+            self._model = "qwen.qwen3.5-122b"
+
+    backend = _ModelFallbackBackend(replies={"qwen.qwen3.5-122b": "revised doc"})
+    text = invoke_reviser_backend(_Reviser(backend), [])
+    assert text == "revised doc"
+    assert backend.calls, "backend was never called"
+    assert backend.calls[0]["max_tokens"] == GENERATION_MAX_TOKENS, (
+        f"reviser revision turn must use the generation budget "
+        f"({GENERATION_MAX_TOKENS}); got {backend.calls[0]['max_tokens']}"
+    )
+    assert backend.calls[0]["max_tokens"] != REASONING_MAX_TOKENS
+
+
 # --- Fix C: the reviser chokepoint runs 016 only, NOT F-19 ----------------
 
 
