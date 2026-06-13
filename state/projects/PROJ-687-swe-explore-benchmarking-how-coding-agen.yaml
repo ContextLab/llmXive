@@ -6,13 +6,13 @@ failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-687-swe-explore-benchmarking-how-coding-agen
-last_run_id: null
+last_run_id: 3fb698a5-39af-46bd-ace8-6339d1b75c45
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
-revision_spec_path: null
+revision_spec_path: specs/auto-revisions/PROJ-687-swe-explore-benchmarking-how-coding-agen/round-1
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'SWE-Explore: Benchmarking How Coding Agents Explore Repositories'
-updated_at: '2026-06-10T09:16:06.729227Z'
+updated_at: '2026-06-13T21:59:46.751333Z'
