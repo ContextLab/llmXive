@@ -1,18 +1,19 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-04-29T03:39:55.508035Z'
-current_stage: flesh_out_complete
+current_stage: flesh_out_in_progress
 failed_stage: null
 field: chemistry
 human_escalation_reason: null
 id: PROJ-022-developing-new-methods-to-synthesize-hig
-last_run_id: e444ac6c-48f0-4a6f-9ee2-ebf93df59b14
+last_run_id: 93fbd0ae-59c9-4323-ab93-4c019352457a
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
+revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: Developing New Methods to Synthesize High-Performance Membranes using Sustainable
   Materials
-updated_at: '2026-04-30T05:16:23.213134Z'
+updated_at: '2026-06-13T11:28:17.343414Z'
