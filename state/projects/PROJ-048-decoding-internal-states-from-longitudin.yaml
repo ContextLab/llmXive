@@ -1,17 +1,18 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-04-30T17:38:04.358881Z'
-current_stage: flesh_out_complete
+current_stage: validated
 failed_stage: null
 field: neuroscience
 human_escalation_reason: null
 id: PROJ-048-decoding-internal-states-from-longitudin
-last_run_id: 043f920f-913e-4ab4-9cd7-5b0f64d7d591
+last_run_id: 5681b999-8d64-471e-be8f-ba9aaa03cbae
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
+revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: Decoding Internal States from Longitudinal Calcium Imaging Data
-updated_at: '2026-04-30T17:41:14.167884Z'
+updated_at: '2026-06-13T23:06:15.003992Z'
