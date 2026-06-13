@@ -1,0 +1,241 @@
+project_id: PROJ-617-full-attention-strikes-back-transferring
+arxiv_id: '2605.16928'
+schema_version: 1
+rounds:
+- round_number: 1
+  triggered_at: '2026-06-13T07:32:10.708459+00:00'
+  verdict_class: science
+  note: ''
+  action_items:
+  - id: 1bd59129dd76
+    text: Remove all visible author comments (e.g., \\yy{}, \\zyk{}, \\hs{}) and commented-out
+      text blocks from the LaTeX source files to ensure a clean final manuscript.
+    severity: writing
+  - id: 31b47deb324b
+    text: Verify and remove any active \\TBD or \\PLH macros; ensure all figure captions
+      and references are finalized and consistent with the bibliography.
+    severity: writing
+  - id: 9247af8c56d9
+    text: Confirm that the proofreader pipeline has been run and all proofreader flags
+      are cleared before final compilation.
+    severity: writing
+  - id: ad3a420becd3
+    text: Add missing citation entry 'zucchet2026the' to references.bib; it is cited
+      in src/intro.tex (Line 13) but absent from the bibliography.
+    severity: writing
+  - id: 63205323b0c4
+    text: Verify experimental software versions (Python 3.14, CUDA 12.8, PyTorch 2.8)
+      in src/exp.tex (Line 3) as they appear inconsistent with the arXiv submission
+      date (May 2026) and release schedules.
+    severity: science
+  - id: 29565ca2126a
+    text: Confirm 'DeepSeek Sparse Attention' (src/intro.tex, Line 10) is accurately
+      described in the 'DeepSeek-V3.2' bib entry (dsa); if not, replace with a specific
+      technical report on sparse attention.
+    severity: writing
+  - id: aa92c84041dd
+    text: Code artifacts (implementation, tests, kernels) are not accessible for this
+      arXiv-ingested paper. A code quality review requires access to the actual implementation
+      repository with source code, test suites, and reproducibility scripts.
+    severity: writing
+  - id: f2256132d5dd
+    text: The paper describes custom GPU kernels (Section 4.4) but no kernel source
+      code is provided. For reproducibility, include CUDA kernel implementations in
+      a public repository with build instructions.
+    severity: writing
+  - id: 5d43e78862e4
+    text: Training pipeline code (two-stage training in Section 4.3) is referenced
+      but not accessible. Provide training scripts with hyperparameters to enable
+      independent verification.
+    severity: writing
+  - id: a2679d630e4d
+    text: Add license information for FineWeb and Dolma 3 Longmimo Mix training datasets
+      (Section 5.1, Appendix D.3)
+    severity: writing
+  - id: d671ac362bc4
+    text: Include version numbers for benchmark datasets (LongBench, RULER, MMLU-PRO)
+      to ensure reproducibility
+    severity: writing
+  - id: 18f569aca9a0
+    text: Provide data card or datasheet link for the 8K-sample calibration sequence
+      construction
+    severity: writing
+  - id: 0d35c8f706b5
+    text: Verify all external arXiv links (e.g., qwen3, fineweb) and add DOIs where
+      available to mitigate link rot
+    severity: writing
+  - id: 7ecd24cecaa3
+    text: Figure captions are too minimal. fig:overall caption 'A teaser view...'
+      lacks quantitative context. Add specific speedup values, context lengths, and
+      accuracy metrics to captions for standalone interpretability.
+    severity: writing
+  - id: 3aa283414867
+    text: Figure fig:query_dependent_patterns (lines 251-264) has author comment 'the
+      font is too small; the figure not easy to interpret'. This must be resolved
+      before submission. Verify legibility at print scale (10pt minimum for axis labels).
+    severity: writing
+  - id: d48f1fb3e794
+    text: No axis labels visible in figure source code review. Figures like fig:multi_benchmark,
+      fig:sparse_decode_speedup, and training loss curves (fig:stage1_indexer_loss,
+      fig:stage2_end2end_loss) must explicitly label axes with units (e.g., 'Context
+      Length (tokens)', 'Sparsity (%)', 'Training Steps').
+    severity: writing
+  - id: 8fd27984c9c3
+    text: Color choices in multi-figure comparisons (Table~\ref{tab:longbench}, Table~\ref{tab:ruler}
+      with SOTA markers) use \SOTA macro but figure color palettes (L0-L17) are not
+      consistently documented. Ensure colorblind-safe palettes and provide legend
+      for all color-coded elements.
+    severity: writing
+  - id: 89287d56d378
+    text: Figure fig:architecture (line 334) caption 'Overall architecture of RTPurbo'
+      is non-descriptive. Caption should explain key components shown (retrieval heads,
+      local heads, low-dim projector, top-p selector) for readers who skim figures
+      without reading method section.
+    severity: writing
+  - id: d04f8a5b2a75
+    text: Define 'KV cache' as 'Key-Value cache' at first use in Abstract and Introduction.
+    severity: writing
+  - id: 3db07526d5ad
+    text: Expand 'RoPE' to 'Rotary Positional Embeddings' before first use in Section
+      2.2.
+    severity: writing
+  - id: 3adceb5ab7e6
+    text: Define 'MQA' and 'GQA' (Multi-Query/Grouped-Query Attention) in Section
+      4.2.
+    severity: writing
+  - id: 6103099f4cf2
+    text: Define 'NIAH' as 'Needle-In-A-Haystack' before use in Figure captions and
+      Tables.
+    severity: writing
+  - id: 78b7aecae631
+    text: Replace 'SOTA' macro with 'state-of-the-art' text in tables for clarity.
+    severity: writing
+  - id: f31328d76bb2
+    text: Clarify 'attention sinks' in Section 4.1 or cite the specific mechanism
+      briefly.
+    severity: writing
+  - id: 1aab17862e86
+    text: Clarify in the Abstract that the 9.36x prefill speedup refers to a single
+      attention layer, not end-to-end inference, to avoid overgeneralizing micro-benchmark
+      results.
+    severity: writing
+  - id: 38e85be18947
+    text: Softening the 'first method' novelty claim in the Introduction to 'to our
+      knowledge' or similar phrasing to align with the evidentiary scope of the baseline
+      comparison.
+    severity: writing
+  - id: 995effdaed33
+    text: Adjust the Abstract's claim that 'full-attention LLMs are already intrinsically
+      sparse' to specify that this is observed in the Qwen3 family tested, acknowledging
+      the limitation in the main text.
+    severity: writing
+  - id: d452711b3100
+    text: "Add a dedicated discussion of dual\u2011use risks and mitigation strategies,\
+      \ especially how the reduced computational cost may lower barriers for malicious\
+      \ deployment of long\u2011context LLMs."
+    severity: writing
+  - id: b6c6aab2b2a9
+    text: "Include an explicit ethical statement covering data provenance, licensing,\
+      \ and consent for the FineWeb and Dolma 3 Longmimo Mix corpora used in training\
+      \ (see Section\u202F5, lines\u202F115\u2011130)."
+    severity: writing
+  - id: 157658ef6c64
+    text: Provide a brief safety evaluation (e.g., alignment checks, content filtering)
+      of the sparsified model to demonstrate that efficiency gains do not compromise
+      established safety mitigations.
+    severity: science
+  - id: 68b127989ab8
+    text: "Disclose any potential conflicts of interest beyond the author affiliations,\
+      \ such as commercial interests in Alibaba\u2019s deployment of the method."
+    severity: writing
+  - id: cc6deb623347
+    text: Clarify that no human subjects were involved, confirming that IRB/IACUC
+      approval is not required, and reference the relevant institutional review statement.
+    severity: writing
+  - id: 4bdb92f3bdf9
+    text: Evaluate on additional model architectures (e.g., LLaMA, Mistral) beyond
+      Qwen3 variants to validate the claim that 'full-attention LLMs are intrinsically
+      sparse' is generalizable.
+    severity: science
+  - id: 70a8d7929a1a
+    text: Include trainable sparse attention baselines (DSA, NSA) for fair comparison;
+      current baselines are mostly training-free, making it unclear if gains come
+      from sparsification or additional training.
+    severity: science
+  - id: 52a47142aa4a
+    text: Report multiple evaluation runs with confidence intervals on benchmark results
+      (LongBench, RULER, AIME) to assess statistical significance of reported improvements.
+    severity: science
+  - id: c4f0d741ce71
+    text: "Clarify speedup measurement methodology: specify hardware configuration,\
+      \ batch size, and whether 9.36\xD7 prefill speedup is layer-level or end-to-end\
+      \ inference."
+    severity: writing
+  - id: 03dc34245075
+    text: Provide statistical analysis on head calibration stability across multiple
+      documents; appendix shows one heatmap but claims calibration on 'one single
+      sequence' is sufficient.
+    severity: science
+  - id: 4e9fd141cbb4
+    text: No statistical significance tests reported for benchmark comparisons. Tables
+      show point estimates only (e.g., LongBench Avg 54.24% vs 53.80% Full Attn) without
+      p-values or confidence intervals. Add paired t-tests or bootstrap CIs across
+      benchmark samples.
+    severity: science
+  - id: d94c53874492
+    text: Multiple comparisons problem unaddressed. Paper reports results across 16
+      LongBench sub-benchmarks, 9 RULER tasks, and 9 reasoning benchmarks without
+      correction (Bonferroni/FDR). Claim of 'near-lossless accuracy' is statistically
+      unsupported.
+    severity: science
+  - id: 9d1e72b5ee65
+    text: Speedup measurements (9.36x, 2.01x) reported as single point estimates with
+      no variance, standard deviation, or confidence intervals. Hardware benchmarking
+      requires repeated measurements for statistical validity.
+    severity: science
+  - id: 97c39903cdc3
+    text: Head calibration stability claim ('one single long text sequence is sufficient',
+      Section 3.1) lacks statistical evidence. No variance analysis across documents
+      or power analysis justifying single-sequence sufficiency.
+    severity: science
+  - id: a0ac75071d29
+    text: Training reproducibility incomplete. No random seeds reported, no variance
+      across multiple training runs, and no justification for 600 steps/1.2M label
+      tokens via power analysis. Appendix D provides hyperparameters but not reproducibility
+      guarantees.
+    severity: science
+  - id: 7577380d1c90
+    text: The preamble of main-llmxive.tex is missing the booktabs package, but the
+      included table files use \toprule, \midrule, \bottomrule which require it. Add
+      \usepackage{booktabs} to the preamble.
+    severity: writing
+  - id: 8f76a8a201c0
+    text: The command \rtpblue is defined as a color but used as a macro in \beginappendix.
+      Change to \textcolor{rtpblue}{Appendix} to avoid LaTeX errors.
+    severity: writing
+  - id: 8665d044ec7a
+    text: Remove the commented-out duplicate table block for tab:topk_topp_inline
+      found around line 370 in main-llmxive.tex, as the active version exists around
+      line 400.
+    severity: writing
+  - id: 29dfa303b6cd
+    text: The custom command \titlefont used in \beginappendix is not defined in the
+      provided preamble. Ensure it is defined in llmxive.cls or replace with a standard
+      font command.
+    severity: writing
+  - id: a07c596ff751
+    text: Correct the title grammar from 'within Hundred Training Steps' to 'within
+      a Few Hundred Training Steps'.
+    severity: writing
+  - id: 60701a7b5705
+    text: Remove all commented-out author notes and TODOs (e.g., % \yy{...}, % \zyk{...})
+      from the LaTeX source.
+    severity: writing
+  - id: 34b149a3161a
+    text: 'Fix the LaTeX typo in src/exp.tex: replace ''($$0.93)'' with a valid textual
+      description or value.'
+    severity: writing
+  - id: 32f8dee258be
+    text: Verify the accuracy of software versions listed in Section 4 (e.g., Python
+      3.14, PyTorch 2.8) as they appear to be placeholders.
+    severity: writing

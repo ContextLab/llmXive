@@ -6,3 +6,6 @@ ready:
 - project_id: PROJ-686-on-the-geometry-of-on-policy-distillatio
   revision_spec_path: specs/auto-revisions/PROJ-686-on-the-geometry-of-on-policy-distillatio/round-1
   queued_at: '2026-06-13T01:03:19.014313+00:00'
+- project_id: PROJ-617-full-attention-strikes-back-transferring
+  revision_spec_path: specs/auto-revisions/PROJ-617-full-attention-strikes-back-transferring/round-1
+  queued_at: '2026-06-13T07:32:10.737499+00:00'
