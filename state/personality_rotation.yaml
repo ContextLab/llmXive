@@ -1,14 +1,7 @@
-last_used: eric-kandel
-last_used_at: '2026-06-13T18:29:49.430804+00:00'
+last_used: freeman-dyson
+last_used_at: '2026-06-13T18:59:01.420336+00:00'
 last_outcome: triage_rejected_advanced_as_abstain
 history:
-- slug: albert-einstein
-  started_at: '2026-06-03T14:40:16.474262+00:00'
-  ended_at: '2026-06-03T16:35:35.442966+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/reviews/research/albert-einstein-simulated__2026-06-03__research.md
 - slug: dan-rockmore
   started_at: '2026-06-03T16:35:35.442966+00:00'
   ended_at: '2026-06-03T18:30:42.674766+00:00'
@@ -1128,5 +1121,10 @@ history:
 - slug: eric-kandel
   started_at: '2026-06-13T17:59:38.514837+00:00'
   ended_at: '2026-06-13T18:29:49.430804+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
+- slug: freeman-dyson
+  started_at: '2026-06-13T18:29:49.430804+00:00'
+  ended_at: '2026-06-13T18:59:01.420336+00:00'
   outcome: triage_rejected_advanced_as_abstain
   action: comment
