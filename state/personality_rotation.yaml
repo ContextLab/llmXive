@@ -1,12 +1,7 @@
-last_used: alan-turing
-last_used_at: '2026-06-13T14:45:55.364738+00:00'
-last_outcome: committed
+last_used: albert-einstein
+last_used_at: '2026-06-13T15:35:27.106788+00:00'
+last_outcome: triage_rejected_advanced_as_abstain
 history:
-- slug: richard-feynman
-  started_at: '2026-06-03T05:15:03.891684+00:00'
-  ended_at: '2026-06-03T07:11:20.961749+00:00'
-  outcome: triage_rejected_advanced_as_abstain
-  action: comment
 - slug: rosalind-franklin
   started_at: '2026-06-03T07:11:20.961749+00:00'
   ended_at: '2026-06-03T09:08:27.493790+00:00'
@@ -1134,3 +1129,8 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-123-investigating-the-role-of-microglial-mor/reviews/research/alan-turing-simulated__2026-06-13__research.md
+- slug: albert-einstein
+  started_at: '2026-06-13T14:45:55.364738+00:00'
+  ended_at: '2026-06-13T15:35:27.106788+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
