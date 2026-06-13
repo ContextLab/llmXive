@@ -1,17 +1,18 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-02T09:32:51.166968Z'
-current_stage: flesh_out_complete
+current_stage: validated
 failed_stage: null
 field: biology
 human_escalation_reason: null
 id: PROJ-136-investigating-the-impact-of-soil-microbi
-last_run_id: 5f0145e6-2cc8-44b4-8098-35ac07e1cfd2
+last_run_id: 1052ef04-10ce-4163-ac2b-8bdf3d0be70f
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
+revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: Investigating the Impact of Soil Microbiome Diversity on Plant Disease Resistance
-updated_at: '2026-05-02T09:37:01.081006Z'
+updated_at: '2026-06-13T12:16:19.852278Z'
