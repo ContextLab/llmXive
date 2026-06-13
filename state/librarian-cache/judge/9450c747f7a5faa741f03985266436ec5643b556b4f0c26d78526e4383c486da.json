@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2307.05639",
+  "judged_at": "2026-06-13T04:37:57Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting polymer degradation pathways with graph neural networks chemistry",
+  "rationale": "This paper is off-domain entirely: it studies Gaussian Radial Basis Function Neural Networks for general ML tasks (regression, classification, feature selection on tabular data), not Graph Neural Networks for chemistry. It does not measure polymer degradation pathways, work on chemical data, or use GNN architecture—sharing only the generic term \"neural networks\" which constitutes a homonym-level keyword overlap without substantive connection to the user's mechanism, domain, or variables.",
+  "relevant": false
+}

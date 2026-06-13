@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2306.14753",
+  "judged_at": "2026-06-13T04:37:49Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting polymer degradation pathways with graph neural networks chemistry",
+  "rationale": "This paper is off-domain entirely: it proposes a polynomial chaos-based neural network architecture without any connection to graph neural networks (GNNs), polymer chemistry, or degradation pathways. It fails all acceptance criteria (a-f) as it addresses neither the method (GNNs vs. polynomial chaos NNs are distinct architectures) nor the domain (chemistry/polymer degradation) of the user's question.",
+  "relevant": false
+}

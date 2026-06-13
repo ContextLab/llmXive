@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1901.06610",
+  "judged_at": "2026-06-13T04:38:09Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting polymer degradation pathways with graph neural networks chemistry",
+  "rationale": "This paper is off-domain entirely, focusing on natural language processing (document classification) rather than chemistry or polymer degradation, and does not utilize Graph Neural Networks for molecular property prediction. It shares only the broad keyword \"neural networks\" without any connection to the user's specific mechanism, domain, or variables.",
+  "relevant": false
+}

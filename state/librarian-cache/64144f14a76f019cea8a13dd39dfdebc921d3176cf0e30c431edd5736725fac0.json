@@ -1,0 +1,466 @@
+{
+  "fetched_at": "2026-06-13T04:38:13Z",
+  "field": "chemistry",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "chemistry",
+      "idea_body_excerpt": "Predicting Polymer Degradation Pathways with Graph Neural Networks",
+      "target_n": 5
+    },
+    "duration_seconds": 300.348,
+    "ended_at": "2026-06-13T04:38:13Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "Graph neural networks for polymer stability"
+        ],
+        [
+          2,
+          "Machine learning polymer degradation mechanisms"
+        ],
+        [
+          3,
+          "Message passing neural networks polymer chemistry"
+        ],
+        [
+          4,
+          "Molecular graph deep learning chemical reactions"
+        ],
+        [
+          5,
+          "Computational prediction of polymer bond cleavage"
+        ],
+        [
+          6,
+          "AI driven polymer aging prediction"
+        ],
+        [
+          7,
+          "Geometric deep learning for material degradation"
+        ],
+        [
+          8,
+          "Graph convolutional networks molecular stability"
+        ],
+        [
+          9,
+          "Depolymerization pathway prediction machine learning"
+        ],
+        [
+          10,
+          "Kinetic modeling of polymer breakdown with AI"
+        ],
+        [
+          11,
+          "Cheminformatics methods for polymer degradation"
+        ],
+        [
+          12,
+          "Deep learning molecular property prediction polymers"
+        ],
+        [
+          13,
+          "Automated reaction mechanism discovery polymers"
+        ],
+        [
+          14,
+          "Graph based learning for chemical stability"
+        ],
+        [
+          15,
+          "Neural network prediction of thermal degradation"
+        ],
+        [
+          16,
+          "Materials informatics polymer lifetime estimation"
+        ],
+        [
+          17,
+          "Structure reactivity relationships polymer degradation"
+        ],
+        [
+          18,
+          "Machine learning assisted chemical reaction prediction"
+        ],
+        [
+          19,
+          "Graph representation learning polymer systems"
+        ],
+        [
+          20,
+          "Computational chemistry polymer breakdown models"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Graph neural networks for polymer stability": 5,
+        "Predicting Polymer Degradation Pathways with Graph Neural Networks chemistry": 0
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "polymer aging hydrolysis oxidation",
+      "polyolefin polyester polystyrene degradation",
+      "message passing neural network molecular graph",
+      "degradation rate constant activation energy",
+      "bond dissociation energy reaction mechanism"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2308.12620"
+      ]
+    },
+    "per_query_hit_count": {
+      "Predicting Polymer Degradation Pathways with Graph Neural Networks chemistry": 3,
+      "bond dissociation energy reaction mechanism": 1,
+      "degradation rate constant activation energy": 3,
+      "message passing neural network molecular graph": 3,
+      "polymer aging hydrolysis oxidation": 3,
+      "polyolefin polyester polystyrene degradation": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 5,
+      "rejections": [
+        {
+          "primary_pointer": "2211.12792",
+          "rationale": "This paper is off-domain entirely for the user's chemistry-specific question. While it uses Graph Neural Networks (matching the method keyword), it studies general heterogeneous graph datasets for node classification and link prediction without any chemistry, polymer, or degradation pathway domain connection. This falls under the rejection rule for \"distinct construct sharing only homonym keywords\" — both involve GNNs but the chemistry domain is completely absent from this paper.",
+          "title": "MECCH: Metapath Context Convolution-based Heterogeneous Graph Neural Networks"
+        },
+        {
+          "primary_pointer": "1002.1164",
+          "rationale": "This paper focuses on the mathematical stability analysis of Hopfield-type neural networks with time delays, which is a distinct construct from Graph Neural Networks applied to chemical polymer degradation; it shares only the homonym \"neural networks\" without addressing the domain, mechanism, or variables of the user's question.",
+          "title": "Existence and Global Logarithmic Stability of Impulsive Neural Networks with Time Delay"
+        },
+        {
+          "primary_pointer": "2306.14753",
+          "rationale": "This paper is off-domain entirely: it proposes a polynomial chaos-based neural network architecture without any connection to graph neural networks (GNNs), polymer chemistry, or degradation pathways. It fails all acceptance criteria (a-f) as it addresses neither the method (GNNs vs. polynomial chaos NNs are distinct architectures) nor the domain (chemistry/polymer degradation) of the user's question.",
+          "title": "The Deep Arbitrary Polynomial Chaos Neural Network or how Deep Artificial Neural Networks could benefit from Data-Driven Homogeneous Chaos Theory"
+        },
+        {
+          "primary_pointer": "2307.05639",
+          "rationale": "This paper is off-domain entirely: it studies Gaussian Radial Basis Function Neural Networks for general ML tasks (regression, classification, feature selection on tabular data), not Graph Neural Networks for chemistry. It does not measure polymer degradation pathways, work on chemical data, or use GNN architecture—sharing only the generic term \"neural networks\" which constitutes a homonym-level keyword overlap without substantive connection to the user's mechanism, domain, or variables.",
+          "title": "Learning Active Subspaces and Discovering Important Features with Gaussian Radial Basis Functions Neural Networks"
+        },
+        {
+          "primary_pointer": "1901.06610",
+          "rationale": "This paper is off-domain entirely, focusing on natural language processing (document classification) rather than chemistry or polymer degradation, and does not utilize Graph Neural Networks for molecular property prediction. It shares only the broad keyword \"neural networks\" without any connection to the user's specific mechanism, domain, or variables.",
+          "title": "Hierarchical Attentional Hybrid Neural Networks for Document Classification"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-13T04:33:13Z",
+    "term_input": {
+      "normalized": "predicting polymer degradation pathways with graph neural networks chemistry",
+      "raw": "Predicting Polymer Degradation Pathways with Graph Neural Networks chemistry"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Artificial Intelligence and Machine learning have been widely used in various fields of mathematical computing, physical modeling, computational science, communication science, and stochastic analysis. Approaches based on Deep Artificial Neural Networks (DANN) are very popular in our days. Depending on the learning task, the exact form of DANNs is determined via their multi-layer architecture, activation functions and the so-called loss function. However, for a majority of deep learning approaches based on DANNs, the kernel structure of neural signal processing remains the same, where the node response is encoded as a linear superposition of neural activity, while the non-linearity is triggered by the activation functions. In the current paper, we suggest to analyze the neural signal processing in DANNs from the point of view of homogeneous chaos theory as known from polynomial chaos expansion (PCE). From the PCE perspective, the (linear) response on each node of a DANN could be seen as a $1^{st}$ degree multi-variate polynomial of single neurons from the previous layer, i.e. linear weighted sum of monomials. From this point of view, the conventional DANN structure relies implicitly (but erroneously) on a Gaussian distribution of neural signals. Additionally, this view revels that by design DANNs do not necessarily fulfill any orthogonality or orthonormality condition for a majority of data-driven applications. Therefore, the prevailing handling of neural signals in DANNs could lead to redundant representation as any neural signal could contain some partial information from other neural signals. To tackle that challenge, we suggest to employ the data-driven generalization of PCE theory known as arbitrary polynomial chaos (aPC) to construct a corresponding multi-variate orthonormal representations on each node of a DANN to obtain Deep arbitrary polynomial chaos neural networks.",
+          "claimed_authors": [
+            "Sergey Oladyshkin",
+            "Timothy Praditia",
+            "Ilja Kröker",
+            "Farid Mohammadi",
+            "Wolfgang Nowak",
+            "Sebastian Otte"
+          ],
+          "claimed_title": "The Deep Arbitrary Polynomial Chaos Neural Network or how Deep Artificial Neural Networks could benefit from Data-Driven Homogeneous Chaos Theory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.14753"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Predicting Polymer Degradation Pathways with Graph Neural Networks chemistry', candidate_title='The Deep Arbitrary Polynomial Chaos Neural Network or how Deep Artificial Neural Networks could benefit from Data-Driven Homogeneous Chaos Theory')",
+        "failed_at": "2026-06-13T04:35:32Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Providing a model that achieves a strong predictive performance and is simultaneously interpretable by humans is one of the most difficult challenges in machine learning research due to the conflicting nature of these two objectives. To address this challenge, we propose a modification of the radial basis function neural network model by equipping its Gaussian kernel with a learnable precision matrix. We show that precious information is contained in the spectrum of the precision matrix that can be extracted once the training of the model is completed. In particular, the eigenvectors explain the directions of maximum sensitivity of the model revealing the active subspace and suggesting potential applications for supervised dimensionality reduction. At the same time, the eigenvectors highlight the relationship in terms of absolute variation between the input and the latent variables, thereby allowing us to extract a ranking of the input variables based on their importance to the prediction task enhancing the model interpretability. We conducted numerical experiments for regression, classification, and feature selection tasks, comparing our model against popular machine learning models, the state-of-the-art deep learning-based embedding feature selection techniques, and a transformer model for tabular data. Our results demonstrate that the proposed model does not only yield an attractive prediction performance compared to the competitors but also provides meaningful and interpretable results that potentially could assist the decision-making process in real-world applications. A PyTorch implementation of the model is available on GitHub at the following link. https://github.com/dannyzx/Gaussian-RBFNN",
+          "claimed_authors": [
+            "Danny D'Agostino",
+            "Ilija Ilievski",
+            "Christine Annette Shoemaker"
+          ],
+          "claimed_title": "Learning Active Subspaces and Discovering Important Features with Gaussian Radial Basis Functions Neural Networks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2307.05639"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Predicting Polymer Degradation Pathways with Graph Neural Networks chemistry', candidate_title='Learning Active Subspaces and Discovering Important Features with Gaussian Radial Basis Functions Neural Networks')",
+        "failed_at": "2026-06-13T04:35:33Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "It has long been known for elastomers that the velocity of crack propagation jumps as a function of strain. On the other hand, such a jump has not been reported in the literature for polymers which do not exhibit a rubbery plateau in the storage-modulus plot. Here, we report observation of jumps in crack propagation for semi-crystalline polymer sheets without the rubbery plateau, as a result of pulling the sheets at a constant speed. We discuss the advantages of this crack-propagation test under constant-speed stretching and provide physical interpretation of the velocity jump observed for non-elastomer sheets on the basis of a recently proposed theory for the velocity jump in crack propagation.",
+          "claimed_authors": [
+            "Takako Tomizawa",
+            "Ko Okumura"
+          ],
+          "claimed_title": "Velocity jump in the crack propagation induced on a semi-crystalline polymer sheet by constant-speed stretching",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1904.03250"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting Polymer Degradation Pathways with Graph Neural Networks chemistry', candidate_title='Velocity jump in the crack propagation induced on a semi-crystalline polymer sheet by constant-speed stretching')",
+        "failed_at": "2026-06-13T04:35:33Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The present study deals with oxidation behavior under residual stress of shot-peened plates of \"commercially pure\" zirconium exposed for 30 min at 650 C. The influence of the shot-peening on a pre-oxidized material is presented. The results have been used to determine the influences of these chemical (preoxidation) and mechanical (shot-peening) treatments on the high temperature oxidation of zirconium. The oxygen profile was revealed using micro-hardness techniques and confirmed by SEM-EDS techniques. After pre-oxidation the samples were first resurfaced then shot-peened in order to introduce residual stress. A significant increase of the hardness of about 400 HV was observed on pre-oxidized shot-peened samples. Thermogravimetric analysis for 30 min at 650 C under 200 mbar O2 showed a significantly slower oxidation rate for shot-peened samples. A comparison with our computations points out the role of the residual stresses on the diffusion and, consequently, on the oxidation.",
+          "claimed_authors": [
+            "Laura Raceanu",
+            "Virgil Optasanu",
+            "Tony Montesin",
+            "Guillaume Montay",
+            "Manuel Francois"
+          ],
+          "claimed_title": "Shot-Peening of Pre-Oxidized Plates of Zirconium: Influence of Residual Stress on Oxidation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1301.1635"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Polymer Degradation Pathways with Graph Neural Networks chemistry', candidate_title='Shot-Peening of Pre-Oxidized Plates of Zirconium: Influence of Residual Stress on Oxidation')",
+        "failed_at": "2026-06-13T04:35:34Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this work cotton and polyester fabric were coated with silica nano particles using pad-dry-cure method. The prepared composite fabrics were analyzed in terms of change in their thermal degradation properties. The oxidative degradation characteristic of control and treated samples were studied using Thermo Gravimetric technique. The mass loss profile of untreated fabric compared with treated fabric. The results indicate that the thermal degradation rate was lower in treated sample as compare to control fabrics.",
+          "claimed_authors": [
+            "S. B. Chaudhari",
+            "P. N. Patel",
+            "A. A. Mandot",
+            "B. H. Patel"
+          ],
+          "claimed_title": "Studies on thermal degradation behavior of nano silica loaded cotton and polyester fabrics",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1706.04777"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting Polymer Degradation Pathways with Graph Neural Networks chemistry', candidate_title='Studies on thermal degradation behavior of nano silica loaded cotton and polyester fabrics')",
+        "failed_at": "2026-06-13T04:35:34Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Poly-L-lactide (PLLA) is a popular choice for medical devices due to its bioresorbability and superior mechanical properties compared with other polymers. However, although PLLA has been investigated for use in bioresorbable cardiovascular stents, it presents application-specific limitations which hamper device therapies. These include low toughness and strength compared with metals used for this purpose, and slow degradation. Blending PLLA with novel polyethylene glycol functionalised poly(L-lactide-co-$\\varepsilon$-caprolactone) (PLCL-PEG) materials has been investigated here to tailor the mechanical properties and degradation behaviour of PLLA. This exciting approach provides a foundation for a next generation of bioresorbable materials whose properties can be rapidly tuned. The degradation of PLLA was significantly accelerated by addition of PLCL-PEG. After 30 days of degradation, several structural changes were observed in the polymer blends, which were dependent on the level of PLCL-PEG addition. Blends with low PLCL-PEG content displayed enthalpy relaxation, resulting in embrittlement, while blends with high PLCL-PEG content displayed crystallisation, due to enhanced chain mobility brought on by chain scission, also causing embrittlement. Moderate PLCL-PEG additions (10% PLCL(70:30)-PEG and 20 - 30% PLCL(80:20)-PEG) stabilised the structure, reducing the extent of enthalpy relaxation and crystallisation and thus retaining ductility. Compositional optimisation identified a sweet spot for this blend strategy, whereby the ductility was enhanced while maintaining strength. Our results indicate that blending PLLA with PLCL-PEG provides an effective method of tuning the degradation timescale and mechanical properties of PLLA, and provides important new insight into the mechanisms of structural relaxations that occur during degradation, and strategies for regulating these.",
+          "claimed_authors": [
+            "Reece N. Oosterbeek",
+            "Kyung-Ah Kwon",
+            "Patrick Duffy",
+            "Sean McMahon",
+            "Xiang C. Zhang",
+            "Serena M. Best",
+            "Ruth E. Cameron"
+          ],
+          "claimed_title": "Tuning structural relaxations, mechanical properties, and degradation timescale of PLLA during hydrolytic degradation by blending with PLCL-PEG",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2009.05768"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Predicting Polymer Degradation Pathways with Graph Neural Networks chemistry', candidate_title='Tuning structural relaxations, mechanical properties, and degradation timescale of PLLA during hydrolytic degradation by blending with PLCL-PEG')",
+        "failed_at": "2026-06-13T04:35:34Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This chapter is a preprint from our book by , focusing on leveraging machine learning (ML) in chemical and polyolefin manufacturing optimization. It's crafted for both novices and seasoned professionals keen on the latest ML applications in chemical processes. We trace the evolution of AI and ML in chemical industries, delineate core ML components, and provide resources for ML beginners. A detailed discussion on various ML methods is presented, covering regression, classification, and unsupervised learning techniques, with performance metrics and examples. Ensemble methods, deep learning networks, including MLP, DNNs, RNNs, CNNs, and transformers, are explored for their growing role in chemical applications. Practical workshops guide readers through predictive modeling using advanced ML algorithms. The chapter culminates with insights into science-guided ML, advocating for a hybrid approach that enhances model accuracy. The extensive bibliography offers resources for further research and practical implementation. This chapter aims to be a thorough primer on ML's practical application in chemical engineering, particularly for polyolefin production, and sets the stage for continued learning in subsequent chapters. Please cite the original work [169,170] when referencing.",
+          "claimed_authors": [
+            "Niket Sharma",
+            "Y. A. Liu"
+          ],
+          "claimed_title": "Applications of Machine Learning to Optimizing Polyolefin Manufacturing",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2401.09753"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting Polymer Degradation Pathways with Graph Neural Networks chemistry', candidate_title='Applications of Machine Learning to Optimizing Polyolefin Manufacturing')",
+        "failed_at": "2026-06-13T04:35:34Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper we present the concept of MPF, Message Passing Fluid, an abstract fluid where the molecules move by mean of the informations that they exchange each other, on the basis of rules and methods of a generalized Cellular Automaton. The model is intended for its simulation by mean of message passing libraries on the field of parallel computing. We present a critical analysis of the necessary computational effort in a possible implementation of such an object.",
+          "claimed_authors": [
+            "Gianluca Argentini"
+          ],
+          "claimed_title": "Message Passing Fluids: molecules as processes in parallel computational fluids",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2003,
+          "primary_pointer": "physics/0304041"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Polymer Degradation Pathways with Graph Neural Networks chemistry', candidate_title='Message Passing Fluids: molecules as processes in parallel computational fluids')",
+        "failed_at": "2026-06-13T04:35:34Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Graphical models use the intuitive and well-studied methods of graph theory to implicitly represent dependencies between variables in large systems. They can model the global behaviour of a complex system by specifying only local factors. This thesis studies inference in discrete graphical models from an algebraic perspective and the ways inference can be used to express and approximate NP-hard combinatorial problems.\n  We investigate the complexity and reducibility of various inference problems, in part by organizing them in an inference hierarchy. We then investigate tractable approximations for a subset of these problems using distributive law in the form of message passing. The quality of the resulting message passing procedure, called Belief Propagation (BP), depends on the influence of loops in the graphical model. We contribute to three classes of approximations that improve BP for loopy graphs A) loop correction techniques; B) survey propagation, another message passing technique that surpasses BP in some settings; and C) hybrid methods that interpolate between deterministic message passing and Markov Chain Monte Carlo inference.\n  We then review the existing message passing solutions and provide novel graphical models and inference techniques for combinatorial problems under three broad classes: A) constraint satisfaction problems such as satisfiability, coloring, packing, set / clique-cover and dominating / independent set and their optimization counterparts; B) clustering problems such as hierarchical clustering, K-median, K-clustering, K-center and modularity optimization; C) problems over permutations including assignment, graph morphisms and alignment, finding symmetries and traveling salesman problem. In many cases we show that message passing is able to find solutions that are either near optimal or favourably compare with today's state-of-the-art approaches.",
+          "claimed_authors": [
+            "Siamak Ravanbakhsh"
+          ],
+          "claimed_title": "Message Passing and Combinatorial Optimization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2015,
+          "primary_pointer": "1508.05013"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting Polymer Degradation Pathways with Graph Neural Networks chemistry', candidate_title='Message Passing and Combinatorial Optimization')",
+        "failed_at": "2026-06-13T04:35:34Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Random Neural Networks (RNNs) are a class of Neural Networks (NNs) that can also be seen as a specific type of queuing network. They have been successfully used in several domains during the last 25 years, as queuing networks to analyze the performance of resource sharing in many engineering areas, as learning tools and in combinatorial optimization, where they are seen as neural systems, and also as models of neurological aspects of living beings. In this article we focus on their learning capabilities, and more specifically, we present a practical guide for using the RNN to solve supervised learning problems. We give a general description of these models using almost indistinctly the terminology of Queuing Theory and the neural one. We present the standard learning procedures used by RNNs, adapted from similar well-established improvements in the standard NN field. We describe in particular a set of learning algorithms covering techniques based on the use of first order and, then, of second order derivatives. We also discuss some issues related to these objects and present new perspectives about their use in supervised learning problems. The tutorial describes their most relevant applications, and also provides a large bibliography.",
+          "claimed_authors": [
+            "Sebastián Basterrech",
+            "Gerardo Rubino"
+          ],
+          "claimed_title": "A Tutorial about Random Neural Networks in Supervised Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1609.04846"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Predicting Polymer Degradation Pathways with Graph Neural Networks chemistry', candidate_title='A Tutorial about Random Neural Networks in Supervised Learning')",
+        "failed_at": "2026-06-13T04:35:34Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We describe the Dark Energy Survey (DES), a proposed optical-near infrared survey of 5000 sq. deg of the South Galactic Cap to ~24th magnitude in SDSS griz, that would use a new 3 sq. deg CCD camera to be mounted on the Blanco 4-m telescope at Cerro Telolo Inter-American Observatory (CTIO). The survey data will allow us to measure the dark energy and dark matter densities and the dark energy equation of state through four independent methods: galaxy clusters, weak gravitational lensing tomography, galaxy angular clustering, and supernova distances. These methods are doubly complementary: they constrain different combinations of cosmological model parameters and are subject to different systematic errors. By deriving the four sets of measurements from the same data set with a common analysis framework, we will obtain important cross checks of the systematic errors and thereby make a substantial and robust advance in the precision of dark energy measurements.",
+          "claimed_authors": [
+            " The Dark Energy Survey Collaboration"
+          ],
+          "claimed_title": "The Dark Energy Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2005,
+          "primary_pointer": "astro-ph/0510346"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Polymer Degradation Pathways with Graph Neural Networks chemistry', candidate_title='The Dark Energy Survey')",
+        "failed_at": "2026-06-13T04:35:34Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Polymer Degradation Pathways with Graph Neural Networks chemistry', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-06-13T04:35:34Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper gives an overview of the proposed Gemini/Subaru Wide-Field Multi-Object Spectrograph (WFMOS) and the proposed redshift surveys of 2.6 million galaxies with 0.5<z<3.3 over 2000 deg^2 of sky. These surveys will probe the baryonic acoustic oscillations in the galaxy power spectrum with unprecedented precision and over a range of redshifts and deliver dark energy w(z) constraints an order of magnitude better than current limits. We discuss the requirements on precursor observations and on calibrations, the systematics in the method and the quantitative precision obtainaible in distance-redshift and expansion-rate-redshift measurements which feed in to the w(z) precision. We also outline the technological and scientific strengths and risks which might be associated with the project and the relationship of WFMOS to other baryon oscillation experiments.",
+          "claimed_authors": [
+            "Karl Glazebrook",
+            "Daniel Eisenstein",
+            "Arjun Dey",
+            "Bob Nichol",
+            "The WFMOS Feasibility Study Dark Energy Team"
+          ],
+          "claimed_title": "Dark Energy and Cosmic Sound: w(z) Surveys with the Gemini/Subaru Wide-Field Multi-Object Spectrograph",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2005,
+          "primary_pointer": "astro-ph/0507457"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Polymer Degradation Pathways with Graph Neural Networks chemistry', candidate_title='Dark Energy and Cosmic Sound: w(z) Surveys with the Gemini/Subaru Wide-Field Multi-Object Spectrograph')",
+        "failed_at": "2026-06-13T04:35:34Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The optimal dimensional synthesis for planar mechanisms using differential evolution (DE) is demonstrated. Four examples are included: in the first case, the synthesis of a mechanism for hybrid-tasks, considering path generation, function generation, and motion generation, is carried out. The second and third cases pertain to path generation, with and without prescribed timing. Finally, the synthesis of an Ackerman mechanism is reported. Order defect problem is solved by manipulating individuals instead of penalizing or discretizing the search space for the parameters. A technique that consists in applying a transformation in order to satisfy the Grashof and crank conditions to generate an initial elitist population is introduced. As a result, the evolutionary algorithm increases its efficiency.",
+          "claimed_authors": [
+            "F. Penunuri",
+            "R. Peon-Escalante",
+            "C. Villanueva",
+            "D. Pech-Oy"
+          ],
+          "claimed_title": "Synthesis of Mechanism for single- and hybrid-tasks using Differential Evolution",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1102.2017"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Polymer Degradation Pathways with Graph Neural Networks chemistry', candidate_title='Synthesis of Mechanism for single- and hybrid-tasks using Differential Evolution')",
+        "failed_at": "2026-06-13T04:35:34Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Takato Ishida",
+            "Yuya Doi",
+            "Takashi Uneyama",
+            "Yuichi Masubuchi"
+          ],
+          "title": "Modeling for heterogeneous oxidative aging of polymers using coarse-grained molecular dynamics",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2308.12620",
+        "summary": "This study presents a coarse-grained molecular dynamics simulation model to investigate the process of oxidative aging in polymers. The chemical aging effect is attributed to the auto-oxidation mechanism, which is initiated by radicals, leading to the chain scission and crosslinking of polymer chains. In this study, we integrate a thermal oxidation kinetic model in the oxygen excess regime into the Kremer-Grest model, thereby enabling a reactive coarse-grained molecular dynamics simulation to capture the process of oxidative degradation. Our simulation reveals that when the timescale of the characteristic reaction step of oxidative degradation is shorter than the longest relaxation time of polymer chains, the scission sites exhibit spatial heterogeneity. This innovative simulation model possesses the potential to enhance our comprehension of polymer aging phenomena, thus making noteworthy contributions to the realm of polymer science and degradation chemistry.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2308.12620",
+          "http_status": 200,
+          "pdf_sample_score": 0.1841,
+          "query_relevance_score": 0.4286,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-13T04:35:33Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "predicting polymer degradation pathways with graph neural networks chemistry",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}
