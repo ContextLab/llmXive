@@ -1,0 +1,35 @@
+% ─────────────────────────────────────────────────────────────────────────────
+% arXiv dependency anchor for desktop trajectory figures.
+%
+% The figures under figures/desktop/ are rendered indirectly through the
+% \trajactGUI / \trajactFAIL environments (\includegraphics{\trajaIMG}), so the
+% literal path never appears in the source. arXiv's static upload scanner only
+% greps for literal \includegraphics{<path>} and therefore flags these files as
+% "unused" and offers to delete them — which then breaks compilation.
+%
+% The box below lists every desktop figure with its literal path so the scanner
+% registers them as used. It is measured into a discarded \hbox and produces no
+% visible output. DO NOT remove, and keep this list in sync with figures/desktop/.
+% ─────────────────────────────────────────────────────────────────────────────
+\begingroup
+\setbox0=\hbox{%
+  \includegraphics[width=1pt]{figures/desktop/E1_dconf_interface.png}%
+  \includegraphics[width=1pt]{figures/desktop/E1_dconf_after.png}%
+  \includegraphics[width=1pt]{figures/desktop/E1_dconf_watch.png}%
+  \includegraphics[width=1pt]{figures/desktop/E1_dconf_verified.png}%
+  \includegraphics[width=1pt]{figures/desktop/E2_iframe_init.png}%
+  \includegraphics[width=1pt]{figures/desktop/E2_iframe_filled.png}%
+  \includegraphics[width=1pt]{figures/desktop/E2_iframe_final.png}%
+  \includegraphics[width=1pt]{figures/desktop/E3_electron_bugemoji.png}%
+  \includegraphics[width=1pt]{figures/desktop/E3_electron_checked.png}%
+  \includegraphics[width=1pt]{figures/desktop/E3_electron_tags.png}%
+  \includegraphics[width=1pt]{figures/desktop/E4_gtkwave_full.png}%
+  \includegraphics[width=1pt]{figures/desktop/E4_gtkwave_zoom.png}%
+  \includegraphics[width=1pt]{figures/desktop/E4_gtkwave_marker_pair.png}%
+  \includegraphics[width=1pt]{figures/desktop/E4_gtkwave_fixed.png}%
+  \includegraphics[width=1pt]{figures/desktop/F_kicad_opus_3d_top.png}%
+  \includegraphics[width=1pt]{figures/desktop/F_kicad_gpt55_3d_top.png}%
+  \includegraphics[width=1pt]{figures/desktop/F_kicad_gpt55_3d_orbit.png}%
+  \includegraphics[width=1pt]{figures/desktop/F_kicad_gemini_fabrication.png}%
+}%
+\endgroup

@@ -1,0 +1,20 @@
+\begin{table}[h]
+\caption{\textbf{Backbones used in the main results.} All six are served through the same vLLM-based~\citep{kwon2023efficient} serving role and evaluated under identical configuration: the same system prompt, tool set, maximum step count, and input preprocessing across every benchmark.}
+\label{tab:backbones}
+\centering
+\setlength{\tabcolsep}{6pt}
+\renewcommand{\arraystretch}{1.15}
+{\small
+\begin{tabular}{lccc}
+\toprule
+\textbf{Backbone} & \textbf{Size} & \textbf{Quantization} & \textbf{Context} \\
+\midrule
+Qwen3.5-397B-A17B~\citep{qwen3.5}        & 397B (17B activated) & GPTQ Int4~\citep{frantar-gptq} & 262K \\
+Qwen3.5-122B-A10B~\citep{qwen3.5}        & 122B (10B activated) & FP8       & 262K \\
+Qwen3.6-35B-A3B~\citep{qwen36_35b_a3b}   & 35B  (3B activated)  & FP8       & 262K \\
+Qwen3.6-27B~\citep{qwen3.6-27b}          & 27B                  & FP8       & 262K \\
+Gemma4-31B~\citep{gemma4}                & 31B                  & FP8       & 256K \\
+Gemma4-26B-A4B~\citep{gemma4}            & 26B  (4B activated)  & FP8       & 256K \\
+\bottomrule
+\end{tabular}}
+\end{table}

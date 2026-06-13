@@ -1,0 +1,113 @@
+% ---------------------------------------------------------------------------
+%  Headline radar charts (page 1).  Per-benchmark comparison on the Gemma4-31B
+%  backbone across 20 spatial reasoning benchmarks, split into two panels by
+%  task category for legibility:
+%     LEFT  (9) : Multi-view + Video & 4D
+%     RIGHT (11): Single-image + General spatial + General video
+%  Each axis is individually rescaled so SpatialClaw (Ours) maps to a constant
+%  radius (the regular green ring); a vertex outside that ring means the method
+%  beats Ours on that benchmark, inside means it trails.
+%
+%  Data sources (Gemma4-31B):
+%    No-tool, Ours          -> Tab. main_results
+%    pySpatial, SpaceTools  -> Tab. comparison_agents
+%  Normalized value = raw * 80 / ours  (Ours therefore == 80 on every axis).
+% ---------------------------------------------------------------------------
+
+% Category colors (axis labels) ------------------------------------------------
+\definecolor{catA}{HTML}{5A9000} % Single-image  (green)
+\definecolor{catB}{HTML}{3068B4} % Multi-view    (blue)
+\definecolor{catC}{HTML}{8C3C8C} % Video & 4D    (magenta)
+\definecolor{catD}{HTML}{B56B1C} % General spatial (orange)
+\definecolor{catE}{HTML}{28828C} % General video (teal)
+% Method colors ----------------------------------------------------------------
+\definecolor{oursLine}{HTML}{5A9000}
+\definecolor{oursFill}{HTML}{76B900}
+\definecolor{stLine}{HTML}{3264B4}
+\definecolor{pyLine}{HTML}{E8821E}
+\definecolor{ntLine}{HTML}{7A7A7A}
+
+% Reusable radar: #1 = number of axes, #2 = data list
+%   each entry: name / category / label-anchor / no-tool / SpaceTools / pySpatial / label-radius
+\newcommand{\spatialradar}[2]{%
+\begin{tikzpicture}[font=\sffamily]
+  \def\Rmax{3.2}\def\sc{0.032}%
+  \pgfmathsetmacro{\step}{360/#1}%
+  \pgfmathtruncatemacro{\Nmm}{#1-1}%
+  \foreach \v in {20,40,60,80,100}{\pgfmathsetmacro{\rr}{\v*\sc}\draw[gray!28,line width=0.3pt] (0,0) circle (\rr);}%
+  \foreach \nm/\cat/\anc/\nt/\st/\py/\lr [count=\i from 0] in {#2}{%
+    \pgfmathsetmacro{\ang}{90-\step*\i}%
+    \pgfmathsetmacro{\rnt}{\nt*\sc}\pgfmathsetmacro{\rst}{\st*\sc}\pgfmathsetmacro{\rpy}{\py*\sc}%
+    \draw[gray!22,line width=0.3pt] (0,0) -- (\ang:\Rmax);%
+    \coordinate (O\i) at (\ang:2.56);\coordinate (N\i) at (\ang:\rnt);%
+    \coordinate (S\i) at (\ang:\rst);\coordinate (P\i) at (\ang:\rpy);%
+    \node[anchor=\anc,text=\cat,inner sep=1.3pt,font=\scriptsize] at (\ang:\lr) {\nm};%
+  }%
+  \fill[oursFill,fill opacity=0.18] (O0) \foreach \i in {1,...,\Nmm}{ -- (O\i)} -- cycle;%
+  \draw[ntLine,line width=0.8pt,dash pattern=on 3pt off 2pt,opacity=0.9] (N0) \foreach \i in {1,...,\Nmm}{ -- (N\i)} -- cycle;%
+  \draw[pyLine,line width=1.0pt] (P0) \foreach \i in {1,...,\Nmm}{ -- (P\i)} -- cycle;%
+  \draw[stLine,line width=1.0pt] (S0) \foreach \i in {1,...,\Nmm}{ -- (S\i)} -- cycle;%
+  \draw[oursLine,line width=1.7pt] (O0) \foreach \i in {1,...,\Nmm}{ -- (O\i)} -- cycle;%
+  \foreach \i in {0,...,\Nmm}{\fill[ntLine] (N\i) circle (1.0pt);\fill[pyLine] (P\i) circle (1.1pt);\fill[stLine] (S\i) circle (1.1pt);}%
+  \foreach \i in {0,...,\Nmm}{\fill[oursFill] (O\i) circle (1.5pt);\draw[oursLine,line width=0.5pt] (O\i) circle (1.5pt);}%
+\end{tikzpicture}}
+
+\begin{figure}[H]
+\centering
+{\footnotesize
+\tikz\fill[catB] (0,0) rectangle (0.2,0.2);~Multi-view\quad
+\tikz\fill[catC] (0,0) rectangle (0.2,0.2);~Video \& 4D\quad
+\tikz\fill[catA] (0,0) rectangle (0.2,0.2);~Single-image\quad
+\tikz\fill[catD] (0,0) rectangle (0.2,0.2);~General spatial\quad
+\tikz\fill[catE] (0,0) rectangle (0.2,0.2);~General video}\par
+\vspace{5pt}
+% ---- LEFT panel: Multi-view + Video & 4D (9) ----
+\begin{minipage}[c]{0.46\linewidth}
+\centering
+\resizebox{\linewidth}{!}{\spatialradar{9}{%
+  MindCube/catB/{south}/63.19/58.13/73.74/3.42,
+  MMSI/catB/{south west}/59.10/51.62/51.77/3.42,
+  SPAR-Bench/catB/{west}/69.76/68.12/65.34/3.42,
+  MMSI-Video/catC/{north west}/70.96/70.38/55.19/3.42,
+  OSI-Bench/catC/{north}/67.97/57.66/61.10/3.42,
+  PAI-Bench/catC/{north}/76.36/76.48/54.04/3.42,
+  VSI-Bench-U/catC/{north east}/79.18/55.42/73.24/3.42,
+  VSTI-Bench/catC/{east}/64.73/66.27/65.09/3.42,
+  DSI-Bench/catC/{south east}/57.62/54.69/55.58/3.42%
+}}\\[2pt]
+{\footnotesize\textbf{Multi-view \& Video/4D} \textcolor{ntLine}{(9)}}
+\end{minipage}%
+\hspace{0.035\linewidth}%
+% ---- RIGHT panel: Single-image + General spatial + General video (11) ----
+\begin{minipage}[c]{0.46\linewidth}
+\centering
+\resizebox{\linewidth}{!}{\spatialradar{11}{%
+  ERQA/catA/{south}/76.09/67.86/66.30/3.42,
+  Omni3D/catA/{south west}/76.17/74.70/74.55/3.42,
+  OmniSpatial/catA/{south west}/72.08/75.97/72.96/3.42,
+  SPBench/catA/{west}/64.44/52.75/62.57/3.42,
+  BLINK/catD/{north west}/82.51/63.43/65.72/3.42,
+  SpatialTree/catD/{north}/78.95/69.46/71.04/3.42,
+  ViewSpatial/catD/{north}/68.70/69.24/66.31/3.42,
+  CV-Bench/catE/{north east}/77.34/51.86/75.01/3.42,
+  PerceptComp/catE/{east}/66.91/70.18/67.45/3.42,
+  Video-MME/catE/{south east}/77.71/77.51/52.26/3.42,
+  Video-MME-v2/catE/{south east}/73.33/67.39/41.44/3.42%
+}}\\[2pt]
+{\footnotesize\textbf{Single-image \& General} \textcolor{ntLine}{(11)}}
+\end{minipage}
+
+\vspace{4pt}
+{\footnotesize
+\raisebox{1.5pt}{\tikz{\draw[oursLine,line width=1.7pt] (0,0) -- (0.32,0);}}~\textbf{\ours{}}\quad
+\raisebox{1.5pt}{\tikz{\draw[stLine,line width=1.0pt] (0,0) -- (0.32,0);}}~SpaceTools\quad
+\raisebox{1.5pt}{\tikz{\draw[pyLine,line width=1.0pt] (0,0) -- (0.32,0);}}~pySpatial\quad
+\raisebox{1.5pt}{\tikz{\draw[ntLine,line width=0.8pt,dash pattern=on 3pt off 2pt] (0,0) -- (0.32,0);}}~No-tool}
+\caption{\textbf{\ours{} improves spatial reasoning across the board.}
+Per-benchmark accuracy on \textbf{20 spatial reasoning benchmarks} (Gemma\,4-31B
+backbone), split into two panels by task category. Each axis is individually
+rescaled so \ours{} traces the constant-radius ring. Baselines are
+SpaceTools-Toolshed~\citep{chen2025spacetools}, pySpatial~\citep{luo2026pyspatial}, and a no-tool backbone.}
+\label{fig:radar}
+\end{figure}
+\vspace{-8.5mm}

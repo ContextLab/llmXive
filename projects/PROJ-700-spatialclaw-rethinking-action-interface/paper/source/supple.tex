@@ -1,0 +1,508 @@
+\clearpage
+\appendix
+
+\section*{Supplementary Material}
+\addcontentsline{toc}{section}{Supplementary Material}
+
+\lstdefinestyle{promptStyle}{%
+  basicstyle=\ttfamily\scriptsize,
+  showstringspaces=false,
+  breaklines=true,
+  breakatwhitespace=false,
+  breakindent=0pt,
+  columns=fullflexible,
+  upquote=true,
+  aboveskip=4pt,
+  belowskip=2pt,
+  frame=single,
+  framerule=0.4pt,
+  framesep=4pt,
+  backgroundcolor=\color{gray!5},
+  linewidth=\linewidth,
+  resetmargins=true,
+}
+
+\begingroup
+\noindent
+\vspace{0.6em}
+
+\etocdepthtag.toc{appendix}
+\etocsettagdepth{mainpaper}{none}
+\etocsettagdepth{appendix}{subsection}
+\etocsetnexttocdepth{subsection}
+\etocsetstyle{section}
+  {\setlength{\parindent}{0pt}\setlength{\parskip}{1pt}}
+  {}
+  {\noindent\makebox[1.6em][l]{\bfseries\etocnumber}\bfseries\etocname\dotfill\etocpage\par}
+  {}
+\etocsetstyle{subsection}
+  {}
+  {}
+  {\noindent\hspace*{1.6em}{\normalfont\makebox[2.0em][l]{\etocnumber}\etocname}\dotfill\etocpage\par}
+  {}
+\etocsettocstyle{\noindent{\large\bfseries Contents}\par\vspace{0.3em}}{}
+{\small\tableofcontents}
+\endgroup
+\clearpage
+
+\input{sections/2_related_works}
+
+
+
+
+
+
+
+
+
+\section{Evaluation Protocol}
+\label{app:benchmarks}
+
+We evaluate \ours{} on the 20 spatial reasoning benchmarks reported in the main results, organized into five categories: single-image spatial reasoning (ERQA~\citep{team2025gemini}, Omni3D~\citep{marsili2025visual}, OmniSpatial~\citep{jia2025omnispatial}, SPBench~\citep{xu2025spbench}), multi-view spatial reasoning (MindCube~\citep{yin2025mindcube}, MMSI~\citep{yang2025mmsi}, SPAR-Bench~\citep{zhang2025from}), video spatial \& 4D reasoning (MMSI-Video~\citep{lin2025mmsivideo}, OSI-Bench~\citep{wu2025osibench}, PAI-Bench~\citep{zhou2025paibench}, VSI-Bench-U~\citep{brown2025shortcuts}, VSTI-Bench~\citep{fan2025vlm}, DSI-Bench~\citep{zhang2025dsibench}), general spatial reasoning (BLINK~\citep{fu2024blink}, SpatialTree~\citep{xiao2025spatialtree}, ViewSpatial~\citep{li2025viewspatial}), and general video understanding (CV-Bench~\citep{zhu2025cvbench}, PerceptComp~\citep{li2026perceptioncomp}, Video-MME~\citep{fu2025video}, Video-MME-v2~\citep{videommev2_2026}). 
+Table~\ref{tab:benchmark_metrics} reports the per-sample scoring metric applied to each benchmark.
+
+\input{supple/tables/benchmark_metrics}
+
+We apply a consistent per-sample scoring protocol across all benchmarks, using the same metric family while respecting each benchmark's original threshold settings. Categorical questions, including multiple-choice and binary questions, receive a score of $1$ when the predicted answer matches the reference and $0$ otherwise. Numerical questions are scored with mean relative accuracy (MRA)~\citep{yang2024think}, where the acceptance threshold follows each benchmark's originating implementation. SPAR-Bench's view-change-inference task uses VCI, defined as MRA averaged over its five movement axes. The reported number for each benchmark is the unweighted mean of the per-sample scores.
+
+For benchmarks with more than $1,000$ samples, we evaluate a randomly chosen subset of $1,000$ samples drawn with a fixed seed; the same subset is reproduced by running the supplementary code with the same seed.
+
+\clearpage
+\section{Additional Analysis}
+\finding{Composition is the main driver of \ours{}'s gains over structured tool-call. (Fig.~\ref{fig:caa-overview})}{}
+
+\begin{wrapfigure}{r}{0.5\textwidth}
+\centering
+\includegraphics[width=\linewidth]{figures/pdf/win_attribution_breakdown.pdf}
+\caption{\textbf{Attribution of \ours{}'s wins over structured tool-call via LLM-as-judge.} Over half of the gains are driven by \emph{code composition}, 19.5\% by \emph{control flow}, and 28.3\% are \emph{interface-neutral} wins on perceptual tasks unaffected by the action interface.}
+\label{fig:caa-overview}
+\end{wrapfigure}
+
+To identify the main driver of \ours{}'s gains over structured tool-call baseline, we examine the instances where \ours{} answers correctly but structured tool-call fails (Figure~\ref{fig:caa-overview}).
+For each such instance, we provide an LLM judge (Gemini-3.1-Pro~\citep{team2023gemini}) with the full reasoning traces of both systems, the ground-truth answer, and the input images, and ask it to assign a binary label to each predefined attribution category; instances in which all categories receive a negative label are classified as \emph{interface-neutral}. 
+
+We find that over 50\% of the instances are attributed to \emph{code composition} (i.e., chaining multiple tool calls into a single coherent program), while 19.5\% are attributed to \emph{control flow} (e.g., \texttt{if} or \texttt{for} statements that conditionally branch or iterate over intermediate results). 
+The remaining 28.3\% are \emph{interface-neutral} wins, in which the correct answer depends on visual recognition or luck rather than the agent's action space, and either interface would have been equally capable. 
+This is further causally supported by Tab.~\ref{tab:ablation}, which shows that performance degradation is minimal even when predefined utility functions are removed and replaced with on-the-fly numerical computation.
+
+
+\finding{Geometric reasoning errors constitute a leading failure mode, with perception errors driven by VLM hallucinations and tool limitations as a notable secondary contributor.}{}
+
+\begin{wrapfigure}{r}{0.5\textwidth}
+\centering
+\includegraphics[width=\linewidth]{figures/pdf/failure_mode_breakdown.pdf}
+\caption{\textbf{Failure-mode breakdown of incorrect agent sessions.} Each session is classified by an LLM-as-Judge (Gemini-3.1-Pro~\citep{team2023gemini}) into one of 11 fine-grained failure categories.}
+\label{fig:caa-failure}
+\end{wrapfigure}
+
+In Fig.~\ref{fig:caa-failure}, we analyze the agent's failure modes by categorizing $1,000$ incorrect samples with LLM-as-Judge~\citep{zheng2023judging}, using a strong proprietary model (Gemini-3.1-Pro). For each sample, the judge is provided with the agent's full reasoning trace and the ground-truth answer, and assigns each session to one of 11 human-designed fine-grained categories.
+
+On the perception side, the agent frequently attempts visual judgments that exceed the capabilities of its available tools, and its underlying VLM occasionally hallucinates objects, attributes, or spatial relations that are not actually present in the scene. Lower-level perception primitives such as detection and segmentation also produce localized errors that propagate into downstream reasoning. 
+The predominant reasoning failures are geometric in nature, as the agent frequently errs in handling 3D coordinates, distances, angles, or projective relationships, even when the underlying perceptual evidence is sound. 
+Closely related is a class of tool-selection and coverage failures, in which the agent invokes an inappropriate tool or omits a necessary intermediate step.
+We additionally find cases of question misinterpretation, unjustified assumptions about unobserved scene properties, and inconsistencies between the internal computation and the final answer format. 
+Beyond these direct errors, a non-trivial fraction of failures arises from the agent's inability to recover upon detecting an inconsistency, as it either commits to a flawed early hypothesis or oscillates without converging. 
+The remaining residual cases involve ambiguous ground-truth annotations and occasional budget, parsing, or runtime issues, which together account for only a small share of observed failures. 
+
+A promising direction for future work is to apply reinforcement learning to improve tool selection, coding of geometric operations, and error recovery within the agent loop.
+
+\section{Baseline Implementations}
+\label{app:baselines}
+
+\S\ref{sec:interfaces} of the main paper compares the code as the action interface of \ours{} against two baselines, single-pass code and structured tool-calls. To isolate the effect of the interface, both baselines share the agent loop, the persistent kernel, the perception tools, and the planner; only the format of the per-step action differs, along with any adjustment to the per-sample step budget necessitated by the format.
+
+\subsection{Single-Pass Code}
+\label{app:baseline_single_pass}
+The single-pass baseline collapses the multi-step loop to a single iteration. The agent receives the question, the key frames, and the same main-agent system prompt, and must produce one Python cell that calls perception tools, performs any required computation, and submits the answer through \texttt{ReturnAnswer}. Planning is disabled, and the workflow section of the system prompt is replaced by a single-turn variant that informs the agent there will be no further opportunity to act. The agent must therefore commit to a complete strategy before observing any intermediate mask, depth map, plot, or runtime error. When the cell does not reach \texttt{ReturnAnswer}, the same termination fallback used by the code as the action interface variant (\S\ref{app:error_handling}) returns a best-effort answer.
+
+\subsection{Structured Tool-Calls}
+\label{app:baseline_react}
+The structured-tool-call baseline keeps the multi-step loop intact but constrains each step to a single named tool invocation expressed as JSON. The \emph{Code} section of the response envelope is replaced by a \emph{Tool Call} section that contains exactly one object of the form
+\begin{lstlisting}[style=promptStyle]
+{"tool": "tools.SAM3.segment_image_by_text",
+ "args": {"image": "InputImages[0]", "prompt": "red car"}}
+\end{lstlisting}
+The specified tool call is first translated to Python code and then executed on the same kernel used by \ours{}, and its return value is stored in a named variable that later steps can reference. Arguments must be either literal values or references to previously bound names (i.e., the input variables, the tool catalogue, or the outputs of prior steps).
+Arbitrary Python expressions are not allowed, and each step issues exactly one tool call, and intermediate results are accessible only through these named per-step variables.
+
+
+\section{Agent System Design}
+\label{app:system}
+
+\subsection{System Configuration}
+\label{app:topology}
+\ours{} runs on two independently scalable serving roles. The first role hosts the language-model backbone and serves every LLM call the system makes, including the main agent, the planner, and the two isolated visual sessions invoked from inside the kernel (\apicode{vlm.locate} for coordinate grounding and \apicode{vlm.ask_with_thinking} for visual reasoning). The backbone is served via vLLM~\citep{kwon2023efficient}; multiple endpoints are reachable through a single OpenAI-compatible interface, and a session-aware router dispatches each call so that the prefix of the conversation lands on a consistent endpoint, exploiting the prefix cache that vLLM maintains across requests.
+
+The second role hosts the perception models behind a lightweight HTTP service: Depth Anything 3~\citep{depthanything3} for 3D reconstruction and SAM3~\citep{carion2025sam} for segmentation. The kernel-side tools \apicode{tools.Reconstruct} and \apicode{tools.SAM3} are light-weight clients that call this service and convert the results into ordinary numpy arrays before returning to the agent.
+For Depth Anything 3, we use the \texttt{DA3Nested-Giant-Large} variant, which pairs an any-view giant model with a metric depth model to reconstruct visual geometry at real-world metric scale.
+
+This decomposition has two practical consequences. First, the language-model and perception backbones scale independently: the number of LLM nodes and perception nodes can each be tuned to their respective call demand without any changes to the agent code. Second, all LLM roles (agent, planner, grounding, and thinking) share the same backbone pool, so the main conversation and in-kernel visual queries share the same prefix cache and benefit from KV reuse.
+
+\subsection{Input Preprocessing}
+\label{app:input_preprocess}
+All input images are resized such that the long edge does not exceed 768 pixels, preserving the original aspect ratio; this bounds the per-frame token cost. The agent VLM receives at most 32 frames as visual context: for video inputs longer than 32 frames, frames are drawn at uniform temporal intervals to yield 32 key frames; for multi-image inputs, the sequence is truncated to the first 32 images. The persistent kernel retains the full sampled frame sequence, allowing any frame to be revisited via \apicode{show()} or forwarded to a perception tool in subsequent steps. When a sample contains multiple videos, each is maintained as an independent frame sequence, enabling the agent to analyze and compare them independently.
+
+\subsection{Persistent Kernel}
+\label{app:kernel}
+Each example is solved within a dedicated, stateful IPython kernel that persists throughout the entire inference run for that sample. Variables created during one cell (segmentation masks, reconstructions, depth and point arrays, intermediate visualizations, and partial numerical results) remain in scope for every subsequent cell, so the agent can revisit and recompose earlier evidence without re-issuing the underlying tool call. A per-cell wall-clock timeout protects the system from runaway code, and on repeated execution failures the kernel is restarted; when this happens, the input frames, sample metadata, the \texttt{tools} module, the \texttt{feedback} module, and \texttt{ReturnAnswer} are automatically re-injected so the agent resumes against an identical environment.
+
+\subsection{Security Sandbox}
+\label{app:sandbox}
+Code emitted by the LLM is statically analyzed before execution. The analyzer traverses the Abstract Syntax Tree (AST) of each cell to identify and reject unsafe patterns, including file I/O, network access, dynamic-code primitives such as \texttt{exec} and \texttt{eval}, and direct imports of GPU-backend libraries. A complementary regular-expression pass catches patterns that may evade AST traversal, such as method-style writes (\texttt{.save}, \texttt{.to\_csv}). When a cell is rejected, the corresponding error message is delivered to the agent as feedback so it can revise the code within the same step, without adding latency to steps that pass inspection.
+
+\subsection{Per-Frame Type Contract}
+\label{app:per_frame}
+Every frame-indexed perception output is encapsulated in a typed container that records the absolute frame indices to which it corresponds. Composing two such containers (e.g., a per-frame segmentation mask with a per-frame point map) triggers an automatic frame-index alignment check at the composition site; index mismatches raise an immediate exception identifying the offending frames. This mechanism guards against a class of silent semantic errors in which tensors are numerically well-formed but spatially misaligned, such as applying a mask derived from one frame to the point map of another. By surfacing the error at the point of composition, the violation appears directly in the agent's subsequent feedback rather than propagating silently to produce an incorrect final answer.
+
+\subsection{Error Handling}
+\label{app:error_handling}
+Adopting code as the action interface exposes the system to a broader class of runtime failures than a fixed-API interface. \ours{} treats each such failure as an additional observation by routing the resulting exception or traceback directly into the agent's next feedback message, enabling the agent to diagnose and revise its code within the same episode rather than terminating on error.
+
+\paragraph{Response-format errors.}
+If the agent's response cannot be parsed into the four required fields (\emph{Purpose}, \emph{Reasoning}, \emph{Next Goal}, \emph{Code}), the validator records a \emph{format error} for the step. The malformed text is replaced in the conversation with a short placeholder that names the violation, and the agent is reminded to re-read the required format on the next turn. The malformed body is never echoed back, both to keep the context clean and to discourage the agent from imitating it.
+
+\paragraph{Sandbox rejections.}
+Code that the security analyzer rejects (\S\ref{app:sandbox}) is never executed. Instead, the rejection reason (identifying the forbidden module, builtin, or pattern) is returned as the step's error and surfaced to the agent in the next feedback message, exactly as if the code had failed at runtime. The agent therefore retries the same step with revised code rather than escalating.
+
+\paragraph{Cell-execution exceptions.}
+When a cell raises a Python exception, three steps are applied to trim the error output before the failure is forwarded to the agent.
+The following example illustrates the condensed representation that is inserted into the conversation history after a faulting step:
+\begin{lstlisting}[style=promptStyle]
+**Purpose**: Perform 3D reconstruction and extract point clouds for the fireplace and the painting.
+**Reasoning**: [errored -- condensed]
+**Next Goal**: [errored -- condensed]
+**Code**:
+```python
+# 1. 3D Reconstruction
+recon = tools.Reconstruct.Reconstruct(InputImages)
+
+# 2. Extract point clouds
+# Fireplace is in InputImages[1]
+fi_fire = seg_fireplace.frame_indices[0]  # <-- ERROR
+# NameError: name 'seg_fireplace' is not defined
+```
+\end{lstlisting} 
+First, the traceback is truncated to the final exception type, its message, and the offending source line; surrounding interpreter frames that reflect the execution infrastructure rather than the agent's code are discarded. Second, any code appearing after the faulting line is excluded from the context window, since it was never executed and therefore contributes no evidence to the agent's subsequent reasoning. Third, the \emph{Reasoning} and \emph{Next Goal} fields of the failed step are replaced by a condensed summary prior to insertion into the conversation history, preventing a single failure from disproportionately consuming the available context budget.
+
+\paragraph{Cell timeouts.}
+Each cell is subject to a per-cell wall-clock timeout to guard against non-terminating or excessively long-running code. Upon timeout, the kernel's user namespace is cleared and the execution environment is restored by re-injecting the input frames, sample metadata, and the \texttt{tools}, \texttt{feedback}, and \texttt{ReturnAnswer} entry points; the agent receives a timeout notification in its next observation and is expected to revise its code accordingly. If namespace restoration fails, the kernel process is fully restarted and the same re-injection sequence is applied.
+
+\paragraph{Perception-tool retries.}
+Calls to the GPU-backed perception tools may fail transiently due to server restarts or temporary overload. Each \apicode{tools.Reconstruct} or \apicode{tools.SAM3} call is automatically retried up to a fixed number of times, with increasing wait intervals between attempts; each retry also re-selects an available endpoint to route away from an unhealthy server. Only if all retries are exhausted is the error propagated to the agent as a Python exception. Similarly, transient network errors on the language-model side (e.g., connection drops or gateway timeouts) are distinguished from agent-side failures and do not count against the agent's error budget.
+
+\paragraph{Hard budgets and forced termination.}
+The loop carries explicit budgets on the number of LLM steps, the number of consecutive step-level failures, and the cumulative number of tool calls. When any budget is exceeded, the loop hands control to a termination node that is guaranteed to return an answer. The termination node attempts two fallback strategies in order: (i) a chain-of-thought fallback that prompts the VLM backbone to answer directly from the key frames using the same boxed-answer protocol as the no-tool baseline; and (ii) if the chain-of-thought fallback does not yield a parseable answer, a regex-based extraction over the agent's recent messages and variables. The agent therefore always returns a best-effort answer for any sample whose execution started, even when the persistent-kernel path was unable to reach \texttt{ReturnAnswer} on its own.
+
+\subsection{Backbones}
+\label{app:backbones}
+\input{supple/tables/backbones}
+We evaluate \ours{} with the six open-source backbones listed in Table~\ref{tab:backbones}. All six are served through the same vLLM-based serving role described in \S\ref{app:topology}. Crucially, every backbone is evaluated under \emph{identical} configuration: the same system prompt, the same set of perception tools, the same maximum step count, and the same input preprocessing. No prompt template, tool subset, or budget is tuned per benchmark or per backbone.
+
+\section{Prompt Details}
+\label{app:prompts}
+
+\ours{} defines four VLM roles, each with its own system prompt: the main agent that writes code, the planner that produces a plan before any image is observed, and two isolated visual sessions invoked from inside the kernel through \apicode{vlm.locate} (coordinate grounding) and \apicode{vlm.ask_with_thinking} (visual reasoning). The number of calls per role varies per sample: the main agent is queried once per step, the planner is invoked once per sample, and the two kernel-invoked sessions are called as many times as the agent decides. This appendix summarizes what each prompt encodes.
+
+\subsection{Main Agent Prompt}
+\label{app:prompt_main}
+The main agent's system prompt is organized into a fixed sequence of sections, which we describe in order. A short header introduces the role of the agent and names the input variables (\texttt{InputImages} and \texttt{Metadata}).
+
+\paragraph{Response format.}
+The first content section declares the response format: every reply must contain four markdown sections with the headings \emph{Purpose}, \emph{Reasoning}, \emph{Next Goal}, and \emph{Code}, where the code field holds a single Python cell to be executed in the kernel.
+
+\paragraph{Visual access.}
+The two following sections document the visual access surface available inside the kernel. The \apicode{show()} entry displays one or more images inline in the next feedback message, notes that \texttt{matplotlib} figures are auto-captured, and states the per-session image budgets. The \apicode{vlm.locate} entry calls an isolated grounding session that returns coordinates in a 0--1000 normalized scale and accepts up to eight images per call, and the \apicode{vlm.ask_with_thinking} entry calls an isolated reasoning session that returns a textual answer over up to 64 frames. The same section instructs the agent to treat \texttt{Not visible} and \texttt{Cannot determine from the images.}\ as valid responses and not to reassign the \texttt{vlm} or \texttt{feedback} variables.
+
+\paragraph{Available tools.}
+The \emph{Available Tools} section then documents the seven tool namespaces that the kernel exposes, with method signatures, argument types, expected input shapes, and short usage examples for each: \apicode{tools.Reconstruct}, \apicode{tools.SAM3}, \apicode{tools.Graph}, \apicode{tools.Time}, \apicode{tools.Mask}, \apicode{tools.Geometry}, and \apicode{tools.Draw}. The details can be found in \S\ref{app:tools}.
+
+\paragraph{Coordinate systems.}
+The coordinate-system section names four reference frames (pixel space, camera space, world space, and an object-centric frame defined by an object's facing direction), states the technical convention for camera-to-world matrices returned by \apicode{tools.Reconstruct} (4$\times$4 SE(3) matrices in OpenCV convention, with gravity-aligned world axes anchored to the first camera), and gives a code snippet that computes left/right/front/behind classifications by projecting the world-frame vector to a target onto the camera's forward and right axes.
+
+\paragraph{Robust computation.}
+The robust-computation section lists five principles: prefer median over mean for aggregations, compare across multiple frames before drawing conclusions, reason in metric units rather than pixels, sanity-check magnitudes against physical priors, and print numerical values before committing to a conclusion.
+
+\paragraph{Cross-validation.}
+The cross-validation section enumerates four complementary evidence sources (visual perception via \apicode{show()}, geometric computation, visualizations, and logical reasoning) and specifies a five-step diagnostic procedure that the agent follows when two of them disagree.
+
+\paragraph{Kernel-side contract and budget.}
+The remaining sections fix the kernel-side contract and the run-level budget. The \texttt{ReturnAnswer} section documents the single-call API used to submit a final answer and the accepted argument types (\texttt{str}, \texttt{int}, \texttt{float}). The code-rules section lists the modules pre-imported into the kernel, the modules and built-ins forbidden by the security sandbox, and the reserved names that the agent must not reassign (\texttt{feedback}, \texttt{tools}, \texttt{InputImages}, \texttt{Metadata}, \texttt{ReturnAnswer}, \texttt{show}, \texttt{RefImages}). The workflow section instructs the agent to follow the planner's plan and to confirm any spatial conclusion against at least two independent lines of evidence before calling \texttt{ReturnAnswer}, and is followed by a single line stating the per-sample step budget. A final session-input section describes the per-sample input variables, the frame-indexing convention for \texttt{InputImages}, the fields of \texttt{Metadata}, and the key-frame-to-variable mapping; an additional reference-images section is included when the sample contains inline \texttt{[reference image \#N]} tags.
+
+\subsection{Planner Prompt}
+\label{app:prompt_planner}
+The planner is invoked once per sample, before the main agent begins execution. The planner receives the question text, the per-sample metadata (frame count, frame indices, and frame-rate fields), and the system prompt only.
+
+\paragraph{Shared documentation.}
+After a one-paragraph header that declares the planner's role and states that it does not see the actual frames, the prompt repeats the same \emph{Available Tools}, \apicode{show()}, \apicode{vlm.locate}, \apicode{vlm.ask_with_thinking}, and coordinate-system documentation that the main agent receives, and embeds the cross-validation and robust-computation sub-sections from the main agent prompt.
+
+\paragraph{Planning strategy.}
+The planning-strategy section maps question shapes to tool choices: questions about object coordinates point to \apicode{vlm.locate} followed by \apicode{tools.SAM3}; questions about three-dimensional geometry, depth, or camera pose point to \apicode{tools.Reconstruct}; questions answerable by visual judgment point to \apicode{show()}; and questions that require a textual reading over several frames, or a fallback when a specialized tool fails, point to \apicode{vlm.ask_with_thinking}. The same section gives explicit guidance on annotation overlays, on coordinate grounding through 0--1000 normalized pixel coordinates, and on the choice between quantitative computation and qualitative visual reading.
+
+\paragraph{Task structure and rules.}
+The session-input section reports the frame count and the frame-indexing convention and states that the planner cannot see the images, instructing it to plan an investigation rather than answer the question from the question text. The task section asks for six items in the output: a task analysis (including an explicit choice of coordinate system when the question is ambiguous), a list of information needs, an ordered computation plan, a verification checklist, a list of cross-validation steps, and a fallback plan. The critical-rules section states that the planner must respond in plain text only, must not include JSON outside the verification checklist, must not write executable Python code, and must not produce the answer or pre-conclude phrases such as ``the answer is likely \dots'' or ``I expect the answer is \dots''; the planning-strategy section adds that any hypothesis the planner forms from the question is itself what the tools must verify, rather than evidence in its own right.
+
+\subsection{Vision Prompts}
+\label{app:prompt_vision}
+The two isolated visual sessions invoked from the kernel use their own system prompts.
+
+\paragraph{Grounding session (\texttt{vlm.locate}).}
+The grounding session called by \apicode{vlm.locate} specifies a three-step procedure: identify the exact object, annotation, or marker that the question describes; classify the image as PRESENT, ABSENT, or AMBIGUOUS with respect to that description; and answer accordingly. PRESENT cases produce coordinates in the format requested by the calling question. ABSENT and AMBIGUOUS cases reply with the literal string \texttt{Not visible} on its own line, optionally followed by one short clarifying sentence. The prompt includes three worked examples that illustrate each of the three classifications, and ends with a short formatting block stating that coordinates use the 0--1000 normalized scale, that the assistant follows a ``Reply with ONLY the numbers'' instruction when present, and that the same prompt also covers segmentation-overlay assessment and plot-and-chart reading.
+
+\paragraph{Reasoning session (\texttt{vlm.ask\_with\_thinking}).}
+The reasoning session called by \apicode{vlm.ask_with_thinking} specifies five rules: 1) ground every claim in what is directly observable in the supplied images, 2) use any frame indices referenced by the question in the answer, 3) reason carefully across the frames before producing a concise final answer, 4) reply with the literal string \texttt{Cannot determine from the images.}\ together with a one-line note when the supplied frames do not constrain the answer, and 5) treat each call as independent of any prior context.
+
+\section{Tool API Reference}
+\label{app:tools}
+
+This appendix expands the one-paragraph tool description in the main paper into per-tool signatures and behaviors. The first two tools (\apicode{tools.Reconstruct} and \apicode{tools.SAM3}) are thin clients that call the perception serving role described in \S\ref{app:topology}; the remaining tools are pure-Python helper functions that execute in the same process as the kernel.
+
+\subsection{\texttt{tools.Reconstruct}}
+\label{app:tool_reconstruct}
+\apicode{tools.Reconstruct} is a client wrapper for the perception serving role described in \S\ref{app:topology}. Its single entry method calls Depth Anything 3~\citep{depthanything3} on a frame batch and returns a \texttt{Reconstruction} object that exposes per-frame depth, camera intrinsics, camera-to-world extrinsics, a dense per-frame point map in world coordinates, and a top-down rendering helper function. The output coordinate system is gravity-aligned with respect to the first camera: $+Y$ points up, the ground plane sits at $Y \approx 0$, and the first camera looks toward $-Z$. The output spatial resolution matches the input frame resolution, so masks from \apicode{tools.SAM3} can be combined directly with the reconstructed point maps without resizing.
+
+\paragraph{Method.}
+\begin{itemize}[leftmargin=1.5em]
+\item \apicode{Reconstruct(frames, frame_indices=None)}
+  \begin{itemize}
+  \item \emph{Input:} \apicode{frames} is a list of \apicode{FrameImage} or PIL (Python Imaging Library) images, with at most \apicode{reconstruct_max_frames} entries (set to 64 in our experiments). When \apicode{FrameImage} objects are passed, absolute video frame indices are auto-extracted from each frame's \apicode{frame_index} attribute and the \apicode{frame_indices} argument may be omitted.
+  \item \emph{Output:} a \texttt{Reconstruction} object (described below).
+  \end{itemize}
+\end{itemize}
+
+\paragraph{Reconstruction attributes.} The returned object is indexed by absolute frame index, not by position in the input list.
+\begin{itemize}[leftmargin=1.5em]
+\item \apicode{frame_indices}: \texttt{list[int]}, absolute frame indices in the same order as \texttt{frames}.
+\item \texttt{num\_frames}: \texttt{int}; \texttt{metric\_scale}: \texttt{float}.
+\item \texttt{depth[fi]}: \texttt{(H, W) float32} depth map at absolute frame \texttt{fi}.
+\item \texttt{extrinsics[fi]}: \texttt{(4, 4) float64} camera-to-world SE(3) matrix in OpenCV convention.
+\item \texttt{intrinsics[fi]}: dictionary with keys \texttt{fx}, \texttt{fy}, \texttt{cx}, \texttt{cy}.
+\item \texttt{points[fi]}: \texttt{(H, W, 3) float32} dense point map in world coordinates.
+\end{itemize}
+
+\paragraph{render\_bev.}
+\begin{itemize}[leftmargin=1.5em]
+\item \apicode{recon.render_bev(masks=None, labels=None, ref_frame=0, ego_trajectory=True)}
+  \begin{itemize}
+  \item \emph{Input:} \texttt{masks} is a \texttt{PerFrameMask} or an \texttt{(N, $N_{\text{obj}}$, H, W)} boolean array; \texttt{labels} provides per-object names when a raw array is passed; \texttt{ref\_frame} is the absolute frame index of the reference camera; \texttt{ego\_trajectory} toggles drawing of the camera path.
+  \item \emph{Output:} a \texttt{VisualFeedback} that the agent inspects with \apicode{show()}. Stationary objects are annotated with oriented bounding boxes and moving objects with colour-graded trajectory lines.
+  \end{itemize}
+\end{itemize}
+
+\subsection{\texttt{tools.SAM3}}
+\label{app:tool_sam3}
+\apicode{tools.SAM3} is a client wrapper for the perception serving role and exposes single-frame and video-mode segmentation against SAM3~\citep{carion2025sam}, together with an object-existence check. All segmentation methods return a \texttt{PerFrameMask} whose frame indices are absolute video frame indices and align with the indices used by any \texttt{Reconstruction} the agent has built.
+
+\paragraph{Image-mode methods.} Each operates on a single image and returns a \texttt{PerFrameMask} with one frame.
+\begin{itemize}[leftmargin=1.5em]
+\item \apicode{segment_image_by_text(image, prompt, label=None)}
+  \begin{itemize}
+  \item \emph{Input:} \texttt{image} is a PIL image; \texttt{prompt} is a free-form text description.
+  \item \emph{Output:} \texttt{PerFrameMask} with one channel per detected instance.
+  \end{itemize}
+\item \apicode{segment_image_by_points(image, points, point_labels, label="object")}
+  \begin{itemize}
+  \item \emph{Input:} \texttt{points} is a list of \texttt{[x, y]} pixel coordinates and \texttt{point\_labels} is a parallel list with values $1$ (foreground) or $0$ (background).
+  \item \emph{Output:} \texttt{PerFrameMask} for the prompted object.
+  \end{itemize}
+\item \apicode{segment_image_by_box(image, box, label="object")}
+  \begin{itemize}
+  \item \emph{Input:} \texttt{box} is \texttt{[x1, y1, x2, y2]} in pixels (xyxy convention).
+  \item \emph{Output:} \texttt{PerFrameMask} for the boxed object.
+  \end{itemize}
+\end{itemize}
+
+\paragraph{Video-mode methods.} Each propagates the segmentation across the requested frame range, with at most \texttt{sam3\_max\_video\_frames} frames per call. \texttt{start\_frame} and \texttt{end\_frame} are absolute video frame indices that select a temporal window; \texttt{prompt\_frame\_idx} is local to that window; \texttt{video\_index} is 1-indexed and selects the source video in multi-video samples.
+\begin{itemize}[leftmargin=1.5em]
+\item \apicode{segment_video_by_text(prompts, labels=None, prompt_frame_idx=0, start_frame=None, end_frame=None, video_index=1)}
+  \begin{itemize}
+  \item \emph{Input:} \texttt{prompts} is a list of text descriptions, one per object.
+  \item \emph{Output:} \texttt{PerFrameMask} over the selected frame range.
+  \end{itemize}
+\item \apicode{segment_video_by_points(points_per_object, point_labels_per_object, labels, prompt_frame_idx=0, start_frame=None, end_frame=None, video_index=1)}
+  \begin{itemize}
+  \item \emph{Input:} per-object point clicks on the prompt frame, parallel foreground/background labels, and human-readable per-object labels.
+  \item \emph{Output:} \texttt{PerFrameMask} over the selected frame range.
+  \end{itemize}
+\item \apicode{segment_video_by_box(boxes, labels, prompt_frame_idx=0, start_frame=None, end_frame=None, video_index=1)}
+  \begin{itemize}
+  \item \emph{Input:} per-object bounding boxes on the prompt frame and parallel human-readable labels.
+  \item \emph{Output:} \texttt{PerFrameMask} over the selected frame range.
+  \end{itemize}
+\end{itemize}
+
+\paragraph{Object-existence check.}
+\begin{itemize}[leftmargin=1.5em]
+\item \apicode{is_object_exist(images, object_name)}
+  \begin{itemize}
+  \item \emph{Input:} \texttt{images} is a list of PIL images and \texttt{object\_name} is a text description.
+  \item \emph{Output:} a dictionary with keys \texttt{exists} (list of booleans), \texttt{counts} (list of instance counts per image), and \texttt{summary} (a short text summary).
+  \end{itemize}
+\end{itemize}
+
+\paragraph{PerFrameMask object.} The returned object exposes \apicode{frame_indices}, \texttt{labels}, \texttt{num\_frames}, and \texttt{num\_objects}, and supports the following access patterns at absolute frame index \texttt{fi}.
+\begin{itemize}[leftmargin=1.5em]
+\item \texttt{seg.get\_mask(frame=fi, object=k)}: 2D boolean mask of object $k$ (\texttt{k} may be an index or a string label).
+\item \texttt{seg[fi]}: \texttt{($N_{\text{obj}}$, H, W)} boolean stack at frame \texttt{fi}.
+\item \texttt{seg.get\_centroid\_3d(recon, frame=fi, object=k)}: median 3D world position of the masked points, or \texttt{None}.
+\item \texttt{seg.get\_masked\_points(recon, frame=fi, object=k)}: \texttt{(K, 3)} array of masked world points.
+\item \texttt{seg.visualize(fi)}: \texttt{VisualFeedback} overlay for verification with \apicode{show()}.
+\end{itemize}
+
+\subsection{\texttt{tools.Geometry}}
+\label{app:tool_geometry}
+\apicode{tools.Geometry} is a static class that provides the numerical primitives most commonly needed for spatial reasoning over reconstructed scenes. All methods operate on \texttt{numpy} arrays.
+
+\paragraph{Methods.}
+\begin{itemize}[leftmargin=1.5em]
+\item \apicode{euclidean_distance(p1, p2)}
+  \begin{itemize}
+  \item \emph{Input:} two 1D arrays of length~3.
+  \item \emph{Output:} \texttt{float}, the Euclidean distance.
+  \end{itemize}
+\item \apicode{angle_between_vectors(v1, v2)}
+  \begin{itemize}
+  \item \emph{Input:} two 3D vectors.
+  \item \emph{Output:} \texttt{float}, the angle in degrees.
+  \end{itemize}
+\item \apicode{project_point_to_camera(point_3d, c2w, fx, fy, cx, cy)}
+  \begin{itemize}
+  \item \emph{Input:} a 3D world point, a $4 \times 4$ camera-to-world SE(3) matrix, and the four scalar intrinsics.
+  \item \emph{Output:} \texttt{(u, v)} pixel coordinates, or \texttt{None} when the point is behind the camera.
+  \end{itemize}
+\item \apicode{rotation_matrix_from_vectors(v_from, v_to)}
+  \begin{itemize}
+  \item \emph{Input:} two 3D vectors (need not be unit length).
+  \item \emph{Output:} a $3 \times 3$ rotation matrix that aligns \texttt{v\_from} with \texttt{v\_to}.
+  \end{itemize}
+\item \apicode{transform_points(points, matrix)}
+  \begin{itemize}
+  \item \emph{Input:} a \texttt{(..., 3)} array of points and a $4 \times 4$ SE(3) matrix.
+  \item \emph{Output:} a transformed array with the same shape as the input.
+  \end{itemize}
+\item \apicode{fit_ground_plane_ransac(points, confidence, conf_threshold=0.3, n_iterations=1000, inlier_threshold=0.05)}
+  \begin{itemize}
+  \item \emph{Input:} a \texttt{(H, W, 3)} or \texttt{(N, 3)} point cloud and a matching confidence array; thresholds and iteration count are optional.
+  \item \emph{Output:} \texttt{(plane\_normal, inlier\_mask)} via RANSAC~\citep{fischler1981random}, or \texttt{(None, None)} when fitting fails. The sign of \texttt{plane\_normal} is unspecified and is disambiguated by the caller.
+  \end{itemize}
+\item \apicode{normalized_to_pixel(coords, width, height)}
+  \begin{itemize}
+  \item \emph{Input:} a sequence of coordinates in the 0--1000 normalized scale used by \apicode{vlm.locate}, together with the image width and height in pixels.
+  \item \emph{Output:} a \texttt{list[float]} of pixel coordinates.
+  \end{itemize}
+\end{itemize}
+
+\subsection{\texttt{tools.Mask}}
+\label{app:tool_mask}
+\apicode{tools.Mask} is a static class that provides standard mask statistics over the boolean mask arrays returned by \apicode{tools.SAM3}. All inputs are 2D \texttt{numpy} arrays with shape \texttt{(H, W)} unless otherwise noted.
+
+\paragraph{Methods.}
+\begin{itemize}[leftmargin=1.5em]
+\item \texttt{centroid(mask)}
+  \begin{itemize}
+  \item \emph{Input:} a 2D boolean mask.
+  \item \emph{Output:} \texttt{(cx, cy)} pixel coordinates of the median; \texttt{(nan, nan)} when the mask is empty.
+  \end{itemize}
+\item \texttt{centroids(masks)}
+  \begin{itemize}
+  \item \emph{Input:} an \texttt{(N, H, W)} batch of boolean masks.
+  \item \emph{Output:} a list of \texttt{(cx, cy)} centroids, one per element of the batch.
+  \end{itemize}
+\item \texttt{area(mask)}
+  \begin{itemize}
+  \item \emph{Input:} a 2D boolean mask.
+  \item \emph{Output:} \texttt{int}, the number of \texttt{True} pixels.
+  \end{itemize}
+\item \apicode{bounding_box(mask)}
+  \begin{itemize}
+  \item \emph{Input:} a 2D boolean mask.
+  \item \emph{Output:} \texttt{(x1, y1, x2, y2)} in pixels, or \texttt{None} when the mask is empty. For masks with more than 100 \texttt{True} pixels, the box is computed from the 1st and 99th percentiles to discard outliers.
+  \end{itemize}
+\item \texttt{iou(mask\_a, mask\_b)}
+  \begin{itemize}
+  \item \emph{Input:} two boolean masks of identical shape.
+  \item \emph{Output:} \texttt{float}, the intersection over union.
+  \end{itemize}
+\item \texttt{intersection(mask\_a, mask\_b)}
+  \begin{itemize}
+  \item \emph{Input:} two boolean masks of identical shape.
+  \item \emph{Output:} a boolean mask of the same shape, the element-wise AND.
+  \end{itemize}
+\item \apicode{mask_to_bbox(mask)}
+  \begin{itemize}
+  \item \emph{Input:} a 2D boolean mask.
+  \item \emph{Output:} a 4-element \texttt{numpy} array \texttt{[x1, y1, x2, y2]}, or \texttt{None} when the mask is empty.
+  \end{itemize}
+\end{itemize}
+
+\subsection{\texttt{tools.Time}}
+\label{app:tool_time}
+\apicode{tools.Time} is a utility that converts between frame indices and seconds. It is initialized from the input metadata's frame rate and total frame count, and is meaningful only when \texttt{Metadata.is\_video} is true and \texttt{Metadata.fps} is set.
+
+\paragraph{Methods.}
+\begin{itemize}[leftmargin=1.5em]
+\item \apicode{frame_to_seconds(frame_index)}
+  \begin{itemize}
+  \item \emph{Input:} an integer or float frame index.
+  \item \emph{Output:} \texttt{float}, the corresponding time in seconds.
+  \end{itemize}
+\item \apicode{seconds_to_frame(seconds)}
+  \begin{itemize}
+  \item \emph{Input:} a number of seconds.
+  \item \emph{Output:} \texttt{int}, the nearest frame index, clamped to the valid range.
+  \end{itemize}
+\item \apicode{frame_range_to_seconds(start_frame, end_frame)}
+  \begin{itemize}
+  \item \emph{Input:} two frame indices.
+  \item \emph{Output:} \texttt{float}, the duration in seconds between them.
+  \end{itemize}
+\item \apicode{get_frame_at_time(seconds)}: alias for \texttt{seconds\_to\_frame}.
+\end{itemize}
+
+\subsection{\texttt{tools.Graph}}
+\label{app:tool_graph}
+\apicode{tools.Graph} is a utility that wraps \texttt{matplotlib} to produce diagnostic line plots from numerical sequences. The plot is returned as a \texttt{VisualFeedback} that the agent inspects inline with \apicode{show()} and that also carries a short text summary (minimum, maximum, mean, and trend) accessible as \texttt{chart.description}.
+
+\paragraph{Method.}
+\begin{itemize}[leftmargin=1.5em]
+\item \apicode{plot(values, validity=None, x_label="Frame", y_label="Value", title=None)}
+  \begin{itemize}
+  \item \emph{Input:} \texttt{values} is a 1D \texttt{numpy} array of length~$T$. \texttt{validity} is an optional 1D boolean array of the same length whose \texttt{False} entries are rendered as gaps. \texttt{x\_label}, \texttt{y\_label}, and \texttt{title} are display strings.
+  \item \emph{Output:} a \texttt{VisualFeedback} containing the rendered plot and a text description.
+  \end{itemize}
+\end{itemize}
+
+\subsection{\texttt{tools.Draw}}
+\label{app:tool_draw}
+\apicode{tools.Draw} is a static class that produces PIL-based annotation overlays. All methods accept a \texttt{numpy} \texttt{(H, W, 3) uint8} array, a PIL image, or an \texttt{InputImages[i]} entry, and return a PIL image of the same size; the input image is never modified. Colours may be passed as an \texttt{(R, G, B)} \texttt{uint8} tuple or as any \texttt{matplotlib} or CSS4 colour name. Each method accepts either a single primitive or a list of primitives, and a matching list of colours when per-primitive colouring is desired.
+
+\paragraph{Methods.}
+\begin{itemize}[leftmargin=1.5em]
+\item \apicode{draw_bbox(image, bboxes, colors=None, thickness=None)}
+  \begin{itemize}
+  \item \emph{Input:} \texttt{bboxes} is a single \texttt{(x1, y1, x2, y2)} in pixels or a list of such boxes.
+  \item \emph{Output:} a PIL image with axis-aligned rectangle outlines drawn.
+  \end{itemize}
+\item \apicode{draw_line(image, lines, colors=None, thickness=None)}
+  \begin{itemize}
+  \item \emph{Input:} \texttt{lines} is a single \texttt{(x1, y1, x2, y2)} in pixels or a list of such segments.
+  \item \emph{Output:} a PIL image with line segments drawn.
+  \end{itemize}
+\item \apicode{draw_point(image, points, colors=None, radius=None)}
+  \begin{itemize}
+  \item \emph{Input:} \texttt{points} is a single \texttt{(x, y)} in pixels or a list of such points.
+  \item \emph{Output:} a PIL image with filled circles drawn.
+  \end{itemize}
+\end{itemize}
+
+
+\section{Limitations and Broader Impact}
+\label{app:limitations}
+
+\subsection{Limitations}
+\label{app:limitations_sub}
+The main remaining bottleneck of \ours{} is the perceptual quality of the backbone vision-language model and of the perception tools it composes. The failure-mode analysis in the main paper attributes the largest share of remaining errors to perception rather than to the action interface, which means that further interface design has diminishing returns at the current scale of evaluation. We expect the principal axis for future improvement to be perceptual quality, both in the backbone vision-language model and in the underlying reconstruction and segmentation models.
+
+
+\subsection{Broader Impact}
+\label{app:broader_impact}
+\ours{} is training-free and adds no parameters to the backbone vision-language model. Existing models can therefore be extended with stronger spatial reasoning ability without additional training data and without fine-tuning, which is particularly valuable in domains where data collection is expensive or impractical, including robotics, embodied applications, and assistive systems. Because the same configuration transfers across backbones and benchmarks without modification, the framework increases the practical value of vision-language models that are already deployed.

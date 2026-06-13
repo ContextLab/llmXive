@@ -1,0 +1,38 @@
+\begin{table}[h]
+\caption{\textbf{Benchmark-specific evaluation metrics and scoring protocols.} Each benchmark mixes categorical questions (multiple-choice or binary) and numerical questions in different proportions. \texttt{Acc} denotes per-sample 1/0 categorical scoring, \texttt{MRA} denotes mean relative accuracy on numerical questions, and \texttt{VCI} denotes the SPAR-Bench metric used for the view change inference task (MRA averaged across five movement axes). The reported number for each benchmark is the unweighted mean of the per-sample scores.}
+\label{tab:benchmark_metrics}
+\centering
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.15}
+{\small
+\begin{tabular}{lll}
+\toprule
+\textbf{Benchmark} & \textbf{Category} & \textbf{Per-sample metric} \\
+\midrule
+ERQA~\citep{team2025gemini}             & Single-image spatial reasoning & Acc \\
+Omni3D~\citep{marsili2025visual}        & Single-image spatial reasoning & Acc + MRA \\
+OmniSpatial~\citep{jia2025omnispatial}  & Single-image spatial reasoning & Acc \\
+SPBench~\citep{xu2025spbench}           & Single-image spatial reasoning & Acc + MRA \\
+\midrule
+MindCube~\citep{yin2025mindcube}        & Multi-view spatial reasoning & Acc \\
+MMSI~\citep{yang2025mmsi}               & Multi-view spatial reasoning & Acc \\
+SPAR-Bench~\citep{zhang2025from}        & Multi-view spatial reasoning & Acc + MRA + VCI \\
+\midrule
+MMSI-Video~\citep{lin2025mmsivideo}     & Video spatial \& 4D reasoning & Acc \\
+OSI-Bench~\citep{wu2025osibench}        & Video spatial \& 4D reasoning & Acc + MRA \\
+PAI-Bench~\citep{zhou2025paibench}      & Video spatial \& 4D reasoning & Acc \\
+VSI-Bench-U~\citep{brown2025shortcuts}  & Video spatial \& 4D reasoning & Acc + MRA \\
+VSTI-Bench~\citep{fan2025vlm}           & Video spatial \& 4D reasoning & Acc + MRA \\
+DSI-Bench~\citep{zhang2025dsibench}     & Video spatial \& 4D reasoning & Acc \\
+\midrule
+BLINK~\citep{fu2024blink}               & General spatial reasoning & Acc \\
+SpatialTree~\citep{xiao2025spatialtree} & General spatial reasoning & Acc + MRA \\
+ViewSpatial~\citep{li2025viewspatial}   & General spatial reasoning & Acc \\
+\midrule
+CV-Bench~\citep{zhu2025cvbench}         & General video understanding & Acc \\
+PerceptComp~\citep{li2026perceptioncomp}& General video understanding & Acc \\
+Video-MME~\citep{fu2025video}           & General video understanding & Acc \\
+Video-MME-v2~\citep{videommev2_2026}    & General video understanding & Acc \\
+\bottomrule
+\end{tabular}}
+\end{table}

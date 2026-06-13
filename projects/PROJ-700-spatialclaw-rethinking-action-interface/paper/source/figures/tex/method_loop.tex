@@ -1,0 +1,7 @@
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=\linewidth]{figures/pdf/method_loop.pdf}
+    \caption{\textbf{Agentic loop for iterative code execution.} 
+    \ours{} wraps a persistent kernel in a five-stage loop. A planner receives the question and tool documentation but not the images, and produces an analysis plan. The main agent generates a Python cell executed in the persistent kernel. Feedback comprising stdout, variable summaries, and images registered via \texttt{show()} is appended to the model context. The loop continues until the agent submits an answer with \texttt{ReturnAnswer()} or the step count has reached the predefined maximum $N_{\text{max}}$.}
+    \label{fig:method_loop}
+\end{figure}

@@ -1,0 +1,56 @@
+\begin{table*}[t]
+  \caption{\textbf{Analysis on tools of \ours{}.}
+  We ablate two design choices: No utility function, keeping only the perception tools (SAM3/DA3) and removing perception tools and keeping only the utility functions. We additionally report a no-tool baseline (backbone with thinking only). Each variant is evaluated on subsampled examples (500 per benchmark) across 15 benchmarks due to computation constraints. Gemma4-26B-A4B is used as the backbone for its small size.
+  }
+  \label{tab:ablation}
+  \centering
+  \setlength{\tabcolsep}{2.5pt}
+  \renewcommand{\arraystretch}{1.15}
+  \small
+  \newcolumntype{C}{>{\centering\arraybackslash}p{1.6em}}
+  % Independently tunable widths for the two single-column groups.
+  \newlength{\genvidcolwidth}\setlength{\genvidcolwidth}{5.5em}    % "General video understanding"
+  \newlength{\avgcolwidth}\setlength{\avgcolwidth}{3em}        % "Average"
+  \newcolumntype{Y}{>{\centering\arraybackslash}p{\genvidcolwidth}}
+  \newcolumntype{Z}{>{\centering\arraybackslash}p{\avgcolwidth}}
+  \resizebox{\textwidth}{!}{%
+  \begin{tabular}{l CCCC !{\hskip 8pt} CCC !{\hskip 8pt} CCC !{\hskip 8pt} CCCC !{\hskip 8pt} Y !{\hskip 8pt} >{\columncolor{gray!15}}Z}
+  \toprule
+  \textbf{Variant}
+    & \multicolumn{4}{c}{\itshape\shortstack[c]{Single-image\\spatial reasoning}}
+    & \multicolumn{3}{c}{\itshape\shortstack[c]{Multi-view\\spatial reasoning}}
+    & \multicolumn{3}{c}{\itshape\shortstack[c]{General\\spatial reasoning}}
+    & \multicolumn{4}{c}{\itshape\shortstack[c]{Video spatial\\\& 4D reasoning}}
+    & \multicolumn{1}{c}{\itshape\shortstack[c]{General video\\understanding}}
+    & \multicolumn{1}{c}{\itshape\shortstack[c]{\\Average}} \\
+  \cmidrule(lr){2-5} \cmidrule(lr){6-8} \cmidrule(lr){9-11} \cmidrule(lr){12-15} \cmidrule(lr){16-16} \cmidrule(lr){17-17}
+   & \rotatebox{90}{ERQA~\citeyearpar{team2025gemini}}
+   & \rotatebox{90}{Omni3D~\citeyearpar{marsili2025visual}}
+   & \rotatebox{90}{OmniSpatial~\citeyearpar{jia2025omnispatial}}
+   & \rotatebox{90}{SPBench~\citeyearpar{xu2025spbench}}
+   & \rotatebox{90}{MindCube~\citeyearpar{yin2025mindcube}}
+   & \rotatebox{90}{MMSI~\citeyearpar{yang2025mmsi}}
+   & \rotatebox{90}{SPAR-Bench~\citeyearpar{zhang2025from}}
+   & \rotatebox{90}{BLINK~\citeyearpar{fu2024blink}}
+   & \rotatebox{90}{SpatialTree~\citeyearpar{xiao2025spatialtree}}
+   & \rotatebox{90}{ViewSpatial~\citeyearpar{li2025viewspatial}}
+   & \rotatebox{90}{OSI-Bench~\citeyearpar{wu2025osibench}}
+   & \rotatebox{90}{PAI-Bench~\citeyearpar{zhou2025paibench}}
+   & \rotatebox{90}{VSTI-Bench~\citeyearpar{fan2025vlm}}
+   & \rotatebox{90}{DSI-Bench~\citeyearpar{zhang2025dsibench}}
+   & \rotatebox{90}{CV-Bench~\citeyearpar{zhu2025cvbench}}
+   & \rotatebox{90}{\textbf{Avg.}} \\
+  \midrule
+  \ours{} (Full)
+    & \underline{56.0} & \underline{36.6} & 57.2 & \textbf{65.2} & \underline{67.2} & \textbf{45.1} & \textbf{67.7} & \textbf{71.9} & \textbf{37.8} & \textbf{60.6} & \textbf{44.2} & \textbf{56.2} & \underline{58.3} & \underline{61.0} & \textbf{68.9} & \textbf{56.9} \\
+  \midrule
+  \textbf{(I)} No utility functions (e.g., \texttt{tools.Mask}, \texttt{tools.Geometry})
+    & 52.5 & \textbf{37.0} & \underline{61.6} & \underline{62.4} & \textbf{69.0} & \underline{43.1} & \underline{66.1} & \textbf{71.9} & 35.1 & \underline{60.4} & \underline{42.8} & 53.0 & \textbf{59.9} & \textbf{62.0} & \underline{68.7} & \underline{56.4} \\
+  \textbf{(II)} No perception tools (no SAM3/DA3)
+    & \textbf{58.0} & 33.8 & \textbf{62.2} & 58.4 & 49.0 & 35.5 & 53.8 & \underline{70.1} & 33.1 & 56.8 & 34.0 & 55.2 & 53.6 & 48.8 & \textbf{68.9} & 51.4 \\
+  \midrule
+  No-tool baseline
+    & 55.8 & 32.8 & 56.6 & 47.0 & 47.6 & 31.5 & 50.8 & 69.1 & \underline{35.5} & 54.8 & 35.0 & \underline{56.0} & 49.6 & 43.6 & 65.4 & 48.7 \\
+  \bottomrule
+  \end{tabular}}
+\end{table*}

@@ -1,0 +1,761 @@
+% ===== Foundational Transformer / Attention =====
+
+@inproceedings{vaswani2017attention,
+  title     = {Attention Is All You Need},
+  author    = {Vaswani, Ashish and Shazeer, Noam and Parmar, Niki and Uszkoreit, Jakob and Jones, Llion and Gomez, Aidan N. and Kaiser, {\L}ukasz and Polosukhin, Illia},
+  booktitle = {Advances in Neural Information Processing Systems},
+  year      = {2017}
+}
+@article{shazeer2019mqa,
+  title   = {Fast Transformer Decoding: One Write-Head is All You Need},
+  author  = {Shazeer, Noam},
+  journal = {arXiv preprint arXiv:1911.02150},
+  year    = {2019}
+}
+
+@inproceedings{ainslie2023gqa,
+  title     = {{GQA}: Training Generalized Multi-Query Transformer Models from Multi-Head Checkpoints},
+  author    = {Ainslie, Joshua and Lee-Thorp, James and de Jong, Michiel and Zemlyanskiy, Yury and Lebr{\'o}n, Federico and Sanghai, Sumit},
+  booktitle = {Proceedings of the 2023 Conference on Empirical Methods in Natural Language Processing (EMNLP)},
+  year      = {2023}
+}
+
+% ===== Flash Attention family =====
+
+@inproceedings{dao2022flashattention,
+  title     = {{FlashAttention}: Fast and Memory-Efficient Exact Attention with {IO}-Awareness},
+  author    = {Dao, Tri and Fu, Daniel Y. and Ermon, Stefano and Rudra, Atri and R{\'e}, Christopher},
+  booktitle = {Advances in Neural Information Processing Systems},
+  year      = {2022}
+}
+
+@inproceedings{dao2023flashattention2,
+  title     = {{FlashAttention-2}: Faster Attention with Better Parallelism and Work Partitioning},
+  author    = {Dao, Tri},
+  booktitle = {International Conference on Learning Representations (ICLR)},
+  year      = {2024}
+}
+
+@misc{dao2023flashdecoding,
+  title  = {Flash-Decoding for Long-Context Inference},
+  author = {Dao, Tri and Haziza, Daniel and Massa, Francisco and Sizov, Grigory},
+  year   = {2023},
+  note   = {\url{https://crfm.stanford.edu/2023/10/12/flashdecoding.html}}
+}
+
+% ===== Linear / SSM / Hybrid attention =====
+
+@inproceedings{katharopoulos2020linear,
+  title     = {Transformers are {RNNs}: Fast Autoregressive Transformers with Linear Attention},
+  author    = {Katharopoulos, Angelos and Vyas, Apoorv and Pappas, Nikolaos and Fleuret, Fran{\c{c}}ois},
+  booktitle = {International Conference on Machine Learning (ICML)},
+  year      = {2020}
+}
+
+@inproceedings{choromanski2020performer,
+  title     = {Rethinking Attention with Performers},
+  author    = {Choromanski, Krzysztof and Likhosherstov, Valerii and Dohan, David and Song, Xingyou and Gane, Andreea and Sarl{\'o}s, Tam{\'a}s and Hawkins, Peter and Davis, Jared and Mohiuddin, Afroz and Kaiser, Lukasz and Belanger, David and Colwell, Lucy and Weller, Adrian},
+  booktitle = {International Conference on Learning Representations (ICLR)},
+  year      = {2021}
+}
+
+@article{gu2023mamba,
+  title   = {Mamba: Linear-Time Sequence Modeling with Selective State Spaces},
+  author  = {Gu, Albert and Dao, Tri},
+  journal = {arXiv preprint arXiv:2312.00752},
+  year    = {2023}
+}
+
+% ===== MiniMax model family =====
+
+@article{minimax01,
+  title   = {{MiniMax-01}: Scaling Foundation Models with Lightning Attention},
+  author  = {{MiniMax}},
+  journal = {arXiv preprint arXiv:2501.08313},
+  year    = {2025}
+}
+
+@article{minimaxm1,
+  title   = {{MiniMax-M1}: Scaling Test-Time Compute Efficiently with Lightning Attention},
+  author  = {{MiniMax}},
+  journal = {arXiv preprint arXiv:2506.13585},
+  year    = {2025}
+}
+
+@misc{minimaxm2,
+  title  = {{MiniMax-M2}},
+  author = {{MiniMax}},
+  year   = {2025},
+  note   = {\url{https://github.com/MiniMax-AI/MiniMax-M2}}
+}
+
+% ===== Fixed-pattern / sliding-window sparse attention =====
+
+@article{beltagy2020longformer,
+  title   = {{Longformer}: The Long-Document Transformer},
+  author  = {Beltagy, Iz and Peters, Matthew E. and Cohan, Arman},
+  journal = {arXiv preprint arXiv:2004.05150},
+  year    = {2020}
+}
+
+@inproceedings{zaheer2020bigbird,
+  title     = {Big Bird: Transformers for Longer Sequences},
+  author    = {Zaheer, Manzil and Guruganesh, Guru and Dubey, Avinava and Ainslie, Joshua and Alberti, Chris and Onta{\~n}{\'o}n, Santiago and Pham, Philip and Ravula, Anirudh and Wang, Qifan and Yang, Li and Ahmed, Amr},
+  booktitle = {Advances in Neural Information Processing Systems},
+  year      = {2020}
+}
+
+@inproceedings{xiao2023streaming,
+  title     = {Efficient Streaming Language Models with Attention Sinks},
+  author    = {Xiao, Guangxuan and Tian, Yuandong and Chen, Beidi and Han, Song and Lewis, Mike},
+  booktitle = {International Conference on Learning Representations (ICLR)},
+  year      = {2024}
+}
+
+@article{sun2024sinks,
+  title   = {Massive Activations in Large Language Models},
+  author  = {Sun, Mingjie and Chen, Xinlei and Kolter, J. Zico and Liu, Zhuang},
+  journal = {arXiv preprint arXiv:2402.17762},
+  year    = {2024}
+}
+
+% ===== Inference-time KV pruning / sparsification =====
+
+@inproceedings{zhang2023h2o,
+  title     = {{H2O}: Heavy-Hitter Oracle for Efficient Generative Inference of Large Language Models},
+  author    = {Zhang, Zhenyu and Sheng, Ying and Zhou, Tianyi and Chen, Tianlong and Zheng, Lianmin and Cai, Ruisi and Song, Zhao and Tian, Yuandong and R{\'e}, Christopher and Barrett, Clark and Wang, Zhangyang and Chen, Beidi},
+  booktitle = {Advances in Neural Information Processing Systems},
+  year      = {2023}
+}
+
+@inproceedings{li2024snapkv,
+  title     = {{SnapKV}: {LLM} Knows What You are Looking for Before Generation},
+  author    = {Li, Yuhong and Huang, Yingbing and Yang, Bowen and Venkitesh, Bharat and Locatelli, Acyr and Ye, Hanchen and Cai, Tianle and Lewis, Patrick and Chen, Deming},
+  booktitle = {Advances in Neural Information Processing Systems},
+  year      = {2024}
+}
+
+@inproceedings{tang2024quest,
+  title     = {{Quest}: Query-Aware Sparsity for Efficient Long-Context {LLM} Inference},
+  author    = {Tang, Jiaming and Zhao, Yilong and Zhu, Kan and Xiao, Guangxuan and Kasikci, Baris and Han, Song},
+  booktitle = {International Conference on Machine Learning (ICML)},
+  year      = {2024}
+}
+
+@inproceedings{jiang2024minference,
+  title     = {{MInference 1.0}: Accelerating Pre-filling for Long-Context {LLMs} via Dynamic Sparse Attention},
+  author    = {Jiang, Huiqiang and Li, Yucheng and Zhang, Chengruidong and Wu, Qianhui and Luo, Xufang and Ahn, Surin and Han, Zhenhua and Abdi, Amir H. and Li, Dongsheng and Lin, Chin-Yew and Yang, Yuqing and Qiu, Lili},
+  booktitle = {Advances in Neural Information Processing Systems},
+  year      = {2024}
+}
+
+@article{xiao2024infllm,
+  title   = {{InfLLM}: Training-Free Long-Context Extrapolation for {LLMs} with an Efficient Context Memory},
+  author  = {Xiao, Chaojun and Zhang, Pengle and Han, Xu and Xiao, Guangxuan and Lin, Yankai and Zhang, Zhengyan and Liu, Zhiyuan and Han, Song and Sun, Maosong},
+  journal = {arXiv preprint arXiv:2402.04617},
+  year    = {2024}
+}
+
+@inproceedings{ge2023fastgen,
+  title     = {Model Tells You What to Discard: Adaptive {KV} Cache Compression for {LLMs}},
+  author    = {Ge, Suyu and Zhang, Yunan and Liu, Liyuan and Zhang, Minjia and Han, Jiawei and Gao, Jianfeng},
+  booktitle = {International Conference on Learning Representations (ICLR)},
+  year      = {2024}
+}
+
+% ===== Natively-trained sparse attention (closest neighbors) =====
+
+@inproceedings{yuan2025nsa,
+  title     = {Native Sparse Attention: Hardware-Aligned and Natively Trainable Sparse Attention},
+  author    = {Yuan, Jingyang and Gao, Huazuo and Dai, Damai and Luo, Junyu and Zhao, Liang and Zhang, Zhengyan and Xie, Zhenda and Wei, Y. X. and Wang, Lean and Xiao, Zhiping and Wang, Yuqing and Ruan, Chong and Zhang, Ming and Liang, Wenfeng and Zeng, Wangding},
+  booktitle = {Proceedings of the 63rd Annual Meeting of the Association for Computational Linguistics (ACL)},
+  year      = {2025},
+  note      = {arXiv:2502.11089}
+}
+
+% ===== Evaluation benchmarks =====
+
+@inproceedings{hendrycks2021measuring,
+title={Measuring Massive Multitask Language Understanding},
+author={Dan Hendrycks and Collin Burns and Steven Basart and Andy Zou and Mantas Mazeika and Dawn Song and Jacob Steinhardt},
+booktitle={International Conference on Learning Representations},
+year={2021},
+url={https://openreview.net/forum?id=d7KBjmI3GmQ}
+}
+
+@inproceedings{NEURIPS2024_ad236edc,
+ author = {Wang, Yubo and Ma, Xueguang and Zhang, Ge and Ni, Yuansheng and Chandra, Abhranil and Guo, Shiguang and Ren, Weiming and Arulraj, Aaran and He, Xuan and Jiang, Ziyan and Li, Tianle and Ku, Max and Wang, Kai and Zhuang, Alex and Fan, Rongqi and Yue, Xiang and Chen, Wenhu},
+ booktitle = {Advances in Neural Information Processing Systems},
+ doi = {10.52202/079017-3018},
+ editor = {A. Globerson and L. Mackey and D. Belgrave and A. Fan and U. Paquet and J. Tomczak and C. Zhang},
+ pages = {95266--95290},
+ publisher = {Curran Associates, Inc.},
+ title = {MMLU-Pro: A More Robust and Challenging Multi-Task Language Understanding Benchmark},
+ url = {https://proceedings.neurips.cc/paper_files/paper/2024/file/ad236edc564f3e3156e1b2feafb99a24-Paper-Datasets_and_Benchmarks_Track.pdf},
+ volume = {37},
+ year = {2024}
+}
+
+@misc{suzgun2022challengingbigbenchtaskschainofthought,
+      title={Challenging BIG-Bench Tasks and Whether Chain-of-Thought Can Solve Them},
+      author={Mirac Suzgun and Nathan Scales and Nathanael Sch{\"a}rli and Sebastian Gehrmann and Yi Tay and Hyung Won Chung and Aakanksha Chowdhery and Quoc V. Le and Ed H. Chi and Denny Zhou and Jason Wei},
+      year={2022},
+      eprint={2210.09261},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2210.09261},
+}
+
+@misc{clark2018thinksolvedquestionanswering,
+      title={Think you have Solved Question Answering? Try ARC, the AI2 Reasoning Challenge},
+      author={Peter Clark and Isaac Cowhey and Oren Etzioni and Tushar Khot and Ashish Sabharwal and Carissa Schoenick and Oyvind Tafjord},
+      year={2018},
+      eprint={1803.05457},
+      archivePrefix={arXiv},
+      primaryClass={cs.AI},
+      url={https://arxiv.org/abs/1803.05457},
+}
+
+@inproceedings{joshi-etal-2017-triviaqa,
+    title = "{T}rivia{QA}: A Large Scale Distantly Supervised Challenge Dataset for Reading Comprehension",
+    author = "Joshi, Mandar  and
+      Choi, Eunsol  and
+      Weld, Daniel  and
+      Zettlemoyer, Luke",
+    editor = "Barzilay, Regina  and
+      Kan, Min-Yen",
+    booktitle = "Proceedings of the 55th Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers)",
+    month = jul,
+    year = "2017",
+    address = "Vancouver, Canada",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/P17-1147/",
+    doi = "10.18653/v1/P17-1147",
+    pages = "1601--1611"
+}
+
+@article{Sakaguchi_2020,
+ title={WinoGrande: An Adversarial Winograd Schema Challenge at Scale},
+ volume={34},
+ ISSN={2159-5399},
+ url={http://dx.doi.org/10.1609/aaai.v34i05.6399},
+ DOI={10.1609/aaai.v34i05.6399},
+ number={05},
+ journal={Proceedings of the AAAI Conference on Artificial Intelligence},
+ publisher={Association for the Advancement of Artificial Intelligence (AAAI)},
+ author={Sakaguchi, Keisuke and Le Bras, Ronan and Bhagavatula, Chandra and Choi, Yejin},
+ year={2020},
+ month=Apr,
+ pages={8732--8740}
+}
+
+@misc{cobbe2021trainingverifierssolvemath,
+      title={Training Verifiers to Solve Math Word Problems},
+      author={Karl Cobbe and Vineet Kosaraju and Mohammad Bavarian and Mark Chen and Heewoo Jun and Lukasz Kaiser and Matthias Plappert and Jerry Tworek and Jacob Hilton and Reiichiro Nakano and Christopher Hesse and John Schulman},
+      year={2021},
+      eprint={2110.14168},
+      archivePrefix={arXiv},
+      primaryClass={cs.LG},
+      url={https://arxiv.org/abs/2110.14168},
+}
+
+@misc{shi2022languagemodelsmultilingualchainofthought,
+      title={Language Models are Multilingual Chain-of-Thought Reasoners},
+      author={Freda Shi and Mirac Suzgun and Markus Freitag and Xuezhi Wang and Suraj Srivats and Soroush Vosoughi and Hyung Won Chung and Yi Tay and Sebastian Ruder and Denny Zhou and Dipanjan Das and Jason Wei},
+      year={2022},
+      eprint={2210.03057},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2210.03057},
+}
+
+@inproceedings{lu2024mathvista,
+title={MathVista: Evaluating Mathematical Reasoning of Foundation Models in Visual Contexts},
+author={Pan Lu and Hritik Bansal and Tony Xia and Jiacheng Liu and Chunyuan Li and Hannaneh Hajishirzi and Hao Cheng and Kai-Wei Chang and Michel Galley and Jianfeng Gao},
+booktitle={The Twelfth International Conference on Learning Representations},
+year={2024},
+url={https://openreview.net/forum?id=KUNzEQMWU7}
+}
+
+@misc{chen2021evaluatinglargelanguagemodels,
+      title={Evaluating Large Language Models Trained on Code},
+      author={Mark Chen and Jerry Tworek and Heewoo Jun and Qiming Yuan and Henrique Ponde de Oliveira Pinto and Jared Kaplan and Harri Edwards and Yuri Burda and Nicholas Joseph and Greg Brockman and Alex Ray and Raul Puri and Gretchen Krueger and Michael Petrov and Heidy Khlaaf and Girish Sastry and Pamela Mishkin and Brooke Chan and Scott Gray and Nick Ryder and Mikhail Pavlov and Alethea Power and Lukasz Kaiser and Mohammad Bavarian and Clemens Winter and Philippe Tillet and Felipe Petroski Such and Dave Cummings and Matthias Plappert and Fotios Chantzis and Elizabeth Barnes and Ariel Herbert-Voss and William Hebgen Guss and Alex Nichol and Alex Paino and Nikolas Tezak and Jie Tang and Igor Babuschkin and Suchir Balaji and Shantanu Jain and William Saunders and Christopher Hesse and Andrew N. Carr and Jan Leike and Josh Achiam and Vedant Misra and Evan Morikawa and Alec Radford and Matthew Knight and Miles Brundage and Mira Murati and Katie Mayer and Peter Welinder and Bob McGrew and Dario Amodei and Sam McCandlish and Ilya Sutskever and Wojciech Zaremba},
+      year={2021},
+      eprint={2107.03374},
+      archivePrefix={arXiv},
+      primaryClass={cs.LG},
+      url={https://arxiv.org/abs/2107.03374},
+}
+
+@inproceedings{NEURIPS2023_43e9d647,
+ author = {Liu, Jiawei and Xia, Chunqiu Steven and Wang, Yuyao and ZHANG, LINGMING},
+ booktitle = {Advances in Neural Information Processing Systems},
+ editor = {A. Oh and T. Naumann and A. Globerson and K. Saenko and M. Hardt and S. Levine},
+ pages = {21558--21572},
+ publisher = {Curran Associates, Inc.},
+ title = {Is Your Code Generated by ChatGPT Really Correct? Rigorous Evaluation of Large Language Models for Code Generation},
+ url = {https://proceedings.neurips.cc/paper_files/paper/2023/file/43e9d647ccd3e4b7b5baab53f0368686-Paper-Conference.pdf},
+ volume = {36},
+ year = {2023}
+}
+
+@inproceedings{zhuo2025bigcodebench,
+title={BigCodeBench: Benchmarking Code Generation with Diverse Function Calls and Complex Instructions},
+author={Terry Yue Zhuo and Vu Minh Chien and Jenny Chim and Han Hu and Wenhao Yu and Ratnadira Widyasari and Imam Nur Bani Yusuf and Haolan Zhan and Junda He and Indraneil Paul and Simon Brunner and Chen GONG and James Hoang and Armel Randy Zebaze and Xiaoheng Hong and Wen-Ding Li and Jean Kaddour and Ming Xu and Zhihan Zhang and Prateek Yadav and Naman Jain and Alex Gu and Zhoujun Cheng and Jiawei Liu and Qian Liu and Zijian Wang and David Lo and Binyuan Hui and Niklas Muennighoff and Daniel Fried and Xiaoning Du and Harm de Vries and Leandro Von Werra},
+booktitle={The Thirteenth International Conference on Learning Representations},
+year={2025},
+url={https://openreview.net/forum?id=YrycTjllL0}
+}
+
+@misc{fu2025ocrbenchv2improvedbenchmark,
+      title={OCRBench v2: An Improved Benchmark for Evaluating Large Multimodal Models on Visual Text Localization and Reasoning},
+      author={Ling Fu and Zhebin Kuang and Jiajun Song and Mingxin Huang and Biao Yang and Yuzhe Li and Linghao Zhu and Qidi Luo and Xinyu Wang and Hao Lu and Zhang Li and Guozhi Tang and Bin Shan and Chunhui Lin and Qi Liu and Binghong Wu and Hao Feng and Hao Liu and Can Huang and Jingqun Tang and Wei Chen and Lianwen Jin and Yuliang Liu and Xiang Bai},
+      year={2025},
+      eprint={2501.00321},
+      archivePrefix={arXiv},
+      primaryClass={cs.CV},
+      url={https://arxiv.org/abs/2501.00321},
+}
+
+@inproceedings{masry-etal-2022-chartqa,
+    title = "{C}hart{QA}: A Benchmark for Question Answering about Charts with Visual and Logical Reasoning",
+    author = "Masry, Ahmed  and
+      Long, Do Xuan  and
+      Tan, Jia Qing  and
+      Joty, Shafiq  and
+      Hoque, Enamul",
+    editor = "Muresan, Smaranda  and
+      Nakov, Preslav  and
+      Villavicencio, Aline",
+    booktitle = "Findings of the Association for Computational Linguistics: ACL 2022",
+    month = may,
+    year = "2022",
+    address = "Dublin, Ireland",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2022.findings-acl.177/",
+    doi = "10.18653/v1/2022.findings-acl.177",
+    pages = "2263--2279"
+}
+
+@inproceedings{liu2024visualwebbench,
+title={VisualWebBench: How Far Have Multimodal {LLM}s Evolved in Web Page Understanding and Grounding?},
+author={Junpeng Liu and Yifan Song and Bill Yuchen Lin and Wai Lam and Graham Neubig and Yuanzhi Li and Xiang Yue},
+booktitle={First Conference on Language Modeling},
+year={2024},
+url={https://openreview.net/forum?id=egVSgtJJAx}
+}
+
+@inproceedings{NEURIPS2024_9ee3a664,
+ author = {Tong, Shengbang and Brown, Ellis and Wu, Penghao and Woo, Sanghyun and Middepogu, Manoj and Akula, Sai Charitha and Yang, Jihan and Yang, Shusheng and Iyer, Adithya and Pan, Xichen and Wang, Austin and Fergus, Rob and LeCun, Yann and Xie, Saining},
+ booktitle = {Advances in Neural Information Processing Systems},
+ doi = {10.52202/079017-2771},
+ editor = {A. Globerson and L. Mackey and D. Belgrave and A. Fan and U. Paquet and J. Tomczak and C. Zhang},
+ pages = {87310--87356},
+ publisher = {Curran Associates, Inc.},
+ title = {Cambrian-1: A Fully Open, Vision-Centric Exploration of Multimodal LLMs},
+ url = {https://proceedings.neurips.cc/paper_files/paper/2024/file/9ee3a664ccfeabc0da16ac6f1f1cfe59-Paper-Conference.pdf},
+ volume = {37},
+ year = {2024}
+}
+
+@inproceedings{NEURIPS2024_329ad516,
+ author = {Wu, Haoning and Li, Dongxu and Chen, Bei and Li, Junnan},
+ booktitle = {Advances in Neural Information Processing Systems},
+ doi = {10.52202/079017-0907},
+ editor = {A. Globerson and L. Mackey and D. Belgrave and A. Fan and U. Paquet and J. Tomczak and C. Zhang},
+ pages = {28828--28857},
+ publisher = {Curran Associates, Inc.},
+ title = {LongVideoBench: A Benchmark for Long-context Interleaved Video-Language Understanding},
+ url = {https://proceedings.neurips.cc/paper_files/paper/2024/file/329ad516cf7a6ac306f29882e9c77558-Paper-Datasets_and_Benchmarks_Track.pdf},
+ volume = {37},
+ year = {2024}
+}
+
+@InProceedings{Zhou_2025_CVPR,
+    author    = {Zhou, Junjie and Shu, Yan and Zhao, Bo and Wu, Boya and Liang, Zhengyang and Xiao, Shitao and Qin, Minghao and Yang, Xi and Xiong, Yongping and Zhang, Bo and Huang, Tiejun and Liu, Zheng},
+    title     = {MLVU: Benchmarking Multi-task Long Video Understanding},
+    booktitle = {Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)},
+    month     = {June},
+    year      = {2025},
+    pages     = {13691-13701}
+}
+
+@misc{cai2024temporalbenchbenchmarkingfinegrainedtemporal,
+      title={TemporalBench: Benchmarking Fine-grained Temporal Understanding for Multimodal Video Models},
+      author={Mu Cai and Reuben Tan and Jianrui Zhang and Bocheng Zou and Kai Zhang and Feng Yao and Fangrui Zhu and Jing Gu and Yiwu Zhong and Yuzhang Shang and Yao Dou and Jaden Park and Jianfeng Gao and Yong Jae Lee and Jianwei Yang},
+      year={2024},
+      eprint={2410.10818},
+      archivePrefix={arXiv},
+      primaryClass={cs.CV},
+      url={https://arxiv.org/abs/2410.10818},
+}
+
+@inproceedings{hsieh2024ruler,
+title={{RULER}: What{\textquoteright}s the Real Context Size of Your Long-Context Language Models?},
+author={Cheng-Ping Hsieh and Simeng Sun and Samuel Kriman and Shantanu Acharya and Dima Rekesh and Fei Jia and Boris Ginsburg},
+booktitle={First Conference on Language Modeling},
+year={2024},
+url={https://openreview.net/forum?id=kIoBbc76Sy}
+}
+
+@inproceedings{yen2025helmet,
+title={{HELMET}: How to Evaluate Long-context Models Effectively and Thoroughly},
+author={Howard Yen and Tianyu Gao and Minmin Hou and Ke Ding and Daniel Fleischer and Peter Izsak and Moshe Wasserblat and Danqi Chen},
+booktitle={The Thirteenth International Conference on Learning Representations},
+year={2025},
+url={https://openreview.net/forum?id=293V3bJbmE}
+}
+
+% ===== Agent / long-context applications =====
+
+@inproceedings{park2023generative,
+  title     = {Generative Agents: Interactive Simulacra of Human Behavior},
+  author    = {Park, Joon Sung and O'Brien, Joseph C. and Cai, Carrie J. and Morris, Meredith Ringel and Liang, Percy and Bernstein, Michael S.},
+  booktitle = {Proceedings of the 36th Annual ACM Symposium on User Interface Software and Technology (UIST)},
+  year      = {2023}
+}
+
+@inproceedings{zhang2023repocoder,
+  title     = {{RepoCoder}: Repository-Level Code Completion Through Iterative Retrieval and Generation},
+  author    = {Zhang, Fengji and Chen, Bei and Zhang, Yue and Keung, Jacky and Liu, Jin and Zan, Daoguang and Mao, Yi and Lou, Jian-Guang and Chen, Weizhu},
+  booktitle = {Proceedings of the 2023 Conference on Empirical Methods in Natural Language Processing (EMNLP)},
+  year      = {2023}
+}
+
+@article{guo2025deepseek,
+  title   = {{DeepSeek-R1}: Incentivizing Reasoning Capability in {LLMs} via Reinforcement Learning},
+  author  = {Guo, Daya and others},
+  journal = {arXiv preprint arXiv:2501.12948},
+  year    = {2025}
+}
+
+@article{openai2024o1,
+  title   = {{OpenAI o1} System Card},
+  author  = {{OpenAI}},
+  journal = {arXiv preprint arXiv:2412.16720},
+  year    = {2024}
+}
+
+@article{kimi2025k15,
+  title   = {{Kimi k1.5}: Scaling Reinforcement Learning with {LLMs}},
+  author  = {{Kimi Team}},
+  journal = {arXiv preprint arXiv:2501.12599},
+  year    = {2025}
+}
+
+@article{yan2025fsa,
+  title   = {Flash Sparse Attention: More Efficient Natively Trainable Sparse Attention},
+  author  = {Yan, Ran and Jiang, Youhe and Yuan, Binhang},
+  journal = {arXiv preprint arXiv:2508.18224},
+  year    = {2025}
+}
+
+@article{xiao2025flashmoba,
+  title   = {Optimizing Mixture of Block Attention},
+  author  = {Xiao, Guangxuan and Guo, Junxian and Mazaheri, Kasra and Han, Song},
+  journal = {arXiv preprint arXiv:2511.11571},
+  year    = {2025}
+}
+
+
+
+@misc{openai2025gpt5,
+  title        = {Introducing {GPT-5}},
+  author       = {{OpenAI}},
+  year         = {2025},
+  howpublished = {\url{https://openai.com/gpt-5/}}
+}
+
+@misc{anthropic2025claude46,
+  title        = {{Claude} {Opus} 4.6 and {Sonnet} 4.6 Model Card},
+  author       = {{Anthropic}},
+  year         = {2025},
+  howpublished = {\url{https://www.anthropic.com/news/claude-4-6}}
+}
+
+@misc{google2025gemini31,
+  title        = {{Gemini} 3.1 Pro},
+  author       = {{Google DeepMind}},
+  year         = {2025},
+  howpublished = {\url{https://deepmind.google/technologies/gemini/}}
+}
+
+@misc{deepseekai2026v4,
+  title         = {{DeepSeek-V4}: Towards Highly Efficient Million-Token Context Intelligence},
+  author        = {{DeepSeek-AI}},
+  year          = {2026},
+  note          = {Technical report (preview).}
+}
+
+@misc{moonshot2026kimi26,
+  title        = {{Kimi K2.6}: Open Agentic Foundation Model},
+  author       = {{Moonshot AI}},
+  year         = {2026},
+  howpublished = {\url{https://moonshotai.github.io/Kimi-K2/}}
+}
+
+@misc{zhipu2026glm51,
+  title        = {{GLM-5.1}: Open Foundation Models from {Zhipu AI}},
+  author       = {{Zhipu AI}},
+  year         = {2026},
+  howpublished = {\url{https://github.com/THUDM/GLM-5}}
+}
+
+@misc{openai2025gptoss120bgptoss20bmodel,
+      title={gpt-oss-120b \& gpt-oss-20b Model Card}, 
+      author={OpenAI and : and Sandhini Agarwal and Lama Ahmad and Jason Ai and Sam Altman and Andy Applebaum and Edwin Arbus and Rahul K. Arora and Yu Bai and Bowen Baker and Haiming Bao and Boaz Barak and Ally Bennett and Tyler Bertao and Nivedita Brett and Eugene Brevdo and Greg Brockman and Sebastien Bubeck and Che Chang and Kai Chen and Mark Chen and Enoch Cheung and Aidan Clark and Dan Cook and Marat Dukhan and Casey Dvorak and Kevin Fives and Vlad Fomenko and Timur Garipov and Kristian Georgiev and Mia Glaese and Tarun Gogineni and Adam Goucher and Lukas Gross and Katia Gil Guzman and John Hallman and Jackie Hehir and Johannes Heidecke and Alec Helyar and Haitang Hu and Romain Huet and Jacob Huh and Saachi Jain and Zach Johnson and Chris Koch and Irina Kofman and Dominik Kundel and Jason Kwon and Volodymyr Kyrylov and Elaine Ya Le and Guillaume Leclerc and James Park Lennon and Scott Lessans and Mario Lezcano-Casado and Yuanzhi Li and Zhuohan Li and Ji Lin and Jordan Liss and Lily and Liu and Jiancheng Liu and Kevin Lu and Chris Lu and Zoran Martinovic and Lindsay McCallum and Josh McGrath and Scott McKinney and Aidan McLaughlin and Song Mei and Steve Mostovoy and Tong Mu and Gideon Myles and Alexander Neitz and Alex Nichol and Jakub Pachocki and Alex Paino and Dana Palmie and Ashley Pantuliano and Giambattista Parascandolo and Jongsoo Park and Leher Pathak and Carolina Paz and Ludovic Peran and Dmitry Pimenov and Michelle Pokrass and Elizabeth Proehl and Huida Qiu and Gaby Raila and Filippo Raso and Hongyu Ren and Kimmy Richardson and David Robinson and Bob Rotsted and Hadi Salman and Suvansh Sanjeev and Max Schwarzer and D. Sculley and Harshit Sikchi and Kendal Simon and Karan Singhal and Yang Song and Dane Stuckey and Zhiqing Sun and Philippe Tillet and Sam Toizer and Foivos Tsimpourlas and Nikhil Vyas and Eric Wallace and Xin Wang and Miles Wang and Olivia Watkins and Kevin Weil and Amy Wendling and Kevin Whinnery and Cedric Whitney and Hannah Wong and Lin Yang and Yu Yang and Michihiro Yasunaga and Kristen Ying and Wojciech Zaremba and Wenting Zhan and Cyril Zhang and Brian Zhang and Eddie Zhang and Shengjia Zhao},
+      year={2025},
+      eprint={2508.10925},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2508.10925}, 
+}
+
+@misc{huang2026step35flashopen,
+      title={Step 3.5 Flash: Open Frontier-Level Intelligence with 11B Active Parameters}, 
+      author={Ailin Huang and Ang Li and Aobo Kong and Bin Wang and Binxing Jiao and Bo Dong and Bojun Wang and Boyu Chen and Brian Li and Buyun Ma and Chang Su and Changxin Miao and Changyi Wan and Chao Lou and Chen Hu and Chen Xu and Chenfeng Yu and Chengting Feng and Chengyuan Yao and Chunrui Han and Dan Ma and Dapeng Shi and Daxin Jiang and Dehua Ma and Deshan Sun and Di Qi and Enle Liu and Fajie Zhang and Fanqi Wan and Guanzhe Huang and Gulin Yan and Guoliang Cao and Guopeng Li and Han Cheng and Hangyu Guo and Hanshan Zhang and Hao Nie and Haonan Jia and Haoran Lv and Hebin Zhou and Hekun Lv and Heng Wang and Heung-Yeung Shum and Hongbo Huang and Hongbo Peng and Hongyu Zhou and Hongyuan Wang and Houyong Chen and Huangxi Zhu and Huimin Wu and Huiyong Guo and Jia Wang and Jian Zhou and Jianjian Sun and Jiaoren Wu and Jiaran Zhang and Jiashu Lv and Jiashuo Liu and Jiayi Fu and Jiayu Liu and Jie Cheng and Jie Luo and Jie Yang and Jie Zhou and Jieyi Hou and Jing Bai and Jingcheng Hu and Jingjing Xie and Jingwei Wu and Jingyang Zhang and Jishi Zhou and Junfeng Liu and Junzhe Lin and Ka Man Lo and Kai Liang and Kaibo Liu and Kaijun Tan and Kaiwen Yan and Kaixiang Li and Kang An and Kangheng Lin and Lei Yang and Liang Lv and Liang Zhao and Liangyu Chen and Lieyu Shi and Liguo Tan and Lin Lin and Lina Chen and Luck Ma and Mengqiang Ren and Michael Li and Ming Li and Mingliang Li and Mingming Zhang and Mingrui Chen and Mitt Huang and Na Wang and Peng Liu and Qi Han and Qian Zhao and Qinglin He and Qinxin Du and Qiuping Wu and Quan Sun and Rongqiu Yang and Ruihang Miao and Ruixin Han and Ruosi Wan and Ruyan Guo and Shan Wang and Shaoliang Pang and Shaowen Yang and Shengjie Fan and Shijie Shang and Shiliang Yang and Shiwei Li and Shuangshuang Tian and Siqi Liu and Siye Wu and Siyu Chen and Song Yuan and Tiancheng Cao and Tianchi Yue and Tianhao Cheng and Tianning Li and Tingdan Luo and Wang You and Wei Ji and Wei Yuan and Wei Zhang and Weibo Wu and Weihao Xie and Wen Sun and Wenjin Deng and Wenzhen Zheng and Wuxun Xie and Xiangfeng Wang and Xiangwen Kong and Xiangyu Liu and Xiangyu Zhang and Xiaobo Yang and Xiaojia Liu and Xiaolan Yuan and Xiaoran Jiao and Xiaoxiao Ren and Xiaoyun Zhang and Xin Li and Xin Liu and Xin Wu and Xing Chen and Xingping Yang and Xinran Wang and Xu Zhao and Xuan He and Xuanti Feng and Xuedan Cai and Xuqiang Zhou and Yanbo Yu and Yang Li and Yang Xu and Yanlin Lai and Yanming Xu and Yaoyu Wang and Yeqing Shen and Yibo Zhu and Yichen Lv and Yicheng Cao and Yifeng Gong and Yijing Yang and Yikun Yang and Yin Zhao and Yingxiu Zhao and Yinmin Zhang and Yitong Zhang and Yixuan Zhang and Yiyang Chen and Yongchi Zhao and Yongshen Long and Yongyao Wang and Yousong Guan and Yu Zhou and Yuang Peng and Yuanhao Ding and Yuantao Fan and Yuanwei Lu and Yuanzhen Yang and Yuchu Luo and Yudi Zhao and Yue Peng and Yueqiang Lin and Yufan Lu and Yuling Zhao and Yunzhou Ju and Yurong Zhang and Yusheng Li and Yuxiang Yang and Yuyang Chen and Yuzhu Cai and Zejia Weng and Zetao Hong and Zexi Li and Zhe Xie and Zheng Ge and Zheng Gong and Zheng Zeng and Zhenyi Lu and Zhewei Huang and Zhichao Chang and Zhiguo Huang and Zhiheng Hu and Zidong Yang and Zili Wang and Ziqi Ren and Zixin Zhang and Zixuan Wang},
+      year={2026},
+      eprint={2602.10604},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2602.10604}, 
+}
+
+@misc{coreteam2026mimov2flashtechnicalreport,
+      title={MiMo-V2-Flash Technical Report}, 
+      author={MiMo and Bangjun Xiao and Bingquan Xia and Bo Yang and Bofei Gao and Bowen Shen and Chen Zhang and Chenhong He and Chiheng Lou and Fuli Luo and Gang Wang and Gang Xie and Hailin Zhang and Hanglong Lv and Hanyu Li and Heyu Chen and Hongshen Xu and Houbin Zhang and Huaqiu Liu and Jiangshan Duo and Jianyu Wei and Jiebao Xiao and Jinhao Dong and Jun Shi and Junhao Hu and Kainan Bao and Kang Zhou and Lei Li and Liang Zhao and Linghao Zhang and Peidian Li and Qianli Chen and Shaohui Liu and Shihua Yu and Shijie Cao and Shimao Chen and Shouqiu Yu and Shuo Liu and Tianling Zhou and Weijiang Su and Weikun Wang and Wenhan Ma and Xiangwei Deng and Bohan Mao and Bowen Ye and Can Cai and Chenghua Wang and Chengxuan Zhu and Chong Ma and Chun Chen and Chunan Li and Dawei Zhu and Deshan Xiao and Dong Zhang and Duo Zhang and Fangyue Liu and Feiyu Yang and Fengyuan Shi and Guoan Wang and Hao Tian and Hao Wu and Heng Qu and Hongfei Yi and Hongxu An and Hongyi Guan and Xing Zhang and Yifan Song and Yihan Yan and Yihao Zhao and Yingchun Lai and Yizhao Gao and Yu Cheng and Yuanyuan Tian and Yudong Wang and Zhen Tang and Zhengju Tang and Zhengtao Wen and Zhichao Song and Zhixian Zheng and Zihan Jiang and Jian Wen and Jiarui Sun and Jiawei Li and Jinlong Xue and Jun Xia and Kai Fang and Menghang Zhu and Nuo Chen and Qian Tu and Qihao Zhang and Qiying Wang and Rang Li and Rui Ma and Shaolei Zhang and Shengfan Wang and Shicheng Li and Shuhao Gu and Shuhuai Ren and Sirui Deng and Tao Guo and Tianyang Lu and Weiji Zhuang and Weikang Zhang and Weimin Xiong and Wenshan Huang and Wenyu Yang and Xin Zhang and Xing Yong and Xu Wang and Xueyang Xie and Yilin Jiang and Yixin Yang and Yongzhe He and Yu Tu and Yuanliang Dong and Yuchen Liu and Yue Ma and Yue Yu and Yuxing Xiang and Zhaojun Huang and Zhenru Lin and Zhipeng Xu and Zhiyang Chen and Zhonghua Deng and Zihan Zhang and Zihao Yue},
+      year={2026},
+      eprint={2601.02780},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2601.02780}, 
+}
+
+@misc{nvidia2025nvidianemotron3efficient,
+      title={NVIDIA Nemotron 3: Efficient and Open Intelligence}, 
+      author={NVIDIA and : and Aaron Blakeman and Aaron Grattafiori and Aarti Basant and Abhibha Gupta and Abhinav Khattar and Adi Renduchintala and Aditya Vavre and Akanksha Shukla and Akhiad Bercovich and Aleksander Ficek and Aleksandr Shaposhnikov and Alex Kondratenko and Alexander Bukharin and Alexandre Milesi and Ali Taghibakhshi and Alisa Liu and Amelia Barton and Ameya Sunil Mahabaleshwarkar and Amir Klein and Amit Zuker and Amnon Geifman and Amy Shen and Anahita Bhiwandiwalla and Andrew Tao and Anjulie Agrusa and Ankur Verma and Ann Guan and Anubhav Mandarwal and Arham Mehta and Ashwath Aithal and Ashwin Poojary and Asif Ahamed and Asit Mishra and Asma Kuriparambil Thekkumpate and Ayush Dattagupta and Banghua Zhu and Bardiya Sadeghi and Barnaby Simkin and Ben Lanir and Benedikt Schifferer and Besmira Nushi and Bilal Kartal and Bita Darvish Rouhani and Boris Ginsburg and Brandon Norick and Brandon Soubasis and Branislav Kisacanin and Brian Yu and Bryan Catanzaro and Carlo del Mundo and Chantal Hwang and Charles Wang and Cheng-Ping Hsieh and Chenghao Zhang and Chenhan Yu and Chetan Mungekar and Chintan Patel and Chris Alexiuk and Christopher Parisien and Collin Neale and Cyril Meurillon and Damon Mosk-Aoyama and Dan Su and Dane Corneil and Daniel Afrimi and Daniel Lo and Daniel Rohrer and Daniel Serebrenik and Daria Gitman and Daria Levy and Darko Stosic and David Mosallanezhad and Deepak Narayanan and Dhruv Nathawani and Dima Rekesh and Dina Yared and Divyanshu Kakwani and Dong Ahn and Duncan Riach and Dusan Stosic and Edgar Minasyan and Edward Lin and Eileen Long and Eileen Peters Long and Elad Segal and Elena Lantz and Ellie Evans and Elliott Ning and Eric Chung and Eric Harper and Eric Tramel and Erick Galinkin and Erik Pounds and Evan Briones and Evelina Bakhturina and Evgeny Tsykunov and Faisal Ladhak and Fay Wang and Fei Jia and Felipe Soares and Feng Chen and Ferenc Galko and Frank Sun and Frankie Siino and Gal Hubara Agam and Ganesh Ajjanagadde and Gantavya Bhatt and Gargi Prasad and George Armstrong and Gerald Shen and Gorkem Batmaz and Grigor Nalbandyan and Haifeng Qian and Harsh Sharma and Hayley Ross and Helen Ngo and Herbert Hum and Herman Sahota and Hexin Wang and Himanshu Soni and Hiren Upadhyay and Huizi Mao and Huy C Nguyen and Huy Q Nguyen and Iain Cunningham and Ido Galil and Ido Shahaf and Igor Gitman and Ilya Loshchilov and Itamar Schen and Itay Levy and Ivan Moshkov and Izik Golan and Izzy Putterman and Jan Kautz and Jane Polak Scowcroft and Jared Casper and Jatin Mitra and Jeffrey Glick and Jenny Chen and Jesse Oliver and Jian Zhang and Jiaqi Zeng and Jie Lou and Jimmy Zhang and Jinhang Choi and Jining Huang and Joey Conway and Joey Guman and John Kamalu and Johnny Greco and Jonathan Cohen and Joseph Jennings and Joyjit Daw and Julien Veron Vialard and Junkeun Yi and Jupinder Parmar and Kai Xu and Kan Zhu and Kari Briski and Katherine Cheung and Katherine Luna and Keith Wyss and Keshav Santhanam and Kevin Shih and Kezhi Kong and Khushi Bhardwaj and Kirthi Shankar and Krishna C. Puvvada and Krzysztof Pawelec and Kumar Anik and Lawrence McAfee and Laya Sleiman and Leon Derczynski and Li Ding and Lizzie Wei and Lucas Liebenwein and Luis Vega and Maanu Grover and Maarten Van Segbroeck and Maer Rodrigues de Melo and Mahdi Nazemi and Makesh Narsimhan Sreedhar and Manoj Kilaru and Maor Ashkenazi and Marc Romeijn and Marcin Chochowski and Mark Cai and Markus Kliegl and Maryam Moosaei and Matt Kulka and Matvei Novikov and Mehrzad Samadi and Melissa Corpuz and Mengru Wang and Meredith Price and Michael Andersch and Michael Boone and Michael Evans and Miguel Martinez and Mikail Khona and Mike Chrzanowski and Minseok Lee and Mohammad Dabbah and Mohammad Shoeybi and Mostofa Patwary and Nabin Mulepati and Najeeb Nabwani and Natalie Hereth and Nave Assaf and Negar Habibi and Neta Zmora and Netanel Haber and Nicola Sessions and Nidhi Bhatia and Nikhil Jukar and Nikki Pope and Nikolai Ludwig and Nima Tajbakhsh and Nir Ailon and Nirmal Juluru and Nishant Sharma and Oleksii Hrinchuk and Oleksii Kuchaiev and Olivier Delalleau and Oluwatobi Olabiyi and Omer Ullman Argov and Omri Puny and Oren Tropp and Ouye Xie and Parth Chadha and Pasha Shamis and Paul Gibbons and Pavlo Molchanov and Pawel Morkisz and Peter Dykas and Peter Jin and Pinky Xu and Piotr Januszewski and Pranav Prashant Thombre and Prasoon Varshney and Pritam Gundecha and Przemek Tredak and Qing Miao and Qiyu Wan and Rabeeh Karimi Mahabadi and Rachit Garg and Ran El-Yaniv and Ran Zilberstein and Rasoul Shafipour and Rich Harang and Rick Izzo and Rima Shahbazyan and Rishabh Garg and Ritika Borkar and Ritu Gala and Riyad Islam and Robert Hesse and Roger Waleffe and Rohit Watve and Roi Koren and Ruoxi Zhang and Russell Hewett and Russell J. Hewett and Ryan Prenger and Ryan Timbrook and Sadegh Mahdavi and Sahil Modi and Samuel Kriman and Sangkug Lim and Sanjay Kariyappa and Sanjeev Satheesh and Saori Kaji and Satish Pasumarthi and Saurav Muralidharan and Sean Narentharen and Sean Narenthiran and Seonmyeong Bak and Sergey Kashirsky and Seth Poulos and Shahar Mor and Shanmugam Ramasamy and Shantanu Acharya and Shaona Ghosh and Sharath Turuvekere Sreenivas and Shelby Thomas and Shiqing Fan and Shreya Gopal and Shrimai Prabhumoye and Shubham Pachori and Shubham Toshniwal and Shuoyang Ding and Siddharth Singh and Simeng Sun and Smita Ithape and Somshubra Majumdar and Soumye Singhal and Stas Sergienko and Stefania Alborghetti and Stephen Ge and Sugam Dipak Devare and Sumeet Kumar Barua and Suseella Panguluri and Suyog Gupta and Sweta Priyadarshi and Syeda Nahida Akter and Tan Bui and Teodor-Dumitru Ene and Terry Kong and Thanh Do and Tijmen Blankevoort and Tim Moon and Tom Balough and Tomer Asida and Tomer Bar Natan and Tomer Ronen and Tugrul Konuk and Twinkle Vashishth and Udi Karpas and Ushnish De and Vahid Noorozi and Vahid Noroozi and Venkat Srinivasan and Venmugil Elango and Victor Cui and Vijay Korthikanti and Vinay Rao and Vitaly Kurin and Vitaly Lavrukhin and Vladimir Anisimov and Wanli Jiang and Wasi Uddin Ahmad and Wei Du and Wei Ping and Wenfei Zhou and Will Jennings and William Zhang and Wojciech Prazuch and Xiaowei Ren and Yashaswi Karnati and Yejin Choi and Yev Meyer and Yi-Fu Wu and Yian Zhang and Yigong Qin and Ying Lin and Yonatan Geifman and Yonggan Fu and Yoshi Subara and Yoshi Suhara and Yubo Gao and Zach Moshe and Zhen Dong and Zhongbo Zhu and Zihan Liu and Zijia Chen and Zijie Yan},
+      year={2025},
+      eprint={2512.20856},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2512.20856}, 
+}
+
+@misc{qwen35blog,
+    title = {Qwen3.5: Accelerating Productivity with Native Multimodal Agents},
+    url = {https://qwen.ai/blog?id=qwen3.5},
+    author = {Qwen},
+    month = {February},
+    year = {2026}
+}
+
+@misc{kimiteam2025kimilinearexpressiveefficient,
+      title={Kimi Linear: An Expressive, Efficient Attention Architecture}, 
+      author={Kimi Team and Yu Zhang and Zongyu Lin and Xingcheng Yao and Jiaxi Hu and Fanqing Meng and Chengyin Liu and Xin Men and Songlin Yang and Zhiyuan Li and Wentao Li and Enzhe Lu and Weizhou Liu and Yanru Chen and Weixin Xu and Longhui Yu and Yejie Wang and Yu Fan and Longguang Zhong and Enming Yuan and Dehao Zhang and Yizhi Zhang and T. Y. Liu and Haiming Wang and Shengjun Fang and Weiran He and Shaowei Liu and Yiwei Li and Jianlin Su and Jiezhong Qiu and Bo Pang and Junjie Yan and Zhejun Jiang and Weixiao Huang and Bohong Yin and Jiacheng You and Chu Wei and Zhengtao Wang and Chao Hong and Yutian Chen and Guanduo Chen and Yucheng Wang and Huabin Zheng and Feng Wang and Yibo Liu and Mengnan Dong and Zheng Zhang and Siyuan Pan and Wenhao Wu and Yuhao Wu and Longyu Guan and Jiawen Tao and Guohong Fu and Xinran Xu and Yuzhi Wang and Guokun Lai and Yuxin Wu and Xinyu Zhou and Zhilin Yang and Yulun Du},
+      year={2025},
+      eprint={2510.26692},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2510.26692}, 
+}
+
+@misc{yang2025gateddeltanetworksimproving,
+      title={Gated Delta Networks: Improving Mamba2 with Delta Rule}, 
+      author={Songlin Yang and Jan Kautz and Ali Hatamizadeh},
+      year={2025},
+      eprint={2412.06464},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2412.06464}, 
+}
+
+@misc{deepseekai2025deepseekv32pushingfrontieropen,
+      title={DeepSeek-V3.2: Pushing the Frontier of Open Large Language Models}, 
+      author={DeepSeek-AI and Aixin Liu and Aoxue Mei and Bangcai Lin and Bing Xue and Bingxuan Wang and Bingzheng Xu and Bochao Wu and Bowei Zhang and Chaofan Lin and Chen Dong and Chengda Lu and Chenggang Zhao and Chengqi Deng and Chenhao Xu and Chong Ruan and Damai Dai and Daya Guo and Dejian Yang and Deli Chen and Erhang Li and Fangqi Zhou and Fangyun Lin and Fucong Dai and Guangbo Hao and Guanting Chen and Guowei Li and H. Zhang and Hanwei Xu and Hao Li and Haofen Liang and Haoran Wei and Haowei Zhang and Haowen Luo and Haozhe Ji and Honghui Ding and Hongxuan Tang and Huanqi Cao and Huazuo Gao and Hui Qu and Hui Zeng and Jialiang Huang and Jiashi Li and Jiaxin Xu and Jiewen Hu and Jingchang Chen and Jingting Xiang and Jingyang Yuan and Jingyuan Cheng and Jinhua Zhu and Jun Ran and Junguang Jiang and Junjie Qiu and Junlong Li and Junxiao Song and Kai Dong and Kaige Gao and Kang Guan and Kexin Huang and Kexing Zhou and Kezhao Huang and Kuai Yu and Lean Wang and Lecong Zhang and Lei Wang and Liang Zhao and Liangsheng Yin and Lihua Guo and Lingxiao Luo and Linwang Ma and Litong Wang and Liyue Zhang and M. S. Di and M. Y Xu and Mingchuan Zhang and Minghua Zhang and Minghui Tang and Mingxu Zhou and Panpan Huang and Peixin Cong and Peiyi Wang and Qiancheng Wang and Qihao Zhu and Qingyang Li and Qinyu Chen and Qiushi Du and Ruiling Xu and Ruiqi Ge and Ruisong Zhang and Ruizhe Pan and Runji Wang and Runqiu Yin and Runxin Xu and Ruomeng Shen and Ruoyu Zhang and S. H. Liu and Shanghao Lu and Shangyan Zhou and Shanhuang Chen and Shaofei Cai and Shaoyuan Chen and Shengding Hu and Shengyu Liu and Shiqiang Hu and Shirong Ma and Shiyu Wang and Shuiping Yu and Shunfeng Zhou and Shuting Pan and Songyang Zhou and Tao Ni and Tao Yun and Tian Pei and Tian Ye and Tianyuan Yue and Wangding Zeng and Wen Liu and Wenfeng Liang and Wenjie Pang and Wenjing Luo and Wenjun Gao and Wentao Zhang and Xi Gao and Xiangwen Wang and Xiao Bi and Xiaodong Liu and Xiaohan Wang and Xiaokang Chen and Xiaokang Zhang and Xiaotao Nie and Xin Cheng and Xin Liu and Xin Xie and Xingchao Liu and Xingkai Yu and Xingyou Li and Xinyu Yang and Xinyuan Li and Xu Chen and Xuecheng Su and Xuehai Pan and Xuheng Lin and Xuwei Fu and Y. Q. Wang and Yang Zhang and Yanhong Xu and Yanru Ma and Yao Li and Yao Li and Yao Zhao and Yaofeng Sun and Yaohui Wang and Yi Qian and Yi Yu and Yichao Zhang and Yifan Ding and Yifan Shi and Yiliang Xiong and Ying He and Ying Zhou and Yinmin Zhong and Yishi Piao and Yisong Wang and Yixiao Chen and Yixuan Tan and Yixuan Wei and Yiyang Ma and Yiyuan Liu and Yonglun Yang and Yongqiang Guo and Yongtong Wu and Yu Wu and Yuan Cheng and Yuan Ou and Yuanfan Xu and Yuduan Wang and Yue Gong and Yuhan Wu and Yuheng Zou and Yukun Li and Yunfan Xiong and Yuxiang Luo and Yuxiang You and Yuxuan Liu and Yuyang Zhou and Z. F. Wu and Z. Z. Ren and Zehua Zhao and Zehui Ren and Zhangli Sha and Zhe Fu and Zhean Xu and Zhenda Xie and Zhengyan Zhang and Zhewen Hao and Zhibin Gou and Zhicheng Ma and Zhigang Yan and Zhihong Shao and Zhixian Huang and Zhiyu Wu and Zhuoshu Li and Zhuping Zhang and Zian Xu and Zihao Wang and Zihui Gu and Zijia Zhu and Zilin Li and Zipeng Zhang and Ziwei Xie and Ziyi Gao and Zizheng Pan and Zongqing Yao and Bei Feng and Hui Li and J. L. Cai and Jiaqi Ni and Lei Xu and Meng Li and Ning Tian and R. J. Chen and R. L. Jin and S. S. Li and Shuang Zhou and Tianyu Sun and X. Q. Li and Xiangyue Jin and Xiaojin Shen and Xiaosha Chen and Xinnan Song and Xinyi Zhou and Y. X. Zhu and Yanping Huang and Yaohui Li and Yi Zheng and Yuchen Zhu and Yunxian Ma and Zhen Huang and Zhipeng Xu and Zhongyu Zhang and Dongjie Ji and Jian Liang and Jianzhong Guo and Jin Chen and Leyi Xia and Miaojun Wang and Mingming Li and Peng Zhang and Ruyi Chen and Shangmian Sun and Shaoqing Wu and Shengfeng Ye and T. Wang and W. L. Xiao and Wei An and Xianzu Wang and Xiaowen Sun and Xiaoxiang Wang and Ying Tang and Yukun Zha and Zekai Zhang and Zhe Ju and Zhen Zhang and Zihua Qu},
+      year={2025},
+      eprint={2512.02556},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2512.02556}, 
+}
+
+@misc{minicpmteam2025minicpm4ultraefficientllmsend,
+      title={MiniCPM4: Ultra-Efficient LLMs on End Devices}, 
+      author={MiniCPM Team and Chaojun Xiao and Yuxuan Li and Xu Han and Yuzhuo Bai and Jie Cai and Haotian Chen and Wentong Chen and Xin Cong and Ganqu Cui and Ning Ding and Shengda Fan and Yewei Fang and Zixuan Fu and Wenyu Guan and Yitong Guan and Junshao Guo and Yufeng Han and Bingxiang He and Yuxiang Huang and Baoxi Ji and Cunliang Kong and Qiuzuo Li and Siyuan Li and Wenhao Li and Xin Li and Yanghao Li and Yishan Li and Zhen Li and Dan Liu and Biyuan Lin and Yankai Lin and Xiang Long and Quanyu Lu and Yaxi Lu and Peiyan Luo and Hongya Lyu and Litu Ou and Yinxu Pan and Lushi Pu and Zekai Qu and Qundong Shi and Zijun Song and Jiayuan Su and Zhou Su and Ao Sun and Xianghui Sun and Peijun Tang and Fangzheng Wang and Feng Wang and Shuo Wang and Yudong Wang and Zheng Wang and Yesai Wu and Zhenyu Xiao and Jie Xie and Zihao Xie and Xiaoyue Xu and Yukun Yan and Jiarui Yuan and Jinqian Zhang and Kaihuo Zhang and Lei Zhang and Linyue Zhang and Xueren Zhang and Yudi Zhang and Hengyu Zhao and Weilin Zhao and Weilun Zhao and Yuanqian Zhao and Zhi Zheng and Chuyue Zhou and Ge Zhou and Jie Zhou and Wei Zhou and Yanghao Zhou and Zihan Zhou and Zixuan Zhou and Zhiyuan Liu and Guoyang Zeng and Chao Jia and Dahai Li and Maosong Sun},
+      year={2025},
+      eprint={2506.07900},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2506.07900}, 
+}
+
+
+@misc{lu2025mobamixtureblockattention,
+      title={MoBA: Mixture of Block Attention for Long-Context LLMs}, 
+      author={Enzhe Lu and Zhejun Jiang and Jingyuan Liu and Yulun Du and Tao Jiang and Chao Hong and Shaowei Liu and Weiran He and Enming Yuan and Yuzhi Wang and Zhiqi Huang and Huan Yuan and Suting Xu and Xinran Xu and Guokun Lai and Yanru Chen and Huabin Zheng and Junjie Yan and Jianlin Su and Yuxin Wu and Neo Y. Zhang and Zhilin Yang and Xinyu Zhou and Mingxing Zhang and Jiezhong Qiu},
+      year={2025},
+      eprint={2502.13189},
+      archivePrefix={arXiv},
+      primaryClass={cs.LG},
+      url={https://arxiv.org/abs/2502.13189}, 
+}
+
+@inproceedings{lai2025flexprefill,
+  author       = {Xunhao Lai and
+                  Jianqiao Lu and
+                  Yao Luo and
+                  Yiyuan Ma and
+                  Xun Zhou},
+  title        = {FlexPrefill: {A} Context-Aware Sparse Attention Mechanism for Efficient
+                  Long-Sequence Inference},
+  booktitle    = {The Thirteenth International Conference on Learning Representations,
+                  {ICLR} 2025, Singapore, April 24-28, 2025},
+  publisher    = {OpenReview.net},
+  year         = {2025},
+  url          = {https://openreview.net/forum?id=OfjIlbelrT},
+  timestamp    = {Thu, 15 May 2025 17:19:05 +0200},
+  biburl       = {https://dblp.org/rec/conf/iclr/LaiLLMZ25.bib},
+  bibsource    = {dblp computer science bibliography, https://dblp.org}
+}
+
+@article{zhao2025infllmv2,
+  author       = {Weilin Zhao and
+                  Zihan Zhou and
+                  Zhou Su and
+                  Chaojun Xiao and
+                  Yuxuan Li and
+                  Yanghao Li and
+                  Yudi Zhang and
+                  Weilun Zhao and
+                  Zhen Li and
+                  Yuxiang Huang and
+                  Ao Sun and
+                  Xu Han and
+                  Zhiyuan Liu},
+  title        = {InfLLM-V2: Dense-Sparse Switchable Attention for Seamless Short-to-Long
+                  Adaptation},
+  journal      = {CoRR},
+  volume       = {abs/2509.24663},
+  year         = {2025},
+  url          = {https://doi.org/10.48550/arXiv.2509.24663},
+  doi          = {10.48550/ARXIV.2509.24663},
+  eprinttype   = {arXiv},
+  eprint       = {2509.24663},
+  timestamp    = {Fri, 29 May 2026 18:22:01 +0200},
+  biburl       = {https://dblp.org/rec/journals/corr/abs-2509-24663.bib},
+  bibsource    = {dblp computer science bibliography, https://dblp.org}
+}
+
+% ===== Additional benchmark citations for the Evaluations paragraph =====
+
+@article{rein2023gpqa,
+  title   = {{GPQA}: A Graduate-Level Google-Proof {Q\&A} Benchmark},
+  author  = {Rein, David and Hou, Betty Li and Stickland, Asa Cooper and Petty, Jackson and Pang, Richard Yuanzhe and Dirani, Julien and Michael, Julian and Bowman, Samuel R.},
+  journal = {arXiv preprint arXiv:2311.12022},
+  year    = {2023}
+}
+
+@article{sun2025olymmath,
+  title   = {Challenging the Boundaries of Reasoning: An Olympiad-Level Math Benchmark for Large Language Models},
+  author  = {Sun, Haoxiang and Chen, Yingqian and Wen, Xueyang and Hu, Bingchen and Shi, Tianyi and Wang, Tianyi and Wu, Junyi and Zhou, Wayne Xin and Wen, Ji-Rong},
+  journal = {arXiv preprint arXiv:2503.21380},
+  year    = {2025}
+}
+
+@article{cassano2023multipl,
+  title   = {{MultiPL-E}: A Scalable and Polyglot Approach to Benchmarking Neural Code Generation},
+  author  = {Cassano, Federico and Gouwar, John and Nguyen, Daniel and Nguyen, Sydney and Phipps-Costin, Luna and Pinckney, Donald and Yee, Ming-Ho and Zi, Yangtian and Anderson, Carolyn Jane and Feldman, Molly Q. and Guha, Arjun and Greenberg, Michael and Jangda, Abhinav},
+  journal = {IEEE Transactions on Software Engineering},
+  volume  = {49},
+  number  = {7},
+  pages   = {3675--3691},
+  year    = {2023}
+}
+
+@inproceedings{kembhavi2016ai2d,
+  title     = {A Diagram Is Worth a Dozen Images},
+  author    = {Kembhavi, Aniruddha and Salvato, Michael and Kolve, Eric and Seo, Minjoon and Hajishirzi, Hannaneh and Farhadi, Ali},
+  booktitle = {European Conference on Computer Vision (ECCV)},
+  year      = {2016}
+}
+
+@inproceedings{yue2024mmmu,
+  title     = {{MMMU}: A Massive Multi-discipline Multimodal Understanding and Reasoning Benchmark for Expert {AGI}},
+  author    = {Yue, Xiang and Ni, Yuansheng and Zhang, Kai and Zheng, Tianyu and Liu, Ruoqi and Zhang, Ge and Stevens, Samuel and Jiang, Dongfu and Ren, Weiming and Sun, Yuxuan and Wei, Cong and Yu, Botao and Yuan, Ruibin and Sun, Renliang and Yin, Ming and Zheng, Boyuan and Yang, Zhenzhu and Liu, Yibo and Huang, Wenhao and Sun, Huan and Su, Yu and Chen, Wenhu},
+  booktitle = {IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)},
+  year      = {2024}
+}
+
+@inproceedings{wang2024charxiv,
+  title     = {{CharXiv}: Charting Gaps in Realistic Chart Understanding in Multimodal {LLMs}},
+  author    = {Wang, Zirui and Xia, Mengzhou and He, Luxi and Chen, Howard and Liu, Yitao and Zhu, Richard and Liang, Kaiqu and Wu, Xindi and Liu, Haotian and Malladi, Sadhika and Chevalier, Alexis and Arora, Sanjeev and Chen, Danqi},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS) Datasets and Benchmarks Track},
+  year      = {2024}
+}
+
+@inproceedings{mangalam2023egoschema,
+  title     = {{EgoSchema}: A Diagnostic Benchmark for Very Long-form Video Language Understanding},
+  author    = {Mangalam, Karttikeya and Akshulakov, Raiymbek and Malik, Jitendra},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS) Datasets and Benchmarks Track},
+  year      = {2023}
+}
+
+@article{zhao2025mmvu,
+  title   = {{MMVU}: Measuring Expert-Level Multi-Discipline Video Understanding},
+  author  = {Zhao, Yilun and Xie, Lujing and Zhang, Haowei and Gan, Guo and Long, Yitao and Hu, Zhiyuan and Hu, Tongyan and Chen, Weiyuan and Li, Chuhan and Song, Junyang and others},
+  journal = {arXiv preprint arXiv:2501.12380},
+  year    = {2025}
+}
+
+@article{fu2024videomme,
+  title   = {{Video-MME}: The First-Ever Comprehensive Evaluation Benchmark of Multi-modal {LLMs} in Video Analysis},
+  author  = {Fu, Chaoyou and Dai, Yuhan and Luo, Yongdong and Li, Lei and Ren, Shuhuai and Zhang, Renrui and Wang, Zihan and Zhou, Chenyu and Shen, Yunhang and Zhang, Mengdan and others},
+  journal = {arXiv preprint arXiv:2405.21075},
+  year    = {2024}
+}
+
+@article{barres2025tau2,
+  title   = {{$\tau^2$-bench}: Evaluating Conversational Agents in a Dual-Control Environment},
+  author  = {Barres, Victor and Dong, Honghua and Ray, Soham and Si, Xujie and Narasimhan, Karthik},
+  journal = {arXiv preprint arXiv:2506.07982},
+  year    = {2025}
+}
+
+@article{xu2024theagentcompany,
+  title   = {{TheAgentCompany}: Benchmarking {LLM} Agents on Consequential Real World Tasks},
+  author  = {Xu, Frank F. and Song, Yufan and Li, Boxuan and Tang, Yuxuan and Jain, Kritanjali and Bao, Mengxue and Wang, Zora Z. and Zhou, Xuhui and Guo, Zhitong and Cao, Murong and others},
+  journal = {arXiv preprint arXiv:2412.14161},
+  year    = {2024}
+}
+
+@article{phan2025hle,
+  title   = {Humanity's Last Exam},
+  author  = {Phan, Long and Gatti, Alice and Han, Ziwen and Li, Nathaniel and Hu, Josephina and Zhang, Hugh and others},
+  journal = {arXiv preprint arXiv:2501.14249},
+  year    = {2025}
+}
+
+@inproceedings{jimenez2024swebench,
+  title     = {{SWE-bench}: Can Language Models Resolve Real-World {GitHub} Issues?},
+  author    = {Jimenez, Carlos E. and Yang, John and Wettig, Alexander and Yao, Shunyu and Pei, Kexin and Press, Ofir and Narasimhan, Karthik R.},
+  booktitle = {International Conference on Learning Representations (ICLR)},
+  year      = {2024}
+}
+
+
+@misc{wang2025tilelangcomposabletiledprogramming,
+      title={TileLang: A Composable Tiled Programming Model for AI Systems}, 
+      author={Lei Wang and Yu Cheng and Yining Shi and Zhengju Tang and Zhiwen Mo and Wenhao Xie and Lingxiao Ma and Yuqing Xia and Jilong Xue and Fan Yang and Zhi Yang},
+      year={2025},
+      eprint={2504.17577},
+      archivePrefix={arXiv},
+      primaryClass={cs.LG},
+      url={https://arxiv.org/abs/2504.17577}, 
+}
+
+@article{wang2025tilelang,
+  title={Tilelang: A composable tiled programming model for ai systems},
+  author={Wang, Lei and Cheng, Yu and Shi, Yining and Tang, Zhengju and Mo, Zhiwen and Xie, Wenhao and Ma, Lingxiao and Xia, Yuqing and Xue, Jilong and Yang, Fan and others},
+  journal={arXiv preprint arXiv:2504.17577},
+  year={2025}
+}

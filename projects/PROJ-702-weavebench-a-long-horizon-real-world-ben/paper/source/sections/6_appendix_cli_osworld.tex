@@ -1,0 +1,109 @@
+% ============================================================
+%  Appendix E: CLI-Only Re-evaluation of OSWorld
+%  (Final numbers; intent-judge sweep complete 2026-06-06 06:30 CST,
+%   tag OSW_full_370_CLI_INTENT_20260605_232215)
+% ============================================================
+
+\newcommand{\cliOswN}{362}
+\newcommand{\cliOswIntent}{79.1}
+\newcommand{\cuaVisionIntent}{77.3}
+\newcommand{\cuaVisionNative}{64.3}
+\newcommand{\cliOswSteps}{14.3}
+\newcommand{\cuaVisionSteps}{29.0}
+
+\FloatBarrier
+\section{CLI-Only Re-evaluation of OSWorld}
+\label{app:cli-osworld}
+
+\paragraph{Setup.}
+Existing GUI benchmarks are widely used to measure GUI capability, yet it is
+unclear how much of their difficulty actually requires the GUI. We probe this
+question on OSWorld \citep{xie2024osworld}: we re-run it under a strict
+\emph{CLI-only} ablation inside the same environment that the public GUI
+leaderboard uses, holding the environment, model, instruction wording, and
+evaluator fixed and varying only the agent's tool surface\,---\,a fair
+GUI-vs-CLI counterfactual on identical tasks. The agent is a standard
+OpenClaw CLI coding agent: it never observes pixels and acts only through
+shell and code, reaching the browser when needed through a programmatic
+automation interface. We run it with \texttt{gpt-5.5} (\emph{medium}
+thinking) under a fairness-audited prompt that differs from the GUI baseline
+only in its description of the available tools.
+
+\paragraph{Scoring: human-audited, GT-aware in-VM agent-as-judge.}
+We score each task with an intent-oriented, \emph{GT-aware} \emph{in-VM}
+agent-as-judge: a \texttt{gpt-5.5} judge that is given the task's ground-truth
+evaluator spec and read-only access to the \emph{live VM} and the agent's full
+trajectory, and decides whether the agent achieved the user's
+\emph{substantive intent} by \emph{any} path, with \emph{real} evidence. It
+re-fetches evidence from the running VM (file contents, process/DOM state,
+pixel comparisons) rather than trusting the agent's report, so it credits an
+alternative channel that genuinely delivers the outcome\,---\,even when it does
+not match the exact GUI state OSWorld's original getter inspects\,---\,while
+failing fabricated completions (spoofed states, unverified ``Done'' claims) and
+genuinely-unachieved goals (blocked access, wrong or empty results). The judge
+defaults to \textsc{fail} and requires concrete VM evidence to pass. Every
+reported number is \emph{human-audited}: we manually reviewed the judge's
+reasoning against the agent's real tool outputs for both channels, and
+hand-inspected the failure modes most prone to inflation\,---\,fabricated
+artefacts (e.g.\ PIL-synthesised images) and verdicts that merely trust an
+agent's self-report\,---\,finding none, as image/media deliverables are verified
+by pixel statistics, file hashes, and document XML. The reported pass rate is
+thus a \emph{conservative lower bound}, with one known asymmetry: on
+\emph{infeasible} tasks (success = explicitly reporting the goal cannot be done)
+the judge can under-credit a vision agent whose refusal is only visual.
+
+\paragraph{Result: comparable accuracy under one judge.}
+\label{app:cli-osworld-results}
+Across the OSWorld suite (ten domains; eight credential-gated tasks dropped for
+both agents), we score \emph{both} surfaces with the \emph{same} intent
+agent-as-judge\,---\,not OSWorld's native verifier\,---\,so they share one
+yardstick. The CLI agent reaches \textbf{\cliOswIntent{}\,\%} and the pure-vision
+agent \textbf{\cuaVisionIntent{}\,\%} (Table~\ref{tab:cli-vs-vision}): at the
+same model and tasks, the two channels are on par. The judge corrects the
+native getter in both directions: it recovers
+genuine file-/CDP-based successes the getter misses (\texttt{libreoffice},
+\texttt{multi\_apps}) and rejects pixel-identical or fabricated ``edits'' it
+over-credits (\texttt{gimp}). A pixel-blind CLI agent thus matches a same-model
+vision agent on this nominally GUI-native benchmark.
+
+\paragraph{Efficiency.}
+The CLI agent reaches the same outcomes in about \emph{half} the steps\,---\,%
+\cliOswSteps{} model calls per task vs.\ \cuaVisionSteps{} computer-use turns
+(Table~\ref{tab:cli-vs-vision})\,---\,since one shell command can mutate a file
+where vision needs a click--screenshot loop per action. Its advantage on
+OSWorld is thus efficiency, not accuracy.
+
+
+\begin{table}[t]
+\centering\small
+\caption{Same model (\texttt{gpt-5.5}, \emph{medium} thinking), same
+environment, same identical tasks, two tool surfaces, and\,---\,crucially\,---\,%
+\emph{the same intent agent-as-judge} scoring both. ``CLI'' is the pixel-blind
+CLI agent; ``Vision'' is a pure GUI agent (screenshot perception,
+mouse/keyboard actions). The $\Delta$ column is CLI $-$ Vision.
+\emph{Steps} is the mean number of agent--model interaction turns per task
+(CLI: OpenClaw model calls; Vision: computer-use turns)\,---\,an indicative
+measure of interaction length rather than a strictly identical unit.}
+\label{tab:cli-vs-vision}
+\begin{tabular}{lccccc}
+\toprule
+& \multicolumn{3}{c}{Pass rate (\%)} & \multicolumn{2}{c}{Steps} \\
+\cmidrule(lr){2-4}\cmidrule(lr){5-6}
+Application & CLI & Vision & $\Delta$ & CLI & Vision \\
+\midrule
+\texttt{gimp}                 & \textbf{57.7} & 42.3 & $+15.4$ & \textbf{17.9} & 24.7 \\
+\texttt{vs\_code}             & \textbf{82.6} & 72.7 & $+9.9$  & \textbf{7.0}  & 13.8 \\
+\texttt{libreoffice\_impress} & \textbf{89.4} & 82.6 & $+6.8$  & \textbf{12.1} & 27.7 \\
+\texttt{vlc}                  & \textbf{76.5} & 70.6 & $+5.9$  & \textbf{12.0} & 13.3 \\
+\texttt{chrome}               & \textbf{72.5} & 70.2 & $+2.3$  & \textbf{24.2} & 28.2 \\
+\texttt{libreoffice\_calc}    & \textbf{91.5} & 89.4 & $+2.1$  & \textbf{9.8}  & 30.3 \\
+\texttt{os}                   & \textbf{70.8} & 69.6 & $+1.3$  & \textbf{6.6}  & 10.6 \\
+\texttt{multi\_apps}          & 79.2 & \textbf{83.7} & $-4.5$  & \textbf{16.4} & 42.3 \\
+\texttt{thunderbird}          & 73.3 & \textbf{78.6} & $-5.2$  & \textbf{19.7} & 27.9 \\
+\texttt{libreoffice\_writer}  & 78.3 & \textbf{87.0} & $-8.7$  & \textbf{11.3} & 27.6 \\
+\midrule
+\textbf{Overall} & \textbf{\cliOswIntent} & \cuaVisionIntent & $+1.8$ & \textbf{\cliOswSteps} & \cuaVisionSteps \\
+\bottomrule
+\end{tabular}
+\end{table}
+

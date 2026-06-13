@@ -1,0 +1,49 @@
+{
+  "arxiv_id": "2606.13681",
+  "arxiv_url": "https://arxiv.org/abs/2606.13681",
+  "title": "EvoArena: Tracking Memory Evolution for Robust LLM Agents in Dynamic Environments",
+  "authors": [
+    "Jundong Xu",
+    "Qingchuan Li",
+    "Jiaying Wu",
+    "Yihuai Lan",
+    "Shuyue Stella Li",
+    "Huichi Zhou",
+    "Bowen Jiang",
+    "Lei Wang",
+    "Jun Wang",
+    "Anh Tuan Luu",
+    "Caiming Xiong",
+    "Hae Won Park",
+    "Bryan Hooi",
+    "Zhiyuan Hu"
+  ],
+  "submitter": "github-actions[bot]",
+  "abstract": "Large language model (LLM) agents have achieved strong performance on a wide range of benchmarks, yet most evaluations assume static environments. In contrast, real-world deployment is inherently dynamic, requiring agents to continually align their knowledge, skills, and behavior with changing environments and updated task conditions. To address this gap, we introduce EvoArena, a benchmark suite that models environment changes as sequences of progressive updates across terminal, software, and social domains. We further propose EvoMem, a patch-based memory paradigm that records memory evolution as structured update histories, enabling agents to reason about environmental evolution through changes in their memory. Experiments show that current agents struggle on EvoArena, achieving an average accuracy of 39.6% across evolving terminal, software, and social-preference domains. EvoMem consistently improves performance, yielding an average gain of 1.5% on EvoArena and also improving standard benchmarks such as GAIA and LoCoMo by 6.1% and 4.8%. Beyond individual tasks, EvoMem further improves chain-level accuracy by 3.7% on EvoArena, where success requires completing a consecutive sequence of related evolutionary subtasks. Mechanistic analysis shows that EvoMem improves evidence capture in the memory, indicating better preservation of complete evolving environment states. Our results highlight the importance of modeling evolution in both evaluation and memory for reliable agent deployment.",
+  "submitted_via": "llmXive dashboard, GitHub issue #320",
+  "license": "arXiv Non-exclusive Distribution License",
+  "license_url": "http://arxiv.org/licenses/nonexclusive-distrib/1.0/",
+  "code": [
+    "https://github.com/Aiden0526/EvoArena"
+  ],
+  "data": [],
+  "toplevel_tex": [
+    "neurips_2026.tex"
+  ],
+  "source_files": [
+    "00README.json",
+    "figure",
+    "figure/MemGit3.pdf",
+    "figure/evoarena_overall_performance.pdf",
+    "figure/token_efficiency_combined_v3.pdf",
+    "figure/swe-evo.pdf",
+    "figure/persona-mem.pdf",
+    "figure/evoarena_domain_double_pie.pdf",
+    "figure/terminal-bench.pdf",
+    "figure/benchmark-v4.pdf",
+    "figure/hf-logo.png",
+    "neurips_2026.sty",
+    "neurips_2026.tex",
+    "ref.bib"
+  ]
+}

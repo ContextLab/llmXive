@@ -1,0 +1,106 @@
+\input{tables/main_results}
+\input{tables/ablation_action_interface}
+
+
+\begin{figure*}[t]
+    \centering
+    \includegraphics[width=\linewidth]{figures/pdf/pairwise_winloss_by_meta_category.pdf}
+    \caption{\textbf{Pairwise win/loss margin of \ours{} over baselines across 13 meta-categories.} 
+    \ours{} outperforms both (a) Structured tool-call and (b) Single-pass Code in 11/13 categories. 
+    The largest gains concentrate in categories that demand multi-step geometric composition.}
+    \label{fig:pairwise_winloss_per_meta}
+\end{figure*}
+
+\section{Results}
+
+\paragrapht{Evaluation setup.}
+We evaluate on 20 spatial reasoning benchmarks spanning single-image spatial reasoning~\citep{team2025gemini,marsili2025visual,jia2025omnispatial,xu2025spbench}, multi-view spatial reasoning~\citep{yin2025mindcube,yang2025mmsi,zhang2025from}, general spatial reasoning~\citep{fu2024blink,xiao2025spatialtree,li2025viewspatial}, video spatial \& 4D reasoning~\citep{lin2025mmsivideo,wu2025osibench,zhou2025paibench,brown2025shortcuts,fan2025vlm,zhang2025dsibench}, and general video understanding~\citep{zhu2025cvbench,li2026perceptioncomp,fu2025video,videommev2_2026}. 
+Evaluation details are provided in \S\ref{app:benchmarks}.
+We evaluate across several open-source VLM backbones, including the 122B-A10B and 397B-A17B variants of Qwen3.5~\citep{qwen3.5}, the 35B-A3B and 27B variants of Qwen3.6~\citep{qwen3.6-27b}, and the 31B and 26B-A4B variants of Gemma4~\citep{gemma4}. 
+Due to the large number of benchmarks and backbones, we cap evaluation at $1,000$ samples for benchmarks exceeding that size; otherwise, all samples are used. $N_{max}=30$ is used for all benchmarks.
+For all results in Tab.~\ref{tab:main_results} and Tab.~\ref{tab:action_interface}, the same hyperparameters, system prompts, and perception tools are used across all benchmarks and backbone models; further details are in the supplementary material.
+
+\paragrapht{Benchmark results.}
+\label{sec:main_results}
+Tab.~\ref{tab:main_results} reports results across 20 spatial reasoning benchmarks, spanning a broad range of tasks including video reasoning.
+\ours{} consistently improves over the no-tool baseline across all six backbone models, with the most pronounced gains on video spatial \& 4D reasoning (e.g., DSI-Bench, avg.\ $+18.3\%p$) and multi-view spatial reasoning (e.g., MindCube, avg.\ $+14.3\%p$), categories that benefit most from iterative multi-step geometric computation across frames or viewpoints.
+Notably, these gains hold consistently across models ranging from 26B to 397B parameters without any modification, suggesting that our design generalizes to future models \textit{without model-specific tuning}.
+
+\paragrapht{Action interface comparison.}
+\label{sec:abl_action}
+
+Tab.~\ref{tab:action_interface} compares \ours{} against two alternative action interfaces that share the same toolset and system prompt, differing only in the response format and the system prompt section describing the action interface. 
+We also include a \emph{No-tool} baseline that receives visual inputs and reasons directly without tool access. Implementation details for each baseline are provided in \S\ref{app:baselines}.
+\emph{Single-Pass Code} moves to open code, but asks the model to generate one complete program before seeing execution feedback;
+\emph{Structured Tool-Call} adds external perception through a JSON command interface. The results show that \ours{} consistently outperforms the other two action interfaces across all benchmarks, with the largest gains on tasks that require multi-step geometric composition. 
+These results validate the generalizability of \ours{}'s action interface for spatial reasoning. 
+
+
+\input{tables/ablation_components}
+
+\paragrapht{Quantitative comparison with other spatial agent methods.}
+\label{sec:abl_comparison}
+Tab.~\ref{tab:comparison_agents} compares \ours{} against recent spatial agent methods~\citep{marsili2025visual,luo2026pyspatial,chen2025spacetools} using the same Gemma4-31B~\citep{gemma4} backbone for all methods, using the official implementation of each method. 
+Here, VADAR and pySpatial fall into the category of single-pass code, while SpaceTools uses the structured tool-call interface.
+VADAR does not support video or multi-image inputs, so the corresponding entries are left blank.
+
+Overall, \ours{} outperforms all baselines across all benchmarks, achieving the largest margin over SpaceTools ($+11.2\%p$ on average). Among the baselines, SpaceTools ranks highest, consistent with Tab.~\ref{tab:action_interface}, which shows that structured tool-calls generally outperform single-pass code. \ours{} further improves over both action interfaces across all evaluated setups.
+
+We also note that the baselines do not consistently improve over the no-tool baseline. For SpaceTools, we hypothesize that the method is designed to be fine-tuned via reinforcement learning, which may limit its zero-shot generalization. Other baselines may similarly have been optimized for narrower task categories, which could partly explain their limited performance across the diverse benchmarks evaluated here.
+
+\section{Analysis and Insights}
+\label{sec:analysis}
+In this section, we investigate \emph{why} \ours{}'s action interface improves spatial reasoning beyond what structured alternatives can achieve.
+
+\finding{\ours{} generalizes across diverse spatial reasoning tasks even without pre-defined utility tools.}
+
+Tab.~\ref{tab:ablation} reports an ablation study examining how the composition of the tool set affects performance. In variant \textbf{(I)}, we remove all utility wrappers (e.g., \texttt{tools.Mask}, \texttt{tools.Geometry}) described in \S\ref{app:tools}, retaining only the core perception tools (SAM3/DA3) and the scientific computing libraries (\texttt{numpy}, \texttt{scipy}) available in the execution environment. This configuration tests whether the agent can substitute pre-defined utility logic with on-the-fly numerical computation.
+Variant \textbf{(I)} achieves performance on par with full \ours{}, suggesting that the persistent kernel with scientific primitives can largely compensate for the absent utility tools. 
+We also report a no-perception variant \textbf{(II)}, which removes the perception tools (SAM3/DA3) from full \ours{}, leaving only the code-as-action interface with scientific libraries. The resulting $+2.7\%p$ gain over the no-tool baseline isolates the contribution of the action interface itself, independent of the perception tools.
+
+
+
+\finding{The agent spontaneously adapts its tool composition to the question type: distance questions preferentially invoke KD-tree search and norm operations, while direction questions rely on dot products. (Fig.~\ref{fig:caa-vocab})}{}
+
+\begin{wrapfigure}{r}{0.52\textwidth}
+\centering
+\includegraphics[width=\linewidth]{figures/pdf/primitive_usage_by_category.pdf}
+\caption{\textbf{Composition adapts to the question type.} Primitive usage frequency across meta-categories.}
+\label{fig:caa-vocab}
+\end{wrapfigure}
+
+To understand \emph{how} the agent composes tools, we analyze the distribution of primitives (i.e., numpy and scipy operations) invoked across meta-categories (Figure~\ref{fig:caa-vocab}). 
+To enable a unified analysis across benchmarks, we group the fine-grained task categories of the 20 benchmarks into 13 semantically coherent meta-categories (e.g., depth estimation, relative direction, camera motion). 
+The heatmap reveals a clear specialization: distance-type questions heavily use spatial indexing (\texttt{KDTree}) and vector norms, which are the natural building blocks for nearest-neighbor and proximity; direction-type questions instead rely on dot products and angular operations, which capture orientation and heading. Critically, this specialization is \emph{not} hard-coded; no category-specific prompt engineering or tool routing was applied. The agent selects geometrically appropriate primitives solely from the question semantics, demonstrating that \ours{}'s action interface unlocks a form of spontaneous, task-adaptive composition that is difficult to achieve with a structured tool-call interface.
+
+
+
+
+
+\finding{\ours{} gains are largest precisely where chained geometric computation across frames and viewpoints is required, validating \ours{}'s action interface design. (Fig.~\ref{fig:pairwise_winloss_per_meta})}{}
+
+In Figure~\ref{fig:pairwise_winloss_per_meta}, we compare \ours{} against the Structured tool-call and Single-pass Code baselines across 13 meta-categories. 
+To construct these meta-categories, we map each benchmark's fine-grained category labels into one of 13 coarser groups spanning all 20 evaluated benchmarks.
+\ours{} secures a net advantage in 11/13 categories over both Structured tool-call and Single-pass Code. 
+The largest lifts ($+$6--9 pp) concentrate in Camera motion, Multi-view/viewpoint reasoning, and Relative direction, precisely the categories that require chained geometric computation across frames and viewpoints. This is where the persistent kernel, by enabling cross-step composition and revision, provides the greatest leverage. Where gains are smaller, the bottleneck is perception quality: Visual recognition tasks are already near-saturated by the backbone VLM, leaving little room for interface-level gains. Together, this breakdown confirms that the expressive action interface is the primary driver of performance, not model capacity or tool coverage.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

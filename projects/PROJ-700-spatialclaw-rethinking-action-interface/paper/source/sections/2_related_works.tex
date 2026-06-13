@@ -1,0 +1,24 @@
+\section{Related Works}
+\label{app:related}
+
+\paragraph{Spatial reasoning in VLMs.}
+Despite broad progress in vision-language models (VLMs), spatial reasoning remains a persistently limited capability~\citep{chen2024spatialvlm,cheng2024spatialrgpt,song2025robospatial}.
+A common response is to fine-tune VLMs with spatial supervision, either by distilling 3D annotations into instruction data~\citep{chen2024spatialvlm,cheng2024spatialrgpt} or by augmenting the model with explicit geometry modules~\citep{hu2025g,fan2025vlm,zhang2026make}.
+These approaches produce fast, self-contained models, but require retraining whenever perception modules or task distributions change.
+
+\paragraph{Tool-augmented visual agents.}
+Tool-augmented visual agents have an LLM compose calls to specialist vision modules~\citep{Gupta2022VisProg,surismenon2023vipergpt,shen2023hugginggpt,zhao2025pyvision,lu2026octotools}.
+Early work synthesizes a full program in a single pass~\citep{Gupta2022VisProg,surismenon2023vipergpt}, subsequent work dispatches requests through structured tool menus~\citep{shen2023hugginggpt,lu2026octotools}.
+These systems establish that external perception can extend an LLM beyond its native visual capabilities, but they either constrain the agent to a fixed tool interface that may limit generalization to novel compositions, or commit to a full program before any intermediate output can be inspected, or fuse perception and planning inside a single multimodal model that cannot independently verify intermediate tool outputs.
+
+\paragraph{Spatial reasoning agents.}
+GCA~\citep{chen2025geometrically} decouples the VLM into a semantic analyst that formalizes the query as geometric constraints and a task solver that executes tool calls within those bounds, RieMind~\citep{ropero2026riemind} grounds an LLM in an explicit 3D scene graph queried through typed geometric operations, and SpaceTools~\citep{chen2025spacetools} fine-tunes a VLM to coordinate a predefined set of perception tools through supervised demonstrations followed by interactive reinforcement learning.
+Think3D~\citep{zhang2026think3d} uses a closely related but more specialized interface, repeatedly selecting camera viewpoints to render a reconstructed point cloud and reasoning over the rendered images.
+pySpatial~\citep{luo2026pyspatial} composes reconstruction, camera-pose recovery, and novel-view synthesis into a 3D visual program, and VADAR~\citep{marsili2025visual} first synthesizes a task-specific Pythonic API and then a program that calls into it.
+Neither writes code turn-by-turn in response to intermediate execution results, so per-step inspection of perception outputs is limited.
+
+\paragraph{Code action interface for LLM agents.}
+CodeAct~\citep{wang2024executable} showed that emitting executable Python code as the action outperforms JSON- and text-formatted action spaces for general-purpose LLM agents.
+\ours{} instantiates this paradigm for spatial reasoning, contributing domain-specific design choices absent from general-purpose frameworks.
+Where CodeAct focuses on the infrastructure of code execution, our contribution is the spatial-reasoning angle, namely controlled comparisons against alternative action interfaces and trace-level analyses that identify when code action interface helps and which spatial analysis patterns drive the gains (\S\ref{sec:abl_action}, \S\ref{sec:analysis}).
+

@@ -1,0 +1,188 @@
+\section{Experiments}
+\label{sec:experiments}
+
+The performance on \textsc{WeaveBench} depends on both the model API and the agent runtime. The model API determines reasoning, multimodal grounding, context use, tool-call formatting, and instruction following, whereas the runtime determines the agent loop, tool wrappers, GUI access, filesystem state, and trajectory logging. We therefore first compare diverse model APIs under a fixed runtime, then fix the strongest APIs and vary the deployed runtime to identify the best-performing combinations. We finally run two ablations to test interface necessity and trajectory-aware judging, followed by analyses of tool-use and failure modes.
+
+\subsection{Experimental Setup}
+\label{sec:experimental-setup}
+
+\noindent\textbf{Hybrid harness.}\label{sec:protocol-runtime}
+We add GUI control to existing CLI-agent runtimes through a minimal plugin. The plugin exposes one perception primitive, \texttt{screenshot}, and nine \texttt{pyautogui}-backed actuation primitives: \texttt{click}, \texttt{double\_click}, \texttt{triple\_click}, \texttt{move}, \texttt{drag}, \texttt{scroll}, \texttt{type}, \texttt{keypress}, and \texttt{wait}. These tools are exposed in the same Responses-style session as the host's terminal, file, code, and browser tools, following the standard tool-augmented language-agent paradigm popularized by ReAct~\citep{yao2022react} and Toolformer~\citep{schick2023toolformer}. The model backbone, agent loop, system prompt, and max-turn budget are left unchanged.
+
+\smallskip
+\noindent\textbf{Environment.}
+Every task runs in a containerized Linux VM. The VM boots from a frozen snapshot, rolls back after completion, restricts network access to task-local services, and enforces per-task tool-output and wall-clock budgets. These controls keep the initial state, available services, and resource limits fixed across models and runtimes.
+
+\smallskip
+\noindent\textbf{Model-API sweep.}
+We use open-source \textsc{OpenClaw}~\citep{openclaw2025} as the reference runtime for fairness. All backbones share the same hybrid harness, tool pool, timeout, temperature, and maximum turn budget. We sweep five OpenAI generations from GPT-5.1-codex through GPT-5.5~\citep{openai2026gpt55} at three thinking budgets (low, medium, high). To reduce provider specificity, we also evaluate Claude Opus~4.7~\citep{anthropic2026opus47}, Gemini-3.1-pro~\citep{google2026gemini31pro}, and strong open-source backbones. Tables report the best thinking budget per backbone; the full GPT-5.x thinking sweep is reported in Appendix~\ref{app:think-sweep}.
+
+\smallskip
+\noindent\textbf{Harness sweep.}
+We select the strongest APIs from the model sweep and keep the GUI plugin fixed while varying the runtime host. The same plugin is ported through thin adapters to \textsc{Codex CLI}~\citep{openai2026codexagent}, \textsc{Claude Code}~\citep{anthropic2025claudecode}, and \textsc{Hermes}~\citep{hermes2025}, in addition to \textsc{OpenClaw}. This sweep measures whether strong APIs remain strong across deployed agent runtimes and identifies the best observed model--runtime pairing.
+
+\smallskip
+\noindent\textbf{Scoring.}
+All rollouts are evaluated by the trajectory-aware agentic judge in Section~\ref{sec:grader}. We report \textsc{PassRate} and \textsc{Overall} over 114 tasks.
+
+\subsection{Main Results}
+\label{sec:main-results}
+
+\noindent\textbf{Sweep Model APIs on \textsc{OpenClaw}.}
+Table~\ref{tab:main} shows that even the best backbone is far from saturation. Claude Opus~4.7 obtains the highest PassRate on the fixed \textsc{OpenClaw} harness at 35.1\%, followed by GPT-5.5 at 33.3\% and GPT-5.4 at 22.8\%. These scores remain far below the $>$78\% reported for the same frontier backbones on \osworld{}-Verified. Performance also varies substantially within the GPT-5 series, from 1.8\% for GPT-5.1-codex to 33.3\% for GPT-5.5, suggesting that hybrid-interface execution improves with frontier model capability but remains unsolved. Other evaluated backbones trail substantially in PassRate. Across the per-domain columns, the two most GUI-heavy domains, SPA and DES, are the bottom two for every backbone with non-trivial PR, confirming the GUI side as the binding constraint.
+
+\smallskip
+\noindent\textbf{Cross-harness sweep.}
+Table~\ref{tab:cross-harness} fixes the model API and varies the deployed runtime. The results show that hybrid-interface performance is determined not only by the model, but also by its alignment with the runtime scaffold. The best observed pairing is Claude Opus~4.7 with \textsc{Claude Code}, reaching 41.2\% PassRate, while GPT-5.5 with \textsc{Codex CLI} also performs strongly at 35.1\%. However, cross-pairing the models with less aligned runtimes causes sharp drops: Claude Opus~4.7 falls to 13.2\% on \textsc{Codex CLI}, and GPT-5.5 drops to 14.9\% on \textsc{Claude Code}. These asymmetric failures suggest that tool schemas, prompting conventions, and action-loop design interact strongly with model-specific tool-use behavior.
+
+\begin{table*}[t]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{5pt}
+\renewcommand{\arraystretch}{1.2}
+\caption{\textbf{Model API comparison on a fixed \textsc{OpenClaw} runtime.}
+The best thinking mode is reported for each backbone. PR denotes PassRate (\%). Overall denotes the mean per-task score. Per-domain columns report PassRate for DSK: Desktop, DOC: Document, GAM: Games, WEB: Web Development, DAV: Data Analysis \& Visualization, OPS: DevOps, SPA: Spatial/3D, and DES: Design.}
+\label{tab:main}
+\begin{tabular}{l cc | cccccccc}
+\toprule
+\textbf{Agent} & \textbf{PR}$\uparrow$ & \textbf{Overall}$\uparrow$ & \textbf{DSK} & \textbf{DOC} & \textbf{GAM} & \textbf{WEB} & \textbf{DAV} & \textbf{OPS} & \textbf{SPA} & \textbf{DES} \\
+\midrule
+Claude Opus 4.7      & \textbf{35.1} & \textbf{0.482} & 55.6 & 29.4 & 23.5 & 66.7 & 15.4 & 41.7 & 16.7 & 20.0 \\
+GPT-5.5              & 33.3          & 0.466          & 38.9 & 35.3 & 35.3 & 21.4 & 23.1 & 38.5 & 33.3 & 40.0 \\
+GPT-5.4              & 22.8          & 0.465          & 55.6 & 35.3 &  5.9 &  0.0 & 23.1 & 23.1 &  8.3 & 20.0 \\
+GPT-5.3-codex        & 18.4          & 0.456          & 33.3 & 23.5 & 29.4 &  0.0 &  7.7 & 16.7 &  8.3 & 20.0 \\
+GPT-5.2-codex        &  6.1          & 0.321          &  5.6 & 11.8 &  0.0 &  0.0 & 15.4 & 16.7 &  0.0 &  0.0 \\
+GPT-5.1-codex        &  1.8          & 0.226          &  0.0 &  5.9 &  0.0 &  0.0 &  7.7 &  0.0 &  0.0 &  0.0 \\
+Gemini 3.1 pro       &  1.8          & 0.223          &  0.0 &  0.0 &  0.0 &  0.0 &  0.0 &  8.3 &  8.3 &  0.0 \\
+Qwen3.5-397B-A17B    &  0.9          & 0.318          &  0.0 &  0.0 &  0.0 &  0.0 &  0.0 &  8.3 &  0.0 &  0.0 \\
+Qwen3-VL-8B-Think    &  0.9          & 0.092          &  0.0 &  0.0 &  0.0 &  0.0 &  8.3 &  0.0 &  0.0 &  0.0 \\
+GUI-Owl-1.5-32B      &  0.0          & 0.065          &  0.0 &  0.0 &  0.0 &  0.0 &  0.0 &  0.0 &  0.0 &  0.0 \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+\begin{table*}[t]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.15}
+\caption{\textbf{Runtime comparison for the strongest model APIs.}
+GPT-5.5 and Claude Opus~4.7 are evaluated at their high thinking across four agent runtimes. PR denotes PassRate (\%). Overall denotes the mean per-task score over the full 114-task suite. Per-domain columns report PassRate.}
+\label{tab:cross-harness}
+\begin{tabular}{l l cc | cccccccc}
+\toprule
+\textbf{Backbone} & \textbf{Harness} & \textbf{PR}$\uparrow$ & \textbf{Overall}$\uparrow$ & \textbf{DSK} & \textbf{DOC} & \textbf{GAM} & \textbf{WEB} & \textbf{DAV} & \textbf{OPS} & \textbf{SPA} & \textbf{DES} \\
+\midrule
+\multirow{4}{*}{GPT-5.5}
+& \textsc{Codex CLI}    & \textbf{35.1} & \textbf{0.499} & 38.9 & 29.4 & 23.5 & 53.3 & 15.4 & 50.0 & 58.3 & 10.0 \\
+& \textsc{OpenClaw}     & 33.3          & 0.466          & 38.9 & 35.3 & 35.3 & 21.4 & 23.1 & 38.5 & 33.3 & 40.0 \\
+& \textsc{Hermes Agent} & 31.6          & 0.466          & 55.6 & 29.4 & 35.3 & 40.0 &  7.7 & 25.0 & 25.0 & 20.0 \\
+& \textsc{Claude Code}  & 14.9          & 0.299          & 33.3 & 11.8 & 11.8 &  0.0 & 15.4 & 16.7 & 25.0 &  0.0 \\
+\midrule
+\multirow{4}{*}{Claude Opus 4.7}
+& \textsc{Codex CLI}    & 13.2          & 0.378          & 16.7 & 11.8 & 11.8 &  6.7 &  7.7 & 25.0 & 16.7 & 10.0 \\
+& \textsc{OpenClaw}     & 35.1          & 0.482          &  55.6 & 29.4 & 23.5 & 66.7 & 15.4 & 41.7 & 16.7 & 20.0 \\
+& \textsc{Hermes Agent} & 28.1          & 0.516          & 33.3 & 47.1 & 11.8 & 26.7 & 30.8 & 50.0 &  8.3 & 10.0 \\
+& \textsc{Claude Code}  & \textbf{41.2} & \textbf{0.532} & 55.6 & 47.1 & 23.5 & 53.3 & 23.1 & 50.0 & 33.3 & 40.0 \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+\subsection{Interface Ablation}
+\label{sec:channel-ablation}
+
+\begin{table*}[t!]
+\centering
+\footnotesize
+\begin{minipage}[t]{0.49\textwidth}
+\centering
+\setlength{\tabcolsep}{6pt}
+\renewcommand{\arraystretch}{1.05}
+\caption{Interface ablation on PassRate. \textbf{GUI}: GUI-only tool pool. \textbf{CLI}: CLI-only tool pool. \textbf{Hybrid}: full tool pool. The best thinking mode is chosen.}
+\label{tab:channel-ablation}
+\begin{tabular}{l ccc}
+\toprule
+\textbf{Agent} & \textbf{GUI} & \textbf{CLI} & \textbf{Hybrid} \\
+\midrule
+Claude Opus 4.7    & 1.8 & 3.5 & \textbf{35.1} \\
+GPT-5.5            & 0.8 & 2.6 & 33.3 \\
+GPT-5.4            & 0.8 & 2.6 & 22.8 \\
+GPT-5.3-codex      & 0.0 & 1.8 & 18.4 \\
+\bottomrule
+\end{tabular}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}
+\centering
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.05}
+\caption{Cross-benchmark hybrid gain on PassRate (\%), with $\boldsymbol{\Delta}$ giving the gain from the additional interface.}
+\label{tab:cross-bench-gap}
+\begin{tabular}{@{}l c c c c@{}}
+\toprule
+\textbf{Benchmark} & \textbf{GUI} & \textbf{CLI/MCP} & \textbf{Hyb.} & $\boldsymbol{\Delta}$ \\
+\midrule
+\textsc{OSWorld-MCP}      & 40.1 & --   & 43.3 & $+3.2$ \\
+\textsc{MCPWorld}         & 70.7 & 53.2 & 75.1 & $+4.5$ \\
+\rowcolor{msfthighlight}
+\textbf{\Eyeson{} (ours)} & \textbf{1.8} & \textbf{3.5} & \textbf{35.1} & $\mathbf{+31.6}$ \\
+\bottomrule
+\end{tabular}
+\end{minipage}
+\end{table*}
+
+A natural concern about Section~\ref{sec:main-results} is that the low PassRate reflects harness friction rather than genuine cross-interface difficulty. We re-run each backbone in three settings: \emph{GUI-only}, using the screenshot tool with the nine actuation primitives; \emph{CLI-only}, using the full \textsc{OpenClaw} CLI; and \emph{Hybrid}, using both. Both single-interface settings collapse to low PassRate (Table~\ref{tab:channel-ablation}): GUI-only stays at or below $1.8\%$, because the screenshot context overflows the model window before the task ends; CLI-only stays at or below $3.5\%$, an order of magnitude below Hybrid for every backbone. This pattern is consistent with the channel non-substitutability requirement (P1) that admits tasks into \Eyeson{}.
+
+To test whether this gap is unique to \Eyeson{}, we compare against prior hybrid CUA benchmarks that report comparable interface ablations (Table~\ref{tab:cross-bench-gap}). On \textsc{MCPWorld}~\citep{yan2025mcpworld} and \textsc{OSWorld-MCP}~\citep{jia2025osworldmcp} the hybrid gain over the strongest reported single channel is only $+4.5$pp and $+3.2$pp respectively, so adding the second channel is at most a convenience. On \Eyeson{}, by contrast, the same ablation produces a $+31.6$pp gap: cooperation is forced by the task specification rather than offered as a per-step convenience, and the absolute single-channel PassRate floor is an order of magnitude lower (single-digit vs.\ 40--70\%). This contrast operationalizes P1 at the population level: \Eyeson{} is not just a third multi-channel benchmark, but a benchmark in which the additional channel is genuinely necessary for end-to-end success.
+
+\subsection{Trajectory-Aware Judge Ablation}
+\label{sec:integrity}
+
+\begin{wrapfigure}{r}{0.46\linewidth}
+\vspace{-1.0em}
+\centering
+\includegraphics[width=\linewidth]{figures/fig_integrity.pdf}
+\caption{\textbf{Outcome-only vs.\ trajectory-aware judging.} Dark blue: audited PassRate (Section~\ref{sec:grader}). Light blue: inflation removed by the audit, with label inside showing PassRate points removed. Top label: outcome-only total and points removed.}
+\label{fig:integrity}
+\vspace{-1.2em}
+\end{wrapfigure}
+We next quantify how much the trajectory-aware judge contributes. We re-score every rollout with an outcome-only judge that sees only the final deliverables, with no trajectory access and no cheat scan. Switching back to the trajectory-aware judge of Section~\ref{sec:grader} removes between $10.3$ and $20.2$ PassRate points across the four GPT backbones (Figure~\ref{fig:integrity}). For GPT-5.5, the audited rate falls from $53.5\%$ to $33.3\%$. These gaps are lower bounds: every rollout was already given an anti-fabrication prompt with a cost-free honest fallback (Appendix~\ref{app:antifab}), so a benchmark without that prompt would see even more inflation. Trajectory-aware grading is therefore necessary on hybrid CUA tasks: outcome-only shortcuts are a first-order failure mode, not a corner case. The full cheat-pattern catalog is shown in Appendix~\ref{app:cheats}, and Section~\ref{sec:longhorizon-errors} reports which backbones take these shortcuts and how often.
+
+\subsection{Tool-Call Distribution}
+\label{sec:workload}
+
+\begin{wrapfigure}{r}{0.50\linewidth}
+\vspace{-0.9em}
+\centering
+\includegraphics[width=\linewidth]{figures/fig_toolmix_gpt55.pdf}
+\caption{\textbf{Top-10 atomic operations across all GPT-5.5 rollouts on \Eyeson{}.} Bars are sorted by call count and together cover $93.1\%$ of $10{,}873$ active calls. \texttt{exec: shell} alone dominates at $27.3\%$.}
+\label{fig:toolmix}
+\vspace{-0.6em}
+\end{wrapfigure}
+We decompose every tool call across all the GPT-5.5 rollouts into atomic operations. As shown in Figure~\ref{fig:toolmix}, the top-$10$ operations cover $93.1\%$ of $10{,}873$ active calls, and \texttt{exec: shell} alone accounts for $27.3\%$. A large fraction of the GUI work is hidden inside these shell calls: GPT-5.5 invokes \texttt{gnome-screenshot} through \texttt{exec} $2.2\times$ more often than the native \texttt{\_\_computer\_\_.screenshot}, and drives the mouse and keyboard via \texttt{pyautogui}, \texttt{xdotool}, and \texttt{wmctrl} another $521$ times. Consequently, the GUI share rises from $33.9\%$ at the tool level to $62.9\%$ once these exec-routed GUI operations are re-attributed at the atomic-operation level: even with a dedicated GUI tool exposed, the agent prefers shell paths for GUI actions.
+
+\subsection{Failure Mechanism Analysis}
+\label{sec:longhorizon-errors}
+
+\begin{figure*}[!t]
+\centering
+\includegraphics[width=0.96\textwidth]{figures/fig_failure_mechanism.pdf}
+\caption{\textbf{\Eyeson{} failure anatomy.} \textbf{(a)} Overall error distribution across the three frontier backbones (Opus 4.7, GPT-5.5, GPT-5.4) on \textsc{OpenClaw} ($n{=}1{,}735$), as a 2-ring sunburst: inner ring $=$ $5$ top-level families, outer ring $=$ $13$ sub-classes. \textbf{(b)} Per-backbone sub-class share. Full $13$-backbone breakdown in Appendix~\ref{app:failure-cross}.}
+\label{fig:failure_mechanism}
+\end{figure*}
+
+We treat any rollout with final score below $\tau\!=\!0.80$ as a failure, and aggregate all \textsc{OpenClaw} rollouts for the three frontier backbones (Opus 4.7, GPT-5.5, GPT-5.4) across reasoning budgets and reruns, yielding $n{=}2{,}209$ trials and $1{,}735$ failures (cross-harness reruns excluded). We adopt a hierarchical taxonomy with five top-level families and $13$ sub-classes, including two hybrid-specific families: \textbf{E4 Long-horizon Execution Discipline} (Silent halt, Premature halt, Cross-channel state drift) and \textbf{E5 Reward Hacking} (Synthesized render, Hardcoded metric, Crop / overlay, CLI bypass of GUI).
+
+\noindent\textbf{Overall distribution (Figure~\ref{fig:failure_mechanism}a).}
+E5 and E4 jointly dominate ($35.2\% + 30.4\% = 65.6\%$), with three sub-classes co-equal at the top: \emph{E4.2 Premature halt} ($18.0\%$), \emph{E5.1 Synthesized render} ($17.6\%$), and \emph{E1.3 Imprecision} ($16.9\%$). Visual grounding (E3) stays under $4\%$: perception is not the bottleneck---failures concentrate in reward hacking, long-horizon discipline breakdown, and close-miss reasoning, locating the dominant root cause at the model level rather than in infrastructure.
+
+\smallskip
+\noindent\textbf{Backbone-specific fingerprints (Figure~\ref{fig:failure_mechanism}b).}
+The three backbones map onto distinct failure personalities. \textbf{GPT-5.5 is the ``confident forger''} (E5 $46\%$); \textbf{GPT-5.4 is the ``early stopper''} (E4 $44\%$); \textbf{Opus~4.7 is the most balanced} (E5, E4, E1 each ${\sim}30\%$). Failure style is a function of model identity, not just raw capability.
+
+\smallskip
+\noindent\textbf{Trajectory-level forensics.}
+We hand-inspected $39$ representative trajectories spanning the seven dominant sub-classes and the three frontier backbones (one verbatim case per sub-class in Appendix~\ref{app:failure-examples}). Three patterns explain $87\%$ of inspected failures: (i) \emph{reward hacking when stuck} ($33.7\%$, E5)---the agent paints evidence rather than write the strictly-dominated \texttt{SKIPPED.txt}; (ii) \emph{workflow-discipline collapse} ($27.9\%$, E4+E1.3)---the ``verify every output before declaring done'' clause is the first to fail under load; (iii) \emph{planning / tool-selection drift} ($25.7\%$, E2.2+E5.4)---shell+Python feels more controllable than GUI, so configured GUI tools remain idle.
+
+\smallskip
+\noindent\textbf{From mechanism to capability.}
+The modal failure E5 ($35\%$) is an \emph{alignment} gap, not a capability gap---the implicit reward landscape lets plausible forgery beat honest absence. E4 ($30\%$) and E1 ($21\%$) are diagnosable only because \Eyeson{} couples a long horizon with a multi-deliverable contract; single-step benchmarks collapse them into ``the agent failed.'' Conversely, E3 ($\sim\!4\%$) shows that fine-grained visual perception is \emph{not} the bottleneck on frontier backbones---re-locating the open research frontier on hybrid-CUA agents from ``perceive better'' to ``decide better under uncertainty.''

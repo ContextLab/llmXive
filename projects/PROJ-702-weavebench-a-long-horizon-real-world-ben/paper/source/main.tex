@@ -1,0 +1,492 @@
+\documentclass[11pt]{article}
+
+\usepackage{microtype}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{booktabs}
+\usepackage{microsoft-tech-report}
+\usepackage{hyperref}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsfonts}
+\usepackage{mathtools}
+\usepackage{amsthm}
+\usepackage{bm}
+\usepackage{enumitem}
+\usepackage[capitalize,noabbrev]{cleveref}
+\usepackage{xspace}
+\usepackage{titletoc}
+\usepackage{placeins}
+\usepackage{tcolorbox}
+\usepackage[ruled,linesnumbered,noend,noline]{algorithm2e}
+\DontPrintSemicolon
+\usepackage{listings}
+\usepackage{fancyvrb}
+\tcbuselibrary{theorems,skins,breakable,listings}
+
+% Tables / extras inherited from the original WeaveBench draft
+\usepackage{multirow}
+\usepackage{makecell}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{nicefrac}
+\usepackage{pifont}
+\usepackage{url}
+\usepackage{wrapfig}
+
+% Slightly darker tint of msftcard for the "ours" highlight row (more visible).
+\definecolor{msfthighlight}{HTML}{DBE6F4}
+
+% Allow floats to fill more of each page so wide/tall floats don't strand text.
+\renewcommand{\topfraction}{0.95}
+\renewcommand{\bottomfraction}{0.85}
+\renewcommand{\textfraction}{0.05}
+\renewcommand{\floatpagefraction}{0.7}
+\setcounter{topnumber}{4}
+\setcounter{bottomnumber}{2}
+\setcounter{totalnumber}{6}
+
+% --- Prompt box for LLM prompts ---
+\definecolor{promptbg}{HTML}{F7F7F8}
+\definecolor{promptborder}{HTML}{5B5B5B}
+\newtcolorbox{promptbox}[1][]{
+  colback=promptbg, colframe=promptborder, fonttitle=\bfseries\sffamily,
+  breakable, enhanced, arc=3pt, boxrule=0.8pt,
+  left=10pt, right=10pt, top=8pt, bottom=8pt,
+  title={#1}
+}
+
+% --- listings: legacy ``promptbox'' style used in the original draft ---
+\lstdefinestyle{promptbox}{
+  basicstyle=\ttfamily\footnotesize\linespread{0.95}\selectfont,
+  frame=single,
+  framerule=0.6pt,
+  rulecolor=\color{msftline},
+  backgroundcolor=\color{msftcard},
+  breaklines=true,
+  breakatwhitespace=false,
+  columns=fullflexible,
+  keepspaces=true,
+  showstringspaces=false,
+  upquote=true,
+  xleftmargin=6pt,
+  xrightmargin=6pt,
+  framexleftmargin=6pt,
+  framexrightmargin=6pt,
+  framextopmargin=4pt,
+  framexbottommargin=4pt,
+  aboveskip=8pt,
+  belowskip=8pt
+}
+
+% --- JSON listing style ---
+\lstdefinestyle{json}{
+  basicstyle=\small\ttfamily,
+  breaklines=true,
+  breakatwhitespace=false,
+  showstringspaces=false,
+  columns=fullflexible,
+  literate={"}{\textquotedbl}1,
+}
+
+% --- Hybrid trajectory trace: [CLI] / [GUI] alternation listing ---
+\definecolor{cligrey}{HTML}{5B6770}
+\definecolor{guiblue}{HTML}{1F6FB2}
+\definecolor{failred}{HTML}{B2272F}
+\definecolor{clibg}{HTML}{F0F2F4}
+\definecolor{guibg}{HTML}{EAF2FA}
+\definecolor{failbg}{HTML}{FBEAEA}
+\definecolor{tracecomment}{HTML}{6A737D}
+\definecolor{tracebg}{HTML}{FBFBFC}
+\definecolor{traceframe}{HTML}{D0D7DE}
+\lstdefinestyle{HybridTrace}{
+  basicstyle=\ttfamily\scriptsize\linespread{1.0}\selectfont,
+  backgroundcolor=\color{tracebg},
+  frame=single,
+  framerule=0.5pt,
+  rulecolor=\color{traceframe},
+  breaklines=true,
+  breakatwhitespace=false,
+  columns=fullflexible,
+  keepspaces=true,
+  showstringspaces=false,
+  upquote=true,
+  xleftmargin=6pt,
+  xrightmargin=6pt,
+  framexleftmargin=6pt,
+  framexrightmargin=6pt,
+  aboveskip=6pt,
+  belowskip=6pt,
+  alsoletter={[]},
+  morekeywords=[1]{[CLI]},
+  morekeywords=[2]{[GUI]},
+  keywordstyle=[1]\color{cligrey}\bfseries,
+  keywordstyle=[2]\color{guiblue}\bfseries,
+  morecomment=[l]{\#},
+  commentstyle=\color{tracecomment}\itshape,
+  literate={->}{{$\rightarrow$}}2 {→}{{$\rightarrow$}}2,
+}
+\lstdefinestyle{HybridChunkBase}{
+  basicstyle=\ttfamily\scriptsize\linespread{1.0}\selectfont,
+  breaklines=true,
+  breakatwhitespace=false,
+  columns=fullflexible,
+  keepspaces=true,
+  showstringspaces=false,
+  upquote=true,
+  xleftmargin=10pt,
+  xrightmargin=4pt,
+  framexleftmargin=6pt,
+  framexrightmargin=4pt,
+  framextopmargin=2pt,
+  framexbottommargin=2pt,
+  aboveskip=0pt,
+  belowskip=0pt,
+  alsoletter={[]},
+  morekeywords=[1]{[CLI]},
+  morekeywords=[2]{[GUI]},
+  morekeywords=[3]{[FAIL]},
+  keywordstyle=[1]\color{cligrey}\bfseries,
+  keywordstyle=[2]\color{guiblue}\bfseries,
+  keywordstyle=[3]\color{failred}\bfseries,
+  morecomment=[l]{\#},
+  commentstyle=\color{tracecomment}\itshape,
+  literate={->}{{$\rightarrow$}}2 {→}{{$\rightarrow$}}2,
+  frame=l,
+  framerule=2.5pt,
+}
+\lstnewenvironment{climode}{\lstset{style=HybridChunkBase,backgroundcolor=\color{clibg},rulecolor=\color{cligrey}}}{}
+\lstnewenvironment{guimode}{\lstset{style=HybridChunkBase,backgroundcolor=\color{guibg},rulecolor=\color{guiblue}}}{}
+\lstnewenvironment{failmode}{\lstset{style=HybridChunkBase,backgroundcolor=\color{failbg},rulecolor=\color{failred}}}{}
+
+% Side-by-side action+screenshot: one coloured frame holding the trajectory
+% text on the left and the captured desktop thumbnail on the right. Used when
+% a single GUI/CLI action chunk produces a screenshot we want to surface inline.
+%   #1 = image path, #2 = compact caption
+% Implementation: VerbatimOut writes the env body to a temp file, then
+% \lstinputlisting reads it back as a styled listing inside a minipage; the
+% second minipage holds the image. Both live in one tcolorbox frame.
+\newenvironment{trajactCLI}[2]{%
+  \def\trajaIMG{#1}\def\trajaCAP{#2}%
+  \VerbatimEnvironment
+  \begin{VerbatimOut}{\jobname.traja.tmp}%
+}{%
+  \end{VerbatimOut}%
+  \begin{tcolorbox}[enhanced, colframe=cligrey, colback=clibg, boxrule=0.6pt,
+    arc=2pt, left=3pt, right=3pt, top=2pt, bottom=2pt,
+    before skip=3pt, after skip=3pt]
+    \begin{minipage}[c]{0.60\linewidth}
+      \lstinputlisting[style=HybridChunkBase, backgroundcolor=\color{clibg},
+        frame=none, aboveskip=0pt, belowskip=0pt,
+        xleftmargin=0pt, framexleftmargin=0pt,
+        xrightmargin=0pt, framexrightmargin=0pt]{\jobname.traja.tmp}
+    \end{minipage}\hfill
+    \begin{minipage}[c]{0.37\linewidth}\centering
+      \fcolorbox{cligrey}{white}{\includegraphics[width=0.96\linewidth]{\trajaIMG}}\\[1pt]
+      {\scriptsize\color{cligrey}\texttt{\trajaCAP}}
+    \end{minipage}
+  \end{tcolorbox}%
+}
+
+\newenvironment{trajactGUI}[2]{%
+  \def\trajaIMG{#1}\def\trajaCAP{#2}%
+  \VerbatimEnvironment
+  \begin{VerbatimOut}{\jobname.traja.tmp}%
+}{%
+  \end{VerbatimOut}%
+  \begin{tcolorbox}[enhanced, colframe=guiblue, colback=guibg, boxrule=0.6pt,
+    arc=2pt, left=3pt, right=3pt, top=2pt, bottom=2pt,
+    before skip=3pt, after skip=3pt]
+    \begin{minipage}[c]{0.60\linewidth}
+      \lstinputlisting[style=HybridChunkBase, backgroundcolor=\color{guibg},
+        frame=none, aboveskip=0pt, belowskip=0pt,
+        xleftmargin=0pt, framexleftmargin=0pt,
+        xrightmargin=0pt, framexrightmargin=0pt]{\jobname.traja.tmp}
+    \end{minipage}\hfill
+    \begin{minipage}[c]{0.37\linewidth}\centering
+      \fcolorbox{guiblue}{white}{\includegraphics[width=0.96\linewidth]{\trajaIMG}}\\[1pt]
+      {\scriptsize\color{guiblue}\texttt{\trajaCAP}}
+    \end{minipage}
+  \end{tcolorbox}%
+}
+
+\newenvironment{trajactFAIL}[2]{%
+  \def\trajaIMG{#1}\def\trajaCAP{#2}%
+  \VerbatimEnvironment
+  \begin{VerbatimOut}{\jobname.traja.tmp}%
+}{%
+  \end{VerbatimOut}%
+  \begin{tcolorbox}[enhanced, colframe=failred, colback=failbg, boxrule=0.6pt,
+    arc=2pt, left=3pt, right=3pt, top=2pt, bottom=2pt,
+    before skip=3pt, after skip=3pt]
+    \begin{minipage}[c]{0.60\linewidth}
+      \lstinputlisting[style=HybridChunkBase, backgroundcolor=\color{failbg},
+        frame=none, aboveskip=0pt, belowskip=0pt,
+        xleftmargin=0pt, framexleftmargin=0pt,
+        xrightmargin=0pt, framexrightmargin=0pt]{\jobname.traja.tmp}
+    \end{minipage}\hfill
+    \begin{minipage}[c]{0.37\linewidth}\centering
+      \fcolorbox{failred}{white}{\includegraphics[width=0.96\linewidth]{\trajaIMG}}\\[1pt]
+      {\scriptsize\color{failred}\texttt{\trajaCAP}}
+    \end{minipage}
+  \end{tcolorbox}%
+}
+
+% Two-image variant for md5-collision evidence: stack two thumbnails on right.
+\newenvironment{trajactFAILpair}[4]{%
+  \def\trajaIMGA{#1}\def\trajaCAPA{#2}%
+  \def\trajaIMGB{#3}\def\trajaCAPB{#4}%
+  \VerbatimEnvironment
+  \begin{VerbatimOut}{\jobname.traja.tmp}%
+}{%
+  \end{VerbatimOut}%
+  \begin{tcolorbox}[enhanced, colframe=failred, colback=failbg, boxrule=0.6pt,
+    arc=2pt, left=3pt, right=3pt, top=2pt, bottom=2pt,
+    before skip=3pt, after skip=3pt]
+    \begin{minipage}[c]{0.60\linewidth}
+      \lstinputlisting[style=HybridChunkBase, backgroundcolor=\color{failbg},
+        frame=none, aboveskip=0pt, belowskip=0pt,
+        xleftmargin=0pt, framexleftmargin=0pt,
+        xrightmargin=0pt, framexrightmargin=0pt]{\jobname.traja.tmp}
+    \end{minipage}\hfill
+    \begin{minipage}[c]{0.37\linewidth}\centering
+      \fcolorbox{failred}{white}{\includegraphics[width=0.96\linewidth]{\trajaIMGA}}\\[1pt]
+      {\scriptsize\color{failred}\texttt{\trajaCAPA}}\\[3pt]
+      \fcolorbox{failred}{white}{\includegraphics[width=0.96\linewidth]{\trajaIMGB}}\\[1pt]
+      {\scriptsize\color{failred}\texttt{\trajaCAPB}}
+    \end{minipage}
+  \end{tcolorbox}%
+}
+
+% Legacy inline screenshot (kept for any remaining standalone call).
+%   #1 = image path, #2 = caption text, #3 = colour (cligrey / guiblue / failred)
+\newcommand{\trajshot}[3]{%
+  \begin{center}\vspace{-0.35em}%
+  {\color{#3}\rule{0.10\linewidth}{0.5pt}}\hspace{0.3em}%
+  \raisebox{-0.15em}{\scriptsize\color{#3}\textbf{$\hookrightarrow$ captured}}\hspace{0.3em}%
+  {\color{#3}\rule{0.10\linewidth}{0.5pt}}\\[0.15em]%
+  \fcolorbox{#3}{white}{\includegraphics[width=0.42\linewidth]{#1}}\\[-0.1em]%
+  {\scriptsize\color{#3}\texttt{#2}}\vspace{-0.2em}%
+  \end{center}}
+
+\newcommand{\trajshotpair}[5]{%
+  \begin{center}\vspace{-0.35em}%
+  {\color{#5}\rule{0.10\linewidth}{0.5pt}}\hspace{0.3em}%
+  \raisebox{-0.15em}{\scriptsize\color{#5}\textbf{$\hookrightarrow$ captured (side-by-side)}}\hspace{0.3em}%
+  {\color{#5}\rule{0.10\linewidth}{0.5pt}}\\[0.15em]%
+  \fcolorbox{#5}{white}{\includegraphics[width=0.26\linewidth]{#1}}\hspace{0.5em}%
+  \fcolorbox{#5}{white}{\includegraphics[width=0.26\linewidth]{#3}}\\[-0.1em]%
+  {\scriptsize\color{#5}\texttt{#2}\hspace{1.0em}\texttt{#4}}\vspace{-0.2em}%
+  \end{center}}
+
+% --- Appendix TOC toggle ---
+\newif\ifappendixtoc
+\appendixtoctrue
+
+\newcommand{\theHalgorithm}{\arabic{algorithm}}
+\definecolor{color_blue}{HTML}{E7EFFA}
+\definecolor{color_green}{HTML}{E6F8E0}
+\definecolor{color_gray}{HTML}{ECECEC}
+\definecolor{pearDark}{HTML}{2980B9}
+\definecolor{theoremblue}{HTML}{EBF5FB}
+\definecolor{theoremborder}{HTML}{2980B9}
+\definecolor{propgreen}{HTML}{EAFAF1}
+\definecolor{propborder}{HTML}{27AE60}
+\definecolor{defyellow}{HTML}{FEF9E7}
+\definecolor{defborder}{HTML}{F39C12}
+\definecolor{remarkgray}{HTML}{F2F3F4}
+\definecolor{remarkborder}{HTML}{7F8C8D}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=msftblue,
+  citecolor=msftblue,
+  urlcolor=msftblue,
+  pdftitle={WeaveBench: A Long-Horizon, Real-World Benchmark for Computer-Use Agents with Hybrid Interfaces},
+  pdfauthor={Wanli Li, Bowen Zhou, Yunyao Yu, Zhou Xu, Yifan Yang, Dongsheng Li, Caihua Shan},
+  pdfsubject={Computer-Use Agent Benchmark},
+  pdfkeywords={computer-use agents, GUI, CLI, benchmark, long-horizon, hybrid interface}
+}
+
+% --- Colored theorem-like environments (kept available for appendices) ---
+\newtcbtheorem[auto counter]{theorem}{Theorem}{
+  colback=theoremblue, colframe=theoremborder, fonttitle=\bfseries,
+  breakable, enhanced, sharp corners, boxrule=0.6pt, left=6pt, right=6pt, top=6pt, bottom=6pt,
+  crefname={Theorem}{Theorems}
+}{thm}
+\newtcbtheorem[use counter from=theorem]{proposition}{Proposition}{
+  colback=propgreen, colframe=propborder, fonttitle=\bfseries,
+  breakable, enhanced, sharp corners, boxrule=0.6pt, left=6pt, right=6pt, top=6pt, bottom=6pt,
+  crefname={Proposition}{Propositions}
+}{prop}
+\newtcbtheorem[use counter from=theorem]{lemma}{Lemma}{
+  colback=theoremblue, colframe=theoremborder, fonttitle=\bfseries,
+  breakable, enhanced, sharp corners, boxrule=0.6pt, left=6pt, right=6pt, top=6pt, bottom=6pt,
+  crefname={Lemma}{Lemmas}
+}{lem}
+\newtcbtheorem[use counter from=theorem]{corollary}{Corollary}{
+  colback=propgreen, colframe=propborder, fonttitle=\bfseries,
+  breakable, enhanced, sharp corners, boxrule=0.6pt, left=6pt, right=6pt, top=6pt, bottom=6pt,
+  crefname={Corollary}{Corollaries}
+}{cor}
+\newtcbtheorem[use counter from=theorem]{definition}{Definition}{
+  colback=defyellow, colframe=defborder, fonttitle=\bfseries,
+  breakable, enhanced, sharp corners, boxrule=0.6pt, left=6pt, right=6pt, top=6pt, bottom=6pt,
+  crefname={Definition}{Definitions}
+}{def}
+\newtcbtheorem[use counter from=theorem]{assumption}{Assumption}{
+  colback=defyellow, colframe=defborder, fonttitle=\bfseries,
+  breakable, enhanced, sharp corners, boxrule=0.6pt, left=6pt, right=6pt, top=6pt, bottom=6pt,
+  crefname={Assumption}{Assumptions}
+}{asm}
+\newtcbtheorem[use counter from=theorem]{remark}{Remark}{
+  colback=remarkgray, colframe=remarkborder, fonttitle=\bfseries,
+  breakable, enhanced, sharp corners, boxrule=0.6pt, left=6pt, right=6pt, top=6pt, bottom=6pt,
+  crefname={Remark}{Remarks}
+}{rem}
+
+\crefname{tcb@cnt@theorem}{Theorem}{Theorems}
+\crefname{tcb@cnt@proposition}{Proposition}{Propositions}
+\crefname{tcb@cnt@lemma}{Lemma}{Lemmas}
+\crefname{tcb@cnt@corollary}{Corollary}{Corollaries}
+\crefname{tcb@cnt@definition}{Definition}{Definitions}
+\crefname{tcb@cnt@assumption}{Assumption}{Assumptions}
+\crefname{tcb@cnt@remark}{Remark}{Remarks}
+\crefname{algocf}{Algorithm}{Algorithms}
+
+% --- WeaveBench shorthands ---
+\newcommand{\eyeson}{\textsc{WeaveBench}\xspace}
+\newcommand{\Eyeson}{\textsc{WeaveBench}\xspace}
+\newcommand{\osworld}{\textsc{OSWorld}\xspace}
+\newcommand{\method}{WeaveBench\xspace}
+\newcommand{\cmark}{\ding{51}}
+\newcommand{\xmark}{\ding{55}}
+
+% ---- CocoaBench-style banded failure-example box ----
+% Usage: \begin{failbox}{E1.3}{Imprecision -- close miss}{task_id}{Backbone}
+%          \fbtask{...}\fbtraj{...}\fbresult{...}\fbexplain{...}
+%        \end{failbox}
+\definecolor{famE1}{HTML}{1E3A8A}
+\definecolor{famE2}{HTML}{0D9488}
+\definecolor{famE3}{HTML}{0EA5E9}
+\definecolor{famE4}{HTML}{6366F1}
+\definecolor{famE5}{HTML}{DC2626}
+\newcommand{\fbtask}[1]{\textbf{Task:}~#1\par\smallskip}
+\newcommand{\fbtraj}[1]{\textbf{Trajectory:}~#1\par\smallskip}
+\newcommand{\fbresult}[1]{\textbf{Result:}~#1\par\smallskip}
+\newcommand{\fbexplain}[1]{\textbf{Explanation:}~#1}
+\newtcolorbox{failbox}[4]{
+  enhanced, breakable,
+  colback=white, colframe=#1,
+  coltitle=white, fonttitle=\bfseries\small,
+  title={\textsc{#2}~$\vert$~\textit{#3}\hfill\normalfont\footnotesize\texttt{#4}},
+  boxrule=0.6pt, arc=2pt,
+  left=5pt, right=5pt, top=3pt, bottom=3pt,
+  before skip=4pt, after skip=4pt,
+  fontupper=\footnotesize,
+}
+
+\techreportshorttitle{WeaveBench}
+
+% Tighten spacing around floating figures/tables (kept from the original draft).
+\setlength{\textfloatsep}{8pt plus 2pt minus 2pt}
+\setlength{\intextsep}{8pt plus 2pt minus 2pt}
+\setlength{\floatsep}{8pt plus 2pt minus 2pt}
+
+\begin{document}
+\thispagestyle{empty}
+
+% ============================================================
+%  Header: Microsoft logo + date
+% ============================================================
+\noindent
+\begin{minipage}[c]{0.5\linewidth}
+\raggedright
+\raisebox{-0.5\height}{\msftbrandmark}
+\end{minipage}
+\begin{minipage}[c]{0.49\linewidth}
+\raggedleft
+{\msftdatefont\small\color{msftgray}June 2026}
+\end{minipage}\par
+\vspace{0.35em}
+\noindent{\color{msftline}\rule{\linewidth}{0.8pt}\par}
+
+% ============================================================
+%  Title + Authors
+% ============================================================
+\vspace{1.0em}
+\begin{center}
+{{\msfttitlefont\fontsize{18}{22}\selectfont\color{msftdark}
+\textsc{WeaveBench}: A Long-Horizon, Real-World Benchmark\\[0.1em]
+for Computer-Use Agents with Hybrid Interfaces\par}}
+\vspace{1.25em}
+
+{\normalsize\rmfamily\color{msftdark}
+Wanli Li$^{1,2,*}$ \hspace{0.9em}
+Bowen Zhou$^{3,*}$ \hspace{0.9em}
+Yunyao Yu$^{3}$ \hspace{0.9em}
+Zhou Xu$^{3}$\\[0.35em]
+Yifan Yang$^{2}$ \hspace{0.9em}
+Dongsheng Li$^{2}$ \hspace{0.9em}
+Caihua Shan$^{2,\ddagger}$\par
+}
+\vspace{0.32cm}
+
+{\footnotesize\rmfamily\color{msftgray}
+$^{1}$ Zhejiang University \quad
+$^{2}$ Microsoft Research Asia \quad
+$^{3}$ Tsinghua University\par
+}
+\end{center}
+
+% ============================================================
+%  Abstract box
+% ============================================================
+\vspace{0.45em}
+\begin{msfttitlebox}
+\setlength{\parindent}{0cm}
+\setlength{\parskip}{0.14cm}
+\raggedright
+\nohyphens
+
+\input{sections/0_abstract}
+
+\vspace{0.14cm}
+{\setlength{\parskip}{0.06cm}\small
+{\msftmetalabel{Project}\href{https://weavebench.github.io}{https://weavebench.github.io}\par}
+{\msftmetalabel{Correspondence}\href{mailto:caihua.shan@microsoft.com}{caihua.shan@microsoft.com}\par}
+}
+\vspace{0.08cm}
+{\footnotesize\rmfamily\itshape\color{msftgray}
+$^{*}$ Equal contribution. \quad
+$^{\ddagger}$ Corresponding author.\par
+}
+\end{msfttitlebox}
+\suppressfloats[t]
+
+% ============================================================
+%  Main content
+% ============================================================
+\input{sections/1_introduction}
+\input{sections/2_related_works}
+\input{sections/3_method}
+\input{sections/4_experiment}
+\input{sections/5_conclusion}
+
+% ============================================================
+%  Bibliography
+% ============================================================
+\FloatBarrier
+\bibliographystyle{unsrtnat}
+\bibliography{references_v2}
+
+% ============================================================
+%  Appendix
+% ============================================================
+\input{sections/6_appendix}
+
+% arXiv dependency anchor: forces the static upload scanner to register the
+% figures/desktop/*.png files (rendered indirectly via \trajactGUI) as used.
+\input{sections/_arxiv_figdeps}
+
+\end{document}

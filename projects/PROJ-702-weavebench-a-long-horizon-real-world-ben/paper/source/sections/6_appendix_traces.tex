@@ -1,0 +1,256 @@
+% ============================================================
+%  Appendix E: Hybrid Trajectory Walkthroughs
+% ============================================================
+\section{Hybrid Trajectory Walkthroughs}
+\label{app:trajectories}
+
+To illustrate the qualitative interleaving of CLI and GUI actions that Section~\ref{sec:benchmark} formalises as the \emph{hybrid} property, we present four end-to-end walkthroughs from the \texttt{opus-4.7} rollouts. Each trace is the action sequence of a single rollout, condensed from $40$--$85$ steps down to the structural skeleton ($12$--$20$ tool calls). The \textcolor{cligrey}{\textbf{[CLI]}} tag denotes a shell call through the \texttt{Bash} tool; the \textcolor{guiblue}{\textbf{[GUI]}} tag denotes a desktop call through the \texttt{computer} tool (screenshot, click, drag, keypress, type). The four cases are drawn from four distinct domains and three distinct hybrid patterns, deliberately disjoint from the three domains used in the introductory case figure (Figure~\ref{fig:paradigm}).
+
+\subsection{Case 1 --- \texttt{DSK\_task\_1\_gsettings\_dconf\_policy} (score 0.92)}
+\label{app:case-dconf}
+
+\textbf{Task.} Audit GNOME desktop against a 12-key compliance policy spanning four schemas (interface, privacy, lockdown, screensaver), apply corrective settings, and produce evidence screenshots demonstrating that both the visual control surface (\texttt{dconf-editor}) and the underlying introspection layer (\texttt{gsettings}) agree.
+
+\textbf{Hybrid pattern.} \emph{CLI for batch, GUI for evidence.} The agent explicitly decides at step~8 that 12 individual GUI clicks would be wasteful, so it batches the writes through \texttt{gsettings} and reserves the GUI session for the three required visual artefacts. CLI \texttt{gsettings get} then cross-verifies the GUI's edits and vice versa.
+
+\begin{climode}
+[CLI]  $ cat /tmp_workspace/policy_spec.json
+       # 12 keys, 4 schemas (interface/privacy/lockdown/screensaver), expected vs default
+[CLI]  $ for s in $(gsettings list-schemas); do gsettings list-recursively $s; done > baseline.txt
+       # 2660 lines dumped
+[CLI]  $ python3 -c "compare(spec, gsettings get ...)"
+       # 10/12 NON_COMPLIANT
+[CLI]  $ sudo apt-get install -y dconf-editor
+[CLI]  $ nohup dconf-editor /org/gnome/desktop/interface/ &     # launch GUI editor
+\end{climode}
+\begin{trajactGUI}{figures/desktop/E1_dconf_interface.png}{view\_01\_dconf\_interface.png (dconf-editor on interface schema)}
+[GUI]  computer[screenshot]
+       # see schema tree
+[GUI]  computer[click] color-scheme
+       -> properties panel
+\end{trajactGUI}
+\begin{climode}
+[CLI]  $ gnome-screenshot -f results/view_01_dconf_interface.png
+[CLI]  $ nohup dconf watch / > results/dconf_signals.log &      # background signal logger
+\end{climode}
+\begin{trajactGUI}{figures/desktop/E1_dconf_after.png}{view\_04\_dconf\_edit\_after.png (key flipped to false)}
+[GUI]  computer[click] "Use default value"
+       toggle  ->  OFF
+[GUI]  computer[click] value=False
+       ->  Apply
+\end{trajactGUI}
+\begin{climode}
+[CLI]  $ gnome-screenshot -f results/view_04_dconf_edit_after.png
+[CLI]  $ gsettings get org.gnome.desktop.interface enable-animations
+       # false   <-- CLI verifies the GUI write
+[CLI]  # decision: apply remaining 10 keys via gsettings (batch faster than GUI)
+       $ gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark'
+       $ gsettings set org.gnome.desktop.privacy report-technical-problems false
+       $ ...  (9 additional keys, single shell loop)
+[CLI]  $ nohup gnome-terminal -- bash -c "dconf watch /" &      # GUI terminal tailing CLI
+\end{climode}
+\begin{trajactGUI}{figures/desktop/E1_dconf_watch.png}{view\_06\_dconf\_watch.png (live dconf-watch signals from CLI batch)}
+[GUI]  computer[screenshot]
+       # observe live signals streaming
+       # inside the GUI terminal
+\end{trajactGUI}
+\begin{climode}
+[CLI]  $ gnome-screenshot -f results/view_06_dconf_watch.png
+[CLI]  $ python3 audit_after.py  &&  diff baseline.ini after.ini > policy_diff.txt
+       # 12/12 compliant; compliance_report.md written
+\end{climode}
+\begin{trajactGUI}{figures/desktop/E1_dconf_verified.png}{view\_07\_dconf\_verified.png (final compliant tree, all 12 keys)}
+[GUI]  computer[screenshot]
+       # final compliance evidence:
+       # 12/12 keys at policy values
+\end{trajactGUI}
+\begin{climode}
+[CLI]  $ gnome-screenshot -f results/view_07_dconf_verified.png
+\end{climode}
+
+\subsection{Case 2 --- \texttt{WEB\_task\_0\_iframe\_3layer\_form} (score 0.97)}
+\label{app:case-iframe}
+
+\textbf{Task.} Complete a 4-step insurance quote across three nested iframes, submit, and confirm that the returned premium matches a deterministic formula derived from the inputs. The form mandates a Chinese-character full-name field, a license-plate field with a Chinese prefix character, and a drag-puzzle CAPTCHA before the final submit.
+
+\textbf{Hybrid pattern.} \emph{CLI as input-method bridge.} The \texttt{computer.type} action cannot inject the CJK code points; the agent fails twice (direct typing, then clipboard paste), then escalates to driving the X11 keyboard from the shell via \texttt{xdotool}. Once the Unicode lands, GUI resumes for the CAPTCHA, which is intrinsically positional. The premium predicted by CLI ahead of time exactly matches the post-submit GUI screen.
+
+\begin{climode}
+[CLI]  $ curl -s http://localhost:8765/insurance_quote.html | head -50
+       $ cat step{1..4}.html setup/*.py                         # read 3-iframe form + backend
+[CLI]  $ python3 -c "base=1500 + max(0, 2025-2022)*137 + sum(ord(c) for c in name)*..."
+       # predicted premium  =  CNY 2329.29   (computed BEFORE submit)
+\end{climode}
+\begin{trajactGUI}{figures/desktop/E2_iframe_init.png}{screenshot\_0001\_wait.png (Step 1 form, empty)}
+[GUI]  computer[screenshot]               # step1 form rendered
+[GUI]  computer[type] text='<CJK full name>'
+       # field stays empty: type tool
+       # drops non-ASCII codepoints
+\end{trajactGUI}
+\begin{climode}
+[CLI]  $ echo -n '<CJK full name>' | xclip -selection clipboard
+\end{climode}
+\begin{guimode}
+[GUI]  computer[keypress] key='ctrl+v'
+       # placeholder unchanged: focus lost during clipboard handoff
+\end{guimode}
+\begin{climode}
+[CLI]  $ DISPLAY=:0 xdotool type --delay 50 '<CJK full name>'   # shell drives X11 keyboard
+       # field now shows correct CJK string                     <-- hybrid escape hatch
+\end{climode}
+\begin{trajactGUI}{figures/desktop/E2_iframe_filled.png}{screenshot\_0005\_click.png (CJK Full Name accepted)}
+[GUI]  computer[click] Gender dropdown
+       # verify name field accepted CJK
+       # codepoints U+5F20 U+4E09
+\end{trajactGUI}
+\begin{guimode}
+[GUI]  computer[click] Male, DOB 15/05/1990  ->  Next
+[GUI]  computer[click] brand=Toyota, model=Camry, year=2022
+\end{guimode}
+\begin{climode}
+[CLI]  $ DISPLAY=:0 xdotool type --delay 80 '<CJK plate prefix>A12345'
+\end{climode}
+\begin{trajactGUI}{figures/desktop/E2_iframe_final.png}{screenshot\_0011\_wait.png (Step 4 Confirmation: all 6 CJK fields)}
+[GUI]  computer[scroll] iframe -> next field
+[GUI]  computer[drag] puzzle piece
+       (753,610) -> (905,610)   # CAPTCHA
+[GUI]  computer[click] Next     # -> Step 4
+[GUI]  computer[screenshot]
+       # review pane shows all 6 CJK fields
+\end{trajactGUI}
+\begin{guimode}
+[GUI]  computer[click] Submit Quote
+\end{guimode}
+\begin{climode}
+[CLI]  $ gnome-screenshot -f results/quote.png
+       $ echo -n 'CNY 2329.29' > results/quote_amount.txt
+       # post-submit premium matches the CLI prediction to the cent
+\end{climode}
+
+\subsection{Case 3 --- \texttt{DSK\_task\_2\_electron\_app\_test} (score 0.96)}
+\label{app:case-electron}
+
+\textbf{Task.} Launch the Joplin Electron note-taking application, create a notebook and note, paste a 100-line markdown body (containing a table, code block, and checklist) from disk, tag the note, toggle a rendered checkbox, and finally restore an emoji-bearing title --- producing six verification screenshots throughout.
+
+\textbf{Hybrid pattern.} \emph{Clipboard as a cross-modal pipe.} The agent uses \texttt{xclip} to lift exact bytes (a multiline markdown file, then an emoji-bearing string) from the shell into the GUI's input focus, sidestepping per-character typing latency and emoji codepoint limitations. The GUI then handles rendered-DOM affordances (the markdown preview checkbox) that have no CLI surface.
+
+\begin{climode}
+[CLI]  $ ls /tmp_workspace/inputs/  &&  cat note_body.md         # read fixture markdown
+[CLI]  $ nohup ./Joplin-3.5.13.AppImage --no-sandbox &           # launch Electron app
+\end{climode}
+\begin{guimode}
+[GUI]  computer[screenshot]                                      # welcome notebook shown
+[GUI]  computer[click] New Notebook  ->  type "BugReports"
+[GUI]  computer[click] New Note      ->  type "Bug Repro 2024-12"
+\end{guimode}
+\begin{climode}
+[CLI]  $ which xclip
+       # not found
+       $ echo $PW | sudo -S apt-get install -y xclip
+       $ DISPLAY=:0 xclip -selection clipboard < note_body.md    # CLI loads 100-line MD
+\end{climode}
+\begin{guimode}
+[GUI]  computer[click] editor body  ->  keypress ctrl+v
+       # markdown body pasted; preview renders table + code block
+\end{guimode}
+\begin{climode}
+[CLI]  $ gnome-screenshot -f results/preview.png
+\end{climode}
+\begin{trajactGUI}{figures/desktop/E3_electron_tags.png}{tags.png (regression tag pill in Joplin)}
+[GUI]  computer[click] "Click to add
+       tags..."  ->  type "regression"
+\end{trajactGUI}
+\begin{climode}
+[CLI]  $ gnome-screenshot -f results/tags.png
+\end{climode}
+\begin{trajactGUI}{figures/desktop/E3_electron_checked.png}{checked.png (preview checkbox toggled; rendered-DOM only)}
+[GUI]  computer[click] checkbox in
+       rendered preview
+       # GUI > editing raw markdown
+\end{trajactGUI}
+\begin{climode}
+[CLI]  $ gnome-screenshot -f results/checked.png
+[CLI]  $ printf 'Bug Repro \xf0\x9f\x90\x9b 2024-12' | xclip -selection clipboard   # CLI payload w/ U+1F41B emoji
+\end{climode}
+\begin{trajactGUI}{figures/desktop/E3_electron_bugemoji.png}{bug\_emoji.png (title with U+1F41B via xclip pipe)}
+[GUI]  computer[click] title
+       -> keypress ctrl+a, ctrl+v
+       # paste emoji-bearing title
+\end{trajactGUI}
+\begin{climode}
+[CLI]  $ gnome-screenshot -f results/bug_emoji.png
+[CLI]  $ md5sum *.png  &&  python3 -c "from PIL import Image; ..."     # dim/size sanity
+       $ Write actions.log + bug_report.md
+\end{climode}
+
+\subsection{Case 4 --- \texttt{SPA\_task\_12\_verilator\_gtkwave\_uart\_bug} (score 0.92)}
+\label{app:case-uart}
+
+\textbf{Task.} Given a Verilog UART transmitter and a Verilator testbench that both contain bugs (a reversed bit-index in \texttt{data\_r} and a stop-bit width that is half the spec), produce a fixed RTL, regenerate the VCD waveform, open it in GTKWave, drop markers around the corrected start-bit edge and stop-bit window, and report the exact stop-width in nanoseconds.
+
+\textbf{Hybrid pattern.} \emph{CLI for numerical truth, GUI for positional witness.} The agent uses \texttt{awk}/Python to parse the VCD and pin exact transition timestamps; GTKWave's interactive zoom alone overshoots the stop region, so the agent feeds CLI-derived window edges back into the GUI to land the markers precisely.
+
+\begin{climode}
+[CLI]  $ cat uart_tx.v sim_main.cpp Makefile                     # spot bugs in RTL+TB
+       # data_r[7 - bit_idx] (reversed)  +  (CLKS_PER_BIT/2)-1 (short stop)
+[CLI]  $ sudo apt-get install -y verilator gtkwave iverilog
+[CLI]  $ sed -i 's/data_r\[7 - bit_idx\]/data_r[bit_idx]/;
+                  s|(CLKS_PER_BIT/2)-1|CLKS_PER_BIT-1|' uart_tx_fixed.v
+       $ diff -u uart_tx.v uart_tx_fixed.v > results/fix.diff
+[CLI]  $ make sim                          # build buggy  ->  dump.vcd
+       $ cp dump.vcd results/dump_buggy.vcd
+       $ cp uart_tx_fixed.v uart_tx.v  &&  make sim
+       $ cp dump.vcd results/dump_fixed.vcd
+[CLI]  $ Write decode_wire.py              # parse VCD, extract bits LSB-first
+       $ python3 decode_wire.py results/dump_fixed.vcd
+       # byte_hex=0x55, stop_width_ns=160.0, frame_total_ns=1600
+       $ python3 decode_wire.py results/dump_buggy.vcd
+       # byte_hex=0xAA, stop_width_ns=80.0                       # bugs numerically confirmed
+[CLI]  $ Write /tmp/gtkw_buggy.gtkw + /tmp/gtkw_fixed.gtkw       # GTKWave save files
+       $ DISPLAY=:0 nohup gtkwave /tmp/gtkw_buggy.gtkw &         # launch GUI
+\end{climode}
+\begin{trajactGUI}{figures/desktop/E4_gtkwave_full.png}{view\_01\_gtkwave\_full.png (full UART frame, buggy VCD)}
+[GUI]  computer[screenshot]
+       # GTKWave opens, blank canvas
+[GUI]  computer[click] wave area
+       -> keypress 'shift+a'   # Zoom Fit
+\end{trajactGUI}
+\begin{climode}
+[CLI]  $ gnome-screenshot -f results/view_01_gtkwave_full.png
+\end{climode}
+\begin{trajactGUI}{figures/desktop/E4_gtkwave_marker_pair.png}{view\_02\_gtkwave\_marker\_pair.png (buggy: stop ~80 ns)}
+[GUI]  computer[click] tx start edge
+       -> keypress alt+n  # marker A
+[GUI]  computer[click] stop region
+       -> keypress alt+n  # marker B
+\end{trajactGUI}
+\begin{climode}
+[CLI]  $ gnome-screenshot -f results/view_02_gtkwave_marker_pair.png
+[CLI]  $ kill `cat /tmp/gtkw.pid`
+       $ DISPLAY=:0 nohup gtkwave /tmp/gtkw_fixed.gtkw &
+\end{climode}
+\begin{trajactGUI}{figures/desktop/E4_gtkwave_fixed.png}{view\_03\_gtkwave\_fixed.png (fixed: stop=160 ns)}
+[GUI]  computer[click] re-add markers
+       A/B on fixed-VCD waveform
+\end{trajactGUI}
+\begin{climode}
+[CLI]  $ gnome-screenshot -f results/view_03_gtkwave_fixed.png
+\end{climode}
+\begin{guimode}
+[GUI]  computer[click] zoom-in toolbar repeatedly to reach STOP region
+       # overshoots: view at 1670-1720 ps, not the 1440-1600 window
+\end{guimode}
+\begin{climode}
+[CLI]  $ awk '/^#/{t=$1} /^b.* #$/{print t, $0}' results/dump_fixed.vcd
+       # #0 b000, #150 b001, #310 b010, #1590 b011, #1750 b100   # exact boundaries
+\end{climode}
+\begin{trajactGUI}{figures/desktop/E4_gtkwave_zoom.png}{view\_04\_gtkwave\_zoom\_stop.png (aligned to [1440,1600] ps)}
+[GUI]  computer[click] re-zoom GTKWave
+       to CLI-derived [1440, 1600] window
+\end{trajactGUI}
+\begin{climode}
+[CLI]  $ gnome-screenshot -f results/view_04_gtkwave_zoom_stop.png
+[CLI]  $ Write marker_alignment.json + analysis_report.md
+\end{climode}
+
+\paragraph{Summary.}  Across the four cases the agent makes between $40$ and $85$ tool calls; the condensed skeletons above expose the recurring shape of a hybrid trajectory: a CLI prologue that ingests fixtures and computes a ground-truth target, an interactive segment whose CLI/GUI alternation is dictated by which channel can express the next step (Unicode injection, CAPTCHA drag, batch policy writes, waveform numerics), and a CLI epilogue that captures evidence and writes the verifiable deliverable. None of these four trajectories can be reduced to a single channel without losing either correctness (Cases~1, 4) or the ability to complete the task at all (Cases~2, 3).

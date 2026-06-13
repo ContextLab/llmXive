@@ -1,0 +1,334 @@
+\begin{thebibliography}{47}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[{OpenAI}(2025)]{openai2025chatgptagent}
+{OpenAI}.
+\newblock Introducing {ChatGPT} agent: bridging research and action.
+\newblock \url{https://openai.com/index/introducing-chatgpt-agent/}, 2025.
+
+\bibitem[{Claude Code Team}(2026)]{anthropic2025claudecode}
+{Claude Code Team}.
+\newblock {Claude Code}.
+\newblock \url{https://github.com/anthropics/claude-code}, 2026.
+
+\bibitem[{OpenAI}(2026{\natexlab{a}})]{openai2026codexagent}
+{OpenAI}.
+\newblock Codex for (almost) everything.
+\newblock \url{https://openai.com/index/codex-for-almost-everything/}, April
+  2026{\natexlab{a}}.
+
+\bibitem[{Anthropic}(2026{\natexlab{a}})]{anthropic2026cowork}
+{Anthropic}.
+\newblock Dispatch and computer use in {Claude Cowork} and {Claude Code}.
+\newblock \url{https://claude.com/blog/dispatch-and-computer-use},
+  2026{\natexlab{a}}.
+
+\bibitem[{OpenClaw Contributors}(2026)]{peekaboo2026}
+{OpenClaw Contributors}.
+\newblock {Peekaboo}: Mac automation that sees the screen and does the clicks.
+\newblock \url{https://github.com/openclaw/Peekaboo}, 2026.
+
+\bibitem[Xie et~al.(2024)Xie, Zhang, Chen, Li, Zhao, Cao, Hua, Cheng, Shin,
+  Lei, Liu, Xu, Zhou, Savarese, Xiong, Zhong, and Yu]{xie2024osworld}
+Tianbao Xie, Danyang Zhang, Jixuan Chen, Xiaochuan Li, Siheng Zhao, Ruisheng
+  Cao, Toh~Jing Hua, Zhoujun Cheng, Dongchan Shin, Fangyu Lei, Yitao Liu,
+  Yiheng Xu, Shuyan Zhou, Silvio Savarese, Caiming Xiong, Victor Zhong, and Tao
+  Yu.
+\newblock {OSWorld}: Benchmarking multimodal agents for open-ended tasks in
+  real computer environments.
+\newblock In \emph{Advances in Neural Information Processing Systems}, 2024.
+
+\bibitem[Bonatti et~al.(2024)Bonatti, Zhao, Bonacci, Dupont, Abdali, Li, Lu,
+  Wagle, Koishida, Bucker, Jang, and Hui]{bonatti2024waa}
+Rogerio Bonatti, Dan Zhao, Francesco Bonacci, Dillon Dupont, Sara Abdali,
+  Yinheng Li, Yadong Lu, Justin Wagle, Kazuhito Koishida, Arthur Bucker,
+  Lawrence Jang, and Zack Hui.
+\newblock {Windows Agent Arena}: Evaluating multi-modal {OS} agents at scale,
+  2024.
+
+\bibitem[Rawles et~al.(2025)Rawles, Clinckemaillie, Chang, Waltz, Lau, Fair,
+  Li, Bishop, Li, Campbell-Ajala, Toyama, Berry, Tyamagundlu, Lillicrap, and
+  Riva]{rawles2025androidworld}
+Christopher Rawles, Sarah Clinckemaillie, Yifan Chang, Jonathan Waltz,
+  Gabrielle Lau, Marybeth Fair, Alice Li, William Bishop, Wei Li, Folawiyo
+  Campbell-Ajala, Daniel Toyama, Robert Berry, Divya Tyamagundlu, Timothy
+  Lillicrap, and Oriana Riva.
+\newblock {AndroidWorld}: A dynamic benchmarking environment for autonomous
+  agents, 2025.
+
+\bibitem[Koh et~al.(2024)Koh, Lo, Jang, Duvvur, Lim, Huang, Neubig, Zhou,
+  Salakhutdinov, and Fried]{koh2024visualwebarena}
+Jing~Yu Koh, Robert Lo, Lawrence Jang, Vikram Duvvur, Ming~Chong Lim, Po-Yu
+  Huang, Graham Neubig, Shuyan Zhou, Ruslan Salakhutdinov, and Daniel Fried.
+\newblock {VisualWebArena}: Evaluating multimodal agents on realistic visual
+  web tasks, 2024.
+
+\bibitem[Zhou et~al.(2024)Zhou, Xu, Zhu, Zhou, Lo, Sridhar, Cheng, Ou, Bisk,
+  Fried, Alon, and Neubig]{zhou2024webarena}
+Shuyan Zhou, Frank~F. Xu, Hao Zhu, Xuhui Zhou, Robert Lo, Abishek Sridhar,
+  Xianyi Cheng, Tianyue Ou, Yonatan Bisk, Daniel Fried, Uri Alon, and Graham
+  Neubig.
+\newblock {WebArena}: A realistic web environment for building autonomous
+  agents.
+\newblock In \emph{International Conference on Learning Representations}, 2024.
+
+\bibitem[Merrill et~al.(2026)Merrill, Shaw, Carlini, Li, Raj, Bercovich, Shi,
+  Shin, Walshe, Buchanan, et~al.]{terminalbench2025}
+Mike~A Merrill, Alexander~G Shaw, Nicholas Carlini, Boxuan Li, Harsh Raj, Ivan
+  Bercovich, Lin Shi, Jeong~Yeon Shin, Thomas Walshe, E~Kelly Buchanan, et~al.
+\newblock Terminal-bench: Benchmarking agents on hard, realistic tasks in
+  command line interfaces.
+\newblock \emph{arXiv preprint arXiv:2601.11868}, 2026.
+
+\bibitem[Chu et~al.(2026)Chu, Hu, Jiang, Zou, Li, Peng, O'Hearn, Barr, Harman,
+  Sarro, and Ye]{chu2026terminalworld}
+Zhaoyang Chu, Jiarui Hu, Xingyu Jiang, Pengyu Zou, Han Li, Chao Peng, Peter
+  O'Hearn, Earl~T. Barr, Mark Harman, Federica Sarro, and He~Ye.
+\newblock {TerminalWorld}: Benchmarking agents on real-world terminal tasks,
+  2026.
+
+\bibitem[Cheng et~al.(2026)]{cheng2026terminalworldsynth}
+Zihao Cheng et~al.
+\newblock {Terminal-World}: Scaling terminal-agent environments via agent
+  skills, 2026.
+
+\bibitem[Yan et~al.(2025)Yan, Wang, Du, Yang, Shan, Qiu, Jia, Wang, Yuan, Han,
+  Qin, Chen, Peng, Wang, and Xu]{yan2025mcpworld}
+Yunhe Yan, Shihe Wang, Jiajun Du, Yexuan Yang, Yuxuan Shan, Qichen Qiu,
+  Xianqing Jia, Xinge Wang, Xin Yuan, Xu~Han, Mao Qin, Yinxiao Chen, Chen Peng,
+  Shangguang Wang, and Mengwei Xu.
+\newblock {MCPWorld}: A unified benchmarking testbed for {API}, {GUI}, and
+  hybrid computer use agents, 2025.
+
+\bibitem[Jia et~al.(2025)Jia, Liao, Zhang, Xu, Xie, Jiang, Yan, and
+  Liu]{jia2025osworldmcp}
+Hongrui Jia, Jitong Liao, Xi~Zhang, Haiyang Xu, Tianbao Xie, Chaoya Jiang, Ming
+  Yan, and Si~Liu.
+\newblock {OSWorld-MCP}: Benchmarking {MCP} tool invocation in computer-use
+  agents, 2025.
+
+\bibitem[Aggarwal and Welleck(2025)]{aggarwal2025pwp}
+Pranjal Aggarwal and Sean Welleck.
+\newblock Programming with pixels: Can computer-use agents do software
+  engineering?, 2025.
+
+\bibitem[Sun et~al.(2026)Sun, Liu, Ma, Ding, et~al.]{sun2026scienceboard}
+Qiushi Sun, Zhoumianze Liu, Chang Ma, Zichen Ding, et~al.
+\newblock {ScienceBoard}: Evaluating multimodal autonomous agents in realistic
+  scientific workflows.
+\newblock \emph{arXiv preprint arXiv:2505.19897}, 2026.
+\newblock ICLR 2026.
+
+\bibitem[{CocoaBench Team} et~al.(2026){CocoaBench Team}, Hao, Zhang, Liang,
+  Liu, Zha, Gao, Chen, Wang, Cheng, et~al.]{hao2026cocoabench}
+{CocoaBench Team}, Shibo Hao, Zhining Zhang, Zhiqi Liang, Tianyang Liu, Yuheng
+  Zha, Qiyue Gao, Jixuan Chen, Zilong Wang, Zhoujun Cheng, et~al.
+\newblock {CocoaBench}: Evaluating unified digital agents in the wild.
+\newblock \emph{arXiv preprint arXiv:2604.11201}, 2026.
+
+\bibitem[Shi et~al.(2026)Shi, Li, Ma, Tu, Wu, Xu, Yang, Wu, Xie, Wu, Zeng,
+  Heinrich, Zhang, Chen, Li, and Chang]{shi2026saasbench}
+Kean Shi, Zihang Li, Tianyi Ma, Zengji Tu, Jialong Wu, Xinbo Xu, Qingyao Yang,
+  Ruoyu Wu, Weichu Xie, Ming Wu, Jason Zeng, Michael Heinrich, Elvis Zhang,
+  Liang Chen, Kuan Li, and Baobao Chang.
+\newblock {SaaS-Bench}: Can computer-use agents leverage real-world {SaaS} to
+  solve professional workflows?, 2026.
+
+\bibitem[Ding et~al.(2026)Ding, Dai, Xing, Ding, Liu, JingYi, Yang, Zhang, Wei,
+  Fang, Ma, Duan, Shao, Wang, Lin, Chen, and Zang]{ding2026wildclawbench}
+Shuangrui Ding, Xuanlang Dai, Long Xing, Shengyuan Ding, Ziyu Liu, Yang JingYi,
+  Penghui Yang, Zhixiong Zhang, Xilin Wei, Xinyu Fang, Yubo Ma, Haodong Duan,
+  Jing Shao, Jiaqi Wang, Dahua Lin, Kai Chen, and Yuhang Zang.
+\newblock Wildclawbench: A benchmark for real-world, long-horizon agent
+  evaluation, 2026.
+
+\bibitem[Zhang et~al.(2026)Zhang, Wang, Zhu, Du, Miao, Lu, Xu, Hao, Cai, Wang,
+  Zhang, Wu, Lu, Lei, Zou, Yin, Nie, Chen, Jiang, Chen, and
+  Allen]{zhang2026clawbench}
+Yuxuan Zhang, Yubo Wang, Yipeng Zhu, Penghui Du, Junwen Miao, Xuan Lu, Wendong
+  Xu, Yunzhuo Hao, Songcheng Cai, Xiaochen Wang, Huaisong Zhang, Xian Wu,
+  Yi~Lu, Minyi Lei, Kai Zou, Huifeng Yin, Ping Nie, Liang Chen, Dongfu Jiang,
+  Wenhu Chen, and Kelsey~R. Allen.
+\newblock Clawbench: Can ai agents complete everyday online tasks?, 2026.
+
+\bibitem[Ye et~al.(2026)Ye, Li, Yang, Liu, Yao, Lv, Xie, An, Li, Kong, Liu,
+  Sui, and Yang]{ye2026clawEval}
+Bowen Ye, Rang Li, Qibin Yang, Yuanxin Liu, Linli Yao, Hanglong Lv, Zhihui Xie,
+  Chenxin An, Lei Li, Lingpeng Kong, Qi~Liu, Zhifang Sui, and Tong Yang.
+\newblock {Claw-Eval}: Toward trustworthy evaluation of autonomous agents,
+  2026.
+
+\bibitem[Li et~al.(2026)]{li2026clawenvkit}
+Ming Li et~al.
+\newblock {ClawEnvKit}: Toward autonomous generation of claw-like agent
+  environments, 2026.
+
+\bibitem[Meng et~al.(2026)Meng, Du, Wu, Chen, Liu, Liao, Jiang, Wan, Gu, Zhou,
+  et~al.]{meng2026clawmark}
+Fanqing Meng, Lingxiao Du, Zijian Wu, Guanzheng Chen, Xiangyan Liu, Jiaqi Liao,
+  Chonghe Jiang, Zhenglin Wan, Jiawei Gu, Pengfei Zhou, et~al.
+\newblock {ClawMark}: A living-world benchmark for multi-turn, multi-day,
+  multimodal coworker agents, 2026.
+
+\bibitem[{Kilo Code Team}(2026)]{kilocode2026pinchbench}
+{Kilo Code Team}.
+\newblock {PinchBench}: An {OpenClaw} coding-agent benchmark.
+\newblock \url{https://pinchbench.com}, GitHub:
+  \url{https://github.com/pinchbench/skill}, 2026.
+\newblock Updated April 2026.
+
+\bibitem[{OpenClaw Team}(2026)]{openclaw2025}
+{OpenClaw Team}.
+\newblock {OpenClaw}.
+\newblock \url{https://github.com/openclaw/openclaw}, 2026.
+
+\bibitem[{Nous Research}(2025)]{hermes2025}
+{Nous Research}.
+\newblock {Hermes}: An open-source agent framework by nous research.
+\newblock \url{https://github.com/nousresearch/hermes-agent}, 2025.
+
+\bibitem[Li et~al.(2025)Li, Meng, Lin, Luo, Tian, Ma, Huang, and
+  Chua]{li2025screenspotpro}
+Kaixin Li, Ziyang Meng, Hongzhan Lin, Ziyang Luo, Yuchen Tian, Jing Ma, Zhiyong
+  Huang, and Tat-Seng Chua.
+\newblock {ScreenSpot-Pro}: {GUI} grounding for professional high-resolution
+  computer use, 2025.
+
+\bibitem[Cheng et~al.(2024)Cheng, Sun, Chu, Xu, Li, Zhang, and
+  Wu]{cheng2024seeclick}
+Kanzhi Cheng, Qiushi Sun, Yougang Chu, Fangzhi Xu, Yantao Li, Jianbing Zhang,
+  and Zhiyong Wu.
+\newblock {SeeClick}: Harnessing {GUI} grounding for advanced visual {GUI}
+  agents, 2024.
+
+\bibitem[Wu et~al.(2024)Wu, Wu, Xu, Wang, Sun, Jia, Cheng, Ding, Chen, Liang,
+  and Qiao]{wu2024osatlas}
+Zhiyong Wu, Zhenyu Wu, Fangzhi Xu, Yian Wang, Qiushi Sun, Chengyou Jia, Kanzhi
+  Cheng, Zichen Ding, Liheng Chen, Paul~Pu Liang, and Yu~Qiao.
+\newblock {OS-Atlas}: A foundation action model for generalist {GUI} agents,
+  2024.
+
+\bibitem[You et~al.(2024)You, Zhang, Schoop, Weers, Swearngin, Nichols, Yang,
+  and Gan]{you2024ferretui}
+Keen You, Haotian Zhang, Eldon Schoop, Floris Weers, Amanda Swearngin, Jeffrey
+  Nichols, Yinfei Yang, and Zhe Gan.
+\newblock {Ferret-UI}: Grounded mobile {UI} understanding with multimodal
+  {LLMs}, 2024.
+
+\bibitem[Lin et~al.(2024)Lin, Li, Gao, Yang, Wu, Bai, Lei, Wang, and
+  Shou]{lin2024showui}
+Kevin~Qinghong Lin, Linjie Li, Difei Gao, Zhengyuan Yang, Shiwei Wu, Zechen
+  Bai, Stan~Weixian Lei, Lijuan Wang, and Mike~Zheng Shou.
+\newblock {ShowUI}: One vision-language-action model for {GUI} visual agent,
+  2024.
+
+\bibitem[Xu et~al.(2024)Xu, Wang, Wang, Lu, Xie, Saha, Sahoo, Yu, and
+  Xiong]{xu2024aguvis}
+Yiheng Xu, Zekun Wang, Junli Wang, Dunjie Lu, Tianbao Xie, Amrita Saha, Doyen
+  Sahoo, Tao Yu, and Caiming Xiong.
+\newblock {Aguvis}: Unified pure vision agents for autonomous {GUI}
+  interaction, 2024.
+
+\bibitem[Jimenez et~al.(2024)Jimenez, Yang, Wettig, Yao, Pei, Press, and
+  Narasimhan]{jimenez2024swebench}
+Carlos~E. Jimenez, John Yang, Alexander Wettig, Shunyu Yao, Kexin Pei, Ofir
+  Press, and Karthik Narasimhan.
+\newblock {SWE-bench}: Can language models resolve real-world {GitHub} issues?
+\newblock In \emph{International Conference on Learning Representations
+  (ICLR)}, 2024.
+
+\bibitem[{OpenAI}(2024)]{openai2024swebenchverified}
+{OpenAI}.
+\newblock Introducing {SWE-bench Verified}.
+\newblock \url{https://openai.com/index/introducing-swe-bench-verified/}, 2024.
+
+\bibitem[Song et~al.(2025)Song, Dai, Prabhu, Zhang, Shi, Li, Li, Savarese,
+  Chen, Zhao, Xu, and Xiong]{song2025coact1}
+Linxin Song, Yutong Dai, Viraj Prabhu, Jieyu Zhang, Taiwei Shi, Li~Li, Junnan
+  Li, Silvio Savarese, Zeyuan Chen, Jieyu Zhao, Ran Xu, and Caiming Xiong.
+\newblock {CoAct-1}: Computer-using multi-agent system with coding actions,
+  2025.
+
+\bibitem[Zhang et~al.(2025)Zhang, Huang, Ni, Mu, Qin, He, Wang, Yang, Zhao, Du,
+  Li, Kang, Jiang, Zheng, Wang, Qian, Ma, Lou, Lin, Rajmohan, and
+  Zhang]{microsoft2025ufo2}
+Chaoyun Zhang, He~Huang, Chiming Ni, Jian Mu, Si~Qin, Shilin He, Liqun Wang,
+  Fan Yang, Pu~Zhao, Chao Du, Lu~Li, Yan Kang, Zhao Jiang, Suzhen Zheng, Rujia
+  Wang, Jiaxu Qian, Minghua Ma, Jian-Guang Lou, Qingwei Lin, Saravan Rajmohan,
+  and Dongmei Zhang.
+\newblock {UFO2}: The desktop {AgentOS}, 2025.
+
+\bibitem[Amodei et~al.(2016)Amodei, Olah, Steinhardt, Christiano, Schulman, and
+  Man\'{e}]{amodei2016concrete}
+Dario Amodei, Chris Olah, Jacob Steinhardt, Paul Christiano, John Schulman, and
+  Dan Man\'{e}.
+\newblock Concrete problems in {AI} safety, 2016.
+
+\bibitem[Krakovna et~al.(2020)Krakovna, Uesato, Mikulik, Rahtz, Everitt, Kumar,
+  Kenton, Leike, and Legg]{krakovna2020specgaming}
+Victoria Krakovna, Jonathan Uesato, Vladimir Mikulik, Matthew Rahtz, Tom
+  Everitt, Ramana Kumar, Zac Kenton, Jan Leike, and Shane Legg.
+\newblock Specification gaming: the flip side of {AI} ingenuity.
+\newblock \emph{DeepMind Blog}, 2020.
+\newblock URL
+  \url{https://deepmind.google/discover/blog/specification-gaming-the-flip-side-of-ai-ingenuity/}.
+
+\bibitem[Zhuge et~al.(2024)Zhuge, Zhao, Ashley, Wang, Khizbullin, Xiong, Liu,
+  Chang, Krishnamoorthi, Tian, Shi, Chandra, and
+  Schmidhuber]{zhuge2024agentasjudge}
+Mingchen Zhuge, Changsheng Zhao, Dylan~R. Ashley, Wenyi Wang, Dmitrii
+  Khizbullin, Yunyang Xiong, Zechun Liu, Ernie Chang, Raghuraman
+  Krishnamoorthi, Yuandong Tian, Yangyang Shi, Vikas Chandra, and J\"{u}rgen
+  Schmidhuber.
+\newblock {Agent-as-a-Judge}: Evaluate agents with agents, 2024.
+
+\bibitem[Zheng et~al.(2023)Zheng, Chiang, Sheng, Zhuang, Wu, Zhuang, Lin, Li,
+  Li, Xing, Zhang, Gonzalez, and Stoica]{zheng2023llmjudge}
+Lianmin Zheng, Wei-Lin Chiang, Ying Sheng, Siyuan Zhuang, Zhanghao Wu, Yonghao
+  Zhuang, Zi~Lin, Zhuohan Li, Dacheng Li, Eric~P. Xing, Hao Zhang, Joseph~E.
+  Gonzalez, and Ion Stoica.
+\newblock Judging {LLM-as-a-Judge} with {MT-Bench} and {Chatbot Arena}.
+\newblock In \emph{Advances in Neural Information Processing Systems}, 2023.
+
+\bibitem[Liu et~al.(2023)Liu, Iter, Xu, Wang, Xu, and Zhu]{liu2023geval}
+Yang Liu, Dan Iter, Yichong Xu, Shuohang Wang, Ruochen Xu, and Chenguang Zhu.
+\newblock {G-Eval}: {NLG} evaluation using {GPT-4} with better human alignment.
+\newblock In \emph{Conference on Empirical Methods in Natural Language
+  Processing (EMNLP)}, 2023.
+
+\bibitem[Yao et~al.(2023)Yao, Zhao, Yu, Du, Shafran, Narasimhan, and
+  Cao]{yao2022react}
+Shunyu Yao, Jeffrey Zhao, Dian Yu, Nan Du, Izhak Shafran, Karthik Narasimhan,
+  and Yuan Cao.
+\newblock {ReAct}: Synergizing reasoning and acting in language models.
+\newblock In \emph{International Conference on Learning Representations
+  (ICLR)}, 2023.
+
+\bibitem[Schick et~al.(2023)Schick, Dwivedi-Yu, Dess{\`\i}, Raileanu, Lomeli,
+  Hambro, Zettlemoyer, Cancedda, and Scialom]{schick2023toolformer}
+Timo Schick, Jane Dwivedi-Yu, Roberto Dess{\`\i}, Roberta Raileanu, Maria
+  Lomeli, Eric Hambro, Luke Zettlemoyer, Nicola Cancedda, and Thomas Scialom.
+\newblock {Toolformer}: Language models can teach themselves to use tools.
+\newblock In \emph{Advances in Neural Information Processing Systems}, 2023.
+
+\bibitem[{OpenAI}(2026{\natexlab{b}})]{openai2026gpt55}
+{OpenAI}.
+\newblock {GPT-5.5} and the {GPT-5.x} model family.
+\newblock \url{https://openai.com/index/gpt-5-5}, 2026{\natexlab{b}}.
+
+\bibitem[{Anthropic}(2026{\natexlab{b}})]{anthropic2026opus47}
+{Anthropic}.
+\newblock {Claude Opus 4.7}: Model card and capabilities.
+\newblock \url{https://www.anthropic.com/news/claude-opus-4-7},
+  2026{\natexlab{b}}.
+
+\bibitem[{Google DeepMind}(2026)]{google2026gemini31pro}
+{Google DeepMind}.
+\newblock {Gemini 3.1 Pro}: Technical report.
+\newblock \url{https://deepmind.google/technologies/gemini}, 2026.
+
+\end{thebibliography}

@@ -1,0 +1,105 @@
+\begin{table*}[t]
+\caption{\textbf{Main results across 20 spatial reasoning benchmarks.} For each backbone, we compare a no-tool baseline (thinking mode without tool access) with our \ours{} agent framework. 
+}
+\label{tab:main_results}
+\centering
+\setlength{\tabcolsep}{3.5pt}
+\renewcommand{\arraystretch}{1.15}
+
+{\small
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{ll cccc ccc ccc}
+\toprule
+\textbf{Model} & \textbf{Method}
+  & \multicolumn{4}{c}{\textit{Single-image spatial reasoning}}
+  & \multicolumn{3}{c}{\textit{Multi-view spatial reasoning}}
+  & \multicolumn{3}{c}{\textit{General spatial reasoning}} \\
+\cmidrule(lr){3-6} \cmidrule(lr){7-9} \cmidrule(lr){10-12}
+ &
+  & \rotatebox{80}{ERQA~\citeyearpar{team2025gemini}}
+  & \rotatebox{80}{Omni3D~\citeyearpar{marsili2025visual}}
+  & \rotatebox{80}{OmniSpatial~\citeyearpar{jia2025omnispatial}}
+  & \rotatebox{80}{SPBench~\citeyearpar{xu2025spbench}}
+  & \rotatebox{80}{MindCube~\citeyearpar{yin2025mindcube}}
+  & \rotatebox{80}{MMSI~\citeyearpar{yang2025mmsi}}
+  & \rotatebox{80}{SPAR-Bench~\citeyearpar{zhang2025from}}
+  & \rotatebox{80}{BLINK~\citeyearpar{fu2024blink}}
+  & \rotatebox{80}{SpatialTree~\citeyearpar{xiao2025spatialtree}}
+  & \rotatebox{80}{ViewSpatial~\citeyearpar{li2025viewspatial}} \\
+\midrule
+\multirow{2}{*}{Qwen3.5-397B-A17B~\citep{qwen3.5}}
+  & No-tool & 63.0 & 57.0 & 62.1 & 54.0 & 58.3 & 46.2 & 57.2 & 72.9 & 65.1 & 57.3 \\
+  & \ours{}  & 62.0\dn{1.0} & 55.1\dn{1.9} & 62.8\up{0.7} & 63.3\up{9.3} & 66.2\up{7.9} & 49.7\up{3.5} & 66.1\up{8.9} & 76.7\up{3.8} & 60.0\dn{5.1} & 57.3\eq{0.0} \\
+\midrule
+\multirow{2}{*}{Qwen3.5-122B-A10B~\citep{qwen3.5}}
+  & No-tool & 61.0 & 55.1 & 43.3 & 52.2 & 49.7 & 42.7 & 52.6 & 73.2 & 61.6 & 52.8 \\
+  & \ours{}  & 57.5\dn{3.5} & 52.3\dn{2.8} & 61.9\up{18.6} & 63.6\up{11.4} & 61.0\up{11.3} & 45.3\up{2.6} & 57.6\up{5.0} & 74.6\up{1.4} & 57.8\dn{3.8} & 54.5\up{1.7} \\
+\midrule
+\multirow{2}{*}{Qwen3.6-35B-A3B~\citep{qwen36_35b_a3b}}
+  & No-tool & 57.2 & 51.2 & 57.0 & 52.4 & 45.4 & 38.0 & 47.8 & 70.6 & 58.3 & 52.0 \\
+  & \ours{}  & 58.2\up{1.0} & 54.0\up{2.8} & 59.9\up{2.9} & 63.0\up{10.6} & 61.9\up{16.5} & 45.9\up{7.9} & 58.4\up{10.6} & 74.1\up{3.5} & 60.3\up{2.0} & 52.9\up{0.9} \\
+\midrule
+\multirow{2}{*}{Qwen3.6-27B~\citep{qwen3.6-27b}}
+& No-tool & 59.5 & 55.9 & 60.8 & 58.0 & 51.2 & 40.9 & 55.0 & 70.5 & 62.6 & 53.9 \\
+& \ours{}  & 61.5\up{2.0} & 57.7\up{1.8} & 62.8\up{2.0} & 64.8\up{6.8} & 70.1\up{18.9} & 53.9\up{13.0} & 68.1\up{13.1} & 77.4\up{6.9} & 64.6\up{2.0} & 59.1\up{5.2} \\
+\midrule
+\multirow{2}{*}{Gemma4-31B~\citep{gemma4}}
+  & No-tool & 58.3 & 51.7 & 57.3 & 55.1 & 57.5 & 37.9 & 55.2 & 75.7 & 59.9 & 51.7 \\
+  & \ours{}  & 61.3\up{3.0} & 54.3\up{2.6} & 63.6\up{6.3} & 68.4\up{13.3} & 72.8\up{15.3} & 51.3\up{13.4} & 63.3\up{8.1} & 73.4\dn{2.3} & 60.7\up{0.8} & 60.2\up{8.5} \\
+\midrule
+\multirow{2}{*}{Gemma4-26B-A4B~\citep{gemma4}}
+  & No-tool & 56.0 & 44.8 & 56.9 & 45.1 & 47.8 & 31.5 & 48.3 & 70.2 & 53.7 & 53.1 \\
+  & \ours{}  & 56.0\eq{0.0} & 48.9\up{4.1} & 57.1\up{0.2} & 61.9\up{16.8} & 64.0\up{16.2} & 42.7\up{11.2} & 63.1\up{14.8} & 71.5\up{1.3} & 57.9\up{4.2} & 58.6\up{5.5} \\
+\bottomrule
+\end{tabular}%
+}}
+
+{\small
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{ll cccccc cccc >{\columncolor{gray!15}}c}
+\toprule
+\textbf{Model} & \textbf{Method}
+  & \multicolumn{6}{c}{\textit{Video spatial \& 4D reasoning}}
+  & \multicolumn{4}{c}{\textit{General video understanding}}
+  & \multicolumn{1}{c}{\textit{Average}} \\
+\cmidrule(lr){3-8} \cmidrule(lr){9-12} \cmidrule(lr){13-13}
+ &
+  & \rotatebox{80}{MMSI-Video~\citeyearpar{lin2025mmsivideo}}
+  & \rotatebox{80}{OSI-Bench~\citeyearpar{wu2025osibench}}
+  & \rotatebox{80}{PAI-Bench~\citeyearpar{zhou2025paibench}}
+  & \rotatebox{80}{VSI-Bench-U~\citeyearpar{brown2025shortcuts}}
+  & \rotatebox{80}{VSTI-Bench~\citeyearpar{fan2025vlm}}
+  & \rotatebox{80}{DSI-Bench~\citeyearpar{zhang2025dsibench}}
+  & \rotatebox{80}{CV-Bench~\citeyearpar{zhu2025cvbench}}
+  & \rotatebox{80}{PerceptComp~\citeyearpar{li2026perceptioncomp}}
+  & \rotatebox{80}{Video-MME~\citeyearpar{fu2025video}}
+  & \rotatebox{80}{Video-MME-v2~\citeyearpar{videommev2_2026}}
+  & \rotatebox{80}{\textbf{Avg.}} \\
+\midrule
+\multirow{2}{*}{Qwen3.5-397B-A17B~\citep{qwen3.5}}
+  & No-tool & 40.8 & 37.3 & 73.3 & 58.8 & 60.4 & 49.4 & 71.7 & 42.1 & 77.5 & 41.1 & \textbf{57.3} \\
+  & \ours{}  & 43.6\up{2.8} & 45.6\up{8.3} & 71.6\dn{1.7} & 56.6\dn{2.2} & 67.5\up{7.1} & 65.8\up{16.4} & 72.9\up{1.2} & 43.0\up{0.9} & 77.0\dn{0.5} & 45.7\up{4.6} & \textbf{60.4}\up{3.1} \\
+\midrule
+\multirow{2}{*}{Qwen3.5-122B-A10B~\citep{qwen3.5}}
+  & No-tool & 37.9 & 37.1 & 69.8 & 55.7 & 54.7 & 47.5 & 72.1 & 41.6 & 75.8 & 38.2 & \textbf{53.7} \\
+  & \ours{}  & 38.3\up{0.4} & 41.4\up{4.3} & 65.6\dn{4.2} & 50.6\dn{5.1} & 63.3\up{8.6} & 66.4\up{18.9} & 72.2\up{0.1} & 41.1\dn{0.5} & 72.6\dn{3.2} & 40.2\up{2.0} & \textbf{56.9}\up{3.2} \\
+\midrule
+\multirow{2}{*}{Qwen3.6-35B-A3B~\citep{qwen36_35b_a3b}}
+  & No-tool & 35.6 & 35.5 & 67.6 & 54.2 & 58.8 & 47.2 & 71.1 & 40.4 & 74.3 & 37.0 & \textbf{52.6} \\
+  & \ours{}  & 38.5\up{2.9} & 41.9\up{6.4} & 63.8\dn{3.8} & 51.7\dn{2.5} & 64.2\up{5.4} & 64.1\up{16.9} & 74.0\up{2.9} & 42.0\up{1.6} & 75.0\up{0.7} & 40.1\up{3.1} & \textbf{57.2}\up{4.6} \\
+\midrule
+\multirow{2}{*}{Qwen3.6-27B~\citep{qwen3.6-27b}}
+& No-tool & 37.1 & 36.8 & 69.8 & 55.4 & 60.5 & 48.0 & 70.6 & 39.4 & 76.7 & 36.7 & \textbf{55.0} \\
+& \ours{}  & 47.0\up{9.9} & 47.9\up{11.1} & 72.1\up{2.3} & 57.9\up{2.5} & 70.3\up{9.8} & 68.1\up{20.1} & 75.1\up{4.5} & 46.5\up{7.1} & 79.4\up{2.7} & 49.7\up{13.0} & \textbf{62.7}\up{7.7} \\
+\midrule
+\multirow{2}{*}{Gemma4-31B~\citep{gemma4}}
+  & No-tool & 36.9 & 35.6 & 65.0 & 48.0 & 54.7 & 45.3 & 69.8 & 36.8 & 74.8 & 40.7 & \textbf{53.4} \\
+  & \ours{}  & 41.6\up{4.7} & 41.9\up{6.3} & 68.1\up{3.1} & 48.5\up{0.5} & 67.6\up{12.9} & 62.9\up{17.6} & 72.2\up{2.4} & 44.0\up{7.2} & 77.0\up{2.2} & 44.4\up{3.7} & \textbf{59.9}\up{6.5} \\
+\midrule
+\multirow{2}{*}{Gemma4-26B-A4B~\citep{gemma4}}
+  & No-tool & 32.5 & 31.1 & 59.1 & 30.1 & 53.1 & 41.1 & 66.3 & 34.8 & 69.5 & 35.6 & \textbf{48.0} \\
+  & \ours{}  & 32.8\up{0.3} & 40.0\up{8.9} & 59.0\dn{0.1} & 38.5\up{8.4} & 61.7\up{8.6} & 61.1\up{20.0} & 67.8\up{1.5} & 36.3\up{1.5} & 69.6\up{0.1} & 37.3\up{1.7} & \textbf{54.3}\up{6.3} \\
+\bottomrule
+\end{tabular}%
+}}
+\end{table*}

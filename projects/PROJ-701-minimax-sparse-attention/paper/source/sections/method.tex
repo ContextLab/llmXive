@@ -1,0 +1,152 @@
+\section{\method{}}
+\label{sec:method}
+
+We introduce MiniMax Sparse Attention (\method{}), a GQA-based sparse attention mechanism with two branches, as illustrated in \Figref{fig:msa-arch}. For each query token, a lightweight \emph{Index Branch} selects a small set of key blocks from the causal context, and the \emph{Main Branch} computes softmax attention over the tokens in those blocks. The Index Branch adds only two projection matrices to standard GQA, operates at block granularity, and makes selections independently for each GQA group. We describe the architecture in \Secref{sec:method-architecture} and the training procedure in \Secref{sec:method-training}.
+
+
+
+\subsection{Architecture}
+\label{sec:method-architecture}
+
+\method{} instantiates the two-stage sparse-attention formulation in \Secref{sec:preliminary-sparse} at GQA-group and block granularity (\Figref{fig:msa-arch}). For each query token, the Index Branch selects $k$ key blocks of size $B_k$ for each GQA group, and the Main Branch attends only to tokens in the selected blocks, whose budget is at most $kB_k$.
+Let $\mX \in \R^{N \times d_{\rm model}}$ be the input hidden states. Following \Secref{sec:preliminary-attention-gqa}, we write $H_q$ and $H_{kv}$ for the number of query heads and key-value heads, respectively, so each key-value head serves $G = H_q/H_{kv}$ query heads.
+
+
+
+\paragraph{Index Branch.} The Index Branch introduces one index query head for each GQA group and a single index key head shared across groups:
+\begin{equation}
+\label{eq:msa-index-proj}
+\mQ^{\rm idx} = \mX \mW_q^{\rm idx} \in \R^{N \times H_{kv} \times d_{\rm idx}},
+\qquad
+\mK^{\rm idx} = \mX \mW_k^{\rm idx} \in \R^{N \times 1 \times d_{\rm idx}}.
+\end{equation}
+For query token $i$ and group $r$, the Index Branch first scores visible key tokens, then aggregates these scores to the block level. Using the block partition $\gB_1,\dots,\gB_B$ defined in \Secref{sec:preliminary-gqa-block-sparse},
+\begin{equation}
+\label{eq:msa-index-score}
+\mS^{\rm idx,(r)}_{i,j}
+\;=\;
+\frac{\bigl(\mQ^{\rm idx}\bigr)^{(r)}_i \,\bigl(\mK^{\rm idx}\bigr)_j^{\top}}
+     {\sqrt{d_{\rm idx}}},
+\qquad
+M^{\rm idx,(r)}_{i,b}
+\;=\;
+\max_{\substack{j \in \gB_b \\ j \le i}}
+\mS^{\rm idx,(r)}_{i,j}.
+\end{equation}
+Here $r$ indexes the GQA group, $j \le i$ enforces causality, and blocks with no visible token are assigned score $-\infty$. The Index Branch then selects the top-$k$ block indices:
+\begin{equation}
+\label{eq:msa-topk}
+\gI_i^{(r)}
+\;=\;
+\mathrm{TopK}_{b \in \{1,\dots,B\}}\!\bigl(M^{\rm idx,(r)}_{i,\cdot},\, k\bigr).
+\end{equation}
+Here $\mathrm{TopK}(\cdot, k)$ returns the indices of the $k$ largest blocks under $M^{\rm idx,(r)}_{i,\cdot}$. We always include the local block containing position $i$, and $\gI_i^{(r)}$ is shared by all $G$ query heads in group $r$.
+
+
+\paragraph{Main Branch.} Given the block index set $\gI_i^{(r)}$ selected by the Index Branch, the Main Branch attends only to the causally visible tokens in the selected blocks. For any query head $h \in \mathcal{H}_r$, it applies standard scaled dot-product attention restricted to these tokens, using the key-value head associated with GQA group $r$:
+\begin{equation}
+\label{eq:msa-sparse-attn}
+\mO_{i}^{(h)}
+\;=\;
+\softmax\Biggl(
+  \frac{\mQ_{i}^{(h)}\,
+        \bigl(\mK^{(r)}\!\bigl[\gI_i^{(r)}\bigr]\bigr)^{\top}}
+       {\sqrt{d_h}}
+\Biggr)
+\mV^{(r)}\!\bigl[\gI_i^{(r)}\bigr],
+\end{equation}
+where $\mQ_{i}^{(h)}$ denotes the query vector at position $i$ and query head $h$, while $\mK^{(r)}$ and $\mV^{(r)}$ denote the key and value matrices of the $r$-th GQA group.
+The notation $\mK^{(r)}[\gI_i^{(r)}]$ and $\mV^{(r)}[\gI_i^{(r)}]$ denotes gathering the causally visible tokens from the selected blocks.
+The block index set $\gI_i^{(r)}$ is shared by all query heads in $\mathcal{H}_r$, while each head keeps its own query projection. Since the selected blocks contain at most $kB_k$ causally visible tokens, the per-query attention cost is reduced from $O(N)$ to $O(kB_k)$, which is fixed as the sequence length increases.
+
+\subsection{Training}
+\label{sec:method-training}
+
+The top-$k$ selection in \Eqref{eq:msa-topk} is non-differentiable, so the language-modeling loss cannot train the index $Q/K$ projections $\mW^{\rm idx}_q, \mW^{\rm idx}_k$ directly. We therefore train the Index Branch with a KL alignment loss and use three mechanisms to stabilise sparse training: \textbf{Gradient Detach}, \textbf{Indexer Warmup}, and a forced \textbf{Local Block}. We describe each component below.
+
+
+
+\paragraph{KL Loss.} The KL loss gives the Index Branch a direct learning signal by matching its scores to the Main Branch on the selected tokens. Writing $\gI_{i,\mathrm{tok}}^{(r)}=(\bigcup_{b\in\gI_i^{(r)}}\gB_b)\cap\{1,\dots,i\}$ for the causally visible tokens induced by the selected block indices, for each query position $i$ and GQA group $r$, we define the Index Branch distribution $P^{\rm idx}$ and the Main Branch teacher $P$ over this token index set:
+\begin{equation}
+\label{eq:msa-pp}
+P^{{\rm idx},(r)}_{i,j}
+= \frac{\exp(S^{{\rm idx},(r)}_{i,j})}
+       {\sum_{u\in\gI_{i,\mathrm{tok}}^{(r)}}\exp(S^{{\rm idx},(r)}_{i,u})},
+\qquad
+P^{(r)}_{i,j}
+= \frac{1}{G}\sum_{\ell\in\mathcal{H}_r}
+  \frac{\exp(S^{(\ell)}_{i,j})}
+       {\sum_{u\in\gI_{i,\mathrm{tok}}^{(r)}}\exp(S^{(\ell)}_{i,u})},
+\qquad j\in\gI_{i,\mathrm{tok}}^{(r)},
+\end{equation}
+where $S^{{\rm idx},(r)}_{i,j} = (\mQ^{\rm idx})^{(r)}_i(\mK^{\rm idx})_j^{\top}/\sqrt{d_{\rm idx}}$ is the token-level index score, and $S^{(\ell)}_{i,j} = \mQ^{(\ell)}_i(\mK^{(r)}_j)^{\top}/\sqrt{d_h}$ is the Main Branch score for query head $\ell\in\mathcal{H}_r$. The teacher $P$ averages the per-head Main Branch distributions at the probability level. The indexer is then trained to match $P$, averaged over all query positions and GQA groups:
+\begin{equation}
+\label{eq:msa-kl}
+\Ls_{\rm KL}
+= \frac{1}{NH_{kv}}
+  \sum_{i=1}^{N}\sum_{r=1}^{H_{kv}}
+  \KL\bigl(\sg(P^{(r)}_{i,\cdot}) \,\|\, P^{{\rm idx},(r)}_{i,\cdot}\bigr),
+\end{equation}
+where $N$ is the sequence length, and the teacher distribution $P^{(r)}_{i,\cdot}$ is detached from gradient computation. This auxiliary loss aligns the index distribution with the Main Branch attention pattern, making the subsequent block selection semantically meaningful.
+
+
+
+
+\paragraph{Gradient Detach.} To isolate the auxiliary objective from the backbone, we apply stop-gradient to the Index Branch input:
+\begin{equation}
+\label{eq:msa-detach}
+\mQ^{\rm idx} \;=\; \sg(\mX)\mW^{\rm idx}_q,
+\qquad
+\mK^{\rm idx} \;=\; \sg(\mX)\mW^{\rm idx}_k.
+\end{equation}
+The teacher $P$ in \Eqref{eq:msa-pp} is detached, so $\Ls_{\rm KL}$ leaves the Main Branch projections untouched; \Eqref{eq:msa-detach} further prevents it from reaching the backbone through $\mX$. Under this rule, $\Ls_{\rm KL}$ updates only $\mW^{\rm idx}_q$ and $\mW^{\rm idx}_k$, making the KL a clean alignment signal for the indexer.
+
+
+\paragraph{Indexer Warmup.} We use a two-stage training schedule to initialise the Index Branch and avoid early random selections. During the first few iterations, the model runs full attention in both branches and trains the newly added index projections with $\Ls_{\rm KL}$. After warmup, the model switches to sparse attention, and $\Ls_{\rm KL}$ is computed over the top-$k$ selected positions. The same schedule is used when sparsifying a pretrained full-attention checkpoint, which helps align the newly added index projections before they control Main Branch routing.
+
+
+\paragraph{Local Block.} For each query position $i$ and GQA group $r$, the local block containing $i$ is always selected as part of $\gI_i^{(r)}$ during both training and inference. This fixed allocation reserves one block slot and leaves the remaining slots to be chosen by the Index Branch, preventing degenerate selections that omit the query's immediate neighbourhood.
+
+
+
+The complete layer-level training procedure is summarised in \Algref{alg:msa-train}.
+
+\begin{algorithm}[t]
+\caption{One \method{} layer: training forward and the auxiliary KL loss. The layer returns its output and per-layer $\Ls_{\rm KL}$; the model loss $\Ls = \Ls_{\rm LM} + \lambda\sum_{\rm layers}\Ls_{\rm KL}$ is assembled by the training loop.}
+\label{alg:msa-train}
+\begin{algorithmic}[1]
+\REQUIRE hidden states $\mX \in \R^{N \times d_{\rm model}}$; block size $B_k$,
+number of selected blocks $k$.
+\STATE $\mQ, \mK, \mV \leftarrow \mX\mW_q,\, \mX\mW_k,\, \mX\mW_v$
+       \COMMENT{$(N,H_q,d_h),(N,H_{kv},d_h),(N,H_{kv},d_h)$}
+\STATE $\mQ^{\rm idx}, \mK^{\rm idx} \leftarrow
+       \sg(\mX)\mW^{\rm idx}_q,\, \sg(\mX)\mW^{\rm idx}_k$
+       \COMMENT{$(N,H_{kv},d_{\rm idx}),(N,1,d_{\rm idx})$; detached}
+\STATE $M^{\rm idx} \leftarrow \mathrm{BlockMaxPool}(\mQ^{\rm idx}, \mK^{\rm idx}, B_k)$
+       \COMMENT{$(N,H_{kv},B)$; per-group, causal}
+\STATE $\gI \leftarrow \mathrm{TopK}(M^{\rm idx},\, k)$
+       \COMMENT{selected block indices; local block included}
+\STATE $\mO \leftarrow \mathrm{TopKAttn}(\mQ, \mK, \mV, \gI)$
+       \COMMENT{$(N,H_q,d_h)$; attends to selected blocks}
+\STATE $\mathrm{output} \leftarrow \mO\mW_o$
+       \COMMENT{$(N,d_{\rm model})$}
+\STATE $\Ls_{\rm KL} \leftarrow
+       \mathrm{KLdiv}(\mQ^{\rm idx}, \mK^{\rm idx},\, \sg(\mQ), \sg(\mK),\, \gI)$
+       \COMMENT{over tokens induced by $\gI$}
+\STATE \textbf{return}~$\mathrm{output},\ \Ls_{\rm KL}$
+\end{algorithmic}
+\end{algorithm}
+
+
+
+\subsection{Computational Complexity}
+\label{sec:msa-flops}
+
+Under the same $H_q$, $H_{kv}$, $d_h$, and sequence length $N$, the causal attention FLOPs of GQA and \method{} are
+\begin{equation}
+F_{\rm GQA}(N)= 2 H_q d_h N^2,
+\qquad
+F_{\method{}}(N)= \underbrace{H_{kv} d_{\rm idx} N^2}_{\text{Index Branch}}
+ + \underbrace{4 H_q d_h Nk B_k}_{\text{Main Branch}} .
+\end{equation}
+GQA scales its main attention path with the full context length, whereas \method{} uses a fixed selection budget $kB_k$ plus a lightweight index computation; the FLOPs gap therefore grows with $N$ when $kB_k \ll N$ and $H_{kv}d_{\rm idx} \ll H_qd_h$.

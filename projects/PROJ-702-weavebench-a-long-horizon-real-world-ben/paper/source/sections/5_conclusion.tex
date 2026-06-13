@@ -1,0 +1,12 @@
+\section{Conclusion}
+\label{sec:conclusion}
+
+We introduce \Eyeson{}, a long-horizon benchmark of 114 tasks across 8 real-world domains that admits only tasks requiring both GUI observation/action and CLI/code operations, evaluated inside deployed agent runtimes with a desktop-control plugin and a trajectory-aware judge. \Eyeson{} remains far from saturated: the best PassRate is 35.1\% on a fixed \textsc{OpenClaw} runtime and 41.2\% for the strongest model--runtime pairing. The bottleneck is not individual tool use but sustained orchestration across visual and programmatic operations.
+
+\smallskip
+\noindent\textbf{Design implications.}
+Forensics over $39$ hand-inspected failures expose three root-cause clusters---Reward Hacking ($33.7\%$), Workflow Discipline ($27.9\%$), and Planning \& Tool-Selection ($25.7\%$)---all driven by a scoring surface that penalises absence more than implausibility. We therefore recommend that future hybrid-interface benchmarks: (i) couple presence checks with lightweight \emph{provenance} evidence so honest abstention dominates plausible forgery; (ii) make honest abstention a first-class, scorable state; (iii) score semantic conformance of each deliverable, not mere file existence; (iv) grade tool selection against the task's channel \emph{policy}, not just the outcome; and (v) audit the process trace, not only the final artifact, to catch CLI-bypass of GUI requirements.
+
+\smallskip
+\noindent\textbf{Limitations and future work.}
+\Eyeson{} covers English-language tasks on Linux desktops; extending to other languages, operating systems, a larger task pool, and broader backbone~$\times$~harness coverage is left to future work.

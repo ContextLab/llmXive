@@ -1,0 +1,104 @@
+\documentclass[11pt, letterpaper, logo, onecolumn, copyright]{minimax}
+\usepackage[authoryear, sort&compress, round]{natbib}
+% \usepackage{booktabs}
+\usepackage{subcaption}
+\usepackage{multirow}
+\usepackage{array}
+\usepackage{float}
+% \usepackage{graphicx}
+\usepackage{adjustbox}
+% \usepackage{tikz}
+% \usetikzlibrary{calc,positioning,arrows.meta}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+% \usepackage{caption}
+\usepackage{cleveref}
+\usepackage{placeins}
+\captionsetup{justification=justified, singlelinecheck=true}
+
+\input{math_commands.tex}
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{assumption}[theorem]{Assumption}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcolumntype{L}[1]{>{\raggedright\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+\newcolumntype{C}[1]{>{\centering}m{#1}}
+\newcolumntype{R}[1]{>{\raggedleft\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+
+\newcommand{\std}[1]{{\tiny\(\pm\)#1}}
+\newcommand{\etal}{\textit{et al.}} 
+\newcommand{\method}{\textsc{MSA}}
+\newcommand{\sg}{\mathrm{stopgrad}}
+\newcommand{\topkidx}{\texttt{topk\_idx}}
+\renewcommand{\algorithmiccomment}[1]{\hfill\textcolor{gray}{// #1}}
+
+\bibliographystyle{plainnat}
+
+\title{MiniMax Sparse Attention}
+
+
+\reportnumber{}
+\paperurl{}
+\correspondingauthor{}
+
+\author[1,2]{Xunhao Lai}
+\author[1]{Weiqi Xu}
+\author[1]{Yufeng Yang}
+\author[3]{Qiaorui Chen}
+\author[1,4]{Yang Xu}
+\author[1,5]{Lunbin Zeng}
+\author[1,4]{Xiaolong Li}
+\author[1]{Haohai Sun}
+\author[1]{Haichao Zhu}
+\author[1,2]{Vito Zhang}
+\author[1]{Pengyu Zhao}
+
+\affil[1]{MiniMax}
+\affil[2]{Peking University}
+\affil[3]{NVIDIA}
+\affil[4]{Zhejiang University}
+\affil[5]{Huazhong University of Science and Technology}
+
+\begin{abstract}
+\input{sections/abstract}
+\end{abstract}
+
+
+\vspace{\baselineskip}
+\vspace{\baselineskip}
+\vspace{\baselineskip}
+
+\begin{document}
+
+\maketitle
+\begin{figure}[!ht]
+\centering
+\includegraphics[width=\linewidth]{figures/msa_arch.png}
+\caption{Overview of \method{}. The Index Branch (left) scores the full causal context with a single lightweight head and selects, for each query and GQA group, a set $\gI$ of $k$ key blocks; the local block is always included regardless of its score. The Main Branch (right) attends only to the selected blocks and produces the layer output. During training, a KL loss aligns the index distribution with the group-averaged Main Branch distribution on the selected blocks, and the Index Branch gradient is detached from the Main Branch.}
+\label{fig:msa-arch}
+\end{figure}
+\clearpage
+
+
+\input{sections/introduction}
+\input{sections/preliminary}
+\input{sections/method}
+\input{sections/infrastructure}
+\input{sections/experiment}
+\input{sections/related_works}
+\input{sections/conclusion}
+
+\bibliography{references}
+
+\newpage
+\input{sections/appendix}
+
+\end{document}

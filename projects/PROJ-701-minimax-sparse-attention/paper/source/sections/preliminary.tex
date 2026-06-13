@@ -1,0 +1,50 @@
+\section{Preliminary}
+\label{sec:preliminary}
+
+\subsection{Causal Attention and GQA}
+\label{sec:preliminary-attention-gqa}
+
+We write $N$ for the sequence length, $d_{\rm model}$ for the hidden dimension, and $d_h$ for the head dimension. For each query position $t$ and head $h$, causal Softmax Attention computes
+\begin{equation}
+\label{eq:softmax-attention}
+    \vo_t^{(h)} \;=\; \sum_{i \le t} \alpha_{t,i}^{(h)} \, \vv_i^{(h)},
+    \qquad
+    \alpha_{t,i}^{(h)} \;=\; \frac{\exp\!\big(\langle \vq_t^{(h)}, \vk_i^{(h)} \rangle / \sqrt{d_h}\big)}{\sum_{j \le t} \exp\!\big(\langle \vq_t^{(h)}, \vk_j^{(h)} \rangle / \sqrt{d_h}\big)}.
+\end{equation}
+The cost of \cref{eq:softmax-attention} is $\Theta(2H_q N^2 d_h)$ FLOPs, which grows quadratically with the sequence length $N$. Grouped-Query Attention~\citep{ainslie2023gqa} uses $H_q$ query heads and reduces the number of key-value heads to $H_{kv}$, tying $G=H_q/H_{kv}$ adjacent query heads to a single shared key-value head. Thus, each key-value head defines one GQA group. 
+
+
+\subsection{Sparse Attention as a Two-Stage Process}
+\label{sec:preliminary-sparse}
+
+A sparse attention layer factors causal attention into an indexer that selects which keys to attend to and a sparse attention computation over the selected keys. For each query position $i$,
+\begin{equation}
+\label{eq:two-stage}
+    \gI_i \;=\; \mathrm{Index}_\phi\!\big(\vq_i, \mK_{\le i}\big),
+    \qquad
+    \vo_i \;=\; \mathrm{Attn}\!\big(\vq_i, \mK[\gI_i], \mV[\gI_i]\big),
+\end{equation}
+where $\mathrm{Index}_\phi$ is parameterized by $\phi$ (empty for fixed-rule indexers; learned for trainable ones), $\gI_i \subseteq \{1, \dots, i\}$ denotes the selected index set, and $\mathrm{Attn}$ denotes standard scaled dot-product softmax attention restricted to this index set. We call the first stage the \emph{Index Branch} and the second the \emph{Main Branch}. In multi-head attention, each query, specified by a position $i$ and a query head $h$, can select a different key/value index set, written as $\gI_i^{(h)}$; \cref{eq:two-stage} omits the head index only for notational simplicity.
+
+\subsection{GQA-Based Block Sparse Attention}
+\label{sec:preliminary-gqa-block-sparse}
+
+Per-head token-level selection offers the finest granularity, but such fine-grained computation is difficult to map efficiently to GPU matrix operations. For efficiency, sparse attention built on GQA can share the index result within each GQA group. Let $\mathcal{H}_r$ denote the $G$ query heads served by the $r$-th key-value head. The group-shared index set can be written as
+\begin{equation}
+\label{eq:prelim-group-shared-support}
+    \gI_i^{(r)} = \gI_i^{(h)} = \gI_i^{(h')},
+    \qquad
+    h,h' \in \mathcal{H}_r .
+\end{equation}
+
+Selecting key/value blocks rather than individual tokens reduces routing overhead and makes sparse attention more regular. For block size $B_k$, define
+\begin{equation}
+\label{eq:prelim-key-blocks}
+    \gB_b
+    =
+    \{(b{-}1)B_k+1,\dots,\min(bB_k,N)\},
+    \qquad
+    b=1,\dots,B,\quad B=\lceil N/B_k\rceil .
+\end{equation}
+For query position $i$ and GQA group $r$, the set $\gI_i^{(r)} \subseteq \{1,\dots,B\}$ denotes the selected block index set.
+The sparse attention output for any query head in group $r$ is then computed over the causally visible tokens in the selected blocks, using the key-value head of the same group. \method{} follows this GQA-based block sparse formulation, with the concrete indexer architecture and training objective described in the next section.

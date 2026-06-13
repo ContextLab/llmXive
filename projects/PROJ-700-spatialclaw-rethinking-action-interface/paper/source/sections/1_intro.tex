@@ -1,0 +1,37 @@
+\section{Introduction}
+\label{sec:intro}
+
+\input{figures/tex/teaser}
+Spatial reasoning, the ability to determine where objects are, how they move, and how they relate in three dimensions, is foundational to visual perception.
+Questions such as \emph{``Is the car moving toward the camera?''}, \emph{``Which object is closest to the table?''}, and \emph{``Did the person turn left or right?''} are effortless for humans, yet remain challenging for vision-language models (VLMs), including state-of-the-art models~\citep{yang2024think,chen2025eagle2.5,qwen3.5,gemma4}.
+Answering them requires composing multiple types of evidence, including depth, camera pose, and temporal correspondence, into a coherent geometric argument, and current VLMs struggle to perform this structured analysis reliably from pixels alone~\citep{chen2024spatialvlm,cheng2024spatialrgpt,cho20264dpqa}.
+
+A natural response is to augment VLMs with specialist perception tools~\citep{Gupta2022VisProg,surismenon2023vipergpt,shen2023hugginggpt,lu2026octotools,chen2025spacetools,han2025tiger}, such as detectors~\citep{carion2020end}, segmenters~\citep{ravi2024sam,carion2025sam}, and depth or pose estimators~\citep{wang2025pi}, that produce perceptual outputs that VLMs would otherwise have to approximate from visual appearance alone.
+The capability of a tool-augmented agent, however, depends not only on which tools are available, but also on the \emph{action interface} through which those tools are invoked.
+The action interface specifies how tools are invoked and their outputs represented, which intermediate states are observable between steps, and whether the agent can revise its reasoning in light of those observations before committing to an answer.
+
+Prior tool-augmented spatial agents have primarily relied on one of two action interfaces.
+In \emph{single-pass code execution}, the agent writes a complete Python program and runs it once~\citep{luo2026pyspatial,marsili2025visual} (Fig.~\ref{fig:teaser}a), enabling flexible tool invocation but requiring a complete analysis strategy to be committed before any intermediate result has been observed.
+In \emph{structured tool-calls}, the agent selects from a list of named tools, fills typed arguments, and consumes typed return values~\citep{chen2025geometrically,chen2025spacetools,ropero2026riemind}, offering limited support for composing and synthesizing tool outputs through external scientific libraries such as \texttt{numpy} or \texttt{scipy} to perform task-specific computations that emerge only at test time (Fig.~\ref{fig:teaser}b).
+
+In practice, neither design readily supports the open-ended, compositional reasoning that complex 3D/4D spatial reasoning tasks often demand.
+We therefore argue that the appropriate action interface for spatial reasoning should treat code not as a one-shot program or a dispatch interface for pre-registered tools, but as an \emph{orchestration space} in which the agent sequences, composes, and diagnoses the perception tools it has access to. In light of this, we propose \textbf{\ours{}}, a training-free framework that instantiates this principle as code as the action interface (Fig.~\ref{fig:teaser}c).
+
+In \ours{}, perception tools are Python callables and their outputs, including masks, depth maps, camera geometry, and trajectories, are ordinary Python variables; the kernel preserves this state independently across turns, so any object produced at one step remains available for composition, inspection, and revision at all subsequent steps.
+While structured tool-calls and natural language reasoning can partially approximate this behavior, code generation provides a more expressive interface for adapting perception to the task, especially in spatial reasoning, where the required computations often cannot be anticipated by a fixed API.
+A new spatial analysis is not a new API entry, but a new composition of perception tools (e.g., segmentation~\citep{carion2025sam} or reconstruction~\citep{depthanything3}) and numerical primitives (e.g., \texttt{numpy}~\citep{harris2020array}, \texttt{scipy}~\citep{2020SciPy-NMeth}) assembled across steps in response to intermediate evidence.
+\ours{} pre-loads a persistent Python kernel with input frames, perception tools, and scientific libraries, and coordinates a VLM-backed agent through an iterative loop of planning, code execution, and feedback assembly, guided by a unified system prompt that encodes general principles of spatial reasoning rather than task-specific instructions.
+
+We evaluate \ours{} on 20 spatial reasoning benchmarks spanning metric distance, camera and object motion, multi-view geometry, temporal reasoning, and spatial planning, to name a few.
+\ours{} achieves 59.9\% average accuracy across all 20 benchmarks, outperforming the recent spatial agent~\citep{chen2025spacetools} by \textbf{+11.2 points} (Fig.~\ref{fig:radar}).
+Gains are largest on dynamic 4D video reasoning and multi-view inference, precisely the categories that demand chained geometric computation across frames and viewpoints, where no pre-specified tool call captures the required composition.
+Strikingly, these gains generalize out of the box: \ours{} delivers consistent improvements across the large majority of benchmarks and backbone models tested, spanning two distinct model families, Qwen~\citep{qwen3.5,qwen3.6-27b,qwen36_35b_a3b} and Gemma4~\citep{gemma4}, with parameters ranging from 27B to 397B, \emph{without any modification} to the system prompt, tool set, or benchmark-specific engineering, confirming that the expressive action interface itself drives the gains rather than model-specific tuning.
+We further present a controlled comparison of three action interfaces and ablation studies, demonstrating that our interface achieves the strongest generalization through flexible composition of perception primitives and that the gains persist even when all pre-defined utility wrappers are removed.
+
+Our contributions are as follows:
+\begin{itemize}[leftmargin=1.5em,itemsep=1pt,topsep=1pt]
+  \item \textbf{Rethinking the action interface for spatial reasoning agents.}
+    We argue that the design of the action interface is a critical factor in agent capability in spatial reasoning, and introduce \ours{}, a training-free agent that instantiates this principle by replacing single-pass code execution and structured tool-call interfaces with a persistent, multi-turn Python kernel, turning each step into an opportunity to compose perception outputs with numerical primitives, inspect intermediate state, and revise the analysis.
+  \item \textbf{Comprehensive evaluation that validates action interface design.}
+    We establish an extensive evaluation spanning single-image spatial reasoning, multi-view spatial reasoning, general spatial reasoning, video spatial \& 4D reasoning, and general video understanding, on which \ours{} achieves consistent improvement over baselines across most benchmarks and transfers across backbone models without any benchmark- or model-specific adaptation, providing a comprehensive empirical comparison of spatial agents.
+\end{itemize}

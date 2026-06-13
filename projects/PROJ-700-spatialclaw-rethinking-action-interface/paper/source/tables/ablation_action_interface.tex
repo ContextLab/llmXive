@@ -1,0 +1,109 @@
+\begin{table}[t]
+\centering
+
+\newsavebox{\actionLBox}\newsavebox{\actionRBox}
+\newlength{\actionLcap}\newlength{\actionRcap}
+
+\sbox{\actionLBox}{%
+  \setlength{\tabcolsep}{2pt}\renewcommand{\arraystretch}{1.05}\scriptsize
+  \begin{tabular}[t]{l cccc}
+  \toprule
+  \rowcolor{white}
+    & No-tool   & Single-Pass & Structured & \ours{}      \\
+  \rowcolor{white}\multirow{-2}{*}{\textbf{Benchmark}}
+    & Baseline  & Code        & Tool-Call  & (Ours)       \\
+  \midrule
+  \multicolumn{5}{l}{\textit{Single-image spatial reasoning}} \\
+  \quad ERQA~\citep{team2025gemini}              & 58.3 & 58.3 & \cellcolor{secondcell}\underline{59.0} & \cellcolor{bestcell}\textbf{61.3} \\
+  \quad Omni3D~\citep{marsili2025visual}        & 51.7 & 48.2 & \cellcolor{bestcell}\textbf{55.7} & \cellcolor{secondcell}\underline{54.3} \\
+  \quad OmniSpatial~\citep{jia2025omnispatial}  & 57.3 & \cellcolor{secondcell}\underline{60.0} & 59.6 & \cellcolor{bestcell}\textbf{63.6} \\
+  \quad SPBench~\citep{xu2025spbench}           & 55.1 & 58.2 & \cellcolor{secondcell}\underline{60.5} & \cellcolor{bestcell}\textbf{68.4} \\
+  \midrule
+  \multicolumn{5}{l}{\textit{Multi-view spatial reasoning}} \\
+  \quad MindCube~\citep{yin2025mindcube}        & 57.5 & 57.5 & \cellcolor{secondcell}\underline{62.4} & \cellcolor{bestcell}\textbf{72.8} \\
+  \quad MMSI~\citep{yang2025mmsi}               & 37.9 & 42.3 & \cellcolor{secondcell}\underline{43.0} & \cellcolor{bestcell}\textbf{51.3} \\
+  \quad SPAR-Bench~\citep{zhang2025from}        & 55.2 & \cellcolor{secondcell}\underline{61.1} & 58.7 & \cellcolor{bestcell}\textbf{63.3} \\
+  \midrule
+  \multicolumn{5}{l}{\textit{Video spatial \& 4D reasoning}} \\
+  \quad MMSI-Video~\citep{lin2025mmsivideo}     & 36.9 & \cellcolor{secondcell}\underline{37.1} & 35.1 & \cellcolor{bestcell}\textbf{41.6} \\
+  \quad OSI-Bench~\citep{wu2025osibench}        & 35.6 & 36.8 & \cellcolor{secondcell}\underline{40.3} & \cellcolor{bestcell}\textbf{41.9} \\
+  \quad PAI-Bench~\citep{zhou2025paibench}      & 65.0 & 64.2 & \cellcolor{secondcell}\underline{65.6} & \cellcolor{bestcell}\textbf{68.1} \\
+  \quad VSI-Bench-U~\citep{brown2025shortcuts}  & 48.0 & 47.8 & \cellcolor{bestcell}\textbf{50.1} & \cellcolor{secondcell}\underline{48.5} \\
+  \quad VSTI-Bench~\citep{fan2025vlm}           & 54.7 & \cellcolor{secondcell}\underline{64.2} & 63.5 & \cellcolor{bestcell}\textbf{67.6} \\
+  \quad DSI-Bench~\citep{zhang2025dsibench}     & 45.3 & 57.9 & \cellcolor{secondcell}\underline{58.4} & \cellcolor{bestcell}\textbf{62.9} \\
+  \midrule
+  \multicolumn{5}{l}{\textit{General spatial reasoning}} \\
+  \quad BLINK~\citep{fu2024blink}               & \cellcolor{bestcell}\textbf{75.7} & \cellcolor{secondcell}\underline{73.9} & \cellcolor{secondcell}\underline{73.9} & 73.4 \\
+  \quad SpatialTree~\citep{xiao2025spatialtree} & \cellcolor{secondcell}\underline{59.9} & 58.9 & 57.7 & \cellcolor{bestcell}\textbf{60.7} \\
+  \quad ViewSpatial~\citep{li2025viewspatial}   & 51.7 & 52.0 & \cellcolor{secondcell}\underline{55.5} & \cellcolor{bestcell}\textbf{60.2} \\
+  \midrule
+  \multicolumn{5}{l}{\textit{General video understanding}} \\
+  \quad CV-Bench~\citep{zhu2025cvbench}          & 69.8 & 71.3 & \cellcolor{bestcell}\textbf{73.6} & \cellcolor{secondcell}\underline{72.2} \\
+  \quad PerceptComp~\citep{li2026perceptioncomp}& 36.8 & 39.2 & \cellcolor{secondcell}\underline{42.5} & \cellcolor{bestcell}\textbf{44.0} \\
+  \quad Video-MME~\citep{fu2025video}           & 74.8 & 74.6 & \cellcolor{secondcell}\underline{75.8} & \cellcolor{bestcell}\textbf{77.0} \\
+  \quad Video-MME-v2~\citep{videommev2_2026}    & 40.7 & 40.2 & \cellcolor{secondcell}\underline{44.0} & \cellcolor{bestcell}\textbf{44.4} \\
+  \midrule
+  \textbf{Average} (20 bench.) & 53.4 & 55.2 & \cellcolor{secondcell}\underline{56.7} & \cellcolor{bestcell}\textbf{59.9} \\
+  \bottomrule
+  \end{tabular}%
+}
+\sbox{\actionRBox}{%
+  \setlength{\tabcolsep}{2pt}\renewcommand{\arraystretch}{1.05}\scriptsize
+  \begin{tabular}[t]{cccc}
+  \toprule
+  \rowcolor{white}VADAR                       & pySpatial                & SpaceTools Toolshed                          & \ours{} \\
+  \rowcolor{white}\citep{marsili2025visual}   & \citep{luo2026pyspatial} & \citep{chen2025spacetools} & (Ours)  \\
+  \midrule
+  \multicolumn{4}{c}{\strut} \\
+  33.3 & 50.8 & \cellcolor{secondcell}\underline{52.0} & \cellcolor{bestcell}\textbf{61.3} \\
+  44.6 & 50.6 & \cellcolor{secondcell}\underline{50.7} & \cellcolor{bestcell}\textbf{54.3} \\
+  42.4 & 58.0 & \cellcolor{secondcell}\underline{60.4} & \cellcolor{bestcell}\textbf{63.6} \\
+  41.6 & \cellcolor{secondcell}\underline{53.5} & 45.1 & \cellcolor{bestcell}\textbf{68.4} \\
+  \midrule
+  \multicolumn{4}{c}{\strut} \\
+  --$^{*}$ & \cellcolor{secondcell}\underline{67.1} & 52.9 & \cellcolor{bestcell}\textbf{72.8} \\
+  --$^{*}$ & \cellcolor{secondcell}\underline{33.2} & 33.1 & \cellcolor{bestcell}\textbf{51.3} \\
+  --$^{*}$ & 51.7 & \cellcolor{secondcell}\underline{53.9} & \cellcolor{bestcell}\textbf{63.3} \\
+  \midrule
+  \multicolumn{4}{c}{\strut} \\
+  --$^{*}$ & 28.7 & \cellcolor{secondcell}\underline{36.6} & \cellcolor{bestcell}\textbf{41.6} \\
+  --$^{*}$ & \cellcolor{secondcell}\underline{32.0} & 30.2 & \cellcolor{bestcell}\textbf{41.9} \\
+  --$^{*}$ & 46.0 & \cellcolor{secondcell}\underline{65.1} & \cellcolor{bestcell}\textbf{68.1} \\
+  --$^{*}$ & \cellcolor{secondcell}\underline{44.4} & 33.6 & \cellcolor{bestcell}\textbf{48.5} \\
+  --$^{*}$ & 55.0 & \cellcolor{secondcell}\underline{56.0} & \cellcolor{bestcell}\textbf{67.6} \\
+  --$^{*}$ & \cellcolor{secondcell}\underline{43.7} & 43.0 & \cellcolor{bestcell}\textbf{62.9} \\
+  \midrule
+  \multicolumn{4}{c}{\strut} \\
+  --$^{*}$ & \cellcolor{secondcell}\underline{60.3} & 58.2 & \cellcolor{bestcell}\textbf{73.4} \\
+  --$^{*}$ & \cellcolor{secondcell}\underline{53.9} & 52.7 & \cellcolor{bestcell}\textbf{60.7} \\
+  --$^{*}$ & 49.9 & \cellcolor{secondcell}\underline{52.1} & \cellcolor{bestcell}\textbf{60.2} \\
+  \midrule
+  \multicolumn{4}{c}{\strut} \\
+  --$^{*}$ & \cellcolor{secondcell}\underline{67.7} & 46.8 & \cellcolor{bestcell}\textbf{72.2} \\
+  --$^{*}$ & 37.1 & \cellcolor{secondcell}\underline{38.6} & \cellcolor{bestcell}\textbf{44.0} \\
+  --$^{*}$ & 50.3 & \cellcolor{secondcell}\underline{74.6} & \cellcolor{bestcell}\textbf{77.0} \\
+  --$^{*}$ & 23.0 & \cellcolor{secondcell}\underline{37.4} & \cellcolor{bestcell}\textbf{44.4} \\
+  \midrule
+  --$^{*}$ & 47.8 & \cellcolor{secondcell}\underline{48.7} & \cellcolor{bestcell}\textbf{59.9} \\
+  \bottomrule
+  \end{tabular}%
+}
+
+\setlength{\actionLcap}{(\linewidth-8pt) * \ratio{\wd\actionLBox}{\wd\actionLBox+\wd\actionRBox}}
+\setlength{\actionRcap}{(\linewidth-8pt) * \ratio{\wd\actionRBox}{\wd\actionLBox+\wd\actionRBox}}
+
+\begin{minipage}[t]{\actionLcap}
+\caption{\textbf{Action interface comparison.} All variants use the same toolset. ``Structured Tool-Call'' exposes the tools through a JSON command interface~\citep{chen2025spacetools}. ``Single-Pass Code'' generates one complete program before execution.}
+\label{tab:action_interface}
+\end{minipage}%
+\hspace{8pt}%
+\begin{minipage}[t]{\actionRcap}
+\caption{\textbf{Comparison with other spatial agents.} All
+use the same Gemma4-31B~\citep{gemma4} backbone model. 
+ $^{*}$:~video or multi-image not supported.}
+\label{tab:comparison_agents}
+\end{minipage}
+
+\resizebox{\linewidth}{!}{\usebox{\actionLBox}\hspace{8pt}\usebox{\actionRBox}}
+
+\end{table}

@@ -1,0 +1,127 @@
+\PassOptionsToPackage{table}{xcolor}
+\documentclass[10pt,logo,copyright]{nvidiatechreport}
+\linespread{1.15}
+
+\input{packages}
+
+\usepackage{calc}
+\usepackage{wrapfig}
+\usepackage{listings}
+\usepackage{etoc}
+\usepackage[nameinlink]{cleveref}
+
+\crefname{equation}{Eq.}{Eqs.}
+\crefname{figure}{Fig.}{Figs.}
+\crefname{section}{Sec.}{Sec.}
+\crefname{appendix}{App.}{App.}
+\crefname{table}{Tab.}{Tabs.}
+
+\definecolor{darkred}{rgb}{0.7, 0.0, 0.0}
+
+\newcommand{\ours}{SpatialClaw}
+
+\lstdefinestyle{pythonStyle}{%
+  language=Python,
+  basicstyle=\ttfamily\scriptsize,
+  keywordstyle=\color{blue!70!black},
+  commentstyle=\color{gray!70!black}\itshape,
+  stringstyle=\color{red!60!black},
+  showstringspaces=false,
+  breaklines=true,
+  columns=fullflexible,
+  upquote=true,
+  aboveskip=4pt,
+  belowskip=2pt,
+}
+
+\definecolor{deltapos}{RGB}{0,130,0}
+\definecolor{deltaneg}{RGB}{200,30,30}
+\definecolor{ngreen}{HTML}{76B900}
+\colorlet{bestcell}{ngreen!60}
+\colorlet{secondcell}{ngreen!20}
+\newcommand{\up}[1]{\,{\scriptsize\color{deltapos}(+#1)}}
+\newcommand{\dn}[1]{\,{\scriptsize\color{deltaneg}($-$#1)}}
+\newcommand{\eq}[1]{\,{\scriptsize\color{gray}(+#1)}}
+\newcommand{\paragrapht}{\paragraph}
+
+\newtcolorbox{findingbox}[1][]{%
+  enhanced,
+  colback=gray!8,
+  colframe=gray!60,
+  fonttitle=\bfseries,
+  coltitle=black,
+  colbacktitle=gray!30,
+  sharp corners,
+  boxrule=0.6pt,
+  top=6pt,
+  bottom=6pt,
+  left=6pt,
+  right=6pt,
+  title={#1}
+}
+
+\newcounter{findingcounter}
+\newcommand{\finding}[2]{%
+    \refstepcounter{findingcounter}%
+    \begin{tcolorbox}[
+        colback=white!90!gray,
+        colframe=ngreen,
+        arc=2pt,
+        boxsep=3pt,
+        left=10pt,
+        right=10pt,
+        top=0pt,
+        bottom=0pt,
+        boxrule=0.8pt,
+        enhanced jigsaw
+    ]
+        \textbf{Finding~\arabic{findingcounter}.}~\textbf{#1} #2
+    \end{tcolorbox}
+    \vspace{-0.1cm}
+}
+
+\title{\ours{}:\\Rethinking Action Interface for Agentic Spatial Reasoning}
+\newcommand{\headertitle}{\ours{}: Rethinking Action Interface for Agentic Spatial Reasoning}
+
+\author{Seokju Cho$^{1}$, Ryo Hachiuma, Abhishek Badki, Hang Su, Byung-Kwan Lee, Chan Hee Song, Sifei Liu,
+Subhashree Radhakrishnan, Seungryong Kim$^{1}$, Yu-Chiang Frank Wang and Min-Hung Chen\\
+{\Affilfont \textbf{Links}:~\href{https://github.com/NVlabs/SpatialClaw}{Code}~\textperiodcentered~\href{https://spatialclaw.github.io/}{Project Page}}\\
+{\Affilfont NVIDIA}}
+\authornotes{\textsuperscript{1}\,Affiliated with KAIST. Work done during Seokju Cho's internship at NVIDIA.}
+
+\hypersetup{
+  pdftitle={SpatialClaw: Rethinking Action Interface for Agentic Spatial Reasoning},
+  pdfauthor={Seokju Cho, Ryo Hachiuma, Abhishek Badki, Hang Su, Byung-Kwan Lee, Chan Hee Song, Sifei Liu, Subhashree Radhakrishnan, Seungryong Kim, Yu-Chiang Frank Wang, Min-Hung Chen}
+}
+
+\fancyhead[C]{\footerfont \headertitle}
+
+\begin{document}
+
+\etocdepthtag.toc{mainpaper}
+
+\maketitle
+\vspace{-6.5mm}
+
+\input{figures/tex/radar}
+
+\input{sections/0_abstract}
+\abscontent
+\input{sections/1_intro}
+\input{sections/3_interfaces}
+\input{sections/4_method}
+\input{sections/5_experiment}
+\input{sections/6_conclusion}
+
+\section*{Acknowledgements}
+We are deeply grateful to Valts Blukis, Siyi Chen, Yi Dong, Tsung-Yi Lin, Karan Sapra, Andrew Tao, Bowen Wen, and Zhiding Yu for their valuable discussions, insightful feedback, and generous support throughout this work.
+
+\clearpage
+\input{supple}
+
+\clearpage
+\setcitestyle{numbers}
+\bibliographystyle{plainnat}
+\bibliography{main}
+
+\end{document}

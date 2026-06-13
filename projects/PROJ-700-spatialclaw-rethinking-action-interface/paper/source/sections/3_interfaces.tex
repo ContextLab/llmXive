@@ -1,0 +1,22 @@
+\section{Action Interfaces for Spatial Reasoning Agents}
+\label{sec:interfaces}
+\label{sec:code}
+
+We characterize tool-augmented spatial agents by their \emph{action interface}, that is, the medium through which they acquire, inspect, and transform visual evidence.
+When no interface is used, the VLM performs spatial reasoning by generating a chain-of-thought rationale in natural language directly over the input images~\citep{yang2024think,chen2025eagle2.5,qwen3.5,gemma4}, without invoking any external computation or acquiring intermediate evidence.
+Beyond this tool-free case, prior spatial agents have primarily relied on one of two action interfaces: single-pass code execution, or predefined API calls through structured tool-calls.
+
+\paragraph{Single-pass code.}
+The agent writes a complete Python program, runs it once, and uses it to call perception modules and process their outputs~\citep{luo2026pyspatial,marsili2025visual}.
+The program can express task-specific computations, but it must commit to a complete strategy before observing any intermediate mask, depth map, plot, or runtime error.
+Retry mechanisms may repair a syntax or runtime failure, but intermediate visual evidence does not participate in the reasoning loop.
+
+\paragraph{Structured tool-calls.}
+The agent invokes perception modules by name, passing typed inputs and receiving typed outputs through predefined structured commands~\citep{chen2025geometrically,chen2025spacetools,ropero2026riemind}, e.g., JSON or XML.
+While this exposes a clean interface for invoking perception, compositions that can only be determined at test time, such as chaining a depth estimate with a segmentation mask in a way specific to the question, are difficult to express within the predefined command schema.
+
+\paragraph{Motivation.} These considerations motivate a third interface centered on code as a medium for flexible iterative composition based on intermediate evidence.
+Building on the rapid advances in code generation capabilities of modern LLMs, \ours{} lets the agent write one Python cell per step and execute it in a persistent kernel, conditioning each subsequent step on the resulting text, variables, errors, and visualizations; that is, we interpret code as the action interface.
+Code generation provides a more general mechanism for adapting to the task than either approach: computations such as finding the nearest object via \texttt{scipy.spatial.KDTree} or estimating a surface plane via RANSAC~\citep{fischler1981random} emerge naturally from the problem at hand, without needing to be anticipated by a predefined interface.
+Spatial results such as depth maps, camera geometry, and temporal trajectories persist as ordinary Python variables across steps, remaining available for inspection, composition, and correction throughout execution.
+Fig.~\ref{fig:teaser} provides a comparison of these three interfaces.

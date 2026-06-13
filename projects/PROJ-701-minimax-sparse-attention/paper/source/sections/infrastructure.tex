@@ -1,0 +1,78 @@
+\section{Kernel Design}
+\label{sec:infrastructure}
+
+This section describes the GPU kernels used in our sparse prefill implementation, including the index TopK kernel, the KV-outer sparse attention forward, and the sparse KL loss backward.
+
+\subsection{Index \& TopK}
+
+\paragraph{Exp-free selection.}
+To efficiently select the top-$k$ KV blocks, the index module ranks the index scores $s$ directly. Since softmax is order-preserving, the relative ordering of scores is preserved ($s_i \le s_j \iff \mathrm{softmax}(s)_i \le \mathrm{softmax}(s)_j$), leaving the top-$k$ indices unchanged. The forward pass, therefore, bypasses the max/exp/sum steps of softmax and passes raw scores directly to selection.
+
+\paragraph{Per-thread register top-$k$.}
+The block size $B_k$ and selection size $k$ are co-designed with the top-$k$ kernel: a large $B_k$ increases attention arithmetic intensity (Section~\ref{sec:kernel:sparse_attn}), and a small $k$ at this $B_k$ keeps both the per-row candidate block count $B$ and $k$ below the sweet spot of general-purpose top-$k$ kernels, which amortize multi-pass bucketing over large $B$ (radix selection) or scale as $O(B \log^2 B)$ (bitonic sort). We adopt $B_k = 128$, $k = 16$. Each of the warp's 32 lanes streams a 1/32 stride of the input row and maintains a $k$-element min-heap in shared memory. The heap root is cached in a register, and insertions are performed with deferred writes. Finally, a $k$-round shuffle merge combines the 32 local TopK results. The shared-memory layout maps each lane to a fixed bank, avoiding conflicts.
+
+\paragraph{Benchmark.}
+We compare against \texttt{torch.topk} and the TileLang~\citep{wang2025tilelangcomposabletiledprogramming} radix-select top-$k$ on an H800 GPU with \texttt{fp32} inputs and unsorted outputs; latencies are the median of $50$ post-warmup iterations. Table~\ref{tab:topk_latency} shows that our specialized kernel is fastest in all tested settings, with the largest gains at the deployed setting $k = 16$.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{rrrrrrrr}
+\toprule
+Seq. Len. $N$ & Blocks $B$ & $k$ & \texttt{torch} & TileLang & Ours & vs.\ \texttt{torch} & vs.\ TileLang \\
+\midrule
+$128$K & $1024$ & $16$ & $3970$  & $2864$  & $779$   & $5.1\times$ & $3.7\times$ \\
+$128$K & $2048$ & $32$ & $5378$  & $3630$  & $1991$  & $2.7\times$ & $1.8\times$ \\
+$512$K & $4096$ & $16$ & $33810$ & $17779$ & $7880$  & $4.3\times$ & $2.3\times$ \\
+$512$K & $8192$ & $32$ & $57659$ & $26100$ & $21326$ & $2.7\times$ & $1.2\times$ \\
+\bottomrule
+\end{tabular}
+\caption{Top-$k$ latency ($\mu$s) for \texttt{fp32} inputs of shape $(N, B)$, with rows processed independently. The deployed setting uses $B_k = 128$, $k = 16$, while for reference we also report $k = 32$ with $B_k = 64$. All implementations produce identical index sets.}
+
+\label{tab:topk_latency}
+\end{table}
+\FloatBarrier
+
+\subsection{Sparse Attention}
+\label{sec:kernel:sparse_attn}
+
+We revisit the choice of iteration order under sparse prefill with equal query and key/value lengths. Let $H_q$, $H_{kv}$, $G = H_q / H_{kv}$, $d_h$, $N$, $B_k$, and $k$ denote the number of query heads, key-value heads, GQA ratio, head dimension, sequence length, KV block size, and number of blocks selected per query.  For simplicity, the IO estimates below assume 2-byte elements (bfloat16-sized traffic). Our kernels also support fp8; using fp8 rescales the absolute IO volume but leaves the comparison between Q-outer and KV-outer iteration unchanged.
+
+Iterating queries on the outer loop gives
+\begin{align}
+\mathrm{FLOPs} &= 4\, H_q\, N\, d_h\, k\, B_k, \\
+\mathrm{IO}    &= \underbrace{2 \cdot 2 \cdot H_q\, N\, d_h}_{\text{read}(\mQ)+\text{write}(\mO)}
+                + \underbrace{2 \cdot 2 \cdot H_{kv}\, N\, k\, B_k\, d_h}_{\text{read}(\mK+\mV)},
+\end{align}
+hence $\mathrm{FLOPs}/\mathrm{IO} \approx G$.
+
+Iterating KV blocks on the outer loop and gathering the queries that selected each block requires an intermediate output buffer:
+\begin{align}
+\mathrm{FLOPs} &= 4\, H_q\, N\, d_h\, k\, B_k, \\
+\mathrm{IO}    &= \underbrace{2 \cdot 2 \cdot H_{kv}\, N\, d_h}_{\text{read}(\mK+\mV)}
+                + \underbrace{2 \cdot 2 \cdot H_q\, N\, k\, d_h}_{\text{read}(\mQ)+\text{write}(\mO_\text{buf})}
+                + \underbrace{2 \cdot H_q\, N\, (k{+}1)\, d_h}_{\text{read}(\mO_\text{buf})+\text{write}(\mO)},
+\end{align}
+hence $\mathrm{FLOPs}/\mathrm{IO} \approx \tfrac{2}{3} B_k$.
+
+Since $\tfrac{2}{3} B_k \gg G$ in practice, we choose KV-outer iteration with Q gather to maximize arithmetic intensity. The kernel executes as a persistent grid over $(\textit{kv\_block}, \textit{kv\_head})$ tiles. For each tile, a reverse sparse index from the TopK selection identifies the relevant query positions. These queries are loaded into shared memory via TMA copies, one per query token, dispatched in parallel by the 32 lanes of a warp.
+
+\paragraph{Pre-scheduled tile chunking.}
+A direct one-CTA-per-tile mapping is dominated by sink rows---a single early KV block selected by nearly every query---and the same hotspot pattern can arise on any popular KV block. A GPU scheduler kernel therefore splits each KV tile along its query dimension into chunks of at most $\sim\!2 k B_k$ queries each, fanning hot tiles across many CTAs that share the same $\mathbf{K}/\mathbf{V}$ load.
+Because each query's $k$ partials are now produced by $k$ CTAs, the scheduler also preassigns each (query, chunk) pair a slot $s \in [0, k)$ in $\mathbf{O}_\text{buf}$---packed with the query index $i$ into a $32$-bit handle---so the attention kernel writes its partial to the preassigned offset without atomics. The combine kernel reads a per-query slot count to know how many partials to merge.
+
+\paragraph{Two-phase forward.}
+The KV-outer split forbids inline softmax normalization since each query's $k$ partials are produced by $k$ different CTAs. The forward is therefore split into two kernels separated by HBM buffers $\mathbf{O}_\text{buf} \in \mathbb{R}^{k \times n \times H_q \times d}$ (locally normalized partial outputs) and $\mathrm{LSE}_\text{buf} \in \mathbb{R}^{k \times n \times H_q}$ (per-partial logsumexps). The attention kernel runs the worklist above and writes each partial to its preassigned slot. The combine kernel reads the valid slots of each query, computes $a = \max_s \mathrm{LSE}_s$ and $\mathrm{LSE}[i, h] = a + \log \sum_s \exp(\mathrm{LSE}_s - a)$, then forms normalized split-K weights $w_s = \exp(\mathrm{LSE}_s - \mathrm{LSE}[i, h])$. It outputs $\mathbf{O}[i, h] = \sum_s w_s\, \mathbf{O}_\text{buf}[s, i, h]$ together with the final $\mathrm{LSE}[i, h]$. The two kernels use Programmatic Dependent Launch to hide the inter-kernel launch
+latency.
+
+
+\paragraph{Query concatenation.}
+KV-outer iteration often associates each KV tile with only a few to a few tens of query positions. Processing these positions one at a time would under-fill the score MMA: with $G = 16$, a single query position contributes only $G$ query heads, yielding an MMA $M$ dimension of only 16. Under Q-outer iteration, query positions cannot be concatenated along the sequence dimension because they generally select different KV subsets. Under KV-outer iteration, however, all gathered positions for a given tile share the same KV operands. The kernel, therefore, packs $\lceil 128/G \rceil$ query positions together with their $G$ associated query heads, all under the same KV head, into a $128 \times 128$ score MMA.
+
+\subsection{Sparse KL Loss}
+\label{sec:kernel:sparse_kl}
+
+\paragraph{LSE fusion.}
+In our initial implementation, we utilized a dedicated kernel to compute the KL divergence forward pass, storing $\mathrm{LSE}_{\rm main}$ and $\mathrm{LSE}_{\rm idx}$ to facilitate backpropagation. However, since the KL loss only affects the backward gradient, we optimize this by emitting these LSE values directly to global memory during the main pass, allowing us to skip the KL loss forward pass entirely. Additionally, during the index branch computation, we save the per-block LSEs and perform a reduction over the top-$k$ blocks to obtain $\mathrm{LSE}_{\rm idx}$. The backward kernel then loads these scalars directly into the softmax, eliminating the redundant forward computation.
+
+\paragraph{Dynamic load balancing.}
+Per-tile work varies by orders of magnitude under variable-length sequences and data-dependent sparsity. The kernel runs as a persistent grid in which CTAs claim work through a global atomic counter; each tile is partitioned along its gathered-query dimension into sub-tiles whose count scales with the per-tile query count, subject to a minimum sub-tile granularity that amortizes per-sub-tile overhead.
