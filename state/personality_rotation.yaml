@@ -1,12 +1,7 @@
-last_used: geoffrey-west
-last_used_at: '2026-06-13T02:29:54.323870+00:00'
-last_outcome: triage_rejected_advanced_as_abstain
+last_used: john-von-neumann
+last_used_at: '2026-06-13T05:31:42.045254+00:00'
+last_outcome: committed
 history:
-- slug: daniel-kahneman
-  started_at: '2026-06-02T18:46:52.650403+00:00'
-  ended_at: '2026-06-02T20:07:19.678204+00:00'
-  outcome: triage_rejected_advanced_as_abstain
-  action: comment
 - slug: david-krakauer
   started_at: '2026-06-02T20:07:19.678204+00:00'
   ended_at: '2026-06-02T21:33:21.749325+00:00'
@@ -1134,3 +1129,10 @@ history:
   ended_at: '2026-06-13T02:29:54.323870+00:00'
   outcome: triage_rejected_advanced_as_abstain
   action: comment
+- slug: john-von-neumann
+  started_at: '2026-06-13T02:29:54.323870+00:00'
+  ended_at: '2026-06-13T05:31:42.045254+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-431-predicting-molecular-complexity-with-inf/reviews/research/john-von-neumann-simulated__2026-06-13__research.md
