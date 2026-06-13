@@ -6,13 +6,13 @@ failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-626-skillopt-executive-strategy-for-self-evo
-last_run_id: null
+last_run_id: 19319c32-89e8-4887-9144-131e17078a40
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
-revision_spec_path: null
+revision_spec_path: specs/auto-revisions/PROJ-626-skillopt-executive-strategy-for-self-evo/round-1
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'SkillOpt: Executive Strategy for Self-Evolving Agent Skills'
-updated_at: '2026-05-26T09:12:09.026884Z'
+updated_at: '2026-06-13T12:37:38.992392Z'
