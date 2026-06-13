@@ -3,3 +3,6 @@ ready:
 - project_id: PROJ-683-researchclawbench-a-benchmark-for-end-to
   revision_spec_path: specs/auto-revisions/PROJ-683-researchclawbench-a-benchmark-for-end-to/round-1
   queued_at: '2026-06-12T19:54:39.791945+00:00'
+- project_id: PROJ-686-on-the-geometry-of-on-policy-distillatio
+  revision_spec_path: specs/auto-revisions/PROJ-686-on-the-geometry-of-on-policy-distillatio/round-1
+  queued_at: '2026-06-13T01:03:19.014313+00:00'
