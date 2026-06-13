@@ -1,12 +1,7 @@
-last_used: geoffrey-west
-last_used_at: '2026-06-13T19:35:30.642566+00:00'
-last_outcome: triage_rejected_advanced_as_abstain
+last_used: john-von-neumann
+last_used_at: '2026-06-13T20:29:58.830393+00:00'
+last_outcome: committed
 history:
-- slug: daniel-kahneman
-  started_at: '2026-06-03T18:30:42.674766+00:00'
-  ended_at: '2026-06-03T19:53:15.762389+00:00'
-  outcome: triage_rejected_advanced_as_abstain
-  action: comment
 - slug: david-krakauer
   started_at: '2026-06-03T19:53:15.762389+00:00'
   ended_at: '2026-06-03T21:03:54.091436+00:00'
@@ -1128,3 +1123,10 @@ history:
   ended_at: '2026-06-13T19:35:30.642566+00:00'
   outcome: triage_rejected_advanced_as_abstain
   action: comment
+- slug: john-von-neumann
+  started_at: '2026-06-13T19:35:30.642566+00:00'
+  ended_at: '2026-06-13T20:29:58.830393+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-367-the-influence-of-algorithmic-recommendat/reviews/research/john-von-neumann-simulated__2026-06-13__research.md
