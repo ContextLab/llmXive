@@ -1,0 +1,146 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "CSA Output Schema"
+description: "Schema for validating analysis outputs and model predictions"
+type: "object"
+properties:
+  climate_risk_assessment:
+    type: "object"
+    required:
+      - "assessment_id"
+      - "region"
+      - "risk_level"
+    properties:
+      assessment_id:
+        type: "string"
+        pattern: "^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$"
+        description: "Unique assessment identifier"
+      region:
+        type: "string"
+        minLength: 1
+        description: "Geographic region"
+      risk_level:
+        type: "string"
+        enum:
+          - "low"
+          - "medium"
+          - "high"
+          - "critical"
+        description: "Climate risk classification"
+      risk_score:
+        type: "number"
+        minimum: 0
+        maximum: 100
+        description: "Numerical risk score"
+      confidence_interval:
+        type: "object"
+        properties:
+          lower_bound:
+            type: "number"
+          upper_bound:
+            type: "number"
+        required:
+          - "lower_bound"
+          - "upper_bound"
+      assessment_date:
+        type: "string"
+        format: "date"
+  yield_prediction:
+    type: "object"
+    required:
+      - "prediction_id"
+      - "plot_id"
+      - "predicted_yield"
+    properties:
+      prediction_id:
+        type: "string"
+        pattern: "^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$"
+      plot_id:
+        type: "string"
+        description: "Reference to farm plot"
+      predicted_yield:
+        type: "number"
+        minimum: 0
+        description: "Predicted yield in kg/hectare"
+      baseline_yield:
+        type: "number"
+        minimum: 0
+        description: "Baseline yield without CSA practices"
+      improvement_pct:
+        type: "number"
+        minimum: -100
+        description: "Percentage improvement over baseline"
+      prediction_date:
+        type: "string"
+        format: "date"
+  recommendation:
+    type: "object"
+    required:
+      - "recommendation_id"
+      - "household_id"
+      - "practices"
+    properties:
+      recommendation_id:
+        type: "string"
+        pattern: "^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$"
+      household_id:
+        type: "string"
+        description: "Target household"
+      practices:
+        type: "array"
+        items:
+          type: "object"
+          properties:
+            practice_type:
+              type: "string"
+            expected_impact_pct:
+              type: "number"
+              minimum: 0
+            implementation_cost_usd:
+              type: "number"
+              minimum: 0
+          required:
+            - "practice_type"
+      priority_score:
+        type: "integer"
+        minimum: 1
+        maximum: 5
+        description: "Priority ranking (1=highest)"
+  gis_mapping:
+    type: "object"
+    required:
+      - "map_id"
+      - "region"
+      - "layers"
+    properties:
+      map_id:
+        type: "string"
+        pattern: "^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$"
+      region:
+        type: "string"
+        minLength: 1
+      layers:
+        type: "array"
+        items:
+          type: "object"
+          properties:
+            layer_name:
+              type: "string"
+            layer_type:
+              type: "string"
+              enum:
+                - "yield"
+                - "risk"
+                - "soil"
+                - "infrastructure"
+            file_path:
+              type: "string"
+          required:
+            - "layer_name"
+            - "layer_type"
+            - "file_path"
+required:
+  - "climate_risk_assessment"
+  - "yield_prediction"
+  - "recommendation"
+  - "gis_mapping"
+additionalProperties: false

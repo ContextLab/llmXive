@@ -4,18 +4,17 @@ title: "Farm Survey Data Schema"
 description: "Canonical schema for farmer household and plot survey data. Source of Truth per Constitution Principle I."
 type: object
 required:
-  - farmer_id
-  - region_code
+  - household_id
+  - region
   - plots
 properties:
-  farmer_id:
+  household_id:
     type: string
-    pattern: "^FARMER-[0-9]{6}$"
+    pattern: "^HH-[0-9]{6}$"
     description: "Unique identifier for the household."
-  region_code:
+  region:
     type: string
-    pattern: "^[A-Z]{2}-[0-9]{3}$"
-    description: "ISO-like region code."
+    description: "Region identifier matching pilot_region.region_name (VARCHAR(50)). Examples: 'Kenya-Nyeri', 'Ethiopia-Oromia', 'Ghana-UpperEast', 'India-Punjab', 'Bangladesh-Sylhet'."
   household_size:
     type: integer
     minimum: 1
@@ -40,7 +39,7 @@ properties:
           minimum: 0.01
         soil_type:
           type: string
-          enum: ["sandy", "loam", "clay", "silt"]
+          description: "Soil classification (optional field)"
         practices:
           type: array
           items:

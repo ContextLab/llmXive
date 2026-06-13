@@ -1,0 +1,331 @@
+project_id: PROJ-609-https-arxiv-org-abs-2605-14236
+round: 1
+revision_kind: paper_science
+from_stage: paper_review
+to_stage: clarified
+worst_severity: science
+seed_action_items:
+- id: e78b16e3112e
+  text: Add explicit data provenance statements for all datasets (TREC DL, BEIR) including
+    download dates, preprocessing steps, and retrieval configuration
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-609-https-arxiv-org-abs-2605-14236/paper/source/
+  location: ''
+- id: 1585fd85837e
+  text: Ensure all figure captions include complete methodological details for reproducibility
+    (GPU type, inference batch size, random seed count)
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-609-https-arxiv-org-abs-2605-14236/paper/source/
+  location: ''
+- id: a07f67ffdd5b
+  text: Add glossary or expand first-use definitions for field-specific acronyms (PRP,
+    NDCG, PAC, SST, BM25) to improve accessibility
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-609-https-arxiv-org-abs-2605-14236/paper/source/
+  location: ''
+- id: 2e5405f1cdfe
+  text: Include citation verification status for all bibliography entries in supplementary
+    materials as required by acceptance criteria
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-609-https-arxiv-org-abs-2605-14236/paper/source/
+  location: ''
+- id: 33c162157101
+  text: Clarify the claim in Section 3 (Line 106-107) that the Bidirectional oracle
+    enforces pair-consistency (p_ij = 1-p_ji). The definition in Line 117 allows V_ij=0
+    and V_ji=0 on conflicting LLM outputs, which violates strict reciprocity. Specify
+    if ties are resolved or if the assumption holds only in expectation.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-609-https-arxiv-org-abs-2605-14236/paper/source/
+  location: ''
+- id: 72300e0551d1
+  text: Code repository (https://github.com/jerecoder/IReranker) remains inaccessible
+    for review. Provide artifact hash or include minimal code snippets in appendix
+    to verify reproducibility claims.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-609-https-arxiv-org-abs-2605-14236/paper/source/
+  location: ''
+- id: bed7e2c0c4de
+  text: Paper references implementation details (Mohajer algorithm, PAC+Bubble) but
+    provides no pseudocode or algorithm listings. Add Algorithm 1-2 with complexity
+    analysis for reproducibility.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-609-https-arxiv-org-abs-2605-14236/paper/source/
+  location: ''
+- id: d891fa08e8fd
+  text: No dependency list or environment specification (Python version, LLM API details,
+    hardware specs) provided for experimental replication.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-609-https-arxiv-org-abs-2605-14236/paper/source/
+  location: ''
+- id: 5792033c013e
+  text: Pin the code repository version (e.g., commit hash or tag) in the manuscript
+    to prevent link rot and ensure reproducibility.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-609-https-arxiv-org-abs-2605-14236/paper/source/
+  location: ''
+- id: 4fb44347304b
+  text: Explicitly state the exact versions of datasets used (e.g., BEIR v1.0.0, TREC
+    DL2019/2020) to ensure data consistency.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-609-https-arxiv-org-abs-2605-14236/paper/source/
+  location: ''
+- id: ac1420975237
+  text: Declare a software license for the code repository and any derived data artifacts
+    to ensure legal clarity.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-609-https-arxiv-org-abs-2605-14236/paper/source/
+  location: ''
+- id: 0a8862916c7d
+  text: Add alt text for all figures using the graphicx alttext option or figure environment
+    to ensure accessibility compliance for screen readers.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-609-https-arxiv-org-abs-2605-14236/paper/source/
+  location: ''
+- id: 3cc3966b1996
+  text: Figure 1 caption (line 290) should explicitly state x-axis units (seconds)
+    and y-axis units (NDCG@10 %) for standalone readability without referring to text.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-609-https-arxiv-org-abs-2605-14236/paper/source/
+  location: ''
+- id: f0bc9d0a3b70
+  text: Define NDCG@10 at first use in Abstract and Introduction. Currently appears
+    as 'NDCG@10' without expansion.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-609-https-arxiv-org-abs-2605-14236/paper/source/
+  location: ''
+- id: d3d03eaf4912
+  text: Define BEIR (Benchmarking Information Retrieval) when first mentioned in Introduction.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-609-https-arxiv-org-abs-2605-14236/paper/source/
+  location: ''
+- id: 7e61a93ac78d
+  text: Expand 'CI' to 'Confidence Interval' in Table 1 caption.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-609-https-arxiv-org-abs-2605-14236/paper/source/
+  location: ''
+- id: d2704c93ba64
+  text: Define BM25 (Okapi BM25) in Section 5 or Introduction.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-609-https-arxiv-org-abs-2605-14236/paper/source/
+  location: ''
+- id: 49283a0a0e81
+  text: Replace 'call-constrained regime' with 'call-limited setting' in Abstract
+    for clarity.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-609-https-arxiv-org-abs-2605-14236/paper/source/
+  location: ''
+- id: f915c170ae76
+  text: Clarify the scope of the randomized-direction oracle's unbiasedness. The proof
+    (Appendix A) assumes strict pair-consistency, which may be violated by real LLM
+    APIs (hidden state, non-stationarity). Either provide empirical validation of
+    the unbiasedness claim or temper the statement to reflect this assumption.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-609-https-arxiv-org-abs-2605-14236/paper/source/
+  location: ''
+- id: 57ac686dd172
+  text: "Revise the 'drop-in replacement' claim (Abstract & Conclusion). Active rankers\
+    \ require a warm-up phase (\u2248K\xB2 calls) and hyper-parameters (e.g., the\
+    \ PAC pool multiplier m). Explicitly discuss these prerequisites and their impact\
+    \ on deployment complexity."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-609-https-arxiv-org-abs-2605-14236/paper/source/
+  location: ''
+- id: 31c81d9070a4
+  text: Limit the prescriptive recipe ('use Mohajer with randomized-direction when
+    budget exceeds the warm-up threshold') to the specific models and datasets evaluated
+    (Flan-T5-L/XL, Qwen-3-4B). Acknowledge that performance may differ for other LLM
+    families or larger candidate pools.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-609-https-arxiv-org-abs-2605-14236/paper/source/
+  location: ''
+- id: cf816086396f
+  text: Add a discussion of how the reported latency estimates (Section 6) might change
+    with realistic parallel batching, and qualify any conclusions about 'time-to-quality'
+    that are based on sequential upper-bounds.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-609-https-arxiv-org-abs-2605-14236/paper/source/
+  location: ''
+- id: fdebf30cb2be
+  text: Table 2 (BEIR) still compares methods at different converged budgets (e.g.,
+    BubbleSort@941 calls vs. Mohajer@345 calls). The requested fixed-budget comparison
+    on BEIR was not added. Please clarify whether this is a fixed-budget comparison
+    or an efficiency trade-off, and add fixed-budget BEIR results to strengthen the
+    efficiency claim.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-609-https-arxiv-org-abs-2605-14236/paper/source/
+  location: ''
+- id: a4841a98d0f6
+  text: The Limitations section does not explicitly discuss the TREC DL dataset size
+    (~50 queries/year) and its impact on statistical power for generalization. Bootstrapping
+    is used, but the small query count limits robustness of significance tests (p
+    < 0.05). Please add this discussion to the limitations section.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-609-https-arxiv-org-abs-2605-14236/paper/source/
+  location: ''
+- id: ec4742e6e56a
+  text: The randomized-direction oracle proof (Appendix sec:unbiased-proof) shows
+    mathematical reciprocity but does not explicitly state the assumption that position
+    bias is symmetric across all datasets. The flip-rate table provides empirical
+    support but the assumption should be stated in the main text for rigor.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-609-https-arxiv-org-abs-2605-14236/paper/source/
+  location: ''
+- id: cafcbcfc7240
+  text: Bidirectional-oracle results still lack uncertainty estimates (Table 1). The
+    caption states CIs are omitted because bidirectional is 'deterministic given outcomes,'
+    but query-level resampling uncertainty remains unquantified. Add bootstrap CIs
+    from query resampling or seed variation.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-609-https-arxiv-org-abs-2605-14236/paper/source/
+  location: ''
+- id: c2ad4450894f
+  text: "Multiple-testing correction (Bonferroni/BH) is still absent when reporting\
+    \ significance across 9 budget columns \xD7 multiple ranker comparisons (Appendix\
+    \ Tables A.10-A.11). This inflates Type I error. Apply and report corrected p-values\
+    \ or adjusted significance indicators."
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-609-https-arxiv-org-abs-2605-14236/paper/source/
+  location: ''
+- id: 0f962fc81111
+  text: Dependence structure among LLM calls is mentioned in Limitations but not quantified.
+    The bootstrap validity assumption (independent oracle outputs) may be violated
+    by API caching/hidden state. Add empirical analysis (e.g., autocorrelation of
+    outcomes) or sensitivity analysis quantifying impact on CI coverage.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-609-https-arxiv-org-abs-2605-14236/paper/source/
+  location: ''
+- id: c2f1c0c77019
+  text: "Effect-size measures (mean \u0394NDCG@10) are shown in Tables A.10-A.11 but\
+    \ without confidence intervals around these differences. Add 95% CIs for effect\
+    \ sizes to distinguish statistical from practical significance, as originally\
+    \ requested."
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-609-https-arxiv-org-abs-2605-14236/paper/source/
+  location: ''
+- id: bcd18ebc9e2c
+  text: Add \bibliographystyle{acl_natbib} before \bibliography{custom} at line 314
+    to ensure correct reference formatting.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-609-https-arxiv-org-abs-2605-14236/paper/source/
+  location: ''
+- id: eef56cc49294
+  text: Change \begin{table*}[!hbp] to \begin{table*}[t] or [p] at lines 510 and 530,
+    as [h] is invalid for table* in two-column layouts.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-609-https-arxiv-org-abs-2605-14236/paper/source/
+  location: ''
+- id: 871350d3bd52
+  text: Review \resizebox usage at line 200; prefer explicit font sizing (\scriptsize)
+    within tabular to avoid text compression issues.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-609-https-arxiv-org-abs-2605-14236/paper/source/
+  location: ''
+- id: 0e73b0fbaf17
+  text: Add 'that' after 'show' in Abstract and Introduction (lines 48, 72) for grammatical
+    precision.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-609-https-arxiv-org-abs-2605-14236/paper/source/
+  location: ''
+- id: cec870057592
+  text: Remove the LaTeX comment '% Paste this in the Appendix...' from the Appendix
+    source (line 1050) to ensure source cleanliness.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-609-https-arxiv-org-abs-2605-14236/paper/source/
+  location: ''
+- id: 4bf1194196b1
+  text: Rephrase 'flip the judge's choice between documents' in Introduction (line
+    76) to 'flip the preferred document' for clarity.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-609-https-arxiv-org-abs-2605-14236/paper/source/
+  location: ''
+kickback_reason: 'advancement.evaluate: paper-review non-convergence; routing via
+  engine adapter.'
+kickback_artifact_links:
+- projects/PROJ-609-https-arxiv-org-abs-2605-14236/paper/source/
+stage_results:
+- name: specify
+  status: success
+- name: clarify
+  status: success
+  note: auto-resolved; deterministic adapter needs no clarifications
+- name: plan
+  status: success
+- name: tasks
+  status: success
+  note: 35 tasks emitted (one per concern)
+- name: analyze
+  status: success
+  iterations: 1
+  finding_count: 0
+final_outcome: ready_for_implementation
+produced_at: '2026-06-13T11:34:05.385052+00:00'

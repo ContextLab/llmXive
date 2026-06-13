@@ -1,180 +1,216 @@
-$schema: http://json-schema.org/draft-07/schema#
-$id: https://llmxive.org/schemas/agriculture-20250704-001/dataset.schema.yaml
-title: Climate-Smart Agriculture Dataset Schema
-description: Schema for validating raw and processed agricultural data
-version: 1.0.0
-
-type: object
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "CSA Dataset Schema"
+description: "Schema for validating input datasets in climate-smart agriculture pipeline"
+type: "object"
 properties:
-  metadata:
-    type: object
-    properties:
-      dataset_id:
-        type: string
-        pattern: "^[a-z0-9-]+$"
-        description: "Unique dataset identifier"
-      created_at:
-        type: string
-        format: date-time
-      source:
-        type: string
-        enum:
-          - "remote_sensing"
-          - "survey"
-          - "climate_api"
-          - "synthetic"
-      version:
-        type: string
-        pattern: "^\\d+\\.\\d+\\.\\d+$"
+  household:
+    type: "object"
     required:
-      - dataset_id
-      - created_at
-      - source
-      - version
-
-  sites:
-    type: array
-    items:
-      type: object
-      properties:
-        site_id:
-          type: string
-          pattern: "^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$"
-          description: "UUID v4 format"
-        name:
-          type: string
-          minLength: 1
-          maxLength: 255
-        latitude:
-          type: number
-          minimum: -90
-          maximum: 90
-        longitude:
-          type: number
-          minimum: -180
-          maximum: 180
-        elevation:
-          type: number
-          minimum: -500
-          maximum: 9000
-        country:
-          type: string
-          pattern: "^[A-Z]{3}$"
-          description: "ISO 3166-1 alpha-3"
-        region:
-          type: string
-        land_use:
-          type: string
-          enum:
-            - "cropland"
-            - "pasture"
-            - "mixed"
-            - "forest_agro"
-            - "other"
-      required:
-        - site_id
-        - name
-        - latitude
-        - longitude
-        - country
-        - land_use
-
-  observations:
-    type: array
-    items:
-      type: object
-      properties:
-        observation_id:
-          type: string
-          pattern: "^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$"
-        site_id:
-          type: string
-          description: "Must reference valid site_id"
-        observation_date:
-          type: string
-          format: date
-        soil_ph:
-          type: number
-          minimum: 0
-          maximum: 14
-        soil_organic_carbon:
-          type: number
-          minimum: 0
-          maximum: 100
-        moisture_content:
-          type: number
-          minimum: 0
-          maximum: 100
-        temperature:
-          type: number
-          minimum: -50
-          maximum: 60
-        precipitation:
-          type: number
-          minimum: 0
-          maximum: 10000
-        notes:
-          type: string
-          maxLength: 1000
-      required:
-        - observation_id
-        - site_id
-        - observation_date
-
-  climate_records:
-    type: array
-    items:
-      type: object
-      properties:
-        record_id:
-          type: string
-          pattern: "^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$"
-        site_id:
-          type: string
-        period_start:
-          type: string
-          format: date
-        period_end:
-          type: string
-          format: date
-        avg_temperature:
-          type: number
-        max_temperature:
-          type: number
-        min_temperature:
-          type: number
-        total_precipitation:
-          type: number
-        extreme_event_count:
-          type: integer
-          minimum: 0
-        source:
-          type: string
-          enum:
-            - "WorldClim"
-            - "CHIRPS"
-            - "ERA5"
-            - "MODIS"
-            - "USGS"
-      required:
-        - record_id
-        - site_id
-        - period_start
-        - period_end
-        - source
-
-  practice_records:
-    type: array
-    items:
-      type: object
-      properties:
-        practice_id:
-          type: string
-          pattern: "^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$"
-        site_id:
-          type: string
-        practice_type:
-          type: string
-          enum:
-            - "conservation_tillage"
-            - "cover_cropping
+      - "household_id"
+      - "pilot_id"
+      - "household_size"
+    properties:
+      household_id:
+        type: "string"
+        pattern: "^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$"
+        description: "Unique household identifier (UUID format)"
+      pilot_id:
+        type: "string"
+        pattern: "^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$"
+        description: "Foreign key reference to pilot_region"
+      latitude:
+        type: "number"
+        minimum: -90
+        maximum: 90
+        description: "Geographic latitude coordinate"
+      longitude:
+        type: "number"
+        minimum: -180
+        maximum: 180
+        description: "Geographic longitude coordinate"
+      household_size:
+        type: "integer"
+        minimum: 1
+        description: "Number of household members"
+      income_level:
+        type: "string"
+        enum:
+          - "low"
+          - "medium"
+          - "high"
+        description: "Household income bracket"
+      farmer_experience_years:
+        type: "integer"
+        minimum: 0
+        description: "Years of farming experience"
+      irrigation_access:
+        type: "string"
+        enum:
+          - "none"
+          - "rainfed"
+          - "irrigated"
+        description: "Irrigation access type"
+      market_distance_km:
+        type: "number"
+        minimum: 0
+        description: "Distance to nearest market in kilometers"
+  survey_response:
+    type: "object"
+    required:
+      - "response_id"
+      - "household_id"
+      - "survey_date"
+    properties:
+      response_id:
+        type: "string"
+        pattern: "^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$"
+      household_id:
+        type: "string"
+        description: "Foreign key reference to household"
+      survey_date:
+        type: "string"
+        format: "date"
+        description: "Date of survey administration"
+      food_security_index_id:
+        type: "string"
+        description: "Foreign key reference to food_security_index_components"
+      survey_version:
+        type: "string"
+        description: "Survey instrument version"
+  farm_plot:
+    type: "object"
+    required:
+      - "plot_id"
+      - "household_id"
+      - "area_hectares"
+    properties:
+      plot_id:
+        type: "string"
+        pattern: "^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$"
+      household_id:
+        type: "string"
+        description: "Foreign key reference to household"
+      area_hectares:
+        type: "number"
+        exclusiveMinimum: 0
+        description: "Farm plot size in hectares"
+      soil_type:
+        type: "string"
+        description: "Soil classification"
+      elevation_meters:
+        type: "integer"
+        description: "Elevation above sea level"
+  climate_observation:
+    type: "object"
+    required:
+      - "observation_id"
+      - "pilot_id"
+      - "observation_date"
+    properties:
+      observation_id:
+        type: "string"
+        pattern: "^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$"
+      pilot_id:
+        type: "string"
+        description: "Foreign key reference to pilot_region"
+      observation_date:
+        type: "string"
+        format: "date"
+      temperature_celsius:
+        type: "number"
+        description: "Mean daily temperature"
+      precipitation_mm:
+        type: "number"
+        minimum: 0
+        description: "Daily rainfall in millimeters"
+      drought_index:
+        type: "number"
+        minimum: 0
+        maximum: 10
+        description: "Drought severity index (0-10 scale)"
+  csa_practice:
+    type: "object"
+    required:
+      - "practice_id"
+      - "plot_id"
+      - "practice_type"
+    properties:
+      practice_id:
+        type: "string"
+        pattern: "^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$"
+      plot_id:
+        type: "string"
+        description: "Foreign key reference to farm_plot"
+      practice_type:
+        type: "string"
+        description: "Type of climate-smart practice"
+      adoption_date:
+        type: "string"
+        format: "date"
+        description: "Date of practice adoption"
+  yield_measurement:
+    type: "object"
+    required:
+      - "measurement_id"
+      - "plot_id"
+      - "measurement_date"
+      - "yield_kg_per_hectare"
+      - "measurement_method"
+    properties:
+      measurement_id:
+        type: "string"
+        pattern: "^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$"
+      plot_id:
+        type: "string"
+        description: "Foreign key reference to farm_plot"
+      measurement_date:
+        type: "string"
+        format: "date"
+      growing_season:
+        type: "string"
+        description: "Season identifier"
+      yield_kg_per_hectare:
+        type: "number"
+        exclusiveMinimum: 0
+        description: "Yield in kg per hectare"
+      crop_type:
+        type: "string"
+        description: "Crop variety"
+      measurement_method:
+        type: "string"
+        enum:
+          - "self_report"
+          - "actual_measurement"
+          - "remote_sensing"
+        description: "Method used to obtain yield measurement"
+  remote_sensing:
+    type: "object"
+    required:
+      - "imagery_id"
+      - "capture_date"
+    properties:
+      imagery_id:
+        type: "string"
+        pattern: "^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$"
+      plot_id:
+        type: "string"
+        description: "Optional foreign key to farm_plot"
+      capture_date:
+        type: "string"
+        format: "date"
+      ndvi_value:
+        type: "number"
+        minimum: -1
+        maximum: 1
+        description: "Normalized Difference Vegetation Index"
+      land_cover_class:
+        type: "string"
+        description: "Land cover classification"
+required:
+  - "household"
+  - "survey_response"
+  - "farm_plot"
+  - "climate_observation"
+  - "csa_practice"
+  - "yield_measurement"
+additionalProperties: false

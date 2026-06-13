@@ -1,24 +1,20 @@
-# Quickstart: Climate-Smart Agricultural Practices Pipeline
+# Quickstart: Climate-Smart Agricultural Practices for Food Security
 
-**Project**: agriculture-20250704-001  
-**Date**: 2026-04-28  
-**Version**: 1.0.0
+**Date**: 2025-07-04 | **Spec**: `specs/agriculture-20250704-001/spec.md`
 
 ## Prerequisites
 
-Before running this project, ensure you have:
-
-- **Python 3.11+** installed
-- **Git** for version control
-- **5GB free disk space** for data and cache
-- **Internet connection** for API calls (Principle V validation)
+- Python 3.11 or higher
+- pip package manager
+- Docker (optional, for containerized execution)
+- Git for version control
 
 ## Installation
 
-### Step 1: Clone the Repository
+### Step 1: Clone Repository
 
 ```bash
-git clone https://github.com/llmXive/agriculture-20250704-001.git
+git clone <repository-url>
 cd agriculture-20250704-001
 ```
 
@@ -26,7 +22,9 @@ cd agriculture-20250704-001
 
 ```bash
 python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+source venv/bin/activate  # Linux/macOS
+# or
+venv\Scripts\activate  # Windows
 ```
 
 ### Step 3: Install Dependencies
@@ -35,145 +33,77 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-**Core Dependencies**:
-- pandas==2.2.0
-- geopandas==0.14.0
-- rasterio==1.3.9
-- scikit-learn==1.4.0
-- matplotlib==3.8.0
-- requests==2.31.0
-- pytest==8.0.0
-
-### Step 4: Configure Environment Variables
-
-Create a `.env` file in the project root:
+### Step 4: Verify Installation
 
 ```bash
-# API Keys (required for data collection)
-OPENWEATHERMAP_API_KEY=your_api_key_here
-USGS_USERNAME=your_usgs_username
-USGS_PASSWORD=your_usgs_password
-
-# Optional: For paid tier access (Principle IV: free-first)
-# NASA_EARTHDATA_USERNAME=your_username
-# NASA_EARTHDATA_PASSWORD=your_password
+python src/cli/validate.py --check-all
 ```
 
-### Step 5: Run Pre-flight Validation
+## Data Download
+
+### Step 5: Download Climate and Soil Data
 
 ```bash
-python src/cli/validate.py
+python src/data/collectors/climate_collector.py --output data/raw/climate.parquet --include-soil
 ```
 
-This checks:
-- All required environment variables are set
-- Disk space is sufficient (>5GB)
-- Network connectivity to data sources
-- Python version compatibility
-- All required files exist
+> This collector downloads CHIRPS rainfall data and ISRIC SoilGrids data via their respective APIs.
 
-## Running the Pipeline
-
-### Basic Execution
+### Step 6: Download Crop Production Statistics
 
 ```bash
-python src/cli/run_pipeline.py --config configs/default.yaml
+python src/data/collectors/crop_statistics_collector.py --source faostat --output data/raw/crop_stats.csv
 ```
 
-### With Custom Parameters
+> This collector downloads FAOSTAT crop production statistics via the FAO API.
+
+### Step 7: Download Remote Sensing (if available)
 
 ```bash
-python src/cli/run_pipeline.py \
-  --config configs/custom.yaml \
-  --regions sub-saharan-africa,south-asia \
-  --practices conservation-tillage,agroforestry,improved-varieties \
-  --output-dir outputs/2026-04-
+python src/data/collectors/remote_sensing_collector.py --dataset modis --output data/remote-sensing/
 ```
 
-### Running Tests
+> This collector downloads NASA MODIS MOD13Q1 data via NASA Earthdata API. **Important**: Requires Earthdata account registration at https://urs.earthdata.nasa.gov. Account approval typically takes 1-2 business days. Rate limits: established daily request thresholds for MODIS data. Set NASA_EARTHDATA_USERNAME and NASA_EARTHDATA_PASSWORD environment variables before running. If Earthdata access is delayed, the pipeline will proceed with available datasets and flag MODIS data as unavailable in provenance logs.
+
+### Step 8: Download Household Survey Data
 
 ```bash
-# Contract tests (schema validation)
-pytest tests/contract/ -v
-
-# Integration tests (real API calls - Principle III)
-pytest tests/integration/ -v --real-calls
-
-# Full test suite
-pytest -v
+python src/data/collectors/survey_collector.py --output data/raw/survey.csv
 ```
 
-## Data Directory Structure
+> This collector downloads household survey data from local partner collection system.
 
-```
-data/
-├── raw/                    # Downloaded raw data
-│   ├── remote-sensing/     # GeoTIFF files
-│   ├── surveys/            # CSV survey data
-│   └── climate/            # Climate API responses
-├── processed/              # Cleaned/transformed data
-│   ├── harmonized/         # Spatially/temporally aligned
-│   └── features/           # Feature-engineered datasets
-└── cache.db                # SQLite cache for API responses
+## Run Pipeline
+
+### Step 9: Execute Full Pipeline
+
+```bash
+python src/cli/run_pipeline.py
 ```
 
-## Output Files
+### Step 10: Validate Outputs
 
-After running the pipeline, check:
+```bash
+python scripts/validate_quickstart.py
+```
 
-- `outputs/reports/vulnerability_assessment.csv` - Site vulnerability scores
-- `outputs/reports/adoption_recommendations.csv` - Recommended practices
-- `outputs/visualizations/climate_risk_map.png` - GIS visualization
-- `outputs/visualizations/yield_comparison.png` - Yield impact charts
+## Expected Outputs
+
+| Output | Location | Description |
+|--------|----------|-------------|
+| Dataset schema validation | contracts/dataset.schema.yaml | Input data contract |
+| Output schema validation | contracts/output.schema.yaml | Analysis results contract |
+| Farm survey schema validation | contracts/farm_survey.schema.yaml | Survey data contract |
+| Climate risk assessment | data/processed/climate_risk.parquet | Risk model outputs |
+| Yield predictions | data/processed/crop_yield.parquet | Yield model outputs |
+| GIS maps | data/processed/maps/ | Spatial visualizations |
 
 ## Troubleshooting
 
-### API Rate Limiting
-
-If you encounter rate limit errors:
-
-```bash
-# Enable caching (reduces API calls)
-python src/cli/run_pipeline.py --enable-cache
-
-# Add delay between requests
-export API_REQUEST_DELAY=2  # seconds
-```
-
-### Missing Data
-
-For missing climate data:
-
-```bash
-# Use imputation
-python src/cli/run_pipeline.py --impute-missing
-
-# Check which sites have gaps
-python src/cli/validate.py --check-data-completeness
-```
-
-### Schema Validation Errors
-
-If schema validation fails:
-
-```bash
-# Check which records failed
-pytest tests/contract/ -v --tb=short
-
-# View validation report
-cat outputs/validation_report.json
-```
-
-## Next Steps
-
-1. **Customize Configuration**: Edit `configs/default.yaml` for your regions
-2. **Add Your Data**: Place survey data in `data/raw/surveys/`
-3. **Run Analysis**: Execute the pipeline with your parameters
-4. **Review Results**: Check outputs and adjust models as needed
-5. **Document Findings**: Update `docs/research_findings.md` with results
-
-## Support
-
-- **Issues**: https://github.com/llmXive/agriculture-20250704-001/issues
-- **Documentation**: See `docs/` directory
-- **Constitution**: See `projects/agriculture-20250704-001/.specify/memory/constitution.md`
+| Issue | Solution |
+|-------|----------|
+| Dependency installation fails | Ensure pip is updated: `pip install --upgrade pip` |
+| Climate data download timeout | Retry with `--max-retries 3` flag |
+| Schema validation errors | Check data/raw/ files match contracts/ specifications |
+| Missing soil data | Note: Soil data is optional; analysis proceeds with coverage tracking |
+| NASA Earthdata authentication | Register at https://urs.earthdata.nasa.gov and set NASA_EARTHDATA_USERNAME/NASA_EARTHDATA_PASSWORD env vars. Allow 1-2 business days for approval. |

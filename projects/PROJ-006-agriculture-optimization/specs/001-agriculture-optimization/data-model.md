@@ -1,196 +1,150 @@
-# Data Model: Climate-Smart Agricultural Practices
+# Data Model: Climate-Smart Agricultural Practices for Food Security
 
-**Project**: agriculture-20250704-001  
-**Date**: 2026-04-28  
-**Version**: 1.0.0
+**Date**: 2025-07-04 | **Spec**: `specs/agriculture-20250704-001/spec.md`
 
-## Overview
-
-This document defines the data models for the climate-smart agriculture analysis pipeline. All data structures are validated against schemas in `contracts/` directory.
-
-## Entity Relationship Diagram
+## Entity-Relationship Overview
 
 ```
-┌─────────────────────┐       ┌─────────────────────┐
-│   Site            │ 1───n │   Observation      │
-│   (Location)      │       │   (Field Measurement)│
-└─────────┬─────────┘       └─────────┬───────────┘
-          │                           │
-          │                           │
-          ▼                           ▼
-┌─────────────────────┐       ┌─────────────────────┐
-│   ClimateRecord   │       │   PracticeRecord    │
-│   (Weather Data)  │       │   (CSA Practice)    │
-└─────────────────────┘       └─────────────────────┘
-          │                           │
-          └───────────┬───────────────┘
-                      │
-                      ▼
-              ┌─────────────────────┐
-              │   YieldRecord      │
-              │   (Crop Output)    │
-              └─────────────────────┘
+┌─────────────────┐       ┌─────────────────┐       ┌─────────────────┐
+│  Pilot Region   │───────│   Household     │───────│   Survey        │
+│  (primary key)  │       │  (foreign key)  │       │   Response      │
+└─────────────────┘       └─────────────────┘       └─────────────────┘
+        │                         │                         │
+        ▼                         ▼                         ▼
+┌─────────────────┐       ┌─────────────────┐       ┌─────────────────┐
+│   Farm Plot     │       │  Yield          │       │ CSA Practice    │
+│  (location)     │       │ Measurement     │       │ (adoption)      │
+└─────────────────┘       └─────────────────┘       └─────────────────┘
+        │
+        ▼
+┌─────────────────┐
+│ Remote Sensing  │
+│  (imagery)      │
+└─────────────────┘
 ```
 
-## Core Entities
+## Core Tables
 
-### Site
+### pilot_region
 
-Represents a geographic location where agricultural data is collected.
+| Column | Type | Description | Constraints |
+|--------|------|-------------|-------------|
+| pilot_id | VARCHAR(36) | Unique identifier | PRIMARY KEY |
+| region_name | VARCHAR(50) | Pilot region name | NOT NULL |
+| country | VARCHAR(50) | Country name | NOT NULL |
+| latitude_center | FLOAT | Geographic center latitude | NULLABLE |
+| longitude_center | FLOAT | Geographic center longitude | NULLABLE |
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| site_id | string | Yes | Unique identifier (UUID) |
-| name | string | Yes | Human-readable name |
-| latitude | float | Yes | WGS84 latitude (-90 to 90) |
-| longitude | float | Yes | WGS84 longitude (-180 to 180) |
-| elevation | float | No | Elevation in meters above sea level |
-| country | string | Yes | ISO 3166-1 alpha-3 country code |
-| region | string | No | Administrative region |
-| land_use | string | Yes | Primary land use classification |
-| created_at | datetime | Yes | Record creation timestamp |
+### household
 
-### Observation
+| Column | Type | Description | Constraints |
+|--------|------|-------------|-------------|
+| household_id | VARCHAR(36) | Unique identifier | PRIMARY KEY |
+| pilot_id | VARCHAR(36) | Foreign key | NOT NULL, FK → pilot_region |
+| latitude | FLOAT | Geographic coordinate | NULLABLE |
+| longitude | FLOAT | Geographic coordinate | NULLABLE |
+| household_size | INTEGER | Number of members | NOT NULL, ≥1 |
+| income_level | VARCHAR(20) | Income bracket | CHECK IN ('low', 'medium', 'high') |
+| farmer_experience_years | INTEGER | Years farming experience | NOT NULL, ≥0 |
+| irrigation_access | VARCHAR(20) | Irrigation type | CHECK IN ('none', 'rainfed', 'irrigated') |
+| market_distance_km | FLOAT | Distance to nearest market | NULLABLE, ≥0 |
 
-Field measurements collected at a site.
+### survey_response
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| observation_id | string | Yes | Unique identifier (UUID) |
-| site_id | string | Yes | Foreign key to Site |
-| observation_date | date | Yes | Date of observation |
-| soil_ph | float | No | Soil pH value (0-14) |
-| soil_organic_carbon | float | No | SOC percentage |
-| moisture_content | float | No | Soil moisture percentage |
-| temperature | float | No | Air temperature (°C) |
-| precipitation | float | No | Precipitation (mm) |
-| notes | string | No | Free-text observations |
+| Column | Type | Description | Constraints |
+|--------|------|-------------|-------------|
+| response_id | VARCHAR(36) | Unique identifier | PRIMARY KEY |
+| household_id | VARCHAR(36) | Foreign key | NOT NULL, FK → household |
+| survey_date | DATE | Date of survey | NOT NULL |
+| food_security_index_id | VARCHAR(36) | Foreign key | NULLABLE, FK → food_security_index_components |
+| survey_version | VARCHAR(20) | Survey instrument version | NOT NULL |
 
-### ClimateRecord
+### food_security_index_components
 
-Aggregated climate data from remote sources.
+| Column | Type | Description | Constraints |
+|--------|------|-------------|-------------|
+| component_id | VARCHAR(36) | Unique identifier | PRIMARY KEY |
+| household_id | VARCHAR(36) | Foreign key | NOT NULL, FK → household |
+| measurement_date | DATE | Date of measurement | NOT NULL |
+| dietary_diversity_score | INTEGER | Score 0-12 | NOT NULL, 0-12 |
+| food_frequency_score | INTEGER | Score 0-28 | NOT NULL, 0-28 |
+| hunger_score | INTEGER | Score 0-6 | NOT NULL, 0-6 |
+| index_total | INTEGER | Sum of components | NOT NULL, 0-46 |
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| record_id | string | Yes | Unique identifier (UUID) |
-| site_id | string | Yes | Foreign key to Site |
-| period_start | date | Yes | Start of climate period |
-| period_end | date | Yes | End of climate period |
-| avg_temperature | float | Yes | Average temperature (°C) |
-| max_temperature | float | Yes | Maximum temperature (°C) |
-| min_temperature | float | Yes | Minimum temperature (°C) |
-| total_precipitation | float | Yes | Total precipitation (mm) |
-| extreme_event_count | integer | Yes | Count of extreme weather events |
-| source | string | Yes | Data source (e.g., "WorldClim", "CHIRPS") |
+### farm_plot
 
-### PracticeRecord
+| Column | Type | Description | Constraints |
+|--------|------|-------------|-------------|
+| plot_id | VARCHAR(36) | Unique identifier | PRIMARY KEY |
+| household_id | VARCHAR(36) | Foreign key | NOT NULL, FK → household |
+| area_hectares | FLOAT | Plot size | NOT NULL, >0 |
+| soil_type | VARCHAR(50) | Soil classification | NULLABLE |
+| elevation_meters | INTEGER | Altitude | NULLABLE |
 
-Climate-smart agricultural practice implementation.
+### csa_practice
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| practice_id | string | Yes | Unique identifier (UUID) |
-| site_id | string | Yes | Foreign key to Site |
-| practice_type | string | Yes | Type of practice (see below) |
-| implementation_date | date | Yes | Date practice was implemented |
-| area_hectares | float | Yes | Area under practice (ha) |
-| cost_usd | float | No | Implementation cost |
-| expected_yield_change | float | No | Expected yield change percentage |
-| actual_yield_change | float | No | Actual yield change percentage |
-| status | string | Yes | Status (planned, active, completed) |
+| Column | Type | Description | Constraints |
+|--------|------|-------------|-------------|
+| practice_id | VARCHAR(36) | Unique identifier | PRIMARY KEY |
+| plot_id | VARCHAR(36) | Foreign key | NOT NULL, FK → farm_plot |
+| practice_type | VARCHAR(50) | Practice category | NOT NULL |
+| adoption_date | DATE | When adopted | NULLABLE |
 
-**Practice Type Values**:
-- `conservation_tillage`
-- `cover_cropping`
-- `crop_rotation`
-- `agroforestry`
-- `improved_varieties`
-- `irrigation_efficiency`
-- `integrated_pest_management`
+### yield_measurement
 
-### YieldRecord
+| Column | Type | Description | Constraints |
+|--------|------|-------------|-------------|
+| measurement_id | VARCHAR(36) | Unique identifier | PRIMARY KEY |
+| plot_id | VARCHAR(36) | Foreign key | NOT NULL, FK → farm_plot |
+| measurement_date | DATE | Date of measurement | NOT NULL |
+| growing_season | VARCHAR(20) | Season identifier | NOT NULL |
+| yield_kg_per_hectare | FLOAT | Yield measurement | NOT NULL, >0 |
+| crop_type | VARCHAR(50) | Crop variety | NOT NULL |
+| measurement_method | VARCHAR(30) | Self-report, actual measurement, or remote sensing | NOT NULL, CHECK IN ('self_report', 'actual_measurement', 'remote_sensing') |
 
-Crop yield measurements.
+> **Yield Measurement Methodology**: Yield data comes from a combination of self-report (validated against a [deferred] subsample of actual measurements) and remote sensing (NDVI-based yield estimation). The measurement_method column tracks the source for each yield observation to enable sensitivity analysis. Remote sensing validation subsample size: [deferred pending Phase 2 implementation].
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| yield_id | string | Yes | Unique identifier (UUID) |
-| site_id | string | Yes | Foreign key to Site |
-| crop_type | string | Yes | Crop type (see below) |
-| harvest_date | date | Yes | Date of harvest |
-| area_harvested | float | Yes | Area harvested (ha) |
-| total_yield_kg | float | Yes | Total yield (kg) |
-| yield_per_ha | float | Yes | Yield per hectare (kg/ha) |
-| quality_grade | string | No | Quality classification |
+### climate_observation
 
-**Crop Type Values**:
-- `maize`
-- `wheat`
-- `rice`
-- `sorghum`
-- `millet`
-- `cassava`
-- `sweet_potato`
-- `beans`
-- `groundnut`
-- `other`
+| Column | Type | Description | Constraints |
+|--------|------|-------------|-------------|
+| observation_id | VARCHAR(36) | Unique identifier | PRIMARY KEY |
+| pilot_id | VARCHAR(36) | Foreign key | NOT NULL, FK → pilot_region |
+| observation_date | DATE | Date of observation | NOT NULL |
+| temperature_celsius | FLOAT | Mean daily temp | NULLABLE |
+| precipitation_mm | FLOAT | Daily rainfall | NULLABLE, ≥0 |
+| drought_index | FLOAT | Drought severity | NULLABLE, 0-10 scale |
 
-## Derived Models
+### remote_sensing
 
-### VulnerabilityIndex
+| Column | Type | Description | Constraints |
+|--------|------|-------------|-------------|
+| imagery_id | VARCHAR(36) | Unique identifier | PRIMARY KEY |
+| plot_id | VARCHAR(36) | Foreign key | NULLABLE, FK → farm_plot |
+| capture_date | DATE | Image capture date | NOT NULL |
+| ndvi_value | FLOAT | Vegetation index | NULLABLE, -1 ≤ value ≤ 1 |
+| land_cover_class | VARCHAR(30) | Classification | NULLABLE |
 
-Calculated climate vulnerability for a site.
+## File Formats
 
-| Field | Type | Description |
-|-------|------|-------------|
-| site_id | string | Foreign key to Site |
-| exposure_score | float | Climate hazard exposure (0-1) |
-| sensitivity_score | float | System sensitivity (0-1) |
-| adaptive_capacity | float | Adaptive capacity (0-1) |
-| vulnerability_score | float | Overall vulnerability (0-1) |
-| calculation_date | datetime | When index was calculated |
+### Raw Data (data/raw/)
 
-### AdoptionRecommendation
+- **CSV**: Survey responses, household data
+- **Parquet**: Climate data (optimized for columnar access)
+- **GeoTIFF**: Remote sensing imagery
 
-Recommended CSA practices for a site.
+### Processed Data (data/processed/)
 
-| Field | Type | Description |
-|-------|------|-------------|
-| recommendation_id | string | Unique identifier |
-| site_id | string | Foreign key to Site |
-| practice_type | string | Recommended practice |
-| priority_rank | integer | Priority order (1=highest) |
-| expected_benefit | float | Expected benefit score |
-| implementation_cost | float | Estimated cost (USD) |
-| complexity_level | string | Low, Medium, High |
-| confidence_score | float | Recommendation confidence (0-1) |
+- **Parquet**: All joined/transformed data for analysis
+- **JSON**: Model outputs and predictions
 
-## Data Flow
+## Data Quality Requirements
 
-```
-Raw Data Sources
-    │
-    ├── Remote Sensing (GeoTIFF)
-    ├── Survey Data (CSV)
-    └── Climate APIs (JSON)
-    │
-    ▼
-Validation Layer (contracts/*.schema.yaml)
-    │
-    ▼
-Cleaned Data (data/processed/)
-    │
-    ▼
-Analysis Models (src/models/)
-    │
-    ▼
-Output Reports (docs/reports/)
-```
-
-## Validation Rules
-
-1. **Geographic Bounds**: Latitude must be -90 to 90; longitude must be -180 to 180
-2. **Date Consistency**: period_end must be >= period_start
-3. **Numeric Ranges**: Soil pH 0-14; temperature values must be physically plausible
-4. **Foreign Key Integrity**: All site_id references must exist in Site table
-5. **Enum Values**: Practice types and crop types must match defined lists
+| Metric | Target | Validation Method |
+|--------|--------|-------------------|
+| Completeness (required fields) | ≥95% | Contract schema validation |
+| Geographic coordinate accuracy | <100m error | GPS verification sampling |
+| Temporal consistency | No gaps >7 days | Time series continuity check |
+| Cross-record referential integrity | [deferred] | Foreign key constraint tests |
+| Soil data coverage | ≥60% | Coverage rate KPI tracking |
+| Yield measurement validation | [deferred] subsample with actual measurement | Contract validation against measurement_method |
