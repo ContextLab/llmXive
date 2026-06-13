@@ -1,12 +1,7 @@
-last_used: john-von-neumann
-last_used_at: '2026-06-13T05:31:42.045254+00:00'
+last_used: linus-pauling
+last_used_at: '2026-06-13T06:55:38.680060+00:00'
 last_outcome: committed
 history:
-- slug: david-krakauer
-  started_at: '2026-06-02T20:07:19.678204+00:00'
-  ended_at: '2026-06-02T21:33:21.749325+00:00'
-  outcome: triage_rejected_advanced_as_abstain
-  action: comment
 - slug: eric-kandel
   started_at: '2026-06-02T21:33:21.749325+00:00'
   ended_at: '2026-06-02T22:41:50.330022+00:00'
@@ -1136,3 +1131,10 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-431-predicting-molecular-complexity-with-inf/reviews/research/john-von-neumann-simulated__2026-06-13__research.md
+- slug: linus-pauling
+  started_at: '2026-06-13T05:31:42.045254+00:00'
+  ended_at: '2026-06-13T06:55:38.680060+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-511-predicting-molecular-packing-efficiency-/reviews/research/linus-pauling-simulated__2026-06-13__research.md
