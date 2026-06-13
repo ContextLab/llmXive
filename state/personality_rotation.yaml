@@ -1,14 +1,7 @@
-last_used: daniel-kahneman
-last_used_at: '2026-06-13T17:03:24.470904+00:00'
-last_outcome: committed
+last_used: david-krakauer
+last_used_at: '2026-06-13T17:59:38.514837+00:00'
+last_outcome: triage_rejected_advanced_as_abstain
 history:
-- slug: ada-lovelace
-  started_at: '2026-06-03T11:16:41.322683+00:00'
-  ended_at: '2026-06-03T13:00:32.610629+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-656-crafter-a-multi-agent-harness-for-editab/reviews/research/ada-lovelace-simulated__2026-06-03__research.md
 - slug: alan-turing
   started_at: '2026-06-03T13:00:32.610629+00:00'
   ended_at: '2026-06-03T14:40:16.474262+00:00'
@@ -1132,3 +1125,8 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-316-the-impact-of-subtle-linguistic-cues-on-/reviews/research/daniel-kahneman-simulated__2026-06-13__research.md
+- slug: david-krakauer
+  started_at: '2026-06-13T17:03:24.470904+00:00'
+  ended_at: '2026-06-13T17:59:38.514837+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
