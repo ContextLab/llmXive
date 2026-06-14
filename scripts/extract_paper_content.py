@@ -958,43 +958,6 @@ def _forwarded_newcolumntypes(preamble: str) -> list[str]:
     return out
 
 
-_HEADING_MATH_RE = re.compile(
-    r"(\\(?:section|subsection|subsubsection|paragraph)\*?\s*)\{((?:[^{}]|\{[^{}]*\})*)\}"
-)
-
-
-def _texorpdfstring_heading_math(body: str) -> str:
-    """Wrap inline math inside sectioning titles in ``\\texorpdfstring``.
-
-    hyperref builds a PDF bookmark string from each heading; under
-    unicode-math a bare ``\\(\\tau\\)`` in a ``\\subsection{...}`` explodes
-    during that expansion (PROJ-682: 67x "Extra \\fi" from hyperref's
-    pdfstring arithmetic). Standard LaTeX practice is
-    ``\\texorpdfstring{<math>}{<plain>}`` — automate it: the plain branch
-    is the math content with control sequences stripped.
-    """
-    math_re = re.compile(r"(\\\(.*?\\\)|\$[^$]+\$)")
-
-    def _plain(math: str) -> str:
-        inner = math
-        for a, b in (("\\(", ""), ("\\)", ""), ("$", "")):
-            inner = inner.replace(a, b)
-        inner = re.sub(r"\\[A-Za-z@]+\s*", "", inner)
-        return re.sub(r"[{}^_]", "", inner).strip()
-
-    def _fix_heading(m: re.Match[str]) -> str:
-        head, arg = m.group(1), m.group(2)
-        if "texorpdfstring" in arg or not math_re.search(arg):
-            return m.group(0)
-        new_arg = math_re.sub(
-            lambda mm: rf"\texorpdfstring{{{mm.group(0)}}}{{{_plain(mm.group(0))}}}",
-            arg,
-        )
-        return f"{head}{{{new_arg}}}"
-
-    return _HEADING_MATH_RE.sub(_fix_heading, body)
-
-
 def _forwarded_newenvironments(preamble: str) -> list[str]:
     """Forward PREAMBLE ``\\newenvironment{X}[n]{begin}{end}`` definitions.
 
@@ -1560,6 +1523,22 @@ def _build_icml_author_line(full_tex: str) -> str | None:
 # 8c. Body cleanup passes
 # ───────────────────────────────────────────────────────────────────────
 
+#: Above this many `\allowbreak` tokens, the markup is machine-generated
+#: (filename break hints in tables) and the lualatex+OpenType shaping cost
+#: becomes pathological — strip them all. 150 is well above any plausible
+#: hand-placed count yet far below the PROJ-683 case (1176).
+_ALLOWBREAK_STRIP_THRESHOLD = 150
+
+
+def _strip_dense_allowbreak(body: str) -> str:
+    """Remove ALL `\\allowbreak` tokens when their count exceeds
+    :data:`_ALLOWBREAK_STRIP_THRESHOLD`. Content-neutral (see call site)."""
+    count = len(re.findall(r"\\allowbreak\b", body))
+    if count <= _ALLOWBREAK_STRIP_THRESHOLD:
+        return body
+    return re.sub(r"\\allowbreak\b\s*(?:\{\})?", "", body)
+
+
 def _body_cleanup_passes(body: str) -> str:
     """Run a sequence of cosmetic scrubs over the document body so the
     rendered llmXive PDF doesn't show venue/template-specific artifacts.
@@ -1583,6 +1562,16 @@ def _body_cleanup_passes(body: str) -> str:
     # 0b. Strip venue page-overlay banners (\AddToShipoutPicture* etc.) — the
     #     llmxive class owns the header/footer (PROJ-603).
     body = _strip_shipout_overlays(body)
+    # 0c. Neutralize a pathological density of `\allowbreak` (PROJ-683:
+    #     1176 of them in narrow longtable cells). `\allowbreak` is a
+    #     zero-width, content-neutral break HINT — removing it never alters
+    #     rendered text, only where lines MAY break. But under lualatex +
+    #     the variable Fraunces font (vs the source's pdflatex) each one is
+    #     a costly shaping/line-break point: 1176 of them turned an 8-second
+    #     compile into a >30-minute hang. Strip only when the count is high
+    #     enough to be machine-generated filename markup, leaving the sparse
+    #     hand-placed cases untouched.
+    body = _strip_dense_allowbreak(body)
 
     # 1. Drop \keywords{...}
     body = re.sub(
@@ -1829,14 +1818,18 @@ def _wrap_section_math(body: str) -> str:
         # hyperref's PDF-string conversion (which couldn't handle
         # `\Omega_{\text{cross}}` as a literal token).
         def _wrap_math(m: re.Match) -> str:
-            inner = m.group(1)
+            whole = m.group(0)
+            # Inner math content, regardless of $...$ or \(...\) delimiters.
+            inner = m.group(1) if m.group(1) is not None else m.group(2)
             # Plain-text fallback: drop backslashes (so \Omega → Omega),
             # drop braces, collapse whitespace.
             plain = re.sub(r"\\[a-zA-Z@]+\*?", "", inner)
-            plain = re.sub(r"[{}]", "", plain)
+            plain = re.sub(r"[{}^_]", "", plain)
             plain = re.sub(r"\s+", " ", plain).strip() or "..."
-            return r"\texorpdfstring{$" + inner + r"$}{" + plain + r"}"
-        wrapped = re.sub(r"\$([^$]+)\$", _wrap_math, title)
+            return r"\texorpdfstring{" + whole + r"}{" + plain + r"}"
+        # Both $...$ and \(...\) heading math (PROJ-569 used $...$;
+        # PROJ-682's \subsection{... \(\tau\)} used the \(...\) form).
+        wrapped = re.sub(r"\$([^$]+)\$|\\\((.+?)\\\)", _wrap_math, title)
         out.append(wrapped)
         out.append("}")
         i = j + 1
@@ -2458,10 +2451,9 @@ def extract(
     # Float-less affiliation/sponsor logos in the lead (PROJ-607's
     # university-logo row) — teaser figures inside floats are preserved.
     body_clean = _strip_leading_bare_graphics(body_clean)
-    # Bare math in sectioning titles explodes in hyperref's bookmark
-    # expansion under unicode-math (PROJ-682's \(\tau\)) — auto-wrap in
-    # \texorpdfstring.
-    body_clean = _texorpdfstring_heading_math(body_clean)
+    # (Heading math is wrapped in \texorpdfstring by _wrap_section_math
+    # inside _body_cleanup_passes above — handles both $...$ and \(...\),
+    # the latter being PROJ-682's case.)
     # Unnumbered author-note footnotes (equal-contribution idiom) — title
     # machinery, and a footnote insert at a longtable page break loops
     # forever (PROJ-683).

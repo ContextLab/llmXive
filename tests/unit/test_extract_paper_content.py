@@ -791,10 +791,24 @@ class TestDeepDiveHardening:
             "\\usetikzlibrary{x}", ["\\usepackage{graphicx}"]) == []
 
     def test_heading_math_texorpdfstring(self, ex) -> None:
-        out = ex._texorpdfstring_heading_math(
+        # SSoT: _wrap_section_math handles BOTH $...$ and \(...\) heading
+        # math (the latter being PROJ-682's case).
+        out = ex._wrap_section_math(
             r"\subsection{The Effect of Filtering Ratio \(\tau\)}")
-        assert "texorpdfstring" in out
-        assert ex._texorpdfstring_heading_math(r"\section{Plain}") == r"\section{Plain}"
+        assert "texorpdfstring" in out and r"\(\tau\)" in out
+        out2 = ex._wrap_section_math(r"\section{About $x^2$}")
+        assert "texorpdfstring" in out2 and "$x^2$" in out2
+        assert ex._wrap_section_math(r"\section{Plain}") == r"\section{Plain}"
+
+    def test_strip_dense_allowbreak(self, ex) -> None:
+        # >150 \allowbreak → all stripped (content-neutral; the PROJ-683
+        # 1176-token pathology that hung lualatex for >30 min).
+        dense = r"\texttt{x}" + r"\allowbreak{}" * 200 + " body text"
+        out = ex._strip_dense_allowbreak(dense)
+        assert "allowbreak" not in out and "body text" in out
+        # Sparse hand-placed allowbreaks are left untouched.
+        sparse = r"file\allowbreak{}name and\allowbreak{}another"
+        assert ex._strip_dense_allowbreak(sparse) == sparse
 
     def test_strip_leading_title_block_keeps_teaser(self, ex) -> None:
         body = ("\\begin{center}My Great Paper\\end{center}\nauthors\n"
