@@ -6,13 +6,13 @@ failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-577-multabench-benchmarking-multimodal-tabul
-last_run_id: null
+last_run_id: fe11ec75-c1fc-4189-941d-4215b16ed5df
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
-revision_spec_path: null
+revision_spec_path: specs/auto-revisions/PROJ-577-multabench-benchmarking-multimodal-tabul/round-2
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'MulTaBench: Benchmarking Multimodal Tabular Learning with Text and Image'
-updated_at: '2026-06-13T18:31:16.697043Z'
+updated_at: '2026-06-14T12:40:16.220659Z'
