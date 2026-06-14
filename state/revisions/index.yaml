@@ -24,3 +24,6 @@ ready:
 - project_id: PROJ-641-https-arxiv-org-abs-2605-28816
   revision_spec_path: specs/auto-revisions/PROJ-641-https-arxiv-org-abs-2605-28816/round-1
   queued_at: '2026-06-14T07:52:48.103194+00:00'
+- project_id: PROJ-644-omniretrieval-unified-retrieval-across-h
+  revision_spec_path: specs/auto-revisions/PROJ-644-omniretrieval-unified-retrieval-across-h/round-1
+  queued_at: '2026-06-14T10:12:53.989894+00:00'
