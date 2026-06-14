@@ -43,7 +43,9 @@ Every computed knot invariant (crossing number, braid index, arc index, Seifert 
 
 ### VII. Statistical Significance Thresholds
 
-All statistical claims (correlations, regression fits, group differences) MUST include explicit significance thresholds (p-values, confidence intervals) and effect size measures. Correlation analyses MUST report both Pearson and Spearman coefficients where distribution assumptions are uncertain.
+All statistical claims (correlations, regression fits, group differences) MUST report effect size measures, and MUST include explicit significance thresholds (p-values, confidence intervals) **wherever an inferential, sample-to-population interpretation is meaningful**. Correlation analyses MUST report both Pearson and Spearman coefficients where distribution assumptions are uncertain.
+
+**Census-data exception (maintainer amendment, 2026-06-14):** when the analysis covers a *complete census* of the target population (e.g., all hyperbolic prime knots with ≤ 13 crossings) rather than a sample drawn from it, inferential statistics do not apply — there is no larger population to generalize to. For census analyses: effect sizes and descriptive statistics (mean differences, variance ratios, R²/AIC/BIC goodness-of-fit) ARE the primary and sufficient evidence; p-values and confidence intervals are NOT required and, if reported at all, MUST be labeled as descriptive conventions only and MUST NOT be used to support inferential claims. This exception is the canonical resolution of the descriptive-vs-inferential framing for this project; reviewers MUST NOT re-flag the absence of p-values on census-data claims.
 
 ## Reproducibility Requirements
 
