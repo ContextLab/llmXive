@@ -1,14 +1,7 @@
-last_used: marie-curie
-last_used_at: '2026-06-14T18:31:34.015118+00:00'
+last_used: richard-feynman
+last_used_at: '2026-06-14T19:35:19.326781+00:00'
 last_outcome: triage_rejected_advanced_as_abstain
 history:
-- slug: david-krakauer
-  started_at: '2026-06-04T20:16:24.556989+00:00'
-  ended_at: '2026-06-04T22:05:39.030515+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-584-predictive-coding-llms-implementing-hier/reviews/research/david-krakauer-simulated__2026-06-04__research.md
 - slug: eric-kandel
   started_at: '2026-06-04T22:05:39.030515+00:00'
   ended_at: '2026-06-04T22:56:38.766243+00:00'
@@ -1127,5 +1120,10 @@ history:
 - slug: marie-curie
   started_at: '2026-06-14T17:04:01.924219+00:00'
   ended_at: '2026-06-14T18:31:34.015118+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
+- slug: richard-feynman
+  started_at: '2026-06-14T18:31:34.015118+00:00'
+  ended_at: '2026-06-14T19:35:19.326781+00:00'
   outcome: triage_rejected_advanced_as_abstain
   action: comment
