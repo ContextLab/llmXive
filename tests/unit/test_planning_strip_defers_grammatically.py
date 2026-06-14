@@ -90,7 +90,7 @@ def test_service_passes_verified_facts_exemption(tmp_path: Path) -> None:
         "The dataset holds 9,988 prime knots (OEIS A002863) and roughly 95% "
         "of records carry all invariants."
     )
-    smoothed, claims, report = service._process_planning_document(
+    smoothed, _claims, _report = service._process_planning_document(
         text,
         artifact_path=f"projects/{pid}/specs/001-x/plan.md",
         project_id=pid,

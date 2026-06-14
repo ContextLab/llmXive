@@ -18,7 +18,7 @@ import pytest
 
 from llmxive.convergence import engine as engine_mod
 from llmxive.convergence.engine import run_convergence
-from llmxive.convergence.types import ConcernResponse
+from llmxive.convergence.types import ConcernResponse, Severity
 
 # Reuse the existing real test doubles so the parallel tests drive the SAME
 # reviewer interface the rest of the suite pins (Constitution I / SSoT).
@@ -160,7 +160,7 @@ def test_skip_accepter_preserved_under_parallel_dispatch():
                 for c in concerns
             ]
 
-    dissenter = FakeReviewer(name="A", r1=[_c("c1", reviewer="A")], pass_at={"c1": 99})
+    dissenter = FakeReviewer(name="A", r1=[_c("c1", reviewer="A", sev=Severity.METHODOLOGY)], pass_at={"c1": 99})
     accepter = FakeReviewer(name="B", r1=[])
     res = run_convergence(
         _spec([dissenter, accepter], _NoOpReviser(), max_rounds=3), {"a.md": "x"}
@@ -177,7 +177,7 @@ def test_rereview_verdict_and_next_open_order_matches_panel_order():
 
     class SleepyRereview(FakeReviewer):
         def __init__(self, name, cid, sleep):
-            super().__init__(name=name, r1=[_c(cid, reviewer=name)], pass_at={cid: 99})
+            super().__init__(name=name, r1=[_c(cid, reviewer=name, sev=Severity.METHODOLOGY)], pass_at={cid: 99})
             self._sleep = sleep
 
         def rereview(self, artifacts, own_concerns, responses, *, constitution, advisory):

@@ -366,7 +366,7 @@ def test_paper_spec_panel_invoked_and_advances_on_accept(monkeypatch, tmp_path):
     spec_key = str(spec_md.relative_to(repo))
 
     concern = Concern(
-        id="PS1", reviewer="claims_supported", severity=Severity.WRITING,
+        id="PS1", reviewer="claims_supported", severity=Severity.REQUIREMENT,
         artifact=spec_key, location="", text="claim unsupported",
     )
     reviewer = _ScriptedReviewer("claims_supported", initial_concerns=[concern],
@@ -394,7 +394,7 @@ def test_paper_spec_panel_kickback_blocks_advance(monkeypatch, tmp_path):
     spec_key = str(spec_md.relative_to(repo))
 
     concern = Concern(
-        id="PS1", reviewer="claims_supported", severity=Severity.WRITING,
+        id="PS1", reviewer="claims_supported", severity=Severity.REQUIREMENT,
         artifact=spec_key, location="", text="claim unsupported",
     )
     reviewer = _ScriptedReviewer("claims_supported", initial_concerns=[concern],
@@ -430,7 +430,7 @@ def test_paper_plan_panel_invoked_and_advances_on_accept(monkeypatch, tmp_path):
     plan_key = str(plan_md.relative_to(repo))
 
     concern = Concern(
-        id="PP1", reviewer="paper_structure", severity=Severity.WRITING,
+        id="PP1", reviewer="paper_structure", severity=Severity.REQUIREMENT,
         artifact=plan_key, location="", text="structure incomplete",
     )
     reviewer = _ScriptedReviewer("paper_structure", initial_concerns=[concern],
@@ -463,7 +463,7 @@ def test_paper_plan_panel_kickback_blocks_advance(monkeypatch, tmp_path):
     plan_key = str(plan_md.relative_to(repo))
 
     concern = Concern(
-        id="PP1", reviewer="paper_structure", severity=Severity.WRITING,
+        id="PP1", reviewer="paper_structure", severity=Severity.REQUIREMENT,
         artifact=plan_key, location="", text="bad",
     )
     reviewer = _ScriptedReviewer("paper_structure", initial_concerns=[concern],

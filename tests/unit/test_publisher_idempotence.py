@@ -13,6 +13,7 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 from pathlib import Path
+from typing import ClassVar
 from uuid import uuid4
 
 import pytest
@@ -37,7 +38,7 @@ PROJ_ID = "PROJ-921-idem"
 class _FakeZenodo:
     """External-boundary fake with the ZenodoClient surface."""
 
-    instances: list[_FakeZenodo] = []
+    instances: ClassVar[list[_FakeZenodo]] = []
 
     def __init__(self, *, sandbox: bool = False, timeout: float = 60.0):
         self.sandbox = sandbox
@@ -47,7 +48,7 @@ class _FakeZenodo:
         self._depositions: dict[int, dict] = dict(_FakeZenodo.seed_depositions)
         _FakeZenodo.instances.append(self)
 
-    seed_depositions: dict[int, dict] = {}
+    seed_depositions: ClassVar[dict[int, dict]] = {}
 
     def create_deposition(self, metadata):
         from llmxive.pipeline.zenodo import Deposition

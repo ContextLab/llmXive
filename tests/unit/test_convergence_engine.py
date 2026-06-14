@@ -115,8 +115,50 @@ def test_kickback_when_unresolved_after_cap():
     assert res.kickback.to_stage == "clarified"
 
 
+def test_writing_only_residue_accepted_after_cap_on_doc_stage():
+    """Spec 023 defect #24: a writing-ONLY residue at a doc-authoring stage
+    advances (accept-with-known-issues) instead of kicking back — the fix for
+    the PROJ-552 doc-panel oscillation-to-cap on pure prose-polish nits."""
+    rev = FakeReviewer(r1=[_c("c1", sev=Severity.WRITING)], pass_at={"c1": 99})
+    res = run_convergence(_spec([rev], FakeReviser()), {"a.md": "x"})  # stage="planned"
+    assert res.converged is True          # advanced despite the open nit
+    assert res.next_stage == "tasked"
+    assert res.kickback is None
+    # The known issue is still recorded in the history (honest, inspectable).
+    assert any(c.id == "c1" for c in res.concern_history)
+
+
+def test_writing_plus_requirement_residue_still_kicks_back():
+    """A requirement-or-worse concern in the residue still blocks — the
+    writing-acceptance is ONLY for an all-writing-or-below residue."""
+    rev = FakeReviewer(
+        r1=[_c("w1", sev=Severity.WRITING), _c("r1", sev=Severity.REQUIREMENT)],
+        pass_at={"w1": 99, "r1": 99},
+    )
+    res = run_convergence(_spec([rev], FakeReviser()), {"a.md": "x"})
+    assert res.converged is False
+    assert res.kickback is not None
+    assert res.kickback.worst_severity == Severity.REQUIREMENT
+
+
+def test_writing_only_residue_still_kicks_back_on_review_stage():
+    """Review stages (research_review / paper_review) keep the strict full-
+    acceptance bar — writing residue there still kicks back."""
+    spec = ReviewSpec(
+        stage="research_review", artifacts=["a.md"],
+        reviewers=[FakeReviewer(r1=[_c("c1", sev=Severity.WRITING)], pass_at={"c1": 99})],
+        reviser=FakeReviser(),
+        kickback_routing={Severity.WRITING: "research_review",
+                          Severity.FATAL: "brainstormed"},
+        overflow_goal="x", advance_stage="research_accepted", max_rounds=3,
+    )
+    res = run_convergence(spec, {"a.md": "x"})
+    assert res.converged is False
+    assert res.kickback is not None
+
+
 def test_stale_verdict_never_counts_as_pass():
-    rev = FakeReviewer(r1=[_c("c1")], stale={"c1"})
+    rev = FakeReviewer(r1=[_c("c1", sev=Severity.METHODOLOGY)], stale={"c1"})
     res = run_convergence(_spec([rev], FakeReviser()), {"a.md": "x"})
     assert res.converged is False and res.kickback is not None
 
@@ -157,7 +199,7 @@ def test_missing_reviser_response_never_counts_as_pass():
 
 
 def test_self_review_flag_never_counts_as_pass():
-    rev = FakeReviewer(r1=[_c("c1")], selfreview={"c1"})
+    rev = FakeReviewer(r1=[_c("c1", sev=Severity.METHODOLOGY)], selfreview={"c1"})
     res = run_convergence(_spec([rev], FakeReviser()), {"a.md": "x"})
     assert res.converged is False
 
@@ -222,7 +264,7 @@ def test_accepter_not_rereviewed_when_r2_is_noop():
     NOT re-reviewed (no wasted re-reviews). A no-op reviser can't resolve
     the dissenter's concern, so the engine kicks back at the cap WITHOUT
     ever re-reviewing the accepter."""
-    dissenter = FakeReviewer(name="A", r1=[_c("c1", reviewer="A")], pass_at={"c1": 99})
+    dissenter = FakeReviewer(name="A", r1=[_c("c1", reviewer="A", sev=Severity.METHODOLOGY)], pass_at={"c1": 99})
     accepter = FakeReviewer(name="B", r1=[])
     res = run_convergence(
         _spec([dissenter, accepter], _NoOpReviser(), max_rounds=3), {"a.md": "x"})
@@ -236,7 +278,7 @@ def test_exempt_stage_raises():
 
 
 def test_per_round_budget_short_circuits():
-    rev = FakeReviewer(r1=[_c("c1")], pass_at={"c1": 99})
+    rev = FakeReviewer(r1=[_c("c1", sev=Severity.METHODOLOGY)], pass_at={"c1": 99})
     reviser = FakeReviser(sleep=0.02)
     res = run_convergence(_spec([rev], reviser, max_rounds=5), {"a.md": "x"},
                           per_round_budget_s=0.001)

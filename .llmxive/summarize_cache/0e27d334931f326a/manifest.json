@@ -1,10 +1,10 @@
 {
   "schema": "llmxive-summary/1",
-  "root_hash": "4e4d99cbdb5559e3",
+  "root_hash": "0e27d334931f326a",
   "goal": "extract every FR/SC id verbatim, every constraint, every named dataset, and the exact research question",
   "model": "qwen.qwen3.5-122b",
   "token_budget": 5333,
-  "created_at": "2026-06-14T12:01:26.500778+00:00",
+  "created_at": "2026-06-14T12:37:07.943492+00:00",
   "entries": [
     {
       "element_id": "e000",
@@ -60,7 +60,7 @@
         "-003",
         "90%",
         "https://arxiv.org/abs/math/[identifier",
-        "https://en.wikipedia.org/wiki/2-bridge_knot",
+        "https://en.wikipedia.org/wiki/Bridge_number",
         "FR-004",
         "-004",
         "1200",

@@ -37,6 +37,7 @@ from .types import (
     ReviewSpec,
     Severity,
     Verdict,
+    severity_rank,
 )
 
 logger = logging.getLogger(__name__)
@@ -514,6 +515,31 @@ def run_convergence(
                 concern_history.append(c)
 
     converged = not open_concerns
+    # Spec 023 defect #24: after the per-step round cap, a residue of ONLY
+    # writing-level concerns (rank <= WRITING: trivial/code/writing — no
+    # requirement-or-worse) is polish, not a blocking defect. Kicking back
+    # on writing-only residue caused the PROJ-552 doc-panel
+    # oscillation-to-cap: every near-converged round left 1-2 writing nits
+    # the reviser would not fully close (e.g. "Project Structure should also
+    # list uncomputable_invariants.md"), burning the kickback cap → human
+    # escalation on pure prose polish. Accept-with-known-issues and ADVANCE
+    # (the next stage's panel + the implementer still catch anything
+    # substantive); kickback stays reserved for REQUIREMENT/METHODOLOGY/
+    # SCIENCE/FATAL. Gated to doc-AUTHORING stages — the review stages
+    # (research_review / paper_review) keep the strict full-acceptance bar.
+    _REVIEW_STAGES = {"research_review", "paper_review"}
+    if not converged and spec.stage not in _REVIEW_STAGES:
+        worst_rank = max(
+            (severity_rank(c.severity) for c in open_concerns), default=0
+        )
+        if worst_rank <= severity_rank(Severity.WRITING):
+            logger.info(
+                "convergence: stage %s accepted with %d writing-level "
+                "known issue(s) after %d round(s) — advancing (kickback "
+                "reserved for requirement+)",
+                spec.stage, len(open_concerns), rounds_used,
+            )
+            converged = True
     if converged:
         return ConvergenceResult(
             stage=spec.stage,

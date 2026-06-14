@@ -1,26 +1,26 @@
-resolved_at: '2026-06-14T10:52:00.113268+00:00'
+resolved_at: '2026-06-14T11:56:55.439911+00:00'
 datasets:
 - intent: FR-001
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://figshare.com/articles/preprint/Approaching_ORBIT_Variant_Agnostic_Experiment_Space_Traversals/31825567
+  - url: https://figshare.com/articles/online_resource/APPENDIX/32668785
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://manara.qnl.qa/articles/journal_contribution/Reinforcement_Learning_for_Torque_Vectoring_in_Electric_Vehicles_A_Review_of_Stability_and_Energy_Optimization_Methods/32645556
+  - url: https://figshare.com/articles/preprint/On_the_Ideal_Experimental_Verification_of_Gravitons/32668770
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Identifying_climatic_refugia_wet_and_complex_habitats_act_as_buffer_for_birds_during_severe_droughts/32668731
+  - url: https://figshare.com/articles/journal_contribution/_b_Tecnoestr_s_y_fatiga_digital_en_entornos_laborales_una_revisi_n_sistem_tica_con_s_ntesis_narrativa_basada_en_abstracts_de_su_impacto_en_la_salud_mental_b_/31938786
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/Trajectory_Data_Compression_A_Comprehensive_Literature_Review/32647548
+  - url: https://figshare.com/articles/thesis/Kud_s_Anti-Kolonyalist_Kar_-Jeopolitik_Teorisi_TCGAQ_Al-Quds/32668749
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Uneven_15-minute_accessibility_and_neighborhood_upgrading_across_U_S_cities/32668530
+  - url: https://manara.qnl.qa/articles/dataset/Geochemical_Evolution_and_Mineral_Water_Interaction_Pathways_in_Qatar_s_Groundwater_Integrating_Speciation_Saturation_and_Inverse_Modelling_Approaches/30646637
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -90,23 +90,23 @@ datasets:
     source: huggingface
     status: verified
     format: csv
-  - url: https://figshare.com/articles/preprint/Approaching_ORBIT_Variant_Agnostic_Experiment_Space_Traversals/31825567
+  - url: https://figshare.com/articles/online_resource/APPENDIX/32668785
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://manara.qnl.qa/articles/journal_contribution/Reinforcement_Learning_for_Torque_Vectoring_in_Electric_Vehicles_A_Review_of_Stability_and_Energy_Optimization_Methods/32645556
+  - url: https://figshare.com/articles/preprint/On_the_Ideal_Experimental_Verification_of_Gravitons/32668770
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Identifying_climatic_refugia_wet_and_complex_habitats_act_as_buffer_for_birds_during_severe_droughts/32668731
+  - url: https://figshare.com/articles/journal_contribution/_b_Tecnoestr_s_y_fatiga_digital_en_entornos_laborales_una_revisi_n_sistem_tica_con_s_ntesis_narrativa_basada_en_abstracts_de_su_impacto_en_la_salud_mental_b_/31938786
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/Trajectory_Data_Compression_A_Comprehensive_Literature_Review/32647548
+  - url: https://figshare.com/articles/thesis/Kud_s_Anti-Kolonyalist_Kar_-Jeopolitik_Teorisi_TCGAQ_Al-Quds/32668749
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Uneven_15-minute_accessibility_and_neighborhood_upgrading_across_U_S_cities/32668530
+  - url: https://manara.qnl.qa/articles/dataset/Geochemical_Evolution_and_Mineral_Water_Interaction_Pathways_in_Qatar_s_Groundwater_Integrating_Speciation_Saturation_and_Inverse_Modelling_Approaches/30646637
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -130,23 +130,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20581862
+  - url: https://iris.unimore.it/handle/11380/1197598
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20581862
+  - url: https://air.unimi.it/handle/2434/216688
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://repository.nida.ac.th/handle/662723737/6890
-    source: datacite
-    status: wrong_format
-    reason: HTTP 403
-  - url: https://zenodo.org/records/20688418
+  - url: https://air.unimi.it/handle/2434/147852
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20688418
+  - url: https://iris.unitn.it/handle/11572/98196
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://air.unimi.it/handle/2434/152912
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -191,23 +191,23 @@ datasets:
     source: huggingface
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Untitled_IteDataset_supporting_Decadal_Assessment_of_Spatial_Rice_Yield_Dynamics_Using_Remote_Sensing_and_Semi-Physical_Modelling_in_Tiruvarur_District_Tamil_Nadu_Indiam/32531793
+  - url: https://figshare.com/articles/online_resource/APPENDIX/32668785
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/Approaching_ORBIT_Variant_Agnostic_Experiment_Space_Traversals/31825567
+  - url: https://figshare.com/articles/preprint/On_the_Ideal_Experimental_Verification_of_Gravitons/32668770
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://manara.qnl.qa/articles/journal_contribution/Reinforcement_Learning_for_Torque_Vectoring_in_Electric_Vehicles_A_Review_of_Stability_and_Energy_Optimization_Methods/32645556
+  - url: https://figshare.com/articles/journal_contribution/_b_Tecnoestr_s_y_fatiga_digital_en_entornos_laborales_una_revisi_n_sistem_tica_con_s_ntesis_narrativa_basada_en_abstracts_de_su_impacto_en_la_salud_mental_b_/31938786
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Identifying_climatic_refugia_wet_and_complex_habitats_act_as_buffer_for_birds_during_severe_droughts/32668731
+  - url: https://figshare.com/articles/thesis/Kud_s_Anti-Kolonyalist_Kar_-Jeopolitik_Teorisi_TCGAQ_Al-Quds/32668749
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/Trajectory_Data_Compression_A_Comprehensive_Literature_Review/32647548
+  - url: https://manara.qnl.qa/articles/dataset/Geochemical_Evolution_and_Mineral_Water_Interaction_Pathways_in_Qatar_s_Groundwater_Integrating_Speciation_Saturation_and_Inverse_Modelling_Approaches/30646637
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -231,7 +231,15 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20688308
+  - url: https://zenodo.org/records/20684072
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18172250
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18172250
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -239,15 +247,7 @@ datasets:
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20688441
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20688441
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/A_Global_Dataset_of_Urban_Road_Centrelines_for_2_588_Coastal_Cities_Using_Voronoi_Tessellation/31696105/1
+  - url: https://zenodo.org/records/20688308
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -270,23 +270,23 @@ datasets:
     source: huggingface
     status: verified
     format: csv
-  - url: https://figshare.com/articles/dataset/Untitled_IteDataset_supporting_Decadal_Assessment_of_Spatial_Rice_Yield_Dynamics_Using_Remote_Sensing_and_Semi-Physical_Modelling_in_Tiruvarur_District_Tamil_Nadu_Indiam/32531793
+  - url: https://figshare.com/articles/online_resource/APPENDIX/32668785
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/Approaching_ORBIT_Variant_Agnostic_Experiment_Space_Traversals/31825567
+  - url: https://figshare.com/articles/preprint/On_the_Ideal_Experimental_Verification_of_Gravitons/32668770
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://manara.qnl.qa/articles/journal_contribution/Reinforcement_Learning_for_Torque_Vectoring_in_Electric_Vehicles_A_Review_of_Stability_and_Energy_Optimization_Methods/32645556
+  - url: https://figshare.com/articles/journal_contribution/_b_Tecnoestr_s_y_fatiga_digital_en_entornos_laborales_una_revisi_n_sistem_tica_con_s_ntesis_narrativa_basada_en_abstracts_de_su_impacto_en_la_salud_mental_b_/31938786
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Identifying_climatic_refugia_wet_and_complex_habitats_act_as_buffer_for_birds_during_severe_droughts/32668731
+  - url: https://figshare.com/articles/thesis/Kud_s_Anti-Kolonyalist_Kar_-Jeopolitik_Teorisi_TCGAQ_Al-Quds/32668749
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/Trajectory_Data_Compression_A_Comprehensive_Literature_Review/32647548
+  - url: https://manara.qnl.qa/articles/dataset/Geochemical_Evolution_and_Mineral_Water_Interaction_Pathways_in_Qatar_s_Groundwater_Integrating_Speciation_Saturation_and_Inverse_Modelling_Approaches/30646637
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -314,7 +314,15 @@ datasets:
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20688343
+  - url: https://ieee-dataport.org/documents/surface-water-quality-monitoring-dataset-tien-and-hau-rivers-vietnamese-mekong-delta-2011
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18172250
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18172250
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -322,35 +330,27 @@ datasets:
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/A_Global_Dataset_of_Urban_Road_Centrelines_for_2_588_Coastal_Cities_Using_Voronoi_Tessellation/31696105/1
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://doi.org/10.5281/zenodo.20682063
-    source: datacite
-    status: unreachable
-    reason: 'reachability failed: HTTP 410'
 - intent: SC-001
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://figshare.com/articles/dataset/Untitled_IteDataset_supporting_Decadal_Assessment_of_Spatial_Rice_Yield_Dynamics_Using_Remote_Sensing_and_Semi-Physical_Modelling_in_Tiruvarur_District_Tamil_Nadu_Indiam/32531793
+  - url: https://figshare.com/articles/online_resource/APPENDIX/32668785
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/Approaching_ORBIT_Variant_Agnostic_Experiment_Space_Traversals/31825567
+  - url: https://figshare.com/articles/preprint/On_the_Ideal_Experimental_Verification_of_Gravitons/32668770
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://manara.qnl.qa/articles/journal_contribution/Reinforcement_Learning_for_Torque_Vectoring_in_Electric_Vehicles_A_Review_of_Stability_and_Energy_Optimization_Methods/32645556
+  - url: https://figshare.com/articles/journal_contribution/_b_Tecnoestr_s_y_fatiga_digital_en_entornos_laborales_una_revisi_n_sistem_tica_con_s_ntesis_narrativa_basada_en_abstracts_de_su_impacto_en_la_salud_mental_b_/31938786
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Identifying_climatic_refugia_wet_and_complex_habitats_act_as_buffer_for_birds_during_severe_droughts/32668731
+  - url: https://figshare.com/articles/thesis/Kud_s_Anti-Kolonyalist_Kar_-Jeopolitik_Teorisi_TCGAQ_Al-Quds/32668749
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/Trajectory_Data_Compression_A_Comprehensive_Literature_Review/32647548
+  - url: https://manara.qnl.qa/articles/dataset/Geochemical_Evolution_and_Mineral_Water_Interaction_Pathways_in_Qatar_s_Groundwater_Integrating_Speciation_Saturation_and_Inverse_Modelling_Approaches/30646637
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -386,37 +386,36 @@ datasets:
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20470525
-    source: datacite
-    status: wrong_format
-    reason: 'HTTPSConnectionPool(host=''zenodo.org'', port=443): Read timed out. (read
-      timeout=20)'
-  - url: https://doi.org/10.5281/zenodo.20469943
+  - url: https://doi.org/10.5281/zenodo.20470525
     source: datacite
     status: unreachable
     reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
       port=443): Read timed out. (read timeout=20.0)'
+  - url: https://zenodo.org/records/20469943
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
 - intent: SC-013
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://figshare.com/articles/dataset/Untitled_IteDataset_supporting_Decadal_Assessment_of_Spatial_Rice_Yield_Dynamics_Using_Remote_Sensing_and_Semi-Physical_Modelling_in_Tiruvarur_District_Tamil_Nadu_Indiam/32531793
+  - url: https://figshare.com/articles/online_resource/APPENDIX/32668785
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/Approaching_ORBIT_Variant_Agnostic_Experiment_Space_Traversals/31825567
+  - url: https://figshare.com/articles/preprint/On_the_Ideal_Experimental_Verification_of_Gravitons/32668770
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://manara.qnl.qa/articles/journal_contribution/Reinforcement_Learning_for_Torque_Vectoring_in_Electric_Vehicles_A_Review_of_Stability_and_Energy_Optimization_Methods/32645556
+  - url: https://figshare.com/articles/journal_contribution/_b_Tecnoestr_s_y_fatiga_digital_en_entornos_laborales_una_revisi_n_sistem_tica_con_s_ntesis_narrativa_basada_en_abstracts_de_su_impacto_en_la_salud_mental_b_/31938786
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Identifying_climatic_refugia_wet_and_complex_habitats_act_as_buffer_for_birds_during_severe_droughts/32668731
+  - url: https://figshare.com/articles/thesis/Kud_s_Anti-Kolonyalist_Kar_-Jeopolitik_Teorisi_TCGAQ_Al-Quds/32668749
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/Trajectory_Data_Compression_A_Comprehensive_Literature_Review/32647548
+  - url: https://manara.qnl.qa/articles/dataset/Geochemical_Evolution_and_Mineral_Water_Interaction_Pathways_in_Qatar_s_Groundwater_Integrating_Speciation_Saturation_and_Inverse_Modelling_Approaches/30646637
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -444,11 +443,11 @@ datasets:
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20470525
+  - url: https://doi.org/10.5281/zenodo.20470525
     source: datacite
-    status: wrong_format
-    reason: 'HTTPSConnectionPool(host=''zenodo.org'', port=443): Read timed out. (read
-      timeout=20)'
+    status: unreachable
+    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
+      port=443): Read timed out. (read timeout=20.0)'
   - url: https://zenodo.org/records/20469943
     source: datacite
     status: wrong_format

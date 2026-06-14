@@ -113,7 +113,7 @@ def test_invariant_every_convergence_result_either_advances_or_kicks_back():
     spec2 = build_spec_reviewspec(
         backend=backend2, repo_root=_REPO_ROOT, project_id="PROJ-000-test",
     )
-    spec2.reviewers = [_NeverAcceptingReviewer("scope", Severity.WRITING)]
+    spec2.reviewers = [_NeverAcceptingReviewer("scope", Severity.METHODOLOGY)]
     result2 = run_convergence(spec2, artifacts)
     assert result2.converged is False
     assert result2.kickback is not None  # MUST emit a kickback
