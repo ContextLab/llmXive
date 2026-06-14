@@ -18,3 +18,6 @@ ready:
 - project_id: PROJ-687-swe-explore-benchmarking-how-coding-agen
   revision_spec_path: specs/auto-revisions/PROJ-687-swe-explore-benchmarking-how-coding-agen/round-1
   queued_at: '2026-06-13T21:59:46.749311+00:00'
+- project_id: PROJ-682-your-unembedding-matrix-is-secretly-a-fe
+  revision_spec_path: specs/auto-revisions/PROJ-682-your-unembedding-matrix-is-secretly-a-fe/round-1
+  queued_at: '2026-06-14T00:46:22.004766+00:00'
