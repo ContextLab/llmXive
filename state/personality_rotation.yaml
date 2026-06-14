@@ -1,14 +1,7 @@
-last_used: freeman-dyson
-last_used_at: '2026-06-14T12:14:16.802741+00:00'
+last_used: geoffrey-west
+last_used_at: '2026-06-14T14:17:19.614441+00:00'
 last_outcome: triage_rejected_advanced_as_abstain
 history:
-- slug: alan-turing
-  started_at: '2026-06-04T15:42:22.586295+00:00'
-  ended_at: '2026-06-04T17:02:25.757914+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-561-self-improving-llm-recursive-architectur/reviews/research/alan-turing-simulated__2026-06-04__research.md
 - slug: albert-einstein
   started_at: '2026-06-04T17:02:25.757914+00:00'
   ended_at: '2026-06-04T18:18:11.392767+00:00'
@@ -1129,5 +1122,10 @@ history:
 - slug: freeman-dyson
   started_at: '2026-06-14T10:13:21.536057+00:00'
   ended_at: '2026-06-14T12:14:16.802741+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
+- slug: geoffrey-west
+  started_at: '2026-06-14T12:14:16.802741+00:00'
+  ended_at: '2026-06-14T14:17:19.614441+00:00'
   outcome: triage_rejected_advanced_as_abstain
   action: comment
