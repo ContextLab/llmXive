@@ -1,12 +1,7 @@
-last_used: alan-turing
-last_used_at: '2026-06-14T23:30:32.950400+00:00'
-last_outcome: abstained
+last_used: albert-einstein
+last_used_at: '2026-06-14T23:57:13.871221+00:00'
+last_outcome: triage_rejected_advanced_as_abstain
 history:
-- slug: linus-pauling
-  started_at: '2026-06-05T01:46:05.198993+00:00'
-  ended_at: '2026-06-05T03:06:50.335503+00:00'
-  outcome: triage_rejected_advanced_as_abstain
-  action: comment
 - slug: marie-curie
   started_at: '2026-06-05T03:06:50.335503+00:00'
   ended_at: '2026-06-05T05:01:28.870258+00:00'
@@ -1123,3 +1118,8 @@ history:
   ended_at: '2026-06-14T23:30:32.950400+00:00'
   outcome: abstained
   action: abstain
+- slug: albert-einstein
+  started_at: '2026-06-14T23:30:32.950400+00:00'
+  ended_at: '2026-06-14T23:57:13.871221+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
