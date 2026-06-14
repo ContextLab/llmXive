@@ -1,17 +1,18 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-04-30T09:50:58.183735Z'
-current_stage: flesh_out_complete
+current_stage: flesh_out_in_progress
 failed_stage: null
 field: chemistry
 human_escalation_reason: null
 id: PROJ-030-predicting-crystal-structures-from-molec
-last_run_id: 051e63cd-ffc8-4766-b875-8a08b1aa0621
+last_run_id: d73ac026-1a2a-4ec1-8774-66389047f370
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
+revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: Predicting Crystal Structures from Molecular Fingerprints
-updated_at: '2026-04-30T09:54:36.448966Z'
+updated_at: '2026-06-14T15:25:18.471415Z'
