@@ -2,33 +2,26 @@
 
 The convergence panel for this stage could not resolve the concerns below within its round cap and kicked the project back for an IN-PLACE revision of the existing artifact. Revise the document to RESOLVE each concern — do NOT regenerate the document from scratch, and do NOT drop content that is not implicated by a concern.
 
-**Why it was kicked back**: 26 concern(s) remained unresolved after 3 round(s) at stage 'clarified'; worst unresolved severity = 'requirement'. Routing to 'specified' with full provenance so the next worker can address the root cause.
+**Why it was kicked back**: 1 concern(s) remained unresolved after 3 round(s) at stage 'clarified'; worst unresolved severity = 'writing'. Routing to 'specified' with full provenance so the next worker can address the root cause.
 
 ## Unresolved concerns
 
-- SC-005 still states 'Nearly all knots with computable invariants have all invariants populated' instead of maintainer-decided '≥ 95% of knots with computable invariants have all invariants populated'. Reviser claimed to change this but text remains unquantified.
-- SC-010 still states 'achieves a high degree of match against reference values' instead of maintainer-decided '≥ 90% match against reference values'. Reviser claimed to change this but text remains unquantified.
-- SC-005 still states 'The vast majority of knots with computable invariants have all invariants populated' instead of maintainer-decided '≥ 95% of knots with computable invariants have all invariants populated'. Prior concern requirements_coverage-991cd300 remains UNRESOLVED - the vague phrase was not replaced with the quantified threshold.
-- SC-005 still states 'Nearly all knots with computable invariants have all invariants populated' instead of the maintainer-decided threshold '≥ 95% of knots with computable invariants have all invariants populated'. Per maintainer decision, this vague phrase must be replaced verbatim with the quantified value for testability.
-- SC-010 still states 'aims to achieve a high degree of match against reference values' instead of the maintainer-decided '≥ 90% match against reference values'. This unquantified language contradicts FR-003's explicit '≥ 90% match against KnotInfo reference values' requirement.
-- Terminology inconsistency: FR-003 and User Story 2 specify '≥ 90% match threshold' but SC-010 uses unquantified 'high degree of match'. All three locations should use identical quantified language per maintainer decision.
-- SC-005 still states 'The vast majority of knots with computable invariants have all invariants populated' instead of the maintainer-decided threshold '≥ 95% of knots with computable invariants have all invariants populated'. Per maintainer decision, this vague phrase must be replaced verbatim with the quantified value for testability.
-- FR-003 still states 'high degree of match against KnotInfo reference values' instead of the maintainer-decided '≥ 90% match against KnotInfo reference values'. This creates inconsistency with SC-010 which now correctly uses '≥ 90% match'.
-- SC-013 claims 'All metrics use explicit quantitative thresholds' but lists unquantified terms: 'null percentage is minimal, format pass rate is high, duplicates are absent'. This is an internal contradiction within the criterion.
-- SC-013 claims 'All metrics use explicit quantitative thresholds' but lists unquantified terms: 'null percentage is minimal, format pass rate is high, duplicates are absent'. This is an internal contradiction within the criterion. The claim of explicit thresholds contradicts the vague language used.
-- SC-005 still uses 'The vast majority of knots with computable invariants have all invariants populated' — maintainer decision requires '≥ 95% of knots with computable invariants have all invariants populated'. Prior concern testability-22b982a3 remains unresolved.
-- SC-010 still states 'achieves a high match threshold for pass/fail status' — maintainer decision requires '≥ 90% match against reference values'. Prior concern testability-372ff177 remains unresolved.
-- SC-011 still states 'families with residuals exceeding a significant threshold of standard deviations from the fitted trend' — maintainer decision requires '≥ 2 standard deviations from the fitted trend'. Prior concern testability-1e2cff34 remains unresolved.
-- FR-003 Phase 2+ scope boundary still states 'Substantial match against KnotInfo reference values' — maintainer decision requires '≥ 90% match against KnotInfo reference values'. Prior concern testability-4948a6e1 remains unresolved.
-- FR-013 Validation Threshold still states 'System MUST achieve a substantial match against KnotInfo reference values' — maintainer decision requires '≥ 90% match threshold'. Prior concern testability-ad558168 remains unresolved.
-- FR-006 states 'Constitution Principle VII is satisfied via effect sizes with confidence intervals for census data' — Constitution explicitly states p-values and confidence intervals are NOT required for census data. Prior concern testability-64d473db remains unresolved.
-- SC-005 still uses 'The vast majority of knots with computable invariants have all invariants populated' — maintainer decision requires '≥ 95% of knots with computable invariants have all invariants populated'. This unquantified phrase remains in the spec and is not testable.
-- FR-003 Phase 2+ scope boundary still states 'a high degree of match against KnotInfo reference values' — maintainer decision requires '≥ 90% match against KnotInfo reference values'. This unquantified phrase remains in the spec and is not testable.
-- SC-005 states 'Nearly all knots with computable invariants have all invariants populated' instead of maintainer-decided threshold '≥ 95% of knots with computable invariants have all invariants populated'. Vague phrasing remains unquantified.
-- SC-010 states 'aims to achieve a high degree of match against reference values' instead of maintainer-decided '≥ 90% match against reference values'. Threshold remains unquantified.
-- FR-013 states "System MUST achieve a substantial match against KnotInfo reference values" – the term "substantial match" is unquantified; the requirement must be expressed as a concrete threshold (e.g., "≥ 90% match where reference coverage ≥ 90%") to be testable.
-- FR-006 claims "Constitution Principle VII is satisfied via effect sizes with confidence intervals for census data," which directly contradicts Constitution Principle VII (census‑data exception) that states confidence intervals are NOT required for census analyses.
-- FR-003 (Phase 2+ scope boundary) mentions a "high match threshold" for algorithm validation against KnotInfo reference values; the specification must replace this with the explicit quantitative requirement "≥ 90% match against reference values".
-- SC-005 still states 'Nearly all knots with computable invariants have all invariants populated' instead of the maintainer-decided threshold '≥ 95% of knots with computable invariants have all invariants populated'. Per maintainer decision, this vague phrase must be replaced verbatim with the quantified value.
-- SC-010 still states 'achieves a high degree of match against reference values' instead of '≥ 90% match against reference values'. Per maintainer decision, this unquantified phrase must be replaced with the specified numeric threshold for verifiability.
-- SC-005 still states 'The vast majority of knots with computable invariants have all invariants populated' instead of the maintainer-decided threshold '≥ 95% of knots with computable invariants have all invariants populated'. Per maintainer decision, this vague phrase must be replaced verbatim with the quantified value. Prior concern scientific_soundness-448b7bc0 remains unresolved.
+- SC-013 claims 'All metrics use explicit quantitative thresholds' but lists unquantified terms: 'null percentage is minimal, format pass rate is high, duplicates are absent'. This is an internal contradiction within the criterion that should be resolved for consistency.
+
+## MAINTAINER DECISION — round 2 (resolve the last 2 spec concerns)
+
+1. SC-013 self-contradicts: it claims "All metrics use explicit
+   quantitative thresholds" but then lists three UNquantified terms.
+   Quantify them verbatim and keep the rest of SC-013 intact:
+   - "null percentage is minimal" → "null percentage ≤ 5% per field"
+   - "format pass rate is high" → "format pass rate ≥ 99%"
+   - "duplicates are absent" → "duplicate records = 0 (0%)"
+2. FR-005 vs SC-011 threshold inconsistency: FR-005 says residuals
+   "≥ 2 standard deviations from the global mean" but SC-011 (correctly,
+   per regression practice) says "from the fitted trend". Change FR-005
+   to "≥ 2 standard deviations from the fitted trend (model predictions)"
+   so both match. Residuals are measured from model predictions, never
+   the global mean.
+
+After these, the spec carries no unquantified design targets and no
+internal threshold contradictions. Do not reintroduce any.
