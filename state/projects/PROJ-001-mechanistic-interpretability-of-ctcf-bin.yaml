@@ -1,17 +1,18 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-04-29T02:44:28.710016Z'
-current_stage: flesh_out_complete
+current_stage: validated
 failed_stage: null
 field: biology
 human_escalation_reason: null
 id: PROJ-001-mechanistic-interpretability-of-ctcf-bin
-last_run_id: 7bbdbeb6-3b90-471c-8311-cac7b488f55b
+last_run_id: 3b2c75a9-0372-4875-9cd5-7f17396cc004
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
+revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-001-mechanistic-interpretability-of-ctcf-bin/specs/001-mechanistic-interpretability-of-ctcf-bin
 title: Mechanistic Interpretability of CTCF Binding-Site Selection
-updated_at: '2026-05-15T12:35:01Z'
+updated_at: '2026-06-14T18:11:26.239720Z'
