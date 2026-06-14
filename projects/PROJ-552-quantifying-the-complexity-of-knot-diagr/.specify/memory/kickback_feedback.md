@@ -16,3 +16,30 @@ The convergence panel for this stage could not resolve the concerns below within
 - FR-003 states 'high match threshold' for algorithm validation — should explicitly state the threshold (e.g., ≥90%) for verifiability
 - FR-013 states 'Reference coverage threshold set to a high level' — should explicitly state the threshold (e.g., ≥90%) for verifiability
 - Prior concern scope-4a074b0a is now adequately addressed. Retry logic justification acknowledges external API dependencies as operational risk. However, this adds implementation work beyond the original idea. Given Constitution Principle I (reproducibility requires fetching from same canonical source), robustness measures are now legitimate scope clarification rather than pure over-reach. No further action needed.
+
+## MAINTAINER DECISION (apply verbatim — quantify every flagged vague phrase)
+
+The testability reviewers have repeatedly flagged the same unquantified
+phrases. These are NOT open questions — substitute the concrete,
+bound-led values below verbatim (each is consistent with values the spec
+already establishes elsewhere) and STOP re-emitting the vague wording:
+
+- FR-001 "predefined complexity limit" → "≤ 13 crossings" (the dataset's
+  established bound; align SC-001's completeness benchmark to the same).
+- FR-003 "high match threshold" (algorithm validation) → "≥ 90% match
+  against KnotInfo reference values".
+- FR-013 "Reference coverage threshold set to a high level" → "≥ 90% of
+  cited references resolve to a verified source".
+- SC-005 "A high proportion of knots ... have all invariants populated" →
+  "≥ 95% of knots with computable invariants have all invariants
+  populated".
+- SC-010 "achieves a high match threshold" → "≥ 90% match against
+  reference values".
+- SC-011 "families with residuals exceeding a specified threshold" →
+  "families with residuals exceeding ≥ 2 standard deviations from the
+  fitted trend" (matches SC-011's own residual-analysis text).
+
+Also resolve the FR-001/SC-001 consistency concern by using the SAME
+"≤ 13 crossings" bound in both. Remove FR-003's excessive inline caveats
+(keep one concise Phase-1 note). After applying these, the spec carries
+no unquantified design targets — do not reintroduce any.
