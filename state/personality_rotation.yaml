@@ -1,12 +1,7 @@
-last_used: alan-turing
-last_used_at: '2026-06-14T01:50:27.155214+00:00'
-last_outcome: committed
+last_used: albert-einstein
+last_used_at: '2026-06-14T03:07:59.146855+00:00'
+last_outcome: triage_rejected_advanced_as_abstain
 history:
-- slug: marie-curie
-  started_at: '2026-06-04T07:04:34.590379+00:00'
-  ended_at: '2026-06-04T08:48:12.683327+00:00'
-  outcome: abstained
-  action: abstain
 - slug: richard-feynman
   started_at: '2026-06-04T08:48:12.683327+00:00'
   ended_at: '2026-06-04T10:19:54.554539+00:00'
@@ -1132,3 +1127,8 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-591-neuromorphic-transformer-networks-spikin/reviews/research/alan-turing-simulated__2026-06-14__research.md
+- slug: albert-einstein
+  started_at: '2026-06-14T01:50:27.155214+00:00'
+  ended_at: '2026-06-14T03:07:59.146855+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
