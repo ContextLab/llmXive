@@ -21,7 +21,7 @@ from llmxive.claims.canonical import subject_key
 from llmxive.claims.extract import extract_claims
 from llmxive.claims.gate import strip_claim_artifacts
 from llmxive.claims.models import Claim, ClaimKind, ClaimStatus
-from llmxive.claims.planning_scan import strip_empirical_values
+from llmxive.claims.planning_scan import is_design_target, strip_empirical_values
 from llmxive.claims.pointer import (
     GateReport,
     drop_orphan_pointers,
@@ -208,6 +208,16 @@ def _process_planning_document(
     for claim in lowlevel:
         span = claim.raw_text or ""
         if not span or span not in smoothed:
+            continue
+        # Spec 023 defect #23: NEVER smooth a bound-led design target. The
+        # LLM extractor flags "≥ 95% of knots ... populated" as a low-level
+        # claim, and strip_and_smooth paraphrases it into "the vast majority
+        # of knots ..." — re-introducing the exact unquantified wording the
+        # testability panel rejects, differently every round (the PROJ-552
+        # spec non-convergence loop). Design targets are requirements, not
+        # world-claims; keep them verbatim (parity with the deterministic
+        # strip's bound-led protection, defect #16).
+        if is_design_target(span):
             continue
         try:
             replacement = strip_and_smooth(span, claim, backend=backend, model=model)

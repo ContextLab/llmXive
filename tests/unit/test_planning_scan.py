@@ -114,3 +114,56 @@ def test_planning_branch_guarantees_strip_even_when_extractor_finds_nothing(
     assert CLAIM_MARKER_PREFIX not in out                   # still no kickback
     assert report.blocked is False
     assert claims == []
+
+
+def test_is_design_target_predicate() -> None:
+    """Spec 023 defect #23: bound-led design targets are NOT empirical
+    world-claims and must be protected from the LLM smooth path."""
+    from llmxive.claims.planning_scan import is_design_target
+
+    # The exact PROJ-552 spans the smooth layer was paraphrasing to vague:
+    assert is_design_target(
+        "≥ 95% of knots with computable invariants have all invariants populated")
+    assert is_design_target("achieves ≥ 90% match against reference values")
+    assert is_design_target("residuals exceeding ≥ 2 standard deviations")
+    assert is_design_target("at least 80% statistical power")
+    assert is_design_target("within 60 minutes")
+    assert is_design_target("up to 13 crossings")
+    # Genuine empirical world-claims remain smoothable:
+    assert not is_design_target("a dataset of 9,988 prime knots")
+    assert not is_design_target("approximately 27,635 papers")
+    assert not is_design_target("the overwhelming majority of knots")
+
+
+def test_planning_smooth_preserves_design_target(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    """The LLM claim path must NOT smooth a bound-led design target into a
+    vague qualifier (the PROJ-552 spec non-convergence root: ≥95% kept being
+    paraphrased to 'the vast majority', re-flagged every round)."""
+    from llmxive.claims.models import Claim, ClaimKind, ClaimStatus
+
+    target = "≥ 95% of knots with computable invariants have all invariants populated"
+    doc = f"# Spec\n\n## Success Criteria\n\n- **SC-005**: {target}.\n"
+
+    claim = Claim(
+        claim_id="c_test001", kind=ClaimKind.MAGNITUDE, raw_text=target,
+        canonical=target, context="SC-005", artifact_path="x/spec.md",
+        source_type="pending", status=ClaimStatus.PENDING, resolved_value=None,
+        evidence=None, resolver=None, attempts=0, updated_at="2026-06-14T00:00:00Z",
+    )
+    monkeypatch.setattr(svc, "extract_claims", lambda *a, **k: [claim])
+
+    def _must_not_smooth(*a: Any, **k: Any) -> Any:
+        raise AssertionError("strip_and_smooth() called on a design target")
+
+    monkeypatch.setattr(svc, "strip_and_smooth", _must_not_smooth)
+
+    out, _claims, report = svc.process_document(
+        doc, artifact_path="projects/PROJ-x/specs/spec.md",
+        project_id="PROJ-x", backend=object(), model=None,
+        repo_root=tmp_path, stage_label="spec",
+    )
+    # The concrete ≥ 95% survives verbatim; no vague paraphrase introduced.
+    assert "≥ 95%" in out
+    assert report.blocked is False

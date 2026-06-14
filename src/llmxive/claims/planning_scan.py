@@ -85,6 +85,32 @@ def has_empirical_value(text: str) -> bool:
     return _EMPIRICAL_TOKEN.search(text) is not None
 
 
+# A bound operator immediately preceding a number — the *unanchored* twin of
+# :data:`_BOUND_LEAD`, for testing whether an arbitrary span CONTAINS a
+# design target (≥95%, "at least 80%", "within 60 minutes", "up to 13").
+_DESIGN_TARGET = re.compile(
+    r"(?:[≥≤<>±=]|"
+    r"\b(?:up\s+to|at\s+least|at\s+most|within|minimum(?:\s+of)?|"
+    r"maximum(?:\s+of)?|no\s+more\s+than|no\s+fewer\s+than|no\s+less\s+than))"
+    r"\s*\d",
+    re.IGNORECASE,
+)
+
+
+def is_design_target(text: str) -> bool:
+    """True iff ``text`` contains a bound-led DESIGN TARGET (a threshold the
+    system must MEET), not an empirical claim about the world.
+
+    Spec 023 defect #16 made the deterministic strip KEEP these. This is
+    the same protection for the LLM claim-detection/smooth path (defect
+    #23): a span like ``"≥ 95% of knots ... populated"`` is a success
+    criterion, not a world-claim — smoothing it into "the vast majority
+    of knots ..." re-introduces the exact unquantified wording testability
+    reviewers reject, and the reviser re-vagues it differently every round
+    (the PROJ-552 spec non-convergence loop)."""
+    return _DESIGN_TARGET.search(text) is not None
+
+
 def _tidy(line: str) -> str:
     line = re.sub(r"[ \t]{2,}", " ", line)
     line = re.sub(r"\(\s*\)", "", line)        # empty parens left by removal
@@ -180,4 +206,9 @@ def strip_empirical_values(
     return "\n".join(out)
 
 
-__all__ = ["DEFERRED_MARKER", "has_empirical_value", "strip_empirical_values"]
+__all__ = [
+    "DEFERRED_MARKER",
+    "has_empirical_value",
+    "is_design_target",
+    "strip_empirical_values",
+]
