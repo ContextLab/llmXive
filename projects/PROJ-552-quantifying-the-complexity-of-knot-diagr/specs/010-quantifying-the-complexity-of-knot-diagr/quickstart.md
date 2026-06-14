@@ -2,108 +2,181 @@
 
 ## Prerequisites
 
-- Python 3.11 or higher
-- pip package manager
-- Internet connectivity for data download
-- Sufficient available disk space
+- Python 3.11 or later
+- Access to stable internet connectivity (for downloading Knot Atlas data)
+- Sufficient available disk space (for data storage and reproducibility artifacts)
 
 ## Installation
 
 ```bash
-# Create virtual environment
+# Navigate to project directory
+cd projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/
+
+# Create isolated virtual environment
 python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 
 # Install dependencies
 pip install -r code/requirements.txt
+
+# Verify installation
+python -m pytest tests/contract/ -v
 ```
 
-## Quick Test
+## Running the Pipeline
+
+### Step 1: Download Knot Atlas Data
 
 ```bash
-# Run data download with retry logic
-python code/download/knot_data_downloader.py
+# Download raw data from Knot Atlas
+python code/main.py --step download
 
-# Verify data integrity
-python code/reproducibility/validate_checksums.py
-
-# Run exploratory analysis
-python code/analysis/exploratory_analysis.py
-
-# Check reproducibility artifacts
-ls docs/reproducibility/
+# Output: data/raw/knot_atlas_raw.json (checksummed)
 ```
 
-## Directory Structure
+### Step 2: Parse and Validate Data
 
-```text
-projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/
-├── code/
-│   ├── download/           # Data download scripts
-│   ├── analysis/           # Analysis and modeling scripts
-│   ├── reproducibility/    # Validation and reproducibility tools
-│   └── requirements.txt    # Python dependencies
-├── data/
-│   ├── raw/               # Unmodified downloaded data
-│   ├── processed/         # Cleaned and derived datasets
-│   └── plots/             # Generated visualization files
-├── docs/
-│   └── reproducibility/   # Reproducibility documentation
-└── specs/
-    └── 001-knot-complexity-analysis/
-        ├── plan.md
-        ├── research.md
-        ├── data-model.md
-        ├── quickstart.md
-        └── contracts/
+```bash
+# Parse raw data and apply validation rules
+python code/main.py --step parse
+
+# Output: data/processed/knots_validated.parquet
 ```
 
-## Configuration
+### Step 3: Filter to Hyperbolic Knots
 
-### Random Seeds
+```bash
+# Filter dataset to hyperbolic prime knots only (volume > 0)
+python code/main.py --step filter_hyperbolic
 
-All random seeds are pinned in code. Current values documented in:
-- `docs/reproducibility/random_seeds.md`
+# Output: data/processed/knots_hyperbolic.parquet
+```
 
-### Retry Parameters
+### Step 4: Exploratory Analysis
 
-- Initial delay: 1 second
-- Maximum delay: 32 seconds
-- Multiplier: 2x
-- Max retries: 3 consecutive failures before caching partial results
+```bash
+# Generate exploratory plots (crossing number vs. braid index)
+python code/main.py --step exploratory
 
-### Validation Thresholds
+# Output: data/plots/*.png (1200x900 minimum resolution)
+```
 
-| Metric | Threshold |
-|--------|-----------|
-| Null percentage (required fields) | <1% |
-| Format validation pass rate | ≥95% |
-| Match threshold (algorithm validation) | ≥90% |
-| KnotInfo coverage (feasibility) | ≥50% |
-| Residual deviation threshold | ≥2 standard deviations |
+### Step 5: KnotInfo Cross-Check (FR-013/SC-014)
 
-### Statistical Reporting
+```bash
+# Validate hyperbolic volume against KnotInfo reference values
+python code/main.py --step knotinfo_crosscheck
 
-- **Effect sizes**: Always reported (Cohen's d, r, r²)
-- **p-values**: NOT reported for census data (not applicable for complete enumeration)
-- **Multicollinearity**: VIF values documented; regression interpreted as variance partitioning only
+# Output: docs/reproducibility/data_consistency_report.md
+```
 
-## Troubleshooting
+### Step 6: Regression Analysis
 
-| Issue | Solution |
-|-------|----------|
-| Knot Atlas unavailable | Retry logic applies exponential backoff; check `docs/reproducibility/retry_logs.md` |
-| Missing invariant flags | Records flagged but not excluded; check `docs/reproducibility/missing_invariant_flags.md` |
-| Validation script fails | Re-run invariant computations; check `docs/reproducibility/validation_status.md` |
-| Checksum mismatch | Re-download raw data; verify source integrity |
-| KnotInfo coverage <50% | Validation skipped; limitation documented in `docs/reproducibility/hyperbolic_volume_validation.md` |
+```bash
+# Fit and compare regression models
+python code/main.py --step regression
 
-## Critical Spec.md Issues Requiring Kickback
+# Output: RegressionModel entities in memory; results logged
+```
 
-**WARNING**: The source spec.md contains unresolved issues that block Verified Accuracy Gate:
+### Step 7: Residual Analysis
 
-1. **FR-013 Corrupted URL**: Contains `( nodename nor servname provided, or not known)'))])` instead of valid KnotInfo URL
-2. **FR-013 Unquantified Threshold**: States "high match threshold" without quantification (plan specifies ≥90%)
-3. **FR-006 P-Value Policy Conflict**: States p-values documented for convention (plan explicitly excludes them for census data)
+```bash
+# Identify knot families with significant deviations
+python code/main.py --step residual_analysis
 
-These issues require spec.md correction before project can proceed.
+# Output: docs/reproducibility/residual_analysis.md
+```
+
+### Step 8: Tie-Breaking Validation (SC-007)
+
+```bash
+# Verify tie-breaking rules applied consistently
+python code/main.py --step validate_tie_breaking
+
+# Output: docs/reproducibility/validation_status.md
+```
+
+### Step 9: Reproducibility Check
+
+```bash
+# Verify all reproducibility artifacts
+python code/main.py --step reproducibility_check
+
+# Output: docs/reproducibility/validation_status.md
+```
+
+## Reproducibility Artifacts
+
+All reproducibility artifacts are in `data/reproducibility/`:
+
+| Artifact | Location | Description |
+|----------|----------|-------------|
+| Checksums | `data/checksums.txt` | SHA-256 checksums for all data files |
+| Logs | `data/reproducibility/logs/` | Timestamped operation logs |
+| Derivation Notes | `data/reproducibility/derivation_notes/` | Step-by-step transformation documentation |
+| Random Seeds | `data/reproducibility/random_seeds.md` | All random seed values used |
+| Data Quality Report | `data/reproducibility/data_quality_report.md` | Null percentages, format pass rates, duplicates |
+| Validation Scope | `data/reproducibility/validation_scope.md` | Crossing number ≤ 10 vs. ≤ 13 distinction |
+| Excluded Knots | `data/reproducibility/excluded_knots.md` | Torus/satellite knots filtered out |
+| Tie-Breaking Rules | `data/reproducibility/tie_breaking_rules.md` | Documented tie-breaking rules |
+| Data Consistency Report | `data/reproducibility/data_consistency_report.md` | KnotInfo cross-check results |
+
+## Testing
+
+### Contract Tests
+
+```bash
+# Validate data against YAML schemas
+python -m pytest tests/contract/ -v
+```
+
+### Integration Tests
+
+```bash
+# Test download pipeline with retry logic
+python -m pytest tests/integration/test_download_pipeline.py -v
+```
+
+### Unit Tests
+
+```bash
+# Test parser and validator components
+python -m pytest tests/unit/ -v
+```
+
+## Common Issues
+
+### API Unavailability
+
+If Knot Atlas is unavailable:
+- Retry logic with exponential backoff is automatically applied (FR-008)
+- Partial results cached to disk after multiple consecutive failures
+- Check `data/reproducibility/logs/` for retry sequence details
+
+### Missing Invariant Data
+
+Records with missing invariants are flagged (not silently excluded):
+- Check `data_quality_flags` and `missing_invariant_flags` fields
+- See `data/reproducibility/data_quality_report.md` for summary
+
+### Hyperbolic Volume Filtering
+
+Torus and satellite knots (volume = 0) are filtered for volume prediction analysis:
+- Excluded records documented in `data/reproducibility/excluded_knots.md`
+- Original dataset preserved in `data/processed/knots_validated.parquet`
+
+### KnotInfo Cross-Check Failure
+
+If KnotInfo coverage < 90%:
+- Cross-check skipped and limitation documented per FR-013
+- See `data/reproducibility/data_consistency_report.md` for coverage statistics
+
+## Next Steps
+
+After completing the pipeline:
+1. Review `data/reproducibility/validation_status.md` for validation results
+2. Check `data/reproducibility/residual_analysis.md` for identified knot families
+3. Examine `data/plots/` for exploratory visualizations
+4. Review `data/reproducibility/data_consistency_report.md` for KnotInfo cross-check results
+5. Proceed to Phase 2+ for additional invariant computation (arc index, Seifert circle count, bridge number)

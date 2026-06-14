@@ -808,7 +808,7 @@
   verification_status: verified
   verified_against_url: https://katlas.org/wiki/Main_Page
   verified_at: '2026-06-12T08:26:08.597050Z'
-- artifact_hash: ed62cf2ecf1ec5832e156783e6406f72fbddadc3d732c573b54d73a7bd93d818
+- artifact_hash: a2e3de5f8e5a8036fbb763c8493cfb094271a79f466f568874384803412bf75b
   artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/spec.md
   cite_id: c-001
   cited_authors: []
@@ -818,8 +818,8 @@
   value: https://katlas.org
   verification_status: verified
   verified_against_url: https://katlas.org/wiki/Main_Page
-  verified_at: '2026-06-14T08:15:37.810468Z'
-- artifact_hash: ed62cf2ecf1ec5832e156783e6406f72fbddadc3d732c573b54d73a7bd93d818
+  verified_at: '2026-06-14T10:39:42.563936Z'
+- artifact_hash: a2e3de5f8e5a8036fbb763c8493cfb094271a79f466f568874384803412bf75b
   artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/spec.md
   cite_id: c-002
   cited_authors: []
@@ -829,8 +829,8 @@
   value: https://arxiv.org/abs/math/0303273
   verification_status: verified
   verified_against_url: https://arxiv.org/abs/math/0303273
-  verified_at: '2026-06-14T08:15:37.810468Z'
-- artifact_hash: ed62cf2ecf1ec5832e156783e6406f72fbddadc3d732c573b54d73a7bd93d818
+  verified_at: '2026-06-14T10:39:42.563936Z'
+- artifact_hash: a2e3de5f8e5a8036fbb763c8493cfb094271a79f466f568874384803412bf75b
   artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/spec.md
   cite_id: c-003
   cited_authors: []
@@ -840,19 +840,19 @@
   value: https://en.wikipedia.org/wiki/2-bridge_knot
   verification_status: verified
   verified_against_url: https://en.wikipedia.org/wiki/2-bridge_knot
-  verified_at: '2026-06-14T08:15:37.810468Z'
-- artifact_hash: ed62cf2ecf1ec5832e156783e6406f72fbddadc3d732c573b54d73a7bd93d818
+  verified_at: '2026-06-14T10:39:42.563936Z'
+- artifact_hash: a2e3de5f8e5a8036fbb763c8493cfb094271a79f466f568874384803412bf75b
   artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/spec.md
   cite_id: c-004
   cited_authors: []
   cited_title: null
-  fetched_title: The On-Line Encyclopedia of Integer Sequences (OEIS)
+  fetched_title: A002863 - OEIS
   kind: url
-  value: https://oeis.org/
+  value: https://oeis.org/A002863
   verification_status: verified
-  verified_against_url: https://oeis.org/
-  verified_at: '2026-06-14T08:15:37.810468Z'
-- artifact_hash: ed62cf2ecf1ec5832e156783e6406f72fbddadc3d732c573b54d73a7bd93d818
+  verified_against_url: https://oeis.org/A002863
+  verified_at: '2026-06-14T10:39:42.563936Z'
+- artifact_hash: a2e3de5f8e5a8036fbb763c8493cfb094271a79f466f568874384803412bf75b
   artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/spec.md
   cite_id: c-005
   cited_authors: []
@@ -862,15 +862,15 @@
   value: https://knotinfo.org/
   verification_status: verified
   verified_against_url: https://knotinfo.org/
-  verified_at: '2026-06-14T08:15:37.810468Z'
-- artifact_hash: ed62cf2ecf1ec5832e156783e6406f72fbddadc3d732c573b54d73a7bd93d818
+  verified_at: '2026-06-14T10:39:42.563936Z'
+- artifact_hash: a2e3de5f8e5a8036fbb763c8493cfb094271a79f466f568874384803412bf75b
   artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/spec.md
   cite_id: c-006
   cited_authors: []
   cited_title: null
-  fetched_title: A002863 - OEIS
+  fetched_title: The On-Line Encyclopedia of Integer Sequences (OEIS)
   kind: url
-  value: https://oeis.org/A002863
+  value: https://oeis.org/
   verification_status: verified
-  verified_against_url: https://oeis.org/A002863
-  verified_at: '2026-06-14T08:15:37.810468Z'
+  verified_against_url: https://oeis.org/
+  verified_at: '2026-06-14T10:39:42.563936Z'

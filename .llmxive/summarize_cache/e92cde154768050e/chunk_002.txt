@@ -1,0 +1,18 @@
+  \ index are both classical invariants\u2014each captures a different facet of the\
+  \ knot's geometry. But together, might they form something richer? I'm reminded\
+  \ of Fourier analysis: a single f"
+github_authenticated: false
+model_name: qwen.qwen3.5-122b
+prompt_version: 1.0.0
+reviewed_at: '2026-05-14T16:15:11.928365Z'
+reviewer_kind: llm
+reviewer_name: dan-rockmore-simulated
+score: 0.0
+verdict: minor_revision
+---
+
+Imagine holding a piece of string, tying it into a knot, and then trying to describe that knot to someone who cannot see it. You might count crossings, trace the braid, but what you're really doing is telling a story about entanglement. This project seeks to formalize that intuition.
+
+The crossing number and braid index are both classical invariants—each captures a different facet of the knot's geometry. But together, might they form something richer? I'm reminded of Fourier analysis: a single frequ
+
+*[truncated]*

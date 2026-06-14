@@ -1,26 +1,26 @@
-resolved_at: '2026-06-12T15:50:06.575413+00:00'
+resolved_at: '2026-06-14T10:52:00.113268+00:00'
 datasets:
 - intent: FR-001
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://figshare.com/articles/dataset/Educational_Content_Generation_with_Large_Language_Models_Fields_Study/31236421
+  - url: https://figshare.com/articles/preprint/Approaching_ORBIT_Variant_Agnostic_Experiment_Space_Traversals/31825567
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/_b_Leading_beyond_the_Job_Description_Investigating_the_Association_between_Principals_Leadership_Styles_and_Teachers_Organizational_Citizenship_Behaviors_in_North_Wollo_Secondary_Schools_b_/32660844
+  - url: https://manara.qnl.qa/articles/journal_contribution/Reinforcement_Learning_for_Torque_Vectoring_in_Electric_Vehicles_A_Review_of_Stability_and_Energy_Optimization_Methods/32645556
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Genomic_insights_into_the_diversification_of_the_planthopper_genus_i_Megamelus_i_/32108857
+  - url: https://figshare.com/articles/dataset/Identifying_climatic_refugia_wet_and_complex_habitats_act_as_buffer_for_birds_during_severe_droughts/32668731
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Techno-orientalism_in_the_US_media_the_case_of_China_s_social_credit_system_/30255890
+  - url: https://figshare.com/articles/preprint/Trajectory_Data_Compression_A_Comprehensive_Literature_Review/32647548
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Toroidal_dipole_excitation_of_quasi-BIC_and_EIT_decoupled_control_through_spatial_displacement_-_7904552_pdf/32407530
+  - url: https://figshare.com/articles/dataset/Uneven_15-minute_accessibility_and_neighborhood_upgrading_across_U_S_cities/32668530
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -40,7 +40,7 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10501050
+  - url: https://zenodo.org/records/6373741
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -67,13 +67,6 @@ datasets:
 - intent: MUST
   status: verified
   candidates:
-  - url: https://huggingface.co/datasets/Mustafaege/qwen3.5-toolcalling-v2/resolve/main/data/test-00000-of-00001.parquet
-    source: huggingface
-    format: parquet
-    relevance: 0.0
-    sample_check:
-      downloaded_bytes: 262144
-      parsed: true
   - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
     source: huggingface
     format: parquet
@@ -81,32 +74,39 @@ datasets:
     sample_check:
       downloaded_bytes: 190547
       parsed: true
-  candidates_tried:
-  - url: https://huggingface.co/datasets/Mustafaege/qwen3.5-toolcalling-v2/resolve/main/data/test-00000-of-00001.parquet
+  - url: https://huggingface.co/datasets/enimai/MuST-C-fr/resolve/main/test.csv
     source: huggingface
-    status: verified
-    format: parquet
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
   - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/dataset/Educational_Content_Generation_with_Large_Language_Models_Fields_Study/31236421
+  - url: https://huggingface.co/datasets/enimai/MuST-C-fr/resolve/main/test.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://figshare.com/articles/preprint/Approaching_ORBIT_Variant_Agnostic_Experiment_Space_Traversals/31825567
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/_b_Leading_beyond_the_Job_Description_Investigating_the_Association_between_Principals_Leadership_Styles_and_Teachers_Organizational_Citizenship_Behaviors_in_North_Wollo_Secondary_Schools_b_/32660844
+  - url: https://manara.qnl.qa/articles/journal_contribution/Reinforcement_Learning_for_Torque_Vectoring_in_Electric_Vehicles_A_Review_of_Stability_and_Energy_Optimization_Methods/32645556
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Genomic_insights_into_the_diversification_of_the_planthopper_genus_i_Megamelus_i_/32108857
+  - url: https://figshare.com/articles/dataset/Identifying_climatic_refugia_wet_and_complex_habitats_act_as_buffer_for_birds_during_severe_droughts/32668731
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Techno-orientalism_in_the_US_media_the_case_of_China_s_social_credit_system_/30255890
+  - url: https://figshare.com/articles/preprint/Trajectory_Data_Compression_A_Comprehensive_Literature_Review/32647548
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Toroidal_dipole_excitation_of_quasi-BIC_and_EIT_decoupled_control_through_spatial_displacement_-_7904552_pdf/32407530
+  - url: https://figshare.com/articles/dataset/Uneven_15-minute_accessibility_and_neighborhood_upgrading_across_U_S_cities/32668530
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -130,36 +130,29 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20669305
+  - url: https://zenodo.org/records/20581862
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20669330
+  - url: https://zenodo.org/records/20581862
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20669330
+  - url: https://repository.nida.ac.th/handle/662723737/6890
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://zenodo.org/records/20688418
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20669255
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20669255
+  - url: https://zenodo.org/records/20688418
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
 - intent: JSON
   status: verified
   candidates:
-  - url: https://huggingface.co/datasets/paraloq/json_data_extraction/resolve/main/data.parquet
-    source: huggingface
-    format: parquet
-    relevance: 1.0
-    sample_check:
-      downloaded_bytes: 262144
-      parsed: true
   - url: https://huggingface.co/datasets/MasterControlAIML/JSON-Unstructured-Structured/resolve/main/input_data.csv
     source: huggingface
     format: csv
@@ -167,49 +160,54 @@ datasets:
     sample_check:
       downloaded_bytes: 262144
       parsed: true
-  - url: https://huggingface.co/datasets/a3xrfgb/ideogram-v4-Json-prompts/resolve/main/idev4-json
-      (1).json
+  - url: https://huggingface.co/datasets/allura-org/ToastyPigeon_some-rp-extended-jsonl/resolve/main/somerp-extended.jsonl
     source: huggingface
-    format: json
-    relevance: 1.0
+    format: jsonl
+    relevance: 0.0
     sample_check:
-      downloaded_bytes: 2769
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/allura-org/ToastyPigeon_some-rp-v2-jsonl/resolve/main/somerp-v2.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
       parsed: true
   candidates_tried:
-  - url: https://huggingface.co/datasets/paraloq/json_data_extraction/resolve/main/data.parquet
-    source: huggingface
-    status: verified
-    format: parquet
   - url: https://huggingface.co/datasets/MasterControlAIML/JSON-Unstructured-Structured/resolve/main/input_data.csv
     source: huggingface
     status: verified
     format: csv
+  - url: https://huggingface.co/datasets/allura-org/ToastyPigeon_some-rp-extended-jsonl/resolve/main/somerp-extended.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/allura-org/ToastyPigeon_some-rp-v2-jsonl/resolve/main/somerp-v2.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
   - url: https://huggingface.co/api/resolve-cache/datasets/gitcat-404/SVG-1M-Json/c0cefd93c8ceb2b64d491ee2716e16d4f09bdded/RL_data.json?%2Fdatasets%2Fgitcat-404%2FSVG-1M-Json%2Fresolve%2Fmain%2FRL_data.json=&etag=%22279f8715eb99ac9eb2826cea0586d32d7e6d0454%22
     source: huggingface
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://huggingface.co/datasets/a3xrfgb/ideogram-v4-Json-prompts/resolve/main/idev4-json
-      (1).json
-    source: huggingface
-    status: verified
-    format: json
-  - url: https://figshare.com/articles/dataset/Educational_Content_Generation_with_Large_Language_Models_Fields_Study/31236421
+  - url: https://figshare.com/articles/dataset/Untitled_IteDataset_supporting_Decadal_Assessment_of_Spatial_Rice_Yield_Dynamics_Using_Remote_Sensing_and_Semi-Physical_Modelling_in_Tiruvarur_District_Tamil_Nadu_Indiam/32531793
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/_b_Leading_beyond_the_Job_Description_Investigating_the_Association_between_Principals_Leadership_Styles_and_Teachers_Organizational_Citizenship_Behaviors_in_North_Wollo_Secondary_Schools_b_/32660844
+  - url: https://figshare.com/articles/preprint/Approaching_ORBIT_Variant_Agnostic_Experiment_Space_Traversals/31825567
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Genomic_insights_into_the_diversification_of_the_planthopper_genus_i_Megamelus_i_/32108857
+  - url: https://manara.qnl.qa/articles/journal_contribution/Reinforcement_Learning_for_Torque_Vectoring_in_Electric_Vehicles_A_Review_of_Stability_and_Energy_Optimization_Methods/32645556
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Techno-orientalism_in_the_US_media_the_case_of_China_s_social_credit_system_/30255890
+  - url: https://figshare.com/articles/dataset/Identifying_climatic_refugia_wet_and_complex_habitats_act_as_buffer_for_birds_during_severe_droughts/32668731
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Toroidal_dipole_excitation_of_quasi-BIC_and_EIT_decoupled_control_through_spatial_displacement_-_7904552_pdf/32407530
+  - url: https://figshare.com/articles/preprint/Trajectory_Data_Compression_A_Comprehensive_Literature_Review/32647548
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -233,23 +231,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://disscover.dissco.eu/dm/10.3535/MTK-32L-8F5
+  - url: https://zenodo.org/records/20688308
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://disscover.dissco.eu/dm/10.3535/8GT-SH1-MDR
+  - url: https://zenodo.org/records/20688308
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://disscover.dissco.eu/dm/10.3535/B4H-64G-S9P
+  - url: https://zenodo.org/records/20688441
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://disscover.dissco.eu/dm/10.3535/NXG-K0Z-3BW
+  - url: https://zenodo.org/records/20688441
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://disscover.dissco.eu/dm/10.3535/BFH-P9H-1VZ
+  - url: https://figshare.com/articles/dataset/A_Global_Dataset_of_Urban_Road_Centrelines_for_2_588_Coastal_Cities_Using_Voronoi_Tessellation/31696105/1
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -272,23 +270,23 @@ datasets:
     source: huggingface
     status: verified
     format: csv
-  - url: https://figshare.com/articles/dataset/Educational_Content_Generation_with_Large_Language_Models_Fields_Study/31236421
+  - url: https://figshare.com/articles/dataset/Untitled_IteDataset_supporting_Decadal_Assessment_of_Spatial_Rice_Yield_Dynamics_Using_Remote_Sensing_and_Semi-Physical_Modelling_in_Tiruvarur_District_Tamil_Nadu_Indiam/32531793
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/_b_Leading_beyond_the_Job_Description_Investigating_the_Association_between_Principals_Leadership_Styles_and_Teachers_Organizational_Citizenship_Behaviors_in_North_Wollo_Secondary_Schools_b_/32660844
+  - url: https://figshare.com/articles/preprint/Approaching_ORBIT_Variant_Agnostic_Experiment_Space_Traversals/31825567
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Genomic_insights_into_the_diversification_of_the_planthopper_genus_i_Megamelus_i_/32108857
+  - url: https://manara.qnl.qa/articles/journal_contribution/Reinforcement_Learning_for_Torque_Vectoring_in_Electric_Vehicles_A_Review_of_Stability_and_Energy_Optimization_Methods/32645556
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Techno-orientalism_in_the_US_media_the_case_of_China_s_social_credit_system_/30255890
+  - url: https://figshare.com/articles/dataset/Identifying_climatic_refugia_wet_and_complex_habitats_act_as_buffer_for_birds_during_severe_droughts/32668731
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Toroidal_dipole_excitation_of_quasi-BIC_and_EIT_decoupled_control_through_spatial_displacement_-_7904552_pdf/32407530
+  - url: https://figshare.com/articles/preprint/Trajectory_Data_Compression_A_Comprehensive_Literature_Review/32647548
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -300,15 +298,15 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6144837
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/6557219
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/3681161
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/6144837
+  - url: https://zenodo.org/records/16712241
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -316,43 +314,43 @@ datasets:
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20664490
+  - url: https://zenodo.org/records/20688343
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20664490
+  - url: https://zenodo.org/records/20688343
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://eprints.soton.ac.uk/511971/
+  - url: https://figshare.com/articles/dataset/A_Global_Dataset_of_Urban_Road_Centrelines_for_2_588_Coastal_Cities_Using_Voronoi_Tessellation/31696105/1
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://dataverse.unr.edu.ar/file.xhtml?persistentId=doi:10.57715/UNR/BL85Z8/86XN82
+  - url: https://doi.org/10.5281/zenodo.20682063
     source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
+    status: unreachable
+    reason: 'reachability failed: HTTP 410'
 - intent: SC-001
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://figshare.com/articles/dataset/Educational_Content_Generation_with_Large_Language_Models_Fields_Study/31236421
+  - url: https://figshare.com/articles/dataset/Untitled_IteDataset_supporting_Decadal_Assessment_of_Spatial_Rice_Yield_Dynamics_Using_Remote_Sensing_and_Semi-Physical_Modelling_in_Tiruvarur_District_Tamil_Nadu_Indiam/32531793
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/_b_Leading_beyond_the_Job_Description_Investigating_the_Association_between_Principals_Leadership_Styles_and_Teachers_Organizational_Citizenship_Behaviors_in_North_Wollo_Secondary_Schools_b_/32660844
+  - url: https://figshare.com/articles/preprint/Approaching_ORBIT_Variant_Agnostic_Experiment_Space_Traversals/31825567
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Genomic_insights_into_the_diversification_of_the_planthopper_genus_i_Megamelus_i_/32108857
+  - url: https://manara.qnl.qa/articles/journal_contribution/Reinforcement_Learning_for_Torque_Vectoring_in_Electric_Vehicles_A_Review_of_Stability_and_Energy_Optimization_Methods/32645556
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Techno-orientalism_in_the_US_media_the_case_of_China_s_social_credit_system_/30255890
+  - url: https://figshare.com/articles/dataset/Identifying_climatic_refugia_wet_and_complex_habitats_act_as_buffer_for_birds_during_severe_droughts/32668731
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Toroidal_dipole_excitation_of_quasi-BIC_and_EIT_decoupled_control_through_spatial_displacement_-_7904552_pdf/32407530
+  - url: https://figshare.com/articles/preprint/Trajectory_Data_Compression_A_Comprehensive_Literature_Review/32647548
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -393,31 +391,32 @@ datasets:
     status: wrong_format
     reason: 'HTTPSConnectionPool(host=''zenodo.org'', port=443): Read timed out. (read
       timeout=20)'
-  - url: https://zenodo.org/records/20469943
+  - url: https://doi.org/10.5281/zenodo.20469943
     source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
+    status: unreachable
+    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
+      port=443): Read timed out. (read timeout=20.0)'
 - intent: SC-013
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://figshare.com/articles/dataset/Study_2_Participant_Demographics_and_Usability_Survey_Responses/31239604
+  - url: https://figshare.com/articles/dataset/Untitled_IteDataset_supporting_Decadal_Assessment_of_Spatial_Rice_Yield_Dynamics_Using_Remote_Sensing_and_Semi-Physical_Modelling_in_Tiruvarur_District_Tamil_Nadu_Indiam/32531793
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Educational_Content_Generation_with_Large_Language_Models_Fields_Study/31236421
+  - url: https://figshare.com/articles/preprint/Approaching_ORBIT_Variant_Agnostic_Experiment_Space_Traversals/31825567
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/_b_Leading_beyond_the_Job_Description_Investigating_the_Association_between_Principals_Leadership_Styles_and_Teachers_Organizational_Citizenship_Behaviors_in_North_Wollo_Secondary_Schools_b_/32660844
+  - url: https://manara.qnl.qa/articles/journal_contribution/Reinforcement_Learning_for_Torque_Vectoring_in_Electric_Vehicles_A_Review_of_Stability_and_Energy_Optimization_Methods/32645556
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Genomic_insights_into_the_diversification_of_the_planthopper_genus_i_Megamelus_i_/32108857
+  - url: https://figshare.com/articles/dataset/Identifying_climatic_refugia_wet_and_complex_habitats_act_as_buffer_for_birds_during_severe_droughts/32668731
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Techno-orientalism_in_the_US_media_the_case_of_China_s_social_credit_system_/30255890
+  - url: https://figshare.com/articles/preprint/Trajectory_Data_Compression_A_Comprehensive_Literature_Review/32647548
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -425,19 +424,19 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10343605
+  - url: https://zenodo.org/records/10265588
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10382148
+  - url: https://zenodo.org/records/10359160
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10290773
+  - url: https://zenodo.org/records/10303736
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10382340
+  - url: https://zenodo.org/records/10265518
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -451,10 +450,6 @@ datasets:
     reason: 'HTTPSConnectionPool(host=''zenodo.org'', port=443): Read timed out. (read
       timeout=20)'
   - url: https://zenodo.org/records/20469943
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20453648
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -498,6 +493,10 @@ datasets:
   status: unresolved
   candidates: []
   candidates_tried: []
+- intent: A002863
+  status: unresolved
+  candidates: []
+  candidates_tried: []
 - intent: AIC
   status: unresolved
   candidates: []
@@ -519,6 +518,10 @@ datasets:
   candidates: []
   candidates_tried: []
 - intent: FR-006
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: VII
   status: unresolved
   candidates: []
   candidates_tried: []
