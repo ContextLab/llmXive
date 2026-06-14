@@ -1,12 +1,7 @@
-last_used: eric-kandel
-last_used_at: '2026-06-14T10:13:21.536057+00:00'
+last_used: freeman-dyson
+last_used_at: '2026-06-14T12:14:16.802741+00:00'
 last_outcome: triage_rejected_advanced_as_abstain
 history:
-- slug: ada-lovelace
-  started_at: '2026-06-04T14:08:36.301484+00:00'
-  ended_at: '2026-06-04T15:42:22.586295+00:00'
-  outcome: triage_rejected_advanced_as_abstain
-  action: comment
 - slug: alan-turing
   started_at: '2026-06-04T15:42:22.586295+00:00'
   ended_at: '2026-06-04T17:02:25.757914+00:00'
@@ -1129,5 +1124,10 @@ history:
 - slug: eric-kandel
   started_at: '2026-06-14T08:46:37.867680+00:00'
   ended_at: '2026-06-14T10:13:21.536057+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
+- slug: freeman-dyson
+  started_at: '2026-06-14T10:13:21.536057+00:00'
+  ended_at: '2026-06-14T12:14:16.802741+00:00'
   outcome: triage_rejected_advanced_as_abstain
   action: comment
