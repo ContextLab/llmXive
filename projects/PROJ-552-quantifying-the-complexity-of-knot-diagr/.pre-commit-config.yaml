@@ -1,0 +1,75 @@
+# Pre-commit configuration for linting and formatting
+# Run `pre-commit install` after setup to enable hooks
+# Run `pre-commit run --all-files` to check all files manually
+
+repos:
+  # Black - Python code formatter
+  - repo: https://github.com/psf/black
+    rev: 24.3.0
+    hooks:
+      - id: black
+        name: Black Python Formatter
+        language_version: python3.11
+        args: [--line-length=88]
+        files: ^code/|tests/
+
+  # Flake8 - Python linter
+  - repo: https://github.com/PyCQA/flake8
+    rev: 7.0.0
+    hooks:
+      - id: flake8
+        name: Flake8 Linter
+        args: [--max-line-length=88, --extend-ignore=E203,W503]
+        files: ^code/|tests/
+
+  # isort - Python import sorter
+  - repo: https://github.com/PyCQA/isort
+    rev: 5.13.2
+    hooks:
+      - id: isort
+        name: isort Import Sorter
+        args: [--profile=black, --line-length=88]
+        files: ^code/|tests/
+
+  # Trailing whitespace checker
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+        name: Check Trailing Whitespace
+        files: \.(py|yaml|yml|md|txt|json)$
+        exclude: ^data/
+
+      - id: end-of-file-fixer
+        name: Ensure Files End With Newline
+        files: \.(py|yaml|yml|md|txt|json)$
+        exclude: ^data/
+
+      - id: check-yaml
+        name: Validate YAML Syntax
+        files: \.(yaml|yml)$
+        exclude: ^data/
+
+      - id: check-json
+        name: Validate JSON Syntax
+        files: \.json$
+        exclude: ^data/
+
+  # Additional security and quality checks
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.7.7
+    hooks:
+      - id: bandit
+        name: Bandit Security Scanner
+        files: ^code/
+        args: [--exclude=tests/]
+        exclude: ^code/reproducibility/
+
+  # Detect secrets in code
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: detect-private-key
+        name: Detect Private Keys
+        files: \.(py|yaml|yml|txt|md)$
+        exclude: ^data/

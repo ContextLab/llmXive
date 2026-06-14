@@ -1,26 +1,26 @@
-resolved_at: '2026-06-14T12:51:46.917775+00:00'
+resolved_at: '2026-06-14T14:24:46.051492+00:00'
 datasets:
 - intent: FR-001
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://figshare.com/articles/thesis/From_Maastricht_to_Crisis_Governance_The_European_Central_Bank_the_Euro_and_the_Political_Economy_of_Irreversible_Monetary/32668845
+  - url: https://figshare.com/articles/dataset/Turkey_tom_footpad_scores_gait_scores_and_litter_quality/32669001
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/thesis/Crisis_Clusters_Pandemic_Risk_Strategic_Retrenchment_and_Military_Conflict_1907_to_2026/32668836
+  - url: https://figshare.com/articles/preprint/Evaluative_Monitoring_as_a_Common_Link_Between_Vivid_Imagery_and_Intensive_Joy/32668995
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/Factors_Affecting_Adherence_to_Anti-retroviral_Therapy_at_Kampala_International_University_Teaching_Hospital_Bushenyi_District_Uganda/32422662
+  - url: https://figshare.com/articles/media/_www_bestdrug_store_G__GHB_-____/32669004
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/Delhi_Best_Escort/32668827
+  - url: https://acs.figshare.com/articles/journal_contribution/Predicting_Aquatic_Species_Sensitivity_Distributions_Using_Machine_Learning_in_a_Regulatory_Setting/32668993
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/JobCannon_Psychometric_Response_Dataset/32668833
+  - url: https://figshare.com/articles/journal_contribution/Molecular_Characterization_and_optimization_of_Bioactive_Compounds_Production_of_three_Actinomycetes_spp_Isolated_from_Waste_Dump_Soil_from_Western_Uganda/32668950
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -90,23 +90,23 @@ datasets:
     source: huggingface
     status: verified
     format: csv
-  - url: https://figshare.com/articles/journal_contribution/Factors_Affecting_Adherence_to_Anti-retroviral_Therapy_at_Kampala_International_University_Teaching_Hospital_Bushenyi_District_Uganda/32422662
+  - url: https://figshare.com/articles/dataset/Turkey_tom_footpad_scores_gait_scores_and_litter_quality/32669001
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/thesis/From_Maastricht_to_Crisis_Governance_The_European_Central_Bank_the_Euro_and_the_Political_Economy_of_Irreversible_Monetary/32668845
+  - url: https://figshare.com/articles/preprint/Evaluative_Monitoring_as_a_Common_Link_Between_Vivid_Imagery_and_Intensive_Joy/32668995
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/thesis/Crisis_Clusters_Pandemic_Risk_Strategic_Retrenchment_and_Military_Conflict_1907_to_2026/32668836
+  - url: https://figshare.com/articles/media/_www_bestdrug_store_G__GHB_-____/32669004
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/Delhi_Best_Escort/32668827
+  - url: https://acs.figshare.com/articles/journal_contribution/Predicting_Aquatic_Species_Sensitivity_Distributions_Using_Machine_Learning_in_a_Regulatory_Setting/32668993
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/JobCannon_Psychometric_Response_Dataset/32668833
+  - url: https://figshare.com/articles/journal_contribution/Molecular_Characterization_and_optimization_of_Bioactive_Compounds_Production_of_three_Actinomycetes_spp_Isolated_from_Waste_Dump_Soil_from_Western_Uganda/32668950
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -130,23 +130,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20689522
+  - url: https://zenodo.org/records/20690236
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20689522
+  - url: https://zenodo.org/records/20690049
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20689520
+  - url: https://zenodo.org/records/20690049
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20688879
+  - url: https://zenodo.org/records/20464234
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20688879
+  - url: https://zenodo.org/records/20464234
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -191,23 +191,23 @@ datasets:
     source: huggingface
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/Factors_Affecting_Adherence_to_Anti-retroviral_Therapy_at_Kampala_International_University_Teaching_Hospital_Bushenyi_District_Uganda/32422662
+  - url: https://figshare.com/articles/dataset/Turkey_tom_footpad_scores_gait_scores_and_litter_quality/32669001
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/thesis/From_Maastricht_to_Crisis_Governance_The_European_Central_Bank_the_Euro_and_the_Political_Economy_of_Irreversible_Monetary/32668845
+  - url: https://figshare.com/articles/preprint/Evaluative_Monitoring_as_a_Common_Link_Between_Vivid_Imagery_and_Intensive_Joy/32668995
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/thesis/Crisis_Clusters_Pandemic_Risk_Strategic_Retrenchment_and_Military_Conflict_1907_to_2026/32668836
+  - url: https://figshare.com/articles/media/_www_bestdrug_store_G__GHB_-____/32669004
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/Delhi_Best_Escort/32668827
+  - url: https://acs.figshare.com/articles/journal_contribution/Predicting_Aquatic_Species_Sensitivity_Distributions_Using_Machine_Learning_in_a_Regulatory_Setting/32668993
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/JobCannon_Psychometric_Response_Dataset/32668833
+  - url: https://figshare.com/articles/journal_contribution/Molecular_Characterization_and_optimization_of_Bioactive_Compounds_Production_of_three_Actinomycetes_spp_Isolated_from_Waste_Dump_Soil_from_Western_Uganda/32668950
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -231,23 +231,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20689384
+  - url: https://zenodo.org/records/20665283
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20689384
+  - url: https://zenodo.org/records/20665283
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20689376
+  - url: https://aisberg.unibg.it//handle/10446/128134
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20689184
+  - url: https://zenodo.org/records/16764308
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20689184
+  - url: https://zenodo.org/records/16764308
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -270,23 +270,23 @@ datasets:
     source: huggingface
     status: verified
     format: csv
-  - url: https://figshare.com/articles/journal_contribution/Factors_Affecting_Adherence_to_Anti-retroviral_Therapy_at_Kampala_International_University_Teaching_Hospital_Bushenyi_District_Uganda/32422662
+  - url: https://figshare.com/articles/dataset/Dataset_of_MAP_score_as_a_Risk_Factor_in_Laparoscopic_Donor_Nephrectomy_A_Systematic_Review_and_Meta-Analysis/32669028
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/thesis/From_Maastricht_to_Crisis_Governance_The_European_Central_Bank_the_Euro_and_the_Political_Economy_of_Irreversible_Monetary/32668845
+  - url: https://figshare.com/articles/dataset/Turkey_tom_footpad_scores_gait_scores_and_litter_quality/32669001
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/thesis/Crisis_Clusters_Pandemic_Risk_Strategic_Retrenchment_and_Military_Conflict_1907_to_2026/32668836
+  - url: https://figshare.com/articles/preprint/Evaluative_Monitoring_as_a_Common_Link_Between_Vivid_Imagery_and_Intensive_Joy/32668995
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/Delhi_Best_Escort/32668827
+  - url: https://figshare.com/articles/media/_www_bestdrug_store_G__GHB_-____/32669004
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/JobCannon_Psychometric_Response_Dataset/32668833
+  - url: https://acs.figshare.com/articles/journal_contribution/Predicting_Aquatic_Species_Sensitivity_Distributions_Using_Machine_Learning_in_a_Regulatory_Setting/32668993
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -310,11 +310,11 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20689457
+  - url: https://zenodo.org/records/20690095
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20689457
+  - url: https://zenodo.org/records/20690095
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -322,11 +322,11 @@ datasets:
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20687980
+  - url: https://zenodo.org/records/20689814
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20687980
+  - url: https://zenodo.org/records/20689814
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -334,23 +334,23 @@ datasets:
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://figshare.com/articles/journal_contribution/Factors_Affecting_Adherence_to_Anti-retroviral_Therapy_at_Kampala_International_University_Teaching_Hospital_Bushenyi_District_Uganda/32422662
+  - url: https://figshare.com/articles/online_resource/Video_presentation_of_i_Specification_by_Agreement_Out-of-Sample_Refinement_of_LLM-Inferred_Program_Specifications_i_/32669022
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/thesis/From_Maastricht_to_Crisis_Governance_The_European_Central_Bank_the_Euro_and_the_Political_Economy_of_Irreversible_Monetary/32668845
+  - url: https://figshare.com/articles/dataset/Dataset_of_MAP_score_as_a_Risk_Factor_in_Laparoscopic_Donor_Nephrectomy_A_Systematic_Review_and_Meta-Analysis/32669028
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/thesis/Crisis_Clusters_Pandemic_Risk_Strategic_Retrenchment_and_Military_Conflict_1907_to_2026/32668836
+  - url: https://figshare.com/articles/dataset/Turkey_tom_footpad_scores_gait_scores_and_litter_quality/32669001
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/Delhi_Best_Escort/32668827
+  - url: https://figshare.com/articles/preprint/Evaluative_Monitoring_as_a_Common_Link_Between_Vivid_Imagery_and_Intensive_Joy/32668995
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/JobCannon_Psychometric_Response_Dataset/32668833
+  - url: https://figshare.com/articles/media/_www_bestdrug_store_G__GHB_-____/32669004
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -386,35 +386,37 @@ datasets:
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20470525
+  - url: https://doi.org/10.5281/zenodo.20470525
     source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
+    status: unreachable
+    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
+      port=443): Read timed out. (read timeout=20.0)'
   - url: https://zenodo.org/records/20469943
     source: datacite
     status: wrong_format
-    reason: unrecognized/non-dataset content
+    reason: 'HTTPSConnectionPool(host=''zenodo.org'', port=443): Read timed out. (read
+      timeout=20)'
 - intent: SC-013
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://figshare.com/articles/journal_contribution/Factors_Affecting_Adherence_to_Anti-retroviral_Therapy_at_Kampala_International_University_Teaching_Hospital_Bushenyi_District_Uganda/32422662
+  - url: https://figshare.com/articles/online_resource/Video_presentation_of_i_Specification_by_Agreement_Out-of-Sample_Refinement_of_LLM-Inferred_Program_Specifications_i_/32669022
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/thesis/From_Maastricht_to_Crisis_Governance_The_European_Central_Bank_the_Euro_and_the_Political_Economy_of_Irreversible_Monetary/32668845
+  - url: https://figshare.com/articles/dataset/Dataset_of_MAP_score_as_a_Risk_Factor_in_Laparoscopic_Donor_Nephrectomy_A_Systematic_Review_and_Meta-Analysis/32669028
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/thesis/Crisis_Clusters_Pandemic_Risk_Strategic_Retrenchment_and_Military_Conflict_1907_to_2026/32668836
+  - url: https://figshare.com/articles/dataset/Turkey_tom_footpad_scores_gait_scores_and_litter_quality/32669001
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/Delhi_Best_Escort/32668827
+  - url: https://figshare.com/articles/preprint/Evaluative_Monitoring_as_a_Common_Link_Between_Vivid_Imagery_and_Intensive_Joy/32668995
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/JobCannon_Psychometric_Response_Dataset/32668833
+  - url: https://figshare.com/articles/media/_www_bestdrug_store_G__GHB_-____/32669004
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -442,19 +444,15 @@ datasets:
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://doi.org/10.5281/zenodo.20470525
+  - url: https://zenodo.org/records/20470525
     source: datacite
-    status: unreachable
-    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
-      port=443): Read timed out. (read timeout=20.0)'
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/20469943
     source: datacite
     status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20453648
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
+    reason: 'HTTPSConnectionPool(host=''zenodo.org'', port=443): Read timed out. (read
+      timeout=20)'
 - intent: FR-002
   status: unresolved
   candidates: []

@@ -1,39 +1,46 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "KnotRecord"
-description: "Schema for a single prime knot record with topological and geometric invariants."
+description: "Schema for a single prime knot record with invariants"
 type: "object"
 properties:
   knot_id:
     type: "string"
-    description: "Unique identifier for the knot (e.g., '10_123')."
+    description: "Unique identifier for the knot (e.g., '8_19')"
   crossing_number:
     type: "integer"
-    description: "Number of crossings in minimal diagram."
-    minimum: 1
-    maximum: 13
+    description: "Number of crossings in the minimal diagram"
   braid_index:
     type: "integer"
-    description: "Minimum number of strands in braid representation."
-    minimum: 1
+    description: "Minimum number of strands in a braid representation"
+    nullable: true
   hyperbolic_volume:
     type: "number"
-    description: "Volume of hyperbolic complement (null for non-hyperbolic)."
+    description: "Hyperbolic volume of the knot complement"
+    nullable: true
     minimum: 0
   is_alternating:
-    type: ["boolean", "null"]
-    description: "Classification as alternating or non-alternating (null if ambiguous)."
+    type: "boolean"
+    description: "Classification as alternating or non-alternating"
+    nullable: true
   data_quality_flags:
     type: "array"
+    description: "Flags for general data quality issues"
     items:
       type: "string"
-    description: "General data quality issues (null values, format failures, duplicates)."
   missing_invariant_flags:
     type: "array"
+    description: "Flags for invariants not computable from representations"
     items:
       type: "string"
-    description: "Invariants not computable from available diagram representations."
+  source:
+    type: "string"
+    description: "Data source (e.g., 'knot_atlas')"
+  checksum:
+    type: "string"
+    description: "SHA-256 checksum of the raw record"
 required:
-  - knot_id
-  - crossing_number
-  - braid_index
+  - "knot_id"
+  - "crossing_number"
+  - "source"
+  - "checksum"
 additionalProperties: false
