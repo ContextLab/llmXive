@@ -28,7 +28,7 @@ description: "Task list template for feature implementation"
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan in `projects/001-predicting-molecular-dipole-moments/`
+- [X] T001 Create project structure per implementation plan in `projects/001-predicting-molecular-dipole-moments/`
 - [ ] T002 Initialize Python 3.11 project with requirements.txt in `projects/001-predicting-molecular-dipole-moments/code/requirements.txt`
 - [ ] T003 [P] Configure linting and formatting tools (black, flake8, isort) in `.pre-commit-config.yaml`
 
@@ -44,7 +44,7 @@ description: "Task list template for feature implementation"
 - [ ] T005 [P] Initialize state tracking with state/projects/001-predicting-molecular-dipole-moments.yaml
 - [ ] T006 [P] Configure pytest 7.4.3 with contract test framework in `projects/001-predicting-molecular-dipole-moments/tests/`
 - [ ] T007 [P] Create YAML contract schema files in `projects/001-predicting-molecular-dipole-moments/tests/contracts/` (molecule.schema.yaml, feature_set.schema.yaml, model_output.schema.yaml)
-- [ ] T008 Configure environment configuration management with .env.example and config.py in `projects/001-predicting-molecular-dipole-moments/code/`
+- [ ] T008 Configure environment configuration management with.env.example and config.py in `projects/001-predicting-molecular-dipole-moments/code/`
 - [ ] T009 Setup reproducibility framework with pinned random seeds in `projects/001-predicting-molecular-dipole-moments/code/utils/reproducibility.py`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -170,8 +170,8 @@ description: "Task list template for feature implementation"
 - **Setup **(Phase 1): No dependencies - can start immediately
 - **Foundational **(Phase 2): Depends on Setup completion - BLOCKS all user stories
 - **User Stories **(Phase 3+): All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Validation **(Phase 6): Depends on all user stories being complete
 - **Polish **(Phase 7): Depends on all desired user stories and validation being complete
 
@@ -247,9 +247,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1 (data pipeline)
-   - Developer B: User Story 2 (model training)
-   - Developer C: User Story 3 (attribution + statistics)
+ - Developer A: User Story 1 (data pipeline)
+ - Developer B: User Story 2 (model training)
+ - Developer C: User Story 3 (attribution + statistics)
 3. Stories complete and integrate independently
 4. Phase 6: All developers collaborate on validation protocol
 

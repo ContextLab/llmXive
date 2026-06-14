@@ -75,7 +75,7 @@
   verification_status: verified
   verified_against_url: https://cas-bridge.xethub.hf.co/xet-bridge-us/6416a1ee9b85ee6b3946acae/89132b0d504da58fa10c8734d491e719ff61dcf0ff7c20514354af110c276d54?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=cas%2F20260522%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260522T063529Z&X-Amz-Expires=3600&X-Amz-Signature=91598b452b27349ef325fdfb1a287f267cec0dee21998a5390f7a368a00df056&X-Amz-SignedHeaders=host&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27full-00000-of-00001-e217b6ecfbeb7149.parquet%3B+filename%3D%22full-00000-of-00001-e217b6ecfbeb7149.parquet%22%3B&x-amz-checksum-mode=ENABLED&x-id=GetObject&Expires=1779435329&Policy=eyJTdGF0ZW1lbnQiOlt7IkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc3OTQzNTMyOX19LCJSZXNvdXJjZSI6Imh0dHBzOi8vY2FzLWJyaWRnZS54ZXRodWIuaGYuY28veGV0LWJyaWRnZS11cy82NDE2YTFlZTliODVlZTZiMzk0NmFjYWUvODkxMzJiMGQ1MDRkYTU4ZmExMGM4NzM0ZDQ5MWU3MTlmZjYxZGNmMGZmN2MyMDUxNDM1NGFmMTEwYzI3NmQ1NCoifV19&Signature=qZWbr%7E5O5Jb0qjZMl3nO7%7EqTMtWy5TXDyCE8WjCV5v0UNK4hGjHH87p0ZydpYFuFDmDl73b0ntXCiDqd6pQVrGeTx15detmfVQK1-NX%7EKMOnuOZgjP6wJuFiazSaZ2hjPJrK47Vptm9MxVS8Ys1UMeiEqyxp8rJBpCutkNoKXXGVEOJawPG8qCciEeJ-jzNnrdjtFs7CVAsk6-BGf%7Eyi2xR2GLMJzjTeGNLHwlNiLwqR9ioKfhwADnShmYZmCidBRCrtYArW3zTI3Qz3zkvxVMrAQ6pqo8cnA552yT8bchsXLqBWBiCbL9CBWF1CL7-8edoecgJMqXZbaRb1XT3uvg__&Key-Pair-Id=K2L8F4GPSG1IFC
   verified_at: '2026-05-22T06:35:29.332437Z'
-- artifact_hash: 22835156fcbe816e015c835c8007d08da5f66d567a27f9f831b4f4a18e71a55b
+- artifact_hash: 458175433da852fa5383ee7cfa0568be3a6fcf00a856158463ac5e7df0a9e542
   artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -85,4 +85,4 @@
   value: 10.1038/sdata.2014.22
   verification_status: verified
   verified_against_url: https://doi.org/10.1038/sdata.2014.22
-  verified_at: '2026-05-22T08:00:48.976051Z'
+  verified_at: '2026-06-14T07:37:53.368571Z'
