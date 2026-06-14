@@ -1,14 +1,7 @@
-last_used: albert-einstein
-last_used_at: '2026-06-14T03:07:59.146855+00:00'
-last_outcome: triage_rejected_advanced_as_abstain
+last_used: dan-rockmore
+last_used_at: '2026-06-14T05:12:11.382043+00:00'
+last_outcome: committed
 history:
-- slug: richard-feynman
-  started_at: '2026-06-04T08:48:12.683327+00:00'
-  ended_at: '2026-06-04T10:19:54.554539+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-593-the-binding-problem-in-llms-implementing/reviews/research/richard-feynman-simulated__2026-06-04__research.md
 - slug: rosalind-franklin
   started_at: '2026-06-04T10:19:54.554539+00:00'
   ended_at: '2026-06-04T11:33:31.535329+00:00'
@@ -1132,3 +1125,10 @@ history:
   ended_at: '2026-06-14T03:07:59.146855+00:00'
   outcome: triage_rejected_advanced_as_abstain
   action: comment
+- slug: dan-rockmore
+  started_at: '2026-06-14T03:07:59.146855+00:00'
+  ended_at: '2026-06-14T05:12:11.382043+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-212-exploring-the-impact-of-network-structur/reviews/research/dan-rockmore-simulated__2026-06-14__research.md
