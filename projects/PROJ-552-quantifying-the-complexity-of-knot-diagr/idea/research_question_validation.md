@@ -4,28 +4,28 @@
 
 **Verdict**: pass
 
-The question asks about a substantive mathematical relationship between diagrammatic invariants (crossing number, braid index) and a geometric invariant (hyperbolic volume), independent of any specific computational method. The regression analysis is a tool to quantify the relationship, not the object of inquiry itself.
+The question asks about a substantive mathematical relationship between combinatorial invariants (crossing number, braid index) and a geometric invariant (hyperbolic volume), independent of any specific computational method or algorithm. It investigates whether diagrammatic measures encode geometric information—a genuine question about knot theory structure, not a benchmark performance question.
 
 ### Circularity check
 
 **Verdict**: pass
 
-The predictors (crossing number, braid index) are combinatorial diagrammatic invariants derived from knot projections, while the predicted variable (hyperbolic volume) is a geometric invariant computed from the knot complement's hyperbolic structure via Thurston's hyperbolization theorem. These are mathematically distinct constructions—hyperbolic volume is not computed from crossing number or braid index, making the relationship empirically informative rather than mechanically guaranteed.
+The predictors (crossing number from minimal diagrams, braid index from braid representations) and the predicted variable (hyperbolic volume from the knot complement's hyperbolic structure) are derived from mathematically distinct constructions. While theoretical bounds exist, the relationship is not mechanically guaranteed; hyperbolic volume requires solving the hyperbolic geometry problem on the complement, which is independent of diagrammatic minimization.
 
 ### Triviality check
 
 **Verdict**: pass
 
-Either outcome is informative: a strong relationship would validate diagrammatic measures as proxies for geometric complexity, while a weak relationship would reveal limitations in diagrammatic invariants for capturing geometric information, particularly for non-alternating knots. Both outcomes advance theoretical understanding of how combinatorial and geometric knot invariants relate.
+A strong correlation would show that diagrammatic invariants encode substantial geometric information, potentially improving classification heuristics and tightening theoretical bounds. A weak correlation would reveal that geometric complexity is largely independent of diagrammatic measures, suggesting these invariants capture fundamentally different aspects of knot structure. Either outcome would be informative and publishable.
 
 ### Question-narrowing check
 
 **Verdict**: pass
 
-The question names a domain relationship (diagrammatic invariants → geometric invariant) rather than implementation constraints. The stratification by alternating/non-alternating classification is a mathematically meaningful distinction in knot theory, not an arbitrary resource or methodological constraint.
+The question names a domain relationship in knot theory (how combinatorial invariants relate to geometric invariants) rather than an implementation constraint. It asks "to what extent do X and Y explain variation in Z" which is a legitimate scientific question about the structure of the knot census, not a question about whether a method can complete a task within resource limits.
 
 ### Overall verdict
 
 **Verdict**: validated
 
-All four checks pass. This is a well-posed mathematical research question that investigates a substantive relationship between distinct classes of knot invariants. The empirical quantification of this relationship addresses a genuine gap in the literature where theoretical bounds exist but systematic regression analysis across the complete census does not.
+All four checks pass. The research question investigates a genuine mathematical phenomenon (relationship between combinatorial and geometric invariants), uses independent data sources for predictors and outcome, would yield informative results regardless of direction, and is framed as a domain question rather than an implementation constraint. This is ready to advance to project initialization.
