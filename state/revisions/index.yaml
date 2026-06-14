@@ -33,3 +33,6 @@ ready:
 - project_id: PROJ-636-locateanything-fast-and-high-quality-vis
   revision_spec_path: specs/auto-revisions/PROJ-636-locateanything-fast-and-high-quality-vis/round-1
   queued_at: '2026-06-14T15:36:55.953868+00:00'
+- project_id: PROJ-618-bench-evaluating-proactive-personal-assi
+  revision_spec_path: specs/auto-revisions/PROJ-618-bench-evaluating-proactive-personal-assi/round-1
+  queued_at: '2026-06-14T21:30:48.746930+00:00'
