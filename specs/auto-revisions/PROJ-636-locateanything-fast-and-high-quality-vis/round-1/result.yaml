@@ -1,0 +1,392 @@
+project_id: PROJ-636-locateanything-fast-and-high-quality-vis
+round: 1
+revision_kind: paper_science
+from_stage: paper_review
+to_stage: clarified
+worst_severity: science
+seed_action_items:
+- id: c22c05a96b42
+  text: Define 'high-quality' grounding in the Abstract and Introduction using specific
+    metrics (e.g., IoU thresholds, F1-mIoU) rather than qualitative claims to align
+    with the title's promise.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-636-locateanything-fast-and-high-quality-vis/paper/source/
+  location: ''
+- id: 4351b2492daf
+  text: Ensure the Supplementary Materials include the exact data mixing weights and
+    hyperparameters for the Stage-3 and Stage-4 SFT to guarantee full reproducibility.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-636-locateanything-fast-and-high-quality-vis/paper/source/
+  location: ''
+- id: 2f236bdb3b01
+  text: Clarify Rex-Omni's coordinate representation in the Introduction (Lines 35-40)
+    to align with Related Work (Lines 25-27), which describes it as 'point-based prediction'
+    rather than box-coordinate token serialization.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-636-locateanything-fast-and-high-quality-vis/paper/source/
+  location: ''
+- id: 6d17cee8bbf4
+  text: Harmonize dataset size reporting between the Abstract (138M), Section 3.4
+    (138M), and Supplementary Table `query_stats` (~139.5M) for consistency.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-636-locateanything-fast-and-high-quality-vis/paper/source/
+  location: ''
+- id: 658aee1e038c
+  text: Ensure the linked GitHub repository includes a pinned requirements.txt or
+    pyproject.toml to guarantee dependency reproducibility.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-636-locateanything-fast-and-high-quality-vis/paper/source/
+  location: ''
+- id: a7761e2979b8
+  text: Add a tests/ directory with unit tests for the attention mask logic and block-based
+    output parsing described in Section 3.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-636-locateanything-fast-and-high-quality-vis/paper/source/
+  location: ''
+- id: 8f4b6d468d5c
+  text: Provide documentation on code modularity (e.g., separation of training loops,
+    model definitions) to support the 'High-Quality' claim.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-636-locateanything-fast-and-high-quality-vis/paper/source/
+  location: ''
+- id: f42df2cb017e
+  text: Explicitly state the license for LocateAnything-Data in the main text or supplementary,
+    given the aggregation of diverse source datasets (e.g., Unsplash, OpenImages)
+    and synthetic generation via Qwen3-VL.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-636-locateanything-fast-and-high-quality-vis/paper/source/
+  location: ''
+- id: 15cff7cc08e6
+  text: Correct the GitHub link in main.tex (currently points to 'Eagle/Embodied')
+    to accurately reflect the LocateAnything code/data repository, or provide a direct
+    dataset download link.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-636-locateanything-fast-and-high-quality-vis/paper/source/
+  location: ''
+- id: 48c3f4514621
+  text: Provide a version identifier or hash for the 138M-sample LocateAnything-Data
+    to ensure reproducibility and data provenance tracking.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-636-locateanything-fast-and-high-quality-vis/paper/source/
+  location: ''
+- id: 1eea0a24403a
+  text: Document the raw dataset schema (e.g., JSON/Parquet structure) for LocateAnything-Data
+    in the supplementary, distinct from the model token schema described in sec/3_0_method.tex.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-636-locateanything-fast-and-high-quality-vis/paper/source/
+  location: ''
+- id: adc01ef00bc9
+  text: 'Correct filename typo in supplementary: `categroy-per-query.pdf` should be
+    `category-per-query.pdf` (sec/X_0_suppl.tex).'
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-636-locateanything-fast-and-high-quality-vis/paper/source/
+  location: ''
+- id: b23a771adbf6
+  text: 'Verify color definitions: `lightblue` is defined as RGB(0.46,0.73,0.00) which
+    is green; rename or redefine to avoid confusion in tables/figures.'
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-636-locateanything-fast-and-high-quality-vis/paper/source/
+  location: ''
+- id: 17613fd0b1a9
+  text: Ensure Red/Green color scheme in Fig. 7 (vis_cases.pdf) is distinguishable
+    for colorblind readers; consider adding patterns or shapes.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-636-locateanything-fast-and-high-quality-vis/paper/source/
+  location: ''
+- id: 356c9a57ad63
+  text: Confirm text legibility in Fig. 1 (teaser.pdf) bottom panel at print scale;
+    small coordinate tokens may blur.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-636-locateanything-fast-and-high-quality-vis/paper/source/
+  location: ''
+- id: fb1ae8e60848
+  text: Expand 'SFT' to 'supervised fine-tuning' at first use in the supplementary
+    material (sec/X_0_suppl.tex).
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-636-locateanything-fast-and-high-quality-vis/paper/source/
+  location: ''
+- id: 8a803a9e13b3
+  text: Define 'KV-caching' as 'Key-Value (KV) caching' upon first appearance in sec/3_0_method.tex.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-636-locateanything-fast-and-high-quality-vis/paper/source/
+  location: ''
+- id: ba2b2d2f99d6
+  text: Replace 'SOTA' with 'state-of-the-art' throughout the manuscript for clarity.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-636-locateanything-fast-and-high-quality-vis/paper/source/
+  location: ''
+- id: 9116459ae4f6
+  text: Expand 'MLP' to 'multilayer perceptron' when first introduced in sec/3_0_method.tex.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-636-locateanything-fast-and-high-quality-vis/paper/source/
+  location: ''
+- id: 7a79732955e5
+  text: Define 'GUI' as 'graphical user interface' at first mention in sec/1_intro.tex.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-636-locateanything-fast-and-high-quality-vis/paper/source/
+  location: ''
+- id: b7c72950d22b
+  text: Expand 'BF16' to 'bfloat16' in sec/X_0_suppl.tex.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-636-locateanything-fast-and-high-quality-vis/paper/source/
+  location: ''
+- id: 29185d1fd512
+  text: Abstract states 138M training samples, while Supplementary Sec:Data Statistics
+    reports 139M queries. Align these figures for internal consistency.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-636-locateanything-fast-and-high-quality-vis/paper/source/
+  location: ''
+- id: 6178b7a7e090
+  text: Abstract claims PBD improves throughput, but Ablation Tab:combined_ablation
+    (a) shows PBD (Slow) throughput equals Quantized (3.9 BPS). Clarify if the throughput
+    claim applies specifically to Fast/Hybrid modes.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-636-locateanything-fast-and-high-quality-vis/paper/source/
+  location: ''
+- id: bf099105ddcb
+  text: Main text (Sec 4.0) reports Hybrid throughput as 12.7 BPS, while Ablation
+    Tab:combined_ablation (c) reports 13.2 BPS. Resolve this numerical inconsistency.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-636-locateanything-fast-and-high-quality-vis/paper/source/
+  location: ''
+- id: f88c715a3932
+  text: "Temper the claim that LocateAnything universally advances the speed\u2011\
+    accuracy frontier; provide per\u2011task analyses showing where it under\u2011\
+    performs (e.g., OCR on HierText, certain GUI categories) and adjust language accordingly."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-636-locateanything-fast-and-high-quality-vis/paper/source/
+  location: ''
+- id: 63c1af5f1262
+  text: "Add an ablation that isolates the impact of the 138\u202FM LocateAnything\u2011\
+    Data from the Parallel Box Decoding (PBD) contribution to substantiate the claim\
+    \ that both jointly improve performance."
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-636-locateanything-fast-and-high-quality-vis/paper/source/
+  location: ''
+- id: d697d8da1619
+  text: "Provide empirical evidence (e.g., latency measurements on an embedded device\
+    \ or robot) to support the statement that the method enables deployment in latency\u2011\
+    sensitive embodied systems, or revise the claim to be more modest."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-636-locateanything-fast-and-high-quality-vis/paper/source/
+  location: ''
+- id: 793091e74160
+  text: Discuss the frequency and performance impact of Hybrid Mode fallbacks; if
+    fallback occurs often, the claimed speedup may be overstated.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-636-locateanything-fast-and-high-quality-vis/paper/source/
+  location: ''
+- id: 81894465cdb6
+  text: "Include a broader evaluation of backbone generality beyond Qwen3\u2011VL\u2011\
+    4B (e.g., other encoder\u2011decoder architectures) to back the claim that PBD\
+    \ is backbone\u2011agnostic."
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-636-locateanything-fast-and-high-quality-vis/paper/source/
+  location: ''
+- id: 39a5752c1768
+  text: Include a Data Privacy statement detailing how PII (e.g., faces, license plates)
+    was handled in the 138M-sample LocateAnything-Data, particularly given the use
+    of Unsplash and SA-1B (supp/data.tex).
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-636-locateanything-fast-and-high-quality-vis/paper/source/
+  location: ''
+- id: 35645e73906c
+  text: Add a discussion on dual-use risks, specifically regarding GUI grounding capabilities
+    enabling autonomous agents that could be misused for unauthorized access or surveillance
+    (sec/1_intro.tex).
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-636-locateanything-fast-and-high-quality-vis/paper/source/
+  location: ''
+- id: 569d5236ba04
+  text: Clarify license compliance for the aggregated dataset and provide usage policies
+    for the released model on HuggingFace (sec/0_abstract.tex).
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-636-locateanything-fast-and-high-quality-vis/paper/source/
+  location: ''
+- id: 6e06a1e2b1f5
+  text: Report fallback frequency for Hybrid Mode. Throughput drops from 16.9 BPS
+    (Fast) to 13.2 BPS (Hybrid) in ablations; without knowing how often fallback occurs
+    in dense scenes, the speed advantage is unquantified.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-636-locateanything-fast-and-high-quality-vis/paper/source/
+  location: ''
+- id: 12aeb1ff6721
+  text: Disclose dataset quality control metrics. The 138M samples are verified by
+    teacher VLMs (Qwen3-VL, Rex-Omni) without human validation. Provide rejection
+    rates or spot-check accuracy to support the "high-quality" claim.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-636-locateanything-fast-and-high-quality-vis/paper/source/
+  location: ''
+- id: 30d799ce7218
+  text: Report standard deviation or confidence intervals for all reported F1 and
+    BPS metrics to quantify variability.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-636-locateanything-fast-and-high-quality-vis/paper/source/
+  location: ''
+- id: fb8acede9d0b
+  text: Specify the number of random seeds used for training and evaluation in the
+    main results and ablation studies.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-636-locateanything-fast-and-high-quality-vis/paper/source/
+  location: ''
+- id: fc7e92a0ee22
+  text: Clarify the statistical significance tests supporting claims of 'significantly
+    higher' throughput and accuracy.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-636-locateanything-fast-and-high-quality-vis/paper/source/
+  location: ''
+- id: f4ef00ef3370
+  text: 'Fix LaTeX compilation errors: The tables use \rowcolor (e.g., tables/common_object_detection.tex),
+    but packages.tex loads xcolor without the ''table'' option. Add \usepackage[table]{xcolor}
+    or load colortbl.'
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-636-locateanything-fast-and-high-quality-vis/paper/source/
+  location: ''
+- id: 713115b1dd25
+  text: Define undefined color 'nvidiagreen' in main.tex or update \hypersetup{urlcolor}
+    to use a defined color like MyGreen to prevent warnings.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-636-locateanything-fast-and-high-quality-vis/paper/source/
+  location: ''
+- id: ddc15668b077
+  text: 'Standardize citation commands: supp/data.tex uses \cite while the rest of
+    the manuscript uses \citep. Align all to \citep for consistency with natbib configuration.'
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-636-locateanything-fast-and-high-quality-vis/paper/source/
+  location: ''
+- id: 7fd086c266fa
+  text: 'Correct typos in cross-reference labels: ''tab:gui_grounidng'' (tables/gui_grounding.tex)
+    and ''fig:categroy-per-query'' (sec/X_0_suppl.tex) contain spelling errors.'
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-636-locateanything-fast-and-high-quality-vis/paper/source/
+  location: ''
+- id: 6b8486cf1e0b
+  text: 'Standardize section heading hierarchy: Section 2 (sec/2_related_works.tex)
+    uses inline \textbf{} for subheadings, while Section 3 uses \subsection. Use \subsection
+    throughout for structural consistency.'
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-636-locateanything-fast-and-high-quality-vis/paper/source/
+  location: ''
+- id: 4c0d959b659a
+  text: Correct the typo 'grounidng' to 'grounding' in Section 4.0 ('Main Results',
+    paragraph 'Precise Open-World Localization Ability') and update the corresponding
+    label in tables/gui_grounding.tex.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-636-locateanything-fast-and-high-quality-vis/paper/source/
+  location: ''
+- id: e27dcfca2b92
+  text: Remove redundant phrasing in the Acknowledgements section (Section 5). The
+    phrase 'would like to additionally acknowledge' is repetitive after 'We would
+    also like to thank'. Simplify for conciseness.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-636-locateanything-fast-and-high-quality-vis/paper/source/
+  location: ''
+kickback_reason: 'advancement.evaluate: paper-review non-convergence; routing via
+  engine adapter.'
+kickback_artifact_links:
+- projects/PROJ-636-locateanything-fast-and-high-quality-vis/paper/source/
+stage_results:
+- name: specify
+  status: success
+- name: clarify
+  status: success
+  note: auto-resolved; deterministic adapter needs no clarifications
+- name: plan
+  status: success
+- name: tasks
+  status: success
+  note: 44 tasks emitted (one per concern)
+- name: analyze
+  status: success
+  iterations: 1
+  finding_count: 0
+final_outcome: ready_for_implementation
+produced_at: '2026-06-14T15:36:55.942831+00:00'

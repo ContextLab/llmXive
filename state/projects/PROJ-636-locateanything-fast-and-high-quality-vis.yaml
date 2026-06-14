@@ -6,14 +6,14 @@ failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-636-locateanything-fast-and-high-quality-vis
-last_run_id: null
+last_run_id: 23322220-1a2e-4a53-8f8b-c6878b4218bf
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
-revision_spec_path: null
+revision_spec_path: specs/auto-revisions/PROJ-636-locateanything-fast-and-high-quality-vis/round-1
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'LocateAnything: Fast and High-Quality Vision-Language Grounding with Parallel
   Box Decoding'
-updated_at: '2026-05-28T09:17:09.085647Z'
+updated_at: '2026-06-14T15:36:55.957526Z'
