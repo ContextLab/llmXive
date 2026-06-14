@@ -51,6 +51,12 @@ properties:
     description: "Knot IDs with residuals ≥ 2 standard deviations"
     items:
       type: "string"
+  alternating_control:
+    type: "boolean"
+    description: "Whether alternating/non-alternating classification is included as control variable"
+  braid_index_uncertainty:
+    type: "boolean"
+    description: "Whether braid index uncertainty is propagated in model results (Phase 0/1 exploratory)"
 required:
   - model_id
   - model_type
@@ -63,4 +69,6 @@ required:
   - mae
   - vif_scores
   - residual_outliers
+  - alternating_control
+  - braid_index_uncertainty
 additionalProperties: false

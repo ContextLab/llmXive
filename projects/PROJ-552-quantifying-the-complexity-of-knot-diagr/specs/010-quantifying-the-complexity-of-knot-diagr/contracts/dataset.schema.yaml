@@ -52,6 +52,14 @@ properties:
     description: "Null percentage in hyperbolic volume field"
     minimum: 0
     maximum: 100
+  crossing_number_at:
+    type: "integer"
+    description: "Crossing number for this dataset subset (e.g., a corresponding value for the knot count per OEIS A002863)"
+    minimum: 3
+    maximum: 13
+  cumulative_note:
+    type: "string"
+ description: "Documentation that cumulative ≤13 is [deferred]+ knots"
 required:
   - dataset_id
   - data_source

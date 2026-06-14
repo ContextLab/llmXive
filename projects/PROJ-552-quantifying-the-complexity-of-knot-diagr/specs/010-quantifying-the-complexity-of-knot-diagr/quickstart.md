@@ -1,135 +1,134 @@
 # Quickstart: Quantifying the Complexity of Knot Diagrams via Crossing Number and Braid Index
 
-**Branch**: `001-knot-complexity-analysis` | **Date**: 2026-06-12
-
 ## Prerequisites
 
-- Python 3.11+
-- Stable internet connection (for Knot Atlas download)
-- 4GB+ RAM recommended (A large-scale prime knots dataset)
+*   Python 3.11+
+*   Stable internet connectivity (for data download)
+*   Access to Knot Atlas (spec reference: `https://katlas.org`)
 
 ## Installation
 
-```bash
-# Clone repository
-git clone <repository-url>
-cd projects/PROJ-552-quantifying-the-complexity-of-knot-diagr
+1.  Clone the repository and navigate to the project directory.
+2.  Create a virtual environment:
+    ```bash
+    python -m venv venv
+    source venv/bin/activate
+    ```
+3.  Install dependencies from `code/requirements.txt`:
+    ```bash
+    pip install -r code/requirements.txt
+    ```
 
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+## Execution Steps
 
-# Install dependencies
-pip install -r requirements.txt
-```
+### Step 1: Data Download
 
-## Quick Run
-
-### Step 1: Download Data
-
-```bash
-python -m code.download.knot_atlas --output data/raw/knot_atlas_raw.json
-```
-
-This will:
-- Download all prime knots with crossing number ≤ 13 from Knot Atlas
-- Apply exponential backoff retry logic if Knot Atlas is unavailable (FR-008)
-- Cache partial results on consecutive failures
-- Generate SHA-256 checksum and save to `data/raw/knot_atlas_checksum.txt`
-
-### Step 2: Clean and Validate Data
+Run the data download script to fetch knot data from Knot Atlas.
 
 ```bash
-python -m code.data.clean --input data/raw/knot_atlas_raw.json --output data/processed/knots_cleaned.csv
+python code/download/fetch_knot_data.py
 ```
 
-This will:
-- Parse and extract invariants (crossing number, braid index, hyperbolic volume)
-- Validate format (DT code, braid word)
-- Flag records with data quality issues
-- Generate `data/processed/knots_checksum.txt`
+*   **Output**: `data/raw/knot_atlas_export.json`
+*   **Robustness**: Implements retry logic with exponential backoff (FR-008). Partial results cached on failure.
 
-### Step 3: Filter to Hyperbolic Knots
+### Step 2: Data Validation & Cleaning
+
+Run the invariant validation script to parse and clean the dataset.
 
 ```bash
-python -m code.data.filter --input data/processed/knots_cleaned.csv --output data/processed/knots_hyperbolic.csv --min-volume 0
+python code/analysis/validate_invariants.py
 ```
 
-This will:
-- Filter to knots with hyperbolic volume > 0 (FR-012)
-- Document excluded knots (torus/satellite) in `docs/reproducibility/excluded_knots.md`
+*   **Output**: `data/processed/invariants_dataset.csv`
+*   **Flags**: Records with missing invariants flagged in `missing_invariant_flags`.
+*   **Quality Check**: Null percentage ≤ 5% per field (SC-013).
 
-### Step 4: Generate Exploratory Plots
+### Step 3a: Exploratory Analysis
+
+Generate scatter plots of crossing number vs. braid index.
 
 ```bash
-python -m code.analysis.exploratory --input data/processed/knots_hyperbolic.csv --output-dir data/plots/
+python code/analysis/plot_generation.py
 ```
 
-This will:
-- Generate scatter plots of crossing number vs. braid index (FR-004)
-- Stratify by alternating/non-alternating classification
-- Save PNG files with minimum resolution 1200x900 pixels
+*   **Output**: `data/plots/crossing_vs_braid.png`
+*   **Resolution**: Minimum 1200x900 pixels (FR-004).
+*   **Stratification**: Alternating vs. non-alternating classification.
 
-### Step 5: Fit Regression Models
+### Step 3b: Correlation Analysis
+
+Compute correlation coefficients (Spearman primary, Pearson supplementary) and effect sizes.
 
 ```bash
-python -m code.analysis.regression --input data/processed/knots_hyperbolic.csv --output-dir models/
+python code/analysis/correlation_analysis.py
 ```
 
-This will:
-- Fit linear, polynomial, and logarithmic models (FR-005)
-- Compute goodness-of-fit metrics (R², AIC/BIC, MAE)
-- Calculate VIF for multicollinearity assessment
-- Document results in `docs/reproducibility/multicollinearity_assessment.md`
+*   **Output**: `docs/reproducibility/correlation_results.json`
+*   **Metrics**: Spearman r, Pearson r, Cohen's d for group comparisons (FR-006).
+*   **Note**: P-values marked as "not applicable for census data".
 
-### Step 6: Run Statistical Analysis
+### Step 3c: Hyperbolic Volume Cross-Check
+
+Cross-check hyperbolic volume values against KnotInfo reference values.
 
 ```bash
-python -m code.analysis.statistics --input data/processed/knots_hyperbolic.csv --output-dir docs/reproducibility/
+python code/analysis/validate_hyperbolic_volume.py
 ```
 
-This will:
-- Compute Spearman and Pearson correlations (FR-006)
-- Calculate effect sizes (Cohen's d, r)
-- Perform descriptive comparison (alternating vs. non-alternating)
-- Note: p-values NOT reported for census data (Constitution VII exception)
+*   **Output**: `docs/reproducibility/hyperbolic_volume_validation.md`
+*   **Threshold**: ≥ 90% match against reference values (SC-014).
 
-### Step 7: Generate Reproducibility Artifacts
+### Step 3d: Group Comparison Metrics
+
+Compute descriptive comparison metrics for alternating vs. non-alternating groups.
 
 ```bash
-python -m code.reproducibility.checksums --data-dir data/ --output docs/reproducibility/
-python -m code.reproducibility.logs --output-dir docs/reproducibility/logs/
-python -m code.reproducibility.validation --output docs/reproducibility/
+python code/analysis/group_comparison.py
 ```
 
-This will:
-- Generate SHA-256 checksums for all data files (FR-007)
-- Create timestamped execution logs
-- Run tie-breaking validation (SC-007)
-- Generate data quality report (SC-013)
+*   **Output**: `docs/reproducibility/group_comparison_metrics.json`
+*   **Metrics**: Mean difference, variance ratio, Cohen's d (SC-009).
 
-## Full Pipeline
+### Step 3e: Residual Analysis
+
+Identify outlier knot families with residuals ≥ 2 standard deviations.
 
 ```bash
-# Run complete pipeline (single command)
-python -m code.pipeline.run --output-dir docs/reproducibility/
+python code/analysis/residual_analysis.py
 ```
 
-## Verification
+*   **Output**: `docs/reproducibility/residual_analysis.md`
+*   **Threshold**: ≥ 2 std dev from model fit (SC-011).
+
+### Step 4: Regression Modeling
+
+Fit and compare regression models.
 
 ```bash
-# Run tests
-pytest tests/
-
-# Validate schema
-python -m tests.contract.test_knot_record_schema --input data/processed/knots_cleaned.csv
+python code/analysis/regression_models.py
 ```
+
+*   **Output**: `docs/reproducibility/regression_results.json`
+*   **Models**: Linear, Polynomial, Logarithmic (FR-005).
+*   **Metrics**: R², AIC/BIC, MAE reported.
+*   **Control**: Alternating/non-alternating classification included as control variable.
+
+### Step 5: Reproducibility Check
+
+Verify checksums and logs.
+
+```bash
+python code/reproducibility/checksums.py
+```
+
+*   **Output**: `docs/reproducibility/checksums.md`
+*   **Validation**: SHA-256 hashes recorded for all data files.
+*   **Random Seeds**: Documented in `docs/reproducibility/random_seeds.md`.
+*   **Tie-Breaking Rules**: Documented in `docs/reproducibility/tie_breaking_rules.md`.
 
 ## Troubleshooting
 
-| Issue | Solution |
-|-------|----------|
-| Knot Atlas unavailable | Retry logic applies exponential backoff; check `docs/reproducibility/logs/` for failure details |
-| Missing invariant data | Records flagged with `missing_invariant_flags`; not silently excluded (FR-009) |
-| Plot resolution too low | Verify matplotlib backend supports high resolution; adjust `dpi` parameter |
-| Schema validation fails | Check `data/processed/knots_cleaned.csv` against `contracts/knot_record.schema.yaml` |
+*   **API Unavailable**: Check `docs/reproducibility/logs.md` for retry attempts. Partial results should be cached to disk.
+*   **Missing Invariants**: Records flagged in `data/processed/invariants_dataset.csv` under `missing_invariant_flags` column.
+*   **Ambiguous Classification**: Records marked as "unclassifiable" or excluded from stratified analysis (FR-010).
