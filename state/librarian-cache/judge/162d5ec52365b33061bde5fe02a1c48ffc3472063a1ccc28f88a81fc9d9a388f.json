@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2512.23676",
+  "judged_at": "2026-06-15T00:49:47Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "latent spatial memory for video world models computer science",
+  "rationale": "This paper is off-domain: it focuses on web-based world models for language agents using web stack infrastructure, whereas the user's question is specifically about latent spatial memory in video world models. While both share the \"world models\" keyword, they address different mechanisms (web state vs. video spatial memory) and different application domains (language agents vs. video understanding), which constitutes a distinct construct sharing only homonym keywords.",
+  "relevant": false
+}

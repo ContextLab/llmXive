@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2603.04715",
+  "judged_at": "2026-06-15T00:49:36Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "latent spatial memory for video world models computer science",
+  "rationale": "The paper focuses on probabilistic extensions to the Dreamer world‑model architecture and does not address latent spatial memory mechanisms or video‑based world models, which are the core constructs of the user's query. It therefore lacks the required connection to the specific mechanism or domain.",
+  "relevant": false
+}

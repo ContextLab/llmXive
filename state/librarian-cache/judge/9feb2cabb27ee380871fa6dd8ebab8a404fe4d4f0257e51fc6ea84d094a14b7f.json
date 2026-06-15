@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2504.03861",
+  "judged_at": "2026-06-15T00:49:13Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "latent spatial memory for video world models computer science",
+  "rationale": "The paper addresses the core domain of World Models and investigates the mechanism of encoding world features into the latent hidden state, satisfying criteria (a) and (b) for same-mechanism evidence and domain relevance, despite the difference in sensor modality (LIDAR vs. Video).",
+  "relevant": true
+}

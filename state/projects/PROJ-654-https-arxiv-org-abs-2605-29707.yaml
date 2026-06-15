@@ -6,14 +6,14 @@ failed_stage: null
 field: linguistics
 human_escalation_reason: null
 id: PROJ-654-https-arxiv-org-abs-2605-29707
-last_run_id: null
+last_run_id: 73aedc47-5b74-41fb-92e8-0d7ada0b6bbd
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
-revision_spec_path: null
+revision_spec_path: specs/auto-revisions/PROJ-654-https-arxiv-org-abs-2605-29707/round-1
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'Domino: Decoupling Causal Modeling from Autoregressive Drafting in Speculative
   Decoding'
-updated_at: '2026-06-03T15:37:02.272346Z'
+updated_at: '2026-06-15T01:06:28.031629Z'

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2510.20668",
+  "judged_at": "2026-06-15T00:48:16Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "latent spatial memory for video world models computer science",
+  "rationale": "This paper qualifies as a foundational reference (category d) for the world models domain, explicitly covering \"memory-augmented systems that sustain consistent worlds over time\" which directly relates to the user's focus on latent spatial memory in video world models. As a survey/guide paper, it provides the canonical background work that would be expected in a literature review section for this research area.",
+  "relevant": true
+}

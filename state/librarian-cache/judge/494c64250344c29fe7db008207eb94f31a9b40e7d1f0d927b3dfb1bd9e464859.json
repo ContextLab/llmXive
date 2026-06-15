@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2503.04421",
+  "judged_at": "2026-06-15T00:48:28Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "latent spatial memory for video world models computer science",
+  "rationale": "This paper falls under the rejection rule for \"Distinct construct sharing only homonym keywords\" — both use the term \"world model\" but in fundamentally different research contexts. The user's question concerns latent spatial memory in video world models (video prediction/RL domain), while this paper studies whether language models internally represent Othello board states (NLP/interpretability domain). These are separate research clusters with no measurable connection to the user's mechanism, do",
+  "relevant": false
+}

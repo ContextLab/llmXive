@@ -170,5 +170,9 @@
   "PROJ-678-comparative-analysis-of-molecular-finger::1.6.0": {
     "classified_at": "2026-06-08T16:37:46Z",
     "verdict": false
+  },
+  "PROJ-684-latent-spatial-memory-for-video-world-mo::1.6.0": {
+    "classified_at": "2026-06-15T00:46:48Z",
+    "verdict": false
   }
 }

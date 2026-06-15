@@ -1,0 +1,588 @@
+{
+  "fetched_at": "2026-06-15T00:49:47Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "Latent Spatial Memory for Video World Models",
+      "target_n": 5
+    },
+    "duration_seconds": 334.416,
+    "ended_at": "2026-06-15T00:49:47Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "Memory-augmented world models"
+        ],
+        [
+          2,
+          "Model-based reinforcement learning with memory"
+        ],
+        [
+          3,
+          "Spatial representation learning in video"
+        ],
+        [
+          4,
+          "Video prediction with external memory"
+        ],
+        [
+          5,
+          "Neural episodic control for navigation"
+        ],
+        [
+          6,
+          "Object-centric world models"
+        ],
+        [
+          7,
+          "Latent space mapping for visual navigation"
+        ],
+        [
+          8,
+          "Differentiable neural computers for video"
+        ],
+        [
+          9,
+          "Generative world models for robotics"
+        ],
+        [
+          10,
+          "Temporal consistency in latent video representations"
+        ],
+        [
+          11,
+          "Scene graph based world models"
+        ],
+        [
+          12,
+          "Recurrent visual navigation models"
+        ],
+        [
+          13,
+          "3D scene reconstruction for RL"
+        ],
+        [
+          14,
+          "Predictive coding in video sequences"
+        ],
+        [
+          15,
+          "Long-term dependency modeling in video"
+        ],
+        [
+          16,
+          "Neural radiance fields for policy learning"
+        ],
+        [
+          17,
+          "Visual memory networks"
+        ],
+        [
+          18,
+          "World model latent dynamics"
+        ],
+        [
+          19,
+          "Spatial-temporal attention mechanisms"
+        ],
+        [
+          20,
+          "Episodic memory in deep reinforcement learning"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Latent Spatial Memory for Video World Models computer science": 0,
+        "Memory-augmented world models": 5
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "object centric spatial representation",
+      "DMLab-30 latent space navigation",
+      "recurrent state space model",
+      "sample efficiency video prediction planning",
+      "compositional latent representation object permanence"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2606.09828"
+      ]
+    },
+    "per_query_hit_count": {
+      "DMLab-30 latent space navigation": 2,
+      "Latent Spatial Memory for Video World Models computer science": 3,
+      "compositional latent representation object permanence": 0,
+      "object centric spatial representation": 3,
+      "recurrent state space model": 3,
+      "sample efficiency video prediction planning": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 3,
+      "rejections": [
+        {
+          "primary_pointer": "2503.04421",
+          "rationale": "This paper falls under the rejection rule for \"Distinct construct sharing only homonym keywords\" — both use the term \"world model\" but in fundamentally different research contexts. The user's question concerns latent spatial memory in video world models (video prediction/RL domain), while this paper studies whether language models internally represent Othello board states (NLP/interpretability domain). These are separate research clusters with no measurable connection to the user's mechanism, do",
+          "title": "Revisiting the Othello World Model Hypothesis"
+        },
+        {
+          "primary_pointer": "2603.04715",
+          "rationale": "The paper focuses on probabilistic extensions to the Dreamer world‑model architecture and does not address latent spatial memory mechanisms or video‑based world models, which are the core constructs of the user's query. It therefore lacks the required connection to the specific mechanism or domain.",
+          "title": "Probabilistic Dreaming for World Models"
+        },
+        {
+          "primary_pointer": "2512.23676",
+          "rationale": "This paper is off-domain: it focuses on web-based world models for language agents using web stack infrastructure, whereas the user's question is specifically about latent spatial memory in video world models. While both share the \"world models\" keyword, they address different mechanisms (web state vs. video spatial memory) and different application domains (language agents vs. video understanding), which constitutes a distinct construct sharing only homonym keywords.",
+          "title": "Web World Models"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-15T00:44:13Z",
+    "term_input": {
+      "normalized": "latent spatial memory for video world models computer science",
+      "raw": "Latent Spatial Memory for Video World Models computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Drug discovery relies on iterative expert workflows that are slow to parallelize and difficult to scale. Here we introduce Latent-Y, an AI agent that autonomously executes complete antibody design campaigns from text prompts, covering literature review, target analysis, epitope identification, candidate design, computational validation, and selection of lab-ready sequences. Latent-Y is integrated into the Latent Labs Platform, where it operates in the same environment as drug-discovery experts with access to bioinformatics tools, biological databases, and scientific literature. The agent can run fully autonomously end-to-end, or collaboratively, where researchers review progress, provide feedback, and direct subsequent steps. Candidate antibodies are generated using Latent-X2, our frontier generative model for drug-like antibody design. We demonstrate the agent's capability across three distinct campaign types: epitope discovery guided by therapeutic specifications, cross-species binder design, and autonomous design from a scientific publication targeting human transferrin receptor for blood-brain barrier crossing. Across nine targets, Latent-Y produced lab-confirmed nanobody binders against six, achieving a 67% target-level success rate with binding affinities reaching the single-digit nanomolar range, without human filtering or intervention. In user studies, experts working with Latent-Y completed design campaigns 56 times faster than independent expert time estimates, compressing weeks of work into hours. Because Latent-X2 is a general-purpose atomic-level model for biologics design, the same agent architecture naturally extends to macrocyclic peptide and mini-binder design campaigns, broadening autonomous discovery across therapeutic modalities. Latent-Y is available to selected partners at https://platform.latentlabs.com.",
+          "claimed_authors": [
+            " Latent Labs Team",
+            "Sebastian M. Schmon",
+            "Daniella Pretorius",
+            "Simon Mathis",
+            "Rebecca Bartke-Croughan",
+            "Aishaini Puvanendran",
+            "James Vuckovic",
+            "Henry Kenlay",
+            "Mária Vlachynská",
+            "Alex Bridgland",
+            "Ivan Grishin",
+            "Sven Over",
+            "David Li",
+            "Bridget Li",
+            "Jonathan Crabbé",
+            "Agrin Hilmkil",
+            "Alexander W. R. Nelson",
+            "David Yuan",
+            "Annette Obika",
+            "Simon A. A. Kohl"
+          ],
+          "claimed_title": "Latent-Y: A Lab-Validated Autonomous Agent for De Novo Drug Design",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.29727"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Latent Spatial Memory for Video World Models computer science', candidate_title='Latent-Y: A Lab-Validated Autonomous Agent for De Novo Drug Design')",
+        "failed_at": "2026-06-15T00:46:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Humans can discern scene-independent features of objects across various environments, allowing them to swiftly identify objects amidst changing factors such as lighting, perspective, size, and position and imagine the complete images of the same object in diverse settings. Existing object-centric learning methods only extract scene-dependent object-centric representations, lacking the ability to identify the same object across scenes as humans. Moreover, some existing methods discard the individual object generation capabilities to handle complex scenes. This paper introduces a novel object-centric learning method to empower AI systems with human-like capabilities to identify objects across scenes and generate diverse scenes containing specific objects by learning a set of global object-centric representations. To learn the global object-centric representations that encapsulate globally invariant attributes of objects (i.e., the complete appearance and shape), this paper designs a Disentangled Slot Attention module to convert the scene features into scene-dependent attributes (such as scale, position and orientation) and scene-independent representations (i.e., appearance and shape). Experimental results substantiate the efficacy of the proposed method, demonstrating remarkable proficiency in global object-centric representation learning, object identification, scene generation with specific objects and scene decomposition.",
+          "claimed_authors": [
+            "Tonglin Chen",
+            "Yinxuan Huang",
+            "Zhimeng Shen",
+            "Jinghao Huang",
+            "Bin Li",
+            "Xiangyang Xue"
+          ],
+          "claimed_title": "Learning Global Object-Centric Representations via Disentangled Slot Attention",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2410.18809"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Latent Spatial Memory for Video World Models computer science', candidate_title='Learning Global Object-Centric Representations via Disentangled Slot Attention')",
+        "failed_at": "2026-06-15T00:46:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Unsupervised object-centric representation (OCR) learning has recently drawn attention as a new paradigm of visual representation. This is because of its potential of being an effective pre-training technique for various downstream tasks in terms of sample efficiency, systematic generalization, and reasoning. Although image-based reinforcement learning (RL) is one of the most important and thus frequently mentioned such downstream tasks, the benefit in RL has surprisingly not been investigated systematically thus far. Instead, most of the evaluations have focused on rather indirect metrics such as segmentation quality and object property prediction accuracy. In this paper, we investigate the effectiveness of OCR pre-training for image-based reinforcement learning via empirical experiments. For systematic evaluation, we introduce a simple object-centric visual RL benchmark and conduct experiments to answer questions such as ``Does OCR pre-training improve performance on object-centric tasks?'' and ``Can OCR pre-training help with out-of-distribution generalization?''. Our results provide empirical evidence for valuable insights into the effectiveness of OCR pre-training for RL and the potential limitations of its use in certain scenarios. Additionally, this study also examines the critical aspects of incorporating OCR pre-training in RL, including performance in a visually complex environment and the appropriate pooling layer to aggregate the object representations.",
+          "claimed_authors": [
+            "Jaesik Yoon",
+            "Yi-Fu Wu",
+            "Heechul Bae",
+            "Sungjin Ahn"
+          ],
+          "claimed_title": "An Investigation into Pre-Training Object-Centric Representations for Reinforcement Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2302.04419"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Latent Spatial Memory for Video World Models computer science', candidate_title='An Investigation into Pre-Training Object-Centric Representations for Reinforcement Learning')",
+        "failed_at": "2026-06-15T00:46:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Object-centric event logs expand the conventional single-case notion event log by considering multiple objects, allowing for the analysis of more complex and realistic process behavior. However, the number of real-world object-centric event logs remains limited, and further studies are needed to test their usefulness. The increasing availability of data from team sports can facilitate object-centric process mining, leveraging both real-world data and suitable use cases. In this paper, we present a framework for transforming football (soccer) data into an object-centric event log, further enhanced with a spatial dimension. We demonstrate the effectiveness of our framework by generating object-centric event logs based on real-world football data and discuss the results for varying process representations. With our paper, we provide the first example for object-centric event logs in football analytics. Future work should consider variant analysis and filtering techniques to better handle variability",
+          "claimed_authors": [
+            "Vito Chan",
+            "Lennart Ebert",
+            "Paul-Julius Hillmann",
+            "Christoffer Rubensson",
+            "Stephan A. Fahrenkrog-Petersen",
+            "Jan Mendling"
+          ],
+          "claimed_title": "Transforming Football Data into Object-centric Event Logs with Spatial Context Information",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2507.12504"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Latent Spatial Memory for Video World Models computer science', candidate_title='Transforming Football Data into Object-centric Event Logs with Spatial Context Information')",
+        "failed_at": "2026-06-15T00:46:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Traditional drug discovery relies on rounds of screening millions of candidate molecules with low success rates, making drug discovery time and resource intensive. To overcome this screening bottleneck, we introduce Latent-X, an all-atom protein design model that enables a new paradigm of precision AI design. Given a target protein epitope, Latent-X jointly generates the all atom structure and sequence of the protein binder and target, directly modelling the non-covalent interactions essential for specific binding. We demonstrate its efficacy across two therapeutically relevant modalities through extensive wet lab experiments, testing as few as 30-100 designs per target. For macrocyclic peptides, Latent-X achieves experimental hit rates exceeding 90% on all evaluated benchmark targets. For mini-binders, it consistently produces potent candidates against all evaluated benchmark targets, with binding affinities reaching the low nanomolar and picomolar range - comparable to those of approved therapeutics - whilst also being highly specific in mammalian display. In direct comparisons with the state-of-the-art models AlphaProteo, RFdiffusion and RFpeptides under identical conditions demonstrates, Latent-X generates binders with higher hit rates and better binding affinities, and uniquely creates structurally diverse binders, including complex beta-sheet folds. Its end-to-end process is an order of magnitude faster than existing multi-step computational pipelines. By drastically improving the efficiency and success rate of de novo design, Latent-X represents a significant advance towards push-button biologics discovery and a valuable tool for protein engineers. Latent-X is available at https://platform.latentlabs.com, enabling users to reliably generate de novo binders without AI infrastructure or coding.",
+          "claimed_authors": [
+            " Latent Labs Team",
+            "Alex Bridgland",
+            "Jonathan Crabbé",
+            "Henry Kenlay",
+            "Daniella Pretorius",
+            "Sebastian M. Schmon",
+            "Agrin Hilmkil",
+            "Rebecca Bartke-Croughan",
+            "Robin Rombach",
+            "Michael Flashman",
+            "Tomas Matteson",
+            "Simon Mathis",
+            "Alexander W. R. Nelson",
+            "David Yuan",
+            "Annette Obika",
+            "Simon A. A. Kohl"
+          ],
+          "claimed_title": "Latent-X: An Atom-level Frontier Model for De Novo Protein Binder Design",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2507.19375"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Latent Spatial Memory for Video World Models computer science', candidate_title='Latent-X: An Atom-level Frontier Model for De Novo Protein Binder Design')",
+        "failed_at": "2026-06-15T00:46:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Drug discovery has long sought computational systems capable of designing drug-like molecules directly: developable and non-immunogenic from the start. Here we introduce Latent-X2, a frontier generative model that achieves this goal through zero-shot design of antibodies with strong binding affinities, drug-like properties, and, for the first time for any de novo generated antibody, confirmed low immunogenicity in human donor panels. Latent-X2 is an all-atom model conditioned on target structure, epitope specification, and optional antibody framework, jointly generating sequences and structures while modelling the bound complex. Testing only 4 to 24 designs per target in each modality, we successfully generated VHH and scFv antibodies against 9 of 18 evaluated targets, achieving a 50% target-level success rate with picomolar to nanomolar binding affinities. Designed molecules exhibit developability profiles that match or exceed those of approved antibody therapeutics, including expression yield, aggregation propensity, polyreactivity, hydrophobicity, and thermal stability, without optimization, filtering, or selection. In the first immunogenicity assessment of any AI-generated antibody, representative de novo VHH binders targeting TNFL9 exhibit both potent target engagement and low immunogenicity across T-cell proliferation and cytokine release assays. The model generalizes beyond antibodies: against K-Ras, long considered undruggable, we generated macrocyclic peptide binders competitive with trillion-scale mRNA display screens. These properties emerge directly from the model, demonstrating the therapeutic viability of zero-shot molecular design, now available without AI infrastructure or coding expertise at https://platform.latentlabs.com.",
+          "claimed_authors": [
+            " Latent Labs Team",
+            "Henry Kenlay",
+            "Daniella Pretorius",
+            "Jonathan Crabbé",
+            "Alex Bridgland",
+            "Sebastian M. Schmon",
+            "Agrin Hilmkil",
+            "James Vuckovic",
+            "Simon Mathis",
+            "Tomas Matteson",
+            "Rebecca Bartke-Croughan",
+            "Amir Motmaen",
+            "Robin Rombach",
+            "Mária Vlachynská",
+            "Alexander W. R. Nelson",
+            "David Yuan",
+            "Annette Obika",
+            "Simon A. A. Kohl"
+          ],
+          "claimed_title": "Drug-like antibodies with low immunogenicity in human panels designed with Latent-X2",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.20263"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Latent Spatial Memory for Video World Models computer science', candidate_title='Drug-like antibodies with low immunogenicity in human panels designed with Latent-X2')",
+        "failed_at": "2026-06-15T00:46:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present an interactive version of an evidence-driven state-merging (EDSM) algorithm for learning variants of finite state automata. Learning these automata often amounts to recovering or reverse engineering the model generating the data despite noisy, incomplete, or imperfectly sampled data sources rather than optimizing a purely numeric target function. Domain expertise and human knowledge about the target domain can guide this process, and typically is captured in parameter settings. Often, domain expertise is subconscious and not expressed explicitly. Directly interacting with the learning algorithm makes it easier to utilize this knowledge effectively.",
+          "claimed_authors": [
+            "Christian A. Hammerschmidt",
+            "Radu State",
+            "Sicco Verwer"
+          ],
+          "claimed_title": "Human in the Loop: Interactive Passive Automata Learning via Evidence-Driven State-Merging Algorithms",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1707.09430"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Latent Spatial Memory for Video World Models computer science', candidate_title='Human in the Loop: Interactive Passive Automata Learning via Evidence-Driven State-Merging Algorithms')",
+        "failed_at": "2026-06-15T00:46:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We describe the scientific motivations, the mission concept and the instrumentation of SPACE, a class-M mission proposed for concept study at the first call of the ESA Cosmic-Vision 2015-2025 planning cycle. SPACE aims to produce the largest three-dimensional evolutionary map of the Universe over the past 10 billion years by taking near-IR spectra and measuring redshifts for more than half a billion galaxies at 0<z<2 down to AB~23 over 3πsr of the sky. In addition, SPACE will also target a smaller sky field, performing a deep spectroscopic survey of millions of galaxies to AB~26 and at 2<z<10+. These goals are unreachable with ground-based observations due to the ~500 times higher sky background. To achieve the main science objectives, SPACE will use a 1.5m diameter Ritchey-Chretien telescope equipped with a set of arrays of Digital Micro-mirror Devices (DMDs) covering a total field of view of 0.4 deg2, and will perform large-multiplexing multi-object spectroscopy (e.g. ~6000 targets per pointing) at a spectral resolution of R~400 as well as diffraction-limited imaging with continuous coverage from 0.8mum to 1.8mum.",
+          "claimed_authors": [
+            "A. Cimatti",
+            "M. Robberto",
+            "C. M. Baugh",
+            "S. V. W. Beckwith",
+            "R. Content",
+            "E. Daddi",
+            "G. De Lucia",
+            "B. Garilli",
+            "L. Guzzo",
+            "G. Kauffmann",
+            "M. Lehnert",
+            "D. Maccagni",
+            "A. Martinez-Sansigre",
+            "F. Pasian",
+            "I. N. Reid",
+            "P. Rosati",
+            "R. Salvaterra",
+            "M. Stiavelli",
+            "Y. Wang",
+            "M. Zapatero Osorio",
+            "the SPACE team"
+          ],
+          "claimed_title": "SPACE: the SPectroscopic All-sky Cosmic Explorer",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2008,
+          "primary_pointer": "0804.4433"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Latent Spatial Memory for Video World Models computer science', candidate_title='SPACE: the SPectroscopic All-sky Cosmic Explorer')",
+        "failed_at": "2026-06-15T00:46:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We introduce and analyze the following general concept of recurrence. Let $G$ be a group and let $X$ be a G-space with the action $G\\times X\\longrightarrow X$, $(g,x)\\longmapsto gx$. For a family $\\mathfrak{F}$ of subset of $X$ and $A\\in \\mathfrak{F}$, we denote $Δ_{\\mathfrak{F}}(A)=\\{g\\in G: gB\\subseteq A$ for some $B\\in \\mathfrak{F}, \\ B\\subseteq A\\}$, and say that a subset $R$ of $G$ is $\\mathfrak{F}$-recurrent if $R\\bigcap Δ_{\\mathfrak{F}} (A)\\neq\\emptyset$ for each $A\\in \\mathfrak{F}$.",
+          "claimed_authors": [
+            "Igor Protasov",
+            "Ksenia Protasova"
+          ],
+          "claimed_title": "On recurrence in G-spaces",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1703.00695"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Latent Spatial Memory for Video World Models computer science', candidate_title='On recurrence in G-spaces')",
+        "failed_at": "2026-06-15T00:46:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In contrast with traditional video, omnidirectional video enables spherical viewing direction with support for head-mounted displays, providing an interactive and immersive experience. Unfortunately, to the best of our knowledge, there are few visual quality assessment (VQA) methods, either subjective or objective, for omnidirectional video coding. This paper proposes both subjective and objective methods for assessing quality loss in encoding omnidirectional video. Specifically, we first present a new database, which includes the viewing direction data from several subjects watching omnidirectional video sequences. Then, from our database, we find a high consistency in viewing directions across different subjects. The viewing directions are normally distributed in the center of the front regions, but they sometimes fall into other regions, related to video content. Given this finding, we present a subjective VQA method for measuring difference mean opinion score (DMOS) of the whole and regional omnidirectional video, in terms of overall DMOS (O-DMOS) and vectorized DMOS (V-DMOS), respectively. Moreover, we propose two objective VQA methods for encoded omnidirectional video, in light of human perception characteristics of omnidirectional video. One method weighs the distortion of pixels with regard to their distances to the center of front regions, which considers human preference in a panorama. The other method predicts viewing directions according to video content, and then the predicted viewing directions are leveraged to allocate weights to the distortion of each pixel in our objective VQA method. Finally, our experimental results verify that both the subjective and objective methods proposed in this paper advance state-of-the-art VQA for omnidirectional video.",
+          "claimed_authors": [
+            "Mai Xu",
+            "Chen Li",
+            "Zulin Wang",
+            "Zhenzhong Chen",
+            "Zhenyu Guan"
+          ],
+          "claimed_title": "Assessing Visual Quality of Omnidirectional Videos",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1709.06342"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Latent Spatial Memory for Video World Models computer science', candidate_title='Assessing Visual Quality of Omnidirectional Videos')",
+        "failed_at": "2026-06-15T00:46:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "It is critical to predict the motion of surrounding vehicles for self-driving planning, especially in a socially compliant and flexible way. However, future prediction is challenging due to the interaction and uncertainty in driving behaviors. We propose planning-informed trajectory prediction (PiP) to tackle the prediction problem in the multi-agent setting. Our approach is differentiated from the traditional manner of prediction, which is only based on historical information and decoupled with planning. By informing the prediction process with the planning of ego vehicle, our method achieves the state-of-the-art performance of multi-agent forecasting on highway datasets. Moreover, our approach enables a novel pipeline which couples the prediction and planning, by conditioning PiP on multiple candidate trajectories of the ego vehicle, which is highly beneficial for autonomous driving in interactive scenarios.",
+          "claimed_authors": [
+            "Haoran Song",
+            "Wenchao Ding",
+            "Yuxuan Chen",
+            "Shaojie Shen",
+            "Michael Yu Wang",
+            "Qifeng Chen"
+          ],
+          "claimed_title": "PiP: Planning-informed Trajectory Prediction for Autonomous Driving",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2003.11476"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Latent Spatial Memory for Video World Models computer science', candidate_title='PiP: Planning-informed Trajectory Prediction for Autonomous Driving')",
+        "failed_at": "2026-06-15T00:46:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present a novel framework for motion planning in dynamic environments that accounts for the predicted trajectories of moving objects in the scene. We explore the use of composite signed-distance fields in motion planning and detail how they can be used to generate signed-distance fields (SDFs) in real-time to incorporate predicted obstacle motions. We benchmark our approach of using composite SDFs against performing exact SDF calculations on the workspace occupancy grid. Our proposed technique generates predictions substantially faster and typically exhibits an 81--97% reduction in time for subsequent predictions. We integrate our framework with GPMP2 to demonstrate a full implementation of our approach in real-time, enabling a 7-DoF Panda arm to smoothly avoid a moving robot.",
+          "claimed_authors": [
+            "Mark Nicholas Finean",
+            "Wolfgang Merkt",
+            "Ioannis Havoutis"
+          ],
+          "claimed_title": "Predicted Composite Signed-Distance Fields for Real-Time Motion Planning in Dynamic Environments",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2008.00969"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Latent Spatial Memory for Video World Models computer science', candidate_title='Predicted Composite Signed-Distance Fields for Real-Time Motion Planning in Dynamic Environments')",
+        "failed_at": "2026-06-15T00:46:48Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Weijie Wang",
+            "Haoyu Zhao",
+            "Yifan Yang",
+            "Feng Chen",
+            "Zeyu Zhang",
+            "Yefei He",
+            "Zicheng Duan",
+            "Donny Y. Chen",
+            "Yuqing Yang",
+            "Bohan Zhuang"
+          ],
+          "title": "Latent Spatial Memory for Video World Models",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2606.09828",
+        "summary": "Video world models that maintain 3D spatial consistency across generated frames typically rely on explicit point cloud memory constructed in RGB space. This design is both computationally expensive, requiring repeated rendering and VAE encoding, and inherently lossy, as the round trip through pixel space discards rich features of the learned latent representation. In this paper, we introduce \\emph{latent spatial memory} for video world models, a persistent 3D cache that stores scene information directly in the diffusion latent space, avoiding pixel-space reconstruction. Building on this, we propose Mirage, a latent-space spatial memory framework that constructs the memory by lifting latent tokens into 3D via depth-guided back-projection and queries it by synthesizing novel views through direct latent-space warping. This unified formulation eliminates both the information loss of pixel-space reconstruction and the computational burden of repeated encoding and rendering. Experiments show that latent spatial memory achieves up to \\textbf{10.57}$\\times$ faster end-to-end video generation and \\textbf{55}$\\times$ reduction in memory footprint relative to explicit 3D baselines. Leveraging the geometric prior of the diffusion model, Mirage attains state-of-the-art performance on WorldScore and strong reconstruction quality on RealEstate10K.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2606.09828",
+          "http_status": 200,
+          "pdf_sample_score": 0.2656,
+          "query_relevance_score": 0.75,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-15T00:46:48Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Kaijin Chen",
+            "Dingkang Liang",
+            "Xin Zhou",
+            "Yikang Ding",
+            "Xiaoqiang Liu",
+            "Pengfei Wan",
+            "Xiang Bai"
+          ],
+          "title": "Out of Sight but Not Out of Mind: Hybrid Memory for Dynamic Video World Models",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2603.25716",
+        "summary": "Video world models have shown immense potential in simulating the physical world, yet existing memory mechanisms primarily treat environments as static canvases. When dynamic subjects hide out of sight and later re-emerge, current methods often struggle, leading to frozen, distorted, or vanishing subjects. To address this, we introduce Hybrid Memory, a novel paradigm requiring models to simultaneously act as precise archivists for static backgrounds and vigilant trackers for dynamic subjects, ensuring motion continuity during out-of-view intervals. To facilitate research in this direction, we construct HM-World, the first large-scale video dataset dedicated to hybrid memory. It features 59K high-fidelity clips with decoupled camera and subject trajectories, encompassing 17 diverse scenes, 49 distinct subjects, and meticulously designed exit-entry events to rigorously evaluate hybrid coherence. Furthermore, we propose HyDRA, a specialized memory architecture that compresses memory into tokens and utilizes a spatiotemporal relevance-driven retrieval mechanism. By selectively attending to relevant motion cues, HyDRA effectively preserves the identity and motion of hidden subjects. Extensive experiments on HM-World demonstrate that our method significantly outperforms state-of-the-art approaches in both dynamic subject consistency and overall generation quality. Code is publicly available at https://github.com/H-EmbodVis/HyDRA.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2603.25716",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-15T00:46:48Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Jinbin Bai",
+            "Yu Lei",
+            "Hecong Wu",
+            "Yuchen Zhu",
+            "Shufan Li",
+            "Yi Xin",
+            "Xiangtai Li",
+            "Molei Tao",
+            "Aditya Grover",
+            "Ming-Hsuan Yang"
+          ],
+          "title": "From Masks to Worlds: A Hitchhiker's Guide to World Models",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2510.20668",
+        "summary": "This is not a typical survey of world models; it is a guide for those who want to build worlds. We do not aim to catalog every paper that has ever mentioned a ``world model\". Instead, we follow one clear road: from early masked models that unified representation learning across modalities, to unified architectures that share a single paradigm, then to interactive generative models that close the action-perception loop, and finally to memory-augmented systems that sustain consistent worlds over time. We bypass loosely related branches to focus on the core: the generative heart, the interactive loop, and the memory system. We show that this is the most promising path towards true world models.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2510.20668",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 1.0,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-15T00:47:33Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Andrii Zahorodnii"
+          ],
+          "title": "Improving World Models using Deep Supervision with Linear Probes",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2504.03861",
+        "summary": "Developing effective world models is crucial for creating artificial agents that can reason about and navigate complex environments. In this paper, we investigate a deep supervision technique for encouraging the development of a world model in a network trained end-to-end to predict the next observation. While deep supervision has been widely applied for task-specific learning, our focus is on improving the world models. Using an experimental environment based on the Flappy Bird game, where the agent receives only LIDAR measurements as observations, we explore the effect of adding a linear probe component to the network's loss function. This additional term encourages the network to encode a subset of the true underlying world features into its hidden state. Our experiments demonstrate that this supervision technique improves both training and test performance, enhances training stability, and results in more easily decodable world features -- even for those world features which were not included in the training. Furthermore, we observe a reduced distribution drift in networks trained with the linear probe, particularly during high-variability phases of the game (flying between successive pipe encounters). Including the world features loss component roughly corresponded to doubling the model size, suggesting that the linear probe technique is particularly beneficial in compute-limited settings or when aiming to achieve the best performance with smaller models. These findings contribute to our understanding of how to develop more robust and sophisticated world models in artificial agents, paving the way for further advancements in this field.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2504.03861",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-15T00:47:34Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "latent spatial memory for video world models computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}
