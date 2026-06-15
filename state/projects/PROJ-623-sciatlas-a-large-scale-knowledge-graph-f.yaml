@@ -6,13 +6,13 @@ failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-623-sciatlas-a-large-scale-knowledge-graph-f
-last_run_id: null
+last_run_id: 6c3c860b-bd71-4f5b-ae87-72ff8aab30cf
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
-revision_spec_path: null
+revision_spec_path: specs/auto-revisions/PROJ-623-sciatlas-a-large-scale-knowledge-graph-f/round-1
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'SciAtlas: A Large-Scale Knowledge Graph for Automated Scientific Research'
-updated_at: '2026-05-26T09:11:42.007383Z'
+updated_at: '2026-06-15T08:12:41.618266Z'

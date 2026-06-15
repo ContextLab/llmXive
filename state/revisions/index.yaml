@@ -39,3 +39,6 @@ ready:
 - project_id: PROJ-654-https-arxiv-org-abs-2605-29707
   revision_spec_path: specs/auto-revisions/PROJ-654-https-arxiv-org-abs-2605-29707/round-1
   queued_at: '2026-06-15T01:06:28.026342+00:00'
+- project_id: PROJ-623-sciatlas-a-large-scale-knowledge-graph-f
+  revision_spec_path: specs/auto-revisions/PROJ-623-sciatlas-a-large-scale-knowledge-graph-f/round-1
+  queued_at: '2026-06-15T08:12:41.612211+00:00'
