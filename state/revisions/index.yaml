@@ -42,3 +42,6 @@ ready:
 - project_id: PROJ-623-sciatlas-a-large-scale-knowledge-graph-f
   revision_spec_path: specs/auto-revisions/PROJ-623-sciatlas-a-large-scale-knowledge-graph-f/round-1
   queued_at: '2026-06-15T08:12:41.612211+00:00'
+- project_id: PROJ-698-toward-generalist-autonomous-research-vi
+  revision_spec_path: specs/auto-revisions/PROJ-698-toward-generalist-autonomous-research-vi/round-1
+  queued_at: '2026-06-15T11:39:09.449620+00:00'

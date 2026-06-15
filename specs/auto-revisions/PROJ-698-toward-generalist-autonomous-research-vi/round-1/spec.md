@@ -1,0 +1,72 @@
+# Revision Specification: Paper Science Revision — PROJ-698-toward-generalist-autonomous-research-vi round 1
+
+**Generated**: 2026-06-15T11:39:09.431270+00:00
+**Kind**: paper_science
+**Project**: PROJ-698-toward-generalist-autonomous-research-vi
+**Round**: 1
+
+## Input
+
+Address the following reviewer-raised action items:
+
+- **[5e8ebaf78a38] (severity: science)** Complete bibliography YAML with verification_status for all 59+ cited references; currently truncated in source and cannot confirm verification compliance
+- **[ebea0478c999] (severity: science)** Provide full, reproducible implementation artifacts including exact prompt templates, hyperparameter configs, and evaluation scripts for all 6 AO tasks and MLE-Bench Lite runs
+- **[959ac48ea446] (severity: science)** Clarify baseline comparison methodology: explain how different backbone models (GPT-5.5, Claude Opus 4.6, Gemini-3-Flash) are controlled when comparing against Codex, Claude Code, and other systems
+- **[a27151820f68] (severity: science)** Resolve LaTeX source fragmentation: consolidate e000/e001/e002/e003 into single coherent document; verify compilation with all figures and bibliography intact
+- **[c7511508d9d6] (severity: writing)** Code artifacts not provided for evaluation. Review requires access to source code repository, dependency specifications, and test suites to assess code quality lens requirements."
+- **[1628d05b2f76] (severity: writing)** Reproducibility documentation missing from review materials. Include Dockerfiles, environment.yml/requirements.txt, and run scripts to verify reproducibility from scratch."
+- **[7b810f68274e] (severity: writing)** Test coverage cannot be assessed without test files. Provide test suite structure and coverage reports for code quality evaluation."
+- **[faac35422405] (severity: writing)** No license statement for released code/data. Add explicit license (e.g., MIT, Apache-2.0) for https://github.com/RUC-NLPIR/Arbor in metadata or appendix.
+- **[4514e2ff5a9b] (severity: writing)** Several arXiv references have future-dated IDs (e.g., arXiv:2604.13018, arXiv:2602.02660, arXiv:2601.11868). Verify these are correct or add note about preprint status.
+- **[220a70c73cb2] (severity: writing)** Dataset versions not specified. Add version numbers/commit hashes for NanoGPT-Bench, BrowseComp, Terminal-Bench 2.0, and MLE-Bench Lite to enable reproducibility.
+- **[174ab14e52de] (severity: writing)** External URLs (GitHub, arXiv) lack archive links or DOIs. Add persistent identifiers or archive references to mitigate link rot risk.
+- **[4d7e44a1a8d6] (severity: writing)** Add accessibility metadata (alt text) to all figure environments to support screen readers and comply with accessibility standards.
+- **[ef6fa41be2f9] (severity: writing)** Optimize the file size of fig/main_framework.pdf (13MB); current size suggests uncompressed assets that may hinder distribution and print legibility.
+- **[421830d2095c] (severity: writing)** Increase font sizes in fig:representative-ideas (currently \scriptsize) to ensure legibility at standard print scales.
+- **[d5243eb2c62f] (severity: writing)** Define ReAct at first use in Section 1; currently appears as 'ReAct-style search harness' without explaining it as reasoning+acting framework.
+- **[35ec1322c2a5] (severity: writing)** Define MLE-Bench Lite acronym at first mention in Section 3.2; 'MLE' not expanded anywhere in main text.
+- **[6434dfb59f01] (severity: writing)** Define HLE and DeepSearchQA benchmarks when first mentioned in Section 4.5; currently appear without context for non-specialists.
+- **[fd5a4668250d] (severity: writing)** Replace 'held-out' with 'test set' or 'unseen test data' at first use; 'held-out' is standard ML jargon but may exclude broader readers.
+- **[aa4f81f646de] (severity: writing)** Replace 'worktree' with 'isolated working copy' or 'separate code branch' on first occurrence; git-specific terminology excludes non-developers.
+- **[a69998c116c8] (severity: writing)** Replace 'backpropagate' when describing insight propagation in Section 3.2; this term suggests gradient backpropagation and may confuse readers.
+- **[104c35fe7955] (severity: writing)** Replace 'scalar scores' with 'numerical scores' for accessibility; 'scalar' is technical notation.
+- **[24d7f805a2ad] (severity: writing)** Define 'artifact' early when first used to mean 'research code/output' to distinguish from general usage.
+- **[eb82bb8c69de] (severity: writing)** Replace 'frontier control' with 'search frontier management' or 'active hypothesis tracking' for clarity.
+- **[8dac8cfd561e] (severity: writing)** Define 'backbone model' in Section 4.4 or use 'base LLM' for consistency with general ML terminology.
+- **[2040acd7b36d] (severity: writing)** Clarify the '2.5x gain' claim in the Abstract and Introduction to specify it refers to the aggregate average across tasks, noting it does not hold for every individual task (e.g., Architecture Design), to ensure the conclusion strictly follows the data in Table 1.
+- **[cc1b45e2e71e] (severity: writing)** The Abstract claims 'attaining more than 2.5x the average relative held-out gain'. Data in Table 1 shows Architecture Design (~1.75x) and Search-Agent (~2.36x) fall below this threshold. Clarify if this is an aggregate average or per-task guarantee to avoid misrepresentation.
+- **[765c3f9f95ee] (severity: writing)** The title claims 'Generalist Autonomous Research', but the Appendix Limitations admit the scope omits biology, physics, and kernel optimization. Temper the title or abstract to reflect the specific domains evaluated (ML training, harness engineering, data synthesis).
+- **[fc2fb8bba1b9] (severity: science)** The MLE-Bench Lite SOTA claim (86.36%) relies on GPT-5.5, whereas baselines like AI-Scientist used Gemini-3-Flash. Clarify if the gain is attributable to the framework or the stronger backbone to avoid conflating model capability with method efficacy.
+- **[8490f614ee45] (severity: writing)** Add dedicated ethics/safety section addressing dual-use risks, misuse scenarios, and potential societal impacts of autonomous research automation
+- **[87175a80de42] (severity: writing)** Discuss safety guardrails and human oversight requirements for the AO framework, particularly for deployment in sensitive domains
+- **[659b44324019] (severity: writing)** Provide usage guidelines for open-source release including restrictions on deployment contexts and responsible use recommendations
+- **[227a6ab51c58] (severity: writing)** Address data privacy considerations for the data synthesis tasks, especially regarding synthetic data generation and potential bias amplification
+- **[16918ee1ed76] (severity: science)** Section 4.2 claims Avg@3 with standard deviation, but Table 1 reports single values without variance. Add error bars or std dev for all main results to assess significance.
+- **[75196890606e] (severity: science)** Model Training tasks (Table 1) use only two seeds for test averaging. Increase to at least 5 seeds or justify why N=2 suffices for stochastic training metrics.
+- **[ca7baac6bd17] (severity: science)** Ablation study (Table 3) is limited to MLE-Bench Lite. Replicate key ablations (w/o tree, w/o insight) on at least one primary AO task to verify HTR contribution.
+- **[f10e5a21a73c] (severity: science)** Resolve the discrepancy between 'two seeds' in Table 1 and 'three times' in Section 5.2 to ensure reproducible experimental protocols.
+- **[30e91eb8e500] (severity: science)** Report statistical significance tests (e.g., t-tests, bootstrap CIs) for main results to validate that gains are not due to random variance.
+- **[683b3a719493] (severity: science)** Include variance estimates (std dev or CI) in ablation studies (Table 4) to substantiate the reliability of component contributions.
+- **[4c3d88892e3b] (severity: science)** Address multiple comparisons across the six tasks to control family-wise error rate when claiming superiority across all benchmarks.
+- **[0cd27e2f0775] (severity: writing)** Duplicate label on Section 3 causes cross-reference ambiguity. Use single label per section.
+- **[4f7a4f5ab3d8] (severity: writing)** Inconsistent table font sizing across tables. Standardize to small with fixed column widths.
+- **[cc00ddf712b7] (severity: writing)** Mixed citation commands used interchangeably. Choose one style and apply consistently.
+- **[ee81d2cd1d1b] (severity: writing)** Inconsistent figure placement specifiers across figures. Standardize throughout.
+- **[ad2c430c018d] (severity: writing)** Conditional may cause compilation warnings on non-pdftex engines. Remove or guard properly.
+- **[65b5f4bf42ba] (severity: writing)** Section lacks label while all other sections have labels. Add for cross-reference consistency.
+- **[1d120dc288a1] (severity: writing)** Fix missing space in Section 2.3 citation command 'frontierscience}focus' to 'frontierscience} focus'.
+- **[89828757db9e] (severity: writing)** Revise Abstract phrasing 'attaining... gain' to 'achieving... gain' for better collocation.
+- **[63a7fdb3a707] (severity: writing)** Formalize Table 1 caption text 'test averages two seeds' to 'test average over two seeds'.
+- **[e573dae9da4d] (severity: writing)** Ensure consistent verb tense in Experiments section (Section 5) between present and past tense.
+
+
+## Success Criterion
+
+After the implementer applies this revision, the project returns to
+``paper_review`` and the per-specialist re-review protocol confirms
+each of the 49 action item(s) above as ADEQUATELY ADDRESSED.
+
+## Out of scope
+
+- New experiments not directly required by a ``science``-severity item above.
+- Refactors / cleanups not required by an action item.

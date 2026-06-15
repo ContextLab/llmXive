@@ -1,0 +1,219 @@
+project_id: PROJ-698-toward-generalist-autonomous-research-vi
+arxiv_id: '2606.11926'
+schema_version: 1
+rounds:
+- round_number: 1
+  triggered_at: '2026-06-15T11:39:09.421221+00:00'
+  verdict_class: science
+  note: ''
+  action_items:
+  - id: 5e8ebaf78a38
+    text: Complete bibliography YAML with verification_status for all 59+ cited references;
+      currently truncated in source and cannot confirm verification compliance
+    severity: science
+  - id: ebea0478c999
+    text: Provide full, reproducible implementation artifacts including exact prompt
+      templates, hyperparameter configs, and evaluation scripts for all 6 AO tasks
+      and MLE-Bench Lite runs
+    severity: science
+  - id: 959ac48ea446
+    text: 'Clarify baseline comparison methodology: explain how different backbone
+      models (GPT-5.5, Claude Opus 4.6, Gemini-3-Flash) are controlled when comparing
+      against Codex, Claude Code, and other systems'
+    severity: science
+  - id: a27151820f68
+    text: 'Resolve LaTeX source fragmentation: consolidate e000/e001/e002/e003 into
+      single coherent document; verify compilation with all figures and bibliography
+      intact'
+    severity: science
+  - id: c7511508d9d6
+    text: Code artifacts not provided for evaluation. Review requires access to source
+      code repository, dependency specifications, and test suites to assess code quality
+      lens requirements."
+    severity: writing
+  - id: 1628d05b2f76
+    text: Reproducibility documentation missing from review materials. Include Dockerfiles,
+      environment.yml/requirements.txt, and run scripts to verify reproducibility
+      from scratch."
+    severity: writing
+  - id: 7b810f68274e
+    text: Test coverage cannot be assessed without test files. Provide test suite
+      structure and coverage reports for code quality evaluation."
+    severity: writing
+  - id: faac35422405
+    text: No license statement for released code/data. Add explicit license (e.g.,
+      MIT, Apache-2.0) for https://github.com/RUC-NLPIR/Arbor in metadata or appendix.
+    severity: writing
+  - id: 4514e2ff5a9b
+    text: Several arXiv references have future-dated IDs (e.g., arXiv:2604.13018,
+      arXiv:2602.02660, arXiv:2601.11868). Verify these are correct or add note about
+      preprint status.
+    severity: writing
+  - id: 220a70c73cb2
+    text: Dataset versions not specified. Add version numbers/commit hashes for NanoGPT-Bench,
+      BrowseComp, Terminal-Bench 2.0, and MLE-Bench Lite to enable reproducibility.
+    severity: writing
+  - id: 174ab14e52de
+    text: External URLs (GitHub, arXiv) lack archive links or DOIs. Add persistent
+      identifiers or archive references to mitigate link rot risk.
+    severity: writing
+  - id: 4d7e44a1a8d6
+    text: Add accessibility metadata (alt text) to all figure environments to support
+      screen readers and comply with accessibility standards.
+    severity: writing
+  - id: ef6fa41be2f9
+    text: Optimize the file size of fig/main_framework.pdf (13MB); current size suggests
+      uncompressed assets that may hinder distribution and print legibility.
+    severity: writing
+  - id: 421830d2095c
+    text: Increase font sizes in fig:representative-ideas (currently \scriptsize)
+      to ensure legibility at standard print scales.
+    severity: writing
+  - id: d5243eb2c62f
+    text: Define ReAct at first use in Section 1; currently appears as 'ReAct-style
+      search harness' without explaining it as reasoning+acting framework.
+    severity: writing
+  - id: 35ec1322c2a5
+    text: Define MLE-Bench Lite acronym at first mention in Section 3.2; 'MLE' not
+      expanded anywhere in main text.
+    severity: writing
+  - id: 6434dfb59f01
+    text: Define HLE and DeepSearchQA benchmarks when first mentioned in Section 4.5;
+      currently appear without context for non-specialists.
+    severity: writing
+  - id: fd5a4668250d
+    text: Replace 'held-out' with 'test set' or 'unseen test data' at first use; 'held-out'
+      is standard ML jargon but may exclude broader readers.
+    severity: writing
+  - id: aa4f81f646de
+    text: Replace 'worktree' with 'isolated working copy' or 'separate code branch'
+      on first occurrence; git-specific terminology excludes non-developers.
+    severity: writing
+  - id: a69998c116c8
+    text: Replace 'backpropagate' when describing insight propagation in Section 3.2;
+      this term suggests gradient backpropagation and may confuse readers.
+    severity: writing
+  - id: 104c35fe7955
+    text: Replace 'scalar scores' with 'numerical scores' for accessibility; 'scalar'
+      is technical notation.
+    severity: writing
+  - id: 24d7f805a2ad
+    text: Define 'artifact' early when first used to mean 'research code/output' to
+      distinguish from general usage.
+    severity: writing
+  - id: eb82bb8c69de
+    text: Replace 'frontier control' with 'search frontier management' or 'active
+      hypothesis tracking' for clarity.
+    severity: writing
+  - id: 8dac8cfd561e
+    text: Define 'backbone model' in Section 4.4 or use 'base LLM' for consistency
+      with general ML terminology.
+    severity: writing
+  - id: 2040acd7b36d
+    text: Clarify the '2.5x gain' claim in the Abstract and Introduction to specify
+      it refers to the aggregate average across tasks, noting it does not hold for
+      every individual task (e.g., Architecture Design), to ensure the conclusion
+      strictly follows the data in Table 1.
+    severity: writing
+  - id: cc1b45e2e71e
+    text: The Abstract claims 'attaining more than 2.5x the average relative held-out
+      gain'. Data in Table 1 shows Architecture Design (~1.75x) and Search-Agent (~2.36x)
+      fall below this threshold. Clarify if this is an aggregate average or per-task
+      guarantee to avoid misrepresentation.
+    severity: writing
+  - id: 765c3f9f95ee
+    text: The title claims 'Generalist Autonomous Research', but the Appendix Limitations
+      admit the scope omits biology, physics, and kernel optimization. Temper the
+      title or abstract to reflect the specific domains evaluated (ML training, harness
+      engineering, data synthesis).
+    severity: writing
+  - id: fc2fb8bba1b9
+    text: The MLE-Bench Lite SOTA claim (86.36%) relies on GPT-5.5, whereas baselines
+      like AI-Scientist used Gemini-3-Flash. Clarify if the gain is attributable to
+      the framework or the stronger backbone to avoid conflating model capability
+      with method efficacy.
+    severity: science
+  - id: 8490f614ee45
+    text: Add dedicated ethics/safety section addressing dual-use risks, misuse scenarios,
+      and potential societal impacts of autonomous research automation
+    severity: writing
+  - id: 87175a80de42
+    text: Discuss safety guardrails and human oversight requirements for the AO framework,
+      particularly for deployment in sensitive domains
+    severity: writing
+  - id: 659b44324019
+    text: Provide usage guidelines for open-source release including restrictions
+      on deployment contexts and responsible use recommendations
+    severity: writing
+  - id: 227a6ab51c58
+    text: Address data privacy considerations for the data synthesis tasks, especially
+      regarding synthetic data generation and potential bias amplification
+    severity: writing
+  - id: 16918ee1ed76
+    text: Section 4.2 claims Avg@3 with standard deviation, but Table 1 reports single
+      values without variance. Add error bars or std dev for all main results to assess
+      significance.
+    severity: science
+  - id: 75196890606e
+    text: Model Training tasks (Table 1) use only two seeds for test averaging. Increase
+      to at least 5 seeds or justify why N=2 suffices for stochastic training metrics.
+    severity: science
+  - id: ca7baac6bd17
+    text: Ablation study (Table 3) is limited to MLE-Bench Lite. Replicate key ablations
+      (w/o tree, w/o insight) on at least one primary AO task to verify HTR contribution.
+    severity: science
+  - id: f10e5a21a73c
+    text: Resolve the discrepancy between 'two seeds' in Table 1 and 'three times'
+      in Section 5.2 to ensure reproducible experimental protocols.
+    severity: science
+  - id: 30e91eb8e500
+    text: Report statistical significance tests (e.g., t-tests, bootstrap CIs) for
+      main results to validate that gains are not due to random variance.
+    severity: science
+  - id: 683b3a719493
+    text: Include variance estimates (std dev or CI) in ablation studies (Table 4)
+      to substantiate the reliability of component contributions.
+    severity: science
+  - id: 4c3d88892e3b
+    text: Address multiple comparisons across the six tasks to control family-wise
+      error rate when claiming superiority across all benchmarks.
+    severity: science
+  - id: 0cd27e2f0775
+    text: Duplicate label on Section 3 causes cross-reference ambiguity. Use single
+      label per section.
+    severity: writing
+  - id: 4f7a4f5ab3d8
+    text: Inconsistent table font sizing across tables. Standardize to small with
+      fixed column widths.
+    severity: writing
+  - id: cc00ddf712b7
+    text: Mixed citation commands used interchangeably. Choose one style and apply
+      consistently.
+    severity: writing
+  - id: ee81d2cd1d1b
+    text: Inconsistent figure placement specifiers across figures. Standardize throughout.
+    severity: writing
+  - id: ad2c430c018d
+    text: Conditional may cause compilation warnings on non-pdftex engines. Remove
+      or guard properly.
+    severity: writing
+  - id: 65b5f4bf42ba
+    text: Section lacks label while all other sections have labels. Add for cross-reference
+      consistency.
+    severity: writing
+  - id: 1d120dc288a1
+    text: Fix missing space in Section 2.3 citation command 'frontierscience}focus'
+      to 'frontierscience} focus'.
+    severity: writing
+  - id: 89828757db9e
+    text: Revise Abstract phrasing 'attaining... gain' to 'achieving... gain' for
+      better collocation.
+    severity: writing
+  - id: 63a7fdb3a707
+    text: Formalize Table 1 caption text 'test averages two seeds' to 'test average
+      over two seeds'.
+    severity: writing
+  - id: e573dae9da4d
+    text: Ensure consistent verb tense in Experiments section (Section 5) between
+      present and past tense.
+    severity: writing

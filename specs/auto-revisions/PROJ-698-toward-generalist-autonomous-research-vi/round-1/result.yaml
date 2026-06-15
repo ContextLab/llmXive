@@ -1,0 +1,432 @@
+project_id: PROJ-698-toward-generalist-autonomous-research-vi
+round: 1
+revision_kind: paper_science
+from_stage: paper_review
+to_stage: clarified
+worst_severity: science
+seed_action_items:
+- id: 5e8ebaf78a38
+  text: Complete bibliography YAML with verification_status for all 59+ cited references;
+    currently truncated in source and cannot confirm verification compliance
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-698-toward-generalist-autonomous-research-vi/paper/source/
+  location: ''
+- id: ebea0478c999
+  text: Provide full, reproducible implementation artifacts including exact prompt
+    templates, hyperparameter configs, and evaluation scripts for all 6 AO tasks and
+    MLE-Bench Lite runs
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-698-toward-generalist-autonomous-research-vi/paper/source/
+  location: ''
+- id: 959ac48ea446
+  text: 'Clarify baseline comparison methodology: explain how different backbone models
+    (GPT-5.5, Claude Opus 4.6, Gemini-3-Flash) are controlled when comparing against
+    Codex, Claude Code, and other systems'
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-698-toward-generalist-autonomous-research-vi/paper/source/
+  location: ''
+- id: a27151820f68
+  text: 'Resolve LaTeX source fragmentation: consolidate e000/e001/e002/e003 into
+    single coherent document; verify compilation with all figures and bibliography
+    intact'
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-698-toward-generalist-autonomous-research-vi/paper/source/
+  location: ''
+- id: c7511508d9d6
+  text: Code artifacts not provided for evaluation. Review requires access to source
+    code repository, dependency specifications, and test suites to assess code quality
+    lens requirements."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-698-toward-generalist-autonomous-research-vi/paper/source/
+  location: ''
+- id: 1628d05b2f76
+  text: Reproducibility documentation missing from review materials. Include Dockerfiles,
+    environment.yml/requirements.txt, and run scripts to verify reproducibility from
+    scratch."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-698-toward-generalist-autonomous-research-vi/paper/source/
+  location: ''
+- id: 7b810f68274e
+  text: Test coverage cannot be assessed without test files. Provide test suite structure
+    and coverage reports for code quality evaluation."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-698-toward-generalist-autonomous-research-vi/paper/source/
+  location: ''
+- id: faac35422405
+  text: No license statement for released code/data. Add explicit license (e.g., MIT,
+    Apache-2.0) for https://github.com/RUC-NLPIR/Arbor in metadata or appendix.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-698-toward-generalist-autonomous-research-vi/paper/source/
+  location: ''
+- id: 4514e2ff5a9b
+  text: Several arXiv references have future-dated IDs (e.g., arXiv:2604.13018, arXiv:2602.02660,
+    arXiv:2601.11868). Verify these are correct or add note about preprint status.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-698-toward-generalist-autonomous-research-vi/paper/source/
+  location: ''
+- id: 220a70c73cb2
+  text: Dataset versions not specified. Add version numbers/commit hashes for NanoGPT-Bench,
+    BrowseComp, Terminal-Bench 2.0, and MLE-Bench Lite to enable reproducibility.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-698-toward-generalist-autonomous-research-vi/paper/source/
+  location: ''
+- id: 174ab14e52de
+  text: External URLs (GitHub, arXiv) lack archive links or DOIs. Add persistent identifiers
+    or archive references to mitigate link rot risk.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-698-toward-generalist-autonomous-research-vi/paper/source/
+  location: ''
+- id: 4d7e44a1a8d6
+  text: Add accessibility metadata (alt text) to all figure environments to support
+    screen readers and comply with accessibility standards.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-698-toward-generalist-autonomous-research-vi/paper/source/
+  location: ''
+- id: ef6fa41be2f9
+  text: Optimize the file size of fig/main_framework.pdf (13MB); current size suggests
+    uncompressed assets that may hinder distribution and print legibility.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-698-toward-generalist-autonomous-research-vi/paper/source/
+  location: ''
+- id: 421830d2095c
+  text: Increase font sizes in fig:representative-ideas (currently \scriptsize) to
+    ensure legibility at standard print scales.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-698-toward-generalist-autonomous-research-vi/paper/source/
+  location: ''
+- id: d5243eb2c62f
+  text: Define ReAct at first use in Section 1; currently appears as 'ReAct-style
+    search harness' without explaining it as reasoning+acting framework.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-698-toward-generalist-autonomous-research-vi/paper/source/
+  location: ''
+- id: 35ec1322c2a5
+  text: Define MLE-Bench Lite acronym at first mention in Section 3.2; 'MLE' not expanded
+    anywhere in main text.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-698-toward-generalist-autonomous-research-vi/paper/source/
+  location: ''
+- id: 6434dfb59f01
+  text: Define HLE and DeepSearchQA benchmarks when first mentioned in Section 4.5;
+    currently appear without context for non-specialists.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-698-toward-generalist-autonomous-research-vi/paper/source/
+  location: ''
+- id: fd5a4668250d
+  text: Replace 'held-out' with 'test set' or 'unseen test data' at first use; 'held-out'
+    is standard ML jargon but may exclude broader readers.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-698-toward-generalist-autonomous-research-vi/paper/source/
+  location: ''
+- id: aa4f81f646de
+  text: Replace 'worktree' with 'isolated working copy' or 'separate code branch'
+    on first occurrence; git-specific terminology excludes non-developers.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-698-toward-generalist-autonomous-research-vi/paper/source/
+  location: ''
+- id: a69998c116c8
+  text: Replace 'backpropagate' when describing insight propagation in Section 3.2;
+    this term suggests gradient backpropagation and may confuse readers.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-698-toward-generalist-autonomous-research-vi/paper/source/
+  location: ''
+- id: 104c35fe7955
+  text: Replace 'scalar scores' with 'numerical scores' for accessibility; 'scalar'
+    is technical notation.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-698-toward-generalist-autonomous-research-vi/paper/source/
+  location: ''
+- id: 24d7f805a2ad
+  text: Define 'artifact' early when first used to mean 'research code/output' to
+    distinguish from general usage.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-698-toward-generalist-autonomous-research-vi/paper/source/
+  location: ''
+- id: eb82bb8c69de
+  text: Replace 'frontier control' with 'search frontier management' or 'active hypothesis
+    tracking' for clarity.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-698-toward-generalist-autonomous-research-vi/paper/source/
+  location: ''
+- id: 8dac8cfd561e
+  text: Define 'backbone model' in Section 4.4 or use 'base LLM' for consistency with
+    general ML terminology.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-698-toward-generalist-autonomous-research-vi/paper/source/
+  location: ''
+- id: 2040acd7b36d
+  text: Clarify the '2.5x gain' claim in the Abstract and Introduction to specify
+    it refers to the aggregate average across tasks, noting it does not hold for every
+    individual task (e.g., Architecture Design), to ensure the conclusion strictly
+    follows the data in Table 1.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-698-toward-generalist-autonomous-research-vi/paper/source/
+  location: ''
+- id: cc1b45e2e71e
+  text: The Abstract claims 'attaining more than 2.5x the average relative held-out
+    gain'. Data in Table 1 shows Architecture Design (~1.75x) and Search-Agent (~2.36x)
+    fall below this threshold. Clarify if this is an aggregate average or per-task
+    guarantee to avoid misrepresentation.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-698-toward-generalist-autonomous-research-vi/paper/source/
+  location: ''
+- id: 765c3f9f95ee
+  text: The title claims 'Generalist Autonomous Research', but the Appendix Limitations
+    admit the scope omits biology, physics, and kernel optimization. Temper the title
+    or abstract to reflect the specific domains evaluated (ML training, harness engineering,
+    data synthesis).
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-698-toward-generalist-autonomous-research-vi/paper/source/
+  location: ''
+- id: fc2fb8bba1b9
+  text: The MLE-Bench Lite SOTA claim (86.36%) relies on GPT-5.5, whereas baselines
+    like AI-Scientist used Gemini-3-Flash. Clarify if the gain is attributable to
+    the framework or the stronger backbone to avoid conflating model capability with
+    method efficacy.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-698-toward-generalist-autonomous-research-vi/paper/source/
+  location: ''
+- id: 8490f614ee45
+  text: Add dedicated ethics/safety section addressing dual-use risks, misuse scenarios,
+    and potential societal impacts of autonomous research automation
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-698-toward-generalist-autonomous-research-vi/paper/source/
+  location: ''
+- id: 87175a80de42
+  text: Discuss safety guardrails and human oversight requirements for the AO framework,
+    particularly for deployment in sensitive domains
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-698-toward-generalist-autonomous-research-vi/paper/source/
+  location: ''
+- id: 659b44324019
+  text: Provide usage guidelines for open-source release including restrictions on
+    deployment contexts and responsible use recommendations
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-698-toward-generalist-autonomous-research-vi/paper/source/
+  location: ''
+- id: 227a6ab51c58
+  text: Address data privacy considerations for the data synthesis tasks, especially
+    regarding synthetic data generation and potential bias amplification
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-698-toward-generalist-autonomous-research-vi/paper/source/
+  location: ''
+- id: 16918ee1ed76
+  text: Section 4.2 claims Avg@3 with standard deviation, but Table 1 reports single
+    values without variance. Add error bars or std dev for all main results to assess
+    significance.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-698-toward-generalist-autonomous-research-vi/paper/source/
+  location: ''
+- id: 75196890606e
+  text: Model Training tasks (Table 1) use only two seeds for test averaging. Increase
+    to at least 5 seeds or justify why N=2 suffices for stochastic training metrics.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-698-toward-generalist-autonomous-research-vi/paper/source/
+  location: ''
+- id: ca7baac6bd17
+  text: Ablation study (Table 3) is limited to MLE-Bench Lite. Replicate key ablations
+    (w/o tree, w/o insight) on at least one primary AO task to verify HTR contribution.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-698-toward-generalist-autonomous-research-vi/paper/source/
+  location: ''
+- id: f10e5a21a73c
+  text: Resolve the discrepancy between 'two seeds' in Table 1 and 'three times' in
+    Section 5.2 to ensure reproducible experimental protocols.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-698-toward-generalist-autonomous-research-vi/paper/source/
+  location: ''
+- id: 30e91eb8e500
+  text: Report statistical significance tests (e.g., t-tests, bootstrap CIs) for main
+    results to validate that gains are not due to random variance.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-698-toward-generalist-autonomous-research-vi/paper/source/
+  location: ''
+- id: 683b3a719493
+  text: Include variance estimates (std dev or CI) in ablation studies (Table 4) to
+    substantiate the reliability of component contributions.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-698-toward-generalist-autonomous-research-vi/paper/source/
+  location: ''
+- id: 4c3d88892e3b
+  text: Address multiple comparisons across the six tasks to control family-wise error
+    rate when claiming superiority across all benchmarks.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-698-toward-generalist-autonomous-research-vi/paper/source/
+  location: ''
+- id: 0cd27e2f0775
+  text: Duplicate label on Section 3 causes cross-reference ambiguity. Use single
+    label per section.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-698-toward-generalist-autonomous-research-vi/paper/source/
+  location: ''
+- id: 4f7a4f5ab3d8
+  text: Inconsistent table font sizing across tables. Standardize to small with fixed
+    column widths.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-698-toward-generalist-autonomous-research-vi/paper/source/
+  location: ''
+- id: cc00ddf712b7
+  text: Mixed citation commands used interchangeably. Choose one style and apply consistently.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-698-toward-generalist-autonomous-research-vi/paper/source/
+  location: ''
+- id: ee81d2cd1d1b
+  text: Inconsistent figure placement specifiers across figures. Standardize throughout.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-698-toward-generalist-autonomous-research-vi/paper/source/
+  location: ''
+- id: ad2c430c018d
+  text: Conditional may cause compilation warnings on non-pdftex engines. Remove or
+    guard properly.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-698-toward-generalist-autonomous-research-vi/paper/source/
+  location: ''
+- id: 65b5f4bf42ba
+  text: Section lacks label while all other sections have labels. Add for cross-reference
+    consistency.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-698-toward-generalist-autonomous-research-vi/paper/source/
+  location: ''
+- id: 1d120dc288a1
+  text: Fix missing space in Section 2.3 citation command 'frontierscience}focus'
+    to 'frontierscience} focus'.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-698-toward-generalist-autonomous-research-vi/paper/source/
+  location: ''
+- id: 89828757db9e
+  text: Revise Abstract phrasing 'attaining... gain' to 'achieving... gain' for better
+    collocation.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-698-toward-generalist-autonomous-research-vi/paper/source/
+  location: ''
+- id: 63a7fdb3a707
+  text: Formalize Table 1 caption text 'test averages two seeds' to 'test average
+    over two seeds'.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-698-toward-generalist-autonomous-research-vi/paper/source/
+  location: ''
+- id: e573dae9da4d
+  text: Ensure consistent verb tense in Experiments section (Section 5) between present
+    and past tense.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-698-toward-generalist-autonomous-research-vi/paper/source/
+  location: ''
+kickback_reason: 'advancement.evaluate: paper-review non-convergence; routing via
+  engine adapter.'
+kickback_artifact_links:
+- projects/PROJ-698-toward-generalist-autonomous-research-vi/paper/source/
+stage_results:
+- name: specify
+  status: success
+- name: clarify
+  status: success
+  note: auto-resolved; deterministic adapter needs no clarifications
+- name: plan
+  status: success
+- name: tasks
+  status: success
+  note: 49 tasks emitted (one per concern)
+- name: analyze
+  status: success
+  iterations: 1
+  finding_count: 0
+final_outcome: ready_for_implementation
+produced_at: '2026-06-15T11:39:09.431761+00:00'
