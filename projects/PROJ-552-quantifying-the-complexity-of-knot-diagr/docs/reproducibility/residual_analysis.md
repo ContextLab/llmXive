@@ -14,7 +14,7 @@ This document presents the residual analysis for regression models fitted to pre
 **Key Findings**:
 - Linear model R² = 0.847 (crossing number + braid index predictors)
 - Polynomial (degree 2) model R² = 0.891 (best fit)
-- 23 knots identified as outliers (|standardized residual| ≥ 2.0)
+- 23 knots identified as outliers (|standardized residual| ≥ 2.0) [UNRESOLVED-CLAIM: c_34109926 — status=not_enough_info]
 - Outlier concentration in non-alternating knots with crossing number 11-13
 
 ---
@@ -41,7 +41,7 @@ Standardized residuals computed as:
 r_std = (y_observed - y_predicted) / σ_residual
 ```
 
-Outlier threshold: |r_std| ≥ 2.0 (approximately 95% confidence interval)
+Outlier threshold: |r_std| ≥ 2.0 (approximately 95% confidence interval) [UNRESOLVED-CLAIM: c_69d4ce8d — status=not_enough_info]
 
 ### 2.3 Data Sources
 
@@ -84,10 +84,10 @@ The following knots were identified as statistical outliers. Each entry includes
 | 11n567 | Non-alt | 11 | 6 | 2.987 | Poly | -2.47 | Non-alternating 11 |
 
 **Summary Statistics**:
-- Total outliers: 23 knots (0.77% of dataset)
-- Non-alternating outliers: 15 knots (65.2%)
-- Alternating outliers: 8 knots (34.8%)
-- Mean absolute standardized residual (outliers): 2.38
+- Total outliers: 23 knots (0.77% of dataset) [UNRESOLVED-CLAIM: c_5a0484ec — status=not_enough_info]
+- Non-alternating outliers: 15 knots (65.2%) [UNRESOLVED-CLAIM: c_7c338ab1 — status=not_enough_info]
+- Alternating outliers: 8 knots (34.8%) [UNRESOLVED-CLAIM: c_3267b64c — status=not_enough_info]
+- Mean absolute standardized residual (outliers): 2.38 [UNRESOLVED-CLAIM: c_16addfd2 — status=not_enough_info]
 
 ### 3.2 Family-Level Analysis
 
@@ -127,11 +127,11 @@ Alternating knots show systematic over-prediction (positive residuals), suggesti
 
 **1. Braid Index Underestimation**
 
-For non-alternating knots, the relationship between crossing number and braid index is less predictable. The Murasugi-Przytycki bound (B ≤ C) holds, but many non-alternating knots have B values significantly below C due to complex braid word structures that cannot be simplified.
+For non-alternating knots, the relationship between crossing number and braid index is less predictable. The Murasugi-Przytycki bound (B ≤ C) holds [UNRESOLVED-CLAIM: c_9cf74e85 — status=not_enough_info], but many non-alternating knots have B values significantly below C due to complex braid word structures that cannot be simplified.
 
 **2. Hyperbolic Volume Complexity**
 
-Non-alternating knots often contain hidden geometric structures (e.g., essential tori, complex cusp shapes) that increase volume beyond what C and B predict. This is consistent with Agol's work on volume bounds for alternating vs. non-alternating knots.
+Non-alternating knots often contain hidden geometric structures (e.g., essential tori, complex cusp shapes) that increase volume beyond what C and B predict. This is consistent with Agol's work on volume bounds for alternating vs. non-alternating knots [UNRESOLVED-CLAIM: c_f5bbe669 — status=not_enough_info].
 
 **3. Diagram Dependency**
 
@@ -141,7 +141,7 @@ The braid index is diagram-dependent in practice (though invariant in theory). F
 
 **1. Volume Efficiency of Alternating Knots**
 
-Alternating knots exhibit a "volume efficiency" property where their hyperbolic volume is minimized for given C and B values. This aligns with the Lackenby bounds relating volume to twist number for alternating knots.
+Alternating knots exhibit a "volume efficiency" property where their hyperbolic volume is minimized for given C and B values. This aligns with the Lackenby bounds relating volume to twist number for alternating knots [UNRESOLVED-CLAIM: c_61d08209 — status=not_enough_info].
 
 **2. Small Crossing Number Effects**
 

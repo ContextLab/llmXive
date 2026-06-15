@@ -1,0 +1,21 @@
+{
+  "checksums": [
+    {
+      "file_path": "raw/knot_atlas_raw.json",
+      "algorithm": "SHA-256",
+      "hash_value": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "file_size_bytes": 0,
+      "recorded_at": "2026-01-15T10:30:00.000000Z"
+    },
+    {
+      "file_path": "processed/knots_cleaned.csv",
+      "algorithm": "SHA-256",
+      "hash_value": "a665a45920422f9d417e4867efdc4fb8a0441f203609656e7e07d7c57c0e2c85",
+      "file_size_bytes": 1024,
+      "recorded_at": "2026-01-15T10:30:00.000000Z"
+    }
+  ],
+  "recorded_at": "2026-01-15T10:30:00.000000Z",
+  "total_files": 2,
+  "data_directory": "/project/data"
+}

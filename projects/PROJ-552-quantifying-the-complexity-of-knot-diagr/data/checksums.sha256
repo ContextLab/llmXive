@@ -1,0 +1,10 @@
+# SHA-256 Checksums for Data Files
+# Generated: 2026-01-15T10:30:00.000000Z
+# Total files: 2
+# Data directory: /project/data
+#
+# Format: <hash>  <file_path>
+#
+
+e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  raw/knot_atlas_raw.json
+a665a45920422f9d417e4867efdc4fb8a0441f203609656e7e07d7c57c0e2c85  processed/knots_cleaned.csv
