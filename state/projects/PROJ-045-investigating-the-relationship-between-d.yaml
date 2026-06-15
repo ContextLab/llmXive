@@ -1,18 +1,19 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-04-30T15:42:00.428798Z'
-current_stage: flesh_out_complete
+current_stage: validated
 failed_stage: null
 field: materials science
 human_escalation_reason: null
 id: PROJ-045-investigating-the-relationship-between-d
-last_run_id: ba8bdfcd-6a08-4db8-9ad3-76095b1cea9d
+last_run_id: a98e9207-8f20-4157-9358-a45747680208
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
+revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: Investigating the Relationship Between Defect Chemistry and Ionic Conductivity
   in Solid Electrolytes
-updated_at: '2026-04-30T15:44:10.433209Z'
+updated_at: '2026-06-15T17:31:05.301393Z'
