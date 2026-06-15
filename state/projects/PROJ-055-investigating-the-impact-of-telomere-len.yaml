@@ -1,18 +1,19 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-04-30T20:32:55.080686Z'
-current_stage: flesh_out_complete
+current_stage: validated
 failed_stage: null
 field: biology
 human_escalation_reason: null
 id: PROJ-055-investigating-the-impact-of-telomere-len
-last_run_id: 9169a091-45e3-4b5d-8be5-456a0781208a
+last_run_id: cccf85bc-46e5-4f5d-9dc6-49c4ab41ca62
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
+revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: Investigating the Impact of Telomere Length on Lifespan Variation in Wild Bird
   Populations
-updated_at: '2026-04-30T20:34:18.949859Z'
+updated_at: '2026-06-15T12:52:36.839741Z'
