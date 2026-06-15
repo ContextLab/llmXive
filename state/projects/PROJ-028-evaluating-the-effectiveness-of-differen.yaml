@@ -1,17 +1,18 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-04-30T09:50:58.183735Z'
-current_stage: flesh_out_complete
+current_stage: validated
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-028-evaluating-the-effectiveness-of-differen
-last_run_id: 8d5541c3-90bb-498a-963e-cd58a6070e8e
+last_run_id: 68bdac71-ce8c-4f52-af5b-2839c271fe06
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
+revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: Evaluating the Effectiveness of Different Prompting Strategies for Code Generation
-updated_at: '2026-04-30T09:52:22.508968Z'
+updated_at: '2026-06-15T15:40:26.890719Z'
