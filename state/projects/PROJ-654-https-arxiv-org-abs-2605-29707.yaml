@@ -11,9 +11,9 @@ last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
-revision_spec_path: specs/auto-revisions/PROJ-654-https-arxiv-org-abs-2605-29707/round-1
+revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'Domino: Decoupling Causal Modeling from Autoregressive Drafting in Speculative
   Decoding'
-updated_at: '2026-06-15T01:06:28.031629Z'
+updated_at: '2026-06-15T14:39:11.657900Z'
