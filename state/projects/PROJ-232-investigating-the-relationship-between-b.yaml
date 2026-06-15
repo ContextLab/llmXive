@@ -1,18 +1,19 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-04T01:02:23.568477Z'
-current_stage: flesh_out_complete
+current_stage: validated
 failed_stage: null
 field: neuroscience
 human_escalation_reason: null
 id: PROJ-232-investigating-the-relationship-between-b
-last_run_id: bfd26cfd-0854-4ace-8d4b-c28cc4865dd7
+last_run_id: ec94ca1e-0400-4d0f-82b3-c0ae26a7e0e4
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
+revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: Investigating the Relationship Between Brain Network Dynamics and Individual
   Differences in Musical Emotion Perception
-updated_at: '2026-05-04T01:04:38.205488Z'
+updated_at: '2026-06-15T05:37:45.982566Z'
