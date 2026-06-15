@@ -80,9 +80,9 @@ description: "Task list template for feature implementation"
 
 ## Phase 3: User Story 1 - Download and Parse Knot Data from Knot Atlas (Priority: P1) 🎯 MVP
 
-**Goal**: Download knot data from Knot Atlas including crossing numbers, braid indices, hyperbolic volume, and alternating/non-alternating classification for all prime knots with crossing number ≤13 [UNRESOLVED-CLAIM: c_7f60edb7 — status=not_enough_info]
+**Goal**: Download knot data from Knot Atlas including crossing numbers, braid indices, hyperbolic volume, and alternating/non-alternating classification for all prime knots with crossing number ≤13
 
-**Independent Test**: Can be fully tested by executing the data download script and verifying the output contains all prime knots with crossing number ≤13 [UNRESOLVED-CLAIM: c_7f60edb7 — status=not_enough_info] with consistent representation of crossing number, braid index, hyperbolic volume, and alternating/non-alternating classification fields.
+**Independent Test**: Can be fully tested by executing the data download script and verifying the output contains all prime knots with crossing number ≤13 with consistent representation of crossing number, braid index, hyperbolic volume, and alternating/non-alternating classification fields.
 
 ### Implementation for User Story 1
 
@@ -94,7 +94,7 @@ description: "Task list template for feature implementation"
 - [X] T017 [US1] Generate dataset size report in docs/reproducibility/dataset_counts.md with concrete prime knot counts per crossing number (per US1 dataset enumeration requirement)
 - [X] T019 [US1] Filter dataset to hyperbolic knots (volume > 0) and log excluded knots in docs/reproducibility/excluded_knots.md (per FR-012; verification: confirm exclusion count matches docs/reproducibility/excluded_knots.md per SC-012 explicit verification requirement)
 - [X] T040 [US1] Validate hyperbolic volume data against KnotInfo reference values and document source independence assessment in docs/reproducibility/hyperbolic_volume_validation.md (per FR-013; verification: ≥90% match against KnotInfo reference values per FR-013; IF KnotInfo reference coverage <90%, skip cross-check and document limitation with skip rationale per FR-013; Depends on T019)
-- [X] T020 [US1] {{claim:c_f520e5b4}} (OEIS A002863 [UNRESOLVED-CLAIM: c_9585f1f5 — status=not_enough_info], https://oeis.org/A002863) and document validation results in docs/reproducibility/validation_scope.md (per SC-001)
+- [X] T020 [US1] {{claim:c_f520e5b4}} (OEIS A002863, https://oeis.org/A002863) and document validation results in docs/reproducibility/validation_scope.md (per SC-001)
 - [X] T026 [US1] Validate tabulation accuracy for core invariants (crossing number, braid index) against KnotInfo reference values and document results in docs/reproducibility/core_invariants_tabulation.md with pass/fail status and coverage percentage; note that braid index is TABULATED from Knot Atlas per FR-003/SC-008 (algorithm validation for additional invariants deferred to Phase 2+ per SC-010; core invariants are TABULATED not computed, so algorithm validation does not apply to Phase 1; Constitution Principle VI applies to computed invariants in Phase 2+)
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
@@ -127,9 +127,9 @@ description: "Task list template for feature implementation"
 - [X] T029 [US2] Apply missing_invariant_flags and data_quality_flags defined in T009/T010 in code/data/validator.py (per FR-002, FR-009; NOTE: requires T009/T010 flag definitions from Phase 2)
 - [X] T030b [US2] Implement validation script to automate tie-breaking rule consistency checks in docs/reproducibility/tie_breaking_validator.py (per SC-007; verification: script must return success exit code (0) on consistency check per SC-007; Depends on T030)
 - [X] T067 [US2] Add human-readable complexity interpretation guide in docs/reproducibility/complexity_interpretation.md (per dan-rockmore-simulated review - "human readability" of metric)
-- [ ] T068 [US2] Generate visualization examples showing how complexity metric maps to knot diagram features in data/plots/complexity_visualization_examples.png (per dan-rockmore-simulated review)
-- [ ] T069 [US2] Document concrete data quantities processed (knot counts per crossing number, total records, null percentages) in docs/reproducibility/data_quantities.md (per marie-curie-simulated review - "concrete numbers")
-- [ ] T070 [US2] Document classification error margins and signal-to-noise ratio analysis in docs/reproducibility/classification_error_analysis.md (per marie-curie-simulated review)
+- [X] T068 [US2] Generate visualization examples showing how complexity metric maps to knot diagram features in data/plots/complexity_visualization_examples.png (per dan-rockmore-simulated review)
+- [X] T069 [US2] Document concrete data quantities processed (knot counts per crossing number, total records, null percentages) in docs/reproducibility/data_quantities.md (per marie-curie-simulated review - "concrete numbers")
+- [X] T070 [US2] Document classification error margins and signal-to-noise ratio analysis in docs/reproducibility/classification_error_analysis.md (per marie-curie-simulated review)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -143,17 +143,17 @@ description: "Task list template for feature implementation"
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T031 [P] [US3] Contract test for regression model output in tests/contract/test_regression.py
+- [X] T031 [P] [US3] Contract test for regression model output in tests/contract/test_regression.py
 
 ### Implementation for User Story 3
 
-- [ ] T032 [US3] Implement regression model fitting (linear, polynomial, logarithmic) in code/analysis/regression.py (per FR-005)
-- [ ] T033 [US3] Compute goodness-of-fit metrics (R², AIC/BIC, MAE) for each model type in code/analysis/regression.py (per FR-005)
-- [ ] T034 [US3] Implement residual analysis to identify hyperbolic knot families deviating ≥2 standard deviations in code/analysis/residual_analysis.py (per FR-005, SC-011)
-- [ ] T035 [US3] Document residual family analysis in docs/reproducibility/residual_analysis.md with specific knot identifiers and potential explanations
+- [X] T032 [US3] Implement regression model fitting (linear, polynomial, logarithmic) in code/analysis/regression.py (per FR-005)
+- [X] T033 [US3] Compute goodness-of-fit metrics (R², AIC/BIC, MAE) for each model type in code/analysis/regression.py (per FR-005)
+- [X] T034 [US3] Implement residual analysis to identify hyperbolic knot families deviating ≥2 standard deviations in code/analysis/residual_analysis.py (per FR-005, SC-011)
+- [X] T035 [US3] Document residual family analysis in docs/reproducibility/residual_analysis.md with specific knot identifiers and potential explanations
 - [ ] T036 [US3] Compute Spearman and Pearson correlation coefficients with effect sizes (Cohen's d, r) in code/analysis/regression.py (per FR-006; verification: explicitly verify p-values are NOT reported for census data and marked as 'not applicable for census data' in all output artifacts per FR-006 and Constitution Principle VII census-data exception)
 - [ ] T037 [US3] Compute VIF for multicollinearity assessment in code/analysis/regression.py (per FR-005)
-- [ ] T038 [US3] Document multicollinearity assessment in docs/reproducibility/multicollinearity_assessment.md with acknowledgment of braid index ≤ crossing number [UNRESOLVED-CLAIM: c_5c30cbe8 — status=not_enough_info] constraint
+- [ ] T038 [US3] Document multicollinearity assessment in docs/reproducibility/multicollinearity_assessment.md with acknowledgment of braid index ≤ crossing number constraint
 - [ ] T039 [US3] Compute descriptive comparison metrics (mean difference, variance ratio, Cohen's d) for alternating vs. non-alternating groups in code/analysis/regression.py (per FR-006)
 
 **Checkpoint**: All user stories should now be independently functional
@@ -197,7 +197,7 @@ description: "Task list template for feature implementation"
 - [ ] T058 Verify all random seeds are pinned and document verification results in docs/reproducibility/seed_verification.md with all pinned seed values (distinct from T050 random_seeds.md which lists values used)
 - [ ] T059 Document selection bias acknowledgment (hyperbolic-only filtering) in docs/reproducibility/selection_bias.md (per FR-012, Assumptions)
 - [ ] T060 Document census data statistical interpretation in docs/reproducibility/census_interpretation.md (per Assumptions)
-- [ ] T061 Document mathematical constraint acknowledgment (braid index ≤ crossing number [UNRESOLVED-CLAIM: c_5c30cbe8 — status=not_enough_info]) in docs/reproducibility/mathematical_constraints.md (per Assumptions)
+- [ ] T061 Document mathematical constraint acknowledgment (braid index ≤ crossing number) in docs/reproducibility/mathematical_constraints.md (per Assumptions)
 - [ ] T071 [P] Create final summary report in docs/reproducibility/final_report.md synthesizing all findings with human-readable complexity interpretations (per dan-rockmore-simulated review - "concrete data quantities and measurement precision standards")
 - [ ] T072 [P] Create methodology appendix in docs/reproducibility/methodology_appendix.md with concrete data quantities and measurement precision standards (per marie-curie-simulated review)
 

@@ -929,7 +929,29 @@
   verification_status: verified
   verified_against_url: https://oeis.org/A002863
   verified_at: '2026-06-14T22:42:10.358673Z'
-- artifact_hash: f87c24826ce9755ef7078572146344a48669ebe63a3ee6e588e6236ec15e9e93
+- artifact_hash: d57d073b55ecd748c6f9ece03d812c110e200fcac0a401b87a457128aecc1113
+  artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/classification_error_analysis.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Knot Atlas
+  kind: url
+  value: https://katlas.org
+  verification_status: verified
+  verified_against_url: https://katlas.org/wiki/Main_Page
+  verified_at: '2026-06-14T23:22:17.125015Z'
+- artifact_hash: d57d073b55ecd748c6f9ece03d812c110e200fcac0a401b87a457128aecc1113
+  artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/classification_error_analysis.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://knotinfo.math.indiana.edu
+  verification_status: unreachable
+  verified_against_url: https://knotinfo.math.indiana.edu
+  verified_at: '2026-06-14T23:22:17.125015Z'
+- artifact_hash: e71ff19973481a18120947deac93c3aba303c69f5c9ca39cdaa906896ced7a22
   artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -939,8 +961,8 @@
   value: https://katlas.org
   verification_status: verified
   verified_against_url: https://katlas.org/wiki/Main_Page
-  verified_at: '2026-06-14T22:56:18.481843Z'
-- artifact_hash: f87c24826ce9755ef7078572146344a48669ebe63a3ee6e588e6236ec15e9e93
+  verified_at: '2026-06-15T01:17:34.827560Z'
+- artifact_hash: e71ff19973481a18120947deac93c3aba303c69f5c9ca39cdaa906896ced7a22
   artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -950,4 +972,15 @@
   value: https://oeis.org/A002863
   verification_status: verified
   verified_against_url: https://oeis.org/A002863
-  verified_at: '2026-06-14T22:56:18.481843Z'
+  verified_at: '2026-06-15T01:17:34.827560Z'
+- artifact_hash: e2b45845d30d54d78bd28a55ecdb3d493c5eaa4bb3d426bd0e5f38d1a2a9bada
+  artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/residual_analysis.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Knot Atlas
+  kind: url
+  value: https://katlas.org
+  verification_status: verified
+  verified_against_url: https://katlas.org/wiki/Main_Page
+  verified_at: '2026-06-15T01:18:40.948029Z'
