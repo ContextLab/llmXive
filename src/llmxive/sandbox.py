@@ -89,6 +89,61 @@ def ensure_venv(project_dir: Path) -> Path:
     return py
 
 
+def run_in_venv(
+    *,
+    project_dir: Path,
+    args: list[str],
+    timeout_s: int = 600,
+    cwd: Path | None = None,
+    extra_env: dict[str, str] | None = None,
+) -> ExecutionResult:
+    """Run ``python <args...>`` inside the project's venv. Returns capture.
+
+    General form of :func:`run_python_script` (which guards a single-file
+    run): ``args`` is whatever follows ``python`` — e.g. ``["code/x.py"]``
+    or ``["-c", "import code.foo"]``. Used by the analysis-execution stage
+    to run the project's quickstart run-book (mix of script + ``-c`` lines)
+    in the per-project venv. cwd defaults to ``project_dir`` so scripts
+    write to ``data/`` / ``figures/`` with project-root-relative paths.
+    """
+    import time
+
+    # Resolve to ABSOLUTE: subprocess runs with cwd=project_dir, so a
+    # relative venv-python path (when the caller passes a relative
+    # project_dir) would resolve against the changed cwd and vanish
+    # (FileNotFoundError). Absolute paths are cwd-independent.
+    py = ensure_venv(project_dir).resolve()
+    run_cwd = Path(cwd or project_dir).resolve()
+    env = os.environ.copy()
+    env["PYTHONUNBUFFERED"] = "1"
+    if extra_env:
+        env.update(extra_env)
+    started = time.time()
+    timed_out = False
+    try:
+        proc = subprocess.run(
+            [str(py), *args],
+            cwd=str(run_cwd),
+            timeout=timeout_s,
+            capture_output=True,
+            text=True,
+            env=env,
+        )
+        rc, out, err = proc.returncode, proc.stdout, proc.stderr
+    except subprocess.TimeoutExpired as exc:
+        timed_out = True
+        rc = -1
+        out = (exc.stdout or b"").decode("utf-8", errors="replace") if isinstance(exc.stdout, bytes) else (exc.stdout or "")
+        err = (
+            (exc.stderr or b"").decode("utf-8", errors="replace") if isinstance(exc.stderr, bytes) else (exc.stderr or "")
+        ) + f"\n[TIMEOUT after {timeout_s}s]"
+    elapsed = time.time() - started
+    return ExecutionResult(
+        ok=rc == 0, returncode=rc, stdout=out, stderr=err,
+        duration_s=elapsed, timed_out=timed_out,
+    )
+
+
 def run_python_script(
     *,
     project_dir: Path,
@@ -98,8 +153,6 @@ def run_python_script(
     extra_env: dict[str, str] | None = None,
 ) -> ExecutionResult:
     """Run `python <script>` inside the project's venv. Returns capture."""
-    import time
-
     script = project_dir / script_relpath
     if not script.exists():
         return ExecutionResult(
@@ -130,44 +183,15 @@ def run_python_script(
             ),
             duration_s=0.0,
         )
-    py = ensure_venv(project_dir)
-    env = os.environ.copy()
-    env["PYTHONUNBUFFERED"] = "1"
-    if extra_env:
-        env.update(extra_env)
-    started = time.time()
-    timed_out = False
-    try:
-        proc = subprocess.run(
-            [str(py), str(script)],
-            # Run with cwd=project_dir so scripts can write to data/raw/,
-            # paper/figures/ etc. with paths relative to the project
-            # root. Previously cwd=code/ which meant scripts created
-            # code/data/raw/ which subsequent scripts couldn't find.
-            cwd=str(cwd or project_dir),
-            timeout=timeout_s,
-            capture_output=True,
-            text=True,
-            env=env,
-        )
-        rc = proc.returncode
-        out = proc.stdout
-        err = proc.stderr
-    except subprocess.TimeoutExpired as exc:
-        timed_out = True
-        rc = -1
-        out = (exc.stdout or b"").decode("utf-8", errors="replace") if isinstance(exc.stdout, bytes) else (exc.stdout or "")
-        err = (
-            (exc.stderr or b"").decode("utf-8", errors="replace") if isinstance(exc.stderr, bytes) else (exc.stderr or "")
-        ) + f"\n[TIMEOUT after {timeout_s}s]"
-    elapsed = time.time() - started
-    return ExecutionResult(
-        ok=rc == 0,
-        returncode=rc,
-        stdout=out,
-        stderr=err,
-        duration_s=elapsed,
-        timed_out=timed_out,
+    # Run with cwd=project_dir so scripts write to data/raw/, figures/ etc.
+    # with project-root-relative paths (delegated to run_in_venv, the SSoT
+    # for the venv subprocess invocation).
+    return run_in_venv(
+        project_dir=project_dir,
+        args=[str(script)],
+        timeout_s=timeout_s,
+        cwd=cwd,
+        extra_env=extra_env,
     )
 
 

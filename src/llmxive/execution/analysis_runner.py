@@ -1,0 +1,281 @@
+"""Deterministic analysis execution from the quickstart run-book.
+
+``quickstart.md`` (produced by ``/speckit-plan`` for every project) carries
+the ordered shell commands that run the analysis — download → parse →
+filter → analyze → visualize. This module extracts those commands and runs
+them in the project's per-project venv (via :mod:`llmxive.sandbox`), then
+reports which real artifacts (data files, figures) were produced.
+
+It is INTENTIONALLY deterministic and does not rely on the implementer LLM
+flagging individual scripts ``execute: true`` — a near-converged
+implementation left every script unflagged, so nothing ran (the PROJ-552
+hollow-implementation finding). Running the whole run-book once, after the
+code is written, is the dedicated execution stage.
+"""
+
+from __future__ import annotations
+
+import re
+import shlex
+from dataclasses import dataclass, field
+from pathlib import Path
+
+from llmxive import sandbox
+
+# Directories whose (non-.gitkeep, non-empty) contents count as real produced
+# research artifacts. Figures may land in any of these depending on the plan.
+_ARTIFACT_DIRS = ("data", "figures")
+_FIGURE_SUFFIXES = (".png", ".pdf", ".jpg", ".jpeg", ".svg")
+_DATA_SUFFIXES = (".csv", ".json", ".parquet", ".npy", ".npz", ".tsv", ".h5", ".feather")
+
+# Shell builtins / no-data commands in quickstart blocks we deliberately skip
+# (directory checks, navigation, prints) — only ``python`` lines do real work.
+_SKIP_PREFIXES = ("#", "cd ", "ls", "cat ", "echo", "export ", "source ", "mkdir",
+                  "pip install", "python -m venv", "tree", "find ", "head ", "tail ")
+
+_BASH_BLOCK_RE = re.compile(r"```(?:bash|sh|console)\s*\n(.*?)```", re.DOTALL | re.IGNORECASE)
+
+
+@dataclass
+class RunCommandResult:
+    """Outcome of one quickstart ``python`` command."""
+
+    command: str
+    ok: bool
+    returncode: int
+    duration_s: float
+    timed_out: bool
+    tail: str  # last chars of stdout+stderr, for diagnosis
+    script_missing: bool = False
+
+
+@dataclass
+class AnalysisRunResult:
+    """Aggregate outcome of running the quickstart analysis run-book."""
+
+    ok: bool
+    commands: list[RunCommandResult] = field(default_factory=list)
+    artifacts_produced: list[str] = field(default_factory=list)  # repo-rel-ish (project-rel) paths
+    declared_missing: list[str] = field(default_factory=list)    # declared deliverables absent post-run
+    deadline_exceeded: bool = False
+    reason: str = ""
+
+
+def extract_run_commands(quickstart_text: str) -> list[str]:
+    """Return the ordered ``python`` commands from quickstart's bash blocks.
+
+    Only ``python``/``python3`` lines are kept (they do the real work);
+    directory checks, navigation, prints, and the venv/pip setup lines are
+    skipped (the venv + requirements are handled by :func:`sandbox.ensure_venv`).
+    Line-continuations (trailing ``\\``) are joined.
+    """
+    commands: list[str] = []
+    for block in _BASH_BLOCK_RE.findall(quickstart_text or ""):
+        # Join backslash line-continuations within the block.
+        joined = re.sub(r"\\\s*\n\s*", " ", block)
+        for raw in joined.splitlines():
+            line = raw.strip()
+            if not line:
+                continue
+            if any(line.startswith(p) for p in _SKIP_PREFIXES):
+                continue
+            if line.startswith(("python ", "python3 ")):
+                commands.append(line)
+    return commands
+
+
+def _snapshot_artifacts(project_dir: Path) -> dict[str, float]:
+    """Map of project-relative artifact path -> mtime for non-empty data/figure
+    files (excluding .gitkeep and venv)."""
+    snap: dict[str, float] = {}
+    for sub in _ARTIFACT_DIRS:
+        root = project_dir / sub
+        if not root.is_dir():
+            continue
+        for p in root.rglob("*"):
+            if not p.is_file() or p.name == ".gitkeep" or "/.venv/" in str(p):
+                continue
+            try:
+                if p.stat().st_size == 0:
+                    continue
+                snap[str(p.relative_to(project_dir))] = p.stat().st_mtime
+            except OSError:
+                continue
+    return snap
+
+
+def _is_research_artifact(rel_path: str) -> bool:
+    suffix = Path(rel_path).suffix.lower()
+    return suffix in _FIGURE_SUFFIXES or suffix in _DATA_SUFFIXES
+
+
+def declared_deliverables(tasks_md: str) -> set[str]:
+    """Project-relative file paths a task explicitly says to produce.
+
+    Matches data/figure file paths (``data/...``, ``figures/...``, or any
+    ``*.png``/``*.csv``/… token) named in task lines. Used to verify the
+    run-book actually created what the tasks promised.
+    """
+    out: set[str] = set()
+    # data/ or figures/ rooted paths with a real file extension
+    for m in re.finditer(r"\b((?:data|figures)/[\w./-]+\.\w+)", tasks_md or ""):
+        out.add(m.group(1))
+    return {
+        p for p in out
+        if _is_research_artifact(p) and not p.endswith(".gitkeep")
+    }
+
+
+def run_analysis(
+    project_dir: Path,
+    *,
+    quickstart_path: Path | None = None,
+    per_cmd_timeout_s: int = 1800,
+    overall_deadline_s: float = 18000.0,  # 5h — under the 6h GHA-class budget
+) -> AnalysisRunResult:
+    """Run the quickstart analysis run-book in the project venv and verify
+    real artifacts were produced.
+
+    ``ok`` is True iff EVERY run-book command exited 0 AND at least one real
+    research artifact (data file or figure) was produced. A missing script,
+    a non-zero exit, a timeout, or a zero-artifact run all yield ``ok=False``
+    with a diagnostic ``reason`` (the gate kicks back to the implementer).
+    """
+    import time
+
+    project_dir = Path(project_dir)
+    if quickstart_path is None:
+        quickstart_path = _find_quickstart(project_dir)
+    if quickstart_path is None or not quickstart_path.is_file():
+        return AnalysisRunResult(
+            ok=False, reason="no quickstart.md run-book found for the project",
+        )
+    qtext = quickstart_path.read_text(encoding="utf-8", errors="replace")
+    commands = extract_run_commands(qtext)
+    if not commands:
+        return AnalysisRunResult(
+            ok=False,
+            reason="quickstart.md contains no runnable `python` commands",
+        )
+
+    before = _snapshot_artifacts(project_dir)
+    results: list[RunCommandResult] = []
+    deadline_exceeded = False
+    t0 = time.monotonic()
+
+    for command in commands:
+        if time.monotonic() - t0 > overall_deadline_s:
+            deadline_exceeded = True
+            break
+        try:
+            args = shlex.split(command)[1:]  # drop the leading `python`
+        except ValueError:
+            results.append(RunCommandResult(
+                command=command, ok=False, returncode=-1, duration_s=0.0,
+                timed_out=False, tail="unparseable command (shlex)",
+            ))
+            continue
+        # A `python code/x.py` line whose script is absent is a real
+        # plan/impl path mismatch — surface it, don't silently skip.
+        script_missing = False
+        if args and not args[0].startswith("-"):
+            script_missing = not (project_dir / args[0]).is_file()
+        # Put the project's code/ dir on PYTHONPATH: the generated scripts
+        # use package-relative sibling imports (`from reproducibility.logs
+        # import ...`, `from download.x import ...`) that assume code/ is on
+        # the path — they are run as `python code/x.py` from the project
+        # root, so without this every script dies with ModuleNotFoundError.
+        res = sandbox.run_in_venv(
+            project_dir=project_dir, args=args, timeout_s=per_cmd_timeout_s,
+            extra_env={"PYTHONPATH": str((project_dir / "code").resolve())},
+        )
+        tail = ((res.stdout or "") + "\n" + (res.stderr or ""))[-1200:]
+        results.append(RunCommandResult(
+            command=command, ok=res.ok, returncode=res.returncode,
+            duration_s=res.duration_s, timed_out=res.timed_out,
+            tail=tail, script_missing=script_missing,
+        ))
+
+    after = _snapshot_artifacts(project_dir)
+    produced = sorted(
+        rel for rel, mt in after.items()
+        if _is_research_artifact(rel) and (rel not in before or before[rel] != mt)
+    )
+
+    # Verify declared deliverables (best-effort: only those the run-book
+    # SHOULD have produced; missing ones are gate failures).
+    tasks_md = _read_tasks(project_dir)
+    declared = declared_deliverables(tasks_md) if tasks_md else set()
+    declared_missing = sorted(
+        d for d in declared if not (project_dir / d).is_file()
+        or (project_dir / d).stat().st_size == 0
+    )
+
+    cmd_failures = [r for r in results if not r.ok]
+    ok = (
+        not deadline_exceeded
+        and not cmd_failures
+        and bool(produced)
+        and not declared_missing
+    )
+    reason_parts: list[str] = []
+    if deadline_exceeded:
+        reason_parts.append(f"overall deadline {overall_deadline_s:.0f}s exceeded")
+    if cmd_failures:
+        miss = [r.command for r in cmd_failures if r.script_missing]
+        if miss:
+            reason_parts.append(
+                f"{len(miss)} run-book script(s) missing (plan/impl path mismatch): "
+                + "; ".join(miss[:3])
+            )
+        other = [r for r in cmd_failures if not r.script_missing]
+        if other:
+            reason_parts.append(
+                f"{len(other)} command(s) failed: "
+                + "; ".join(f"{r.command} (rc={r.returncode})" for r in other[:3])
+            )
+    if not produced and not cmd_failures and not deadline_exceeded:
+        reason_parts.append("run-book completed but produced no data/figure artifacts")
+    if declared_missing:
+        reason_parts.append(
+            f"{len(declared_missing)} declared deliverable(s) absent: "
+            + "; ".join(declared_missing[:3])
+        )
+    return AnalysisRunResult(
+        ok=ok,
+        commands=results,
+        artifacts_produced=produced,
+        declared_missing=declared_missing,
+        deadline_exceeded=deadline_exceeded,
+        reason="; ".join(reason_parts) or "ok",
+    )
+
+
+def _find_quickstart(project_dir: Path) -> Path | None:
+    """Locate the project's quickstart.md via the speckit feature dir.
+
+    Pointer-first (the project's speckit_research_dir), else newest specs/*/.
+    """
+    # pointer-first
+    try:
+        from llmxive.state import project as project_store
+        repo = project_dir.parent.parent
+        proj = project_store.load(project_dir.name, repo_root=repo)
+        ptr = proj.speckit_research_dir
+        if ptr:
+            q = repo / ptr / "quickstart.md"
+            if q.is_file():
+                return q
+    except Exception:
+        pass
+    candidates = sorted((project_dir / "specs").glob("*/quickstart.md"))
+    return candidates[-1] if candidates else None
+
+
+def _read_tasks(project_dir: Path) -> str:
+    for tasks in sorted((project_dir / "specs").glob("*/tasks.md"), reverse=True):
+        try:
+            return tasks.read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            continue
+    return ""
