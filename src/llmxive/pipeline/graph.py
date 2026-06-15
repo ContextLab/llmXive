@@ -67,6 +67,7 @@ from llmxive.speckit.plan_cmd import PlannerAgent
 from llmxive.speckit.slash_command import SlashCommandAgent, SlashCommandContext
 from llmxive.speckit.specify_cmd import SpecifierAgent
 from llmxive.speckit.tasks_cmd import TaskerAgent
+from llmxive.state import execution_status
 from llmxive.state import project as project_store
 from llmxive.types import (
     AgentRegistryEntry,
@@ -351,6 +352,48 @@ def run_one_step(
     entry_stage = project.current_stage  # for the POSTED issue-close hook below
 
     agent_name = STAGE_TO_AGENT.get(project.current_stage)
+
+    # Dedicated execution phase (spec 023 defect #25): once EVERY task is
+    # written, RUN the analysis end-to-end (quickstart run-book, in the
+    # per-project venv) and gate research_complete on real artifacts —
+    # instead of dispatching the implementer again. A failed run records the
+    # tracebacks + re-opens the failing tasks (the bounded auto-fix loop);
+    # success lets _decide_next_stage advance IN_PROGRESS -> RESEARCH_COMPLETE.
+    # Past the fix-round cap _decide_next_stage escalates honestly. This is
+    # what stops a hollow, never-executed implementation from reaching review
+    # (the PROJ-552 finding: 68/68 'done' but empty data/figures).
+    _exec_project_dir = repo / "projects" / project.id
+    if (
+        project.current_stage == Stage.IN_PROGRESS
+        and _all_tasks_done(_exec_project_dir)
+        and not execution_status.is_ok(project.id, repo_root=repo)
+        and execution_status.fix_rounds(project.id, repo_root=repo)
+            < execution_status.MAX_EXECUTION_FIX_ROUNDS
+    ):
+        from llmxive.execution.stage import execute_and_gate
+        execute_and_gate(_exec_project_dir, repo_root=repo)
+        project = project_store.load(project.id, repo_root=repo)
+        next_stage = _decide_next_stage(project, _exec_project_dir, repo_root=repo)
+        if next_stage != project.current_stage:
+            if not is_valid_transition(project.current_stage, next_stage):
+                raise RuntimeError(
+                    f"invalid transition {project.current_stage.value} "
+                    f"-> {next_stage.value}"
+                )
+            upd: dict[str, Any] = {
+                "current_stage": next_stage,
+                "updated_at": datetime.now(UTC),
+                "last_run_id": run_id,
+            }
+            if next_stage == Stage.HUMAN_INPUT_NEEDED and not project.human_escalation_reason:
+                upd["human_escalation_reason"] = (
+                    _human_escalation_reason_from_markers(_exec_project_dir)
+                    or ("analysis execution failed after the fix-round cap: the "
+                        "code does not run cleanly / produces no real artifacts.")
+                )
+            project = project.model_copy(update=upd)
+        project_store.save(project, repo_root=repo)
+        return project
 
     # Spec 015 T042 / FR-034: the 7 transient revision stages were deleted.
     # The remaining stages that need pass-through routing (no agent runs
@@ -1001,8 +1044,19 @@ def _decide_next_stage(
         # next tick observe IN_PROGRESS + all-tasks-done → RESEARCH_COMPLETE.
         return Stage.IN_PROGRESS
     if cur == Stage.IN_PROGRESS:
-        if _all_tasks_done(project_dir):
+        # Spec 023 defect #25: research_complete now requires the analysis to
+        # have actually RUN and produced real artifacts (execution_status.ok),
+        # not just all task checkboxes ticked. Until the dedicated execution
+        # phase succeeds we stay IN_PROGRESS (the run_one_step hook runs the
+        # analysis / the implementer fixes re-opened tasks); past the
+        # fix-round cap we escalate honestly rather than advance hollow work.
+        if not _all_tasks_done(project_dir):
+            return Stage.IN_PROGRESS
+        if execution_status.is_ok(project.id, repo_root=repo_root):
             return Stage.RESEARCH_COMPLETE
+        if (execution_status.fix_rounds(project.id, repo_root=repo_root)
+                >= execution_status.MAX_EXECUTION_FIX_ROUNDS):
+            return Stage.HUMAN_INPUT_NEEDED
         return Stage.IN_PROGRESS
 
     # Paper-Implementer special-case: stay paper_in_progress until ALL

@@ -1,0 +1,124 @@
+"""Tests for the dedicated execution phase + auto-fix loop (spec 023 #25).
+
+Covers the execution-status store, the gate orchestration (success clears
+feedback + records ok; failure writes feedback + re-opens failing tasks +
+bumps the bounded fix counter), and the graph gate that holds
+research_complete until the analysis actually runs.
+"""
+
+from __future__ import annotations
+
+from pathlib import Path
+
+from llmxive.execution import analysis_runner
+from llmxive.execution.analysis_runner import AnalysisRunResult, RunCommandResult
+from llmxive.execution.stage import execute_and_gate
+from llmxive.state import execution_status
+
+
+def _bootstrap_project(tmp_path: Path, project_id: str, tasks_md: str) -> Path:
+    proj = tmp_path / "projects" / project_id
+    (proj / "specs" / "001-x").mkdir(parents=True)
+    (proj / ".specify" / "memory").mkdir(parents=True)
+    (proj / "specs" / "001-x" / "tasks.md").write_text(tasks_md, encoding="utf-8")
+    (tmp_path / "state" / "execution_status").mkdir(parents=True)
+    return proj
+
+
+# --- execution_status store -------------------------------------------------
+
+
+def test_execution_status_record_roundtrip_and_fix_rounds(tmp_path: Path) -> None:
+    (tmp_path / "state" / "execution_status").mkdir(parents=True)
+    pid = "PROJ-001-x"
+    # First failure -> fix_rounds 1, not ok.
+    execution_status.record(pid, ok=False, reason="boom", artifacts=[],
+                            failures=["x"], repo_root=tmp_path)
+    assert execution_status.is_ok(pid, repo_root=tmp_path) is False
+    assert execution_status.fix_rounds(pid, repo_root=tmp_path) == 1
+    # Second failure -> 2.
+    execution_status.record(pid, ok=False, reason="boom2", artifacts=[],
+                            failures=["y"], repo_root=tmp_path)
+    assert execution_status.fix_rounds(pid, repo_root=tmp_path) == 2
+    # Success -> ok True, counter reset.
+    execution_status.record(pid, ok=True, reason="ok", artifacts=["data/x.csv"],
+                            failures=[], repo_root=tmp_path)
+    assert execution_status.is_ok(pid, repo_root=tmp_path) is True
+    assert execution_status.fix_rounds(pid, repo_root=tmp_path) == 0
+
+
+# --- execute_and_gate orchestration ----------------------------------------
+
+
+def test_execute_and_gate_success(tmp_path: Path, monkeypatch) -> None:
+    pid = "PROJ-002-ok"
+    proj = _bootstrap_project(tmp_path, pid, "- [x] T001 produce data/out.csv\n")
+    # Pre-existing stale feedback that a success must clear.
+    (proj / ".specify" / "memory" / "execution_feedback.md").write_text("old", encoding="utf-8")
+
+    def _ok_run(project_dir, **kw):
+        return AnalysisRunResult(
+            ok=True,
+            commands=[RunCommandResult("python code/a.py", True, 0, 1.0, False, "")],
+            artifacts_produced=["data/out.csv"],
+        )
+    monkeypatch.setattr(analysis_runner, "run_analysis", _ok_run)
+    monkeypatch.setattr("llmxive.execution.stage.run_analysis", _ok_run)
+
+    assert execute_and_gate(proj, repo_root=tmp_path) is True
+    assert execution_status.is_ok(pid, repo_root=tmp_path) is True
+    assert not (proj / ".specify" / "memory" / "execution_feedback.md").exists()
+
+
+def test_execute_and_gate_failure_reopens_tasks_and_writes_feedback(
+    tmp_path: Path, monkeypatch
+) -> None:
+    pid = "PROJ-003-fail"
+    tasks = (
+        "- [x] T010 Implement regression in code/analysis/regression.py\n"
+        "- [x] T011 Unrelated docs task in docs/notes.md\n"
+    )
+    proj = _bootstrap_project(tmp_path, pid, tasks)
+
+    def _fail_run(project_dir, **kw):
+        return AnalysisRunResult(
+            ok=False,
+            commands=[
+                RunCommandResult("python code/analysis/regression.py", False, 1,
+                                 0.5, False, "NameError: name 'sys' is not defined"),
+            ],
+            artifacts_produced=[],
+            declared_missing=["data/processed/knots_cleaned.csv"],
+            reason="1 command failed",
+        )
+    monkeypatch.setattr("llmxive.execution.stage.run_analysis", _fail_run)
+
+    assert execute_and_gate(proj, repo_root=tmp_path) is False
+    # status records the failure + bumps the fix counter
+    assert execution_status.is_ok(pid, repo_root=tmp_path) is False
+    assert execution_status.fix_rounds(pid, repo_root=tmp_path) == 1
+    # feedback note written with the traceback + the missing deliverable
+    fb = (proj / ".specify" / "memory" / "execution_feedback.md").read_text()
+    assert "regression.py" in fb and "knots_cleaned.csv" in fb
+    # the regression task is RE-OPENED ([x] -> [ ]); the unrelated docs task is not
+    new_tasks = (proj / "specs" / "001-x" / "tasks.md").read_text()
+    assert "- [ ] T010 Implement regression" in new_tasks
+    assert "- [x] T011 Unrelated docs task" in new_tasks
+
+
+def test_execute_and_gate_no_artifacts_is_failure(tmp_path: Path, monkeypatch) -> None:
+    """A run-book that exits cleanly but writes NO real data/figure is still
+    a failure — scaffolding that prints but produces nothing must not pass."""
+    pid = "PROJ-004-empty"
+    proj = _bootstrap_project(tmp_path, pid, "- [x] T001 do thing\n")
+
+    def _empty_run(project_dir, **kw):
+        return AnalysisRunResult(
+            ok=False,  # run_analysis itself sets ok=False when produced is empty
+            commands=[RunCommandResult("python code/a.py", True, 0, 1.0, False, "")],
+            artifacts_produced=[],
+            reason="run-book completed but produced no data/figure artifacts",
+        )
+    monkeypatch.setattr("llmxive.execution.stage.run_analysis", _empty_run)
+    assert execute_and_gate(proj, repo_root=tmp_path) is False
+    assert execution_status.is_ok(pid, repo_root=tmp_path) is False
