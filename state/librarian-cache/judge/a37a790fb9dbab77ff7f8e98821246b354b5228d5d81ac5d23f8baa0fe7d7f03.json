@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2302.01194",
+  "judged_at": "2026-06-15T19:32:39Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "neuromorphic transformer networks: spiking neural dynamics in language models neuroscience",
+  "rationale": "The paper studies spiking transformer networks with enriched neuronal dynamics (complex dynamic neurons), directly addressing the same mechanism (spiking neural dynamics in transformer architectures) that the user’s question concerns, even though the application is speech recognition rather than text language modeling (acceptance category (a)).",
+  "relevant": true
+}

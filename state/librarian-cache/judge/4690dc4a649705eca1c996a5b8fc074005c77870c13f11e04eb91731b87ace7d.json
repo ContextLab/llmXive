@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2404.14964",
+  "judged_at": "2026-06-15T19:34:54Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "neuromorphic transformer networks: spiking neural dynamics in language models neuroscience",
+  "rationale": "The paper offers a methodological foundation for training spiking neural networks using surrogate gradients, a technique that would be essential for implementing spiking dynamics in neuromorphic transformer language models, satisfying criterion (d) – a canonical methods reference for the SNN component of the user’s topic.",
+  "relevant": true
+}

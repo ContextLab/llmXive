@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2505.14841",
+  "judged_at": "2026-06-15T19:38:04Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "neuromorphic transformer networks: spiking neural dynamics in language models neuroscience",
+  "rationale": "This paper satisfies criterion (a) by investigating the same mechanism (spiking neural dynamics/synchrony) within the same architecture (Transformers), serving as foundational methodology (d) for neuromorphic Transformers even if the benchmark tasks differ from language modeling.",
+  "relevant": true
+}

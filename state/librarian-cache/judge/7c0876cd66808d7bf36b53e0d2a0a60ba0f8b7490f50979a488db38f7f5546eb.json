@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2506.14138",
+  "judged_at": "2026-06-15T19:25:24Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "neuromorphic transformer networks: spiking neural dynamics in language models neuroscience",
+  "rationale": "This paper focuses on FPGA-based SNN hardware emulation and general connectivity patterns, but does not address the core components of the user's question: Transformer architecture or Language Models. While it covers spiking neural networks (part of the user's domain), it lacks the critical transformer/NLP dimension, making it off-domain for a literature review on neuromorphic transformers in language models.",
+  "relevant": false
+}

@@ -1,0 +1,506 @@
+{
+  "fetched_at": "2026-06-15T19:39:21Z",
+  "field": "neuroscience",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "neuroscience",
+      "idea_body_excerpt": "Neuromorphic Transformer Networks: Spiking Neural Dynamics in Language Models",
+      "target_n": 5
+    },
+    "duration_seconds": 1008.485,
+    "ended_at": "2026-06-15T19:39:21Z",
+    "expansion": null,
+    "extracted_queries": [
+      "neuromorphic computing self attention sequence",
+      "integrate fire neuron language task",
+      "surrogate gradient spiking transformer",
+      "energy efficiency inference perplexity benchmark",
+      "temporal credit assignment biological plausibility"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2302.01194"
+      ]
+    },
+    "per_query_hit_count": {
+      "Neuromorphic Transformer Networks: Spiking Neural Dynamics in Language Models neuroscience": 3,
+      "energy efficiency inference perplexity benchmark": 3,
+      "integrate fire neuron language task": 3,
+      "neuromorphic computing self attention sequence": 3,
+      "surrogate gradient spiking transformer": 3,
+      "temporal credit assignment biological plausibility": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 3,
+      "rejections": [
+        {
+          "primary_pointer": "2506.14138",
+          "rationale": "This paper focuses on FPGA-based SNN hardware emulation and general connectivity patterns, but does not address the core components of the user's question: Transformer architecture or Language Models. While it covers spiking neural networks (part of the user's domain), it lacks the critical transformer/NLP dimension, making it off-domain for a literature review on neuromorphic transformers in language models.",
+          "title": "NeuroCoreX: An Open-Source FPGA-Based Spiking Neural Network Emulator with On-Chip Learning"
+        },
+        {
+          "primary_pointer": "2004.14942",
+          "rationale": "The paper focuses on hardware substrates (memristors) for general spiking neural networks rather than the specific algorithmic architecture (Transformers) or application domain (Language Models) central to the user's query. It represents a distinct construct (hardware implementation) sharing only broad field keywords, failing to address the network dynamics or language modeling variables required for inclusion.",
+          "title": "Memristors -- from In-memory computing, Deep Learning Acceleration, Spiking Neural Networks, to the Future of Neuromorphic and Bio-inspired Computing"
+        },
+        {
+          "primary_pointer": "2504.10053",
+          "rationale": "The paper focuses on olfactory perception and synthetic biology rather than language models or transformer architectures. It falls under the \"off-domain entirely\" rejection rule as it addresses sensory detection systems rather than the user's specific domain of natural language processing.",
+          "title": "Synthetic Biology meets Neuromorphic Computing: Towards a bio-inspired Olfactory Perception System"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-15T19:22:33Z",
+    "term_input": {
+      "normalized": "neuromorphic transformer networks: spiking neural dynamics in language models neuroscience",
+      "raw": "Neuromorphic Transformer Networks: Spiking Neural Dynamics in Language Models neuroscience"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Bio-inspired neuromorphic cameras sense illumination changes on a per-pixel basis and generate spatiotemporal streaming events within microseconds in response, offering visual information with high temporal resolution over a high dynamic range. Such devices often serve in surveillance systems due to their applicability and robustness in environments with high dynamics and harsh lighting, where they can still supply clearer recordings than traditional imaging. In other words, when it comes to privacy-relevant cases, neuromorphic cameras also expose more sensitive data and pose serious security threats. Therefore, asynchronous event streams necessitate careful encryption before transmission and usage. This work discusses several potential attack scenarios and approaches event encryption from the perspective of neuromorphic noise removal, in which we inversely introduce well-crafted noise into raw events until they are obfuscated. Our evaluations show that the encrypted events can effectively protect information from attacks of low-level visual reconstruction and high-level neuromorphic reasoning, and thus feature dependable privacy-preserving competence. The proposed solution gives impetus to the security of event data and paves the way to a highly encrypted technique for privacy-protective neuromorphic imaging.",
+          "claimed_authors": [
+            "Pei Zhang",
+            "Shuo Zhu",
+            "Edmund Y. Lam"
+          ],
+          "claimed_title": "Event Encryption: Rethinking Privacy Exposure for Neuromorphic Imaging",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.03369"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Neuromorphic Transformer Networks: Spiking Neural Dynamics in Language Models ne', candidate_title='Event Encryption: Rethinking Privacy Exposure for Neuromorphic Imaging')",
+        "failed_at": "2026-06-15T19:25:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Neuromorphic computing shows promise for advancing computing efficiency and capabilities of AI applications using brain-inspired principles. However, the neuromorphic research field currently lacks standardized benchmarks, making it difficult to accurately measure technological advancements, compare performance with conventional methods, and identify promising future research directions. Prior neuromorphic computing benchmark efforts have not seen widespread adoption due to a lack of inclusive, actionable, and iterative benchmark design and guidelines. To address these shortcomings, we present NeuroBench: a benchmark framework for neuromorphic computing algorithms and systems. NeuroBench is a collaboratively-designed effort from an open community of researchers across industry and academia, aiming to provide a representative structure for standardizing the evaluation of neuromorphic approaches. The NeuroBench framework introduces a common set of tools and systematic methodology for inclusive benchmark measurement, delivering an objective reference framework for quantifying neuromorphic approaches in both hardware-independent (algorithm track) and hardware-dependent (system track) settings. In this article, we outline tasks and guidelines for benchmarks across multiple application domains, and present initial performance baselines across neuromorphic and conventional approaches for both benchmark tracks. NeuroBench is intended to continually expand its benchmarks and features to foster and track the progress made by the research community.",
+          "claimed_authors": [
+            "Jason Yik",
+            "Korneel Van den Berghe",
+            "Douwe den Blanken",
+            "Younes Bouhadjar",
+            "Maxime Fabre",
+            "Paul Hueber",
+            "Weijie Ke",
+            "Mina A Khoei",
+            "Denis Kleyko",
+            "Noah Pacik-Nelson",
+            "Alessandro Pierro",
+            "Philipp Stratmann",
+            "Pao-Sheng Vincent Sun",
+            "Guangzhi Tang",
+            "Shenqi Wang",
+            "Biyan Zhou",
+            "Soikat Hasan Ahmed",
+            "George Vathakkattil Joseph",
+            "Benedetto Leto",
+            "Aurora Micheli",
+            "Anurag Kumar Mishra",
+            "Gregor Lenz",
+            "Tao Sun",
+            "Zergham Ahmed",
+            "Mahmoud Akl",
+            "Brian Anderson",
+            "Andreas G. Andreou",
+            "Chiara Bartolozzi",
+            "Arindam Basu",
+            "Petrut Bogdan",
+            "Sander Bohte",
+            "Sonia Buckley",
+            "Gert Cauwenberghs",
+            "Elisabetta Chicca",
+            "Federico Corradi",
+            "Guido de Croon",
+            "Andreea Danielescu",
+            "Anurag Daram",
+            "Mike Davies",
+            "Yigit Demirag",
+            "Jason Eshraghian",
+            "Tobias Fischer",
+            "Jeremy Forest",
+            "Vittorio Fra",
+            "Steve Furber",
+            "P. Michael Furlong",
+            "William Gilpin",
+            "Aditya Gilra",
+            "Hector A. Gonzalez",
+            "Giacomo Indiveri",
+            "Siddharth Joshi",
+            "Vedant Karia",
+            "Lyes Khacef",
+            "James C. Knight",
+            "Laura Kriener",
+            "Rajkumar Kubendran",
+            "Dhireesha Kudithipudi",
+            "Shih-Chii Liu",
+            "Yao-Hong Liu",
+            "Haoyuan Ma",
+            "Rajit Manohar",
+            "Josep Maria Margarit-Taulé",
+            "Christian Mayr",
+            "Konstantinos Michmizos",
+            "Dylan R. Muir",
+            "Emre Neftci",
+            "Thomas Nowotny",
+            "Fabrizio Ottati",
+            "Ayca Ozcelikkale",
+            "Priyadarshini Panda",
+            "Jongkil Park",
+            "Melika Payvand",
+            "Christian Pehle",
+            "Mihai A. Petrovici",
+            "Christoph Posch",
+            "Alpha Renner",
+            "Yulia Sandamirskaya",
+            "Clemens JS Schaefer",
+            "André van Schaik",
+            "Johannes Schemmel",
+            "Samuel Schmidgall",
+            "Catherine Schuman",
+            "Jae-sun Seo",
+            "Sadique Sheik",
+            "Sumit Bam Shrestha",
+            "Manolis Sifalakis",
+            "Amos Sironi",
+            "Kenneth Stewart",
+            "Matthew Stewart",
+            "Terrence C. Stewart",
+            "Jonathan Timcheck",
+            "Nergis Tömen",
+            "Gianvito Urgese",
+            "Marian Verhelst",
+            "Craig M. Vineyard",
+            "Bernhard Vogginger",
+            "Amirreza Yousefzadeh",
+            "Fatima Tuz Zohora",
+            "Charlotte Frenkel",
+            "Vijay Janapa Reddi"
+          ],
+          "claimed_title": "NeuroBench: A Framework for Benchmarking Neuromorphic Computing Algorithms and Systems",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2304.04640"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Neuromorphic Transformer Networks: Spiking Neural Dynamics in Language Models ne', candidate_title='NeuroBench: A Framework for Benchmarking Neuromorphic Computing Algorithms and Systems')",
+        "failed_at": "2026-06-15T19:25:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The statistics of the output activity of a neuron during its stimulation by the stream of input impulses that forms the stochastic Poisson process is studied. The leaky integrate-and-fire neuron is considered as a neuron model. A new representation of the probability distribution function of the output interspike interval durations is found. Based on it, the moment-generating function of the probability distribution is calculated explicitly. The latter, according to Curtiss theorem, completely determines the distribution itself. In particular, explicit expressions are derived from the moment-generating function for the moments of all orders. The first moment coincides with the one found earlier. Formulas for the second and third moments have been checked numerically by direct modeling of the stochastic dynamics of a neuron with specific physical parameters.",
+          "claimed_authors": [
+            "Alexander Vidybida",
+            "Olha Shchur"
+          ],
+          "claimed_title": "Moment-generating function of output stream of leaky integrate-and-fire neuron",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2012.01501"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Neuromorphic Transformer Networks: Spiking Neural Dynamics in Language Models ne', candidate_title='Moment-generating function of output stream of leaky integrate-and-fire neuron')",
+        "failed_at": "2026-06-15T19:25:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Currently available satellite active fire detection products from the VIIRS and MODIS instruments on polar-orbiting satellites produce detection squares in arbitrary locations. There is no global fire/no fire map, no detection under cloud cover, false negatives are common, and the detection squares are much coarser than the resolution of a fire behavior model. Consequently, current active fire satellite detection products should be used to improve fire modeling in a statistical sense only, rather than as a direct input. We describe a new data assimilation method for active fire detection, based on a modification of the fire arrival time to simultaneously minimize the difference from the forecast fire arrival time and maximize the likelihood of the fire detection data. This method is inspired by contour detection methods used in computer vision, and it can be cast as a Bayesian inverse problem technique, or a generalized Tikhonov regularization. After the new fire arrival time on the whole simulation domain is found, the model can be re-run from a time in the past using the new fire arrival time to generate the heat fluxes and to spin up the atmospheric model until the satellite overpass time, when the coupled simulation continues from the modified state.",
+          "claimed_authors": [
+            "Jan Mandel",
+            "Adam K. Kochanski",
+            "Martin Vejmelka",
+            "Jonathan D. Beezley"
+          ],
+          "claimed_title": "Data Assimilation of Satellite Fire Detection in Coupled Atmosphere-Fire Simulation by WRF-SFIRE",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1410.6948"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Neuromorphic Transformer Networks: Spiking Neural Dynamics in Language Models ne', candidate_title='Data Assimilation of Satellite Fire Detection in Coupled Atmosphere-Fire Simulation by WRF-SFIRE')",
+        "failed_at": "2026-06-15T19:25:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Atmospheric pollution regulations have emerged as a dominant obstacle to prescribed burns. Thus, forecasting the pollution caused by wildland fires has acquired high importance. WRF and SFIRE model wildland fire spread in a two-way interaction with the atmosphere. The surface heat flux from the fire causes strong updrafts, which in turn change the winds and affect the fire spread. Fire emissions, estimated from the burning organic matter, are inserted in every time step into WRF-Chem tracers at the lowest atmospheric layer. The buoyancy caused by the fire then naturally simulates plume dynamics, and the chemical transport in WRF-Chem provides a forecast of the pollution spread. We discuss the choice of wood burning models and compatible chemical transport models in WRF-Chem, and demonstrate the results on case studies.",
+          "claimed_authors": [
+            "Adam K. Kochanski",
+            "Jonathan D. Beezley",
+            "Jan Mandel",
+            "Craig B. Clements"
+          ],
+          "claimed_title": "Air pollution forecasting by coupled atmosphere-fire model WRF and SFIRE with WRF-Chem",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1304.7703"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Neuromorphic Transformer Networks: Spiking Neural Dynamics in Language Models ne', candidate_title='Air pollution forecasting by coupled atmosphere-fire model WRF and SFIRE with WRF-Chem')",
+        "failed_at": "2026-06-15T19:25:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We describe the Dark Energy Survey (DES), a proposed optical-near infrared survey of 5000 sq. deg of the South Galactic Cap to ~24th magnitude in SDSS griz, that would use a new 3 sq. deg CCD camera to be mounted on the Blanco 4-m telescope at Cerro Telolo Inter-American Observatory (CTIO). The survey data will allow us to measure the dark energy and dark matter densities and the dark energy equation of state through four independent methods: galaxy clusters, weak gravitational lensing tomography, galaxy angular clustering, and supernova distances. These methods are doubly complementary: they constrain different combinations of cosmological model parameters and are subject to different systematic errors. By deriving the four sets of measurements from the same data set with a common analysis framework, we will obtain important cross checks of the systematic errors and thereby make a substantial and robust advance in the precision of dark energy measurements.",
+          "claimed_authors": [
+            " The Dark Energy Survey Collaboration"
+          ],
+          "claimed_title": "The Dark Energy Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2005,
+          "primary_pointer": "astro-ph/0510346"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Neuromorphic Transformer Networks: Spiking Neural Dynamics in Language Models ne', candidate_title='The Dark Energy Survey')",
+        "failed_at": "2026-06-15T19:25:11Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Neuromorphic Transformer Networks: Spiking Neural Dynamics in Language Models ne', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-06-15T19:25:11Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "As the adoption of Generative AI in real-world services grow explosively, energy has emerged as a critical bottleneck resource. However, energy remains a metric that is often overlooked, under-explored, or poorly understood in the context of building ML systems. We present the ML$.$ENERGY Benchmark, a benchmark suite and tool for measuring inference energy consumption under realistic service environments, and the corresponding ML$.$ENERGY Leaderboard, which have served as a valuable resource for those hoping to understand and optimize the energy consumption of their generative AI services. In this paper, we explain four key design principles for benchmarking ML energy we have acquired over time, and then describe how they are implemented in the ML$.$ENERGY Benchmark. We then highlight results from the early 2025 iteration of the benchmark, including energy measurements of 40 widely used model architectures across 6 different tasks, case studies of how ML design choices impact energy consumption, and how automated optimization recommendations can lead to significant (sometimes more than 40%) energy savings without changing what is being computed by the model. The ML$.$ENERGY Benchmark is open-source and can be easily extended to various customized models and application scenarios.",
+          "claimed_authors": [
+            "Jae-Won Chung",
+            "Jeff J. Ma",
+            "Ruofan Wu",
+            "Jiachen Liu",
+            "Oh Jun Kweon",
+            "Yuxuan Xia",
+            "Zhiyu Wu",
+            "Mosharaf Chowdhury"
+          ],
+          "claimed_title": "The ML.ENERGY Benchmark: Toward Automated Inference Energy Measurement and Optimization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2505.06371"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Neuromorphic Transformer Networks: Spiking Neural Dynamics in Language Models ne', candidate_title='The ML.ENERGY Benchmark: Toward Automated Inference Energy Measurement and Optimization')",
+        "failed_at": "2026-06-15T19:25:11Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Deep learning has achieved impressive prediction accuracies in a variety of scientific and industrial domains. However, the nested non-linear feature of deep learning makes the learning highly non-transparent, i.e., it is still unknown how the learning coordinates a huge number of parameters to achieve a decision making. To explain this hierarchical credit assignment, we propose a mean-field learning model by assuming that an ensemble of sub-networks, rather than a single network, are trained for a classification task. Surprisingly, our model reveals that apart from some deterministic synaptic weights connecting two neurons at neighboring layers, there exist a large number of connections that can be absent, and other connections can allow for a broad distribution of their weight values. Therefore, synaptic connections can be classified into three categories: very important ones, unimportant ones, and those of variability that may partially encode nuisance factors. Therefore, our model learns the credit assignment leading to the decision, and predicts an ensemble of sub-networks that can accomplish the same task, thereby providing insights toward understanding the macroscopic behavior of deep learning through the lens of distinct roles of synaptic weights.",
+          "claimed_authors": [
+            "Chan Li",
+            "Haiping Huang"
+          ],
+          "claimed_title": "Learning credit assignment",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2001.03354"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Neuromorphic Transformer Networks: Spiking Neural Dynamics in Language Models ne', candidate_title='Learning credit assignment')",
+        "failed_at": "2026-06-15T19:25:11Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Many transfer problems require re-using previously optimal decisions for solving new tasks, which suggests the need for learning algorithms that can modify the mechanisms for choosing certain actions independently of those for choosing others. However, there is currently no formalism nor theory for how to achieve this kind of modular credit assignment. To answer this question, we define modular credit assignment as a constraint on minimizing the algorithmic mutual information among feedback signals for different decisions. We introduce what we call the modularity criterion for testing whether a learning algorithm satisfies this constraint by performing causal analysis on the algorithm itself. We generalize the recently proposed societal decision-making framework as a more granular formalism than the Markov decision process to prove that for decision sequences that do not contain cycles, certain single-step temporal difference action-value methods meet this criterion while all policy-gradient methods do not. Empirical evidence suggests that such action-value methods are more sample efficient than policy-gradient methods on transfer problems that require only sparse changes to a sequence of previously optimal decisions.",
+          "claimed_authors": [
+            "Michael Chang",
+            "Sidhant Kaushik",
+            "Sergey Levine",
+            "Thomas L. Griffiths"
+          ],
+          "claimed_title": "Modularity in Reinforcement Learning via Algorithmic Independence in Credit Assignment",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2106.14993"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Neuromorphic Transformer Networks: Spiking Neural Dynamics in Language Models ne', candidate_title='Modularity in Reinforcement Learning via Algorithmic Independence in Credit Assignment')",
+        "failed_at": "2026-06-15T19:25:11Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Minglun Han",
+            "Qingyu Wang",
+            "Tielin Zhang",
+            "Yi Wang",
+            "Duzhen Zhang",
+            "Bo Xu"
+          ],
+          "title": "Complex Dynamic Neurons Improved Spiking Transformer Network for Efficient Automatic Speech Recognition",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2302.01194",
+        "summary": "The spiking neural network (SNN) using leaky-integrated-and-fire (LIF) neurons has been commonly used in automatic speech recognition (ASR) tasks. However, the LIF neuron is still relatively simple compared to that in the biological brain. Further research on more types of neurons with different scales of neuronal dynamics is necessary. Here we introduce four types of neuronal dynamics to post-process the sequential patterns generated from the spiking transformer to get the complex dynamic neuron improved spiking transformer neural network (DyTr-SNN). We found that the DyTr-SNN could handle the non-toy automatic speech recognition task well, representing a lower phoneme error rate, lower computational cost, and higher robustness. These results indicate that the further cooperation of SNNs and neural dynamics at the neuron and network scales might have much in store for the future, especially on the ASR tasks.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2302.01194",
+          "http_status": 200,
+          "pdf_sample_score": 0.1978,
+          "query_relevance_score": 0.4444,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-15T19:25:10Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Julia Gygax",
+            "Friedemann Zenke"
+          ],
+          "title": "Elucidating the theoretical underpinnings of surrogate gradient learning in spiking neural networks",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2404.14964",
+        "summary": "Training spiking neural networks to approximate universal functions is essential for studying information processing in the brain and for neuromorphic computing. Yet the binary nature of spikes poses a challenge for direct gradient-based training. Surrogate gradients have been empirically successful in circumventing this problem, but their theoretical foundation remains elusive. Here, we investigate the relation of surrogate gradients to two theoretically well-founded approaches. On the one hand, we consider smoothed probabilistic models, which, due to the lack of support for automatic differentiation, are impractical for training multi-layer spiking neural networks but provide derivatives equivalent to surrogate gradients for single neurons. On the other hand, we investigate stochastic automatic differentiation, which is compatible with discrete randomness but has not yet been used to train spiking neural networks. We find that the latter gives surrogate gradients a theoretical basis in stochastic spiking neural networks, where the surrogate derivative matches the derivative of the neuronal escape noise function. This finding supports the effectiveness of surrogate gradients in practice and suggests their suitability for stochastic spiking neural networks. However, surrogate gradients are generally not gradients of a surrogate loss despite their relation to stochastic automatic differentiation. Nevertheless, we empirically confirm the effectiveness of surrogate gradients in stochastic multi-layer spiking neural networks and discuss their relation to deterministic networks as a special case. Our work gives theoretical support to surrogate gradients and the choice of a suitable surrogate derivative in stochastic spiking neural networks.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2404.14964",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5556,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-15T19:25:10Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yang Li",
+            "Feifei Zhao",
+            "Dongcheng Zhao",
+            "Yi Zeng"
+          ],
+          "title": "Directly Training Temporal Spiking Neural Network with Sparse Surrogate Gradient",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2406.19645",
+        "summary": "Brain-inspired Spiking Neural Networks (SNNs) have attracted much attention due to their event-based computing and energy-efficient features. However, the spiking all-or-none nature has prevented direct training of SNNs for various applications. The surrogate gradient (SG) algorithm has recently enabled spiking neural networks to shine in neuromorphic hardware. However, introducing surrogate gradients has caused SNNs to lose their original sparsity, thus leading to the potential performance loss. In this paper, we first analyze the current problem of direct training using SGs and then propose Masked Surrogate Gradients (MSGs) to balance the effectiveness of training and the sparseness of the gradient, thereby improving the generalization ability of SNNs. Moreover, we introduce a temporally weighted output (TWO) method to decode the network output, reinforcing the importance of correct timesteps. Extensive experiments on diverse network structures and datasets show that training with MSG and TWO surpasses the SOTA technique.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2406.19645",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4444,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-15T19:25:11Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yuchen Tian",
+            "Assel Kembay",
+            "Samuel Tensingh",
+            "Nhan Duy Truong",
+            "Jason K. Eshraghian",
+            "Omid Kavehei"
+          ],
+          "title": "Learning with Spike Synchrony in Spiking Neural Networks",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2505.14841",
+        "summary": "Spiking neural networks (SNNs) promise energy-efficient computation by mimicking biological neural dynamics, yet existing plasticity rules focus on isolated spike pairs and fail to leverage the synchronous activity patterns that drive learning in biological systems. We introduce spike-synchrony-dependent plasticity (SSDP), a training approach that adjusts synaptic weights based on the degree of synchronous neural firing rather than spike timing order. Our method operates as a local, post-optimization mechanism that applies updates to sparse parameter subsets, maintaining computational efficiency with linear scaling. SSDP serves as a lightweight event-structure regularizer, biasing the network toward biologically plausible spatio-temporal synchrony while preserving standard convergence behavior. SSDP seamlessly integrates with standard backpropagation while preserving the forward computation graph. We validate our approach across single-layer SNNs and spiking Transformers on datasets from static images to high-temporal-resolution tasks, demonstrating improved convergence stability and enhanced robustness to spike-time jitter and event noise. These findings provide new insights into how biological neural networks might leverage synchronous activity for efficient information processing and suggest that synchrony-dependent plasticity represents a key computational principle underlying neural learning.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2505.14841",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4444,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-15T19:25:11Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "João Barretto-Bittar",
+            "Anna Levina",
+            "Emmanouil Giannakakis",
+            "Roxana Zeraati"
+          ],
+          "title": "Diffusion of Neuromodulators for Temporal Credit Assignment",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2603.08949",
+        "summary": "Biological learning achieves temporal credit assignment despite sparse and imprecise feedback, often relying on neuromodulatory signals acting over space and time. Here, we introduce a learning mechanism in which error information diffuses locally through the network, similar to volume transmission of neuromodulators. This distributed modulation allows neurons to learn even in the absence of direct feedback, using the local concentration of the diffusing credit signal. Applied to recurrent spiking neural networks with sparse feedback connectivity, diffusive credit signaling improves learning across three benchmark tasks. Using eligibility propagation as a baseline learning mechanism, we show how diffusion-based modulation can provide a plausible mechanism for credit assignment in sparsely connected neural circuits.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2603.08949",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-15T19:25:11Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "neuromorphic transformer networks: spiking neural dynamics in language models neuroscience",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

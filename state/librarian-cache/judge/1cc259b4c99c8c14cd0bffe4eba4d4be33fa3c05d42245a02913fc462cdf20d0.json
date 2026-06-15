@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2504.10053",
+  "judged_at": "2026-06-15T19:34:30Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "neuromorphic transformer networks: spiking neural dynamics in language models neuroscience",
+  "rationale": "The paper focuses on olfactory perception and synthetic biology rather than language models or transformer architectures. It falls under the \"off-domain entirely\" rejection rule as it addresses sensory detection systems rather than the user's specific domain of natural language processing.",
+  "relevant": false
+}

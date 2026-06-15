@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2603.08949",
+  "judged_at": "2026-06-15T19:39:20Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "neuromorphic transformer networks: spiking neural dynamics in language models neuroscience",
+  "rationale": "The paper investigates spiking neural dynamics and credit assignment mechanisms, which are core algorithmic properties required for the user's focus on Neuromorphic Networks, satisfying criterion (a) for same-mechanism evidence even though it focuses on recurrent rather than transformer architectures.",
+  "relevant": true
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2004.14942",
+  "judged_at": "2026-06-15T19:26:27Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "neuromorphic transformer networks: spiking neural dynamics in language models neuroscience",
+  "rationale": "The paper focuses on hardware substrates (memristors) for general spiking neural networks rather than the specific algorithmic architecture (Transformers) or application domain (Language Models) central to the user's query. It represents a distinct construct (hardware implementation) sharing only broad field keywords, failing to address the network dynamics or language modeling variables required for inclusion.",
+  "relevant": false
+}
