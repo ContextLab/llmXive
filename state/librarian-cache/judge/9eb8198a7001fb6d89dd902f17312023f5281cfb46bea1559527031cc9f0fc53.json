@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2407.15134",
+  "judged_at": "2026-06-16T08:22:30Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "trust region on-policy distillation computer science",
+  "rationale": "The paper studies policy distillation that combines an on‑policy reinforcement learning algorithm (PPO, a trust‑region‑style method) with student‑driven distillation, directly addressing the “trust region on‑policy distillation” mechanism queried (acceptance category (a)).",
+  "relevant": true
+}

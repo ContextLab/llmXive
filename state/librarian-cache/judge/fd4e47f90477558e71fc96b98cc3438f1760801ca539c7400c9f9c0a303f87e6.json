@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2406.05258",
+  "judged_at": "2026-06-16T08:23:36Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting plant defense allocation from publicly available transcriptomic data biology",
+  "rationale": "The paper focuses on machine‑learning methods for annotating single‑cell RNA‑seq data and does not address plant defense allocation, bulk transcriptomic prediction, or any plant‑specific defense context, so it lacks relevance to the user's question.",
+  "relevant": false
+}

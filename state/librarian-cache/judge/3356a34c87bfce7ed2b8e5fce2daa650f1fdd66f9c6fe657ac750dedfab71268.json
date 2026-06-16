@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2603.07964",
+  "judged_at": "2026-06-16T08:22:34Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "trust region on-policy distillation computer science",
+  "rationale": "The paper studies **policy distillation** for deep‑reinforcement‑learning agents, which matches the core mechanism (distillation) in the user’s “Trust Region On‑Policy Distillation” query, even though it does not involve trust‑region methods or on‑policy specifics (acceptance criterion (a)).",
+  "relevant": true
+}

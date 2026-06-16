@@ -1,0 +1,554 @@
+{
+  "fetched_at": "2026-06-16T08:23:40Z",
+  "field": "biology",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "biology",
+      "idea_body_excerpt": "Predicting Plant Defense Allocation from Publicly Available Transcriptomic Data",
+      "target_n": 5
+    },
+    "duration_seconds": 56.414,
+    "ended_at": "2026-06-16T08:23:40Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "transcriptome‑based prediction of plant defense responses"
+        ],
+        [
+          2,
+          "machine learning inference of defense metabolite allocation using RNA‑seq"
+        ],
+        [
+          3,
+          "gene expression profiling for plant resistance allocation"
+        ],
+        [
+          4,
+          "predictive modeling of herbivore resistance from public RNA‑seq datasets"
+        ],
+        [
+          5,
+          "computational prediction of plant secondary metabolite allocation"
+        ],
+        [
+          6,
+          "integrative analysis of public transcriptomics for plant immune allocation"
+        ],
+        [
+          7,
+          "RNA‑seq driven inference of plant defensive compound distribution"
+        ],
+        [
+          8,
+          "systems biology of plant defense allocation using open‑access transcriptomes"
+        ],
+        [
+          9,
+          "predicting allocation of defensive traits from gene expression data"
+        ],
+        [
+          10,
+          "publicly available plant RNA‑seq for defense pathway activity estimation"
+        ],
+        [
+          11,
+          "meta‑analysis of transcriptomic datasets for plant resistance prediction"
+        ],
+        [
+          12,
+          "network‑based prediction of plant defensive allocation"
+        ],
+        [
+          13,
+          "machine‑learned biomarkers of plant defense from transcriptomics"
+        ],
+        [
+          14,
+          "predicting plant chemical defense investment using gene expression"
+        ],
+        [
+          15,
+          "computational identification of defense allocation signatures in plants"
+        ],
+        [
+          16,
+          "transcriptomic signatures of resource allocation to plant defense"
+        ],
+        [
+          17,
+          "predictive analytics of plant immune allocation using public datasets"
+        ],
+        [
+          18,
+          "gene co‑expression networks for plant defense allocation prediction"
+        ],
+        [
+          19,
+          "modeling plant defense allocation with publicly available omics data"
+        ],
+        [
+          20,
+          "leveraging open transcriptome repositories for plant defense prediction"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Predicting Plant Defense Allocation from Publicly Available Transcriptomic Data biology": 0,
+        "machine learning inference of defense metabolite allocation using RNA‑seq": 3,
+        "transcriptome‑based prediction of plant defense responses": 4
+      },
+      "total_queries_issued": 2
+    },
+    "extracted_queries": [
+      "defense gene expression",
+      "Arabidopsis thaliana RNA-seq",
+      "gene coexpression network plant",
+      "herbivore resistance phenotype",
+      "jasmonic acid signaling trade-off"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "1310.2542"
+      ]
+    },
+    "per_query_hit_count": {
+      "Arabidopsis thaliana RNA-seq": 3,
+      "Predicting Plant Defense Allocation from Publicly Available Transcriptomic Data biology": 3,
+      "defense gene expression": 3,
+      "gene coexpression network plant": 2,
+      "herbivore resistance phenotype": 3,
+      "jasmonic acid signaling trade-off": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 6,
+      "rejections": [
+        {
+          "primary_pointer": "2504.15321",
+          "rationale": "The paper discusses spacecraft flyby missions for asteroid (planetary) defense, which is unrelated to plant defense allocation, transcriptomic data, or any biological mechanism relevant to the user's question. It falls under the off‑domain rejection criterion.",
+          "title": "A Mission to Demonstrate Rapid-Response Flyby Reconnaissance for Planetary Defense"
+        },
+        {
+          "primary_pointer": "2009.01081",
+          "rationale": "The paper focuses on image-based plant organ counting using domain adaptation, which does not involve transcriptomic data or plant defense allocation, nor does it address the same biological mechanism or variables of interest. It falls outside the domain of predicting defense allocation from transcriptomics.",
+          "title": "Unsupervised Domain Adaptation For Plant Organ Counting"
+        },
+        {
+          "primary_pointer": "1603.03238",
+          "rationale": "The paper focuses on numerical plant models and multi‑objective optimization of traits like yield, without using transcriptomic data or addressing plant defense allocation, so it does not match any of the inclusion criteria (a‑f).",
+          "title": "Using numerical plant models and phenotypic correlation space to design achievable ideotypes"
+        },
+        {
+          "primary_pointer": "2406.05258",
+          "rationale": "The paper focuses on machine‑learning methods for annotating single‑cell RNA‑seq data and does not address plant defense allocation, bulk transcriptomic prediction, or any plant‑specific defense context, so it lacks relevance to the user's question.",
+          "title": "Advances in Machine Learning, Statistical Methods, and AI for Single-Cell RNA Annotation Using Raw Count Matrices in scRNA-seq Data"
+        },
+        {
+          "primary_pointer": "1906.01101",
+          "rationale": "The paper presents a maximum‑entropy algorithm for generic large‑scale machine‑learning approximations and does not address plant defense allocation, transcriptomic data, or any biological prediction task, so it lacks relevance to the user’s question.",
+          "title": "MEMe: An Accurate Maximum Entropy Method for Efficient Approximations in Large-Scale Machine Learning"
+        },
+        {
+          "primary_pointer": "2201.12150",
+          "rationale": "The paper surveys learning‑curve methods for machine‑learning model selection and does not address plant defense allocation, transcriptomic data, or any biological mechanism relevant to the user’s question, thus it is off‑domain and unrelated.",
+          "title": "Learning Curves for Decision Making in Supervised Machine Learning: A Survey"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-16T08:22:44Z",
+    "term_input": {
+      "normalized": "predicting plant defense allocation from publicly available transcriptomic data biology",
+      "raw": "Predicting Plant Defense Allocation from Publicly Available Transcriptomic Data biology"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Background: Many mathematical models have now been employed across every area of systems biology. These models increasingly involve large numbers of unknown parameters, have complex structure which can result in substantial evaluation time relative to the needs of the analysis, and need to be compared to observed data. The correct analysis of such models usually requires a global parameter search, over a high dimensional parameter space, that incorporates and respects the most important sources of uncertainty. This can be an extremely difficult task, but it is essential for any meaningful inference or prediction to be made about any biological system. It hence represents a fundamental challenge for the whole of systems biology.\n  Results: Bayesian statistical methodology for the uncertainty analysis of complex models is introduced, which is designed to address the high dimensional global parameter search problem. Bayesian emulators that mimic the systems biology model but which are extremely fast to evaluate are embedded within an iterative history match: an efficient method to search high dimensional spaces within a more formal statistical setting, while incorporating major sources of uncertainty. The approach is demonstrated via application to two models of hormonal crosstalk in Arabidopsis root development, which have 32 rate parameters, for which we identify the sets of rate parameter values that lead to acceptable matches to observed trend data. The biological consequences of the resulting comparison, including the evaluation of gene functions, are described.",
+          "claimed_authors": [
+            "Ian Vernon",
+            "Junli Liu",
+            "Michael Goldstein",
+            "James Rowe",
+            "Jen Topping",
+            "Keith Lindsey"
+          ],
+          "claimed_title": "Bayesian uncertainty analysis for complex systems biology models: emulation, global parameter searches and evaluation of gene functions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1607.06358"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Predicting Plant Defense Allocation from Publicly Available Transcriptomic Data ', candidate_title='Bayesian uncertainty analysis for complex systems biology models: emulation, global parameter searches and evaluation of gene functions')",
+        "failed_at": "2026-06-16T08:23:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper we use H II starburst galaxy apparent magnitude versus redshift data from Siegel et al. (2005) to constrain dark energy cosmological model parameters. These constraints are generally consistent with those derived using other data sets, but are not as restrictive as the tightest currently available constraints.",
+          "claimed_authors": [
+            "Data Mania",
+            "Bharat Ratra"
+          ],
+          "claimed_title": "Constraints on dark energy from H II starburst galaxy apparent magnitude versus redshift data",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1110.5626"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Predicting Plant Defense Allocation from Publicly Available Transcriptomic Data ', candidate_title='Constraints on dark energy from H II starburst galaxy apparent magnitude versus redshift data')",
+        "failed_at": "2026-06-16T08:23:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed optimization in the presence of Byzantine adversaries, where both data and computation are distributed among $m$ worker machines, $t$ of which may be corrupt. The compromised nodes may collaboratively and arbitrarily deviate from their pre-specified programs, and a designated (master) node iteratively computes the model/parameter vector for generalized linear models. In this work, we primarily focus on two iterative algorithms: Proximal Gradient Descent (PGD) and Coordinate Descent (CD). Gradient descent (GD) is a special case of these algorithms. PGD is typically used in the data-parallel setting, where data is partitioned across different samples, whereas, CD is used in the model-parallelism setting, where data is partitioned across the parameter space.\n  In this paper, we propose a method based on data encoding and error correction over real numbers to combat adversarial attacks. We can tolerate up to $t\\leq \\lfloor\\frac{m-1}{2}\\rfloor$ corrupt worker nodes, which is information-theoretically optimal. We give deterministic guarantees, and our method does not assume any probability distribution on the data. We develop a {\\em sparse} encoding scheme which enables computationally efficient data encoding and decoding. We demonstrate a trade-off between the corruption threshold and the resource requirements (storage, computational, and communication complexity). As an example, for $t\\leq\\frac{m}{3}$, our scheme incurs only a {\\em constant} overhead on these resources, over that required by the plain distributed PGD/CD algorithms which provide no adversarial protection. To the best of our knowledge, ours is the first paper that makes CD secure against adversarial attacks.\n  Our encoding scheme extends efficiently to the data streaming model and for stochastic gradient descent (SGD). We also give experimental results to show the efficacy of our proposed schemes.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Linqi Song",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Data Encoding for Byzantine-Resilient Distributed Optimization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1907.02664"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting Plant Defense Allocation from Publicly Available Transcriptomic Data ', candidate_title='Data Encoding for Byzantine-Resilient Distributed Optimization')",
+        "failed_at": "2026-06-16T08:23:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Gene Ontology (GO) project is the largest resource for cataloguing gene function. The combination of solid conceptual underpinnings and a practical set of features have made the GO a widely adopted resource in the research community and an essential resource for data analysis. In this chapter, we provide a concise primer for all users of the GO. We briefly introduce the structure of the ontology and explain how to interpret annotations associated with the GO.",
+          "claimed_authors": [
+            "Pascale Gaudet",
+            "Nives Škunca",
+            "James C. Hu",
+            "Christophe Dessimoz"
+          ],
+          "claimed_title": "Primer on the Gene Ontology",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1602.01876"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting Plant Defense Allocation from Publicly Available Transcriptomic Data ', candidate_title='Primer on the Gene Ontology')",
+        "failed_at": "2026-06-16T08:23:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Gene Ontology (GO) is a formidable resource but there are several considerations about it that are essential to understand the data and interpret it correctly. The GO is sufficiently simple that it can be used without deep understanding of its structure or how it is developed, which is both a strength and a weakness. In this chapter, we discuss some common misinterpretations of the ontology and the annotations. A better understanding of the pitfalls and the biases in the GO should help users make the most of this very rich resource. We also review some of the misconceptions and misleading assumptions commonly made about GO, including the effect of data incompleteness, the importance of annotation qualifiers, and the transitivity or lack thereof associated with different ontology relations. We also discuss several biases that can confound aggregate analyses such as gene enrichment analyses. For each of these pitfalls and biases, we suggest remedies and best practices.",
+          "claimed_authors": [
+            "Pascale Gaudet",
+            "Christophe Dessimoz"
+          ],
+          "claimed_title": "Gene Ontology: Pitfalls, Biases, Remedies",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1602.01875"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting Plant Defense Allocation from Publicly Available Transcriptomic Data ', candidate_title='Gene Ontology: Pitfalls, Biases, Remedies')",
+        "failed_at": "2026-06-16T08:23:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Here, we provide revised gene models for D. ananassae, D. yakuba, and D. simulans, which include UTRs and empirically verified intron-exon boundaries, as well as ortholog groups identified using a fuzzy reciprocal-best-hit blast comparison. Using these revised annotations, we perform differential expression testing using the cufflinks suite to provide a broad overview of differential expression between reproductive tissues and the carcass. We identify thousands of genes that are differentially expressed across tissues in D. yakuba and D. simulans, with roughly 60% agreement in expression patterns of orthologs in D. yakuba and D. simulans. We identify several cases of putative polycistronic transcripts, pointing to a combination of transcriptional read-through in the genome as well as putative gene fusion and fission events across taxa. We furthermore identify hundreds of lineage specific genes in each species with no blast hits among transcripts of any other Drosophila species, which are candidates for neofunctionalized proteins and a potential source of genetic novelty.",
+          "claimed_authors": [
+            "Rebekah L. Rogers",
+            "Ling Shao",
+            "Jaleal S. Sanjak",
+            "Peter Andolfatto",
+            "Kevin R. Thornton"
+          ],
+          "claimed_title": "Revised Annotations, Sex-Biased Expression, and Lineage-Specific Genes in the Drosophila melanogaster group",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1408.0247"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Plant Defense Allocation from Publicly Available Transcriptomic Data ', candidate_title='Revised Annotations, Sex-Biased Expression, and Lineage-Specific Genes in the Drosophila melanogaster group')",
+        "failed_at": "2026-06-16T08:23:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Gene expression levels exhibit stochastic variations among genetically identical organisms under the same environmental conditions (called gene expression \"noise\" or phenotype \"fluctuation\"). In yeast and Escherichia coli, positive correlations have been found between such gene expression noise and \"plasticity\" with environmental variations. To determine the universality of such correlations in both unicellular and multicellular organisms, we focused on the relationships between gene expression \"noise\" and \"plasticity\" in Arabidopsis thaliana, a multicellular model organism. In recent studies on yeast and E. coli, only some gene groups with specific properties of promoter architecture, average expression levels, and functions exhibited strong noise-plasticity correlations. However, we found strong noise-plasticity correlations for most gene groups in Arabidopsis; additionally, promoter architecture, functional essentiality of genes, and circadian rhythm appeared to have only a weak influence on the correlation strength. The differences in the characteristics of noise-plasticity correlations may result from three-dimensional chromosomal structures and/or circadian rhythm.",
+          "claimed_authors": [
+            "Koudai Hirao",
+            "Atsushi J Nagano",
+            "Akinori Awazu"
+          ],
+          "claimed_title": "Noise-plasticity correlations of gene expression in the multicellular organism Arabidopsis thaliana",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2015,
+          "primary_pointer": "1511.03840"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Plant Defense Allocation from Publicly Available Transcriptomic Data ', candidate_title='Noise-plasticity correlations of gene expression in the multicellular organism Arabidopsis thaliana')",
+        "failed_at": "2026-06-16T08:23:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Histopathology whole-slide images (WSIs) are routinely acquired in clinical practice and contain rich tissue morphology but lack direct molecular architecture and functional programs defining pathological states, whereas RNA sequencing (RNA-seq) provides genome-wide transcriptional profiles at substantial cost, thereby motivating WSI-based genome-wide transcriptomic prediction. Existing approaches for predicting gene expression from WSIs predominantly rely on deterministic regression with one-to-one mapping, limiting their ability to capture biological heterogeneity and predictive uncertainty. We propose RNA-FM, a flow-matching generative framework for genome-wide bulk RNA-seq prediction from WSIs. RNA-FM formulates transcriptomic prediction as a continuous-time conditional transport problem, learning a velocity field that maps a simple prior to the target gene expression distribution conditioned on morphologies. By integrating pathway-level structure, RNA-FM enables scalable and biologically interpretable genome-wide gene expression imputation. Extensive experiments demonstrate that RNA-FM consistently outperforms state-of-the-art approaches while maintaining biological meaningfulness. Code is available at https://github.com/YXSong000/RNA-FM.",
+          "claimed_authors": [
+            "Yaxuan Song",
+            "Jianan Fan",
+            "Tianyi Wang",
+            "Qiuyue Hu",
+            "Hang Chang",
+            "Heng Huang",
+            "Weidong Cai"
+          ],
+          "claimed_title": "RNA-FM: Flow-Matching Generative Model for Genome-wide RNA-Seq Prediction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2605.11622"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Predicting Plant Defense Allocation from Publicly Available Transcriptomic Data ', candidate_title='RNA-FM: Flow-Matching Generative Model for Genome-wide RNA-Seq Prediction')",
+        "failed_at": "2026-06-16T08:23:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Single-cell RNA sequencing (scRNA-seq) has revolutionized our ability to analyze gene expression at the resolution of individual cells, providing unprecedented insights into cellular heterogeneity and complex biological systems. This paper reviews various advanced computational and machine learning techniques tailored for the analysis of scRNA-seq data, emphasizing their roles in different stages of the data processing pipeline.",
+          "claimed_authors": [
+            "Megha Patel",
+            "Nimish Magre",
+            "Himanshi Motwani",
+            "Nik Bear Brown"
+          ],
+          "claimed_title": "Advances in Machine Learning, Statistical Methods, and AI for Single-Cell RNA Annotation Using Raw Count Matrices in scRNA-seq Data",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2406.05258"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting Plant Defense Allocation from Publicly Available Transcriptomic Data ', candidate_title='Advances in Machine Learning, Statistical Methods, and AI for Single-Cell RNA Annotation Using Raw Count Matrices in scRNA-seq Data')",
+        "failed_at": "2026-06-16T08:23:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Background: Gene regulatory networks coordinate the expression of genes across physiological states and ensure a synchronized expression of genes in cellular subsystems, critical for the coherent functioning of cells. Here we address the questions whether it is possible to predict gene synchronization from network structure alone. We have recently shown that synchronized gene expression may be predicted from symmetries in the gene regulatory networks (GRN) and described by the concept of symmetry fibrations. We showed that symmetry fibrations partition the genes into groups called fibers based on the symmetries of their 'input trees', the set of paths in the network through which signals can reach a gene. In idealized dynamic gene expression models, all genes in a fiber are perfectly synchronized, while less idealized models - with gene input functions differencing between genes - predict symmetry breaking and desynchronization.\n  Results: To study the functional role of gene fibers and to test whether some of the fiber-induced coexpression remains in reality, we analyze gene fibrations for the gene regulatory networks of E. coli and B. subtilis and confront them with expression data. We find approximate gene coexpression patterns consistent with symmetry fibrations with idealized gene expression dynamics. This shows that network structure alone provides useful information about gene synchronization, and suggest that gene input functions within fibers may be further streamlined by evolutionary pressures to realize a coexpression of genes.\n  Conclusions: Thus, gene fibrations provides a sound conceptual tool to describe tunable coexpression induced by network topology and shaped by mechanistic details of gene expression.",
+          "claimed_authors": [
+            "Ian Leifer",
+            "Mishael Sánchez-Pérez",
+            "Cecilia Ishida",
+            "Hernán A. Makse"
+          ],
+          "claimed_title": "Predicting synchronized gene coexpression patterns from fibration symmetries in gene regulatory networks in bacteria",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2104.08256"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting Plant Defense Allocation from Publicly Available Transcriptomic Data ', candidate_title='Predicting synchronized gene coexpression patterns from fibration symmetries in gene regulatory networks in bacteria')",
+        "failed_at": "2026-06-16T08:23:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Plant or soil water status are required in many scientific fields to understand plant responses to drought. Because the transcriptomic response to abiotic conditions, such as water deficit, reflects plant water status, genomic tools could be used to develop a new type of molecular biomarker. Using the sunflower (Helianthus annuus L.) as a model species to study the transcriptomic response to water deficit both in greenhouse and field conditions, we specifically identified three genes that showed an expression pattern highly correlated to plant water status as estimated by the pre-dawn leaf water potential, fraction of transpirable soil water, soil water content or fraction of total soil water in controlled conditions. We developed a generalized linear model to estimate these classical water status indicators from the expression levels of the three selected genes under controlled conditions. This estimation was independent of the four tested genotypes and the stage (pre- or post-flowering) of the plant. We further validated this gene expression biomarker under field conditions for four genotypes in three different trials, over a large range of water status, and we were able to correct their expression values for a large diurnal sampling period.",
+          "claimed_authors": [
+            "Gwenaëlle Marchand",
+            "Baptiste Mayjonade",
+            "Didier Varès",
+            "Nicolas Blanchet",
+            "Marie-Claude Boniface",
+            "Pierre Maury",
+            "Fety Andrianasolo Nambinina",
+            "Philippe Burger",
+            "Philippe Debaeke",
+            "Pierre Casadebaig",
+            "Patrick Vincourt",
+            "Nicolas B. Langlade"
+          ],
+          "claimed_title": "A biomarker based on gene expression indicates plant water status in controlled and natural environments",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1310.2542"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Predicting Plant Defense Allocation from Publicly Available Transcriptomic Data ', candidate_title='A biomarker based on gene expression indicates plant water status in controlled and natural environments')",
+        "failed_at": "2026-06-16T08:23:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Nearly invariably, phenotypes are reported in the scientific literature in meticulous detail, utilizing the full expressivity of natural language. Often it is particularly these detailed observations (facts) that are of interest, and thus specific to the research questions that motivated observing and reporting them. However, research aiming to synthesize or integrate phenotype data across many studies or even fields is often faced with the need to abstract from detailed observations so as to construct phenotypic concepts that are common across many datasets rather than specific to a few. Yet, observations or facts that would fall under such abstracted concepts are typically not directly asserted by the original authors, usually because they are \"obvious\" according to common domain knowledge, and thus asserting them would be deemed redundant by anyone with sufficient domain knowledge. For example, a phenotype describing the length of a manual digit for an organism implicitly means that the organism must have had a hand, and thus a forelimb; the presence or absence of a forelimb may have supporting data across a far wider range of taxa than the length of a particular manual digit. Here we describe how within the Phenoscape project we use a pipeline of OWL axiom generation and reasoning steps to infer taxon-specific presence/absence of anatomical entities from anatomical phenotypes. Although presence/absence is all but one, and a seemingly simple way to abstract phenotypes across data sources, it can nonetheless be powerful for linking genotype to phenotype, and it is particularly relevant for constructing synthetic morphological supermatrices for comparative analysis; in fact presence/absence is one of the prevailing character observation types in published character matrices.",
+          "claimed_authors": [
+            "James P. Balhoff",
+            "T. Alexander Dececchi",
+            "Paula M. Mabee",
+            "Hilmar Lapp"
+          ],
+          "claimed_title": "Presence-absence reasoning for evolutionary phenotypes",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1410.3862"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting Plant Defense Allocation from Publicly Available Transcriptomic Data ', candidate_title='Presence-absence reasoning for evolutionary phenotypes')",
+        "failed_at": "2026-06-16T08:23:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The evolutionary and ecological dynamics of tumors under immune responses and therapeutic interventions pose major challenges to long-term treatment success. Although treatment may initially achieve short-term disease control, resistant cancer cell subpopulations often arise, leading to relapse with more aggressive and treatment-resistant forms of the disease. Here, we develop and analyze mathematical models describing the interactions among effector cells, chemo-resistant tumor cells, and immuno-resistant tumor cells under distinct immune-evasion strategies. The models incorporate competition and cooperation between resistant and sensitive tumor subpopulations. We identify threshold conditions governing tumor persistence, elimination, and phenotype dominance under varying therapeutic intensities. These findings provide a theoretical framework for designing targeted and combination therapies and offer insights into strategies for mitigating the treatment resistance.",
+          "claimed_authors": [
+            "Nazanin Mokari",
+            "Bryce Morsky"
+          ],
+          "claimed_title": "Strategies for tumor elimination and control under immune evasion and chemotherapy resistance",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2604.01385"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Plant Defense Allocation from Publicly Available Transcriptomic Data ', candidate_title='Strategies for tumor elimination and control under immune evasion and chemotherapy resistance')",
+        "failed_at": "2026-06-16T08:23:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The emergence of acquired drug resistance in cancer represents a major barrier to treatment success. While research has traditionally focused on genetic sources of resistance, recent findings suggest that cancer cells can acquire transient resistant phenotypes via epigenetic modifications and other non-genetic mechanisms. Although these resistant phenotypes are eventually relinquished by individual cells, they can temporarily 'save' the tumor from extinction and enable the emergence of more permanent resistance mechanisms. These observations have generated interest in the potential of epigenetic therapies for long-term tumor control or eradication. In this work, we develop a mathematical model to study how phenotypic switching at the single-cell level affects resistance evolution in cancer. We highlight unique features of non-genetic resistance, probe the evolutionary consequences of epigenetic drugs and explore potential therapeutic strategies. We find that even short-term epigenetic modifications and stochastic fluctuations in gene expression can drive long-term drug resistance in the absence of any bona fide resistance mechanisms. We also find that an epigenetic drug that slightly perturbs the average retention of the resistant phenotype can turn guaranteed treatment failure into guaranteed success. Lastly, we find that combining an epigenetic drug with an anti-cancer agent can significantly outperform monotherapy, and that treatment outcome is heavily affected by drug sequencing.",
+          "claimed_authors": [
+            "Einar Bjarki Gunnarsson",
+            "Subhajyoti De",
+            "Kevin Leder",
+            "Jasmine Foo"
+          ],
+          "claimed_title": "Understanding the role of phenotypic switching in cancer drug resistance",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2001.07690"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Plant Defense Allocation from Publicly Available Transcriptomic Data ', candidate_title='Understanding the role of phenotypic switching in cancer drug resistance')",
+        "failed_at": "2026-06-16T08:23:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The spread of pandemic viruses and invasive species can be catastrophic for human societies and natural ecosystems. SARS-CoV-2 demonstrated that the speed of our response is critical, as each day of delay permitted exponential growth and dispersion of the virus. Here we propose a global Nucleic Acid Observatory (NAO) to monitor the relative frequency of everything biological through comprehensive metagenomic sequencing of waterways and wastewater. By searching for divergences from historical baseline frequencies at sites throughout the world, NAO could detect any virus or invasive organism undergoing exponential growth whose nucleic acids end up in the water, even those previously unknown to science. Continuously monitoring nucleic acid diversity would provide us with universal early warning, obviate subtle bioweapons, and generate a wealth of sequence data sufficient to transform ecology, microbiology, and conservation. We call for the immediate construction of a global NAO to defend and illuminate planetary health.",
+          "claimed_authors": [
+            "The Nucleic Acid Observatory Consortium"
+          ],
+          "claimed_title": "A Global Nucleic Acid Observatory for Biodefense and Planetary Health",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2108.02678"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting Plant Defense Allocation from Publicly Available Transcriptomic Data ', candidate_title='A Global Nucleic Acid Observatory for Biodefense and Planetary Health')",
+        "failed_at": "2026-06-16T08:23:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We investigate the behaviour of quantum CHSH-nonlocality, $\\rm F_3$-steering, and usefulness for teleportation in an interacting two-qubit dissipative system. We show regimes where these three quantum correlations can be extracted by means of local filtering operations, despite them not being displayed in the bare natural time evolution. Moreover, we show the existence of local hidden state (LHS) and local hidden variable (LHV) models for some states during the dynamics and thus, showing that apparently-useless physical systems could still exhibit quantum correlations, which are hidden from us, but that can still be revealed by means of local filtering operations and therefore, displaying the phenomenon of \\emph{hidden} quantum correlations. We furthermore show that there actually exists a trade-off between the amount of quantum correlations which can be extracted and the filtering probability with which such protocol can be implemented. From a theoretical point of view, the existence of such trade-off imposes a fundamental limit to the extraction of quantum correlations by local filtering operations. From a practical point of view on the other hand, the results here presented determine the amount of resources that should be invested in order to extract such maximal hidden quantum correlations.",
+          "claimed_authors": [
+            "Andrés F. Ducuara",
+            "Cristian E. Susa",
+            "John H. Reina"
+          ],
+          "claimed_title": "Emergence of maximal hidden quantum correlations and its trade-off with the filtering probability in dissipative two-qubit systems",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2005.06339"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Plant Defense Allocation from Publicly Available Transcriptomic Data ', candidate_title='Emergence of maximal hidden quantum correlations and its trade-off with the filtering probability in dissipative two-qubit systems')",
+        "failed_at": "2026-06-16T08:23:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Manipulating volumetric deformable objects in the real world, like plush toys and pizza dough, bring substantial challenges due to infinite shape variations, non-rigid motions, and partial observability. We introduce ACID, an action-conditional visual dynamics model for volumetric deformable objects based on structured implicit neural representations. ACID integrates two new techniques: implicit representations for action-conditional dynamics and geodesics-based contrastive learning. To represent deformable dynamics from partial RGB-D observations, we learn implicit representations of occupancy and flow-based forward dynamics. To accurately identify state change under large non-rigid deformations, we learn a correspondence embedding field through a novel geodesics-based contrastive loss. To evaluate our approach, we develop a simulation framework for manipulating complex deformable shapes in realistic scenes and a benchmark containing over 17,000 action trajectories with six types of plush toys and 78 variants. Our model achieves the best performance in geometry, correspondence, and dynamics predictions over existing approaches. The ACID dynamics models are successfully employed to goal-conditioned deformable manipulation tasks, resulting in a 30% increase in task success rate over the strongest baseline. Furthermore, we apply the simulation-trained ACID model directly to real-world objects and show success in manipulating them into target configurations. For more results and information, please visit https://b0ku1.github.io/acid/ .",
+          "claimed_authors": [
+            "Bokui Shen",
+            "Zhenyu Jiang",
+            "Christopher Choy",
+            "Leonidas J. Guibas",
+            "Silvio Savarese",
+            "Anima Anandkumar",
+            "Yuke Zhu"
+          ],
+          "claimed_title": "ACID: Action-Conditional Implicit Visual Dynamics for Deformable Object Manipulation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2203.06856"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Plant Defense Allocation from Publicly Available Transcriptomic Data ', candidate_title='ACID: Action-Conditional Implicit Visual Dynamics for Deformable Object Manipulation')",
+        "failed_at": "2026-06-16T08:23:13Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Gwenaëlle Marchand",
+            "Baptiste Mayjonade",
+            "Didier Varès",
+            "Nicolas Blanchet",
+            "Marie-Claude Boniface",
+            "Pierre Maury",
+            "Fety Andrianasolo Nambinina",
+            "Philippe Burger",
+            "Philippe Debaeke",
+            "Pierre Casadebaig",
+            "Patrick Vincourt",
+            "Nicolas B. Langlade"
+          ],
+          "title": "A biomarker based on gene expression indicates plant water status in controlled and natural environments",
+          "venue": "arXiv",
+          "year": 2013
+        },
+        "primary_pointer": "1310.2542",
+        "summary": "Plant or soil water status are required in many scientific fields to understand plant responses to drought. Because the transcriptomic response to abiotic conditions, such as water deficit, reflects plant water status, genomic tools could be used to develop a new type of molecular biomarker. Using the sunflower (Helianthus annuus L.) as a model species to study the transcriptomic response to water deficit both in greenhouse and field conditions, we specifically identified three genes that showed an expression pattern highly correlated to plant water status as estimated by the pre-dawn leaf water potential, fraction of transpirable soil water, soil water content or fraction of total soil water in controlled conditions. We developed a generalized linear model to estimate these classical water status indicators from the expression levels of the three selected genes under controlled conditions. This estimation was independent of the four tested genotypes and the stage (pre- or post-flowering) of the plant. We further validated this gene expression biomarker under field conditions for four genotypes in three different trials, over a large range of water status, and we were able to correct their expression values for a large diurnal sampling period.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1310.2542",
+          "http_status": 200,
+          "pdf_sample_score": 0.2374,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-16T08:23:18Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "predicting plant defense allocation from publicly available transcriptomic data biology",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

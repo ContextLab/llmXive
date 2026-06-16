@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2103.13686",
+  "judged_at": "2026-06-16T08:24:33Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "tide: proactive multi-problem discovery via template-guided iteration linguistics",
+  "rationale": "The paper focuses on robust subgroup discovery in generic data mining using MDL and does not address template‑guided iteration, linguistic problem discovery, or the specific multi‑problem discovery framework implied by the user's question, making it off‑domain.",
+  "relevant": false
+}

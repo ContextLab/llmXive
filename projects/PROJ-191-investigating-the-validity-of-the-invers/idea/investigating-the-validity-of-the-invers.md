@@ -3,67 +3,100 @@ field: physics
 submitter: google.gemma-3-27b-it
 ---
 
-# Investigating the Validity of the Inverse Square Law at Sub‑Millimeter Scales  
+# Investigating the Validity of the Inverse‑Square Law at Sub‑Millimeter Scales  
 
 **Field**: physics  
 
 ## Research question  
 
-Does high‑precision analysis of the Planck cosmic‑microwave‑background (CMB) angular power spectrum reveal any statistically significant deviations from the predictions of standard ΛCDM that could be interpreted as a breakdown of the gravitational inverse‑square law at sub‑millimeter (early‑universe) distance scales?  
+Do laboratory torsion‑balance experiments using precision force measurements at separations of 10⁻⁵ to 10⁻⁴ m reveal any statistically significant deviations from the gravitational inverse‑square law consistent with Yukawa‑type modifications?  
 
 ## Motivation  
 
-The inverse‑square law underpins Newtonian gravity and General Relativity, yet many quantum‑gravity models predict modifications at extremely short distances. Direct laboratory tests cannot probe sub‑millimeter scales in the high‑density, high‑temperature conditions of the early universe. The CMB encodes gravitational physics at the recombination epoch (∼380 kyr after the Big Bang), where the comoving horizon corresponds to sub‑millimeter physical separations. A careful re‑analysis of publicly available Planck maps therefore offers a unique, data‑driven avenue to test this foundational law without new experiments.  
+Many quantum‑gravity and extra‑dimensional theories predict that Newton’s 1/r² law may break down at sub‑millimetre distances. Laboratory torsion‑balance experiments are the most sensitive terrestrial probes of gravity in this regime, yet the published analyses often focus on a limited set of parametrisations or omit a rigorous Bayesian model‑comparison. A systematic re‑analysis of all publicly available high‑precision force‑measurement data can tighten—or possibly reveal—constraints on Yukawa‑type deviations, directly informing theoretical model building.  
 
 ## Related work  
 
-- Related work: TODO — lit‑search returned no results.  
+- [Testing Gravity in the Laboratory (2023)](https://arxiv.org/abs/2305.06325) — Reviews recent precision Earth‑based gravity tests, including torsion‑balance setups, and outlines the experimental sensitivities required to probe Yukawa‑type modifications.  
+- [Dynamical measurements of deviations from Newton's $1/r^2$ law (2021)](https://arxiv.org/abs/2106.08611) — Presents an experimental design and first results for measuring possible $1/r^2$ violations at ≈10⁻⁵ m, providing raw force‑distance data suitable for re‑analysis.  
 
 ## Expected results  
 
-We expect to obtain quantitative upper bounds on any Yukawa‑type deviation from the inverse‑square law (parameterized by a strength α and length scale λ ≈ 10⁻⁴ m at recombination). A lack of significant excess χ² over the ΛCDM fit will falsify detectable deviations at the ∼10⁻³ % level in the power spectrum; a detected anomaly would be reported with its statistical significance (p‑value or Bayes factor) and interpreted in the context of modified‑gravity theories.  
+We anticipate deriving 95 % credible upper limits on the Yukawa strength α for length scales λ in the 10⁻⁵–10⁻⁴ m range that are at least a factor of two tighter than those reported in the literature. A statistically significant (Bayes factor > 3) preference for a non‑zero α would constitute evidence for a deviation; otherwise, the result will be reported as a strengthened null constraint.  
 
 ## Methodology sketch  
 
-- **Data acquisition**:  
-  - Download the Planck 2018 PR3 full‑mission temperature and polarization maps (HFI frequency maps, Nside = 2048) from the ESA Planck Legacy Archive: `https://pla.esac.esa.int/`.  
-  - Obtain the corresponding beam transfer functions and mask files.  
+- **Data acquisition**  
+  - Download the supplementary data files (force vs. separation) accompanying the 2021 experiment from the arXiv link’s “Data” section.  
+  - Retrieve the published torque‑balance calibration curves and uncertainty budgets from the 2023 review (available via the journal’s supplemental repository).  
 
-- **Pre‑processing**:  
-  - Apply the provided confidence masks to remove Galactic foregrounds and point sources.  
-  - Use `healpy` to downgrade maps to Nside = 1024 for faster computation while preserving multipoles ℓ ≤ 1500.  
+- **Data harmonisation**  
+  - Convert all force measurements to SI units and align them onto a common separation grid using linear interpolation.  
+  - Propagate reported systematic and statistical uncertainties to obtain a full covariance matrix for each dataset.  
 
-- **Power‑spectrum estimation**:  
-  - Compute the pseudo‑Cℓ (MASTER) angular power spectrum using `healpy.anafast` with the mask correction.  
-  - Estimate the covariance matrix via 500 Monte‑Carlo simulations of Gaussian CMB realizations using the Planck best‑fit ΛCDM spectrum.  
+- **Model definition**  
+  - Standard Newtonian force: \(F_N(r)=G\,m_1 m_2 / r^2\).  
+  - Yukawa‑modified force: \(F(r)=F_N(r)\,[1+\alpha\,\exp(-r/\lambda)]\).  
+  - Treat \((\alpha,\lambda)\) as additional free parameters alongside the experimentally calibrated scale factor.  
 
-- **Theoretical modeling**:  
-  - Generate ΛCDM predictions with CAMB (publicly available) for the baseline model.  
-  - Implement a modified Poisson equation incorporating a Yukawa potential:  
-    \[
-    V(r)= -\frac{G m_1 m_2}{r}\left[1+\alpha\,e^{-r/\lambda}\right],
-    \]  
-    where λ is the comoving length corresponding to sub‑millimeter physical scales at recombination.  
-  - Propagate this modification through CAMB (via the `modified_gravity` module) to obtain altered Cℓ predictions for a grid of (α, λ).  
+- **Statistical inference**  
+  - Implement the likelihood \(\mathcal{L}\propto \exp[-\frac12 ( \mathbf{d}-\mathbf{m}(\alpha,\lambda) )^{\!T}\mathbf{C}^{-1}( \mathbf{d}-\mathbf{m})]\).  
+  - Sample the posterior using the affine‑invariant MCMC sampler **emcee** with 100 walkers and 5 000 steps (≈ 30 min on a 2‑core runner).  
+  - Apply flat priors: \(\alpha\in[-0.1,0.1]\), \(\lambda\in[1\times10^{-5},1\times10^{-4}]\) m.  
 
-- **Parameter inference**:  
-  - Run a Markov‑Chain Monte Carlo (MCMC) using `emcee` to sample the posterior of (α, λ) jointly with the standard cosmological parameters, imposing flat priors on α∈[‑0.1, 0.1] and λ∈[10⁻⁶, 10⁻³] m (comoving).  
-  - Compute the Bayesian evidence for the modified‑gravity model versus ΛCDM using the `dynesty` nested‑sampling package.  
+- **Model comparison**  
+  - Compute Bayesian evidence for the Newtonian‑only model and the Yukawa‑extended model using **dynesty** nested sampling (≈ 10 min).  
+  - Derive the Bayes factor \(K\) and interpret according to the Kass–Raftery scale.  
 
-- **Statistical testing**:  
-  - Evaluate the χ² difference between the best‑fit modified model and ΛCDM; assess significance with the χ² distribution (Δℓ ≈ 2500 degrees of freedom).  
-  - Report the Bayes factor; interpret values > 3 as “substantial” evidence for deviation.  
+- **Robustness checks**  
+  - Perform leave‑one‑experiment‑out cross‑validation to ensure results are not driven by a single dataset.  
+  - Test sensitivity to systematic shifts by inflating the covariance matrix by 10 % and re‑running the inference.  
 
-- **Robustness checks**:  
-  - Repeat the analysis on the individual frequency maps (100, 143, 217 GHz) to test foreground residuals.  
-  - Perform null tests with half‑mission splits to ensure systematic stability.  
-
-- **Reproducibility**:  
-  - All scripts and environment specifications will be placed in a GitHub repository, using Python 3.11, `healpy`, `camb`, `emcee`, `dynesty`, and `numpy`.  
-  - The entire workflow will be orchestrated with a `make` file so that the full pipeline (download → analysis → figures) executes within a single GitHub Actions job (< 6 h, ≤ 7 GB RAM).  
+- **Reproducibility**  
+  - All scripts, environment file (`environment.yml`), and a `Makefile` orchestrating the pipeline will be hosted in a public GitHub repository.  
+  - The full workflow (download → preprocessing → inference → figures) is designed to complete within a single GitHub Actions job (< 6 h, ≤ 7 GB RAM).  
 
 ## Duplicate‑check  
 
 - Reviewed existing ideas: none.  
 - Closest match: none.  
 - Verdict: **NOT a duplicate**.
+
+
+## Search trail
+
+**Generated by**: librarian (prompt v1.6.0) on 2026-06-16T08:26:33Z
+**Outcome**: exhausted
+**Original term**: Investigating the Validity of the Inverse Square Law at Sub-Millimeter Scales physics
+**Verified citation count**: 2
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | Investigating the Validity of the Inverse Square Law at Sub-Millimeter Scales physics | 0 |
+| 1 | short-range tests of Newtonian gravity | 4 |
+| 2 | sub-millimeter deviations from the 1/r² law | 3 |
+| 3 | Yukawa-type corrections to gravitational force at micrometer distances | 0 |
+| 4 | fifth‑force searches at micrometer scales | 0 |
+| 5 | constraints on extra dimensions from microgravity experiments | 0 |
+| 6 | precision Casimir force measurements probing inverse‑square behavior | 0 |
+| 7 | torsion‑balance experiments below 1 mm | 0 |
+| 8 | atomic force microscopy gravity measurements | 0 |
+| 9 | non‑Newtonian force limits at sub‑millimetre distances | 0 |
+| 10 | micro‑cantilever tests of the gravitational inverse‑square law | 0 |
+| 11 | searches for short‑range modifications of gravity | 0 |
+| 12 | tests of Newton’s law of gravitation at micrometer separations | 0 |
+| 13 | constraints on scalar‑mediated forces in the sub‑mm regime | 0 |
+| 14 | micro‑scale investigations of the inverse‑square law | 0 |
+| 15 | sub‑millimetre force spectroscopy for new physics | 0 |
+| 16 | gravitational inverse‑square law violation searches | 0 |
+| 17 | precision measurements of weak forces at micrometer distances | 0 |
+| 18 | probing large extra dimensions with micron‑scale force probes | 0 |
+| 19 | Casimir‑type experiments for non‑Newtonian interactions | 0 |
+| 20 | micro‑resonator studies of short‑range gravitational forces | 0 |
+
+### Verified citations
+
+1. **Testing Gravity in the Laboratory** (2023). Quentin G. Bailey. arXiv. [2305.06325](https://arxiv.org/abs/2305.06325). PDF-sampled: No.
+2. **Dynamical measurements of deviations from Newton's $1/r^2$ law** (2021). J. Baeza-Ballesteros, A. Donini, S. Nadal-Gisbert. arXiv. [2106.08611](https://arxiv.org/abs/2106.08611). PDF-sampled: No.

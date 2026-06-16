@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2605.31159",
+  "judged_at": "2026-06-16T08:22:28Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "trust region on-policy distillation computer science",
+  "rationale": "The paper studies the same mechanism—trust‑region‑based techniques—applied to on‑policy distillation in reinforcement learning, directly matching the user’s focus on “Trust Region On-Policy Distillation” (acceptance category (a)).",
+  "relevant": true
+}

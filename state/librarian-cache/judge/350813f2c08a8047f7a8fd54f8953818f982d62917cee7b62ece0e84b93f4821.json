@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2106.06828",
+  "judged_at": "2026-06-16T08:22:25Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "trust region on-policy distillation computer science",
+  "rationale": "The paper investigates trust‑region optimization—a core mechanism in the user’s query—though in a multi‑agent setting and without addressing on‑policy distillation. It therefore provides same‑mechanism evidence (category a) relevant for a literature review on trust‑region methods.",
+  "relevant": true
+}

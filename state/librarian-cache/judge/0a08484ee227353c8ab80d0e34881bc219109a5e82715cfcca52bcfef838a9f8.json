@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1802.02986",
+  "judged_at": "2026-06-16T08:25:31Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "cognitive load optimization: adaptive complexity scaling for personalized learning psychology",
+  "rationale": "The paper focuses on adaptive business process management for cyber‑physical systems and does not address cognitive load, adaptive complexity scaling, or personalized learning in a psychological context, thus it is off‑domain and unrelated to the user's research question.",
+  "relevant": false
+}

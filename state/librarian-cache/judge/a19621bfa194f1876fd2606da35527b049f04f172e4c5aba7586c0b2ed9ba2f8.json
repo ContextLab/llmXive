@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2211.11702",
+  "judged_at": "2026-06-16T08:26:32Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "investigating the validity of the inverse square law at sub-millimeter scales physics",
+  "rationale": "The paper studies sub‑millimeter galaxy flux predictions using radiative‑transfer simulations, which is unrelated to testing the inverse‑square law of physics at sub‑millimeter length scales; it does not address the same mechanism, variables, or empirical setting.",
+  "relevant": false
+}

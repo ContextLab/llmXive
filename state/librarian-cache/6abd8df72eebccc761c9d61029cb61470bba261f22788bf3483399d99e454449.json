@@ -1,0 +1,602 @@
+{
+  "fetched_at": "2026-06-16T08:26:33Z",
+  "field": "physics",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "physics",
+      "idea_body_excerpt": "Investigating the Validity of the Inverse Square Law at Sub-Millimeter Scales",
+      "target_n": 5
+    },
+    "duration_seconds": 54.184,
+    "ended_at": "2026-06-16T08:26:33Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "short-range tests of Newtonian gravity"
+        ],
+        [
+          2,
+          "sub-millimeter deviations from the 1/r² law"
+        ],
+        [
+          3,
+          "Yukawa-type corrections to gravitational force at micrometer distances"
+        ],
+        [
+          4,
+          "fifth‑force searches at micrometer scales"
+        ],
+        [
+          5,
+          "constraints on extra dimensions from microgravity experiments"
+        ],
+        [
+          6,
+          "precision Casimir force measurements probing inverse‑square behavior"
+        ],
+        [
+          7,
+          "torsion‑balance experiments below 1 mm"
+        ],
+        [
+          8,
+          "atomic force microscopy gravity measurements"
+        ],
+        [
+          9,
+          "non‑Newtonian force limits at sub‑millimetre distances"
+        ],
+        [
+          10,
+          "micro‑cantilever tests of the gravitational inverse‑square law"
+        ],
+        [
+          11,
+          "searches for short‑range modifications of gravity"
+        ],
+        [
+          12,
+          "tests of Newton’s law of gravitation at micrometer separations"
+        ],
+        [
+          13,
+          "constraints on scalar‑mediated forces in the sub‑mm regime"
+        ],
+        [
+          14,
+          "micro‑scale investigations of the inverse‑square law"
+        ],
+        [
+          15,
+          "sub‑millimetre force spectroscopy for new physics"
+        ],
+        [
+          16,
+          "gravitational inverse‑square law violation searches"
+        ],
+        [
+          17,
+          "precision measurements of weak forces at micrometer distances"
+        ],
+        [
+          18,
+          "probing large extra dimensions with micron‑scale force probes"
+        ],
+        [
+          19,
+          "Casimir‑type experiments for non‑Newtonian interactions"
+        ],
+        [
+          20,
+          "micro‑resonator studies of short‑range gravitational forces"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Investigating the Validity of the Inverse Square Law at Sub-Millimeter Scales physics": 0,
+        "short-range tests of Newtonian gravity": 4,
+        "sub-millimeter deviations from the 1/r² law": 3
+      },
+      "total_queries_issued": 2
+    },
+    "extracted_queries": [
+      "1/r^2 deviation",
+      "torsion balance micrometer",
+      "Yukawa potential constraints",
+      "force deviation limits",
+      "scalar-mediated fifth force"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2106.08611"
+      ]
+    },
+    "per_query_hit_count": {
+      "1/r^2 deviation": 3,
+      "Investigating the Validity of the Inverse Square Law at Sub-Millimeter Scales physics": 3,
+      "Yukawa potential constraints": 3,
+      "force deviation limits": 2,
+      "scalar-mediated fifth force": 3,
+      "torsion balance micrometer": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 5,
+      "rejections": [
+        {
+          "primary_pointer": "2303.17185",
+          "rationale": "The paper studies gravity using binary pulsars at astronomical scales, not the inverse‑square law at sub‑millimeter distances; it does not provide evidence, baseline, or methodology relevant to short‑range tests of the law. Hence it falls outside the domain of the user's question.",
+          "title": "Tests of Classical Gravity with Radio Pulsars"
+        },
+        {
+          "primary_pointer": "2401.08085",
+          "rationale": "The paper studies gravitational dynamics of extreme-mass-ratio inspirals on astrophysical (large‑scale, strong‑field) regimes, not the short‑range (sub‑millimeter) behavior of the inverse‑square law; it does not address the same mechanism, scale, or variables relevant to the user's question.",
+          "title": "Testing gravity with Extreme-Mass-Ratio Inspirals"
+        },
+        {
+          "primary_pointer": "2107.08597",
+          "rationale": "The paper studies a modified gravity theory’s post‑Newtonian parameters in the Solar‑System (large‑scale, weak‑field) regime and does not address measurements of the inverse‑square law at sub‑millimeter distances, nor does it provide empirical or theoretical insight specific to that short‑range scale. Hence it does not meet any inclusion criteria (a‑f).",
+          "title": "Parametrized post-Newtonian limit of the Nieh-Yan modified teleparallel gravity"
+        },
+        {
+          "primary_pointer": "1408.3314",
+          "rationale": "The paper focuses on the design and performance of microwave kinetic inductance detectors for sub‑millimeter astronomy, without addressing the inverse square law or its validity at sub‑millimeter distances, thus it does not meet any inclusion criteria (a‑f).",
+          "title": "Performance of Hybrid NbTiN-Al Microwave Kinetic Inductance Detectors as Direct Detectors for Sub-millimeter Astronomy"
+        },
+        {
+          "primary_pointer": "2211.11702",
+          "rationale": "The paper studies sub‑millimeter galaxy flux predictions using radiative‑transfer simulations, which is unrelated to testing the inverse‑square law of physics at sub‑millimeter length scales; it does not address the same mechanism, variables, or empirical setting.",
+          "title": "Predicting sub-millimeter flux densities from global galaxy properties"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-16T08:25:39Z",
+    "term_input": {
+      "normalized": "investigating the validity of the inverse square law at sub-millimeter scales physics",
+      "raw": "Investigating the Validity of the Inverse Square Law at Sub-Millimeter Scales physics"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "On 2017 August 17 a binary neutron star coalescence candidate (later designated GW170817) with merger time 12:41:04 UTC was observed through gravitational waves by the Advanced LIGO and Advanced Virgo detectors. The Fermi Gamma-ray Burst Monitor independently detected a gamma-ray burst (GRB 170817A) with a time delay of $\\sim$1.7 s with respect to the merger time. From the gravitational-wave signal, the source was initially localized to a sky region of 31 deg$^2$ at a luminosity distance of $40^{+8}_{-8}$ Mpc and with component masses consistent with neutron stars. The component masses were later measured to be in the range 0.86 to 2.26 Msun. An extensive observing campaign was launched across the electromagnetic spectrum leading to the discovery of a bright optical transient (SSS17a, now with the IAU identification of AT 2017gfo) in NGC 4993 (at $\\sim$40 Mpc) less than 11 hours after the merger by the One-Meter, Two Hemisphere (1M2H) team using the 1 m Swope Telescope. The optical transient was independently detected by multiple teams within an hour. Subsequent observations targeted the object and its environment. Early ultraviolet observations revealed a blue transient that faded within 48 hours. Optical and infrared observations showed a redward evolution over $\\sim$10 days. Following early non-detections, X-ray and radio emission were discovered at the transient's position $\\sim$9 and $\\sim$16 days, respectively, after the merger. Both the X-ray and radio emission likely arise from a physical process that is distinct from the one that generates the UV/optical/near-infrared emission. No ultra-high-energy gamma-rays and no neutrino candidates consistent with the source were found in follow-up searches. (Abridged)",
+          "claimed_authors": [
+            " LIGO Scientific Collaboration",
+            " Virgo Collaboration",
+            "Fermi GBM",
+            " INTEGRAL",
+            "IceCube Collaboration",
+            "AstroSat Cadmium Zinc Telluride Imager Team",
+            "IPN Collaboration",
+            "The Insight-Hxmt Collaboration",
+            "ANTARES Collaboration",
+            "The Swift Collaboration",
+            "AGILE Team",
+            "The 1M2H Team",
+            "The Dark Energy Camera GW-EM Collaboration",
+            "the DES Collaboration",
+            "The DLT40 Collaboration",
+            " GRAWITA",
+            " :",
+            "GRAvitational Wave Inaf TeAm",
+            "The Fermi Large Area Telescope Collaboration",
+            " ATCA",
+            " :",
+            "Australia Telescope Compact Array",
+            " ASKAP",
+            " :",
+            "Australian SKA Pathfinder",
+            "Las Cumbres Observatory Group",
+            " OzGrav",
+            " DWF",
+            " AST3",
+            "CAASTRO Collaborations",
+            "The VINROUGE Collaboration",
+            "MASTER Collaboration",
+            " J-GEM",
+            " GROWTH",
+            " JAGWAR",
+            "Caltech- NRAO",
+            " TTU-NRAO",
+            "NuSTAR Collaborations",
+            " Pan-STARRS",
+            "The MAXI Team",
+            "TZAC Consortium",
+            "KU Collaboration",
+            "Nordic Optical Telescope",
+            " ePESSTO",
+            " GROND",
+            "Texas Tech University",
+            "SALT Group",
+            " TOROS",
+            " :",
+            "Transient Robotic Observatory of the South Collaboration",
+            "The BOOTES Collaboration",
+            " MWA",
+            " :",
+            "Murchison Widefield Array",
+            "The CALET Collaboration",
+            "IKI-GW Follow-up Collaboration",
+            "H. E. S. S. Collaboration",
+            "LOFAR Collaboration",
+            " LWA",
+            " :",
+            "Long Wavelength Array",
+            "HAWC Collaboration",
+            "The Pierre Auger Collaboration",
+            "ALMA Collaboration",
+            "Euro VLBI Team",
+            "Pi of the Sky Collaboration",
+            "The Chandra Team at McGill University",
+            " DFN",
+            " :",
+            "Desert Fireball Network",
+            " ATLAS",
+            "High Time Resolution Universe Survey",
+            " RIMAS",
+            " RATIR",
+            "SKA South Africa/MeerKAT"
+          ],
+          "claimed_title": "Multi-messenger Observations of a Binary Neutron Star Merger",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1710.05833"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Investigating the Validity of the Inverse Square Law at Sub-Millimeter Scales ph', candidate_title='Multi-messenger Observations of a Binary Neutron Star Merger')",
+        "failed_at": "2026-06-16T08:26:08Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The European Particle Physics Strategy Update (EPPSU) process takes a bottom-up approach, whereby the community is first invited to submit proposals (also called inputs) for projects that it would like to see realised in the near-term, mid-term and longer-term future. National inputs as well as inputs from National Laboratories are also an important element of the process. All these inputs are then reviewed by the Physics Preparatory Group (PPG), whose role is to organize a Symposium around the submitted ideas and to prepare a community discussion on the importance and merits of the various proposals. The results of these discussions are then concisely summarised in this Briefing Book, prepared by the Conveners, assisted by Scientific Secretaries, and with further contributions provided by the Contributors listed on the title page. This constitutes the basis for the considerations of the European Strategy Group (ESG), consisting of scientific delegates from CERN Member States, Associate Member States, directors of major European laboratories, representatives of various European organizations as well as invitees from outside the European Community. The ESG has the mission to formulate the European Strategy Update for the consideration and approval of the CERN Council.",
+          "claimed_authors": [
+            " European Strategy for Particle Physics Preparatory Group"
+          ],
+          "claimed_title": "Physics Briefing Book",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1910.11775"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Investigating the Validity of the Inverse Square Law at Sub-Millimeter Scales ph', candidate_title='Physics Briefing Book')",
+        "failed_at": "2026-06-16T08:26:08Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present the current expectations for the design and physics program of an e+e- linear collider of center of mass energy 500 GeV -- 1 TeV. We review the experiments that would be carried out at this facility and demonstrate its key role in exploring physics beyond the Standard Model over the full range of theoretical possibilities. We then show the feasibility of constructing this machine, by reviewing the current status of linear collider technology and by presenting a precis of our `zeroth-order' design.",
+          "claimed_authors": [
+            " NLC ZDR Design Group",
+            " NLC Physics Working Group",
+            "S. Kuhlman"
+          ],
+          "claimed_title": "Physics and Technology of the Next Linear Collider: A Report Submitted to Snowmass '96",
+          "claimed_venue": "arXiv",
+          "claimed_year": 1996,
+          "primary_pointer": "hep-ex/9605011"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Investigating the Validity of the Inverse Square Law at Sub-Millimeter Scales ph', candidate_title=\"Physics and Technology of the Next Linear Collider: A Report Submitted to Snowmass '96\")",
+        "failed_at": "2026-06-16T08:26:08Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present exact results for the dynamical structure function, i.e.~the density-density correlations for the 1/r^2 system of interacting particles at three special values of the coupling constant. The results are interpreted in terms of exact excitations of the model which are available from Bethe's Ansatz, thereby throwing light on the quasi-particle content of the elementary excitations. We also obtain the first moment of the discrete version of the model, which provides a non-trivial check on its structure function. We show that the property of spectrum saturation is a common feature of both versions.",
+          "claimed_authors": [
+            "E. R. Mucciolo",
+            "B. S. Shastry",
+            "B. D. Simons",
+            "B. L. Altshuler"
+          ],
+          "claimed_title": "Exact Dynamical Correlations of the 1/r^2 Model",
+          "claimed_venue": "arXiv",
+          "claimed_year": 1993,
+          "primary_pointer": "cond-mat/9309030"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Investigating the Validity of the Inverse Square Law at Sub-Millimeter Scales ph', candidate_title='Exact Dynamical Correlations of the 1/r^2 Model')",
+        "failed_at": "2026-06-16T08:26:08Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We obtain sharp upper and lower bounds for the moderate deviations of the volume of the range of a random walk in dimension five and larger. Our results encompass two regimes: a Gaussian regime for small deviations, and a stretched exponential regime for larger deviations. In the latter regime, we show that conditioned on the moderate deviations event, the walk folds a small part of its range in a ball-like subset. Also, we provide new path properties, in dimension three as well. Besides the key role Newtonian capacity plays in this study, we introduce two original ideas, of general interest, which strengthen the approach developed in \\cite{AS}.",
+          "claimed_authors": [
+            "Amine Asselah",
+            "Bruno Schapira"
+          ],
+          "claimed_title": "Moderate deviations for the range of a transient random walk. II",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1909.01925"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Investigating the Validity of the Inverse Square Law at Sub-Millimeter Scales ph', candidate_title='Moderate deviations for the range of a transient random walk. II')",
+        "failed_at": "2026-06-16T08:26:08Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Bound state solutions of the Schrodinger Equation for the $-a/r^2$ potential have been presented recently for both the weak and strong coupling cases. However, Shortley in 1931 and Landau and Lifshitz in 1958 claimed that no bound state solutions exist for the weak coupling case when $0 < 2ma/\\hbar^2 <= (l + 1/2)^2$. We demonstrate that one bound state solution can exist for each angular momentum state l, and that a complete orthogonal set of continuum eigenfunctions orthogonal to the bound state eigenfunction can be constructed when $l(l+ 1) < 2ma/\\hbar^2 <= (l + 1/2)^2$. We show that Shortley's argument is spurious due to his neglecting a boundary term arising from the momentum operator and that the Landau and Lifshitz claim is based on a restrictive fitting of the exterior solution to an interior spherical well. Instead, to each weak coupling, a, we find a unique interior well strength $V_{in} = -a'/ro^2$ which yields a finite bound state. In particular for the l = 0 case the well strength is given by: $2ma'/\\hbar^2 = 1.3734 + 2.2265*(1/4 - 2ma'/\\hbar^2)^{1/2}$.",
+          "claimed_authors": [
+            "Philip E. Bloomfield"
+          ],
+          "claimed_title": "Schrodinger Equation weakly attractive 1/r^2 Potential Eigenfunctions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1708.01373"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Investigating the Validity of the Inverse Square Law at Sub-Millimeter Scales ph', candidate_title='Schrodinger Equation weakly attractive 1/r^2 Potential Eigenfunctions')",
+        "failed_at": "2026-06-16T08:26:08Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We discuss a proposal to measure the Casimir force in the parallel plate configuration in the $1-10μ$m range via a high-sensitivity torsional balance. This will allow to measure the thermal contribution to the Casimir force therefore discriminating between the various approaches discussed so far. The accurate control of the Casimir force in this range of distances is also required to improve the limits to the existence of non-Newtonian forces in the micrometer range predicted by unification models of fundamental interactions.",
+          "claimed_authors": [
+            "A. Lambrecht",
+            "V. V. Nesvizhevsky",
+            "R. Onofrio",
+            "S. Reynaud"
+          ],
+          "claimed_title": "Development of a high sensitivity torsional balance for the study of the Casimir force in the 1-10 micrometer range",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2006,
+          "primary_pointer": "quant-ph/0611101"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Investigating the Validity of the Inverse Square Law at Sub-Millimeter Scales ph', candidate_title='Development of a high sensitivity torsional balance for the study of the Casimir force in the 1-10 micrometer range')",
+        "failed_at": "2026-06-16T08:26:08Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We consider spatially homogeneous and isotropic cosmologies with non-zero torsion. Given the high symmetry of these universes, we adopt a specific form for the torsion tensor that preserves the homogeneity and isotropy of the spatial surfaces. Employing both covariant and metric-based techniques, we derive the torsional versions of the continuity, the Friedmann and the Raychaudhuri equations. These formulae demonstrate how, by playing the role of the spatial curvature, or that of the cosmological constant, torsion can drastically change the evolution of the classic homogeneous and isotropic Friedmann universes. In particular, torsion alone can lead to exponential expansion. For instance, in the presence of torsion, the Milne and the Einstein-de Sitter universes evolve like the de Sitter model. We also show that, by changing the expansion rate of the early universe, torsion can affect the primordial nucleosynthesis of helium-4. We use this sensitivity to impose strong cosmological bounds on the relative strength of the associated torsion field, requiring that its ratio to the Hubble expansion rate lies in the narrow interval ($-0.005813,\\,+0.019370$) around zero. Interestingly, the introduction of torsion can \\textit{reduce} the production of primordial helium-4, unlike other changes to the standard thermal history of an isotropic universe. Finally, turning to static spacetimes, we find that there exist torsional analogues of the classic Einstein static universe, with all three types of spatial geometry. These models can be stable when the torsion field and the universe's spatial curvature have the appropriate profiles.",
+          "claimed_authors": [
+            "D. Kranas",
+            "C. G. Tsagas",
+            "J. D. Barrow",
+            "D. Iosifidis"
+          ],
+          "claimed_title": "Friedmann-like universes with torsion",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1809.10064"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Investigating the Validity of the Inverse Square Law at Sub-Millimeter Scales ph', candidate_title='Friedmann-like universes with torsion')",
+        "failed_at": "2026-06-16T08:26:08Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In abelian categories like the category of R-modules and even in the category S-Act 0 of S-acts with a unique zero, idempotent radicals and torsion theories are equivalent, and the τ-torsion and τ- torsion free classes of a torsion theory τ are closed under coproducts. These are not necessarily true in the category S-Act of S-acts. In this paper, we prove that torsion theories are equivalent with the Kurosh- Amitsur radicals. We, also, show that the class of Kurosh-Amitsur radicals is a reflective subcategory of Hoehnke radicals, as a poset.",
+          "claimed_authors": [
+            "M. Haddadi",
+            "S. M. N. Sheykholislami"
+          ],
+          "claimed_title": "On radical and torsion theory in the category of S-acts",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1806.07075"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Investigating the Validity of the Inverse Square Law at Sub-Millimeter Scales ph', candidate_title='On radical and torsion theory in the category of S-acts')",
+        "failed_at": "2026-06-16T08:26:08Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We propose a novel multi-layer neural network architecture that gives a promising neural network empowered optimization approach to the image restoration problem. The proposed architecture is motivated by the recent study of monotone Lipschitz-gradient (MoL-Grad) denoiser (Yukawa and Yamada, 2025) which establishes an ``explainable'' plug-and-play (PnP) framework in the sense of disclosing the objective minimized. The architecture is derived from the gradient of a superposition of functions associated with each layer, having the weights in the encoder and decoder tied with each other. Convexity of the potential, and thus monotonicity of its gradient (denoiser), is ensured by restricting ourselves to nonnegative weights. Unlike the previous PnP approaches with theoretical guarantees, the denoiser is free from constraints on the Lipschitz constant of the denoiser. Our PnP algorithm employing the weight-tying nonnegative neural network converges to a minimizer of the objective involving an ``implicit'' weakly convex regularizer induced by the denoiser. The convergence analysis relies on an efficient technique to preserve the overall convexity even in the ill-conditioned case where the loss function is not strongly convex. The simulation study shows the advantages of the Lipschitz-constraint-free nature of the proposed denoiser in training time as well as deblurring performance.",
+          "claimed_authors": [
+            "Haruya Shimizu",
+            "Masahiro Yukawa"
+          ],
+          "claimed_title": "Plugging Weight-tying Nonnegative Neural Network into Proximal Splitting Method: Architecture for Guaranteeing Convergence to Optimal Point",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2510.21421"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Investigating the Validity of the Inverse Square Law at Sub-Millimeter Scales ph', candidate_title='Plugging Weight-tying Nonnegative Neural Network into Proximal Splitting Method: Architecture for Guaranteeing Convergence to Optimal Point')",
+        "failed_at": "2026-06-16T08:26:08Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Light is shed on the early stage in the birth of Yukawa's meson theory, particularly on the interplay between Yukawa and Tomonaga in 1933. The discovery of the muon by Nishina' group in 1937 is also reviewed. It is pointed out that Heisenberg's attempt to explain the nuclear force in terms of the Heitler-London scheme, overcome by Yukawa and abandoned since then, is now being revived as a mechanism for a super strong nuclear force caused by a migrating real Kbar meson.",
+          "claimed_authors": [
+            "Toshimitsu Yamazaki"
+          ],
+          "claimed_title": "Interplay between Yukawa and Tomonaga in the Birth of Mesons",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2007,
+          "primary_pointer": "0712.4355"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Investigating the Validity of the Inverse Square Law at Sub-Millimeter Scales ph', candidate_title='Interplay between Yukawa and Tomonaga in the Birth of Mesons')",
+        "failed_at": "2026-06-16T08:26:08Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We investigate the renormalization group flow of the field-dependent Yukawa coupling in the framework of the three flavor quark-meson model. In a conventional perturbative calculation, given that the field rescaling is trivial, the Yukawa coupling does not get renormalized at the one-loop level if it is coupled to an equal number of scalar and pseudoscalar fields. Its field-dependent version, however, does flow with respect to the scale. Using the functional renormalization group technique, we show that it is highly nontrivial how to extract the actual flow of the Yukawa coupling as there are several new chirally invariant operators that get generated by quantum fluctuations in the effective action, which need to be distinguished from that of the Yukawa interaction.",
+          "claimed_authors": [
+            "G. Fejos",
+            "A. Patkos"
+          ],
+          "claimed_title": "Field dependence of the Yukawa coupling in the three flavor quark-meson model",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2011.08387"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Investigating the Validity of the Inverse Square Law at Sub-Millimeter Scales ph', candidate_title='Field dependence of the Yukawa coupling in the three flavor quark-meson model')",
+        "failed_at": "2026-06-16T08:26:08Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The newly discovered principle of maximum force makes it possible to summarize special relativity, quantum theory\\se, and general relativity in one fundamental limit principle each. The three principles fully contain the three theories and are fully equivalent to their standard formulations. In particular, using a result by Jacobson based on the Raychaudhuri equation, it is shown that a maximum force implies the field equations of general relativity. The maximum force in nature is thus equivalent to the full theory of general relativity. Taken together, the three fundamental principles imply a bound for every physical observable, from acceleration to size. The new, precise limit values differ from the usual Planck values by numerical prefactors of order unity. They are given here for the first time. Among others, a maximum force and thus a minimum length imply that the non-continuity of space-time is an inevitable result of the unification of quantum theory and relativity.",
+          "claimed_authors": [
+            "Christoph Schiller"
+          ],
+          "claimed_title": "Maximum force and minimum distance: physics in limit statements",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2003,
+          "primary_pointer": "physics/0309118"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Investigating the Validity of the Inverse Square Law at Sub-Millimeter Scales ph', candidate_title='Maximum force and minimum distance: physics in limit statements')",
+        "failed_at": "2026-06-16T08:26:08Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We obtain estimates for large and moderate deviations for the capacity of the range of a random walk on $\\mathbb{Z}^d$, in dimension $d\\ge 5$, both in the upward and downward directions. The results are analogous to those we obtained for the volume of the range in two companion papers [AS17, AS19]. Interestingly, the main steps of the strategy we developed for the latter apply in this seemingly different setting, yet the details of the analysis are different",
+          "claimed_authors": [
+            "Amine Asselah",
+            "Bruno Schapira"
+          ],
+          "claimed_title": "Deviations for the Capacity of the Range of a Random Walk",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1807.02325"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Investigating the Validity of the Inverse Square Law at Sub-Millimeter Scales ph', candidate_title='Deviations for the Capacity of the Range of a Random Walk')",
+        "failed_at": "2026-06-16T08:26:08Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The mass of a scalar field mediating a fifth force is tightly constrained by experiments. We show, however, that adding a quartic self-interaction for such a scalar makes most tests much less constraining: the non-linear equation of motion masks the coupling of the scalar to matter through the chameleon mechanism. We discuss consequences for fifth force experiments. In particular, we find that, with quartic coupling of order unity, a gravitational strength interaction with matter is allowed by current constraints. We show that our chameleon scalar field results in experimental signatures that could be detected through modest improvements of current laboratory set-ups.",
+          "claimed_authors": [
+            "Steven S. Gubser",
+            "Justin Khoury"
+          ],
+          "claimed_title": "Scalar self-interactions loosen constraints from fifth force searches",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2004,
+          "primary_pointer": "hep-ph/0405231"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Investigating the Validity of the Inverse Square Law at Sub-Millimeter Scales ph', candidate_title='Scalar self-interactions loosen constraints from fifth force searches')",
+        "failed_at": "2026-06-16T08:26:08Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "New fifth forces have not yet been detected in the laboratory or in the solar system, hence it is typically difficult to introduce new light scalar fields that would mediate such forces. In recent years it has been shown that a number of non-linear scalar field theories allow for a dynamical mechanism, such as the Vainshtein and chameleon ones, that suppresses the strength of the scalar fifth force in experimental environments. This is known as screening, however it is unclear how common screening is within non-linear scalar field theories. k-essence models are commonly studied examples of non-linear models, with DBI as the best motivated example, and so we ask whether these non-linearities are able to screen a scalar fifth force. We find that a Vainshtein-like screening mechanism exists for such models although with limited applicability. For instance, we cannot find a screening mechanism for DBI models. On the other hand, we construct a large class of k-essence models which lead to the acceleration of the Universe in the recent past for which the fifth force mediated by the scalar can be screened.",
+          "claimed_authors": [
+            "Philippe Brax",
+            "Clare Burrage",
+            "Anne-Christine Davis"
+          ],
+          "claimed_title": "Screening fifth forces in k-essence and DBI models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1209.1293"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Investigating the Validity of the Inverse Square Law at Sub-Millimeter Scales ph', candidate_title='Screening fifth forces in k-essence and DBI models')",
+        "failed_at": "2026-06-16T08:26:08Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This article describes reflections on the Fifth International Conference on Women in Physics which was a conference attended by 215 female physicists and a few male physicists from 49 different countries. The article focuses on the barriers that women face in their professional advancement in physics and the extent to which the situation is different in various countries.",
+          "claimed_authors": [
+            "Chandralekha Singh"
+          ],
+          "claimed_title": "Reflections on the Fifth International Conference on Women in Physics",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2201.02276"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Investigating the Validity of the Inverse Square Law at Sub-Millimeter Scales ph', candidate_title='Reflections on the Fifth International Conference on Women in Physics')",
+        "failed_at": "2026-06-16T08:26:08Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Quentin G. Bailey"
+          ],
+          "title": "Testing Gravity in the Laboratory",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2305.06325",
+        "summary": "In this chapter, we discuss recent work on precision Earth laboratory tests of different aspects of gravity. In particular the discussion is focused on those tests that can be used to probe hypothesis for physics beyond Newtonian gravity and General Relativity. The latter includes tests of foundations like local Lorentz invariance, Weak-Equivalence Principle tests, short-range gravity tests, gravimeter-type tests, and other frontier possibilities like the free-fall of anti-matter and searches for non-Riemann gravity effects. The focus is on key results in theory, phenomenology, and experiment in the last few decades. We describe the motivations for continued interest in precision tests of gravity in the laboratory, including the possibility to search for physics beyond General Relativity. Test frameworks for describing deviations from General Relativity are emphasized, including ones based on effective field theory, allowing for generic violations of Lorentz symmetry, CPT symmetry, and diffeomorphism symmetry.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2305.06325",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 1.0,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-16T08:26:13Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "J. Baeza-Ballesteros",
+            "A. Donini",
+            "S. Nadal-Gisbert"
+          ],
+          "title": "Dynamical measurements of deviations from Newton's $1/r^2$ law",
+          "venue": "arXiv",
+          "year": 2021
+        },
+        "primary_pointer": "2106.08611",
+        "summary": "In a previous work (arXiv:1609.05654v2), an experimental setup aiming at the measurement of deviations from the Newtonian $1/r^2$ distance dependence of gravitational interactions was proposed. The theoretical idea behind this setup was to study the trajectories of a \"Satellite\" with a mass $m_{\\rm S} \\sim {\\cal O}(10^{-9})$ $\\mathrm{g}$ around a \"Planet\" with mass $m_{\\rm P} \\in [10^{-7},10^{-5} ]$ $\\mathrm{g}$, looking for precession of the orbit. The observation of such feature induced by gravitational interactions would be an unambiguous indication of a gravitational potential with terms different from $1/r$ and, thus, a powerful tool to detect deviations from Newton's $1/r^2$ law. In this paper we optimize the proposed setup in order to achieve maximal sensitivity to look for {\\em Beyond-Newtonian} corrections. We study in detail possible background sources that could induce precession and quantify their impact on the achievable sensitivity. We conclude that a dynamical measurement of deviations from newtonianity can test Yukawa-like corrections to the $1/r$ potential with strength as low as $α\\sim 10^{-2}$ for distances as small as $λ\\sim 10 \\, μ\\mathrm{m}$.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2106.08611",
+          "http_status": 200,
+          "pdf_sample_score": 0.2,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-16T08:26:18Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "investigating the validity of the inverse square law at sub-millimeter scales physics",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

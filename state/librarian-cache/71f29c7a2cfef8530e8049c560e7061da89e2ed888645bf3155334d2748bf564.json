@@ -1,0 +1,419 @@
+{
+  "fetched_at": "2026-06-16T08:22:35Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "Trust Region On-Policy Distillation",
+      "target_n": 5
+    },
+    "duration_seconds": 45.127,
+    "ended_at": "2026-06-16T08:22:35Z",
+    "expansion": null,
+    "extracted_queries": [
+      "proximal policy optimization distillation",
+      "Mujoco benchmark policy distillation",
+      "TRPO policy compression",
+      "sample efficiency policy distillation",
+      "KL constraint regularization distillation"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2407.15134"
+      ]
+    },
+    "per_query_hit_count": {
+      "KL constraint regularization distillation": 3,
+      "Mujoco benchmark policy distillation": 3,
+      "TRPO policy compression": 2,
+      "Trust Region On-Policy Distillation computer science": 3,
+      "proximal policy optimization distillation": 3,
+      "sample efficiency policy distillation": 2
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 0,
+      "rejections": []
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-16T08:21:49Z",
+    "term_input": {
+      "normalized": "trust region on-policy distillation computer science",
+      "raw": "Trust Region On-Policy Distillation computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The increasing importance of robots and automation creates a demand for learnable controllers which can be obtained through various approaches such as Evolutionary Algorithms (EAs) or Reinforcement Learning (RL). Unfortunately, these two families of algorithms have mainly developed independently and there are only a few works comparing modern EAs with deep RL algorithms. We show that Multidimensional Archive of Phenotypic Elites (MAP-Elites), which is a modern EA, can deliver better-performing solutions than one of the state-of-the-art RL methods, Proximal Policy Optimization (PPO) in the generation of locomotion controllers for a simulated hexapod robot. Additionally, extensive hyper-parameter tuning shows that MAP-Elites displays greater robustness across seeds and hyper-parameter sets. Generally, this paper demonstrates that EAs combined with modern computational resources display promising characteristics and have the potential to contribute to the state-of-the-art in controller learning.",
+          "claimed_authors": [
+            "Szymon Brych",
+            "Antoine Cully"
+          ],
+          "claimed_title": "Competitiveness of MAP-Elites against Proximal Policy Optimization on locomotion tasks in deterministic simulations",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2009.08438"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Trust Region On-Policy Distillation computer science', candidate_title='Competitiveness of MAP-Elites against Proximal Policy Optimization on locomotion tasks in deterministic simulations')",
+        "failed_at": "2026-06-16T08:22:21Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We develop model-based methods for solving stochastic convex optimization problems, introducing the approximate-proximal point, or aProx, family, which includes stochastic subgradient, proximal point, and bundle methods. When the modeling approaches we propose are appropriately accurate, the methods enjoy stronger convergence and robustness guarantees than classical approaches, even though the model-based methods typically add little to no computational overhead over stochastic subgradient methods. For example, we show that improved models converge with probability 1 and enjoy optimal asymptotic normality results under weak assumptions; these methods are also adaptive to a natural class of what we term easy optimization problems, achieving linear convergence under appropriate strong growth conditions on the objective. Our substantial experimental investigation shows the advantages of more accurate modeling over standard subgradient methods across many smooth and non-smooth optimization problems.",
+          "claimed_authors": [
+            "Hilal Asi",
+            "John C. Duchi"
+          ],
+          "claimed_title": "Stochastic (Approximate) Proximal Point Methods: Convergence, Optimality, and Adaptivity",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1810.05633"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Trust Region On-Policy Distillation computer science', candidate_title='Stochastic (Approximate) Proximal Point Methods: Convergence, Optimality, and Adaptivity')",
+        "failed_at": "2026-06-16T08:22:21Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Explainability is highly-desired in Machine Learning (ML) systems supporting high-stakes policy decisions in areas such as health, criminal justice, education, and employment. While the field of explainable ML has expanded in recent years, much of this work has not taken real-world needs into account. A majority of proposed methods are designed with \\textit{generic} explainability goals without well-defined use-cases or intended end-users and evaluated on simplified tasks, benchmark problems/datasets, or with proxy users (e.g., AMT). We argue that these simplified evaluation settings do not capture the nuances and complexities of real-world applications. As a result, the applicability and effectiveness of this large body of theoretical and methodological work in real-world applications are unclear. In this work, we take steps toward addressing this gap for the domain of public policy. First, we identify the primary use-cases of explainable ML within public policy problems. For each use case, we define the end-users of explanations and the specific goals the explanations have to fulfill. Finally, we map existing work in explainable ML to these use-cases, identify gaps in established capabilities, and propose research directions to fill those gaps to have a practical societal impact through ML. The contribution is 1) a methodology for explainable ML researchers to identify use cases and develop methods targeted at them and 2) using that methodology for the domain of public policy and giving an example for the researchers on developing explainable ML methods that result in real-world impact.",
+          "claimed_authors": [
+            "Kasun Amarasinghe",
+            "Kit Rodolfa",
+            "Hemank Lamba",
+            "Rayid Ghani"
+          ],
+          "claimed_title": "Explainable Machine Learning for Public Policy: Use Cases, Gaps, and Research Directions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2010.14374"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Trust Region On-Policy Distillation computer science', candidate_title='Explainable Machine Learning for Public Policy: Use Cases, Gaps, and Research Directions')",
+        "failed_at": "2026-06-16T08:22:21Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large language models (LLMs) are rapidly deployed in critical applications, raising urgent needs for robust safety benchmarking. We propose Jailbreak Distillation (JBDistill), a novel benchmark construction framework that \"distills\" jailbreak attacks into high-quality and easily-updatable safety benchmarks. JBDistill utilizes a small set of development models and existing jailbreak attack algorithms to create a candidate prompt pool, then employs prompt selection algorithms to identify an effective subset of prompts as safety benchmarks. JBDistill addresses challenges in existing safety evaluation: the use of consistent evaluation prompts across models ensures fair comparisons and reproducibility. It requires minimal human effort to rerun the JBDistill pipeline and produce updated benchmarks, alleviating concerns on saturation and contamination. Extensive experiments demonstrate our benchmarks generalize robustly to 13 diverse evaluation models held out from benchmark construction, including proprietary, specialized, and newer-generation LLMs, significantly outperforming existing safety benchmarks in effectiveness while maintaining high separability and diversity. Our framework thus provides an effective, sustainable, and adaptable solution for streamlining safety evaluation.",
+          "claimed_authors": [
+            "Jingyu Zhang",
+            "Ahmed Elgohary",
+            "Xiawei Wang",
+            "A S M Iftekhar",
+            "Ahmed Magooda",
+            "Benjamin Van Durme",
+            "Daniel Khashabi",
+            "Kyle Jackson"
+          ],
+          "claimed_title": "Jailbreak Distillation: Renewable Safety Benchmarking",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2505.22037"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Trust Region On-Policy Distillation computer science', candidate_title='Jailbreak Distillation: Renewable Safety Benchmarking')",
+        "failed_at": "2026-06-16T08:22:21Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We leverage the fast physics simulator, MuJoCo to run tasks in a continuous control environment and reveal details like the observation space, action space, rewards, etc. for each task. We benchmark value-based methods for continuous control by comparing Q-learning and SARSA through a discretization approach, and using them as baselines, progressively moving into one of the state-of-the-art deep policy gradient method DDPG. Over a large number of episodes, Qlearning outscored SARSA, but DDPG outperformed both in a small number of episodes. Lastly, we also fine-tuned the model hyper-parameters expecting to squeeze more performance but using lesser time and resources. We anticipated that the new design for DDPG would vastly improve performance, yet after only a few episodes, we were able to achieve decent average rewards. We expect to improve the performance provided adequate time and computational resources.",
+          "claimed_authors": [
+            "Vaddadi Sai Rahul",
+            "Debajyoti Chakraborty"
+          ],
+          "claimed_title": "Exploring reinforcement learning techniques for discrete and continuous control tasks in the MuJoCo environment",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2307.11166"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Trust Region On-Policy Distillation computer science', candidate_title='Exploring reinforcement learning techniques for discrete and continuous control tasks in the MuJoCo environment')",
+        "failed_at": "2026-06-16T08:22:21Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper explores a new version of the Levenberg-Marquardt algorithm used for Tensor Canonical Polyadic (CP) decomposition with an emphasis on image compression and reconstruction. Tensor computation, especially CP decomposition, holds significant applications in data compression and analysis. In this study, we formulate CP as a nonlinear least squares optimization problem. Then, we present an iterative Levenberg-Marquardt (LM) based algorithm for computing the CP decomposition. Ultimately, we test the algorithm on various datasets, including randomly generated tensors and RGB images. The proposed method proves to be both efficient and effective, offering a reduced computational burden when compared to the traditional Levenberg-Marquardt technique.",
+          "claimed_authors": [
+            "Ramin Goudarzi Karim",
+            "Dipak Dulal",
+            "Carmeliza Navasca"
+          ],
+          "claimed_title": "Modified Levenberg-Marquardt Algorithm For Tensor CP Decomposition in Image Compression",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2401.04670"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Trust Region On-Policy Distillation computer science', candidate_title='Modified Levenberg-Marquardt Algorithm For Tensor CP Decomposition in Image Compression')",
+        "failed_at": "2026-06-16T08:22:21Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This work is motivated by the necessity to automate the discovery of structure in vast and evergrowing collection of relational data commonly represented as graphs, for example genomic networks. A novel algorithm, dubbed Graphitour, for structure induction by lossless graph compression is presented and illustrated by a clear and broadly known case of nested structure in a DNA molecule. This work extends to graphs some well established approaches to grammatical inference previously applied only to strings. The bottom-up graph compression problem is related to the maximum cardinality (non-bipartite) maximum cardinality matching problem. The algorithm accepts a variety of graph types including directed graphs and graphs with labeled nodes and arcs. The resulting structure could be used for representation and classification of graphs.",
+          "claimed_authors": [
+            "Leonid Peshkin"
+          ],
+          "claimed_title": "Structure induction by lossless graph compression",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2007,
+          "primary_pointer": "cs/0703132"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Trust Region On-Policy Distillation computer science', candidate_title='Structure induction by lossless graph compression')",
+        "failed_at": "2026-06-16T08:22:21Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Dataset distillation aims to synthesize small datasets with little information loss from original large-scale ones for reducing storage and training costs. Recent state-of-the-art methods mainly constrain the sample synthesis process by matching synthetic images and the original ones regarding gradients, embedding distributions, or training trajectories. Although there are various matching objectives, currently the strategy for selecting original images is limited to naive random sampling.\n  We argue that random sampling overlooks the evenness of the selected sample distribution, which may result in noisy or biased matching targets.\n  Besides, the sample diversity is also not constrained by random sampling. These factors together lead to optimization instability in the distilling process and degrade the training efficiency. Accordingly, we propose a novel matching strategy named as \\textbf{D}ataset distillation by \\textbf{RE}present\\textbf{A}tive \\textbf{M}atching (DREAM), where only representative original images are selected for matching. DREAM is able to be easily plugged into popular dataset distillation frameworks and reduce the distilling iterations by more than 8 times without performance drop. Given sufficient training time, DREAM further provides significant improvements and achieves state-of-the-art performances.",
+          "claimed_authors": [
+            "Yanqing Liu",
+            "Jianyang Gu",
+            "Kai Wang",
+            "Zheng Zhu",
+            "Wei Jiang",
+            "Yang You"
+          ],
+          "claimed_title": "DREAM: Efficient Dataset Distillation by Representative Matching",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2302.14416"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Trust Region On-Policy Distillation computer science', candidate_title='DREAM: Efficient Dataset Distillation by Representative Matching')",
+        "failed_at": "2026-06-16T08:22:21Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Knowledge Distillation (KD) aims to distill the knowledge of a cumbersome teacher model into a lightweight student model. Its success is generally attributed to the privileged information on similarities among categories provided by the teacher model, and in this sense, only strong teacher models are deployed to teach weaker students in practice. In this work, we challenge this common belief by following experimental observations: 1) beyond the acknowledgment that the teacher can improve the student, the student can also enhance the teacher significantly by reversing the KD procedure; 2) a poorly-trained teacher with much lower accuracy than the student can still improve the latter significantly. To explain these observations, we provide a theoretical analysis of the relationships between KD and label smoothing regularization. We prove that 1) KD is a type of learned label smoothing regularization and 2) label smoothing regularization provides a virtual teacher model for KD. From these results, we argue that the success of KD is not fully due to the similarity information between categories from teachers, but also to the regularization of soft targets, which is equally or even more important.\n  Based on these analyses, we further propose a novel Teacher-free Knowledge Distillation (Tf-KD) framework, where a student model learns from itself or manuallydesigned regularization distribution. The Tf-KD achieves comparable performance with normal KD from a superior teacher, which is well applied when a stronger teacher model is unavailable. Meanwhile, Tf-KD is generic and can be directly deployed for training deep neural networks. Without any extra computation cost, Tf-KD achieves up to 0.65\\% improvement on ImageNet over well-established baseline models, which is superior to label smoothing regularization.",
+          "claimed_authors": [
+            "Li Yuan",
+            "Francis E. H. Tay",
+            "Guilin Li",
+            "Tao Wang",
+            "Jiashi Feng"
+          ],
+          "claimed_title": "Revisiting Knowledge Distillation via Label Smoothing Regularization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1909.11723"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Trust Region On-Policy Distillation computer science', candidate_title='Revisiting Knowledge Distillation via Label Smoothing Regularization')",
+        "failed_at": "2026-06-16T08:22:22Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Standard Knowledge Distillation (KD) compresses Large Language Models (LLMs) by optimizing final outputs, yet it typically treats the teacher's intermediate layer's thought process as a black box. While feature-based distillation attempts to bridge this gap, existing methods (e.g., MSE and asymmetric KL divergence) ignore the rich uncertainty profiles required for the final output. In this paper, we introduce DistillLens, a framework that symmetrically aligns the evolving thought processes of student and teacher models. By projecting intermediate hidden states into the vocabulary space via the Logit Lens, we enforce structural alignment using a symmetric divergence objective. Our analysis proves that this constraint imposes a dual-sided penalty, preventing both overconfidence and underconfidence while preserving the high-entropy information conduits essential for final deduction. Extensive experiments on GPT-2 and Llama architectures demonstrate that DistillLens consistently outperforms standard KD and feature-transfer baselines on diverse instruction-following benchmarks. The code is available at https://github.com/manishdhakal/DistillLens.",
+          "claimed_authors": [
+            "Manish Dhakal",
+            "Uthman Jinadu",
+            "Anjila Budathoki",
+            "Rajshekhar Sunderraman",
+            "Yi Ding"
+          ],
+          "claimed_title": "DistillLens: Symmetric Knowledge Distillation Through Logit Lens",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2602.13567"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Trust Region On-Policy Distillation computer science', candidate_title='DistillLens: Symmetric Knowledge Distillation Through Logit Lens')",
+        "failed_at": "2026-06-16T08:22:22Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Kullback-Leibler (KL) divergence is a fundamental concept in information theory that quantifies the discrepancy between two probability distributions. In the context of Variational Autoencoders (VAEs), it serves as a central regularization term, imposing structure on the latent space and thereby enabling the model to exhibit generative capabilities. In this work, we present a detailed derivation of the closed-form expression for the KL divergence between Gaussian distributions, a case of particular importance in practical VAE implementations. Starting from the general definition for continuous random variables, we derive the expression for the univariate case and extend it to the multivariate setting under the assumption of diagonal covariance. Finally, we discuss the interpretation of each term in the resulting expression and its impact on the training dynamics of the model.",
+          "claimed_authors": [
+            "Andrés Muñoz",
+            "Rodrigo Ramele"
+          ],
+          "claimed_title": "KL Divergence Between Gaussians: A Step-by-Step Derivation for the Variational Autoencoder Objective",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2604.11744"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Trust Region On-Policy Distillation computer science', candidate_title='KL Divergence Between Gaussians: A Step-by-Step Derivation for the Variational Autoencoder Objective')",
+        "failed_at": "2026-06-16T08:22:22Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Ying Wen",
+            "Hui Chen",
+            "Yaodong Yang",
+            "Zheng Tian",
+            "Minne Li",
+            "Xu Chen",
+            "Jun Wang"
+          ],
+          "title": "A Game-Theoretic Approach to Multi-Agent Trust Region Optimization",
+          "venue": "arXiv",
+          "year": 2021
+        },
+        "primary_pointer": "2106.06828",
+        "summary": "Trust region methods are widely applied in single-agent reinforcement learning problems due to their monotonic performance-improvement guarantee at every iteration. Nonetheless, when applied in multi-agent settings, the guarantee of trust region methods no longer holds because an agent's payoff is also affected by other agents' adaptive behaviors. To tackle this problem, we conduct a game-theoretical analysis in the policy space, and propose a multi-agent trust region learning method (MATRL), which enables trust region optimization for multi-agent learning. Specifically, MATRL finds a stable improvement direction that is guided by the solution concept of Nash equilibrium at the meta-game level. We derive the monotonic improvement guarantee in multi-agent settings and empirically show the local convergence of MATRL to stable fixed points in the two-player rotational differential game. To test our method, we evaluate MATRL in both discrete and continuous multiplayer general-sum games including checker and switch grid worlds, multi-agent MuJoCo, and Atari games. Results suggest that MATRL significantly outperforms strong multi-agent reinforcement learning baselines.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2106.06828",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-16T08:22:20Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Xingrun Xing",
+            "Haoqing Wang",
+            "Boyan Gao",
+            "Ziheng Li",
+            "Yehui Tang"
+          ],
+          "title": "Trust Region On-Policy Distillation",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2606.01249",
+        "summary": "On-Policy Distillation (OPD) is a fundamental technique for efficient post-training of large language models (LLMs), with broad applications in agent learning, multi-task enhancement, and model compression. However, OPD training becomes unstable when the teacher and student distributions differ substantially, as teacher supervision on student-generated tokens may yield unreliable policy gradients and even cause optimization failure. This work addresses reliable on-policy token-level supervision through credit assignment strategies, and proposes Trust Region On-Policy Distillation, TrOPD. It features the following characteristics: 1) Trust-Region On-Policy Learning: TrOPD performs OPD only in regions where the teacher provides reliable supervision, mitigating the optimization difficulty of the K1 reverse-KL estimator under distribution mismatch. 2) Outlier Estimation: For outlier regions, we explore gradient clipping, masking, and forward-KL estimation to reduce the adverse effects of unreliable supervision. 3) Off-Policy Guidance: The student continues generation from teacher prefixes and uses forward KL to imitate off-policy guidance, encouraging on-policy exploration toward reliable regions. Experiments show that TrOPD consistently outperforms SoTA OPD baselines, including OPD, EOPD, and REOPOLD, across mathematical reasoning, code generation, and general-domain benchmarks.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2606.01249",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-16T08:22:21Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Daniil Plyusov",
+            "Alexey Gorbatovski",
+            "Alexey Malakhov",
+            "Nikita Balagansky",
+            "Boris Shaposhnikov",
+            "Daria Korotyshova",
+            "Daniil Gavrilov"
+          ],
+          "title": "Trust-Region Behavior Blending for On-Policy Distillation",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2605.31159",
+        "summary": "On-policy distillation (OPD) trains a student on prefixes sampled from its own policy while matching a stronger teacher. This addresses the prefix mismatch of offline distillation, but early student rollouts can still be poor, placing teacher supervision on weak or low-quality prefixes. We propose Trust-Region behavior Blending (TRB), a warmup method that replaces the early rollout policy with the closest-to-teacher behavior policy inside a student-centered KL trust region, while keeping the per-prefix reverse-KL OPD loss unchanged. The KL budget is annealed to zero, so training returns to pure student rollouts after warmup. Across two math-reasoning distillation settings, TRB attains the strongest average among the compared methods.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2605.31159",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-16T08:22:21Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Giacomo Spigler"
+          ],
+          "title": "Proximal Policy Distillation",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2407.15134",
+        "summary": "We introduce Proximal Policy Distillation (PPD), a novel policy distillation method that integrates student-driven distillation and Proximal Policy Optimization (PPO) to increase sample efficiency and to leverage the additional rewards that the student policy collects during distillation. To assess the efficacy of our method, we compare PPD with two common alternatives, student-distill and teacher-distill, over a wide range of reinforcement learning environments that include discrete actions and continuous control (ATARI, Mujoco, and Procgen). For each environment and method, we perform distillation to a set of target student neural networks that are smaller, identical (self-distillation), or larger than the teacher network. Our findings indicate that PPD improves sample efficiency and produces better student policies compared to typical policy distillation approaches. Moreover, PPD demonstrates greater robustness than alternative methods when distilling policies from imperfect demonstrations. The code for the paper is released as part of a new Python library built on top of stable-baselines3 to facilitate policy distillation: `sb3-distill'.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2407.15134",
+          "http_status": 200,
+          "pdf_sample_score": 0.2488,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-16T08:22:21Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yang Yang",
+            "Chenggang Cui",
+            "Xitong Niu",
+            "Jiaming Liu",
+            "Chuanlin Zhang"
+          ],
+          "title": "Model-Free DRL Control for Power Inverters: From Policy Learning to Real-Time Implementation via Knowledge Distillation",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2603.07964",
+        "summary": "In response to the trade-off between control performance and computational burden hindering the deployment of Deep Reinforcement Learning (DRL) in power inverters, this paper presents a novel model-free control framework leveraging policy distillation. To handle the convergence instability and steady-state errors inherent in model-free agents, an error energy-guided hybrid reward mechanism is established to theoretically constrain the exploration space. More specifically, an adaptive importance weighting mechanism is integrated into the distillation architecture to amplify the significance of fluctuation regions, ensuring high-quality transfer of transient control logic by mitigating the observational bias dominated by steady-state data. This approach efficiently compresses the heavy DRL policy into a lightweight neural network, retaining the desired control performance while overcoming the computational bottleneck during deployment. The proposed method is validated through a hardware-based kilowatt-level experimental platform. Experimental comparison results with traditional methods demonstrate that the proposed technique reduces inference time to the microsecond level and achieves superior transient response speed and parameter robustness.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2603.07964",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-16T08:22:21Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "trust region on-policy distillation computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

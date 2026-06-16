@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2401.08085",
+  "judged_at": "2026-06-16T08:26:25Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "investigating the validity of the inverse square law at sub-millimeter scales physics",
+  "rationale": "The paper studies gravitational dynamics of extreme-mass-ratio inspirals on astrophysical (large‑scale, strong‑field) regimes, not the short‑range (sub‑millimeter) behavior of the inverse‑square law; it does not address the same mechanism, scale, or variables relevant to the user's question.",
+  "relevant": false
+}

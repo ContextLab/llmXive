@@ -7,12 +7,20 @@
     "classified_at": "2026-06-16T05:23:46Z",
     "verdict": false
   },
+  "PROJ-191-investigating-the-validity-of-the-invers::1.6.0": {
+    "classified_at": "2026-06-16T08:26:08Z",
+    "verdict": false
+  },
   "PROJ-261-evaluating-the-impact-of-code-duplicatio::1.6.0": {
     "classified_at": "2026-05-12T20:21:42Z",
     "verdict": false
   },
   "PROJ-262-predicting-molecular-dipole-moments-with::1.6.0": {
     "classified_at": "2026-05-12T20:41:18Z",
+    "verdict": false
+  },
+  "PROJ-463-predicting-plant-defense-allocation-from::1.6.0": {
+    "classified_at": "2026-06-16T08:23:13Z",
     "verdict": false
   },
   "PROJ-545-the-influence-of-visual-salience-on-atte::1.6.0": {
@@ -151,8 +159,16 @@
     "classified_at": "2026-06-04T03:31:19Z",
     "verdict": false
   },
+  "PROJ-659-trust-region-on-policy-distillation::1.6.0": {
+    "classified_at": "2026-06-16T08:22:20Z",
+    "verdict": false
+  },
   "PROJ-666-https-arxiv-org-abs-2606-05121::1.6.0": {
     "classified_at": "2026-06-16T06:06:30Z",
+    "verdict": false
+  },
+  "PROJ-669-tide-proactive-multi-problem-discovery-v::1.6.0": {
+    "classified_at": "2026-06-16T08:24:18Z",
     "verdict": false
   },
   "PROJ-672-the-impact-of-bounded-confidence-on-opin::1.6.0": {

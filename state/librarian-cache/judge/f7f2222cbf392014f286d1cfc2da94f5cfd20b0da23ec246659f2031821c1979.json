@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2503.09748",
+  "judged_at": "2026-06-16T08:25:27Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "cognitive load optimization: adaptive complexity scaling for personalized learning psychology",
+  "rationale": "The paper reviews adaptive tutoring systems that deliver personalized instruction and adapt to learners, covering learning outcomes in the personalized‑learning domain, which satisfies criterion (b) (independent/dependent variable on the same domain) and also aligns with the cross‑vocabulary cluster for adaptive complexity scaling.",
+  "relevant": true
+}

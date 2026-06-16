@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2303.17185",
+  "judged_at": "2026-06-16T08:26:21Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "investigating the validity of the inverse square law at sub-millimeter scales physics",
+  "rationale": "The paper studies gravity using binary pulsars at astronomical scales, not the inverse‑square law at sub‑millimeter distances; it does not provide evidence, baseline, or methodology relevant to short‑range tests of the law. Hence it falls outside the domain of the user's question.",
+  "relevant": false
+}

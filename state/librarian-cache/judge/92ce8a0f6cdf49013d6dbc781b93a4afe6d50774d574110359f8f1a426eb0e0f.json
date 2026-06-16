@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2606.04743",
+  "judged_at": "2026-06-16T08:24:24Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "tide: proactive multi-problem discovery via template-guided iteration linguistics",
+  "rationale": "The paper studies the exact same mechanism—template‑guided iterative discovery of multiple hidden problems (TIDE)—as described in the user’s question, satisfying criterion (a) same‑mechanism evidence.",
+  "relevant": true
+}

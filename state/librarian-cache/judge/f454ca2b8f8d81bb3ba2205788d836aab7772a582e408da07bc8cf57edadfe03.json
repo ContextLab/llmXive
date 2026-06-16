@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2009.01081",
+  "judged_at": "2026-06-16T08:23:30Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting plant defense allocation from publicly available transcriptomic data biology",
+  "rationale": "The paper focuses on image-based plant organ counting using domain adaptation, which does not involve transcriptomic data or plant defense allocation, nor does it address the same biological mechanism or variables of interest. It falls outside the domain of predicting defense allocation from transcriptomics.",
+  "relevant": false
+}

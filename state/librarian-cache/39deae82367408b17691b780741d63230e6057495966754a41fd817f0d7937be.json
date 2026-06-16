@@ -1,0 +1,509 @@
+{
+  "fetched_at": "2026-06-16T08:25:32Z",
+  "field": "psychology",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "psychology",
+      "idea_body_excerpt": "Cognitive Load Optimization: Adaptive Complexity Scaling for Personalized Learning",
+      "target_n": 5
+    },
+    "duration_seconds": 43.648,
+    "ended_at": "2026-06-16T08:25:32Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "adaptive cognitive load management"
+        ],
+        [
+          2,
+          "personalized instructional complexity"
+        ],
+        [
+          3,
+          "dynamic difficulty adjustment in learning"
+        ],
+        [
+          4,
+          "intrinsic and extraneous load regulation"
+        ],
+        [
+          5,
+          "learner‑centered cognitive load reduction"
+        ],
+        [
+          6,
+          "adaptive scaffolding strategies"
+        ],
+        [
+          7,
+          "individualized learning workload optimization"
+        ],
+        [
+          8,
+          "load‑sensitive tutoring systems"
+        ],
+        [
+          9,
+          "self‑regulated learning and cognitive load"
+        ],
+        [
+          10,
+          "intelligent tutoring for mental effort balancing"
+        ],
+        [
+          11,
+          "adaptive instructional design for cognitive load"
+        ],
+        [
+          12,
+          "complexity adaptation in personalized education"
+        ],
+        [
+          13,
+          "mental effort monitoring and adjustment"
+        ],
+        [
+          14,
+          "cognitive overload mitigation techniques"
+        ],
+        [
+          15,
+          "learning analytics for load balancing"
+        ],
+        [
+          16,
+          "personalized learning pathways and load control"
+        ],
+        [
+          17,
+          "adaptive task difficulty in education"
+        ],
+        [
+          18,
+          "cognitive load measurement and personalization"
+        ],
+        [
+          19,
+          "learner‑adaptive educational technology"
+        ],
+        [
+          20,
+          "scalable complexity in individualized instruction"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Cognitive Load Optimization: Adaptive Complexity Scaling for Personalized Learning psychology": 0,
+        "adaptive cognitive load management": 2
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "mental effort reduction",
+      "intelligent tutoring system",
+      "knowledge tracing adaptive sequencing",
+      "learning gain assessment",
+      "working memory capacity constraints"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2503.09748"
+      ]
+    },
+    "per_query_hit_count": {
+      "Cognitive Load Optimization: Adaptive Complexity Scaling for Personalized Learning psychology": 3,
+      "intelligent tutoring system": 3,
+      "knowledge tracing adaptive sequencing": 3,
+      "learning gain assessment": 3,
+      "mental effort reduction": 3,
+      "working memory capacity constraints": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 3,
+      "rejections": [
+        {
+          "primary_pointer": "2409.04896",
+          "rationale": "The paper deals with computational load balancing in cloud environments using reinforcement learning, which is unrelated to cognitive load, adaptive complexity scaling, or personalized learning in psychology; the shared term “load” is a homonym, not a relevant construct.",
+          "title": "Reinforcement Learning-Based Adaptive Load Balancing for Dynamic Cloud Environments"
+        },
+        {
+          "primary_pointer": "1405.4980",
+          "rationale": "The paper focuses on convex optimization theory and algorithms, without addressing cognitive load, adaptive complexity scaling, or personalized learning in a psychological context; it is unrelated to the user's domain and variables.",
+          "title": "Convex Optimization: Algorithms and Complexity"
+        },
+        {
+          "primary_pointer": "1802.02986",
+          "rationale": "The paper focuses on adaptive business process management for cyber‑physical systems and does not address cognitive load, adaptive complexity scaling, or personalized learning in a psychological context, thus it is off‑domain and unrelated to the user's research question.",
+          "title": "Cognitive Business Process Management for Adaptive Cyber-Physical Processes"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-16T08:24:48Z",
+    "term_input": {
+      "normalized": "cognitive load optimization: adaptive complexity scaling for personalized learning psychology",
+      "raw": "Cognitive Load Optimization: Adaptive Complexity Scaling for Personalized Learning psychology"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Understanding mind-brain-environment relations is one of the key topics in psychology. Kurt Lewin, inspired by theoretical physics, tried to establish topological and vector psychology analyzing patterns of interaction between the individual and her/his environment. The time is ripe to reformulate his ambitious goals, searching for ways to interpret objectively measured brain processes in terms of suitable psychological constructs. Connecting cognitive and social psychology constructs to neurophenomics, as it is done now in psychiatry, should ground them in physical reality.",
+          "claimed_authors": [
+            "Włodzisław Duch"
+          ],
+          "claimed_title": "Kurt Lewin, psychological constructs and sources of brain cognitive activity",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1711.01767"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Cognitive Load Optimization: Adaptive Complexity Scaling for Personalized Learni', candidate_title='Kurt Lewin, psychological constructs and sources of brain cognitive activity')",
+        "failed_at": "2026-06-16T08:25:16Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "While the applications and demands of Machine learning (ML) systems in mental health are growing, there is little discussion nor consensus regarding a uniquely challenging aspect: building security methods and requirements into these ML systems, and keep the ML system usable for end-users. This question of usable security is very important, because the lack of consideration in either security or usability would hinder large-scale user adoption and active usage of ML systems in mental health applications.\n  In this short paper, we introduce a framework of four pillars, and a set of desired properties which can be used to systematically guide and evaluate security-related designs, implementations, and deployments of ML systems for mental health. We aim to weave together threads from different domains, incorporate existing views, and propose new principles and requirements, in an effort to lay out a clear framework where criteria and expectations are established, and are used to make security mechanisms usable for end-users of those ML systems in mental health. Together with this framework, we present several concrete scenarios where different usable security cases and profiles in ML-systems in mental health applications are examined and evaluated.",
+          "claimed_authors": [
+            "Helen Jiang",
+            "Erwen Senge"
+          ],
+          "claimed_title": "Usable Security for ML Systems in Mental Health: A Framework",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2008.07738"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Cognitive Load Optimization: Adaptive Complexity Scaling for Personalized Learni', candidate_title='Usable Security for ML Systems in Mental Health: A Framework')",
+        "failed_at": "2026-06-16T08:25:16Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This research paper presents a meta-analysis of the multifaceted role of technology in mental health. The pervasive influence of technology on daily lives necessitates a deep understanding of its impact on mental health services. This study synthesizes literature covering Behavioral Intervention Technologies (BITs), digital mental health interventions during COVID-19, young men's attitudes toward mental health technologies, technology-based interventions for university students, and the applicability of mobile health technologies for individuals with serious mental illnesses. BITs are recognized for their potential to provide evidence-based interventions for mental health conditions, especially anxiety disorders. The COVID-19 pandemic acted as a catalyst for the adoption of digital mental health services, underscoring their crucial role in providing accessible and quality care; however, their efficacy needs to be reinforced by workforce training, high-quality evidence, and digital equity. A nuanced understanding of young men's attitudes toward mental health is imperative for devising effective online services. Technology-based interventions for university students are promising, although variable in effectiveness; their deployment must be evidence-based and tailored to individual needs. Mobile health technologies, particularly activity tracking, hold promise for individuals with serious mental illnesses. Collectively, technology has immense potential to revolutionize mental health care. However, the implementation must be evidence-based, ethical, and equitable, with continued research focusing on experiences across diverse populations, ensuring accessibility and efficacy for all.",
+          "claimed_authors": [
+            "Hamza Mohammed"
+          ],
+          "claimed_title": "Technology in Association With Mental Health: Meta-ethnography",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2307.10513"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Cognitive Load Optimization: Adaptive Complexity Scaling for Personalized Learni', candidate_title='Technology in Association With Mental Health: Meta-ethnography')",
+        "failed_at": "2026-06-16T08:25:16Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Increasingly complex and autonomous robots are being deployed in real-world environments with far-reaching consequences. High-stakes scenarios, such as emergency response or offshore energy platform and nuclear inspections, require robot operators to have clear mental models of what the robots can and can't do. However, operators are often not the original designers of the robots and thus, they do not necessarily have such clear mental models, especially if they are novice users. This lack of mental model clarity can slow adoption and can negatively impact human-machine teaming. We propose that interaction with a conversational assistant, who acts as a mediator, can help the user with understanding the functionality of remote robots and increase transparency through natural language explanations, as well as facilitate the evaluation of operators' mental models.",
+          "claimed_authors": [
+            "Francisco J. Chiyah Garcia",
+            "José Lopes",
+            "Helen Hastie"
+          ],
+          "claimed_title": "Natural Language Interaction to Facilitate Mental Models of Remote Robots",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2003.05870"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Cognitive Load Optimization: Adaptive Complexity Scaling for Personalized Learni', candidate_title='Natural Language Interaction to Facilitate Mental Models of Remote Robots')",
+        "failed_at": "2026-06-16T08:25:16Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "As generation Z's big data is flooding the Internet through social nets, neural network based data processing is turning an important cornerstone, showing significant potential for fast extraction of data patterns. Online course delivery and associated tutoring are transforming into customizable, on-demand services driven by the learner. Besides automated grading, strong potential exists for the development and deployment of next generation intelligent tutoring software agents. Self-adaptive, online tutoring agents exhibiting \"intelligent-like\" behavior, being capable \"to learn\" from the learner, will become the next educational superstars. Over the past decade, computer-based tutoring agents were deployed in a variety of extended reality environments, from patient rehabilitation to psychological trauma healing. Most of these agents are driven by a set of conditional control statements and a large answers/questions pairs dataset. This article provides a brief introduction on Generation Z's addiction to digital information, highlights important efforts for the development of intelligent dialogue systems, and explains the main components and important design decisions for Intelligent Tutoring System.",
+          "claimed_authors": [
+            "Ioana R. Goldbach",
+            "Felix G. Hamza-Lup"
+          ],
+          "claimed_title": "Intelligent Tutoring Systems for Generation Z's Addiction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2005.05024"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Cognitive Load Optimization: Adaptive Complexity Scaling for Personalized Learni', candidate_title=\"Intelligent Tutoring Systems for Generation Z's Addiction\")",
+        "failed_at": "2026-06-16T08:25:16Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Knowledge tracing (KT) plays a crucial role in computer-aided education and intelligent tutoring systems, aiming to assess students' knowledge proficiency by predicting their future performance on new questions based on their past response records. While existing deep learning knowledge tracing (DLKT) methods have significantly improved prediction accuracy and achieved state-of-the-art results, they often suffer from a lack of interpretability. To address this limitation, current approaches have explored incorporating psychological influences to achieve more explainable predictions, but they tend to overlook the potential influences of historical responses. In fact, understanding how models make predictions based on response influences can enhance the transparency and trustworthiness of the knowledge tracing process, presenting an opportunity for a new paradigm of interpretable KT. However, measuring unobservable response influences is challenging. In this paper, we resort to counterfactual reasoning that intervenes in each response to answer \\textit{what if a student had answered a question incorrectly that he/she actually answered correctly, and vice versa}. Based on this, we propose RCKT, a novel response influence-based counterfactual knowledge tracing framework. RCKT generates response influences by comparing prediction outcomes from factual sequences and constructed counterfactual sequences after interventions. Additionally, we introduce maximization and inference techniques to leverage accumulated influences from different past responses, further improving the model's performance and credibility. Extensive experimental results demonstrate that our RCKT method outperforms state-of-the-art knowledge tracing methods on four datasets against six baselines, and provides credible interpretations of response influences.",
+          "claimed_authors": [
+            "Jiajun Cui",
+            "Minghe Yu",
+            "Bo Jiang",
+            "Aimin Zhou",
+            "Jianyong Wang",
+            "Wei Zhang"
+          ],
+          "claimed_title": "Interpretable Knowledge Tracing via Response Influence-based Counterfactual Reasoning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2312.10045"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Cognitive Load Optimization: Adaptive Complexity Scaling for Personalized Learni', candidate_title='Interpretable Knowledge Tracing via Response Influence-based Counterfactual Reasoning')",
+        "failed_at": "2026-06-16T08:25:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The 2017 ASSISTments Data Mining competition aims to use data from a longitudinal study for predicting a brand-new outcome of students which had never been studied before by the educational data mining research community. Specifically, it facilitates research in developing predictive models that predict whether the first job of a student out of college belongs to a STEM (the acronym for science, technology, engineering, and mathematics) field. This is based on the student's learning history on the ASSISTments blended learning platform in the form of extensive clickstream data gathered during the middle school years. To tackle this challenge, we first estimate the expected knowledge state of students with respect to different mathematical skills using a deep knowledge tracing (DKT) model and an enhanced DKT (DKT+) model. We then combine the features corresponding to the DKT/DKT+ expected knowledge state with other features extracted directly from the student profile in the dataset to train several machine learning models for the STEM/non-STEM job prediction. Our experiments show that models trained with the combined features generally perform better than the models trained with the student profile alone. Detailed analysis of the student's knowledge state reveals that, when compared with non-STEM students, STEM students generally show a higher mastery level and a higher learning gain in mathematics.",
+          "claimed_authors": [
+            "Chun-kit Yeung",
+            "Zizheng Lin",
+            "Kai Yang",
+            "Dit-yan Yeung"
+          ],
+          "claimed_title": "Incorporating Features Learned by an Enhanced Deep Knowledge Tracing Model for STEM/Non-STEM Job Prediction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1806.03256"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Cognitive Load Optimization: Adaptive Complexity Scaling for Personalized Learni', candidate_title='Incorporating Features Learned by an Enhanced Deep Knowledge Tracing Model for STEM/Non-STEM Job Prediction')",
+        "failed_at": "2026-06-16T08:25:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Knowledge tracing (KT) is a crucial task in intelligent education, focusing on predicting students' performance on given questions to trace their evolving knowledge. The advancement of deep learning in this field has led to deep-learning knowledge tracing (DLKT) models that prioritize high predictive accuracy. However, many existing DLKT methods overlook the fundamental goal of tracking students' dynamical knowledge mastery. These models do not explicitly model knowledge mastery tracing processes or yield unreasonable results that educators find difficulty to comprehend and apply in real teaching scenarios. In response, our research conducts a preliminary analysis of mainstream KT approaches to highlight and explain such unreasonableness. We introduce GRKT, a graph-based reasonable knowledge tracing method to address these issues. By leveraging graph neural networks, our approach delves into the mutual influences of knowledge concepts, offering a more accurate representation of how the knowledge mastery evolves throughout the learning process. Additionally, we propose a fine-grained and psychological three-stage modeling process as knowledge retrieval, memory strengthening, and knowledge learning/forgetting, to conduct a more reasonable knowledge tracing process. Comprehensive experiments demonstrate that GRKT outperforms eleven baselines across three datasets, not only enhancing predictive accuracy but also generating more reasonable knowledge tracing results. This makes our model a promising advancement for practical implementation in educational settings. The source code is available at https://github.com/JJCui96/GRKT.",
+          "claimed_authors": [
+            "Jiajun Cui",
+            "Hong Qian",
+            "Bo Jiang",
+            "Wei Zhang"
+          ],
+          "claimed_title": "Leveraging Pedagogical Theories to Understand Student Learning Process with Graph-based Reasonable Knowledge Tracing",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2406.12896"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Cognitive Load Optimization: Adaptive Complexity Scaling for Personalized Learni', candidate_title='Leveraging Pedagogical Theories to Understand Student Learning Process with Graph-based Reasonable Knowledge Tracing')",
+        "failed_at": "2026-06-16T08:25:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Peer assessment has been widely studied as a replacement for traditional evaluation, not only by reducing the professors' workload but mainly by benefiting students' engagement and learning. Although several works successfully validate its accuracy and fairness, more research must be done on how students' pre-existing social relationships affect the grades they give their peers in an e-learning course. We developed a Moodle plugin to provide the platform with peer assessment capabilities in forums and used it on an MSc course. The plugin curated the reviewer set for a post based on the author's relationships and included rubrics to counter the possible interpersonal effects of peer assessment. Results confirm that peer assessment is reliable and accurate for works with at least three peer assessments, although students' grades are slightly higher. The impact of social relationships is noticeable when students who do not like another peer grade their work consistently lower than students who have a positive connection. However, this has little influence on the final aggregate peer grade. Our findings show that peer assessment can replace traditional evaluation in an e-learning environment where students are familiar with each other.",
+          "claimed_authors": [
+            "Francisco Sousa",
+            "Tomás Alves",
+            "Sandra Gama",
+            "Joaquim Jorge",
+            "Daniel Gonçalves"
+          ],
+          "claimed_title": "Impact of Social Relationships on Peer Assessment in E-Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2407.01077"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Cognitive Load Optimization: Adaptive Complexity Scaling for Personalized Learni', candidate_title='Impact of Social Relationships on Peer Assessment in E-Learning')",
+        "failed_at": "2026-06-16T08:25:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Critical Assessment of Genome Interpretation (CAGI) aims to advance the state of the art for computational prediction of genetic variant impact, particularly those relevant to disease. The five complete editions of the CAGI community experiment comprised 50 challenges, in which participants made blind predictions of phenotypes from genetic data, and these were evaluated by independent assessors. Overall, results show that while current methods are imperfect, they have major utility for research and clinical applications. Missense variant interpretation methods are able to estimate biochemical effects with increasing accuracy. Performance is particularly strong for clinical pathogenic variants, including some difficult-to-diagnose cases, and extends to interpretation of cancer-related variants. Assessment of methods for regulatory variants and complex trait disease risk is less definitive, and indicates performance potentially suitable for auxiliary use in the clinic. Emerging methods and increasingly large, robust datasets for training and assessment promise further progress ahead.",
+          "claimed_authors": [
+            "The Critical Assessment of Genome Interpretation Consortium"
+          ],
+          "claimed_title": "CAGI, the Critical Assessment of Genome Interpretation, establishes progress and prospects for computational genetic variant interpretation methods",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2205.05897"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Cognitive Load Optimization: Adaptive Complexity Scaling for Personalized Learni', candidate_title='CAGI, the Critical Assessment of Genome Interpretation, establishes progress and prospects for computational genetic variant interpretation methods')",
+        "failed_at": "2026-06-16T08:25:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Online active learning is a paradigm in machine learning that aims to select the most informative data points to label from a data stream. The problem of minimizing the cost associated with collecting labeled observations has gained a lot of attention in recent years, particularly in real-world applications where data is only available in an unlabeled form. Annotating each observation can be time-consuming and costly, making it difficult to obtain large amounts of labeled data. To overcome this issue, many active learning strategies have been proposed in the last decades, aiming to select the most informative observations for labeling in order to improve the performance of machine learning models. These approaches can be broadly divided into two categories: static pool-based and stream-based active learning. Pool-based active learning involves selecting a subset of observations from a closed pool of unlabeled data, and it has been the focus of many surveys and literature reviews. However, the growing availability of data streams has led to an increase in the number of approaches that focus on online active learning, which involves continuously selecting and labeling observations as they arrive in a stream. This work aims to provide an overview of the most recently proposed approaches for selecting the most informative observations from data streams in real time. We review the various techniques that have been proposed and discuss their strengths and limitations, as well as the challenges and opportunities that exist in this area of research.",
+          "claimed_authors": [
+            "Davide Cacciarelli",
+            "Murat Kulahci"
+          ],
+          "claimed_title": "Active learning for data streams: a survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2302.08893"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Cognitive Load Optimization: Adaptive Complexity Scaling for Personalized Learni', candidate_title='Active learning for data streams: a survey')",
+        "failed_at": "2026-06-16T08:25:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper investigates the zero-error capacity of channels with memory. Motivated by the nuanced requirements of semantic communication that incorporate memory, we advance the classical enlightened dictator channel by introducing a new category known as the semantic channel. We analyze the zero-error capacity of the semantic channel using a comprehensive framework that accommodates multiple input and output memories. Our approach reveals a more sophisticated and detailed model compared to the classical memory channels, highlighting the impact of memory on achieving error-free communication.",
+          "claimed_authors": [
+            "Qi Cao",
+            "Yulin Shao",
+            "Shangwei Ge"
+          ],
+          "claimed_title": "On the Zero-Error Capacity of Semantic Channels with Input and Output Memories",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2407.21732"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Cognitive Load Optimization: Adaptive Complexity Scaling for Personalized Learni', candidate_title='On the Zero-Error Capacity of Semantic Channels with Input and Output Memories')",
+        "failed_at": "2026-06-16T08:25:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The experiments at Run 2 of the Tevatron have each accumulated over 1 inverse femtobarn of high-transverse momentum data. Such a dataset allows for the first precision (i.e. comparisons between theory and experiment at the few percent level) tests of QCD at a hadron collider. While the Large Hadron Collider has been designed as a discovery machine, basic QCD analyses will still need to be performed to understand the working environment. The Tevatron-for-LHC workshop was conceived as a communication link to pass on the expertise of the Tevatron and to test new analysis ideas coming from the LHC community. The TeV4LHC QCD Working Group focussed on important aspects of QCD at hadron colliders: jet definitions, extraction and use of Parton Distribution Functions, the underlying event, Monte Carlo tunes, and diffractive physics. This report summarizes some of the results achieved during this workshop.",
+          "claimed_authors": [
+            " TeV4LHC QCD Working Group",
+            "M. Albrow",
+            "M. Begel",
+            "D. Bourilkov",
+            "M. Campanelli",
+            "F. Chlebana",
+            "A. De Roeck",
+            "J. R. Dittmann",
+            "S. D. Ellis",
+            "B. Field",
+            "R. Field",
+            "M. Gallinaro",
+            "W. Giele",
+            "K. Goulianos",
+            "R. C. Group",
+            "K. Hatakeyama",
+            "Z. Hubacek",
+            "J. Huston",
+            "W. Kilgore",
+            "T. Kluge",
+            "S. W. Lee",
+            "A. Moraes",
+            "S. Mrenna",
+            "F. Olness",
+            "J. Proudfoot",
+            "K. Rabbertz",
+            "C. Royon",
+            "T. Sjostrand",
+            "P. Skands",
+            "J. Smith",
+            "W. K. Tung",
+            "M. R. Whalley",
+            "M. Wobisch",
+            "M. Zielinski"
+          ],
+          "claimed_title": "Tevatron-for-LHC Report of the QCD Working Group",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2006,
+          "primary_pointer": "hep-ph/0610012"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Cognitive Load Optimization: Adaptive Complexity Scaling for Personalized Learni', candidate_title='Tevatron-for-LHC Report of the QCD Working Group')",
+        "failed_at": "2026-06-16T08:25:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "During the last years, there has been a lot of interest in achieving some kind of complex reasoning using deep neural networks. To do that, models like Memory Networks (MemNNs) have combined external memory storages and attention mechanisms. These architectures, however, lack of more complex reasoning mechanisms that could allow, for instance, relational reasoning. Relation Networks (RNs), on the other hand, have shown outstanding results in relational reasoning tasks. Unfortunately, their computational cost grows quadratically with the number of memories, something prohibitive for larger problems. To solve these issues, we introduce the Working Memory Network, a MemNN architecture with a novel working memory storage and reasoning module. Our model retains the relational reasoning abilities of the RN while reducing its computational complexity from quadratic to linear. We tested our model on the text QA dataset bAbI and the visual QA dataset NLVR. In the jointly trained bAbI-10k, we set a new state-of-the-art, achieving a mean error of less than 0.5%. Moreover, a simple ensemble of two of our models solves all 20 tasks in the joint version of the benchmark.",
+          "claimed_authors": [
+            "Juan Pavez",
+            "Héctor Allende",
+            "Héctor Allende-Cid"
+          ],
+          "claimed_title": "Working Memory Networks: Augmenting Memory Networks with a Relational Reasoning Module",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1805.09354"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Cognitive Load Optimization: Adaptive Complexity Scaling for Personalized Learni', candidate_title='Working Memory Networks: Augmenting Memory Networks with a Relational Reasoning Module')",
+        "failed_at": "2026-06-16T08:25:17Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Vincent Liu",
+            "Ehsan Latif",
+            "Xiaoming Zhai"
+          ],
+          "title": "Advancing Education through Tutoring Systems: A Systematic Literature Review",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2503.09748",
+        "summary": "This study systematically reviews the transformative role of Tutoring Systems, encompassing Intelligent Tutoring Systems (ITS) and Robot Tutoring Systems (RTS), in addressing global educational challenges through advanced technologies. As many students struggle with proficiency in core academic areas, Tutoring Systems emerge as promising solutions to bridge learning gaps by delivering personalized and adaptive instruction. ITS leverages artificial intelligence (AI) models, such as Bayesian Knowledge Tracing and Large Language Models, to provide precise cognitive support, while RTS enhances social and emotional engagement through human-like interactions. This systematic review, adhering to the PRISMA framework, analyzed 86 representative studies. We evaluated the pedagogical and technological advancements, engagement strategies, and ethical considerations surrounding these systems. Based on these parameters, Latent Class Analysis was conducted and identified three distinct categories: computer-based ITS, robot-based RTS, and multimodal systems integrating various interaction modes. The findings reveal significant advancements in AI techniques that enhance adaptability, engagement, and learning outcomes. However, challenges such as ethical concerns, scalability issues, and gaps in cognitive adaptability persist. The study highlights the complementary strengths of ITS and RTS, proposing integrated hybrid solutions to maximize educational benefits. Future research should focus on bridging gaps in scalability, addressing ethical considerations comprehensively, and advancing AI models to support diverse educational needs.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2503.09748",
+          "http_status": 200,
+          "pdf_sample_score": 0.2986,
+          "query_relevance_score": 0.4444,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-16T08:25:16Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "R. Santhi",
+            "B. Priya",
+            "J. M. Nandhini"
+          ],
+          "title": "Review of intelligent tutoring systems using bayesian approach",
+          "venue": "arXiv",
+          "year": 2013
+        },
+        "primary_pointer": "1302.7081",
+        "summary": "With advancement in computer science research on artificial intelligence and in cognitive psychology research on human learning and performance, the next generation of computer-based tutoring systems moved beyond the simple presentation of pages of text or graphics. These new intelligent tutoring systems (ITSs) called cognitive tutors; incorporated model-tracing technology which is a cognitive model of student problem solving that captures students multiple strategies and common misconceptions. Such Intelligent tutoring systems or Knowledge Based Tutoring Systems can guide learners to progress in the learning process at their best. This paper deals with the review of various Intelligent tutoring systems using Bayesian Networks and how Bayesian Networks can be used for efficient decision making.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1302.7081",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-16T08:25:16Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "cognitive load optimization: adaptive complexity scaling for personalized learning psychology",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

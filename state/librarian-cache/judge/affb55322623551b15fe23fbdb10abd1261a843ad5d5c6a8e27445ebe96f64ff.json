@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2409.04896",
+  "judged_at": "2026-06-16T08:25:22Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "cognitive load optimization: adaptive complexity scaling for personalized learning psychology",
+  "rationale": "The paper deals with computational load balancing in cloud environments using reinforcement learning, which is unrelated to cognitive load, adaptive complexity scaling, or personalized learning in psychology; the shared term “load” is a homonym, not a relevant construct.",
+  "relevant": false
+}

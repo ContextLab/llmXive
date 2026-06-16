@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1601.01126",
+  "judged_at": "2026-06-16T08:24:34Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "tide: proactive multi-problem discovery via template-guided iteration linguistics",
+  "rationale": "The paper discusses general statistical hypothesis‑testing concepts and power analysis in linguistics, which does not relate to the TIDE framework’s template‑guided iterative multi‑problem discovery mechanism or its specific variables. It falls outside the domain and construct of the user’s research question.",
+  "relevant": false
+}

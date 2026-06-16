@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1302.7081",
+  "judged_at": "2026-06-16T08:25:30Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "cognitive load optimization: adaptive complexity scaling for personalized learning psychology",
+  "rationale": "The paper reviews Bayesian‑network‑based intelligent tutoring systems, which are a canonical methodology for adaptively adjusting task difficulty and personalizing instruction—i.e., the same underlying mechanism of adaptive complexity scaling that the user’s question concerns (category (a) / (d)).",
+  "relevant": true
+}

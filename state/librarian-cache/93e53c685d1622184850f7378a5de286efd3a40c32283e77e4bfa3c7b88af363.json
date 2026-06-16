@@ -1,0 +1,511 @@
+{
+  "fetched_at": "2026-06-16T08:24:34Z",
+  "field": "linguistics",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "linguistics",
+      "idea_body_excerpt": "TIDE: Proactive Multi-Problem Discovery via Template-Guided Iteration",
+      "target_n": 5
+    },
+    "duration_seconds": 46.563,
+    "ended_at": "2026-06-16T08:24:34Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "template‑guided iterative problem discovery in linguistics"
+        ],
+        [
+          2,
+          "proactive multi‑issue identification using linguistic templates"
+        ],
+        [
+          3,
+          "iterative template‑based anomaly detection in language data"
+        ],
+        [
+          4,
+          "template‑driven multi‑problem mining for corpora analysis"
+        ],
+        [
+          5,
+          "proactive discovery of linguistic problems via template iteration"
+        ],
+        [
+          6,
+          "iterative template methodology for multi‑problem detection"
+        ],
+        [
+          7,
+          "template‑guided language pattern mining for issue extraction"
+        ],
+        [
+          8,
+          "multi‑problem discovery through iterative template generation"
+        ],
+        [
+          9,
+          "proactive template‑based linguistic error spotting"
+        ],
+        [
+          10,
+          "iterative template approach to multilingual problem identification"
+        ],
+        [
+          11,
+          "template‑driven iterative analysis of linguistic anomalies"
+        ],
+        [
+          12,
+          "multi‑issue detection using template‑guided iteration techniques"
+        ],
+        [
+          13,
+          "proactive discovery of discourse problems via template cycles"
+        ],
+        [
+          14,
+          "iterative template mining for linguistic irregularities"
+        ],
+        [
+          15,
+          "template‑based proactive identification of multiple language problems"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "TIDE: Proactive Multi-Problem Discovery via Template-Guided Iteration linguistics": 0,
+        "template‑guided iterative problem discovery in linguistics": 4
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "template-driven problem mining",
+      "treebank annotation errors",
+      "annotation inconsistency detection",
+      "annotation quality F1 improvement",
+      "iterative refinement bias mitigation"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2606.04743"
+      ]
+    },
+    "per_query_hit_count": {
+      "TIDE: Proactive Multi-Problem Discovery via Template-Guided Iteration linguistics": 3,
+      "annotation inconsistency detection": 3,
+      "annotation quality F1 improvement": 2,
+      "iterative refinement bias mitigation": 3,
+      "template-driven problem mining": 3,
+      "treebank annotation errors": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 2,
+      "rejections": [
+        {
+          "primary_pointer": "2103.13686",
+          "rationale": "The paper focuses on robust subgroup discovery in generic data mining using MDL and does not address template‑guided iteration, linguistic problem discovery, or the specific multi‑problem discovery framework implied by the user's question, making it off‑domain.",
+          "title": "Robust subgroup discovery"
+        },
+        {
+          "primary_pointer": "1601.01126",
+          "rationale": "The paper discusses general statistical hypothesis‑testing concepts and power analysis in linguistics, which does not relate to the TIDE framework’s template‑guided iterative multi‑problem discovery mechanism or its specific variables. It falls outside the domain and construct of the user’s research question.",
+          "title": "Statistical methods for linguistic research: Foundational Ideas - Part I"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-16T08:23:48Z",
+    "term_input": {
+      "normalized": "tide: proactive multi-problem discovery via template-guided iteration linguistics",
+      "raw": "TIDE: Proactive Multi-Problem Discovery via Template-Guided Iteration linguistics"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A discovery system for detecting correspondences in data is described, based on the familiar induction methods of J. S. Mill. Given a set of observations, the system induces the ``causally'' related facts in these observations. Its application to empirical linguistic discovery is described.",
+          "claimed_authors": [
+            "Vladimir Pericliev"
+          ],
+          "claimed_title": "Empirical Discovery in Linguistics",
+          "claimed_venue": "arXiv",
+          "claimed_year": 1995,
+          "primary_pointer": "cmp-lg/9506023"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='TIDE: Proactive Multi-Problem Discovery via Template-Guided Iteration linguistic', candidate_title='Empirical Discovery in Linguistics')",
+        "failed_at": "2026-06-16T08:24:18Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Huge volume of data from domain specific applications such as medical, financial, library, telephone, shopping records and individual are regularly generated. Sharing of these data is proved to be beneficial for data mining application. On one hand such data is an important asset to business decision making by analyzing it. On the other hand data privacy concerns may prevent data owners from sharing information for data analysis. In order to share data while preserving privacy, data owner must come up with a solution which achieves the dual goal of privacy preservation as well as an accuracy of data mining task - clustering and classification. An efficient and effective approach has been proposed that aims to protect privacy of sensitive information and obtaining data clustering with minimum information loss.",
+          "claimed_authors": [
+            "Hitesh Chhinkaniwala",
+            "Sanjay Garg"
+          ],
+          "claimed_title": "Tuple Value Based Multiplicative Data Perturbation Approach To Preserve Privacy In Data Stream Mining",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1306.1334"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='TIDE: Proactive Multi-Problem Discovery via Template-Guided Iteration linguistic', candidate_title='Tuple Value Based Multiplicative Data Perturbation Approach To Preserve Privacy In Data Stream Mining')",
+        "failed_at": "2026-06-16T08:24:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Over the last decade, there has been an increasing interest in temporal graphs, pushed by a growing availability of temporally-annotated network data coming from social, biological and financial networks. Despite the importance of analyzing complex temporal networks, there is a huge gap between the set of definitions, algorithms and tools available to study large static graphs and the ones available for temporal graphs. An important task in temporal graph analysis is mining dense structures, i.e., identifying high-density subgraphs together with the span in which this high density is observed. In this paper, we introduce the concept of $(k, Δ)$-truss (span-truss) in temporal graphs, a temporal generalization of the $k$-truss, in which $k$ captures the information about the density and $Δ$ captures the time span in which this density holds. We then propose novel and efficient algorithms to identify maximal span-trusses, namely the ones not dominated by any other span-truss neither in the order $k$ nor in the interval $Δ$, and evaluate them on a number of public available datasets.",
+          "claimed_authors": [
+            "Quintino Francesco Lotito",
+            "Alberto Montresor"
+          ],
+          "claimed_title": "Efficient Algorithms to Mine Maximal Span-Trusses From Temporal Graphs",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2009.01928"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='TIDE: Proactive Multi-Problem Discovery via Template-Guided Iteration linguistic', candidate_title='Efficient Algorithms to Mine Maximal Span-Trusses From Temporal Graphs')",
+        "failed_at": "2026-06-16T08:24:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Electronic health records (EHR's) are only a first step in capturing and utilizing health-related data - the problem is turning that data into useful information. Models produced via data mining and predictive analysis profile inherited risks and environmental/behavioral factors associated with patient disorders, which can be utilized to generate predictions about treatment outcomes. This can form the backbone of clinical decision support systems driven by live data based on the actual population. The advantage of such an approach based on the actual population is that it is \"adaptive\". Here, we evaluate the predictive capacity of a clinical EHR of a large mental healthcare provider (~75,000 distinct clients a year) to provide decision support information in a real-world clinical setting. Initial research has achieved a 70% success rate in predicting treatment outcomes using these methods.",
+          "claimed_authors": [
+            "Casey Bennett",
+            "Thomas Doub"
+          ],
+          "claimed_title": "Data Mining and Electronic Health Records: Selecting Optimal Clinical Treatments in Practice",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1112.1668"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='TIDE: Proactive Multi-Problem Discovery via Template-Guided Iteration linguistic', candidate_title='Data Mining and Electronic Health Records: Selecting Optimal Clinical Treatments in Practice')",
+        "failed_at": "2026-06-16T08:24:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper presents UD-NewsCrawl, the largest Tagalog treebank to date, containing 15.6k trees manually annotated according to the Universal Dependencies framework. We detail our treebank development process, including data collection, pre-processing, manual annotation, and quality assurance procedures. We provide baseline evaluations using multiple transformer-based models to assess the performance of state-of-the-art dependency parsers on Tagalog. We also highlight challenges in the syntactic analysis of Tagalog given its distinctive grammatical properties, and discuss its implications for the annotation of this treebank. We anticipate that UD-NewsCrawl and our baseline model implementations will serve as valuable resources for advancing computational linguistics research in underrepresented languages like Tagalog.",
+          "claimed_authors": [
+            "Angelina A. Aquino",
+            "Lester James V. Miranda",
+            "Elsie Marie T. Or"
+          ],
+          "claimed_title": "The UD-NewsCrawl Treebank: Reflections and Challenges from a Large-scale Tagalog Syntactic Annotation Project",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2505.20428"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='TIDE: Proactive Multi-Problem Discovery via Template-Guided Iteration linguistic', candidate_title='The UD-NewsCrawl Treebank: Reflections and Challenges from a Large-scale Tagalog Syntactic Annotation Project')",
+        "failed_at": "2026-06-16T08:24:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Web 2.0 has brought with it numerous user-produced data revealing one's thoughts, experiences, and knowledge, which are a great source for many tasks, such as information extraction, and knowledge base construction. However, the colloquial nature of the texts poses new challenges for current natural language processing techniques, which are more adapt to the formal form of the language. Ellipsis is a common linguistic phenomenon that some words are left out as they are understood from the context, especially in oral utterance, hindering the improvement of dependency parsing, which is of great importance for tasks relied on the meaning of the sentence. In order to promote research in this area, we are releasing a Chinese dependency treebank of 319 weibos, containing 572 sentences with omissions restored and contexts reserved.",
+          "claimed_authors": [
+            "Xuancheng Ren",
+            "Xu Sun",
+            "Ji Wen",
+            "Bingzhen Wei",
+            "Weidong Zhan",
+            "Zhiyuan Zhang"
+          ],
+          "claimed_title": "Building an Ellipsis-aware Chinese Dependency Treebank for Web Text",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1801.06613"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='TIDE: Proactive Multi-Problem Discovery via Template-Guided Iteration linguistic', candidate_title='Building an Ellipsis-aware Chinese Dependency Treebank for Web Text')",
+        "failed_at": "2026-06-16T08:24:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "DepAnn is an interactive annotation tool for dependency treebanks, providing both graphical and text-based annotation interfaces. The tool is aimed for semi-automatic creation of treebanks. It aids the manual inspection and correction of automatically created parses, making the annotation process faster and less error-prone. A novel feature of the tool is that it enables the user to view outputs from several parsers as the basis for creating the final tree to be saved to the treebank. DepAnn uses TIGER-XML, an XML-based general encoding format for both, representing the parser outputs and saving the annotated treebank. The tool includes an automatic consistency checker for sentence structures. In addition, the tool enables users to build structures manually, add comments on the annotations, modify the tagsets, and mark sentences for further revision.",
+          "claimed_authors": [
+            "Tuomo Kakkonen"
+          ],
+          "claimed_title": "DepAnn - An Annotation Tool for Dependency Treebanks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2006,
+          "primary_pointer": "cs/0610116"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='TIDE: Proactive Multi-Problem Discovery via Template-Guided Iteration linguistic', candidate_title='DepAnn - An Annotation Tool for Dependency Treebanks')",
+        "failed_at": "2026-06-16T08:24:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This study introduces a hybrid neuro-symbolic framework that achieves deterministic detection of statutory inconsistency in complex law. We use the U.S. Internal Revenue Code (IRC) as a case study because its complexity makes it a fertile domain for identifying conflicts. Our research offers a solution for detecting inconsistent provisions by combining Large Language Models (LLMs) with symbolic logic.\n  LLM-based methods can support compliance, fairness, and statutory drafting, yet tax-specific applications remain sparse. A key challenge is that such models struggle with hierarchical processing and deep structured reasoning, especially over long text.\n  This research addresses these gaps through experiments using GPT-4o, GPT-5, and Prolog. GPT-4o was first used to translate Section 121 into Prolog rules and refine them in SWISH. These rules were then incorporated into prompts to test whether Prolog-augmented prompting improved GPT-4o's inconsistency detection. GPT-4o, whether prompted with natural language alone or with Prolog augmentation, detected the inconsistency in only one of three strategies (33 percent accuracy), but its reasoning quality differed: natural-language prompting achieved 100 percent rule coverage, while Prolog-augmented prompting achieved 66 percent, indicating more incomplete statutory analysis.\n  In contrast to probabilistic prompting, the hybrid Prolog model produced deterministic and reproducible results. Guided by GPT-5 for refinement, the model formalized the IRC section's competing interpretations and successfully detected an inconsistency zone. Validation tests confirm that the Prolog implementation is accurate, internally consistent, deterministic, and capable of autonomously identifying inconsistencies. These findings show that LLM-assisted formalization, anchored in symbolic logic, enables transparent and reliable statutory inconsistency detection.",
+          "claimed_authors": [
+            "Borchuluun Yadamsuren",
+            "Steven Keith Platt",
+            "Miguel Diaz"
+          ],
+          "claimed_title": "LLM-Assisted Formalization Enables Deterministic Detection of Statutory Inconsistency in the Internal Revenue Code",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2511.11954"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='TIDE: Proactive Multi-Problem Discovery via Template-Guided Iteration linguistic', candidate_title='LLM-Assisted Formalization Enables Deterministic Detection of Statutory Inconsistency in the Internal Revenue Code')",
+        "failed_at": "2026-06-16T08:24:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The advancement in healthcare has shifted focus toward patient-centric approaches, particularly in self-care and patient education, facilitated by access to Electronic Health Records (EHR). However, medical jargon in EHRs poses significant challenges in patient comprehension. To address this, we introduce a new task of automatically generating lay definitions, aiming to simplify complex medical terms into patient-friendly lay language. We first created the README dataset, an extensive collection of over 50,000 unique (medical term, lay definition) pairs and 300,000 mentions, each offering context-aware lay definitions manually annotated by domain experts. We have also engineered a data-centric Human-AI pipeline that synergizes data filtering, augmentation, and selection to improve data quality. We then used README as the training data for models and leveraged a Retrieval-Augmented Generation method to reduce hallucinations and improve the quality of model outputs. Our extensive automatic and human evaluations demonstrate that open-source mobile-friendly models, when fine-tuned with high-quality data, are capable of matching or even surpassing the performance of state-of-the-art closed-source large language models like ChatGPT. This research represents a significant stride in closing the knowledge gap in patient education and advancing patient-centric healthcare solutions.",
+          "claimed_authors": [
+            "Zonghai Yao",
+            "Nandyala Siddharth Kantu",
+            "Guanghao Wei",
+            "Hieu Tran",
+            "Zhangqi Duan",
+            "Sunjae Kwon",
+            "Zhichao Yang",
+            "README annotation team",
+            "Hong Yu"
+          ],
+          "claimed_title": "README: Bridging Medical Jargon and Lay Understanding for Patient Education through Data-Centric NLP",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2312.15561"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='TIDE: Proactive Multi-Problem Discovery via Template-Guided Iteration linguistic', candidate_title='README: Bridging Medical Jargon and Lay Understanding for Patient Education through Data-Centric NLP')",
+        "failed_at": "2026-06-16T08:24:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Inconsistent political statements represent a form of misinformation. They erode public trust and pose challenges to accountability, when left unnoticed. Detecting inconsistencies automatically could support journalists in asking clarification questions, thereby helping to keep politicians accountable. We propose the Inconsistency detection task and develop a scale of inconsistency types to prompt NLP-research in this direction. To provide a resource for detecting inconsistencies in a political domain, we present a dataset of 698 human-annotated pairs of political statements with explanations of the annotators' reasoning for 237 samples. The statements mainly come from voting assistant platforms such as Wahl-O-Mat in Germany and Smartvote in Switzerland, reflecting real-world political issues. We benchmark Large Language Models (LLMs) on our dataset and show that in general, they are as good as humans at detecting inconsistencies, and might be even better than individual humans at predicting the crowd-annotated ground-truth. However, when it comes to identifying fine-grained inconsistency types, none of the model have reached the upper bound of performance (due to natural labeling variation), thus leaving room for improvement. We make our dataset and code publicly available.",
+          "claimed_authors": [
+            "Nursulu Sagimbayeva",
+            "Ruveyda Betül Bahçeci",
+            "Ingmar Weber"
+          ],
+          "claimed_title": "Misleading through Inconsistency: A Benchmark for Political Inconsistencies Detection",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2505.19191"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='TIDE: Proactive Multi-Problem Discovery via Template-Guided Iteration linguistic', candidate_title='Misleading through Inconsistency: A Benchmark for Political Inconsistencies Detection')",
+        "failed_at": "2026-06-16T08:24:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper does not describe a novel method. Instead, it studies an essential foundation for reliable benchmarking and ultimately real-world application of AI-based image analysis: generating high-quality reference annotations. Previous research has focused on crowdsourcing as a means of outsourcing annotations. However, little attention has so far been given to annotation companies, specifically regarding their internal quality assurance (QA) processes. Therefore, our aim is to evaluate the influence of QA employed by annotation companies on annotation quality and devise methodologies for maximizing data annotation efficacy. Based on a total of 57,648 instance segmented images obtained from a total of 924 annotators and 34 QA workers from four annotation companies and Amazon Mechanical Turk (MTurk), we derived the following insights: (1) Annotation companies perform better both in terms of quantity and quality compared to the widely used platform MTurk. (2) Annotation companies' internal QA only provides marginal improvements, if any. However, improving labeling instructions instead of investing in QA can substantially boost annotation performance. (3) The benefit of internal QA depends on specific image characteristics. Our work could enable researchers to derive substantially more value from a fixed annotation budget and change the way annotation companies conduct internal QA.",
+          "claimed_authors": [
+            "Tim Rädsch",
+            "Annika Reinke",
+            "Vivienn Weru",
+            "Minu D. Tizabi",
+            "Nicholas Heller",
+            "Fabian Isensee",
+            "Annette Kopp-Schneider",
+            "Lena Maier-Hein"
+          ],
+          "claimed_title": "Quality Assured: Rethinking Annotation Strategies in Imaging AI",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2407.17596"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='TIDE: Proactive Multi-Problem Discovery via Template-Guided Iteration linguistic', candidate_title='Quality Assured: Rethinking Annotation Strategies in Imaging AI')",
+        "failed_at": "2026-06-16T08:24:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Poor indoor air quality can contribute to the development of various chronic respiratory diseases such as asthma, heart disease, and lung cancer. Since air quality is extremely difficult for humans to detect though sensory processing, there is a need for efficient ventilation systems that can provide a healthier environment. In this paper, we have designed an energy efficient ventilation system that predicts sensor occupancy patterns based on historical data to improve indoor air quality.",
+          "claimed_authors": [
+            "Ajinkya Gawade",
+            "Aniket Sanap",
+            "Vishal Baviskar",
+            "Ryan Jahnige",
+            "Qingquan Zhang",
+            "Ting Zhu"
+          ],
+          "claimed_title": "Indoor Air Quality Improvement",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2012.15387"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='TIDE: Proactive Multi-Problem Discovery via Template-Guided Iteration linguistic', candidate_title='Indoor Air Quality Improvement')",
+        "failed_at": "2026-06-16T08:24:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A critical problem in deep learning is that systems learn inappropriate biases, resulting in their inability to perform well on minority groups. This has led to the creation of multiple algorithms that endeavor to mitigate bias. However, it is not clear how effective these methods are. This is because study protocols differ among papers, systems are tested on datasets that fail to test many forms of bias, and systems have access to hidden knowledge or are tuned specifically to the test set. To address this, we introduce an improved evaluation protocol, sensible metrics, and a new dataset, which enables us to ask and answer critical questions about bias mitigation algorithms. We evaluate seven state-of-the-art algorithms using the same network architecture and hyperparameter selection policy across three benchmark datasets. We introduce a new dataset called Biased MNIST that enables assessment of robustness to multiple bias sources. We use Biased MNIST and a visual question answering (VQA) benchmark to assess robustness to hidden biases. Rather than only tuning to the test set distribution, we study robustness across different tuning distributions, which is critical because for many applications the test distribution may not be known during development. We find that algorithms exploit hidden biases, are unable to scale to multiple forms of bias, and are highly sensitive to the choice of tuning set. Based on our findings, we implore the community to adopt more rigorous assessment of future bias mitigation methods. All data, code, and results are publicly available at: https://github.com/erobic/bias-mitigators.",
+          "claimed_authors": [
+            "Robik Shrestha",
+            "Kushal Kafle",
+            "Christopher Kanan"
+          ],
+          "claimed_title": "Are Bias Mitigation Techniques for Deep Learning Effective?",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2104.00170"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='TIDE: Proactive Multi-Problem Discovery via Template-Guided Iteration linguistic', candidate_title='Are Bias Mitigation Techniques for Deep Learning Effective?')",
+        "failed_at": "2026-06-16T08:24:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This study explores the potential to enhance the reflectance of solar insolation by the human settlement and grassland components of the Earth's terrestrial surface as a climate change mitigation measure. Preliminary estimates derived using a static radiative transfer model indicate that such efforts could amplify the planetary albedo enough to offset the current global annual average level of radiative forcing caused by anthropogenic greenhouse gases by as much as 30 percent or 0.76 W/m2. Terrestrial albedo amplification may thus extend, by about 25 years, the time available to advance the development and use of low-emission energy conversion technologies which ultimately remain essential to mitigate long-term climate change. However, additional study is needed to confirm the estimates reported here and to assess the economic and environmental impacts of active land-surface albedo amplification as a climate change mitigation measure.",
+          "claimed_authors": [
+            "Robert M. Hamwey"
+          ],
+          "claimed_title": "Active Amplification of the Terrestrial Albedo to Mitigate Climate Change: An Exploratory Study",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2005,
+          "primary_pointer": "physics/0512170"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='TIDE: Proactive Multi-Problem Discovery via Template-Guided Iteration linguistic', candidate_title='Active Amplification of the Terrestrial Albedo to Mitigate Climate Change: An Exploratory Study')",
+        "failed_at": "2026-06-16T08:24:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Bias in web search has been in the spotlight of bias detection research for quite a while. At the same time, little attention has been paid to query suggestions in this regard. Awareness of the problem of biased query suggestions has been raised. Likewise, there is a rising need for automatic bias detection approaches. This paper adds on the bias detection pipeline for bias detection in query suggestions of person-related search developed by Bonart et al. \\cite{Bonart_2019a}. The sparseness and lack of contextual metadata of query suggestions make them a difficult subject for bias detection. Furthermore, query suggestions are perceived very briefly and subliminally. To overcome these issues, perception-aware metrics are introduced. Consequently, the enhanced pipeline is able to better detect systematic topical bias in search engine query suggestions for person-related searches. The results of an analysis performed with the developed pipeline confirm this assumption. Due to the perception-aware bias detection metrics, findings produced by the pipeline can be assumed to reflect bias that users would discern.",
+          "claimed_authors": [
+            "Fabian Haak",
+            "Philipp Schaer"
+          ],
+          "claimed_title": "Perception-Aware Bias Detection for Query Suggestions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2601.03730"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='TIDE: Proactive Multi-Problem Discovery via Template-Guided Iteration linguistic', candidate_title='Perception-Aware Bias Detection for Query Suggestions')",
+        "failed_at": "2026-06-16T08:24:19Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Soyeong Jeong",
+            "Jinheon Baek",
+            "Minki Kang",
+            "Sung Ju Hwang"
+          ],
+          "title": "TIDE: Proactive Multi-Problem Discovery via Template-Guided Iteration",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2606.04743",
+        "summary": "Agents are widely deployed as assistants over documents, tools, and code. However, they typically act only on explicit user requests, which surface only the problems the user has noticed, while many other important problems coexist, hidden in plain sight, within the broader user context, with their total number unknown in advance. We frame this as the task of discovering multiple hidden problems from context, in which coexisting problems should be uncovered, grounded in supporting evidence, and paired with concrete actions. To this end, we introduce TIDE, a template-guided iterative framework with two complementary mechanisms. Specifically, motivated by the observation that single-pass prediction anchors on the most salient cases and yields generic claims, we propose iterative discovery, which surfaces a small batch of candidates per round while conditioning on what has already been found, so subsequent rounds extend coverage; and thought templates, reusable schemas distilled from previously solved cases that specify what contextual signals to attend to and how to connect them, anchoring each prediction in a recognizable problem class. We validate TIDE on two realistic settings, personal workspaces and software repositories, across four model backbones, showing substantial gains over single-shot and parallel multi-agent baselines on task coverage, identification, and resolution.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2606.04743",
+          "http_status": 200,
+          "pdf_sample_score": 0.2758,
+          "query_relevance_score": 0.9,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-16T08:24:18Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Mingwen Zhang",
+            "Minqiang Yang",
+            "Changsheng Ma",
+            "Yang Yu",
+            "Hui Bai",
+            "Chen Xu",
+            "Xiangzhen Kong",
+            "Bin Hu"
+          ],
+          "title": "The Art of Socratic Inquiry: A Framework for Proactive Template-Guided Therapeutic Conversation Generation",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2602.01598",
+        "summary": "Proactive questioning, where therapists deliberately initiate structured, cognition-guiding inquiries, is a cornerstone of cognitive behavioral therapy (CBT). Yet, current psychological large language models (LLMs) remain overwhelmingly reactive, defaulting to empathetic but superficial responses that fail to surface latent beliefs or guide behavioral change. To bridge this gap, we propose the \\textbf{Socratic Inquiry Framework (SIF)}, a lightweight, plug-and-play therapeutic intent planner that transforms LLMs from passive listeners into active cognitive guides. SIF decouples \\textbf{when to ask} (via Strategy Anchoring) from \\textbf{what to ask} (via Template Retrieval), enabling context-aware, theory-grounded questioning without end-to-end retraining. Complementing SIF, we introduce \\textbf{Socratic-QA}, a high-quality dataset of strategy-aligned Socratic sequences that provides explicit supervision for proactive reasoning. Experiments show that SIF significantly enhances proactive questioning frequency, conversational depth, and therapeutic alignment, marking a clear shift from reactive comfort to proactive exploration. Our work establishes a new paradigm for psychologically informed LLMs: not just to respond, but to guide.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2602.01598",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-16T08:24:18Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Vladimir Pericliev"
+          ],
+          "title": "Empirical Discovery in Linguistics",
+          "venue": "arXiv",
+          "year": 1995
+        },
+        "primary_pointer": "cmp-lg/9506023",
+        "summary": "A discovery system for detecting correspondences in data is described, based on the familiar induction methods of J. S. Mill. Given a set of observations, the system induces the ``causally'' related facts in these observations. Its application to empirical linguistic discovery is described.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/cmp-lg/9506023",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-16T08:24:22Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "tide: proactive multi-problem discovery via template-guided iteration linguistics",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

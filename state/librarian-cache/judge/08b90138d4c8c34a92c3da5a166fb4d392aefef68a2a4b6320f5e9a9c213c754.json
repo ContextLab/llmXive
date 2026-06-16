@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2107.08597",
+  "judged_at": "2026-06-16T08:26:28Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "investigating the validity of the inverse square law at sub-millimeter scales physics",
+  "rationale": "The paper studies a modified gravity theory’s post‑Newtonian parameters in the Solar‑System (large‑scale, weak‑field) regime and does not address measurements of the inverse‑square law at sub‑millimeter distances, nor does it provide empirical or theoretical insight specific to that short‑range scale. Hence it does not meet any inclusion criteria (a‑f).",
+  "relevant": false
+}

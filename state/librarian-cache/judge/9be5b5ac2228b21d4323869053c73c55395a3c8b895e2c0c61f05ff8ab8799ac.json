@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2606.01249",
+  "judged_at": "2026-06-16T08:22:27Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "trust region on-policy distillation computer science",
+  "rationale": "The paper introduces and evaluates Trust Region On-Policy Distillation (TrOPD), directly measuring the same mechanism (trust‑region constrained on‑policy distillation) that the user's query concerns, satisfying criterion (a).",
+  "relevant": true
+}

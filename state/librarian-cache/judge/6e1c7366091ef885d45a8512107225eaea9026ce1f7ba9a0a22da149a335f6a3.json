@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2504.15321",
+  "judged_at": "2026-06-16T08:23:25Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting plant defense allocation from publicly available transcriptomic data biology",
+  "rationale": "The paper discusses spacecraft flyby missions for asteroid (planetary) defense, which is unrelated to plant defense allocation, transcriptomic data, or any biological mechanism relevant to the user's question. It falls under the off‑domain rejection criterion.",
+  "relevant": false
+}

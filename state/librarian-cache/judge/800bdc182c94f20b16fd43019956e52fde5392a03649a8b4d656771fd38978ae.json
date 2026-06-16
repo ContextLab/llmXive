@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1603.03238",
+  "judged_at": "2026-06-16T08:23:32Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting plant defense allocation from publicly available transcriptomic data biology",
+  "rationale": "The paper focuses on numerical plant models and multi‑objective optimization of traits like yield, without using transcriptomic data or addressing plant defense allocation, so it does not match any of the inclusion criteria (a‑f).",
+  "relevant": false
+}

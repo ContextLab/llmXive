@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2602.01598",
+  "judged_at": "2026-06-16T08:24:26Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "tide: proactive multi-problem discovery via template-guided iteration linguistics",
+  "rationale": "The paper studies a proactive, template‑guided questioning framework (Socratic Inquiry Framework) that decouples “when to ask” from “what to ask” via strategy anchoring and template retrieval—directly matching the mechanism of template‑guided iteration for proactive multi‑problem discovery, even though the application domain is therapeutic conversation rather than linguistics. This satisfies inclusion criterion (a).",
+  "relevant": true
+}

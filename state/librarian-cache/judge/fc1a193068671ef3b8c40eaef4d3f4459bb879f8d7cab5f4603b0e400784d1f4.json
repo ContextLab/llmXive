@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1906.01101",
+  "judged_at": "2026-06-16T08:23:38Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting plant defense allocation from publicly available transcriptomic data biology",
+  "rationale": "The paper presents a maximum‑entropy algorithm for generic large‑scale machine‑learning approximations and does not address plant defense allocation, transcriptomic data, or any biological prediction task, so it lacks relevance to the user’s question.",
+  "relevant": false
+}

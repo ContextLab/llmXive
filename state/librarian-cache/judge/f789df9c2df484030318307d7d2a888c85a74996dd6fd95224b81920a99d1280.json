@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "cmp-lg/9506023",
+  "judged_at": "2026-06-16T08:24:30Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "tide: proactive multi-problem discovery via template-guided iteration linguistics",
+  "rationale": "The paper presents an earlier discovery system for empirical linguistic analysis, sharing the same underlying mechanism of automated, template‑guided (or rule‑guided) discovery as the TIDE approach, thus serving as a foundational methodological reference for the user's topic (category (a)/(d)).",
+  "relevant": true
+}

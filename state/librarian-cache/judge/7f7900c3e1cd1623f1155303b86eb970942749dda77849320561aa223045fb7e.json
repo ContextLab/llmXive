@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2106.08611",
+  "judged_at": "2026-06-16T08:26:31Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "investigating the validity of the inverse square law at sub-millimeter scales physics",
+  "rationale": "The paper studies deviations from Newton’s 1/r² gravitational law at length scales down to ~10 µm, directly measuring the same physical mechanism (inverse‑square law) in the sub‑millimeter regime the user is investigating (category (a) same‑mechanism evidence).",
+  "relevant": true
+}

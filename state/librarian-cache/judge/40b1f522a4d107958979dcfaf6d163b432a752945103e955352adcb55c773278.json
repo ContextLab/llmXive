@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1310.2542",
+  "judged_at": "2026-06-16T08:23:28Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting plant defense allocation from publicly available transcriptomic data biology",
+  "rationale": "The paper uses plant transcriptomic data (the same independent variable domain) to predict a physiological trait (water status), providing a methodological precedent for predicting plant traits from gene expression, which satisfies inclusion criterion (b).",
+  "relevant": true
+}

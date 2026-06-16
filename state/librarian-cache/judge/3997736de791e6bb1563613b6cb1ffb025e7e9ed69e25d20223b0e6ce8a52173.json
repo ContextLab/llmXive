@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2305.06325",
+  "judged_at": "2026-06-16T08:26:23Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "investigating the validity of the inverse square law at sub-millimeter scales physics",
+  "rationale": "The paper surveys short‑range (sub‑millimeter) laboratory tests of gravity, directly addressing measurements of the inverse‑square law at the length scales of interest (same‑mechanism evidence, criterion (a)). It therefore constitutes a key reference for any literature review on the validity of the inverse‑square law at sub‑mm distances.",
+  "relevant": true
+}
