@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2510.18135",
+  "judged_at": "2026-06-16T13:47:34Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "visual generation in the new era: an evolution from atomic mapping to agentic world modeling other",
+  "rationale": "The paper studies generative world models and their utility for embodied agents, directly addressing the evolution toward “agentic world modeling” in visual generation (acceptance category (a) – same‑mechanism evidence, and also (c) – provides an empirical benchmark for evaluating such models).",
+  "relevant": true
+}

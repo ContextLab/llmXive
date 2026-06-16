@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2605.27955",
+  "judged_at": "2026-06-16T13:46:31Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "latentskill: from in-context textual skills to in-weight latent skills for llm agents linguistics",
+  "rationale": "The paper investigates an alternative way to represent LLM agent skills—converting free‑form textual skill descriptions into typed pseudocode—and measures its impact on agent performance, thus covering a key independent variable (skill representation format) within the same domain of LLM agents as the user's latent‑skill question (acceptance criterion (b)).",
+  "relevant": true
+}

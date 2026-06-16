@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2605.31361",
+  "judged_at": "2026-06-16T13:47:32Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "visual generation in the new era: an evolution from atomic mapping to agentic world modeling other",
+  "rationale": "The paper studies latent teammate modeling within world models for cooperative multi‑agent reinforcement learning, a topic unrelated to visual generation or the evolution of image‑synthesis methods implied by the user's question. It does not address the visual generation mechanisms or datasets the user is interested in.",
+  "relevant": false
+}

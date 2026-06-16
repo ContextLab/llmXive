@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2604.08224",
+  "judged_at": "2026-06-16T13:46:34Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "latentskill: from in-context textual skills to in-weight latent skills for llm agents linguistics",
+  "rationale": "The paper analyzes the same underlying mechanism of skill representation in LLM agents—how procedural expertise is either internalized in model weights or externalized via memory/skills modules—and discusses the trade‑off between parametric (in‑weight) and externalized capabilities, satisfying criterion (a) (same‑mechanism evidence).",
+  "relevant": true
+}

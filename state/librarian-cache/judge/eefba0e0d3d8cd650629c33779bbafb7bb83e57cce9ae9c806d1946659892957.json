@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2601.19834",
+  "judged_at": "2026-06-16T13:47:22Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "visual generation in the new era: an evolution from atomic mapping to agentic world modeling other",
+  "rationale": "The paper studies visual generation as a component of multimodal world models and evaluates how visual generation improves reasoning, directly addressing the mechanism of “visual generation … world modeling” central to the user’s question (acceptance category a).",
+  "relevant": true
+}

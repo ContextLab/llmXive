@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-10T09:16:02.500967Z'
-current_stage: brainstormed
+current_stage: flesh_out_complete
 failed_stage: null
 field: linguistics
 human_escalation_reason: null
 id: PROJ-685-latentskill-from-in-context-textual-skil
-last_run_id: 33162c8b-ccfe-4195-9070-fad5fa92d4fe
+last_run_id: f5d36193-a77c-4b43-b621-66961edd2567
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: null
 title: 'LatentSkill: From In-Context Textual Skills to In-Weight Latent Skills for
   LLM Agents'
-updated_at: '2026-06-15T04:56:50.160097Z'
+updated_at: '2026-06-16T13:46:42.896460Z'

@@ -1,0 +1,658 @@
+{
+  "fetched_at": "2026-06-16T13:47:35Z",
+  "field": "other",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "other",
+      "idea_body_excerpt": "Visual Generation in the New Era: An Evolution from Atomic Mapping to Agentic World Modeling",
+      "target_n": 5
+    },
+    "duration_seconds": 51.377,
+    "ended_at": "2026-06-16T13:47:35Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "agentic visual world modeling"
+        ],
+        [
+          2,
+          "hierarchical image synthesis"
+        ],
+        [
+          3,
+          "atomic-level visual representation learning"
+        ],
+        [
+          4,
+          "generative scene modeling with world models"
+        ],
+        [
+          5,
+          "diffusion-based visual generation"
+        ],
+        [
+          6,
+          "conditional image generation from semantic maps"
+        ],
+        [
+          7,
+          "neural scene graph construction for image synthesis"
+        ],
+        [
+          8,
+          "latent diffusion models for scene composition"
+        ],
+        [
+          9,
+          "embodied visual generation systems"
+        ],
+        [
+          10,
+          "interactive visual synthesis with agents"
+        ],
+        [
+          11,
+          "self-supervised world modeling for vision"
+        ],
+        [
+          12,
+          "structured visual generation pipelines"
+        ],
+        [
+          13,
+          "multimodal world model generation for graphics"
+        ],
+        [
+          14,
+          "generative adversarial networks for scene layout"
+        ],
+        [
+          15,
+          "vision‑language driven agentic image creation"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Visual Generation in the New Era: An Evolution from Atomic Mapping to Agentic World Modeling other": 0,
+        "agentic visual world modeling": 5
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "latent diffusion image synthesis",
+      "LAION-5B text-to-image benchmark",
+      "Neural radiance fields world modeling",
+      "FID CLIPScore evaluation",
+      "model-based reinforcement learning world model"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2604.28185"
+      ]
+    },
+    "per_query_hit_count": {
+      "FID CLIPScore evaluation": 3,
+      "LAION-5B text-to-image benchmark": 3,
+      "Neural radiance fields world modeling": 3,
+      "Visual Generation in the New Era: An Evolution from Atomic Mapping to Agentic World Modeling other": 3,
+      "latent diffusion image synthesis": 3,
+      "model-based reinforcement learning world model": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 1,
+      "rejections": [
+        {
+          "primary_pointer": "2605.31361",
+          "rationale": "The paper studies latent teammate modeling within world models for cooperative multi‑agent reinforcement learning, a topic unrelated to visual generation or the evolution of image‑synthesis methods implied by the user's question. It does not address the visual generation mechanisms or datasets the user is interested in.",
+          "title": "Dreaming Of Others: Latent Teammate Modeling In World Models For Multi-Agent Reinforcement Learning"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-16T13:46:44Z",
+    "term_input": {
+      "normalized": "visual generation in the new era: an evolution from atomic mapping to agentic world modeling other",
+      "raw": "Visual Generation in the New Era: An Evolution from Atomic Mapping to Agentic World Modeling other"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "There has been tremendous progress in large-scale text-to-image synthesis driven by diffusion models enabling versatile downstream applications such as 3D object synthesis from texts, image editing, and customized generation. We present a generic approach using latent diffusion models as powerful image priors for various visual synthesis tasks. Existing methods that utilize such priors fail to use these models' full capabilities. To improve this, our core ideas are 1) a feature matching loss between features from different layers of the decoder to provide detailed guidance and 2) a KL divergence loss to regularize the predicted latent features and stabilize the training. We demonstrate the efficacy of our approach on three different applications, text-to-3D, StyleGAN adaptation, and layered image editing. Extensive results show our method compares favorably against baselines.",
+          "claimed_authors": [
+            "Ting-Hsuan Liao",
+            "Songwei Ge",
+            "Yiran Xu",
+            "Yao-Chih Lee",
+            "Badour AlBahar",
+            "Jia-Bin Huang"
+          ],
+          "claimed_title": "Text-driven Visual Synthesis with Latent Diffusion Prior",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2302.08510"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='Visual Generation in the New Era: An Evolution from Atomic Mapping to Agentic Wo', candidate_title='Text-driven Visual Synthesis with Latent Diffusion Prior')",
+        "failed_at": "2026-06-16T13:47:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Drug discovery relies on iterative expert workflows that are slow to parallelize and difficult to scale. Here we introduce Latent-Y, an AI agent that autonomously executes complete antibody design campaigns from text prompts, covering literature review, target analysis, epitope identification, candidate design, computational validation, and selection of lab-ready sequences. Latent-Y is integrated into the Latent Labs Platform, where it operates in the same environment as drug-discovery experts with access to bioinformatics tools, biological databases, and scientific literature. The agent can run fully autonomously end-to-end, or collaboratively, where researchers review progress, provide feedback, and direct subsequent steps. Candidate antibodies are generated using Latent-X2, our frontier generative model for drug-like antibody design. We demonstrate the agent's capability across three distinct campaign types: epitope discovery guided by therapeutic specifications, cross-species binder design, and autonomous design from a scientific publication targeting human transferrin receptor for blood-brain barrier crossing. Across nine targets, Latent-Y produced lab-confirmed nanobody binders against six, achieving a 67% target-level success rate with binding affinities reaching the single-digit nanomolar range, without human filtering or intervention. In user studies, experts working with Latent-Y completed design campaigns 56 times faster than independent expert time estimates, compressing weeks of work into hours. Because Latent-X2 is a general-purpose atomic-level model for biologics design, the same agent architecture naturally extends to macrocyclic peptide and mini-binder design campaigns, broadening autonomous discovery across therapeutic modalities. Latent-Y is available to selected partners at https://platform.latentlabs.com.",
+          "claimed_authors": [
+            " Latent Labs Team",
+            "Sebastian M. Schmon",
+            "Daniella Pretorius",
+            "Simon Mathis",
+            "Rebecca Bartke-Croughan",
+            "Aishaini Puvanendran",
+            "James Vuckovic",
+            "Henry Kenlay",
+            "Mária Vlachynská",
+            "Alex Bridgland",
+            "Ivan Grishin",
+            "Sven Over",
+            "David Li",
+            "Bridget Li",
+            "Jonathan Crabbé",
+            "Agrin Hilmkil",
+            "Alexander W. R. Nelson",
+            "David Yuan",
+            "Annette Obika",
+            "Simon A. A. Kohl"
+          ],
+          "claimed_title": "Latent-Y: A Lab-Validated Autonomous Agent for De Novo Drug Design",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.29727"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='Visual Generation in the New Era: An Evolution from Atomic Mapping to Agentic Wo', candidate_title='Latent-Y: A Lab-Validated Autonomous Agent for De Novo Drug Design')",
+        "failed_at": "2026-06-16T13:47:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Traditional drug discovery relies on rounds of screening millions of candidate molecules with low success rates, making drug discovery time and resource intensive. To overcome this screening bottleneck, we introduce Latent-X, an all-atom protein design model that enables a new paradigm of precision AI design. Given a target protein epitope, Latent-X jointly generates the all atom structure and sequence of the protein binder and target, directly modelling the non-covalent interactions essential for specific binding. We demonstrate its efficacy across two therapeutically relevant modalities through extensive wet lab experiments, testing as few as 30-100 designs per target. For macrocyclic peptides, Latent-X achieves experimental hit rates exceeding 90% on all evaluated benchmark targets. For mini-binders, it consistently produces potent candidates against all evaluated benchmark targets, with binding affinities reaching the low nanomolar and picomolar range - comparable to those of approved therapeutics - whilst also being highly specific in mammalian display. In direct comparisons with the state-of-the-art models AlphaProteo, RFdiffusion and RFpeptides under identical conditions demonstrates, Latent-X generates binders with higher hit rates and better binding affinities, and uniquely creates structurally diverse binders, including complex beta-sheet folds. Its end-to-end process is an order of magnitude faster than existing multi-step computational pipelines. By drastically improving the efficiency and success rate of de novo design, Latent-X represents a significant advance towards push-button biologics discovery and a valuable tool for protein engineers. Latent-X is available at https://platform.latentlabs.com, enabling users to reliably generate de novo binders without AI infrastructure or coding.",
+          "claimed_authors": [
+            " Latent Labs Team",
+            "Alex Bridgland",
+            "Jonathan Crabbé",
+            "Henry Kenlay",
+            "Daniella Pretorius",
+            "Sebastian M. Schmon",
+            "Agrin Hilmkil",
+            "Rebecca Bartke-Croughan",
+            "Robin Rombach",
+            "Michael Flashman",
+            "Tomas Matteson",
+            "Simon Mathis",
+            "Alexander W. R. Nelson",
+            "David Yuan",
+            "Annette Obika",
+            "Simon A. A. Kohl"
+          ],
+          "claimed_title": "Latent-X: An Atom-level Frontier Model for De Novo Protein Binder Design",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2507.19375"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='Visual Generation in the New Era: An Evolution from Atomic Mapping to Agentic Wo', candidate_title='Latent-X: An Atom-level Frontier Model for De Novo Protein Binder Design')",
+        "failed_at": "2026-06-16T13:47:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large datasets, such as LAION-5B, contain a diverse distribution of images shared online. However, extraction of domain-specific subsets of large image corpora is challenging. The extraction approach based on an anchor dataset, combined with further filtering, is proposed here and demonstrated for the domain of satellite imagery. This results in the release of LAION-EO, a dataset sourced from the web containing pairs of text and satellite images in high (pixel-wise) resolution. The paper outlines the acquisition procedure as well as some of the features of the dataset.",
+          "claimed_authors": [
+            "Mikolaj Czerkawski",
+            "Alistair Francis"
+          ],
+          "claimed_title": "From LAION-5B to LAION-EO: Filtering Billions of Images Using Anchor Datasets for Satellite Image Extraction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2309.15535"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Visual Generation in the New Era: An Evolution from Atomic Mapping to Agentic Wo', candidate_title='From LAION-5B to LAION-EO: Filtering Billions of Images Using Anchor Datasets for Satellite Image Extraction')",
+        "failed_at": "2026-06-16T13:47:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Groundbreaking language-vision architectures like CLIP and DALL-E proved the utility of training on large amounts of noisy image-text data, without relying on expensive accurate labels used in standard vision unimodal supervised learning. The resulting models showed capabilities of strong text-guided image generation and transfer to downstream tasks, while performing remarkably at zero-shot classification with noteworthy out-of-distribution robustness. Since then, large-scale language-vision models like ALIGN, BASIC, GLIDE, Flamingo and Imagen made further improvements. Studying the training and capabilities of such models requires datasets containing billions of image-text pairs. Until now, no datasets of this size have been made openly available for the broader research community. To address this problem and democratize research on large-scale multi-modal models, we present LAION-5B - a dataset consisting of 5.85 billion CLIP-filtered image-text pairs, of which 2.32B contain English language. We show successful replication and fine-tuning of foundational models like CLIP, GLIDE and Stable Diffusion using the dataset, and discuss further experiments enabled with an openly available dataset of this scale. Additionally we provide several nearest neighbor indices, an improved web-interface for dataset exploration and subset generation, and detection scores for watermark, NSFW, and toxic content detection. Announcement page https://laion.ai/laion-5b-a-new-era-of-open-large-scale-multi-modal-datasets/",
+          "claimed_authors": [
+            "Christoph Schuhmann",
+            "Romain Beaumont",
+            "Richard Vencu",
+            "Cade Gordon",
+            "Ross Wightman",
+            "Mehdi Cherti",
+            "Theo Coombes",
+            "Aarush Katta",
+            "Clayton Mullis",
+            "Mitchell Wortsman",
+            "Patrick Schramowski",
+            "Srivatsa Kundurthy",
+            "Katherine Crowson",
+            "Ludwig Schmidt",
+            "Robert Kaczmarczyk",
+            "Jenia Jitsev"
+          ],
+          "claimed_title": "LAION-5B: An open large-scale dataset for training next generation image-text models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2210.08402"
+        },
+        "details": "query-relevance 0.273 < 0.3 (query='Visual Generation in the New Era: An Evolution from Atomic Mapping to Agentic Wo', candidate_title='LAION-5B: An open large-scale dataset for training next generation image-text models')",
+        "failed_at": "2026-06-16T13:47:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We argue that generative text-to-image models often struggle with prompt adherence due to the noisy and unstructured nature of large-scale datasets like LAION-5B. This forces users to rely heavily on prompt engineering to elicit desirable outputs. In this work, we propose that enforcing a consistent caption structure during training can significantly improve model controllability and alignment. We introduce Re-LAION-Caption 19M, a high-quality subset of Re-LAION-5B, comprising 19 million 1024x1024 images with captions generated by a Mistral 7B Instruct-based LLaVA-Next model. Each caption follows a four-part template: subject, setting, aesthetics, and camera details. We fine-tune PixArt-$Σ$ and Stable Diffusion 2 using both structured and randomly shuffled captions, and show that structured versions consistently yield higher text-image alignment scores using visual question answering (VQA) models. The dataset is publicly available at https://huggingface.co/datasets/supermodelresearch/Re-LAION-Caption19M.",
+          "claimed_authors": [
+            "Nicholas Merchant",
+            "Haitz Sáez de Ocáriz Borde",
+            "Andrei Cristian Popescu",
+            "Carlos Garcia Jurado Suarez"
+          ],
+          "claimed_title": "Structured Captions Improve Prompt Adherence in Text-to-Image Models (Re-LAION-Caption 19M)",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2507.05300"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='Visual Generation in the New Era: An Evolution from Atomic Mapping to Agentic Wo', candidate_title='Structured Captions Improve Prompt Adherence in Text-to-Image Models (Re-LAION-Caption 19M)')",
+        "failed_at": "2026-06-16T13:47:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Neural Radiance Fields (NeRFs) encode the radiance in a scene parameterized by the scene's plenoptic function. This is achieved by using an MLP together with a mapping to a higher-dimensional space, and has been proven to capture scenes with a great level of detail. Naturally, the same parameterization can be used to encode additional properties of the scene, beyond just its radiance. A particularly interesting property in this regard is the semantic decomposition of the scene. We introduce a novel technique for semantic soft decomposition of neural radiance fields (named SSDNeRF) which jointly encodes semantic signals in combination with radiance signals of a scene. Our approach provides a soft decomposition of the scene into semantic parts, enabling us to correctly encode multiple semantic classes blending along the same direction -- an impossible feat for existing methods. Not only does this lead to a detailed, 3D semantic representation of the scene, but we also show that the regularizing effects of the MLP used for encoding help to improve the semantic representation. We show state-of-the-art segmentation and reconstruction results on a dataset of common objects and demonstrate how the proposed approach can be applied for high quality temporally consistent video editing and re-compositing on a dataset of casually captured selfie videos.",
+          "claimed_authors": [
+            "Siddhant Ranade",
+            "Christoph Lassner",
+            "Kai Li",
+            "Christian Haene",
+            "Shen-Chi Chen",
+            "Jean-Charles Bazin",
+            "Sofien Bouaziz"
+          ],
+          "claimed_title": "SSDNeRF: Semantic Soft Decomposition of Neural Radiance Fields",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2212.03406"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='Visual Generation in the New Era: An Evolution from Atomic Mapping to Agentic Wo', candidate_title='SSDNeRF: Semantic Soft Decomposition of Neural Radiance Fields')",
+        "failed_at": "2026-06-16T13:47:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The goal of this work is to perform 3D reconstruction and novel view synthesis from data captured by scanning platforms commonly deployed for world mapping in urban outdoor environments (e.g., Street View). Given a sequence of posed RGB images and lidar sweeps acquired by cameras and scanners moving through an outdoor scene, we produce a model from which 3D surfaces can be extracted and novel RGB images can be synthesized. Our approach extends Neural Radiance Fields, which has been demonstrated to synthesize realistic novel images for small scenes in controlled settings, with new methods for leveraging asynchronously captured lidar data, for addressing exposure variation between captured images, and for leveraging predicted image segmentations to supervise densities on rays pointing at the sky. Each of these three extensions provides significant performance improvements in experiments on Street View data. Our system produces state-of-the-art 3D surface reconstructions and synthesizes higher quality novel views in comparison to both traditional methods (e.g.~COLMAP) and recent neural representations (e.g.~Mip-NeRF).",
+          "claimed_authors": [
+            "Konstantinos Rematas",
+            "Andrew Liu",
+            "Pratul P. Srinivasan",
+            "Jonathan T. Barron",
+            "Andrea Tagliasacchi",
+            "Thomas Funkhouser",
+            "Vittorio Ferrari"
+          ],
+          "claimed_title": "Urban Radiance Fields",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2111.14643"
+        },
+        "details": "query-relevance 0.273 < 0.3 (query='Visual Generation in the New Era: An Evolution from Atomic Mapping to Agentic Wo', candidate_title='Urban Radiance Fields')",
+        "failed_at": "2026-06-16T13:47:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Random Neural Networks (RNNs) are a class of Neural Networks (NNs) that can also be seen as a specific type of queuing network. They have been successfully used in several domains during the last 25 years, as queuing networks to analyze the performance of resource sharing in many engineering areas, as learning tools and in combinatorial optimization, where they are seen as neural systems, and also as models of neurological aspects of living beings. In this article we focus on their learning capabilities, and more specifically, we present a practical guide for using the RNN to solve supervised learning problems. We give a general description of these models using almost indistinctly the terminology of Queuing Theory and the neural one. We present the standard learning procedures used by RNNs, adapted from similar well-established improvements in the standard NN field. We describe in particular a set of learning algorithms covering techniques based on the use of first order and, then, of second order derivatives. We also discuss some issues related to these objects and present new perspectives about their use in supervised learning problems. The tutorial describes their most relevant applications, and also provides a large bibliography.",
+          "claimed_authors": [
+            "Sebastián Basterrech",
+            "Gerardo Rubino"
+          ],
+          "claimed_title": "A Tutorial about Random Neural Networks in Supervised Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1609.04846"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='Visual Generation in the New Era: An Evolution from Atomic Mapping to Agentic Wo', candidate_title='A Tutorial about Random Neural Networks in Supervised Learning')",
+        "failed_at": "2026-06-16T13:47:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The fidelity of quantum circuits (QC) is influenced by several factors, including hardware characteristics, calibration status, and the transpilation process, all of which impact their susceptibility to noise. However, existing methods struggle to estimate and compare the noise performance of different circuit layouts due to fluctuating error rates and the absence of a standardized fidelity metric. In this work, Q-fid is introduced, a Long Short-Term Memory (LSTM) based fidelity prediction system accompanied by a novel metric designed to quantify the fidelity of quantum circuits. Q-fid provides an intuitive way to predict the noise performance of Noisy Intermediate-Scale Quantum (NISQ) circuits. This approach frames fidelity prediction as a Time Series Forecasting problem to analyze the tokenized circuits, capturing the causal dependence of the gate sequences and their impact on overall fidelity. Additionally, the model is capable of dynamically adapting to changes in hardware characteristics, ensuring accurate fidelity predictions under varying conditions. Q-fid achieves a high prediction accuracy with an average RMSE of 0.0515, up to 24.7x more accurate than the Qiskit transpile tool mapomatic. By offering a reliable method for fidelity prediction, Q-fid empowers developers to optimize transpilation strategies, leading to more efficient and noise-resilient quantum circuit implementations.",
+          "claimed_authors": [
+            "Yikai Mao",
+            "Shaswot Shresthamali",
+            "Masaaki Kondo"
+          ],
+          "claimed_title": "Q-fid: Quantum Circuit Fidelity Improvement with LSTM Networks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2303.17523"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Visual Generation in the New Era: An Evolution from Atomic Mapping to Agentic Wo', candidate_title='Q-fid: Quantum Circuit Fidelity Improvement with LSTM Networks')",
+        "failed_at": "2026-06-16T13:47:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Image captioning has conventionally relied on reference-based automatic evaluations, where machine captions are compared against captions written by humans. This is in contrast to the reference-free manner in which humans assess caption quality.\n  In this paper, we report the surprising empirical finding that CLIP (Radford et al., 2021), a cross-modal model pretrained on 400M image+caption pairs from the web, can be used for robust automatic evaluation of image captioning without the need for references. Experiments spanning several corpora demonstrate that our new reference-free metric, CLIPScore, achieves the highest correlation with human judgements, outperforming existing reference-based metrics like CIDEr and SPICE. Information gain experiments demonstrate that CLIPScore, with its tight focus on image-text compatibility, is complementary to existing reference-based metrics that emphasize text-text similarities. Thus, we also present a reference-augmented version, RefCLIPScore, which achieves even higher correlation. Beyond literal description tasks, several case studies reveal domains where CLIPScore performs well (clip-art images, alt-text rating), but also where it is relatively weaker in comparison to reference-based metrics, e.g., news captions that require richer contextual knowledge.",
+          "claimed_authors": [
+            "Jack Hessel",
+            "Ari Holtzman",
+            "Maxwell Forbes",
+            "Ronan Le Bras",
+            "Yejin Choi"
+          ],
+          "claimed_title": "CLIPScore: A Reference-free Evaluation Metric for Image Captioning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2104.08718"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='Visual Generation in the New Era: An Evolution from Atomic Mapping to Agentic Wo', candidate_title='CLIPScore: A Reference-free Evaluation Metric for Image Captioning')",
+        "failed_at": "2026-06-16T13:47:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Image quality evaluation accurately is vital in developing image stitching algorithms as it directly reflects the algorithms progress. However, commonly used objective indicators always produce inconsistent and even conflicting results with subjective indicators. To enhance the consistency between objective and subjective evaluations, this paper introduces a novel indicator the Frechet Distance for Stitched Images (SI-FID). To be specific, our training network employs the contrastive learning architecture overall. We employ data augmentation approaches that serve as noise to distort images in the training set. Both the initial and distorted training sets are then input into the pre-training model for fine-tuning. We then evaluate the altered FID after introducing interference to the test set and examine if the noise can improve the consistency between objective and subjective evaluation results. The rank correlation coefficient is utilized to measure the consistency. SI-FID is an altered FID that generates the highest rank correlation coefficient under the effect of a certain noise. The experimental results demonstrate that the rank correlation coefficient obtained by SI-FID is at least 25% higher than other objective indicators, which means achieving evaluation results closer to human subjective evaluation.",
+          "claimed_authors": [
+            "Xinrui Zhang",
+            "Shengwei Guo",
+            "Guobing Sun"
+          ],
+          "claimed_title": "SI-FID: Only One Objective Indicator for Evaluating Stitched Images",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2404.13905"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='Visual Generation in the New Era: An Evolution from Atomic Mapping to Agentic Wo', candidate_title='SI-FID: Only One Objective Indicator for Evaluating Stitched Images')",
+        "failed_at": "2026-06-16T13:47:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Reinforcement Learning (RL) is a method for learning decision-making tasks that could enable robots to learn and adapt to their situation on-line. For an RL algorithm to be practical for robotic control tasks, it must learn in very few actions, while continually taking those actions in real-time. Existing model-based RL methods learn in relatively few actions, but typically take too much time between each action for practical on-line learning. In this paper, we present a novel parallel architecture for model-based RL that runs in real-time by 1) taking advantage of sample-based approximate planning methods and 2) parallelizing the acting, model learning, and planning processes such that the acting process is sufficiently fast for typical robot control cycles. We demonstrate that algorithms using this architecture perform nearly as well as methods using the typical sequential architecture when both are given unlimited time, and greatly out-perform these methods on tasks that require real-time actions such as controlling an autonomous vehicle.",
+          "claimed_authors": [
+            "Todd Hester",
+            "Michael Quinlan",
+            "Peter Stone"
+          ],
+          "claimed_title": "A Real-Time Model-Based Reinforcement Learning Architecture for Robot Control",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1105.1749"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Visual Generation in the New Era: An Evolution from Atomic Mapping to Agentic Wo', candidate_title='A Real-Time Model-Based Reinforcement Learning Architecture for Robot Control')",
+        "failed_at": "2026-06-16T13:47:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Optimistic value estimates provide one mechanism for directed exploration in reinforcement learning (RL). The agent acts greedily with respect to an estimate of the value plus what can be seen as a value bonus. The value bonus can be learned by estimating a value function on reward bonuses, propagating local uncertainties around rewards. However, this approach only increases the value bonus for an action retroactively, after seeing a higher reward bonus from that state and action. Such an approach does not encourage the agent to visit a state and action for the first time. In this work, we introduce an algorithm for exploration called Value Bonuses with Ensemble errors (VBE), that maintains an ensemble of random action-value functions (RQFs). VBE uses the errors in the estimation of these RQFs to design value bonuses that provide first-visit optimism and deep exploration. The key idea is to design the rewards for these RQFs in such a way that the value bonus can decrease to zero. We show that VBE outperforms Bootstrap DQN and two reward bonus approaches (RND and ACB) on several classic environments used to test exploration and provide demonstrative experiments that it can scale easily to more complex environments like Atari.",
+          "claimed_authors": [
+            "Abdul Wahab",
+            "Raksha Kumaraswamy",
+            "Martha White"
+          ],
+          "claimed_title": "Value Bonuses using Ensemble Errors for Exploration in Reinforcement Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2602.12375"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Visual Generation in the New Era: An Evolution from Atomic Mapping to Agentic Wo', candidate_title='Value Bonuses using Ensemble Errors for Exploration in Reinforcement Learning')",
+        "failed_at": "2026-06-16T13:47:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Learning in multi-agent systems is highly challenging due to several factors including the non-stationarity introduced by agents' interactions and the combinatorial nature of their state and action spaces. In particular, we consider the Mean-Field Control (MFC) problem which assumes an asymptotically infinite population of identical agents that aim to collaboratively maximize the collective reward. In many cases, solutions of an MFC problem are good approximations for large systems, hence, efficient learning for MFC is valuable for the analogous discrete agent setting with many agents. Specifically, we focus on the case of unknown system dynamics where the goal is to simultaneously optimize for the rewards and learn from experience. We propose an efficient model-based reinforcement learning algorithm, $M^3-UCRL$, that runs in episodes, balances between exploration and exploitation during policy learning, and provably solves this problem. Our main theoretical contributions are the first general regret bounds for model-based reinforcement learning for MFC, obtained via a novel mean-field type analysis. To learn the system's dynamics, $M^3-UCRL$ can be instantiated with various statistical models, e.g., neural networks or Gaussian Processes. Moreover, we provide a practical parametrization of the core optimization problem that facilitates gradient-based optimization techniques when combined with differentiable dynamics approximation methods such as neural networks.",
+          "claimed_authors": [
+            "Barna Pásztor",
+            "Ilija Bogunovic",
+            "Andreas Krause"
+          ],
+          "claimed_title": "Efficient Model-Based Multi-Agent Mean-Field Reinforcement Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2107.04050"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Visual Generation in the New Era: An Evolution from Atomic Mapping to Agentic Wo', candidate_title='Efficient Model-Based Multi-Agent Mean-Field Reinforcement Learning')",
+        "failed_at": "2026-06-16T13:47:15Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Keming Wu",
+            "Zuhao Yang",
+            "Kaichen Zhang",
+            "Shizun Wang",
+            "Haowei Zhu",
+            "Sicong Leng",
+            "Zhongyu Yang",
+            "Qijie Wang",
+            "Sudong Wang",
+            "Ziting Wang",
+            "Zili Wang",
+            "Hui Zhang",
+            "Haonan Wang",
+            "Hang Zhou",
+            "Yifan Pu",
+            "Xingxuan Li",
+            "Fangneng Zhan",
+            "Bo Li",
+            "Lidong Bing",
+            "Yuxin Song",
+            "Ziwei Liu",
+            "Wenhu Chen",
+            "Jingdong Wang",
+            "Xinchao Wang",
+            "Xiaojuan Qi",
+            "Shijian Lu",
+            "Bin Wang"
+          ],
+          "title": "Visual Generation in the New Era: An Evolution from Atomic Mapping to Agentic World Modeling",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2604.28185",
+        "summary": "Recent visual generation models have made major progress in photorealism, typography, instruction following, and interactive editing, yet they still struggle with spatial reasoning, persistent state, long-horizon consistency, and causal understanding. We argue that the field should move beyond appearance synthesis toward intelligent visual generation: plausible visuals grounded in structure, dynamics, domain knowledge, and causal relations. To frame this shift, we introduce a five-level taxonomy: Atomic Generation, Conditional Generation, In-Context Generation, Agentic Generation, and World-Modeling Generation, progressing from passive renderers to interactive, agentic, world-aware generators. We analyze key technical drivers, including flow matching, unified understanding-and-generation models, improved visual representations, post-training, reward modeling, data curation, synthetic data distillation, and sampling acceleration. We further show that current evaluations often overestimate progress by emphasizing perceptual quality while missing structural, temporal, and causal failures. By combining benchmark review, in-the-wild stress tests, and expert-constrained case studies, this roadmap offers a capability-centered lens for understanding, evaluating, and advancing the next generation of intelligent visual generation systems.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2604.28185",
+          "http_status": 200,
+          "pdf_sample_score": 0.2962,
+          "query_relevance_score": 0.9091,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-16T13:47:13Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Jialong Wu",
+            "Xiaoying Zhang",
+            "Hongyi Yuan",
+            "Xiangcheng Zhang",
+            "Tianhao Huang",
+            "Changjing He",
+            "Chaoyi Deng",
+            "Renrui Zhang",
+            "Youbin Wu",
+            "Mingsheng Long"
+          ],
+          "title": "Visual Generation Unlocks Human-Like Reasoning through Multimodal World Models",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2601.19834",
+        "summary": "Humans construct internal world models and reason by manipulating the concepts within these models. Recent advances in AI, particularly chain-of-thought (CoT) reasoning, approximate such human cognitive abilities, where world models are believed to be embedded within large language models. Expert-level performance in formal and abstract domains such as mathematics and programming has been achieved in current systems by relying predominantly on verbal reasoning. However, they still lag far behind humans in domains like physical and spatial intelligence, which require richer representations and prior knowledge. The emergence of unified multimodal models (UMMs) capable of both verbal and visual generation has therefore sparked interest in more human-like reasoning grounded in complementary multimodal pathways, though their benefits remain unclear. From a world-model perspective, this paper presents the first principled study of when and how visual generation benefits reasoning. Our key position is the visual superiority hypothesis: for certain tasks--particularly those grounded in the physical world--visual generation more naturally serves as world models, whereas purely verbal world models encounter bottlenecks arising from representational limitations or insufficient prior knowledge. Theoretically, we formalize internal world modeling as a core component of CoT reasoning and analyze distinctions among different forms of world models. Empirically, we identify tasks that necessitate interleaved visual-verbal CoT reasoning, constructing a new evaluation suite, VisWorld-Eval. Controlled experiments on a state-of-the-art UMM show that interleaved CoT significantly outperforms purely verbal CoT on tasks that favor visual world modeling, but offers no clear advantage otherwise. Together, this work clarifies the potential of multimodal world modeling for more powerful, human-like multimodal AI.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2601.19834",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4545,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-16T13:47:14Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Jingtong Yue",
+            "Ziqi Huang",
+            "Zhaoxi Chen",
+            "Xintao Wang",
+            "Pengfei Wan",
+            "Ziwei Liu"
+          ],
+          "title": "Simulating the Visual World with Artificial Intelligence: A Roadmap",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2511.08585",
+        "summary": "The landscape of video generation is shifting, from a focus on generating visually appealing clips to building virtual environments that support interaction and maintain physical plausibility. These developments point toward the emergence of video foundation models that function not only as visual generators but also as implicit world models, models that simulate the physical dynamics, agent-environment interactions, and task planning that govern real or imagined worlds. This survey provides a systematic overview of this evolution, conceptualizing modern video foundation models as the combination of two core components: an implicit world model and a video renderer. The world model encodes structured knowledge about the world, including physical laws, interaction dynamics, and agent behavior. It serves as a latent simulation engine that enables coherent visual reasoning, long-term temporal consistency, and goal-driven planning. The video renderer transforms this latent simulation into realistic visual observations, effectively producing videos as a \"window\" into the simulated world. We trace the progression of video generation through four generations, in which the core capabilities advance step by step, ultimately culminating in a world model, built upon a video generation model, that embodies intrinsic physical plausibility, real-time multimodal interaction, and planning capabilities spanning multiple spatiotemporal scales. For each generation, we define its core characteristics, highlight representative works, and examine their application domains such as robotics, autonomous driving, and interactive gaming. Finally, we discuss open challenges and design principles for next-generation world models, including the role of agent intelligence in shaping and evaluating these systems. An up-to-date list of related works is maintained at this link.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2511.08585",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3636,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-16T13:47:14Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Ziyu Liu",
+            "Yuhang Zang",
+            "Yushan Zou",
+            "Zijian Liang",
+            "Xiaoyi Dong",
+            "Yuhang Cao",
+            "Haodong Duan",
+            "Dahua Lin",
+            "Jiaqi Wang"
+          ],
+          "title": "Visual Agentic Reinforcement Fine-Tuning",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2505.14246",
+        "summary": "A key trend in Large Reasoning Models (e.g., OpenAI's o3) is the native agentic ability to use external tools such as web browsers for searching and writing/executing code for image manipulation to think with images. In the open-source research community, while significant progress has been made in language-only agentic abilities such as function calling and tool integration, the development of multi-modal agentic capabilities that involve truly thinking with images, and their corresponding benchmarks, are still less explored. This work highlights the effectiveness of Visual Agentic Reinforcement Fine-Tuning (Visual-ARFT) for enabling flexible and adaptive reasoning abilities for Large Vision-Language Models (LVLMs). With Visual-ARFT, open-source LVLMs gain the ability to browse websites for real-time information updates and write code to manipulate and analyze input images through cropping, rotation, and other image processing techniques. We also present a Multi-modal Agentic Tool Bench (MAT) with two settings (MAT-Search and MAT-Coding) designed to evaluate LVLMs' agentic search and coding abilities. Our experimental results demonstrate that Visual-ARFT outperforms its baseline by +18.6% F1 / +13.0% EM on MAT-Coding and +10.3% F1 / +8.7% EM on MAT-Search, ultimately surpassing GPT-4o. Visual-ARFT also achieves +29.3 F1% / +25.9% EM gains on existing multi-hop QA benchmarks such as 2Wiki and HotpotQA, demonstrating strong generalization capabilities. Our findings suggest that Visual-ARFT offers a promising path toward building robust and generalizable multimodal agents.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2505.14246",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-16T13:47:18Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Jiahan Zhang",
+            "Muqing Jiang",
+            "Nanru Dai",
+            "Taiming Lu",
+            "Arda Uzunoglu",
+            "Shunchi Zhang",
+            "Yana Wei",
+            "Jiahao Wang",
+            "Vishal M. Patel",
+            "Paul Pu Liang",
+            "Daniel Khashabi",
+            "Cheng Peng",
+            "Rama Chellappa",
+            "Tianmin Shu",
+            "Alan Yuille",
+            "Yilun Du",
+            "Jieneng Chen"
+          ],
+          "title": "World-in-World: World Models in a Closed-Loop World",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2510.18135",
+        "summary": "Generative world models (WMs) can now simulate worlds with striking visual realism, which naturally raises the question of whether they can endow embodied agents with predictive perception for decision making. Progress on this question has been limited by fragmented evaluation: most existing benchmarks adopt open-loop protocols that emphasize visual quality in isolation, leaving the core issue of embodied utility unresolved, i.e., do WMs actually help agents succeed at embodied tasks? To address this gap, we introduce World-in-World, the first open platform that benchmarks WMs in a closed-loop world that mirrors real agent-environment interactions. World-in-World provides a unified online planning strategy and a standardized action API, enabling heterogeneous WMs for decision making. We curate four closed-loop environments that rigorously evaluate diverse WMs, prioritize task success as the primary metric, and move beyond the common focus on visual quality; we also present the first data scaling law for world models in embodied settings. Our study uncovers three surprises: (1) visual quality alone does not guarantee task success, controllability matters more; (2) scaling post-training with action-observation data is more effective than upgrading the pretrained video generators; and (3) allocating more inference-time compute allows WMs to substantially improve closed-loop performance.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2510.18135",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-16T13:47:19Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "visual generation in the new era: an evolution from atomic mapping to agentic world modeling other",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

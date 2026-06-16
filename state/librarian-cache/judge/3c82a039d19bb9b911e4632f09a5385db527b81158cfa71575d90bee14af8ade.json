@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2505.14246",
+  "judged_at": "2026-06-16T13:47:28Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "visual generation in the new era: an evolution from atomic mapping to agentic world modeling other",
+  "rationale": "The paper studies visual‑agentic capabilities (agentic world modeling) for large vision‑language models, directly addressing the “agentic” aspect of the user’s question about the evolution toward agentic world modeling (acceptance category (a)).",
+  "relevant": true
+}

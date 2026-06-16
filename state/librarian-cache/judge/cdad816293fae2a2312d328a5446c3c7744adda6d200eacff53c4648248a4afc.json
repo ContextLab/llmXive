@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2511.08585",
+  "judged_at": "2026-06-16T13:47:24Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "visual generation in the new era: an evolution from atomic mapping to agentic world modeling other",
+  "rationale": "The paper surveys the evolution of video/visual generation toward implicit world models and agentic interaction, directly covering the same mechanisms and conceptual progression (from atomic mapping to agentic world modeling) that the user’s question concerns, serving as a canonical reference for this research area. (Categories a and d).",
+  "relevant": true
+}

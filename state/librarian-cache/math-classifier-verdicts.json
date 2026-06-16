@@ -71,6 +71,10 @@
     "classified_at": "2026-06-04T03:26:42Z",
     "verdict": false
   },
+  "PROJ-572-https-arxiv-org-abs-2604-28185::1.6.0": {
+    "classified_at": "2026-06-16T13:47:13Z",
+    "verdict": false
+  },
   "PROJ-573-https-arxiv-org-abs-2604-27351::1.6.0": {
     "classified_at": "2026-06-07T09:21:23Z",
     "verdict": false
@@ -201,6 +205,10 @@
   },
   "PROJ-684-latent-spatial-memory-for-video-world-mo::1.6.0": {
     "classified_at": "2026-06-15T00:46:48Z",
+    "verdict": false
+  },
+  "PROJ-685-latentskill-from-in-context-textual-skil::1.6.0": {
+    "classified_at": "2026-06-16T13:46:14Z",
     "verdict": false
   }
 }

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2606.06087",
+  "judged_at": "2026-06-16T13:46:18Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "latentskill: from in-context textual skills to in-weight latent skills for llm agents linguistics",
+  "rationale": "The paper studies exactly the mechanism the user’s question concerns—converting in‑context textual skills into weight‑space (LoRA) latent skills for LLM agents—fulfilling criterion (a) same‑mechanism evidence (and also serves as the canonical reference for this methodology).",
+  "relevant": true
+}

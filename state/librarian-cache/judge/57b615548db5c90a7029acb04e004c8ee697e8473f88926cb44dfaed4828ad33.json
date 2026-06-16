@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2602.12430",
+  "judged_at": "2026-06-16T13:46:28Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "latentskill: from in-context textual skills to in-weight latent skills for llm agents linguistics",
+  "rationale": "The paper surveys external, modular “agent skills” that are loaded at inference time and does not investigate or measure the in‑weight latent skill representations the user’s question concerns, nor does it provide a baseline, methodology, or canonical study of that mechanism. Hence it does not meet any inclusion criteria (a‑f).",
+  "relevant": false
+}

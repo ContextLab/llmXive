@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2604.28185",
+  "judged_at": "2026-06-16T13:47:21Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "visual generation in the new era: an evolution from atomic mapping to agentic world modeling other",
+  "rationale": "The paper directly examines the evolution of visual generation models, proposing a taxonomy (Atomic to Agentic to World‑Modeling) that matches the user's focus on “visual generation… from atomic mapping to agentic world modeling,” satisfying same‑mechanism evidence (a) and serving as a canonical reference for this research area.",
+  "relevant": true
+}

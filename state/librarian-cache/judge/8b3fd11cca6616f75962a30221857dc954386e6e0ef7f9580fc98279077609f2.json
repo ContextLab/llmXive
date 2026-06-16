@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2603.18743",
+  "judged_at": "2026-06-16T13:46:23Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "latentskill: from in-context textual skills to in-weight latent skills for llm agents linguistics",
+  "rationale": "The paper studies external, markdown‑based skill libraries and a memory‑based RL framework for agents that design other agents, without addressing how textual skills are encoded as latent, in‑weight representations within LLMs. It therefore does not provide evidence, variables, baselines, or methodology directly relevant to the “latent skill” mechanism the user’s question targets.",
+  "relevant": false
+}
