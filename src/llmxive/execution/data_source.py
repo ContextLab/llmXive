@@ -214,8 +214,41 @@ def render_feedback_block(record: dict | None) -> str:
     return "\n".join(lines)
 
 
+def ensure_source_in_requirements(project_dir: Path) -> bool:
+    """Add the cached VERIFIED data-source package to ``code/requirements.txt``.
+
+    The implementer is told (via the feedback block) to add the package, but it
+    often updates the loader's ``import`` without touching requirements.txt — so
+    the per-project venv lacks the package and the loader dies with
+    ModuleNotFoundError. Since discovery already PROVED ``pip install <ref>``
+    works, the execution stage guarantees the dependency is declared (the normal
+    ``sandbox.ensure_venv`` path then installs it on the next run, and it's
+    persisted for reproducibility). Returns True iff the file was modified.
+    """
+    rec = load_cached_source(project_dir)
+    if not rec or rec.get("status") != "verified" or rec.get("kind") != "pypi_package":
+        return False
+    ref = str(rec.get("ref") or "").strip()
+    if not ref:
+        return False
+    req = project_dir / "code" / "requirements.txt"
+    existing = req.read_text(encoding="utf-8") if req.is_file() else ""
+    # Already declared (bare name match, ignoring version specifiers)?
+    bare = re.split(r"[<>=!~\[ ]", ref, maxsplit=1)[0].lower()
+    for line in existing.splitlines():
+        if re.split(r"[<>=!~\[ ]", line.strip(), maxsplit=1)[0].lower() == bare:
+            return False
+    req.parent.mkdir(parents=True, exist_ok=True)
+    sep = "" if existing.endswith("\n") or not existing else "\n"
+    addition = f"{sep}{ref}  # auto-added: verified real data source (discovery)\n"
+    req.write_text(existing + addition, encoding="utf-8")
+    logger.info("added discovered data source %r to %s", ref, req)
+    return True
+
+
 __all__ = [
     "ensure_discovered_source",
+    "ensure_source_in_requirements",
     "load_cached_source",
     "project_data_intent",
     "render_feedback_block",

@@ -41,6 +41,18 @@ def execute_and_gate(project_dir: Path, *, repo_root: Path | None = None) -> boo
     project_id = project_dir.name
     repo = repo_root or project_dir.parent.parent
 
+    # If a verified real data source was discovered, GUARANTEE its package is
+    # declared so the per-project venv installs it (the implementer wires the
+    # `import` but often forgets requirements.txt → ModuleNotFoundError). Safe:
+    # discovery already proved `pip install <ref>` works.
+    try:
+        from llmxive.execution.data_source import ensure_source_in_requirements
+
+        if ensure_source_in_requirements(project_dir):
+            logger.info("declared discovered data-source package in requirements.txt")
+    except Exception as exc:  # never block execution on this best-effort step
+        logger.warning("ensure_source_in_requirements skipped: %s", exc)
+
     res = run_analysis(project_dir)
     failures = [
         f"{r.command} -> rc={r.returncode}"
