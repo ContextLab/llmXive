@@ -1,11 +1,7 @@
-last_used: albert-einstein
-last_used_at: '2026-06-16T17:16:43.835537+00:00'
-last_outcome: triage_rejected_advanced_as_abstain
+last_used: dan-rockmore
+last_used_at: '2026-06-16T18:50:36.550638+00:00'
+last_outcome: committed
 history:
-- slug: marie-curie
-  started_at: '2026-06-06T01:42:45.081419+00:00'
-  ended_at: '2026-06-06T03:06:02.200032+00:00'
-  outcome: model_error
 - slug: marie-curie
   started_at: '2026-06-06T03:06:02.200032+00:00'
   ended_at: '2026-06-06T04:48:59.612625+00:00'
@@ -1126,3 +1122,10 @@ history:
   ended_at: '2026-06-16T17:16:43.835537+00:00'
   outcome: triage_rejected_advanced_as_abstain
   action: comment
+- slug: dan-rockmore
+  started_at: '2026-06-16T17:16:43.835537+00:00'
+  ended_at: '2026-06-16T18:50:36.550638+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-473-the-impact-of-narrative-perspective-on-e/reviews/research/dan-rockmore-simulated__2026-06-16__research.md
