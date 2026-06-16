@@ -42,11 +42,26 @@ def make_backend(name: str) -> BaseBackend:
 # outage but other models on the same backend are healthy.
 MODEL_FALLBACKS: dict[str, list[str]] = {
     # gpt-oss-120b is the capable free reasoning model on the Dartmouth catalog
-    # (the qwen.* and gemma.* families were retired 2026-06). If its vLLM is out,
-    # fall through to the smaller free llama-3.2-11b before the next backend.
-    # Both are free (cost-per-token == 0) per chat.dartmouth.edu/api/models.
-    "openai.gpt-oss-120b": ["meta.llama-3.2-11b-vision-instruct"],
+    # (the qwen.* and gemma.* families were retired/down 2026-06). If its vLLM is
+    # out, fall through to:
+    #   1. claude-haiku-4.5 — a CAPABLE *paid* model (cost ~29 credits/call,
+    #      ~$0.029), tried FIRST so a gpt-oss outage degrades to a real model
+    #      rather than weak llama. It is GUARDED: dartmouth.chat() raises
+    #      PermanentBackendError unless LLMXIVE_PAID_OPT_IN is set AND the daily
+    #      credit budget has headroom; the router treats that peer-permanent as
+    #      "skip to next peer", so with opt-in OFF this entry is a silent no-op.
+    #   2. llama-3.2-11b — the free last resort (always available, but weak).
+    "openai.gpt-oss-120b": [
+        "anthropic.claude-haiku-4-5-20251001",
+        "meta.llama-3.2-11b-vision-instruct",
+    ],
 }
+
+#: Sanctioned PAID models permitted in MODEL_FALLBACKS as guarded fallbacks
+#: (Constitution IV stays satisfied: each is gated by the paid opt-in + daily
+#: credit-budget guard in ``backends/credits.py``, so it costs $0 and is off by
+#: default). Distinct from KNOWN_FREE_MODELS, which are unconditionally free.
+PAID_FALLBACK_MODELS: frozenset[str] = frozenset({"anthropic.claude-haiku-4-5-20251001"})
 
 # ---------------------------------------------------------------------------
 # Reasoning-safe token budgets — the SINGLE source of truth (was duplicated as

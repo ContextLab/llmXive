@@ -75,10 +75,20 @@ def test_registry_models_are_free_unless_paid_opt_in():
 
 
 def test_model_fallback_chains_are_free():
+    # Every fallback model is EITHER unconditionally free OR a sanctioned paid
+    # fallback gated by the paid opt-in + credit-budget guard (Constitution IV
+    # stays satisfied — guarded paid calls cost $0 and are off by default).
+    from llmxive.backends.router import PAID_FALLBACK_MODELS
+    allowed = KNOWN_FREE_MODELS | PAID_FALLBACK_MODELS
     for primary, peers in MODEL_FALLBACKS.items():
-        for model in [primary, *peers]:
-            assert model in KNOWN_FREE_MODELS, (
-                f"MODEL_FALLBACKS references non-free model {model!r}"
+        # The PRIMARY of a chain must always be free (it's an agent's default
+        # model); only PEER fallbacks may be a guarded paid model.
+        assert primary in KNOWN_FREE_MODELS, (
+            f"MODEL_FALLBACKS primary {primary!r} is not free"
+        )
+        for model in peers:
+            assert model in allowed, (
+                f"MODEL_FALLBACKS references non-free, non-sanctioned model {model!r}"
             )
 
 

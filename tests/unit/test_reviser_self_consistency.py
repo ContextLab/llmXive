@@ -22,7 +22,11 @@ import json
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from llmxive.backends.base import ChatResponse, TransientBackendError
+from llmxive.backends.base import (
+    ChatResponse,
+    PermanentBackendError,
+    TransientBackendError,
+)
 from llmxive.convergence.revisers._self_consistency import (
     SelfConsistencyResult,
     invoke_reviser_backend,
@@ -435,6 +439,11 @@ class _ModelFallbackBackend:
         self.calls.append({"model": model, "max_tokens": max_tokens})
         if model in self.transient_models:
             raise TransientBackendError(f"reasoning budget exhausted on {model}")
+        if model not in self.replies:
+            # The guarded paid peer (claude-haiku-4.5) with opt-in off is refused
+            # by dartmouth.chat with PermanentBackendError; the router skips it to
+            # the next (free) peer. Model it so the walk reaches the free peer.
+            raise PermanentBackendError(f"{model} not available in this fixture")
         return ChatResponse(text=self.replies[model], model=model, backend="dartmouth")
 
 

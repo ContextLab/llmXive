@@ -12,7 +12,11 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from llmxive.backends.base import ChatResponse, TransientBackendError
+from llmxive.backends.base import (
+    ChatResponse,
+    PermanentBackendError,
+    TransientBackendError,
+)
 from llmxive.convergence.llm_reviewer import LLMReviewer
 
 _REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -53,6 +57,12 @@ class _ModelRoutingBackend:
         self.calls.append({"model": model, "max_tokens": max_tokens})
         if model in self.transient_models:
             raise TransientBackendError(f"reasoning budget exhausted on {model}")
+        if model not in self.replies:
+            # A model not configured in this fixture — e.g. the GUARDED paid peer
+            # (claude-haiku-4.5) which, with LLMXIVE_PAID_OPT_IN off, dartmouth.chat
+            # refuses with PermanentBackendError. The router treats a peer-permanent
+            # as "skip to the next peer", so the walk continues to the free peer.
+            raise PermanentBackendError(f"{model} not available in this fixture")
         return ChatResponse(
             text=self.replies[model], model=model, backend="dartmouth"
         )
