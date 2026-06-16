@@ -1,12 +1,7 @@
-last_used: daniel-kahneman
-last_used_at: '2026-06-16T20:05:20.136207+00:00'
-last_outcome: triage_rejected_advanced_as_abstain
+last_used: david-krakauer
+last_used_at: '2026-06-16T22:22:15.810867+00:00'
+last_outcome: committed
 history:
-- slug: richard-feynman
-  started_at: '2026-06-06T04:48:59.612625+00:00'
-  ended_at: '2026-06-06T06:17:04.590144+00:00'
-  outcome: triage_rejected_advanced_as_abstain
-  action: comment
 - slug: rosalind-franklin
   started_at: '2026-06-06T06:17:04.590144+00:00'
   ended_at: '2026-06-06T07:34:06.823720+00:00'
@@ -1127,3 +1122,10 @@ history:
   ended_at: '2026-06-16T20:05:20.136207+00:00'
   outcome: triage_rejected_advanced_as_abstain
   action: comment
+- slug: david-krakauer
+  started_at: '2026-06-16T20:05:20.136207+00:00'
+  ended_at: '2026-06-16T22:22:15.810867+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-070-quantifying-the-information-content-of-q/reviews/research/david-krakauer-simulated__2026-06-16__research.md
