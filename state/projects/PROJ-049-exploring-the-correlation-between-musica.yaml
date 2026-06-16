@@ -1,17 +1,18 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-04-30T18:40:38.670156Z'
-current_stage: flesh_out_complete
+current_stage: validated
 failed_stage: null
 field: psychology
 human_escalation_reason: null
 id: PROJ-049-exploring-the-correlation-between-musica
-last_run_id: 91e67f5f-703e-40e7-a71d-492b9c526c9b
+last_run_id: 87767cbf-2082-4561-a08d-85dfb1045c84
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
+revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: Exploring the Correlation Between Musical Preference and Personality Traits
-updated_at: '2026-04-30T18:41:23.714429Z'
+updated_at: '2026-06-16T05:31:45.510037Z'
