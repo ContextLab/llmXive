@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-04T09:22:17.540015Z'
-current_stage: flesh_out_complete
+current_stage: validated
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-659-trust-region-on-policy-distillation
-last_run_id: 900ebe17-a2ae-4de7-bb78-f0d9ed22dc42
+last_run_id: fe9b9d71-e73f-40de-aebd-21e7e993c49b
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: Trust Region On-Policy Distillation
-updated_at: '2026-06-16T08:22:43.258652Z'
+updated_at: '2026-06-16T09:36:50.693383Z'
