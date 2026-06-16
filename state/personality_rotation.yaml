@@ -1,12 +1,7 @@
 last_used: ada-lovelace
-last_used_at: '2026-06-16T09:19:20.453100+00:00'
-last_outcome: triage_rejected_advanced_as_abstain
+last_used_at: '2026-06-16T11:16:45.912756+00:00'
+last_outcome: librarian_held
 history:
-- slug: linus-pauling
-  started_at: '2026-06-05T22:01:57.242263+00:00'
-  ended_at: '2026-06-05T22:35:38.119036+00:00'
-  outcome: triage_rejected_advanced_as_abstain
-  action: comment
 - slug: marie-curie
   started_at: '2026-06-05T22:35:38.119036+00:00'
   ended_at: '2026-06-05T23:30:40.993522+00:00'
@@ -1119,3 +1114,10 @@ history:
   ended_at: '2026-06-16T09:19:20.453100+00:00'
   outcome: triage_rejected_advanced_as_abstain
   action: comment
+- slug: alan-turing
+  started_at: '2026-06-16T09:19:20.453100+00:00'
+  ended_at: '2026-06-16T11:16:45.912756+00:00'
+  outcome: librarian_held
+  action: comment
+  committed_paths:
+  - projects/PROJ-618-bench-evaluating-proactive-personal-assi/reviews/research/_held/alan-turing-simulated__2026-06-16__research.md
