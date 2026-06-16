@@ -2,7 +2,7 @@
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 6 run-book script(s) missing (plan/impl path mismatch): python code/data/filter_hyperbolic.py; python code/analysis/validate_completeness.py; python code/analysis/correlation.py; 7 command(s) failed: python -c "from code.reproducibility.logs import get_logger; logger = get_logger(); logger.log('test', 'verification')" (rc=1); python code/analysis/precision.py (rc=1); python code/analysis/exploratory.py (rc=1); 4 declared deliverable(s) absent: data/plots/complexity_visualization_examples.png; data/plots/crossing_vs_braid.png; data/processed/knots_cleaned.csv
+**Summary**: 3 run-book script(s) missing (plan/impl path mismatch): python code/analysis/validate_completeness.py; python code/analysis/correlation.py; python code/analysis/group_comparison.py; 8 command(s) failed: python code/filter/hyperbolic_filter.py (rc=1); python code/analysis/precision.py (rc=1); python code/analysis/exploratory.py (rc=1); 4 declared deliverable(s) absent: data/plots/complexity_visualization_examples.png; data/plots/crossing_vs_braid.png; data/processed/knots_cleaned.csv
 
 ## Failing / missing run-book commands
 
@@ -10,8 +10,13 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
     Traceback (most recent call last):
   File "<string>", line 1, in <module>
 ModuleNotFoundError: No module named 'code.reproducibility'; 'code' is not a package
-- python code/data/filter_hyperbolic.py -> rc=2 [script missing]
-    /opt/homebrew/Cellar/python@3.11/3.11.12/Frameworks/Python.framework/Versions/3.11/Resources/Python.app/Contents/MacOS/Python: can't open file '/Users/jmanning/llmXive/projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/code/data/filter_hyperbolic.py': [Errno 2] No such file or directory
+- python code/filter/hyperbolic_filter.py -> rc=1
+    :
+  File "/Users/jmanning/llmXive/projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/code/filter/hyperbolic_filter.py", line 282, in <module>
+    main()
+  File "/Users/jmanning/llmXive/projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/code/filter/hyperbolic_filter.py", line 225, in main
+    log_operation(
+TypeError: log_operation() got an unexpected keyword argument 'output_files'
 - python code/analysis/validate_completeness.py -> rc=2 [script missing]
     /opt/homebrew/Cellar/python@3.11/3.11.12/Frameworks/Python.framework/Versions/3.11/Resources/Python.app/Contents/MacOS/Python: can't open file '/Users/jmanning/llmXive/projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/code/analysis/validate_completeness.py': [Errno 2] No such file or directory
 - python code/analysis/precision.py -> rc=1
@@ -50,10 +55,14 @@ TypeError: 'LogEntry' object is not callable
     /opt/homebrew/Cellar/python@3.11/3.11.12/Frameworks/Python.framework/Versions/3.11/Resources/Python.app/Contents/MacOS/Python: can't open file '/Users/jmanning/llmXive/projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/code/analysis/correlation.py': [Errno 2] No such file or directory
 - python code/analysis/group_comparison.py -> rc=2 [script missing]
     /opt/homebrew/Cellar/python@3.11/3.11.12/Frameworks/Python.framework/Versions/3.11/Resources/Python.app/Contents/MacOS/Python: can't open file '/Users/jmanning/llmXive/projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/code/analysis/group_comparison.py': [Errno 2] No such file or directory
-- python code/reproducibility/checksums.py -> rc=2 [script missing]
-    /opt/homebrew/Cellar/python@3.11/3.11.12/Frameworks/Python.framework/Versions/3.11/Resources/Python.app/Contents/MacOS/Python: can't open file '/Users/jmanning/llmXive/projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/code/reproducibility/checksums.py': [Errno 2] No such file or directory
-- python code/reproducibility/validation_status.py -> rc=2 [script missing]
-    /opt/homebrew/Cellar/python@3.11/3.11.12/Frameworks/Python.framework/Versions/3.11/Resources/Python.app/Contents/MacOS/Python: can't open file '/Users/jmanning/llmXive/projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/code/reproducibility/validation_status.py': [Errno 2] No such file or directory
+- python code/reproducibility/checksums.py -> rc=1
+    -diagr/code/reproducibility/checksums.py", line 337, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/Users/jmanning/llmXive/projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/code/reproducibility/checksums.py", line 267, in main
+    logger.info("Starting checksum generation for data files")
+    ^^^^^^^^^^^
+AttributeError: 'ReproducibilityLogger' object has no attribute 'info'
 - python code/reproducibility/quickstart_validator.py -> rc=1
     xity-of-knot-diagr/code/reproducibility/quickstart_validator.py", line 643, in main
     result = validator.validate()

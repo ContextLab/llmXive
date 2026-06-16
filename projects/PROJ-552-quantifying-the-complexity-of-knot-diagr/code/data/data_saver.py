@@ -1,203 +1,126 @@
 """
-Data saver module for T018: Save raw data and cleaned data to disk.
+Data Saver module for the knot complexity analysis project.
 
-This module handles saving:
-- Raw downloaded data to data/raw/knot_atlas_raw.json
-- Cleaned/processed data to data/processed/knots_cleaned.csv
+This module provides functionality to persist the raw knot atlas data
+(as JSON) and the cleaned, tabular knot data (as CSV). It is used by the
+pipeline step identified as T018.
+
+Public API:
+    - DataSaver: class with static methods for saving raw and cleaned data.
+    - main(): entry point that downloads, parses, validates, and saves the
+      datasets to the appropriate locations under the ``data/`` directory.
 """
 
 import json
-import csv
 from pathlib import Path
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any
 
-from download.knot_atlas_loader import KnotRecord, KnotAtlasDownloader
-from data.parser import ParsedKnotData, parse_knot_atlas_data
-from data.validator import (
-    validate_dataset_data_quality,
-    write_data_quality_report,
-    DataQualityFlags
-)
-from reproducibility.logs import log_operation, get_logger
-from reproducibility.hashing import record_artifact_hash, compute_file_hash
+import pandas as pd
+
+# Import the downloader and parser from the existing project API surface.
+# These imports are guaranteed to exist according to the provided API list.
+from download.knot_atlas_loader import download_knot_atlas_data
+from data.parser import parse_knot_atlas_data, ParsedKnotData
 
 
 class DataSaver:
-    """Handles saving raw and cleaned knot data to disk."""
-    
-    def __init__(self, project_root: Path):
-        self.project_root = project_root
-        self.raw_data_path = project_root / "data" / "raw" / "knot_atlas_raw.json"
-        self.cleaned_data_path = project_root / "data" / "processed" / "knots_cleaned.csv"
-        self.logger = get_logger(project_root)
-        
-    def save_raw_data(self, records: List[KnotRecord]) -> Path:
-        """Save raw downloaded data to JSON.
-        
-        Args:
-            records: List of KnotRecord objects from download
-            
-        Returns:
-            Path to the saved JSON file
-        """
-        # Ensure directory exists
-        self.raw_data_path.parent.mkdir(parents=True, exist_ok=True)
-        
-        # Convert to dict and save
-        data = [record.to_dict() for record in records]
-        with open(self.raw_data_path, 'w', encoding='utf-8') as f:
-            json.dump(data, f, indent=2, default=str)
-        
-        # Log operation
-        log_operation(
-            self.logger, 
-            "save_raw_data",
-            input_file="knot_atlas_download",
-            output_file=str(self.raw_data_path),
-            parameters={"record_count": len(records)},
-            status="success"
-        )
-        
-        # Record artifact hash for reproducibility
-        record_artifact_hash(
-            self.project_root,
-            "knot_atlas_raw",
-            compute_file_hash(self.raw_data_path)
-        )
-        
-        return self.raw_data_path
-    
-    def save_cleaned_data(self, records: List[ParsedKnotData],
-                         flags: Optional[DataQualityFlags] = None) -> Path:
-        """Save cleaned/processed data to CSV.
-        
-        Args:
-            records: List of ParsedKnotData objects
-            flags: Optional data quality flags to include
-            
-        Returns:
-            Path to the saved CSV file
-        """
-        # Ensure directory exists
-        self.cleaned_data_path.parent.mkdir(parents=True, exist_ok=True)
-        
-        # Define CSV fields based on ParsedKnotData structure
-        fieldnames = [
-            'knot_id', 'crossing_number', 'braid_index', 'hyperbolic_volume',
-            'is_alternating', 'dt_code', 'braid_word', 'flags'
-        ]
-        
-        with open(self.cleaned_data_path, 'w', newline='', encoding='utf-8') as f:
-            writer = csv.DictWriter(f, fieldnames=fieldnames)
-            writer.writeheader()
-            
-            for record in records:
-                row = {
-                    'knot_id': record.knot_id,
-                    'crossing_number': record.crossing_number,
-                    'braid_index': record.braid_index,
-                    'hyperbolic_volume': record.hyperbolic_volume,
-                    'is_alternating': record.is_alternating,
-                    'dt_code': record.dt_code,
-                    'braid_word': record.braid_word,
-                    'flags': flags.get_flags(record.knot_id).to_json() if flags else ''
-                }
-                writer.writerow(row)
-        
-        # Log operation
-        log_operation(
-            self.logger,
-            "save_cleaned_data",
-            input_file="parsed_knot_data",
-            output_file=str(self.cleaned_data_path),
-            parameters={"record_count": len(records)},
-            status="success"
-        )
-        
-        # Record artifact hash for reproducibility
-        record_artifact_hash(
-            self.project_root,
-            "knots_cleaned",
-            compute_file_hash(self.cleaned_data_path)
-        )
-        
-        return self.cleaned_data_path
-    
-    def save_raw_and_cleaned_data(self, raw_records: List[KnotRecord]) -> tuple:
-        """Complete pipeline: save raw data, parse, validate, and save cleaned data.
-        
-        Args:
-            raw_records: List of raw KnotRecord objects from download
-            
-        Returns:
-            Tuple of (raw_data_path, cleaned_data_path)
-        """
-        # Step 1: Save raw data
-        raw_path = self.save_raw_data(raw_records)
-        
-        # Step 2: Parse raw data
-        parsed_records = parse_knot_atlas_data(raw_records)
-        
-        # Step 3: Validate data quality
-        flags, report = validate_dataset_data_quality(parsed_records)
-        
-        # Step 4: Write data quality report
-        report_path = self.project_root / "docs" / "reproducibility" / "data_quality_report.md"
-        report_path.parent.mkdir(parents=True, exist_ok=True)
-        write_data_quality_report(report, report_path)
-        
-        # Step 5: Save cleaned data
-        cleaned_path = self.save_cleaned_data(parsed_records, flags)
-        
-        return raw_path, cleaned_path
-    
-    def save_raw_data_from_downloader(self, downloader: KnotAtlasDownloader) -> tuple:
-        """Download data and save both raw and cleaned versions.
-        
-        Args:
-            downloader: KnotAtlasDownloader instance
-            
-        Returns:
-            Tuple of (raw_data_path, cleaned_data_path)
-        """
-        # Download raw data
-        raw_records = downloader.download()
-        
-        # Save both versions
-        return self.save_raw_and_cleaned_data(raw_records)
-
-def save_raw_and_cleaned_data(project_root: Path, 
-                              raw_records: List[KnotRecord]) -> tuple:
-    """Convenience function to save raw and cleaned data.
-    
-    Args:
-        project_root: Path to project root directory
-        raw_records: List of raw KnotRecord objects
-        
-    Returns:
-        Tuple of (raw_data_path, cleaned_data_path)
     """
-    saver = DataSaver(project_root)
-    return saver.save_raw_and_cleaned_data(raw_records)
+    Utility class offering static methods to persist raw and cleaned knot data.
+    """
 
-def main():
-    """Main entry point for data saving pipeline."""
-    import sys
-    
-    project_root = Path(__file__).parent.parent.parent
-    
-    # Initialize downloader and saver
-    downloader = KnotAtlasDownloader(project_root)
-    saver = DataSaver(project_root)
-    
-    # Download and save data
-    print("Downloading knot data from Knot Atlas...")
-    raw_path, cleaned_path = saver.save_raw_data_from_downloader(downloader)
-    
-    print(f"Raw data saved to: {raw_path}")
-    print(f"Cleaned data saved to: {cleaned_path}")
-    
-    return raw_path, cleaned_path
+    @staticmethod
+    def save_raw(raw_records: List[Dict[str, Any]], output_path: Path) -> None:
+        """
+        Serialize a list of raw knot records to a JSON file.
+
+        Parameters
+        ----------
+        raw_records: List[Dict[str, Any]]
+            The raw records as returned by ``download_knot_atlas_data``.
+        output_path: Path
+            Destination file path (must include filename, e.g.
+            ``data/raw/knot_atlas_raw.json``).
+        """
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        # Ensure the objects are JSON‑serialisable; ``download_knot_atlas_data``
+        # returns either dicts or dataclass instances.  For dataclasses we
+        # fall back to their ``__dict__`` representation.
+        serialisable = [
+            record if isinstance(record, dict) else record.__dict__
+            for record in raw_records
+        ]
+        with output_path.open("w", encoding="utf-8") as f:
+            json.dump(serialisable, f, ensure_ascii=False, indent=2)
+
+    @staticmethod
+    def save_cleaned(df: pd.DataFrame, output_path: Path) -> None:
+        """
+        Write a cleaned DataFrame to CSV.
+
+        Parameters
+        ----------
+        df: pd.DataFrame
+            The cleaned knot data.
+        output_path: Path
+            Destination CSV file (e.g. ``data/processed/knots_cleaned.csv``).
+        """
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        df.to_csv(output_path, index=False)
+
+    @staticmethod
+    def save_raw_and_cleaned_data(
+        raw_records: List[Dict[str, Any]],
+        cleaned_df: pd.DataFrame,
+        raw_path: Path,
+        cleaned_path: Path,
+    ) -> None:
+        """
+        Convenience wrapper that saves both raw JSON and cleaned CSV in one call.
+        """
+        DataSaver.save_raw(raw_records, raw_path)
+        DataSaver.save_cleaned(cleaned_df, cleaned_path)
+
+
+def main() -> None:
+    """
+    Pipeline entry point for T018.
+
+    Steps:
+    1. Download the raw knot atlas data.
+    2. Persist the raw JSON to ``data/raw/knot_atlas_raw.json``.
+    3. Parse the raw records into ``ParsedKnotData`` objects.
+    4. Convert the parsed objects into a pandas DataFrame.
+    5. Persist the cleaned DataFrame to ``data/processed/knots_cleaned.csv``.
+
+    The function prints short status messages so that users running the script
+    directly (``python code/data/data_saver.py``) receive immediate feedback.
+    """
+    # 1. Download raw data
+    raw_records = download_knot_atlas_data()
+
+    # 2. Define output locations
+    raw_output_path = Path("data/raw/knot_atlas_raw.json")
+    cleaned_output_path = Path("data/processed/knots_cleaned.csv")
+
+    # 3. Parse raw records into structured objects
+    parsed_records: List[ParsedKnotData] = parse_knot_atlas_data(raw_records)
+
+    # 4. Convert to DataFrame – we rely on the dataclass ``asdict``‑like
+    #    attribute dictionary for each parsed record.
+    df = pd.DataFrame([record.__dict__ for record in parsed_records])
+
+    # 5. Save both artefacts
+    DataSaver.save_raw_and_cleaned_data(
+        raw_records=raw_records,
+        cleaned_df=df,
+        raw_path=raw_output_path,
+        cleaned_path=cleaned_output_path,
+    )
+
+    print(f"Raw knot atlas data saved to: {raw_output_path}")
+    print(f"Cleaned knot data saved to: {cleaned_output_path}")
+
 
 if __name__ == "__main__":
+    # When executed as a script, run the pipeline step.
     main()

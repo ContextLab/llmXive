@@ -72,7 +72,7 @@ description: "Task list template for feature implementation"
 - [X] T043a Implement flagging system for ambiguous alternating/non-alternating classification (exclude or mark as 'unclassifiable') in code/data/validator.py (per FR-010; verification: unit tests in tests/unit/test_validator.py demonstrating flag generation for ambiguous classification)
 - [X] T065 Document Reference-Validator Agent integration for citation validation in code/reproducibility/citation_validator.py with title-token-overlap >=0.7 threshold verification per Constitution Principle II (verification: run Reference-Validator Agent on all citations in code/; title-token-overlap≥0.7 for all; NOTE: documentation-only task, external agents do not exist yet)
 - [X] T066 Document Advancement-Evaluator Agent integration for content hashing in code/reproducibility/hashing.py per Constitution Principle V (verification: content hash recorded in state/projects/PROJ-552-quantifying-the-complexity-of-knot-diagr.yaml artifact_hashes map AND updated_at timestamp updated in state file per Constitution Principle V explicit requirement; NOTE: documentation-only task, external agents do not exist yet)
-- [X] T026a [P] Implement Constitution Principle VI invariant verification: document verification procedure for computed knot invariants against established mathematical definitions from primary literature in docs/reproducibility/invariant_definitions.md (per Constitution Principle VI; verification: all ADDITIONAL invariants (arc index, Seifert circle count, bridge number) have documented reference to primary mathematical literature; NOTE: core invariants (crossing number, braid index) are TABULATED from {{claim:c_3ea0f57a}} (Wikidata Q16963570, https://www.wikidata.org/wiki/Q16963570) per FR-003 and SC-008, not computed - algorithm validation applies only to additional invariants in Phase 2+)
+- [X] T026a [P] Implement Constitution Principle VI invariant verification: document verification procedure for computed knot invariants against established mathematical definitions from primary literature in docs/reproducibility/invariant_definitions.md (per Constitution Principle VI; verification: all ADDITIONAL invariants (arc index, Seifert circle count, bridge number) have documented reference to primary mathematical literature; NOTE: core invariants (crossing number, braid index) are TABULATED from {{claim:c_3ea0f57a}} (Wikidata Q16963570, https://www.wikidata.org/wiki/Q16963570) [UNRESOLVED-CLAIM: c_d633bda9 — status=not_enough_info] per FR-003 and SC-008, not computed - algorithm validation applies only to additional invariants in Phase 2+)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel---
 
@@ -92,7 +92,7 @@ description: "Task list template for feature implementation"
 - [X] T017 [US1] Generate dataset size report in docs/reproducibility/dataset_counts.md with concrete prime knot counts per crossing number (per US1 dataset enumeration requirement)
 - [X] T019 [US1] Filter dataset to hyperbolic knots (volume > 0) and log excluded knots in docs/reproducibility/excluded_knots.md (per FR-012; verification: confirm exclusion count matches docs/reproducibility/excluded_knots.md per SC-012 explicit verification requirement)
 - [X] T040 [US1] Validate hyperbolic volume data against KnotInfo reference values and document source independence assessment in docs/reproducibility/hyperbolic_volume_validation.md (per FR-013; verification: ≥90% match against KnotInfo reference values per FR-013; IF KnotInfo reference coverage <90%, skip cross-check and document limitation with skip rationale per FR-013; Depends on T019)
-- [X] T020 [US1] {{claim:c_f520e5b4}} (OEIS A002863, https://oeis.org/A002863) and document validation results in docs/reproducibility/validation_scope.md (per SC-001)
+- [X] T020 [US1] {{claim:c_d4d1fc06}} (OEIS A002863, https://oeis.org/A002863 [UNRESOLVED-CLAIM: c_7acb0682 — status=not_enough_info]) and document validation results in docs/reproducibility/validation_scope.md (per SC-001)
 - [X] T026 [US1] Validate tabulation accuracy for core invariants (crossing number, braid index) against KnotInfo reference values and document results in docs/reproducibility/core_invariants_tabulation.md with pass/fail status and coverage percentage; note that braid index is TABULATED from {{claim:c_3ea0f57a}} per FR-003/SC-008 (algorithm validation for additional invariants deferred to Phase 2+ per SC-010; core invariants are TABULATED not computed, so algorithm validation does not apply to Phase 1; Constitution Principle VI applies to computed invariants in Phase 2+)
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
@@ -119,13 +119,13 @@ description: "Task list template for feature implementation"
 ### Implementation for User Story 2
 
 - [X] T022 [US2] Implement precision validation module in code/analysis/precision.py to validate crossing number and braid index (per FR-002, FR-003)
-- [X] T023 [US2] Generate scatter plots of crossing number vs. braid index stratified by alternating/non-alternating in code/analysis/exploratory.py (per FR-004)
-- [X] T024 [US2] Save plots to data/plots/crossing_vs_braid.png with resolution 1200x900 pixels
+- [ ] T023 [US2] Generate scatter plots of crossing number vs. braid index stratified by alternating/non-alternating in code/analysis/exploratory.py (per FR-004)
+- [ ] T024 [US2] Save plots to data/plots/crossing_vs_braid.png with resolution 1200x900 pixels
 - [X] T028 [US2] Compute null percentage for required invariant fields and document in docs/reproducibility/data_quality_report.md (per FR-002, SC-013)
 - [X] T029 [US2] Apply missing_invariant_flags and data_quality_flags defined in T009/T010 in code/data/validator.py (per FR-002, FR-009; NOTE: requires T009/T010 flag definitions from Phase 2)
-- [X] T030b [US2] Implement validation script to automate tie-breaking rule consistency checks in docs/reproducibility/tie_breaking_validator.py (per SC-007; verification: script must return success exit code (0) on consistency check per SC-007; Depends on T030)
+- [ ] T030b [US2] Implement validation script to automate tie-breaking rule consistency checks in docs/reproducibility/tie_breaking_validator.py (per SC-007; verification: script must return success exit code (0) on consistency check per SC-007; Depends on T030)
 - [X] T067 [US2] Add human-readable complexity interpretation guide in docs/reproducibility/complexity_interpretation.md (per dan-rockmore-simulated review - "human readability" of metric)
-- [X] T068 [US2] Generate visualization examples showing how complexity metric maps to knot diagram features in data/plots/complexity_visualization_examples.png (per dan-rockmore-simulated review)
+- [ ] T068 [US2] Generate visualization examples showing how complexity metric maps to knot diagram features in data/plots/complexity_visualization_examples.png (per dan-rockmore-simulated review)
 - [X] T069 [US2] Document concrete data quantities processed (knot counts per crossing number, total records, null percentages) in docs/reproducibility/data_quantities.md (per marie-curie-simulated review - "concrete numbers")
 - [X] T070 [US2] Document classification error margins and signal-to-noise ratio analysis in docs/reproducibility/classification_error_analysis.md (per marie-curie-simulated review)
 
@@ -141,18 +141,18 @@ description: "Task list template for feature implementation"
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T031 [P] [US3] Contract test for regression model output in tests/contract/test_regression.py
+- [ ] T031 [P] [US3] Contract test for regression model output in tests/contract/test_regression.py
 
 ### Implementation for User Story 3
 
-- [X] T032 [US3] Implement regression model fitting (linear, polynomial, logarithmic) in code/analysis/regression.py (per FR-005)
-- [X] T033 [US3] Compute goodness-of-fit metrics (R², AIC/BIC, MAE) for each model type in code/analysis/regression.py (per FR-005)
-- [X] T034 [US3] Implement residual analysis to identify hyperbolic knot families deviating ≥2 standard deviations in code/analysis/residual_analysis.py (per FR-005, SC-011)
-- [X] T035 [US3] Document residual family analysis in docs/reproducibility/residual_analysis.md with specific knot identifiers and potential explanations
-- [X] T036 [US3] Compute Spearman and Pearson correlation coefficients with effect sizes (Cohen's d, r) in code/analysis/regression.py (per FR-006; verification: explicitly verify p-values are NOT reported for census data and marked as 'not applicable for census data' in all output artifacts per FR-006 and Constitution Principle VII census-data exception)
-- [X] T037 [US3] Compute VIF for multicollinearity assessment in code/analysis/regression.py (per FR-005)
-- [X] T038 [US3] Document multicollinearity assessment in docs/reproducibility/multicollinearity_assessment.md with acknowledgment of braid index ≤ crossing number constraint
-- [X] T039 [US3] Compute descriptive comparison metrics (mean difference, variance ratio, Cohen's d) for alternating vs. non-alternating groups in code/analysis/regression.py (per FR-006)
+- [ ] T032 [US3] Implement regression model fitting (linear, polynomial, logarithmic) in code/analysis/regression.py (per FR-005)
+- [ ] T033 [US3] Compute goodness-of-fit metrics (R², AIC/BIC, MAE) for each model type in code/analysis/regression.py (per FR-005)
+- [ ] T034 [US3] Implement residual analysis to identify hyperbolic knot families deviating ≥2 standard deviations in code/analysis/residual_analysis.py (per FR-005, SC-011)
+- [ ] T035 [US3] Document residual family analysis in docs/reproducibility/residual_analysis.md with specific knot identifiers and potential explanations
+- [ ] T036 [US3] Compute Spearman and Pearson correlation coefficients with effect sizes (Cohen's d, r) in code/analysis/regression.py (per FR-006; verification: explicitly verify p-values are NOT reported for census data and marked as 'not applicable for census data' in all output artifacts per FR-006 and Constitution Principle VII census-data exception)
+- [ ] T037 [US3] Compute VIF for multicollinearity assessment in code/analysis/regression.py (per FR-005)
+- [X] T038 [US3] Document multicollinearity assessment in docs/reproducibility/multicollinearity_assessment.md with acknowledgment of braid index ≤ crossing number constraint [UNRESOLVED-CLAIM: c_2a5aaba2 — status=not_enough_info]
+- [ ] T039 [US3] Compute descriptive comparison metrics (mean difference, variance ratio, Cohen's d) for alternating vs. non-alternating groups in code/analysis/regression.py (per FR-006)
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -170,8 +170,8 @@ description: "Task list template for feature implementation"
 
 ### Implementation for User Story 4
 
-- [X] T044 [US4] Generate SHA-256 checksums for all data files in code/reproducibility/checksums.py (per FR-007)
-- [X] T045 [US4] Record checksums in data/ directory and document in docs/reproducibility/checksums.md (per FR-007)
+- [ ] T044 [US4] Generate SHA-256 checksums for all data files in code/reproducibility/checksums.py (per FR-007)
+- [ ] T045 [US4] Record checksums in data/ directory and document in docs/reproducibility/checksums.md (per FR-007)
 - [X] T046 [US4] Generate derivation notes with formula citations in docs/reproducibility/derivation_notes.md (include formula citations with page/section references, step-by-step transformation logic with intermediate values, all parameter values used, and justification for any non-standard choices per FR-007; verification: validation script in code/reproducibility/derivation_validator.py confirms all four sections present with non-empty content)
 - [X] T049 [US4] Generate timestamped logs for all operations in docs/reproducibility/operation_logs.md (per FR-007)
 - [X] T050 [US4] Document random seed values used in docs/reproducibility/random_seeds.md (per FR-007)
@@ -188,7 +188,7 @@ description: "Task list template for feature implementation"
 **Purpose**: Improvements that affect multiple user stories
 
 - [X] T054a [P] Generate invariant algorithms documentation in docs/reproducibility/invariant_algorithms.md with reference implementations and mathematical definitions per FR-003
-- [X] T054 [P] Documentation updates in docs/reproducibility/ (ensure all FR-007 required reproducibility documents are present with required content: data_quality_report.md, validation_scope.md, excluded_knots.md, invariant_coverage.md, random_seeds.md, tie_breaking_rules.md, validation_status.md, algorithm_validation.md, hyperbolic_volume_validation.md, residual_analysis.md, multicollinearity_assessment.md, uncomputable_invariants.md, checksums.md, derivation_notes.md, operation_logs.md, census_interpretation.md, mathematical_constraints.md, invariant_algorithms.md, core_invariants_tabulation.md, correlation_metrics.md, ambiguous_classification_log.md)
+- [ ] T054 [P] Documentation updates in docs/reproducibility/ (ensure all FR-007 required reproducibility documents are present with required content: data_quality_report.md, validation_scope.md, excluded_knots.md, invariant_coverage.md, random_seeds.md, tie_breaking_rules.md, validation_status.md, algorithm_validation.md, hyperbolic_volume_validation.md, residual_analysis.md, multicollinearity_assessment.md, uncomputable_invariants.md, checksums.md, derivation_notes.md, operation_logs.md, census_interpretation.md, mathematical_constraints.md, invariant_algorithms.md, core_invariants_tabulation.md, correlation_metrics.md, ambiguous_classification_log.md)
 - [X] T055 Code cleanup and refactoring in code/ to meet linting standards (black --check pass with no violations) and document linting report in docs/reproducibility/linting_report.md
 - [X] T056 Run quickstart.md validation to ensure end-to-end reproducibility and document validation results in docs/reproducibility/quickstart_validation.md with end-to-end pass/fail status
 - [X] T057 [P] Additional unit tests in tests/unit/ (test_downloader.py with test_download_retry_logic that verifies exponential backoff delays 1s→2s→4s on simulated failures; test_download_partial_cache that verifies cache creation after 3 consecutive failures; test_download_timeout that verifies timeout handling; test_parser.py with test_crossing_number_parsing, test_braid_index_parsing, test_hyperbolic_volume_parsing)
@@ -196,8 +196,8 @@ description: "Task list template for feature implementation"
 - [X] T059 Document selection bias acknowledgment (hyperbolic-only filtering) in docs/reproducibility/selection_bias.md (per FR-012, Assumptions)
 - [X] T060 Document census data statistical interpretation in docs/reproducibility/census_interpretation.md (per Assumptions)
 - [X] T061 Document mathematical constraint acknowledgment (braid index ≤ crossing number) in docs/reproducibility/mathematical_constraints.md (per Assumptions)
-- [X] T071 [P] Create final summary report in docs/reproducibility/final_report.md synthesizing all findings with human-readable complexity interpretations (per dan-rockmore-simulated review - "concrete data quantities and measurement precision standards")
-- [X] T072 [P] Create methodology appendix in docs/reproducibility/methodology_appendix.md with concrete data quantities and measurement precision standards (per marie-curie-simulated review)
+- [ ] T071 [P] Create final summary report in docs/reproducibility/final_report.md synthesizing all findings with human-readable complexity interpretations (per dan-rockmore-simulated review - "concrete data quantities and measurement precision standards")
+- [ ] T072 [P] Create methodology appendix in docs/reproducibility/methodology_appendix.md with concrete data quantities and measurement precision standards (per marie-curie-simulated review)
 
 ---
 
