@@ -15,7 +15,7 @@ from llmxive.librarian.verify import jaccard_tokens
 logger = logging.getLogger(__name__)
 
 _ENTAILMENT_BLOCK = "agents/prompts/_shared/claim_entailment_block.md"
-_DEFAULT_MODEL = "qwen.qwen3.5-122b"
+_DEFAULT_MODEL = "openai.gpt-oss-120b"
 _WINDOW = 320  # chars on each side of an anchor
 _MAX_PASSAGES = 5
 _SENT_RE = re.compile(r"[^.!?\n]+[.!?]?")

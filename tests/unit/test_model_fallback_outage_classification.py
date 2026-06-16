@@ -31,7 +31,7 @@ from llmxive.backends.base import (
 )
 from llmxive.backends.router import MODEL_FALLBACKS, chat_with_model_fallback
 
-PRIMARY = "qwen.qwen3.5-122b"
+PRIMARY = "openai.gpt-oss-120b"
 
 _OUTAGE_HTML = (
     '!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN"> '

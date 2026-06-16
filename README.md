@@ -168,11 +168,10 @@ All inference runs on free backends: Dartmouth's
 [Discovery cluster](https://rc.dartmouth.edu/ai/computing-resources/discovery-cluster/)
 (primary) and local [transformers](https://huggingface.co/docs/transformers)
 (fallback) — open-weight Hugging Face models run locally, no API token.
-Long, complex tasks (planning, paper writing, deep
-review) go to **Qwen 3.5 122B** (registry id `qwen.qwen3.5-122b`); faster
-classification-shaped tasks (clarifying questions, triage, quick judgments) go
-to **Gemma 4 31B** (registry id `google.gemma-4-31B-it`). The single source of
-truth for per-agent model assignments is
+Every agent runs on **GPT-OSS 120B** (registry id `openai.gpt-oss-120b`), the
+capable free reasoning model on the Dartmouth catalog (with tool calling); the
+smaller free Llama / CodeLlama models remain available as alternatives. The
+single source of truth for per-agent model assignments is
 [`agents/registry.yaml`](agents/registry.yaml). No paid services (Constitution
 Principle IV — free-first).
 

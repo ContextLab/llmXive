@@ -78,7 +78,7 @@ def ingest_comment(
     stage: str = "posted",
     lenses: list[str] | None = None,
     backend: object | None = None,
-    model: str = "qwen.qwen3.5-122b",
+    model: str = "openai.gpt-oss-120b",
 ) -> IngestResult:
     """Ingest one post-``posted`` comment.
 
@@ -511,7 +511,7 @@ def is_off_topic(
     *,
     lenses: list[str] | None = None,
     backend: object | None = None,
-    model: str = "qwen.qwen3.5-122b",
+    model: str = "openai.gpt-oss-120b",
 ) -> bool:
     """Convenience wrapper for the off-topic check used by the
     publisher's UI / GitHub-action layer to give an immediate

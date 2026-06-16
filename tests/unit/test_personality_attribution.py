@@ -126,7 +126,7 @@ class TestRunLogEntryShape:
             committed_paths=["projects/.../reviews/research/kahneman-simulated__05-14-2026__research.md"],
         )
         assert entry["agent_name"] == "personality"
-        assert entry["model_name"] == "qwen.qwen3.5-122b"
+        assert entry["model_name"] == "openai.gpt-oss-120b"
         assert entry["model_kind"] == "personality_simulator"
         assert entry["personality_slug"] == "daniel-kahneman"
         assert entry["display_name"].endswith(" (simulated)")
@@ -149,7 +149,7 @@ class TestDisclaimerFooterContent:
         assert "Daniel Kahneman (simulated)" in footer
         # Note: the template uses the bare "Daniel Kahneman" for real_name.
         assert "Daniel Kahneman" in footer
-        assert "qwen-3.5-122b" in footer
+        assert "gpt-oss-120b" in footer
         assert "Dartmouth Chat" in footer
         assert "simulated AI persona" in footer
         # Placement: starts with a horizontal-rule separator (F8).

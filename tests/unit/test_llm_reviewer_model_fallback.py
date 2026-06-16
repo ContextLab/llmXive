@@ -64,7 +64,7 @@ def _reviewer(backend) -> LLMReviewer:
         stage="clarified",
         backend=backend,
         repo_root=_REPO_ROOT,
-        model="qwen.qwen3.5-122b",
+        model="openai.gpt-oss-120b",
     )
 
 
@@ -72,13 +72,13 @@ _ARTIFACTS = {"specs/000-x/spec.md": "## Functional Requirements\n- FR-002: do X
 
 
 def test_healthy_primary_no_fallback():
-    backend = _ModelRoutingBackend(replies={"qwen.qwen3.5-122b": _VALID_PRIMARY})
+    backend = _ModelRoutingBackend(replies={"openai.gpt-oss-120b": _VALID_PRIMARY})
     concerns = _reviewer(backend).identify(_ARTIFACTS, constitution=None, advisory=[])
     # Behavior identical to today: the primary's concern is returned.
     assert len(concerns) == 1
     assert "PRIMARY" in concerns[0].text
     # Exactly one call to the primary — no peer-model fallback.
-    assert [c["model"] for c in backend.calls] == ["qwen.qwen3.5-122b"]
+    assert [c["model"] for c in backend.calls] == ["openai.gpt-oss-120b"]
     # Reasoning-safe default max_tokens (32_768) was passed.
     assert backend.calls[0]["max_tokens"] == 32_768
 
@@ -86,17 +86,17 @@ def test_healthy_primary_no_fallback():
 def test_primary_transient_walks_to_peer():
     backend = _ModelRoutingBackend(
         replies={
-            "qwen.qwen3.5-122b": _VALID_PRIMARY,  # never reached (transient)
-            "openai.gpt-oss-120b": _VALID_PEER,
+            "openai.gpt-oss-120b": _VALID_PRIMARY,  # never reached (transient)
+            "meta.llama-3.2-11b-vision-instruct": _VALID_PEER,
         },
-        transient_models={"qwen.qwen3.5-122b"},
+        transient_models={"openai.gpt-oss-120b"},
     )
     concerns = _reviewer(backend).identify(_ARTIFACTS, constitution=None, advisory=[])
     # The PEER's response (accept → no concerns) is what the reviewer returned,
     # proving the fallback chain was walked instead of stalling on the dead model.
     assert concerns == []
     models = [c["model"] for c in backend.calls]
-    assert models[-1] == "openai.gpt-oss-120b"
-    assert "qwen.qwen3.5-122b" in models
+    assert models[-1] == "meta.llama-3.2-11b-vision-instruct"
+    assert "openai.gpt-oss-120b" in models
     # The reasoning-safe budget reached the PEER too.
     assert backend.calls[-1]["max_tokens"] == 32_768

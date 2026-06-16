@@ -89,7 +89,7 @@ _EXTRACTION_BLOCK_PATH = "agents/prompts/_shared/factual_grounding_extraction_bl
 # caller threads ``model=None`` (the reviser path may, see ``spec_reviser`` which
 # itself falls back to this) the extraction call resolves to this default rather
 # than crashing with a missing-kwarg TypeError.
-_DEFAULT_MODEL = "qwen.qwen3.5-122b"
+_DEFAULT_MODEL = "openai.gpt-oss-120b"
 
 
 @dataclass(frozen=True, slots=True)

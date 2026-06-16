@@ -65,7 +65,7 @@ UMBRELLA_PROMPT_PATH = "agents/prompts/personality.md"
 """The decision-protocol umbrella prompt prepended to every persona's
 grounding card at LLM call time."""
 
-MODEL_NAME = "qwen.qwen3.5-122b"
+MODEL_NAME = "openai.gpt-oss-120b"
 """Canonical Dartmouth-Chat model id (the registry form). Recorded in
 run-log entries; also the only allowed model for FR-015."""
 
@@ -91,11 +91,18 @@ DEFAULT_TIMEOUT_S = 600
 CONTENT_MAX_WORDS = 2000
 """Guardrail on the LLM-emitted ``content`` field length."""
 
+# Human-readable label for the disclaimer, DERIVED from MODEL_NAME so it can
+# never drift out of sync with the actual model again (2026-06: the registry
+# migrated off the retired qwen family to openai.gpt-oss-120b, but this footer
+# still said "qwen-3.5-122b" because it was hard-coded).
+_MODEL_LABEL = MODEL_NAME.split(".", 1)[-1]  # e.g. "gpt-oss-120b"
+
 DISCLAIMER_TEMPLATE = (
     "\n\n---\n\n"
     "> *Note: this contribution was authored by **{display_name}** — "
     "a simulated AI persona shaped from the public-record writings of {real_name}, "
-    "running on `qwen-3.5-122b` via Dartmouth Chat. It is not the actual {real_name}.*\n"
+    f"running on `{_MODEL_LABEL}` via Dartmouth Chat. It is not the actual "
+    "{real_name}.*\n"
 )
 """Verbatim disclaimer footer (data-model.md E5). Placed at the very bottom
 of every committed artifact, after a horizontal-rule separator."""
@@ -1154,7 +1161,7 @@ def _call_llm_for_persona(persona: Personality, catalog: list[CatalogEntry],
     """One LLM call per tick. Returns the raw response text.
 
     Uses the existing chat_with_fallback router with the personality
-    agent's registry entry (default_backend=dartmouth, model=qwen.qwen3.5-122b,
+    agent's registry entry (default_backend=dartmouth, model=openai.gpt-oss-120b,
     no fallback_backends for the persona role — see registry entry in T002).
 
     ``extra_hint`` (spec 009 FR-004 retry path): when present, an additional

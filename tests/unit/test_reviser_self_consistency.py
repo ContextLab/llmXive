@@ -454,11 +454,11 @@ def test_invoke_reviser_backend_uses_fallback():
     class _Reviser:
         def __init__(self, backend):
             self._backend = backend
-            self._model = "qwen.qwen3.5-122b"
+            self._model = "openai.gpt-oss-120b"
 
     backend = _ModelFallbackBackend(
-        replies={"qwen.qwen3.5-122b": "x", "openai.gpt-oss-120b": "peer revision"},
-        transient_models={"qwen.qwen3.5-122b"},
+        replies={"openai.gpt-oss-120b": "x", "meta.llama-3.2-11b-vision-instruct": "peer revision"},
+        transient_models={"openai.gpt-oss-120b"},
     )
     text = invoke_reviser_backend(_Reviser(backend), [])
     assert text == "peer revision"
@@ -477,9 +477,9 @@ def test_invoke_reviser_backend_uses_generation_budget():
     class _Reviser:
         def __init__(self, backend):
             self._backend = backend
-            self._model = "qwen.qwen3.5-122b"
+            self._model = "openai.gpt-oss-120b"
 
-    backend = _ModelFallbackBackend(replies={"qwen.qwen3.5-122b": "revised doc"})
+    backend = _ModelFallbackBackend(replies={"openai.gpt-oss-120b": "revised doc"})
     text = invoke_reviser_backend(_Reviser(backend), [])
     assert text == "revised doc"
     assert backend.calls, "backend was never called"

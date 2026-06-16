@@ -220,7 +220,7 @@ def is_math_theory_question(
     *,
     project_id: str | None = None,
     librarian_prompt_version: str = "0.0.0",
-    model: str = "qwen.qwen3.5-122b",
+    model: str = "openai.gpt-oss-120b",
     default_backend: str = "dartmouth",
     fallback_backends: list[str] | None = None,
     repo_root: Path | None = None,

@@ -43,7 +43,7 @@ class MalformedResponseError(RuntimeError):
     feedback), up to ``MAX_MALFORMED_RESPONSE_RETRIES`` times, before
     failing the run. This converts the historically-fatal
     "response missing YAML frontmatter" failures (observed on
-    google.gemma-4-31B-it fallback calls, run-log 2026-06-05..08) into
+    openai.gpt-oss-120b fallback calls, run-log 2026-06-05..08) into
     recoverable retries.
 
     ``format_reminder`` is an optional, contract-specific restatement of

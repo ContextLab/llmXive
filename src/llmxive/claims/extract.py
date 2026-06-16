@@ -23,7 +23,7 @@ from llmxive.claims.models import Claim, ClaimStatus, compute_claim_id
 logger = logging.getLogger(__name__)
 
 _PROMPT_PATH = "agents/prompts/claim_extraction.md"
-_DEFAULT_MODEL = "qwen.qwen3.5-122b"
+_DEFAULT_MODEL = "openai.gpt-oss-120b"
 
 # ---------------------------------------------------------------------------
 # Post-parse deterministic filter

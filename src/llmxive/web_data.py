@@ -1334,7 +1334,7 @@ def _project_fields(repo: Path) -> dict[str, str]:
 def _agent_contributors(repo: Path) -> list[dict[str, Any]]:
     """Aggregate AI contributors from successful run-log entries.
 
-    Identity = model name (e.g. ``qwen.qwen3.5-122b``), NOT the agent
+    Identity = model name (e.g. ``openai.gpt-oss-120b``), NOT the agent
     role (``tasker``/``implementer``). Multiple roles using the same
     model collapse into a single contributor row. Areas reflect the
     research field of the project worked on, NOT the pipeline step.

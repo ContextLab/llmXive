@@ -274,7 +274,7 @@ def run_convergence(
     constitution: str | None = None,
     advisory: list[str] | None = None,
     producer: str | None = None,
-    model: str = "qwen.qwen3.5-122b",
+    model: str = "openai.gpt-oss-120b",
     reviewer_token_budget: int | None = None,
     max_rounds: int | None = None,
     per_round_budget_s: float | None = None,

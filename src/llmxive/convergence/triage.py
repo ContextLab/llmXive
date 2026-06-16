@@ -195,7 +195,7 @@ Comment:
 def llm_topic_judge(
     backend: object,
     *,
-    model: str = "qwen.qwen3.5-122b",
+    model: str = "openai.gpt-oss-120b",
     max_tokens: int = 512,
 ) -> JudgeFn:
     """Factory for an LLM-backed :class:`JudgeFn` that ``triage_submission``

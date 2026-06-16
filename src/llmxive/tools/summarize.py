@@ -43,11 +43,8 @@ CHARS_PER_TOKEN = 4  # heuristic, consistent with paper_reviewer.py ("180KB ~= 4
 DEFAULT_MODEL_BUDGET = 128_000  # safe fallback for any unknown model
 COMPLETION_RESERVE = 0.25  # leave headroom for the model's own output
 _MODEL_BUDGETS: dict[str, int] = {
-    "qwen.qwen3.5-122b": 200_000,
-    "qwen.qwen3-vl:32b": 200_000,
     "openai.gpt-oss-120b": 128_000,
-    "google.gemma-3-27b-it": 128_000,
-    "google.gemma-4-31B-it": 128_000,
+    "meta.llama-3.2-11b-vision-instruct": 128_000,
 }
 _MARKER = "[[LLMXIVE-SUMMARY v1]]"
 _SCHEMA = "llmxive-summary/1"
@@ -248,7 +245,7 @@ def summarize(
     content: str,
     *,
     goal: str,
-    model: str = "qwen.qwen3.5-122b",
+    model: str = "openai.gpt-oss-120b",
     token_budget: int | None = None,
     cache_dir: str | Path | None = None,
     summarize_fn: Callable[[str, str], str] | None = None,

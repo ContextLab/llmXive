@@ -41,13 +41,11 @@ def make_backend(name: str) -> BaseBackend:
 # pipeline runs alive when one Dartmouth-hosted model has a vLLM
 # outage but other models on the same backend are healthy.
 MODEL_FALLBACKS: dict[str, list[str]] = {
-    # Qwen 3.5 122b is a reasoning model; gpt-oss-120b is the closest
-    # peer in capability (also reasoning-capable, similar parameter count).
-    # gemma-4-31B-it is the free general fallback. All three are free
-    # (cost-per-token == 0) per chat.dartmouth.edu/api/models.
-    "qwen.qwen3.5-122b": ["openai.gpt-oss-120b", "google.gemma-4-31B-it"],
-    "openai.gpt-oss-120b": ["qwen.qwen3.5-122b", "google.gemma-4-31B-it"],
-    "google.gemma-4-31B-it": ["openai.gpt-oss-120b", "qwen.qwen3.5-122b"],
+    # gpt-oss-120b is the capable free reasoning model on the Dartmouth catalog
+    # (the qwen.* and gemma.* families were retired 2026-06). If its vLLM is out,
+    # fall through to the smaller free llama-3.2-11b before the next backend.
+    # Both are free (cost-per-token == 0) per chat.dartmouth.edu/api/models.
+    "openai.gpt-oss-120b": ["meta.llama-3.2-11b-vision-instruct"],
 }
 
 # ---------------------------------------------------------------------------

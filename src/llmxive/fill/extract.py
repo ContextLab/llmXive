@@ -244,7 +244,7 @@ def _offline_numeric_lookup(source: FetchedSource, claim: Claim) -> str | None:
     return None
 
 
-_DEFAULT_MODEL = "qwen.qwen3.5-122b"
+_DEFAULT_MODEL = "openai.gpt-oss-120b"
 
 
 def _call_llm_locator(
@@ -276,7 +276,7 @@ def _call_llm_locator(
     )
     try:
         messages = [ChatMessage(role="user", content=prompt)]
-        # Reasoning models (e.g. qwen.qwen3.5-122b) spend hidden chain-of-thought
+        # Reasoning models (e.g. openai.gpt-oss-120b) spend hidden chain-of-thought
         # against the response budget; a small max_tokens yields empty content
         # (finish_reason=length). Mirror grounding/entailment's reasoning-safe
         # budget, degrading gracefully for backends/fakes that omit the kwarg.

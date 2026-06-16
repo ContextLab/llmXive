@@ -42,7 +42,7 @@ _FRONTMATTER_RE = re.compile(
 
 # Appended to the retry prompt when output validation rejects a response
 # (issue #294 typed-boundary work; see base.MalformedResponseError). The
-# run-log shows every recent google.gemma-4-31B-it fallback call failing
+# run-log shows every recent openai.gpt-oss-120b fallback call failing
 # exactly here, fatally — the retry-with-feedback loop recovers these.
 _FORMAT_REMINDER = (
     "Your response MUST start with a line containing exactly `---`, "

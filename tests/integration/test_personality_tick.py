@@ -149,10 +149,10 @@ class TestDispatchComment:
         rev_path = repo / result.committed_paths[0]
         assert rev_path.is_file()
         assert "-simulated__" in rev_path.name
-        # Front-matter MUST tag this as an LLM review at qwen.qwen3.5-122b.
+        # Front-matter MUST tag this as an LLM review at openai.gpt-oss-120b.
         text = rev_path.read_text(encoding="utf-8")
         assert "reviewer_kind: llm" in text
-        assert "model_name: qwen.qwen3.5-122b" in text
+        assert "model_name: openai.gpt-oss-120b" in text
         # Body contains the persona's content AND the disclaimer footer.
         assert "System 1" in text
         assert "simulated AI persona" in text
@@ -296,7 +296,7 @@ class TestTickPointerRule:
         entry = p.tick(repo, llm_fixture=str(FIXTURES / "action_comment.json"))
         # Required attribution markers (data-model.md E6 + FR-010).
         assert entry["agent_name"] == "personality"
-        assert entry["model_name"] == "qwen.qwen3.5-122b"
+        assert entry["model_name"] == "openai.gpt-oss-120b"
         assert entry["model_kind"] == "personality_simulator"
         assert entry["personality_slug"] == "kahneman"
         assert entry["display_name"] == "Daniel Kahneman (simulated)"

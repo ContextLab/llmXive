@@ -138,7 +138,7 @@ def extract_queries(
     *,
     field: str | None = None,
     n: int = DEFAULT_QUERY_COUNT,
-    model: str = "qwen.qwen3.5-122b",
+    model: str = "openai.gpt-oss-120b",
     default_backend: str = "dartmouth",
     fallback_backends: Sequence[str] = ("local",),
 ) -> list[str]:

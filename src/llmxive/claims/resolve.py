@@ -34,7 +34,7 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
-_DEFAULT_MODEL = "qwen.qwen3.5-122b"
+_DEFAULT_MODEL = "openai.gpt-oss-120b"
 
 
 # ---------------------------------------------------------------------------

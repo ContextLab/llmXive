@@ -4,7 +4,7 @@ When the librarian's initial keyword search returns fewer than
 ``target_n`` verified citations, this module:
 
   1. Calls the brainstorming LLM (Dartmouth Chat by default,
-     ``qwen.qwen3.5-122b``) with a prompt that includes the original
+     ``openai.gpt-oss-120b``) with a prompt that includes the original
      term + project context (field + idea body excerpt) and asks for
      10-20 alternative phrasings ranked by relevance.
   2. Iterates through the ranked list, querying both Semantic Scholar
@@ -58,7 +58,7 @@ def expand_terms(
     idea_body_excerpt: str | None,
     n: int = DEFAULT_EXPANSION_CAP,
     expansion_prompt: str | None = None,
-    model: str = "qwen.qwen3.5-122b",
+    model: str = "openai.gpt-oss-120b",
     default_backend: str = "dartmouth",
     fallback_backends: Sequence[str] = ("local",),
 ) -> list[tuple[int, str]]:

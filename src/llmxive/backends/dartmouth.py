@@ -57,7 +57,7 @@ _RETRY_MULTIPLIER = 2.0
 
 # --- reasoning-aware per-request wall-clock deadline ---------------------
 #
-# qwen.qwen3.5-122b / gpt-oss are *reasoning* models: they spend completion-token
+# openai.gpt-oss-120b / gpt-oss are *reasoning* models: they spend completion-token
 # budget on hidden <think> tokens before emitting any answer. A realistic
 # full-spec (~7k-token) review prompt completes cleanly (finish=stop) in ~234s
 # using ~9.7K completion tokens — but ONLY when given enough deadline. The old
@@ -337,16 +337,17 @@ def _ensure_api_key_env() -> None:
 # == 0 per chat.dartmouth.edu/api/models). Used only when the live catalog
 # is unreachable, so a transient listing outage never blocks a known-free
 # model. The live catalog (free_chat_models) is authoritative when available.
-# Includes models that are served-but-occasionally-unlisted (e.g. gemma-3).
+# Synced 2026-06 with ChatDartmouth.list(): the qwen.* and google.gemma-*
+# families were RETIRED from the Dartmouth catalog, so every agent that named
+# them silently fell through to the weak `local` fallback. The only capable
+# free model now is openai.gpt-oss-120b (reasoning + tool calling); the llama
+# / codellama models remain free but small.
 KNOWN_FREE_MODELS: frozenset[str] = frozenset(
     {
-        "qwen.qwen3.5-122b",
         "openai.gpt-oss-120b",
-        "google.gemma-4-31B-it",
-        "google.gemma-3-27b-it",
-        "meta.llama-3-2-3b-instruct",
         "meta.llama-3.2-11b-vision-instruct",
-        "qwen.qwen3-vl:32b",
+        "meta.llama-3-2-3b-instruct",
+        "meta.codellama-13b-instruct-hf",
     }
 )
 
