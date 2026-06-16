@@ -6,13 +6,13 @@ failed_stage: null
 field: linguistics
 human_escalation_reason: null
 id: PROJ-661-https-arxiv-org-abs-2606-00683
-last_run_id: null
+last_run_id: f44cfb84-6d7f-4ef8-b8ff-d4ef7292a116
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
-revision_spec_path: null
+revision_spec_path: specs/auto-revisions/PROJ-661-https-arxiv-org-abs-2606-00683/round-1
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'OCC-RAG: Optimal Cognitive Core for Faithful Question Answering'
-updated_at: '2026-06-04T18:48:16.032245Z'
+updated_at: '2026-06-16T10:20:01.474283Z'
