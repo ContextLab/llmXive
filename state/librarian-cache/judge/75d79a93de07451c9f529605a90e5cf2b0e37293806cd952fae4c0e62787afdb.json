@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "0910.0908",
+  "judged_at": "2026-06-16T16:46:19Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "constraining lorentz invariance violation with fermi gamma‑ray burst spectra physics",
+  "rationale": "The paper studies gamma‑ray emission from a supernova remnant, not gamma‑ray bursts, and does not address Lorentz invariance violation or its constraints, thus it is off‑domain for the user's question.",
+  "relevant": false
+}

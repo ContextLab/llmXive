@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1208.0924",
+  "judged_at": "2026-06-16T16:48:07Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "evaluating resting‑state fmri entropy as a biomarker for attention‑deficit traits neuroscience",
+  "rationale": "The paper measures an entropy‑related metric (transfer entropy) on resting‑state fMRI data, providing an empirical baseline for how entropy‑type measures behave in rs‑fMRI (criterion b). Although it does not address attention‑deficit traits, it is relevant to the entropy component of the user’s question.",
+  "relevant": true
+}

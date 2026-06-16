@@ -1,0 +1,19 @@
+artifact_hashes: {}
+assigned_agent: null
+created_at: '2026-06-16T16:41:06.392102Z'
+current_stage: flesh_out_complete
+failed_stage: null
+field: neuroscience
+human_escalation_reason: null
+id: PROJ-709-evaluating-resting-state-fmri-entropy-as
+last_run_id: 89c1caa4-859d-415d-ab7e-437fc31eaaff
+last_run_status: null
+points_paper: {}
+points_research: {}
+revision_round: 0
+revision_spec_path: null
+speckit_paper_dir: null
+speckit_research_dir: null
+title: "Evaluating Resting\u2011State fMRI Entropy as a Biomarker for Attention\u2011\
+  Deficit Traits"
+updated_at: '2026-06-16T16:49:39.278338Z'

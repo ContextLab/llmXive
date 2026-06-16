@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1503.01182",
+  "judged_at": "2026-06-16T16:46:06Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "constraining lorentz invariance violation with fermi gamma‑ray burst spectra physics",
+  "rationale": "The paper provides time‑resolved GRB spectral observations with Fermi (and ASTRO‑H), thereby measuring one of the key independent variables (GRB spectra) in the domain of interest; it serves as an empirical baseline for studies that later use such spectra to constrain Lorentz‑invariance violation (acceptance category (b) / (c)).",
+  "relevant": true
+}

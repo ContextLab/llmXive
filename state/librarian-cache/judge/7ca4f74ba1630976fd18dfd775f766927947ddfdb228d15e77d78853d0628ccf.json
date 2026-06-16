@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2404.16287",
+  "judged_at": "2026-06-16T16:43:42Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "robustness of confidence intervals to differential privacy noise statistics",
+  "rationale": "The paper studies statistical inference under differential privacy, explicitly constructing coordinate‑wise confidence intervals and analyzing their properties in the presence of DP noise, thus providing same‑mechanism evidence (category a) relevant to the robustness of confidence intervals to DP noise.",
+  "relevant": true
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2110.14465",
+  "judged_at": "2026-06-16T16:43:36Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "robustness of confidence intervals to differential privacy noise statistics",
+  "rationale": "The paper studies how differential‑privacy noise impacts the validity and unbiasedness of confidence intervals, directly measuring the same mechanism (DP noise) and the same dependent variable (confidence‑interval robustness) that the user’s question concerns (acceptance category (a)).",
+  "relevant": true
+}

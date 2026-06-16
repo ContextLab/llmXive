@@ -226,5 +226,13 @@
   "PROJ-685-latentskill-from-in-context-textual-skil::1.6.0": {
     "classified_at": "2026-06-16T13:46:14Z",
     "verdict": false
+  },
+  "PROJ-709-evaluating-resting-state-fmri-entropy-as::1.6.0": {
+    "classified_at": "2026-06-16T16:47:42Z",
+    "verdict": false
+  },
+  "PROJ-711-constraining-lorentz-invariance-violatio::1.6.0": {
+    "classified_at": "2026-06-16T16:45:33Z",
+    "verdict": false
   }
 }

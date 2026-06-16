@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2508.11920",
+  "judged_at": "2026-06-16T16:48:31Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "evaluating resting‑state fmri entropy as a biomarker for attention‑deficit traits neuroscience",
+  "rationale": "The paper investigates a temporal‑complexity measure (long‑memory parameters) of rs‑fMRI signals in the ADHD‑200 cohort and relates it to ADHD symptom severity, thus providing evidence on a related rs‑fMRI dynamical biomarker in the same population (criterion b, and also aligns with the same‑mechanism category a).",
+  "relevant": true
+}

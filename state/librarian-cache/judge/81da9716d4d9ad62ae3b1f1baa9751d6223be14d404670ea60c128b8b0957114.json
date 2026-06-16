@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1506.06048",
+  "judged_at": "2026-06-16T16:48:19Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "evaluating resting‑state fmri entropy as a biomarker for attention‑deficit traits neuroscience",
+  "rationale": "The paper studies the same dependent variable (ADHD/attention‑deficit traits) using resting‑state fMRI data, providing an alternative rs‑fMRI–based biomarker (HMM features) even though it does not examine entropy (criterion b).",
+  "relevant": true
+}

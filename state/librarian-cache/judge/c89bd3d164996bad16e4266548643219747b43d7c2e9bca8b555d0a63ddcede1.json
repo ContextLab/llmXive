@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "0912.0500",
+  "judged_at": "2026-06-16T16:45:50Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "constraining lorentz invariance violation with fermi gamma‑ray burst spectra physics",
+  "rationale": "The paper discusses Lorentz invariance violation constraints derived from Fermi Gamma‑Ray Burst observations, directly addressing the same mechanism (LIV limits) and data type (Fermi GRB spectra) as the user's question (acceptance category a).",
+  "relevant": true
+}

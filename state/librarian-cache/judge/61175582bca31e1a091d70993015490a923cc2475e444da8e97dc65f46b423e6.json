@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "0912.3666",
+  "judged_at": "2026-06-16T16:46:13Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "constraining lorentz invariance violation with fermi gamma‑ray burst spectra physics",
+  "rationale": "The paper studies gamma‑ray pulsars observed with the Fermi LAT and does not investigate Lorentz invariance violation, gamma‑ray burst spectra, or related constraints, thus it is off‑domain for the user's question.",
+  "relevant": false
+}

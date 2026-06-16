@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2505.20351",
+  "judged_at": "2026-06-16T16:44:02Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "robustness of confidence intervals to differential privacy noise statistics",
+  "rationale": "The paper studies how differential‑privacy noise impacts the construction and validity of confidence intervals for ratio statistics, directly addressing the robustness of CIs under DP noise (category (a) same‑mechanism evidence, also (b) measuring DP noise vs CI coverage).",
+  "relevant": true
+}

@@ -1,0 +1,496 @@
+{
+  "fetched_at": "2026-06-16T16:44:10Z",
+  "field": "statistics",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "statistics",
+      "idea_body_excerpt": "Robustness of Confidence Intervals to Differential Privacy Noise",
+      "target_n": 5
+    },
+    "duration_seconds": 138.46,
+    "ended_at": "2026-06-16T16:44:10Z",
+    "expansion": null,
+    "extracted_queries": [
+      "coverage probability differential privacy",
+      "UCI Adult dataset differential privacy",
+      "epsilon Laplace mechanism interval width",
+      "coverage error DP noise",
+      "privacy-accuracy tradeoff confidence interval"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": false,
+      "verdict": null
+    },
+    "outcome": "success",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "1711.03908"
+      ]
+    },
+    "per_query_hit_count": {
+      "Robustness of Confidence Intervals to Differential Privacy Noise statistics": 3,
+      "UCI Adult dataset differential privacy": 1,
+      "coverage error DP noise": 3,
+      "coverage probability differential privacy": 2,
+      "epsilon Laplace mechanism interval width": 3,
+      "privacy-accuracy tradeoff confidence interval": 2
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 0,
+      "rejections": []
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-16T16:41:52Z",
+    "term_input": {
+      "normalized": "robustness of confidence intervals to differential privacy noise statistics",
+      "raw": "Robustness of Confidence Intervals to Differential Privacy Noise statistics"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Normalised citation counts are routinely used to assess the average impact of research groups or nations. There is controversy over whether confidence intervals for them are theoretically valid or practically useful. In response, this article introduces the concept of a group's underlying research capability to produce impactful research. It then investigates whether confidence intervals could delimit the underlying capability of a group in practice. From 123120 confidence interval comparisons for the average citation impact of the national outputs of ten countries within 36 individual large monodisciplinary journals, moderately fewer than 95% of subsequent indicator values fall within 95% confidence intervals from prior years, with the percentage declining over time. This is consistent with confidence intervals effectively delimiting the research capability of a group, although it does not prove that this is the cause of the results. The results are unaffected by whether internationally collaborative articles are included.",
+          "claimed_authors": [
+            "Mike Thelwall"
+          ],
+          "claimed_title": "Confidence intervals for normalised citation counts: Can they delimit underlying research capability?",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1710.08708"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Robustness of Confidence Intervals to Differential Privacy Noise statistics', candidate_title='Confidence intervals for normalised citation counts: Can they delimit underlying research capability?')",
+        "failed_at": "2026-06-16T16:43:29Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Differential privacy is a definition of \"privacy'\" for algorithms that analyze and publish information about statistical databases. It is often claimed that differential privacy provides guarantees against adversaries with arbitrary side information. In this paper, we provide a precise formulation of these guarantees in terms of the inferences drawn by a Bayesian adversary. We show that this formulation is satisfied by both \"vanilla\" differential privacy as well as a relaxation known as (epsilon,delta)-differential privacy. Our formulation follows the ideas originally due to Dwork and McSherry [Dwork 2006]. This paper is, to our knowledge, the first place such a formulation appears explicitly. The analysis of the relaxed definition is new to this paper, and provides some concrete guidance for setting parameters when using (epsilon,delta)-differential privacy.",
+          "claimed_authors": [
+            "Shiva Prasad Kasiviswanathan",
+            "Adam Smith"
+          ],
+          "claimed_title": "On the `Semantics' of Differential Privacy: A Bayesian Formulation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2008,
+          "primary_pointer": "0803.3946"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Robustness of Confidence Intervals to Differential Privacy Noise statistics', candidate_title=\"On the `Semantics' of Differential Privacy: A Bayesian Formulation\")",
+        "failed_at": "2026-06-16T16:43:29Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Nowadays, the development of information technology is growing rapidly. In the big data era, the privacy of personal information has been more pronounced. The major challenge is to find a way to guarantee that sensitive personal information is not disclosed while data is published and analyzed. Centralized differential privacy is established on the assumption of a trusted third-party data curator. However, this assumption is not always true in reality. As a new privacy preservation model, local differential privacy has relatively strong privacy guarantees. Although federated learning has relatively been a privacy-preserving approach for distributed learning, it still introduces various privacy concerns. To avoid privacy threats and reduce communication costs, in this article, we propose integrating federated learning and local differential privacy with momentum gradient descent to improve the performance of machine learning models.",
+          "claimed_authors": [
+            "Mengde Han",
+            "Tianqing Zhu",
+            "Wanlei Zhou"
+          ],
+          "claimed_title": "Momentum Gradient Descent Federated Learning with Local Differential Privacy",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2209.14086"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Robustness of Confidence Intervals to Differential Privacy Noise statistics', candidate_title='Momentum Gradient Descent Federated Learning with Local Differential Privacy')",
+        "failed_at": "2026-06-16T16:43:29Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This chapter is meant to be part of the book \"Differential Privacy in Artificial Intelligence: From Theory to Practice\" and provides an introduction to Differential Privacy. It starts by illustrating various attempts to protect data privacy, emphasizing where and why they failed, and providing the key desiderata of a robust privacy definition. It then defines the key actors, tasks, and scopes that make up the domain of privacy-preserving data analysis. Following that, it formalizes the definition of Differential Privacy and its inherent properties, including composition, post-processing immunity, and group privacy. The chapter also reviews the basic techniques and mechanisms commonly used to implement Differential Privacy in its pure and approximate forms.",
+          "claimed_authors": [
+            "Ferdinando Fioretto",
+            "Pascal Van Hentenryck",
+            "Juba Ziani"
+          ],
+          "claimed_title": "Differential Privacy Overview and Fundamental Techniques",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2411.04710"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Robustness of Confidence Intervals to Differential Privacy Noise statistics', candidate_title='Differential Privacy Overview and Fundamental Techniques')",
+        "failed_at": "2026-06-16T16:43:29Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The RSNA Abdominal Traumatic Injury CT (RATIC) dataset is the largest publicly available collection of adult abdominal CT studies annotated for traumatic injuries. This dataset includes 4,274 studies from 23 institutions across 14 countries. The dataset is freely available for non-commercial use via Kaggle at https://www.kaggle.com/competitions/rsna-2023-abdominal-trauma-detection. Created for the RSNA 2023 Abdominal Trauma Detection competition, the dataset encourages the development of advanced machine learning models for detecting abdominal injuries on CT scans. The dataset encompasses detection and classification of traumatic injuries across multiple organs, including the liver, spleen, kidneys, bowel, and mesentery. Annotations were created by expert radiologists from the American Society of Emergency Radiology (ASER) and Society of Abdominal Radiology (SAR). The dataset is annotated at multiple levels, including the presence of injuries in three solid organs with injury grading, image-level annotations for active extravasations and bowel injury, and voxelwise segmentations of each of the potentially injured organs. With the release of this dataset, we hope to facilitate research and development in machine learning and abdominal trauma that can lead to improved patient care and outcomes.",
+          "claimed_authors": [
+            "Jeffrey D. Rudie",
+            "Hui-Ming Lin",
+            "Robyn L. Ball",
+            "Sabeena Jalal",
+            "Luciano M. Prevedello",
+            "Savvas Nicolaou",
+            "Brett S. Marinelli",
+            "Adam E. Flanders",
+            "Kirti Magudia",
+            "George Shih",
+            "Melissa A. Davis",
+            "John Mongan",
+            "Peter D. Chang",
+            "Ferco H. Berger",
+            "Sebastiaan Hermans",
+            "Meng Law",
+            "Tyler Richards",
+            "Jan-Peter Grunz",
+            "Andreas Steven Kunz",
+            "Shobhit Mathur",
+            "Sandro Galea-Soler",
+            "Andrew D. Chung",
+            "Saif Afat",
+            "Chin-Chi Kuo",
+            "Layal Aweidah",
+            "Ana Villanueva Campos",
+            "Arjuna Somasundaram",
+            "Felipe Antonio Sanchez Tijmes",
+            "Attaporn Jantarangkoon",
+            "Leonardo Kayat Bittencourt",
+            "Michael Brassil",
+            "Ayoub El Hajjami",
+            "Hakan Dogan",
+            "Muris Becircic",
+            "Agrahara G. Bharatkumar",
+            "Eduardo Moreno Júdice de Mattos Farina",
+            "Dataset Curator Group",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Errol Colak"
+          ],
+          "claimed_title": "The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.19595"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Robustness of Confidence Intervals to Differential Privacy Noise statistics', candidate_title='The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset')",
+        "failed_at": "2026-06-16T16:43:29Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The optimal dimensional synthesis for planar mechanisms using differential evolution (DE) is demonstrated. Four examples are included: in the first case, the synthesis of a mechanism for hybrid-tasks, considering path generation, function generation, and motion generation, is carried out. The second and third cases pertain to path generation, with and without prescribed timing. Finally, the synthesis of an Ackerman mechanism is reported. Order defect problem is solved by manipulating individuals instead of penalizing or discretizing the search space for the parameters. A technique that consists in applying a transformation in order to satisfy the Grashof and crank conditions to generate an initial elitist population is introduced. As a result, the evolutionary algorithm increases its efficiency.",
+          "claimed_authors": [
+            "F. Penunuri",
+            "R. Peon-Escalante",
+            "C. Villanueva",
+            "D. Pech-Oy"
+          ],
+          "claimed_title": "Synthesis of Mechanism for single- and hybrid-tasks using Differential Evolution",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1102.2017"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Robustness of Confidence Intervals to Differential Privacy Noise statistics', candidate_title='Synthesis of Mechanism for single- and hybrid-tasks using Differential Evolution')",
+        "failed_at": "2026-06-16T16:43:29Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The problem of path generation for the spherical 4R mechanism is solved using the Differential Evolution algorithm (DE). Formulas for the spherical geodesics are employed in order to obtain the parametric equation for the generated trajectory. Direct optimization of the objective function gives the solution to the path generation task without prescribed timing. Therefore, there is no need to separate this task into two stages to make the optimization. Moreover, the order defect problem can be solved without difficulty by means of manipulations of the individuals in the DE algorithm. Two examples of optimum synthesis showing the simplicity and effectiveness of this approach are included.",
+          "claimed_authors": [
+            "F. Penunuri",
+            "R. Peon-Escalante",
+            "C. Villanueva",
+            "Carlos A. Cruz-Villar"
+          ],
+          "claimed_title": "Synthesis of Spherical 4R Mechanism for Path Generation using Differential Evolution",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1112.2954"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Robustness of Confidence Intervals to Differential Privacy Noise statistics', candidate_title='Synthesis of Spherical 4R Mechanism for Path Generation using Differential Evolution')",
+        "failed_at": "2026-06-16T16:43:29Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "There is a considerable body of work on sequence mining of Web Log Data. We are using One Pass frequent Episode discovery (or FED) algorithm, takes a different approach than the traditional apriori class of pattern detection algorithms. In this approach significant intervals for each Website are computed first (independently) and these interval used for detecting frequent patterns/Episode and then the Analysis is performed on Significant Intervals and frequent patterns That can be used to forecast the user's behavior using previous trends and this can be also used for advertising purpose. This type of applications predicts the Website interest. In this approach, time-series data are folded over a periodicity (day, week, etc.) Which are used to form the Interval? Significant intervals are discovered from these time points that satisfy the criteria of minimum confidence and maximum interval length specified by the user.",
+          "claimed_authors": [
+            "Kanak Saxena",
+            "Rahul Shukla"
+          ],
+          "claimed_title": "Significant Interval and Frequent Pattern Discovery in Web Log Data",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.1185"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Robustness of Confidence Intervals to Differential Privacy Noise statistics', candidate_title='Significant Interval and Frequent Pattern Discovery in Web Log Data')",
+        "failed_at": "2026-06-16T16:43:29Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We show two universal, Boolean, deterministic logic schemes based on binary noise timefunctions that can be realized without time-averaging units. The first scheme is based on a new bipolar random telegraph wave scheme and the second one makes use of the recent noise-based logic which is conjectured to be the brain's method of logic operations [Physics Letters A 373 (2009) 2338-2342]. Error propagation and error removal issues are also addressed.",
+          "claimed_authors": [
+            "Laszlo B. Kish",
+            "Sunil Khatri",
+            "Ferdinand Peper"
+          ],
+          "claimed_title": "Instantaneous noise-based logic",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1004.2652"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Robustness of Confidence Intervals to Differential Privacy Noise statistics', candidate_title='Instantaneous noise-based logic')",
+        "failed_at": "2026-06-16T16:43:29Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "From the beginning of quantum mechanics, there has been a discussion about the concept of reality, as exemplified by the EPR paradox. To many, the idea of the paradox and the possibility of local hidden variables was dismissed by the Bell inequality. Yet, there remains considerable evidence that this inequality can be violated even by classical systems, so that experiments showing quantum behavior and the violation of the inequality must be questioned. Here, we demonstrate that classical optical polarization experiments based upon noise in the system can be shown to violate the Bell inequality.",
+          "claimed_authors": [
+            "David K. Ferry",
+            "Laszlo B. Kish"
+          ],
+          "claimed_title": "Noise and Bell's inequality",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1008.0667"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Robustness of Confidence Intervals to Differential Privacy Noise statistics', candidate_title=\"Noise and Bell's inequality\")",
+        "failed_at": "2026-06-16T16:43:29Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Differentially private (DP) image synthesis generates images that preserve the statistical characteristics of a sensitive dataset, enabling sensitive data analysis and usage while providing rigorous guarantees of privacy leakage. Existing methods fine-tune public models using DP Stochastic Gradient Descent (DP-SGD) on sensitive images to generate synthetic images. But full fine-tuning public models on sensitive images is computationally expensive, because current public models typically contain a large number of parameters. Recent work proposes heuristically using Low-Rank Adaptation (LoRA) on all attention-layer parameters of public models to reduce the number of trainable parameters. However, we argue that exhaustive LoRA coverage across all attention-layer parameters is suboptimal in a DP setting, as it leads to noise accumulation and collapse during private training.\n  To address this issue, we propose DP-SAPF, which uses a saliency-aware strategy to identify specific target parameters for LoRA training under DP. DP-SAPF is inspired by the fact that larger gradients signify higher saliency, indicating that these parameters are most critical for the DP learning. Specifically, we feed the sensitive images into public models, compute gradients, and add noise to the gradients to satisfy DP. Then, DP-SAPF identifies the most salient parameters, those exhibiting high gradient magnitudes on sensitive images, for DP fine-tuning. Experiments on four sensitive image datasets show that DP-SAPF improves the utility and fidelity of synthetic images while requiring fewer computational resources than fine-tuning methods without parameter selection.",
+          "claimed_authors": [
+            "Chen Gong",
+            "Kecen Li",
+            "Zinan Lin",
+            "Tianhao Wang"
+          ],
+          "claimed_title": "DP-SAPF: Saliency-Aware Parameter Fine-tuning of Public Models for Differentially Private Image Synthesis",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2605.30312"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Robustness of Confidence Intervals to Differential Privacy Noise statistics', candidate_title='DP-SAPF: Saliency-Aware Parameter Fine-tuning of Public Models for Differentially Private Image Synthesis')",
+        "failed_at": "2026-06-16T16:43:29Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Consider a linear regression model with independent and identically normally distributed random errors. Suppose that the parameter of interest is a specified linear combination of the regression parameters. We prove that the usual confidence interval for this parameter is admissible within a broad class of confidence intervals.",
+          "claimed_authors": [
+            "Paul Kabaila",
+            "Khageswor Giri",
+            "Hannes Leeb"
+          ],
+          "claimed_title": "Admissibility of the usual confidence interval in linear regression",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1001.2939"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Robustness of Confidence Intervals to Differential Privacy Noise statistics', candidate_title='Admissibility of the usual confidence interval in linear regression')",
+        "failed_at": "2026-06-16T16:43:29Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The proposed approach extends the confidence posterior distribution to the semi-parametric empirical Bayes setting. Whereas the Bayesian posterior is defined in terms of a prior distribution conditional on the observed data, the confidence posterior is defined such that the probability that the parameter value lies in any fixed subset of parameter space, given the observed data, is equal to the coverage rate of the corresponding confidence interval. A confidence posterior that has correct frequentist coverage at each fixed parameter value is combined with the estimated local false discovery rate to yield a parameter distribution from which interval and point estimates are derived within the framework of minimizing expected loss. The point estimates exhibit suitable shrinkage toward the null hypothesis value, making them practical for automatically ranking features in order of priority. The corresponding confidence intervals are also shrunken and tend to be much shorter than their fixed-parameter counterparts, as illustrated with gene expression data. Further, simulations confirm a theoretical argument that the shrunken confidence intervals cover the parameter at a higher-than-nominal frequency.",
+          "claimed_authors": [
+            "David R. Bickel"
+          ],
+          "claimed_title": "Large-scale interval and point estimates from an empirical Bayes extension of confidence posteriors",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1012.6033"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Robustness of Confidence Intervals to Differential Privacy Noise statistics', candidate_title='Large-scale interval and point estimates from an empirical Bayes extension of confidence posteriors')",
+        "failed_at": "2026-06-16T16:43:29Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Christian Covington",
+            "Xi He",
+            "James Honaker",
+            "Gautam Kamath"
+          ],
+          "title": "Unbiased Statistical Estimation and Valid Confidence Intervals Under Differential Privacy",
+          "venue": "arXiv",
+          "year": 2021
+        },
+        "primary_pointer": "2110.14465",
+        "summary": "We present a method for producing unbiased parameter estimates and valid confidence intervals under the constraints of differential privacy, a formal framework for limiting individual information leakage from sensitive data. Prior work in this area is limited in that it is tailored to calculating confidence intervals for specific statistical procedures, such as mean estimation or simple linear regression. While other recent work can produce confidence intervals for more general sets of procedures, they either yield only approximately unbiased estimates, are designed for one-dimensional outputs, or assume significant user knowledge about the data-generating distribution. Our method induces distributions of mean and covariance estimates via the bag of little bootstraps (BLB) and uses them to privately estimate the parameters' sampling distribution via a generalized version of the CoinPress estimation algorithm. If the user can bound the parameters of the BLB-induced parameters and provide heavier-tailed families, the algorithm produces unbiased parameter estimates and valid confidence intervals which hold with arbitrarily high probability. These results hold in high dimensions and for any estimation procedure which behaves nicely under the bootstrap.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2110.14465",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5714,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-16T16:43:29Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Zhe Zhang",
+            "Ryumei Nakada",
+            "Linjun Zhang"
+          ],
+          "title": "Differentially Private Federated Learning: Servers Trustworthiness, Estimation, and Statistical Inference",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2404.16287",
+        "summary": "Differentially private federated learning is crucial for maintaining privacy in distributed environments. This paper investigates the challenges of high-dimensional estimation and inference under the constraints of differential privacy. First, we study scenarios involving an untrusted central server, demonstrating the inherent difficulties of accurate estimation in high-dimensional problems. Our findings indicate that the tight minimax rates depends on the high-dimensionality of the data even with sparsity assumptions. Second, we consider a scenario with a trusted central server and introduce a novel federated estimation algorithm tailored for linear regression models. This algorithm effectively handles the slight variations among models distributed across different machines. We also propose methods for statistical inference, including coordinate-wise confidence intervals for individual parameters and strategies for simultaneous inference. Extensive simulation experiments support our theoretical advances, underscoring the efficacy and reliability of our approaches.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "theoremsearch",
+          "final_url": "https://arxiv.org/abs/2404.16287",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5714,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-16T16:43:29Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Vishesh Karwa",
+            "Salil Vadhan"
+          ],
+          "title": "Finite Sample Differentially Private Confidence Intervals",
+          "venue": "arXiv",
+          "year": 2017
+        },
+        "primary_pointer": "1711.03908",
+        "summary": "We study the problem of estimating finite sample confidence intervals of the mean of a normal population under the constraint of differential privacy. We consider both the known and unknown variance cases and construct differentially private algorithms to estimate confidence intervals. Crucially, our algorithms guarantee a finite sample coverage, as opposed to an asymptotic coverage. Unlike most previous differentially private algorithms, we do not require the domain of the samples to be bounded. We also prove lower bounds on the expected size of any differentially private confidence set showing that our the parameters are optimal up to polylogarithmic factors.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "theoremsearch",
+          "final_url": "https://arxiv.org/abs/1711.03908",
+          "http_status": 200,
+          "pdf_sample_score": 0.1562,
+          "query_relevance_score": 0.5714,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-16T16:43:29Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Xintao Xia",
+            "Linjun Zhang",
+            "Zhanrui Cai"
+          ],
+          "title": "Statistical Inference for Differentially Private Stochastic Gradient Descent",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2507.20560",
+        "summary": "Privacy preservation in machine learning, particularly through Differentially Private Stochastic Gradient Descent (DP-SGD), is critical for sensitive data analysis. However, existing statistical inference methods for SGD predominantly focus on cyclic subsampling, while DP-SGD requires randomized subsampling. This paper first bridges this gap by establishing the asymptotic properties of SGD under the randomized rule and extending these results to DP-SGD. For the output of DP-SGD, we show that the asymptotic variance decomposes into statistical, sampling, and privacy-induced components. Two methods are proposed for constructing valid confidence intervals: the plug-in method and the random scaling method. We also perform extensive numerical analysis, which shows that the proposed confidence intervals achieve nominal coverage rates while maintaining privacy.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "theoremsearch",
+          "final_url": "https://arxiv.org/abs/2507.20560",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4286,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-16T16:43:29Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Tomer Shoham",
+            "Katrina Ligettt"
+          ],
+          "title": "Differentially private ratio statistics",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2505.20351",
+        "summary": "Ratio statistics--such as relative risk and odds ratios--play a central role in hypothesis testing, model evaluation, and decision-making across many areas of machine learning, including causal inference and fairness analysis. However, despite privacy concerns surrounding many datasets and despite increasing adoption of differential privacy, differentially private ratio statistics have largely been neglected by the literature and have only recently received an initial treatment by Lin et al. [1]. This paper attempts to fill this lacuna, giving results that can guide practice in evaluating ratios when the results must be protected by differential privacy. In particular, we show that even a simple algorithm can provide excellent properties concerning privacy, sample accuracy, and bias, not just asymptotically but also at quite small sample sizes. Additionally, we analyze a differentially private estimator for relative risk, prove its consistency, and develop a method for constructing valid confidence intervals. Our approach bridges a gap in the differential privacy literature and provides a practical solution for ratio estimation in private machine learning pipelines.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "theoremsearch",
+          "final_url": "https://arxiv.org/abs/2505.20351",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.7143,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-16T16:43:29Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Jordan Awan",
+            "Aleksandra Slavkovic"
+          ],
+          "title": "Differentially Private Inference for Binomial Data",
+          "venue": "arXiv",
+          "year": 2019
+        },
+        "primary_pointer": "1904.00459",
+        "summary": "We derive uniformly most powerful (UMP) tests for simple and one-sided hypotheses for a population proportion within the framework of Differential Privacy (DP), optimizing finite sample performance. We show that in general, DP hypothesis tests can be written in terms of linear constraints, and for exchangeable data can always be expressed as a function of the empirical distribution. Using this structure, we prove a 'Neyman-Pearson lemma' for binomial data under DP, where the DP-UMP only depends on the sample sum. Our tests can also be stated as a post-processing of a random variable, whose distribution we coin ''Truncated-Uniform-Laplace'' (Tulap), a generalization of the Staircase and discrete Laplace distributions. Furthermore, we obtain exact $p$-values, which are easily computed in terms of the Tulap random variable.\n  Using the above techniques, we show that our tests can be applied to give uniformly most accurate one-sided confidence intervals and optimal confidence distributions. We also derive uniformly most powerful unbiased (UMPU) two-sided tests, which lead to uniformly most accurate unbiased (UMAU) two-sided confidence intervals. We show that our results can be applied to distribution-free hypothesis tests for continuous data. Our simulation results demonstrate that all our tests have exact type I error, and are more powerful than current techniques.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "theoremsearch",
+          "final_url": "https://arxiv.org/abs/1904.00459",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5714,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-16T16:43:30Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "robustness of confidence intervals to differential privacy noise statistics",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

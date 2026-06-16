@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1711.03908",
+  "judged_at": "2026-06-16T16:43:49Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "robustness of confidence intervals to differential privacy noise statistics",
+  "rationale": "The paper directly studies confidence intervals under differential privacy noise, providing algorithms and coverage guarantees, which matches the same mechanism (confidence interval robustness to DP noise) required by the user's question (criterion a).",
+  "relevant": true
+}

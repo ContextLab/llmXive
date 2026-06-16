@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1606.08600",
+  "judged_at": "2026-06-16T16:45:44Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "constraining lorentz invariance violation with fermi gamma‑ray burst spectra physics",
+  "rationale": "The paper provides constraints on Lorentz invariance violation using high‑energy gamma‑ray spectral analysis, the same physical mechanism (photon dispersion‑relation LIV) that the user’s question concerns, even though it studies a blazar with H.E.S.S. rather than Fermi GRBs (acceptance category (a)).",
+  "relevant": true
+}

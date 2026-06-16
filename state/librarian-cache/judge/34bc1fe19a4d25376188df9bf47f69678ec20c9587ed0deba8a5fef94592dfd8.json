@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1904.00459",
+  "judged_at": "2026-06-16T16:44:09Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "robustness of confidence intervals to differential privacy noise statistics",
+  "rationale": "The paper studies confidence intervals constructed under differential privacy noise for binomial data, directly addressing the same mechanism (DP noise) and the robustness/accuracy of DP confidence intervals (category (a) same‑mechanism evidence). It therefore provides relevant prior work for a review on robustness of confidence intervals to DP noise.",
+  "relevant": true
+}

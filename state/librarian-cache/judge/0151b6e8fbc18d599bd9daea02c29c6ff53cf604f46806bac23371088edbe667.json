@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "0910.2249",
+  "judged_at": "2026-06-16T16:46:28Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "constraining lorentz invariance violation with fermi gamma‑ray burst spectra physics",
+  "rationale": "The paper studies gamma‑ray pulsations from two pulsars and does not address Lorentz invariance violation, nor does it use GRB spectra to constrain such effects; it is off‑topic relative to the user's focus on LIV constraints with Fermi GRB data.",
+  "relevant": false
+}

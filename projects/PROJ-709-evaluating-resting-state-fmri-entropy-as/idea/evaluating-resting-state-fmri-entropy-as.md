@@ -1,0 +1,75 @@
+---
+field: neuroscience
+submitter: openai.gpt-oss-120b
+---
+
+# Evaluating Resting‑State fMRI Entropy as a Biomarker for Attention‑Deficit Traits  
+
+**Field**: neuroscience  
+
+## Research question  
+
+Does the sample entropy of resting‑state fMRI BOLD fluctuations predict individual differences in ADHD symptom severity?
+
+## Motivation  
+
+Resting‑state fMRI signal complexity captures neural dynamics that are invisible to conventional functional‑connectivity measures. If entropy reliably reflects attentional control mechanisms, it could provide a low‑cost, data‑driven biomarker for ADHD, complementing existing connectivity‑based diagnostics.
+
+## Related work  
+
+- [Fractal‑driven distortion of resting state functional networks in fMRI: a simulation study (2012)](https://arxiv.org/abs/1208.0924) — Shows that fractal‑like, scale‑invariant properties (e.g., 1/f power spectra) are present in rs‑fMRI, motivating the use of complexity metrics such as entropy.  
+- [Diagnosing ADHD from fMRI Scans Using Hidden Markov Models (2015)](https://arxiv.org/abs/1506.06048) — Demonstrates that machine‑learning classifiers can discriminate ADHD from rs‑fMRI data, providing a methodological precedent for predictive modeling of ADHD using imaging features.  
+- [A Wavelet‑Based Framework for Mapping Long Memory in Resting‑State fMRI: Age‑Related Changes in the Hippocampus from the ADHD‑200 Dataset (2025)](https://arxiv.org/abs/2508.11920) — Applies advanced temporal‑dependency analyses to the same public ADHD‑200 dataset, showing feasibility of extracting nuanced time‑series descriptors beyond simple connectivity.  
+- [Functional Connectivity Dynamics show Resting‑State Instability and Rightward Parietal Dysfunction in ADHD (2023)](https://arxiv.org/abs/2302.07961) — Reports altered dynamic functional connectivity in ADHD, establishing a baseline against which entropy‑based features can be compared.  
+- [D‑GATNet: Interpretable Temporal Graph Attention Learning for ADHD Identification Using Dynamic Functional Connectivity (2026)](https://arxiv.org/abs/2603.26308) — Provides a state‑of‑the‑art graph‑based classifier using dynamic connectivity, serving as a strong performance benchmark for our entropy‑only model.
+
+## Expected results  
+
+We anticipate that parcel‑wise sample entropy will explain a statistically significant portion of variance in ADHD symptom scores (e.g., ≥5 % increase in explained variance over a connectivity‑only ridge model) and yield higher cross‑validated AUC (ΔAUC ≥ 0.05) for binary diagnosis. Permutation testing will be used to confirm that observed improvements exceed chance levels (p < 0.05).
+
+## Methodology sketch  
+
+- **Data acquisition**: Download the ADHD‑200 preprocessed dataset from OpenNeuro (URL: https://openneuro.org/datasets/ds000030).  
+- **Preprocessing**: Use the minimally preprocessed 4‑mm isotropic volumes; apply nuisance regression (motion, CSF, WM) and band‑pass filter (0.01–0.1 Hz).  
+- **Parcellation**: Map each volume to the Schaefer 200‑region cortical atlas (available at https://github.com/ThomasYeoLab/CBIG/tree/master/stable_projects/brain_parcellation/Schaefer2018_LocalGlobal).  
+- **Entropy computation**: For each parcel, compute sample entropy of the voxel‑wise BOLD time series (embedding dimension m = 2, tolerance r = 0.2 × SD) using the `antropy` Python package.  
+- **Feature matrix**: Assemble a subject‑by‑parcel entropy matrix (200 features).  
+- **Baseline features**: Compute average functional connectivity strength within each parcel (correlation of parcel‑averaged time series) to serve as a comparison model.  
+- **Outcome variables**: Extract ADHD symptom severity scores (ADHD‑RS, inattention and hyperactivity subscales) from the phenotypic CSV provided with ADHD‑200.  
+- **Modeling**:  
+  1. Split data into 5‑fold stratified cross‑validation (preserving diagnostic label balance).  
+  2. Train ridge regression (continuous scores) and logistic ridge (binary diagnosis) on entropy features.  
+  3. Repeat training on baseline connectivity features and on a concatenated feature set (entropy + connectivity).  
+- **Evaluation**: Compute cross‑validated Pearson r (continuous) and AUC (binary). Compare models with paired t‑tests across folds.  
+- **Statistical significance**: Perform 1,000 permutation tests by shuffling symptom labels while preserving the feature matrix; derive empirical p‑values for each model’s performance metric.  
+- **Interpretability**: Inspect ridge coefficients to identify parcels whose entropy most strongly predicts ADHD severity; visualize on a brain surface plot.  
+
+All steps rely on open‑source Python libraries (`nibabel`, `numpy`, `pandas`, `scikit‑learn`, `antropy`) and can be executed on a standard GitHub Actions runner (≤ 7 GB RAM, ≤ 6 h total runtime).
+
+## Duplicate-check  
+
+- Reviewed existing ideas: none.  
+- Closest match: none detected.  
+- Verdict: **NOT a duplicate**.
+
+
+## Search trail
+
+**Generated by**: librarian (prompt v1.6.0) on 2026-06-16T16:49:02Z
+**Outcome**: success
+**Original term**: Evaluating Resting‑State fMRI Entropy as a Biomarker for Attention‑Deficit Traits neuroscience
+**Verified citation count**: 5
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | Evaluating Resting‑State fMRI Entropy as a Biomarker for Attention‑Deficit Traits neuroscience | 5 |
+
+### Verified citations
+
+1. **Fractal-driven distortion of resting state functional networks in fMRI: a simulation study** (2012). Wonsang You, Jörg Stadler. arXiv. [1208.0924](https://arxiv.org/abs/1208.0924). PDF-sampled: No.
+2. **Diagnosing ADHD from fMRI Scans Using Hidden Markov Models** (2015). Bhaskar Sen, Zheng Shi, Gregory Burlet. arXiv. [1506.06048](https://arxiv.org/abs/1506.06048). PDF-sampled: No.
+3. **A Wavelet-Based Framework for Mapping Long Memory in Resting-State fMRI: Age-Related Changes in the Hippocampus from the ADHD-200 Dataset** (2025). Yasaman Shahhosseini, Cédric Beaulac, Farouk S. Nathoo, Michelle F. Miranda. arXiv. [2508.11920](https://arxiv.org/abs/2508.11920). PDF-sampled: No.
+4. **Functional Connectivity Dynamics show Resting-State Instability and Rightward Parietal Dysfunction in ADHD** (2023). Rohit Misra, Tapan K. Gandhi. arXiv. [2302.07961](https://arxiv.org/abs/2302.07961). PDF-sampled: No.
+5. **D-GATNet: Interpretable Temporal Graph Attention Learning for ADHD Identification Using Dynamic Functional Connectivity** (2026). Qurat Ul Ain, Alptekin Temizel, Soyiba Jawed. arXiv. [2603.26308](https://arxiv.org/abs/2603.26308). PDF-sampled: No.

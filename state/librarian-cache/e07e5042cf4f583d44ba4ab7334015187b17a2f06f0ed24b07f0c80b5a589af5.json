@@ -1,0 +1,358 @@
+{
+  "fetched_at": "2026-06-16T16:46:29Z",
+  "field": "physics",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "physics",
+      "idea_body_excerpt": "Constraining Lorentz Invariance Violation with Fermi Gamma‑Ray Burst Spectra",
+      "target_n": 5
+    },
+    "duration_seconds": 98.421,
+    "ended_at": "2026-06-16T16:46:29Z",
+    "expansion": null,
+    "extracted_queries": [
+      "Lorentz symmetry breaking",
+      "Fermi LAT gamma‑ray bursts",
+      "spectral lag photon dispersion",
+      "LIV upper limits quantum gravity",
+      "effective field theory modified dispersion"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "1503.01182"
+      ]
+    },
+    "per_query_hit_count": {
+      "Constraining Lorentz Invariance Violation with Fermi Gamma‑Ray Burst Spectra physics": 3,
+      "Fermi LAT gamma‑ray bursts": 3,
+      "LIV upper limits quantum gravity": 3,
+      "Lorentz symmetry breaking": 2,
+      "effective field theory modified dispersion": 3,
+      "spectral lag photon dispersion": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 3,
+      "rejections": [
+        {
+          "primary_pointer": "0912.3666",
+          "rationale": "The paper studies gamma‑ray pulsars observed with the Fermi LAT and does not investigate Lorentz invariance violation, gamma‑ray burst spectra, or related constraints, thus it is off‑domain for the user's question.",
+          "title": "Pulsar observations with the Fermi LAT: what we have seen"
+        },
+        {
+          "primary_pointer": "0910.0908",
+          "rationale": "The paper studies gamma‑ray emission from a supernova remnant, not gamma‑ray bursts, and does not address Lorentz invariance violation or its constraints, thus it is off‑domain for the user's question.",
+          "title": "Fermi-LAT Discovery of Extended Gamma-ray Emission in the Direction of Supernova Remnant W51C"
+        },
+        {
+          "primary_pointer": "0910.2249",
+          "rationale": "The paper studies gamma‑ray pulsations from two pulsars and does not address Lorentz invariance violation, nor does it use GRB spectra to constrain such effects; it is off‑topic relative to the user's focus on LIV constraints with Fermi GRB data.",
+          "title": "Fermi LAT detection of pulsed gamma-rays from the Vela-like pulsars PSR J1048-5832 and PSR J2229+6114"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-16T16:44:51Z",
+    "term_input": {
+      "normalized": "constraining lorentz invariance violation with fermi gamma‑ray burst spectra physics",
+      "raw": "Constraining Lorentz Invariance Violation with Fermi Gamma‑Ray Burst Spectra physics"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We discuss three manners to implement Lorentz symmetry breaking in a superfield theory formulated within the superfield formalism, that is, deformation of the supersymmetry algebra, introducing of an extra superfield whose components can depend on Lorentz-violating (LV) vectors (tensors), and adding of new terms proportional to LV vectors (tensors) to the superfield action. We illustrate these methodologies with examples of quantum calculations.",
+          "claimed_authors": [
+            "J. R. Nascimento",
+            "A. Yu. Petrov"
+          ],
+          "claimed_title": "Lorentz symmetry breaking and supersymmetry",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2206.11002"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Constraining Lorentz Invariance Violation with Fermi Gamma‑Ray Burst Spectra phy', candidate_title='Lorentz symmetry breaking and supersymmetry')",
+        "failed_at": "2026-06-16T16:45:34Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We purpose a study a Lorentz-breaking extension of the scalar QED. We calculate the contributions in the Lorentz-violating parameters to the two-point functions of scalar and gauge fields. We found that the two background tensors, coming from the two sectors (scalar and gauge) are mixed in the one-loop corrections. This shows that these two Lorentz-breaking terms cannot be studied in an isolated form.",
+          "claimed_authors": [
+            "Jean C. C. Felipe",
+            "A. Yu Petrov",
+            "A. P. B. Scarpelli",
+            "L. C. T. Brito"
+          ],
+          "claimed_title": "Calculations in Lorentz-breaking scalar QED",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2212.09504"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Constraining Lorentz Invariance Violation with Fermi Gamma‑Ray Burst Spectra phy', candidate_title='Calculations in Lorentz-breaking scalar QED')",
+        "failed_at": "2026-06-16T16:45:34Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The spectral behavior of the difference between the resolvents of two realizations $\\tilde A_1$ and $\\tilde A_2$ of a second-order strongly elliptic symmetric differential operator $A$, defined by different Robin conditions $νu=b_1γ_0u$ and $νu=b_2γ_0u$, can in the case where all coefficients are $C^\\infty$ be determined by use of a general result by the author in 1984 on singular Green operators. We here treat the problem for nonsmooth $b_i$. Using a Krein resolvent formula, we show that if $b_1$ and $b_2$ are in $L_\\infty$, the s-numbers $s_j$ of $(\\tilde A_1 -λ)^{-1}-(\\tilde A_2 -λ)^{-1}$ satisfy $s_j j^{3/(n-1)}\\le C$ for all $j$; this improves a recent result for $A=-Δ$ by Behrndt et al., that $\\sum_js_j ^p<\\infty$ for $p>(n-1)/3$. A sharper estimate is obtained when $b_1$ and $b_2$ are in $C^ε$ for some $ε>0$, with jumps at a smooth hypersurface, namely that $s_j j^{3/(n-1)}\\to c$ for $j\\to \\infty$, with a constant $c$ defined from the principal symbol of $A$ and $b_2-b_1$.\n  As an auxiliary result we show that the usual principal spectral asymptotic estimate for pseudodifferential operators of negative order on a closed manifold extends to products of pseudodifferential operators interspersed with piecewise continuous functions.",
+          "claimed_authors": [
+            "Gerd Grubb"
+          ],
+          "claimed_title": "Spectral asymptotics for Robin problems with a discontinuous coefficient",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1009.0997"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Constraining Lorentz Invariance Violation with Fermi Gamma‑Ray Burst Spectra phy', candidate_title='Spectral asymptotics for Robin problems with a discontinuous coefficient')",
+        "failed_at": "2026-06-16T16:45:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Consider an elliptic self-adjoint pseudodifferential operator $A$ acting on $m$-columns of half-densities on a closed manifold $M$, whose principal symbol is assumed to have simple eigenvalues. We show that the spectrum of $A$ decomposes, up to an error with superpolynomial decay, into $m$ distinct series, each associated with one of the eigenvalues of the principal symbol of $A$. These spectral results are then applied to the study of propagation of singularities in hyperbolic systems. The key technical ingredient is the use of the carefully devised pseudodifferential projections introduced in the first part of this work, which decompose $L^2(M)$ into almost-orthogonal almost-invariant subspaces under the action of both $A$ and the hyperbolic evolution.",
+          "claimed_authors": [
+            "Matteo Capoferri",
+            "Dmitri Vassiliev"
+          ],
+          "claimed_title": "Invariant subspaces of elliptic systems II: spectral theory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2103.14334"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Constraining Lorentz Invariance Violation with Fermi Gamma‑Ray Burst Spectra phy', candidate_title='Invariant subspaces of elliptic systems II: spectral theory')",
+        "failed_at": "2026-06-16T16:45:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We consider an elliptic self-adjoint first order pseudodifferential operator acting on columns of complex-valued half-densities over a connected compact manifold without boundary. The eigenvalues of the principal symbol are assumed to be simple but no assumptions are made on their sign, so the operator is not necessarily semi-bounded. We study the following objects: the propagator (time-dependent operator which solves the Cauchy problem for the dynamic equation), the spectral function (sum of squares of Euclidean norms of eigenfunctions evaluated at a given point of the manifold, with summation carried out over all eigenvalues between zero and a positive lambda) and the counting function (number of eigenvalues between zero and a positive lambda). We derive explicit two-term asymptotic formulae for all three. For the propagator \"asymptotic\" is understood as asymptotic in terms of smoothness, whereas for the spectral and counting functions \"asymptotic\" is understood as asymptotic with respect to lambda tending to plus infinity.",
+          "claimed_authors": [
+            "Olga Chervova",
+            "Robert J. Downes",
+            "Dmitri Vassiliev"
+          ],
+          "claimed_title": "The spectral function of a first order elliptic system",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1208.6015"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Constraining Lorentz Invariance Violation with Fermi Gamma‑Ray Burst Spectra phy', candidate_title='The spectral function of a first order elliptic system')",
+        "failed_at": "2026-06-16T16:45:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We offer a brief survey of existent and planned experimental tests for quantum gravity. First, we outline the questions we wish to address, and then introduce some of the phenomenological models that are currently used in quantum gravity, both with and without a lowered Planck scale. After that, we summarize experimental areas where these models can be tested or constrained and discuss the status of the field.",
+          "claimed_authors": [
+            "Sabine Hossenfelder"
+          ],
+          "claimed_title": "Experimental Search for Quantum Gravity",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1010.3420"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Constraining Lorentz Invariance Violation with Fermi Gamma‑Ray Burst Spectra phy', candidate_title='Experimental Search for Quantum Gravity')",
+        "failed_at": "2026-06-16T16:45:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We summarize recent developments at the interface of quantum gravity and quantum information, and discuss applications to the quantum geometry of space in loop quantum gravity. In particular, we describe the notions of link entanglement, intertwiner entanglement, and boundary spin entanglement in a spin-network state. We discuss how these notions encode the gluing of quanta of space and their relevance for the reconstruction of a quantum geometry from a network of entanglement structures. We then focus on the geometric entanglement entropy of spin-network states at fixed spins, treated as a many-body system of quantum polyhedra, and discuss the hierarchy of volume-law, area-law and zero-law states. Using information theoretic bounds on the uncertainty of geometric observables and on their correlations, we identify area-law states as the corner of the Hilbert space that encodes a semiclassical geometry, and the geometric entanglement entropy as a probe of semiclassicality.",
+          "claimed_authors": [
+            "Eugenio Bianchi",
+            "Etera R. Livine"
+          ],
+          "claimed_title": "Loop Quantum Gravity and Quantum Information",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2302.05922"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Constraining Lorentz Invariance Violation with Fermi Gamma‑Ray Burst Spectra phy', candidate_title='Loop Quantum Gravity and Quantum Information')",
+        "failed_at": "2026-06-16T16:45:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The current understanding of renormalization in quantum gravity (QG) is based on the fact that UV divergences of effective actions in the covariant QG models are covariant local expressions. This fundamental statement plays a central role in QG and, therefore, it is important to prove it for the widest possible range of the QG theories. Using the Batalin-Vilkovisky technique and the background field method, we elaborate the proof of gauge invariant renormalizability for a generic model of quantum gravity that is diffeomorphism invariant and does not have additional, potentially anomalous, symmetries.",
+          "claimed_authors": [
+            "P. M. Lavrov",
+            "I. L. Shapiro"
+          ],
+          "claimed_title": "Gauge invariant renormalizability of quantum gravity",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2210.09271"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Constraining Lorentz Invariance Violation with Fermi Gamma‑Ray Burst Spectra phy', candidate_title='Gauge invariant renormalizability of quantum gravity')",
+        "failed_at": "2026-06-16T16:45:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The functional Schrodinger picture formulation of quantum field theory and the variational Gaussian approximation method based on the formulation are briefly reviewed. After presenting recent attempts to improve the variational approximation, we introduce a new systematic method based on the background field method, which enables one to compute the order-by-order correction terms to the Gaussian approximation of the effective action.",
+          "claimed_authors": [
+            "Jae Hyung Yee"
+          ],
+          "claimed_title": "Variational Approach to Quantum Field Theory: Gaussian Approximation and the Perturbative Expansion around It",
+          "claimed_venue": "arXiv",
+          "claimed_year": 1997,
+          "primary_pointer": "hep-th/9707234"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Constraining Lorentz Invariance Violation with Fermi Gamma‑Ray Burst Spectra phy', candidate_title='Variational Approach to Quantum Field Theory: Gaussian Approximation and the Perturbative Expansion around It')",
+        "failed_at": "2026-06-16T16:45:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We suggest that the dark side of the universe builds a dark medium modifying the Standard Model particle dispersion relations. We introduce the generic form for the modified dispersion relations and provide explicit models of the dark medium. We use the derived neutrino dispersion relations to show that the size of the corrections are smaller than the SN1987a bounds. We argue that before invoking modifications of Einstein's theory of relativity one should investigate the dark medium effects.",
+          "claimed_authors": [
+            "Isabella Masina",
+            "Francesco Sannino"
+          ],
+          "claimed_title": "Dark Medium Modified Dispersion Relations",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1110.1853"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Constraining Lorentz Invariance Violation with Fermi Gamma‑Ray Burst Spectra phy', candidate_title='Dark Medium Modified Dispersion Relations')",
+        "failed_at": "2026-06-16T16:45:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The techniques of dispersion relations match very well with those of effective field theory. I describe the techniques for using dispersion relations effectively, and give some pedagogical examples to illustrate the range of applications.",
+          "claimed_authors": [
+            "John F. Donoghue"
+          ],
+          "claimed_title": "Dispersion Relations and Effective Field Theory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 1996,
+          "primary_pointer": "hep-ph/9607351"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Constraining Lorentz Invariance Violation with Fermi Gamma‑Ray Burst Spectra phy', candidate_title='Dispersion Relations and Effective Field Theory')",
+        "failed_at": "2026-06-16T16:45:36Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Matthias Lorentz",
+            "Pierre Brun"
+          ],
+          "title": "Limits on Lorentz invariance violation at the Planck energy scale from H.E.S.S. spectral analysis of the blazar Mrk 501",
+          "venue": "arXiv",
+          "year": 2016
+        },
+        "primary_pointer": "1606.08600",
+        "summary": "Some extensions to the Standard Model lead to the introduction of Lorentz symmetry breaking terms, expected to induce deviations from Lorentz symmetry around the Planck scale. A parameterization of effects due to Lorentz invariance violation (LIV) can be introduced by adding an effective term to the photon dispersion relation. This affects the kinematics of electron-positron pair creation by TeV $γ$ rays on the extragalactic background light (EBL) and translates into modifications of the standard EBL opacity for the TeV photon spectra of extragalactic sources. Exclusion limits are presented, obtained with the spectral analysis of H.E.S.S. observations taken on the blazar Mrk 501 during the exceptional 2014 flare. The energy spectrum, extending very significantly above 10 TeV, allows to place strong limits on LIV in the photon sector at the level of the Planck energy scale for linear perturbations in the photon dispersion relation, and provides the strongest constraints presently for the case of quadratic perturbations.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1606.08600",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-16T16:45:33Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Floyd W. Stecker"
+          ],
+          "title": "Gamma-ray and Cosmic-ray Tests of Lorentz Invariance Violation and Quantum Gravity Models and Their Implications",
+          "venue": "arXiv",
+          "year": 2009
+        },
+        "primary_pointer": "0912.0500",
+        "summary": "The topic of Lorentz invariance violation is a fundamental question in physics that has taken on particular interest in theoretical explorations of quantum gravity scenarios. I discuss various gamma-ray observations that give limits on predicted potential effects of Lorentz invariance violation. Among these are spectral data from ground based observations of the multi-TeV gamma-rays from nearby AGN, INTEGRAL detections of polarized soft gamma-rays from the vicinity of the Crab pulsar, Fermi Gamma Ray Space Telescope studies of photon propagation timing from gamma-ray bursts, and Auger data on the spectrum of ultrahigh energy cosmic rays. These results can be used to seriously constrain or rule out some models involving Planck scale physics. Possible implications of these limits for quantum gravity and Planck scale physics will be discussed.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/0912.0500",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.7,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-16T16:45:33Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "M. Ohno",
+            "T. Kawano",
+            "M. S. Tashiro",
+            "H. Ueno",
+            "D. Yonetoku",
+            "H. Sameshima",
+            "T. Takahashi",
+            "H. Seta",
+            "R. Mushotzky",
+            "K. Yamaoka",
+            "ASTRO-H SWG team",
+            "Fermi LAT/GBM collaborations"
+          ],
+          "title": "Observations of Gamma-ray Bursts with ASTRO-H and Fermi",
+          "venue": "arXiv",
+          "year": 2015
+        },
+        "primary_pointer": "1503.01182",
+        "summary": "ASTRO-H, the sixth Japanese X-ray observatory, which is scheduled to be launched by the end of Japanese fiscal year 2015 has a capability to observe the prompt emission from Gamma-ray Bursts (GRBs) utilizing BGO active shields for the soft gamma-ray detector (SGD). The effective area of the SGD shield detectors is very large and its data acquisition system is optimized for short transients such as short GRBs. Thus, we expect to perform more detailed time-resolved spectral analysis with a combination of ASTRO-H and Fermi LAT/GBM to investigate the gamma-ray emission mechanism of short GRBs. In addition, the environment of the GRB progenitor should be a remarkable objective from the point of view of the chemical evolution of high-z universe. If we can maneuver the spacecraft to the GRBs, we can perform a high-resolution spectroscopy of the X-ray afterglow of GRBs utilizing the onboard micro calorimeter and X-ray CCD camera.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1503.01182",
+          "http_status": 200,
+          "pdf_sample_score": 0.2185,
+          "query_relevance_score": 0.3,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-16T16:45:34Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "constraining lorentz invariance violation with fermi gamma‑ray burst spectra physics",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}
