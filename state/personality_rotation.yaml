@@ -1,11 +1,7 @@
 last_used: ada-lovelace
-last_used_at: '2026-06-16T11:16:45.912756+00:00'
+last_used_at: '2026-06-16T13:08:20.270505+00:00'
 last_outcome: librarian_held
 history:
-- slug: marie-curie
-  started_at: '2026-06-05T22:35:38.119036+00:00'
-  ended_at: '2026-06-05T23:30:40.993522+00:00'
-  outcome: model_error
 - slug: marie-curie
   started_at: '2026-06-05T23:30:40.993522+00:00'
   ended_at: '2026-06-05T23:54:52.201337+00:00'
@@ -1121,3 +1117,10 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-618-bench-evaluating-proactive-personal-assi/reviews/research/_held/alan-turing-simulated__2026-06-16__research.md
+- slug: alan-turing
+  started_at: '2026-06-16T11:16:45.912756+00:00'
+  ended_at: '2026-06-16T13:08:20.270505+00:00'
+  outcome: librarian_held
+  action: comment
+  committed_paths:
+  - projects/PROJ-294-evaluating-the-impact-of-code-generation/reviews/research/_held/alan-turing-simulated__2026-06-16__research.md
