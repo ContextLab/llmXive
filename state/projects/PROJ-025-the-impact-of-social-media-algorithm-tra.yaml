@@ -1,17 +1,18 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-04-30T08:56:45.172352Z'
-current_stage: flesh_out_complete
+current_stage: flesh_out_in_progress
 failed_stage: null
 field: psychology
 human_escalation_reason: null
 id: PROJ-025-the-impact-of-social-media-algorithm-tra
-last_run_id: c123c199-ecbf-4659-88ec-5223088241d4
+last_run_id: efb65f2a-a1c5-44ec-a19a-262b41ab6a29
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
+revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: The Impact of Social Media Algorithm Transparency on User Well-being
-updated_at: '2026-04-30T08:58:55.356622Z'
+updated_at: '2026-06-16T23:14:46.381452Z'
