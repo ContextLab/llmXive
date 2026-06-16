@@ -1,337 +1,173 @@
 """
-SHA-256 Checksum Generation Module for Knot Complexity Analysis Project.
+Reproducibility checksums utility.
 
-This module generates SHA-256 checksums for all data files in the project,
-fulfilling FR-007 reproducibility requirements for data integrity verification.
+This module scans the project's ``data`` directory, computes SHA‑256 checksums
+for every file it contains (recursively), and writes three artefacts:
 
-Usage:
-    python -m code.reproducibility.checksums
+1. ``data/checksums.json`` – a JSON list of checksum entries.
+2. ``data/checksums.csv``  – a CSV representation of the same data.
+3. ``docs/reproducibility/checksums.md`` – a human‑readable markdown
+   document summarising the checksums in a table.
 
-Output:
-    - data/checksums.json: JSON file with checksum records
-    - docs/reproducibility/checksums.md: Human-readable checksum documentation
+The implementation deliberately avoids the project's ``ReproducibilityLogger``
+(which historically did not expose an ``info`` method) and instead uses the
+generic ``log_operation`` decorator for consistency with the rest of the
+code‑base.
 """
 
-import hashlib
-import json
-import csv
-from pathlib import Path
-from typing import Dict, List, Optional, Tuple
-from datetime import datetime, timezone
-from dataclasses import dataclass, asdict
-from reproducibility.logs import log_operation, get_logger
+from __future__ import annotations
 
+import csv
+import json
+from dataclasses import asdict, dataclass
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import List
+
+from reproducibility.logs import log_operation, get_logger
 
 @dataclass
 class ChecksumEntry:
-    """Represents a single checksum record for a data file."""
-    file_path: str
-    file_name: str
-    file_size_bytes: int
-    sha256_hash: str
-    algorithm: str = "SHA-256"
-    generated_at: str = ""
+    """A single checksum record."""
+    file_path: str          # Path relative to the repository root
+    sha256: str
+    size_bytes: int
+    recorded_at: str        # ISO‑8601 timestamp
 
-    def __post_init__(self):
-        if not self.generated_at:
-            self.generated_at = datetime.now(timezone.utc).isoformat()
-
-
-@dataclass
-class ChecksumRecord:
-    """Complete checksum record with metadata."""
-    entries: List[ChecksumEntry]
-    total_files: int
-    total_size_bytes: int
-    generated_at: str
-    project_root: str
-
-    def to_dict(self) -> Dict:
-        return {
-            "checksums": [asdict(e) for e in self.entries],
-            "total_files": self.total_files,
-            "total_size_bytes": self.total_size_bytes,
-            "generated_at": self.generated_at,
-            "project_root": self.project_root,
-            "algorithm": "SHA-256"
-        }
-
-
+# ----------------------------------------------------------------------
+# Helper functions
+# ----------------------------------------------------------------------
 def compute_sha256(file_path: Path) -> str:
-    """
-    Compute SHA-256 hash of a file.
+    """Return the SHA‑256 hex digest of *file_path*."""
+    import hashlib
 
-    Args:
-        file_path: Path to the file to hash
-
-    Returns:
-        Hexadecimal SHA-256 hash string
-    """
-    sha256_hash = hashlib.sha256()
-    with open(file_path, "rb") as f:
-        # Read in chunks for memory efficiency with large files
+    hash_sha256 = hashlib.sha256()
+    with file_path.open("rb") as f:
         for chunk in iter(lambda: f.read(8192), b""):
-            sha256_hash.update(chunk)
-    return sha256_hash.hexdigest()
-
+            hash_sha256.update(chunk)
+    return hash_sha256.hexdigest()
 
 def get_file_size(file_path: Path) -> int:
-    """Get file size in bytes."""
+    """Return the size of *file_path* in bytes."""
     return file_path.stat().st_size
 
-
-def find_data_files(data_dir: Path) -> List[Path]:
+def find_data_files(base_dir: Path) -> List[Path]:
     """
-    Find all data files in the data directory.
+    Recursively locate all files under *base_dir* (the project's ``data`` folder).
 
-    Includes files with extensions: .json, .csv, .txt, .md, .png, .yaml, .yml
-
-    Args:
-        data_dir: Path to the data directory
-
-    Returns:
-        List of file paths
+    Directories themselves are ignored; only regular files are returned.
     """
-    data_files = []
-    extensions = {".json", ".csv", ".txt", ".md", ".png", ".yaml", ".yml", ".parquet"}
+    return [p for p in base_dir.rglob("*") if p.is_file()]
 
-    if not data_dir.exists():
-        return data_files
-
-    for ext in extensions:
-        data_files.extend(data_dir.rglob(f"*{ext}"))
-
-    return sorted(data_files)
-
-
-def record_checksums(data_dir: Path, project_root: Path) -> ChecksumRecord:
+def record_checksums(files: List[Path], repo_root: Path) -> List[ChecksumEntry]:
     """
-    Compute and record checksums for all data files.
+    Compute checksums for *files* and return a list of :class:`ChecksumEntry`.
 
-    Args:
-        data_dir: Path to the data directory
-        project_root: Path to the project root
-
-    Returns:
-        ChecksumRecord with all checksum entries
+    ``repo_root`` is used to store file paths relative to the repository root.
     """
-    logger = get_logger()
-    logger.info(f"Computing checksums for data directory: {data_dir}")
+    entries: List[ChecksumEntry] = []
+    now_iso = datetime.now(timezone.utc).isoformat()
 
-    data_files = find_data_files(data_dir)
-    entries = []
-    total_size = 0
-
-    for file_path in data_files:
-        try:
-            file_size = get_file_size(file_path)
-            file_hash = compute_sha256(file_path)
-
-            entry = ChecksumEntry(
-                file_path=str(file_path.relative_to(project_root)),
-                file_name=file_path.name,
-                file_size_bytes=file_size,
-                sha256_hash=file_hash
+    for file_path in files:
+        rel_path = str(file_path.relative_to(repo_root))
+        checksum = compute_sha256(file_path)
+        size = get_file_size(file_path)
+        entries.append(
+            ChecksumEntry(
+                file_path=rel_path,
+                sha256=checksum,
+                size_bytes=size,
+                recorded_at=now_iso,
             )
-            entries.append(entry)
-            total_size += file_size
-
-            logger.info(f"Checksum computed: {file_path.name} ({file_size} bytes)")
-
-        except Exception as e:
-            logger.warning(f"Failed to compute checksum for {file_path}: {e}")
-
-    return ChecksumRecord(
-        entries=entries,
-        total_files=len(entries),
-        total_size_bytes=total_size,
-        generated_at=datetime.now(timezone.utc).isoformat(),
-        project_root=str(project_root)
-    )
-
-
-def write_checksums_json(record: ChecksumRecord, output_path: Path) -> None:
-    """
-    Write checksum record to JSON file.
-
-    Args:
-        record: ChecksumRecord to write
-        output_path: Path to output JSON file
-    """
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, "w", encoding="utf-8") as f:
-        json.dump(record.to_dict(), f, indent=2)
-
-
-def write_checksums_csv(record: ChecksumRecord, output_path: Path) -> None:
-    """
-    Write checksum record to CSV file.
-
-    Args:
-        record: ChecksumRecord to write
-        output_path: Path to output CSV file
-    """
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, "w", newline="", encoding="utf-8") as f:
-        writer = csv.writer(f)
-        writer.writerow(["file_path", "file_name", "file_size_bytes", "sha256_hash", "algorithm", "generated_at"])
-        for entry in record.entries:
-            writer.writerow([
-                entry.file_path,
-                entry.file_name,
-                entry.file_size_bytes,
-                entry.sha256_hash,
-                entry.algorithm,
-                entry.generated_at
-            ])
-
-
-def write_checksums_documentation(record: ChecksumRecord, output_path: Path) -> None:
-    """
-    Write human-readable checksum documentation in Markdown format.
-
-    Args:
-        record: ChecksumRecord to document
-        output_path: Path to output Markdown file
-    """
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-
-    lines = [
-        "# Data File Checksums",
-        "",
-        f"**Generated:** {record.generated_at}",
-        f"**Total Files:** {record.total_files}",
-        f"**Total Size:** {record.total_size_bytes:,} bytes",
-        f"**Algorithm:** SHA-256",
-        "",
-        "## Checksum Table",
-        "",
-        "| File Path | File Name | Size (bytes) | SHA-256 Hash |",
-        "|-----------|-----------|--------------|--------------|"
-    ]
-
-    for entry in record.entries:
-        lines.append(
-            f"| {entry.file_path} | {entry.file_name} | {entry.file_size_bytes:,} | `{entry.sha256_hash}` |"
         )
+    return entries
 
-    lines.extend([
-        "",
-        "## Verification Instructions",
-        "",
-        "To verify data integrity, compute the SHA-256 hash of each file and compare against the values above:",
-        "",
-        "```bash",
-        "# Linux/Mac",
-        "sha256sum <file_path>",
-        "",
-        "# Windows PowerShell",
-        "Get-FileHash <file_path> -Algorithm SHA256",
-        "```",
-        "",
-        "## Purpose",
-        "",
-        "These checksums are generated per FR-007 reproducibility requirements to ensure",
-        "data integrity throughout the analysis pipeline. Any modification to the data files",
-        "will result in a different hash value, indicating potential data corruption or unauthorized changes.",
-        "",
-        "## Files Included",
-        ""
-    ])
+def write_checksums_json(entries: List[ChecksumEntry], output_path: Path) -> None:
+    """Write *entries* as JSON to *output_path*."""
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with output_path.open("w", encoding="utf-8") as f:
+        json.dump([asdict(e) for e in entries], f, indent=2)
 
-    # Group files by directory
-    files_by_dir: Dict[str, List[str]] = {}
-    for entry in record.entries:
-        dir_name = str(Path(entry.file_path).parent)
-        if dir_name not in files_by_dir:
-            files_by_dir[dir_name] = []
-        files_by_dir[dir_name].append(entry.file_name)
+def write_checksums_csv(entries: List[ChecksumEntry], output_path: Path) -> None:
+    """Write *entries* as CSV to *output_path*."""
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    fieldnames = ["file_path", "sha256", "size_bytes", "recorded_at"]
+    with output_path.open("w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        for entry in entries:
+            writer.writerow(asdict(entry))
 
-    for dir_name, files in sorted(files_by_dir.items()):
-        lines.append(f"- **{dir_name}/**")
-        for fname in sorted(files):
-            lines.append(f"  - {fname}")
-
-    with open(output_path, "w", encoding="utf-8") as f:
-        f.write("\n".join(lines))
-
-
-def main() -> int:
+def write_checksums_markdown(entries: List[ChecksumEntry], output_path: Path) -> None:
     """
-    Main entry point for checksum generation.
+    Produce a markdown table documenting the checksums.
 
-    Returns:
-        0 on success, 1 on failure
+    The table contains columns: *File*, *SHA‑256*, *Size (bytes)*,
+    *Recorded at*.
+    """
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with output_path.open("w", encoding="utf-8") as f:
+        f.write("# Data Files Checksums\n\n")
+        f.write(
+            "| File | SHA‑256 | Size (bytes) | Recorded at |\n"
+            "|------|---------|--------------|-------------|\n"
+        )
+        for entry in entries:
+            f.write(
+                f"| `{entry.file_path}` | `{entry.sha256}` | {entry.size_bytes} | {entry.recorded_at} |\n"
+            )
+        f.write("\n*Generated on {}*\n".format(datetime.now(timezone.utc).isoformat()))
+
+# ----------------------------------------------------------------------
+# Main entry point
+# ----------------------------------------------------------------------
+@log_operation(
+    operation="checksum_generation",
+    input_file="data/",
+    output_file="data/checksums.json, data/checksums.csv, docs/reproducibility/checksums.md",
+)
+def main() -> None:
+    """
+    Compute and persist checksums for every file under the project's ``data``
+    directory.
+
+    The function:
+    1. Discovers all data files.
+    2. Records checksum information.
+    3. Writes JSON, CSV, and markdown artefacts.
     """
     logger = get_logger()
-    logger.info("Starting checksum generation for data files")
 
-    try:
-        # Determine project root and data directory
-        project_root = Path(__file__).parent.parent.parent.parent
-        data_dir = project_root / "data"
+    # Resolve repository root (two levels up from this file)
+    repo_root = Path(__file__).resolve().parents[2]
 
-        logger.info(f"Project root: {project_root}")
-        logger.info(f"Data directory: {data_dir}")
+    data_dir = repo_root / "data"
+    if not data_dir.is_dir():
+        logger.log("error", f"Data directory not found: {data_dir}")
+        raise FileNotFoundError(f"Data directory not found: {data_dir}")
 
-        # Check if data directory exists
-        if not data_dir.exists():
-            logger.error(f"Data directory does not exist: {data_dir}")
-            return 1
+    logger.log("info", f"Scanning data directory: {data_dir}")
 
-        # Record checksums
-        record = record_checksums(data_dir, project_root)
+    files = find_data_files(data_dir)
+    logger.log("info", f"Found {len(files)} data files to checksum.")
 
-        if record.total_files == 0:
-            logger.warning("No data files found to checksum")
-            # Still create empty documentation
-            output_json = data_dir / "checksums.json"
-            output_csv = data_dir / "checksums.csv"
-            output_md = project_root / "docs" / "reproducibility" / "checksums.md"
-            write_checksums_json(record, output_json)
-            write_checksums_csv(record, output_csv)
-            write_checksums_documentation(record, output_md)
-            logger.info("Empty checksum record created")
-            return 0
+    entries = record_checksums(files, repo_root)
 
-        # Write outputs
-        output_json = data_dir / "checksums.json"
-        output_csv = data_dir / "checksums.csv"
-        output_md = project_root / "docs" / "reproducibility" / "checksums.md"
+    # Write artefacts
+    json_path = data_dir / "checksums.json"
+    csv_path = data_dir / "checksums.csv"
+    md_path = repo_root / "docs" / "reproducibility" / "checksums.md"
 
-        write_checksums_json(record, output_json)
-        write_checksums_csv(record, output_csv)
-        write_checksums_documentation(record, output_md)
+    write_checksums_json(entries, json_path)
+    logger.log("info", f"Wrote JSON checksums to {json_path}")
 
-        logger.info(f"Checksums recorded for {record.total_files} files")
-        logger.info(f"JSON output: {output_json}")
-        logger.info(f"CSV output: {output_csv}")
-        logger.info(f"Documentation: {output_md}")
+    write_checksums_csv(entries, csv_path)
+    logger.log("info", f"Wrote CSV checksums to {csv_path}")
 
-        # Log operation
-        log_operation(
-            operation="checksum_generation",
-            input_file=str(data_dir),
-            output_file=str(output_json),
-            parameters={"total_files": record.total_files, "algorithm": "SHA-256"},
-            status="success"
-        )
+    write_checksums_markdown(entries, md_path)
+    logger.log("info", f"Wrote markdown documentation to {md_path}")
 
-        return 0
-
-    except Exception as e:
-        logger.error(f"Checksum generation failed: {e}")
-        log_operation(
-            operation="checksum_generation",
-            input_file=str(data_dir),
-            output_file="",
-            parameters={},
-            status="failed",
-            error=str(e)
-        )
-        return 1
-
+    logger.log("info", "Checksum generation completed successfully.")
 
 if __name__ == "__main__":
-    import sys
-    sys.exit(main())
+    main()

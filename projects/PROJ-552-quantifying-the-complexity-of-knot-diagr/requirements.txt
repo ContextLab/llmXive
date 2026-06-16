@@ -1,17 +1,10 @@
-# Core data processing
-pandas>=2.0.0
-numpy>=1.24.0
-
-# Statistical analysis
-scipy>=1.10.0
-statsmodels>=0.14.0
-
-# Visualization
-matplotlib>=3.7.0
-seaborn>=0.12.0
-
-# HTTP requests
-requests>=2.31.0
-
-# YAML configuration
-pyyaml>=6.0.0
+pandas
+numpy
+scipy
+statsmodels
+matplotlib
+seaborn
+requests
+pyyaml
+# Added for regression analysis (already present via statsmodels) 
+# No new third‑party dependencies required beyond the existing list.

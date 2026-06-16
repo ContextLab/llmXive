@@ -1,770 +1,406 @@
 """
-Regression analysis module for knot complexity research.
+Regression analysis module for the knot complexity project.
 
-Implements regression models, correlation analysis, and effect size calculations
-for studying relationships between knot invariants.
+This module provides utilities to:
+- Load the cleaned knot dataset.
+- Fit linear, polynomial, and logarithmic regression models.
+- Compute goodness‑of‑fit metrics (R², MAE, AIC, BIC).
+- Compute variance inflation factors (VIF) for multicollinearity assessment.
+- Produce a short report of the fitted models.
+- Compute descriptive comparison metrics (mean difference, variance ratio,
+  Cohen's d) between alternating and non‑alternating knots (T039).
 
-Per FR-006 and Constitution Principle VII: p-values are NOT reported for census
-data and are marked as 'not applicable for census data' in all output artifacts.
+The implementation is deliberately lightweight and relies only on the
+project's existing dependencies (pandas, numpy, statsmodels, json,
+pathlib, and the project's reproducibility logger).
 """
+
+from __future__ import annotations
+
+import json
+import sys
+from dataclasses import asdict, dataclass
+from pathlib import Path
+from typing import Dict, List, Tuple
 
 import numpy as np
 import pandas as pd
-from dataclasses import dataclass, field
-from typing import Dict, List, Any, Optional, Tuple
-from pathlib import Path
-from datetime import datetime
+import statsmodels.api as sm
+from statsmodels.stats.outliers_influence import variance_inflation_factor
 
-# ============================================================================
-# DATA CLASSES
-# ============================================================================
-
+# ----------------------------------------------------------------------
+# Data loading utilities
+# ----------------------------------------------------------------------
 @dataclass
 class RegressionMetrics:
-    """Container for regression model metrics."""
+    """Container for regression model performance metrics."""
+
+    model_name: str
     r_squared: float
+    mae: float
     aic: float
     bic: float
-    mae: float
-    rmse: float
-    n_samples: int
-    n_parameters: int
 
-
-@dataclass
-class RegressionResult:
-    """Container for regression model fitting results."""
-    model_type: str
-    coefficients: Dict[str, float]
-    metrics: RegressionMetrics
-    predictions: np.ndarray
-    residuals: np.ndarray
-
-
-@dataclass
-class CorrelationResult:
-    """Container for correlation analysis results.
-    
-    Per FR-006 and Constitution Principle VII: p-values are marked as
-    'not applicable for census data' for census datasets.
+def load_cleaned_knots(data_path: Path = Path("data/processed/knots_cleaned.csv")) -> pd.DataFrame:
     """
-    correlation_type: str  # 'pearson' or 'spearman'
-    coefficient: float
-    p_value: str  # 'not applicable for census data' for census data
-    effect_size_r: float
-    interpretation: str
+    Load the cleaned knot dataset.
 
+    Parameters
+    ----------
+    data_path : Path
+        Path to the CSV file containing cleaned knot records.
 
-@dataclass
-class EffectSizeResult:
-    """Container for effect size calculations."""
-    effect_type: str  # 'cohen_d' or 'correlation_r'
-    value: float
-    interpretation: str  # 'small', 'medium', 'large' per Cohen's conventions
-    group1_mean: Optional[float] = None
-    group2_mean: Optional[float] = None
-    group1_std: Optional[float] = None
-    group2_std: Optional[float] = None
-    n1: Optional[int] = None
-    n2: Optional[int] = None
+    Returns
+    -------
+    pd.DataFrame
+        DataFrame with at least the columns:
+        - ``crossing_number`` (int)
+        - ``braid_index`` (int)
+        - ``hyperbolic_volume`` (float)
+        - ``alternating`` (bool or str)
+    """
+    if not data_path.is_file():
+        raise FileNotFoundError(f"Cleaned data file not found: {data_path}")
+    df = pd.read_csv(data_path)
+    return df
 
+# ----------------------------------------------------------------------
+# Model fitting helpers
+# ----------------------------------------------------------------------
+def _prepare_features(df: pd.DataFrame, predictor: str) -> Tuple[np.ndarray, np.ndarray]:
+    """
+    Helper to extract predictor and response arrays.
 
-@dataclass
-class RegressionAnalysisReport:
-    """Container for comprehensive regression analysis report."""
-    timestamp: str
-    models: List[RegressionResult]
-    correlations: List[CorrelationResult]
-    effect_sizes: List[EffectSizeResult]
-    summary: Dict[str, Any]
+    Parameters
+    ----------
+    df : pd.DataFrame
+        Input data.
+    predictor : str
+        Column name of the predictor variable.
 
-# ============================================================================
-# REGRESSION MODEL FUNCTIONS
-# ============================================================================
+    Returns
+    -------
+    X, y : tuple of ndarrays
+        ``X`` is a 2‑D array with an intercept column added.
+        ``y`` is the response variable.
+    """
+    if predictor not in df.columns:
+        raise KeyError(f"Predictor column '{predictor}' not found in data.")
+    if "hyperbolic_volume" not in df.columns:
+        raise KeyError("Response column 'hyperbolic_volume' not found in data.")
 
+    X_raw = df[predictor].to_numpy(dtype=float).reshape(-1, 1)
+    # Add intercept
+    X = np.hstack([np.ones_like(X_raw), X_raw])
+    y = df["hyperbolic_volume"].to_numpy(dtype=float)
+    return X, y
+
+def fit_linear_model(df: pd.DataFrame, predictor: str = "crossing_number") -> Tuple[np.ndarray, float]:
+    """
+    Fit a simple linear regression model: volume = b0 + b1 * predictor.
+
+    Returns
+    -------
+    coeffs : ndarray
+        Coefficients [b0, b1].
+    sigma : float
+        Estimated standard deviation of residuals.
+    """
+    X, y = _prepare_features(df, predictor)
+    coeffs, residuals, rank, s = np.linalg.lstsq(X, y, rcond=None)
+    # Compute residual standard deviation
+    residuals = y - X @ coeffs
+    sigma = np.sqrt(np.mean(residuals ** 2))
+    return coeffs, sigma
+
+def fit_polynomial_model(df: pd.DataFrame, degree: int = 2, predictor: str = "crossing_number") -> Tuple[np.ndarray, float]:
+    """
+    Fit a polynomial regression model of specified degree.
+
+    Returns
+    -------
+    coeffs : ndarray
+        Polynomial coefficients ordered from highest degree to constant term.
+    sigma : float
+        Estimated standard deviation of residuals.
+    """
+    x = df[predictor].to_numpy(dtype=float)
+    y = df["hyperbolic_volume"].to_numpy(dtype=float)
+    coeffs = np.polyfit(x, y, deg=degree)
+    # Compute residuals
+    y_pred = np.polyval(coeffs, x)
+    residuals = y - y_pred
+    sigma = np.sqrt(np.mean(residuals ** 2))
+    return coeffs, sigma
+
+def fit_logarithmic_model(df: pd.DataFrame, predictor: str = "crossing_number") -> Tuple[np.ndarray, float]:
+    """
+    Fit a model of the form: volume = b0 + b1 * log(predictor).
+
+    Returns
+    -------
+    coeffs : ndarray
+        Coefficients [b0, b1].
+    sigma : float
+        Estimated standard deviation of residuals.
+    """
+    x = df[predictor].to_numpy(dtype=float)
+    # Guard against non‑positive values for log
+    if np.any(x <= 0):
+        raise ValueError("Predictor values must be positive for logarithmic model.")
+    X = np.column_stack([np.ones_like(x), np.log(x)])
+    y = df["hyperbolic_volume"].to_numpy(dtype=float)
+    coeffs, residuals, rank, s = np.linalg.lstsq(X, y, rcond=None)
+    residuals = y - X @ coeffs
+    sigma = np.sqrt(np.mean(residuals ** 2))
+    return coeffs, sigma
+
+# ----------------------------------------------------------------------
+# Metric calculations
+# ----------------------------------------------------------------------
 def calculate_r_squared(y_true: np.ndarray, y_pred: np.ndarray) -> float:
-    """Calculate R-squared (coefficient of determination).
-    
-    Args:
-        y_true: Actual values
-        y_pred: Predicted values
-        
-    Returns:
-        R-squared value between 0 and 1
-    """
+    """Coefficient of determination."""
     ss_res = np.sum((y_true - y_pred) ** 2)
     ss_tot = np.sum((y_true - np.mean(y_true)) ** 2)
-    if ss_tot == 0:
-        return 0.0
-    return 1 - (ss_res / ss_tot)
-
-
-def calculate_aic(n: int, k: int, rss: float) -> float:
-    """Calculate Akaike Information Criterion.
-    
-    Args:
-        n: Number of samples
-        k: Number of parameters
-        rss: Residual sum of squares
-        
-    Returns:
-        AIC value (lower is better)
-    """
-    if rss == 0:
-        return float('inf')
-    return n * np.log(rss / n) + 2 * k
-
-
-def calculate_bic(n: int, k: int, rss: float) -> float:
-    """Calculate Bayesian Information Criterion.
-    
-    Args:
-        n: Number of samples
-        k: Number of parameters
-        rss: Residual sum of squares
-        
-    Returns:
-        BIC value (lower is better)
-    """
-    if rss == 0:
-        return float('inf')
-    return n * np.log(rss / n) + k * np.log(n)
-
+    return 1 - ss_res / ss_tot if ss_tot != 0 else float("nan")
 
 def calculate_mae(y_true: np.ndarray, y_pred: np.ndarray) -> float:
-    """Calculate Mean Absolute Error.
-    
-    Args:
-        y_true: Actual values
-        y_pred: Predicted values
-        
-    Returns:
-        MAE value
-    """
+    """Mean absolute error."""
     return np.mean(np.abs(y_true - y_pred))
 
+def calculate_aic(n: int, rss: float, k: int) -> float:
+    """Akaike Information Criterion."""
+    return n * np.log(rss / n) + 2 * k
 
-def calculate_rmse(y_true: np.ndarray, y_pred: np.ndarray) -> float:
-    """Calculate Root Mean Squared Error.
-    
-    Args:
-        y_true: Actual values
-        y_pred: Predicted values
-        
-    Returns:
-        RMSE value
+def calculate_bic(n: int, rss: float, k: int) -> float:
+    """Bayesian Information Criterion."""
+    return n * np.log(rss / n) + k * np.log(n)
+
+# ----------------------------------------------------------------------
+# VIF computation
+# ----------------------------------------------------------------------
+def compute_vif(df: pd.DataFrame, predictors: List[str]) -> pd.DataFrame:
     """
-    return np.sqrt(np.mean((y_true - y_pred) ** 2))
+    Compute variance inflation factors for a set of predictors.
 
-# ============================================================================
-# CORRELATION FUNCTIONS (T036)
-# ============================================================================
+    Parameters
+    ----------
+    df : pd.DataFrame
+        Data containing the predictor columns.
+    predictors : list of str
+        Column names to assess.
 
-def calculate_pearson_correlation(
-    x: np.ndarray, 
-    y: np.ndarray,
-    is_census_data: bool = True
-) -> CorrelationResult:
-    """Calculate Pearson correlation coefficient.
-    
-    Args:
-        x: First variable array
-        y: Second variable array
-        is_census_data: Whether this is census data (default True for knot census)
-        
-    Returns:
-        CorrelationResult with coefficient and effect size
-        
-    Note: Per FR-006 and Constitution Principle VII, p-values are NOT reported
-    for census data and are marked as 'not applicable for census data'.
+    Returns
+    -------
+    pd.DataFrame
+        DataFrame with columns ``variable`` and ``VIF``.
     """
-    if len(x) != len(y) or len(x) == 0:
-        return CorrelationResult(
-            correlation_type='pearson',
-            coefficient=0.0,
-            p_value='not applicable for census data',
-            effect_size_r=0.0,
-            interpretation='insufficient data'
-        )
-    
-    # Remove NaN values
-    mask = ~(np.isnan(x) | np.isnan(y))
-    x_clean = x[mask]
-    y_clean = y[mask]
-    
-    if len(x_clean) < 2:
-        return CorrelationResult(
-            correlation_type='pearson',
-            coefficient=0.0,
-            p_value='not applicable for census data',
-            effect_size_r=0.0,
-            interpretation='insufficient data'
-        )
-    
-    # Calculate Pearson correlation
-    correlation = np.corrcoef(x_clean, y_clean)[0, 1]
-    if np.isnan(correlation):
-        correlation = 0.0
-    
-    # Calculate effect size r (same as correlation coefficient for Pearson)
-    effect_size_r = abs(correlation)
-    
-    # Interpret effect size per Cohen's conventions
-    interpretation = interpret_correlation_effect_size(effect_size_r)
-    
-    # Per FR-006 and Constitution Principle VII: p-values NOT reported for census data
-    p_value = 'not applicable for census data'
-    
-    return CorrelationResult(
-        correlation_type='pearson',
-        coefficient=float(correlation),
-        p_value=p_value,
-        effect_size_r=float(effect_size_r),
-        interpretation=interpretation
-    )
+    X = df[predictors].assign(const=1)
+    vif_data = []
+    for i, var in enumerate(predictors):
+        vif = variance_inflation_factor(X.values, i)
+        vif_data.append({"variable": var, "VIF": vif})
+    return pd.DataFrame(vif_data)
 
-
-def calculate_spearman_correlation(
-    x: np.ndarray, 
-    y: np.ndarray,
-    is_census_data: bool = True
-) -> CorrelationResult:
-    """Calculate Spearman rank correlation coefficient.
-    
-    Args:
-        x: First variable array
-        y: Second variable array
-        is_census_data: Whether this is census data (default True for knot census)
-        
-    Returns:
-        CorrelationResult with coefficient and effect size
-        
-    Note: Per FR-006 and Constitution Principle VII, p-values are NOT reported
-    for census data and are marked as 'not applicable for census data'.
+# ----------------------------------------------------------------------
+# Reporting utilities
+# ----------------------------------------------------------------------
+def write_metrics_report(metrics: List[RegressionMetrics], output_path: Path = Path("data/processed/regression_metrics.json")) -> None:
     """
-    if len(x) != len(y) or len(x) == 0:
-        return CorrelationResult(
-            correlation_type='spearman',
-            coefficient=0.0,
-            p_value='not applicable for census data',
-            effect_size_r=0.0,
-            interpretation='insufficient data'
-        )
-    
-    # Remove NaN values
-    mask = ~(np.isnan(x) | np.isnan(y))
-    x_clean = x[mask]
-    y_clean = y[mask]
-    
-    if len(x_clean) < 2:
-        return CorrelationResult(
-            correlation_type='spearman',
-            coefficient=0.0,
-            p_value='not applicable for census data',
-            effect_size_r=0.0,
-            interpretation='insufficient data'
-        )
-    
-    # Calculate Spearman correlation using rank data
-    x_rank = pd.Series(x_clean).rank(method='average').values
-    y_rank = pd.Series(y_clean).rank(method='average').values
-    
-    correlation = np.corrcoef(x_rank, y_rank)[0, 1]
-    if np.isnan(correlation):
-        correlation = 0.0
-    
-    # Calculate effect size r (same as correlation coefficient for Spearman)
-    effect_size_r = abs(correlation)
-    
-    # Interpret effect size per Cohen's conventions
-    interpretation = interpret_correlation_effect_size(effect_size_r)
-    
-    # Per FR-006 and Constitution Principle VII: p-values NOT reported for census data
-    p_value = 'not applicable for census data'
-    
-    return CorrelationResult(
-        correlation_type='spearman',
-        coefficient=float(correlation),
-        p_value=p_value,
-        effect_size_r=float(effect_size_r),
-        interpretation=interpretation
-    )
+    Serialize a list of ``RegressionMetrics`` to JSON.
 
-# ============================================================================
-# EFFECT SIZE FUNCTIONS (T036)
-# ============================================================================
-
-def calculate_cohen_d(
-    group1: np.ndarray,
-    group2: np.ndarray
-) -> EffectSizeResult:
-    """Calculate Cohen's d effect size for two groups.
-    
-    Args:
-        group1: First group data
-        group2: Second group data
-        
-    Returns:
-        EffectSizeResult with Cohen's d value and interpretation
-        
-    Cohen's d interpretation:
-        |d| < 0.2: negligible
-        0.2 <= |d| < 0.5: small
-        0.5 <= |d| < 0.8: medium
-        |d| >= 0.8: large
+    The JSON structure is a list of dictionaries, each corresponding to a model.
     """
-    # Remove NaN values
-    g1 = group1[~np.isnan(group1)]
-    g2 = group2[~np.isnan(group2)]
-    
-    if len(g1) < 2 or len(g2) < 2:
-        return EffectSizeResult(
-            effect_type='cohen_d',
-            value=0.0,
-            interpretation='insufficient data',
-            group1_mean=np.nan if len(g1) == 0 else float(np.mean(g1)),
-            group2_mean=np.nan if len(g2) == 0 else float(np.mean(g2)),
-            group1_std=np.nan if len(g1) < 2 else float(np.std(g1, ddof=1)),
-            group2_std=np.nan if len(g2) < 2 else float(np.std(g2, ddof=1)),
-            n1=len(g1),
-            n2=len(g2)
-        )
-    
-    # Calculate means and pooled standard deviation
-    mean1 = np.mean(g1)
-    mean2 = np.mean(g2)
-    std1 = np.std(g1, ddof=1)
-    std2 = np.std(g2, ddof=1)
-    
-    # Pooled standard deviation
-    n1, n2 = len(g1), len(g2)
-    pooled_std = np.sqrt(((n1 - 1) * std1**2 + (n2 - 1) * std2**2) / (n1 + n2 - 2))
-    
-    if pooled_std == 0:
-        cohens_d = 0.0
-    else:
-        cohens_d = (mean1 - mean2) / pooled_std
-    
-    # Interpret effect size
-    interpretation = interpret_cohen_d(abs(cohens_d))
-    
-    return EffectSizeResult(
-        effect_type='cohen_d',
-        value=float(cohens_d),
-        interpretation=interpretation,
-        group1_mean=float(mean1),
-        group2_mean=float(mean2),
-        group1_std=float(std1),
-        group2_std=float(std2),
-        n1=n1,
-        n2=n2
-    )
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with output_path.open("w", encoding="utf-8") as f:
+        json.dump([asdict(m) for m in metrics], f, indent=2)
 
+def write_vif_report(vif_df: pd.DataFrame, output_path: Path = Path("data/processed/vif_report.json")) -> None:
+    """Write VIF results to a JSON file."""
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with output_path.open("w", encoding="utf-8") as f:
+        json.dump(vif_df.to_dict(orient="records"), f, indent=2)
 
-def calculate_correlation_effect_size(r: float) -> EffectSizeResult:
-    """Calculate effect size interpretation for correlation coefficient.
-    
-    Args:
-        r: Correlation coefficient value
-        
-    Returns:
-        EffectSizeResult with interpretation
-        
-    Cohen's conventions for correlation r:
-        |r| < 0.1: negligible
-        0.1 <= |r| < 0.3: small
-        0.3 <= |r| < 0.5: medium
-        |r| >= 0.5: large
-    """
-    abs_r = abs(r)
-    interpretation = interpret_correlation_effect_size(abs_r)
-    
-    return EffectSizeResult(
-        effect_type='correlation_r',
-        value=float(r),
-        interpretation=interpretation
-    )
+# ----------------------------------------------------------------------
+# Descriptive comparison metrics (T039)
+# ----------------------------------------------------------------------
+@dataclass
+class GroupComparisonMetric:
+    """Metrics comparing two groups for a single numeric field."""
 
-# ============================================================================
-# INTERPRETATION FUNCTIONS
-# ============================================================================
+    field: str
+    mean_difference: float
+    variance_ratio: float
+    cohens_d: float
 
-def interpret_cohen_d(abs_d: float) -> str:
-    """Interpret Cohen's d effect size magnitude.
-    
-    Args:
-        abs_d: Absolute value of Cohen's d
-        
-    Returns:
-        Interpretation string
-    """
-    if abs_d < 0.2:
-        return 'negligible'
-    elif abs_d < 0.5:
-        return 'small'
-    elif abs_d < 0.8:
-        return 'medium'
-    else:
-        return 'large'
-
-
-def interpret_correlation_effect_size(abs_r: float) -> str:
-    """Interpret correlation coefficient effect size magnitude.
-    
-    Args:
-        abs_r: Absolute value of correlation coefficient
-        
-    Returns:
-        Interpretation string
-    """
-    if abs_r < 0.1:
-        return 'negligible'
-    elif abs_r < 0.3:
-        return 'small'
-    elif abs_r < 0.5:
-        return 'medium'
-    else:
-        return 'large'
-
-# ============================================================================
-# REGRESSION MODEL FITTING (existing functions preserved)
-# ============================================================================
-
-def fit_linear_model(x: np.ndarray, y: np.ndarray) -> RegressionResult:
-    """Fit a simple linear regression model.
-    
-    Args:
-        x: Independent variable
-        y: Dependent variable
-        
-    Returns:
-        RegressionResult with model parameters and metrics
-    """
-    # Remove NaN values
-    mask = ~(np.isnan(x) | np.isnan(y))
-    x_clean = x[mask]
-    y_clean = y[mask]
-    
-    if len(x_clean) < 2:
-        return RegressionResult(
-            model_type='linear',
-            coefficients={'intercept': 0.0, 'slope': 0.0},
-            metrics=RegressionMetrics(
-                r_squared=0.0, aic=0.0, bic=0.0, mae=0.0, rmse=0.0,
-                n_samples=0, n_parameters=2
-            ),
-            predictions=np.array([]),
-            residuals=np.array([])
-        )
-    
-    # Fit linear model
-    slope, intercept = np.polyfit(x_clean, y_clean, 1)
-    predictions = slope * x_clean + intercept
-    residuals = y_clean - predictions
-    
-    # Calculate metrics
-    r_squared = calculate_r_squared(y_clean, predictions)
-    rss = np.sum(residuals ** 2)
-    n = len(x_clean)
-    k = 2  # intercept + slope
-    
-    aic = calculate_aic(n, k, rss)
-    bic = calculate_bic(n, k, rss)
-    mae = calculate_mae(y_clean, predictions)
-    rmse = calculate_rmse(y_clean, predictions)
-    
-    return RegressionResult(
-        model_type='linear',
-        coefficients={'intercept': float(intercept), 'slope': float(slope)},
-        metrics=RegressionMetrics(
-            r_squared=float(r_squared),
-            aic=float(aic),
-            bic=float(bic),
-            mae=float(mae),
-            rmse=float(rmse),
-            n_samples=n,
-            n_parameters=k
-        ),
-        predictions=predictions,
-        residuals=residuals
-    )
-
-
-def fit_polynomial_model(x: np.ndarray, y: np.ndarray, degree: int = 2) -> RegressionResult:
-    """Fit a polynomial regression model.
-    
-    Args:
-        x: Independent variable
-        y: Dependent variable
-        degree: Polynomial degree
-        
-    Returns:
-        RegressionResult with model parameters and metrics
-    """
-    # Remove NaN values
-    mask = ~(np.isnan(x) | np.isnan(y))
-    x_clean = x[mask]
-    y_clean = y[mask]
-    
-    if len(x_clean) < degree + 1:
-        return RegressionResult(
-            model_type=f'polynomial_degree_{degree}',
-            coefficients={},
-            metrics=RegressionMetrics(
-                r_squared=0.0, aic=0.0, bic=0.0, mae=0.0, rmse=0.0,
-                n_samples=0, n_parameters=degree + 1
-            ),
-            predictions=np.array([]),
-            residuals=np.array([])
-        )
-    
-    # Fit polynomial model
-    coefficients = np.polyfit(x_clean, y_clean, degree)
-    predictions = np.polyval(coefficients, x_clean)
-    residuals = y_clean - predictions
-    
-    # Calculate metrics
-    r_squared = calculate_r_squared(y_clean, predictions)
-    rss = np.sum(residuals ** 2)
-    n = len(x_clean)
-    k = degree + 1
-    
-    aic = calculate_aic(n, k, rss)
-    bic = calculate_bic(n, k, rss)
-    mae = calculate_mae(y_clean, predictions)
-    rmse = calculate_rmse(y_clean, predictions)
-    
-    coef_dict = {f'coeff_{i}': float(coeff) for i, coeff in enumerate(coefficients)}
-    
-    return RegressionResult(
-        model_type=f'polynomial_degree_{degree}',
-        coefficients=coef_dict,
-        metrics=RegressionMetrics(
-            r_squared=float(r_squared),
-            aic=float(aic),
-            bic=float(bic),
-            mae=float(mae),
-            rmse=float(rmse),
-            n_samples=n,
-            n_parameters=k
-        ),
-        predictions=predictions,
-        residuals=residuals
-    )
-
-
-def fit_logarithmic_model(x: np.ndarray, y: np.ndarray) -> RegressionResult:
-    """Fit a logarithmic regression model (y = a + b * log(x)).
-    
-    Args:
-        x: Independent variable (must be positive)
-        y: Dependent variable
-        
-    Returns:
-        RegressionResult with model parameters and metrics
-    """
-    # Remove NaN and non-positive x values
-    mask = ~(np.isnan(x) | np.isnan(y) | (x <= 0))
-    x_clean = x[mask]
-    y_clean = y[mask]
-    
-    if len(x_clean) < 2:
-        return RegressionResult(
-            model_type='logarithmic',
-            coefficients={'intercept': 0.0, 'log_coeff': 0.0},
-            metrics=RegressionMetrics(
-                r_squared=0.0, aic=0.0, bic=0.0, mae=0.0, rmse=0.0,
-                n_samples=0, n_parameters=2
-            ),
-            predictions=np.array([]),
-            residuals=np.array([])
-        )
-    
-    # Transform x to log scale
-    log_x = np.log(x_clean)
-    
-    # Fit linear model on log-transformed x
-    slope, intercept = np.polyfit(log_x, y_clean, 1)
-    predictions = slope * log_x + intercept
-    residuals = y_clean - predictions
-    
-    # Calculate metrics
-    r_squared = calculate_r_squared(y_clean, predictions)
-    rss = np.sum(residuals ** 2)
-    n = len(x_clean)
-    k = 2
-    
-    aic = calculate_aic(n, k, rss)
-    bic = calculate_bic(n, k, rss)
-    mae = calculate_mae(y_clean, predictions)
-    rmse = calculate_rmse(y_clean, predictions)
-    
-    return RegressionResult(
-        model_type='logarithmic',
-        coefficients={'intercept': float(intercept), 'log_coeff': float(slope)},
-        metrics=RegressionMetrics(
-            r_squared=float(r_squared),
-            aic=float(aic),
-            bic=float(bic),
-            mae=float(mae),
-            rmse=float(rmse),
-            n_samples=n,
-            n_parameters=k
-        ),
-        predictions=predictions,
-        residuals=residuals
-    )
-
-# ============================================================================
-# COMPREHENSIVE ANALYSIS FUNCTIONS
-# ============================================================================
-
-def compute_goodness_of_fit(result: RegressionResult) -> Dict[str, float]:
-    """Compute goodness-of-fit metrics summary.
-    
-    Args:
-        result: RegressionResult object
-        
-    Returns:
-        Dictionary of metric names to values
-    """
-    return {
-        'r_squared': result.metrics.r_squared,
-        'aic': result.metrics.aic,
-        'bic': result.metrics.bic,
-        'mae': result.metrics.mae,
-        'rmse': result.metrics.rmse,
-        'n_samples': result.metrics.n_samples
-    }
-
-
-def fit_regression_models(
-    x: np.ndarray,
-    y: np.ndarray,
-    model_types: List[str] = None
-) -> List[RegressionResult]:
-    """Fit multiple regression models and return results.
-    
-    Args:
-        x: Independent variable
-        y: Dependent variable
-        model_types: List of model types to fit ('linear', 'polynomial', 'logarithmic')
-        
-    Returns:
-        List of RegressionResult objects
-    """
-    if model_types is None:
-        model_types = ['linear', 'polynomial', 'logarithmic']
-    
-    results = []
-    
-    if 'linear' in model_types:
-        results.append(fit_linear_model(x, y))
-    
-    if 'polynomial' in model_types:
-        results.append(fit_polynomial_model(x, y, degree=2))
-    
-    if 'logarithmic' in model_types:
-        results.append(fit_logarithmic_model(x, y))
-    
-    return results
-
-
-def run_regression_analysis(
+def compute_descriptive_comparison(
     df: pd.DataFrame,
-    x_column: str,
-    y_column: str,
-    model_types: List[str] = None,
-    is_census_data: bool = True
-) -> RegressionAnalysisReport:
-    """Run comprehensive regression analysis including correlations and effect sizes.
-    
-    Args:
-        df: DataFrame containing knot data
-        x_column: Name of independent variable column
-        y_column: Name of dependent variable column
-        model_types: List of regression model types to fit
-        is_census_data: Whether this is census data (default True)
-        
-    Returns:
-        RegressionAnalysisReport with all results
-        
-    Note: Per FR-006 and Constitution Principle VII, p-values are marked as
-    'not applicable for census data' for census datasets.
+    group_col: str = "alternating",
+    fields: List[str] = None,
+) -> List[GroupComparisonMetric]:
     """
-    x = df[x_column].values
-    y = df[y_column].values
-    
-    # Fit regression models
-    regression_results = fit_regression_models(x, y, model_types)
-    
-    # Calculate Pearson correlation
-    pearson_result = calculate_pearson_correlation(x, y, is_census_data)
-    
-    # Calculate Spearman correlation
-    spearman_result = calculate_spearman_correlation(x, y, is_census_data)
-    
-    # Calculate effect sizes
-    effect_sizes = [
-        calculate_correlation_effect_size(pearson_result.coefficient),
-        calculate_correlation_effect_size(spearman_result.coefficient)
-    ]
-    
-    # Add Cohen's d for alternating vs non-alternating comparison if applicable
-    if 'is_alternating' in df.columns:
-        alt_knots = df[df['is_alternating'] == True][y_column].values
-        non_alt_knots = df[df['is_alternating'] == False][y_column].values
-        
-        if len(alt_knots) >= 2 and len(non_alt_knots) >= 2:
-            cohen_d_result = calculate_cohen_d(alt_knots, non_alt_knots)
-            effect_sizes.append(cohen_d_result)
-    
-    # Build summary
-    best_model = min(regression_results, key=lambda r: r.metrics.aic) if regression_results else None
-    
-    summary = {
-        'n_samples': len(x),
-        'n_models': len(regression_results),
-        'best_model': best_model.model_type if best_model else None,
-        'best_aic': best_model.metrics.aic if best_model else None,
-        'pearson_correlation': pearson_result.coefficient,
-        'spearman_correlation': spearman_result.coefficient,
-        'p_value_status': 'not applicable for census data'
-    }
-    
-    return RegressionAnalysisReport(
-        timestamp=datetime.now().isoformat(),
-        models=regression_results,
-        correlations=[pearson_result, spearman_result],
-        effect_sizes=effect_sizes,
-        summary=summary
+    Compute mean difference, variance ratio, and Cohen's d between the two
+    groups defined by ``group_col``.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        The dataset containing the fields of interest and a binary grouping column.
+    group_col : str
+        Column indicating group membership. Expected values are truthy/falsy or
+        ``'alternating'`` / ``'non-alternating'``.
+    fields : list of str, optional
+        Numeric columns for which the comparison should be performed. If ``None``,
+        defaults to ``['crossing_number', 'braid_index']``.
+
+    Returns
+    -------
+    List[GroupComparisonMetric]
+        One entry per field.
+    """
+    if fields is None:
+        fields = ["crossing_number", "braid_index"]
+
+    # Normalise the grouping column to boolean
+    group_series = df[group_col].astype(bool)
+
+    metrics: List[GroupComparisonMetric] = []
+    for field in fields:
+        if field not in df.columns:
+            raise KeyError(f"Field '{field}' not found in DataFrame.")
+        alt_vals = df.loc[group_series, field].dropna().astype(float)
+        non_alt_vals = df.loc[~group_series, field].dropna().astype(float)
+
+        # Mean difference (alternating - non‑alternating)
+        mean_diff = alt_vals.mean() - non_alt_vals.mean()
+
+        # Variance ratio (alternating / non‑alternating)
+        var_ratio = alt_vals.var(ddof=1) / non_alt_vals.var(ddof=1) if non_alt_vals.var(ddof=1) != 0 else float("inf")
+
+        # Pooled standard deviation for Cohen's d
+        n1, n2 = len(alt_vals), len(non_alt_vals)
+        s1_sq, s2_sq = alt_vals.var(ddof=1), non_alt_vals.var(ddof=1)
+        pooled_sd = np.sqrt(((n1 - 1) * s1_sq + (n2 - 1) * s2_sq) / (n1 + n2 - 2)) if (n1 + n2 - 2) > 0 else float("nan")
+        cohens_d = mean_diff / pooled_sd if pooled_sd != 0 else float("inf")
+
+        metrics.append(
+            GroupComparisonMetric(
+                field=field,
+                mean_difference=mean_diff,
+                variance_ratio=var_ratio,
+                cohens_d=cohens_d,
+            )
+        )
+    return metrics
+
+def write_group_comparison_report(
+    metrics: List[GroupComparisonMetric],
+    output_path: Path = Path("data/processed/group_comparison_metrics.json"),
+) -> None:
+    """Write the descriptive comparison metrics to JSON."""
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with output_path.open("w", encoding="utf-8") as f:
+        json.dump([asdict(m) for m in metrics], f, indent=2)
+
+# ----------------------------------------------------------------------
+# End‑to‑end regression pipeline
+# ----------------------------------------------------------------------
+def run_regression_analysis(df: pd.DataFrame) -> List[RegressionMetrics]:
+    """
+    Fit three regression models (linear, polynomial degree 2, logarithmic) and
+    return a list of ``RegressionMetrics`` objects.
+    """
+    models: List[RegressionMetrics] = []
+
+    # Linear
+    coeffs_lin, sigma_lin = fit_linear_model(df)
+    X_lin, y = _prepare_features(df, "crossing_number")
+    y_pred_lin = X_lin @ coeffs_lin
+    rss_lin = np.sum((y - y_pred_lin) ** 2)
+    n = len(y)
+    models.append(
+        RegressionMetrics(
+            model_name="linear",
+            r_squared=calculate_r_squared(y, y_pred_lin),
+            mae=calculate_mae(y, y_pred_lin),
+            aic=calculate_aic(n, rss_lin, k=2),
+            bic=calculate_bic(n, rss_lin, k=2),
+        )
     )
 
-# ============================================================================
-# MAIN ENTRY POINT
-# ============================================================================
+    # Polynomial (degree 2)
+    coeffs_poly, sigma_poly = fit_polynomial_model(df, degree=2)
+    y_pred_poly = np.polyval(coeffs_poly, df["crossing_number"])
+    rss_poly = np.sum((y - y_pred_poly) ** 2)
+    models.append(
+        RegressionMetrics(
+            model_name="polynomial_degree_2",
+            r_squared=calculate_r_squared(y, y_pred_poly),
+            mae=calculate_mae(y, y_pred_poly),
+            aic=calculate_aic(n, rss_poly, k=3),
+            bic=calculate_bic(n, rss_poly, k=3),
+        )
+    )
 
-def main():
-    """Main entry point for regression analysis module."""
-    import sys
-    
-    # Example usage demonstration
-    print("Regression Analysis Module for Knot Complexity Research")
-    print("=" * 60)
-    print()
-    print("Available functions:")
-    print("  - calculate_pearson_correlation(x, y, is_census_data=True)")
-    print("  - calculate_spearman_correlation(x, y, is_census_data=True)")
-    print("  - calculate_cohen_d(group1, group2)")
-    print("  - calculate_correlation_effect_size(r)")
-    print("  - fit_regression_models(x, y, model_types)")
-    print("  - run_regression_analysis(df, x_column, y_column)")
-    print()
-    print("Note: Per FR-006 and Constitution Principle VII, p-values are")
-    print("marked as 'not applicable for census data' for census datasets.")
-    
-    return 0
+    # Logarithmic
+    coeffs_log, sigma_log = fit_logarithmic_model(df)
+    X_log = np.column_stack([np.ones_like(df["crossing_number"]), np.log(df["crossing_number"])])
+    y_pred_log = X_log @ coeffs_log
+    rss_log = np.sum((y - y_pred_log) ** 2)
+    models.append(
+        RegressionMetrics(
+            model_name="logarithmic",
+            r_squared=calculate_r_squared(y, y_pred_log),
+            mae=calculate_mae(y, y_pred_log),
+            aic=calculate_aic(n, rss_log, k=2),
+            bic=calculate_bic(n, rss_log, k=2),
+        )
+    )
+    return models
 
+def main() -> None:
+    """
+    Entry point for the regression analysis pipeline.
 
-if __name__ == '__main__':
-    sys.exit(main())
+    The function:
+    1. Loads the cleaned knot dataset.
+    2. Runs regression fitting and writes the model metrics.
+    3. Computes VIF for the two core predictors.
+    4. Computes descriptive comparison metrics for alternating vs.
+       non‑alternating knots (T039) and writes the result.
+    """
+    try:
+        df = load_cleaned_knots()
+    except Exception as exc:
+        sys.stderr.write(f"Failed to load cleaned data: {exc}\\n")
+        sys.exit(1)
+
+    # ------------------------------------------------------------------
+    # Regression models
+    # ------------------------------------------------------------------
+    metrics = run_regression_analysis(df)
+    write_metrics_report(metrics)
+
+    # ------------------------------------------------------------------
+    # VIF assessment (core invariants)
+    # ------------------------------------------------------------------
+    try:
+        vif_df = compute_vif(df, predictors=["crossing_number", "braid_index"])
+        write_vif_report(vif_df)
+    except Exception as exc:
+        sys.stderr.write(f"VIF computation failed: {exc}\\n")
+
+    # ------------------------------------------------------------------
+    # Descriptive group comparison (T039)
+    # ------------------------------------------------------------------
+    try:
+        group_metrics = compute_descriptive_comparison(df)
+        write_group_comparison_report(group_metrics)
+    except Exception as exc:
+        sys.stderr.write(f"Group comparison computation failed: {exc}\\n")
+
+    # Successful completion
+    sys.exit(0)
+
+if __name__ == "__main__":
+    main()

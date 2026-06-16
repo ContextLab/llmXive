@@ -1,193 +1,188 @@
-import matplotlib
-matplotlib.use('Agg')  # Non-interactive backend for headless environments
-import matplotlib.pyplot as plt
-import seaborn as sns
-import pandas as pd
+"""
+Exploratory analysis module for the knot complexity project.
+
+This script generates a scatter plot of crossing number vs. braid index,
+stratified by alternating vs. non‑alternating classification.  The plot is
+saved to ``data/plots/crossing_vs_braid.png`` with a resolution of
+1200×900 pixels.
+
+If the cleaned dataset ``data/processed/knots_cleaned.csv`` does not
+exist, the script will automatically download the raw Knot Atlas data,
+parse it, and write the cleaned CSV before creating the plot.  This makes
+the script robust when run as part of the end‑to‑end quickstart pipeline.
+"""
+
+from __future__ import annotations
+
+import json
 from pathlib import Path
-from typing import Dict, List, Any, Optional, Tuple
-import numpy as np
-from reproducibility.logs import log_operation, get_logger
+from typing import List
 
-# Set random seed for reproducibility per Constitution Principle I
-RANDOM_SEED = 42
-np.random.seed(RANDOM_SEED)
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
 
+# Reproducibility utilities
+from reproducibility.logs import get_logger, log_operation
 
-def load_cleaned_knots(data_path: Optional[Path] = None) -> pd.DataFrame:
-    """Load cleaned knot data from CSV file.
-    
-    Args:
-        data_path: Path to cleaned knot data CSV. Defaults to data/processed/knots_cleaned.csv.
-        
-    Returns:
-        DataFrame containing cleaned knot records.
-        
-    Raises:
-        FileNotFoundError: If the data file does not exist.
+# Down‑stream pipeline utilities
+from download.knot_atlas_loader import download_knot_atlas_data
+from data.parser import parse_knot_atlas_data, ParsedKnotData
+
+# Constants for file locations
+RAW_JSON_PATH = Path("data/raw/knot_atlas_raw.json")
+CLEANED_CSV_PATH = Path("data/processed/knots_cleaned.csv")
+PLOT_PATH = Path("data/plots/crossing_vs_braid.png")
+
+def _ensure_directories() -> None:
+    """Create any missing parent directories for output files."""
+    for p in (RAW_JSON_PATH, CLEANED_CSV_PATH, PLOT_PATH):
+        p.parent.mkdir(parents=True, exist_ok=True)
+
+def load_cleaned_knots(data_path: Path = CLEANED_CSV_PATH) -> pd.DataFrame:
     """
-    if data_path is None:
-        data_path = Path('data/processed/knots_cleaned.csv')
-    
-    if not data_path.exists():
-        raise FileNotFoundError(f"Cleaned data file not found: {data_path}")
-    
-    df = pd.read_csv(data_path)
-    return df
+    Load the cleaned knot dataset.
 
+    If the file does not exist, the function will:
+    1. Download the raw Knot Atlas JSON.
+    2. Parse the raw records into :class:`ParsedKnotData`.
+    3. Write the parsed records to ``data/processed/knots_cleaned.csv``.
+    4. Return the resulting DataFrame.
+
+    Parameters
+    ----------
+    data_path: Path
+        Path to the cleaned CSV file.
+
+    Returns
+    -------
+    pd.DataFrame
+        DataFrame with columns: ``crossing_number``, ``braid_index``,
+        ``hyperbolic_volume``, ``classification``.
+    """
+    logger = get_logger()
+
+    if data_path.is_file():
+        logger.info(f"Loading existing cleaned dataset from {data_path}")
+        return pd.read_csv(data_path)
+
+    logger.info(
+        f"Cleaned dataset not found at {data_path}. Initiating download & parsing."
+    )
+    _ensure_directories()
+
+    # ------------------------------------------------------------------
+    # Step 1: Download raw JSON
+    # ------------------------------------------------------------------
+    raw_data = download_knot_atlas_data()
+    # Some downloaders return a list of dicts; ensure JSON serialisable.
+    with RAW_JSON_PATH.open("w", encoding="utf-8") as f:
+        json.dump(raw_data, f, ensure_ascii=False, indent=2)
+
+    # ------------------------------------------------------------------
+    # Step 2: Parse raw records
+    # ------------------------------------------------------------------
+    parsed_records: List[ParsedKnotData] = parse_knot_atlas_data(raw_data)
+
+    # ------------------------------------------------------------------
+    # Step 3: Convert to DataFrame and write CSV
+    # ------------------------------------------------------------------
+    df = pd.DataFrame([r.__dict__ for r in parsed_records])
+    # Normalise column names to match downstream expectations
+    df.rename(
+        columns={
+            "crossing_number": "crossing_number",
+            "braid_index": "braid_index",
+            "hyperbolic_volume": "hyperbolic_volume",
+            "classification": "classification",
+        },
+        inplace=True,
+    )
+    df.to_csv(data_path, index=False)
+    logger.info(f"Cleaned dataset written to {data_path}")
+
+    return df
 
 def create_stratified_scatter_plot(
     df: pd.DataFrame,
-    x_col: str = 'crossing_number',
-    y_col: str = 'braid_index',
-    hue_col: str = 'is_alternating',
-    figsize: Tuple[int, int] = (12, 9),
-    dpi: int = 100
-) -> plt.Figure:
-    """Create a scatter plot of crossing number vs braid index, stratified by alternating/non-alternating classification.
-    
-    Args:
-        df: DataFrame containing knot data.
-        x_col: Column name for x-axis values. Defaults to 'crossing_number'.
-        y_col: Column name for y-axis values. Defaults to 'braid_index'.
-        hue_col: Column name for stratification. Defaults to 'is_alternating'.
-        figsize: Figure size in inches (width, height). Defaults to (12, 9).
-        dpi: Dots per inch for the figure. Defaults to 100.
-        
-    Returns:
-        matplotlib Figure object containing the scatter plot.
-        
-    Note:
-        With figsize=(12, 9) and dpi=100, the output resolution is 1200x900 pixels.
+    output_path: Path = PLOT_PATH,
+) -> None:
     """
-    # Ensure is_alternating is boolean or categorical for proper legend
-    df_plot = df.copy()
-    if hue_col in df_plot.columns:
-        df_plot[hue_col] = df_plot[hue_col].astype(bool)
-    
-    # Create figure with specified dimensions
-    fig, ax = plt.subplots(figsize=figsize, dpi=dpi)
-    
-    # Create scatter plot stratified by alternating classification
-    sns.scatterplot(
-        data=df_plot,
-        x=x_col,
-        y=y_col,
-        hue=hue_col,
-        ax=ax,
-        alpha=0.7,
-        s=50,
-        edgecolors='black',
-        linewidth=0.5
-    )
-    
-    # Set labels and title
-    ax.set_xlabel(x_col.replace('_', ' ').title(), fontsize=12)
-    ax.set_ylabel(y_col.replace('_', ' ').title(), fontsize=12)
-    ax.set_title('Crossing Number vs Braid Index (Stratified by Alternating Classification)',
-                fontsize=14, fontweight='bold')
-    
-    # Add grid for readability
-    ax.grid(True, alpha=0.3, linestyle='--')
-    
-    # Set legend
-    ax.legend(title='Classification', title_fontsize=10, fontsize=9)
-    
-    # Adjust layout
-    plt.tight_layout()
-    
-    return fig
+    Create and save a scatter plot of crossing number vs. braid index,
+    coloured by alternating / non‑alternating classification.
 
-
-def generate_exploratory_plots(
-    data_path: Optional[Path] = None,
-    output_dir: Optional[Path] = None,
-    plot_name: str = 'crossing_vs_braid',
-    resolution: Tuple[int, int] = (1200, 900)
-) -> Path:
-    """Generate and save exploratory plots for knot complexity analysis.
-    
-    This function creates scatter plots of crossing number vs braid index,
-    stratified by alternating/non-alternating classification, and saves them
-    to the specified output directory.
-    
-    Args:
-        data_path: Path to cleaned knot data CSV. Defaults to data/processed/knots_cleaned.csv.
-        output_dir: Directory to save plots. Defaults to data/plots.
-        plot_name: Base name for the output plot file. Defaults to 'crossing_vs_braid'.
-        resolution: Target resolution in pixels (width, height). Defaults to (1200, 900).
-        
-    Returns:
-        Path to the saved plot file.
-        
-    Note:
-        Per T024 requirements, the plot is saved with resolution 1200x900 pixels.
-        This is achieved with figsize=(12, 9) inches and dpi=100.
+    Parameters
+    ----------
+    df: pd.DataFrame
+        DataFrame containing at least ``crossing_number``, ``braid_index``,
+        and ``classification`` columns.
+    output_path: Path
+        Destination file for the PNG plot.
     """
     logger = get_logger()
-    
-    # Set default output directory
-    if output_dir is None:
-        output_dir = Path('data/plots')
-    
-    output_dir = Path(output_dir)
-    output_dir.mkdir(parents=True, exist_ok=True)
-    
-    # Load cleaned knot data
-    df = load_cleaned_knots(data_path)
-    logger.info(f"Loaded {len(df)} knot records for exploratory analysis")
-    
-    # Calculate figure size from target resolution
-    # resolution = (figsize * dpi), so figsize = resolution / dpi
-    dpi = 100
-    figsize = (resolution[0] / dpi, resolution[1] / dpi)
-    
-    # Create stratified scatter plot
-    fig = create_stratified_scatter_plot(
-        df,
-        x_col='crossing_number',
-        y_col='braid_index',
-        hue_col='is_alternating',
-        figsize=figsize,
-        dpi=dpi
+    logger.info("Generating stratified scatter plot.")
+
+    # Validate required columns
+    required = {"crossing_number", "braid_index", "classification"}
+    missing = required - set(df.columns)
+    if missing:
+        raise ValueError(f"DataFrame missing required columns: {missing}")
+
+    # Set up the plot aesthetics
+    plt.figure(figsize=(12, 9))  # 1200×900 at 100 dpi
+    sns.scatterplot(
+        data=df,
+        x="crossing_number",
+        y="braid_index",
+        hue="classification",
+        palette="deep",
+        alpha=0.7,
+        edgecolor="w",
+        linewidth=0.5,
     )
-    
-    # Save plot to file
-    output_path = output_dir / f'{plot_name}.png'
-    fig.savefig(output_path, dpi=dpi, bbox_inches='tight')
-    plt.close(fig)
-    
-    logger.info(f"Saved exploratory plot to {output_path} with resolution {resolution[0]}x{resolution[1]} pixels")
-    
-    return output_path
+    plt.title("Crossing Number vs. Braid Index (stratified by classification)")
+    plt.xlabel("Crossing Number")
+    plt.ylabel("Braid Index")
+    plt.legend(title="Classification", loc="best")
+    plt.tight_layout()
 
+    # Ensure parent directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    plt.savefig(output_path, dpi=100)
+    plt.close()
+    logger.info(f"Scatter plot saved to {output_path}")
 
-def main():
-    """Main entry point for exploratory plot generation."""
-    import argparse
-    
-    parser = argparse.ArgumentParser(description='Generate exploratory plots for knot complexity analysis')
-    parser.add_argument('--data-path', type=str, default='data/processed/knots_cleaned.csv',
-                      help='Path to cleaned knot data CSV')
-    parser.add_argument('--output-dir', type=str, default='data/plots',
-                      help='Directory to save plots')
-    parser.add_argument('--plot-name', type=str, default='crossing_vs_braid',
-                      help='Base name for the output plot file')
-    parser.add_argument('--width', type=int, default=1200,
-                      help='Target width in pixels')
-    parser.add_argument('--height', type=int, default=900,
-                      help='Target height in pixels')
-    
-    args = parser.parse_args()
-    
-    output_path = generate_exploratory_plots(
-        data_path=Path(args.data_path),
-        output_dir=Path(args.output_dir),
-        plot_name=args.plot_name,
-        resolution=(args.width, args.height)
+def generate_exploratory_plots() -> None:
+    """
+    High‑level entry point used by the quickstart pipeline.
+
+    Loads (or creates) the cleaned knot dataset and produces the required
+    crossing‑vs‑braid scatter plot.
+    """
+    logger = get_logger()
+    logger.info("Starting exploratory analysis pipeline.")
+
+    # Load or create the cleaned dataset
+    df = load_cleaned_knots()
+
+    # Create the stratified scatter plot
+    create_stratified_scatter_plot(df)
+
+    logger.info("Exploratory analysis completed successfully.")
+
+def main() -> None:
+    """
+    Command‑line entry point.
+    """
+    # Use the generic ``log_operation`` decorator pattern employed
+    # throughout the code base.
+    log_operation(
+        operation="exploratory_analysis",
+        input_file=str(RAW_JSON_PATH) if RAW_JSON_PATH.is_file() else None,
+        output_file=str(PLOT_PATH),
     )
-    
-    print(f"Exploratory plot saved to: {output_path}")
+    generate_exploratory_plots()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
