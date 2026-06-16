@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1903.09469",
+  "judged_at": "2026-06-16T05:48:44Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the impact of ambient noise on cognitive flexibility in remote workers psychology",
+  "rationale": "The paper studies deep learning methods for remote sensing image retrieval, which is unrelated to ambient noise, cognitive flexibility, remote work contexts, or psychological outcomes; it does not address any of the variables or mechanisms of the user's question.",
+  "relevant": false
+}

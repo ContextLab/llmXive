@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2412.02573",
+  "judged_at": "2026-06-16T06:13:27Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the impact of ambient noise on cognitive flexibility in remote workers psychology",
+  "rationale": "The candidate paper surveys vision‑language models for remote‑sensing imagery, which bears no relation to ambient noise, cognitive flexibility, remote work contexts, or psychological mechanisms, thus it is off‑domain and unrelated to the user's research question.",
+  "relevant": false
+}
