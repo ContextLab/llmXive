@@ -84,6 +84,41 @@ def extract_run_commands(quickstart_text: str) -> list[str]:
     return commands
 
 
+def _resolve_script(project_dir: Path, rel_path: str) -> str | None:
+    """Resolve a run-book ``code/...py`` path to the actual file on disk.
+
+    The planner writes quickstart paths BEFORE the implementer writes code,
+    so the two drift (``code/data/filter_hyperbolic.py`` in quickstart vs
+    ``code/filter/hyperbolic_filter.py`` on disk — different dir AND word
+    order). Resolve by underscore-token set so naming/dir drift doesn't read
+    as a genuinely-missing script (the PROJ-552 auto-fix-loop dead-end):
+
+    1. exact path,
+    2. the UNIQUE file under code/ whose stem token-set EQUALS the needed
+       stem's token-set (filter_hyperbolic == hyperbolic_filter),
+    3. the UNIQUE file whose token-set is a SUPERSET (validation_status ⊆
+       validation_status_generator),
+
+    else ``None`` (genuinely missing — a real gap the implementer must fill).
+    """
+    if (project_dir / rel_path).is_file():
+        return rel_path
+    code = project_dir / "code"
+    if not code.is_dir():
+        return None
+    want = set(Path(rel_path).stem.split("_"))
+    if not want:
+        return None
+    cands = [p for p in code.rglob("*.py") if "/.venv/" not in str(p)]
+    exact = [p for p in cands if set(p.stem.split("_")) == want]
+    if len(exact) == 1:
+        return str(exact[0].relative_to(project_dir))
+    superset = [p for p in cands if want < set(p.stem.split("_"))]
+    if len(superset) == 1:
+        return str(superset[0].relative_to(project_dir))
+    return None
+
+
 def _snapshot_artifacts(project_dir: Path) -> dict[str, float]:
     """Map of project-relative artifact path -> mtime for non-empty data/figure
     files (excluding .gitkeep and venv)."""
@@ -175,11 +210,17 @@ def run_analysis(
                 timed_out=False, tail="unparseable command (shlex)",
             ))
             continue
-        # A `python code/x.py` line whose script is absent is a real
-        # plan/impl path mismatch — surface it, don't silently skip.
+        # A `python code/x.py` line whose script is absent: try to resolve
+        # planner-vs-implementer naming/dir drift to the real file; only a
+        # genuinely-unresolvable path is a real missing-script failure.
         script_missing = False
-        if args and not args[0].startswith("-"):
-            script_missing = not (project_dir / args[0]).is_file()
+        if args and not args[0].startswith("-") and args[0].endswith(".py"):
+            resolved = _resolve_script(project_dir, args[0])
+            if resolved is None:
+                script_missing = True
+            elif resolved != args[0]:
+                args = [resolved, *args[1:]]
+                command = "python " + " ".join(shlex.quote(a) for a in args)
         # Put the project's code/ dir on PYTHONPATH: the generated scripts
         # use package-relative sibling imports (`from reproducibility.logs
         # import ...`, `from download.x import ...`) that assume code/ is on

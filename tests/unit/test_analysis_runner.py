@@ -91,3 +91,26 @@ def test_extract_run_commands_on_real_552_quickstart() -> None:
     assert len(cmds) >= 5
     assert all(c.startswith(("python ", "python3 ")) for c in cmds)
     assert any("download" in c for c in cmds)  # the data-download step is present
+
+
+def test_resolve_script_token_set(tmp_path) -> None:
+    """Spec 023 #25: run-book paths drift from the implementer's file names
+    (planner writes quickstart before code exists). Resolve by underscore-
+    token set so renamed/moved scripts aren't false 'missing' failures."""
+    from llmxive.execution.analysis_runner import _resolve_script
+    code = tmp_path / "code"
+    (code / "filter").mkdir(parents=True)
+    (code / "reproducibility").mkdir(parents=True)
+    (code / "filter" / "hyperbolic_filter.py").write_text("x")
+    (code / "reproducibility" / "validation_status_generator.py").write_text("x")
+    (code / "exact.py").write_text("x")
+    # exact path
+    assert _resolve_script(tmp_path, "code/exact.py") == "code/exact.py"
+    # word-order swap (token-set EQUAL), different dir
+    assert _resolve_script(tmp_path, "code/data/filter_hyperbolic.py") == \
+        "code/filter/hyperbolic_filter.py"
+    # subset (validation_status ⊆ validation_status_generator)
+    assert _resolve_script(tmp_path, "code/x/validation_status.py") == \
+        "code/reproducibility/validation_status_generator.py"
+    # genuinely missing -> None (a real gap, not drift)
+    assert _resolve_script(tmp_path, "code/analysis/correlation.py") is None
