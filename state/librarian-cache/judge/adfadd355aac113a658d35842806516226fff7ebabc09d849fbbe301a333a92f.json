@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1806.09998",
+  "judged_at": "2026-06-16T16:02:48Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "fashionchameleon: towards real-time and interactive human-garment video customization computer science",
+  "rationale": "The paper focuses on real‑time motor state monitoring and fault diagnosis using LabVIEW, which is unrelated to human‑garment video customization, computer‑vision, or interactive fashion applications; it does not share any relevant mechanism, variable, or domain with the user's research question.",
+  "relevant": false
+}

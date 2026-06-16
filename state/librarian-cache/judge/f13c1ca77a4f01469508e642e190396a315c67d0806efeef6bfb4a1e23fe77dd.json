@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1907.06167",
+  "judged_at": "2026-06-16T16:05:43Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "where do deep-research agents go wrong? span-level error localization in agent trajectories computer science",
+  "rationale": "The paper introduces a fine-grained food image dataset and benchmarks vision models, which bears no relation to deep‑research agents, error localization, or agent trajectory analysis; it is off‑domain and does not address any of the mechanisms, variables, or populations of the user's question.",
+  "relevant": false
+}

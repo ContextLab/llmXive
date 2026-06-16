@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2606.02800",
+  "judged_at": "2026-06-16T15:57:29Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "cosmos 3: omnimodal world models for physical ai computer science",
+  "rationale": "The paper is the primary work introducing Cosmos 3, the exact model and framework the user’s question concerns, serving as the foundational reference for omnimodal world models in Physical AI (acceptance category d).",
+  "relevant": true
+}

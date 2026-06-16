@@ -1,0 +1,973 @@
+{
+  "fetched_at": "2026-06-16T15:58:11Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "Cosmos 3: Omnimodal World Models for Physical AI",
+      "target_n": 5
+    },
+    "duration_seconds": 98.806,
+    "ended_at": "2026-06-16T15:58:11Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "multimodal world models for embodied AI"
+        ],
+        [
+          2,
+          "omniscient physical simulation models"
+        ],
+        [
+          3,
+          "foundation models for robotics and physical reasoning"
+        ],
+        [
+          4,
+          "physics‑aware generative models for control"
+        ],
+        [
+          5,
+          "integrated sensorimotor world modeling"
+        ],
+        [
+          6,
+          "cross‑modal representation learning for physical agents"
+        ],
+        [
+          7,
+          "universal dynamics models for manipulation tasks"
+        ],
+        [
+          8,
+          "self‑supervised physical scene understanding"
+        ],
+        [
+          9,
+          "hierarchical embodied world models"
+        ],
+        [
+          10,
+          "simulation‑based reinforcement learning with multimodal inputs"
+        ],
+        [
+          11,
+          "transformer‑based physical AI architectures"
+        ],
+        [
+          12,
+          "latent space physics engines for robot planning"
+        ],
+        [
+          13,
+          "multi‑modal predictive models for real‑world interaction"
+        ],
+        [
+          14,
+          "generalist agents with world modeling capabilities"
+        ],
+        [
+          15,
+          "physics‑infused large language models for robotics"
+        ],
+        [
+          16,
+          "sensor fusion world models for autonomous systems"
+        ],
+        [
+          17,
+          "end‑to‑end learning of physical dynamics from video and proprioception"
+        ],
+        [
+          18,
+          "universal robotic cognition through omnimodal modeling"
+        ],
+        [
+          19,
+          "cross‑modal dynamics prediction for embodied agents"
+        ],
+        [
+          20,
+          "scalable world models for embodied artificial intelligence"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Cosmos 3: Omnimodal World Models for Physical AI computer science": 0,
+        "multimodal world models for embodied AI": 4
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "multimodal world model",
+      "Meta-World benchmark",
+      "sensorimotor representation learning",
+      "zero-shot task transfer",
+      "latent dynamics factorization"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2507.00917"
+      ]
+    },
+    "per_query_hit_count": {
+      "Cosmos 3: Omnimodal World Models for Physical AI computer science": 3,
+      "Meta-World benchmark": 3,
+      "latent dynamics factorization": 3,
+      "multimodal world model": 3,
+      "sensorimotor representation learning": 3,
+      "zero-shot task transfer": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 1,
+      "rejections": [
+        {
+          "primary_pointer": "2605.02900",
+          "rationale": "The paper surveys safety risks, attacks, and defenses for embodied AI and does not study omnimodal world models, their construction, or performance in physical AI; it addresses a different construct (safety) rather than the modeling mechanisms central to the user's question.",
+          "title": "Safety in Embodied AI: A Survey of Risks, Attacks, and Defenses"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-16T15:56:32Z",
+    "term_input": {
+      "normalized": "cosmos 3: omnimodal world models for physical ai computer science",
+      "raw": "Cosmos 3: Omnimodal World Models for Physical AI computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Generative AI has recently had a profound impact on various fields, including daily life, research, and education. To explore its efficient utilization in data-driven materials science, we organized a hackathon -- AIMHack2024 -- in July 2024. In this hackathon, researchers from fields such as materials science, information science, bioinformatics, and condensed matter physics worked together to explore how generative AI can facilitate research and education. Based on the results of the hackathon, this paper presents topics related to (1) conducting AI-assisted software trials, (2) building AI tutors for software, and (3) developing GUI applications for software. While generative AI continues to evolve rapidly, this paper provides an early record of its application in data-driven materials science and highlights strategies for integrating AI into research and education.",
+          "claimed_authors": [
+            "Takahiro Misawa",
+            "Ai Koizumi",
+            "Ryo Tamura",
+            "Kazuyoshi Yoshimi"
+          ],
+          "claimed_title": "Exploring utilization of generative AI for research and education in data-driven materials science",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.08817"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Cosmos 3: Omnimodal World Models for Physical AI computer science', candidate_title='Exploring utilization of generative AI for research and education in data-driven materials science')",
+        "failed_at": "2026-06-16T15:57:14Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present results of our 1.4 GHz image stacking analysis of mass-selected galaxies in the COSMOS field. From the resulting median radio continuum flux density we have determined the evolution of the average star formation rate (SFR) of galaxies as a function of stellar mass, unbiased from effects of dust but also source confusion due to the 1.5\" angular resolution achieved by the VLA. We find a power-law relation between specific SFR (SSFR) and stellar mass for star forming galaxies out to z=3. While higher mass systems exhibit lower SSFRs at any epoch, no differential, more rapid evolution of high mass galaxies is evident at least out to z~1.5 where our conclusions are most robust. Utilizing measured mass functions of star forming systems, the characteristic stellar mass for galaxies contributing most to the comoving SFR density appears not to evolve. These findings hence challenge 'downsizing' scenarios in which star formation has gradually shifted towards lower mass systems with cosmic time. Our analysis constitutes the to-date best determination of the cosmic star formation history (CSFH) since z=3 and yields indirect evidence for a rapid decline of the global mass density of molecular gas with time.",
+          "claimed_authors": [
+            "Alexander Karim",
+            "Eva Schinnerer",
+            "the VLA-COSMOS",
+            "COSMOS collaborations"
+          ],
+          "claimed_title": "A constant characteristic mass for star forming galaxies since z~3 revealed by radio emission in the COSMOS field",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1102.1423"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Cosmos 3: Omnimodal World Models for Physical AI computer science', candidate_title='A constant characteristic mass for star forming galaxies since z~3 revealed by radio emission in the COSMOS field')",
+        "failed_at": "2026-06-16T15:57:14Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Automated deception detection systems can enhance health, justice, and security in society by helping humans detect deceivers in high-stakes situations across medical and legal domains, among others. This paper presents a novel analysis of the discriminative power of dimensional representations of facial affect for automated deception detection, along with interpretable features from visual, vocal, and verbal modalities. We used a video dataset of people communicating truthfully or deceptively in real-world, high-stakes courtroom situations. We leveraged recent advances in automated emotion recognition in-the-wild by implementing a state-of-the-art deep neural network trained on the Aff-Wild database to extract continuous representations of facial valence and facial arousal from speakers. We experimented with unimodal Support Vector Machines (SVM) and SVM-based multimodal fusion methods to identify effective features, modalities, and modeling approaches for detecting deception. Unimodal models trained on facial affect achieved an AUC of 80%, and facial affect contributed towards the highest-performing multimodal approach (adaptive boosting) that achieved an AUC of 91% when tested on speakers who were not part of training sets. This approach achieved a higher AUC than existing automated machine learning approaches that used interpretable visual, vocal, and verbal features to detect deception in this dataset, but did not use facial affect. Across all videos, deceptive and truthful speakers exhibited significant differences in facial valence and facial arousal, contributing computational support to existing psychological theories on affect and deception. The demonstrated importance of facial affect in our models informs and motivates the future development of automated, affect-aware machine learning approaches for modeling and detecting deception and other social behaviors in-the-wild.",
+          "claimed_authors": [
+            "Leena Mathur",
+            "Maja J Matarić"
+          ],
+          "claimed_title": "Introducing Representations of Facial Affect in Automated Multimodal Deception Detection",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2008.13369"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Cosmos 3: Omnimodal World Models for Physical AI computer science', candidate_title='Introducing Representations of Facial Affect in Automated Multimodal Deception Detection')",
+        "failed_at": "2026-06-16T15:57:14Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Evaluating robot control policies is difficult: real-world testing is costly, and handcrafted simulators require manual effort to improve in realism and generality. We propose a world-model-based policy evaluation environment (WorldGym), an autoregressive, action-conditioned video generation model which serves as a proxy to real world environments. Policies are evaluated via Monte Carlo rollouts in the world model, with a vision-language model providing rewards. We evaluate a set of VLA-based real-robot policies in the world model using only initial frames from real robots, and show that policy success rates within the world model highly correlate with real-world success rates. Moreoever, we show that WorldGym is able to preserve relative policy rankings across different policy versions, sizes, and training checkpoints. Due to requiring only a single start frame as input, the world model further enables efficient evaluation of robot policies' generalization ability on novel tasks and environments. We find that modern VLA-based robot policies still struggle to distinguish object shapes and can become distracted by adversarial facades of objects. While generating highly realistic object interaction remains challenging, WorldGym faithfully emulates robot motions and offers a practical starting point for safe and reproducible policy evaluation before deployment.",
+          "claimed_authors": [
+            "Julian Quevedo",
+            "Ansh Kumar Sharma",
+            "Yixiang Sun",
+            "Varad Suryavanshi",
+            "Percy Liang",
+            "Sherry Yang"
+          ],
+          "claimed_title": "WorldGym: World Model as An Environment for Policy Evaluation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.00613"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Cosmos 3: Omnimodal World Models for Physical AI computer science', candidate_title='WorldGym: World Model as An Environment for Policy Evaluation')",
+        "failed_at": "2026-06-16T15:57:14Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent advances in open-source vision-language models (VLMs) offer new opportunities for understanding complex and subjective multimodal phenomena such as sarcasm. In this work, we evaluate seven state-of-the-art VLMs - BLIP2, InstructBLIP, OpenFlamingo, LLaVA, PaliGemma, Gemma3, and Qwen-VL - on their ability to detect multimodal sarcasm using zero-, one-, and few-shot prompting. Furthermore, we evaluate the models' capabilities in generating explanations to sarcastic instances. We evaluate the capabilities of VLMs on three benchmark sarcasm datasets (Muse, MMSD2.0, and SarcNet). Our primary objectives are twofold: (1) to quantify each model's performance in detecting sarcastic image-caption pairs, and (2) to assess their ability to generate human-quality explanations that highlight the visual-textual incongruities driving sarcasm. Our results indicate that, while current models achieve moderate success in binary sarcasm detection, they are still not able to generate high-quality explanations without task-specific finetuning.",
+          "claimed_authors": [
+            "Saroj Basnet",
+            "Shafkat Farabi",
+            "Tharindu Ranasinghe",
+            "Diptesh Kanoji",
+            "Marcos Zampieri"
+          ],
+          "claimed_title": "Evaluating Open-Source Vision-Language Models for Multimodal Sarcasm Detection",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2510.11852"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Cosmos 3: Omnimodal World Models for Physical AI computer science', candidate_title='Evaluating Open-Source Vision-Language Models for Multimodal Sarcasm Detection')",
+        "failed_at": "2026-06-16T15:57:14Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A longstanding goal of artificial general intelligence is highly capable generalists that can learn from diverse experiences and generalize to unseen tasks. The language and vision communities have seen remarkable progress toward this trend by scaling up transformer-based models trained on massive datasets, while reinforcement learning (RL) agents still suffer from poor generalization capacity under such paradigms. To tackle this challenge, we propose Meta Decision Transformer (Meta-DT), which leverages the sequential modeling ability of the transformer architecture and robust task representation learning via world model disentanglement to achieve efficient generalization in offline meta-RL. We pretrain a context-aware world model to learn a compact task representation, and inject it as a contextual condition to the causal transformer to guide task-oriented sequence generation. Then, we subtly utilize history trajectories generated by the meta-policy as a self-guided prompt to exploit the architectural inductive bias. We select the trajectory segment that yields the largest prediction error on the pretrained world model to construct the prompt, aiming to encode task-specific information complementary to the world model maximally. Notably, the proposed framework eliminates the requirement of any expert demonstration or domain knowledge at test time. Experimental results on MuJoCo and Meta-World benchmarks across various dataset types show that Meta-DT exhibits superior few and zero-shot generalization capacity compared to strong baselines while being more practical with fewer prerequisites. Our code is available at https://github.com/NJU-RL/Meta-DT.",
+          "claimed_authors": [
+            "Zhi Wang",
+            "Li Zhang",
+            "Wenhao Wu",
+            "Yuanheng Zhu",
+            "Dongbin Zhao",
+            "Chunlin Chen"
+          ],
+          "claimed_title": "Meta-DT: Offline Meta-RL as Conditional Sequence Modeling with World Model Disentanglement",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2410.11448"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Cosmos 3: Omnimodal World Models for Physical AI computer science', candidate_title='Meta-DT: Offline Meta-RL as Conditional Sequence Modeling with World Model Disentanglement')",
+        "failed_at": "2026-06-16T15:57:14Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Meta-World is widely used for evaluating multi-task and meta-reinforcement learning agents, which are challenged to master diverse skills simultaneously. Since its introduction however, there have been numerous undocumented changes which inhibit a fair comparison of algorithms. This work strives to disambiguate these results from the literature, while also leveraging the past versions of Meta-World to provide insights into multi-task and meta-reinforcement learning benchmark design. Through this process we release a new open-source version of Meta-World (https://github.com/Farama-Foundation/Metaworld/) that has full reproducibility of past results, is more technically ergonomic, and gives users more control over the tasks that are included in a task set.",
+          "claimed_authors": [
+            "Reginald McLean",
+            "Evangelos Chatzaroulas",
+            "Luc McCutcheon",
+            "Frank Röder",
+            "Tianhe Yu",
+            "Zhanpeng He",
+            "K. R. Zentner",
+            "Ryan Julian",
+            "J K Terry",
+            "Isaac Woungang",
+            "Nariman Farsad",
+            "Pablo Samuel Castro"
+          ],
+          "claimed_title": "Meta-World+: An Improved, Standardized, RL Benchmark",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2505.11289"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Cosmos 3: Omnimodal World Models for Physical AI computer science', candidate_title='Meta-World+: An Improved, Standardized, RL Benchmark')",
+        "failed_at": "2026-06-16T15:57:14Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Meta-reinforcement learning algorithms can enable robots to acquire new skills much more quickly, by leveraging prior experience to learn how to learn. However, much of the current research on meta-reinforcement learning focuses on task distributions that are very narrow. For example, a commonly used meta-reinforcement learning benchmark uses different running velocities for a simulated robot as different tasks. When policies are meta-trained on such narrow task distributions, they cannot possibly generalize to more quickly acquire entirely new tasks. Therefore, if the aim of these methods is to enable faster acquisition of entirely new behaviors, we must evaluate them on task distributions that are sufficiently broad to enable generalization to new behaviors. In this paper, we propose an open-source simulated benchmark for meta-reinforcement learning and multi-task learning consisting of 50 distinct robotic manipulation tasks. Our aim is to make it possible to develop algorithms that generalize to accelerate the acquisition of entirely new, held-out tasks. We evaluate 7 state-of-the-art meta-reinforcement learning and multi-task learning algorithms on these tasks. Surprisingly, while each task and its variations (e.g., with different object positions) can be learned with reasonable success, these algorithms struggle to learn with multiple tasks at the same time, even with as few as ten distinct training tasks. Our analysis and open-source environments pave the way for future research in multi-task learning and meta-learning that can enable meaningful generalization, thereby unlocking the full potential of these methods.",
+          "claimed_authors": [
+            "Tianhe Yu",
+            "Deirdre Quillen",
+            "Zhanpeng He",
+            "Ryan Julian",
+            "Avnish Narayan",
+            "Hayden Shively",
+            "Adithya Bellathur",
+            "Karol Hausman",
+            "Chelsea Finn",
+            "Sergey Levine"
+          ],
+          "claimed_title": "Meta-World: A Benchmark and Evaluation for Multi-Task and Meta Reinforcement Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1910.10897"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Cosmos 3: Omnimodal World Models for Physical AI computer science', candidate_title='Meta-World: A Benchmark and Evaluation for Multi-Task and Meta Reinforcement Learning')",
+        "failed_at": "2026-06-16T15:57:14Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A significant roadblock in multilingual neural language modeling is the lack of labeled non-English data. One potential method for overcoming this issue is learning cross-lingual text representations that can be used to transfer the performance from training on English tasks to non-English tasks, despite little to no task-specific non-English data. In this paper, we explore a natural setup for learning cross-lingual sentence representations: the dual-encoder. We provide a comprehensive evaluation of our cross-lingual representations on a number of monolingual, cross-lingual, and zero-shot/few-shot learning tasks, and also give an analysis of different learned cross-lingual embedding spaces.",
+          "claimed_authors": [
+            "Muthuraman Chidambaram",
+            "Yinfei Yang",
+            "Daniel Cer",
+            "Steve Yuan",
+            "Yun-Hsuan Sung",
+            "Brian Strope",
+            "Ray Kurzweil"
+          ],
+          "claimed_title": "Learning Cross-Lingual Sentence Representations via a Multi-task Dual-Encoder Model",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1810.12836"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Cosmos 3: Omnimodal World Models for Physical AI computer science', candidate_title='Learning Cross-Lingual Sentence Representations via a Multi-task Dual-Encoder Model')",
+        "failed_at": "2026-06-16T15:57:14Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "With the rising interest in graph representation learning, a variety of approaches have been proposed to effectively capture a graph's properties. While these approaches have improved performance in graph machine learning tasks compared to traditional graph techniques, they are still perceived as techniques with limited insight into the information encoded in these representations. In this work, we explore methods to interpret node embeddings and propose the creation of a robust evaluation framework for comparing graph representation learning algorithms and hyperparameters. We test our methods on graphs with different properties and investigate the relationship between embedding training parameters and the ability of the produced embedding to recover the structure of the original graph in a downstream task.",
+          "claimed_authors": [
+            "Antonia Gogoglou",
+            "C. Bayan Bruss",
+            "Keegan E. Hines"
+          ],
+          "claimed_title": "On the Interpretability and Evaluation of Graph Representation Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1910.03081"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Cosmos 3: Omnimodal World Models for Physical AI computer science', candidate_title='On the Interpretability and Evaluation of Graph Representation Learning')",
+        "failed_at": "2026-06-16T15:57:14Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A continual learning agent should be able to build on top of existing knowledge to learn on new data quickly while minimizing forgetting. Current intelligent systems based on neural network function approximators arguably do the opposite---they are highly prone to forgetting and rarely trained to facilitate future learning. One reason for this poor behavior is that they learn from a representation that is not explicitly trained for these two goals. In this paper, we propose OML, an objective that directly minimizes catastrophic interference by learning representations that accelerate future learning and are robust to forgetting under online updates in continual learning. We show that it is possible to learn naturally sparse representations that are more effective for online updating. Moreover, our algorithm is complementary to existing continual learning strategies, such as MER and GEM. Finally, we demonstrate that a basic online updating strategy on representations learned by OML is competitive with rehearsal based methods for continual learning. We release an implementation of our method at https://github.com/khurramjaved96/mrcl .",
+          "claimed_authors": [
+            "Khurram Javed",
+            "Martha White"
+          ],
+          "claimed_title": "Meta-Learning Representations for Continual Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1905.12588"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Cosmos 3: Omnimodal World Models for Physical AI computer science', candidate_title='Meta-Learning Representations for Continual Learning')",
+        "failed_at": "2026-06-16T15:57:14Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent progress in large-scale zero-shot speech synthesis has been significantly advanced by language models and diffusion models. However, the generation process of both methods is slow and computationally intensive. Efficient speech synthesis using a lower computing budget to achieve quality on par with previous work remains a significant challenge. In this paper, we present FlashSpeech, a large-scale zero-shot speech synthesis system with approximately 5\\% of the inference time compared with previous work. FlashSpeech is built on the latent consistency model and applies a novel adversarial consistency training approach that can train from scratch without the need for a pre-trained diffusion model as the teacher. Furthermore, a new prosody generator module enhances the diversity of prosody, making the rhythm of the speech sound more natural. The generation processes of FlashSpeech can be achieved efficiently with one or two sampling steps while maintaining high audio quality and high similarity to the audio prompt for zero-shot speech generation. Our experimental results demonstrate the superior performance of FlashSpeech. Notably, FlashSpeech can be about 20 times faster than other zero-shot speech synthesis systems while maintaining comparable performance in terms of voice quality and similarity. Furthermore, FlashSpeech demonstrates its versatility by efficiently performing tasks like voice conversion, speech editing, and diverse speech sampling. Audio samples can be found in https://flashspeech.github.io/.",
+          "claimed_authors": [
+            "Zhen Ye",
+            "Zeqian Ju",
+            "Haohe Liu",
+            "Xu Tan",
+            "Jianyi Chen",
+            "Yiwen Lu",
+            "Peiwen Sun",
+            "Jiahao Pan",
+            "Weizhen Bian",
+            "Shulin He",
+            "Wei Xue",
+            "Qifeng Liu",
+            "Yike Guo"
+          ],
+          "claimed_title": "FlashSpeech: Efficient Zero-Shot Speech Synthesis",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2404.14700"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Cosmos 3: Omnimodal World Models for Physical AI computer science', candidate_title='FlashSpeech: Efficient Zero-Shot Speech Synthesis')",
+        "failed_at": "2026-06-16T15:57:14Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "One of the most impressive results of recent NLP history is the ability of pre-trained language models to solve new tasks in a zero-shot setting. To achieve this, NLP tasks are framed as natural language prompts, generating a response indicating the predicted output. Nonetheless, the performance in such settings often lags far behind its supervised counterpart, suggesting a large space for potential improvement. In this paper, we explore methods to utilize unlabeled data to improve zero-shot performance. Specifically, we take advantage of the fact that multiple prompts can be used to specify a single task, and propose to regularize prompt consistency, encouraging consistent predictions over this diverse set of prompts. Our method makes it possible to fine-tune the model either with extra unlabeled training data, or directly on test input at inference time in an unsupervised manner. In experiments, our approach outperforms the state-of-the-art zero-shot learner, T0 (Sanh et al., 2022), on 9 out of 11 datasets across 4 NLP tasks by up to 10.6 absolute points in terms of accuracy. The gains are often attained with a small number of unlabeled examples.",
+          "claimed_authors": [
+            "Chunting Zhou",
+            "Junxian He",
+            "Xuezhe Ma",
+            "Taylor Berg-Kirkpatrick",
+            "Graham Neubig"
+          ],
+          "claimed_title": "Prompt Consistency for Zero-Shot Task Generalization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2205.00049"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Cosmos 3: Omnimodal World Models for Physical AI computer science', candidate_title='Prompt Consistency for Zero-Shot Task Generalization')",
+        "failed_at": "2026-06-16T15:57:14Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This work builds upon the Euphemism Detection Shared Task proposed in the EMNLP 2022 FigLang Workshop, and extends it to few-shot and zero-shot settings. We demonstrate a few-shot and zero-shot formulation using the dataset from the shared task, and we conduct experiments in these settings using RoBERTa and GPT-3. Our results show that language models are able to classify euphemistic terms relatively well even on new terms unseen during training, indicating that it is able to capture higher-level concepts related to euphemisms.",
+          "claimed_authors": [
+            "Sedrick Scott Keh"
+          ],
+          "claimed_title": "Exploring Euphemism Detection in Few-Shot and Zero-Shot Settings",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2210.12926"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Cosmos 3: Omnimodal World Models for Physical AI computer science', candidate_title='Exploring Euphemism Detection in Few-Shot and Zero-Shot Settings')",
+        "failed_at": "2026-06-16T15:57:14Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Drug discovery relies on iterative expert workflows that are slow to parallelize and difficult to scale. Here we introduce Latent-Y, an AI agent that autonomously executes complete antibody design campaigns from text prompts, covering literature review, target analysis, epitope identification, candidate design, computational validation, and selection of lab-ready sequences. Latent-Y is integrated into the Latent Labs Platform, where it operates in the same environment as drug-discovery experts with access to bioinformatics tools, biological databases, and scientific literature. The agent can run fully autonomously end-to-end, or collaboratively, where researchers review progress, provide feedback, and direct subsequent steps. Candidate antibodies are generated using Latent-X2, our frontier generative model for drug-like antibody design. We demonstrate the agent's capability across three distinct campaign types: epitope discovery guided by therapeutic specifications, cross-species binder design, and autonomous design from a scientific publication targeting human transferrin receptor for blood-brain barrier crossing. Across nine targets, Latent-Y produced lab-confirmed nanobody binders against six, achieving a 67% target-level success rate with binding affinities reaching the single-digit nanomolar range, without human filtering or intervention. In user studies, experts working with Latent-Y completed design campaigns 56 times faster than independent expert time estimates, compressing weeks of work into hours. Because Latent-X2 is a general-purpose atomic-level model for biologics design, the same agent architecture naturally extends to macrocyclic peptide and mini-binder design campaigns, broadening autonomous discovery across therapeutic modalities. Latent-Y is available to selected partners at https://platform.latentlabs.com.",
+          "claimed_authors": [
+            " Latent Labs Team",
+            "Sebastian M. Schmon",
+            "Daniella Pretorius",
+            "Simon Mathis",
+            "Rebecca Bartke-Croughan",
+            "Aishaini Puvanendran",
+            "James Vuckovic",
+            "Henry Kenlay",
+            "Mária Vlachynská",
+            "Alex Bridgland",
+            "Ivan Grishin",
+            "Sven Over",
+            "David Li",
+            "Bridget Li",
+            "Jonathan Crabbé",
+            "Agrin Hilmkil",
+            "Alexander W. R. Nelson",
+            "David Yuan",
+            "Annette Obika",
+            "Simon A. A. Kohl"
+          ],
+          "claimed_title": "Latent-Y: A Lab-Validated Autonomous Agent for De Novo Drug Design",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.29727"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Cosmos 3: Omnimodal World Models for Physical AI computer science', candidate_title='Latent-Y: A Lab-Validated Autonomous Agent for De Novo Drug Design')",
+        "failed_at": "2026-06-16T15:57:14Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Traditional drug discovery relies on rounds of screening millions of candidate molecules with low success rates, making drug discovery time and resource intensive. To overcome this screening bottleneck, we introduce Latent-X, an all-atom protein design model that enables a new paradigm of precision AI design. Given a target protein epitope, Latent-X jointly generates the all atom structure and sequence of the protein binder and target, directly modelling the non-covalent interactions essential for specific binding. We demonstrate its efficacy across two therapeutically relevant modalities through extensive wet lab experiments, testing as few as 30-100 designs per target. For macrocyclic peptides, Latent-X achieves experimental hit rates exceeding 90% on all evaluated benchmark targets. For mini-binders, it consistently produces potent candidates against all evaluated benchmark targets, with binding affinities reaching the low nanomolar and picomolar range - comparable to those of approved therapeutics - whilst also being highly specific in mammalian display. In direct comparisons with the state-of-the-art models AlphaProteo, RFdiffusion and RFpeptides under identical conditions demonstrates, Latent-X generates binders with higher hit rates and better binding affinities, and uniquely creates structurally diverse binders, including complex beta-sheet folds. Its end-to-end process is an order of magnitude faster than existing multi-step computational pipelines. By drastically improving the efficiency and success rate of de novo design, Latent-X represents a significant advance towards push-button biologics discovery and a valuable tool for protein engineers. Latent-X is available at https://platform.latentlabs.com, enabling users to reliably generate de novo binders without AI infrastructure or coding.",
+          "claimed_authors": [
+            " Latent Labs Team",
+            "Alex Bridgland",
+            "Jonathan Crabbé",
+            "Henry Kenlay",
+            "Daniella Pretorius",
+            "Sebastian M. Schmon",
+            "Agrin Hilmkil",
+            "Rebecca Bartke-Croughan",
+            "Robin Rombach",
+            "Michael Flashman",
+            "Tomas Matteson",
+            "Simon Mathis",
+            "Alexander W. R. Nelson",
+            "David Yuan",
+            "Annette Obika",
+            "Simon A. A. Kohl"
+          ],
+          "claimed_title": "Latent-X: An Atom-level Frontier Model for De Novo Protein Binder Design",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2507.19375"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Cosmos 3: Omnimodal World Models for Physical AI computer science', candidate_title='Latent-X: An Atom-level Frontier Model for De Novo Protein Binder Design')",
+        "failed_at": "2026-06-16T15:57:14Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Drug discovery has long sought computational systems capable of designing drug-like molecules directly: developable and non-immunogenic from the start. Here we introduce Latent-X2, a frontier generative model that achieves this goal through zero-shot design of antibodies with strong binding affinities, drug-like properties, and, for the first time for any de novo generated antibody, confirmed low immunogenicity in human donor panels. Latent-X2 is an all-atom model conditioned on target structure, epitope specification, and optional antibody framework, jointly generating sequences and structures while modelling the bound complex. Testing only 4 to 24 designs per target in each modality, we successfully generated VHH and scFv antibodies against 9 of 18 evaluated targets, achieving a 50% target-level success rate with picomolar to nanomolar binding affinities. Designed molecules exhibit developability profiles that match or exceed those of approved antibody therapeutics, including expression yield, aggregation propensity, polyreactivity, hydrophobicity, and thermal stability, without optimization, filtering, or selection. In the first immunogenicity assessment of any AI-generated antibody, representative de novo VHH binders targeting TNFL9 exhibit both potent target engagement and low immunogenicity across T-cell proliferation and cytokine release assays. The model generalizes beyond antibodies: against K-Ras, long considered undruggable, we generated macrocyclic peptide binders competitive with trillion-scale mRNA display screens. These properties emerge directly from the model, demonstrating the therapeutic viability of zero-shot molecular design, now available without AI infrastructure or coding expertise at https://platform.latentlabs.com.",
+          "claimed_authors": [
+            " Latent Labs Team",
+            "Henry Kenlay",
+            "Daniella Pretorius",
+            "Jonathan Crabbé",
+            "Alex Bridgland",
+            "Sebastian M. Schmon",
+            "Agrin Hilmkil",
+            "James Vuckovic",
+            "Simon Mathis",
+            "Tomas Matteson",
+            "Rebecca Bartke-Croughan",
+            "Amir Motmaen",
+            "Robin Rombach",
+            "Mária Vlachynská",
+            "Alexander W. R. Nelson",
+            "David Yuan",
+            "Annette Obika",
+            "Simon A. A. Kohl"
+          ],
+          "claimed_title": "Drug-like antibodies with low immunogenicity in human panels designed with Latent-X2",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.20263"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Cosmos 3: Omnimodal World Models for Physical AI computer science', candidate_title='Drug-like antibodies with low immunogenicity in human panels designed with Latent-X2')",
+        "failed_at": "2026-06-16T15:57:14Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            " NVIDIA",
+            " :",
+            " Aditi",
+            "Niket Agarwal",
+            "Arslan Ali",
+            "Jon Allen",
+            "Martin Antolini",
+            "Adeline Aubame",
+            "Alisson Azzolini",
+            "Junjie Bai",
+            "Maciej Bala",
+            "Yogesh Balaji",
+            "Josh Bapst",
+            "Aarti Basant",
+            "Mukesh Beladiya",
+            "Mohammad Qazim Bhat",
+            "Zaid Pervaiz Bhat",
+            "Dan Blick",
+            "Vanni Brighella",
+            "Han Cai",
+            "Tiffany Cai",
+            "Eric Cameracci",
+            "Jiaxin Cao",
+            "Yulong Cao",
+            "Mark Carlson",
+            "Carlos Casanova",
+            "Ting-Yun Chang",
+            "Yan Chang",
+            "Yu-Wei Chao",
+            "Prithvijit Chattopadhyay",
+            "Roshan Chaudhari",
+            "Chieh-Yun Chen",
+            "Junyu Chen",
+            "Ke Chen",
+            "Qizhi Chen",
+            "Wenkai Chen",
+            "Xiaotong Chen",
+            "Yu Chen",
+            "An-Chieh Cheng",
+            "Click Cheng",
+            "Xiu Chia",
+            "Jeana Choi",
+            "Chaeyeon Chung",
+            "Wenyan Cong",
+            "Yin Cui",
+            "Magdalena Dadela",
+            "Nalin Dadhich",
+            "Wenliang Dai",
+            "Joyjit Daw",
+            "Alperen Degirmenci",
+            "Rodrigo Vieira Del Monte",
+            "Robert Denomme",
+            "Sameer Dharur",
+            "Marco Di Lucca",
+            "Ke Ding",
+            "Wenhao Ding",
+            "Yifan Ding",
+            "Yuzhu Dong",
+            "Nicole Drumheller",
+            "Yilun Du",
+            "Aigul Dzhumamuratova",
+            "Aleksandr Efitorov",
+            "Hamid Eghbalzadeh",
+            "Naomi Eigbe",
+            "Imad El Hanafi",
+            "Hassan Eslami",
+            "Benedikt Falk",
+            "Jiaojiao Fan",
+            "Jim Fan",
+            "Amol Fasale",
+            "Sergiy Fefilatyev",
+            "Liang Feng",
+            "Francesco Ferroni",
+            "Sanja Fidler",
+            "Xiao Fu",
+            "Vikram Fugro",
+            "Prashant Gaikwad",
+            "TJ Galda",
+            "Katelyn Gao",
+            "Yihuai Gao",
+            "Wenhang Ge",
+            "Sreyan Ghosh",
+            "Arushi Goel",
+            "Vivek Goel",
+            "Akash Gokul",
+            "Rama Govindaraju",
+            "Jinwei Gu",
+            "Miguel Guerrero",
+            "Elfie Guo",
+            "Aryaman Gupta",
+            "Siddharth Gururani",
+            "Hugo Hadfield",
+            "Song Han",
+            "Ankur Handa",
+            "Zekun Hao",
+            "Mohammad Harrim",
+            "Ali Hassani",
+            "Nathan Hayes-Roth",
+            "Yufan He",
+            "Chris Helvig",
+            "Cyrus Hogg",
+            "Madison Huang",
+            "Michael Huang",
+            "Sophia Huang",
+            "Yufan Huang",
+            "Jacob Huffman",
+            "DeLesley Hutchins",
+            "Suneel Indupuru",
+            "Boris Ivanovic",
+            "Arihant Jain",
+            "Joel Jang",
+            "Ryan Ji",
+            "Yanan Jian",
+            "Dongfu Jiang",
+            "Jingyi Jin",
+            "Atharva Joshi",
+            "Nikhilesh Joshi",
+            "Pranjali Joshi",
+            "Andy Ju",
+            "Jaehun Jung",
+            "Weiwei Kang",
+            "Scott Kassekert",
+            "Jan Kautz",
+            "Ashna Khetan",
+            "Julia Kiczka",
+            "Slawek Kierat",
+            "Gwanghyun Kim",
+            "Kuno Kim",
+            "Sunny Kim",
+            "Kezhi Kong",
+            "Xin Kong",
+            "Zhifeng Kong",
+            "Tomasz Kornuta",
+            "Egor Krivov",
+            "Hui Kuang",
+            "Saurav Kumar",
+            "Chia-Wen Kuo",
+            "George Kurian",
+            "Wojciech Kutak",
+            "JF Lafleche",
+            "Himangshu Lahkar",
+            "Omar Laymoun",
+            "Jayjun Lee",
+            "Sanggil Lee",
+            "Gabriele Leone",
+            "Boyi Li",
+            "Freya Li",
+            "Jiajun Li",
+            "Jinfeng Li",
+            "Ling Li",
+            "Pengcheng Li",
+            "Shangru Li",
+            "Tingle Li",
+            "Xiaolong Li",
+            "Xuan Li",
+            "Zhaoshuo Li",
+            "Zhiqi Li",
+            "Hao Liang",
+            "Maosheng Liao",
+            "Chen-Hsuan Lin",
+            "Tsung-Yi Lin",
+            "Ming-Yu Liu",
+            "Sifei Liu",
+            "Zihan Liu",
+            "Hai Loc Lu",
+            "Xiangyu Lu",
+            "Alice Luo",
+            "Ruipu Luo",
+            "Wenjie Luo",
+            "Jiangran Lyu",
+            "Martin Ding Ma",
+            "Nic Ma",
+            "Qianli Ma",
+            "Dawid Majchrowski",
+            "Louis Marcoux",
+            "Miguel Martin",
+            "Qing Miao",
+            "Ashkan Mirzaei",
+            "Shreyas Misra",
+            "Kaichun Mo",
+            "Durra Mohsin",
+            "Hyejin Moon",
+            "Pawel Morkisz",
+            "Saeid Motiian",
+            "Kirill Motkov",
+            "Seungjun Nah",
+            "Yashraj Narang",
+            "Deepak Narayanan",
+            "Thabang Ngazimbi",
+            "Julian Ouyang",
+            "Shubham Pachori",
+            "David Page",
+            "Yatian Pang",
+            "Sehwi Park",
+            "Mahesh Patekar",
+            "Mostofa Patwary",
+            "Marco Pavone",
+            "Trung Pham",
+            "Wei Ping",
+            "Soha Pouya",
+            "Shrimai Prabhumoye",
+            "Varun Praveen",
+            "Delin Qu",
+            "Hesam Rabeti",
+            "Morteza Ramezanali",
+            "Marilyn Reeb",
+            "Xuanchi Ren",
+            "Kristen Rumley",
+            "Wojciech Rymer",
+            "Jun Saito",
+            "Yeongho Seol",
+            "John Shao",
+            "Piyush Shekdar",
+            "Tianwei Shen",
+            "Humphrey Shi",
+            "Min Shi",
+            "Stella Shi",
+            "Kevin Shih",
+            "Mohammad Shoeybi",
+            "Mateusz Sieniawski",
+            "Shuran Song",
+            "Alexander Sotelo",
+            "Amir Sotoodeh",
+            "Sunil Srinivasa",
+            "Vignesh Srinivasakumar",
+            "Bartosz Stefaniak",
+            "Rahul Heinrich Steiger",
+            "Shangkun Sun",
+            "Jiaxiang Tang",
+            "Shitao Tang",
+            "Yangyang Tang",
+            "Yue Tang",
+            "Tolou Tavakkoli",
+            "Kayley Ting",
+            "Krzysztof Tomala",
+            "Wei-Cheng Tseng",
+            "Jibin Varghese",
+            "Sergei Vasilev",
+            "Thomas Volk",
+            "Raju Wagwani",
+            "Roger Waleffe",
+            "Andrew Z. Wang",
+            "Boxiang Wang",
+            "Haoxiang Wang",
+            "Qiao Wang",
+            "Shihao Wang",
+            "Shijie Wang",
+            "Ting-Chun Wang",
+            "Yan Wang",
+            "Yu Wang",
+            "Rohit Watve",
+            "David Wehr",
+            "Fangyin Wei",
+            "Xinshuo Weng",
+            "Jay Zhangjie Wu",
+            "Kedi Wu",
+            "Hongchi Xia",
+            "Summer Xiao",
+            "Tianjun Xiao",
+            "Kevin Xie",
+            "Daguang Xu",
+            "Jiashu Xu",
+            "Mengyao Xu",
+            "Ruqing Xu",
+            "Xingqian Xu",
+            "Yao Xu",
+            "Dinghao Yang",
+            "Dong Yang",
+            "Hans Yang",
+            "Xiaodong Yang",
+            "Xuning Yang",
+            "Yichu Yang",
+            "Yurong You",
+            "Zhiding Yu",
+            "Hao Yuan",
+            "Simon Yuen",
+            "Xiaohui Zeng",
+            "Pengcuo Zeren",
+            "Cindy Zha",
+            "Haotian Zhang",
+            "Jenny Zhang",
+            "Jing Zhang",
+            "Liangkai Zhang",
+            "Paris Zhang",
+            "Shun Zhang",
+            "Xuanmeng Zhang",
+            "Zhizheng Zhang",
+            "Ann Zhao",
+            "Yilin Zhao",
+            "Yuliya Zhautouskaya",
+            "Charles Zhou",
+            "Fengzhe Zhou",
+            "Shilin Zhu",
+            "Yuke Zhu",
+            "Dima Zhylko",
+            "Artur Zolkowski"
+          ],
+          "title": "Cosmos 3: Omnimodal World Models for Physical AI",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2606.02800",
+        "summary": "We introduce Cosmos 3, a family of omnimodal world models designed to jointly process and generate language, image, video, audio, and action sequences within a unified mixture-of-transformers architecture. By supporting highly flexible input-output configurations, Cosmos 3 seamlessly unifies critical modalities for Physical AI -- effectively subsuming vision-language models, video generators, world simulators, and world-action models into a single framework. Our evaluation demonstrates that Cosmos 3 establishes a new state-of-the-art across a diverse suite of understanding and generation tasks, demonstrating omnimodal world models as scalable, general-purpose backbones for embodied agents. Our post-trained Cosmos 3 models were ranked as the best open-source Text-to-Image and Image-to-Video models by Artificial Analysis, and the best policy model by RoboArena at the time the technical report was written. To accelerate open research and deployment in Physical AI, we make our code, model checkpoints, curated synthetic datasets, and evaluation benchmark available under the Linux Foundation's OpenMDW-1.1 License at https://github.com/nvidia/cosmos and https://huggingface.co/collections/nvidia/cosmos3. The project website is available at https://research.nvidia.com/labs/cosmos-lab/cosmos3.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2606.02800",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.7143,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-16T15:57:13Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yang Liu",
+            "Weixing Chen",
+            "Yongjie Bai",
+            "Xiaodan Liang",
+            "Guanbin Li",
+            "Wen Gao",
+            "Liang Lin"
+          ],
+          "title": "Aligning Cyber Space with Physical World: A Comprehensive Survey on Embodied AI",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2407.06886",
+        "summary": "Embodied Artificial Intelligence (Embodied AI) is crucial for achieving Artificial General Intelligence (AGI) and serves as a foundation for various applications (e.g., intelligent mechatronics systems, smart manufacturing) that bridge cyberspace and the physical world. Recently, the emergence of Multi-modal Large Models (MLMs) and World Models (WMs) have attracted significant attention due to their remarkable perception, interaction, and reasoning capabilities, making them a promising architecture for embodied agents. In this survey, we give a comprehensive exploration of the latest advancements in Embodied AI. Our analysis firstly navigates through the forefront of representative works of embodied robots and simulators, to fully understand the research focuses and their limitations. Then, we analyze four main research targets: 1) embodied perception, 2) embodied interaction, 3) embodied agent, and 4) sim-to-real adaptation, covering state-of-the-art methods, essential paradigms, and comprehensive datasets. Additionally, we explore the complexities of MLMs in virtual and real embodied agents, highlighting their significance in facilitating interactions in digital and physical environments. Finally, we summarize the challenges and limitations of embodied AI and discuss potential future directions. We hope this survey will serve as a foundational reference for the research community. The associated project can be found at https://github.com/HCPLab-SYSU/Embodied_AI_Paper_List.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2407.06886",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.75,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-16T15:57:22Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Xiaoxiao Long",
+            "Qingrui Zhao",
+            "Kaiwen Zhang",
+            "Zihao Zhang",
+            "Dingrui Wang",
+            "Yumeng Liu",
+            "Zhengjie Shu",
+            "Yi Lu",
+            "Shouzheng Wang",
+            "Xinzhe Wei",
+            "Wei Li",
+            "Wei Yin",
+            "Yao Yao",
+            "Jia Pan",
+            "Qiu Shen",
+            "Ruigang Yang",
+            "Xun Cao",
+            "Qionghai Dai"
+          ],
+          "title": "A Survey: Learning Embodied Intelligence from Physical Simulators and World Models",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2507.00917",
+        "summary": "The pursuit of artificial general intelligence (AGI) has placed embodied intelligence at the forefront of robotics research. Embodied intelligence focuses on agents capable of perceiving, reasoning, and acting within the physical world. Achieving robust embodied intelligence requires not only advanced perception and control, but also the ability to ground abstract cognition in real-world interactions. Two foundational technologies, physical simulators and world models, have emerged as critical enablers in this quest. Physical simulators provide controlled, high-fidelity environments for training and evaluating robotic agents, allowing safe and efficient development of complex behaviors. In contrast, world models empower robots with internal representations of their surroundings, enabling predictive planning and adaptive decision-making beyond direct sensory input. This survey systematically reviews recent advances in learning embodied AI through the integration of physical simulators and world models. We analyze their complementary roles in enhancing autonomy, adaptability, and generalization in intelligent robots, and discuss the interplay between external simulation and internal modeling in bridging the gap between simulated training and real-world deployment. By synthesizing current progress and identifying open challenges, this survey aims to provide a comprehensive perspective on the path toward more capable and generalizable embodied AI systems. We also maintain an active repository that contains up-to-date literature and open-source projects at https://github.com/NJU3DV-LoongGroup/Embodied-World-Models-Survey.",
+        "summary_grounded_pdf": true,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2507.00917",
+          "http_status": 200,
+          "pdf_sample_score": 0.5288,
+          "query_relevance_score": 0.75,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-16T15:57:23Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Brennen A. Hill",
+            "Mant Koh En Wei",
+            "Thangavel Jishnuanandh"
+          ],
+          "title": "Communicating Plans, Not Percepts: Scalable Multi-Agent Coordination with Embodied World Models",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2508.02912",
+        "summary": "Robust coordination is critical for effective decision-making in multi-agent systems, especially under partial observability. A central question in Multi-Agent Reinforcement Learning (MARL) is whether to engineer communication protocols or learn them end-to-end. We investigate this dichotomy using embodied world models. We propose and compare two communication strategies for a cooperative task-allocation problem. The first, Learned Direct Communication (LDC), learns a protocol end-to-end. The second, Intention Communication, uses an engineered inductive bias: a compact, learned world model, the Imagined Trajectory Generation Module (ITGM), which uses the agent's own policy to simulate future states. A Message Generation Network (MGN) then compresses this plan into a message. We evaluate these approaches on goal-directed interaction in a grid world, a canonical abstraction for embodied AI problems, while scaling environmental complexity. Our experiments reveal that while emergent communication is viable in simple settings, the engineered, world model-based approach shows superior performance, sample efficiency, and scalability as complexity increases. These findings advocate for integrating structured, predictive models into MARL agents to enable active, goal-driven coordination.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2508.02912",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.75,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-16T15:57:24Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "cosmos 3: omnimodal world models for physical ai computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

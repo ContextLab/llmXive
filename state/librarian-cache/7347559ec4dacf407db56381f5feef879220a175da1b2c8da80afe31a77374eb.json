@@ -1,0 +1,618 @@
+{
+  "fetched_at": "2026-06-16T16:03:17Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "FashionChameleon: Towards Real-Time and Interactive Human-Garment Video Customization",
+      "target_n": 5
+    },
+    "duration_seconds": 108.506,
+    "ended_at": "2026-06-16T16:03:17Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "real-time virtual try‑on for video streams"
+        ],
+        [
+          2,
+          "interactive garment swapping in human videos"
+        ],
+        [
+          3,
+          "dynamic clothing synthesis for moving subjects"
+        ],
+        [
+          4,
+          "video‑based human outfit manipulation"
+        ],
+        [
+          5,
+          "real‑time apparel editing in recorded footage"
+        ],
+        [
+          6,
+          "temporal garment retargeting across video frames"
+        ],
+        [
+          7,
+          "interactive fashion video customization system"
+        ],
+        [
+          8,
+          "deep learning driven clothing replacement in video"
+        ],
+        [
+          9,
+          "human pose‑guided garment transfer for videos"
+        ],
+        [
+          10,
+          "online virtual fitting of garments on video sequences"
+        ],
+        [
+          11,
+          "real‑time dress‑up and outfit change in video"
+        ],
+        [
+          12,
+          "neural garment re‑targeting for moving humans"
+        ],
+        [
+          13,
+          "video‑driven fashion style transfer for apparel"
+        ],
+        [
+          14,
+          "dynamic outfit swapping with continuous pose estimation"
+        ],
+        [
+          15,
+          "real‑time cloth rendering and blending on video streams"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "FashionChameleon: Towards Real-Time and Interactive Human-Garment Video Customization computer science": 0,
+        "real-time virtual try‑on for video streams": 5
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "virtual try-on video",
+      "DeepFashion video dataset",
+      "pose-guided garment transfer",
+      "real-time latency metric",
+      "conditional GAN fashion synthesis"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2404.17571"
+      ]
+    },
+    "per_query_hit_count": {
+      "DeepFashion video dataset": 3,
+      "FashionChameleon: Towards Real-Time and Interactive Human-Garment Video Customization computer science": 3,
+      "conditional GAN fashion synthesis": 3,
+      "pose-guided garment transfer": 3,
+      "real-time latency metric": 1,
+      "virtual try-on video": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 3,
+      "rejections": [
+        {
+          "primary_pointer": "1806.09998",
+          "rationale": "The paper focuses on real‑time motor state monitoring and fault diagnosis using LabVIEW, which is unrelated to human‑garment video customization, computer‑vision, or interactive fashion applications; it does not share any relevant mechanism, variable, or domain with the user's research question.",
+          "title": "Real time state monitoring and fault diagnosis system for motor based on LabVIEW"
+        },
+        {
+          "primary_pointer": "2512.14002",
+          "rationale": "The paper focuses on task offloading and resource allocation in vehicular edge computing, which is unrelated to real‑time, interactive human‑garment video customization; it does not share the same domain, variables, or mechanisms relevant to the user's question.",
+          "title": "Real-Time Service Subscription and Adaptive Offloading Control in Vehicular Edge Computing"
+        },
+        {
+          "primary_pointer": "1702.01586",
+          "rationale": "The paper studies influence maximization in dynamic social streams, which is unrelated to real-time, interactive human‑garment video customization; it shares no mechanism, variables, or domain with the user's question. Hence it does not belong in the literature review.",
+          "title": "Real-Time Influence Maximization on Dynamic Social Streams"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-16T16:01:28Z",
+    "term_input": {
+      "normalized": "fashionchameleon: towards real-time and interactive human-garment video customization computer science",
+      "raw": "FashionChameleon: Towards Real-Time and Interactive Human-Garment Video Customization computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Vehicular Edge Computing (VEC) has emerged as a promising paradigm for enhancing the computational efficiency and service quality in intelligent transportation systems by enabling vehicles to wirelessly offload computation-intensive tasks to nearby Roadside Units. However, efficient task offloading and resource allocation for time-critical applications in VEC remain challenging due to constrained network bandwidth and computational resources, stringent task deadlines, and rapidly changing network conditions. To address these challenges, we formulate a Deadline-Constrained Task Offloading and Resource Allocation Problem (DOAP), denoted as $\\mathbf{P}$, in VEC with both bandwidth and computational resource constraints, aiming to maximize the total vehicle utility. To solve $\\mathbf{P}$, we propose $\\mathtt{SARound}$, an approximation algorithm based on Linear Program rounding and local-ratio techniques, that improves the best-known approximation ratio for DOAP from $\\frac{1}{6}$ to $\\frac{1}{4}$. Additionally, we design an online service subscription and offloading control framework to address the challenges of short task deadlines and rapidly changing wireless network conditions. To validate our approach, we develop a comprehensive VEC simulator, VecSim, using the open-source simulation libraries OMNeT++ and Simu5G. VecSim integrates our designed framework to manage the full life-cycle of real-time vehicular tasks. Experimental results, based on profiled object detection applications and real-world taxi trace data, show that $\\mathtt{SARound}$ consistently outperforms state-of-the-art baselines under varying network conditions while maintaining runtime efficiency.",
+          "claimed_authors": [
+            "Chuanchao Gao",
+            "Arvind Easwaran"
+          ],
+          "claimed_title": "Real-Time Service Subscription and Adaptive Offloading Control in Vehicular Edge Computing",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.14002"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='FashionChameleon: Towards Real-Time and Interactive Human-Garment Video Customiz', candidate_title='Real-Time Service Subscription and Adaptive Offloading Control in Vehicular Edge Computing')",
+        "failed_at": "2026-06-16T16:02:14Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Motor is the most widely used production equipment in industrial field. In order to realize the real-time state monitoring and multi-fault pre-diagnosis of three-phase motor, this paper presents a design of three-phase motor state monitoring and fault diagnosis system based on LabVIEW.\n  The multi-dimensional vibration acceleration, rotational speed, temperature, current and voltage signals of the motor are collected with NI cDAQ acquisition equipment in real time and high speed. At the same time, the model of motor health state and fault state is established. The order analysis algorithm is used to analyze the data at an advanced level, and the diagnosis and classification of different fault types are realized. The system is equipped with multi-channel acquisition, display, analysis and storage. Combined with the current cloud transmission technology, we will back up the data to the cloud to be used by other terminals.",
+          "claimed_authors": [
+            "S. Q. Liu",
+            "Z. S. Ji",
+            "Y Wang",
+            "Z. C. Zhang"
+          ],
+          "claimed_title": "Real time state monitoring and fault diagnosis system for motor based on LabVIEW",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1806.09998"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='FashionChameleon: Towards Real-Time and Interactive Human-Garment Video Customiz', candidate_title='Real time state monitoring and fault diagnosis system for motor based on LabVIEW')",
+        "failed_at": "2026-06-16T16:02:14Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Video try-on is a challenging task and has not been well tackled in previous works. The main obstacle lies in preserving the details of the clothing and modeling the coherent motions simultaneously. Faced with those difficulties, we address video try-on by proposing a diffusion-based framework named \"Tunnel Try-on.\" The core idea is excavating a \"focus tunnel\" in the input video that gives close-up shots around the clothing regions. We zoom in on the region in the tunnel to better preserve the fine details of the clothing. To generate coherent motions, we first leverage the Kalman filter to construct smooth crops in the focus tunnel and inject the position embedding of the tunnel into attention layers to improve the continuity of the generated videos. In addition, we develop an environment encoder to extract the context information outside the tunnels as supplementary cues. Equipped with these techniques, Tunnel Try-on keeps the fine details of the clothing and synthesizes stable and smooth videos. Demonstrating significant advancements, Tunnel Try-on could be regarded as the first attempt toward the commercial-level application of virtual try-on in videos.",
+          "claimed_authors": [
+            "Zhengze Xu",
+            "Mengting Chen",
+            "Zhao Wang",
+            "Linyu Xing",
+            "Zhonghua Zhai",
+            "Nong Sang",
+            "Jinsong Lan",
+            "Shuai Xiao",
+            "Changxin Gao"
+          ],
+          "claimed_title": "Tunnel Try-on: Excavating Spatial-temporal Tunnels for High-quality Virtual Try-on in Videos",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2404.17571"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='FashionChameleon: Towards Real-Time and Interactive Human-Garment Video Customiz', candidate_title='Tunnel Try-on: Excavating Spatial-temporal Tunnels for High-quality Virtual Try-on in Videos')",
+        "failed_at": "2026-06-16T16:02:14Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Augmented reality is revolutionizing beauty industry with virtual try-on (VTO) applications, which empowers users to try a wide variety of products using their phones without the hassle of physically putting on real products. A critical technical challenge in foundation VTO applications is the accurate synthesis of foundation-skin tone color blending while maintaining the scalability of the method across diverse product ranges. In this work, we propose a novel method to approximate well-established Kubelka-Munk (KM) theory for faster image synthesis while preserving foundation-skin tone color blending realism. Additionally, we build a scalable end-to-end framework for realistic foundation makeup VTO solely depending on the product information available on e-commerce sites. We validate our method using real-world makeup images, demonstrating that our framework outperforms other techniques.",
+          "claimed_authors": [
+            "Hui Pang",
+            "Sunil Hadap",
+            "Violetta Shevchenko",
+            "Rahul Suresh",
+            "Amin Banitalebi-Dehkordi"
+          ],
+          "claimed_title": "Scalable and Realistic Virtual Try-on Application for Foundation Makeup with Kubelka-Munk Theory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2507.07333"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='FashionChameleon: Towards Real-Time and Interactive Human-Garment Video Customiz', candidate_title='Scalable and Realistic Virtual Try-on Application for Foundation Makeup with Kubelka-Munk Theory')",
+        "failed_at": "2026-06-16T16:02:14Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Image-based virtual try-on, widely used in online shopping, aims to generate images of a naturally dressed person conditioned on certain garments, providing significant research and commercial potential. A key challenge of try-on is to generate realistic images of the model wearing the garments while preserving the details of the garments. Previous methods focus on masking certain parts of the original model's standing image, and then inpainting on masked areas to generate realistic images of the model wearing corresponding reference garments, which treat the try-on task as an inpainting task. However, such implements require the user to provide a complete, high-quality standing image, which is user-unfriendly in practical applications. In this paper, we propose Try-On-Adapter (TOA), an outpainting paradigm that differs from the existing inpainting paradigm. Our TOA can preserve the given face and garment, naturally imagine the rest parts of the image, and provide flexible control ability with various conditions, e.g., garment properties and human pose. In the experiments, TOA shows excellent performance on the virtual try-on task even given relatively low-quality face and garment images in qualitative comparisons. Additionally, TOA achieves the state-of-the-art performance of FID scores 5.56 and 7.23 for paired and unpaired on the VITON-HD dataset in quantitative comparisons.",
+          "claimed_authors": [
+            "Hanzhong Guo",
+            "Jianfeng Zhang",
+            "Cheng Zou",
+            "Jun Li",
+            "Meng Wang",
+            "Ruxue Wen",
+            "Pingzhong Tang",
+            "Jingdong Chen",
+            "Ming Yang"
+          ],
+          "claimed_title": "Try-On-Adapter: A Simple and Flexible Try-On Paradigm",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2411.10187"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='FashionChameleon: Towards Real-Time and Interactive Human-Garment Video Customiz', candidate_title='Try-On-Adapter: A Simple and Flexible Try-On Paradigm')",
+        "failed_at": "2026-06-16T16:02:14Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The RSNA Abdominal Traumatic Injury CT (RATIC) dataset is the largest publicly available collection of adult abdominal CT studies annotated for traumatic injuries. This dataset includes 4,274 studies from 23 institutions across 14 countries. The dataset is freely available for non-commercial use via Kaggle at https://www.kaggle.com/competitions/rsna-2023-abdominal-trauma-detection. Created for the RSNA 2023 Abdominal Trauma Detection competition, the dataset encourages the development of advanced machine learning models for detecting abdominal injuries on CT scans. The dataset encompasses detection and classification of traumatic injuries across multiple organs, including the liver, spleen, kidneys, bowel, and mesentery. Annotations were created by expert radiologists from the American Society of Emergency Radiology (ASER) and Society of Abdominal Radiology (SAR). The dataset is annotated at multiple levels, including the presence of injuries in three solid organs with injury grading, image-level annotations for active extravasations and bowel injury, and voxelwise segmentations of each of the potentially injured organs. With the release of this dataset, we hope to facilitate research and development in machine learning and abdominal trauma that can lead to improved patient care and outcomes.",
+          "claimed_authors": [
+            "Jeffrey D. Rudie",
+            "Hui-Ming Lin",
+            "Robyn L. Ball",
+            "Sabeena Jalal",
+            "Luciano M. Prevedello",
+            "Savvas Nicolaou",
+            "Brett S. Marinelli",
+            "Adam E. Flanders",
+            "Kirti Magudia",
+            "George Shih",
+            "Melissa A. Davis",
+            "John Mongan",
+            "Peter D. Chang",
+            "Ferco H. Berger",
+            "Sebastiaan Hermans",
+            "Meng Law",
+            "Tyler Richards",
+            "Jan-Peter Grunz",
+            "Andreas Steven Kunz",
+            "Shobhit Mathur",
+            "Sandro Galea-Soler",
+            "Andrew D. Chung",
+            "Saif Afat",
+            "Chin-Chi Kuo",
+            "Layal Aweidah",
+            "Ana Villanueva Campos",
+            "Arjuna Somasundaram",
+            "Felipe Antonio Sanchez Tijmes",
+            "Attaporn Jantarangkoon",
+            "Leonardo Kayat Bittencourt",
+            "Michael Brassil",
+            "Ayoub El Hajjami",
+            "Hakan Dogan",
+            "Muris Becircic",
+            "Agrahara G. Bharatkumar",
+            "Eduardo Moreno Júdice de Mattos Farina",
+            "Dataset Curator Group",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Errol Colak"
+          ],
+          "claimed_title": "The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.19595"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='FashionChameleon: Towards Real-Time and Interactive Human-Garment Video Customiz', candidate_title='The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset')",
+        "failed_at": "2026-06-16T16:02:14Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In contrast with traditional video, omnidirectional video enables spherical viewing direction with support for head-mounted displays, providing an interactive and immersive experience. Unfortunately, to the best of our knowledge, there are few visual quality assessment (VQA) methods, either subjective or objective, for omnidirectional video coding. This paper proposes both subjective and objective methods for assessing quality loss in encoding omnidirectional video. Specifically, we first present a new database, which includes the viewing direction data from several subjects watching omnidirectional video sequences. Then, from our database, we find a high consistency in viewing directions across different subjects. The viewing directions are normally distributed in the center of the front regions, but they sometimes fall into other regions, related to video content. Given this finding, we present a subjective VQA method for measuring difference mean opinion score (DMOS) of the whole and regional omnidirectional video, in terms of overall DMOS (O-DMOS) and vectorized DMOS (V-DMOS), respectively. Moreover, we propose two objective VQA methods for encoded omnidirectional video, in light of human perception characteristics of omnidirectional video. One method weighs the distortion of pixels with regard to their distances to the center of front regions, which considers human preference in a panorama. The other method predicts viewing directions according to video content, and then the predicted viewing directions are leveraged to allocate weights to the distortion of each pixel in our objective VQA method. Finally, our experimental results verify that both the subjective and objective methods proposed in this paper advance state-of-the-art VQA for omnidirectional video.",
+          "claimed_authors": [
+            "Mai Xu",
+            "Chen Li",
+            "Zulin Wang",
+            "Zhenzhong Chen",
+            "Zhenyu Guan"
+          ],
+          "claimed_title": "Assessing Visual Quality of Omnidirectional Videos",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1709.06342"
+        },
+        "details": "query-relevance 0.273 < 0.3 (query='FashionChameleon: Towards Real-Time and Interactive Human-Garment Video Customiz', candidate_title='Assessing Visual Quality of Omnidirectional Videos')",
+        "failed_at": "2026-06-16T16:02:14Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Radiological Society of North America (RSNA) Lumbar Degenerative Imaging Spine Classification (LumbarDISC) dataset is the largest publicly available dataset of adult MRI lumbar spine examinations annotated for degenerative changes. The dataset includes 2,697 patients with a total of 8,593 image series from 8 institutions across 6 countries and 5 continents. The dataset is available for free for non-commercial use via Kaggle and RSNA Medical Imaging Resource of AI (MIRA). The dataset was created for the RSNA 2024 Lumbar Spine Degenerative Classification competition where competitors developed deep learning models to grade degenerative changes in the lumbar spine. The degree of spinal canal, subarticular recess, and neural foraminal stenosis was graded at each intervertebral disc level in the lumbar spine. The images were annotated by expert volunteer neuroradiologists and musculoskeletal radiologists from the RSNA, American Society of Neuroradiology, and the American Society of Spine Radiology. This dataset aims to facilitate research and development in machine learning and lumbar spine imaging to lead to improved patient care and clinical efficiency.",
+          "claimed_authors": [
+            "Tyler J. Richards",
+            "Adam E. Flanders",
+            "Errol Colak",
+            "Luciano M. Prevedello",
+            "Robyn L. Ball",
+            "Felipe Kitamura",
+            "John Mongan",
+            "Maryam Vazirabad",
+            "Hui-Ming Lin",
+            "Anne Kendell",
+            "Thanat Kanthawang",
+            "Salita Angkurawaranon",
+            "Emre Altinmakas",
+            "Hakan Dogan",
+            "Paulo Eduardo de Aguiar Kuriki",
+            "Arjuna Somasundaram",
+            "Christopher Ruston",
+            "Deniz Bulja",
+            "Naida Spahovic",
+            "Jennifer Sommer",
+            "Sirui Jiang",
+            "Eduardo Moreno Judice de Mattos Farina",
+            "Eduardo Caminha Nunes",
+            "Michael Brassil",
+            "Megan McNamara",
+            "Johanna Ortiz",
+            "Jacob Peoples",
+            "Vinson L. Uytana",
+            "Anthony Kam",
+            "Venkata N. S. Dola",
+            "Daniel Murphy",
+            "David Vu",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Competition Data Notebook Group",
+            "Jason F. Talbott"
+          ],
+          "claimed_title": "The RSNA Lumbar Degenerative Imaging Spine Classification (LumbarDISC) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.09162"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='FashionChameleon: Towards Real-Time and Interactive Human-Garment Video Customiz', candidate_title='The RSNA Lumbar Degenerative Imaging Spine Classification (LumbarDISC) Dataset')",
+        "failed_at": "2026-06-16T16:02:14Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Multimodal foundation models have demonstrated strong generalization, yet their ability to transfer knowledge to specialized domains such as garment generation remains underexplored. We introduce VLG, a vision-language-garment model that synthesizes garments from textual descriptions and visual imagery. Our experiments assess VLG's zero-shot generalization, investigating its ability to transfer web-scale reasoning to unseen garment styles and prompts. Preliminary results indicate promising transfer capabilities, highlighting the potential for multimodal foundation models to adapt effectively to specialized domains like fashion design.",
+          "claimed_authors": [
+            "Jan Ackermann",
+            "Kiyohiro Nakayama",
+            "Guandao Yang",
+            "Tong Wu",
+            "Gordon Wetzstein"
+          ],
+          "claimed_title": "Towards Vision-Language-Garment Models for Web Knowledge Garment Understanding and Generation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.05210"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='FashionChameleon: Towards Real-Time and Interactive Human-Garment Video Customiz', candidate_title='Towards Vision-Language-Garment Models for Web Knowledge Garment Understanding and Generation')",
+        "failed_at": "2026-06-16T16:02:14Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We introduce GarmentCrafter, a new approach that enables non-professional users to create and modify 3D garments from a single-view image. While recent advances in image generation have facilitated 2D garment design, creating and editing 3D garments remains challenging for non-professional users. Existing methods for single-view 3D reconstruction often rely on pre-trained generative models to synthesize novel views conditioning on the reference image and camera pose, yet they lack cross-view consistency, failing to capture the internal relationships across different views. In this paper, we tackle this challenge through progressive depth prediction and image warping to approximate novel views. Subsequently, we train a multi-view diffusion model to complete occluded and unknown clothing regions, informed by the evolving camera pose. By jointly inferring RGB and depth, GarmentCrafter enforces inter-view coherence and reconstructs precise geometries and fine details. Extensive experiments demonstrate that our method achieves superior visual fidelity and inter-view coherence compared to state-of-the-art single-view 3D garment reconstruction methods.",
+          "claimed_authors": [
+            "Yuanhao Wang",
+            "Cheng Zhang",
+            "Gonçalo Frazão",
+            "Jinlong Yang",
+            "Alexandru-Eugen Ichim",
+            "Thabo Beeler",
+            "Fernando De la Torre"
+          ],
+          "claimed_title": "GarmentCrafter: Progressive Novel View Synthesis for Single-View 3D Garment Reconstruction and Editing",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2503.08678"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='FashionChameleon: Towards Real-Time and Interactive Human-Garment Video Customiz', candidate_title='GarmentCrafter: Progressive Novel View Synthesis for Single-View 3D Garment Reconstruction and Editing')",
+        "failed_at": "2026-06-16T16:02:14Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Image-based garment transfer replaces the garment on the target human with the desired garment; this enables users to virtually view themselves in the desired garment. To this end, many approaches have been proposed using the generative model and have shown promising results. However, most fail to provide the user with on the fly garment modification functionality. We aim to add this customizable option of \"garment tweaking\" to our model to control garment attributes, such as sleeve length, waist width, and garment texture.",
+          "claimed_authors": [
+            "Jooeun Son",
+            "Tomas Cabezon Pedroso",
+            "Carolene Siga",
+            "Jinsung Lee"
+          ],
+          "claimed_title": "Controllable Garment Transfer",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2204.01965"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='FashionChameleon: Towards Real-Time and Interactive Human-Garment Video Customiz', candidate_title='Controllable Garment Transfer')",
+        "failed_at": "2026-06-16T16:02:14Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper proposes a system for the ingestion and analysis of real-time sensor and actor data of bulk materials handling plants and machinery. It references issues that concern mining sensor data in cyber physical systems (CPS). The advance of cyber physical systems has created a significant change in the architecture of sensor and actor data. It affects the complexity of the observed systems in general, the number of signals being processed, the spatial distribution of the signal sources on a machine or plant and the global availability of the data. There are different definitions for what constitutes cyber physical systems: the most succinct and pertinent to the work shown in this paper is the definition given by the IEEE: A CPS is a system with a coupling of the cyber aspects of computing and communications with the physical aspects of dynamics and engineering that must abide by the laws of physics. This includes sensor networks, real-time and hybrid systems. Results computed from sensor and actor data must obey the equations used for modelling the physics of the observed system - this fundamentally poses an inverse problem. Such problems are not covered sufficiently by literature addressing mining of sensor data. Even available standard books on mining sensor data do not discuss the special nature of sensor data. Typically, present approaches of mining data rely on correlation as being a sole, reliable measure for significance. It is not taken into account that the inverse solutions to the model-describing equations are required to establish a semantic link between a sensor observation and its precedent cause. Without this link - without causality - there can be no physics based knowledge discovery.",
+          "claimed_authors": [
+            "Christopher Josef Rothschedl",
+            "Roland Ritt",
+            "Paul O'Leary",
+            "Matthew Harker",
+            "Michael Habacher",
+            "Michael Brandner"
+          ],
+          "claimed_title": "Real-Time-Data Analytics in Raw Materials Handling",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1802.00625"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='FashionChameleon: Towards Real-Time and Interactive Human-Garment Video Customiz', candidate_title='Real-Time-Data Analytics in Raw Materials Handling')",
+        "failed_at": "2026-06-16T16:02:14Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Layout Generation aims to synthesize plausible arrangements from given elements. Currently, the predominant methods in layout generation are Generative Adversarial Networks (GANs) and diffusion models, each presenting its own set of challenges. GANs typically struggle with handling discrete data due to their requirement for differentiable generated samples and have historically circumvented the direct generation of discrete labels by treating them as fixed conditions. Conversely, diffusion-based models, despite achieving state-of-the-art performance across several metrics, require extensive sampling steps which lead to significant time costs. To address these limitations, we propose \\textbf{DogLayout} (\\textbf{D}en\\textbf{o}ising Diffusion \\textbf{G}AN \\textbf{Layout} model), which integrates a diffusion process into GANs to enable the generation of discrete label data and significantly reduce diffusion's sampling time. Experiments demonstrate that DogLayout considerably reduces sampling costs by up to 175 times and cuts overlap from 16.43 to 9.59 compared to existing diffusion models, while also surpassing GAN based and other layout methods. Code is available at https://github.com/deadsmither5/DogLayout.",
+          "claimed_authors": [
+            "Zhaoxing Gan",
+            "Guangnan Ye"
+          ],
+          "claimed_title": "DogLayout: Denoising Diffusion GAN for Discrete and Continuous Layout Generation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2412.00381"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='FashionChameleon: Towards Real-Time and Interactive Human-Garment Video Customiz', candidate_title='DogLayout: Denoising Diffusion GAN for Discrete and Continuous Layout Generation')",
+        "failed_at": "2026-06-16T16:02:14Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "There is a significant need for the generation of virtual histological information from coronary optical coherence tomography (OCT) images to better guide the treatment of coronary artery disease. However, existing methods either require a large pixel-wisely paired training dataset or have limited capability to map pathological regions. To address these issues, we proposed a structural constrained, pathology aware, transformer generative adversarial network, namely SCPAT-GAN, to generate virtual stained H&E histology from OCT images. The proposed SCPAT-GAN advances existing methods via a novel design to impose pathological guidance on structural layers using transformer-based network.",
+          "claimed_authors": [
+            "Xueshen Li",
+            "Hongshan Liu",
+            "Xiaoyu Song",
+            "Brigitta C. Brott",
+            "Silvio H. Litovsky",
+            "Yu Gan"
+          ],
+          "claimed_title": "SCPAT-GAN: Structural Constrained and Pathology Aware Convolutional Transformer-GAN for Virtual Histology Staining of Human Coronary OCT images",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2307.12138"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='FashionChameleon: Towards Real-Time and Interactive Human-Garment Video Customiz', candidate_title='SCPAT-GAN: Structural Constrained and Pathology Aware Convolutional Transformer-GAN for Virtual Histology Staining of Human Coronary OCT images')",
+        "failed_at": "2026-06-16T16:02:14Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Most existing text-to-image synthesis tasks are static single-turn generation, based on pre-defined textual descriptions of images. To explore more practical and interactive real-life applications, we introduce a new task - Interactive Image Editing, where users can guide an agent to edit images via multi-turn textual commands on-the-fly. In each session, the agent takes a natural language description from the user as the input and modifies the image generated in the previous turn to a new design, following the user description. The main challenges in this sequential and interactive image generation task are two-fold: 1) contextual consistency between a generated image and the provided textual description; 2) step-by-step region-level modification to maintain visual consistency across the generated image sequence in each session. To address these challenges, we propose a novel Sequential Attention Generative Adversarial Net-work (SeqAttnGAN), which applies a neural state tracker to encode the previous image and the textual description in each turn of the sequence, and uses a GAN framework to generate a modified version of the image that is consistent with the preceding images and coherent with the description. To achieve better region-specific refinement, we also introduce a sequential attention mechanism into the model. To benchmark on the new task, we introduce two new datasets, Zap-Seq and DeepFashion-Seq, which contain multi-turn sessions with image-description sequences in the fashion domain. Experiments on both datasets show that the proposed SeqAttnGANmodel outperforms state-of-the-art approaches on the interactive image editing task across all evaluation metrics including visual quality, image sequence coherence, and text-image consistency.",
+          "claimed_authors": [
+            "Yu Cheng",
+            "Zhe Gan",
+            "Yitong Li",
+            "Jingjing Liu",
+            "Jianfeng Gao"
+          ],
+          "claimed_title": "Sequential Attention GAN for Interactive Image Editing",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1812.08352"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='FashionChameleon: Towards Real-Time and Interactive Human-Garment Video Customiz', candidate_title='Sequential Attention GAN for Interactive Image Editing')",
+        "failed_at": "2026-06-16T16:02:14Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Quanjian Song",
+            "Yefeng Shen",
+            "Mengting Chen",
+            "Hao Sun",
+            "Jinsong Lan",
+            "Xiaoyong Zhu",
+            "Bo Zheng",
+            "Liujuan Cao"
+          ],
+          "title": "FashionChameleon: Towards Real-Time and Interactive Human-Garment Video Customization",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2605.15824",
+        "summary": "Human-centric video customization, particularly at the garment level, has shown significant commercial value. However, existing approaches cannot support low-latency and interactive garment control, which is crucial for applications such as e-commerce and content creation. This paper studies how to achieve interactive multi-garment video customization while preserving motion coherence using only single-garment video data. We present FashionChameleon, a real-time and interactive framework for human-garment customization in autoregressive video generation, where users can interactively switch garment during generation. FashionChameleon consists of three key techniques: (i) Instead of training on multi-garment video data, we train a Teacher Model with In-Context Learning on a single reference-garment pair. By retaining the image-to-video training paradigm while enforcing a mismatch between the reference and garment image, the model is encouraged to implicitly preserve coherence during single-garment switching. (ii) To achieve consistency and efficiency during generation, we introduce Streaming Distillation with In-Context Learning, which fine-tunes the model with in-context teacher forcing and improves extrapolation consistency via gradient-reweighted distribution matching distillation. (iii) To extend the model for interactive multi-garment video customization, we propose Training-Free KV Cache Rescheduling, which includes garment KV refresh, historical KV withdraw, and reference KV disentangle to achieve garment switching while preserving motion coherence. Our FashionChameleon uniquely supports interactive customization and consistent long-video extrapolation, while achieving real-time generation at 23.8 FPS on a single GPU, 30-180$\\times$ faster than existing baselines.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2605.15824",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8182,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-16T16:02:13Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Zhengze Xu",
+            "Mengting Chen",
+            "Zhao Wang",
+            "Linyu Xing",
+            "Zhonghua Zhai",
+            "Nong Sang",
+            "Jinsong Lan",
+            "Shuai Xiao",
+            "Changxin Gao"
+          ],
+          "title": "Tunnel Try-on: Excavating Spatial-temporal Tunnels for High-quality Virtual Try-on in Videos",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2404.17571",
+        "summary": "Video try-on is a challenging task and has not been well tackled in previous works. The main obstacle lies in preserving the details of the clothing and modeling the coherent motions simultaneously. Faced with those difficulties, we address video try-on by proposing a diffusion-based framework named \"Tunnel Try-on.\" The core idea is excavating a \"focus tunnel\" in the input video that gives close-up shots around the clothing regions. We zoom in on the region in the tunnel to better preserve the fine details of the clothing. To generate coherent motions, we first leverage the Kalman filter to construct smooth crops in the focus tunnel and inject the position embedding of the tunnel into attention layers to improve the continuity of the generated videos. In addition, we develop an environment encoder to extract the context information outside the tunnels as supplementary cues. Equipped with these techniques, Tunnel Try-on keeps the fine details of the clothing and synthesizes stable and smooth videos. Demonstrating significant advancements, Tunnel Try-on could be regarded as the first attempt toward the commercial-level application of virtual try-on in videos.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2404.17571",
+          "http_status": 200,
+          "pdf_sample_score": 0.2117,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-16T16:02:24Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Hui Pang",
+            "Sunil Hadap",
+            "Violetta Shevchenko",
+            "Rahul Suresh",
+            "Amin Banitalebi-Dehkordi"
+          ],
+          "title": "Scalable and Realistic Virtual Try-on Application for Foundation Makeup with Kubelka-Munk Theory",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2507.07333",
+        "summary": "Augmented reality is revolutionizing beauty industry with virtual try-on (VTO) applications, which empowers users to try a wide variety of products using their phones without the hassle of physically putting on real products. A critical technical challenge in foundation VTO applications is the accurate synthesis of foundation-skin tone color blending while maintaining the scalability of the method across diverse product ranges. In this work, we propose a novel method to approximate well-established Kubelka-Munk (KM) theory for faster image synthesis while preserving foundation-skin tone color blending realism. Additionally, we build a scalable end-to-end framework for realistic foundation makeup VTO solely depending on the product information available on e-commerce sites. We validate our method using real-world makeup images, demonstrating that our framework outperforms other techniques.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2507.07333",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-16T16:02:26Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "fashionchameleon: towards real-time and interactive human-garment video customization computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

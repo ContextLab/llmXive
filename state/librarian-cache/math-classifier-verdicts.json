@@ -135,6 +135,10 @@
     "classified_at": "2026-05-30T03:36:52Z",
     "verdict": false
   },
+  "PROJ-598-https-arxiv-org-abs-2605-15824::1.6.0": {
+    "classified_at": "2026-06-16T16:02:13Z",
+    "verdict": false
+  },
   "PROJ-600-https-arxiv-org-abs-2605-15298::1.6.0": {
     "classified_at": "2026-06-12T11:28:56Z",
     "verdict": false
@@ -165,6 +169,18 @@
   },
   "PROJ-659-trust-region-on-policy-distillation::1.6.0": {
     "classified_at": "2026-06-16T08:22:20Z",
+    "verdict": false
+  },
+  "PROJ-660-https-arxiv-org-abs-2605-23895::1.6.0": {
+    "classified_at": "2026-06-16T15:59:38Z",
+    "verdict": false
+  },
+  "PROJ-664-https-arxiv-org-abs-2606-02060::1.6.0": {
+    "classified_at": "2026-06-16T16:04:48Z",
+    "verdict": false
+  },
+  "PROJ-665-https-arxiv-org-abs-2606-02800::1.6.0": {
+    "classified_at": "2026-06-16T15:57:13Z",
     "verdict": false
   },
   "PROJ-666-https-arxiv-org-abs-2606-05121::1.6.0": {

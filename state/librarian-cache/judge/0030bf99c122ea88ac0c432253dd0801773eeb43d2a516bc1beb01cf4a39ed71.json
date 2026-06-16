@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1702.01586",
+  "judged_at": "2026-06-16T16:03:16Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "fashionchameleon: towards real-time and interactive human-garment video customization computer science",
+  "rationale": "The paper studies influence maximization in dynamic social streams, which is unrelated to real-time, interactive human‑garment video customization; it shares no mechanism, variables, or domain with the user's question. Hence it does not belong in the literature review.",
+  "relevant": false
+}

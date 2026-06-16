@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1909.06162",
+  "judged_at": "2026-06-16T16:05:24Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "where do deep-research agents go wrong? span-level error localization in agent trajectories computer science",
+  "rationale": "The paper studies fragment‑level (span‑level) detection using neural architectures, which matches the same‑mechanism of span‑level error localization the user is investigating, even though the domain (propaganda detection in text) differs from agent trajectories. This provides a methodological reference for span‑level localization.",
+  "relevant": true
+}

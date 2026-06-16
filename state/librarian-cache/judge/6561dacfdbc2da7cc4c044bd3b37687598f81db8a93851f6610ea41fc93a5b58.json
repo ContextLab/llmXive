@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2209.03427",
+  "judged_at": "2026-06-16T15:59:51Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "from activation to causality: discovery of causal visual representations in the human brain computer science",
+  "rationale": "The paper provides a methodological contribution to causal discovery (the LPCMCI algorithm) for observational time‑series data, which is directly relevant to the mechanism of inferring causal visual representations from brain activation signals (category (a) same‑mechanism evidence and category (d) foundational methodology).",
+  "relevant": true
+}

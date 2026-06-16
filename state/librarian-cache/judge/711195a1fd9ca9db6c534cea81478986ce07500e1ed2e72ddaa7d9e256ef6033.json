@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2606.02060",
+  "judged_at": "2026-06-16T16:05:09Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "where do deep-research agents go wrong? span-level error localization in agent trajectories computer science",
+  "rationale": "The paper studies the same mechanism (span‑level error localization in deep‑research agent trajectories) and provides empirical data and a benchmark directly relevant to the user's question, satisfying criteria (a) and (c).",
+  "relevant": true
+}

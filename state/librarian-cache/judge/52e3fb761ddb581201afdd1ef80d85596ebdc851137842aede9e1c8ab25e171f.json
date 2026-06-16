@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2508.02912",
+  "judged_at": "2026-06-16T15:58:08Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "cosmos 3: omnimodal world models for physical ai computer science",
+  "rationale": "The paper studies embodied world models—using predictive, structured models within physical (grid‑world) agents—to improve coordination, which aligns with the same core mechanism (world‑model‑based reasoning for physical AI) that the user’s “Omnimodal World Models for Physical AI” question concerns (acceptance category a).",
+  "relevant": true
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2306.17462",
+  "judged_at": "2026-06-16T16:00:17Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "from activation to causality: discovery of causal visual representations in the human brain computer science",
+  "rationale": "The paper focuses on a software toolbox for causal reasoning in visual‑linguistic AI tasks and does not study neural activations, causal visual representations, or any aspect of the human brain, which are central to the user's question. It therefore falls outside the relevant domain and mechanism.",
+  "relevant": false
+}

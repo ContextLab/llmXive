@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2605.02900",
+  "judged_at": "2026-06-16T15:57:56Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "cosmos 3: omnimodal world models for physical ai computer science",
+  "rationale": "The paper surveys safety risks, attacks, and defenses for embodied AI and does not study omnimodal world models, their construction, or performance in physical AI; it addresses a different construct (safety) rather than the modeling mechanisms central to the user's question.",
+  "relevant": false
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2507.00917",
+  "judged_at": "2026-06-16T15:57:44Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "cosmos 3: omnimodal world models for physical ai computer science",
+  "rationale": "The survey discusses world models— the core mechanism behind “omnimodal world models” for physical AI— and their role in embodied intelligence, thus providing relevant background and related work on the same construct within the target domain (criterion a).",
+  "relevant": true
+}

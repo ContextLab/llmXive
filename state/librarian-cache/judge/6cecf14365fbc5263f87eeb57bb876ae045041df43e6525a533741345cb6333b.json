@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2011.09040",
+  "judged_at": "2026-06-16T16:05:48Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "where do deep-research agents go wrong? span-level error localization in agent trajectories computer science",
+  "rationale": "The paper studies hierarchical fine‑grained visual classification and label granularity, which is unrelated to deep‑research agents, their trajectory errors, or span‑level error localization. It shares no mechanism, variable, or domain with the user's question, thus it is off‑topic.",
+  "relevant": false
+}

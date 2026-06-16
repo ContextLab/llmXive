@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2401.06855",
+  "judged_at": "2026-06-16T16:05:38Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "where do deep-research agents go wrong? span-level error localization in agent trajectories computer science",
+  "rationale": "The paper studies fine‑grained, span‑level detection of factual errors (hallucinations) in language model outputs, which matches the mechanism of error localization in agent trajectories (category (a) same‑mechanism evidence) and provides an empirical baseline for identifying where such agents go wrong.",
+  "relevant": true
+}

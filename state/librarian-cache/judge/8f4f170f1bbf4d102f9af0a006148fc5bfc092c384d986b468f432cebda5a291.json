@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1810.12171",
+  "judged_at": "2026-06-16T16:00:31Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "from activation to causality: discovery of causal visual representations in the human brain computer science",
+  "rationale": "The paper studies Granger‑causal inference on facial expression time series in dyadic communication, not causal visual representations derived from brain activation; it is off‑domain and does not address the neural mechanisms or visual representation constructs central to the user's question.",
+  "relevant": false
+}

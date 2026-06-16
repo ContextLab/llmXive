@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2208.01897",
+  "judged_at": "2026-06-16T16:05:54Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "where do deep-research agents go wrong? span-level error localization in agent trajectories computer science",
+  "rationale": "The paper studies fine‑grained human action recognition using CNN‑Transformer models, which is unrelated to deep‑research agents, error localization, or trajectory analysis; it shares no mechanism, variable, or domain with the user's question.",
+  "relevant": false
+}

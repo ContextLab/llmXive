@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "0906.0685",
+  "judged_at": "2026-06-16T16:00:24Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "from activation to causality: discovery of causal visual representations in the human brain computer science",
+  "rationale": "The paper studies developmental rules for axon outgrowth and synaptic competition affecting connection length distributions, which is unrelated to discovering causal visual representations or linking activation to causality in the human brain. It does not address the same mechanisms, variables, or domain required by the user's question.",
+  "relevant": false
+}

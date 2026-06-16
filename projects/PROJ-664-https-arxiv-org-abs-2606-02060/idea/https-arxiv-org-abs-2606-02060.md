@@ -4,49 +4,101 @@ submitter: github-actions[bot]
 github_issue: https://github.com/ContextLab/llmXive/issues/278
 ---
 
-# https://arxiv.org/abs/2606.02060
+# Where Do Deep-Research Agents Go Wrong? Span‑Level Error Localization in Agent Trajectories  
 
-A paper was submitted via the website for consideration / review.
+**Field**: computer science  
 
-Source URL: https://arxiv.org/abs/2606.02060
+## Research question  
 
-Submitted by: github-actions[bot]
+What categories of reasoning errors occur at specific span positions within the execution traces of deep‑research agents, and can a lightweight sequence‑labeling model reliably localize those error spans using features that are independent of the human‑annotated error labels?  
 
-(Intake from human-submission issue #278.)
+## Motivation  
 
-## Rejection rationale (2026-06-11)
+Current evaluations of deep‑research agents focus on final answer correctness, obscuring where and why agents deviate from optimal reasoning. A fine‑grained, span‑level error analysis would expose systematic failure modes (e.g., tool‑selection mistakes, hallucinated evidence) and guide targeted improvements. Moreover, establishing an automatic localization baseline creates a reusable diagnostic component for future agent development.  
 
-Paper-stage review found one or more `fatal`-severity action items. The underlying research question is returned to the backlog so a fresh approach can be considered:
+## Related work  
 
-- **[ee20a992092a]** Add missing bibliography entries for openai2026gpt54, deepseekai2025deepseekv32pushingfrontieropen, anthopic2026claudecode, Kim2025BeyondTF, and chen2026seeingelephantbenchmarkfailure to ensure cited claims are verifiable.
-- **[7cdda2667b49]** Resolve inconsistency between Abstract/Section 3.1 (three backbone models) and Section 4.1/Table 1 (five model families/four shown). Clarify if DeepSeek/Qwen were part of the 2,790 trajectory corpus.
-- **[a618e18e9139]** Align Claude model version references (4.5 vs 4.6) between traj_collection.tex, experiment.tex, and main_exp.tex to ensure factual accuracy of experimental setup.
-- **[5b75fad9e465]** The submission does not include any of the code, data processing pipelines, or model training scripts that were used to collect the 2,790 agent trajectories, construct the semantic spans, or run the DRIFT auditing framework. Provide a publicly accessible repository (e.g., GitHub) containing all source code, environment specifications (e.g., requirements.txt or conda env), and clear instructions for reproducing the dataset and all experimental results.
-- **[47179cb7cde7]** Explicitly state the license for TELBench (e.g., CC-BY, MIT) in the Dataset section to ensure legal reusability.
-- **[22b50f3f6f37]** Include a version tag (e.g., v1.0) for the TELBench dataset and code repository to enable precise reproducibility.
-- **[c54ecb603abb]** Consider adding commit hashes or release tags for the external GitHub links (MiroFlow, DRIFT) to prevent link rot issues.
-- **[5ff0a02e226e]** Add explicit color legend mapping to captions for Figure 4 (performance) and Figure 5 (further-analysis) specifying which color corresponds to each model family.
-- **[2c3b6a50aae2]** Include alt text descriptions for all 11 figures to meet accessibility requirements for print and screen-reader users.
-- **[0074c7faa1be]** Convert Figure 7 (annotation_ui_screenshot.png) from PNG screenshot to vector format (PDF/SVG) for print-scale legibility.
-- **[a16e85d0995c]** Expand Figure 4 caption to explain what bars/lines represent and how to interpret the macro-F1 comparison.
-- **[b774f41444b5]** Clarify piecewise-compressed y-axis behavior in Figure 10 (effort_profiles) caption or add visual annotation.
-- **[cd3e41a83126]** Define acronyms CoT, VLM, and QA at first use in Related Work (sections/related_work.tex).
-- **[5ab5361236c5]** Replace 'semantic spans' with 'logical segments' or define 'span' more plainly for non-specialists.
-- **[9a9faea835d0]** Reduce repetition of 'trajectory'; use 'process log' or 'execution sequence' in Abstract and Intro.
-- **[bd713f22dd13]** Correct the Abstract claim 'up to 30 percentage points' to reflect the actual maximum F1 gain observed in Table 1 (e.g., 35.99% for Claude).
-- **[9fafd392d08a]** Include Qwen-series results in Table 1 or explicitly clarify why the main table omits them, as the 'Scaling alone is insufficient' claim relies on this missing data.
-- **[187f0b0208f8]** Provide annotator hour logs in the Appendix to substantiate the claim that seven annotators each spent over 300 hours on the task.
-- **[7b7c7410fc1a]** Clarify ethical approval status and annotator compensation in the Appendix. The manuscript states seven annotators spent over 300 hours each on the project but does not disclose if they were compensated or if IRB approval was obtained for human labor, even if exempt.
-- **[ae86767f6788]** Token budget is a major confounding variable. DRIFT uses ~3x more tokens than Bare (Table 4), yet the paper claims DRIFT's gains come from 'claim-centric bias' rather than scale. A controlled experiment matching token budgets (e.g., Bare with 3x tokens or DRIFT with constrained budget) is required to isolate the method's contribution.
-- **[4ea35d73a106]** Statistical significance is missing. Experiments are repeated three times (Experiment Settings), but Table 1 reports single mean values without standard deviation or p-values. This prevents assessing whether the ~30% F1 gain is robust or due to variance.
-- **[a264442cb2b2]** Ground truth reliability is unverified. While annotation guidelines are described (Appendix), no inter-annotator agreement scores (e.g., Cohen's Kappa, IoU) are reported for the 1,000-instance TELBench. High disagreement would undermine the evaluation metrics.
-- **[d2d4a0e86e20]** Report inter-annotator agreement (e.g., Cohen's/Fleiss' Kappa) for the TELBench span labels in sections/traj_collection.tex to validate annotation reliability.
-- **[131684b2762e]** Include standard deviation or confidence intervals in tab/main_exp.tex for the 'three repeated settings' mentioned in sections/experiment.tex.
-- **[395751664bbf]** Perform and report statistical significance tests (e.g., paired t-test, bootstrap) for the performance gains of DRIFT over baselines in sections/experiment.tex.
-- **[73bea33ad354]** Fix heading hierarchy: In sections/experiment.tex, 'Further Analysis' is a \section but should be a \subsection under 'Experiment'. In sections/appendix.tex, 'Token Consumption', 'Ablation Study', 'Case Study', and 'Prompt' are \section but should be \subsection to remain under 'Appendix'.
-- **[170059cb5ef0]** Clean up LaTeX hygiene in example_paper.tex: Remove duplicate package loads (graphicx, tcolorbox, enumitem, etc.), remove redundant \newcommand{\tagbox} definition, and remove \usepackage{report} and \usepackage{lipsum}.
-- **[1b0fb72380ba]** Standardize citation style: sections/traj_collection.tex mixes \cite and \citep. Choose one (preferably \citep for natbib) and apply consistently.
-- **[8ddd7902825f]** Correct appendix labeling and structure: Remove redundant \section*{Appendix} in sections/appendix.tex (handled by \appendix in main file), update \label{sec:case-study} to \label{app:case-study}, and avoid \onecolumn layout change in appendix unless intended.
-- **[351e7dc4cfaa]** Clarify the dataset construction phrasing in sections/traj_collection.tex regarding the task count (200 vs 465) to avoid ambiguity.
-- **[ed490e538ce8]** Remove commented-out draft sections and non-English comments from example_paper.tex and sections/intro.tex to ensure source cleanliness.
-- **[069bf7593bf4]** Correct hyphenation in sections/conclusion.tex (process level -> process-level).
+- [Where Do Deep‑Research Agents Go Wrong? Span‑Level Error Localization in Agent Trajectories (2026)](https://arxiv.org/abs/2606.02060) — Introduces the TELBench dataset and the DRIFT auditing framework, highlighting the need for span‑level error analysis but does not provide a systematic taxonomy or automated localization baseline.  
+- [Neural Architectures for Fine‑Grained Propaganda Detection in News (2019)](https://arxiv.org/abs/1909.06162) — Presents a sentence‑ and fragment‑level classification task and a neural architecture for detecting fine‑grained textual anomalies, offering methodological inspiration for span‑level error detection in agent logs.  
+- [Fine‑grained Hallucination Detection and Editing for Language Models (2024)](https://arxiv.org/abs/2401.06855) — Provides a taxonomy of hallucination types and a sequence‑labeling approach to locate them, directly relevant for defining error categories and modeling techniques for agent trajectory spans.  
+
+## Expected results  
+
+1. A publicly released taxonomy of error types (e.g., tool‑selection error, evidence‑misinterpretation, premature termination) covering ≥80 % of observed span‑level failures on the TELBench corpus.  
+2. An annotated benchmark of at least 1 000 error spans with inter‑annotator agreement κ ≥ 0.70, establishing a reliable ground‑truth resource.  
+3. A baseline sequence‑labeling model that achieves span‑level F1 ≥ 0.55 and statistically significant improvement (bootstrap‑p < 0.05) over a random‑span baseline, demonstrating that error localization is feasible with modest features.  
+
+## Methodology sketch  
+
+- **Data acquisition**  
+  - Download the TELBench trajectory collection (≈2 800 trajectories) from the repository linked in the 2026 arXiv paper.  
+  - Retrieve the associated raw logs (tool calls, model outputs) via the provided Zenodo DOI.  
+
+- **Human annotation**  
+  - Define error‑span guidelines based on the DRIFT framework and the hallucination taxonomy (2024 paper).  
+  - Use Amazon Mechanical Turk (or an equivalent crowd platform) to label error spans in 1 000 randomly sampled trajectories.  
+  - Compute inter‑annotator agreement (Cohen’s κ) and resolve disagreements through a senior reviewer.  
+
+- **Feature engineering (predictors)**  
+  - Token‑level metadata: tool name, confidence score, token count, position index.  
+  - Linguistic cues: presence of negation, modality verbs, citation markers.  
+  - Model‑output signals: log‑probability, top‑k entropy, length of generated snippet.  
+
+- **Model training**  
+  - Implement a BiLSTM‑CRF sequence labeler using PyTorch (CPU‑only).  
+  - Perform 5‑fold cross‑validation on the annotated set; hyper‑parameter search limited to ≤30 min per fold.  
+
+- **Evaluation**  
+  - Compute precision, recall, and F1 for span‑level detection against the held‑out annotation set.  
+  - Conduct paired bootstrap resampling (10 000 samples) to test significance against a random‑span baseline.  
+  - Report per‑category performance to assess which error types are easiest/hardest to locate.  
+
+- **Reproducibility**  
+  - All scripts, environment file (`requirements.txt`), and dataset download commands are version‑controlled in a GitHub repository tagged `v1.0`.  
+  - Provide a single command (`bash run_all.sh`) that executes the full pipeline within a 6‑hour GitHub Actions job (≈2 GB RAM, ≤2 CPU cores).  
+
+## Duplicate-check  
+
+- Reviewed existing ideas: *none identified as overlapping*.  
+- Closest match: *“Span‑Level Error Localization in Agent Trajectories (2026)”* – shares domain but lacks the systematic taxonomy, human‑annotated benchmark, and automated baseline proposed here.  
+- Verdict: **NOT a duplicate**.
+
+
+## Search trail
+
+**Generated by**: librarian (prompt v1.6.0) on 2026-06-16T16:05:54Z
+**Outcome**: exhausted
+**Original term**: Where Do Deep-Research Agents Go Wrong? Span-Level Error Localization in Agent Trajectories computer science
+**Verified citation count**: 3
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | Where Do Deep-Research Agents Go Wrong? Span-Level Error Localization in Agent Trajectories computer science | 0 |
+| 1 | fine-grained failure detection in autonomous research agents | 5 |
+| 2 | token‑level error attribution for LLM‑based agents | 0 |
+| 3 | segment‑level error analysis of AI agent execution traces | 0 |
+| 4 | trajectory error pinpointing in autonomous reasoning systems | 0 |
+| 5 | debugging chain‑of‑thought failures in large language model agents | 0 |
+| 6 | hallucinatory source identification in research‑oriented AI agents | 0 |
+| 7 | action‑sequence failure diagnostics for autonomous agents | 0 |
+| 8 | interpretability of agent planning errors | 0 |
+| 9 | error propagation analysis in multi‑step AI agents | 0 |
+| 10 | failure mode localization in autonomous research assistants | 0 |
+| 11 | execution trace debugging for deep learning agents | 0 |
+| 12 | misstep detection in AI‑driven research workflows | 0 |
+| 13 | agent behavior anomaly localization | 0 |
+| 14 | span‑wise error tracing in language model agents | 0 |
+| 15 | AI agent performance debugging techniques | 0 |
+| 16 | coarse‑to‑fine error mapping in autonomous systems | 0 |
+| 17 | failure analysis of sequential decision‑making agents | 0 |
+| 18 | systematic error diagnosis in research‑focused AI agents | 0 |
+| 19 | hierarchical error localization in agent trajectories | 0 |
+| 20 | robustness assessment of deep research agents. | 0 |
+
+### Verified citations
+
+1. **Where Do Deep-Research Agents Go Wrong? Span-Level Error Localization in Agent Trajectories** (2026). Jiaming Wang, Ziteng Feng, Jiangtao Wu, Ruihao Li, Qianqian Xie, et al.. arXiv. [2606.02060](https://arxiv.org/abs/2606.02060). PDF-sampled: No.
+2. **Neural Architectures for Fine-Grained Propaganda Detection in News** (2019). Pankaj Gupta, Khushbu Saxena, Usama Yaseen, Thomas Runkler, Hinrich Schütze. arXiv. [1909.06162](https://arxiv.org/abs/1909.06162). PDF-sampled: No.
+3. **Fine-grained Hallucination Detection and Editing for Language Models** (2024). Abhika Mishra, Akari Asai, Vidhisha Balachandran, Yizhong Wang, Graham Neubig, et al.. arXiv. [2401.06855](https://arxiv.org/abs/2401.06855). PDF-sampled: No.

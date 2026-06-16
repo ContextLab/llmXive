@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2407.06886",
+  "judged_at": "2026-06-16T15:57:36Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "cosmos 3: omnimodal world models for physical ai computer science",
+  "rationale": "The survey discusses multi‑modal large models and world models for embodied agents that operate in the physical world, directly covering the same mechanisms (omnimodal/world models) and domain (Physical AI) that the user’s question targets (category a and d).",
+  "relevant": true
+}

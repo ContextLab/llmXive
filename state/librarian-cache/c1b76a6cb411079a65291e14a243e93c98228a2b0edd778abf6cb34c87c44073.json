@@ -1,0 +1,414 @@
+{
+  "fetched_at": "2026-06-16T16:00:33Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "From Activation to Causality: Discovery of Causal Visual Representations in the Human Brain",
+      "target_n": 5
+    },
+    "duration_seconds": 96.988,
+    "ended_at": "2026-06-16T16:00:33Z",
+    "expansion": null,
+    "extracted_queries": [
+      "causal visual encoding",
+      "fMRI visual object dataset",
+      "effective connectivity visual cortex",
+      "Granger causality fMRI",
+      "interventional TMS visual perception"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2605.23895"
+      ]
+    },
+    "per_query_hit_count": {
+      "From Activation to Causality: Discovery of Causal Visual Representations in the Human Brain computer science": 3,
+      "Granger causality fMRI": 3,
+      "causal visual encoding": 3,
+      "effective connectivity visual cortex": 3,
+      "fMRI visual object dataset": 3,
+      "interventional TMS visual perception": 2
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 3,
+      "rejections": [
+        {
+          "primary_pointer": "2306.17462",
+          "rationale": "The paper focuses on a software toolbox for causal reasoning in visual‑linguistic AI tasks and does not study neural activations, causal visual representations, or any aspect of the human brain, which are central to the user's question. It therefore falls outside the relevant domain and mechanism.",
+          "title": "CausalVLR: A Toolbox and Benchmark for Visual-Linguistic Causal Reasoning"
+        },
+        {
+          "primary_pointer": "0906.0685",
+          "rationale": "The paper studies developmental rules for axon outgrowth and synaptic competition affecting connection length distributions, which is unrelated to discovering causal visual representations or linking activation to causality in the human brain. It does not address the same mechanisms, variables, or domain required by the user's question.",
+          "title": "A simple rule for axon outgrowth and synaptic competition generates realistic connection lengths and filling fractions"
+        },
+        {
+          "primary_pointer": "1810.12171",
+          "rationale": "The paper studies Granger‑causal inference on facial expression time series in dyadic communication, not causal visual representations derived from brain activation; it is off‑domain and does not address the neural mechanisms or visual representation constructs central to the user's question.",
+          "title": "Causal Inference in Nonverbal Dyadic Communication with Relevant Interval Selection and Granger Causality"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-16T15:58:56Z",
+    "term_input": {
+      "normalized": "from activation to causality: discovery of causal visual representations in the human brain computer science",
+      "raw": "From Activation to Causality: Discovery of Causal Visual Representations in the Human Brain computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present quantitative probing as a model-agnostic framework for validating causal models in the presence of quantitative domain knowledge. The method is constructed as an analogue of the train/test split in correlation-based machine learning and as an enhancement of current causal validation strategies that are consistent with the logic of scientific discovery. The effectiveness of the method is illustrated using Pearl's sprinkler example, before a thorough simulation-based investigation is conducted. Limits of the technique are identified by studying exemplary failing scenarios, which are furthermore used to propose a list of topics for future research and improvements of the presented version of quantitative probing. The code for integrating quantitative probing into causal analysis, as well as the code for the presented simulation-based studies of the effectiveness of quantitative probing is provided in two separate open-source Python packages.",
+          "claimed_authors": [
+            "Daniel Grünbaum",
+            "Maike L. Stern",
+            "Elmar W. Lang"
+          ],
+          "claimed_title": "Quantitative probing: Validating causal models using quantitative domain knowledge",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2209.03013"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='From Activation to Causality: Discovery of Causal Visual Representations in the ', candidate_title='Quantitative probing: Validating causal models using quantitative domain knowledge')",
+        "failed_at": "2026-06-16T15:59:39Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent interest in the external validity of prediction models (i.e., the problem of different train and test distributions, known as dataset shift) has produced many methods for finding predictive distributions that are invariant to dataset shifts and can be used for prediction in new, unseen environments. However, these methods consider different types of shifts and have been developed under disparate frameworks, making it difficult to theoretically analyze how solutions differ with respect to stability and accuracy. Taking a causal graphical view, we use a flexible graphical representation to express various types of dataset shifts. Given a known graph of the data generating process, we show that all invariant distributions correspond to a causal hierarchy of graphical operators which disable the edges in the graph that are responsible for the shifts. The hierarchy provides a common theoretical underpinning for understanding when and how stability to shifts can be achieved, and in what ways stable distributions can differ. We use it to establish conditions for minimax optimal performance across environments, and derive new algorithms that find optimal stable distributions. Using this new perspective, we empirically demonstrate that that there is a tradeoff between minimax and average performance.",
+          "claimed_authors": [
+            "Adarsh Subbaswamy",
+            "Bryant Chen",
+            "Suchi Saria"
+          ],
+          "claimed_title": "A Unifying Causal Framework for Analyzing Dataset Shift-stable Learning Algorithms",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1905.11374"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='From Activation to Causality: Discovery of Causal Visual Representations in the ', candidate_title='A Unifying Causal Framework for Analyzing Dataset Shift-stable Learning Algorithms')",
+        "failed_at": "2026-06-16T15:59:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The RSNA Abdominal Traumatic Injury CT (RATIC) dataset is the largest publicly available collection of adult abdominal CT studies annotated for traumatic injuries. This dataset includes 4,274 studies from 23 institutions across 14 countries. The dataset is freely available for non-commercial use via Kaggle at https://www.kaggle.com/competitions/rsna-2023-abdominal-trauma-detection. Created for the RSNA 2023 Abdominal Trauma Detection competition, the dataset encourages the development of advanced machine learning models for detecting abdominal injuries on CT scans. The dataset encompasses detection and classification of traumatic injuries across multiple organs, including the liver, spleen, kidneys, bowel, and mesentery. Annotations were created by expert radiologists from the American Society of Emergency Radiology (ASER) and Society of Abdominal Radiology (SAR). The dataset is annotated at multiple levels, including the presence of injuries in three solid organs with injury grading, image-level annotations for active extravasations and bowel injury, and voxelwise segmentations of each of the potentially injured organs. With the release of this dataset, we hope to facilitate research and development in machine learning and abdominal trauma that can lead to improved patient care and outcomes.",
+          "claimed_authors": [
+            "Jeffrey D. Rudie",
+            "Hui-Ming Lin",
+            "Robyn L. Ball",
+            "Sabeena Jalal",
+            "Luciano M. Prevedello",
+            "Savvas Nicolaou",
+            "Brett S. Marinelli",
+            "Adam E. Flanders",
+            "Kirti Magudia",
+            "George Shih",
+            "Melissa A. Davis",
+            "John Mongan",
+            "Peter D. Chang",
+            "Ferco H. Berger",
+            "Sebastiaan Hermans",
+            "Meng Law",
+            "Tyler Richards",
+            "Jan-Peter Grunz",
+            "Andreas Steven Kunz",
+            "Shobhit Mathur",
+            "Sandro Galea-Soler",
+            "Andrew D. Chung",
+            "Saif Afat",
+            "Chin-Chi Kuo",
+            "Layal Aweidah",
+            "Ana Villanueva Campos",
+            "Arjuna Somasundaram",
+            "Felipe Antonio Sanchez Tijmes",
+            "Attaporn Jantarangkoon",
+            "Leonardo Kayat Bittencourt",
+            "Michael Brassil",
+            "Ayoub El Hajjami",
+            "Hakan Dogan",
+            "Muris Becircic",
+            "Agrahara G. Bharatkumar",
+            "Eduardo Moreno Júdice de Mattos Farina",
+            "Dataset Curator Group",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Errol Colak"
+          ],
+          "claimed_title": "The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.19595"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='From Activation to Causality: Discovery of Causal Visual Representations in the ', candidate_title='The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset')",
+        "failed_at": "2026-06-16T15:59:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent advances in multimodal large language models (LLMs) have enabled unified reasoning across images, audio, and video, but extending such capability to brain imaging remains largely unexplored. Bridging this gap is essential to link neural activity with semantic cognition and to develop cross-modal brain representations. To this end, we present fMRI-LM, a foundational model that bridges functional MRI (fMRI) and language through a three-stage framework. In Stage 1, we learn a neural tokenizer that maps fMRI into discrete tokens embedded in a language-consistent space. In Stage 2, a pretrained LLM is adapted to jointly model fMRI tokens and text, treating brain activity as a sequence that can be temporally predicted and linguistically described. To overcome the lack of natural fMRI-text pairs, we construct a large descriptive corpus that translates diverse imaging-based features into structured textual descriptors, capturing the low-level organization of fMRI signals. In Stage 3, we perform multi-task, multi-paradigm instruction tuning to endow fMRI-LM with high-level semantic understanding, supporting diverse downstream applications. Across various benchmarks, fMRI-LM achieves strong zero-shot and few-shot performance, and adapts efficiently with parameter-efficient tuning (LoRA), establishing a scalable pathway toward a language-aligned, universal model for structural and semantic understanding of fMRI.",
+          "claimed_authors": [
+            "Yuxiang Wei",
+            "Yanteng Zhang",
+            "Xi Xiao",
+            "Chengxuan Qian",
+            "Tianyang Wang",
+            "Vince D. Calhoun"
+          ],
+          "claimed_title": "fMRI-LM: Towards a Universal Foundation Model for Language-Aligned fMRI Understanding",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2511.21760"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='From Activation to Causality: Discovery of Causal Visual Representations in the ', candidate_title='fMRI-LM: Towards a Universal Foundation Model for Language-Aligned fMRI Understanding')",
+        "failed_at": "2026-06-16T15:59:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "When humans converse, what a speaker will say next significantly depends on what he sees. Unfortunately, existing dialogue models generate dialogue utterances only based on preceding textual contexts, and visual contexts are rarely considered. This is due to a lack of a large-scale multi-module dialogue dataset with utterances paired with visual contexts. In this paper, we release {\\bf OpenViDial}, a large-scale multi-module dialogue dataset. The dialogue turns and visual contexts are extracted from movies and TV series, where each dialogue turn is paired with the corresponding visual context in which it takes place. OpenViDial contains a total number of 1.1 million dialogue turns, and thus 1.1 million visual contexts stored in images. Based on this dataset, we propose a family of encoder-decoder models leveraging both textual and visual contexts, from coarse-grained image features extracted from CNNs to fine-grained object features extracted from Faster R-CNNs. We observe that visual information significantly improves dialogue generation qualities, verifying the necessity of integrating multi-modal features for dialogue learning. Our work marks an important step towards large-scale multi-modal dialogue learning.",
+          "claimed_authors": [
+            "Yuxian Meng",
+            "Shuhe Wang",
+            "Qinghong Han",
+            "Xiaofei Sun",
+            "Fei Wu",
+            "Rui Yan",
+            "Jiwei Li"
+          ],
+          "claimed_title": "OpenViDial: A Large-Scale, Open-Domain Dialogue Dataset with Visual Contexts",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2012.15015"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='From Activation to Causality: Discovery of Causal Visual Representations in the ', candidate_title='OpenViDial: A Large-Scale, Open-Domain Dialogue Dataset with Visual Contexts')",
+        "failed_at": "2026-06-16T15:59:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We propose a differential geometric model of hypercolumns in the primary visual cortex V1 that combines features of the symplectic model of the primary visual cortex by A. Sarti, G. Citti and J. Petitot and of the spherical model of hypercolumns by P. Bressloff and J. Cowan. The model is based on classical results in Conformal Geometry.",
+          "claimed_authors": [
+            "D. V. Alekseevsky",
+            "A. Spiro"
+          ],
+          "claimed_title": "Conformal models for hypercolumns in the primary visual cortex V1",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2410.20184"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='From Activation to Causality: Discovery of Causal Visual Representations in the ', candidate_title='Conformal models for hypercolumns in the primary visual cortex V1')",
+        "failed_at": "2026-06-16T15:59:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Argumentation Mining addresses the challenging tasks of identifying boundaries of argumentative text fragments and extracting their relationships. Fully automated solutions do not reach satisfactory accuracy due to their insufficient incorporation of semantics and domain knowledge. Therefore, experts currently rely on time-consuming manual annotations. In this paper, we present a visual analytics system that augments the manual annotation process by automatically suggesting which text fragments to annotate next. The accuracy of those suggestions is improved over time by incorporating linguistic knowledge and language modeling to learn a measure of argument similarity from user interactions. Based on a long-term collaboration with domain experts, we identify and model five high-level analysis tasks. We enable close reading and note-taking, annotation of arguments, argument reconstruction, extraction of argument relations, and exploration of argument graphs. To avoid context switches, we transition between all views through seamless morphing, visually anchoring all text- and graph-based layers. We evaluate our system with a two-stage expert user study based on a corpus of presidential debates. The results show that experts prefer our system over existing solutions due to the speedup provided by the automatic suggestions and the tight integration between text and graph views.",
+          "claimed_authors": [
+            "Fabian Sperrle",
+            "Rita Sevastjanova",
+            "Rebecca Kehlbeck",
+            "Mennatallah El-Assady"
+          ],
+          "claimed_title": "VIANA: Visual Interactive Annotation of Argumentation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1907.12413"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='From Activation to Causality: Discovery of Causal Visual Representations in the ', candidate_title='VIANA: Visual Interactive Annotation of Argumentation')",
+        "failed_at": "2026-06-16T15:59:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Granger causality is a widely-used criterion for analyzing interactions in large-scale networks. As most physical interactions are inherently nonlinear, we consider the problem of inferring the existence of pairwise Granger causality between nonlinearly interacting stochastic processes from their time series measurements. Our proposed approach relies on modeling the embedded nonlinearities in the measurements using a component-wise time series prediction model based on Statistical Recurrent Units (SRUs). We make a case that the network topology of Granger causal relations is directly inferrable from a structured sparse estimate of the internal parameters of the SRU networks trained to predict the processes$'$ time series measurements. We propose a variant of SRU, called economy-SRU, which, by design has considerably fewer trainable parameters, and therefore less prone to overfitting. The economy-SRU computes a low-dimensional sketch of its high-dimensional hidden state in the form of random projections to generate the feedback for its recurrent processing. Additionally, the internal weight parameters of the economy-SRU are strategically regularized in a group-wise manner to facilitate the proposed network in extracting meaningful predictive features that are highly time-localized to mimic real-world causal events. Extensive experiments are carried out to demonstrate that the proposed economy-SRU based time series prediction model outperforms the MLP, LSTM and attention-gated CNN-based time series models considered previously for inferring Granger causality.",
+          "claimed_authors": [
+            "Saurabh Khanna",
+            "Vincent Y. F. Tan"
+          ],
+          "claimed_title": "Economy Statistical Recurrent Units For Inferring Nonlinear Granger Causality",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1911.09879"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='From Activation to Causality: Discovery of Causal Visual Representations in the ', candidate_title='Economy Statistical Recurrent Units For Inferring Nonlinear Granger Causality')",
+        "failed_at": "2026-06-16T15:59:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Granger causality is a fundamental technique for causal inference in time series data, commonly used in the social and biological sciences. Typical operationalizations of Granger causality make a strong assumption that every time point of the effect time series is influenced by a combination of other time series with a fixed time delay. The assumption of fixed time delay also exists in Transfer Entropy, which is considered to be a non-linear version of Granger causality. However, the assumption of the fixed time delay does not hold in many applications, such as collective behavior, financial markets, and many natural phenomena. To address this issue, we develop Variable-lag Granger causality and Variable-lag Transfer Entropy, generalizations of both Granger causality and Transfer Entropy that relax the assumption of the fixed time delay and allow causes to influence effects with arbitrary time delays. In addition, we propose methods for inferring both variable-lag Granger causality and Transfer Entropy relations. In our approaches, we utilize an optimal warping path of Dynamic Time Warping (DTW) to infer variable-lag causal relations. We demonstrate our approaches on an application for studying coordinated collective behavior and other real-world casual-inference datasets and show that our proposed approaches perform better than several existing methods in both simulated and real-world datasets. Our approaches can be applied in any domain of time series analysis. The software of this work is available in the R-CRAN package: VLTimeCausality.",
+          "claimed_authors": [
+            "Chainarong Amornbunchornvej",
+            "Elena Zheleva",
+            "Tanya Berger-Wolf"
+          ],
+          "claimed_title": "Variable-lag Granger Causality and Transfer Entropy for Time Series Analysis",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2002.00208"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='From Activation to Causality: Discovery of Causal Visual Representations in the ', candidate_title='Variable-lag Granger Causality and Transfer Entropy for Time Series Analysis')",
+        "failed_at": "2026-06-16T15:59:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "While visual comparison of directed acyclic graphs (DAGs) is commonly encountered in various disciplines (e.g., finance, biology), knowledge about humans' perception of graph similarity is currently quite limited. By graph similarity perception we mean how humans perceive commonalities and differences in graphs and herewith come to a similarity judgment. As a step toward filling this gap the study reported in this paper strives to identify factors which influence the similarity perception of DAGs. In particular, we conducted a card-sorting study employing a qualitative and quantitative analysis approach to identify 1) groups of DAGs that are perceived as similar by the participants and 2) the reasons behind their choice of groups. Our results suggest that similarity is mainly influenced by the number of levels, the number of nodes on a level, and the overall shape of the graph.",
+          "claimed_authors": [
+            "Kathrin Ballweg",
+            "Margit Pohl",
+            "Günter Wallner",
+            "Tatiana von Landesberger"
+          ],
+          "claimed_title": "Visual Similarity Perception of Directed Acyclic Graphs: A Study on Influencing Factors",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1709.01007"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='From Activation to Causality: Discovery of Causal Visual Representations in the ', candidate_title='Visual Similarity Perception of Directed Acyclic Graphs: A Study on Influencing Factors')",
+        "failed_at": "2026-06-16T15:59:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Underwater robots typically use both cameras and sonar for perception to leverage the rich semantic details of vision and the robust range measurements of acoustics. However, learning to map between these modalities via cross-modal prediction remains underexplored due to limited sonar-visual paired datasets. We present SOVIS, a sonar-visual dataset for cross-modal underwater perception. SOVIS comprises over 76,000 paired frames collected across 17 dives at six sites in the Trondheimfjord, supported by an end-to-end pipeline that cleans and synchronizes the cross-modal sensor data. We also introduce an interactive annotation tool designed to accelerate the labeling process for this paired data. Finally, we demonstrate a proof-of-concept cross-modal fish detection task using a small subset of labeled data, achieving a 7x improvement in mAP@0.10 over a monocular camera baseline. SOVIS serves as the first step toward advancing cross-modal underwater perception research, enabling research directions such as dense sonar prediction from monocular images.",
+          "claimed_authors": [
+            "Weitung Chen",
+            "Phil Tinn",
+            "Per Gunnar Auran",
+            "Martin Ludvigsen",
+            "Peter Halland Haro"
+          ],
+          "claimed_title": "A Sonar-Visual Dataset for Cross-Modal Underwater Robot Perception",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.01398"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='From Activation to Causality: Discovery of Causal Visual Representations in the ', candidate_title='A Sonar-Visual Dataset for Cross-Modal Underwater Robot Perception')",
+        "failed_at": "2026-06-16T15:59:41Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Christian Reiser"
+          ],
+          "title": "Causal discovery for time series with latent confounders",
+          "venue": "arXiv",
+          "year": 2022
+        },
+        "primary_pointer": "2209.03427",
+        "summary": "Reconstructing the causal relationships behind the phenomena we observe is a fundamental challenge in all areas of science. Discovering causal relationships through experiments is often infeasible, unethical, or expensive in complex systems. However, increases in computational power allow us to process the ever-growing amount of data that modern science generates, leading to an emerging interest in the causal discovery problem from observational data. This work evaluates the LPCMCI algorithm, which aims to find generators compatible with a multi-dimensional, highly autocorrelated time series while some variables are unobserved. We find that LPCMCI performs much better than a random algorithm mimicking not knowing anything but is still far from optimal detection. Furthermore, LPCMCI performs best on auto-dependencies, then contemporaneous dependencies, and struggles most with lagged dependencies. The source code of this project is available online.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2209.03427",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-16T15:59:38Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yuval Golbari",
+            "Navve Wasserman",
+            "Matias Cosarinsky",
+            "Roman Beliy",
+            "Aude Oliva",
+            "Antonio Torralba",
+            "Michal Irani",
+            "Tamar Rott Shaham"
+          ],
+          "title": "From Activation to Causality: Discovery of Causal Visual Representations in the Human Brain",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2605.23895",
+        "summary": "Identifying which brain regions represent a visual concept in the human brain is a central challenge in neuroscience. Existing approaches have localized coarse functional regions (e.g., faces, places) through activation maximization, identifying regions that activate strongly for a target concept relative to other concepts. Yet strong activation alone does not establish that a region represents the concept itself, as responses may instead be driven by correlated visual or semantic cues. We introduce BrainCause, an automated framework that combines generative and brain models to synthesize controlled stimuli and validate neural representations through targeted causal testing. Given a query specifying a concept of interest, our framework constructs targeted stimulus sets comprising concept images, counterfactual edits that remove the target concept while preserving other image content, and images with candidate correlated distractors. It then uses an image-to-fMRI encoding model to predict brain responses and searches for representations that respond specifically to the target concept over correlated alternatives. BrainCause returns validated candidate representations and proposes follow-up fMRI experiments to further test or extend its discoveries. Our approach successfully recovers known functional localizations and identifies new candidate representations across dozens of concepts, validated on both predicted and measured fMRI data. Critically, we show that without causal validation, a large fraction of localizations would be false positives, confirming that activation alone is insufficient evidence of representation.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2605.23895",
+          "http_status": 200,
+          "pdf_sample_score": 0.3504,
+          "query_relevance_score": 0.8,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-16T15:59:38Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Stefan Haufe",
+            "Guido Nolte",
+            "Klaus-Robert Mueller",
+            "Nicole Kraemer"
+          ],
+          "title": "Sparse Causal Discovery in Multivariate Time Series",
+          "venue": "arXiv",
+          "year": 2009
+        },
+        "primary_pointer": "0901.2234",
+        "summary": "Our goal is to estimate causal interactions in multivariate time series. Using vector autoregressive (VAR) models, these can be defined based on non-vanishing coefficients belonging to respective time-lagged instances. As in most cases a parsimonious causality structure is assumed, a promising approach to causal discovery consists in fitting VAR models with an additional sparsity-promoting regularization. Along this line we here propose that sparsity should be enforced for the subgroups of coefficients that belong to each pair of time series, as the absence of a causal relation requires the coefficients for all time-lags to become jointly zero. Such behavior can be achieved by means of l1-l2-norm regularized regression, for which an efficient active set solver has been proposed recently. Our method is shown to outperform standard methods in recovering simulated causality graphs. The results are on par with a second novel approach which uses multiple statistical testing.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/0901.2234",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-16T15:59:39Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "from activation to causality: discovery of causal visual representations in the human brain computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

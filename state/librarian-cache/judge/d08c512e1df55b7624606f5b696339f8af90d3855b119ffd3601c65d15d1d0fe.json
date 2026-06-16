@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "0901.2234",
+  "judged_at": "2026-06-16T16:00:09Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "from activation to causality: discovery of causal visual representations in the human brain computer science",
+  "rationale": "The paper provides a methodological framework for causal discovery in multivariate time‑series data (sparse VAR‑based causality inference), which is directly relevant to the mechanism of uncovering causal relationships from neural activation patterns, even though it does not focus specifically on visual representations in the brain. This qualifies under (a) same‑mechanism evidence and (d) foundational methodology for causal inference.",
+  "relevant": true
+}

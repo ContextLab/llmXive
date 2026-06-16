@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2507.07333",
+  "judged_at": "2026-06-16T16:03:11Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "fashionchameleon: towards real-time and interactive human-garment video customization computer science",
+  "rationale": "The paper studies a real‑time, interactive virtual try‑on system (for foundation makeup) using fast image synthesis, which shares the same underlying mechanism—real‑time AR virtual try‑on and scalable image synthesis—as the user’s focus on human‑garment video customization, satisfying acceptance criterion (a).",
+  "relevant": true
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2404.17571",
+  "judged_at": "2026-06-16T16:02:43Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "fashionchameleon: towards real-time and interactive human-garment video customization computer science",
+  "rationale": "The paper studies video virtual try‑on, directly addressing the same mechanism (human‑garment video customization) that the user’s question concerns, even though it may not focus on real‑time interactivity. This matches inclusion criterion (a) – same‑mechanism evidence.",
+  "relevant": true
+}

@@ -1,0 +1,572 @@
+{
+  "fetched_at": "2026-06-16T16:05:54Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "Where Do Deep-Research Agents Go Wrong? Span-Level Error Localization in Agent Trajectories",
+      "target_n": 5
+    },
+    "duration_seconds": 106.553,
+    "ended_at": "2026-06-16T16:05:54Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "fine-grained failure detection in autonomous research agents"
+        ],
+        [
+          2,
+          "token‑level error attribution for LLM‑based agents"
+        ],
+        [
+          3,
+          "segment‑level error analysis of AI agent execution traces"
+        ],
+        [
+          4,
+          "trajectory error pinpointing in autonomous reasoning systems"
+        ],
+        [
+          5,
+          "debugging chain‑of‑thought failures in large language model agents"
+        ],
+        [
+          6,
+          "hallucinatory source identification in research‑oriented AI agents"
+        ],
+        [
+          7,
+          "action‑sequence failure diagnostics for autonomous agents"
+        ],
+        [
+          8,
+          "interpretability of agent planning errors"
+        ],
+        [
+          9,
+          "error propagation analysis in multi‑step AI agents"
+        ],
+        [
+          10,
+          "failure mode localization in autonomous research assistants"
+        ],
+        [
+          11,
+          "execution trace debugging for deep learning agents"
+        ],
+        [
+          12,
+          "misstep detection in AI‑driven research workflows"
+        ],
+        [
+          13,
+          "agent behavior anomaly localization"
+        ],
+        [
+          14,
+          "span‑wise error tracing in language model agents"
+        ],
+        [
+          15,
+          "AI agent performance debugging techniques"
+        ],
+        [
+          16,
+          "coarse‑to‑fine error mapping in autonomous systems"
+        ],
+        [
+          17,
+          "failure analysis of sequential decision‑making agents"
+        ],
+        [
+          18,
+          "systematic error diagnosis in research‑focused AI agents"
+        ],
+        [
+          19,
+          "hierarchical error localization in agent trajectories"
+        ],
+        [
+          20,
+          "robustness assessment of deep research agents."
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Where Do Deep-Research Agents Go Wrong? Span-Level Error Localization in Agent Trajectories computer science": 0,
+        "fine-grained failure detection in autonomous research agents": 5
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "failure diagnosis trajectory",
+      "MiniWoB agent trajectories",
+      "temporal credit assignment RL",
+      "task success failure span",
+      "compounding error propagation"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "1909.06162"
+      ]
+    },
+    "per_query_hit_count": {
+      "MiniWoB agent trajectories": 2,
+      "Where Do Deep-Research Agents Go Wrong? Span-Level Error Localization in Agent Trajectories computer science": 3,
+      "compounding error propagation": 3,
+      "failure diagnosis trajectory": 3,
+      "task success failure span": 3,
+      "temporal credit assignment RL": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 3,
+      "rejections": [
+        {
+          "primary_pointer": "1907.06167",
+          "rationale": "The paper introduces a fine-grained food image dataset and benchmarks vision models, which bears no relation to deep‑research agents, error localization, or agent trajectory analysis; it is off‑domain and does not address any of the mechanisms, variables, or populations of the user's question.",
+          "title": "FoodX-251: A Dataset for Fine-grained Food Classification"
+        },
+        {
+          "primary_pointer": "2011.09040",
+          "rationale": "The paper studies hierarchical fine‑grained visual classification and label granularity, which is unrelated to deep‑research agents, their trajectory errors, or span‑level error localization. It shares no mechanism, variable, or domain with the user's question, thus it is off‑topic.",
+          "title": "Your \"Flamingo\" is My \"Bird\": Fine-Grained, or Not"
+        },
+        {
+          "primary_pointer": "2208.01897",
+          "rationale": "The paper studies fine‑grained human action recognition using CNN‑Transformer models, which is unrelated to deep‑research agents, error localization, or trajectory analysis; it shares no mechanism, variable, or domain with the user's question.",
+          "title": "Combined CNN Transformer Encoder for Enhanced Fine-grained Human Action Recognition"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-16T16:04:07Z",
+    "term_input": {
+      "normalized": "where do deep-research agents go wrong? span-level error localization in agent trajectories computer science",
+      "raw": "Where Do Deep-Research Agents Go Wrong? Span-Level Error Localization in Agent Trajectories computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Communication is an effective mechanism for coordinating the behaviors of multiple agents, broadening their views of the environment, and to support their collaborations. In the field of multi-agent deep reinforcement learning (MADRL), agents can improve the overall learning performance and achieve their objectives by communication. Agents can communicate various types of messages, either to all agents or to specific agent groups, or conditioned on specific constraints. With the growing body of research work in MADRL with communication (Comm-MADRL), there is a lack of a systematic and structural approach to distinguish and classify existing Comm-MADRL approaches. In this paper, we survey recent works in the Comm-MADRL field and consider various aspects of communication that can play a role in designing and developing multi-agent reinforcement learning systems. With these aspects in mind, we propose 9 dimensions along which Comm-MADRL approaches can be analyzed, developed, and compared. By projecting existing works into the multi-dimensional space, we discover interesting trends. We also propose some novel directions for designing future Comm-MADRL systems through exploring possible combinations of the dimensions.",
+          "claimed_authors": [
+            "Changxi Zhu",
+            "Mehdi Dastani",
+            "Shihan Wang"
+          ],
+          "claimed_title": "A Survey of Multi-Agent Deep Reinforcement Learning with Communication",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2203.08975"
+        },
+        "details": "query-relevance 0.273 < 0.3 (query='Where Do Deep-Research Agents Go Wrong? Span-Level Error Localization in Agent T', candidate_title='A Survey of Multi-Agent Deep Reinforcement Learning with Communication')",
+        "failed_at": "2026-06-16T16:04:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The card game Hanabi is considered a strong medium for the testing and development of multi-agent reinforcement learning (MARL) algorithms, due to its cooperative nature, partial observability, limited communication and remarkable complexity. Previous research efforts have explored the capabilities of MARL algorithms within Hanabi, focusing largely on advanced architecture design and algorithmic manipulations to achieve state-of-the-art performance for various number of cooperators. However, this often leads to complex solution strategies with high computational cost and requiring large amounts of training data. For humans to solve the Hanabi game effectively, they require the use of conventions, which often allows for a means to implicitly convey ideas or knowledge based on a predefined, and mutually agreed upon, set of \"rules\" or principles. Multi-agent problems containing partial observability, especially when limited communication is present, can benefit greatly from the use of implicit knowledge sharing. In this paper, we propose a novel approach to augmenting an agent's action space using conventions, which act as a sequence of special cooperative actions that span over and include multiple time steps and multiple agents, requiring agents to actively opt in for it to reach fruition. These conventions are based on existing human conventions, and result in a significant improvement on the performance of existing techniques for self-play and cross-play for various number of cooperators within Hanabi.",
+          "claimed_authors": [
+            "F. Bredell",
+            "H. A. Engelbrecht",
+            "J. C. Schoeman"
+          ],
+          "claimed_title": "Augmenting the action space with conventions to improve multi-agent cooperation in Hanabi",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2412.06333"
+        },
+        "details": "query-relevance 0.273 < 0.3 (query='Where Do Deep-Research Agents Go Wrong? Span-Level Error Localization in Agent T', candidate_title='Augmenting the action space with conventions to improve multi-agent cooperation in Hanabi')",
+        "failed_at": "2026-06-16T16:04:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Cognitive diagnosis (CD) aims to reveal students' proficiency in specific knowledge concepts. With the increasing adoption of intelligent education applications, accurately assessing students' knowledge mastery has become an urgent challenge. Although existing cognitive diagnosis frameworks enhance diagnostic accuracy by analyzing students' explicit response records, they primarily focus on individual knowledge state, failing to adequately reflect the relative ability performance of students within hierarchies. To address this, we propose the Hierarchy Constraint-Aware Cognitive Diagnosis Framework (HCD), designed to more accurately represent student ability performance within real educational contexts. Specifically, the framework introduces a hierarchy mapping layer to identify students' levels. It then employs a hierarchy convolution-enhanced attention layer for in-depth analysis of knowledge concepts performance among students at the same level, uncovering nuanced differences. A hierarchy inter-sampling attention layer captures performance differences across hierarchies, offering a comprehensive understanding of the relationships among students' knowledge state. Finally, through personalized diagnostic enhancement, the framework integrates hierarchy constraint perception features with existing models, improving the representation of both individual and group characteristics. This approach enables precise inference of students' knowledge state. Research shows that this framework not only reasonably constrains changes in students' knowledge states to align with real educational settings, but also supports the scientific rigor and fairness of educational assessments, thereby advancing the field of cognitive diagnosis.",
+          "claimed_authors": [
+            "Xinjie Sun",
+            "Qi Liu",
+            "Kai Zhang",
+            "Shuanghong Shen",
+            "Fei Wang",
+            "Yan Zhuang",
+            "Zheng Zhang",
+            "Weiyin Gong",
+            "Shijin Wang",
+            "Lina Yang",
+            "Xingying Huo"
+          ],
+          "claimed_title": "Optimizing Student Ability Assessment: A Hierarchy Constraint-Aware Cognitive Diagnosis Framework for Educational Contexts",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2412.04488"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='Where Do Deep-Research Agents Go Wrong? Span-Level Error Localization in Agent T', candidate_title='Optimizing Student Ability Assessment: A Hierarchy Constraint-Aware Cognitive Diagnosis Framework for Educational Contexts')",
+        "failed_at": "2026-06-16T16:04:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Elbow fractures are one of the most common fracture types. Diagnoses on elbow fractures often need the help of radiographic imaging to be read and analyzed by a specialized radiologist with years of training. Thanks to the recent advances of deep learning, a model that can classify and detect different types of bone fractures needs only hours of training and has shown promising results. However, most existing deep learning models are purely data-driven, lacking incorporation of known domain knowledge from human experts. In this work, we propose a novel deep learning method to diagnose elbow fracture from elbow X-ray images by integrating domain-specific medical knowledge into a curriculum learning framework. In our method, the training data are permutated by sampling without replacement at the beginning of each training epoch. The sampling probability of each training sample is guided by a scoring criterion constructed based on clinically known knowledge from human experts, where the scoring indicates the diagnosis difficultness of different elbow fracture subtypes. We also propose an algorithm that updates the sampling probabilities at each epoch, which is applicable to other sampling-based curriculum learning frameworks. We design an experiment with 1865 elbow X-ray images for a fracture/normal binary classification task and compare our proposed method to a baseline method and a previous method using multiple metrics. Our results show that the proposed method achieves the highest classification performance. Also, our proposed probability update algorithm boosts the performance of the previous method.",
+          "claimed_authors": [
+            "Jun Luo",
+            "Gene Kitamura",
+            "Emine Doganay",
+            "Dooman Arefan",
+            "Shandong Wu"
+          ],
+          "claimed_title": "Medical Knowledge-Guided Deep Curriculum Learning for Elbow Fracture Diagnosis from X-Ray Images",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2110.10381"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='Where Do Deep-Research Agents Go Wrong? Span-Level Error Localization in Agent T', candidate_title='Medical Knowledge-Guided Deep Curriculum Learning for Elbow Fracture Diagnosis from X-Ray Images')",
+        "failed_at": "2026-06-16T16:04:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In the realm of intelligent education, cognitive diagnosis plays a crucial role in subsequent recommendation tasks attributed to the revealed students' proficiency in knowledge concepts. Although neural network-based neural cognitive diagnosis models (CDMs) have exhibited significantly better performance than traditional models, neural cognitive diagnosis is criticized for the poor model interpretability due to the multi-layer perception (MLP) employed, even with the monotonicity assumption. Therefore, this paper proposes to empower the interpretability of neural cognitive diagnosis models through efficient kolmogorov-arnold networks (KANs), named KAN2CD, where KANs are designed to enhance interpretability in two manners. Specifically, in the first manner, KANs are directly used to replace the used MLPs in existing neural CDMs; while in the second manner, the student embedding, exercise embedding, and concept embedding are directly processed by several KANs, and then their outputs are further combined and learned in a unified KAN to get final predictions. To overcome the problem of training KANs slowly, we modify the implementation of original KANs to accelerate the training. Experiments on four real-world datasets show that the proposed KA2NCD exhibits better performance than traditional CDMs, and the proposed KA2NCD still has a bit of performance leading even over the existing neural CDMs. More importantly, the learned structures of KANs enable the proposed KA2NCD to hold as good interpretability as traditional CDMs, which is superior to existing neural CDMs. Besides, the training cost of the proposed KA2NCD is competitive to existing models.",
+          "claimed_authors": [
+            "Shangshang Yang",
+            "Linrui Qin",
+            "Xiaoshan Yu"
+          ],
+          "claimed_title": "Endowing Interpretability for Neural Cognitive Diagnosis by Efficient Kolmogorov-Arnold Networks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.14399"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Where Do Deep-Research Agents Go Wrong? Span-Level Error Localization in Agent T', candidate_title='Endowing Interpretability for Neural Cognitive Diagnosis by Efficient Kolmogorov-Arnold Networks')",
+        "failed_at": "2026-06-16T16:04:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In the domain of Human-Computer Interaction, focus groups represent a widely utilised yet resource-intensive methodology, often demanding the expertise of skilled moderators and meticulous preparatory efforts. This study introduces the ``Focus Agent,'' a Large Language Model (LLM) powered framework that simulates both the focus group (for data collection) and acts as a moderator in a focus group setting with human participants. To assess the data quality derived from the Focus Agent, we ran five focus group sessions with a total of 23 human participants as well as deploying the Focus Agent to simulate these discussions with AI participants. Quantitative analysis indicates that Focus Agent can generate opinions similar to those of human participants. Furthermore, the research exposes some improvements associated with LLMs acting as moderators in focus group discussions that include human participants.",
+          "claimed_authors": [
+            "Taiyu Zhang",
+            "Xuesong Zhang",
+            "Robbe Cools",
+            "Adalberto L. Simeone"
+          ],
+          "claimed_title": "Focus Agent: LLM-Powered Virtual Focus Group",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2409.01907"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='Where Do Deep-Research Agents Go Wrong? Span-Level Error Localization in Agent T', candidate_title='Focus Agent: LLM-Powered Virtual Focus Group')",
+        "failed_at": "2026-06-16T16:04:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper presents a new approach to solving N-queen problems, which involves a model of distributed autonomous agents with artificial life (ALife) and a method of representing N-queen constraints in an agent environment. The distributed agents locally interact with their living environment, i.e., a chessboard, and execute their reactive behaviors by applying their behavioral rules for randomized motion, least-conflict position searching, and cooperating with other agents etc. The agent-based N-queen problem solving system evolves through selection and contest according to the rule of Survival of the Fittest, in which some agents will die or be eaten if their moving strategies are less efficient than others. The experimental results have shown that this system is capable of solving large-scale N-queen problems. This paper also provides a model of ALife agents for solving general CSPs.",
+          "claimed_authors": [
+            "Jing Han",
+            "Jiming Liu",
+            "Qingsheng Cai"
+          ],
+          "claimed_title": "From Alife Agents to a Kingdom of N Queens",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2002,
+          "primary_pointer": "cs/0205016"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='Where Do Deep-Research Agents Go Wrong? Span-Level Error Localization in Agent T', candidate_title='From Alife Agents to a Kingdom of N Queens')",
+        "failed_at": "2026-06-16T16:04:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Deep learning has achieved impressive prediction accuracies in a variety of scientific and industrial domains. However, the nested non-linear feature of deep learning makes the learning highly non-transparent, i.e., it is still unknown how the learning coordinates a huge number of parameters to achieve a decision making. To explain this hierarchical credit assignment, we propose a mean-field learning model by assuming that an ensemble of sub-networks, rather than a single network, are trained for a classification task. Surprisingly, our model reveals that apart from some deterministic synaptic weights connecting two neurons at neighboring layers, there exist a large number of connections that can be absent, and other connections can allow for a broad distribution of their weight values. Therefore, synaptic connections can be classified into three categories: very important ones, unimportant ones, and those of variability that may partially encode nuisance factors. Therefore, our model learns the credit assignment leading to the decision, and predicts an ensemble of sub-networks that can accomplish the same task, thereby providing insights toward understanding the macroscopic behavior of deep learning through the lens of distinct roles of synaptic weights.",
+          "claimed_authors": [
+            "Chan Li",
+            "Haiping Huang"
+          ],
+          "claimed_title": "Learning credit assignment",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2001.03354"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='Where Do Deep-Research Agents Go Wrong? Span-Level Error Localization in Agent T', candidate_title='Learning credit assignment')",
+        "failed_at": "2026-06-16T16:04:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Many transfer problems require re-using previously optimal decisions for solving new tasks, which suggests the need for learning algorithms that can modify the mechanisms for choosing certain actions independently of those for choosing others. However, there is currently no formalism nor theory for how to achieve this kind of modular credit assignment. To answer this question, we define modular credit assignment as a constraint on minimizing the algorithmic mutual information among feedback signals for different decisions. We introduce what we call the modularity criterion for testing whether a learning algorithm satisfies this constraint by performing causal analysis on the algorithm itself. We generalize the recently proposed societal decision-making framework as a more granular formalism than the Markov decision process to prove that for decision sequences that do not contain cycles, certain single-step temporal difference action-value methods meet this criterion while all policy-gradient methods do not. Empirical evidence suggests that such action-value methods are more sample efficient than policy-gradient methods on transfer problems that require only sparse changes to a sequence of previously optimal decisions.",
+          "claimed_authors": [
+            "Michael Chang",
+            "Sidhant Kaushik",
+            "Sergey Levine",
+            "Thomas L. Griffiths"
+          ],
+          "claimed_title": "Modularity in Reinforcement Learning via Algorithmic Independence in Credit Assignment",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2106.14993"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Where Do Deep-Research Agents Go Wrong? Span-Level Error Localization in Agent T', candidate_title='Modularity in Reinforcement Learning via Algorithmic Independence in Credit Assignment')",
+        "failed_at": "2026-06-16T16:04:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large language models (LLMs) are increasingly applied to complex reasoning tasks that require executing several complex steps before receiving any reward. Properly assigning credit to these steps is essential for enhancing model performance. Proximal Policy Optimization (PPO), a common reinforcement learning (RL) algorithm used for LLM finetuning, employs value networks to tackle credit assignment. However, recent approaches achieve strong results without it, raising questions about the efficacy of value networks in practice. In this work, we systematically evaluate the efficacy of value networks and reveal their significant shortcomings in reasoning-heavy LLM tasks, showing that they often produce poor estimate of expected return and barely outperform a random baseline when comparing alternative steps. This motivates our key question: Can improved credit assignment enhance RL training for LLMs? To address this, we propose VinePPO, a straightforward approach that leverages the flexibility of language environments to compute unbiased Monte Carlo-based estimates. Our method consistently outperforms PPO and other baselines across MATH and GSM8K datasets in less wall-clock time (up to 3.0x). Crucially, it achieves higher test accuracy for a given training accuracy, capturing more generalization signal per sample. These results emphasize the importance of accurate credit assignment in RL training of LLM.",
+          "claimed_authors": [
+            "Amirhossein Kazemnejad",
+            "Milad Aghajohari",
+            "Eva Portelance",
+            "Alessandro Sordoni",
+            "Siva Reddy",
+            "Aaron Courville",
+            "Nicolas Le Roux"
+          ],
+          "claimed_title": "VinePPO: Refining Credit Assignment in RL Training of LLMs",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2410.01679"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Where Do Deep-Research Agents Go Wrong? Span-Level Error Localization in Agent T', candidate_title='VinePPO: Refining Credit Assignment in RL Training of LLMs')",
+        "failed_at": "2026-06-16T16:04:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Despite great advances in what robots can do, they still experience failures in human-robot collaborative tasks due to high randomness in unstructured human environments. Moreover, a human's unfamiliarity with a robot and its abilities can cause such failures to repeat. This makes the ability to failure explanation very important for a robot. In this work, we describe a user study that incorporated different robotic failures in a human-robot collaboration (HRC) task aimed at filling a shelf. We included different types of failures and repeated occurrences of such failures in a prolonged interaction between humans and robots. The failure resolution involved human intervention in form of human-robot bidirectional handovers. Through such studies, we aim to test different explanation types and explanation progression in the interaction and record humans.",
+          "claimed_authors": [
+            "Parag Khanna",
+            "Elmira Yadollahi",
+            "Mårten Björkman",
+            "Iolanda Leite",
+            "Christian Smith"
+          ],
+          "claimed_title": "User Study Exploring the Role of Explanation of Failures by Robots in Human Robot Collaboration Tasks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2303.16010"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Where Do Deep-Research Agents Go Wrong? Span-Level Error Localization in Agent T', candidate_title='User Study Exploring the Role of Explanation of Failures by Robots in Human Robot Collaboration Tasks')",
+        "failed_at": "2026-06-16T16:04:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Developing robust and correctable visuomotor policies for robotic manipulation is challenging due to the lack of self-recovery mechanisms from failures and the limitations of simple language instructions in guiding robot actions. To address these issues, we propose a scalable data generation pipeline that automatically augments expert demonstrations with failure recovery trajectories and fine-grained language annotations for training. We then introduce Rich languAge-guided failure reCovERy (RACER), a supervisor-actor framework, which combines failure recovery data with rich language descriptions to enhance robot control. RACER features a vision-language model (VLM) that acts as an online supervisor, providing detailed language guidance for error correction and task execution, and a language-conditioned visuomotor policy as an actor to predict the next actions. Our experimental results show that RACER outperforms the state-of-the-art Robotic View Transformer (RVT) on RLbench across various evaluation settings, including standard long-horizon tasks, dynamic goal-change tasks and zero-shot unseen tasks, achieving superior performance in both simulated and real world environments. Videos and code are available at: https://rich-language-failure-recovery.github.io.",
+          "claimed_authors": [
+            "Yinpei Dai",
+            "Jayjun Lee",
+            "Nima Fazeli",
+            "Joyce Chai"
+          ],
+          "claimed_title": "RACER: Rich Language-Guided Failure Recovery Policies for Imitation Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2409.14674"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='Where Do Deep-Research Agents Go Wrong? Span-Level Error Localization in Agent T', candidate_title='RACER: Rich Language-Guided Failure Recovery Policies for Imitation Learning')",
+        "failed_at": "2026-06-16T16:04:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We describe the ADAPT system for the 2020 IWPT Shared Task on parsing enhanced Universal Dependencies in 17 languages. We implement a pipeline approach using UDPipe and UDPipe-future to provide initial levels of annotation. The enhanced dependency graph is either produced by a graph-based semantic dependency parser or is built from the basic tree using a small set of heuristics. Our results show that, for the majority of languages, a semantic dependency parser can be successfully applied to the task of parsing enhanced dependencies.\n  Unfortunately, we did not ensure a connected graph as part of our pipeline approach and our competition submission relied on a last-minute fix to pass the validation script which harmed our official evaluation scores significantly. Our submission ranked eighth in the official evaluation with a macro-averaged coarse ELAS F1 of 67.23 and a treebank average of 67.49. We later implemented our own graph-connecting fix which resulted in a score of 79.53 (language average) or 79.76 (treebank average), which would have placed fourth in the competition evaluation.",
+          "claimed_authors": [
+            "James Barry",
+            "Joachim Wagner",
+            "Jennifer Foster"
+          ],
+          "claimed_title": "The ADAPT Enhanced Dependency Parser at the IWPT 2020 Shared Task",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2009.01712"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Where Do Deep-Research Agents Go Wrong? Span-Level Error Localization in Agent T', candidate_title='The ADAPT Enhanced Dependency Parser at the IWPT 2020 Shared Task')",
+        "failed_at": "2026-06-16T16:04:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Continuous-time quantum error correction (CTQEC) is an approach to protecting quantum information from noise in which both the noise and the error correcting operations are treated as processes that are continuous in time. This chapter investigates CTQEC based on continuous weak measurements and feedback from the point of view of the subsystem principle, which states that protected quantum information is contained in a subsystem of the Hilbert space. We study how to approach the problem of constructing CTQEC protocols by looking at the evolution of the state of the system in an encoded basis in which the subsystem containing the protected information is explicit. This point of view allows us to reduce the problem to that of protecting a known state, and to design CTQEC procedures from protocols for the protection of a single qubit. We show how previously studied CTQEC schemes with both direct and indirect feedback can be obtained from strategies for the protection of a single qubit via weak measurements and weak unitary operations. We also review results on the performance of CTQEC with direct feedback in cases of Markovian and non-Markovian decoherence, where we have shown that due to the existence of a Zeno regime in non-Markovian dynamics, the performance of CTQEC can exhibit a quadratic improvement if the time resolution of the weak error-correcting operations is high enough to reveal the non-Markovian character of the noise process.",
+          "claimed_authors": [
+            "Ognyan Oreshkov"
+          ],
+          "claimed_title": "Continuous-time quantum error correction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1311.2485"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='Where Do Deep-Research Agents Go Wrong? Span-Level Error Localization in Agent T', candidate_title='Continuous-time quantum error correction')",
+        "failed_at": "2026-06-16T16:04:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We provide a self-contained introduction for entanglement-assisted quantum error-correcting codes in this book chapter.",
+          "claimed_authors": [
+            "Todd Brun",
+            "Min-Hsiu Hsieh"
+          ],
+          "claimed_title": "Entanglement-Assisted Quantum Error-Correcting Codes",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1610.04013"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='Where Do Deep-Research Agents Go Wrong? Span-Level Error Localization in Agent T', candidate_title='Entanglement-Assisted Quantum Error-Correcting Codes')",
+        "failed_at": "2026-06-16T16:04:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Activity difference based learning algorithms-such as contrastive Hebbian learning and equilibrium propagation-have been proposed as biologically plausible alternatives to error back-propagation. However, on traditional digital chips these algorithms suffer from having to solve a costly inference problem twice, making these approaches more than two orders of magnitude slower than back-propagation. In the analog realm equilibrium propagation may be promising for fast and energy efficient learning, but states still need to be inferred and stored twice. Inspired by lifted neural networks and compartmental neuron models we propose a simple energy based compartmental neuron model, termed dual propagation, in which each neuron is a dyad with two intrinsic states. At inference time these intrinsic states encode the error/activity duality through their difference and their mean respectively. The advantage of this method is that only a single inference phase is needed and that inference can be solved in layerwise closed-form. Experimentally we show on common computer vision datasets, including Imagenet32x32, that dual propagation performs equivalently to back-propagation both in terms of accuracy and runtime.",
+          "claimed_authors": [
+            "Rasmus Høier",
+            "D. Staudt",
+            "Christopher Zach"
+          ],
+          "claimed_title": "Dual Propagation: Accelerating Contrastive Hebbian Learning with Dyadic Neurons",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2302.01228"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='Where Do Deep-Research Agents Go Wrong? Span-Level Error Localization in Agent T', candidate_title='Dual Propagation: Accelerating Contrastive Hebbian Learning with Dyadic Neurons')",
+        "failed_at": "2026-06-16T16:04:48Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Jiaming Wang",
+            "Ziteng Feng",
+            "Jiangtao Wu",
+            "Ruihao Li",
+            "Qianqian Xie",
+            "Yuxiang Ren",
+            "He Zhu",
+            "Xueming Han",
+            "Fanyu Meng",
+            "Junlan Feng",
+            "Jiaheng Liu"
+          ],
+          "title": "Where Do Deep-Research Agents Go Wrong? Span-Level Error Localization in Agent Trajectories",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2606.02060",
+        "summary": "Deep-research agents solve tasks through long trajectories of search, tool use, evidence inspection, and answer synthesis. Evaluation based on final answers shows whether an agent succeeds, but not which parts of the trajectory make the answer unreliable. We study span-level error localization for deep-research agents. We collect 2,790 real trajectories from two agent frameworks, three backbone models, and three benchmarks, convert raw logs into semantic spans, and annotate harmful error spans through LLM-assisted expert review. From these annotations, we build TELBench, a 1,000-instance benchmark for identifying error spans among normal exploration, failed searches, tentative hypotheses, and harmless noise. We further propose DRIFT, a claim-centric auditing framework that tracks agent claims, checks their support in trajectory evidence, and marks spans where unsupported or conflicting claims affect the answer path. Experiments across model families and auditing frameworks show that DRIFT improves span-level error localization and first-error accuracy by up to 30 percentage points. Our work provides a process-level view of reliability in deep-research agents.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2606.02060",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8182,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-16T16:04:48Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Pankaj Gupta",
+            "Khushbu Saxena",
+            "Usama Yaseen",
+            "Thomas Runkler",
+            "Hinrich Schütze"
+          ],
+          "title": "Neural Architectures for Fine-Grained Propaganda Detection in News",
+          "venue": "arXiv",
+          "year": 2019
+        },
+        "primary_pointer": "1909.06162",
+        "summary": "This paper describes our system (MIC-CIS) details and results of participation in the fine-grained propaganda detection shared task 2019. To address the tasks of sentence (SLC) and fragment level (FLC) propaganda detection, we explore different neural architectures (e.g., CNN, LSTM-CRF and BERT) and extract linguistic (e.g., part-of-speech, named entity, readability, sentiment, emotion, etc.), layout and topical features. Specifically, we have designed multi-granularity and multi-tasking neural architectures to jointly perform both the sentence and fragment level propaganda detection. Additionally, we investigate different ensemble schemes such as majority-voting, relax-voting, etc. to boost overall system performance. Compared to the other participating systems, our submissions are ranked 3rd and 4th in FLC and SLC tasks, respectively.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1909.06162",
+          "http_status": 200,
+          "pdf_sample_score": 0.1738,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-16T16:05:02Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Abhika Mishra",
+            "Akari Asai",
+            "Vidhisha Balachandran",
+            "Yizhong Wang",
+            "Graham Neubig",
+            "Yulia Tsvetkov",
+            "Hannaneh Hajishirzi"
+          ],
+          "title": "Fine-grained Hallucination Detection and Editing for Language Models",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2401.06855",
+        "summary": "Large language models (LMs) are prone to generate factual errors, which are often called hallucinations. In this paper, we introduce a comprehensive taxonomy of hallucinations and argue that hallucinations manifest in diverse forms, each requiring varying degrees of careful assessments to verify factuality. We propose a novel task of automatic fine-grained hallucination detection and construct a new evaluation benchmark, FavaBench, that includes about one thousand fine-grained human judgments on three LM outputs across various domains. Our analysis reveals that ChatGPT and Llama2-Chat (70B, 7B) exhibit diverse types of hallucinations in the majority of their outputs in information-seeking scenarios. We train FAVA, a retrieval-augmented LM by carefully creating synthetic data to detect and correct fine-grained hallucinations. On our benchmark, our automatic and human evaluations show that FAVA significantly outperforms ChatGPT and GPT-4 on fine-grained hallucination detection, and edits suggested by FAVA improve the factuality of LM-generated text.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2401.06855",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-16T16:05:03Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "where do deep-research agents go wrong? span-level error localization in agent trajectories computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

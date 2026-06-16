@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2605.23895",
+  "judged_at": "2026-06-16T15:59:57Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "from activation to causality: discovery of causal visual representations in the human brain computer science",
+  "rationale": "The paper directly studies the same mechanism—causal validation of visual concept representations in the human brain—using activation and counterfactual stimulus testing, which aligns with the user's focus on moving from activation to causality (acceptance category a, and also serves as a methodological reference, category d).",
+  "relevant": true
+}

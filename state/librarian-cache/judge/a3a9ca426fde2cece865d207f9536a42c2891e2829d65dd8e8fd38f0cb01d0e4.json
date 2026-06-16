@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2605.15824",
+  "judged_at": "2026-06-16T16:02:33Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "fashionchameleon: towards real-time and interactive human-garment video customization computer science",
+  "rationale": "The paper studies real-time, interactive human‑garment video customization using autoregressive video generation, directly matching the user's topic; it provides same‑mechanism evidence (category a) and serves as a canonical reference for this research area.",
+  "relevant": true
+}
