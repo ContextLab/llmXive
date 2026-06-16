@@ -1,14 +1,7 @@
-last_used: dan-rockmore
-last_used_at: '2026-06-16T18:50:36.550638+00:00'
-last_outcome: committed
+last_used: daniel-kahneman
+last_used_at: '2026-06-16T20:05:20.136207+00:00'
+last_outcome: triage_rejected_advanced_as_abstain
 history:
-- slug: marie-curie
-  started_at: '2026-06-06T03:06:02.200032+00:00'
-  ended_at: '2026-06-06T04:48:59.612625+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-554-characterization-of-exoplanetary-atmosph/reviews/research/marie-curie-simulated__2026-06-06__research.md
 - slug: richard-feynman
   started_at: '2026-06-06T04:48:59.612625+00:00'
   ended_at: '2026-06-06T06:17:04.590144+00:00'
@@ -1129,3 +1122,8 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-473-the-impact-of-narrative-perspective-on-e/reviews/research/dan-rockmore-simulated__2026-06-16__research.md
+- slug: daniel-kahneman
+  started_at: '2026-06-16T18:50:36.550638+00:00'
+  ended_at: '2026-06-16T20:05:20.136207+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
