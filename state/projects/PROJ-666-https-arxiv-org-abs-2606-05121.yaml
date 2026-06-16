@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-05T09:11:25.231264Z'
-current_stage: flesh_out_complete
+current_stage: validated
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-666-https-arxiv-org-abs-2606-05121
-last_run_id: 86361035-2aeb-4d80-9c05-b3fd93ae2b83
+last_run_id: 64016641-842e-4e97-a09a-c2ac309c2a6a
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: Audio Interaction Model
-updated_at: '2026-06-16T06:06:58.837512Z'
+updated_at: '2026-06-16T20:42:56.183958Z'
