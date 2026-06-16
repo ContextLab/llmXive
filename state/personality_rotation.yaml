@@ -1,11 +1,7 @@
-last_used: ada-lovelace
-last_used_at: '2026-06-16T13:08:20.270505+00:00'
-last_outcome: librarian_held
+last_used: alan-turing
+last_used_at: '2026-06-16T15:19:23.642570+00:00'
+last_outcome: triage_rejected_advanced_as_abstain
 history:
-- slug: marie-curie
-  started_at: '2026-06-05T23:30:40.993522+00:00'
-  ended_at: '2026-06-05T23:54:52.201337+00:00'
-  outcome: model_error
 - slug: marie-curie
   started_at: '2026-06-05T23:54:52.201337+00:00'
   ended_at: '2026-06-06T01:42:45.081419+00:00'
@@ -1124,3 +1120,8 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-294-evaluating-the-impact-of-code-generation/reviews/research/_held/alan-turing-simulated__2026-06-16__research.md
+- slug: alan-turing
+  started_at: '2026-06-16T13:08:20.270505+00:00'
+  ended_at: '2026-06-16T15:19:23.642570+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
