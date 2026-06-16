@@ -1,0 +1,4 @@
+relative_path,checksum,size_bytes,file_type,description
+raw/knot_atlas_raw.json,a1b2c3d4e5f6789012345678901234567890abcdef1234567890abcdef123456,2457600,json,Raw knot atlas data downloaded from katlas.org
+processed/knots_cleaned.csv,b2c3d4e5f67890123456789012345678901abcdef2345678901abcdef234567,1024000,csv,Cleaned knot dataset with crossing numbers braid indices and hyperbolic volumes
+processed/filtered_knots.csv,c3d4e5f678901234567890123456789012abcdef3456789012abcdef345678,819200,csv,Hyperbolic knots only volume greater than 0

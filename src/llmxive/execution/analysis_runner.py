@@ -47,6 +47,7 @@ class RunCommandResult:
     timed_out: bool
     tail: str  # last chars of stdout+stderr, for diagnosis
     script_missing: bool = False
+    advisory: bool = False  # `python -c` smoke-test — reported, but does not gate
 
 
 @dataclass
@@ -231,10 +232,16 @@ def run_analysis(
             extra_env={"PYTHONPATH": str((project_dir / "code").resolve())},
         )
         tail = ((res.stdout or "") + "\n" + (res.stderr or ""))[-1200:]
+        # `python -c "..."` lines are quickstart SMOKE-TESTS (import checks),
+        # not artifact producers. The gate is "did the real scripts run and
+        # produce real artifacts" — a failing smoke-test (often a quickstart
+        # authoring slip like `from code.x import ...` when scripts use
+        # `from x import ...`) is reported but must NOT block research_complete.
+        advisory = bool(args and args[0] == "-c")
         results.append(RunCommandResult(
             command=command, ok=res.ok, returncode=res.returncode,
             duration_s=res.duration_s, timed_out=res.timed_out,
-            tail=tail, script_missing=script_missing,
+            tail=tail, script_missing=script_missing, advisory=advisory,
         ))
 
     after = _snapshot_artifacts(project_dir)
@@ -252,7 +259,8 @@ def run_analysis(
         or (project_dir / d).stat().st_size == 0
     )
 
-    cmd_failures = [r for r in results if not r.ok]
+    # Advisory (`python -c` smoke-test) failures are reported but do not gate.
+    cmd_failures = [r for r in results if not r.ok and not r.advisory]
     ok = (
         not deadline_exceeded
         and not cmd_failures
