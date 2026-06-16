@@ -29,7 +29,7 @@ description: "Task list template for feature implementation"
 **Purpose**: Project initialization and basic structure
 
 - [X] T001 Create project structure per implementation plan in `projects/001-predicting-molecular-dipole-moments/`
-- [ ] T002 Initialize Python 3.11 project with requirements.txt in `projects/001-predicting-molecular-dipole-moments/code/requirements.txt`
+- [X] T002 Initialize Python 3.11 project with requirements.txt in `projects/001-predicting-molecular-dipole-moments/code/requirements.txt`
 - [ ] T003 [P] Configure linting and formatting tools (black, flake8, isort) in `.pre-commit-config.yaml`
 
 ---
