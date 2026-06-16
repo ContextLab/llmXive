@@ -1,12 +1,7 @@
-last_used: richard-feynman
-last_used_at: '2026-06-16T03:07:40.154179+00:00'
+last_used: rosalind-franklin
+last_used_at: '2026-06-16T05:16:09.069096+00:00'
 last_outcome: abstained
 history:
-- slug: freeman-dyson
-  started_at: '2026-06-05T19:11:31.169207+00:00'
-  ended_at: '2026-06-05T20:12:07.597580+00:00'
-  outcome: triage_rejected_advanced_as_abstain
-  action: comment
 - slug: geoffrey-west
   started_at: '2026-06-05T20:12:07.597580+00:00'
   ended_at: '2026-06-05T21:05:38.387975+00:00'
@@ -1115,5 +1110,10 @@ history:
 - slug: richard-feynman
   started_at: '2026-06-15T20:13:51.016688+00:00'
   ended_at: '2026-06-16T03:07:40.154179+00:00'
+  outcome: abstained
+  action: abstain
+- slug: rosalind-franklin
+  started_at: '2026-06-16T03:07:40.154179+00:00'
+  ended_at: '2026-06-16T05:16:09.069096+00:00'
   outcome: abstained
   action: abstain
