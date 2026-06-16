@@ -1,0 +1,44 @@
+\begin{table}[H]
+\centering
+\scriptsize
+\setlength{\tabcolsep}{2pt}
+\renewcommand{\arraystretch}{1.05}
+\caption{Representative models and methods for Stage I final-output evaluation. Scores are reported under the original benchmark metrics; unavailable base models or unreported scores are denoted by ``-''. Rows sharing FastMCTS or CodeI/O citation numbers are variants or baselines reported in the same source paper.}
+\label{tab:stage1_final_output}
+\resizebox{\linewidth}{!}{
+\begin{tabular}{@{} l|l|cccccc @{}}
+\toprule
+\textbf{Model} & \textbf{Base Model} & \textbf{MMLU} & \textbf{MMLU-Pro} & \textbf{GSM8K} & \textbf{MATH} & \textbf{MATH-500} & \textbf{HumanEval} \\
+\midrule
+GPT-5.4~\cite{openai2026gpt54} & - & 94.0 & 87.0 & 98.1 & 90.2 & - & 94.1 \\
+Claude Opus 4.6~\cite{anthropic2026claudeopus46} & - & 92.1 & 82.5 & 97.8 & 91.5 & - & 92.4 \\
+Gemini 3.1 Pro~\cite{google2026gemini31pro} & - & 92.6 & 91.2 & 94.2 & 85.3 & - & 87.6 \\
+DeepSeek-V4-Pro-Base~\cite{deepseekai2026deepseekv4pro} & - & 90.1 & 73.5 & 92.6 & 64.5 & - & 76.8 \\
+Qwen3.7 Max~\cite{qwen2026qwen37} & - & - & 89.6 & - & 94.6 & - & 92.4 \\
+GLM-5.1~\cite{zai2026glm51} & - & 89.0 & 86.0 & 95.3 & 83.4 & - & 88.6 \\
+SAGE-32B (Think)~\cite{jha2026sage} & Qwen2.5-32B~\cite{qwen2024qwen25} & 90.2 & 79.3 & 96.7 & - & 91.8 & - \\
+Warmup K\&K~\cite{shrestha2025warmup} & Qwen2.5-14B~\cite{qwen2024qwen25} & - & 62.7 & - & - & 77.4 & - \\
+AceMath-72B-Instruct~\cite{liu2024acemath} & Qwen2.5-Math-72B-Instruct~\cite{qwen2024qwen25math} & - & - & 96.4 & 86.1 & - & - \\
+PromptCoT-DS-7B~\cite{zhao2025promptcot} & DeepSeek-R1-Distill-Qwen-7B~\cite{guo2025deepseek} & - & - & 92.6 & - & 93.0 & - \\
+Nemotron-CrossThink-32B~\cite{akter2025nemotroncrossthink} & Qwen2.5-32B~\cite{qwen2024qwen25} & 83.6 & 69.4 & - & - & 84.0 & - \\
+Introspective X Training~\cite{cui2026introspectivex} & - & 50.9 & 27.9 & 59.5 & 46.5 & - & 54.9 \\
+CoT2-Meta~\cite{ma2026cot2meta} & Claude Sonnet 4.5~\cite{anthropic2025claudesonnet45} & - & 88.4 & 98.6 & 92.8 & - & 72.8 \\
+Guideline Forest~\cite{chen2025guidelineforest} & GPT-4o-mini~\cite{openai2024gpt4omini} & - & - & 93.5 & - & 69.2 & 95.4 \\
+STOP-ECN~\cite{xu2026stop} & DeepSeek-R1-Distill-Qwen-7B~\cite{guo2025deepseek} & - & - & 91.1 & - & 86.8 & - \\
+FastMCTS+Branch-DPO~\cite{li2025fastmcts} & FastMCTS-7B & - & - & 89.9 & 75.4 & - & - \\
+FastMCTS~\cite{li2025fastmcts} & Qwen2.5-7B~\cite{qwen2024qwen25} & - & - & 88.9 & 74.0 & - & - \\
+Rejection Sampling~\cite{li2025fastmcts} & Qwen2.5-7B~\cite{qwen2024qwen25} & - & - & 87.1 & 70.0 & - & - \\
+SBS~\cite{chen2024alphamath} & DeepSeek-Math-7B-Base~\cite{shao2024deepseekmath} & - & - & 84.1 & 66.3 & - & - \\
+MCTS~\cite{chen2024alphamath} & DeepSeek-Math-7B-Base~\cite{shao2024deepseekmath} & - & - & 83.2 & 64.0 & - & - \\
+DeepSeekMath-7B-RL~\cite{shao2024deepseekmath} & DeepSeekMath-7B~\cite{shao2024deepseekmath} & - & - & 88.2 & 51.7 & - & - \\
+SimPO~\cite{novasky2025reduceoverthinking} & Qwen2.5-Math-7B-Instruct~\cite{qwen2024qwen25math} & - & - & 88.8 & 40.0 & 56.6 & - \\
+Self-Explore~\cite{hwang2024self} & DeepSeek-Math-7B-Base~\cite{shao2024deepseekmath} & - & - & 78.6 & 37.7 & - & - \\
+DeepSeek-Coder-V2-Instruct~\cite{deepseek2024coderv2} & - & - & - & 94.9 & 75.7 & - & 90.2 \\
+OMI2 (Full)~\cite{li2025codei} & Qwen2.5-Coder-7B~\cite{qwen2024qwen25coder} & - & - & 88.5 & 73.2 & - & - \\
+CODEI/O~\cite{li2025codei} & Qwen2.5-Coder-7B~\cite{qwen2024qwen25coder} & - & - & 86.4 & 71.9 & - & - \\
+PyEdu~\cite{li2025codei} & Qwen2.5-Coder-7B~\cite{qwen2024qwen25coder} & - & - & 85.8 & 71.4 & - & - \\
+MathCoder-CL~\cite{wang2024mathcoder} & Code-Llama-7B~\cite{roziere2023code} & - & - & 67.8 & 30.2 & - & - \\
+\bottomrule
+\end{tabular}
+}
+\end{table}

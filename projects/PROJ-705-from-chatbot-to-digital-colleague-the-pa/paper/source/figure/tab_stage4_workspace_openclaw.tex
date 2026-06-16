@@ -1,0 +1,46 @@
+\begin{table}[H]
+\centering
+\tiny
+\setlength{\tabcolsep}{1.0pt}
+\renewcommand{\arraystretch}{1.05}
+\caption{Representative models and methods for Stage IV workspace and OpenClaw evaluation. Scores are reported under the original benchmark metrics; lower ClawSafety ASR is better.}
+\label{tab:stage4_workspace_openclaw}
+\resizebox{\linewidth}{!}{
+\begin{tabular}{@{} l|l|cc|c|ccc|ccc|c @{}}
+\toprule
+\textbf{Model / Method} & \textbf{Setting} & \multicolumn{2}{c|}{\textbf{Claw-Eval}} & \textbf{ClawBench} & \multicolumn{3}{c|}{\textbf{ClawsBench}} & \multicolumn{3}{c|}{\textbf{ATBench-Claw}} & \textbf{ClawSafety} \\
+\cmidrule(lr){3-4}\cmidrule(lr){5-5}\cmidrule(lr){6-8}\cmidrule(lr){9-11}\cmidrule(l){12-12}
+ & & \textbf{Gen.} & \textbf{Multi} & \textbf{SR} & \textbf{TSR} & \textbf{UAR} & \textbf{SCR} & \textbf{Acc.} & \textbf{F1} & \textbf{Rec.} & \textbf{ASR $\downarrow$} \\
+\midrule
+Claude Opus 4.6~\cite{anthropic2026claudeopus46} & OpenClaw on/on & 70.8 & 68.4 & - & 63.0 & 23.0 & 50.0 & - & - & - & - \\
+Claude Sonnet 4.6~\cite{anthropic2026claudesonnet46} & OpenClaw / ClawSafety & 68.3 & 65.8 & 33.3 & 56.0 & 13.0 & 48.0 & - & - & - & 40.0 \\
+MiMo-V2.5-Pro~\cite{xiaomi2026mimov25pro} & Claw-Eval & 64.0 & 63.2 & - & - & - & - & - & - & - & - \\
+GLM-5.1~\cite{zai2026glm51} & Claw-Eval & 62.7 & 60.5 & - & - & - & - & - & - & - & - \\
+Muse Spark~\cite{meta2026musespark} & Claw-Eval & 62.7 & 68.4 & - & - & - & - & - & - & - & - \\
+Kimi K2.6~\cite{moonshotai2026kimik26} & Claw-Eval & 61.5 & 65.8 & - & - & - & - & - & - & - & - \\
+GPT-5.4~\cite{openai2026gpt54} & OpenClaw on/on & 60.2 & 60.5 & 6.5 & 53.0 & 7.0 & 41.0 & - & - & - & - \\
+DeepSeek V4 Pro~\cite{deepseekai2026deepseekv4pro} & Claw-Eval & 58.4 & 65.8 & - & - & - & - & - & - & - & - \\
+Qwen3.6 Plus~\cite{qwen2026qwen36plus} & Claw-Eval & 57.1 & 65.8 & - & - & - & - & - & - & - & - \\
+Qwen3.5-397B-A17B~\cite{qwen2026qwen35} & AgentDoG prompt & 57.8 & 52.6 & - & - & - & - & 83.8 & 86.5 & 87.5 & - \\
+GLM-5~\cite{zeng2026glm5} & OpenClaw text-only / on/on & - & - & 24.2 & 60.0 & 23.0 & 48.0 & - & - & - & - \\
+Gemini 3 Flash~\cite{google2025gemini3flash} & ClawBench & - & - & 19.0 & - & - & - & - & - & - & - \\
+Claude Haiku 4.5~\cite{anthropic2025claudehaiku45} & ClawBench & - & - & 18.3 & - & - & - & - & - & - & - \\
+Gemini 3.1 Flash-Lite~\cite{google2026gemini31flashlite} & OpenClaw on/on & - & - & 3.3 & 39.0 & 23.0 & 26.0 & - & - & - & - \\
+Kimi K2.5~\cite{kimiteam2026kimik25} & OpenClaw / ClawSafety & 52.8 & 50.0 & 0.7 & - & - & - & - & - & - & 60.8 \\
+Gemini 3.1 Pro~\cite{google2026gemini31pro} & OpenClaw on/on & 55.9 & 65.8 & - & 58.0 & 10.0 & 48.0 & - & - & - & - \\
+Qwen3Guard-Gen-8B~\cite{qwen3guard2025} & Guard model & - & - & - & - & - & - & 52.1 & 36.3 & 23.1 & - \\
+Llama-Guard-4-12B~\cite{meta2025llamaguard4_12b} & Guard model & - & - & - & - & - & - & 74.4 & 73.4 & 60.0 & - \\
+ShieldAgent~\cite{chen2025shieldagent} & Guard model & - & - & - & - & - & - & 68.1 & 60.1 & 43.3 & - \\
+Llama-3.3-70B-Instruct~\cite{meta2024llama33_70b_instruct} & AgentDoG prompt & - & - & - & - & - & - & 80.6 & 82.3 & 76.4 & - \\
+AgentDoG-Qwen3-4B~\cite{liu2026agentdog} & AgentDoG & - & - & - & - & - & - & 87.2 & 89.6 & 92.9 & - \\
+Gemini 2.5 Pro~\cite{google2025gemini25pro} & OpenClaw & - & - & - & - & - & - & - & - & - & 55.0 \\
+DeepSeek V3~\cite{deepseek2024v3} & OpenClaw & - & - & - & - & - & - & - & - & - & 67.5 \\
+GPT-5.1~\cite{openai2025gpt51} & OpenClaw & - & - & - & - & - & - & - & - & - & 75.0 \\
+Claude Sonnet 4.6 + Nanobot~\cite{nanobot2026repo} & Nanobot scaffold & - & - & - & - & - & - & - & - & - & 48.6 \\
+Claude Sonnet 4.6 + NemoClaw~\cite{nemoclaw2026} & NemoClaw scaffold & - & - & - & - & - & - & - & - & - & 45.8 \\
+\bottomrule
+\end{tabular}
+}
+\vspace{2pt}
+\noindent\parbox{\linewidth}{\normalsize \textit{Notes.} Claw-Eval reports general and multi-turn PassAll$^3$ from the public leaderboard~\cite{ye2026claweval}. ClawBench reports live-web task success rate~\cite{zhang2026clawbench}. ClawsBench reports Task Success Rate (TSR), Unsafe Action Rate (UAR), and Safe Completion Rate (SCR) for OpenClaw on/on unless otherwise noted~\cite{li2026clawsbench}; on/on means domain skills on and meta prompt on. ATBench-Claw reports trajectory-safety Acc./F1/Recall, converted to percentages~\cite{yang2026atbenchclaw}. ClawSafety reports overall attack success rate (ASR), where lower is better~\cite{wei2026clawsafety}.}
+\end{table}

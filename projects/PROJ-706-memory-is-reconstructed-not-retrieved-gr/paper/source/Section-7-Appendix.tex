@@ -1,0 +1,1050 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% APPENDIX
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\appendix
+\onecolumn
+
+
+\section{Detailed Analysis of Passive Retrieval}
+\label{app:retrieval-analysis}
+
+This appendix provides a unified analysis of the retrieval mechanisms in representative memory systems for LLM agents, aligning all methods with the formulation in Section~\ref{sec:problem-setting}. Recall that memory access operates over an external memory $\mathcal{M}$ with units $\mathcal{V}=\{v_1,\ldots,v_N\}$. Given a query $x$, passive retrieval returns a fixed set $\pi_{\mathrm p}(x)$, while active reconstruction selects units sequentially via a stateful policy $v^{(t)}=\pi_{\mathrm a}^{(t)}(x,S^{(t-1)})$.
+
+\label{app:analysis-existing}
+
+% Our analysis covers representative systems that include similarity-based retrieval and graph-based retrieval.
+
+\paragraph{Retrieval-Augmented Generation.}
+Retrieval-augmented generation (RAG) adopts a classic similarity-based retrieval paradigm, where an external memory is organized as a vector store and queried in a single shot. Given a query $x$, RAG computes a relevance score between $x$ and each memory unit $v\in\mathcal{V}$, and retrieves the top-$k$ most similar items:
+\begin{equation}
+\pi_{\mathrm p}^{\textsc{RAG}}(x)
+=
+\mathrm{TopK}\!\left(\{\mathrm{sim}(x,v)\}_{v\in\mathcal{V}},\,k\right).
+\end{equation}
+
+\textbf{A-Mem}~\cite{DBLP:journals/corr/abs-2502-12110}.
+A-Mem introduces a graph structure over memory units, where nodes correspond to structured memory notes and edges encode semantic relations constructed during memory construction. 
+Given a query $x$, A-Mem performs retrieval by first selecting a seed memory item via similarity, and then expanding its predefined neighborhood along the memory graph: %This can be formulated as:
+\begin{equation}
+\begin{aligned}
+\mathcal{V}^* &= \mathrm{TopK}\!\left(\{\mathrm{sim}(x,v)\}_{v\in\mathcal{V}},\,k\right),\\
+\pi_{\mathrm p}^{\textsc{A-Mem}}(x)
+&=
+\mathcal{V}^* \ \cup\ \mathrm{Neighbor}(\mathcal{V}^*).
+\end{aligned}
+\end{equation}
+where $\mathrm{Neighbor}(\mathcal{V}^*) = \bigcup_{v\in\mathcal{V}^*}\mathrm{Neighbor}(v)$
+returns the nodes directly connected to the seed set in the memory graph. 
+% Although the output contains multi-hop items, the expansion operator is fixed and does not depend on $S^{(t-1)}$; therefore it is still passive.
+
+\textbf{MemoryOS}~\cite{DBLP:journals/corr/abs-2506-06326}.
+MemoryOS organizes agent memory into a three-tier hierarchy with short-term memory (STM), mid-term memory (MTM), and long-term personal memories (LPM). Given a query $x$, it performs hierarchical retrieval by incorporating recent short-term context, relevant mid-term topic memories, and long-term persona information:
+\begin{equation}
+\begin{aligned}
+R_{\mathrm{MTM}}(x)
+&=
+\mathrm{TopK}\!\left(
+\{\mathcal{F}_{score}(x,v)\}_{v\in \mathcal{V}_{\mathrm{MTM}}}
+\right),
+\quad
+R_{\mathrm{LPM}}^{\mathrm{fact}}(x)
+=
+\mathrm{TopK}\!\left(
+\{\mathcal{F}_{score}(x,v)\}_{v\in \mathcal{V}_{\mathrm{LPM}}^{\mathrm{fact}}}
+\right),\\[6pt]
+\pi_{\mathrm p}^{\textsc{MemOS}}(x)
+&=
+\mathcal{V}_{\mathrm{STM}}
+\;\cup\;
+R_{\mathrm{MTM}}(x)
+\;\cup\;
+\mathcal{V}_{\mathrm{LPM}}^{\mathrm{profile}}
+\;\cup\;
+R_{\mathrm{LPM}}^{\mathrm{fact}}(x),
+\end{aligned}
+\end{equation}
+where $\mathcal{V}_{\mathrm{LPM}}^{\mathrm{profile}}$ represents persona information, and $\mathcal{V}_{\mathrm{LPM}}^{\mathrm{fact}}$ denotes query-conditioned long-term factual memory.
+
+
+% \textbf{MemoryOS}~\cite{DBLP:journals/corr/abs-2506-06326}.
+% MemoryOS introduces a hierarchical memory organization, including short-term and long-term stores. Given a query $x$, MemoryOS retrieves by a fixed multi-stage pipeline include the short-term context and optionally retrieve additional long-term items via similarity:
+% \begin{equation}
+% \pi_{\mathrm p}^{\textsc{MemOS}}(x)
+% =
+% M_{\mathrm{STM}}
+% \ \cup\
+% \mathrm{TopK}\!\left(\{\mathrm{sim}(x,v)\}_{v\in M_{\mathrm{LTM}}},\,k\right),
+% \end{equation}
+% where $M_{\mathrm{STM}}$ and $M_{\mathrm{LTM}}$ denote memory subsets. 
+% Despite multiple stages, the stages are pre-specified and do not form an evidence-driven decision process, thus remaining passive.
+
+
+
+\textbf{LangMem}~\cite{langmem2025}.
+LangMem maintains conversational memory by compressing dialogue history into a set of memory summaries, which are stored in a vector-based memory store and injected into the model context during inference.
+Each memory unit corresponds to a summarized dialogue message represented by an embedding vector.
+Given a query $x$, LangMem retrieves relevant memories via similarity-based search:
+\begin{equation}
+\pi_{\mathrm p}^{\textsc{LangMem}}(x)
+=
+\mathcal{S}_{\textsc{LLM}}
+\!\left(
+\mathrm{TopK}\!\left(\{\mathrm{sim}(x,v)\}_{v\in\mathcal{V}},\,k\right),
+\,x
+\right).
+\end{equation}
+where $\mathrm{Summarize}_{\textsc{LLM}}(\cdot)$ denotes an LLM-based
+summarization function that compresses retrieved memory entries into
+a concise context representation.
+
+\textbf{Mem0}~\cite{DBLP:journals/corr/abs-2504-19413}.
+Mem0 maintains a persistent memory store composed of natural-language facts extracted incrementally from conversations via an LLM-driven memory construction and update process.
+Each memory item corresponds to a salient factual statement, and memory evolution is governed by LLM-selected operations (ADD, UPDATE, DELETE, NOOP) to ensure consistency over time.
+Given a query $x$, Mem0 performs retrieval by selecting the most relevant memory items via similarity search:
+\begin{equation}
+\pi_{\mathrm p}^{\textsc{Mem0}}(x) = \mathrm{TopK}\!\left(\{\mathrm{sim}(x,v)\}_{v \in \mathcal{V}},\, k\right).
+\end{equation}
+
+% where $\mathcal{V}$ denotes the set of stored memory facts and $\mathcal{V}^$ is directly supplied as context for response generation.
+
+
+% \paragraph{Conclusion.}
+\paragraph{Conclusion.}
+From the above analysis, existing memory systems primarily focus on the design of
+memory representations, with retrieval procedures tightly coupled to the
+underlying structure.
+These approaches can be broadly categorized as similarity-based retrieval and
+graph-based retrieval.
+Although some methods employ structured memory representations, their retrieval
+processes remain passive: traversal operators are predefined and fixed, and do
+not adapt based on intermediate evidence during retrieval.
+
+
+
+\section{Implementation and Execution Details}
+\subsection{Memory Construction Pipeline}
+\label{app:memory_system}
+\textbf{Cue--Tag--Episode.}
+To instantiate elements of the memory graph and explicitly model their associative relations, we employ an LLM to extract the components required to construct Cue--Tag--Episode triplets.
+Given the raw dialogue text $T$, we first rewrite and refine it to resolve contextual dependencies and make cues explicit, and then segment the processed text into coherent episodic units:
+\begin{align}
+\{e_i\} \leftarrow \mathcal{R}_{\text{LLM}}(T),
+\end{align}
+where $\mathcal{R}_{\text{LLM}}$ performs raw text processing, including pronoun resolution, temporal normalization, and episodic segmentation.
+For each episodic segment $e_i$, we generate an associative tag and a set of fine-grained cues using LLM-based extractors:
+\begin{align}
+g_i \leftarrow \mathcal{T}_{\text{LLM}}(x_i), \quad
+\mathcal{C}_i \leftarrow \mathcal{K}_{\text{LLM}}(x_i),
+\end{align}
+where $\mathcal{T}_{\text{LLM}}$ produces a short and precise phrase summarizing the core semantic or relational pattern of the episode,
+and $\mathcal{K}_{\text{LLM}}$ extracts a set of cues $C_i$, including entities, attributes, and other salient descriptors.
+We then add nodes for $x_i$ and each $c \in C_i$, and associate them with the tag $g_i$ to form the Cue--Tag--Episode relations.
+
+\textbf{Cue--Tag--Semantic.}
+Semantic memory complements episodic reconstruction by providing relatively stable abstractions beyond individual episodes~\cite{anokhin2024arigraph,hu2025memory}.
+Each semantic unit is represented as $(c^s_i, g^s_i, s_i)$, where $s_i$ denotes the semantic content, $c^s_i$ is an entity-level cue, and $g^s_i$ is an aspect-level tag.
+We extract such semantic units from the input text $T$ via an LLM-based semantic extraction function:
+\begin{align}
+\{(c^s_i, g^s_i, s_i)\} \leftarrow \mathcal{S}_{\text{LLM}}(T),
+\end{align}
+where $\mathcal{S}_{\text{LLM}}$ identifies stable facts and attributes expressed in $T$, summarizes them into semantic content $s_i$,
+and assigns an entity-level cue $c^s_i$ together with an aspect-level tag $g^s_i$.
+The extracted $(c^s_i, g^s_i, s_i)$ units are inserted into the same memory graph and linked by Cue--Tag--Semantic associations.
+
+\textbf{High-level Topic Memory.}
+While Tag captures episode-level semantic patterns, Topic summarizes recurrent patterns across episodes and provides a higher-level organization for multi-granular reasoning.
+This design is consistent with the view that higher-order structures can be abstracted from repeated episodic experiences~\cite{pan2025secom, tan2025prospect}.
+Concretely, we obtain topic nodes by applying an LLM-based abstraction function to the set of episodic segments:
+\begin{align}
+\{\tau_j\} \leftarrow \mathcal{A}_{\text{LLM}}(\{e_i\}),
+\end{align}
+where each topic node $\tau_j$ summarizes a coherent set of episodes that share recurring semantic patterns.
+We then add topic--episode links to connect each $\tau_j$ with its associated episodes, enabling the agent to reason at a higher level when fine-grained episodic traversal is unnecessary.
+\begin{table*}[t]
+\caption{Memory toolkit providing operations for controlled memory traversal.}
+\centering
+\begin{tabular}{lcl}
+\toprule
+\textbf{Tool} & \textbf{Mapping Function} & \textbf{Description} \\
+\midrule
+\texttt{query\_tag\_events}
+& $\phi_{(c,g)\rightarrow e}(c,g)$
+& Retrieve episodic events associated with a cue--tag pair. \\
+
+\texttt{query\_conversation\_time}
+& $\phi_{e\rightarrow t}(v^{e}e)$
+& Return the conversation timestamp of an episodic event. \\
+
+\texttt{query\_event\_keywords}
+& $\phi_{e\rightarrow (c,g)}(e)$
+& Extract associated cues and tags from an episodic event. \\
+
+\texttt{query\_event\_context}
+& $\phi_{e\rightarrow \mathrm{ctx}}(e)$
+& Retrieve contextual text surrounding the episodic event. \\
+
+\texttt{query\_personal\_information}
+& $\phi_{c^{s}\rightarrow g^{s}}(c^{s})$
+& Return semantic aspects associated with a person entity. \\
+
+\texttt{query\_personal\_aspect}
+& $\phi_{(c^{s},g^{s})\rightarrow v^{s}}(c^{s},g^{s})$
+& Retrieve semantic content for a (person, aspect) pair. \\
+
+\texttt{query\_topic\_events}
+& $\phi_{\tau\rightarrow e}(\tau)$
+& Retrieve episodic events associated with a topic node. \\
+\bottomrule
+\end{tabular}
+\label{tab:tools}
+\end{table*}
+
+
+\subsection{Executable Memory Reconstruction}
+\label{app:reconstruction}
+Figure~\ref{fig:detailed_reconstruction} presents a detailed illustration of the memory reconstruction process, accompanied by an example diagram and pseudocode.
+To realize multi-step reasoning trajectories, we design a specialized toolkit that executes the traversal actions determined by the LLM and returns newly retrieved evidence from the memory graph.
+
+MRAgent operates under two execution modes, $\Psi \in \{\mathtt{Navigate}, \mathtt{Answer}\}$.
+In the $\mathtt{Navigate}$ mode, the agent invokes the toolkit to progressively explore the memory graph and accumulate evidence.
+Once sufficient evidence has been collected, the agent transitions into the $\mathtt{Answer}$ mode to generate the final response conditioned on the reconstructed context.
+
+Table~\ref{tab:tools} summarizes the toolkit used for memory traversal and evidence acquisition.
+Each tool corresponds to a typed mapping between memory components, enabling the LLM to explicitly control the direction and granularity of memory access.
+Rather than retrieving a fixed set of memories, the agent composes these tools into sequential or parallel invocations to progressively reconstruct relevant context.
+% Specifically, tools such as \texttt{query\_tag\_events} and \texttt{query\_topic\_events} support top-down exploration from abstract cues, tags, or topics to concrete episodic content.
+% Conversely, tools like \texttt{query\_event\_keywords} and \texttt{query\_conversation\_time} enable bottom-up inspection of retrieved events, allowing the agent to extract additional cues, tags, or temporal signals for subsequent traversal steps.
+% Semantic tools, including \texttt{query\_personal\_information} and \texttt{query\_personal\_aspect}, provide access to relatively stable personal attributes and complement episodic evidence during reconstruction.
+At each navigation step, the LLM selects and invokes one or more tools based on the current reconstruction state.
+The returned results are treated as candidate evidence and are evaluated by the LLM to decide whether to expand, refine, or terminate a traversal path.
+This explicit tool-based interface ensures that memory access remains interpretable and controllable, while allowing the agent to adapt its retrieval strategy to intermediate evidence.
+
+
+
+\begin{figure}[t]
+  \centering
+  \begin{minipage}[t]{0.48\linewidth}
+    \null
+    \centering
+    \includegraphics[width=\linewidth]{Fig/fig_example.png}
+  \end{minipage}
+  \hfill
+  \begin{minipage}[t]{0.48\linewidth}
+    \null
+\begin{algorithm}[H]
+\small
+\caption{Active Memory Reconstruction}
+\label{alg:mragent-reconstruct}
+\begin{algorithmic}[1]
+\REQUIRE Query $x$, memory graph $\mathcal{G}$, traversal actions $\mathcal{A}=\{\Pi_1,\dots,\Pi_m\}$, max steps $T$
+\ENSURE Answer $\hat{y}$
+
+\STATE $\mathcal{C} \leftarrow \textsc{ExtractCues}(x)$
+\STATE $\mathcal{Z}^{(0)} \leftarrow \textsc{ActiveSetInit}(\mathcal{C}, \mathcal{G})$
+\STATE $\mathcal{H}^{(0)} \leftarrow \varnothing$
+\STATE $\mathcal{S}^{(0)} \leftarrow (\mathcal{Z}^{(0)}, \mathcal{H}^{(0)})$
+
+\FOR{$t = 0$ \textbf{to} $T-1$}
+    \STATE \textit{// Action selection}
+    \STATE $\mathcal{A}^{(t)} \leftarrow f_{\text{select}}(x, \mathcal{H}^{(t)}, \mathcal{Z}^{(t)})$ 
+    \textit{// }{$\mathcal{A}^{(t)} \subseteq \mathcal{A}$}
+
+    \STATE \textit{// Controlled traversal}
+    \STATE $\widetilde{\mathcal{Z}}^{(t+1)} \leftarrow \varnothing$
+    \FORALL{$a \in \mathcal{A}^{(t)}$}
+        \STATE $\widetilde{\mathcal{Z}}^{(t+1)} \leftarrow 
+        \widetilde{\mathcal{Z}}^{(t+1)} \cup \Pi_a(\mathcal{Z}^{(t)})$
+    \ENDFOR
+
+    \STATE \textit{// Routing and state update}
+    \STATE $\mathcal{Z}^{(t+1)} \leftarrow 
+    f_{\text{route}}(x, \mathcal{H}^{(t)}, \widetilde{\mathcal{Z}}^{(t+1)})$
+    \STATE $\mathcal{H}^{(t+1)} \leftarrow 
+    \mathcal{H}^{(t)} \cup \mathcal{Z}^{(t+1)}$
+
+    \IF{$\textsc{Stop}(x, \mathcal{H}^{(t+1)})$}
+        \STATE \textbf{break}
+    \ENDIF
+\ENDFOR
+
+\STATE $\hat{y} \leftarrow \textsc{AnswerLLM}(x, \mathcal{H}^{(t+1)})$
+\RETURN $\hat{y}$
+\end{algorithmic}
+\end{algorithm}
+
+
+  \end{minipage}
+  \caption{Left: An illustrative example of memory reconstruction given a query.
+Right: Pseudocode of the memory reconstruction algorithm.}
+  \label{fig:detailed_reconstruction}
+\end{figure}
+
+
+
+
+\section{Theoretical Analysis: Active vs. Passive Retrieval over a Heterogeneous KG Memory}
+\label{app:active-vs-passive-separation}
+
+MRAgent is designed as an \emph{active} retrieval approach over a graph-based memory. This section formalizes an approximation-theoretic advantage of such
+\emph{active} (adaptive) retrieval over \emph{passive} (non-adaptive) retrieval.
+
+
+\subsection{Setup}
+
+We consider tasks involving queries $x \in \mathcal{X}$, with answers $y$ from a label space \(\mathcal{Y}\).
+
+Our MRAgent method uses a heterogeneous knowledge graph (KG) memory with cues, tags and episodes. However, for generality and notational simplicity, our theory generalizes this to arbitrary heterogeneous KGs with textual information on each node.
+
+\paragraph{Heterogeneous KG memory.}
+For each problem size \(n\), a memory \(M \in \mathcal{M}_n\) is a heterogeneous KG
+with node set
+\[
+  \mathcal{V}(M) = \{v_1, v_2, \dots, v_n\}.
+\]
+Each node \(v \in \mathcal{V}(M)\) has a type \(\tau(v)\) in some type set, and a textual \emph{payload} $p(v) \in \mathcal{P}$.
+The KG also has a finite set of relation labels
+\(\mathcal{R}\) (e.g., tag types).
+
+\paragraph{Node-retrieval operator.}
+Our LM interacts with the KG via a \emph{retrieval operator} that, given a node, returns
+both (i) the node payload and (ii) a bounded list of outgoing neighbors.
+
+Formally, fix a branching bound \(B \ge 1\). For each memory \(M\), define
+\[
+  \mathrm{Retrieve}^M : \mathcal{V}(M) \to \mathcal{P} \times (\mathcal{R}\times \mathcal{V}(M))^{\le B}.
+\]
+Given a node \(v\), the operator returns
+\[
+  \mathrm{Retrieve}^M(v) = \bigl(p(v),\ \mathrm{Out}(v)\bigr),
+\]
+where \(p(v)\in\mathcal{P}\) is the payload and \(\mathrm{Out}(v)\) is a list of at most \(B\) outgoing edges \((r,v')\), where $r$ is the edge's relation and $v'$ is its target node. This abstraction matches common
+KG implementations where a ``node fetch'' returns attributes/text plus a bounded set of
+neighbor references.
+
+
+\subsection{Population risk and approximation error}
+
+\begin{definition}[Population risk]
+For a predictor \(\pi\) and distribution \(D\), define the population risk under \(0\)--\(1\) loss:
+\[
+  L(\pi; D) := \mathbb{E}_{(M,x,y)\sim D}\bigl[\mathbf{1}[\pi(x,M)\neq y]\bigr].
+\]
+\end{definition}
+
+\begin{definition}[Approximation error]
+For a hypothesis class \(\mathcal{H}\) and distribution \(D\), define
+\[
+  \mathrm{opt}(\mathcal{H}; D) := \inf_{\pi\in\mathcal{H}} L(\pi; D).
+\]
+\end{definition}
+
+A policy that learns nothing about \(y\) can still guess using the prior.
+To capture this baseline under \(0\)--\(1\) loss, define 
+\[
+  \varepsilon_Y \;:=\; 1 - \sup_{y \in \mathcal{Y}} P_Y(y).
+\]
+Intuitively, \(\varepsilon_Y\) is the minimum error achievable when you only know the
+prior \(P_Y\) and have no additional information about \(y\).
+
+\subsection{Active vs. passive retrieval}
+
+We now define active and passive policies, given an LM with parameter $\theta \in \Theta$ and a retrieval budget of \(T\) steps. The LM induces functions $Q_{\theta,t}$ for $t \le T$ which decide which node to retrieve in step $t$, and a final answer head $H_\theta$ which outputs an answer given the retrieval history. 
+
+Under the active policy, $Q_{\theta,t}$ is conditioned on the entire history seen so far, but under the passive policy, it is conditioned only on the query. Let $v^{(t)}$ denote the node the LM chooses to retrieve in step $t$. Formally:
+
+\begin{definition}[Active LM+retrieval policy class]
+An \emph{active} policy with parameters \(\theta\) proceeds as:
+\[
+  v^{(1)} = Q_{\theta,1}(x), \qquad z^{(1)} = \mathrm{Retrieve}^M(v^{(1)}),
+\]
+and for \(t=2,\dots,T\),
+\[
+  v^{(t)} = Q_{\theta,t}(x, z^{(1)},\dots,z^{(t-1)}), \qquad z^{(t)} = \mathrm{Retrieve}^M(v^{(t)}).
+\]
+The prediction is
+\[
+  \pi^{\mathrm{act}}_\theta(x,M) = H_\theta(x, z^{(1)},\dots,z^{(T)}).
+\]
+Define the hypothesis class
+\[
+  \mathcal{H}^{\mathrm{LM}}_{\mathrm{active}}(T) := \{\pi^{\mathrm{act}}_\theta : \theta\in\Theta\}.
+\]
+\end{definition}
+
+\begin{definition}[Passive LM+retrieval policy class]
+A \emph{passive} policy with parameters \(\theta\) proceeds as:
+\[
+  v^{(t)} = Q^{\mathrm{pass}}_{\theta,t}(x), \qquad t=1,\dots,T,
+\]
+then retrieves \(z^{(t)} = \mathrm{Retrieve}^M(v^{(t)})\) for all \(t\), and outputs
+\[
+  \pi^{\mathrm{pass}}_\theta(x,M) = H_\theta(x, z^{(1)},\dots,z^{(T)}).
+\]
+Define
+\[
+  \mathcal{H}^{\mathrm{LM}}_{\mathrm{passive}}(T) := \{\pi^{\mathrm{pass}}_\theta : \theta\in\Theta\}.
+\]
+\end{definition}
+
+
+
+\subsection{Main theorem: active retrieval is strictly more powerful than passive}
+
+We show that allowing the retriever to adapt its queries to previously retrieved
+content yields a strictly larger class of predictors than any non-adaptive (query-only) retriever.
+
+\begin{theorem}[Active retrieval is strictly more powerful than passive] For any retrieval budget \(T\ge 2\), the passive hypothesis class is strictly contained in the active hypothesis class: \[
+\mathcal{H}^{\mathrm{LM}}_{\mathrm{passive}}(T)\ \subsetneq\ \mathcal{H}^{\mathrm{LM}}_{\mathrm{active}}(T). \] 
+\label{thm:main}
+\end{theorem}
+
+
+To start, we first observe that passive policies are a subset of active policies, making the active hypothesis class \emph{at least} as strong as the passive class. 
+
+\begin{lemma} \label{lem:power} For any retrieval budget \(T\), we have \[ \mathcal{H}^{\mathrm{LM}}_{\mathrm{passive}}(T)\ \subseteq\ \mathcal{H}^{\mathrm{LM}}_{\mathrm{active}}(T). \] \end{lemma} \begin{proof} Fix \(T\) and any passive policy \(\pi^{\mathrm{pass}}_\theta \in \mathcal{H}^{\mathrm{LM}}_{\mathrm{passive}}(T)\). By definition, its retrieval queries take the form \(v^{(t)} = Q^{\mathrm{pass}}_{\theta,t}(x)\), depending only on the query \(x\). Define an active policy \(\tilde \pi^{\mathrm{act}}_\theta\) with queries \[ \tilde v^{(t)} \;=\; \tilde Q_{\theta,t}(x,z^{(1)},\dots,z^{(t-1)}) \;:=\; Q^{\mathrm{pass}}_{\theta,t}(x), \qquad t=1,\dots,T, \] i.e., the active policy ignores the retrieval history and issues the same sequence of nodes as the passive one. Using the same answer head \(H_\theta\), the resulting prediction function satisfies \(\tilde \pi^{\mathrm{act}}_\theta(x,M)=\pi^{\mathrm{pass}}_\theta(x,M)\) for all \((x,M)\). 
+\end{proof} 
+
+\paragraph{What remains to be shown.} To prove strictness in Theorem~1 for any \(T\ge 2\), it now suffices to construct a distribution \(D\) (depending on \(T\)) such that active retrieval can achieve zero error with budget \(T\), while any passive policy with the same budget has error bounded away from zero, which we will show in the next subsection.
+
+\subsection{A separating task family: Binary-Tree Needle-in-a-Haystack}
+
+We now construct a task with the required property. Intuitively, the query identifies a root node.
+Retrieval from the root reveals two candidate children; the root payload contains a single
+bit telling which child to follow. Repeating for \(d\) hops yields a unique target leaf,
+whose payload contains the answer label. Active retrieval can follow the revealed bits in order to achieve zero error, but passive retrieval must guess the leaf, incurring irreducible error.
+
+\paragraph{Binary tree.}
+We form a complete binary tree of depth $d = T-1$. The root is denoted $v_\emptyset$. Each internal node $v_u$ is indexed by a binary string $u$ representing the path from the root to this node: starting from the root, each bit indicates whether to take the left ($0$) or right ($1$) child. As such, each internal node $v_u$ has two children, labeled $v_{u0}$ and $v_{u1}$.
+
+\paragraph{Ground-truth leaf.}
+Sample a target leaf index \(u^\star \in \{0,1\}^d\) uniformly at random, and let the target node be the corresponding
+leaf \(v_{u^\star}\). We interpret the bits of \(u^\star = (u^\star_1,\dots,u^\star_d)\) as the ground-truth path from
+the root: starting at \(v_\emptyset\), at depth \(t\) we follow the child indexed by \(u^\star_t \in \{0,1\}\), so the
+unique root-to-leaf path is
+\[
+v_\emptyset \;\to\; v_{u^\star_1} \;\to\; v_{u^\star_1u^\star_2} \;\to\; \cdots \;\to\; v_{u^\star_1\cdots u^\star_d}
+\;=\; v_{u^\star}.
+\]
+To make this path discoverable by active retrieval, we encode the next bit along the target path in
+the payloads of nodes on the path: for each prefix \(u = u^\star_1\cdots u^\star_t\) with \(|u|=t<d\),
+\[
+p(v_u)\ \text{encodes the next bit}\ u^\star_{t+1}.
+\]
+
+\paragraph{Answer label.}
+Sample \(y \sim P_Y\). The answer label is encoded \emph{only} in the target leaf payload:
+\[
+p(v_{u^\star})\ \text{encodes}\ y.
+\]
+All other returned information (payloads of non-target nodes and outgoing lists) is independent of \(y\). In particular,
+unless a policy retrieves \(v_{u^\star}\), it obtains no information about \(y\) beyond the prior.
+
+\paragraph{Query.}
+The query \(x\) identifies the root node \(v_\emptyset\) and asks for the label $y$.
+
+\begin{definition}[Binary-Tree Needle-in-a-Haystack distribution \(D_{n,d}\)]
+Fix \(d\ge 1\) and set \(n\) as:
+\[
+n \;=\; 1 + 2 + \cdots + 2^d \;=\; 2^{d+1}-1.
+\]
+The distribution \(D_{n,d}\) over triples \((M,x,y)\in \mathcal{M}_n\times \mathcal{X}_n\times \mathcal{Y}\) is defined
+as follows:
+\begin{enumerate}
+\item Sample a target leaf index \(u^\star \sim \mathrm{Unif}(\{0,1\}^d)\).
+\item Sample \(y \sim P_Y\).
+\item Construct a heterogeneous KG memory \(M\in \mathcal{M}_n\) as the binary tree above:
+\begin{itemize}
+\item for each prefix \(u = u^\star_1\cdots u^\star_t\) with \(t<d\), the payload \(p(v_u)\) encodes the next bit
+\(u^\star_{t+1}\);
+\item the payload \(p(v_{u^\star})\) encodes \(y\);
+\item all other node payloads are independent of
+\(y\).
+\end{itemize}
+\item Output a query \(x\) that identifies \(v_\emptyset\) and asks for the label stored at \(v_{u^\star}\).
+\end{enumerate}
+\end{definition}
+
+
+
+\subsection{Active retrieval achieves zero error}
+
+\begin{lemma} \label{lem:active}
+For the distribution \(D_{n,d}\), there exists a parameter setting \(\theta\) and a budget \(T=d+1\) such that
+\[
+L\!\left(\pi^{\mathrm{act}}_\theta;\, D_{n,d}\right)=0.
+\]
+Consequently,
+\[
+\mathrm{opt}\!\left(\mathcal{H}^{\mathrm{LM}}_{\mathrm{active}}(d+1);\, D_{n,d}\right)=0.
+\]
+\end{lemma}
+
+\begin{proof}
+Consider the following active strategy. The query \(x\) identifies the root node \(v_\emptyset\).
+Initialize \(u:=\emptyset\). For \(t=0,1,\dots,d-1\):
+\begin{enumerate}
+\item Retrieve the current node \(v_u\) to obtain \(\mathrm{Retrieve}^M(v_u)=(p(v_u),\mathrm{Out}(v_u))\).
+From \(p(v_u)\), read the next-bit value \(b\in\{0,1\}\) (which equals \(u^\star_{t+1}\) when \(u\) is the length-\(t\)
+prefix of \(u^\star\)).
+\item Move to the corresponding child: set \(u \leftarrow u b\), i.e., go to \(v_{u0}\) if \(b=0\) and to \(v_{u1}\) if
+\(b=1\).
+\end{enumerate}
+After \(d\) steps we have reached the target leaf \(v_{u^\star}\). Finally retrieve \(v_{u^\star}\)  to read its payload, and output \(y\). This uses at most \(d+1\) retrievals and is
+correct for every sample \((M,x,y)\sim D_{n,d}\).
+\end{proof}
+
+
+\subsection{Passive retrieval has irreducible error unless the budget is exponential}
+
+\begin{lemma} \label{lem:passive}
+For any passive policy with budget \(T\), uniformly over all parameters \(\theta\),
+\[
+L\!\left(\pi^{\mathrm{pass}}_\theta;\, D_{n,d}\right)\ \ge\ \varepsilon_Y\!\left(1-\frac{T}{2^d}\right),
+\qquad\text{where}\qquad
+\varepsilon_Y := 1 - \sup_{y\in\mathcal{Y}} P_Y(y).
+\]
+\end{lemma}
+
+\begin{proof}
+Fix \(\theta\). A passive policy chooses all nodes \(v^{(1)},\dots,v^{(T)}\) to retrieve as functions of \(x\) alone,
+before observing any retrieved values.
+
+Under \(D_{n,d}\), the target leaf index \(u^\star\in\{0,1\}^d\) is uniform and is not revealed by \(x\). Let
+\(S:=\{v^{(1)},\dots,v^{(T)}\}\) be the (multi)set of retrieved nodes, and let \(L_d:=\{v_u:\, u\in\{0,1\}^d\}\) be the
+set of leaves. Since only leaves can equal the target \(v_{u^\star}\),
+\[
+\Pr\!\left[v_{u^\star} \in S\right]
+\;=\;
+\Pr\!\left[v_{u^\star} \in S\cap L_d\right]
+\;=\;
+\frac{|S\cap L_d|}{2^d}
+\;\le\;
+\frac{T}{2^d}.
+\]
+
+The label \(y\) is encoded only in the target payload \(p(v_{u^\star})\). Therefore, the policy can obtain information
+about \(y\) only if it retrieves \(v_{u^\star}\). Otherwise, the
+entire retrieval transcript is independent of \(y\). In that case, the best possible prediction depends
+only on the prior \(P_Y\), and must incur error at least \(\varepsilon_Y\). Therefore,
+\[
+L\!\left(\pi^{\mathrm{pass}}_\theta;\, D_{n,d}\right)
+\ \ge\ \Pr[\text{miss target}] \cdot \varepsilon_Y
+\ \ge\ \left(1-\frac{T}{2^d}\right)\varepsilon_Y.
+\]
+\end{proof}
+
+
+\subsection{Strictness and approximation-theoretic separation}
+
+\begin{proof}[Proof of Theorem~C.5]
+Fix any \(T\ge 2\) and set \(d:=T-1\). The inclusion
+\(\mathcal{H}^{\mathrm{LM}}_{\mathrm{passive}}(T)\subseteq \mathcal{H}^{\mathrm{LM}}_{\mathrm{active}}(T)\) follows by
+taking any passive policy and viewing it as an active policy whose query functions ignore the history and depend only on
+\(x\) (Lemma~\ref{lem:power}).
+
+For strictness, consider the separating distribution \(D_{n,d}\) from Definition~C.7. By Lemma~\ref{lem:active},
+\(\mathrm{opt}(\mathcal{H}^{\mathrm{LM}}_{\mathrm{active}}(T);D_{n,d})=0\) (since \(T=d+1\)). By Lemma~\ref{lem:passive},
+\[
+\mathrm{opt}(\mathcal{H}^{\mathrm{LM}}_{\mathrm{passive}}(T);D_{n,d})
+\ \ge\ \varepsilon_Y\!\left(1-\frac{T}{2^d}\right)
+\ =\ \varepsilon_Y\!\left(1-\frac{T}{2^{T-1}}\right).
+\]
+If the two hypothesis classes were equal, they would have equal \(\mathrm{opt}(\cdot;D)\) for every distribution \(D\),
+contradicting the strict gap above. Hence the inclusion is strict for every \(T\ge 2\).
+\end{proof}
+
+
+\section{Experiments}
+\label{app:experiments}
+\subsection{Datasets}
+
+\textbf{LoCoMo}~\cite{DBLP:conf/acl/MaharanaLTBBF24}.
+LoCoMo is a benchmark designed to evaluate long-term conversational memory in extended dialogue settings.
+The dataset consists of 50 conversations generated via a human--LLM pipeline.
+Each conversation spans up to 35 sessions, with an average length of approximately 300 turns, and is accompanied by roughly 200 question--answer pairs.
+LoCoMo includes multiple question categories, covering single-hop, multi-hop, temporal, and open-domain queries, which require retrieving and integrating information from distant parts of the conversation history.
+In our experiments, we exclude adversarial questions, as most baseline methods do not support this setting and the task primarily evaluates the ability to detect unanswerable queries rather than memory reconstruction or multi-hop reasoning.
+
+\textbf{LongMemEval}~\cite{DBLP:conf/iclr/WuWYZCY25}.
+LongMemEval is a benchmark designed to evaluate very long-term memory capabilities of chat assistants under sustained user--assistant interactions.
+Each evaluation instance consists of a sequence of timestamped chat sessions, followed by a question that requires recalling and reasoning over the interaction history.
+We adopt the LongMemEval-S setting, which contains approximately 500 questions, each paired with a chat history of around 115K tokens.
+This setting provides a challenging evaluation of long-term memory. In our experiments, we primarily focus on the single-session-user multi-session, temporal-reasoning and  single-session-preference question types.
+
+
+
+\subsection{Baselines}
+\textbf{Retrieval-Augmented Generation.}
+Retrieval-augmented generation(RAG) stores dialogue histories as text chunks in a vector database.
+For each query, the system retrieves the top-$k$ most similar memory entries based on embedding similarity and concatenates them with the query to form the input context.
+
+\textbf{A-Mem}~\cite{DBLP:journals/corr/abs-2502-12110}.
+A-Mem constructs structured memory notes for each conversational episode, where new memory notes are linked to existing ones using LLM-assisted analysis, resulting in a directed graph structure.
+For retrieval, A-MEM embeds the query to retrieve relevant memory notes and then expands to their neighboring nodes.
+
+
+\textbf{MemoryOS}~\cite{DBLP:journals/corr/abs-2506-06326}.
+MemoryOS organizes agent memory into a three-tier hierarchy, including short-term memory for recent dialogue context, mid-term memory for topic-based interaction history, and long-term persona memory for stable user and agent characteristics.
+For retrieval, it performs hierarchical memory access across all layers and the retrieved memories are concatenated with persona information to form the input context.
+
+\textbf{LangMem}~\cite{langmem2025}.
+LangMem stores conversational memories by embedding each dialogue turn and maintaining them in a vector database via a memory management tool.
+At inference time, it retrieves the top-$k$ most relevant memories based on embedding similarity and summarizes them using the LLM to support response generation.
+
+\textbf{Mem0}~\cite{DBLP:journals/corr/abs-2504-19413}.
+Mem0 incrementally extracts salient natural-language facts from conversations and maintains a compact long-term memory through LLM-driven update operations.
+For retrieval, it performs similarity-based search over stored memories and incorporates the retrieved facts into the input context for answer generation.
+
+\subsection{Evaluation Metric}
+
+\textbf{LLM-Judge.}
+We adopt an LLM-based judge to evaluate the semantic correctness of generated answers.
+Given a model-generated answer $\hat{y}$ and a reference answer $y$, the judge determines whether $\hat{y}$ is semantically equivalent to $y$, allowing for paraphrasing and differences in surface form.
+The judge outputs a binary decision indicating correctness.
+
+\textbf{F$_1$ Score.}
+In addition to Recall, we report the F$_1$ score computed from the judge decisions.
+For each question, the generated answer is treated as a positive prediction, and the judge decision determines whether it is a true positive or a false positive.
+Aggregating over the dataset, precision and recall are computed as:
+\begin{equation}
+\mathrm{Precision}
+=
+\frac{\sum_i J(\hat{y}_i, y_i)}{\sum_i \mathbb{I}[\hat{y}_i \neq \emptyset]},
+\qquad
+\mathrm{Recall}
+=
+\frac{\sum_i J(\hat{y}_i, y_i)}{N},
+\end{equation}
+and the F$_1$ score is defined as:
+\begin{equation}
+\mathrm{F}_1
+=
+\frac{2 \cdot \mathrm{Precision} \cdot \mathrm{Recall}}
+{\mathrm{Precision} + \mathrm{Recall}}.
+\end{equation}
+This formulation penalizes both incorrect answers and failures to produce an answer, and is particularly suitable for open-ended question answering settings.
+
+
+\textbf{Evidence Recall (Recall).}
+Evidence Recall measures the fraction of ground-truth supporting evidence that is successfully retrieved during memory reconstruction.
+For each question $i$, let $\mathcal{E}_i^{\ast}$ denote the set of annotated ground-truth evidence items, and let $\hat{\mathcal{E}}_i$ denote the set of evidence items retrieved by the agent.
+Evidence Recall is computed as:
+\begin{equation}
+\mathrm{Recall}
+=
+\frac{1}{N}
+\sum_{i=1}^{N}
+\frac{|\hat{\mathcal{E}}_i \cap \mathcal{E}_i^{\ast}|}
+{|\mathcal{E}_i^{\ast}|},
+\end{equation}
+where $N$ is the total number of evaluation questions.
+This metric reflects the effectiveness of the retrieval process in recovering relevant supporting evidence, independent of final answer generation.
+
+
+\subsection{Implementation}
+We use GPT-4o-mini as the LLM judge with temperature set to 0.0. Each method is evaluated three independent times, and we report the mean and standard deviation of the judge scores across runs.
+To ensure comparable compute budgets across methods, we cap the agent’s reasoning to at most 8 turns per query, and allow up to 10 tool invocations per turn. Agents may terminate early if a stopping condition is met before exhausting the budget.
+
+
+\subsection{Detailed Results on \textsc{LongMemEval}}
+Table~\ref{tab:longmem-f1-j-overall} presents detailed results on \textsc{LongMemEval} under different evaluation settings, evaluated by F$_1$ and LLM-Judge.
+\label{app:longmem}
+\begin{table*}[t]
+\centering
+\small
+\setlength{\tabcolsep}{6pt}
+\caption{Performance on \textsc{LongMemEval} evaluated by F$_1$ and LLM-Judge~$\uparrow$.
+Best and second-best results among Gemini-backbone methods
+are marked in \textbf{bold} and \underline{underline}, respectively. MRAgent$^{*}$ uses Claude for retrieval while memories are constructed by Gemini.}
+\begin{tabular}{l|cc|cc|cc|cc|c}
+\toprule
+Method
+& \multicolumn{2}{c|}{multi-session}
+& \multicolumn{2}{c|}{single-user}
+& \multicolumn{2}{c|}{temporal-reasoning}
+& \multicolumn{2}{c|}{single-preference}
+& Overall \\
+& F$_1$ $\uparrow$ & J $\uparrow$
+& F$_1$ $\uparrow$ & J $\uparrow$
+& F$_1$ $\uparrow$ & J $\uparrow$
+& F$_1$ $\uparrow$ & J $\uparrow$
+& J $\uparrow$ \\
+\midrule
+RAG
+& 45.00 & 54.89
+& 77.94 & 85.71
+& 43.88 & 42.86
+& 5.42  & 33.33
+& 54.65 \\
+
+A-Mem
+& 28.26 & 42.85
+& 75.30 & \underline{90.00}
+& 34.18 & 45.11
+& 9.09  & 46.43
+& 52.98 \\
+
+MemoryOS
+& \underline{45.02} & \underline{56.39}
+& \underline{79.50} & 87.14
+& \underline{35.67} & 38.35
+& \underline{9.53}  & \underline{46.67}
+& \underline{54.92} \\
+
+LangMem
+& 41.14 & 52.63
+& 72.43 & 78.57
+& 36.80 & \underline{45.71}
+& 6.32  & 36.67
+& 53.77 \\
+
+Mem0
+& 37.53 & 50.38
+& 72.43 & 78.57
+& 35.64 & 45.11
+& 5.89  & 40.00
+& 53.01 \\
+
+
+MRAgent
+& \textbf{49.92} & \textbf{68.42}
+& \textbf{80.99} & \textbf{92.85}
+& \textbf{50.16} & \textbf{68.42}
+& \textbf{23.96} & \textbf{66.67}
+& \textbf{72.95} \\
+\midrule
+MRAgent$^{*}$
+& 66.31 & 86.46
+& 82.41 & 92.85
+& 60.10 & 85.71
+& 15.58 & 78.57
+& 86.76 \\
+\bottomrule
+\end{tabular}
+\label{tab:longmem-f1-j-overall}
+\end{table*}
+
+
+
+\subsection{Budget Sensitivity Analysis of Multi-step Reconstruction}
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=0.3\linewidth]{Fig/depth_call_heatmap.png}
+    \caption{
+Performance on multi-hop queries in \textsc{LoCoMo} as a function of the
+number of reasoning turns ($T$) and the per-round retrieval budget ($K$),
+evaluated under the Claude backbone using LLM-Judge (J).
+}
+    \label{fig:budget-heatmap}
+\end{figure}
+
+\label{sec:budget-analysis}
+
+Figure~\ref{fig:budget-heatmap} analyzes the trade-off between the number of
+reasoning turns and per-turn parallel retrieval on multi-hop questions in
+\textsc{LoCoMo}.
+We vary the per-turn retrieval budget ($K$), corresponding to the maximum
+number of parallel tool calls allowed within a single reasoning turn, and
+the maximum number of reasoning turns ($T$), while keeping other settings
+fixed.
+
+\textbf{Reconstruction depth cannot be substituted by increased parallel exploration.}
+As the number of reasoning turns $T$ increases, accuracy improves steadily and monotonically across all values of $K$, with deeper reconstruction yielding substantially higher performance.
+In contrast, increasing the per-turn retrieval budget $K$ leads to only limited gains that quickly saturate.
+These results indicate that while parallel exploration increases retrieval breadth within a single reasoning turn, it cannot replace the sequential composition of evidence enabled by multi-turn reconstruction.
+
+\subsection{Evidence Coverage by Retrieval Operators}
+
+\begin{table*}[t] \centering \small \setlength{\tabcolsep}{6pt} 
+\caption{Evidence coverage of different tools across question types on
+\textsc{LoCoMo} under the Claude backbone.}
+\begin{tabular}{>{\raggedright\arraybackslash}p{4.2cm}cccc} \toprule \textbf{Tool} & \textbf{Multi-hop} & \textbf{Temporal} & \textbf{Open domain} & \textbf{Single-hop} \\ \midrule \texttt{query\_tag\_events} & 66.33 & 81.08 & 41.18 & 74.76 \\ \texttt{query\_conversation\_time} & 4.08 & 86.49 & 17.65 & 3.88 \\ \texttt{query\_event\_context} & 18.37 & 32.43 & 35.29 & 33.01 \\ \texttt{query\_personal\_aspect} & 21.43 & 2.70 & 29.41 & 5.83 \\ \texttt{query\_topic\_events} & 33.67 & 45.95 & 35.29 & 27.18 \\ \bottomrule \end{tabular} \label{tab:tool-coverage-claude} \end{table*}
+
+To analyze how different retrieval operators contribute to memory reconstruction,
+we examine the evidence coverage of each tool on \textsc{LoCoMo}, aggregated by question category.
+Table~\ref{tab:tool-coverage-claude} reports the coverage rates of individual operators, reflecting their functional roles during reconstruction.
+
+\textbf{Different retrieval operators specialize in distinct query structures.}
+Temporal questions are predominantly resolved through \texttt{query\_conversation\_time}, which accounts for the majority of temporally grounded evidence.
+Multi-hop questions rely heavily on \texttt{query\_tag\_events} and \texttt{query\_topic\_events}, indicating that associative expansion over tags and topics is essential for recovering evidence distributed across multiple episodes.
+In contrast, open-domain questions exhibit more balanced coverage across multiple operators, reflecting the need to integrate episodic, semantic, and contextual information.
+Overall, these results demonstrate that MRAgent performs structured, operator-dependent memory reconstruction.
+Rather than relying on uniform or similarity-driven retrieval, the agent selectively activates different operators based on query structure, resulting in differentiated evidence acquisition patterns.
+
+
+
+
+\subsection{Case Studies}
+\label{app:case_study}
+% \subsection{Tool Invocations(Extended)}
+% \begin{table*}[t]
+% \centering
+% \caption{Multi-turn reasoning trace of MRAgent for the screenplay rejection case study.}
+% \small
+% \setlength{\tabcolsep}{5pt}
+% \begin{tabular}{c l p{4.8cm} p{7.0cm}}
+% \toprule
+% \textbf{Turn} & \textbf{Tool} & \textbf{Parameter} & \textbf{Answer} \\
+% \midrule
+
+% t1 & \texttt{edges\_by\_tag} 
+% & (Key = Joanna, Tag = Screenplay Rejection)
+% & D14:1: Joanna: ``I got a rejection letter from a major company \ldots'' \\
+
+% t1 & \texttt{edges\_by\_tag} 
+% & (Key = Joanna, Tag = Screenplay Submission)
+% & D3:1: Joanna: ``The screenplay I sent in to the film festival has been on my mind \ldots''; \\
+% & & & D16:1: Joanna: ``I just got done submitting my recent screenplay to a film contest \ldots'' \\
+
+% t1 & \texttt{query\_topic\_events} 
+% & (Topic = Joanna Receives Rejection)
+% & D14:1; D24:12: Joanna: ``I had a bit of a setback recently --- another rejection from a production company.'' \\
+
+% \midrule
+
+% t2 & \texttt{query\_event\_keywords}
+% & (Event = D14:1)
+% & \{Key: rejection letter; Tags: Screenplay Rejection, Emotional Impact\} \\
+
+% t2 & \texttt{query\_event\_context}
+% & (Event = D24:12)
+% & D24:13: Nate: ``Is this the one you sent to a film contest? Rejections suck \ldots'' \\
+
+% \midrule
+
+% t3 & \texttt{query\_personal\_information}
+% & (Person = Joanna)
+% & aspects: preference, achievement, creative work, \ldots \\
+
+% t3 & \texttt{edges\_by\_tag}
+% & (Tag = Screenplay Genre)
+% & D2:5: Joanna: ``It's a mix of drama and romance!'' \\
+
+% \midrule
+
+% t4 & \texttt{query\_personal\_aspect}
+% & (Person = Joanna; Aspect = Creative Work)
+% & s1: Joanna’s screenplay is a mix of drama and romance;
+%   s2: Joanna’s new screenplay is about \ldots;
+%   s3: Joanna’s third writing project explores loss, identity, and connection. \\
+
+
+% t4 & \texttt{query\_event\_context}
+% & (Event = D2:5)
+% & D2:3: Joanna: ``I finally finished my first full screenplay and printed it last Friday.'' \\
+
+% \midrule
+
+% t5 & \texttt{query\_conversation\_time}
+% & (Events = D2:3, D14:1, D24:12, D4:12, D12:14)
+% & D2:3: 2022-01-23; D4:12: 2022-02-25; \\
+% & & & D14:1: 2022-06-03; D24:12: 2022-10-21 \\
+
+% \bottomrule
+% \end{tabular}
+% \label{tab:tool-trace}
+% \end{table*}
+
+
+As shown in Figure~\ref{fig:case_study}, we present a case study illustrating how
+MRAgent performs multi-turn memory reconstruction over a structured memory
+graph. 
+% Table~\ref{tab:tool-trace} reports the sequence of tool invocations, corresponding to the traversal actions selected by the LLM at each reasoning step.
+The query, ``Which of Joanna’s screenplays were rejected by production
+companies?'', requires linking screenplay submission events with subsequent
+rejection events that are distributed across multiple dialogue sessions.
+
+\textbf{MRAgent incrementally reconstructs relevant evidence through iterative
+graph exploration and multi-turn reasoning.}
+In the first reasoning turn, the agent retrieves screenplay submission and
+rejection events by traversing tag-based associations, identifying candidate
+events that are directly related to the query.
+In the second turn, it expands these candidates by querying event-level context
+and keywords to obtain detailed information about each rejection.
+In the third and fourth turns, the agent queries semantic information about
+Joanna to recover properties of her screenplays, enabling a clearer
+characterization of each submission.
+Finally, in the fifth turn, the agent queries temporal information to align
+screenplay submissions with corresponding rejection events and verify their
+ordering.
+
+After five reasoning steps, MRAgent correctly infers that Joanna’s first and
+third screenplays were rejected.
+This example demonstrates that answering complex, multi-session queries
+benefits from active, multi-step memory reconstruction that integrates
+associative expansion with semantic and temporal verification.
+\section{Prompt}
+
+\begin{promptbox}{MRAgent QA and Tool-Use Prompt}
+You are a question-answering agent with access to event-based memory.
+Answer the question if sufficient evidence exists; otherwise, query memory tools to gather more information.
+
+\textbf{Answer Rules:}
+\begin{itemize}[leftmargin=1.25em,itemsep=2pt,topsep=2pt]
+  \item Yes/No questions: output \texttt{Yes}, \texttt{No}, \texttt{Likely yes}, or \texttt{Likely no}.
+  \item Location questions: answer with a specific place name.
+  \item Counting questions: answer with the number of relevant items.
+  \item Other questions: output the minimal concrete entity or phrase.
+\end{itemize}
+
+\textbf{Choose ONE mode:}
+
+\textbf{(1) \texttt{"answer"}} — if evidence is sufficient, output:
+\begin{lstlisting}[style=json]
+{
+  "mode": "answer",
+  "answer": "...",
+  "supports": ["D1:1","D1:2"],
+  "confidence": 0.0-1.0
+}
+\end{lstlisting}
+
+\textbf{(2) \texttt{"navigate"}} — if evidence is insufficient, call all relevant memory tools directly (no explanations).
+\end{promptbox}
+
+\begin{promptbox}{Keyword Extraction Prompt}
+You are an information extraction system. \textbf{Only output valid JSON.}
+
+\textbf{Task:}
+For each input sentence, extract \textbf{2--30 keywords} \emph{directly from the original text}.
+\begin{itemize}[leftmargin=1.25em,itemsep=2pt,topsep=2pt]
+  \item Do not invent, paraphrase, or generalize keywords.
+  \item Only include words or phrases that explicitly appear in the text.
+  \item Do not include inferred or implicit concepts.
+  \item Extract all explicit keywords of the following types if present:
+  \texttt{entity}, \texttt{topic}, \texttt{verb}, \texttt{time}, \texttt{location}, \texttt{task}, \texttt{event}, \texttt{people}.
+\end{itemize}
+
+\textbf{ID Rule:}
+\texttt{sentence\_id} must exactly match the \texttt{id} field in \texttt{TEXT}.  
+Do not create or modify IDs.
+
+\textbf{Output Schema (single-line JSON):}
+\begin{lstlisting}[style=json]
+{
+  "sentence": [
+    {
+      "sentence_id": "D1:1-1",
+      "keyword": ["Coraline", "park"]
+    }
+  ]
+}
+\end{lstlisting}
+\end{promptbox}
+
+
+\begin{promptbox}{Dialogue Processing Prompt}
+You are a dialogue processor. \textbf{Only output valid JSON.}
+
+\textbf{Task:}
+For each sentence in the dialogue:
+\begin{itemize}[leftmargin=1.25em,itemsep=2pt,topsep=2pt]
+  \item Preserve every original sentence.
+  \item Replace all pronouns with explicit entities or noun phrases from context.
+  \item Do not modify verbs, adjectives, or other words.
+  \item Assign a short concrete \texttt{tag} (at most two words).
+  \item Normalize time to \texttt{YYYY-MM-DD} using \texttt{conversation\_time}.
+  \item If a question is answered by the next sentence, merge them.
+\end{itemize}
+
+\textbf{Topics:}
+Derive at least ten concrete topics overall.  
+Assign topic IDs (\texttt{t1..tn}); each sentence lists applicable topics or \texttt{[]}.
+
+\textbf{Personal Information:}
+Extract person-related facts into \texttt{personal\_sentences}.  
+If a fact appears in a sentence, also add a concise normalized version.
+
+\textbf{ID Rules:}
+\texttt{id} must be \texttt{origin:number}, where \texttt{origin} exactly matches \texttt{dia\_id}.  
+Do not invent new IDs.
+
+\textbf{Output Schema (single-line JSON):}
+\begin{lstlisting}[style=json]
+{
+  "conversation_time": "YYYY-MM-DD",
+  "sentence": [
+    {
+      "id": "D1:1-1",
+      "text": "sentence.",
+      "tag": "short tag",
+      "origin": "D1:1",
+      "topic": ["t1","t3"],
+      "time": "YYYY-MM-DD"
+    }
+  ],
+  "topics": {
+    "t1": "Topic description",
+    "t2": "Topic description"
+  },
+  "personal_sentences": [
+    {
+      "id": "p1",
+      "text": "Normalized personal fact.",
+      "tag": "preference",
+      "origin": "D1:1",
+      "person": "Name"
+    }
+  ]
+}
+\end{lstlisting}
+\end{promptbox}
+
+
+% As show in Figure~\ref{fig:case_study}, we present a case to illustrate how MRAgent performs multi-step memory reconstruction over a structured memory graph. Table~\ref{tab:tool-trace} shows the tool call 流程 which is LLM 决定的traversal action.
+% The query, “Which of Joanna’s screenplays were rejected by production companies?”, requires linking screenplay submissions with subsequent rejection events distributed across multiple dialogue sessions.
+
+% \textbf{MRAgent incrementally reconstructs the relevant evidence through iterative graph exploration and multi-step reasoning.}
+% in turn 1, MRAgent 通过edge_by_tag和query_topic_events 瘦了几 screenplay rejection和screenplay submission的相关的具体事件信息，与问题最相关的信息。第二轮通过query event keyword 和query event context需要针对rejection的细节信息进行扩展，第三轮和第四轮 通过对人的semantic信息的询问，了解到Jonna的screenplay的具体信息，第五轮通过对这些事件的时间查询，将rejection和screenplay一一对应得到答案/
+% % Across several reasoning turns, the agent progressively identifies submissions and rejections, disambiguates their correspondence, and verifies temporal consistency to avoid spurious matches.
+% After five reasoning steps, MRAgent correctly infers that Joanna’s first and third screenplays were rejected.
+% This example highlights that complex queries benefit from active, multi-step memory reconstruction that integrates associative expansion and temporal verification.
+
+% Detailed analysis of tool invocations for this case, together with additional case studies covering diverse query types, is provided in the Appendix.
+
+
+
+% \section{Additional Related Work}
+
+%  A-Mem~\cite{DBLP:journals/corr/abs-2502-12110} represents LLM-generated memory notes as nodes in a directed memory graph and retrieves relevant notes through similarity-based seeding followed by neighborhood expansion.
+% MemoryOS~\cite{DBLP:journals/corr/abs-2506-06326} organizes dialogue memory into a hierarchical structure consisting of short-term, mid-term, and long-term memory, and performs retrieval through hierarchical access.
+% Mem0~\cite{DBLP:journals/corr/abs-2504-19413} maintains a compact set of salient facts through LLM-driven insertion, update, and deletion operations, and retrieves relevant facts using similarity-based search to condition response generation.
+% Retrieval-Augmented Generation improves language models by retrieving relevant external evidence and injecting it into the prompt, but typically relies on one-shot similarity-based retrieval over unstructured text. Recent work extends this paradigm by introducing persistent and structured memory representations. For instance, A-MEM organizes interactions into linked memory units and performs retrieval with automatic neighborhood expansion, while Mem0 emphasizes incremental memory maintenance through retrieval-based update operations. Mem0g further represents memory as an entity–relation graph to support structured access, and MemoryOS adopts a hierarchical memory organization with multi-stage filtering. Despite these advances, memory access in existing systems remains predominantly one-shot, as retrieval and expansion strategies are determined upfront and remain independent of the agent’s intermediate reasoning state, which limits selective evidence reconstruction in multi-step reasoning scenarios.
+
+
+% Initial Evidence Discovery.
+% In the first reasoning stage, MRAgent focuses on identifying the core factual components of the question—screenplay submission and rejection.
+% Using topic-level retrieval, the agent successfully discovers two rejection events associated with Joanna.
+% In parallel, tag-conditioned queries retrieve multiple screenplay submission records.
+% At this point, although both submissions and rejections have been located, their correspondence remains ambiguous, requiring further exploration.
+
+% Evidence Refinement and Disambiguation.
+% In subsequent reasoning steps, MRAgent supplements the initial findings by querying detailed rejection contexts, gradually enriching the representation of each rejection event.
+% The agent then binds screenplay identifiers to their corresponding content, ensuring that each rejection is matched with the correct screenplay rather than conflating similar or repeated mentions across sessions.
+
+% Temporal Verification.
+% To avoid misalignment caused by recurring or overlapping events, MRAgent explicitly inspects the timeline of submissions and rejections.
+% Temporal reasoning plays a critical role in this stage: by checking event timestamps, the agent prevents duplicate extraction of the same rejection across different sessions and avoids incorrectly pairing unrelated events.
+
+% Final Reasoning and Answer Construction.
+% After five rounds of reasoning, MRAgent has gathered all relevant evidence and reconstructs the complete memory structure linking screenplay submissions to their corresponding rejections.
+% Based on this reconstructed graph, the agent correctly infers that Joanna’s first screenplay (focused on drama and romance) and her third screenplay (centered on loss, identity, and connection) were rejected by production companies.
+
+% This example highlights several key properties of MRAgent.
+% First, it demonstrates effective coordination of multiple tools, including keyword-based retrieval, tag-conditioned expansion, topic-level querying, event-specific inspection, and temporal verification.
+% Second, it shows that in complex scenarios, critical evidence nodes can be reached through multiple distinct paths, reflecting the robustness of the memory graph representation.
+% Finally, it illustrates how retrieval in MRAgent is not a passive lookup but a controlled, reasoning-driven exploration process that reconstructs coherent memory from fragmented multi-session interactions.
+
+% You can have as much text here as you want. The main body must be at most $8$
+% pages long. For the final version, one more page can be added. If you want, you
+% can use an appendix like this one.
+
+% The $\mathtt{\backslash onecolumn}$ command above can be kept in place if you
+% prefer a one-column appendix, or can be removed if you prefer a two-column
+% appendix.  Apart from this possible change, the style (font size, spacing,
+% margins, page numbering, etc.) should be kept the same as the main body.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

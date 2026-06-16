@@ -1,0 +1,42 @@
+\begin{table}[!b]
+\centering
+\captionsetup{font=normalsize,skip=2pt}
+\setlength{\tabcolsep}{1pt}
+\renewcommand{\arraystretch}{2}
+\caption{Summary of the evaluation paradigm shift from final-answer scoring to process judgment and workspace-level task closure.}
+\label{tab:evaluation_paradigm_shift}
+\fontsize{9pt}{8pt}\selectfont
+\resizebox{\columnwidth}{!}{
+\begin{tabular}{@{} p{0.1\columnwidth} p{0.20\columnwidth} p{0.23\columnwidth} p{0.2\columnwidth} p{0.25\columnwidth} @{}}
+\toprule
+\textbf{Stage} & \textbf{Evaluation Object} & \textbf{Core Metrics} & \textbf{Representative Benchmarks} & \textbf{Main Limitation} \\
+\midrule
+
+Final-Output Evaluation &
+Static answers, labels, generated text, or executable final outputs &
+Accuracy, exact match, BLEU/ROUGE, preference win rate, and Pass@1 &
+MMLU, GSM8K / MATH, GPQA / FrontierMath, BIG-Bench / HELM &
+Scores the endpoint but cannot reveal whether the model used a valid reasoning path or merely reached the right answer accidentally \\
+
+Process-Level Evaluation &
+Reasoning traces, intermediate steps, critiques, and verification paths &
+Step correctness, judge preference, process-reward quality, consistency, and contamination resistance &
+Hard2Verify / DeltaBench, ProcessBench / PRMBench &
+Improves trace inspection but may rely on judge models, incomplete process labels, or reasoning that is not grounded in external state \\
+
+Task-Closure Evaluation &
+Interactive trajectories and final workspace states after tool, web, file, or UI operations &
+Task success rate, final-state verification, tool-call efficiency, reliability, reproducibility, and trajectory-level safety &
+SWE-bench, WebArena, OSWorld, ToolSandbox / $\tau$-bench &
+Requires executable environments, reproducible initial states, trajectory logs, replay mechanisms, and costly final-state checks \\
+
+Workspace OpenClaw Evaluation &
+Persistent workspaces with skills, permissions, snapshots, external services, and auditable action chains &
+Closure rate, unsafe-action rate, rollback behavior, skill stability, state diffs, auditability, and governance compliance &
+Claw-Eval, ClawBench, ClawsBench, ATBench-Claw, ClawSafety &
+Makes evaluation realistic but increases infrastructure cost, safety risk, simulator-design burden, and cross-run comparability challenges \\
+
+\bottomrule
+\end{tabular}
+}
+\end{table}

@@ -1,0 +1,255 @@
+\begin{thebibliography}{50}
+\providecommand{\natexlab}[1]{#1}
+
+\bibitem[{Bahmani et~al.(2025)Bahmani, Skorokhodov, Qian, Siarohin, Menapace, Tagliasacchi, Lindell, and Tulyakov}]{bahmani2025ac3d}
+Bahmani, S.; Skorokhodov, I.; Qian, G.; Siarohin, A.; Menapace, W.; Tagliasacchi, A.; Lindell, D.~B.; and Tulyakov, S. 2025.
+\newblock {AC3D: Analyzing and Improving 3D Camera Control in Video Diffusion Transformers}.
+\newblock In \emph{Proceedings of the Computer Vision and Pattern Recognition Conference}, 22875--22889.
+
+\bibitem[{Bai et~al.(2025{\natexlab{a}})Bai, Xia, Fu, Wang, Mu, Cao, Liu, Hu, Bai, Wan et~al.}]{bai2025recammaster}
+Bai, J.; Xia, M.; Fu, X.; Wang, X.; Mu, L.; Cao, J.; Liu, Z.; Hu, H.; Bai, X.; Wan, P.; et~al. 2025{\natexlab{a}}.
+\newblock {ReCamMaster: Camera-Controlled Generative Rendering from A Single Video}.
+\newblock In \emph{Proceedings of the IEEE/CVF International Conference on Computer Vision}, 14834--14844.
+
+\bibitem[{Bai et~al.(2025{\natexlab{b}})Bai, Cai, Chen, Chen, Chen, Cheng, Deng, Ding, Gao, Ge et~al.}]{bai2025qwen3}
+Bai, S.; Cai, Y.; Chen, R.; Chen, K.; Chen, X.; Cheng, Z.; Deng, L.; Ding, W.; Gao, C.; Ge, C.; et~al. 2025{\natexlab{b}}.
+\newblock {Qwen3-VL Technical Report}.
+\newblock \emph{arXiv preprint arXiv:2511.21631}.
+
+\bibitem[{Bar-Tal et~al.(2024)Bar-Tal, Chefer, Tov, Herrmann, Paiss, Zada, Ephrat, Hur, Liu, Raj et~al.}]{bar2024lumiere}
+Bar-Tal, O.; Chefer, H.; Tov, O.; Herrmann, C.; Paiss, R.; Zada, S.; Ephrat, A.; Hur, J.; Liu, G.; Raj, A.; et~al. 2024.
+\newblock {Lumiere: A Space-Time Diffusion Model for Video Generation}.
+\newblock In \emph{SIGGRAPH Asia 2024 Conference Papers}, 1--11.
+
+\bibitem[{Blattmann et~al.(2023)Blattmann, Dockhorn, Kulal, Mendelevitch, Kilian, Lorenz, Levi, English, Voleti, Letts et~al.}]{blattmann2023stable}
+Blattmann, A.; Dockhorn, T.; Kulal, S.; Mendelevitch, D.; Kilian, M.; Lorenz, D.; Levi, Y.; English, Z.; Voleti, V.; Letts, A.; et~al. 2023.
+\newblock {Stable Video Diffusion: Scaling Latent Video Diffusion Models to Large Datasets}.
+\newblock \emph{arXiv preprint arXiv:2311.15127}.
+
+\bibitem[{Chen et~al.(2024)Chen, Zhang, Cun, Xia, Wang, Weng, and Shan}]{chen2024videocrafter2}
+Chen, H.; Zhang, Y.; Cun, X.; Xia, M.; Wang, X.; Weng, C.; and Shan, Y. 2024.
+\newblock {VideoCrafter2: Overcoming Data Limitations for High-Quality Video Diffusion Models}.
+\newblock In \emph{Proceedings of the IEEE/CVF conference on computer vision and pattern recognition}, 7310--7320.
+
+\bibitem[{Chen et~al.(2023{\natexlab{a}})Chen, Ji, Wu, Wu, Xie, Li, Xia, Xiao, and Lin}]{chen2023control}
+Chen, W.; Ji, Y.; Wu, J.; Wu, H.; Xie, P.; Li, J.; Xia, X.; Xiao, X.; and Lin, L. 2023{\natexlab{a}}.
+\newblock {Control-A-Video: Controllable Text-to-Video Diffusion Models with Motion Prior and Reward Feedback Learning}.
+\newblock \emph{arXiv preprint arXiv:2305.13840}.
+
+\bibitem[{Chen et~al.(2023{\natexlab{b}})Chen, Wang, Zhang, Zhuang, Ma, Yu, Wang, Lin, Qiao, and Liu}]{chen2023seine}
+Chen, X.; Wang, Y.; Zhang, L.; Zhuang, S.; Ma, X.; Yu, J.; Wang, Y.; Lin, D.; Qiao, Y.; and Liu, Z. 2023{\natexlab{b}}.
+\newblock {Seine: Short-to-Long Video Diffusion Model for Generative Transition and Prediction}.
+\newblock In \emph{The Twelfth International Conference on Learning Representations}.
+
+\bibitem[{Cseti(2024)}]{cseti2024ltx23}
+Cseti. 2024.
+\newblock {LTX2.3-22B\_IC-LoRA-Cameraman\_v1}.
+\newblock \url{https://huggingface.co/Cseti/LTX2.3-22B_IC-LoRA-Cameraman_v1}.
+\newblock Hugging Face Model Repository.
+
+\bibitem[{Esser et~al.(2024)Esser, Kulal, Blattmann, Entezari, M{\"u}ller, Saini, Levi, Lorenz, Sauer, Boesel et~al.}]{esser2024scaling}
+Esser, P.; Kulal, S.; Blattmann, A.; Entezari, R.; M{\"u}ller, J.; Saini, H.; Levi, Y.; Lorenz, D.; Sauer, A.; Boesel, F.; et~al. 2024.
+\newblock {Scaling Rectified Flow Transformers for High-Resolution Image Synthesis}.
+\newblock In \emph{Forty-first international conference on machine learning}.
+
+\bibitem[{Girdhar et~al.(2024)Girdhar, Singh, Brown, Duval, Azadi, Rambhatla, Shah, Yin, Parikh, and Misra}]{girdhar2024factorizing}
+Girdhar, R.; Singh, M.; Brown, A.; Duval, Q.; Azadi, S.; Rambhatla, S.~S.; Shah, A.; Yin, X.; Parikh, D.; and Misra, I. 2024.
+\newblock {Factorizing Text-to-Video Generation by Explicit Image Conditioning}.
+\newblock In \emph{European Conference on Computer Vision}, 205--224. Springer.
+
+\bibitem[{Guo et~al.(2023)Guo, Yang, Rao, Liang, Wang, Qiao, Agrawala, Lin, and Dai}]{guo2023animatediff}
+Guo, Y.; Yang, C.; Rao, A.; Liang, Z.; Wang, Y.; Qiao, Y.; Agrawala, M.; Lin, D.; and Dai, B. 2023.
+\newblock {AnimateDiff: Animate Your Personalized Text-to-Image Diffusion Models without Specific Tuning}.
+\newblock \emph{arXiv preprint arXiv:2307.04725}.
+
+\bibitem[{HaCohen et~al.(2025)HaCohen, Brazowski, Chiprut, Bitterman, Kvochko, Berkowitz, Shalem, Lifschitz, Moshe, Porat, Richardson, Shiran, Chachy, Chetboun, Finkelson, Kupchick, Zabari, Guetta, Kotler, Bibi, Gordon, Panet, Benita, Armon, Kulikov, Inger, Shiftan, Melumian, and Farbman}]{hacohen2025ltx2}
+HaCohen, Y.; Brazowski, B.; Chiprut, N.; Bitterman, Y.; Kvochko, A.; Berkowitz, A.; Shalem, D.; Lifschitz, D.; Moshe, D.; Porat, E.; Richardson, E.; Shiran, G.; Chachy, I.; Chetboun, J.; Finkelson, M.; Kupchick, M.; Zabari, N.; Guetta, N.; Kotler, N.; Bibi, O.; Gordon, O.; Panet, P.; Benita, R.; Armon, S.; Kulikov, V.; Inger, Y.; Shiftan, Y.; Melumian, Z.; and Farbman, Z. 2025.
+\newblock {LTX-2: Efficient Joint Audio-Visual Foundation Model}.
+\newblock \emph{arXiv preprint arXiv:2601.03233}.
+
+\bibitem[{He et~al.(2024)He, Xu, Guo, Wetzstein, Dai, Li, and Yang}]{he2024cameractrl}
+He, H.; Xu, Y.; Guo, Y.; Wetzstein, G.; Dai, B.; Li, H.; and Yang, C. 2024.
+\newblock {CameraCtrl: Enabling Camera Control for Text-to-Video Generation}.
+\newblock \emph{arXiv preprint arXiv:2404.02101}.
+
+\bibitem[{He et~al.(2025)He, Yang, Lin, Xu, Wei, Gui, Zhao, Wetzstein, Jiang, and Li}]{he2025cameractrlii}
+He, H.; Yang, C.; Lin, S.; Xu, Y.; Wei, M.; Gui, L.; Zhao, Q.; Wetzstein, G.; Jiang, L.; and Li, H. 2025.
+\newblock {CameraCtrl II: Dynamic Scene Exploration via Camera-Controlled Video Diffusion Models}.
+\newblock In \emph{Proceedings of the IEEE/CVF International Conference on Computer Vision}, 13416--13426.
+
+\bibitem[{Ho et~al.(2022{\natexlab{a}})Ho, Chan, Saharia, Whang, Gao, Gritsenko, Kingma, Poole, Norouzi, Fleet et~al.}]{ho2022imagen}
+Ho, J.; Chan, W.; Saharia, C.; Whang, J.; Gao, R.; Gritsenko, A.; Kingma, D.~P.; Poole, B.; Norouzi, M.; Fleet, D.~J.; et~al. 2022{\natexlab{a}}.
+\newblock {Imagen Video: High Definition Video Generation with Diffusion Models}.
+\newblock \emph{arXiv preprint arXiv:2210.02303}.
+
+\bibitem[{Ho, Jain, and Abbeel(2020)}]{ho2020denoising}
+Ho, J.; Jain, A.; and Abbeel, P. 2020.
+\newblock {Denoising Diffusion Probabilistic Models}.
+\newblock \emph{Advances in neural information processing systems}, 33: 6840--6851.
+
+\bibitem[{Ho et~al.(2022{\natexlab{b}})Ho, Salimans, Gritsenko, Chan, Norouzi, and Fleet}]{ho2022video}
+Ho, J.; Salimans, T.; Gritsenko, A.; Chan, W.; Norouzi, M.; and Fleet, D.~J. 2022{\natexlab{b}}.
+\newblock {Video Diffusion Models}.
+\newblock \emph{Advances in neural information processing systems}, 35: 8633--8646.
+
+\bibitem[{Hu(2024)}]{hu2024animate}
+Hu, L. 2024.
+\newblock {Animate Anyone: Consistent and Controllable Image-to-Video Synthesis for Character Animation}.
+\newblock In \emph{Proceedings of the IEEE/CVF conference on computer vision and pattern recognition}, 8153--8163.
+
+\bibitem[{Hu et~al.(2024)Hu, Zhang, Yi, Wang, Huang, Weng, Wang, and Ma}]{hu2024motionmaster}
+Hu, T.; Zhang, J.; Yi, R.; Wang, Y.; Huang, H.; Weng, J.; Wang, Y.; and Ma, L. 2024.
+\newblock {MotionMaster: Training-Free Camera Motion Transfer for Video Generation}.
+\newblock \emph{arXiv preprint arXiv:2404.15789}.
+
+\bibitem[{Kannala and Brandt(2006)}]{kannala2006generic}
+Kannala, J.; and Brandt, S.~S. 2006.
+\newblock A generic camera model and calibration method for conventional, wide-angle, and fish-eye lenses.
+\newblock \emph{IEEE transactions on pattern analysis and machine intelligence}, 28(8): 1335--1340.
+
+\bibitem[{Keetha et~al.(2026)Keetha, M{\"u}ller, Sch{\"o}nberger, Porzi, Zhang, Fischer, Knapitsch, Zauss, Weber, Antunes et~al.}]{keetha2026mapanything}
+Keetha, N.; M{\"u}ller, N.; Sch{\"o}nberger, J.; Porzi, L.; Zhang, Y.; Fischer, T.; Knapitsch, A.; Zauss, D.; Weber, E.; Antunes, N.; et~al. 2026.
+\newblock {MapAnything: Universal Feed-Forward Metric 3D Reconstruction}.
+\newblock In \emph{2026 International Conference on 3D Vision (3DV)}, 499--509. IEEE.
+
+\bibitem[{Li et~al.(2024)Li, Lai, Xu, Qu, Cao, Zhang, Dai, and Ji}]{li2024director3d}
+Li, X.; Lai, Z.; Xu, L.; Qu, Y.; Cao, L.; Zhang, S.; Dai, B.; and Ji, R. 2024.
+\newblock {Director3D: Real-World Camera Trajectory and 3D Scene Generation from Text}.
+\newblock \emph{Advances in neural information processing systems}, 37: 75125--75151.
+
+\bibitem[{Lin et~al.(2025)Lin, Chen, Liew, Chen, Li, Shi, Feng, and Kang}]{lin2025dpa3}
+Lin, H.; Chen, S.; Liew, J.; Chen, D.~Y.; Li, Z.; Shi, G.; Feng, J.; and Kang, B. 2025.
+\newblock {Depth Anything 3: Recovering the Visual Space from Any Views}.
+\newblock \emph{arXiv preprint arXiv:2511.10647}.
+
+\bibitem[{Ling et~al.(2024)Ling, Bu, Zhang, Dong, Zang, Wu, Chen, Wang, and Jin}]{ling2024motionclone}
+Ling, P.; Bu, J.; Zhang, P.; Dong, X.; Zang, Y.; Wu, T.; Chen, H.; Wang, J.; and Jin, Y. 2024.
+\newblock {MotionClone: Training-Free Motion Cloning for Controllable Video Generation}.
+\newblock \emph{arXiv e-prints}, arXiv--2406.
+
+\bibitem[{Luo et~al.(2025)Luo, Shi, Bai, Xia, Xue, Wang, Wan, Zhang, and Gai}]{luo2025camclonemaster}
+Luo, Y.; Shi, X.; Bai, J.; Xia, M.; Xue, T.; Wang, X.; Wan, P.; Zhang, D.; and Gai, K. 2025.
+\newblock {CamCloneMaster: Enabling Reference-Based Camera Control for Video Generation}.
+\newblock In \emph{Proceedings of the SIGGRAPH Asia 2025 Conference Papers}, 1--10.
+
+\bibitem[{Luo et~al.(2026)Luo, Shi, Zhuang, Chen, Liu, Wang, Wan, and Xue}]{luo2026shotstream}
+Luo, Y.; Shi, X.; Zhuang, J.; Chen, Y.; Liu, Q.; Wang, X.; Wan, P.; and Xue, T. 2026.
+\newblock {ShotStream: Streaming Multi-Shot Video Generation for Interactive Storytelling}.
+\newblock \emph{arXiv preprint arXiv:2603.25746}.
+
+\bibitem[{Ma et~al.(2025)Ma, Wang, Chen, Jia, Liu, Li, Chen, and Qiao}]{malatte}
+Ma, X.; Wang, Y.; Chen, X.; Jia, G.; Liu, Z.; Li, Y.-F.; Chen, C.; and Qiao, Y. 2025.
+\newblock {Latte: Latent Diffusion Transformer for Video Generation}.
+\newblock \emph{Transactions on Machine Learning Research}.
+
+\bibitem[{Meng et~al.(2026{\natexlab{a}})Meng, Che, Wei, and Cao}]{meng2026make}
+Meng, Z.; Che, J.; Wei, B.; and Cao, X. 2026{\natexlab{a}}.
+\newblock Make a Game: A Novel Paradigm for Interactive Game Rendering.
+\newblock In \emph{ICASSP 2026-2026 IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP)}, 1026--1030. IEEE.
+
+\bibitem[{Meng et~al.(2026{\natexlab{b}})Meng, Liu, Liu, Tong, Liu, Zhang, Xu, and Wan}]{meng2026argusstackedmultiviewidentity}
+Meng, Z.; Liu, J.; Liu, Y.; Tong, C.; Liu, X.; Zhang, Y.; Xu, Y.; and Wan, P. 2026{\natexlab{b}}.
+\newblock ARGUS: Stacked Multi-View Identity Mosaic Injection for Subject-Preserving Video Generation.
+\newblock arXiv:2606.11670.
+
+\bibitem[{Mou et~al.(2024)Mou, Wang, Xie, Wu, Zhang, Qi, and Shan}]{mou2024t2i}
+Mou, C.; Wang, X.; Xie, L.; Wu, Y.; Zhang, J.; Qi, Z.; and Shan, Y. 2024.
+\newblock {T2I-Adapter: Learning Adapters to Dig Out More Controllable Ability for Text-to-Image Diffusion Models}.
+\newblock In \emph{Proceedings of the AAAI conference on artificial intelligence}, volume~38, 4296--4304.
+
+\bibitem[{Peebles and Xie(2023)}]{peebles2023scalable}
+Peebles, W.; and Xie, S. 2023.
+\newblock {Scalable Diffusion Models with Transformers}.
+\newblock In \emph{Proceedings of the IEEE/CVF international conference on computer vision}, 4195--4205.
+
+\bibitem[{Polyak et~al.(2024)Polyak, Zohar, Brown, Tjandra, Sinha, Lee, Vyas, Shi, Ma, Chuang et~al.}]{polyak2024movie}
+Polyak, A.; Zohar, A.; Brown, A.; Tjandra, A.; Sinha, A.; Lee, A.; Vyas, A.; Shi, B.; Ma, C.-Y.; Chuang, C.-Y.; et~al. 2024.
+\newblock {Movie Gen: A Cast of Media Foundation Models}.
+\newblock \emph{arXiv preprint arXiv:2410.13720}.
+
+\bibitem[{Ren et~al.(2024)Ren, Yang, Zhang, Wei, Du, Huang, and Chen}]{renconsisti2v}
+Ren, W.; Yang, H.; Zhang, G.; Wei, C.; Du, X.; Huang, W.; and Chen, W. 2024.
+\newblock {ConsistI2V: Enhancing Visual Consistency for Image-to-Video Generation}.
+\newblock \emph{Transactions on Machine Learning Research}.
+
+\bibitem[{Seedance et~al.(2026)Seedance, Chen, Chen, Chen, Chen, Chen, Chen, Cheng, Cheng, Cheng et~al.}]{seedance2026seedance}
+Seedance, T.; Chen, D.; Chen, L.; Chen, X.; Chen, Y.; Chen, Z.; Chen, Z.; Cheng, F.; Cheng, T.; Cheng, Y.; et~al. 2026.
+\newblock {Seedance 2.0: Advancing Video Generation for World Complexity}.
+\newblock \emph{arXiv preprint arXiv:2604.14148}.
+
+\bibitem[{Singer et~al.(2022)Singer, Polyak, Hayes, Yin, An, Zhang, Hu, Yang, Ashual, Gafni et~al.}]{singer2022make}
+Singer, U.; Polyak, A.; Hayes, T.; Yin, X.; An, J.; Zhang, S.; Hu, Q.; Yang, H.; Ashual, O.; Gafni, O.; et~al. 2022.
+\newblock {Make-a-Video: Text-to-Video Generation without Text-Video Data}.
+\newblock \emph{arXiv preprint arXiv:2209.14792}.
+
+\bibitem[{Soucek and Lokoc(2024)}]{soucek2024transnetv2}
+Soucek, T.; and Lokoc, J. 2024.
+\newblock {TransNet v2: An Effective Deep Network Architecture for Fast Shot Transition Detection}.
+\newblock In \emph{Proceedings of the 32nd ACM International Conference on Multimedia}, 11218--11221.
+
+\bibitem[{Villegas et~al.(2023)Villegas, Moraldo, Castro, Babaeizadeh, Zhang, Kunze, Kindermans, Saffar, and Erhan}]{villegas2023phenaki}
+Villegas, R.; Moraldo, H.; Castro, S.; Babaeizadeh, M.; Zhang, H.; Kunze, J.; Kindermans, P.; Saffar, M.; and Erhan, D. 2023.
+\newblock {Phenaki: Variable Length Video Generation from Open Domain Textual Descriptions}.
+\newblock In \emph{11th International Conference on Learning Representations, ICLR 2023}. International Conference on Learning Representations (ICLR).
+
+\bibitem[{Wang et~al.(2025)Wang, Luo, Shi, Jia, Lu, Xue, Wang, Wan, Zhang, and Gai}]{wang2025cinemaster}
+Wang, Q.; Luo, Y.; Shi, X.; Jia, X.; Lu, H.; Xue, T.; Wang, X.; Wan, P.; Zhang, D.; and Gai, K. 2025.
+\newblock {CineMaster: A 3D-Aware and Controllable Framework for Cinematic Text-to-Video Generation}.
+\newblock In \emph{Proceedings of the Special Interest Group on Computer Graphics and Interactive Techniques Conference Conference Papers}, 1--10.
+
+\bibitem[{Wang et~al.(2026)Wang, Shi, Li, Bian, Liu, Lu, Wang, Wan, Gai, and Jia}]{wang2026multishotmaster}
+Wang, Q.; Shi, X.; Li, B.; Bian, W.; Liu, Q.; Lu, H.; Wang, X.; Wan, P.; Gai, K.; and Jia, X. 2026.
+\newblock {MultishotMaster: A Controllable Multi-shot Video Generation Framework}.
+\newblock In \emph{Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition}, 16268--16278.
+
+\bibitem[{Wang et~al.(2023)Wang, Yuan, Zhang, Chen, Wang, Zhang, Shen, Zhao, and Zhou}]{wang2023videocomposer}
+Wang, X.; Yuan, H.; Zhang, S.; Chen, D.; Wang, J.; Zhang, Y.; Shen, Y.; Zhao, D.; and Zhou, J. 2023.
+\newblock {Videocomposer: Compositional Video Synthesis with Motion Controllability}.
+\newblock \emph{Advances in Neural Information Processing Systems}, 36: 7594--7611.
+
+\bibitem[{Wang et~al.(2024)Wang, Yuan, Wang, Li, Chen, Xia, Luo, and Shan}]{wang2024motionctrl}
+Wang, Z.; Yuan, Z.; Wang, X.; Li, Y.; Chen, T.; Xia, M.; Luo, P.; and Shan, Y. 2024.
+\newblock {MotionCtrl: A Unified and Flexible Motion Controller for Video Generation}.
+\newblock In \emph{ACM SIGGRAPH 2024 Conference Papers}, 1--11.
+
+\bibitem[{Wu et~al.(2025)Wu, Gao, Qiao, Wang, and Chen}]{wu2025cinetrans}
+Wu, X.; Gao, B.; Qiao, Y.; Wang, Y.; and Chen, X. 2025.
+\newblock {CineTrans: Learning to Generate Videos with Cinematic Transitions via Masked Diffusion Models}.
+\newblock \emph{arXiv preprint arXiv:2508.11484}.
+
+\bibitem[{Xing et~al.(2024)Xing, Xia, Zhang, Chen, Yu, Liu, Liu, Wang, Shan, and Wong}]{xing2024dynamicrafter}
+Xing, J.; Xia, M.; Zhang, Y.; Chen, H.; Yu, W.; Liu, H.; Liu, G.; Wang, X.; Shan, Y.; and Wong, T.-T. 2024.
+\newblock {Dynamicrafter: Animating Open-Domain Images with Video Diffusion Priors}.
+\newblock In \emph{European Conference on Computer Vision}, 399--417. Springer.
+
+\bibitem[{Xu et~al.(2024)Xu, Nie, Liu, Liu, Kautz, Wang, and Vahdat}]{xu2024camco}
+Xu, D.; Nie, W.; Liu, C.; Liu, S.; Kautz, J.; Wang, Z.; and Vahdat, A. 2024.
+\newblock {CamCo: Camera-Controllable 3D-Consistent Image-to-Video Generation}.
+\newblock \emph{arXiv preprint arXiv:2406.02509}.
+
+\bibitem[{Yin et~al.(2023)Yin, Wu, Liang, Shi, Li, Ming, and Duan}]{yin2023dragnuwa}
+Yin, S.; Wu, C.; Liang, J.; Shi, J.; Li, H.; Ming, G.; and Duan, N. 2023.
+\newblock {Dragnuwa: Fine-Grained Control in Video Generation by Integrating Text, Image, and Trajectory}.
+\newblock \emph{arXiv preprint arXiv:2308.08089}.
+
+\bibitem[{Zhang, Rao, and Agrawala(2023)}]{zhang2023adding}
+Zhang, L.; Rao, A.; and Agrawala, M. 2023.
+\newblock {Adding Conditional Control to Text-to-Image Diffusion Models}.
+\newblock In \emph{Proceedings of the IEEE/CVF international conference on computer vision}, 3836--3847.
+
+\bibitem[{Zhang et~al.(2023)Zhang, Wang, Zhang, Zhao, Yuan, Qin, Wang, Zhao, and Zhou}]{zhang2023i2vgen}
+Zhang, S.; Wang, J.; Zhang, Y.; Zhao, K.; Yuan, H.; Qin, Z.; Wang, X.; Zhao, D.; and Zhou, J. 2023.
+\newblock {I2VGen-XL: High-Quality Image-to-Video Synthesis via Cascaded Diffusion Models}.
+\newblock \emph{arXiv preprint arXiv:2311.04145}.
+
+\bibitem[{Zhao et~al.(2024)Zhao, Gu, Wu, Zhang, Liu, Wu, Keppo, and Shou}]{zhao2024motiondirector}
+Zhao, R.; Gu, Y.; Wu, J.~Z.; Zhang, D.~J.; Liu, J.-W.; Wu, W.; Keppo, J.; and Shou, M.~Z. 2024.
+\newblock {MotionDirector: Motion Customization of Text-to-Video Diffusion Models}.
+\newblock In \emph{European Conference on Computer Vision}, 273--290. Springer.
+
+\bibitem[{Zheng et~al.(2024)Zheng, Li, Jiang, Lu, Wu, and Li}]{zheng2024cami2v}
+Zheng, G.; Li, T.; Jiang, R.; Lu, Y.; Wu, T.; and Li, X. 2024.
+\newblock {CamT2V: Camera-Controlled Image-to-Video Diffusion Model}.
+\newblock \emph{arXiv preprint arXiv:2410.15957}.
+
+\end{thebibliography}

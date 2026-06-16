@@ -1,0 +1,227 @@
+\subsection{Evaluation Paradigm Shift: From Output Scoring to Task-State Verification}
+\headingnote{From ``Final-Answer Accuracy'' to ``Process Judgment'' and ``Task Closure''}
+
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=\textwidth]{figure/eval.pdf}
+    \caption{Evaluation paradigm shift: evaluation moves from final-answer correctness to process judgment and task closure. The figure summarizes how next-generation systems must be assessed by reasoning validity, environment state changes, reliability, efficiency, reproducibility, and safety.}
+    \label{fig:eval}
+\end{figure}
+
+\input{figure/tab_evaluation}
+
+As shown in Figure~\ref{fig:eval}, evaluation evolves with the object being evaluated through three stages.
+First, static-input tasks are scored by final-output correctness metrics such as accuracy~\citep{clawguard2026repo,caisi2026openclawcontrol,huntress2026fakeopenclaw,knownsec2026openclawsecurity,mitre2026openclawatlas}.
+Second, long reasoning traces are inspected by LLM-as-a-judge and process-level verifiers for coherence, faithfulness, and correctness~\citep{oasis2026browserbackdoor,securityscorecard2026openclawexposure,gulyamov2026prompt,zhan2024injecagent}.
+Third, agentic systems are judged by task closure: whether tool use and environment changes leave the workspace in a state that satisfies the user's intent.
+Table~\ref{tab:evaluation_paradigm_shift} summarizes this shift from final-answer evaluation to process judgment and workspace-level task-state verification~\citep{derner2024security,mathew2024enhancing,debenedetti2024agentdojo,alnuaimi2025advancing,tanveer2026prompt}.
+
+
+\subsubsection{Stage I: Final-Output Accuracy and Answer Correctness}
+
+The first evaluation stage treats the model primarily as a generator of final answers. The central object is a single output: whether it matches a reference answer, satisfies a label, or is preferred as a response. For classification, multiple-choice QA, and short-answer reasoning tasks, simple metrics such as accuracy directly measure final-answer correctness. MMLU evaluates multi-subject knowledge through multiple-choice accuracy, while GSM8K and MATH evaluate mathematical reasoning by final-answer correctness \citep{hendrycks2020mmlu,cobbe2021gsm8k,hendrycks2021math}. Earlier generation metrics such as BLEU and ROUGE compare final text with references through n-gram overlap or summary similarity \citep{papineni2002bleu,lin2004rouge}. BIG-Bench and HELM broaden this paradigm across tasks and dimensions, but the evaluation unit remains the produced answer \citep{srivastava2022bigbench,liang2022helm,maloyan2026prompt,joseph2025prompt,kalliomaki2025large,li2026security,chhabra2025agentic}.
+
+This initial stage is effective when the task has a clear label, executable answer, or reference output. It is also relatively easy to scale because outputs can be scored automatically. However, final-output accuracy has an important methodological limitation: it does not explain how the answer was obtained. A model may produce the correct answer for the wrong reason, or produce a wrong answer after an almost correct chain of reasoning. Therefore, as LLMs begin to solve harder problems through long reasoning traces, evaluation must move beyond Acc-style final-result scoring and ask whether the reasoning process itself is valid and reliable~\citep{gosmar2025prompt,vincent2025securing,yadav2025adversial,anand2026securing,li2025security}. Table~\ref{tab:stage1_final_output} lists representative models and methods under this traditional final-output evaluation setting.
+
+\input{figure/tab_stage1_final_output}
+
+\input{figure/tab_stage2_process_level}
+
+\subsubsection{Stage II: LLM-as-Judge for Long-Chain Reasoning and Process Verification}
+
+The second stage emerges when the model's output is no longer just an answer but a long reasoning chain. For Thinking LLMs, the evaluation target expands from is the final answer correct?'' tois the reasoning trajectory correct, coherent, and verifiable?'' Mathematical and scientific benchmarks such as AIME, GPQA, FrontierMath, Humanity's Last Exam, MMLU-Pro, and MMMU increase problem difficulty and make shallow answer matching less reliable \citep{rein2023gpqa,glazer2024frontiermath,phan2025hle,wang2024mmlupro,yue2023mmmu}. Code benchmarks provide process-sensitive verification: generated programs can be executed, and metrics such as Pass@1 test whether the first solution passes unit tests \citep{chen2021evaluating,jain2024livecodebench,evtimov2026wasp,geng2026prompt,chintala2025trustworthy,faccia2025prompting,wang2025comprehensive}.
+
+In this stage, LLM-as-a-judge becomes essential as intermediate chains lack simple reference labels. Extending the pairwise preferences of MT-Bench and Chatbot Arena \citep{zheng2023judging}, judge models can inspect reasoning traces for step-by-step logic, hidden assumptions, and final support. ProcessBench and PRMBench make this process-level evaluation explicit by testing if models can identify incorrect intermediate steps \citep{zheng2024processbench,song2025prmbench}. Meanwhile, LiveBench and ARC-AGI-2 emphasize dynamic, abstraction-oriented evaluations to reduce contamination \citep{white2024livebench,chollet2025arcagi2}. Thus, evaluation shifts from scoring only endpoints to judging the long-chain reasoning process itself~\citep{wilson2024developer,del2025architecting,wang2026safeclaw,shah2026building,wang2026reframing,dong2024clr}. Table~\ref{tab:stage2_process_level} summarizes these representative methods and scores.
+
+
+\input{figure/tab_stage3_task_closure}
+\subsubsection{Stage III: Agent \& OpenClaw Era: Task Closure Rate}
+
+The third stage appears when LLMs become agents that operate tools, call APIs, browse websites, write files, and modify external environments. At this point, neither final-answer accuracy nor process judgment is sufficient. A reasoning trace may look valid, but the task is still incomplete if the code does not pass tests, the web order is not submitted, the document is not updated, or the calendar event is created with the wrong constraints. The evaluation target therefore becomes task closure: whether the system can transform an initial environment state into the intended final state. SWE-bench evaluates software-engineering agents by whether real GitHub issues are resolved through patches that pass tests, while WebShop and WebArena evaluate whether agents can complete interactive web tasks rather than merely describe how to do them \citep{jimenez2023swebench,yao2022webshop,zhou2023webarena}. Mind2Web, OSWorld, WorkArena, ToolSandbox, and $\tau$-bench broaden this closure-based perspective to offline web traces, desktop operating systems, enterprise workflows, stateful tool use, and multi-turn user-tool interaction \citep{deng2023mind2web,xie2024osworld,drouin2024workarena,lu2024toolsandbox,yao2024taubench,hutoward,grimes2025sok,pirch2026toward,dehghantanha2026sok,ray2025survey}. Table~\ref{tab:stage3_task_closure} compares representative task-closure evaluation results for agentic systems.
+
+
+
+\input{figure/tab_stage4_workspace_openclaw}
+\subsubsection{Stage IV: Workspace/OpenClaw Capability and Safety}
+
+OpenClaw-oriented benchmarks make the task-closure view more explicit. ClawBench evaluates everyday online task completion, while ClawsBench evaluates productivity agents in simulated workspaces with services such as Gmail, Slack, Calendar, Docs, and Drive, combining capability and safety measurements under reproducible state management \citep{zhang2026clawbench,li2026clawsbench}. The metric stack, therefore changes again. Success rate measures whether the end-to-end task is completed. Reliability measures whether completion remains stable across long horizons, noisy observations, web layout changes, API failures, and partial mistakes. The efficiency measures tool calls, turns, tokens, wall-clock time, and human interventions. Reproducibility requires fixed initial states, state snapshots, trajectory logs, replayable actions, and final-state diffs. Without these controls, apparent success may be impossible to audit or compare~\citep{la2026design,hasan2026breaks,catalano2025agent,zhang2026litmus,ge2026governance}.
+
+Safety and guardrails also become first-class evaluation targets in the task-closure stage. In a chatbot setting, an unsafe answer is usually a textual failure; in an agentic workspace, an unsafe action can leak private data, modify files, trigger external side effects, or execute an untrusted skill. ATBench-Claw evaluates trajectory-level safety diagnosis for OpenClaw-style agents, while ClawSafety, systematic OpenClaw security evaluation, and ClawKeeper highlight risks from prompt injection, unintended operations, malicious skills, privacy leakage, and weak runtime protection \citep{yang2026atbenchclaw,wei2026clawsafety,wang2026openclawsec,liu2026clawkeeper}. The evaluation paradigm, therefore, moves through three increasingly demanding objects: the final answer, the reasoning process, and finally the closed task state. Table~\ref{tab:stage4_workspace_openclaw} summarizes representative workspace/OpenClaw evaluation results across capability, reliability, and safety metrics.
+
+
+
+\begin{AIbox}{Key Difference: Evaluation Object}
+    \begin{itemize}[left=2pt,topsep=1pt,itemsep=2pt, parsep=1pt]
+\item \textbf{Trend:} Evaluation is shifting from judging isolated final answers to inspecting reasoning trajectories and ultimately verifying whether the intended environment state has been achieved, \textit{thereby ensuring robust alignment with complex human objectives}.
+
+\item \textbf{Challenge:} Task-closure evaluation requires reproducible initial states, trajectory logs, replayable actions, and final-state diffs; otherwise, agent success is difficult to audit or compare \textit{systematically across different models and complex environments}.
+    \end{itemize}
+\end{AIbox}
+
+
+\section{Open Challenges and Future Directions}
+
+\headingnote{From Model-Centric Capability to Ecosystem-Level Reliability}
+
+The preceding sections have traced a clear trajectory from language generation to reasoning, tool use, and workspace-level task execution.
+This progression marks a shift from AI systems that primarily answer questions to AI systems acting within digital environments.
+However, greater autonomy also changes the nature of failure: errors are no longer limited to incorrect text, but may involve unsafe tool calls, corrupted workspace states, incomplete task closure, or untraceable long-horizon behavior.
+
+This final section therefore focuses on the central challenge facing next-generation generative AI systems: how to make autonomy reliable in practice. We first summarize the open problems that prevent current agents from evolving into dependable digital colleagues. We then outline future directions toward self-evolving AI ecosystems, where models, contexts, tools, skills, workspaces, and governance mechanisms are engineered as an integrated whole.
+
+
+
+
+\subsection{Open Challenges: Making Autonomy Reliable}
+\headingnote{From Impressive Demonstrations to Dependable Digital Work}
+
+As shown in Figure~\ref{fig:challenges}, despite significant recent progress, current LLM-based agents remain far from trustworthy digital workers. Their capabilities may appear impressive in isolated demonstrations, but real-world production deployment requires stable performance across long horizons, safe operation under strict permission constraints, persistent memory resisting collapse under growing context, and careful management of social and organizational consequences. The key challenge is not merely to make agents more capable, but to ensure that their autonomous behavior remains auditable, recoverable, controllable, and closely aligned with human values, ethical principles, and boundaries.
+
+\subsubsection{Long-Horizon Reliability and Task Closure}
+\headingnote{From Demonstrated Capability to Stable Completion}
+
+The evaluation shift toward task closure reveals a major reliability bottleneck: an agent must not only reason correctly at individual steps, but also maintain progress until the intended environment state is achieved. Long-horizon tasks introduce several sources of instability. Errors can propagate across tool calls, partial failures can leave the workspace in inconsistent states, and early planning mistakes may only become visible after many irreversible actions.
+
+Skill encapsulation partially mitigates this problem by turning common procedures into reusable units. However, composing skills into longer workflows introduces new interface-level failure modes. A skill may generate an output that is syntactically valid but semantically unsuitable for the next skill, while another may silently fail while leaving misleading traces. Therefore, reliable autonomy requires explicit mechanisms for progress monitoring, intermediate verification, self-healing, and recovery. Future systems need to detect when a trajectory is drifting away from the user's intent, repair local failures, and, when necessary, roll back to a safe checkpoint instead of continuing blindly.
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=\textwidth]{figure/challenges.pdf}
+    \caption{Open challenges for reliable autonomy: as agents move from answering to acting in workspaces, failures become longer-horizon, stateful, and harder to reverse. The figure summarizes key bottlenecks around task closure, safety and governance, memory, context management, and persistent workspace state.}
+    \label{fig:challenges}
+\end{figure}
+
+\subsubsection{Safety, Governance, and Permission Boundaries}
+\headingnote{From Textual Guardrails to Operational Control}
+
+As agents gain access to files, browsers, APIs, terminals, databases, and enterprise applications, safety must move beyond response filtering. In a chatbot setting, unsafe behavior often appears as harmful text; in an agentic workspace, unsafe behavior may leak private data, overwrite files, trigger external side effects, execute untrusted skills, or make unauthorized decisions. The safety problem therefore becomes operational rather than purely linguistic.
+
+Reliable deployment of autonomous systems requires fine-grained permission isolation, risk-aware action validation, audit trails, and rollback mechanisms. Autonomous agents should operate within boundaries defining resource access, approval requirements, and logging or sandboxing. Human oversight must balance autonomy against operational risk. A central research challenge is building governance that preserves usefulness while keeping high-impact actions inspectable and controllable.
+
+\subsubsection{Human--AI Collaboration Ethics and Data Boundaries}
+\headingnote{From Technical Reliability to Socio-Technical Accountability}
+
+Reliable autonomy is fundamentally a complex socio-technical problem. As agents become digital colleagues, they reshape who can participate in professional work and how that work is organized. On one hand, workspace agents may lower barriers to entry by giving novices access to procedural guidance, code editing, data analysis, document production, and domain-specific workflows. On the other hand, they may compress apprenticeship pathways, accelerate expected work rhythms, blur responsibility for errors, and shift human labor from direct creation toward the cognitively demanding roles of supervision, correction, and accountability.
+
+Intellectual creativity is affected in both directions: agents can expand exploration by making rapid prototyping and recombination cheaper, but they can also homogenize outputs when reusable skills and standardized templates become dominant defaults. Future systems should therefore preserve meaningful human agency, attribution, contestability, and escalation paths rather than treating human operators as passive, uncritical approvers of work.
+
+Data sovereignty, privacy, and clear enterprise asset boundaries become equally central. Workspace agents often observe sensitive code repositories, internal documents, chats, credentials, databases, logs, and intermediate task traces. These traces may later become memories, skills, evaluation examples, or training data, making the boundary between user data, protected enterprise assets, third-party information, and public system experience difficult to maintain. Reliable deployment therefore requires strict tenant isolation, data minimization, purpose limitation, detailed provenance metadata, retention controls, policy-aware retrieval, and explicit rules for whether task trajectories can be stored, reused, or shared. Enterprise workflows, custom prompts, proprietary code patches, and learned skills may encode organizational know-how; they should be governed as organizational assets rather than casually exported across projects, customers, or model providers. From this perspective, privacy and data governance are not merely external compliance obligations, but core architectural and design requirements for trustworthy digital colleagues \citep{li2026prism,zhao2026clawguard,gruber2026agenticforensics}.
+
+\subsubsection{Memory, Context, and Persistent State}
+\headingnote{From Short Interactions to Persistent Collaboration}
+
+Long-running autonomous agents operating in complex and dynamic environments cannot rely solely on ephemeral, short-term context windows to maintain operational coherence. As tasks span multiple distinct sessions, tools, files, and users, systems must persistently remember goals, constraints, decisions, failures, and environmental changes over extended periods. While ultra-long contexts offer a promising direction, million-token context windows remain computationally expensive, difficult to search with high precision, and highly unstable when distracted by irrelevant historical data.
+
+Recent work on agent memory argues that the conventional short-term/long-term distinction is too coarse for modern AI agents, and that memory should instead be analyzed along three distinct axes: forms, functions, and dynamics \citep{Hu2025MemoryIT}. From the perspective of \textbf{forms}, memory may appear as token-level context that can be directly inserted into the model's prompt, parametric memory internalized in model weights or fine-tuned components, latent memory represented in hidden or vector spaces, and external workspace memory stored in files, databases, logs, vector indexes, or skill repositories. These forms differ in editability, auditability, retrieval cost, privacy exposure, and the degree to which humans can inspect or correct them.
+
+From the perspective of \textbf{functions}, memory supports different roles in agent work. Working memory maintains the current trajectory state, intermediate observations, assumptions, and plans; factual memory stores relatively stable user, project, domain, or world facts; experiential memory records previous interactions, successes, failures, and repair attempts; and procedural memory is often externalized as reusable skills, checklists, scripts, or workflows. From a dynamic systems perspective, reliable memory is not merely stored but continuously formed, evolved, and retrieved: task traces must be converted into candidate memories, noisy or obsolete memories must be summarized, merged, forgotten, or corrected, and retrieval must surface the right information at the right decision point without overwhelming the model. Without robust memory lifecycle management, agents cannot develop the continuity required for colleague-like collaboration; with poorly governed memory, they may instead accumulate stale assumptions, privacy risks, and misleading procedural habits.
+
+\begin{AIbox}{Core Challenge: Reliable Autonomy}
+    \begin{itemize}[left=2pt,topsep=1pt,itemsep=2pt, parsep=1pt]
+        \item \textbf{Challenge:} As AI systems transition from generating answers to modifying environments, failures become harder to detect, more consequential, more difficult to reverse, and more entangled with human responsibility, organizational routines, and sensitive data flows.
+
+        \item \textbf{Need:} To deploy agents in production, achieving reliable autonomy requires long-horizon verification, permission boundaries, automated rollback mechanisms, persistent memory, human-centered oversight, data-sovereignty controls, and multi-tiered governance tools that remain effective across complex, dynamic workflows.
+    \end{itemize}
+\end{AIbox}
+
+
+
+
+\subsection{Future Directions: Toward Self-Evolving AI Ecosystems}
+\headingnote{From Larger Models to Integrated Learning Ecosystems}
+
+As shown in Figure~\ref{fig:future}, the next stage of agentic AI will likely be defined not only by larger foundation models, but by the ecosystems built around them. The recent trajectory of LLM development already suggests this shift. Pretraining provides broad linguistic and world knowledge; instruction tuning and RLHF align models with human interaction; reasoning-oriented training and verifiable rewards push models toward longer deliberation and outcome-grounded problem solving \citep{openai2024o1,deepseek2025r1}. Yet as soon as models are placed inside tools, browsers, repositories, terminals, memories, and workspaces, capability is no longer stored only in neural weights. It is distributed across an execution ecosystem.
+
+This fundamentally changes the meaning of progress. Sutton's influential ``bitter lesson'' argues that general methods capable of leveraging computation tend to outperform hand-engineered knowledge in the long run \citep{sutton2019bitterlesson}. The agent era does not contradict this lesson; it reframes it. The important question is not whether humans should manually encode brittle rules, but whether AI systems can use scalable computation to generate, test, revise, and maintain their own external structures: prompts, contexts, tools, skills, tests, memories, workflows, and governance policies. In this view, self-evolution is not a mystical property of a single model. It is an engineered feedback loop in which operational experience is continuously converted into validated system assets.
+
+This subsection therefore views future AI systems as self-evolving ecosystems. The model remains the cognitive core, but the surrounding layers determine whether its experience can accumulate. A task trajectory may become a memory; a repeated workflow may evolve into a skill; a failure may become a regression test; a tool error may trigger a wrapper update; a safety incident may become a new permission rule. The central research problem is to make this transformation reliable: how to let systems improve from experience while keeping changes observable, testable, and governed.
+
+\subsubsection{From Prompt Engineering to Harness Engineering}
+\headingnote{From Asking Better Questions to Building Better Execution Substrates}
+
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=\textwidth]{figure/future.pdf}
+    \caption{Future directions toward self-evolving AI ecosystems: next-generation systems will combine models, contexts, tools, skills, workspaces, memories, evaluators, and governance mechanisms into an integrated learning loop. The figure illustrates the path from reactive chatbots to governed digital colleagues that accumulate experience and improve their operating environments.}
+    \label{fig:future}
+\end{figure}
+
+The first visible interface for interacting with large language models (LLMs) was the prompt. Early prompt engineering treated natural language as a control surface: by changing instructions, examples, roles, formats, and reasoning scaffolds, users could elicit different behaviors from the same underlying model. This was powerful because it made programming partially linguistic. Andrej Karpathy's influential characterization of the emerging AI era as a new software paradigm captures this intuition: natural language is increasingly becoming the primary interface for specifying computation, while the model performs much of the translation from human intent to computational behavior \citep{karpathy2025softwareai}. However, the rise of prompt engineering exposes the architectural limitations of language-only control. A prompt can ask an agent to be careful, but it cannot by itself enforce strict safety permissions, preserve state, replay actions, verify side effects, or safely roll back a corrupted workspace.
+
+The second layer is context engineering. As LLM applications become more complex, performance depends less on a single clever instruction and more on what information is assembled around the model at inference time. Context now includes system messages, task descriptions, retrieved documents, tool schemas, intermediate observations, execution logs, user preferences, memory summaries, and workspace state. This makes context engineering closer to attention management than prompt writing. The system must determine what information the model should retain, what it can ignore, what should be compressed, and what must be preserved with high fidelity. Long-context models reduce some bottlenecks, but they do not remove the need for curation. A larger context window can also become a larger noise channel if irrelevant history buries the decision-critical state.
+
+The third layer is harness engineering. Harnesses bind models to tools, APIs, file systems, browsers, repositories, sandboxes, memories, and human approval workflows. ReAct made the Thought--Action--Observation loop a canonical abstraction for tool-using agents \citep{yao2022react}, while Toolformer integrated tool-use into model learning \citep{schick2023toolformer}. More recent software agents further demonstrate that the agent-computer interface is not incidental but decisive for capability: repository navigation, edit mechanisms, tests, execution feedback, and environment management all shape what an agent can reliably do \citep{yang2024sweagent,wang2024openhands}. Future harnesses will therefore be judged not only by whether they connect models to more tools, but also by whether they make actions inspectable, constrained, replayable, and learnable.
+
+The deeper point is that prompts, context, and harnesses form a stack. Prompt engineering specifies intent; context engineering provides task-relevant state; harness engineering defines the operational world in which actions have consequences. Self-evolving ecosystems require all three, but the frontier is increasingly shifting downward into the harness. A system cannot reliably learn from experience unless that experience is captured as structured traces, associated with outcomes, tested against future cases, and governed by explicit update policies. Thus, future progress may depend as much on better execution substrates as on better model checkpoints themselves.
+
+
+
+\subsubsection{AI-Native Workspaces as Digital Embodiment}
+\headingnote{From Disembodied Intelligence to Stateful Operation}
+
+
+
+
+A language model without a workspace is disembodied: it can reason about actions, but does not inhabit a persistent state. Once connected to files, browsers, terminals, APIs, calendars, documents, repositories, and databases, an agent obtains a digital body. This body determines what the agent can sense and change, what consequences persist, and what evidence remains after a task is completed. The workspace is not a user interface; it is the environment in which cognition becomes action.
+
+This explains why agent evaluation moved from answer correctness to task closure. In a workspace, success is not the plausibility of a response but the correctness of a state transition. Did the repository patch pass all tests? Did the document change as intended? Was the email sent to the right recipient? Were permissions respected? Benchmarks such as SWE-bench, OSWorld, WorkArena, SWE-agent, and OpenHands reflect this workspace turn by evaluating agents through realistic environments, execution feedback, and final-state verification \citep{jimenez2023swebench,xie2024osworld,drouin2024workarena,yang2024sweagent,wang2024openhands}. Future AI-native workspaces will make state transitions first-class entities rather than hidden side effects.
+
+An AI-native workspace should therefore provide primitives that traditional user interfaces did not need to expose explicitly: state snapshots, action logs, replay, rollback, permission scopes, provenance, resource isolation, final-state diffs, and evaluator hooks. These are not merely safety features. They are also learning features. A system cannot improve from a failure it cannot reconstruct; it cannot abstract a skill from a success it cannot replay; it cannot determine whether an update is beneficial without a stable evaluation substrate. Recent OpenClaw-oriented work on harness engineering and programmable agent infrastructure points in this direction by treating the runtime, tool interface, and workspace substrate as central design objects \citep{zhu2026semaclaw,wang2026semacode}.
+
+Digital embodiment also clarifies the distinction between a chatbot and a digital colleague. A chatbot produces messages; a digital colleague participates in a shared workspace. It remembers which files matter, which conventions the project follows, which tools are trusted, which tasks are unfinished, and which changes were previously reverted. In human organizations, much expertise is embedded not in individual memory but in workflows, checklists, dashboards, tests, version control, and institutional routines. AI-native workspaces may play the same role for agents: they externalize cognition into a persistent environment where experience can be accumulated, audited, and reused.
+
+\subsubsection{Beyond-Gradient Learning and Continual System Maintenance}
+\headingnote{From Updating Weights to Updating Executable Systems}
+
+The dominant modern learning paradigm updates neural weights through large-scale optimization. This paradigm remains indispensable: pretraining, instruction tuning, RLHF, RLVR, and reasoning-oriented reinforcement learning have dramatically expanded what models can represent and solve \citep{openai2024o1,deepseek2025r1}. But agentic systems introduce a second improvement channel. Once models can read logs, edit code, create tests, revise workflows, and update memory stores, learning can occur outside the neural parameters. A system can improve because its executable environment changes.
+
+This is the core insight behind beyond-gradient learning. As Weng systematically argues, stronger autonomous coding agents make it increasingly plausible for systems to improve by repeatedly analyzing failures, modifying programs, adding tests, watching replays, and maintaining heuristic or procedural structures without retraining the underlying model \citep{weng2026learningbeyondgradients}. The traditional version of heuristics was brittle because humans had to maintain them manually. The new possibility is different: if agents can continuously generate, test, and reliably repair those structures, then rules, workflows, wrappers, and skills can become scalable objects of learning rather than one-off patches.
+
+For self-evolving AI ecosystems, the update target is broader than weights. A failed tool call can lead to a more robust API wrapper. A recurring user correction can update a preference memory. A successful debugging trajectory can be distilled into a reusable skill. A benchmark failure can become a regression test. A dangerous action can become a permission rule. This does not replace gradient-based learning; it complements it. The model supplies general reasoning, while the ecosystem stores local, operational, verifiable improvements that would be inefficient to encode into parameters.
+
+Beyond-gradient learning presents a distinct maintenance challenge: while neural networks fear catastrophic forgetting, system maintenance must prevent ecosystem corruption from false memories, overfitted skills, and broken permissions. As skills and memories accumulate, systems must manage their provenance, compatibility, and lifecycle. Memory is therefore not mere storage, but a selection, compression, and governance challenge \citep{zhang2025survey,pink2025position,chhikara2025mem0,zhou2025mem1,yan2025memory}. The ultimate goal is to evolve this ecosystem without letting it decay into stale data and brittle procedures.
+
+The research agenda is clear: experience must be transformed into reusable assets that are small enough to retrieve, structured enough to test, general enough to reuse, and safe enough to deploy. Self-evolving systems require curation as well as learning. They must decide what to remember, what to forget, what to merge, what to quarantine, what to verify, and what should require human approval. The deepest shift is from continual model learning to continual system stewardship.
+
+\subsubsection{Composable Skill and Multi-Agent Ecosystems}
+\headingnote{From Isolated Tools to Collaborative Capability Networks}
+
+Tools are atomic affordances; skills are reusable procedures. The distinction matters. A tool exposes an operation, but a skill encodes when and how to use operations to accomplish a goal under constraints. Voyager demonstrated that an agent can build and reuse an executable skill library from environment feedback \citep{wang2023voyager}. Recent production-oriented skill systems further formalize skills as packages containing instructions, scripts, resources, dependencies, and usage conditions \citep{anthropic2026skillsdocs,anthropic2026skillsrepo,ling2026agentskills}. This suggests a future in which agent capability grows less like a flat tool list and more like a software ecosystem.
+
+A mature skill ecosystem will need the same disciplines that made software ecosystems reliable: interfaces, versioning, dependency management, tests, documentation, security review, and deprecation. A skill should define its input and output schema, preconditions, side effects, required permissions, failure modes, validation criteria, and compatibility assumptions. Without these contracts, skill composition becomes fragile: one skill may silently change state in a way another skill does not expect, or a workflow may succeed syntactically while violating the user's intent. With contracts, skills can become inspectable building blocks that agents compose, adapt, and improve.
+
+The supply-chain analogy is important. If skills become shareable assets, they also become potential attack surfaces. Malicious or over-permissive skills may exfiltrate data, trigger unintended side effects, or hide unsafe instructions. Formal analysis and supply-chain security for agentic skills are therefore not peripheral concerns but prerequisites for scalable skill markets \citep{bhardwaj2026skillfortify}. A self-evolving ecosystem must not only learn new skills; it must certify, sandbox, monitor, and retire them.
+
+Multi-agent systems extend this idea from composable procedures to composable roles. AutoGen and MetaGPT show how multiple agents can coordinate through conversation, role specialization, and structured workflows \citep{wu2023autogen,hong2023metagpt}. In future AI-native workspaces, one agent may plan, another may execute, another may verify, another may curate memory, another may maintain skills, and another may monitor safety. This division of labor can improve robustness because agents can cross-check one another, but it can also multiply failure modes if state, authority, and accountability are unclear.
+
+A central future direction is therefore \textbf{multi-agent orchestration and governance}. Orchestration concerns the runtime problem of deciding which agents should participate, which roles they occupy, how tasks are decomposed, how messages and artifacts are routed, when agents synchronize, and how conflicts or deadlocks are resolved. Governance is the complementary control problem: each agent should have explicit authority scopes, resource permissions, ownership of workspace regions, audit obligations, escalation rules, and accountability for the state changes it proposes or executes. Without such controls, adding agents may increase parallel activity without increasing task closure.
+
+The challenge is not merely enabling communication, but ensuring a shared workspace under coordination rules. Multi-agent ecosystems require resources (e.g., role contracts, permission boundaries) and governance mechanisms to prevent responsibility diffusion, hidden mutations, and unsafe delegation \citep{li2026prism,zhao2026clawguard,gruber2026agenticforensics}. Without these safeguards, collaboration risks degenerating into parallel hallucination. The long-term vision is a collaborative network of modular, testable, and governable skills and agents, where orchestration allocates work and the workspace anchors coordination.
+
+\subsubsection{Self-Evolving Systems: From Chatbot to Digital Colleague}
+\headingnote{From Reactive Assistance to Governed Self-Improvement}
+
+The endpoint of this trajectory is the transition from chatbot-like interaction to digital-colleague collaboration. A chatbot is primarily reactive. It responds to the current prompt and often loses continuity once the session ends. A digital colleague accumulates project-specific memory, learns local conventions, identifies recurring failures, proposes improvements, maintains shared tools, and adapts its behavior based on experience. The colleague metaphor is not about anthropomorphism; rather, it emphasizes persistence, responsibility, and participation in a shared workflow.
+
+Self-evolution can enable this transition, but only if governed. This self-evolving loop comprises: observe operational traces, diagnose success and failure, abstract reusable patterns, propose updates to memory or skills, validate updates in sandboxes or tests, version accepted changes, deploy under permission constraints, monitor effects, and roll back if behavior degrades. This loop turns evaluation from a passive scoreboard into active feedback. Verifiers, final-state diffs, replay logs, and task-closure metrics become evidence for system learning \citep{rabanser2026sciencereliability,rosset2026verifiers}.
+
+The most important word is governed. Uncontrolled self-modification can entrench mistakes, amplify unsafe shortcuts, or pollute memory with false assumptions. Governed self-evolution treats every durable update as an auditable change. Memories should carry provenance; skills should be accompanied by tests; workflows should maintain version history; high-risk actions should require approval; and degraded updates should be reversible. The research challenge is not merely to build agents that can change themselves, but to build ecosystems that know which changes deserve to survive.
+
+This perspective also reconciles two seemingly opposite trends in AI. On one side, the field continues to scale general-purpose models and verifiable reinforcement learning. On the other side, practical agent systems increasingly rely on external scaffolds: context pipelines, tools, workspaces, skills, memory stores, and runtime policies. The future self-evolving ecosystem combines both. General models provide flexible reasoning; external assets preserve operational experience; harnesses make action safe and measurable; and governance decides how experience updates the system. The result is not a single omniscient model, but an adaptive digital organization.
+
+The path from chatbot to digital colleague therefore requires a new engineering principle: every important action should be capable of becoming evidence, and every useful piece of evidence should be capable of becoming a governed improvement over time. If operational experience can be transformed into validated memories, skills, workflows, tests, and policies, AI systems can move beyond one-off assistance toward sustained participation in collective problem solving.
+
+\begin{AIbox}{Future Vision: Self-Evolving AI Ecosystems}
+    \begin{itemize}[left=2pt,topsep=1pt,itemsep=2pt, parsep=1pt]
+        \item \textbf{Trend:} The frontier is shifting from scaling isolated models to scaling ecosystems in which models act: prompts become contexts, contexts become harnesses, and harnesses connect agents to workspaces, memories, tools, skills, evaluators, and governance mechanisms.
+
+        \item \textbf{Mechanism:} Self-evolution emerges when operational execution traces are converted into durable and adaptive system assets: successful trajectories become reusable skills, unexpected failures become automated regression tests, user corrections become memories, tool errors become wrappers, and safety incidents become robust guardrail policies.
+
+        \item \textbf{Principle:} Every consequential action should be treated as evidence, and every useful piece of evidence should become a governed update: validated, versioned, auditable, reversible, and deployed under explicit permission boundaries.
+
+        \item \textbf{Vision:} Under this framework, AI systems can move beyond reactive chatbots toward adaptive digital colleagues that participate in workflows, accumulate experience, and improve the environments they inhabit.
+    \end{itemize}
+\end{AIbox}
+

@@ -1,0 +1,145 @@
+\section{MRAgent: Reconstructive Memory Agent}
+
+% {
+% \color{blue}
+% Building on the associative memory structure defined in Section~\ref{}, we now present \textbf{MRAgent}, a framework that operationalizes memory access as an active reconstruction process. In this section, we first formalize the reconstruction state and traversal actions, then detail the iterative execution loop where the LLM autonomously navigates the memory graph. Finally, we provide a theoretical analysis demonstrating the expressivity advantage of this active paradigm over passive retrieval.
+% }
+
+In this section, we present \textbf{MRAgent}, which formulates memory access as an active reconstruction process. We first define the reconstruction state and traversal actions (Section~\ref{subsec:reconstructive}), and then describe the memory reconstruction process in detail (Section~\ref{subsec:active-reconstruction}).
+Finally, we provide a theoretical analysis of its expressivity (Section~\ref{subsec:theory}).
+
+\subsection{Reconstructive Memory Framework}
+\label{subsec:reconstructive}
+
+Rather than executing a predefined retrieval pipeline, MRAgent  performs active reconstruction within a structured memory system. This process is formalized through an explicit reconstruction state and a set of traversal actions, which collectively characterize possible reconstruction trajectories.  
+% In this framework, memory reconstruction is formalized through an explicit reconstruction state and a set of traversal actions that together characterize possible reconstruction trajectories. 
+%, in which the agent incrementally assembles relevant evidence through LLM-guided traversal over the memory system.
+% As illustrated in Figure~\ref{fig:framework}, given a user query, MRAgent first extracts a set of cues and initializes a reconstruction loop. At each step, the agent maintains an explicit reconstruction state, uses the LLM to reason over the current state, selects a set of traversal actions to explore the memory graph, and updates the reconstruction state based on newly retrieved information. The process iterates until the LLM determines that sufficient evidence has been reconstructed to answer the query, or that further exploration is unlikely to be informative. 
+% Formally, we define reconstruction state and traversal actions.
+
+
+\paragraph{Reconstruction State.} MRAgent maintains an explicit reconstruction state that guides the selection of
+subsequent traversal directions during memory reconstruction.
+At step $t$, the reconstruction state is defined as
+\begin{equation}
+\mathcal{S}^{(t)} = (\mathcal{Z}^{(t)}, \mathcal{H}^{(t)}),
+\end{equation}
+where $\mathcal{Z}^{(t)}$ denotes the \emph{active set} of memory elements (including cues, tags and contents), serving as the candidates for the next traversal step, and $\mathcal{H}^{(t)}$ denotes the \emph{reconstructed context} consisting of evidence accumulated in previous steps, which conditions subsequent traversal directions.
+% , which provides contextual grounding for deciding subsequent exploration directions.
+% The reconstruction process is initialized from the query-derived cues and evolves through successive traversal actions.
+
+\paragraph{Traversal Actions.}
+We define a finite set of traversal actions
+$\mathcal{A}=\{\Pi_1,\ldots,\Pi_m\}$ to specify how the LLM explores the structured
+memory graph during reconstruction.
+Each traversal action is induced by a predefined mapping operator $\phi$
+introduced in Eq.~\eqref{eq:phi}, including
+Cue$\rightarrow$Tag, (Cue,Tag)$\rightarrow$Content, and Content$\rightarrow$(Cue,Tag).
+
+\emph{Forward traversal} actions expands the active set along Cue--Tag--Content relations, enabling the agent to retrieve new memory contents conditioned on the current cues and tags. Specifically, $\Pi_{c\rightarrow g}$ activates associative tags from a given set
+of cues $\mathcal{C}^{(t)}$, and $\Pi_{(c,g)\rightarrow v}$ retrieves memory
+content jointly conditioned on selected cues and tags
+$\big(\mathcal{C}^{(t)}, \mathcal{G}^{(t)}\big)$:
+\begin{equation}
+\label{eq:traversal-actions}
+\begin{aligned}
+\Pi_{c\rightarrow g}\!\big(\mathcal{C}^{(t)}\big)
+&\triangleq
+\bigcup_{c'\in \mathcal{C}^{(t)}} \phi_{c\rightarrow g}(c'), \\
+\Pi_{(c,g)\rightarrow v}\!\big(\mathcal{C}^{(t)}, \mathcal{G}^{(t)}\big)
+&\triangleq
+\bigcup_{c'\in \mathcal{C}^{(t)}}\ \bigcup_{g'\in \mathcal{G}^{(t)}} \phi_{(c,g)\rightarrow v}(c',g').
+\end{aligned}
+\end{equation}
+\emph{Reverse traversal} actions allows retrieved content to activate new cues and tags for subsequent exploration, enabling the agent to refine or redirect its
+reconstruction trajectory based on intermediate evidence.
+Formally, $\Pi_{v\rightarrow (c,g)}$ identifies cues and tags associated with the retrieved content:
+\begin{equation}
+\Pi_{v\rightarrow (c,g)}\!\big(\mathcal{V}^{(t)}\big)
+\triangleq
+\{(c',g')
+\mid
+\exists v'\in \mathcal{V}^{(t)},\ (c',g',v')\in \mathcal{R}\},
+\end{equation}
+% where $\Pi_{v\rightarrow (c,g)}$ identifies cues and tags associated with the retrieved content.
+Together, these forward and reverse traversal actions define a compositional action space that allows the LLM to expand and refine memory traversal during reconstruction.
+
+\subsection{Memory Reconstruction Process}
+\label{subsec:active-reconstruction}
+With the reconstruction state and traversal actions defined, we detail the memory reconstruction process, which iteratively explores relevant memory contents through state updates and traversal actions.
+Given a query, MRAgent first extracts a set of fine-grained cues and matches them against the stored cue set, obtaining the initial active set $\mathcal{Z}^{(0)}$ and the initial reconstruction state
+\(
+\mathcal{S}^{(0)} = (\mathcal{Z}^{(0)}, \varnothing).
+\)
+%indicating that reconstruction begins from query-aligned cues without any accumulated evidence.
+Starting from this state, MRAgent starts an iterative reconstruction loop consisting of LLM reasoning, controlled memory traversal, and LLM-guided routing.
+
+\paragraph{LLM Reasoning and Action Selection.}
+Conditioned on reconstruction state, the LLM reasons over the query $x$, the accumulated context $ \mathcal{H}^{(t)}$ to select a set of traversal actions $\mathcal{A}^{(t)} \subseteq \mathcal{A}$ based on current active set $\mathcal{Z}^{(t)}$:
+\begin{equation}
+\mathcal{A}^{(t)} = f_{\text{select}}\!\big( x, \mathcal{H}^{(t)}, \mathcal{Z}^{(t)}\big),
+\end{equation}
+where $f_{\text{select}}$ denotes the LLM-based action-selection function that selects promising directions for expansion, thereby reducing noise.
+Furthermore, conditioning on the accumulated evidence $\mathcal{H}^{(t)}$
+enables the agent to discover new cues and dynamically adjust its reasoning
+trajectory. 
+% Furthermore, conditioning on intermediate evidence provides the reconstruction process with the necessary flexibility to discover new cues and dynamically adjust the reasoning trajectory.
+
+\paragraph{Controlled Memory Traversal.}
+For each selected traversal action $\Pi_a \in \mathcal{A}^{(t)}$, the memory system executes the corresponding traversal operator to generate candidate  nodes:
+\begin{equation}
+\widetilde{\mathcal{Z}}^{(t+1)} =
+\bigcup_{a \in \mathcal{A}^{(t)}} \Pi_a\!\big(\mathcal{Z}^{(t)}\big),
+\end{equation}
+where $\widetilde{\mathcal{Z}}^{(t+1)}$ is the new candidate set. This step expands the traversal trajectories, guided by LLM-selected actions
+rather than exhaustive graph expansion.
+
+\paragraph{LLM Routing and State Update.}
+Based on the generated candidates, the LLM selects the most relevant content and prunes irrelevant branches to ensure the accumulated context remains concise and focused.
+Formally, the next active set and reconstruction state are updated as follows:
+\begin{equation}
+\begin{aligned}
+\mathcal{Z}^{(t+1)}
+&=
+f_{\text{route}}\!\big(
+x, \mathcal{H}^{(t)}, \widetilde{\mathcal{Z}}^{(t+1)}
+\big), \\
+\mathcal{H}^{(t+1)}
+&=
+\mathcal{H}^{(t)} \cup \mathcal{Z}^{(t+1)} ,
+\end{aligned}
+\end{equation}
+where $f_{\text{route}}$ is the LLM-based routing function that evaluates semantic associations between the query, the reconstructed context, and newly retrieved memory contents.
+Unlike surface-level matching or predefined traversal, this routing step  incorporates semantic associations and structural relations exposed by the memory graph. Following the state update, the accumulated context $\mathcal{H}^{(t+1)}$ is evaluated by $\mathcal{C}_{\text{LLM}}$ to determine if the evidence is sufficient to answer the query or if further exploration is required.
+
+Through this process, MRAgent integrates LLM reasoning directly into the multi-turn memory reconstruction. 
+Selective evidence expansion reduces noise and improves efficiency, while
+conditioning on intermediate evidence enables flexible adjustment of the
+reasoning trajectory.
+Implementation details and algorithms are provided in Appendix~\ref{app:reconstruction}.
+
+\subsection{Theoretical Analysis: Active vs. Passive Retrieval}
+\label{subsec:theory}
+MRAgent is designed as an \emph{active} retrieval approach over a graph-based memory. In this section, we formalize the advantage of such active retrieval over passive retrieval, from an approximation-theoretic view. 
+For generality and notational simplicity, our theory generalizes from the (cue, tag, episode) formulation in MRAgent to arbitrary heterogeneous graphs with textual information on each node.
+
+Given retrieval budget \(T\), recall that \emph{active reconstruction} adaptively chooses the next node to retrieve based on what it has already retrieved, while a
+\emph{passive} retriever must commit to all \(T\) retrievals upfront as a function of the query alone.
+
+These retrieval strategies induce different \emph{hypothesis classes} (sets of input--output mappings). Specifically, let
+\(\mathcal{H}^{\mathrm{LM}}_{\mathrm{active}}(T)\) contain all predictors implementable by an LM that can make \(T\)
+adaptive retrieval calls to the graph, and let \(\mathcal{H}^{\mathrm{LM}}_{\mathrm{passive}}(T)\) contain those implementable when the \(T\)
+retrieval calls are fixed in advance (non-adaptive). Then our main result is:
+
+\begin{theorem}[Active retrieval is strictly more powerful than passive retrieval]
+For any retrieval budget \(T\ge 2\), the passive hypothesis class is strictly contained in the active hypothesis class:
+\[
+\mathcal{H}^{\mathrm{LM}}_{\mathrm{passive}}(T)\ \subsetneq\ \mathcal{H}^{\mathrm{LM}}_{\mathrm{active}}(T).
+\]
+\end{theorem}
+
+Intuitively, LMs with active retrieval can learn any function that LMs with passive retrieval can, but not vice versa. The full statement and proofs are given in Appendix~\ref{app:active-vs-passive-separation}.
+
+
+
+

@@ -1,0 +1,40 @@
+{
+  "arxiv_id": "2606.12384",
+  "arxiv_url": "https://arxiv.org/abs/2606.12384",
+  "title": "APPO: Agentic Procedural Policy Optimization",
+  "authors": [
+    "Xucong Wang",
+    "Ziyu Ma",
+    "Yong Wang",
+    "Yuxiang Ji",
+    "Shidong Yang",
+    "Guanhua Chen",
+    "Pengkun Wang",
+    "Xiangxiang Chu"
+  ],
+  "submitter": "github-actions[bot]",
+  "abstract": "Recent advances in agentic Reinforcement Learning (RL) have substantially improved the multi-turn tool-use capabilities of large language model agents. However, most existing methods assign credit over coarse heuristic units, such as tool-call boundaries or fixed workflows, making it difficult to identify which intermediate decisions influence downstream outcomes. In this work, we study agentic RL from two perspectives: \\textit{where to branch and how to assign credit after branching}. Our pilot analysis shows that influential decision points are broadly distributed throughout the generated sequence rather than concentrated at tool calls, while token entropy alone does not reliably reflect their impact on final outcomes. Motivated by these observations, we propose \\textbf{Agentic Procedural Policy Optimization (APPO)}, which shifts branching and credit assignment from coarse interaction units to fine-grained decision points in the sequence. APPO selects branching locations using a Branching Score that combines token uncertainty with policy-induced likelihood gains of subsequent continuations, enabling more targeted exploration while filtering out spurious high-entropy positions. It further introduces procedure-level advantage scaling to better distribute credit across branched rollouts. Experiments on 13 benchmarks show that APPO consistently improves strong agentic RL baselines by nearly 4 points, while keeping efficient tool-calls and maintaining behavior interpretability.",
+  "submitted_via": "llmXive dashboard, GitHub issue #326",
+  "license": "arXiv Non-exclusive Distribution License",
+  "license_url": "http://arxiv.org/licenses/nonexclusive-distrib/1.0/",
+  "code": [
+    "https://github.com/AMAP-ML/APPO"
+  ],
+  "data": [],
+  "toplevel_tex": [
+    "neurips_2026.tex"
+  ],
+  "source_files": [
+    "00README.json",
+    "ciyun.pdf",
+    "dyna.pdf",
+    "main.bib",
+    "main.drawio.pdf",
+    "neurips_2026.sty",
+    "neurips_2026.tex",
+    "passk.pdf",
+    "sandian.pdf",
+    "tanjjiu.pdf",
+    "wordlcloud.pdf"
+  ]
+}

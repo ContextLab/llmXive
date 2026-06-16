@@ -1,0 +1,49 @@
+\section{Related Work}
+\textbf{Retrieval-Augmented Generation.}
+RAG~\cite{DBLP:conf/nips/LewisPPPKGKLYR020} augments LLMs by injecting external
+documents into prompts via similarity search, where memory is an unstructured
+vector store and retrieval reduces to a one-shot query-time top-$k$ selection.
+Two variants extend this paradigm. GraphRAG~\citep{graphrag} organizes the
+retrieval corpus into graph structures and retrieves through community summaries
+and neighborhood expansion, improving global and multi-hop reasoning over flat
+similarity search. Agentic RAG instead moves retrieval inside the reasoning
+loop. Search-o1~\cite{li2025searcho1} couples large reasoning models with an
+agentic mechanism that issues search queries on demand whenever a knowledge gap
+is detected and refines retrieved documents before integrating them into the
+reasoning chain, and Search-R1~\cite{jin2025searchr1} trains this behavior
+through reinforcement learning over multi-turn query generation. These methods
+retrieve from open or external corpora to fill factual knowledge gaps within a
+single reasoning task, rather than reconstructing over an agent's own persistent
+interaction history.
+
+\textbf{Graph-based Memory.}
+Graph-based memory systems organize agent memory as a graph to capture
+structural dependencies among memory units. A-Mem~\cite{DBLP:journals/corr/abs-2502-12110}
+constructs structured memory notes linked through LLM-assisted relation
+extraction and retrieves via seed selection followed by neighborhood expansion.
+Zep~\cite{DBLP:journals/corr/abs-2501-13956} maintains a bi-temporal knowledge
+graph that tracks when facts hold and invalidates outdated edges, supporting
+retrieval over evolving knowledge. LiCoMemory~\cite{DBLP:journals/corr/abs-2511-01448}
+organizes memory as a lightweight hierarchical graph that uses entities and
+relations as a semantic indexing layer, with temporal and hierarchy-aware search
+for efficient retrieval. While these representations improve relational and
+multi-hop access, traversal is governed by predefined operators and does not
+adapt to evidence accumulated during retrieval.
+
+\textbf{Hierarchical and Persistent Memory Systems.}
+Hierarchical memory systems maintain long-lived memory that is continually
+updated across interactions. MemoryOS~\cite{DBLP:journals/corr/abs-2506-06326}
+organizes memory into a short, mid, and long-term hierarchy for structured
+access. Mem0~\cite{DBLP:journals/corr/abs-2504-19413} maintains a compact set of
+salient facts through LLM-driven add, update, and delete operations.
+SeCom~\cite{pan2025secom} constructs the memory bank at the level of topically coherent segments for more accurate retrieval.  These systems advance how
+memory is stored and updated over time, but their retrieval procedures remain
+passive, selecting memory units as a fixed function of the query without
+reasoning over intermediate evidence.
+% \textbf{Memory for LLM Agents}
+% Retrieval-Augmented Generation (RAG)~\cite{DBLP:conf/nips/LewisPPPKGKLYR020} systems augment LLMs with external corpora by retrieving relevant documents via similarity search and injecting them into the prompt at inference time, forming the foundation of many memory-augmented agents. Building on this paradigm, GraphRAG \citep{graphrag} methods introduce explicit document- or entity-level graphs and retrieve information by expanding predefined neighborhoods from similarity-selected seeds. Extending RAG to long-horizon interactions, LLM agent memory systems model conversational experience as persistent memory with additional structure, such as graphs or hierarchical stores and support continual updates over time~\cite{DBLP:journals/corr/abs-2511-01448}. 
+% Retrieval-Augmented Generation (RAG) \cite{DBLP:conf/nips/LewisPPPKGKLYR020} enhances LLMs by injecting external documents into prompts via similarity search. To handle complex dependencies, GraphRAG \citep{graphrag} and A-Mem \cite{DBLP:journals/corr/abs-2502-12110} organize information into graph structures, retrieving data through seed-based neighborhood expansion. Beyond static corpora, recent agent memory systems support continual updates \cite{DBLP:journals/corr/abs-2511-01448}: MemoryOS \cite{DBLP:journals/corr/abs-2506-06326} employs a hierarchical (short/mid/long-term) architecture for structured access, while Mem0 \cite{DBLP:journals/corr/abs-2504-19413} utilizes LLM-driven CRUD operations to maintain a compact set of salient facts for adaptive response generation
+
+% A-Mem~\cite{DBLP:journals/corr/abs-2502-12110} represents LLM-generated memory notes as nodes in a directed memory graph and retrieves relevant notes through similarity-based seeding followed by neighborhood expansion.
+% MemoryOS~\cite{DBLP:journals/corr/abs-2506-06326} organizes dialogue memory into a hierarchical structure consisting of short-term, mid-term, and long-term memory, and performs retrieval through hierarchical access.
+% Mem0~\cite{DBLP:journals/corr/abs-2504-19413} maintains a compact set of salient facts through LLM-driven insertion, update, and deletion operations, and retrieves relevant facts using similarity-based search to condition response generation.

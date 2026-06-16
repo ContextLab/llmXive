@@ -1,0 +1,85 @@
+\section{Problem Setting: Active Memory Access}
+\label{sec:problem-setting}
+
+In this section, we formulate memory retrieval as a sequential decision process and analyze why the traditional passive retrieval paradigm fails on complex, multi-step queries.
+
+\subsection{Memory Retrieval Definition}
+
+We consider an external memory $\mathcal{M}$ consisting of memory units
+$\mathcal{V}=\{v_1,\dots,v_N\}$.
+Given a query $x$, memory access proceeds by sequentially selecting memory
+units over $T$ steps. Let
+\(
+S^{(t)} = \{v^{(1)}, \ldots, v^{(t)}\}
+\)
+denote the accumulated evidence after step $t$. We distinguish two classes of memory access policies.
+
+\textbf{Passive retrieval.}
+A \emph{passive} (stateless) retrieval policy $\pi_{\mathrm{p}}$ selects memory units solely based on the query:
+\begin{equation}
+\{v^{(1)}, \ldots, v^{(T)}\} = \pi_{\mathrm{p}}(x).
+\end{equation}
+
+\textbf{Active reconstruction.}
+An \emph{active} (stateful) policy $\pi_{\mathrm{a}}^{(t)}$ selects the next unit conditioned on the evolving evidence:
+\begin{equation}
+v^{(t)} = \pi_{\mathrm{a}}^{(t)}(x, S^{(t-1)}),
+\qquad S^{(t)} = S^{(t-1)} \cup \{v^{(t)}\}.
+\end{equation}
+This formulation enables adaptive, multi-step interaction with memory.
+
+\subsection{Limits of Passive Retrieval}
+\label{subsec:retrieval-failure}
+We categorize retrieval strategies of existing memory systems into two paradigms based on their memory organization and adaptation mechanisms, and compare them with the proposed active reconstruction paradigm in Figure~\ref{fig:motivation}.
+
+\textbf{Similarity-based Retrieval.}
+Many existing memory systems adopt similarity-based retrieval, such as MemoryBank~\cite{DBLP:conf/aaai/ZhongGGYW24} and Mem0~\cite{DBLP:journals/corr/abs-2504-19413},
+where retrieval is defined by a similarity scoring function:
+\begin{equation}
+\label{eq:pi-sim}
+\pi_{\text{sim}}(x)
+=
+\mathrm{TopK}\!\left(\{ \mathrm{sim}(x,v) \}_{v \in \mathcal{V}}, k \right).
+\end{equation}
+In this paradigm, memory serves as a static context provider and the relevance function $\mathrm{sim}(x, v)$ is fixed by the query.
+As shown in Figure~\ref{fig:motivation}(a), such methods retrieve many events related to ``video game tournament'' based on surface-level relevance, thereby introducing substantial noise while failing to find the correct evidence.
+
+\textbf{Graph-based Memory Retrieval.}
+To exploit structural relations among memory units, methods such as A-Mem~\cite{DBLP:journals/corr/abs-2502-12110}, Zep~\cite{DBLP:journals/corr/abs-2501-13956} introduce graph-structured memory.
+These approaches extend the retrieval mechanism by combining similarity-based seeding with predefined $N$-hop neighbor expansion:
+\begin{equation}
+\begin{aligned}
+\mathcal{V}^{\text{sim}}
+&=
+\mathrm{TopK}\!\left(\{ \mathrm{sim}(x,v) \}_{v \in \mathcal{V}}, k \right), \\
+\pi_{\text{graph}}(x)
+&=
+\mathcal{V}^{\text{sim}} \cup \mathrm{Neighbor}\!\left(\mathcal{V}^{\text{sim}}\right).
+\end{aligned}
+\end{equation}
+where $\mathrm{Neighbor}(\cdot)$ returns the predefined $N$-hop neighbors of a node set in the memory graph.
+While this strategy alleviates certain multi-hop retrieval challenges, it requires relevant evidence to be connected through explicit graph links.
+Moreover, the use of fixed neighbor expansion often introduces substantial noise.
+Figure~\ref{fig:motivation}(b) shows that graph-based expansion retrieves additional but irrelevant neighbors, yet still fails to recover information about Caroline, which is not directly connected to ``video game tournament'' events in the memory graph.
+
+\textbf{Active Memory Reconstruction.}
+By integrating LLM reasoning directly into memory access, active reconstruction enables the agent to infer new retrieval cues and adapt traversal strategies based on accumulated evidence.
+As illustrated in Figure~\ref{fig:motivation}(c), intermediate findings can be explicitly transformed into new retrieval constraints, allowing the agent to recover evidence that is unreachable under passive policies.
+
+
+\textbf{Summary.}
+The fundamental limitation of passive retrieval lies in its inability to perform reasoning concurrently with memory access, leading to three  weaknesses: (i) an inability to revise strategies based on intermediate state, such as identifying `July' as a temporal anchor; (ii) the accumulation of noise due to fixed aggregation ; and (iii) heavy reliance on pre-constructed structures, limiting flexibility and scalability. A detailed analysis is included  in Appendix~\ref{app:retrieval-analysis}.
+
+\subsection{Motivation from Cognitive Memory Systems}
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=0.9\linewidth]{Fig/fig_relatedwork2.png}
+    \caption{
+    Functional correspondence between human memory reconstruction and the MRAgent architecture.
+    }
+    \label{fig:memory-alignment}
+\end{figure}
+These limitations highlight the necessity of moving beyond static retrieval toward an active memory reconstruction paradigm, which is strongly supported by
+cognitive neuroscience research~\cite{rugg2025cognitive}. As illustrated in Figure~\ref{fig:memory-alignment}, studies in human memory suggest that recall unfolds sequentially: contextual cues trigger the reactivation of \emph{engrams}, compact internal memory states formed from past experiences, whose activation in turn biases and constrains subsequent recall, progressively reconstructing a coherent memory~\cite{rashid2016competition}. Motivated by this perspective, we adopt a Cue--Tag--Content architecture, where tags serve as intermediate associative structures that encode how cues are linked to memory contents and guide the memory reconstruction process. Memory content can be distinguished into episodic memory for concrete events and
+semantic memory for shared concepts and knowledge, as supported by cognitive
+neuroscience~\cite{manns2003semantic}.

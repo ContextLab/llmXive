@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Evolutionary Timeline of Next-Generation LLM Systems</title>
+  <style>
+    :root {
+      --start-year: 2017;
+      --end-year: 2026;
+      --axis-width: 1580px;
+      --left-label-width: 230px;
+      --row-height: 46px;
+      --node-height: 26px;
+      --green: #6f8f69;
+      --blue: #5b84b1;
+      --purple: #8a6fb1;
+      --orange: #c58a4c;
+      --grid: rgba(55, 65, 81, 0.18);
+      --text: #18212f;
+      --muted: #5b6472;
+      --paper: #fbfaf6;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 28px;
+      color: var(--text);
+      background: #f2f0e8;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    .page {
+      width: calc(var(--left-label-width) + var(--axis-width) + 36px);
+      margin: 0 auto;
+      padding: 22px 18px 28px;
+      background: var(--paper);
+      border: 1px solid #d4cec0;
+      border-radius: 18px;
+      box-shadow: 0 18px 48px rgba(32, 38, 46, 0.14);
+    }
+
+    .title {
+      text-align: center;
+      margin-bottom: 6px;
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+    }
+
+    .subtitle {
+      text-align: center;
+      margin: 0 0 22px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .timeline-header {
+      display: grid;
+      grid-template-columns: var(--left-label-width) var(--axis-width);
+      align-items: end;
+      margin-bottom: 8px;
+    }
+
+    .axis-title {
+      padding-right: 18px;
+      text-align: right;
+      color: #3c4657;
+      font-weight: 800;
+      font-size: 15px;
+    }
+
+    .axis {
+      position: relative;
+      height: 48px;
+      border-bottom: 2px solid #3f4754;
+    }
+
+    .tick {
+      position: absolute;
+      bottom: -8px;
+      transform: translateX(-50%);
+      width: 1px;
+      height: 14px;
+      background: #3f4754;
+    }
+
+    .tick span {
+      position: absolute;
+      top: -28px;
+      left: 50%;
+      transform: translateX(-50%);
+      white-space: nowrap;
+      font-size: 12px;
+      font-weight: 800;
+      color: #293241;
+    }
+
+    .era {
+      display: grid;
+      grid-template-columns: var(--left-label-width) var(--axis-width);
+      margin-top: 14px;
+      border-radius: 14px;
+      overflow: hidden;
+      border: 1px solid rgba(55, 65, 81, 0.2);
+      background: #fffdf7;
+    }
+
+    .era-label {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 14px;
+      color: #fff;
+      text-align: center;
+      font-weight: 900;
+      letter-spacing: 0.02em;
+      writing-mode: vertical-rl;
+      transform: rotate(180deg);
+      font-size: 21px;
+    }
+
+    .era-label small {
+      display: block;
+      margin-top: 10px;
+      opacity: 0.9;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+    }
+
+    .era-body {
+      position: relative;
+      padding: 13px 0 12px;
+      background-image:
+        linear-gradient(to right, var(--grid) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(55, 65, 81, 0.06) 1px, transparent 1px);
+      background-size: calc(var(--axis-width) / 9) 100%, 100% var(--row-height);
+    }
+
+    .branch {
+      position: relative;
+      min-height: var(--branch-height, var(--row-height));
+      display: grid;
+      grid-template-columns: 168px 1fr;
+      align-items: center;
+    }
+
+    .branch-name {
+      position: relative;
+      z-index: 3;
+      align-self: center;
+      margin-left: 10px;
+      padding: 6px 8px;
+      max-width: 150px;
+      border: 1px dashed rgba(41, 50, 65, 0.35);
+      border-radius: 7px;
+      background: rgba(255, 255, 255, 0.82);
+      color: #364152;
+      font-size: 11px;
+      font-weight: 800;
+      line-height: 1.1;
+      text-align: center;
+    }
+
+    .lane {
+      position: relative;
+      height: var(--branch-height, var(--row-height));
+    }
+
+    .lane::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 18px;
+      top: 50%;
+      height: 2px;
+      transform: translateY(-50%);
+      background: currentColor;
+      opacity: 0.64;
+    }
+
+    .lane::after {
+      content: "";
+      position: absolute;
+      right: 11px;
+      top: 50%;
+      transform: translateY(-50%) rotate(45deg);
+      width: 8px;
+      height: 8px;
+      border-top: 2px solid currentColor;
+      border-right: 2px solid currentColor;
+      opacity: 0.64;
+    }
+
+    .node {
+      position: absolute;
+      top: var(--y);
+      left: var(--x);
+      transform: translate(-50%, -50%);
+      z-index: 6;
+      min-width: 72px;
+      max-width: 122px;
+      height: var(--node-height);
+      padding: 2px 7px 3px;
+      border-radius: 6px;
+      border: 1.6px solid currentColor;
+      background: #fffefb;
+      box-shadow: 0 2px 7px rgba(23, 31, 42, 0.13);
+      color: inherit;
+      white-space: nowrap;
+      text-align: center;
+      line-height: 1.02;
+    }
+
+    .node .date {
+      display: block;
+      font-size: 8.5px;
+      font-weight: 900;
+      opacity: 0.78;
+    }
+
+    .node .name {
+      display: block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-size: 10.5px;
+      font-weight: 900;
+    }
+
+    .node.closed {
+      background: #fff9f1;
+    }
+
+    .node.open {
+      background: #f8fffa;
+    }
+
+    .node.repo {
+      background: #f7fbff;
+    }
+
+    .chatbot .era-label { background: var(--green); }
+    .thinking .era-label { background: var(--blue); }
+    .agent .era-label { background: var(--purple); }
+    .openclaw .era-label { background: var(--orange); }
+
+    .chatbot .lane { color: var(--green); }
+    .thinking .lane { color: var(--blue); }
+    .agent .lane { color: var(--purple); }
+    .openclaw .lane { color: var(--orange); }
+
+    .legend {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      margin-top: 18px;
+      color: #424b5a;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .legend-box {
+      width: 18px;
+      height: 12px;
+      border-radius: 4px;
+      border: 1.5px solid #536070;
+      background: #fffefb;
+    }
+
+    .legend-box.open { background: #d4edda; }
+    .legend-box.closed { background: #f8d7da; }
+    .legend-box.repo { background: #cce7ff; }
+
+    .note {
+      margin: 14px auto 0;
+      max-width: 1180px;
+      color: #5b6472;
+      font-size: 12px;
+      line-height: 1.45;
+      text-align: center;
+    }
+
+    @media print {
+      body {
+        padding: 0;
+        background: #fff;
+      }
+
+      .page {
+        box-shadow: none;
+        border: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <h1 class="title">Evolutionary Timeline of Next-Generation LLM Systems</h1>
+    <p class="subtitle">From conversational models to reasoning cores, tool-using agents, and persistent workspace systems. Each node is labeled by month.</p>
+
+    <section class="timeline-header">
+      <div class="axis-title">Publication / Release Month</div>
+      <div class="axis" id="axis"></div>
+    </section>
+
+    <section id="chart"></section>
+
+    <div class="legend">
+      <span class="legend-item"><span class="legend-box open"></span>Open-source / open platform</span>
+      <span class="legend-item"><span class="legend-box closed"></span>Closed / commercial system</span>
+      <span class="legend-item"><span class="legend-box repo"></span>Repository / benchmark / framework</span>
+    </div>
+
+    <p class="note">
+      Months are approximate release or arXiv months for visualization. The figure emphasizes representative milestones and paradigm shifts rather than exhaustive coverage.
+    </p>
+  </main>
+
+  <script>
+    const start = new Date(2017, 0, 1);
+    const end = new Date(2026, 5, 1);
+
+    const eras = [
+      {
+        id: "chatbot",
+        title: "Chatbot Era",
+        subtitle: "Conversational foundation models",
+        branches: [
+          {
+            name: "Unimodal Models",
+            nodes: [
+              ["2017-06", "Transformer", "open"],
+              ["2018-06", "GPT-1", "open"],
+              ["2018-10", "BERT", "open"],
+              ["2019-02", "GPT-2", "open"],
+              ["2019-10", "T5", "open"],
+              ["2020-01", "Scaling Laws", "open"],
+              ["2020-05", "GPT-3", "closed"],
+              ["2021-09", "FLAN", "open"],
+              ["2021-12", "Gopher", "closed"],
+              ["2022-03", "InstructGPT", "closed"],
+              ["2022-03", "Chinchilla", "closed"],
+              ["2022-04", "PaLM", "closed"],
+              ["2022-11", "ChatGPT", "closed"],
+              ["2023-02", "LLaMA", "open"],
+              ["2023-03", "GPT-4", "closed"],
+              ["2023-03", "Claude", "closed"],
+              ["2023-07", "Llama2-Chat", "open"],
+              ["2024-01", "Mixtral", "open"],
+              ["2024-04", "Llama 3", "open"],
+              ["2024-06", "Qwen2", "open"],
+              ["2025-04", "Qwen3", "open"],
+              ["2025-08", "GPT-5", "closed"]
+            ]
+          },
+          {
+            name: "Multimodal Models",
+            nodes: [
+              ["2021-01", "CLIP", "open"],
+              ["2021-08", "ALIGN", "closed"],
+              ["2022-04", "Flamingo", "closed"],
+              ["2022-05", "CoCa", "closed"],
+              ["2023-01", "BLIP-2", "open"],
+              ["2023-02", "Kosmos-1", "open"],
+              ["2023-04", "MiniGPT-4", "open"],
+              ["2023-04", "LLaVA", "open"],
+              ["2023-05", "InstructBLIP", "open"],
+              ["2023-08", "Qwen-VL", "open"],
+              ["2023-09", "GPT-4V", "closed"],
+              ["2023-10", "CogVLM", "open"],
+              ["2023-12", "Gemini", "closed"],
+              ["2024-01", "LLaVA-1.6", "open"],
+              ["2024-03", "Claude 3", "closed"],
+              ["2024-05", "GPT-4o", "closed"],
+              ["2024-06", "InternVL", "open"],
+              ["2024-08", "Qwen2-VL", "open"],
+              ["2024-09", "Pixtral", "open"],
+              ["2024-09", "Molmo", "open"],
+              ["2025-01", "Qwen2.5-VL", "open"],
+              ["2025-03", "Gemini 2.5", "closed"],
+              ["2025-09", "Qwen3-VL", "open"],
+              ["2025-12", "Qwen3.5-VL", "open"]
+            ]
+          }
+        ]
+      },
+      {
+        id: "thinking",
+        title: "Thinking LLM Era",
+        subtitle: "Long reasoning and test-time compute",
+        branches: [
+          {
+            name: "Unimodal Models",
+            nodes: [
+              ["2024-09", "o1-preview", "closed"],
+              ["2024-09", "o1-mini", "closed"],
+              ["2024-11", "Marco-o1", "open"],
+              ["2024-11", "QwQ-32B-Preview", "open"],
+              ["2024-11", "Skywork-o1 Open", "open"],
+              ["2024-12", "o1", "closed"],
+              ["2025-01", "DeepSeek-R1-Zero", "open"],
+              ["2025-01", "DeepSeek-R1", "open"],
+              ["2025-01", "R1-Distill-Qwen", "open"],
+              ["2025-01", "Sky-T1-32B", "open"],
+              ["2025-01", "o3-mini", "closed"],
+              ["2025-02", "s1", "open"],
+              ["2025-02", "LIMO", "open"],
+              ["2025-02", "Grok 3", "closed"],
+              ["2025-02", "Open-Reasoner-Zero", "open"],
+              ["2025-02", "TinyZero", "open"],
+              ["2025-03", "QwQ-32B", "open"],
+              ["2025-03", "DeepSeek-V3-0324", "open"],
+              ["2025-04", "Phi-4-reasoning", "open"],
+              ["2025-04", "Qwen3", "open"],
+              ["2025-04", "GLM-Z1-32B", "open"],
+              ["2025-04", "Seed-Thinking-v1.5", "open"],
+              ["2025-05", "DeepSeek-R1-0528", "open"],
+              ["2025-05", "MiMo-7B-RL", "open"],
+              ["2025-06", "MiniMax-M1", "open"],
+              ["2025-08", "GPT-oss-120B", "open"],
+              ["2025-08", "DeepSeek-V3.1", "open"],
+              ["2025-09", "ERNIE 4.5-Thinking", "open"],
+              ["2025-12", "DeepSeek-V3.2", "open"]
+            ]
+          },
+          {
+            name: "Multimodal Models",
+            nodes: [
+              ["2024-12", "Gemini 2.0 Flash Thinking", "closed"],
+              ["2024-12", "QVQ-72B-Preview", "open"],
+              ["2025-01", "Kimi k1.5", "closed"],
+              ["2025-02", "Claude 3.7 Sonnet", "closed"],
+              ["2025-03", "Gemma 3", "open"],
+              ["2025-03", "Gemini 2.5 Pro", "closed"],
+              ["2025-04", "o3", "closed"],
+              ["2025-04", "o4-mini", "closed"],
+              ["2025-04", "Kimi-VL-A3B-Thinking", "open"],
+              ["2025-04", "Llama 4 Maverick", "open"],
+              ["2025-04", "Llama 4 Scout", "open"],
+              ["2025-05", "Gemini 2.5 Flash", "closed"],
+              ["2025-05", "InternVL3", "open"],
+              ["2025-05", "Claude 4 Sonnet", "closed"],
+              ["2025-05", "Claude 4 Opus", "closed"],
+              ["2025-06", "MiMo-VL-7B", "open"],
+              ["2025-07", "Kimi K2", "open"],
+              ["2025-07", "Grok 4", "closed"],
+              ["2025-08", "GPT-5", "closed"],
+              ["2025-08", "Claude Opus 4.1", "closed"],
+              ["2025-09", "Claude Sonnet 4.5", "closed"],
+              ["2025-10", "MiniMax-M2", "open"],
+              ["2025-11", "GPT-5.1", "closed"],
+              ["2025-11", "Gemini 3 Pro", "closed"],
+              ["2025-11", "Grok 4.1", "closed"],
+              ["2025-12", "Gemini 3 Flash", "closed"],
+              ["2025-12", "GPT-5.2", "closed"]
+            ]
+          }
+        ]
+      },
+      {
+        id: "agent",
+        title: "Agent Era",
+        subtitle: "Tool use and environment feedback",
+        branches: [
+          {
+            name: "Perception",
+            nodes: [
+              ["2022-05", "MRKL", "open"],
+              ["2022-10", "ReAct", "open"],
+              ["2023-03", "Reflexion", "open"],
+              ["2023-03", "AutoGPT", "repo"],
+              ["2023-03", "BabyAGI", "repo"],
+              ["2023-06", "Voyager", "open"],
+              ["2023-06", "CAMEL", "open"],
+              ["2023-08", "GenAgents", "open"],
+              ["2024-06", "AWM", "open"],
+              ["2024-07", "LLMCompiler", "open"]
+            ]
+          },
+          {
+            name: "Planning",
+            nodes: [
+              ["2022-12", "WebGPT", "closed"],
+              ["2023-02", "Toolformer", "open"],
+              ["2023-03", "HuggingGPT", "open"],
+              ["2023-04", "Chameleon", "open"],
+              ["2023-05", "Gorilla", "open"],
+              ["2023-07", "ToolLLM", "open"],
+              ["2023-08", "API-Bank", "open"],
+              ["2024-11", "MCP", "repo"],
+              ["2025-02", "ToolACE", "open"]
+            ]
+          },
+          {
+            name: "Memory",
+            nodes: [
+              ["2023-05", "WebShop", "open"],
+              ["2023-06", "Mind2Web", "open"],
+              ["2023-07", "WebArena", "open"],
+              ["2024-03", "WorkArena", "open"],
+              ["2024-04", "BrowserGym", "open"],
+              ["2024-05", "AssistantBench", "open"],
+              ["2025-03", "Search-R1", "open"],
+              ["2025-03", "R1-Searcher", "open"],
+              ["2025-03", "ReSearch", "open"],
+              ["2025-05", "WebThinker", "open"]
+            ]
+          },
+          {
+            name: "Tool Use",
+            nodes: [
+              ["2021-07", "Codex", "closed"],
+              ["2023-10", "SWE-bench", "repo"],
+              ["2024-03", "Devin", "closed"],
+              ["2024-04", "SWE-agent", "open"],
+              ["2024-06", "OpenHands", "open"],
+              ["2024-07", "Agentless", "open"],
+              ["2024-08", "Aider", "open"],
+              ["2025-02", "CodeAct", "open"],
+              ["2025-04", "RepoAgent", "open"]
+            ]
+          }
+        ]
+      },
+      {
+        id: "openclaw",
+        title: "OpenClaw Era",
+        subtitle: "Workspace, skills, and task closure",
+        branches: [
+          {
+            name: "Workspace Intelligence",
+            nodes: [
+              ["2023-10", "SWE-bench", "repo"],
+              ["2024-03", "Devin", "closed"],
+              ["2024-04", "SWE-agent", "open"],
+              ["2024-06", "OpenHands", "open"],
+              ["2024-07", "Cursor", "closed"],
+              ["2024-08", "Aider", "open"],
+              ["2025-02", "Claude Code", "closed"],
+              ["2025-05", "Codex Agent", "closed"],
+              ["2026-04", "OpenClaw", "open"],
+              ["2026-04", "SemaClaw", "open"],
+              ["2026-04", "Sema Code", "open"]
+            ]
+          },
+          {
+            name: "Skill-Based Task Closure",
+            nodes: [
+              ["2023-06", "Voyager", "open"],
+              ["2024-10", "Workflow Lib", "repo"],
+              ["2025-06", "Skill Repo", "repo"],
+              ["2026-04", "Agent Skills", "repo"],
+              ["2026-04", "OpenClaw Skills", "repo"],
+              ["2026-04", "Awesome Skills", "repo"],
+              ["2026-04", "SkillFortify", "open"]
+            ]
+          },
+          {
+            name: "Reliability & Governance",
+            nodes: [
+              ["2023-10", "SWE-bench", "repo"],
+              ["2024-04", "OSWorld", "repo"],
+              ["2024-08", "SWE-Verified", "repo"],
+              ["2024-03", "WorkArena", "repo"],
+              ["2025-01", "AgentCompany", "repo"],
+              ["2026-01", "Terminal-Bench", "repo"],
+              ["2026-03", "Verifiers", "open"],
+              ["2026-04", "Task Closure", "repo"]
+            ]
+          },
+          {
+            name: "Evaluation & Verification",
+            nodes: [
+              ["2023-10", "SoM", "open"],
+              ["2024-01", "CogAgent", "open"],
+              ["2024-04", "OSWorld", "repo"],
+              ["2024-10", "OmniParser", "open"],
+              ["2025-01", "ShowUI", "open"],
+              ["2025-01", "UI-TARS", "open"],
+              ["2025-04", "Computer Use", "closed"],
+              ["2026-04", "Workstation", "repo"]
+            ]
+          }
+        ]
+      }
+    ];
+
+    function monthPosition(month) {
+      const [year, mon] = month.split("-").map(Number);
+      const date = new Date(year, mon - 1, 1);
+      const ratio = (date - start) / (end - start);
+      return `${Math.max(0, Math.min(1, ratio)) * 100}%`;
+    }
+
+    function shortMonth(month) {
+      const [year, mon] = month.split("-").map(Number);
+      const names = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+      return `${names[mon - 1]} ${year}`;
+    }
+
+    function monthRatio(month) {
+      const [year, mon] = month.split("-").map(Number);
+      const date = new Date(year, mon - 1, 1);
+      return Math.max(0, Math.min(1, (date - start) / (end - start)));
+    }
+
+    function arrangeNodes(nodes) {
+      const minGap = 0.072;
+      const layers = [];
+
+      return nodes
+        .map((node, index) => ({ node, index, ratio: monthRatio(node[0]) }))
+        .sort((a, b) => a.ratio - b.ratio || a.index - b.index)
+        .map((item) => {
+          let layerIndex = layers.findIndex((lastRatio) => item.ratio - lastRatio >= minGap);
+          if (layerIndex === -1) {
+            layerIndex = layers.length;
+            layers.push(item.ratio);
+          } else {
+            layers[layerIndex] = item.ratio;
+          }
+          return { ...item, layerIndex, layerCount: layers.length };
+        });
+    }
+
+    function branchHeight(layerCount) {
+      return Math.max(46, 30 + layerCount * 30);
+    }
+
+    function nodeY(layerIndex, layerCount) {
+      const height = branchHeight(layerCount);
+      const center = height / 2;
+      const spacing = 30;
+      const first = center - ((layerCount - 1) * spacing) / 2;
+      return `${first + layerIndex * spacing}px`;
+    }
+
+    const axis = document.getElementById("axis");
+    const ticks = [
+      ["2017-01", "Jan 2017"],
+      ["2018-01", "Jan 2018"],
+      ["2019-01", "Jan 2019"],
+      ["2020-01", "Jan 2020"],
+      ["2021-01", "Jan 2021"],
+      ["2022-01", "Jan 2022"],
+      ["2023-01", "Jan 2023"],
+      ["2024-01", "Jan 2024"],
+      ["2025-01", "Jan 2025"],
+      ["2026-01", "Jan 2026"]
+    ];
+
+    ticks.forEach(([month, label]) => {
+      const tick = document.createElement("div");
+      tick.className = "tick";
+      tick.style.left = monthPosition(month);
+      tick.innerHTML = `<span>${label}</span>`;
+      axis.appendChild(tick);
+    });
+
+    const chart = document.getElementById("chart");
+
+    eras.forEach((era) => {
+      const section = document.createElement("section");
+      section.className = `era ${era.id}`;
+
+      const label = document.createElement("div");
+      label.className = "era-label";
+      label.innerHTML = `${era.title}<small>${era.subtitle}</small>`;
+      section.appendChild(label);
+
+      const body = document.createElement("div");
+      body.className = "era-body";
+
+      era.branches.forEach((branch) => {
+        const arrangedNodes = arrangeNodes(branch.nodes);
+        const layerCount = Math.max(1, ...arrangedNodes.map((item) => item.layerIndex + 1));
+        const computedHeight = branchHeight(layerCount);
+
+        const row = document.createElement("div");
+        row.className = "branch";
+        row.style.setProperty("--branch-height", `${computedHeight}px`);
+
+        const branchName = document.createElement("div");
+        branchName.className = "branch-name";
+        branchName.textContent = branch.name;
+        row.appendChild(branchName);
+
+        const lane = document.createElement("div");
+        lane.className = "lane";
+
+        arrangedNodes.forEach(({ node: [month, name, type], layerIndex }) => {
+          const node = document.createElement("div");
+          node.className = `node ${type}`;
+          node.style.setProperty("--x", monthPosition(month));
+          node.style.setProperty("--y", nodeY(layerIndex, layerCount));
+          node.title = `${name} — ${shortMonth(month)}`;
+          node.innerHTML = `<span class="date">${shortMonth(month)}</span><span class="name">${name}</span>`;
+          lane.appendChild(node);
+        });
+
+        row.appendChild(lane);
+        body.appendChild(row);
+      });
+
+      section.appendChild(body);
+      chart.appendChild(section);
+    });
+  </script>
+</body>
+</html>

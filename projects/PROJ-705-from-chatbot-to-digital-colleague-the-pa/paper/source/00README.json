@@ -1,0 +1,57 @@
+{
+   "sources" : [
+      {
+         "usage" : "toplevel",
+         "filename" : "survey.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "TencentSans-W7.afm"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "TencentSans-W7.pfb"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "TencentSans-W7.tfm"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "TencentSans-W7.ttf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "figure/abs1.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "figure/llm_evolution_timeline.html"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "math_commands.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "references.bib"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "survey.bbl"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "t1TencentSans-W7.fd"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "youtu_bib.bib"
+      }
+   ],
+   "spec_version" : 1,
+   "texlive_version" : "2025",
+   "process" : {
+      "compiler" : "pdflatex"
+   }
+}

@@ -1,0 +1,242 @@
+\documentclass[11pt]{youtu}
+
+\usepackage{mathpazo}
+\usepackage{XCharter}
+\usepackage[scaled=1.1]{zlmtt}
+\usepackage{graphicx}
+\usepackage[numbers,sort]{natbib}
+\setlength{\headheight}{31.28004pt}
+
+\usepackage{textcomp}
+\usepackage{tikz}
+\usepackage{gensymb}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{adjustbox}
+\usepackage{siunitx}
+\usepackage{amsmath}
+\usepackage{pifont}
+\usepackage{breakurl}
+\usepackage{fontawesome5}
+\usepackage[toc,page]{appendix}
+\usepackage{tocloft}
+\setlength{\parindent}{0pt}
+\usepackage{marvosym}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{supertabular}
+\usepackage{setspace}
+\usepackage{multicol}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{ragged2e}
+\usepackage{makecell}
+\usepackage{float}
+\usepackage[edges]{forest}
+\usepackage{subcaption}
+\usepackage{soul}
+\usepackage{tabularx}
+\usepackage{enumitem}
+\usepackage{amssymb}
+\usepackage{wrapfig}
+\usepackage{courier}
+\usepackage{bxcoloremoji}
+\usepackage{CJKutf8}
+\usepackage{threeparttable}
+
+\tcbuselibrary{most}
+
+\newcommand{\cqgcomment}[1]{{\begin{CJK*}{UTF8}{gbsn}\textcolor{red}{[#1 -- \textsc{CQG}]}\end{CJK*}}}
+\newcommand{\ymdcomment}[1]{{\begin{CJK*}{UTF8}{gbsn}\textcolor{red}{[#1 -- \textsc{YMD}]}\end{CJK*}}}
+\definecolor{TitlePurpleStart}{RGB}{55, 24, 190}
+\definecolor{TitlePurpleMid}{RGB}{92, 48, 220}
+\definecolor{TitlePurpleEnd}{RGB}{142, 73, 245}
+\newcommand{\gradienttitlephrase}{
+  \textcolor{TitlePurpleStart}{From}
+  \textcolor{TitlePurpleStart!75!TitlePurpleMid}{\ Chatbot}
+  \textcolor{TitlePurpleMid}{\ to}
+  \textcolor{TitlePurpleMid!65!TitlePurpleEnd}{\ Digital}
+  \textcolor{TitlePurpleEnd}{\ Colleague}
+}
+\newcommand{\gradienttitlesubtitle}{
+  \textcolor{TitlePurpleStart}{The}
+  \textcolor{TitlePurpleStart!80!TitlePurpleMid}{\ Evolution}
+  \textcolor{TitlePurpleStart!55!TitlePurpleMid}{\ of}
+  \textcolor{TitlePurpleMid}{\ Next-Generation}
+  \textcolor{TitlePurpleMid!60!TitlePurpleEnd}{\ AI}
+  \textcolor{TitlePurpleEnd}{\ Systems}
+}
+\newcommand{\papertitle}{From Chatbot to Digital Colleague:\\ The Paradigm Shift Toward Persistent Autonomous AI}
+\fancyhead[R]{\tencentsanswseven{From Chatbot to Digital Colleague}}
+\fancypagestyle{firstpage}{
+  \fancyfoot[C]{}
+}
+\newcommand{\eg}{\textit{e.g.,}}
+\def\method{OpenClaw}
+
+\definecolor{hidden-red}{RGB}{205, 44, 36}
+\definecolor{hidden-blue}{RGB}{194,232,247}
+\definecolor{hidden-orange}{RGB}{243,202,120}
+\definecolor{hidden-green}{RGB}{34,139,34}
+\definecolor{hidden-pink}{RGB}{255,245,247}
+\definecolor{hidden-black}{RGB}{20,68,106}
+\definecolor{purple}{RGB}{144,153,196}
+\definecolor{yellow}{RGB}{255,228,123}
+\definecolor{hidden-yellow}{RGB}{255,248,203}
+\definecolor{tkcolor}{RGB}{224,223,255}
+\definecolor{darkblue}{rgb}{0, 0.40, 0.75}
+\definecolor{FigureBackground}{RGB}{237,245,254}
+\colorlet{youtuLightBlue}{FigureBackground}
+\definecolor{AIboxBackground}{RGB}{238,245,253}
+\definecolor{AIboxFrame}{RGB}{54,85,140}
+
+
+\definecolor{blue}{RGB}{55,83,156}
+
+\definecolor{myblue}{RGB}{215,226,240}
+\definecolor{lightcream}{RGB}{252,249,242}
+
+\hypersetup{colorlinks=true, citecolor=darkblue, linkcolor=darkblue, urlcolor=darkblue}
+
+\tcbset{
+  aibox/.style={
+    width=\linewidth,
+    top=8pt,
+    bottom=4pt,
+    colback=AIboxBackground,
+    colframe=AIboxFrame,
+    colbacktitle=AIboxFrame,
+    enhanced,
+    center,
+    attach boxed title to top left={yshift=-0.1in,xshift=0.15in},
+    boxed title style={boxrule=0pt,colframe=AIboxFrame,},
+  }
+}
+
+\tikzstyle{my-box}=[
+rectangle,
+draw=hidden-black,
+rounded corners,
+text opacity=1,
+minimum height=1.5em,
+minimum width=5em,
+inner sep=2pt,
+align=center,
+fill opacity=.5,
+]
+\tikzstyle{leaf}=[my-box, minimum height=1.5em, fill=hidden-red!20, text=black, align=left, font=\normalsize, inner xsep=5pt, inner ysep=4pt]
+\tikzstyle{leaf2}=[my-box, minimum height=1.5em, fill=hidden-green!20, text=black, align=left, font=\normalsize, inner xsep=5pt, inner ysep=4pt]
+\tikzstyle{leaf3}=[my-box, minimum height=1.5em, fill=yellow!32, text=black, align=left, font=\normalsize, inner xsep=5pt, inner ysep=4pt, text width=45em]
+\tikzstyle{leaf4}=[my-box, minimum height=1.5em, fill=hidden-blue!57, text=black, align=left, font=\normalsize, inner xsep=5pt, inner ysep=4pt]
+\tikzstyle{leaf5}=[my-box, minimum height=1.5em, fill=darkblue!15, text=black, align=left, font=\normalsize, inner xsep=5pt, inner ysep=4pt]
+\tikzstyle{leaf6}=[my-box, minimum height=1.5em, fill=purple!30, text=black, align=left, font=\normalsize, inner xsep=5pt, inner ysep=4pt]
+
+\newcommand{\AIboxTitleIcon}{\faIcon[regular]{lightbulb}}
+\newtcolorbox{AIbox}[2][]{aibox,title={\AIboxTitleIcon~#2},#1}
+
+\tcbset{
+  takeawaybox/.style={
+    width=\linewidth,
+    top=8pt,
+    bottom=4pt,
+    colback=hidden-yellow,
+    colframe=black,
+    colbacktitle=black,
+    enhanced,
+    center,
+    attach boxed title to top left={yshift=-0.1in,xshift=0.15in},
+    boxed title style={boxrule=0pt,colframe=white,},
+  },
+  titlebox/.style={
+    enhanced,
+    colback=FigureBackground,
+    colframe=FigureBackground,
+    boxrule=0pt,
+    arc=0pt,
+    outer arc=0pt,
+    left=0pt,
+    right=0pt,
+    top=0pt,
+    bottom=0pt,
+    before skip=0pt,
+    after skip=0pt,
+  },
+  firstpagebluefill/.style={
+    enhanced,
+    frame hidden,
+    colback=FigureBackground,
+    colframe=FigureBackground,
+    boxrule=0pt,
+    arc=10pt,
+    outer arc=10pt,
+    sharp corners=north,
+    left=0.5cm,
+    right=0.5cm,
+    top=0pt,
+    bottom=0.5cm,
+    before skip=0pt,
+    after skip=0pt,
+  }
+}
+
+\newtcolorbox{TakeawayBox}[2][]{takeawaybox,title=#2,#1}
+
+\newcommand{\leveltwoicon}{\textcolor{blue}{\small$\blacktriangle$}}
+\newcommand{\levelthreeicon}{\textcolor{red}{\small$\bigstar$}}
+\newcommand{\headingnote}[1]{
+  \vspace{-0.65em}
+  \par\noindent\hspace{1.8em}{\small\itshape #1}\par
+  \vspace{0.25em}
+}
+
+\title{\includegraphics[height=1.5em]{figure/title-icon.png}\hspace{0.4em}\textit{\papertitle}}
+\renewcommand{\authorlist}{
+  \begin{center}
+    {\tencentsanswseven{Yongheng Zhang$^{*}$, Ziang Liu$^{*}$, Jiaxuan Zhu$^{*}$, Shuai Wang, Xiangqi Chen, Haojing Huang, Jiayi Kuang, Siyu Chen, Ao Shen, Hao Wu, Qiufeng Wang, Qian-Wen Zhang, Junnan Dong, \\ Wenhao Jiang, Ying Shen, Hai-Tao Zheng, Yinghui Li$^{\dagger}$, Di Yin, Xing Sun, Philip S. Yu}}
+  \end{center}
+}
+\renewcommand{\affiliationlist}{
+  \begin{center}
+    {\small\tencentsanswseven{Tencent Youtu Lab\quad Tsinghua University\quad \\ Sun Yat-sen University\quad Central South University\quad University of Illinois at Chicago}}
+  \end{center}
+}
+
+
+
+\begin{document}
+
+\abstract{Large Language Models (LLMs) are undergoing a fundamental transformation from conversational generators into integrated AI systems capable of reasoning, action, memory, and self-improvement. We conceptualize this transition as a shift \textbf{from Chatbot to Digital Colleague}: from conversational answers to persistent work. We organize this transition along two tightly coupled dimensions. First, at the \textbf{cognitive core} level, LLMs are advancing from Chatbot-era ``fast thinking'' systems driven by next-token prediction toward Thinking LLMs that leverage inference-time computation, Chain-of-Thought reasoning, reflection, process supervision, and reinforcement learning to support more deliberate and reliable cognition. Second, at the \textbf{tool-augmented task execution} level, LLMs are progressing from tool-calling Agents that invoke external resources in an ad hoc manner toward OpenClaw-style workstation systems (\method{}) equipped with persistent Workspaces, skills, verification loops, and governance. The \textbf{``Workspace + Skill''} paradigm makes episodic tool use colleague-like via state persistence, reusable procedures, task closure, and experience reuse. We examine \textbf{data construction} shifts from instruction-response pairs to State-Action-Observation trajectories and \textbf{evaluation} from static benchmarks to sandboxed, auditable, self-evolving AI ecosystems.}
+\maketitle
+\thispagestyle{firstpage}
+\noindent\hspace*{-0.7pt}\includegraphics[width=\dimexpr\linewidth+1.5pt\relax]{figure/abs.pdf}
+\newpage
+
+{\hypersetup{linkcolor=black}
+\setstretch{1.9}
+\tableofcontents}
+\newpage
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=\textwidth]{figure/map.pdf}
+    \vspace{-8mm}
+    \caption{A roadmap and evolutionary timeline of next-generation LLM systems. The figure summarizes how these AI systems progress from simple conversational chatbots to reasoning cores, tool-using agents, and persistent workspace systems over time. Each node is labeled by its release month. \raisebox{0.7mm}{\fcolorbox{blue}{myblue}{\textcolor{myblue}{\rule{0.7mm}{0.7mm}}}} box represents open-source / open platform; \raisebox{0.7mm}{\fcolorbox{blue}{lightcream}{\textcolor{lightcream}{\rule{0.7mm}{0.7mm}}}} box represents closed / commercial system.}
+    \label{fig:map}
+\end{figure}
+
+\clearpage
+
+\input{Sections/1.Introduction}
+\input{Sections/2.LLM_Cognitive_Core}
+\input{Sections/3.Task_Execution}
+\input{Sections/4.Skill_Workspace}
+\input{Sections/5.Data_Evaluation}
+\input{Sections/6.Eval_and_Future}
+\input{Sections/7.Related_work}
+\input{Sections/8.Conclusion}
+
+
+\setcitestyle{square,numbers,comma}
+\bibliography{references}
+
+\end{document}

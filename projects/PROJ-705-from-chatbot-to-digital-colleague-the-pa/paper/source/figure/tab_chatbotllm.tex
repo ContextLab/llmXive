@@ -1,0 +1,156 @@
+\begin{table*}[htbp]
+\centering
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.1}
+\caption{An overview of representative non-reasoning LLMs in the chatbot era.}
+\label{tab:chatbot_llm}
+\resizebox{\textwidth}{!}{
+
+\begin{tabular}{@{} lllll | lllll @{}}
+\toprule
+\textbf{Model} & \textbf{Rel.} & \textbf{Para.} & \textbf{Type} & \textbf{Acc.} & \textbf{Model} & \textbf{Rel.} & \textbf{Para.} & \textbf{Type} & \textbf{Acc.} \\
+\midrule
+
+GPT-1~\cite{radford2018improving} & 2018-06 & 117M & Text & Open & Orca~\cite{mukherjee2023orca} & 2023-06 & 13B & Text & Closed \\
+GPT-2~\cite{radford2019language,openai2019gpt2release} & 2019-02 & 1.5B & Text & Open & Llama 2~\cite{touvron2023llama2} & 2023-07 & 7--70B & Text & Open \\
+PLATO~\cite{bao2020plato} & 2019-10 & 132M & Text & Open & InternLM~\cite{internlm2023} & 2023-07 & 7B/20B & Text & Open \\
+T5~\cite{raffel2020exploring} & 2019-10 & 60M--11B & Text & Open & Claude 2~\cite{anthropic2023claude2} & 2023-07 & - & Text & Closed \\
+DialoGPT~\cite{zhang2020dialogpt} & 2019-11 & 117M/345M/762M & Text & Open & WizardLM~\cite{xu2023wizardlm} & 2023-07 & 7B/13B/30B & Text & Open \\
+Meena~\cite{adiwardana2020towards} & 2020-01 & 2.6B & Text & Closed & Qwen~\cite{bai2023qwen} & 2023-08 & 1.8--72B & Text & Open \\
+BlenderBot~\cite{roller2021recipes} & 2020-04 & 90M/2.7B/9.4B & Text & Open & Qwen-VL~\cite{bai2023qwenvl} & 2023-08 & 9.6B & Multi & Open \\
+GPT-3~\cite{brown2020language} & 2020-05 & 175B & Text & Closed & OpenFlamingo~\cite{awadalla2023openflamingo} & 2023-08 & 3--9B & Multi & Open \\
+PLATO-2~\cite{bao2021plato} & 2020-06 & 93M/314M/1.6B & Text & Open & Code Llama-Instruct~\cite{roziere2023code} & 2023-08 & 7B/13B/34B & Code & Open \\
+BlenderBot 2~\cite{parlai2021blenderbot2} & 2021-07 & 400M/2.7B & Text & Open & WizardMath~\cite{luo2023wizardmath} & 2023-08 & 7B/13B/70B & Text & Open \\
+Jurassic-1~\cite{lieber2021jurassic} & 2021-08 & 178B & Text & Closed & WizardCoder~\cite{luo2024wizardcoder} & 2023-08 & 7B/13B/34B & Code & Open \\
+Codex~\cite{chen2021evaluating} & 2021-08 & 12M-12B & Text & Closed & IDEFICS~\cite{laurenccon2023obelics} & 2023-08 & 9B/80B & Multi & Open \\
+HyperCLOVA~\cite{kim2021hyperclova} & 2021-09 & 82B & Text & Closed & Phi-1.5~\cite{li2023phi15} & 2023-09 & 1.3B & Text & Open \\
+PLATO-XL~\cite{bao2022plato} & 2021-09 & 11B & Text & Open & Baichuan 2~\cite{baichuan2023baichuan2} & 2023-09 & 7B/13B & Text & Open \\
+Gopher~\cite{rae2021scaling} & 2021-12 & 280B & Text & Closed & GPT-4V~\cite{openai2023gpt4v} & 2023-09 & - & Multi & Closed \\
+ERNIE 3.0 Titan~\cite{wang2021ernie} & 2021-12 & 260B & Text & Closed & Mistral 7B~\cite{jiang2023mistral7b} & 2023-09 & 7.3B & Text & Open \\
+GLaM~\cite{du2022glam} & 2021-12 & 1.2T-A97B & Text & Closed & Mixtral~\cite{jiang2024mixtral} & 2023-09 & 7B & Text & Open \\
+LaMDA~\cite{thoppilan2022lamda} & 2022-01 & 137B & Text & Closed & Kimi / Moonshot~\cite{moonshot2024kimi} & 2023-10 & - & Text & Closed \\
+AlphaCode~\cite{li2022competition} & 2022-02 & 9B/41B & Text & Closed & ERNIE 4.0~\cite{baidu2023ernie4} & 2023-10 & - & Multi & Closed \\
+InstructGPT~\cite{ouyang2022training} & 2022-03 & 1.3--175B & Text & Closed & Fuyu~\cite{adept2023fuyu} & 2023-10 & 8B & Multi & Open \\
+Chinchilla~\cite{hoffmann2022chinchilla} & 2022-03 & 70B & Text & Closed & Zephyr-7B~\cite{tunstall2023zephyr} & 2023-10 & 7B & Text & Open \\
+CodeGen~\cite{nijkamp2022conversational} & 2022-03 & 350M/2B/6B/16B & Text & Open & ChatGLM3-6B~\cite{thudm2023chatglm3-6b} & 2023-10 & 6B & Text & Open \\
+PaLM~\cite{chowdhery2022palm} & 2022-04 & 540B & Text & Closed & Skywork-13B~\cite{wei2023skywork} & 2023-10 & 13B & Text & Open \\
+Flamingo~\cite{alayrac2022flamingo} & 2022-04 & 80B & Multi & Closed & GPT-4 Turbo~\cite{openai2023devday,openai2024gpt4turbo} & 2023-11 & - & Text & Closed \\
+OPT~\cite{zhang2022opt} & 2022-05 & 125M--175B & Text & Open & Grok-1~\cite{xai2024grok} & 2023-11 & 314B-A78.5B & Text & Open \\
+GODEL~\cite{peng2022godel} & 2022-06 & 220M/770M & Text & Open & Yi~\cite{young2024yi} & 2023-11 & 6B/34B & Text & Open \\
+BLOOM~\cite{bigscience2022bloom} & 2022-07 & 176B & Text & Open & CogVLM~\cite{wang2023cogvlm} & 2023-11 & 17B & Multi & Open \\
+BlenderBot 3~\cite{shuster2022blenderbot} & 2022-08 & 3B/30B/175B & Text & Open & Claude 2.1~\cite{anthropic2023claude21} & 2023-11 & - & Text & Closed \\
+PaLI / PaLI-X~\cite{chen2022pali,chen2023palix} & 2022-09 & 17B/55B & Multi & Closed & Inflection-2~\cite{inflection2023inflection2} & 2023-11 & - & Text & Closed \\
+Sparrow~\cite{glaese2022improving} & 2022-09 & 70B & Text & Closed & DeepSeek Coder Instruct~\cite{deepseekai2023deepseekcoder} & 2023-11 & 1B--33B & Code & Open \\
+CodeGeeX~\cite{zheng2023codegeex} & 2022-09 & 13B & Text & Open & OpenChat 3.5~\cite{wang2024openchat} & 2023-11 & 7B & Text & Open \\
+GLM-130B~\cite{zeng2022glm130b} & 2022-10 & 130B & Text & Open & DeepSeek LLM~\cite{bi2024deepseek} & 2023-11 & 7B/67B & Text & Open \\
+Galactica~\cite{taylor2022galactica} & 2022-11 & 120B & Text & Open & Orca 2~\cite{mitra2023orca} & 2023-11 & 7B/13B & Text & Open \\
+BLIP-2~\cite{li2023blip} & 2023-01 & 4B-12B & Multi & Open & Mixtral 8x7B~\cite{jiang2024mixtral} & 2023-12 & 47B-A13B & Text & Open \\
+Llama~\cite{touvron2023llama} & 2023-02 & 7--65B & Text & Open & Phi-2~\cite{microsoft2023phi2} & 2023-12 & 2.7B & Text & Open \\
+Alpaca~\cite{alpaca2023stanford} & 2023-03 & 7B & Text & Open & Gemini 1.0~\cite{gemini2023} & 2023-12 & - & Multi & Closed \\
+Claude 1~\cite{anthropic2023claude,bai2022constitutional} & 2023-03 & - & Text & Closed & InternVL 1.0~\cite{chen2023internvl} & 2023-12 & 6B+ & Multi & Open \\
+PanGu-$\Sigma$~\cite{ren2023pangu} & 2023-03 & 1.085T & Text & Closed & SOLAR-10.7B~\cite{kim2024solar} & 2023-12 & 10.7B & Text & Open \\
+BloombergGPT~\cite{wu2023bloomberggpt} & 2023-03 & 50B & Text & Closed & GLM-4~\cite{zhipu2024glm4} & 2024-01 & - & Text & Closed \\
+ChatGLM-6B~\cite{thudm2023chatglm6b} & 2023-03 & $\sim$6.2B & Text & Open & GLM-4V~\cite{zhipu2024glm4} & 2024-01 & 9B & Multi & Closed \\
+GPT-4~\cite{achiam2023gpt} & 2023-03 & - & Multi & Closed & LLaVA-NeXT~\cite{liu2024llavanext} & 2024-01 & 7--34B & Multi & Open \\
+PaLM-E~\cite{driess2023palme} & 2023-03 & 562B & Multi & Closed & Stable LM 2~\cite{bellagente2024stable} & 2024-01 & 1.6B & Text & Open \\
+Vicuna~\cite{vicuna2023lmsys} & 2023-03 & 7B/13B & Text & Open & Yi-VL~\cite{young2024yi} & 2024-01 & 6B/34B & Multi & Open \\
+GPT-3.5 Turbo~\cite{openai2023gpt35turboapi} & 2023-03 & - & Text & Closed & Mistral Large~\cite{mistral2024large} & 2024-02 & - & Text & Closed \\
+Pythia~\cite{biderman2023pythia} & 2023-04 & 70M--12B & Text & Open & Qwen 1.5~\cite{qwen2024qwen15moe} & 2024-02 & 0.5--72B & Text & Open \\
+LLaVA~\cite{liu2023llava} & 2023-04 & 7B/13B & Multi & Open & Gemini 1.5~\cite{gemini2024gemini15} & 2024-02 & - & Multi & Closed \\
+MiniGPT-4~\cite{zhu2023minigpt4} & 2023-04 & 7B/13B & Multi & Open & OLMo~\cite{groeneveld2024olmo} & 2024-02 & 1B/7B & Text & Open \\
+Dolly 2.0~\cite{databricks2023dolly15k} & 2023-04 & 12B & Text & Open & StarCoder2~\cite{lozhkov2024starcoder} & 2024-02 & 3B/7B/15B & Code & Open \\
+Stable LM~\cite{stabilityai2023stablelm} & 2023-04 & 3B/7B & Text & Open & Reka Flash~\cite{rekaai2024rekaflash} & 2024-02 & 21B & Multi & Closed \\
+Falcon~\cite{almazrouei2023falcon,penedo2023refinedweb} & 2023-05 & 7--180B & Text & Open & Gemma~\cite{gemma2024} & 2024-03 & 2B/7B & Text & Open \\
+MPT~\cite{mosaicml2023mpt7b,mosaicml2023mpt30b} & 2023-05 & 7B/30B & Text & Open & Qwen1.5-MoE~\cite{qwen2024qwen15moe} & 2024-03 & 14B-A2.7B & Text & Open \\
+StarCoder~\cite{li2023starcoder} & 2023-05 & 15.5B & Text & Open & DBRX~\cite{databricks2024dbrx} & 2024-03 & 132B-A36B & Text & Open \\
+RedPajama~\cite{together2023redpajama} & 2023-05 & 3B/7B & Text & Open & Jamba~\cite{lieber2024jamba} & 2024-03 & 52B-A12B & Text & Open \\
+InstructBLIP~\cite{dai2023instructblip} & 2023-05 & - & Multi & Open & Claude 3~\cite{anthropic2024claude3} & 2024-03 & - & Multi & Closed \\
+PaLM 2~\cite{anil2023palm} & 2023-05 & - & Text & Closed & Command R~\cite{cohere2024commandr} & 2024-03 & 35B & Text & Open \\
+CodeT5+~\cite{wang2023codet5+} & 2023-05 & 220M-16B & Code & Open & Inflection-2.5~\cite{inflection2024inflection25} & 2024-03 & - & Text & Closed \\
+Inflection-1~\cite{inflection2023inflection1} & 2023-06 & - & Text & Closed & DeepSeek-VL~\cite{deepseekai2024deepseekvl} & 2024-03 & 1.3B/7B & Multi & Open \\
+Phi-1~\cite{gunasekar2023phi1} & 2023-06 & 1.3B & Text & Open & Grok-1.5~\cite{xai2024grok15} & 2024-03 & - & Text & Closed \\
+Aquila~\cite{baai2023aquila} & 2023-06 & 7B/33B & Text & Open & MM1~\cite{mckinzie2024mm1} & 2024-03 & 3B/7B/30B & Multi & Closed \\
+ChatGLM2-6B~\cite{thudm2023chatglm2-6b} & 2023-06 & 6B & Text & Open & Yi-9B~\cite{young2024yi} & 2024-03 & 9B & Text & Open \\
+Baichuan-Chat~\cite{baichuaninc2023baichuan7b,baichuaninc2023baichuan13b} & 2023-06 & 7B/13B & Text & Open & Phi-3~\cite{abdin2024phi3} & 2024-04 & 3.8--14B & Text & Open \\
+XGen-7B~\cite{nijkamp2023xgen} & 2023-06 & 7B & Text & Open & Mixtral 8x22B~\cite{mistral2024mixtral8x22b} & 2024-04 & 141B-A39B & Text & Open \\
+\bottomrule
+\end{tabular}
+}
+
+\end{table*}
+
+\clearpage
+
+\begin{table*}[!p]
+\ContinuedFloat
+\centering
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.1}
+\caption[]{An overview of representative non-reasoning LLMs in the chatbot era (continued).}
+\resizebox{\textwidth}{!}{
+\begin{tabular}{@{} lllll | lllll @{}}
+\toprule
+\textbf{Model} & \textbf{Rel.} & \textbf{Para.} & \textbf{Type} & \textbf{Acc.} & \textbf{Model} & \textbf{Rel.} & \textbf{Para.} & \textbf{Type} & \textbf{Acc.} \\
+\midrule
+
+Llama 3~\cite{meta2024llama3} & 2024-04 & 8B-A70B & Text & Open & Hunyuan-Large~\cite{sun2024hunyuan} & 2024-11 & 389B-A52B & Text & Open \\
+Command R+~\cite{cohere2024commandrplus} & 2024-04 & 104B & Text & Open & OLMo 2~\cite{olmo20242} & 2024-11 & 7B/13B & Text & Open \\
+InternVL 1.5~\cite{chen2024far} & 2024-04 & 26B & Multi & Open & Pixtral Large~\cite{mistral2024pixtrallarge} & 2024-11 & 124B & Multi & Mixed \\
+Reka Core~\cite{rekaai2024rekacore} & 2024-04 & - & Multi & Closed & SmolVLM~\cite{marafioti2025smolvlm} & 2024-11 & 2B & Multi & Open \\
+CodeQwen1.5~\cite{qwen2024codeqwen15} & 2024-04 & 7B & Code & Open & DeepSeek-V3~\cite{deepseek2024v3} & 2024-12 & 671B-A37B & Text & Open \\
+IDEFICS2~\cite{laurenccon2024matters} & 2024-04 & 8B & Multi & Open & Llama 3.3~\cite{meta2024llama33} & 2024-12 & 70B & Text & Open \\
+OpenELM~\cite{mehta2024openelm} & 2024-04 & 270M-3B & Text & Open & PaliGemma 2~\cite{google2024paligemma2} & 2024-12 & 3B/10B/28B & Multi & Open \\
+Snowflake Arctic~\cite{snowflake2024snowflakearctic} & 2024-04 & 480B-A17B & Text & Open & DeepSeek-VL2~\cite{wu2024deepseek} & 2024-12 & 27B-A4.5B & Multi & Open \\
+Doubao~\cite{bytedance2024doubao} & 2024-05 & - & Text & Closed & Falcon 3~\cite{Falcon3} & 2024-12 & 1B-10B & Text & Open \\
+DeepSeek-V2~\cite{deepseek2024v2} & 2024-05 & 236B-A21B & Text & Open & Granite 3.1~\cite{ibm2024granite31} & 2024-12 & 1B-8B & Text & Open \\
+GPT-4o~\cite{hurst2024gpt} & 2024-05 & - & Multi & Closed & InternVL2.5~\cite{chen2024expanding} & 2024-12 & 1B--78B & Multi & Open \\
+CogVLM2~\cite{hong2024cogvlm2} & 2024-05 & 19B & Multi & Open & MiniMax-Text-01~\cite{minimax2025minimax01scalingfoundationmodels} & 2025-01 & 456B-A45.9B & Text & Open \\
+MiniCPM-V~\cite{yao2024minicpmv} & 2024-05 & 2--8B & Multi & Open & MiniMax-VL-01~\cite{minimax2025minimax01scalingfoundationmodels} & 2025-01 & 456B-A45.9B & Multi & Open \\
+Codestral~\cite{mistral2024codestral} & 2024-05 & 22B & Code & Open & Qwen2.5-Max~\cite{qwen2025qwen25max} & 2025-01 & - & Text & Closed \\
+Falcon 2~\cite{malartic2024falcon2} & 2024-05 & 11B & Multi & Open & MiniCPM-o 2.6~\cite{openbmb2025minicpmo26} & 2025-01 & 8B & Multi & Open \\
+PaliGemma~\cite{beyer2024paligemma} & 2024-05 & 3B & Multi & Open & Qwen2.5-VL~\cite{bai2025qwen2} & 2025-01 & 3B/7B/72B & Multi & Open \\
+Aya 23~\cite{aryabumi2024aya} & 2024-05 & 8B/35B & Text & Open & Janus-Pro~\cite{chen2025janus} & 2025-01 & 1B/7B & Multi & Open \\
+Granite Code~\cite{mishra2024granite} & 2024-05 & 3B-34B & Code & Open & Mistral Small 3~\cite{mistral2025mistralsmall3} & 2025-01 & 24B & Text & Open \\
+Qwen 2~\cite{qwen2024qwen2} & 2024-06 & 0.5--72B & Text & Open & GPT-4.5~\cite{openai2025gpt45} & 2025-02 & - & Text & Closed \\
+GLM-4-9B~\cite{glm2024glm4} & 2024-06 & 9B & Text & Open & Phi-4-mini~\cite{abouelenin2025phi} & 2025-02 & 4B & Text & Open \\
+Claude 3.5 Sonnet~\cite{anthropic2024claude35} & 2024-06 & - & Multi & Closed & Phi-4-multimodal~\cite{abouelenin2025phi} & 2025-02 & 6B & Multi & Open \\
+Cambrian-1~\cite{tong2024cambrian} & 2024-06 & 3--34B & Multi & Open & Command A~\cite{cohere2025commanda} & 2025-03 & 111B & Text & Closed \\
+DeepSeek-Coder-V2~\cite{deepseek2024coderv2} & 2024-06 & 236B-A21B & Code & Open & Mistral Small 3.1~\cite{mistral2025small31} & 2025-03 & 24B & Multi & Open \\
+Nemotron-4~\cite{nvidia2024nemotron} & 2024-06 & 340B & Text & Open & Aya Vision~\cite{dash2025aya} & 2025-03 & 8B/32B & Multi & Open \\
+Gemma 2~\cite{google2024gemma2} & 2024-06 & 2B/9B/27B & Text & Open & Qwen2.5-VL-32B~\cite{qwen2025qwen25vl32b} & 2025-03 & 32B & Multi & Open \\
+Skywork-MoE~\cite{wei2024skywork} & 2024-06 & 146B-A22B & Text & Open & OLMo 2 32B~\cite{allenai2025olmo232b} & 2025-03 & 32B & Text & Open \\
+InternVL 2.0~\cite{internvl2024internvl2} & 2024-07 & 1--76B & Multi & Open & GPT-4.1~\cite{openai2025gpt41} & 2025-04 & - & Multi & Closed \\
+Llama 3.1~\cite{dubey2024llama3} & 2024-07 & 8--405B & Text & Open & GPT-4.1 mini~\cite{openai2025gpt41} & 2025-04 & - & Multi & Closed \\
+InternLM 2.5~\cite{internlm2024internlm25} & 2024-07 & 1.8--20B & Text & Open & GPT-4.1 nano~\cite{openai2025gpt41} & 2025-04 & - & Multi & Closed \\
+GPT-4o mini~\cite{openai2024gpt4omini} & 2024-07 & - & Multi & Closed & Granite 3.3~\cite{ibm2025granite33} & 2025-04 & 2B/8B & Text & Open \\
+Codestral Mamba~\cite{mistral2024codestralmamba} & 2024-07 & 7B & Code & Open & Kimi-VL-A3B-Instruct~\cite{kimiteam2025kimivl} & 2025-04 & 16B-A2.8B & Multi & Open \\
+Mistral NeMo~\cite{mistral2024nemo} & 2024-07 & 12B & Text & Open & Amazon Nova Premier~\cite{Intelligence2025} & 2025-04 & - & Multi & Closed \\
+SmolLM~\cite{allal2024smollm} & 2024-07 & 135M/360M/1.7B & Text & Open & Mistral Medium 3~\cite{mistral2025mistralmedium3} & 2025-05 & - & Multi & Closed \\
+Mistral Large 2~\cite{mistral2024mistrallarge2} & 2024-07 & 123B & Text & Open & Devstral~\cite{mistral2025devstral} & 2025-05 & 24B & Code & Open \\
+LLaVA-OV~\cite{llava2024onevision} & 2024-08 & 0.5--72B & Multi & Open & ERNIE-4.5-300B-A47B~\cite{baidu2025ernie45technicalreport} & 2025-06 & 300B-A47B & Multi & Open \\
+Grok-2~\cite{xai2024grok2} & 2024-08 & - & Text & Closed & Qwen3-4B-Instruct~\cite{qwen2025qwen3} & 2025-07 & 4B & Text & Open \\
+Grok-1.5V~\cite{xai2024grok15v} & 2024-08 & - & Multi & Closed & Kimi K2 Instruct~\cite{kimiteam2025kimik2} & 2025-07 & 1T-A32B & Text & Open \\
+Phi-3.5-mini-instruct~\cite{abdin2024phi3} & 2024-08 & 3.8B & Text & Open & Qwen3-Coder~\cite{qwen2025qwen3coder} & 2025-07 & 480B-A35B & Text & Open \\
+Phi-3.5-MoE-instruct~\cite{abdin2024phi3} & 2024-08 & 42B-A6.6B & Multi & Open & FastVLM~\cite{vasu2025fastvlm} & 2025-07 & 0.5B/1.5B/7B & Multi & Open \\
+Jamba 1.5~\cite{team2024jamba} & 2024-08 & 398B-A94B & Text & Open & LFM2-VL~\cite{amini2025lfm2} & 2025-08 & 450M/1.6B/3B & Multi & Open \\
+Qwen2-VL~\cite{wang2024qwen2vl} & 2024-09 & 2--72B & Multi & Open & LongCat-Flash-Chat~\cite{team2025longcat} & 2025-08 & 560B-A27B & Multi & Open \\
+Llama 3.2 Text~\cite{meta2024llama32} & 2024-09 & 1B/3B & Text & Open & Qwen3-Next~\cite{qwen2025qwen3next80ba3binstruct} & 2025-09 & 81B-A3B & Text & Open \\
+Llama 3.2 Vision~\cite{meta2024llama32} & 2024-09 & 11B/90B & Multi & Open & Qwen3-VL~\cite{bai2025qwen3} & 2025-09 & 235B-A22B & Multi & Open \\
+Qwen2.5~\cite{qwen2024qwen25} & 2024-09 & 0.5--72B & Text & Open & Mistral Large 3~\cite{mistral2025mistrallarge3} & 2025-12 & 675B-A41B & Multi & Open \\
+Pixtral~\cite{agrawal2024pixtral} & 2024-09 & 12B & Multi & Open & Ministral 3 Instruct~\cite{mistral2025mistrallarge3} & 2025-12 & 3B/8B/14B & Multi & Open \\
+OLMoE~\cite{muennighoff2025olmoe} & 2024-09 & 7B-A1B & Text & Open & Devstral 2~\cite{mistral2025devstral2} & 2025-12 & 123B & Text & Open \\
+Molmo~\cite{muennighoff2025olmoe} & 2024-09 & 7B/72B & Multi & Open & Devstral Small 2~\cite{mistral2025devstral2} & 2025-12 & 24B & Text & Open \\
+Claude 3.5 Haiku~\cite{anthropic2024claude35haiku} & 2024-10 & - & Text & Closed & Youtu-LLM~\cite{lu2026youtullmunlockingnativeagentic} & 2026-01 & 1.96B & Text & Open \\
+Aya Expanse~\cite{dang2024aya} & 2024-10 & 8B/32B & Text & Open & Youtu-VL~\cite{wei2026youtuvlunleashingvisualpotential} & 2026-01 & 4B & Multi & Open \\
+Granite 3.0~\cite{granite2024granite} & 2024-10 & 1B-8B & Text & Open & Qwen3-Coder-Next~\cite{cao2026qwen3} & 2026-02 & 80B-A3B & Text & Open \\
+Yi-Lightning~\cite{wake2024yi} & 2024-10 & - & Text & Closed & LongCat-Flash-Lite~\cite{liu2026scaling} & 2026-02 & 68.5B-A3B & Text & Open \\
+Qwen2.5-Coder~\cite{qwen2024qwen25coder} & 2024-11 & 0.5--32B & Text & Open & Mistral Small 4-instruct~\cite{mistral2026mistralsmall4instruct} & 2026-03 & 119B-A6B & Multi & Open \\
+Llama-3.1-Nemotron-70B~\cite{wang2024helpsteer2} & 2024-11 & 70B & Text & Open & LongCat-Next~\cite{team2026longcat} & 2026-03 & 68.5B-A3B & Multi & Open \\
+\bottomrule
+\end{tabular}
+}
+
+\end{table*}
+\clearpage

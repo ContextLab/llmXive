@@ -1,0 +1,10 @@
+\section{Conclusion and Discussion}
+We proposed MRAgent, a reconstructive memory agent that formulates memory access as an active, multi-step reconstruction process over a structured memory graph.
+A key design choice of MRAgent is to shift the modeling of complex relational dependencies to the retrieval stage, enabling the agent to resolve more complex queries with fewer computational cost through targeted, state-dependent exploration.
+As a result, our current implementation adopts a relatively simple memory construction strategy, without introducing additional complexity in memory updating or forgetting mechanisms.
+This design choice also exposes several limitations that suggest directions for
+future work. First, because relational reasoning is deferred to retrieval, the
+cost of reconstruction grows with the depth of exploration, and queries that require many traversal steps incur higher latency than single-shot retrieval.
+Second, our static construction does not update or consolidate memory over time, so the memory graph grows monotonically as interactions accumulate, raising storage overhead in long-lived deployments.  Addressing these limitations
+through adaptive construction, lightweight memory maintenance, and more robust traversal policies is a promising avenue for extending active reconstruction to
+broader long-horizon settings.

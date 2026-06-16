@@ -1,0 +1,74 @@
+\begin{table}[htbp]
+\centering
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.1}
+\caption{An overview of representative reasoning LLMs in the Thinking LLM era.}
+\label{tab:thinking_llm}
+\resizebox{\textwidth}{!}{
+\begin{tabular}{@{} lllll | lllll @{}}
+\toprule
+\textbf{Model} & \textbf{Rel.} & \textbf{Para.} & \textbf{Type} & \textbf{Acc.} & \textbf{Model} & \textbf{Rel.} & \textbf{Para.} & \textbf{Type} & \textbf{Acc.} \\
+\midrule
+o1-preview~\cite{openai2024o1systemcard} & 2024-09 & -- & Text & Closed & Claude 4 Opus~\cite{anthropic2025claude4systemcard} & 2025-05 & -- & Multi & Closed \\
+o1-mini~\cite{openai2024o1systemcard} & 2024-09 & -- & Text & Closed & MiniMax-M1~\cite{chen2025minimax} & 2025-06 & 456B/46B & Text & Open \\
+Marco-o1~\cite{zhao2024marcoo1} & 2024-11 & 7B & Text & Open & Kimi-Dev-72B~\cite{moonshotai2025kimidev} & 2025-06 & 72B & Code & Open \\
+QwQ-32B-Preview~\cite{qwen2024qwqpreview} & 2024-11 & 32B & Text & Open & MiMo-VL-7B~\cite{xiaomimimo2025mimovl} & 2025-06 & 7B & Multi & Open \\
+Skywork-o1 Open~\cite{skywork2024skyworko1open} & 2024-11 & 8B & Text & Open & Hunyuan-A13B-Instruct~\cite{tencent2025hunyuana13binstruct} & 2025-06 & 80B-A13B & Text & Open \\
+o1~\cite{openai2024o1systemcard} & 2024-12 & -- & Text & Closed & Kimi K2~\cite{kimiteam2025kimik2} & 2025-07 & 1T/32B & Multi & Open \\
+o1-pro~\cite{openai2024chatgptpro} & 2024-12 & -- & Text & Closed & Qwen3-Coder~\cite{qwen2025qwen3coder} & 2025-07 & 480B/35B & Code & Open \\
+Gemini 2.0 Flash Thinking~\cite{google2025gemini20flashthinking} & 2024-12 & -- & Multi & Closed & Qwen3-235B-Thinking-2507~\cite{qwen2025qwen3235bthinking2507} & 2025-07 & 235B/22B & Text & Open \\
+QVQ-72B-Preview~\cite{qwen2024qvqpreview} & 2024-12 & 72B & Multi & Open & Grok 4~\cite{xai2025grok4modelcard} & 2025-07 & -- & Multi & Closed \\
+DeepSeek-R1-Zero~\cite{deepseek2025r1} & 2025-01 & 671B/37B & Text & Open & SmolLM3~\cite{bakouch2025smollm3} & 2025-07 & 3B & Text & Open \\
+DeepSeek-R1~\cite{deepseek2025r1} & 2025-01 & 671B/37B & Text & Open & GPT-5~\cite{openai2025gpt5systemcard} & 2025-08 & ${\sim}$300B & Multi & Closed \\
+R1-Distill-Qwen~\cite{deepseek2025r1} & 2025-01 & 1.5B--32B & Text & Open & DeepSeek-V3.1~\cite{deepseekai2025deepseekv31} & 2025-08 & 685B/37B & Text & Open \\
+R1-Distill-Llama~\cite{deepseek2025r1} & 2025-01 & 8B/70B & Text & Open & GPT-oss-120B~\cite{agarwal2025gptoss} & 2025-08 & 117B/5.1B & Text & Open \\
+Kimi k1.5~\cite{kimiteam2025kimiK15} & 2025-01 & -- & Multi & Closed & GPT-oss-20B~\cite{agarwal2025gptoss} & 2025-08 & 20B & Text & Open \\
+Sky-T1-32B~\cite{novasky2025skyt1} & 2025-01 & 32B & Text & Open & Claude Opus 4.1~\cite{anthropic2025claudeopus41} & 2025-08 & -- & Multi & Closed \\
+o3-mini~\cite{openai2025o3minisystemcard} & 2025-01 & -- & Text & Closed & ERNIE 4.5-Thinking~\cite{baidu2025ernie45thinking} & 2025-09 & 21B/3B & Text & Open \\
+s1~\cite{muennighoff2025s1} & 2025-02 & 32B & Text & Open & Claude Sonnet 4.5~\cite{anthropic2025claudesonnet45} & 2025-09 & -- & Multi & Closed \\
+LIMO~\cite{ye2025limo} & 2025-02 & 32B & Text & Open & Grok 4 Fast~\cite{xai2025grok4} & 2025-09 & -- & Multi & Closed \\
+Grok 3~\cite{xai2025grok3} & 2025-02 & -- & Multi & Closed & MiniMax-M2~\cite{minimax2025minimaxm2} & 2025-10 & 230B/10B & Multi & Open \\
+Grok 3 mini~\cite{xai2025grok3} & 2025-02 & -- & Text & Closed & Claude Haiku 4.5~\cite{anthropic2025claudehaiku45} & 2025-10 & -- & Multi & Closed \\
+Claude 3.7 Sonnet~\cite{anthropic2025claude37sonnet} & 2025-02 & -- & Multi & Closed & Grok 4.1 Fast~\cite{xai2026grok41} & 2025-10 & -- & Multi & Closed \\
+Hunyuan-T1-Preview~\cite{tencent2025hunyuanT1} & 2025-02 & -- & Text & Closed & Ring-1T~\cite{team2025every} & 2025-10 & 1T-A50B & Text & Open \\
+Open-Reasoner-Zero~\cite{hu2025openreasonerzero} & 2025-02 & 7B/32B & Text & Open & GPT-5.1~\cite{openai2025gpt51} & 2025-11 & -- & Multi & Closed \\
+TinyZero~\cite{pan2025tinyzero} & 2025-02 & 3B & Text & Open & Gemini 3 Pro~\cite{google2025gemini3} & 2025-11 & -- & Multi & Closed \\
+Eurus-2-PRIME~\cite{cui2025prime} & 2025-02 & 7B & Text & Open & Grok 4.1~\cite{xai2025grok41} & 2025-11 & -- & Multi & Closed \\
+Bespoke-Stratos~\cite{bespokelabs2025stratos7b} & 2025-02 & 7B & Text & Open & Claude Opus 4.5~\cite{anthropic2025claudeopus45} & 2025-11 & -- & Multi & Closed \\
+Light-R1~\cite{wen2025lightr1} & 2025-02 & 7B/14B & Text & Open & DeepSeek-V3.2~\cite{deepseekai2025deepseekv32} & 2025-12 & 671B/37B & Text & Open \\
+Hunyuan-TurboS~\cite{team2025hunyuan} & 2025-02 & 560B-A56B & Text & Closed & DeepSeek-V3.2-Speciale~\cite{deepseekai2025deepseekv32} & 2025-12 & 671B/37B & Text & Open \\
+Gemma 3~\cite{gemmateam2025gemma3technicalreport} & 2025-03 & 4B/12B/27B & Multi & Open & Gemini 3 Flash~\cite{google2025gemini3flash} & 2025-12 & -- & Multi & Closed \\
+QwQ-32B~\cite{qwen2025qwq32b} & 2025-03 & 32B & Text & Open & MiMo-V2-Flash~\cite{xiaomi2026mimov2flash} & 2025-12 & 309B/15B & Text & Open \\
+Hunyuan-T1~\cite{tencent2025hunyuanT1} & 2025-03 & -- & Text & Closed & GLM-4.7~\cite{zai2025glm47} & 2025-12 & 358B & Text & Open \\
+Gemini 2.5 Pro~\cite{google2025gemini25pro} & 2025-03 & -- & Multi & Closed & Devstral 2~\cite{mistral2025devstral2} & 2025-12 & 123B & Code & Open \\
+DeepSeek-V3-0324~\cite{deepseek2025deepseekv30324} & 2025-03 & 671B/37B & Text & Open & GPT-5.2~\cite{openai2025gpt52} & 2025-12 & -- & Multi & Closed \\
+Phi-4-reasoning~\cite{abdin2025phi4reasoning} & 2025-04 & 14B & Text & Open & LongCat-Flash-Thinking-2601~\cite{team2026longcatflashthinking2601} & 2026-01 & 560B-A27B & Text & Open \\
+Phi-4-reasoning-plus~\cite{abdin2025phi4reasoning} & 2025-04 & 14B & Text & Open & Step 3.5 Flash~\cite{stepfun2026step35flash} & 2026-02 & -- & Text & Open \\
+Qwen3~\cite{qwen2025qwen3} & 2025-04 & 0.6B--235B & Text & Open & Kimi K2.5~\cite{kimiteam2026kimik25} & 2026-02 & 1T/32B & Multi & Open \\
+o3~\cite{openai2025o3o4mini} & 2025-04 & -- & Multi & Closed & Qwen3.5~\cite{qwen2026qwen35} & 2026-02 & 397B/17B & Multi & Open \\
+o4-mini~\cite{openai2025o3o4mini} & 2025-04 & -- & Multi & Closed & Gemini 3.1 Pro~\cite{google2026gemini31pro} & 2026-02 & -- & Multi & Closed \\
+Kimi-VL-A3B-Thinking~\cite{kimiteam2025kimivl} & 2025-04 & 2.8B act. & Multi & Open & GPT-5.3-Codex~\cite{openai2026gpt53codex} & 2026-02 & -- & Code & Closed \\
+GLM-Z1-32B~\cite{zai2025glm40414} & 2025-04 & 32B & Text & Open & Claude Opus 4.6~\cite{anthropic2026claudeopus46} & 2026-02 & -- & Multi & Closed \\
+Z1-Rumination-32B~\cite{zai2025glm40414} & 2025-04 & 32B & Text & Open & MiniMax-M2.5~\cite{minimax2026minimaxm25} & 2026-02 & 230B-A10B & Text & Open \\
+GLM-Z1-9B~\cite{zai2025glm40414} & 2025-04 & 9B & Text & Open & GPT-5.4~\cite{openai2026gpt54} & 2026-03 & -- & Multi & Closed \\
+Llama 4 Maverick~\cite{meta2025llama4} & 2025-04 & 400B/17B & Multi & Open & Nemotron-Cascade-2~\cite{nvidia2026nemotroncascade2} & 2026-03 & 30B/3B & Code & Open \\
+Llama 4 Scout~\cite{meta2025llama4} & 2025-04 & 109B/17B & Multi & Open & GPT-5.3~\cite{openai2026gpt53instant} & 2026-03 & -- & Multi & Closed \\
+Seed-Thinking-v1.5~\cite{bytedanceseed2025seedthinking} & 2025-04 & -- & Text & Open & MiniMax-M2.7~\cite{minimax2026minimaxm27} & 2026-03 & 230B-A10B & Text & Open \\
+Nemotron-Ultra-253B~\cite{bercovich2025llamanemotron} & 2025-04 & 253B/17B & Text & Open & MiMo-V2.5-Pro~\cite{xiaomi2026mimov25pro} & 2026-04 & -- & Multi & Open \\
+ERNIE-4.5-VL~\cite{baidu2025ernie45technicalreport} & 2025-04 & 424B-A47B & Multi & Open & Kimi K2.6~\cite{moonshotai2026kimik26} & 2026-04 & 1T/32B & Multi & Open \\
+Codex-1~\cite{openai2025codex} & 2025-05 & -- & Code & Closed & GLM-5.1~\cite{zai2026glm51} & 2026-04 & 754B & Text & Open \\
+DeepSeek-R1-0528~\cite{deepseekai2025r10528} & 2025-05 & 671B/37B & Text & Open & DeepSeek-V4~\cite{deepseekai2026deepseekv4} & 2026-04 & 1.6T & Text & Open \\
+R1-Distill-Qwen3-8B~\cite{deepseekai2025r10528} & 2025-05 & 8B & Text & Open & Qwen3.6~\cite{qwen2026qwen36} & 2026-04 & 35B/3B+ & Multi & Open \\
+R1-Distill-Qwen3-32B~\cite{deepseekai2025r10528} & 2025-05 & 32B & Text & Open & Gemma 4~\cite{google2026gemma4} & 2026-04 & 2B--26B & Multi & Open \\
+MiMo-7B-RL~\cite{xiaomimimo2025mimo} & 2025-05 & 7B & Text & Open & GPT-5.5~\cite{openai2026gpt55systemcard} & 2026-04 & -- & Multi & Closed \\
+MiMo-7B-RL-0530~\cite{xiaomimimo2025mimo} & 2025-05 & 7B & Text & Open & Claude Opus 4.7~\cite{anthropic2026claudeopus47} & 2026-04 & -- & Multi & Closed \\
+Doubao 1.5 Pro Thinking~\cite{bytedance2025doubao15thinking} & 2025-05 & -- & Text & Closed & Claude Mythos Preview~\cite{anthropic2026claudemythospreview} & 2026-04 & -- & Multi & Closed \\
+Gemini 2.5 Flash~\cite{google2025gemini25io} & 2025-05 & -- & Multi & Closed & Grok 4.3~\cite{xai2026grok43nonreasoning} & 2026-05 & -- & Multi & Closed \\
+InternVL3~\cite{zhu2025internvl3} & 2025-05 & 2B--78B & Multi & Open & Ring-2.6-1T~\cite{inclusionai2026ring26} & 2026-05 & 1T-A63B & Text & Open \\
+Devstral~\cite{mistral2025devstral} & 2025-05 & 24B & Code & Open & ERNIE 5.1~\cite{baidu2026ernie51} & 2026-05 & -- & Multi & Closed \\
+Claude 4 Sonnet~\cite{anthropic2025claude4systemcard} & 2025-05 & -- & Multi & Closed & Claude Opus 4.8~\cite{anthropic2026claudeopus48} & 2026-05 & -- & Multi & Closed \\
+\bottomrule
+\end{tabular}
+}
+\end{table}

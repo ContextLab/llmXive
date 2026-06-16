@@ -1,0 +1,41 @@
+\begin{table}[htbp]
+\centering
+\scriptsize
+\setlength{\tabcolsep}{1pt}
+\renewcommand{\arraystretch}{1.5}
+\caption{Summary of the data paradigm shift from static knowledge corpora to verifiable action trajectories.}
+\label{tab:data_paradigm_shift}
+\resizebox{\columnwidth}{!}{
+\begin{tabular}{@{} p{0.14\columnwidth} p{0.20\columnwidth} p{0.24\columnwidth} p{0.22\columnwidth} p{0.22\columnwidth} @{}}
+\toprule
+\textbf{Stage} & \textbf{Core Data Unit} & \textbf{Training / Supervision Signal} & \textbf{Representative Resources} & \textbf{Evaluation Focus} \\
+\midrule
+
+Chatbot &
+Static corpora and instruction--response pairs &
+Human demonstrations, preference comparisons, safety labels, and dialogue corrections &
+InstructGPT/RLHF~\citep{ouyang2022training}, FLAN/T0~\citep{wei2021finetuned,sanh2022multitask}, Self-Instruct and open SFT data~\citep{wang2022selfinstruct,taori2023stanford,kopf2023openassistant} &
+Answer correctness, fluency, helpfulness, preference alignment, and instruction following on mostly static inputs \\
+
+Thinking LLM Era &
+Reasoning-process traces and intermediate solution paths &
+Chain-of-thought rationales, self-generated reasoning, step-wise verification, process rewards, and preference optimization &
+CoT / zero-shot CoT~\citep{wei2022chain,kojima2022large}, Self-Consistency and ToT~\citep{wang2022self,yao2023tree}, PRM800K and Math-Shepherd~\citep{lightman2024lets,wang2024math}, DeepSeek-R1~\citep{deepseek2025r1} &
+Reliability of the reasoning path, verifiable math/code performance, step-level correctness, and robustness beyond final-answer accuracy \\
+
+Agent Era &
+State--action--observation trajectories with tool feedback &
+Tool-call traces, API arguments, execution results, environment feedback, and multi-step recovery signals &
+Toolformer~\citep{schick2023toolformer}, API-Bank / Gorilla / ToolBench~\citep{li2023apibank,patil2023gorilla,qin2023toolllm}, WebArena and OSWorld~\citep{zhou2023webarena,xie2024osworld} &
+Task success in interactive environments, correct tool selection, argument generation, state tracking, and feedback-driven continuation \\
+
+OpenClaw / Workspace Era &
+Workspace-level trajectories plus reusable skills and final-state evidence &
+File, shell, browser, UI, permission, snapshot, skill-package, and safety-policy traces with executable verification &
+SWE-bench~\citep{jimenez2023swebench}, ToolSandbox~\citep{lu2024toolsandbox}, ClawsBench~\citep{li2026clawsbench}, ATBench-Claw and ClawSafety~\citep{yang2026atbenchclaw,wei2026clawsafety} &
+End-to-end task closure, state verifiability, reproducibility, efficiency, rollback behavior, and trajectory-level safety \\
+
+\bottomrule
+\end{tabular}
+}
+\end{table}

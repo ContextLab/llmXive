@@ -1,0 +1,80 @@
+\begin{table}[htbp]
+\centering
+\scriptsize
+\setlength{\tabcolsep}{8pt}
+\renewcommand{\arraystretch}{1.1}
+\caption{Representative works related to LLM-based agents and their enabling capabilities.}
+\label{tab:agent_era}
+\resizebox{\columnwidth}{!}{
+\begin{tabular}{@{} l l l l l @{}}
+\toprule
+\textbf{Work} & \textbf{Year} & \textbf{Category} & \textbf{Role} & \textbf{Key Contribution} \\
+\midrule
+
+ReAct~\cite{yao2022react} & 2022 & Agent Architecture & Agent Framework & Thought--Action--Observation loop \\
+Wang et al.~\cite{wang2024survey} & 2024 & Agent Architecture & Conceptual Framework & Profile/Memory/Planning/Action architecture \\
+Xi et al.~\cite{xi2023rise} & 2023 & Agent Architecture & Conceptual Framework & Cognitive-science perspective on agents \\
+CoALA~\cite{sumers2023cognitive} & 2023 & Agent Architecture & Conceptual Framework & Cognitive psychology mapping for agents \\
+Buyya et al.~\cite{buyya2026agentic} & 2026 & Agent Architecture & Conceptual Framework & Six dimensions with POMDP formulation \\
+HuggingGPT~\cite{shen2023hugginggpt} & 2023 & Perception & Agent System & LLM orchestrating Hugging Face models \\
+Visual ChatGPT~\cite{wu2023visual} & 2023 & Perception & Agent System & Chaining visual models via prompt manager \\
+ViperGPT~\cite{suris2023vipergpt} & 2023 & Perception & Agent System & Program synthesis for visual reasoning \\
+Set-of-Mark~\cite{yang2023set} & 2023 & Perception & Enabling Capability & Numbered markers for UI grounding \\
+CogAgent~\cite{hong2024cogagent} & 2024 & Perception & Agent Model & Dual-resolution encoder for UI recognition \\
+ShowUI~\cite{lin2025showui} & 2025 & Perception & Agent Model & Unified vision--language--action for UI ops \\
+UI-TARS~\cite{qin2025ui} & 2025 & Perception & Agent Model & Context-aware desktop/mobile GUI understanding \\
+CoT~\cite{wei2022chain} & 2022 & Planning & Enabling Capability & Intermediate reasoning steps \\
+ToT~\cite{yao2023tree} & 2023 & Planning & Enabling Capability & Multi-branch reasoning with backtracking \\
+GoT~\cite{besta2024graph} & 2024 & Planning & Enabling Capability & Graph topologies over reasoning steps \\
+Decomposed Prompting~\cite{khot2022decomposed} & 2022 & Planning & Enabling Capability & Modular sub-problem decomposition \\
+Least-to-Most~\cite{zhou2022least} & 2022 & Planning & Enabling Capability & Incremental sub-problem solving \\
+Reflexion~\cite{shinn2023reflexion} & 2023 & Planning & Agent Framework & Language reflections on failed attempts \\
+Self-Refine~\cite{madaan2023selfrefine} & 2023 & Planning & Enabling Capability & Iterative self-feedback improvement \\
+RAP~\cite{hao2023reasoning} & 2023 & Planning & Enabling Capability & MCTS with LLM as world model \\
+Search-R1~\cite{jin2025search} & 2025 & Planning & Agent Model & RL-trained search in reasoning chains \\
+R1-Searcher~\cite{song2025r1} & 2025 & Planning & Agent Model & Two-stage RL for search--reasoning \\
+ReSearch~\cite{chen2503research} & 2025 & Planning & Agent Model & Supervision-free RL with search ops \\
+RAG~\cite{lewis2020retrieval} & 2020 & Memory & Enabling Capability & Retrieval-augmented generation \\
+Self-RAG~\cite{asai2024self} & 2024 & Memory & Enabling Capability & Adaptive retrieval with self-reflection \\
+CRAG~\cite{yan2024corrective} & 2024 & Memory & Enabling Capability & Retrieval evaluation and correction \\
+Adaptive-RAG~\cite{jeong2024adaptive} & 2024 & Memory & Enabling Capability & Strategy routing by query complexity \\
+Generative Agents~\cite{park2023generative} & 2023 & Memory & Agent System & Memory stream with reflections \\
+MemoryBank~\cite{zhong2024memorybank} & 2024 & Memory & Enabling Capability & Persistent memory with forgetting \\
+ChatDB~\cite{hu2023chatdb} & 2023 & Memory & Enabling Capability & Database as external memory via SQL \\
+MEIA~\cite{liu2024meia} & 2024 & Memory & Agent System & Multimodal environmental memory \\
+MIRIX~\cite{wang2025mirix} & 2025 & Memory & Memory Infrastructure & Multi-agent multimodal memory system \\
+M3-Agent~\cite{long2025seeing} & 2025 & Memory & Agent System & Long-term visual-auditory memory \\
+Memory Survey~\cite{zhang2025survey} & 2025 & Memory & Conceptual Framework & Semantic/episodic/procedural taxonomy \\
+Episodic Memory~\cite{pink2025position} & 2025 & Memory & Conceptual Framework & Position paper on episodic consistency \\
+Mem0~\cite{chhikara2025mem0} & 2025 & Memory & Memory Infrastructure & Scalable memory; graph-based Mem0g \\
+A-MEM~\cite{xu2026mem} & 2026 & Memory & Memory Infrastructure & Zettelkasten-inspired knowledge networks \\
+MEM1~\cite{zhou2025mem1} & 2025 & Memory & Agent Model & End-to-end RL for constant memory \\
+Memory-R1~\cite{yan2025memory} & 2025 & Memory & Agent Model & RL-trained structured memory manager \\
+Mem-$\alpha$~\cite{wang2025mem} & 2025 & Memory & Agent Model & Memory construction via RL \\
+MemMachine~\cite{wang2026memmachine} & 2026 & Memory & Memory Infrastructure & Sentence-level episode storage \\
+Toolformer~\cite{schick2023toolformer} & 2023 & Tool Use & Agent Model & Self-supervised tool-call learning \\
+PAL~\cite{gao2023pal} & 2023 & Tool Use & Enabling Capability & Code execution as meta-tool \\
+PoT~\cite{chen2022program} & 2022 & Tool Use & Enabling Capability & Multi-step reasoning via programming \\
+Gorilla~\cite{patil2023gorilla} & 2024 & Tool Use & Agent Model & Fine-tuning on API documentation \\
+ToolLLM~\cite{qin2023toolllm} & 2023 & Tool Use & Agent Framework & 16K+ APIs; DFS-based decision trees \\
+SMART~\cite{qian2025smart} & 2025 & Tool Use & Agent Model & Tool overuse mitigation \\
+START~\cite{li2025start} & 2025 & Tool Use & Agent Model & Self-taught tool-integrated reasoning \\
+ReTool~\cite{feng2025retool} & 2025 & Tool Use & Agent Model & RL for strategic tool invocation \\
+ToRL~\cite{li2025torl} & 2025 & Tool Use & Agent Model & Tool-integrated RL with code execution \\
+ToolRL~\cite{qian2026toolrl} & 2026 & Tool Use & Agent Model & Reward design for tool learning \\
+ARTIST~\cite{singh2505agentic} & 2025 & Tool Use & Agent Model & Agentic reasoning with tool integration \\
+Tool-Star~\cite{dong2505tool} & 2025 & Tool Use & Agent Model & Multi-tool reasoning via RL \\
+AutoTIR~\cite{wei2025autotir} & 2025 & Tool Use & Agent Model & Autonomous tool-integrated reasoning \\
+MCP~\cite{mcp2026tools} & 2024 & Tool Use & Infrastructure & Universal LLM--tool connectivity protocol \\
+ToolACE~\cite{liu2025toolace} & 2025 & Tool Use & Agent Model & Synthesized data for compact tool callers \\
+AgentBench~\cite{liu2023agentbench} & 2023 & Benchmark & Evaluation & 8-environment agent evaluation \\
+WebArena~\cite{zhou2023webarena} & 2023 & Benchmark & Evaluation & Realistic web task environments \\
+SWE-bench~\cite{jimenez2023swebench} & 2024 & Benchmark & Evaluation & GitHub issue resolution benchmark \\
+GAIA~\cite{mialon2023gaia} & 2023 & Benchmark & Evaluation & Multi-step reasoning \& tool use QA \\
+Agent Failure~\cite{roig2025llms} & 2025 & Benchmark & Evaluation & Four archetypal agent failure modes \\
+Agent Hallucination~\cite{lin2025llm} & 2025 & Benchmark & Evaluation & Hallucinated actions \& system failures \\
+
+\bottomrule
+\end{tabular}
+}
+\end{table}

@@ -1,0 +1,106 @@
+\section{Associative Memory System}
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=0.95\textwidth]{Fig/fig_framework.png}
+  \caption{MRAgent: An Associative Memory System with LLM-Driven Active Memory Reconstruction.
+(a) MRAgent constructs an associative memory system from dialogues, organizing episodic and semantic memories through Cue–Tag–Content structures that explicitly encode semantic and relational associations through tags.
+(b) Upon a query, the agent performs active memory reconstruction, where an LLM iteratively reasons over cues and tags to traverse the memory graph and selectively reconstruct task-relevant memory.}
+  \label{fig:framework}
+\end{figure*}
+
+
+To enable the active reconstruction paradigm described in Section~\ref{sec:problem-setting}, we organize the agent's memory as a heterogeneous graph. This section details the core \emph{Cue--Tag--Content} architecture and its organization into multi-granular layers.
+
+\label{sec:MemorySystem}
+
+\subsection{Cue--Tag--Content Associative Memory}
+Motivated by the need for active memory reconstruction in Section~\ref{sec:problem-setting}, we organize memory as a structured associative graph rather than a flat collection of retrievable items. 
+
+As illustrated in Figure~\ref{fig:framework} (a), the memory construction pipeline consists of two phases: element generation and graph construction. The first phase employs LLM to extract and generate memory elements from dialogs. Then, these elements are utilized to construct a memory graph.
+
+\textbf{Unified Memory System.}
+We model the memory system as a heterogeneous graph $\mathcal{M} = (\mathcal{C}, \mathcal{V}, \mathcal{R})$. The graph contains two primary categories of nodes:
+(1) \textbf{Cues} $c \in \mathcal{C}$ are fine-grained keywords such as entities or attributes. 
+(2) \textbf{Contents} $v \in \mathcal{V}$ store specific memory items. 
+
+Associations between cues and contents are encoded as typed relations:
+$\mathcal{R} \subseteq \mathcal{C} \times \mathcal{G} \times \mathcal{V}$,
+where each triple $(c, g, v) \in \mathcal{R}$ connects a cue $c$ to a content node $v$ through a relation attribute $g$, referred to as a \textbf{Tag}.
+
+\textbf{Associative Tags.} 
+Tags are utilized to summarize associative relations between fine-grained cues and content units.
+Based on these associations, the LLM performs a \emph{two-stage retrieval} process, where it first selects a small set of relevant tags and then retrieves content conditioned on the selected tags.
+In large and complex memory graphs, naively expanding $n$-hop neighbors from content nodes often leads to combinatorial explosion and the inclusion of substantial irrelevant memories.
+By introducing tags as explicit associative intermediates, MRAgent enables guided and flexible reasoning over the memory graph.
+Tags provide semantic guidance, allowing the agent to evaluate and prune traversal branches to avoid incurring the computational cost of processing full episodic content.
+
+To realize this two-stage retrieval process, we define two induced mapping operators over the memory relation $\mathcal{R}$.
+Specifically, $\phi_{c \rightarrow g}$ activates candidate associative tags from a given cue, while $\phi_{(c,g) \rightarrow v}$ retrieves content conditioned on both the cue and a selected tag:
+\begin{equation}
+\begin{aligned}
+\phi_{c \rightarrow g}(c)
+&\triangleq \{ g \mid (c,g,\cdot) \in \mathcal{R} \}, \\
+\phi_{(c,g) \rightarrow v}(c,g)
+&\triangleq \{ v \mid (c,g,v) \in \mathcal{R} \}.
+\label{eq:phi}
+\end{aligned}
+\end{equation}
+Together, these operators decouple associative reasoning from content-level retrieval, making selective and reconstructive memory access tractable in large-scale graphs.
+
+\subsection{Multi-Granular Memory Layers}
+\label{subsec:layers}
+
+Inspired by human memory, we organize memory contents into complementary types spanning concrete events, stable knowledge, and higher-level abstractions. Episodic memory preserves event-specific information grounded in particular contexts, semantic memory captures abstract and relatively stable knowledge distilled across events, and topic-level abstractions summarize recurring patterns shared across episodes. Based on this distinction, we organize the memory graph into multiple functional layers, each supporting different forms of reasoning and retrieval.
+
+\textbf{Episodic Layer (Cue--Tag--Episode).}
+The episodic layer stores event-specific memory units $e_i \in \mathcal{V}^e$, each corresponding to a concrete experience occurring at a particular time. Episodes are retrievable through a set of fine-grained cues $\mathcal{C}_i \subseteq \mathcal{C}$
+such as entities, actions, or contextual keywords and are routed by tags $g_i$ that summarize associative relations between cues and episodic content.
+To support temporal reasoning, episodic memories are further organized along a unified timeline,
+allowing temporal constraints to be imposed during reconstruction.
+
+\textbf{Semantic Layer (Cue--Tag--Semantic).}
+The semantic layer captures relatively stable knowledge $s_i \in \mathcal{V}^s$, such as personal attributes, preferences, and general facts extracted from raw dialogue content.
+Each semantic node is anchored to a cue $c_i$, while the tag encode aspect-level associations of that cue, such as personality traits, long-term preferences, or factual attributes. This design enables direct access to targeted semantic information without requiring retrieval over potentially long episodic histories.
+
+\textbf{Abstraction Layer (Topics).}
+The abstraction layer stores topic nodes $\tau \in \mathcal{V}^\tau$, each
+summarizing recurring patterns shared across a coherent set of episodes. Topics
+are connected to their constituent episodes and serve as a computational
+abstraction that supports efficient top-down transitions $\phi_{\tau \to e}$,
+allowing the agent to first localize a relevant topic and then descend to the
+associated episodes.
+
+Together, these multi-granular memory layers allow MRAgent to flexibly combine
+event-level evidence from episodic memory, abstract knowledge from semantic
+memory, and higher-level structure from topic abstractions, supporting both
+contextualized and conceptual reasoning.
+
+\subsection{Memory Population via LLM Distillation}
+
+The memory system is populated through an automated distillation pipeline
+applied to the input stream $T$. The stream is first segmented into episodic
+units $e_i$, each corresponding to a coherent event grounded in a specific
+context. For every episodic unit, tags and cues are extracted using LLM-based
+components:
+\begin{equation}
+    g_i = F_{\text{LLM}}^{\text{tag}}(e_i), \qquad
+    C_i = F_{\text{LLM}}^{\text{cue}}(e_i),
+\end{equation}
+where $F_{\text{LLM}}^{\text{tag}}$ produces a short associative tag $g_i$ that
+summarizes the relational pattern of the episode, and
+$F_{\text{LLM}}^{\text{cue}}$ extracts a set of fine-grained cues $C_i$ such as
+entities, attributes, and salient descriptors. Each cue in $C_i$ is then linked
+to the episodic unit $e_i$ through the tag $g_i$, forming the Cue--Tag--Episode
+relations that constitute the episodic layer of the memory graph.
+Semantic units are extracted in a similar manner, yielding stable, abstract
+knowledge that persists across individual episodes and is anchored to
+entity-level cues through aspect-level tags. 
+
+To support reasoning at a coarser
+granularity, topic nodes are generated by summarizing the shared themes of
+related episodes, and each topic node is connected to its constituent episodes.
+This layered distillation organizes the input stream into a multi-granular
+associative structure, allowing the agent to access memory at the level of
+concrete events, stable facts, or higher-level topics as required during
+reconstruction.
+Additional details are provided in Appendix~\ref{app:memory_system}.

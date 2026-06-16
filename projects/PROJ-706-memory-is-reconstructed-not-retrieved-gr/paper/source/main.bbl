@@ -1,0 +1,159 @@
+\begin{thebibliography}{25}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Anokhin et~al.(2024)Anokhin, Semenov, Sorokin, Evseev, Kravchenko, Burtsev, and Burnaev]{anokhin2024arigraph}
+Anokhin, P., Semenov, N., Sorokin, A., Evseev, D., Kravchenko, A., Burtsev, M., and Burnaev, E.
+\newblock Arigraph: Learning knowledge graph world models with episodic memory for llm agents.
+\newblock \emph{arXiv preprint arXiv:2407.04363}, 2024.
+
+\bibitem[Chhikara et~al.(2025)Chhikara, Khant, Aryan, Singh, and Yadav]{DBLP:journals/corr/abs-2504-19413}
+Chhikara, P., Khant, D., Aryan, S., Singh, T., and Yadav, D.
+\newblock Mem0: Building production-ready {AI} agents with scalable long-term memory.
+\newblock \emph{CoRR}, abs/2504.19413, 2025.
+\newblock \doi{10.48550/ARXIV.2504.19413}.
+\newblock URL \url{https://doi.org/10.48550/arXiv.2504.19413}.
+
+\bibitem[Fang et~al.(2025)Fang, Deng, Xu, Jiang, Tang, Xu, Deng, Yao, Wang, Qiao, Chen, and Zhang]{DBLP:journals/corr/abs-2510-18866}
+Fang, J., Deng, X., Xu, H., Jiang, Z., Tang, Y., Xu, Z., Deng, S., Yao, Y., Wang, M., Qiao, S., Chen, H., and Zhang, N.
+\newblock Lightmem: Lightweight and efficient memory-augmented generation.
+\newblock \emph{CoRR}, abs/2510.18866, 2025.
+\newblock \doi{10.48550/ARXIV.2510.18866}.
+\newblock URL \url{https://doi.org/10.48550/arXiv.2510.18866}.
+
+\bibitem[Frankland \& Josselyn(2019)Frankland and Josselyn]{frankland2019neurobiological}
+Frankland, P.~W. and Josselyn, S.~A.
+\newblock The neurobiological foundation of memory retrieval.
+\newblock \emph{Nature Neuroscience}, 22\penalty0 (10):\penalty0 1576--1585, 2019.
+
+\bibitem[Gao et~al.(2026)Gao, Geng, Hua, Hu, Juan, Liu, Liu, Qiu, Qi, Ren, Wu, Wang, Xiao, Zhou, Zhang, Zhang, Xiang, Fang, Zhao, Liu, Qian, Wang, Hu, Wang, Wu, Ji, and Wang]{DBLP:journals/tmlr/GaoGHHJLLQQRWWXZZZXFZLQ26}
+Gao, H., Geng, J., Hua, W., Hu, M., Juan, X., Liu, H., Liu, S., Qiu, J., Qi, X., Ren, Q., Wu, Y., Wang, H., Xiao, H., Zhou, Y., Zhang, S., Zhang, J., Xiang, J., Fang, Y., Zhao, Q., Liu, D., Qian, C., Wang, Z., Hu, M., Wang, H., Wu, Q., Ji, H., and Wang, M.
+\newblock A survey of self-evolving agents: What, when, how, and where to evolve on the path to artificial super intelligence.
+\newblock \emph{Trans. Mach. Learn. Res.}, 2026, 2026.
+
+\bibitem[Han et~al.(2025)Han, Wang, Shomer, Guo, Ding, Lei, Halappanavar, Rossi, Mukherjee, Tang, He, Hua, Long, Zhao, Shah, Javari, Xia, and Tang]{graphrag}
+Han, H., Wang, Y., Shomer, H., Guo, K., Ding, J., Lei, Y., Halappanavar, M., Rossi, R.~A., Mukherjee, S., Tang, X., He, Q., Hua, Z., Long, B., Zhao, T., Shah, N., Javari, A., Xia, Y., and Tang, J.
+\newblock Retrieval-augmented generation with graphs (graphrag).
+\newblock \emph{CoRR}, abs/2501.00309, 2025.
+\newblock \doi{10.48550/ARXIV.2501.00309}.
+\newblock URL \url{https://doi.org/10.48550/arXiv.2501.00309}.
+
+\bibitem[Hatalis et~al.(2023)Hatalis, Christou, Myers, Jones, Lambert, Amos-Binks, Dannenhauer, and Dannenhauer]{hatalis2023memory}
+Hatalis, K., Christou, D., Myers, J., Jones, S., Lambert, K., Amos-Binks, A., Dannenhauer, Z., and Dannenhauer, D.
+\newblock Memory matters: The need to improve long-term memory in llm-agents.
+\newblock In \emph{Proceedings of the AAAI Symposium Series}, volume~2, pp.\  277--280, 2023.
+
+\bibitem[Hendrycks et~al.(2025)Hendrycks, Song, Szegedy, Lee, Gal, Brynjolfsson, Li, Zou, Levine, Han, Fu, Liu, Shin, Lee, Mazeika, Phan, Ingebretsen, Khoja, Xie, Salaudeen, Hein, Zhao, Pan, Duvenaud, Li, Omohundro, Alfour, Tegmark, McGrew, Marcus, Tallinn, Schmidt, and Bengio]{DBLP:journals/corr/abs-2510-18212}
+Hendrycks, D., Song, D., Szegedy, C., Lee, H., Gal, Y., Brynjolfsson, E., Li, S., Zou, A., Levine, L., Han, B., Fu, J., Liu, Z., Shin, J., Lee, K., Mazeika, M., Phan, L., Ingebretsen, G., Khoja, A., Xie, C., Salaudeen, O., Hein, M., Zhao, K., Pan, A., Duvenaud, D., Li, B., Omohundro, S., Alfour, G., Tegmark, M., McGrew, K., Marcus, G., Tallinn, J., Schmidt, E., and Bengio, Y.
+\newblock A definition of {AGI}.
+\newblock \emph{CoRR}, abs/2510.18212, 2025.
+\newblock \doi{10.48550/ARXIV.2510.18212}.
+\newblock URL \url{https://doi.org/10.48550/arXiv.2510.18212}.
+
+\bibitem[Hu et~al.(2025)Hu, Liu, Yue, Zhang, Liu, Zhu, Lin, Guo, Dou, Xi, et~al.]{hu2025memory}
+Hu, Y., Liu, S., Yue, Y., Zhang, G., Liu, B., Zhu, F., Lin, J., Guo, H., Dou, S., Xi, Z., et~al.
+\newblock Memory in the age of ai agents.
+\newblock \emph{arXiv preprint arXiv:2512.13564}, 2025.
+
+\bibitem[Huang et~al.(2025)Huang, Tian, Guo, Zhang, Zhou, Jiang, and Zhou]{DBLP:journals/corr/abs-2511-01448}
+Huang, Z., Tian, Z., Guo, Q., Zhang, F., Zhou, Y., Jiang, D., and Zhou, X.
+\newblock Licomemory: Lightweight and cognitive agentic memory for efficient long-term reasoning.
+\newblock \emph{CoRR}, abs/2511.01448, 2025.
+\newblock \doi{10.48550/ARXIV.2511.01448}.
+\newblock URL \url{https://doi.org/10.48550/arXiv.2511.01448}.
+
+\bibitem[Jin et~al.(2025)Jin, Zeng, Yue, Wang, Zamani, and Han]{jin2025searchr1}
+Jin, B., Zeng, H., Yue, Z., Wang, D., Zamani, H., and Han, J.
+\newblock Search-r1: Training llms to reason and leverage search engines with reinforcement learning.
+\newblock \emph{CoRR}, abs/2503.09516, 2025.
+\newblock \doi{10.48550/ARXIV.2503.09516}.
+\newblock URL \url{https://doi.org/10.48550/arXiv.2503.09516}.
+
+\bibitem[Kang et~al.(2025)Kang, Ji, Zhao, and Bai]{DBLP:journals/corr/abs-2506-06326}
+Kang, J., Ji, M., Zhao, Z., and Bai, T.
+\newblock Memory {OS} of {AI} agent.
+\newblock \emph{CoRR}, abs/2506.06326, 2025.
+\newblock \doi{10.48550/ARXIV.2506.06326}.
+\newblock URL \url{https://doi.org/10.48550/arXiv.2506.06326}.
+
+\bibitem[{LangChain}(2025)]{langmem2025}
+{LangChain}.
+\newblock Langmem sdk for agent long-term memory.
+\newblock \url{https://blog.langchain.com/langmem-sdk-launch/}, 2025.
+\newblock Accessed: 2025-01.
+
+\bibitem[Lewis et~al.(2020)Lewis, Perez, Piktus, Petroni, Karpukhin, Goyal, K{\"{u}}ttler, Lewis, Yih, Rockt{\"{a}}schel, Riedel, and Kiela]{DBLP:conf/nips/LewisPPPKGKLYR020}
+Lewis, P., Perez, E., Piktus, A., Petroni, F., Karpukhin, V., Goyal, N., K{\"{u}}ttler, H., Lewis, M., Yih, W., Rockt{\"{a}}schel, T., Riedel, S., and Kiela, D.
+\newblock Retrieval-augmented generation for knowledge-intensive {NLP} tasks.
+\newblock In Larochelle, H., Ranzato, M., Hadsell, R., Balcan, M., and Lin, H. (eds.), \emph{Advances in Neural Information Processing Systems 33: Annual Conference on Neural Information Processing Systems 2020, NeurIPS 2020, December 6-12, 2020, virtual}, 2020.
+
+\bibitem[Li et~al.(2025)Li, Dong, Jin, Zhang, Zhou, Zhu, Zhang, and Dou]{li2025searcho1}
+Li, X., Dong, G., Jin, J., Zhang, Y., Zhou, Y., Zhu, Y., Zhang, P., and Dou, Z.
+\newblock Search-o1: Agentic search-enhanced large reasoning models.
+\newblock In Christodoulopoulos, C., Chakraborty, T., Rose, C., and Peng, V. (eds.), \emph{Proceedings of the 2025 Conference on Empirical Methods in Natural Language Processing, {EMNLP} 2025, Suzhou, China, November 4-9, 2025}, pp.\  5420--5438. Association for Computational Linguistics, 2025.
+\newblock \doi{10.18653/V1/2025.EMNLP-MAIN.276}.
+\newblock URL \url{https://doi.org/10.18653/v1/2025.emnlp-main.276}.
+
+\bibitem[Maharana et~al.(2024)Maharana, Lee, Tulyakov, Bansal, Barbieri, and Fang]{DBLP:conf/acl/MaharanaLTBBF24}
+Maharana, A., Lee, D., Tulyakov, S., Bansal, M., Barbieri, F., and Fang, Y.
+\newblock Evaluating very long-term conversational memory of {LLM} agents.
+\newblock In Ku, L., Martins, A., and Srikumar, V. (eds.), \emph{Proceedings of the 62nd Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers), {ACL} 2024, Bangkok, Thailand, August 11-16, 2024}, pp.\  13851--13870. Association for Computational Linguistics, 2024.
+\newblock \doi{10.18653/V1/2024.ACL-LONG.747}.
+\newblock URL \url{https://doi.org/10.18653/v1/2024.acl-long.747}.
+
+\bibitem[Manns et~al.(2003)Manns, Hopkins, and Squire]{manns2003semantic}
+Manns, J.~R., Hopkins, R.~O., and Squire, L.~R.
+\newblock Semantic memory and the human hippocampus.
+\newblock \emph{Neuron}, 38\penalty0 (1):\penalty0 127--133, 2003.
+
+\bibitem[Pan et~al.(2025)Pan, Wu, Jiang, Luo, Cheng, Li, Yang, Lin, Zhao, Qiu, et~al.]{pan2025secom}
+Pan, Z., Wu, Q., Jiang, H., Luo, X., Cheng, H., Li, D., Yang, Y., Lin, C.-Y., Zhao, H.~V., Qiu, L., et~al.
+\newblock Secom: On memory construction and retrieval for personalized conversational agents.
+\newblock In \emph{The Thirteenth International Conference on Learning Representations}, 2025.
+
+\bibitem[Rashid et~al.(2016)Rashid, Yan, Mercaldo, Hsiang, Park, Cole, De~Cristofaro, Yu, Ramakrishnan, Lee, et~al.]{rashid2016competition}
+Rashid, A.~J., Yan, C., Mercaldo, V., Hsiang, H.-L., Park, S., Cole, C.~J., De~Cristofaro, A., Yu, J., Ramakrishnan, C., Lee, S.~Y., et~al.
+\newblock Competition between engrams influences fear memory formation and recall.
+\newblock \emph{Science}, 353\penalty0 (6297):\penalty0 383--387, 2016.
+
+\bibitem[Rasmussen et~al.(2025)Rasmussen, Paliychuk, Beauvais, Ryan, and Chalef]{DBLP:journals/corr/abs-2501-13956}
+Rasmussen, P., Paliychuk, P., Beauvais, T., Ryan, J., and Chalef, D.
+\newblock Zep: {A} temporal knowledge graph architecture for agent memory.
+\newblock \emph{CoRR}, abs/2501.13956, 2025.
+\newblock \doi{10.48550/ARXIV.2501.13956}.
+\newblock URL \url{https://doi.org/10.48550/arXiv.2501.13956}.
+
+\bibitem[Rugg \& Renoult(2025)Rugg and Renoult]{rugg2025cognitive}
+Rugg, M.~D. and Renoult, L.
+\newblock The cognitive neuroscience of memory representation.
+\newblock \emph{Neuroscience \& Biobehavioral Reviews}, 155:\penalty0 105450, 2025.
+
+\bibitem[Tan et~al.(2025)Tan, Yan, Hsu, Han, Wang, Le, Song, Chen, Palangi, Lee, et~al.]{tan2025prospect}
+Tan, Z., Yan, J., Hsu, I.-H., Han, R., Wang, Z., Le, L., Song, Y., Chen, Y., Palangi, H., Lee, G., et~al.
+\newblock In prospect and retrospect: Reflective memory management for long-term personalized dialogue agents.
+\newblock In \emph{Proceedings of the 63rd Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers)}, pp.\  8416--8439, 2025.
+
+\bibitem[Wu et~al.(2025)Wu, Wang, Yu, Zhang, Chang, and Yu]{DBLP:conf/iclr/WuWYZCY25}
+Wu, D., Wang, H., Yu, W., Zhang, Y., Chang, K., and Yu, D.
+\newblock Longmemeval: Benchmarking chat assistants on long-term interactive memory.
+\newblock In \emph{The Thirteenth International Conference on Learning Representations, {ICLR} 2025, Singapore, April 24-28, 2025}. OpenReview.net, 2025.
+\newblock URL \url{https://openreview.net/forum?id=pZiyCaVuti}.
+
+\bibitem[Xu et~al.(2025)Xu, Liang, Mei, Gao, Tan, and Zhang]{DBLP:journals/corr/abs-2502-12110}
+Xu, W., Liang, Z., Mei, K., Gao, H., Tan, J., and Zhang, Y.
+\newblock {A-MEM:} agentic memory for {LLM} agents.
+\newblock \emph{CoRR}, abs/2502.12110, 2025.
+\newblock \doi{10.48550/ARXIV.2502.12110}.
+\newblock URL \url{https://doi.org/10.48550/arXiv.2502.12110}.
+
+\bibitem[Zhong et~al.(2024)Zhong, Guo, Gao, Ye, and Wang]{DBLP:conf/aaai/ZhongGGYW24}
+Zhong, W., Guo, L., Gao, Q., Ye, H., and Wang, Y.
+\newblock Memorybank: Enhancing large language models with long-term memory.
+\newblock In Wooldridge, M.~J., Dy, J.~G., and Natarajan, S. (eds.), \emph{Thirty-Eighth {AAAI} Conference on Artificial Intelligence, {AAAI} 2024, Thirty-Sixth Conference on Innovative Applications of Artificial Intelligence, {IAAI} 2024, Fourteenth Symposium on Educational Advances in Artificial Intelligence, {EAAI} 2014, February 20-27, 2024, Vancouver, Canada}, pp.\  19724--19731. {AAAI} Press, 2024.
+\newblock \doi{10.1609/AAAI.V38I17.29946}.
+\newblock URL \url{https://doi.org/10.1609/aaai.v38i17.29946}.
+
+\end{thebibliography}

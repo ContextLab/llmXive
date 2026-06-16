@@ -1,0 +1,12 @@
+\begin{abstract}
+
+
+Despite recent progress, LLM agents still struggle with reasoning over long interaction histories.
+While current memory-augmented agents rely on a static ``retrieve-then-reason'' paradigm, this rigid pipeline design prevents them from dynamically adapting memory access to intermediate evidence discovered during inference.
+To bridge this gap, we propose MRAgent, a framework that combines an associative memory graph with an active reconstruction mechanism. We represent memory as a Cue–Tag–Content graph, where associative tags serve as semantic bridges connecting fine-grained cues to memory contents.
+Operating on this structure, our active reconstruction mechanism integrates LLM reasoning directly into memory access, allowing the agent to iteratively explore and prune retrieval paths based on accumulated evidence. This ensures that memory retrieval is dynamically adapted to the  reasoning context while avoiding combinatorial explosion caused by unconstrained expansion.
+Experiments on the \textsc{LoCoMo} benchmark  and \textsc{LongMemEval} benchmark  demonstrate significant improvements over strong baselines (up to $23\%$), while substantially reducing token and runtime cost, highlighting the effectiveness of active and associative reconstruction for long-horizon memory reasoning. The code is available at: \url{https://github.com/Ji-shuo/MRAgent}.
+
+
+
+\end{abstract}

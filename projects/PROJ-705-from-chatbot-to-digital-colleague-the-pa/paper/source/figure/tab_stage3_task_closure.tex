@@ -1,0 +1,40 @@
+\begin{table}[H]
+\centering
+\scriptsize
+\setlength{\tabcolsep}{2.4pt}
+\renewcommand{\arraystretch}{1.05}
+\caption{Representative models and methods for Stage III task-closure evaluation. Scores are original task success or pass rates; unavailable base models or unreported scores are denoted by ``-''.}
+\label{tab:stage3_task_closure}
+\resizebox{\linewidth}{!}{
+\begin{tabular}{@{} l|l|cccccc @{}}
+\toprule
+\textbf{Model / Method} & \textbf{Base Model} & \textbf{SWE-V} & \textbf{Terminal 2.0} & \textbf{OSWorld-V} & \textbf{WebArena-V} & \textbf{BrowseComp} & \textbf{MCP-Atlas} \\
+\midrule
+GPT-5.4 xHigh~\cite{openai2026gpt54} & - & - & 75.1 & 75.0 & 67.3 & 82.7 & 67.2 \\
+Claude Opus 4.6 Max~\cite{anthropic2026claudeopus46} & - & 80.8 & 65.4 & - & - & 83.7 & 73.8 \\
+Gemini 3.1 Pro High~\cite{google2026gemini31pro} & - & 80.6 & 68.5 & - & - & 85.9 & 69.2 \\
+DeepSeek-V4-Pro Max~\cite{deepseekai2026deepseekv4pro} & - & 80.6 & 67.9 & - & - & 83.4 & 73.6 \\
+Kimi-K2.6 Thinking~\cite{moonshotai2026kimik26} & - & 80.2 & 66.7 & - & - & 83.2 & 66.6 \\
+GLM-5.1 Thinking~\cite{zai2026glm51} & - & - & 63.5 & - & - & 79.3 & 71.8 \\
+UI-TARS-2~\cite{bytedance2025uitars2} & UI-TARS-2 & 68.7 & 45.3* & - & - & 29.6* & - \\
+OpenCUA-72B~\cite{wang2025opencua} & Qwen2.5-VL-72B & - & - & 45.0 & - & - & - \\
+SWE-Exp~\cite{chen2025sweexp} & Claude 4 Sonnet & 73.0 & - & - & - & - & - \\
+Kimi-Dev~\cite{kimiteam2025kimidevagentless} & Qwen2.5-72B-Base & 60.4 & - & - & - & - & - \\
+SWE-Master-32B-RL~\cite{song2026swemaster} & Qwen2.5-Coder-32B & 61.4 & - & - & - & - & - \\
+PDR+RTV~\cite{wang2026agentictts} & Gemini 3.1 Pro~\cite{google2026gemini31pro} & 76.6 & 64.8 & - & - & - & - \\
+TACT-GATE~\cite{sui2026tact} & Qwen3.5-27B & 73.3 & 36.0 & - & - & - & - \\
+IHR+NLAH~\cite{pan2026nlah} & GPT-5.4-mini & 73.0 & 53.9 & - & - & - & - \\
+Polar RL (Pi)~\cite{xu2026polar} & Qwen3.5-4B & 40.4 & - & - & - & - & - \\
+SA-SWE-32B~\cite{liu2025skyrlagent} & Qwen3-32B~\cite{qwen2025qwen3} & 39.4 & 16.3 & - & - & 19.4 (+) & - \\
+CODESKILL~\cite{song2026codeskill} & Qwen3.5-35B-A3B & 66.0 & 34.1 & - & - & - & - \\
+CodeScout-14B~\cite{sutawika2026codescout} & Qwen3-Coder-30B-A3B & 46.0 & - & - & - & - & - \\
+TACO~\cite{ren2026taco} & MiniMax-M2.5~\cite{minimax2026minimaxm25} & - & 44.2 & - & - & - & - \\
+ComputerRL~\cite{lai2025computerrl} & GLM-4.1V-9B-Thinking & - & - & 48.0 & - & - & - \\
+UltraCUA-32B-RL~\cite{yang2025ultracua} & UltraCUA-32B & - & - & 43.7 & - & - & - \\
+OS-Symphony~\cite{yang2026ossymphony} & GPT-5 & - & - & 65.8 & - & - & - \\
+\bottomrule
+\end{tabular}
+}
+\vspace{8pt}
+\noindent\parbox{\linewidth}{\normalsize \textit{Notes.} SWE-V denotes SWE-bench Verified. OSWorld-V denotes OSWorld-Verified. WebArena-V denotes WebArena-Verified. Terminal 2.0 denotes Terminal-Bench v2.0. Retained columns were selected using Semantic Scholar citation-overlap among representative Stage III benchmark families and pruning redundant or less representative columns. Static frontier rows use one model source per row; Terminal 2.0, BrowseComp, and MCP-Atlas scores follow the DeepSeek-V4-Pro comparative report~\cite{deepseekai2026deepseekv4pro} unless an official row source reports the metric directly. Rows discovered through benchmark-overlap are included only when the source reports an end-to-end task-closure metric on a retained column. UI-TARS-2 scores marked with ``use the paper's extended GUI-SDK setting; its BrowseComp is BrowseComp-en. SA-SWE-32B reports BrowseComp-Plus, marked with(+)''.}
+\end{table}

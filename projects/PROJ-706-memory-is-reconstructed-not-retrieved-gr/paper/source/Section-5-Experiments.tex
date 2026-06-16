@@ -1,0 +1,542 @@
+\section{Experiments}
+\begin{table*}[t]
+\centering
+\small
+\setlength{\tabcolsep}{6pt}
+\caption{Performance across different question types on \textsc{LoCoMo}. Evaluation metrics include F1 score (F1), and LLM-Judge score (J).
+All values are reported as percentages. \textbf{Bold} indicates the best result, and \underline{underline} indicates the second best.}
+\begin{tabular}{ll|cc|cc|cc|cc|c}
+\toprule
+Model & Method
+& \multicolumn{2}{c|}{Multi-hop}
+& \multicolumn{2}{c|}{Temporal}
+& \multicolumn{2}{c|}{Open Domain}
+& \multicolumn{2}{c|}{Single hop}
+& Overall \\
+&
+& F$_1$ $\uparrow$ & J $\uparrow$
+& F$_1$ $\uparrow$ & J $\uparrow$
+& F$_1$ $\uparrow$ & J $\uparrow$
+& F$_1$ $\uparrow$ & J $\uparrow$
+& J $\uparrow$ \\
+\midrule
+
+\multirow{6}{*}{Gemini}
+& RAG
+& 34.89 & 58.16$_{\scriptsize \pm 0.45}$
+& 43.52 & 49.22$_{\scriptsize \pm 0.15}$
+& 25.68 & 41.67$_{\scriptsize \pm 0.47}$
+& 53.69 & 69.20$_{\scriptsize \pm 0.05}$
+& 61.30 \\
+& A-Mem
+& 33.81 & 53.54$_{\scriptsize \pm 0.33}$
+& 40.22 & 49.53$_{\scriptsize \pm 0.44}$
+& 12.49 & 33.33$_{\scriptsize \pm 0.49}$
+& 46.39 & 61.83$_{\scriptsize \pm 0.10}$
+& 55.97 \\
+& MemoryOS
+& 41.42 & 63.82$_{\scriptsize \pm 0.44}$
+& 35.91 & 47.04$_{\scriptsize \pm 0.53}$
+& 23.43 & 41.66$_{\scriptsize \pm 0.85}$
+& \underline{54.82} & 71.90$_{\scriptsize \pm 0.22}$
+& 63.35 \\
+& LangMem
+& 40.67 & 61.34$_{\scriptsize \pm 0.79}$
+& 44.70 & 53.58$_{\scriptsize \pm 0.25}$
+& 20.49 & 38.54$_{\scriptsize \pm 0.33}$
+& 48.20 & 69.68$_{\scriptsize \pm 0.12}$
+& 62.86 \\
+& Mem0
+& \textbf{45.17} & \underline{68.79$_{\scriptsize \pm 1.21}$}
+& \underline{58.19} & \underline{61.68$_{\scriptsize \pm 0.29}$}
+& \underline{26.24} & \underline{41.66$_{\scriptsize \pm 1.63}$}
+& 54.37 & \underline{73.72$_{\scriptsize \pm 0.10}$}
+& \underline{68.31} \\
+& \textbf{MRAgent}
+& \underline{43.69} & \textbf{75.17$_{\scriptsize \pm 0.33}$}
+& \textbf{67.66} & \textbf{80.37$_{\scriptsize \pm 0.15}$}
+& \textbf{32.51} & \textbf{68.75$_{\scriptsize \pm 0.98}$}
+& \textbf{64.08} & \textbf{90.48$_{\scriptsize \pm 0.10}$}
+& \textbf{84.21} \\
+
+\midrule
+\multirow{5}{*}{Claude}
+& RAG
+& 34.53 & 57.45$_{\scriptsize \pm 0.59}$
+& 43.39 & 48.29$_{\scriptsize \pm 0.15}$
+& 26.56 & 43.75$_{\scriptsize \pm 0.34}$
+& 53.66 & 69.20$_{\scriptsize \pm 0.06}$
+& 61.10 \\
+& A-Mem
+& 42.45 & 71.67$_{\scriptsize \pm 0.22}$
+& 47.73 & 55.48$_{\scriptsize \pm 0.28}$
+& 22.02 & 47.57$_{\scriptsize \pm 0.46}$
+& 55.19 & 74.71$_{\scriptsize \pm 0.05}$
+& 68.45 \\
+& MemoryOS
+& 32.94 & 60.99$_{\scriptsize \pm 0.44}$
+& 39.14 & 51.09$_{\scriptsize \pm 0.29}$
+& 18.29 & 48.95$_{\scriptsize \pm 0.15}$
+& 45.46 & 66.49$_{\scriptsize \pm 0.21}$
+& 61.18 \\
+& LangMem
+& 44.37 & 70.92$_{\scriptsize \pm 0.25}$
+& \underline{56.64} & \underline{80.68$_{\scriptsize \pm 0.36}$}
+& 22.66 & 54.71$_{\scriptsize \pm 0.55}$
+& 54.36 & \underline{83.12$_{\scriptsize \pm 0.15}$}
+& \underline{78.61} \\
+& Mem0
+& \underline{48.66} & \underline{75.88$_{\scriptsize \pm 0.67}$}
+& 49.50 & 53.58$_{\scriptsize \pm 0.44}$
+& \underline{28.58} & \underline{56.25$_{\scriptsize \pm 0.49}$}
+& 54.43 & 74.07$_{\scriptsize \pm 0.06}$
+& 69.02 \\
+& \textbf{MRAgent}
+& \textbf{56.72} & \textbf{90.19$_{\scriptsize \pm 0.29}$}
+& \textbf{69.82} & \textbf{85.34$_{\scriptsize \pm 0.25}$}
+& \textbf{34.67} & \textbf{71.57$_{\scriptsize \pm 0.10}$}
+& \textbf{68.62} & \textbf{91.10$_{\scriptsize \pm 0.15}$}
+& \textbf{88.32} \\
+
+\bottomrule
+\end{tabular}
+\label{tab:reasoning_results}
+\end{table*}
+
+
+% \begin{table*}[t]
+% \centering
+% \small
+% \setlength{\tabcolsep}{6pt}
+% \caption{Performance across question types on \textsc{LoCoMo}.
+% All values are reported as percentages. \textbf{Bold} indicates the best result, and \underline{underline} indicates the second best.}
+% \begin{tabular}{ll|cc|cc|cc|cc|c}
+% \toprule
+% Model & Method
+% & \multicolumn{2}{c|}{Multi-hop}
+% & \multicolumn{2}{c|}{Temporal}
+% & \multicolumn{2}{c|}{Open Domain}
+% & \multicolumn{2}{c|}{Single hop}
+% & Overall \\
+% &
+% & F$_1$ $\uparrow$ & J $\uparrow$
+% & F$_1$ $\uparrow$ & J $\uparrow$
+% & F$_1$ $\uparrow$ & J $\uparrow$
+% & F$_1$ $\uparrow$ & J $\uparrow$
+% & J $\uparrow$ \\
+% \midrule
+
+% \multirow{6}{*}{Gemini}
+% & RAG
+% & 34.89 & 58.16
+% & 43.52 & 49.22
+% & 25.68 & 41.67
+% & 53.69 & 69.20
+% & 61.30 \\
+% & Amem
+% & 33.81 & 53.54
+% & 40.22 & 49.53
+% & 12.49 & 33.33
+% & 46.39 & 61.83
+% & 55.97 \\
+% & MemoryOS
+% & 41.42 & 63.82
+% & 35.91 & 47.04
+% & 23.43 & 41.66
+% & 54.82 & 71.90
+% & 63.35 \\
+% & LangMem
+% & \underline{45.13} & 67.37
+% & \underline{59.60} & \underline{70.71}
+% & \underline{31.76} & \underline{55.20}
+% & \underline{56.05} & \underline{74.67}
+% & \underline{71.29} \\
+% & Mem0
+% & \textbf{45.17} & \underline{68.79}
+% & 58.19 & 61.68
+% & 26.24 & 41.66
+% & 54.37 & 73.72
+% & 68.31 \\
+% & \textbf{MRAgent}
+% & 43.69 & \textbf{75.17}
+% & \textbf{67.66} & \textbf{80.37}
+% & \textbf{32.51} & \textbf{68.75}
+% & \textbf{64.08} & \textbf{90.48}
+% & \textbf{84.21} \\
+
+% \midrule
+% \multirow{5}{*}{Claude}
+% & RAG
+% & 34.53 & 57.45
+% & 43.39 & 48.29
+% & 26.56 & 43.75
+% & 53.66 & 69.20
+% & 61.10 \\
+% & Amem
+% & 42.45 & 71.67
+% & 47.73 & \underline{55.48}
+% & 22.02 & 47.57
+% & \underline{55.19} & \underline{74.71}
+% & 68.45 \\
+% & MemoryOS
+% & 32.94 & 60.99
+% & 39.14 & 51.09
+% & 18.29 & 48.95
+% & 45.46 & 66.49
+% & 61.18 \\
+% & LangMem
+% & 44.37 & 73.25
+% & 56.64 & 80.68
+% & 22.66 & 54.71
+% & 54.36 & 83.12
+% & 79.03 \\
+% & Mem0
+% & \underline{48.66} & \underline{75.88}
+% & \underline{49.50} & 53.58
+% & \underline{28.58} & \underline{56.25}
+% & 54.43 & 74.07
+% & \underline{69.02} \\
+% & \textbf{MRAgent}
+% & \textbf{56.72} & \textbf{90.19}
+% & \textbf{69.82} & \textbf{85.34}
+% & \textbf{34.67} & \textbf{71.57}
+% & \textbf{68.62} & \textbf{91.10}
+% & \textbf{88.32} \\
+% \bottomrule
+% \end{tabular}
+% \label{tab:reasoning_results}
+% \end{table*}
+
+
+In this section, we conduct comprehensive experiments to evaluate MRAgent and answer the following research questions:
+(RQ1) How does MRAgent perform compared to existing memory systems?
+(RQ2) How does MRAgent compare to baselines in terms of computational cost?
+(RQ3) How do different components of MRAgent contribute to overall performance?
+(RQ4) How does multi-turn reasoning progressively improve memory reconstruction?
+(RQ5) How does MRAgent behave in real conversational scenarios?
+%(RQ6) How sensitive is MRAgent to key model and system parameters (reported in the Appendix)?
+
+\subsection{Experiment Setup}
+\textbf{Benchmarks.} 
+We evaluate MRAgent on two widely used benchmarks for long-context memory evaluation:
+(1) \emph{LoCoMo}~\cite{DBLP:conf/acl/MaharanaLTBBF24}, which focuses on long conversational memory understanding, and 
+(2) \emph{LongMemEval}~\cite{DBLP:conf/iclr/WuWYZCY25}, which is designed to assess long-term memory system across multiple sessions with longer interaction histories per query.
+
+\textbf{Baselines.} 
+We evaluate MRAgent against representative memory-augmented baselines: Retrieval-augmented generation (RAG), \emph{LangMem}~\cite{langmem2025}, \emph{A-Mem}~\cite{DBLP:journals/corr/abs-2502-12110}, \emph{MemoryOS}~\cite{DBLP:journals/corr/abs-2506-06326}, and \emph{Mem0}~\cite{DBLP:journals/corr/abs-2504-19413}.
+
+\textbf{Implementation.} 
+We evaluate all methods using two LLM backbones: Gemini-2.5-Flash and Claude-Sonnet-4.5. 
+% For LongMemEval, we focus on the Multi-Session and Single-Session settings, as these configurations best reflect personalized, reconstructive memory access over temporally distributed interactions, which aligns with the design goals of MRAgent. 
+Following prior work, we report F$_1$ and LLM-Judge (J) scores using GPT-4o-mini, and additionally report evidence recall (Recall) for analysis.
+
+Additional details are reported in the Appendix~\ref{app:experiments}.
+
+
+\subsection{Main Results (RQ1)}
+
+% \begin{table}[t]
+% \centering
+% \small
+% \setlength{\tabcolsep}{4pt}
+% \caption{Performance under Multi-session and Single-user settings on \textsc{LongMemEval}.Best and second-best are marked in \textbf{bold} and \underline{underline} among Gemini-backbone methods.}
+% \begin{tabular}{lcc|cc}
+% \toprule
+% \multirow{2}{*}{Method} &
+% \multicolumn{2}{c|}{Multi-Session} &
+% \multicolumn{2}{c}{Single-User} \\
+% & F$_1$\,$\uparrow$ & J\,$\uparrow$ & F$_1$\,$\uparrow$ & J\,$\uparrow$ \\
+% \midrule
+% RAG
+% & 33.64 & 44.00
+% & 56.83 & 62.00 \\
+% Amem
+% & 25.31 & 34.69
+% & 78.02 & 88.00 \\
+% MemoryOS
+% & 36.67 & 44.00
+% & \textbf{86.21} & 90.00 \\
+% LangMem
+% & 40.68 & 53.12
+% & 72.43 & 78.79 \\
+% Mem0
+% & 31.83 & 50.00
+% & \underline{84.10} & \underline{92.00} \\
+% \textbf{MRAgent}
+% & \textbf{47.81} & \textbf{62.00}
+% & 82.32 & \textbf{93.22} \\
+% \midrule
+% \textbf{MRAgent} {\scriptsize (Claude)}
+% & 55.92 & 74.00
+% & 85.87 & 94.00 \\
+% \bottomrule
+% \end{tabular}
+
+% \label{tab:multi-single-results}
+% \end{table}
+
+\begin{table}[t]
+\centering
+\small
+\setlength{\tabcolsep}{5pt}
+\caption{Performance on \textsc{LongMemEval} evaluated by LLM-Judge~$\uparrow$.
+Best and second-best results among Gemini-backbone methods are marked in
+\textbf{bold} and \underline{underline}, respectively.
+Mul.: multi-session; Sgl.: single-session-user; Tmp.: temporal-reasoning;
+Pref.: single-session-preference.
+MRAgent$^{*}$ uses Claude for retrieval while memories are constructed by Gemini.
+The complete table is provided in Appendix~\ref{app:longmem}.}
+\begin{tabular}{lcccc|c}
+\toprule
+Method & Mul. & Sgl. & Tmp. & Pref. & Overall \\
+\midrule
+RAG       
+& 54.89 
+& 85.71 
+& 42.86
+& 33.33 
+& 54.65 \\
+
+A-Mem     
+& 42.85 
+& \underline{90.00} 
+& 45.11  
+& 46.43 
+& 52.98 \\
+
+MemoryOS 
+& \underline{56.39} 
+& 87.14 
+& 38.35 
+& \underline{46.67} 
+& \underline{54.92} \\
+
+LangMem  
+& 52.63 
+& 78.57 
+& \underline{45.71} 
+& 36.67 
+& 53.77 \\
+
+Mem0
+& 50.38
+& 78.57
+& 45.11
+& 40.00
+& 53.01 \\
+
+MRAgent  
+& \textbf{68.42} 
+& \textbf{92.85} 
+& \textbf{68.42} 
+& \textbf{66.67} 
+& \textbf{72.95} \\
+
+\midrule
+MRAgent$^{*}$  
+& 86.46 
+& 92.85  
+& 85.71 
+& 78.57 
+& 86.76 \\
+\bottomrule
+\end{tabular}
+\label{tab:longmem}
+\end{table}
+
+
+
+
+\textbf{MRAgent consistently outperforms all baselines across question types and backbones.}
+As shown in Table~\ref{tab:reasoning_results}, MRAgent improves the overall $J$ score from $68.31$ to $84.21$ under the Gemini backbone (an $23.3\%$ relative gain), and achieves a $12.4\%$ improvement under the Claude backbone.
+
+These gains can be attributed to two key factors.
+\textit{First}, the Cue–Tag–Content (CTC) memory design explicitly encodes
+associative relations via tags, integrating semantic information into the
+memory graph structure.
+Compared with graph-based retrieval methods that expand purely along predefined
+structural links, the CTC memory allows MRAgent to select retrieval directions
+based on semantic relevance, thereby improving its ability to locate supporting
+evidence.
+\textit{Second}, MRAgent integrates LLM reasoning into multi-turn memory access,
+allowing retrieval directions to adapt to accumulated evidence and to
+progressively form coherent reasoning chains.
+This adaptive reconstruction process enables the agent to focus on relevant
+evidence and follow evidence-guided retrieval paths, leading to
+superior performance over passive retrieval baselines.
+
+Table~\ref{tab:longmem} further shows consistent improvements on \textsc{LongMemEval}, achieving a relative improvement of $32\%$ over the strongest baseline.
+
+
+
+
+\subsection{Cost Analysis (RQ2)}
+
+
+% \begin{table}[t]
+% \centering
+% \small
+% \setlength{\tabcolsep}{6pt}
+% \caption{Per-sample token consumption on long-term \textsc{LongMemEval} across
+% different memory systems using the Gemini backbone.
+% Token counts include memory construction and retrieval for each method.}
+% \begin{tabular}{lccc}
+% \toprule
+% Method & Prompt Token & Completion Token & Total \\
+% \midrule
+% Amem        & 447k  & 185k & 632k  \\
+% MemoryOS    & 189k  & 54k  & 243k  \\
+% LangMem     & 3044k & 50k  & 3094k \\
+% Mem0        & 204k  & 41k  & 245k  \\
+% MRAgent     & 53k   & 80k  & \textbf{133k}  \\
+% \bottomrule
+% \end{tabular}
+% \label{tab:token-consumption}
+% \end{table}
+
+
+\begin{table}[t]
+\centering
+\small
+\setlength{\tabcolsep}{6pt}
+\caption{Per-sample token consumption and runtime on long-term
+\textsc{LongMemEval} across different memory systems using the Gemini backbone.
+Results include both memory construction and retrieval.
+\textbf{Bold} indicates the best result, and \underline{underline} indicates the
+second best.}
+\begin{tabular}{lcc}
+\toprule
+Method & Token Consumption & Runtime(s) \\
+\midrule
+A-Mem     & 632k              & 1,122.23 \\
+MemoryOS & 273k              & 3,135.54 \\
+LangMem  & 3,268k             & 1,209.57 \\
+Mem0     & \underline{245k}  & \textbf{533.29} \\
+\textbf{MRAgent} & \textbf{118k} & \underline{586.11} \\
+\bottomrule
+\label{tab:token-consumption}
+\end{tabular}
+\end{table}
+
+
+Table~\ref{tab:token-consumption} reports the total token consumption and runtime per sample on \textsc{LongMemEval}, which is designed for long-term memory assess across multiple dialogue sessions.
+
+\textbf{MRAgent improves information efficiency through selective, on-demand memory access.}
+MRAgent reduces prompt tokens to 118k, a significant decrease from baselines like A-Mem (632k). Unlike existing methods that repeatedly summarize history and analyze intricate dependencies during construction, MRAgent maintains a lightweight construction phase and defers complex relation-building to the retrieval stage, where it is performed in a query-specific manner. Moreover, by leveraging associative tags to semantically guide retrieval directions, the agent can prune irrelevant paths before accessing expensive episodic content. This ``on-demand'' approach ensures that computational resources are focused strictly on query-relevant evidence.
+
+
+
+\subsection{Ablation Study (RQ3)}
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\linewidth]{Fig/fig_ablation_study.png}
+  \caption{Ablation results on \textsc{LoCoMo} for multi-hop queries, evaluated using Recall and LLM-Judge (J) under Claude backbone.}
+  \label{fig:ablation}
+\end{figure}
+\label{sec:ablation}
+
+Figure~\ref{fig:ablation} presents ablation results on multi-hop questions in \textsc{LoCoMo}, isolating the contributions of memory structure and reasoning mechanisms.
+We consider three structural variants: CE (Cue$\rightarrow$Episode) with direct indexing, CTE (Cue–Tag–Episode) with mediated episodic retrieval, and CTC (Cue–Tag–Content) with the full memory structure.
+The CTE and CTC variant is evaluated both without reasoning (green bars) and with  reasoning (blue bars).
+
+\textbf{Active multi-step reasoning is a primary factor underlying the observed performance gains.}
+Across all memory structures, variants with reasoning (blue bars) consistently outperform their structure-only counterparts (green bars).
+This indicates that multi-step reasoning and traversal are crucial for accumulating evidence and supporting multi-hop inference, whereas one-shot retrieval is insufficient to resolve complex multi-hop queries.
+
+\textbf{Associative tags provide effective semantic guidance for retrieval.}
+Within the no-reasoning setting (green bars), performance improves monotonically from CE to CTE to CTC, demonstrating that richer associative structures enable more reliable retrieval. In particular, tags help guide retrieval toward semantically relevant directions and reduce the inclusion of fragmented or irrelevant memory units.
+
+\textbf{Episodic and semantic memory layers are complementary.}
+Removing the semantic memory component leads to a clear performance degradation (blue bars).
+While episodic memory preserves event-specific details, semantic memory captures stable, abstract knowledge that is essential for multi-hop reasoning.
+
+
+\subsection{Multi-turn Reasoning Analysis (RQ4)}
+\label{sec:5.5}
+% 主要选择reasoning的轮数进行分析
+
+% \begin{figure*}[t]
+%   \centering
+%   \begin{subfigure}[t]{0.48\textwidth}
+%     \centering
+%     \includegraphics[width=\linewidth]{Fig/round_statistics_plot_claude_with_table2.png}
+%     \caption{Claude}
+%     \label{fig:round-claude}
+%   \end{subfigure}
+%   \hfill
+%   \begin{subfigure}[t]{0.48\textwidth}
+%     \centering
+%     \includegraphics[width=\linewidth]{Fig/round_statistics_plot_gemini_with_table2.png}
+%     \caption{Gemini}
+%     \label{fig:round-gemini}
+%   \end{subfigure}
+
+%   \caption{Recall as a function of reasoning rounds under two LLM backbones.}
+%   \label{fig:round-stats-two}
+% \end{figure*}
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\columnwidth]{Fig/fig_multi_turns.png}
+  \caption{Analysis of multi-turn reasoning on \textsc{LoCoMo}
+under the Claude backbone.}
+  \label{fig:fig_multi_turns}
+\end{figure}
+
+
+
+% As shown in Figure~\ref{fig:fig_multi_turns}, we evaluate cumulative recall across reasoning turns on the \textsc{LoCoMo} dataset.
+% The accompanying statistics summarize the average number of reasoning turns to convergence and the maximum turns that retrieve valid information.
+As shown in Figure~\ref{fig:fig_multi_turns} (a), we evaluate cumulative evidence recall
+across reasoning turns on the \textsc{LoCoMo} dataset.
+Figure~\ref{fig:fig_multi_turns} (b) summarizes the average number of reasoning turns to convergence (Average Turns) and the maximum number of turns that
+retrieve valid information (Max Valid Turns).
+
+
+\textbf{Multi-turn reasoning progressively recovers missing evidence.} As shown in Figure~\ref{fig:fig_multi_turns} (a), single-hop (blue line) and
+temporal (yellow line) queries reach near-perfect recall within approximately
+three turns, whereas multi-hop queries benefit substantially from iterative
+exploration, with recall improving by over 
+$30\%$ across successive steps
+(red line).
+This highlights the necessity of multi-step reconstruction for resolving
+compositional and long-range dependencies.
+
+\textbf{The agent autonomously evaluates accumulated context to guide search and termination.}
+As shown in Figure~\ref{fig:fig_multi_turns} (b), Max Valid Turns closely matches
+Average Turns, suggesting that the LLM effectively determines when to continue searching and when to stop.
+This behavior minimizes redundant exploration.
+Furthermore, experiments in Appendix~\ref{sec:budget-analysis} show that increasing the parallel retrieval budget cannot substitute for deeper reconstruction depth.
+
+
+% \subsection{Parameter Analysis}
+
+
+
+
+\subsection{Case Study (RQ5)}
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=\linewidth]{Fig/fig-casestudy.png}
+\caption{
+Reasoning trajectory of MRAgent over the memory graph for a multi-session query.
+Starting from the cue ``Jonna'', the agent traverses multiple associative tags to
+retrieve both episodic memories (e.g., screenplay submissions) and semantic
+information (e.g., background about the screenplay).
+It then reasons over higher-level topics to recover rejection events and aligns
+them with previously retrieved submissions, enabling a coherent answer to the
+query. Here, $D x\!:\!x$ denotes concrete event instances.
+}
+    \label{fig:case_study}
+\end{figure}
+
+We include a qualitative case study in Figure~\ref{fig:case_study} demonstrating MRAgent’s ability to actively reconstruct multi-session evidence over a structured memory graph for complex, temporally grounded queries, with detailed analysis provided in the Appendix~\ref{app:case_study}.
+% We present a case to qualitatively illustrate how MRAgent performs multi-session, multi-step reconstruction over a structured memory graph.
+% The query, “Which of Joanna’s screenplays were rejected by production companies?”, requires linking screenplay submissions with subsequent rejection events distributed across multiple dialogue sessions.
+
+% As shown in Figure~\ref{fig:memory-alignment}, MRAgent incrementally reconstructs the relevant evidence through iterative graph exploration using cue–tag–episode and temporal traversal operators, rather than one-shot retrieval.
+% Across several reasoning turns, the agent progressively identifies submissions and rejections, disambiguates their correspondence, and verifies temporal consistency to avoid spurious matches.
+% After five reasoning steps, MRAgent correctly infers that Joanna’s first and third screenplays were rejected.
+% This example highlights that complex queries benefit from active, multi-step memory reconstruction that integrates associative expansion and temporal verification.
+
+% Detailed analysis of tool invocations for this case, together with additional case studies covering diverse query types, is provided in the Appendix.
