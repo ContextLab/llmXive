@@ -30,6 +30,7 @@ runtime in an EPHEMERAL venv — it is never added as a project dependency.
 from __future__ import annotations
 
 import json
+import logging
 import re
 import subprocess
 import sys
@@ -43,7 +44,13 @@ from llmxive.backends.router import chat_with_fallback
 from llmxive.librarian.dataset_resolver import sniff_format
 
 # Free reasoning model on the Dartmouth catalog (router falls back to local).
+logger = logging.getLogger(__name__)
+
 _MODEL = "openai.gpt-oss-120b"
+#: When the caller specifies required_fields, a verified source must cover at
+#: least this fraction of them — else it's the wrong dataset (e.g. a name-only
+#: census) and is rejected (a wrong-schema source is worse than none).
+_MIN_FIELD_COVERAGE = 0.5
 
 # Subprocess timeouts (seconds).
 _PIP_INSTALL_TIMEOUT = 180
@@ -71,6 +78,34 @@ class VerifiedSource:
     record_count: int
     sample_fields: list[str] = field(default_factory=list)
     source: str = "web-discovery"
+    #: Fraction (0..1) of the caller's ``required_fields`` present in a sample
+    #: record. 1.0 when the caller specified no required fields. A source that
+    #: loads records but lacks the needed columns (e.g. only ``name``) scores
+    #: low and loses to a richer source during selection.
+    field_coverage: float = 1.0
+
+
+def _norm_field(s: str) -> str:
+    """Normalize a field name for fuzzy matching: lowercase alnum tokens."""
+    return re.sub(r"[^a-z0-9]+", " ", s.lower()).strip()
+
+
+def field_coverage(sample_fields: list[str], required_fields: list[str]) -> float:
+    """Fraction of ``required_fields`` matched by ``sample_fields`` (fuzzy).
+
+    A required field matches a sample field if, after normalization, either
+    contains a shared significant token (so "braid index" matches "braid_index",
+    "hyperbolic volume" matches "volume"). Pure function — unit-testable.
+    """
+    if not required_fields:
+        return 1.0
+    sample_tok = [set(_norm_field(s).split()) for s in sample_fields]
+    hits = 0
+    for req in required_fields:
+        rtoks = {t for t in _norm_field(req).split() if len(t) > 2}
+        if rtoks and any(rtoks & st for st in sample_tok):
+            hits += 1
+    return hits / len(required_fields)
 
 
 # ---------------------------------------------------------------------------
@@ -246,7 +281,9 @@ def _pypi_names_from_seeds(seeds: list[dict[str, str]]) -> list[str]:
     return names
 
 
-def _build_propose_messages(intent: str, seeds: list[dict[str, str]]) -> list[ChatMessage]:
+def _build_propose_messages(
+    intent: str, seeds: list[dict[str, str]], required_fields: list[str] | None = None
+) -> list[ChatMessage]:
     ranked = _rank_seeds_for_prompt(seeds)
     seed_lines = [
         f"- {s['title']} | {s['href']}\n  {s['body'][:240]}"
@@ -261,10 +298,21 @@ def _build_propose_messages(intent: str, seeds: list[dict[str, str]]) -> list[Ch
         if pypi_names
         else ""
     )
+    fields_hint = ""
+    if required_fields:
+        fields_hint = (
+            "\n\nThe dataset MUST contain these fields/columns (choose a source "
+            "that has them, NOT one with only a name/id): "
+            + ", ".join(required_fields)
+            + ". In the access snippet, ALSO print one line `FIELDS=<comma-"
+            "separated field names>` listing which of these the loaded records "
+            "actually contain (map the package's native column names to these "
+            "where they correspond)."
+        )
     user = (
         f"Research data need:\n{intent}\n\n"
         f"Web search results (candidate sources):\n{seed_block}"
-        f"{pypi_hint}\n\n"
+        f"{pypi_hint}{fields_hint}\n\n"
         "Return the JSON object now."
     )
     return [
@@ -304,10 +352,12 @@ def _extract_json_object(text: str) -> dict[str, object] | None:
     return None
 
 
-def _propose_sources(intent: str, seeds: list[dict[str, str]]) -> list[dict[str, str]]:
+def _propose_sources(
+    intent: str, seeds: list[dict[str, str]], required_fields: list[str] | None = None
+) -> list[dict[str, str]]:
     """Ask the LLM for candidate sources; return a list of {kind,ref,access_python}."""
     resp = chat_with_fallback(
-        _build_propose_messages(intent, seeds),
+        _build_propose_messages(intent, seeds, required_fields),
         default_backend="dartmouth",
         fallback_backends=["local"],
         model=_MODEL,
@@ -496,8 +546,45 @@ def _strip_code_fences(text: str) -> str:
     return t.strip()
 
 
+_SAMPLE_KEYS_RE = re.compile(r"sample_keys:\s*(\[[^\]]*\])")
+
+
+def _introspected_sample_keys(py: Path, ref: str) -> list[str]:
+    """Real keys of one sample record (from package introspection) — used to
+    score field coverage WITHOUT relying on the recipe printing a FIELDS line."""
+    m = _SAMPLE_KEYS_RE.search(_introspect_package(py, ref))
+    if not m:
+        return []
+    try:
+        import ast
+
+        val = ast.literal_eval(m.group(1))
+        return [str(x) for x in val] if isinstance(val, list) else []
+    except (ValueError, SyntaxError):
+        return []
+
+
+def _finalize_source(
+    ref: str, snippet: str, gate: GateResult, py: Path,
+    required_fields: list[str] | None,
+) -> VerifiedSource:
+    """Build a VerifiedSource. Field coverage uses the recipe's FIELDS line if it
+    printed one, else the package's REAL introspected record keys — so coverage
+    doesn't hinge on the LLM remembering to emit FIELDS (a rich source like
+    database-knotinfo must not be rejected merely because its recipe omitted it)."""
+    fields = gate.sample_fields
+    if required_fields and not fields:
+        fields = _introspected_sample_keys(py, ref)
+    return VerifiedSource(
+        kind="pypi_package", ref=ref, access_python=snippet,
+        record_count=gate.record_count, sample_fields=fields,
+        field_coverage=field_coverage(fields, required_fields or []),
+    )
+
+
 def _verify_pypi_package(
-    proposal: dict[str, str], *, repair_rounds: int, deadline: float
+    proposal: dict[str, str], *, repair_rounds: int, deadline: float,
+    required_fields: list[str] | None = None,
 ) -> VerifiedSource | None:
     """Install a proposed pip package in a fresh venv and gate its recipe,
     repairing the recipe up to ``repair_rounds`` times. Returns a
@@ -518,10 +605,7 @@ def _verify_pypi_package(
         rc, out, err = _run_snippet(py, snippet)
         gate = parse_records_gate(rc, out, err)
         if gate.verified:
-            return VerifiedSource(
-                kind="pypi_package", ref=ref, access_python=snippet,
-                record_count=gate.record_count, sample_fields=gate.sample_fields,
-            )
+            return _finalize_source(ref, snippet, gate, py, required_fields)
         # Repair loop: introspect the REAL exports and ask the LLM to fix it.
         exports = _introspect_package(py, ref)
         for _ in range(max(0, repair_rounds)):
@@ -539,16 +623,20 @@ def _verify_pypi_package(
             rc, out, err = _run_snippet(py, snippet)
             gate = parse_records_gate(rc, out, err)
             if gate.verified:
-                return VerifiedSource(
-                    kind="pypi_package", ref=ref, access_python=snippet,
-                    record_count=gate.record_count, sample_fields=gate.sample_fields,
-                )
+                return _finalize_source(ref, snippet, gate, py, required_fields)
         return None
 
 
-def _verify_data_url(proposal: dict[str, str]) -> VerifiedSource | None:
+def _verify_data_url(
+    proposal: dict[str, str], *, required_fields: list[str] | None = None
+) -> VerifiedSource | None:
     """Verify a data URL by sniffing a real sample (no venv). Returns a
-    VerifiedSource with record_count=0 (sniff is format-level, not a count)."""
+    VerifiedSource with record_count=0 (sniff is format-level, not a count).
+
+    Field coverage can't be confirmed from a format sniff, so when the caller
+    requires specific fields a URL source is marked 0.0 coverage — it loses to a
+    pip package whose recipe actually proved the fields are present.
+    """
     ref = proposal["ref"]
     if not ref.lower().startswith(("http://", "https://")):
         return None
@@ -558,6 +646,7 @@ def _verify_data_url(proposal: dict[str, str]) -> VerifiedSource | None:
     return VerifiedSource(
         kind="data_url", ref=ref, access_python=proposal["access_python"],
         record_count=0, sample_fields=[],
+        field_coverage=0.0 if required_fields else 1.0,
     )
 
 
@@ -570,45 +659,71 @@ _TOTAL_BUDGET_S = 900
 
 
 def discover_data_source(
-    intent: str, *, max_sources: int = 3, repair_rounds: int = 3
+    intent: str, *, required_fields: list[str] | None = None,
+    max_sources: int = 3, repair_rounds: int = 3,
 ) -> VerifiedSource | None:
     """Discover and HARD-verify a real, programmatic data source for ``intent``.
 
     Web-searches for seeds, asks the LLM to propose sources, then verifies each
     (capped at ``max_sources``) for real — installing pip packages in an
     ephemeral venv and gating their access recipe (with a bounded ``repair_rounds``
-    introspect-and-fix loop) or sniffing data URLs. Returns the FIRST source that
-    verifies as a :class:`VerifiedSource`, or ``None`` if nothing verifies.
+    introspect-and-fix loop) or sniffing data URLs.
+
+    When ``required_fields`` is given, a source must not only LOAD records but
+    contain (most of) those fields — the richest-covering verified source wins,
+    and one covering fewer than :data:`_MIN_FIELD_COVERAGE` of them is rejected
+    (a name-only census is the WRONG dataset even though it loads records).
+    Returns the best :class:`VerifiedSource`, or ``None`` if nothing qualifies.
 
     Never raises on a single-candidate failure — it moves on to the next.
     """
     deadline = time.monotonic() + _TOTAL_BUDGET_S
     seeds = _web_search_seeds(intent)
     try:
-        proposals = _propose_sources(intent, seeds)
+        proposals = _propose_sources(intent, seeds, required_fields)
     except Exception:
         proposals = []
+    verified: list[VerifiedSource] = []
     for proposal in proposals[: max(1, max_sources)]:
         if time.monotonic() > deadline:
             break
         try:
             if proposal["kind"] == "pypi_package":
                 result = _verify_pypi_package(
-                    proposal, repair_rounds=repair_rounds, deadline=deadline
+                    proposal, repair_rounds=repair_rounds, deadline=deadline,
+                    required_fields=required_fields,
                 )
             else:
-                result = _verify_data_url(proposal)
+                result = _verify_data_url(proposal, required_fields=required_fields)
         except Exception:
             # A single candidate blowing up must never abort discovery.
             continue
-        if result is not None:
-            return result
-    return None
+        if result is None:
+            continue
+        verified.append(result)
+        # A fully-covering source (or no field requirement) is ideal — stop early
+        # rather than spend the budget verifying further candidates.
+        if result.field_coverage >= 0.999:
+            break
+    if not verified:
+        return None
+    # Pick the richest source: most required-field coverage, then most records.
+    verified.sort(key=lambda v: (v.field_coverage, v.record_count), reverse=True)
+    best = verified[0]
+    if required_fields and best.field_coverage < _MIN_FIELD_COVERAGE:
+        logger.warning(
+            "discovery: best source %r covers only %.0f%% of required fields "
+            "(< %.0f%%) — rejecting as wrong-schema",
+            best.ref, best.field_coverage * 100, _MIN_FIELD_COVERAGE * 100,
+        )
+        return None
+    return best
 
 
 __all__ = [
     "GateResult",
     "VerifiedSource",
     "discover_data_source",
+    "field_coverage",
     "parse_records_gate",
 ]

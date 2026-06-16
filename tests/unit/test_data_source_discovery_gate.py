@@ -54,3 +54,23 @@ def test_parses_fields_line() -> None:
         "braid_index",
         "volume",
     ]
+
+
+# --- field_coverage: prefer a source that has the REQUIRED columns -----------
+
+from llmxive.librarian.data_source_discovery import field_coverage  # noqa: E402
+
+
+def test_field_coverage_rich_source_beats_name_only() -> None:
+    required = ["crossing number", "braid index", "hyperbolic volume", "alternating"]
+    # database-knotinfo native columns (fuzzy match: braid_index, volume, alternating;
+    # 'category' is its crossing-number column and does NOT textually match → 3/4).
+    rich = field_coverage(["name", "category", "braid_index", "volume", "alternating"], required)
+    name_only = field_coverage(["name"], required)  # e.g. a closed-manifold census
+    assert rich >= 0.5  # passes the discovery threshold
+    assert name_only == 0.0  # the wrong-schema source is rejected
+    assert rich > name_only
+
+
+def test_field_coverage_no_requirements_is_full() -> None:
+    assert field_coverage(["anything"], []) == 1.0

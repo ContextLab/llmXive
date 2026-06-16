@@ -100,6 +100,29 @@ def _write_execution_feedback(
     if res.declared_missing:
         lines += ["", "## Declared deliverables still missing", ""]
         lines.extend(f"- {d}" for d in res.declared_missing)
+
+    # If a DATA deliverable is missing, the loader almost certainly lacks a real,
+    # programmatically-accessible source (the implementer can't search, so it
+    # hallucinates a fake endpoint). Discover + verify a real source ONCE and
+    # inject it so the next implementer tick writes a loader that fetches REAL
+    # data. Best-effort: discovery failure just omits the block.
+    data_missing = any(
+        d.startswith("data/") for d in res.declared_missing
+    ) or (not res.artifacts_produced and "data" in (res.reason or ""))
+    if data_missing:
+        try:
+            from llmxive.execution.data_source import (
+                ensure_discovered_source,
+                render_feedback_block,
+            )
+
+            project_dir = mem_dir.parent.parent
+            block = render_feedback_block(ensure_discovered_source(project_dir))
+            if block:
+                lines.append(block)
+        except Exception as exc:  # never block feedback-writing on discovery
+            logger.warning("data-source discovery skipped: %s", exc)
+
     (mem_dir / _FEEDBACK_FILENAME).write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
