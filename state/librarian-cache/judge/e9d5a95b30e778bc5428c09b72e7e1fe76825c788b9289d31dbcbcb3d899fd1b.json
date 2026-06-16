@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2305.15266",
+  "judged_at": "2026-06-16T06:06:35Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "audio interaction model computer science",
+  "rationale": "The paper focuses on diffusion-based audio inpainting—reconstructing missing audio segments—rather than on models of audio interaction or user‑centered audio interfaces, which is what the query “Audio Interaction Model” implies. It does not address the interaction aspect and therefore falls outside the relevant domain.",
+  "relevant": false
+}

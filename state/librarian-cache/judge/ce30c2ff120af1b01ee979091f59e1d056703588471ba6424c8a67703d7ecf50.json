@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2002.05305",
+  "judged_at": "2026-06-16T06:04:46Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "memory palace pedagogy: vr-enhanced spatial learning for abstract concepts psychology",
+  "rationale": "The paper studies AR for collaborative data‑analytics tasks, not VR‑enhanced spatial learning, memory‑palace pedagogy, or the psychological acquisition of abstract concepts, so it does not meet any inclusion criteria (a‑f).",
+  "relevant": false
+}

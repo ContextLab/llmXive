@@ -35,6 +35,10 @@
     "classified_at": "2026-06-03T03:30:39Z",
     "verdict": false
   },
+  "PROJ-557-memory-palace-pedagogy-vr-enhanced-spati::1.6.0": {
+    "classified_at": "2026-06-16T06:04:31Z",
+    "verdict": false
+  },
   "PROJ-558-consciousness-bootstrapping-self-aware-a::1.6.0": {
     "classified_at": "2026-05-24T03:30:49Z",
     "verdict": false
@@ -141,6 +145,10 @@
   },
   "PROJ-646-agentdog-1-5-a-lightweight-and-scalable::1.6.0": {
     "classified_at": "2026-06-04T03:31:19Z",
+    "verdict": false
+  },
+  "PROJ-666-https-arxiv-org-abs-2606-05121::1.6.0": {
+    "classified_at": "2026-06-16T06:06:30Z",
     "verdict": false
   },
   "PROJ-672-the-impact-of-bounded-confidence-on-opin::1.6.0": {

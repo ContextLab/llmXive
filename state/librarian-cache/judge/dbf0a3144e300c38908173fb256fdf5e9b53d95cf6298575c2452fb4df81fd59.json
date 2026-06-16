@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2403.15523",
+  "judged_at": "2026-06-16T06:06:41Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "audio interaction model computer science",
+  "rationale": "The paper focuses on a neuroscience method for auditory attention decoding using brain signals, not on computational or interaction models of audio within computer science (e.g., speech interfaces, audio UI design). It does not address the mechanisms, variables, or methodologies typical of “audio interaction models” in CS, thus it falls outside the relevant domain.",
+  "relevant": false
+}

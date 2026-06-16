@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2506.02700",
+  "judged_at": "2026-06-16T06:04:42Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "memory palace pedagogy: vr-enhanced spatial learning for abstract concepts psychology",
+  "rationale": "The paper studies the same mechanism—VR‑enhanced memory palace environments—and measures their effect on focus and recall, which directly relates to VR‑based spatial learning pedagogy (criterion a). It provides empirical evidence on how personalized VR memory palaces influence memory performance, making it a relevant prior work for the user's question.",
+  "relevant": true
+}

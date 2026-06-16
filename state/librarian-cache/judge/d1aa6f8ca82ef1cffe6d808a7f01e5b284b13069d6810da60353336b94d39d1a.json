@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2110.07276",
+  "judged_at": "2026-06-16T06:07:53Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "memory palaces in llms: spatial reasoning for enhanced episodic recall computer science",
+  "rationale": "The paper studies hierarchical episodic memory buffers for continual learning on general neural models, without involving spatial‑reasoning “memory palace” architectures or large language models; it does not address the mechanism or variables central to the user’s question.",
+  "relevant": false
+}

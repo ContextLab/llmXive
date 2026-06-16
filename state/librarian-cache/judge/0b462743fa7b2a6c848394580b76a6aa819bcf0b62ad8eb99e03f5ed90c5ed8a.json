@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2501.05032",
+  "judged_at": "2026-06-16T06:05:41Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "self-improving llm: recursive architecture refinement and re-training computer science",
+  "rationale": "The paper focuses on enhancing human-like responses via fine‑tuning and psychological principles, not on recursive architecture refinement, self‑improvement loops, or re‑training strategies central to the user's question, so it does not meet any inclusion criteria (a‑f).",
+  "relevant": false
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2402.11821",
+  "judged_at": "2026-06-16T06:07:45Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "memory palaces in llms: spatial reasoning for enhanced episodic recall computer science",
+  "rationale": "The paper measures LLMs’ ability to recall structured information (graph recall accuracy), which is a form of episodic recall in the same domain (LLMs) that the user’s question concerns. It therefore provides an empirical baseline for recall performance, satisfying criterion (b) (independent/dependent variable on the same domain) and (c) (empirical baseline).",
+  "relevant": true
+}

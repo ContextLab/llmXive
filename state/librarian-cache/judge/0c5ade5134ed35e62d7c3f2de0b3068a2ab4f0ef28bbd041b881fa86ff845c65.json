@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2111.01906",
+  "judged_at": "2026-06-16T06:06:49Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "audio interaction model computer science",
+  "rationale": "The paper studies a computational model that predicts and integrates audio‑visual cues to drive robot social attention, directly addressing an audio interaction model in a computer‑science (robotics/HRI) context (acceptance category (a): same‑mechanism evidence).",
+  "relevant": true
+}

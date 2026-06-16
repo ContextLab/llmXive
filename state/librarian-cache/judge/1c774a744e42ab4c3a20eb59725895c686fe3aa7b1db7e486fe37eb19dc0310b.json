@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1406.5760",
+  "judged_at": "2026-06-16T06:04:49Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "memory palace pedagogy: vr-enhanced spatial learning for abstract concepts psychology",
+  "rationale": "The candidate paper discusses a cloud‑computing virtualization technique (Virtual Memory Streaming for virtual machines) and has no connection to spatial learning, memory palaces, virtual‑reality pedagogy, or psychological mechanisms, thus it is off‑domain and unrelated to the user's research question.",
+  "relevant": false
+}

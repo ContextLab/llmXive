@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2007.04134",
+  "judged_at": "2026-06-16T06:06:44Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "audio interaction model computer science",
+  "rationale": "The paper investigates the interaction between audio and visual modalities to learn audio representations, directly addressing the concept of an “audio interaction model” in computer science (category (a) same‑mechanism evidence and category (f) cross‑vocabulary alt‑cluster).",
+  "relevant": true
+}

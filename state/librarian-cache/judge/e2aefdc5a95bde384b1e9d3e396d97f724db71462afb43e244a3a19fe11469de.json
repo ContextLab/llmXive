@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2402.14679",
+  "judged_at": "2026-06-16T06:05:42Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "self-improving llm: recursive architecture refinement and re-training computer science",
+  "rationale": "The paper investigates LLM personality consistency, not mechanisms of self‑improvement, recursive architecture refinement, or re‑training, and therefore does not provide relevant evidence, baseline, or methodology for the user's question.",
+  "relevant": false
+}

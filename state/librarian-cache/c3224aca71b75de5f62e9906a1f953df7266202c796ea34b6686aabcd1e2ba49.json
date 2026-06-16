@@ -1,0 +1,573 @@
+{
+  "fetched_at": "2026-06-16T06:07:56Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "Memory Palaces in LLMs: Spatial Reasoning for Enhanced Episodic Recall",
+      "target_n": 5
+    },
+    "duration_seconds": 48.454,
+    "ended_at": "2026-06-16T06:07:56Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "episodic memory architectures for large language models"
+        ],
+        [
+          2,
+          "spatial memory modules in transformer networks"
+        ],
+        [
+          3,
+          "cognitive map embeddings for language models"
+        ],
+        [
+          4,
+          "neural scene graph reasoning in LLMs"
+        ],
+        [
+          5,
+          "retrieval‑augmented generation with spatial indexing"
+        ],
+        [
+          6,
+          "latent spatial representations for contextual recall"
+        ],
+        [
+          7,
+          "hierarchical memory networks for episodic recall"
+        ],
+        [
+          8,
+          "neuro‑symbolic memory integration in LLMs"
+        ],
+        [
+          9,
+          "structured memory banks for transformer models"
+        ],
+        [
+          10,
+          "spatial attention mechanisms for long‑term recall"
+        ],
+        [
+          11,
+          "knowledge‑graph navigation in large language models"
+        ],
+        [
+          12,
+          "context‑aware memory retrieval in neural language systems"
+        ],
+        [
+          13,
+          "map‑based memory encoding for AI agents"
+        ],
+        [
+          14,
+          "long‑range memory augmentation in transformer architectures"
+        ],
+        [
+          15,
+          "embodied spatial reasoning in text generation models"
+        ],
+        [
+          16,
+          "memory palace-inspired neural architectures"
+        ],
+        [
+          17,
+          "topological memory encoding for LLMs"
+        ],
+        [
+          18,
+          "declarative episodic storage in deep language models"
+        ],
+        [
+          19,
+          "spatially organized token embeddings for recall"
+        ],
+        [
+          20,
+          "multi‑modal spatial memory integration in language AI"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Memory Palaces in LLMs: Spatial Reasoning for Enhanced Episodic Recall computer science": 0,
+        "episodic memory architectures for large language models": 5
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "method of loci LLM",
+      "LAMBADA long-context benchmark",
+      "grid cell embeddings language model",
+      "long-context recall accuracy",
+      "associative memory spatial indexing"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2402.11821"
+      ]
+    },
+    "per_query_hit_count": {
+      "LAMBADA long-context benchmark": 3,
+      "Memory Palaces in LLMs: Spatial Reasoning for Enhanced Episodic Recall computer science": 3,
+      "associative memory spatial indexing": 3,
+      "grid cell embeddings language model": 3,
+      "long-context recall accuracy": 1,
+      "method of loci LLM": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 5,
+      "rejections": [
+        {
+          "primary_pointer": "2501.05032",
+          "rationale": "The paper focuses on making LLMs more human‑like through fine‑tuning, conversational coherence, and emotional intelligence, without addressing spatial reasoning, memory‑palace mechanisms, or episodic recall, so it does not meet any inclusion criteria (a‑f).",
+          "title": "Enhancing Human-Like Responses in Large Language Models"
+        },
+        {
+          "primary_pointer": "2506.03710",
+          "rationale": "The paper focuses on video localization for egocentric video datasets (Ego4D) and does not address memory palaces, spatial reasoning mechanisms, or episodic recall in large language models, which are the core constructs of the user's question. It is off‑domain and unrelated to the desired research area.",
+          "title": "OSGNet @ Ego4D Episodic Memory Challenge 2025"
+        },
+        {
+          "primary_pointer": "2110.07276",
+          "rationale": "The paper studies hierarchical episodic memory buffers for continual learning on general neural models, without involving spatial‑reasoning “memory palace” architectures or large language models; it does not address the mechanism or variables central to the user’s question.",
+          "title": "Carousel Memory: Rethinking the Design of Episodic Memory for Continual Learning"
+        },
+        {
+          "primary_pointer": "2402.14679",
+          "rationale": "The paper studies LLM personality consistency, which does not involve memory palaces, spatial reasoning, or episodic recall mechanisms, and thus lacks any relevant variable or construct for the user's question.",
+          "title": "Is Self-knowledge and Action Consistent or Not: Investigating Large Language Model's Personality"
+        },
+        {
+          "primary_pointer": "2405.11357",
+          "rationale": "The paper studies LLMs’ ability to understand character composition of words, which is unrelated to spatial reasoning, memory‑palace architectures, or episodic recall mechanisms targeted by the user’s question. It does not share the relevant construct, variables, or methodology.",
+          "title": "Large Language Models Lack Understanding of Character Composition of Words"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-16T06:07:08Z",
+    "term_input": {
+      "normalized": "memory palaces in llms: spatial reasoning for enhanced episodic recall computer science",
+      "raw": "Memory Palaces in LLMs: Spatial Reasoning for Enhanced Episodic Recall computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Over the last decade, the term spatial computing has grown to have two different, though not entirely unrelated, definitions. The first definition of spatial computing stems from industry, where it refers primarily to new kinds of augmented, virtual, mixed-reality, and natural user interface technologies. A second definition coming out of academia takes a broader perspective that includes active research in geographic information science as well as the aforementioned novel UI technologies. Both senses reflect an ongoing shift toward increased interaction with computing interfaces and sensors embedded in the environment and how the use of these technologies influence how we behave and make sense of and even change the world we live in. Regardless of the definition, research in spatial computing is humming along nicely without the need to identify new research agendas or new labels for communities of researchers. However, as a field of research, it could be helpful to view spatial data science as the glue that coheres spatial computing with problem-solving and learning in the real world into a more holistic discipline.",
+          "claimed_authors": [
+            "Benjamin Adams"
+          ],
+          "claimed_title": "Spatial Data Science: Closing the human-spatial computing-environment loop",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1910.06484"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Memory Palaces in LLMs: Spatial Reasoning for Enhanced Episodic Recall computer ', candidate_title='Spatial Data Science: Closing the human-spatial computing-environment loop')",
+        "failed_at": "2026-06-16T06:07:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Flow theory describes an optimal cognitive state where individuals experience deep focus and intrinsic motivation when a task's difficulty aligns with their skill level. In AI-augmented reasoning, interventions that disrupt the state of cognitive flow can hinder rather than enhance decision-making. This paper proposes a context-aware cognitive augmentation framework that adapts interventions based on three key contextual factors: type, timing, and scale. By leveraging multimodal behavioral cues (e.g., gaze behavior, typing hesitation, interaction speed), AI can dynamically adjust cognitive support to maintain or restore flow. We introduce the concept of cognitive flow, an extension of flow theory in AI-augmented reasoning, where interventions are personalized, adaptive, and minimally intrusive. By shifting from static interventions to context-aware augmentation, our approach ensures that AI systems support deep engagement in complex decision-making and reasoning without disrupting cognitive immersion.",
+          "claimed_authors": [
+            "Dinithi Dissanayake",
+            "Suranga Nanayakkara"
+          ],
+          "claimed_title": "Navigating the State of Cognitive Flow: Context-Aware AI Interventions for Effective Reasoning Support",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.16021"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Memory Palaces in LLMs: Spatial Reasoning for Enhanced Episodic Recall computer ', candidate_title='Navigating the State of Cognitive Flow: Context-Aware AI Interventions for Effective Reasoning Support')",
+        "failed_at": "2026-06-16T06:07:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Continual Learning (CL) is an emerging machine learning paradigm that aims to learn from a continuous stream of tasks without forgetting knowledge learned from the previous tasks. To avoid performance decrease caused by forgetting, prior studies exploit episodic memory (EM), which stores a subset of the past observed samples while learning from new non-i.i.d. data. Despite the promising results, since CL is often assumed to execute on mobile or IoT devices, the EM size is bounded by the small hardware memory capacity and makes it infeasible to meet the accuracy requirements for real-world applications. Specifically, all prior CL methods discard samples overflowed from the EM and can never retrieve them back for subsequent training steps, incurring loss of information that would exacerbate catastrophic forgetting. We explore a novel hierarchical EM management strategy to address the forgetting issue. In particular, in mobile and IoT devices, real-time data can be stored not just in high-speed RAMs but in internal storage devices as well, which offer significantly larger capacity than the RAMs. Based on this insight, we propose to exploit the abundant storage to preserve past experiences and alleviate the forgetting by allowing CL to efficiently migrate samples between memory and storage without being interfered by the slow access speed of the storage. We call it Carousel Memory (CarM). As CarM is complementary to existing CL methods, we conduct extensive evaluations of our method with seven popular CL methods and show that CarM significantly improves the accuracy of the methods across different settings by large margins in final average accuracy (up to 28.4%) while retaining the same training efficiency.",
+          "claimed_authors": [
+            "Soobee Lee",
+            "Minindu Weerakoon",
+            "Jonghyun Choi",
+            "Minjia Zhang",
+            "Di Wang",
+            "Myeongjae Jeon"
+          ],
+          "claimed_title": "Carousel Memory: Rethinking the Design of Episodic Memory for Continual Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2110.07276"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Memory Palaces in LLMs: Spatial Reasoning for Enhanced Episodic Recall computer ', candidate_title='Carousel Memory: Rethinking the Design of Episodic Memory for Continual Learning')",
+        "failed_at": "2026-06-16T06:07:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large language models (LLMs) drive significant financial innovations, yet their high-concurrency deployment is severely bottlenecked by KV cache memory overhead, which inflates infrastructure costs and throttles scalability. To address this, we propose YouZhi-LLM, a highly efficient financial LLM empowered by a comprehensive structural transition and training pipeline natively built on the Huawei Ascend ecosystem. At its algorithmic core, YouZhi-LLM features a layer-adaptive GQA-to-MLA transition framework that dynamically assigns per-layer FreqFold sizes, maximizing KV-cache compression while minimizing perplexity degradation. To recover representation capacity and inject domain expertise, the Ascend-based training pipeline seamlessly integrates generalized knowledge distillation with financial-specific supervised fine-tuning. Evaluations demonstrate the superiority of this systematic approach, with the adaptive transition reducing perplexity degradation by up to 35% over uniform baselines. Crucially, when evaluated on Ascend NPUs via vLLM-Ascend, the massive KV-cache reduction translates directly into deployment efficiency. Compared to their respective base models, YouZhi-7B yields a 12.3% improvement in average financial benchmark score alongside a 2.69$\\times$ increase in maximum concurrency; similarly, YouZhi-14B achieves a 7.0% accuracy gain and a 2.43$\\times$ concurrency boost, establishing a new paradigm for cost-effective, high-throughput financial inference.",
+          "claimed_authors": [
+            " PSBC LLM Team",
+            " Huawei LLM Team",
+            "Ruihan Long",
+            "Junjie Wu",
+            "Tianan Zhang",
+            "Duo Zhang",
+            "Yaozong Wu",
+            "Jinbin Fu",
+            "Chang Liu",
+            "Zhentao Tang",
+            "Wenshuang Yang",
+            "Xin Wang",
+            "Zhihao Song",
+            "Ning Huang",
+            "Wenjing Xu",
+            "Shuai Zong",
+            "Shupei Sun",
+            "Sen Wang",
+            "Jing Hu",
+            "Bin Wang",
+            "Xinyu Wang",
+            "Junkui Ju",
+            "Zequn Ding",
+            "Jie Ran",
+            "Man Luo",
+            "Shixiong Kai",
+            "Linkai Hou",
+            "Kaichao Liang",
+            "Hu Zhao",
+            "Yang Zhao",
+            "Shucheng Lin",
+            "Wei Yu",
+            "Chenghan Jiang",
+            "Jingjing Ding",
+            "Jiahui Zhang",
+            "Tian Jin",
+            "Yuhang Zhang",
+            "Dong Guo",
+            "Wei Sun",
+            "Jun Xie",
+            "Jianwei Li",
+            "Lei Cao",
+            "Pei Li",
+            "Jiabin Li",
+            "Jia Yuan",
+            "Rui Yuan",
+            "Jing Zhu",
+            "Mingxuan Yuan",
+            "Zhangcheng Lv",
+            "Xin Jiang",
+            "Xiuhong Fei",
+            "Xiaozhe Ren",
+            "Yulong Li",
+            "Zhipeng Zhang",
+            "Hang Wang",
+            "Zhaohui Xu",
+            "Rui Zhao",
+            "Yibo He",
+            "Xinzhuang Niu"
+          ],
+          "claimed_title": "YouZhi: Towards High-Concurrency Financial LLMs via Adaptive GQA-to-MLA Transition",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.05868"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Memory Palaces in LLMs: Spatial Reasoning for Enhanced Episodic Recall computer ', candidate_title='YouZhi: Towards High-Concurrency Financial LLMs via Adaptive GQA-to-MLA Transition')",
+        "failed_at": "2026-06-16T06:07:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Let $V$ be a vector bundle over a smooth curve $C$. In this paper, we study twisted Brill--Noether loci parametrising stable bundles $E$ of rank $n$ and degree $e$ with the property that $h^0 (C, V \\otimes E) \\ge k$. We prove that, under conditions similar to those of Teixidor i Bigas and of Mercat, the Brill-Noether loci are nonempty, and in many cases have a component which is generically smooth and of the expected dimension. Along the way, we prove the irreducibility of certain components of both twisted and \"nontwisted\" Brill--Noether loci. We describe the tangent cones to the twisted Brill-Noether loci. We end with an example of a general bundle over a general curve having positive-dimensional twisted Brill--Noether loci with negative expected dimension.",
+          "claimed_authors": [
+            "George H. Hitching",
+            "Michael Hoff",
+            "Peter E. Newstead"
+          ],
+          "claimed_title": "Nonemptiness and smoothness of twisted Brill-Noether loci",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1804.01260"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Memory Palaces in LLMs: Spatial Reasoning for Enhanced Episodic Recall computer ', candidate_title='Nonemptiness and smoothness of twisted Brill-Noether loci')",
+        "failed_at": "2026-06-16T06:07:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The geometry of Sp(3)/U(3) as a subvariety of Gr(3,6) is explored to explain several examples given by Mukai of non-abelian Brill-Noether loci, and to give some new examples. These examples identify Brill-Noether loci of vector bundles on linear sections of the Lagrangian Grassmannian Sp(3)/U(3) with orthogonal linear sections of the dual variety and vice versa. A main technical result of independent interest is the fact that any nodal hyperplane section of the Lagrangian Grassmannian projected from the node is a linear section of the Grassmannian Gr(2,6).",
+          "claimed_authors": [
+            "Atanas Iliev",
+            "Kristian Ranestad"
+          ],
+          "claimed_title": "Geometry of the Lagrangian Grassmannian Sp(3)/U(3) with applications to Brill-Noether loci",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2002,
+          "primary_pointer": "math/0209169"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Memory Palaces in LLMs: Spatial Reasoning for Enhanced Episodic Recall computer ', candidate_title='Geometry of the Lagrangian Grassmannian Sp(3)/U(3) with applications to Brill-Noether loci')",
+        "failed_at": "2026-06-16T06:07:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Long-context language models (LCLMs) have exhibited impressive capabilities in long-context understanding tasks. Among these, long-context referencing -- a crucial task that requires LCLMs to attribute items of interest to specific parts of long-context data -- remains underexplored. To bridge this gap, this paper proposes Referencing Evaluation for Long-context Language Models (Ref-Long), a novel benchmark designed to assess the long-context referencing capability of LCLMs. Specifically, Ref-Long requires LCLMs to identify the indexes of documents that reference a specific key, emphasizing contextual relationships between the key and the documents over simple retrieval. Based on the task design, we construct three subsets ranging from synthetic to realistic scenarios to form the Ref-Long benchmark. Experimental results of 13 LCLMs reveal significant shortcomings in long-context referencing, even among advanced models like GPT-4o. To further investigate these challenges, we conduct comprehensive analyses, including human evaluations, task format adjustments, fine-tuning experiments, and error analyses, leading to several key insights. Our data and code can be found in https://github. com/wujunjie1998/Ref-Long.",
+          "claimed_authors": [
+            "Junjie Wu",
+            "Gefei Gu",
+            "Yanan Zheng",
+            "Dit-Yan Yeung",
+            "Arman Cohan"
+          ],
+          "claimed_title": "Ref-Long: Benchmarking the Long-context Referencing Capability of Long-context Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2507.09506"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Memory Palaces in LLMs: Spatial Reasoning for Enhanced Episodic Recall computer ', candidate_title='Ref-Long: Benchmarking the Long-context Referencing Capability of Long-context Language Models')",
+        "failed_at": "2026-06-16T06:07:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Reasoning over long sequences of observations and actions is essential for many robotic tasks. Yet, learning effective long-context policies from demonstrations remains challenging. As context length increases, training becomes increasingly expensive due to rising memory demands, and policy performance often degrades as a result of spurious correlations. Recent methods typically sidestep these issues by truncating context length, discarding historical information that may be critical for subsequent decisions. In this paper, we propose an alternative approach that explicitly regularizes the retention of past information. We first revisit the copycat problem in imitation learning and identify an opposite challenge in recent diffusion policies: rather than over-relying on prior actions, they often fail to capture essential dependencies between past and future actions. To address this, we introduce Past-Token Prediction (PTP), an auxiliary task in which the policy learns to predict past action tokens alongside future ones. This regularization significantly improves temporal modeling in the policy head, with minimal reliance on visual representations. Building on this observation, we further introduce a multistage training strategy: pre-train the visual encoder with short contexts, and fine-tune the policy head using cached long-context embeddings. This strategy preserves the benefits of PTP while greatly reducing memory and computational overhead. Finally, we extend PTP into a self-verification mechanism at test time, enabling the policy to score and select candidates consistent with past actions during inference. Experiments across four real-world and six simulated tasks demonstrate that our proposed method improves the performance of long-context diffusion policies by 3x and accelerates policy training by more than 10x.",
+          "claimed_authors": [
+            "Marcel Torne",
+            "Andy Tang",
+            "Yuejiang Liu",
+            "Chelsea Finn"
+          ],
+          "claimed_title": "Learning Long-Context Diffusion Policies via Past-Token Prediction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2505.09561"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Memory Palaces in LLMs: Spatial Reasoning for Enhanced Episodic Recall computer ', candidate_title='Learning Long-Context Diffusion Policies via Past-Token Prediction')",
+        "failed_at": "2026-06-16T06:07:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Long context is an important topic in Natural Language Processing (NLP), running through the development of NLP architectures, and offers immense opportunities for Large Language Models (LLMs), giving LLMs the lifelong learning potential akin to humans. Unfortunately, the pursuit of a long context is accompanied by numerous obstacles. Nevertheless, long context remains a core competitive advantage for LLMs. In the past two years, the context length of LLMs has achieved a breakthrough extension to millions of tokens. Moreover, research on long-context LLMs has expanded beyond length extrapolation to a comprehensive focus on architecture, infrastructure, training, and evaluation technologies.\n  Inspired by the symphonic poem, Thus Spake Zarathustra, we draw an analogy between the journey of extending the context of LLM and the attempts of humans to transcend their mortality. In this survey, we will illustrate how LLM struggles between the tremendous need for a longer context and its equal need to accept the fact that it is ultimately finite. To achieve this, we give a global picture of the lifecycle of long-context LLMs from four perspectives: architecture, infrastructure, training, and evaluation, showcasing the full spectrum of long-context technologies. At the end of this survey, we will present 10 unanswered questions currently faced by long-context LLMs. We hope this survey can serve as a systematic introduction to research on long-context LLMs.\n  Video: https://www.bilibili.com/video/BV11h9AYoEYj.\n  Github: https://github.com/OpenMOSS/Thus-Spake-Long-Context-LLM.",
+          "claimed_authors": [
+            "Xiaoran Liu",
+            "Ruixiao Li",
+            "Mianqiu Huang",
+            "Zhigeng Liu",
+            "Yuerong Song",
+            "Qipeng Guo",
+            "Siyang He",
+            "Qiqi Wang",
+            "Linlin Li",
+            "Qun Liu",
+            "Ziwei He",
+            "Yaqian Zhou",
+            "Xuanjing Huang",
+            "Xipeng Qiu"
+          ],
+          "claimed_title": "Thus Spake Long-Context Large Language Model",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2502.17129"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Memory Palaces in LLMs: Spatial Reasoning for Enhanced Episodic Recall computer ', candidate_title='Thus Spake Long-Context Large Language Model')",
+        "failed_at": "2026-06-16T06:07:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The response of adult human bone marrow stromal stem cells to surface topographies generated through femtosecond laser machining can be predicted by a deep neural network. The network is capable of predicting cell response to a statistically significant level, including positioning predictions with a probability P < 0.001, and therefore can be used as a model to determine the minimum line separation required for cell alignment, with implications for tissue structure development and tissue engineering. The application of a deep neural network, as a model, reduces the amount of experimental cell culture required to develop an enhanced understanding of cell behavior to topographical cues and, critically, provides rapid prediction of the effects of novel surface structures on tissue fabrication and cell signaling.",
+          "claimed_authors": [
+            "Benita S. Mackay",
+            "Matthew Praeger",
+            "James A. Grant-Jacob",
+            "Janos Kanczler",
+            "Robert W. Eason",
+            "Richard O. C. Oreffo",
+            "Ben Mills"
+          ],
+          "claimed_title": "Modeling adult skeletal stem cell response to laser-machined topographies through deep learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2006.00248"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Memory Palaces in LLMs: Spatial Reasoning for Enhanced Episodic Recall computer ', candidate_title='Modeling adult skeletal stem cell response to laser-machined topographies through deep learning')",
+        "failed_at": "2026-06-16T06:07:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "WISDOM is an international initiative to enable a virtual screening pipeline on a grid infrastructure. Its first attempt was to deploy large scale in silico docking on a public grid infrastructure. Protein-ligand docking is about computing the binding energy of a protein target to a library of potential drugs using a scoring algorithm. Previous deployments were either limited to one cluster, to grids of clusters in the tightly protected environment of a pharmaceutical laboratory or to pervasive grids. The first large scale docking experiment ran on the EGEE grid production service from 11 July 2005 to 19 August 2005 against targets relevant to research on malaria and saw over 41 million compounds docked for the equivalent of 80 years of CPU time. Up to 1,700 computers were simultaneously used in 15 countries around the world. Issues related to the deployment and the monitoring of the in silico docking experiment as well as experience with grid operation and services are reported in the paper. The main problem encountered for such a large scale deployment was the grid infrastructure stability. Although the overall success rate was above 80%, a lot of monitoring and supervision was still required at the application level to resubmit the jobs that failed. But the experiment demonstrated how grid infrastructures have a tremendous capacity to mobilize very large CPU resources for well targeted goals during a significant period of time. This success leads to a second computing challenge targeting Avian Flu neuraminidase N1.",
+          "claimed_authors": [
+            "N. Jacq",
+            "J. Salzemann",
+            "F. Jacq",
+            "Y. Legré",
+            "E. Medernach",
+            "J. Montagnat",
+            "A. Maass",
+            "M. Reichstadt",
+            "H. Schwichtenberg",
+            "M. Sridhar",
+            "V. Kasam",
+            "M. Zimmermann",
+            "M. Hofmann",
+            "V. Breton"
+          ],
+          "claimed_title": "Grid enabled virtual screening against malaria",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2006,
+          "primary_pointer": "q-bio/0611054"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Memory Palaces in LLMs: Spatial Reasoning for Enhanced Episodic Recall computer ', candidate_title='Grid enabled virtual screening against malaria')",
+        "failed_at": "2026-06-16T06:07:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Random attacks that jointly minimize the amount of information acquired by the operator about the state of the grid and the probability of attack detection are presented. The attacks minimize the information acquired by the operator by minimizing the mutual information between the observations and the state variables describing the grid. Simultaneously, the attacker aims to minimize the probability of attack detection by minimizing the Kullback-Leibler (KL) divergence between the distribution when the attack is present and the distribution under normal operation. The resulting cost function is the weighted sum of the mutual information and the KL divergence mentioned above. The tradeoff between the probability of attack detection and the reduction of mutual information is governed by the weighting parameter on the KL divergence term in the cost function. The probability of attack detection is evaluated as a function of the weighting parameter. A sufficient condition on the weighting parameter is given for achieving an arbitrarily small probability of attack detection. The attack performance is numerically assessed on the IEEE 30-Bus and 118-Bus test systems.",
+          "claimed_authors": [
+            "Ke Sun",
+            "Iñaki Esnaola",
+            "Samir M. Perlaza",
+            "H. Vincent Poor"
+          ],
+          "claimed_title": "Stealth Attacks on the Smart Grid",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1808.04184"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Memory Palaces in LLMs: Spatial Reasoning for Enhanced Episodic Recall computer ', candidate_title='Stealth Attacks on the Smart Grid')",
+        "failed_at": "2026-06-16T06:07:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Video world models that maintain 3D spatial consistency across generated frames typically rely on explicit point cloud memory constructed in RGB space. This design is both computationally expensive, requiring repeated rendering and VAE encoding, and inherently lossy, as the round trip through pixel space discards rich features of the learned latent representation. In this paper, we introduce \\emph{latent spatial memory} for video world models, a persistent 3D cache that stores scene information directly in the diffusion latent space, avoiding pixel-space reconstruction. Building on this, we propose Mirage, a latent-space spatial memory framework that constructs the memory by lifting latent tokens into 3D via depth-guided back-projection and queries it by synthesizing novel views through direct latent-space warping. This unified formulation eliminates both the information loss of pixel-space reconstruction and the computational burden of repeated encoding and rendering. Experiments show that latent spatial memory achieves up to \\textbf{10.57}$\\times$ faster end-to-end video generation and \\textbf{55}$\\times$ reduction in memory footprint relative to explicit 3D baselines. Leveraging the geometric prior of the diffusion model, Mirage attains state-of-the-art performance on WorldScore and strong reconstruction quality on RealEstate10K.",
+          "claimed_authors": [
+            "Weijie Wang",
+            "Haoyu Zhao",
+            "Yifan Yang",
+            "Feng Chen",
+            "Zeyu Zhang",
+            "Yefei He",
+            "Zicheng Duan",
+            "Donny Y. Chen",
+            "Yuqing Yang",
+            "Bohan Zhuang"
+          ],
+          "claimed_title": "Latent Spatial Memory for Video World Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.09828"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Memory Palaces in LLMs: Spatial Reasoning for Enhanced Episodic Recall computer ', candidate_title='Latent Spatial Memory for Video World Models')",
+        "failed_at": "2026-06-16T06:07:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recently, large language models (LLMs) have made remarkable progress in natural language processing. The most representative ability of LLMs is in-context learning (ICL), which enables LLMs to learn patterns from in-context exemplars without training. The performance of ICL greatly depends on the exemplars used. However, how to choose exemplars remains unclear due to the lack of understanding of how in-context learning works. In this paper, we present a novel perspective on ICL by conceptualizing it as contextual retrieval from a model of associative memory. We establish a theoretical framework of ICL based on Hopfield Networks. Based on our framework, we look into how in-context exemplars influence the performance of ICL and propose more efficient active exemplar selection. Our study sheds new light on the mechanism of ICL by connecting it to memory retrieval, with potential implications for advancing the understanding of LLMs.",
+          "claimed_authors": [
+            "Jiachen Zhao"
+          ],
+          "claimed_title": "In-Context Exemplars as Clues to Retrieving from Large Associative Memory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2311.03498"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Memory Palaces in LLMs: Spatial Reasoning for Enhanced Episodic Recall computer ', candidate_title='In-Context Exemplars as Clues to Retrieving from Large Associative Memory')",
+        "failed_at": "2026-06-16T06:07:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Very large volumes of spatial data increasingly become available and demand effective management. While there has been decades of research on spatial data management, few works consider the current state of commodity hardware, having relatively large memory and the ability of parallel multi-core processing. In this work, we re-consider the design of spatial indexing under this new reality. Specifically, we propose a main-memory indexing approach for objects with spatial extent, which is based on a classic regular space partitioning into disjoint tiles. The novelty of our index is that the contents of each tile are further partitioned into four classes. This second-level partitioning not only reduces the number of comparisons required to compute the results, but also avoids the generation and elimination of duplicate results, which is an inherent problem of spatial indexes based on disjoint space partitioning. The spatial partitions defined by our indexing scheme are totally independent, facilitating effortless parallel evaluation, as no synchronization or communication between the partitions is necessary. We show how our index can be used to efficiently process spatial range queries and drastically reduce the cost of the refinement step of the queries. In addition, we study the efficient processing of numerous range queries in batch and in parallel. Extensive experiments on real datasets confirm the efficiency of our approaches.",
+          "claimed_authors": [
+            "Dimitrios Tsitsigkos",
+            "Konstantinos Lampropoulos",
+            "Panagiotis Bouros",
+            "Nikos Mamoulis",
+            "Manolis Terrovitis"
+          ],
+          "claimed_title": "A Two-level Spatial In-Memory Index",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2005.08600"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Memory Palaces in LLMs: Spatial Reasoning for Enhanced Episodic Recall computer ', candidate_title='A Two-level Spatial In-Memory Index')",
+        "failed_at": "2026-06-16T06:07:36Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yanbang Wang",
+            "Hejie Cui",
+            "Jon Kleinberg"
+          ],
+          "title": "Microstructures and Accuracy of Graph Recall by Large Language Models",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2402.11821",
+        "summary": "Graphs data is crucial for many applications, and much of it exists in the relations described in textual format. As a result, being able to accurately recall and encode a graph described in earlier text is a basic yet pivotal ability that LLMs need to demonstrate if they are to perform reasoning tasks that involve graph-structured information. Human performance at graph recall has been studied by cognitive scientists for decades, and has been found to often exhibit certain structural patterns of bias that align with human handling of social relationships. To date, however, we know little about how LLMs behave in analogous graph recall tasks: do their recalled graphs also exhibit certain biased patterns, and if so, how do they compare with humans and affect other graph reasoning tasks? In this work, we perform the first systematical study of graph recall by LLMs, investigating the accuracy and biased microstructures (local structural patterns) in their recall. We find that LLMs not only underperform often in graph recall, but also tend to favor more triangles and alternating 2-paths. Moreover, we find that more advanced LLMs have a striking dependence on the domain that a real-world graph comes from -- by yielding the best recall accuracy when the graph is narrated in a language style consistent with its original domain.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2402.11821",
+          "http_status": 200,
+          "pdf_sample_score": 0.3009,
+          "query_relevance_score": 0.3,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-16T06:07:36Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "memory palaces in llms: spatial reasoning for enhanced episodic recall computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

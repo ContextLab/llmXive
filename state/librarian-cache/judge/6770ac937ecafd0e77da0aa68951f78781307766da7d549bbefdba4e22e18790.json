@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1810.06936",
+  "judged_at": "2026-06-16T06:04:51Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "memory palace pedagogy: vr-enhanced spatial learning for abstract concepts psychology",
+  "rationale": "The paper describes a photorealistic VR environment for robotics data generation and vision tasks, without addressing spatial learning, memory palaces, or educational psychology; it is off‑domain and lacks any of the mechanisms, variables, or populations relevant to the user's question.",
+  "relevant": false
+}

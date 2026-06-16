@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1002.2191",
+  "judged_at": "2026-06-16T06:06:33Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "audio interaction model computer science",
+  "rationale": "The paper focuses on vision‑based eye‑blink and facial tracking for mouse control, which is unrelated to audio interaction models; it does not address the audio modality or mechanisms relevant to the user's question.",
+  "relevant": false
+}

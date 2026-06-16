@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2309.02144",
+  "judged_at": "2026-06-16T06:05:51Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "self-improving llm: recursive architecture refinement and re-training computer science",
+  "rationale": "The paper studies a re‑training / fine‑tuning technique (Alignment Fine‑Tuning) that improves LLM reasoning performance, directly addressing a self‑improvement loop for LLMs. This satisfies criterion (b): it measures a dependent variable (reasoning ability) after a re‑training method within the same domain of LLM improvement.",
+  "relevant": true
+}

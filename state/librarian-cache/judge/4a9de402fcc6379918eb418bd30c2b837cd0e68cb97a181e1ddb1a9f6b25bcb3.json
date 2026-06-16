@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2506.03710",
+  "judged_at": "2026-06-16T06:07:49Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "memory palaces in llms: spatial reasoning for enhanced episodic recall computer science",
+  "rationale": "The paper focuses on video localization for egocentric video datasets (Ego4D) and does not address memory palaces, spatial reasoning mechanisms, or episodic recall in large language models, which are the core constructs of the user's question. It is off‑domain and unrelated to the desired research area.",
+  "relevant": false
+}

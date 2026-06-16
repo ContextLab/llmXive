@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2411.18222",
+  "judged_at": "2026-06-16T06:06:38Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "audio interaction model computer science",
+  "rationale": "The paper focuses on a data‑driven cognitive model for objective audio quality assessment, not on audio interaction models or human‑computer interaction frameworks; it addresses a different construct (quality prediction) rather than the interaction modeling the user’s query seeks.",
+  "relevant": false
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2203.13628",
+  "judged_at": "2026-06-16T06:06:47Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "audio interaction model computer science",
+  "rationale": "The paper studies a core audio modeling technique—self‑supervised representation learning for audio—using a decorrelation objective (Barlow Twins). This addresses the same domain (audio models in computer science) and provides a foundational methodology that would be cited in a review of audio interaction models, satisfying criterion (a) (same‑mechanism evidence).",
+  "relevant": true
+}

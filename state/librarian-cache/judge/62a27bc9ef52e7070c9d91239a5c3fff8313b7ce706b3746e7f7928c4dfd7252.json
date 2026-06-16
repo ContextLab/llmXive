@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2501.05032",
+  "judged_at": "2026-06-16T06:07:47Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "memory palaces in llms: spatial reasoning for enhanced episodic recall computer science",
+  "rationale": "The paper focuses on making LLMs more human‑like through fine‑tuning, conversational coherence, and emotional intelligence, without addressing spatial reasoning, memory‑palace mechanisms, or episodic recall, so it does not meet any inclusion criteria (a‑f).",
+  "relevant": false
+}

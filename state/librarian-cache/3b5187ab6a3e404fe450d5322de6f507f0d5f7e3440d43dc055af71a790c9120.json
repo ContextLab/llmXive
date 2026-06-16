@@ -1,0 +1,522 @@
+{
+  "fetched_at": "2026-06-16T06:04:51Z",
+  "field": "psychology",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "psychology",
+      "idea_body_excerpt": "Memory Palace Pedagogy: VR-Enhanced Spatial Learning for Abstract Concepts",
+      "target_n": 5
+    },
+    "duration_seconds": 51.435,
+    "ended_at": "2026-06-16T06:04:51Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "virtual reality memory palace"
+        ],
+        [
+          2,
+          "VR‑based method of loci training"
+        ],
+        [
+          3,
+          "immersive spatial mnemonic techniques"
+        ],
+        [
+          4,
+          "virtual environments for abstract concept learning"
+        ],
+        [
+          5,
+          "digital spatial memory aids"
+        ],
+        [
+          6,
+          "augmented reality mnemonic strategies"
+        ],
+        [
+          7,
+          "embodied cognition and spatial encoding"
+        ],
+        [
+          8,
+          "3D navigation for concept retention"
+        ],
+        [
+          9,
+          "computer‑mediated method of loci"
+        ],
+        [
+          10,
+          "VR‑enhanced encoding of abstract information"
+        ],
+        [
+          11,
+          "immersive learning of abstract concepts"
+        ],
+        [
+          12,
+          "neurocognitive effects of VR mnemonic training"
+        ],
+        [
+          13,
+          "spatial cognition in virtual learning spaces"
+        ],
+        [
+          14,
+          "virtual spatial memory training programs"
+        ],
+        [
+          15,
+          "VR‑supported mnemonic instruction"
+        ],
+        [
+          16,
+          "digital loci method for education"
+        ],
+        [
+          17,
+          "immersive spatial learning platforms"
+        ],
+        [
+          18,
+          "virtual reality assisted concept mapping"
+        ],
+        [
+          19,
+          "embodied VR learning for abstract material"
+        ],
+        [
+          20,
+          "spatial metaphor utilization in VR pedagogy"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Memory Palace Pedagogy: VR-Enhanced Spatial Learning for Abstract Concepts psychology": 0,
+        "virtual reality memory palace": 5
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "method of loci",
+      "undergraduate participants virtual reality",
+      "hippocampal spatial encoding",
+      "recall accuracy VR mnemonic",
+      "embodied cognition memory palace"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2506.02700"
+      ]
+    },
+    "per_query_hit_count": {
+      "Memory Palace Pedagogy: VR-Enhanced Spatial Learning for Abstract Concepts psychology": 3,
+      "embodied cognition memory palace": 2,
+      "hippocampal spatial encoding": 3,
+      "method of loci": 3,
+      "recall accuracy VR mnemonic": 3,
+      "undergraduate participants virtual reality": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 5,
+      "rejections": [
+        {
+          "primary_pointer": "2307.09558",
+          "rationale": "The paper focuses on automatic avatar skeleton fitting in VR and does not address spatial learning, memory‑palace pedagogy, or the use of VR for teaching abstract concepts, which are the core constructs of the user's question. It therefore lacks relevance to the required mechanism, variables, or domain.",
+          "title": "Fitted avatars: automatic skeleton adjustment for self-avatars in virtual reality"
+        },
+        {
+          "primary_pointer": "2002.05305",
+          "rationale": "The paper studies AR for collaborative data‑analytics tasks, not VR‑enhanced spatial learning, memory‑palace pedagogy, or the psychological acquisition of abstract concepts, so it does not meet any inclusion criteria (a‑f).",
+          "title": "Interactive Multi-User 3D Visual Analytics in Augmented Reality"
+        },
+        {
+          "primary_pointer": "1907.06796",
+          "rationale": "The paper focuses on technical motion‑tracking methods for augmented reality and does not address spatial learning, memory‑palace pedagogy, VR‑enhanced cognition, or any psychological variables relevant to the user's question. It is off‑domain and lacks a measurable connection to the required constructs.",
+          "title": "Instant Motion Tracking and Its Applications to Augmented Reality"
+        },
+        {
+          "primary_pointer": "1406.5760",
+          "rationale": "The candidate paper discusses a cloud‑computing virtualization technique (Virtual Memory Streaming for virtual machines) and has no connection to spatial learning, memory palaces, virtual‑reality pedagogy, or psychological mechanisms, thus it is off‑domain and unrelated to the user's research question.",
+          "title": "Virtual Memory Streaming Technique for Virtual Machines (VMs) for Rapid Scaling and High Performance in Cloud Environment"
+        },
+        {
+          "primary_pointer": "1810.06936",
+          "rationale": "The paper describes a photorealistic VR environment for robotics data generation and vision tasks, without addressing spatial learning, memory palaces, or educational psychology; it is off‑domain and lacks any of the mechanisms, variables, or populations relevant to the user's question.",
+          "title": "UnrealROX: An eXtremely Photorealistic Virtual Reality Environment for Robotics Simulations and Synthetic Data Generation"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-16T06:04:00Z",
+    "term_input": {
+      "normalized": "memory palace pedagogy: vr-enhanced spatial learning for abstract concepts psychology",
+      "raw": "Memory Palace Pedagogy: VR-Enhanced Spatial Learning for Abstract Concepts psychology"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Deep learning typically requires training a very capable architecture using large datasets. However, many important learning problems demand an ability to draw valid inferences from small size datasets, and such problems pose a particular challenge for deep learning. In this regard, various researches on \"meta-learning\" are being actively conducted. Recent work has suggested a Memory Augmented Neural Network (MANN) for meta-learning. MANN is an implementation of a Neural Turing Machine (NTM) with the ability to rapidly assimilate new data in its memory, and use this data to make accurate predictions. In models such as MANN, the input data samples and their appropriate labels from previous step are bound together in the same memory locations. This often leads to memory interference when performing a task as these models have to retrieve a feature of an input from a certain memory location and read only the label information bound to that location. In this paper, we tried to address this issue by presenting a more robust MANN. We revisited the idea of meta-learning and proposed a new memory augmented neural network by explicitly splitting the external memory into feature and label memories. The feature memory is used to store the features of input data samples and the label memory stores their labels. Hence, when predicting the label of a given input, our model uses its feature memory unit as a reference to extract the stored feature of the input, and based on that feature, it retrieves the label information of the input from the label memory unit. In order for the network to function in this framework, a new memory-writingmodule to encode label information into the label memory in accordance with the meta-learning task structure is designed. Here, we demonstrate that our model outperforms MANN by a large margin in supervised one-shot classification tasks using Omniglot and MNIST datasets.",
+          "claimed_authors": [
+            "Dawit Mureja",
+            "Hyunsin Park",
+            "Chang D. Yoo"
+          ],
+          "claimed_title": "Meta-Learning via Feature-Label Memory Network",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1710.07110"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Memory Palace Pedagogy: VR-Enhanced Spatial Learning for Abstract Concepts psych', candidate_title='Meta-Learning via Feature-Label Memory Network')",
+        "failed_at": "2026-06-16T06:04:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Video world models that maintain 3D spatial consistency across generated frames typically rely on explicit point cloud memory constructed in RGB space. This design is both computationally expensive, requiring repeated rendering and VAE encoding, and inherently lossy, as the round trip through pixel space discards rich features of the learned latent representation. In this paper, we introduce \\emph{latent spatial memory} for video world models, a persistent 3D cache that stores scene information directly in the diffusion latent space, avoiding pixel-space reconstruction. Building on this, we propose Mirage, a latent-space spatial memory framework that constructs the memory by lifting latent tokens into 3D via depth-guided back-projection and queries it by synthesizing novel views through direct latent-space warping. This unified formulation eliminates both the information loss of pixel-space reconstruction and the computational burden of repeated encoding and rendering. Experiments show that latent spatial memory achieves up to \\textbf{10.57}$\\times$ faster end-to-end video generation and \\textbf{55}$\\times$ reduction in memory footprint relative to explicit 3D baselines. Leveraging the geometric prior of the diffusion model, Mirage attains state-of-the-art performance on WorldScore and strong reconstruction quality on RealEstate10K.",
+          "claimed_authors": [
+            "Weijie Wang",
+            "Haoyu Zhao",
+            "Yifan Yang",
+            "Feng Chen",
+            "Zeyu Zhang",
+            "Yefei He",
+            "Zicheng Duan",
+            "Donny Y. Chen",
+            "Yuqing Yang",
+            "Bohan Zhuang"
+          ],
+          "claimed_title": "Latent Spatial Memory for Video World Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.09828"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Memory Palace Pedagogy: VR-Enhanced Spatial Learning for Abstract Concepts psych', candidate_title='Latent Spatial Memory for Video World Models')",
+        "failed_at": "2026-06-16T06:04:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Let $V$ be a vector bundle over a smooth curve $C$. In this paper, we study twisted Brill--Noether loci parametrising stable bundles $E$ of rank $n$ and degree $e$ with the property that $h^0 (C, V \\otimes E) \\ge k$. We prove that, under conditions similar to those of Teixidor i Bigas and of Mercat, the Brill-Noether loci are nonempty, and in many cases have a component which is generically smooth and of the expected dimension. Along the way, we prove the irreducibility of certain components of both twisted and \"nontwisted\" Brill--Noether loci. We describe the tangent cones to the twisted Brill-Noether loci. We end with an example of a general bundle over a general curve having positive-dimensional twisted Brill--Noether loci with negative expected dimension.",
+          "claimed_authors": [
+            "George H. Hitching",
+            "Michael Hoff",
+            "Peter E. Newstead"
+          ],
+          "claimed_title": "Nonemptiness and smoothness of twisted Brill-Noether loci",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1804.01260"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Memory Palace Pedagogy: VR-Enhanced Spatial Learning for Abstract Concepts psych', candidate_title='Nonemptiness and smoothness of twisted Brill-Noether loci')",
+        "failed_at": "2026-06-16T06:04:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The geometry of Sp(3)/U(3) as a subvariety of Gr(3,6) is explored to explain several examples given by Mukai of non-abelian Brill-Noether loci, and to give some new examples. These examples identify Brill-Noether loci of vector bundles on linear sections of the Lagrangian Grassmannian Sp(3)/U(3) with orthogonal linear sections of the dual variety and vice versa. A main technical result of independent interest is the fact that any nodal hyperplane section of the Lagrangian Grassmannian projected from the node is a linear section of the Grassmannian Gr(2,6).",
+          "claimed_authors": [
+            "Atanas Iliev",
+            "Kristian Ranestad"
+          ],
+          "claimed_title": "Geometry of the Lagrangian Grassmannian Sp(3)/U(3) with applications to Brill-Noether loci",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2002,
+          "primary_pointer": "math/0209169"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Memory Palace Pedagogy: VR-Enhanced Spatial Learning for Abstract Concepts psych', candidate_title='Geometry of the Lagrangian Grassmannian Sp(3)/U(3) with applications to Brill-Noether loci')",
+        "failed_at": "2026-06-16T06:04:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "On a convex polyhedron P, the cut locus C(x) with respect to a point x is a tree of geodesic segments (shortest paths) on P that includes every vertex. We say that P has a skeletal cut locus if there is some x in P such that C(x) subset Sk(P), where Sk(P) is the 1-skeleton of P. At a first glance, there seems to be very little relation between the cut locus and the 1-skeleton, as the first one is an intrinsic geometry notion, and the second one specifies the combinatorics of P.\n  In this paper we study skeletal cut loci, obtaining four main results. First, given any combinatorial tree T, there exists a convex polyhedron P and a point x in P with a cut locus that lies in Sk(P), and whose combinatorics match T. Second, any (non-degenerate) polyhedron P has at most a finite number of points x for which C(x) subset Sk(P). Third, we show that almost all polyhedra have no skeletal cut locus. Fourth, we provide a combinatorial restriction to the existence of skeletal cut loci.\n  Because the source unfolding of P with respect to x is always a non-overlapping net for P, and because the boundary of the source unfolding is the (unfolded) cut locus, source unfoldings of polyhedra with skeletal cut loci are edge-unfoldings, and moreover \"blooming,\" avoiding self-intersection during an unfolding process. We also explore partially skeletal cut loci, leading to partial edge-unfoldings; i.e., unfoldings obtained by cutting along some polyhedron edges and cutting some non-edges.",
+          "claimed_authors": [
+            "Joseph O'Rourke",
+            "Costin Vilcu"
+          ],
+          "claimed_title": "Skeletal Cut Loci on Convex Polyhedra",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2312.01534"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Memory Palace Pedagogy: VR-Enhanced Spatial Learning for Abstract Concepts psych', candidate_title='Skeletal Cut Loci on Convex Polyhedra')",
+        "failed_at": "2026-06-16T06:04:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In the era of the metaverse, self-avatars are gaining popularity, as they can enhance presence and provide embodiment when a user is immersed in Virtual Reality. They are also very important in collaborative Virtual Reality to improve communication through gestures. Whether we are using a complex motion capture solution or a few trackers with inverse kinematics (IK), it is essential to have a good match in size between the avatar and the user, as otherwise mismatches in self-avatar posture could be noticeable for the user. To achieve such a correct match in dimensions, a manual process is often required, with the need for a second person to take measurements of body limbs and introduce them into the system. This process can be time-consuming, and prone to errors. In this paper, we propose an automatic measuring method that simply requires the user to do a small set of exercises while wearing a Head-Mounted Display (HMD), two hand controllers, and three trackers. Our work provides an affordable and quick method to automatically extract user measurements and adjust the virtual humanoid skeleton to the exact dimensions. Our results show that our method can reduce the misalignment produced by the IK system when compared to other solutions that simply apply a uniform scaling to an avatar based on the height of the HMD, and make assumptions about the locations of joints with respect to the trackers.",
+          "claimed_authors": [
+            "Jose Luis Ponton",
+            "Víctor Ceballos",
+            "Lesly Acosta",
+            "Alejandro Ríos",
+            "Eva Monclús",
+            "Nuria Pelechano"
+          ],
+          "claimed_title": "Fitted avatars: automatic skeleton adjustment for self-avatars in virtual reality",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2307.09558"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Memory Palace Pedagogy: VR-Enhanced Spatial Learning for Abstract Concepts psych', candidate_title='Fitted avatars: automatic skeleton adjustment for self-avatars in virtual reality')",
+        "failed_at": "2026-06-16T06:04:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This publication reports on a research project in which we set out to explore the advantages and disadvantages augmented reality (AR) technology has for visual data analytics. We developed a prototype of an AR data analytics application, which provides users with an interactive 3D interface, hand gesture-based controls and multi-user support for a shared experience, enabling multiple people to collaboratively visualize, analyze and manipulate data with high dimensional features in 3D space. Our software prototype, called DataCube, runs on the Microsoft HoloLens - one of the first true stand-alone AR headsets, through which users can see computer-generated images overlaid onto real-world objects in the user's physical environment. Using hand gestures, the users can select menu options, control the 3D data visualization with various filtering and visualization functions, and freely arrange the various menus and virtual displays in their environment. The shared multi-user experience allows all participating users to see and interact with the virtual environment, changes one user makes will become visible to the other users instantly. As users engage together they are not restricted from observing the physical world simultaneously and therefore they can also see non-verbal cues such as gesturing or facial reactions of other users in the physical environment. The main objective of this research project was to find out if AR interfaces and collaborative analysis can provide an effective solution for data analysis tasks, and our experience with our prototype system confirms this.",
+          "claimed_authors": [
+            "Wanze Xie",
+            "Yining Liang",
+            "Janet Johnson",
+            "Andrea Mower",
+            "Samuel Burns",
+            "Colleen Chelini",
+            "Paul D Alessandro",
+            "Nadir Weibel",
+            "Jürgen P. Schulze"
+          ],
+          "claimed_title": "Interactive Multi-User 3D Visual Analytics in Augmented Reality",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2002.05305"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Memory Palace Pedagogy: VR-Enhanced Spatial Learning for Abstract Concepts psych', candidate_title='Interactive Multi-User 3D Visual Analytics in Augmented Reality')",
+        "failed_at": "2026-06-16T06:04:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Augmented Reality (AR) brings immersive experiences to users. With recent advances in computer vision and mobile computing, AR has scaled across platforms, and has increased adoption in major products. One of the key challenges in enabling AR features is proper anchoring of the virtual content to the real world, a process referred to as tracking. In this paper, we present a system for motion tracking, which is capable of robustly tracking planar targets and performing relative-scale 6DoF tracking without calibration. Our system runs in real-time on mobile phones and has been deployed in multiple major products on hundreds of millions of devices.",
+          "claimed_authors": [
+            "Jianing Wei",
+            "Genzhi Ye",
+            "Tyler Mullen",
+            "Matthias Grundmann",
+            "Adel Ahmadyan",
+            "Tingbo Hou"
+          ],
+          "claimed_title": "Instant Motion Tracking and Its Applications to Augmented Reality",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1907.06796"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Memory Palace Pedagogy: VR-Enhanced Spatial Learning for Abstract Concepts psych', candidate_title='Instant Motion Tracking and Its Applications to Augmented Reality')",
+        "failed_at": "2026-06-16T06:04:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper, we propose an algorithm that extracts spatial frequent patterns to explain the relative characteristics of a specific location from the available social data. This paper proposes a spatial social data model which includes spatial social data, spatial support, spatial frequent patterns, spatial partition, and spatial clustering; these concepts are used for describing the exploration algorithm of spatial frequent patterns. With these defined concepts as the foundation, an SFP-tree structure that maintains not only the frequent words but also the frequent cells was proposed, and an SFP-growth algorithm that explores the frequent patterns on the basis of this SFP-tree was proposed.",
+          "claimed_authors": [
+            "Yongmi Lee",
+            "Kwang Woo Nam",
+            "Keun Ho Ryu"
+          ],
+          "claimed_title": "Fast Mining of Spatial Frequent Wordset from Social Database",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1912.09127"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Memory Palace Pedagogy: VR-Enhanced Spatial Learning for Abstract Concepts psych', candidate_title='Fast Mining of Spatial Frequent Wordset from Social Database')",
+        "failed_at": "2026-06-16T06:04:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Positional encoding has become the de facto standard for grounding deep neural networks on discrete point-wise positions, and it has achieved remarkable success in tasks where the input can be represented as a one-dimensional sequence. However, extending this concept to 2D spatial geometric shapes demands carefully designed encoding strategies that account not only for shape geometry and pose, but also for compatibility with neural network learning. In this work, we address these challenges by introducing a training-free, general-purpose encoding strategy, dubbed XShapeEnc, that encodes an arbitrary spatially grounded 2D geometric shape into a compact representation exhibiting five favorable properties, including invertibility, adaptivity, and frequency richness. Specifically, a 2D spatially grounded geometric shape is decomposed into its normalized geometry within the unit disk and its pose vector, where the pose is further transformed into a harmonic pose field that also lies within the unit disk. A set of orthogonal Zernike bases is constructed to encode shape geometry and pose either independently or jointly, followed by a frequency-propagation operation to introduce high-frequency content into the encoding. We demonstrate the theoretical validity, efficiency, discriminability, and applicability of XShapeEnc via extensive analysis and experiments across a wide range of shape-aware tasks and our self-curated XShapeCorpus. We envision XShapeEnc as a foundational tool for research that goes beyond one-dimensional sequential data toward frontier 2D spatial intelligence.",
+          "claimed_authors": [
+            "Yuhang He"
+          ],
+          "claimed_title": "Training-free Spatially Grounded Geometric Shape Encoding (Technical Report)",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2604.07522"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Memory Palace Pedagogy: VR-Enhanced Spatial Learning for Abstract Concepts psych', candidate_title='Training-free Spatially Grounded Geometric Shape Encoding (Technical Report)')",
+        "failed_at": "2026-06-16T06:04:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The hippocampal formation is thought to learn spatial maps of environments, and in many models this learning process consists of forming a sensory association for each location in the environment. This is inefficient, akin to learning a large lookup table for each environment. Spatial maps can be learned much more efficiently if the maps instead consist of arrangements of sparse environment parts. In this work, I approach spatial mapping as a problem of learning graphs of environment parts. Each node in the learned graph, represented by hippocampal engram cells, is associated with feature information in lateral entorhinal cortex (LEC) and location information in medial entorhinal cortex (MEC) using empirically observed neuron types. Each edge in the graph represents the relation between two parts, and it is associated with coarse displacement information. This core idea of associating arbitrary information with nodes and edges is not inherently spatial, so this proposed fast-relation-graph-learning algorithm can expand to incorporate many spatial and non-spatial tasks.",
+          "claimed_authors": [
+            "Marcus Lewis"
+          ],
+          "claimed_title": "Hippocampal Spatial Mapping As Fast Graph Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2107.00567"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Memory Palace Pedagogy: VR-Enhanced Spatial Learning for Abstract Concepts psych', candidate_title='Hippocampal Spatial Mapping As Fast Graph Learning')",
+        "failed_at": "2026-06-16T06:04:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The demand for interactive narratives is growing with increasing popularity of VR and video gaming. This presents an opportunity to create interactive storytelling experiences that allow players to engage with a narrative from a first person perspective, both, immersively in VR and in 3D on a computer. However, for artists and storytellers without programming experience, authoring such experiences is a particularly complex task as it involves coding a series of story events (character animation, movements, time control, dialogues, etc.) to be connected and triggered by a variety of player behaviors. In this work, we present ConnectVR, a trigger-action interface to enable non-technical creators design agent-based narrative experiences. Our no-code authoring method specifically focuses on the design of narratives driven by a series of cause-effect relationships triggered by the player's actions. We asked 15 participants to use ConnectVR in a preliminary workshop study as well as two artists to extensively use our system to create VR narrative projects in a three-week in-depth study. Our findings shed light on the creative opportunities facilitated by ConnectVR's trigger-action approach, particularly its capability to establish chained behavioral effects between virtual characters and objects. The results of both studies underscore the positive feedback from participants regarding our system's capacity to not only support creativity but also to simplify the creation of interactive narrative experiences. Results indicate compatibility with non-technical narrative creator's workflows, showcasing its potential to enhance the overall creative process in the realm of VR narrative design.",
+          "claimed_authors": [
+            "Mengyu Chen",
+            "Marko Peljhan",
+            "Misha Sra"
+          ],
+          "claimed_title": "ConnectVR: A Trigger-Action Interface for Creating Agent-based Interactive VR Stories",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2406.15889"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Memory Palace Pedagogy: VR-Enhanced Spatial Learning for Abstract Concepts psych', candidate_title='ConnectVR: A Trigger-Action Interface for Creating Agent-based Interactive VR Stories')",
+        "failed_at": "2026-06-16T06:04:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Graphs data is crucial for many applications, and much of it exists in the relations described in textual format. As a result, being able to accurately recall and encode a graph described in earlier text is a basic yet pivotal ability that LLMs need to demonstrate if they are to perform reasoning tasks that involve graph-structured information. Human performance at graph recall has been studied by cognitive scientists for decades, and has been found to often exhibit certain structural patterns of bias that align with human handling of social relationships. To date, however, we know little about how LLMs behave in analogous graph recall tasks: do their recalled graphs also exhibit certain biased patterns, and if so, how do they compare with humans and affect other graph reasoning tasks? In this work, we perform the first systematical study of graph recall by LLMs, investigating the accuracy and biased microstructures (local structural patterns) in their recall. We find that LLMs not only underperform often in graph recall, but also tend to favor more triangles and alternating 2-paths. Moreover, we find that more advanced LLMs have a striking dependence on the domain that a real-world graph comes from -- by yielding the best recall accuracy when the graph is narrated in a language style consistent with its original domain.",
+          "claimed_authors": [
+            "Yanbang Wang",
+            "Hejie Cui",
+            "Jon Kleinberg"
+          ],
+          "claimed_title": "Microstructures and Accuracy of Graph Recall by Large Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2402.11821"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Memory Palace Pedagogy: VR-Enhanced Spatial Learning for Abstract Concepts psych', candidate_title='Microstructures and Accuracy of Graph Recall by Large Language Models')",
+        "failed_at": "2026-06-16T06:04:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Previous studies showed that natural walking reduces the susceptibility to VR sickness. However, many users still experience VR sickness when wearing VR headsets that allow free walking in room-scale spaces. This paper studies VR sickness and postural instability while the user walks in an immersive virtual environment using an electroencephalogram (EEG) headset and a full-body motion capture system. The experiment induced VR sickness by gradually increasing the translation gain beyond the user's detection threshold. A between-group comparison between participants with and without VR sickness symptoms found some significant differences in postural stability but found none on gait patterns during the walking. In the EEG analysis, the group with VR sickness showed a reduction of alpha power, a phenomenon previously linked to a higher workload and efforts to maintain postural control. In contrast, the group without VR sickness exhibited brain activities linked to fine cognitive-motor control. The EEG result provides new insights into the postural instability theory: participants with VR sickness could maintain their postural stability at the cost of a higher cognitive workload. Our result also indicates that the analysis of lower-frequency power could complement behavioural data for continuous VR sickness detection in both stationary and mobile VR setups.",
+          "claimed_authors": [
+            "Carlos Alfredo Tirado Cortes",
+            "Chin-Teng Lin",
+            "Tien-Thong Nguyen Do",
+            "Hsiang-Ting Chen"
+          ],
+          "claimed_title": "An EEG-based Experiment on VR Sickness and Postural Instability While Walking in Virtual Environments",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2302.11129"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Memory Palace Pedagogy: VR-Enhanced Spatial Learning for Abstract Concepts psych', candidate_title='An EEG-based Experiment on VR Sickness and Postural Instability While Walking in Virtual Environments')",
+        "failed_at": "2026-06-16T06:04:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We introduce RynnEC, a video multimodal large language model designed for embodied cognition. Built upon a general-purpose vision-language foundation model, RynnEC incorporates a region encoder and a mask decoder, enabling flexible region-level video interaction. Despite its compact architecture, RynnEC achieves state-of-the-art performance in object property understanding, object segmentation, and spatial reasoning. Conceptually, it offers a region-centric video paradigm for the brain of embodied agents, providing fine-grained perception of the physical world and enabling more precise interactions. To mitigate the scarcity of annotated 3D datasets, we propose an egocentric video based pipeline for generating embodied cognition data. Furthermore, we introduce RynnEC-Bench, a region-centered benchmark for evaluating embodied cognitive capabilities. We anticipate that RynnEC will advance the development of general-purpose cognitive cores for embodied agents and facilitate generalization across diverse embodied tasks. The code, model checkpoints, and benchmark are available at: https://github.com/alibaba-damo-academy/RynnEC",
+          "claimed_authors": [
+            "Ronghao Dang",
+            "Yuqian Yuan",
+            "Yunxuan Mao",
+            "Kehan Li",
+            "Jiangpin Liu",
+            "Zhikai Wang",
+            "Xin Li",
+            "Fan Wang",
+            "Deli Zhao"
+          ],
+          "claimed_title": "RynnEC: Bringing MLLMs into Embodied World",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2508.14160"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Memory Palace Pedagogy: VR-Enhanced Spatial Learning for Abstract Concepts psych', candidate_title='RynnEC: Bringing MLLMs into Embodied World')",
+        "failed_at": "2026-06-16T06:04:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper investigates the problem of understanding dynamic 3D scenes from egocentric observations, a key challenge in robotics and embodied AI. Unlike prior studies that explored this as long-form video understanding and utilized egocentric video only, we instead propose an LLM-based agent, Embodied VideoAgent, which constructs scene memory from both egocentric video and embodied sensory inputs (e.g. depth and pose sensing). We further introduce a VLM-based approach to automatically update the memory when actions or activities over objects are perceived. Embodied VideoAgent attains significant advantages over counterparts in challenging reasoning and planning tasks in 3D scenes, achieving gains of 4.9% on Ego4D-VQ3D, 5.8% on OpenEQA, and 11.7% on EnvQA. We have also demonstrated its potential in various embodied AI tasks including generating embodied interactions and perception for robot manipulation. The code and demo will be made public.",
+          "claimed_authors": [
+            "Yue Fan",
+            "Xiaojian Ma",
+            "Rongpeng Su",
+            "Jun Guo",
+            "Rujie Wu",
+            "Xi Chen",
+            "Qing Li"
+          ],
+          "claimed_title": "Embodied VideoAgent: Persistent Memory from Egocentric Videos and Embodied Sensors Enables Dynamic Scene Understanding",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2501.00358"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Memory Palace Pedagogy: VR-Enhanced Spatial Learning for Abstract Concepts psych', candidate_title='Embodied VideoAgent: Persistent Memory from Egocentric Videos and Embodied Sensors Enables Dynamic Scene Understanding')",
+        "failed_at": "2026-06-16T06:04:35Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Zhengyang Li",
+            "Hailin Deng"
+          ],
+          "title": "Cognitive Load-Driven VR Memory Palaces: Personalizing Focus and Recall Enhancement",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2506.02700",
+        "summary": "Cognitive load, which varies across individuals, can significantly affect focus and memory performance.This study explores the integration of Virtual Reality (VR) with memory palace techniques, aiming to optimize VR environments tailored to individual cognitive load levels to improve focus and memory. We utilized EEG devices, specifically the Oculus Quest 2, to monitor Beta wave activity in 10 participants.By modeling their cognitive load profiles through polynomial regression, we dynamically adjusted spatial variables within a VR environment using Grasshopper, creating personalized experiences. Results indicate that 8 participants showed a notable increase in Beta wave activity, demonstrating improved focus and cognitive performance in the customized VR settings.These findings underscore the potential of VR-based memory environments, driven by cognitive load considerations, and provide valuable insights for advancing VR memory research",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2506.02700",
+          "http_status": 200,
+          "pdf_sample_score": 0.1556,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-16T06:04:31Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "memory palace pedagogy: vr-enhanced spatial learning for abstract concepts psychology",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

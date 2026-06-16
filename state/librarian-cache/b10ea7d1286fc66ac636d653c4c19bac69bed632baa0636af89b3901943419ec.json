@@ -1,0 +1,386 @@
+{
+  "fetched_at": "2026-06-16T06:06:51Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "Audio Interaction Model",
+      "target_n": 5
+    },
+    "duration_seconds": 49.794,
+    "ended_at": "2026-06-16T06:06:51Z",
+    "expansion": null,
+    "extracted_queries": [
+      "auditory interface model",
+      "LibriSpeech spoken dialogue",
+      "self-supervised audio representation",
+      "interaction latency evaluation",
+      "crossmodal attention modeling"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2111.01906"
+      ]
+    },
+    "per_query_hit_count": {
+      "Audio Interaction Model computer science": 3,
+      "LibriSpeech spoken dialogue": 3,
+      "auditory interface model": 3,
+      "crossmodal attention modeling": 3,
+      "interaction latency evaluation": 3,
+      "self-supervised audio representation": 2
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 4,
+      "rejections": [
+        {
+          "primary_pointer": "1002.2191",
+          "rationale": "The paper focuses on vision‑based eye‑blink and facial tracking for mouse control, which is unrelated to audio interaction models; it does not address the audio modality or mechanisms relevant to the user's question.",
+          "title": "Vision Based Game Development Using Human Computer Interaction"
+        },
+        {
+          "primary_pointer": "2305.15266",
+          "rationale": "The paper focuses on diffusion-based audio inpainting—reconstructing missing audio segments—rather than on models of audio interaction or user‑centered audio interfaces, which is what the query “Audio Interaction Model” implies. It does not address the interaction aspect and therefore falls outside the relevant domain.",
+          "title": "Diffusion-Based Audio Inpainting"
+        },
+        {
+          "primary_pointer": "2411.18222",
+          "rationale": "The paper focuses on a data‑driven cognitive model for objective audio quality assessment, not on audio interaction models or human‑computer interaction frameworks; it addresses a different construct (quality prediction) rather than the interaction modeling the user’s query seeks.",
+          "title": "Towards Improved Objective Perceptual Audio Quality Assessment -- Part 1: A Novel Data-Driven Cognitive Model"
+        },
+        {
+          "primary_pointer": "2403.15523",
+          "rationale": "The paper focuses on a neuroscience method for auditory attention decoding using brain signals, not on computational or interaction models of audio within computer science (e.g., speech interfaces, audio UI design). It does not address the mechanisms, variables, or methodologies typical of “audio interaction models” in CS, thus it falls outside the relevant domain.",
+          "title": "Towards auditory attention decoding with noise-tagging: A pilot study"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-16T06:06:01Z",
+    "term_input": {
+      "normalized": "audio interaction model computer science",
+      "raw": "Audio Interaction Model computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This study provides a comprehensive test of the head-related impulse response (HRIR) to an auditory spatial speller brain-computer interface (BCI) paradigm, including a comparison with a conventional virtual headphone-based spatial auditory modality. Five BCI-naive users participated in an experiment based on five Japanese vowels. The auditory evoked potentials obtained produced encouragingly good and stable P300-responses in online BCI experiments. Our case study indicates that the auditory HRIR spatial sound paradigm reproduced with headphones could be a viable alternative to established multi-loudspeaker surround sound BCI-speller applications.",
+          "claimed_authors": [
+            "Chisaki Nakaizumi",
+            "Toshie Matsui",
+            "Koichi Mori",
+            "Shoji Makino",
+            "Tomasz M. Rutkowski"
+          ],
+          "claimed_title": "Head-related Impulse Response-based Spatial Auditory Brain-computer Interface",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1404.3958"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Audio Interaction Model computer science', candidate_title='Head-related Impulse Response-based Spatial Auditory Brain-computer Interface')",
+        "failed_at": "2026-06-16T06:06:31Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study the extent to which vibrotactile stimuli delivered to the head of a subject can serve as a platform for a brain computer interface (BCI) paradigm. Six head positions are used to evoke combined somatosensory and auditory (via the bone conduction effect) brain responses, in order to define a multimodal tactile and auditory brain computer interface (taBCI). Experimental results of subjects performing online taBCI, using stimuli with a moderately fast inter-stimulus interval (ISI), validate the taBCI paradigm, while the feasibility of the concept is illuminated through information transfer rate case studies.",
+          "claimed_authors": [
+            "H. Mori",
+            "Y. Matsumoto",
+            "Z. R. Struzik",
+            "K. Mori",
+            "S. Makino",
+            "D. Mandic",
+            "T. M. Rutkowski"
+          ],
+          "claimed_title": "Multi-command Tactile and Auditory Brain Computer Interface based on Head Position Stimulation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1301.6357"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Audio Interaction Model computer science', candidate_title='Multi-command Tactile and Auditory Brain Computer Interface based on Head Position Stimulation')",
+        "failed_at": "2026-06-16T06:06:31Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper, we introduce Dependency Dialogue Acts (DDA), a novel framework for capturing the structure of speaker-intentions in multi-party dialogues. DDA combines and adapts features from existing dialogue annotation frameworks, and emphasizes the multi-relational response structure of dialogues in addition to the dialogue acts and rhetorical relations. It represents the functional, discourse, and response structure in multi-party multi-threaded conversations. A few key features distinguish DDA from existing dialogue annotation frameworks such as SWBD-DAMSL and the ISO 24617-2 standard. First, DDA prioritizes the relational structure of the dialogue units and the dialog context, annotating both dialog acts and rhetorical relations as response relations to particular utterances. Second, DDA embraces overloading in dialogues, encouraging annotators to specify multiple response relations and dialog acts for each dialog unit. Lastly, DDA places an emphasis on adequately capturing how a speaker is using the full dialog context to plan and organize their speech. With these features, DDA is highly expressive and recall-oriented with regard to conversation dynamics between multiple speakers. In what follows, we present the DDA annotation framework and case studies annotating DDA structures in multi-party, multi-threaded conversations.",
+          "claimed_authors": [
+            "Jon Z. Cai",
+            "Brendan King",
+            "Margaret Perkoff",
+            "Shiran Dudy",
+            "Jie Cao",
+            "Marie Grace",
+            "Natalia Wojarnik",
+            "Ananya Ganesh",
+            "James H. Martin",
+            "Martha Palmer",
+            "Marilyn Walker",
+            "Jeffrey Flanigan"
+          ],
+          "claimed_title": "Dependency Dialogue Acts -- Annotation Scheme and Case Study",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2302.12944"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Audio Interaction Model computer science', candidate_title='Dependency Dialogue Acts -- Annotation Scheme and Case Study')",
+        "failed_at": "2026-06-16T06:06:31Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Establishing evaluation schemes for spoken dialogue systems is important, but it can also be challenging. While subjective evaluations are commonly used in user experiments, objective evaluations are necessary for research comparison and reproducibility. To address this issue, we propose a framework for indirectly but objectively evaluating systems based on users' behaviors. In this paper, to this end, we investigate the relationship between user behaviors and subjective evaluation scores in social dialogue tasks: attentive listening, job interview, and first-meeting conversation. The results reveal that in dialogue tasks where user utterances are primary, such as attentive listening and job interview, indicators like the number of utterances and words play a significant role in evaluation. Observing disfluency also can indicate the effectiveness of formal tasks, such as job interview. On the other hand, in dialogue tasks with high interactivity, such as first-meeting conversation, behaviors related to turn-taking, like average switch pause length, become more important. These findings suggest that selecting appropriate user behaviors can provide valuable insights for objective evaluation in each social dialogue task.",
+          "claimed_authors": [
+            "Koji Inoue",
+            "Divesh Lala",
+            "Keiko Ochi",
+            "Tatsuya Kawahara",
+            "Gabriel Skantze"
+          ],
+          "claimed_title": "An Analysis of User Behaviors for Objectively Evaluating Spoken Dialogue Systems",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2401.04867"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Audio Interaction Model computer science', candidate_title='An Analysis of User Behaviors for Objectively Evaluating Spoken Dialogue Systems')",
+        "failed_at": "2026-06-16T06:06:31Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper we describe the linguistic processor of a spoken dialogue system. The parser receives a word graph from the recognition module as its input. Its task is to find the best path through the graph. If no complete solution can be found, a robust mechanism for selecting multiple partial results is applied. We show how the information content rate of the results can be improved if the selection is based on an integrated quality score combining word recognition scores and context-dependent semantic predictions. Results of parsing word graphs with and without predictions are reported.",
+          "claimed_authors": [
+            "Gerhard Hanrieder",
+            "Guenther Goerz"
+          ],
+          "claimed_title": "Robust Parsing of Spoken Dialogue Using Contextual Knowledge and Recognition Probabilities",
+          "claimed_venue": "arXiv",
+          "claimed_year": 1995,
+          "primary_pointer": "cmp-lg/9505017"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Audio Interaction Model computer science', candidate_title='Robust Parsing of Spoken Dialogue Using Contextual Knowledge and Recognition Probabilities')",
+        "failed_at": "2026-06-16T06:06:31Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "While generative artificial intelligence (Gen AI) increasingly transforms academic environments, a critical gap exists in understanding and mitigating human biases in AI interactions, such as anchoring and confirmation bias. This position paper advocates for metacognitive AI literacy interventions to help university students critically engage with AI and address biases across the Human-AI interaction workflows. The paper presents the importance of considering (1) metacognitive support with deliberate friction focusing on human bias; (2) bi-directional Human-AI interaction intervention addressing both input formulation and output interpretation; and (3) adaptive scaffolding that responds to diverse user engagement patterns. These frameworks are illustrated through ongoing work on \"DeBiasMe,\" AIED (AI in Education) interventions designed to enhance awareness of cognitive biases while empowering user agency in AI interactions. The paper invites multiple stakeholders to engage in discussions on design and evaluation methods for scaffolding mechanisms, bias visualization, and analysis frameworks. This position contributes to the emerging field of AI-augmented learning by emphasizing the critical role of metacognition in helping students navigate the complex interaction between human, statistical, and systemic biases in AI use while highlighting how cognitive adaptation to AI systems must be explicitly integrated into comprehensive AI literacy frameworks.",
+          "claimed_authors": [
+            "Chaeyeon Lim"
+          ],
+          "claimed_title": "DeBiasMe: De-biasing Human-AI Interactions with Metacognitive AIED (AI in Education) Interventions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.16770"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Audio Interaction Model computer science', candidate_title='DeBiasMe: De-biasing Human-AI Interactions with Metacognitive AIED (AI in Education) Interventions')",
+        "failed_at": "2026-06-16T06:06:32Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper summarizes the idea of Tiered-Latency DRAM, which was published in HPCA 2013. The key goal of TL-DRAM is to provide low DRAM latency at low cost, a critical problem in modern memory systems. To this end, TL-DRAM introduces heterogeneity into the design of a DRAM subarray by segmenting the bitlines, thereby creating a low-latency, low-energy, low-capacity portion in the subarray (called the near segment), which is close to the sense amplifiers, and a high-latency, high-energy, high-capacity portion, which is farther away from the sense amplifiers. Thus, DRAM becomes heterogeneous with a small portion having lower latency and a large portion having higher latency. Various techniques can be employed to take advantage of the low-latency near segment and this new heterogeneous DRAM substrate, including hardware-based caching and software based caching and memory allocation of frequently used data in the near segment. Evaluations with simple such techniques show significant performance and energy-efficiency benefits.",
+          "claimed_authors": [
+            "Donghyuk Lee",
+            "Yoongu Kim",
+            "Vivek Seshadri",
+            "Jamie Liu",
+            "Lavanya Subramanian",
+            "Onur Mutlu"
+          ],
+          "claimed_title": "Tiered-Latency DRAM (TL-DRAM)",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1601.06903"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Audio Interaction Model computer science', candidate_title='Tiered-Latency DRAM (TL-DRAM)')",
+        "failed_at": "2026-06-16T06:06:32Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Human cognition is constrained by processing limitations, leading to cognitive overload and inefficiencies in knowledge synthesis and decision-making. Large Language Models (LLMs) present an opportunity for cognitive augmentation, but their current reactive nature limits their real-world applicability. This position paper explores the potential of context-aware cognitive augmentation, where LLMs dynamically adapt to users' cognitive states and task environments to provide appropriate support. Through a think-aloud study in an exhibition setting, we examine how individuals interact with multi-modal information and identify key cognitive challenges in structuring, retrieving, and applying knowledge. Our findings highlight the need for AI-driven cognitive support systems that integrate real-time contextual awareness, personalized reasoning assistance, and socially adaptive interactions. We propose a framework for AI augmentation that seamlessly transitions between real-time cognitive support and post-experience knowledge organization, contributing to the design of more effective human-centered AI systems.",
+          "claimed_authors": [
+            " Xiangrong",
+            " Zhu",
+            "Yuan Xu",
+            "Tianjian Liu",
+            "Jingwei Sun",
+            "Yu Zhang",
+            "Xin Tong"
+          ],
+          "claimed_title": "Intelligent Interaction Strategies for Context-Aware Cognitive Augmentation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.13684"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Audio Interaction Model computer science', candidate_title='Intelligent Interaction Strategies for Context-Aware Cognitive Augmentation')",
+        "failed_at": "2026-06-16T06:06:32Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Selective attention plays an essential role in information acquisition and utilization from the environment. In the past 50 years, research on selective attention has been a central topic in cognitive science. Compared with unimodal studies, crossmodal studies are more complex but necessary to solve real-world challenges in both human experiments and computational modeling. Although an increasing number of findings on crossmodal selective attention have shed light on humans' behavioral patterns and neural underpinnings, a much better understanding is still necessary to yield the same benefit for computational intelligent agents. This article reviews studies of selective attention in unimodal visual and auditory and crossmodal audiovisual setups from the multidisciplinary perspectives of psychology and cognitive neuroscience, and evaluates different ways to simulate analogous mechanisms in computational models and robotics. We discuss the gaps between these fields in this interdisciplinary review and provide insights about how to use psychological findings and theories in artificial intelligence from different perspectives.",
+          "claimed_authors": [
+            "Di Fu",
+            "Cornelius Weber",
+            "Guochun Yang",
+            "Matthias Kerzel",
+            "Weizhi Nan",
+            "Pablo Barros",
+            "Haiyan Wu",
+            "Xun Liu",
+            "Stefan Wermter"
+          ],
+          "claimed_title": "What can computational models learn from human selective attention? A review from an audiovisual crossmodal perspective",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1909.05654"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Audio Interaction Model computer science', candidate_title='What can computational models learn from human selective attention? A review from an audiovisual crossmodal perspective')",
+        "failed_at": "2026-06-16T06:06:32Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper presents the Crossmodal Attentive Skill Learner (CASL), integrated with the recently-introduced Asynchronous Advantage Option-Critic (A2OC) architecture [Harb et al., 2017] to enable hierarchical reinforcement learning across multiple sensory inputs. We provide concrete examples where the approach not only improves performance in a single task, but accelerates transfer to new tasks. We demonstrate the attention mechanism anticipates and identifies useful latent features, while filtering irrelevant sensor modalities during execution. We modify the Arcade Learning Environment [Bellemare et al., 2013] to support audio queries, and conduct evaluations of crossmodal learning in the Atari 2600 game Amidar. Finally, building on the recent work of Babaeizadeh et al. [2017], we open-source a fast hybrid CPU-GPU implementation of CASL.",
+          "claimed_authors": [
+            "Shayegan Omidshafiei",
+            "Dong-Ki Kim",
+            "Jason Pazis",
+            "Jonathan P. How"
+          ],
+          "claimed_title": "Crossmodal Attentive Skill Learner",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1711.10314"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Audio Interaction Model computer science', candidate_title='Crossmodal Attentive Skill Learner')",
+        "failed_at": "2026-06-16T06:06:32Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Abhinav Shukla",
+            "Stavros Petridis",
+            "Maja Pantic"
+          ],
+          "title": "Learning Speech Representations from Raw Audio by Joint Audiovisual Self-Supervision",
+          "venue": "arXiv",
+          "year": 2020
+        },
+        "primary_pointer": "2007.04134",
+        "summary": "The intuitive interaction between the audio and visual modalities is valuable for cross-modal self-supervised learning. This concept has been demonstrated for generic audiovisual tasks like video action recognition and acoustic scene classification. However, self-supervision remains under-explored for audiovisual speech. We propose a method to learn self-supervised speech representations from the raw audio waveform. We train a raw audio encoder by combining audio-only self-supervision (by predicting informative audio attributes) with visual self-supervision (by generating talking faces from audio). The visual pretext task drives the audio representations to capture information related to lip movements. This enriches the audio encoder with visual information and the encoder can be used for evaluation without the visual modality. Our method attains competitive performance with respect to existing self-supervised audio features on established isolated word classification benchmarks, and significantly outperforms other methods at learning from fewer labels. Notably, our method also outperforms fully supervised training, thus providing a strong initialization for speech related tasks. Our results demonstrate the potential of multimodal self-supervision in audiovisual speech for learning good audio representations.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2007.04134",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-16T06:06:31Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Sreyan Ghosh",
+            "Ashish Seth",
+            "and Deepak Mittal",
+            "Maneesh Singh",
+            "S. Umesh"
+          ],
+          "title": "DeLoRes: Decorrelating Latent Spaces for Low-Resource Audio Representation Learning",
+          "venue": "arXiv",
+          "year": 2022
+        },
+        "primary_pointer": "2203.13628",
+        "summary": "Inspired by the recent progress in self-supervised learning for computer vision, in this paper we introduce DeLoRes, a new general-purpose audio representation learning approach. Our main objective is to make our network learn representations in a resource-constrained setting (both data and compute), that can generalize well across a diverse set of downstream tasks. Inspired from the Barlow Twins objective function, we propose to learn embeddings that are invariant to distortions of an input audio sample, while making sure that they contain non-redundant information about the sample. To achieve this, we measure the cross-correlation matrix between the outputs of two identical networks fed with distorted versions of an audio segment sampled from an audio file and make it as close to the identity matrix as possible. We use a combination of a small subset of the large-scale AudioSet dataset and FSD50K for self-supervised learning and are able to learn with less than half the parameters compared to state-of-the-art algorithms. For evaluation, we transfer these learned representations to 9 downstream classification tasks, including speech, music, and animal sounds, and show competitive results under different evaluation setups. In addition to being simple and intuitive, our pre-training algorithm is amenable to compute through its inherent nature of construction and does not require careful implementation details to avoid trivial or degenerate solutions. Furthermore, we conduct ablation studies on our results and make all our code and pre-trained models publicly available https://github.com/Speech-Lab-IITM/DeLoRes.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2203.13628",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-16T06:06:31Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Di Fu",
+            "Fares Abawi",
+            "Hugo Carneiro",
+            "Matthias Kerzel",
+            "Ziwei Chen",
+            "Erik Strahl",
+            "Xun Liu",
+            "Stefan Wermter"
+          ],
+          "title": "A trained humanoid robot can perform human-like crossmodal social attention and conflict resolution",
+          "venue": "arXiv",
+          "year": 2021
+        },
+        "primary_pointer": "2111.01906",
+        "summary": "To enhance human-robot social interaction, it is essential for robots to process multiple social cues in a complex real-world environment. However, incongruency of input information across modalities is inevitable and could be challenging for robots to process. To tackle this challenge, our study adopted the neurorobotic paradigm of crossmodal conflict resolution to make a robot express human-like social attention. A behavioural experiment was conducted on 37 participants for the human study. We designed a round-table meeting scenario with three animated avatars to improve ecological validity. Each avatar wore a medical mask to obscure the facial cues of the nose, mouth, and jaw. The central avatar shifted its eye gaze while the peripheral avatars generated sound. Gaze direction and sound locations were either spatially congruent or incongruent. We observed that the central avatar's dynamic gaze could trigger crossmodal social attention responses. In particular, human performances are better under the congruent audio-visual condition than the incongruent condition. Our saliency prediction model was trained to detect social cues, predict audio-visual saliency, and attend selectively for the robot study. After mounting the trained model on the iCub, the robot was exposed to laboratory conditions similar to the human experiment. While the human performances were overall superior, our trained model demonstrated that it could replicate attention responses similar to humans.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2111.01906",
+          "http_status": 200,
+          "pdf_sample_score": 0.2733,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-16T06:06:32Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "audio interaction model computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

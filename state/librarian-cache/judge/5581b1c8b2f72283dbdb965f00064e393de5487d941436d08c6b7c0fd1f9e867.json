@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1907.06796",
+  "judged_at": "2026-06-16T06:04:48Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "memory palace pedagogy: vr-enhanced spatial learning for abstract concepts psychology",
+  "rationale": "The paper focuses on technical motion‑tracking methods for augmented reality and does not address spatial learning, memory‑palace pedagogy, VR‑enhanced cognition, or any psychological variables relevant to the user's question. It is off‑domain and lacks a measurable connection to the required constructs.",
+  "relevant": false
+}
