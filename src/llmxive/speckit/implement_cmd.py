@@ -121,6 +121,28 @@ class ImplementerAgent(SlashCommandAgent):
             f"# completed task ids\n{mechanical_output['completed_task_ids']}",
             f"# wall_clock_budget_seconds\n{LEAF_TASK_BUDGET_SECONDS}",
         ]
+        # Spec 023 #25 — close the auto-fix loop: the dedicated execution stage
+        # runs the project's analysis end-to-end and, on failure, writes the
+        # tracebacks + missing deliverables to execution_feedback.md and RE-OPENS
+        # the failing tasks. Without delivering that note here, the implementer
+        # re-implements the re-opened task BLIND and the loop can never converge.
+        # Inject it with high priority so the root cause actually gets fixed.
+        exec_feedback = ctx.project_dir / ".specify" / "memory" / "execution_feedback.md"
+        if exec_feedback.is_file():
+            fb = exec_feedback.read_text(encoding="utf-8", errors="replace").strip()
+            if fb:
+                user_parts.append(
+                    "# ⚠ EXECUTION FAILED ON THE LAST RUN — FIXING THIS IS YOUR "
+                    "PRIORITY\n\n"
+                    "The project's analysis was executed end-to-end (per "
+                    "quickstart.md) and FAILED. That is why task "
+                    f"{mechanical_output['next_task_id'] or ''} was re-opened. If "
+                    "any failure below concerns the script/file this task owns, "
+                    "your job THIS task is to fix the ROOT CAUSE so the script runs "
+                    "cleanly AND writes its declared data/figure output to disk — "
+                    "do NOT re-emit the same broken code, and do NOT stub or fake "
+                    "outputs. The exact failures:\n\n" + fb
+                )
         if existing_api:
             user_parts.append(
                 "# Existing project API surface (READ THIS — every name "

@@ -33,6 +33,23 @@ are provided in the messages that follow.
    information provided, return `verdict: failed` with a one-line reason — do NOT fabricate
    placeholder content or mark it done. If the task is too large to implement as a single
    coherent unit, return `verdict: atomize` so it can be split into sub-tasks.
+8. **Produce real outputs, not demos.** Every artifact-producing script must, when run as
+   `python code/<path>.py`, actually WRITE its declared output file(s) to disk under
+   `data/` or `figures/`. A script whose entry point only prints a demo, returns objects
+   in memory, or runs a self-test is INCOMPLETE. If tasks.md / quickstart.md says a script
+   produces `data/<x>.csv` or `figures/<y>.png`, that exact file MUST exist on disk after
+   the script runs — use the output paths from tasks.md / quickstart.md verbatim (do not
+   invent a different path or directory).
+9. **Real data only — obtain it from a real source.** When a task needs real external data
+   that is not already on disk, get it from a REAL, programmatically-accessible source: a
+   pip-installable dataset package, or a downloadable URL fetched at runtime. Add any new
+   third-party dependency to the project's `requirements.txt` artifact in the SAME task.
+   NEVER fabricate values, hard-code fake "sample" rows, or ship a placeholder dataset. If
+   no real source is reachable, return `verdict: failed` with the reason — do not fake it.
+10. **When execution failed, fix that first.** If a "⚠ EXECUTION FAILED" section appears in
+   the messages, the root cause it describes for this task's script takes precedence: make
+   that script run cleanly end-to-end and write its real output before anything else. Do
+   not re-emit code that produced the reported traceback.
 
 ## Output format (STRICT)
 
