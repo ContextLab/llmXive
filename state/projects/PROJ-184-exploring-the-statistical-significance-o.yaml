@@ -1,17 +1,18 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-03T05:15:57.497113Z'
-current_stage: flesh_out_complete
+current_stage: validated
 failed_stage: null
 field: physics
 human_escalation_reason: null
 id: PROJ-184-exploring-the-statistical-significance-o
-last_run_id: 413198e7-85d5-4595-8da9-fd9042e136e7
+last_run_id: fbb9d6b2-1440-45a8-998b-974d8bcee166
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
+revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: Exploring the Statistical Significance of Fine-Structure Constant Variations
-updated_at: '2026-05-03T05:18:32.994249Z'
+updated_at: '2026-06-16T15:29:43.747335Z'
