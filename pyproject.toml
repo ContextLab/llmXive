@@ -49,6 +49,9 @@ dependencies = [
   # measurement. Requires system `poppler` (poppler-utils on Linux, brew install
   # poppler on macOS).
   "pdf2image>=1.17",
+  # Data-source discovery (librarian/data_source_discovery.py): DuckDuckGo web
+  # search to seed candidate data sources before LLM proposal + hard verify.
+  "ddgs",
 ]
 
 [project.optional-dependencies]
