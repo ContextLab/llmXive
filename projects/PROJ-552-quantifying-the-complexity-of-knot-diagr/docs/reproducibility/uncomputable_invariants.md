@@ -1,8 +1,9 @@
 # Uncomputable Invariants
 
-The following invariants could not be computed for the full dataset due
-to missing data or algorithmic limitations:
+The following invariants are currently not computable within this pipeline (per FR‑003):
 
-- **Arc index** – unavailable for 12 % of knots.
-- **Seifert circle count** – unavailable for 8 % of knots.
-- **Bridge number** – unavailable for 5 % of knots.
+- Arc Index
+- Bridge Number
+- Super‑bridge Index
+
+Their definitions and literature references are documented in `docs/reproducibility/invariant_algorithms.md`. Computation will be added in later phases.

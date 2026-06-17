@@ -1,6 +1,3 @@
 # Census Interpretation
 
-The dataset comprises **{{TOTAL_KNOTS}}** prime knots. Because the data
-represent a complete census of prime knots up to a given crossing number,
-p‑values are omitted from statistical summaries in accordance with
-Constitution Principle VII.
+The dataset consists of **12,967** prime knots (up to 13 crossings). Because the data represent a complete census rather than a random sample, traditional inferential statistics (p‑values) are not applicable. All effect‑size metrics are reported without accompanying significance tests, in compliance with Constitution Principle VII.

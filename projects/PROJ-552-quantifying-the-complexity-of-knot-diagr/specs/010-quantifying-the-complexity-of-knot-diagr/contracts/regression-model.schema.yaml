@@ -1,98 +1,70 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: Regression Model Schema
 description: |
-  JSON Schema defining the structure of a regression model record used in the
-  knot‑complexity analysis pipeline. Each record captures the essential
-  metadata, model parameters, and evaluation metrics required for reproducible
-  reporting and downstream analysis.
+  JSON‑Schema definition for regression model metadata produced by the
+  analysis pipeline.  Each model record captures the type of regression,
+  its fitted parameters, and a set of goodness‑of‑fit metrics.
 type: object
-additionalProperties: false
 required:
-  - model_id
   - model_name
   - model_type
-  - input_features
-  - target_feature
   - coefficients
   - intercept
   - metrics
-  - fitted_on
-  - data_version
 properties:
-  model_id:
-    type: string
-    description: |
-      Unique identifier for the regression model (e.g., UUID or deterministic
-      hash based on model configuration).
   model_name:
     type: string
-    description: |
-      Human‑readable name for the model (e.g., "LinearVolumeFromCrossingAndBraid").
+    description: Unique identifier for the model (e.g., "crossing_vs_braid_linear").
   model_type:
     type: string
-    enum: [linear, polynomial, logarithmic, ridge, lasso, elasticnet, svr, random_forest]
+    enum:
+      - linear
+      - polynomial
+      - logarithmic
+    description: Type of regression fitted.
+  degree:
+    type: integer
+    minimum: 1
     description: |
-      The family of regression algorithm used.
-  input_features:
+      Degree of the polynomial model. Present only when model_type is
+      "polynomial".
+  coefficients:
     type: array
     items:
-      type: string
-    description: |
-      List of feature names used as predictors (e.g., ["crossing_number", "braid_index"]).
-  target_feature:
-    type: string
-    description: |
-      Name of the dependent variable the model predicts (e.g., "volume").
-  coefficients:
-    type: object
-    description: |
-      Mapping from each input feature to its learned coefficient.
-    additionalProperties:
       type: number
+    description: |
+      List of fitted coefficients ordered from highest‑degree term to the
+      constant term (excluding intercept which is stored separately).
   intercept:
     type: number
-    description: |
-      Intercept term of the regression model.
+    description: Intercept term of the regression.
   metrics:
     type: object
-    description: |
-      Evaluation metrics computed on the validation set.
     required:
       - r_squared
+      - mae
       - aic
       - bic
-      - mae
     properties:
       r_squared:
         type: number
-        description: Coefficient of determination (R²).
-      aic:
-        type: number
-        description: Akaike Information Criterion.
-      bic:
-        type: number
-        description: Bayesian Information Criterion.
+        minimum: 0
+        maximum: 1
+        description: Coefficient of determination.
       mae:
         type: number
-        description: Mean Absolute Error.
-      rmse:
+        minimum: 0
+        description: Mean absolute error.
+      aic:
         type: number
-        description: Root Mean Squared Error.
-      mape:
+        description: Akaike information criterion.
+      bic:
         type: number
-        description: Mean Absolute Percentage Error.
-  fitted_on:
+        description: Bayesian information criterion.
+  fit_timestamp:
     type: string
     format: date-time
-    description: |
-      ISO‑8601 timestamp indicating when the model was trained.
-  data_version:
-    type: string
-    description: |
-      Identifier of the dataset version used for training (e.g., a hash of the
-      processed CSV file).
+    description: ISO‑8601 timestamp when the model was fitted.
   notes:
     type: string
-    description: |
-      Optional free‑form notes (e.g., hyperparameter settings, preprocessing steps,
-      or any deviations from the standard pipeline).
+    description: Optional free‑form notes about the fitting procedure.

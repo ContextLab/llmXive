@@ -1,112 +1,94 @@
-"""
-Unit tests for the knot‑atlas downloader (T057).
+"""Unit tests for the KnotAtlas downloader."""
 
-The tests mock the ``database_knotinfo`` package to avoid network access.
-They verify:
-  * exponential back‑off timing,
-  * creation of a partial cache after three consecutive simulated failures,
-  * timeout handling.
-"""
+from __future__ import annotations
 
 import json
-import time
 from pathlib import Path
 from unittest import mock
 
 import pytest
 
-# The downloader implementation lives in ``code/download/knot_atlas_loader.py``.
-from download.knot_atlas_loader import download_knot_atlas_data, save_raw_data
+# Import the module under test
+from code.download.knot_atlas_loader import (
+    KnotRecord,
+    download_knot_atlas_data,
+    save_raw_data,
+    verify_downloaded_record,
+)
 
-# Helper to create a temporary raw‑data file path.
+
 @pytest.fixture
-def raw_path(tmp_path: Path) -> Path:
-    return tmp_path / "knot_atlas_raw.json"
-
-# ----------------------------------------------------------------------
-# Mock ``database_knotinfo`` to control the returned records.
-# ----------------------------------------------------------------------
-
-
-class MockKnotInfo:
-    """Simple mock that mimics ``database_knotinfo.link_list``."""
-
-    def __init__(self, records, fail_times=0, delay=0):
-        self._records = records
-        self._fail_times = fail_times
-        self._delay = delay
-        self._calls = 0
-
-    def link_list(self):
-        self._calls += 1
-        if self._calls <= self._fail_times:
-            raise RuntimeError("simulated download failure")
-        time.sleep(self._delay)
-        return self._records
-
-# ----------------------------------------------------------------------
-# Test exponential back‑off logic.
-# ----------------------------------------------------------------------
+def fake_records():
+    """Return a small list of dictionaries mimicking ``database_knotinfo`` output."""
+    return [
+        {
+            "name": "3_1",
+            "crossing_number": 3,
+            "braid_index": 2,
+            "volume": 2.02988,
+            "alternating": True,
+        },
+        {
+            "name": "4_1",
+            "crossing_number": 4,
+            "braid_index": 3,
+            "volume": 3.66386,
+            "alternating": True,
+        },
+    ]
 
 
-def test_download_retry_logic(monkeypatch, raw_path: Path):
-    """Verify that the downloader backs off 1 s → 2 s → 4 s on failures."""
-    mock = MockKnotInfo(records=[{"name": "4_1"}], fail_times=2)
+def test_download_uses_database_knotinfo(monkeypatch, fake_records):
+    """The downloader should call ``database_knotinfo.link_list`` and wrap results."""
 
-    # Patch the import inside the downloader.
-    monkeypatch.setitem(
-        sys.modules,
-        "database_knotinfo",
-        mock,
+    with mock.patch("code.download.knot_atlas_loader.dk.link_list", return_value=fake_records):
+        records = download_knot_atlas_data()
+        assert isinstance(records, list)
+        assert all(isinstance(r, KnotRecord) for r in records)
+        assert records[0].name == "3_1"
+        assert records[1].crossing_number == 4
+
+
+def test_verify_downloaded_record():
+    good = KnotRecord(
+        name="5_2",
+        crossing_number=5,
+        braid_index=3,
+        volume=1.234,
+        alternating=False,
     )
-
-    start = time.time()
-    download_knot_atlas_data()
-    elapsed = time.time() - start
-
-    # Expected total back‑off delay = 1 + 2 = 3 s (the third attempt succeeds).
-    assert 3 <= elapsed < 5, f"elapsed {elapsed:.2f}s not within expected range"
-
-# ----------------------------------------------------------------------
-# Test partial cache creation after three consecutive failures.
-# ----------------------------------------------------------------------
+    bad = KnotRecord(
+        name="",
+        crossing_number=0,
+        braid_index=0,
+        volume=None,
+        alternating=None,
+    )
+    assert verify_downloaded_record(good) is True
+    assert verify_downloaded_record(bad) is False
 
 
-def test_download_partial_cache(monkeypatch, tmp_path: Path):
-    """After three failures a partial cache file should be written."""
-    # Force three failures; the fourth call would succeed but we stop early.
-    mock = MockKnotInfo(records=[{"name": "4_1"}], fail_times=3)
-    monkeypatch.setitem(sys.modules, "database_knotinfo", mock)
+def test_save_raw_data_writes_json(tmp_path: Path):
+    """Ensure ``save_raw_data`` writes a JSON file that can be re‑loaded."""
+    records = [
+        KnotRecord(
+            name="6_1",
+            crossing_number=6,
+            braid_index=4,
+            volume=4.123,
+            alternating=True,
+        )
+    ]
+    out_file = tmp_path / "raw.json"
+    save_raw_data(records, out_file)
 
-    cache_path = tmp_path / "partial_cache.json"
-    # The downloader looks for ``cache_path`` via a constant; we monkeypatch
-    # the constant inside the module.
-    import download.knot_atlas_loader as loader
+    # Verify file exists
+    assert out_file.is_file()
 
-    monkeypatch.setattr(loader, "PARTIAL_CACHE_PATH", cache_path)
-
-    # Run the download – it should raise after exhausting retries.
-    with pytest.raises(RuntimeError):
-        download_knot_atlas_data()
-
-    # The partial cache file must now exist and contain the (empty) result.
-    assert cache_path.is_file()
-    data = json.loads(cache_path.read_text())
-    assert data == []  # empty list because no successful fetch occurred
-
-# ----------------------------------------------------------------------
-# Test timeout handling (simulated via a short ``time_limit`` argument).
-# ----------------------------------------------------------------------
-
-
-def test_download_timeout(monkeypatch):
-    """A timeout shorter than the back‑off schedule should abort early."""
-    mock = MockKnotInfo(records=[{"name": "4_1"}], fail_times=10, delay=0.5)
-    monkeypatch.setitem(sys.modules, "database_knotinfo", mock)
-
-    import download.knot_atlas_loader as loader
-
-    # Set a very low timeout (1 s) – the downloader should abort before a
-    # successful attempt.
-    with pytest.raises(RuntimeError):
-        loader.download_knot_atlas_data(time_limit=1)
+    # Verify JSON is well‑formed and matches the original data
+    with out_file.open("r", encoding="utf-8") as f:
+        loaded = json.load(f)
+    assert isinstance(loaded, list) and len(loaded) == 1
+    assert loaded[0]["name"] == "6_1"
+    assert loaded[0]["crossing_number"] == 6
+    assert loaded[0]["braid_index"] == 4

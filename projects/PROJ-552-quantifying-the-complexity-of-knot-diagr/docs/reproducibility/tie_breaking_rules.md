@@ -1,10 +1,11 @@
 # Tie‑Breaking Rules
 
-When multiple representations are available for a knot (e.g., several
-braid words or DT codes), the following deterministic hierarchy is applied:
+This document defines the deterministic tie‑breaking rules used when multiple
+representations of a knot are available.
 
-1. **Braid word** – preferred if present and syntactically valid.
-2. **DT code** – used when a braid word is unavailable.
-3. **Lexicographic order** – fallback to the smallest string representation.
+1. **Braid word** takes precedence over Dowker‑Thistlethwaite (DT) code.
+2. If both are present, the lexicographically smaller string is chosen.
+3. In the unlikely event of a perfect tie, the knot name is used as a final
+ discriminator.
 
-These rules are implemented in `code/data/parser.py`.
+These rules are applied by the parser in `code/data/parser.py`.

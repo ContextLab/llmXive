@@ -1,36 +1,45 @@
-"""
-Validation of dataset completeness.
+"""Validate that all required fields are present in the cleaned dataset."""
 
-The module now imports the corrected ``log_operation`` decorator which
-supplies a default ``operation_name``.
-"""
+from __future__ import annotations
 
 import json
 from pathlib import Path
 
 import pandas as pd
+
 from reproducibility.logs import log_operation, get_logger
 from analysis.data_quantities import load_cleaned_knots_data
 
-@log_operation(operation_name="generate_report", output_path_arg="output_path")
-def generate_report(output_path: Path) -> None:
-    """
-    Generate a JSON report summarising the number of records and missing fields.
-    """
+
+REQUIRED_FIELDS = {
+    "name",
+    "crossing_number",
+    "braid_index",
+    "volume",
+    "alternating",
+}
+
+
+def generate_report() -> dict:
+    logger = get_logger()
+    logger.info("Generating completeness validation report")
     df = load_cleaned_knots_data()
+    missing = {field for field in REQUIRED_FIELDS if field not in df.columns}
     report = {
         "total_records": len(df),
-        "missing_per_field": {col: int(df[col].isna().sum()) for col in df.columns},
+        "missing_fields": list(missing),
+        "all_fields_present": len(missing) == 0,
     }
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with output_path.open("w", encoding="utf-8") as f:
-        json.dump(report, f, indent=2)
+    out_path = Path("docs/reproducibility/completeness_report.json")
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    out_path.write_text(json.dumps(report, indent=2))
+    logger.info(f"Completeness report written to {out_path}")
+    return report
+
 
 def main() -> None:
-    logger = get_logger(__name__)  # type: ignore[arg-type]
-    report_path = Path("data/validation/completeness_report.json")
-    generate_report(report_path)
-    logger.info(f"Completeness report written to {report_path}")
+    generate_report()
+
 
 if __name__ == "__main__":
     main()

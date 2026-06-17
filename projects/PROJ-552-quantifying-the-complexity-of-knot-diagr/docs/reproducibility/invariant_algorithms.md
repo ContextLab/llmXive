@@ -1,10 +1,13 @@
 # Invariant Algorithms
 
-This document describes the reference implementations used to compute
-additional invariants:
+This document describes the reference implementations used for computed invariants.
 
-- **Arc index** – algorithm based on [Reference A] (see `docs/reproducibility/invariant_definitions.md`).
-- **Seifert circle count** – computed via planar diagram traversal.
-- **Bridge number** – derived from minimal bridge presentations.
+## Arc Index (Deferred)
+- **Reference**: Cromwell, *Embedding Up to Isotopy*, p. 89.
+- **Algorithm**: Not implemented in Phase 1.
 
-Source code for each algorithm resides in the `code/analysis/` package.
+## Bridge Number (Deferred)
+- **Reference**: Schubert, *Über die Brückenzahl*, Math. Ann. 1956.
+- **Algorithm**: Not implemented in Phase 1.
+
+Core invariants (crossing number, braid index) are directly taken from the KnotInfo database and therefore require no additional computation. [UNRESOLVED-CLAIM: c_34de58cb — status=not_enough_info]

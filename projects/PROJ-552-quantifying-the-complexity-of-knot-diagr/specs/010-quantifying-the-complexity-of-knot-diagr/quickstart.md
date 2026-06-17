@@ -190,6 +190,13 @@ Note: P-values marked as "not applicable for census data" per FR-006 and Constit
 python code/analysis/group_comparison.py
 ```
 
+### 5.5 Complexity visualization examples
+
+```bash
+# Render the example complexity figure (data/plots/complexity_visualization_examples.png)
+python code/analysis/complexity_visualization_runner.py
+```
+
 ## 6. Reproducibility Documentation (User Story 4)
 
 ### 6.1 Generate Checksums

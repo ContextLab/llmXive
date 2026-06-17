@@ -1,118 +1,126 @@
-"""Download KnotInfo data using the ``database_knotinfo`` package.
+"""
+Downloader for the KnotInfo database using the ``database-knotinfo`` package.
 
-The original implementation attempted to download from the Knot Atlas
-website and serialized ``Path`` objects directly to JSON, which caused a
-``TypeError``.  This module now uses the verified ``database_knotinfo``
-package, writes a pure‑JSON file, and then delegates to the parser to
-produce the cleaned CSV.
+The previous implementation attempted to scrape https://katlas.org and failed.
+This version follows the verified recipe from the task description:
+it imports ``database_knotinfo`` (added to ``requirements.txt``), fetches all
+records, and writes both the raw JSON and a cleaned CSV file to the declared
+locations.
 """
 
 from __future__ import annotations
 
 import argparse
 import json
-from dataclasses import dataclass, asdict
+from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import List
 
 import database_knotinfo as dk
 
-from reproducibility.logs import get_logger, log_operation
-from data.parser import parse_knot_atlas_data
-
-__all__ = [
-    "KnotRecord",
-    "verify_downloaded_record",
-    "download_knot_atlas_data",
-    "save_raw_data",
-    "main",
-]
-
-
 @dataclass
 class KnotRecord:
-    """Minimal representation of a knot record used for the raw JSON dump."""
-
+    """Simple container for the fields we need in downstream analysis."""
     name: str
-    crossing_number: int
-    braid_index: int
-    alternating: bool
-
-    @classmethod
-    def from_dict(cls, data: dict) -> "KnotRecord":
-        return cls(
-            name=data.get("name", ""),
-            crossing_number=int(data.get("crossing_number", 0)),
-            braid_index=int(data.get("braid_index", 0)),
-            alternating=bool(data.get("alternating", False)),
-        )
-
-    def to_dict(self) -> dict:
-        return asdict(self)
-
+    crossing_number: int | None
+    braid_index: int | None
+    volume: float | None
+    alternating: str | None
 
 def verify_downloaded_record(record: dict) -> bool:
-    """Return ``True`` if the record contains the required fields."""
-    required = {"name", "crossing_number", "braid_index", "alternating"}
+    """Very light verification – ensure required keys are present."""
+    required = {"name", "crossing_number", "braid_index", "volume", "alternating"}
     return required.issubset(record.keys())
 
-
-@log_operation("download_knot_atlas_data")
-def download_knot_atlas_data() -> List[dict]:
-    """Fetch all knot records from the ``database_knotinfo`` package."""
-    records = dk.link_list()
-    # Ensure each record has the mandatory fields; filter out any oddities.
-    valid = [rec for rec in records if verify_downloaded_record(rec)]
-    get_logger().log(
-        "download_knot_atlas_data",
-        status="SUCCESS",
-        records_fetched=len(valid),
-    )
-    return valid
-
-
-@log_operation("save_raw_data", output_path_arg="output_path")
-def save_raw_data(records: List[dict], output_path: Path = Path("data/raw/knot_atlas_raw.json")) -> None:
-    """Write the raw records to ``output_path`` as JSON.
-
-    ``Path`` objects are converted to strings to avoid ``TypeError``.
+def fetch_with_retry(
+    max_attempts: int = 5, backoff_factor: int = 2, initial_delay: int = 1
+) -> list[dict]:
     """
-    output_path = Path(output_path)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    Fetch the full list of knot records with simple exponential back‑off.
+    """
+    attempt = 0
+    delay = initial_delay
+    while attempt < max_attempts:
+        try:
+            records = dk.link_list()
+            if not records:
+                raise RuntimeError("Empty record list returned")
+            return records
+        except Exception as exc:  # pragma: no cover – network issues are rare
+            attempt += 1
+            if attempt >= max_attempts:
+                raise RuntimeError(
+                    f"Failed to download after {max_attempts} attempts"
+                ) from exc
+            time.sleep(delay)
+            delay *= backoff_factor
 
-    # Convert any non‑serializable objects (e.g. ``Path``) to strings.
-    serializable = []
+def download_knot_atlas_data() -> list[dict]:
+    """Entry point for the download step."""
+    return fetch_with_retry()
+
+def save_raw_data(records: list[dict], path: Path) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", encoding="utf-8") as f:
+        json.dump(records, f, indent=2)
+
+def save_processed_data(records: list[dict], path: Path) -> None:
+    """
+    Convert raw dicts into ``KnotRecord`` objects and write a CSV suitable for
+    the rest of the pipeline.
+    """
+    path.parent.mkdir(parents=True, exist_ok=True)
+    rows = []
     for rec in records:
-        clean_rec = {k: (str(v) if isinstance(v, Path) else v) for k, v in rec.items()}
-        serializable.append(clean_rec)
-
-    with output_path.open("w", encoding="utf-8") as f:
-        json.dump(serializable, f, ensure_ascii=False, indent=2)
-
-    get_logger().log(
-        "save_raw_data",
-        status="SUCCESS",
-        records_written=len(serializable),
-    )
-
+        if not verify_downloaded_record(rec):
+            continue
+        rows.append(
+            KnotRecord(
+                name=rec["name"],
+                crossing_number=rec.get("crossing_number"),
+                braid_index=rec.get("braid_index"),
+                volume=rec.get("volume"),
+                alternating=rec.get("alternating"),
+            )
+        )
+    # Write CSV
+    with path.open("w", encoding="utf-8") as f:
+        header = ["name", "crossing_number", "braid_index", "volume", "alternating"]
+        f.write(",".join(header) + "\n")
+        for r in rows:
+            f.write(
+                ",".join(
+                    [
+                        str(r.name),
+                        str(r.crossing_number or ""),
+                        str(r.braid_index or ""),
+                        str(r.volume or ""),
+                        str(r.alternating or ""),
+                    ]
+                )
+                + "\n"
+            )
 
 def main() -> None:
-    """Download the raw dataset and produce the cleaned CSV."""
-    parser = argparse.ArgumentParser(description="Download KnotInfo dataset.")
+    parser = argparse.ArgumentParser(
+        description="Download knot records from the KnotInfo database."
+    )
     parser.add_argument(
-        "--raw-path",
+        "--raw",
         type=Path,
         default=Path("data/raw/knot_atlas_raw.json"),
-        help="Path to write the raw JSON file.",
+        help="Path to write raw JSON data.",
+    )
+    parser.add_argument(
+        "--processed",
+        type=Path,
+        default=Path("data/processed/knots_cleaned.csv"),
+        help="Path to write cleaned CSV data.",
     )
     args = parser.parse_args()
 
     records = download_knot_atlas_data()
-    save_raw_data(records, args.raw_path)
-
-    # Delegate to the parser to create the cleaned CSV.
-    parse_knot_atlas_data()
-
+    save_raw_data(records, args.raw)
+    save_processed_data(records, args.processed)
 
 if __name__ == "__main__":
     main()

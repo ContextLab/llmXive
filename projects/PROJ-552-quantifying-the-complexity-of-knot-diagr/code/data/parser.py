@@ -1,117 +1,109 @@
-"""Parse the raw KnotInfo JSON into the cleaned CSV used throughout the pipeline.
+"""Parser for the raw KnotAtlas JSON.
 
-The parser now robustly handles the JSON format produced by the
-``database_knotinfo`` package.  It extracts the four core fields required
-for downstream analysis while gracefully skipping malformed records.
+The raw file produced by :mod:`code.download.knot_atlas_loader` contains a
+list of dictionaries. This module converts that into a clean CSV file
+suitable for downstream analysis.
 """
-
 from __future__ import annotations
 
 import csv
 import json
-from dataclasses import dataclass, asdict
+from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import List, Any
-
-from reproducibility.logs import get_logger, log_operation
-
+from typing import List
 
 @dataclass
 class ParsedKnotData:
-    """Container for the records after parsing."""
+    """A cleaned representation of a knot record."""
 
-    records: List[dict]
+    name: str
+    crossing_number: int
+    braid_index: int
+    volume: float | None
+    alternating: bool | None
 
+    @classmethod
+    def from_raw(cls, raw: dict) -> "ParsedKnotData":
+        """Create a :class:`ParsedKnotData` from a raw dictionary.
 
-def _safe_int(value: Any) -> int | None:
-    """Convert ``value`` to ``int`` if possible, otherwise return ``None``."""
-    try:
-        return int(value)
-    except (TypeError, ValueError):
-        # Some datasets store numbers as strings with surrounding text,
-        # e.g. "Crossing Number".  We ignore those entries.
-        return None
-
-
-def _safe_bool(value: Any) -> bool:
-    """Coerce a value to ``bool``."""
-    if isinstance(value, bool):
-        return value
-    if isinstance(value, (int, float)):
-        return bool(value)
-    # Strings like "yes"/"no" or "true"/"false"
-    if isinstance(value, str):
-        return value.strip().lower() in {"yes", "true", "1", "alternating"}
-    return False
-
-
-@log_operation("parse_knot_atlas_data", output_path_arg="cleaned_path")
-def parse_knot_atlas_data(
-    raw_path: Path = Path("data/raw/knot_atlas_raw.json"),
-    cleaned_path: Path = Path("data/processed/knots_cleaned.csv"),
-) -> ParsedKnotData:
-    """
-    Read the raw JSON file produced by :func:`download_knot_atlas_data` and
-    write a simplified CSV containing only the fields required for analysis.
-
-    Returns
-    -------
-    ParsedKnotData
-        Dataclass wrapping the list of parsed dictionaries.
-    """
-    raw_path = Path(raw_path)
-    cleaned_path = Path(cleaned_path)
-
-    # Load the raw JSON.
-    with raw_path.open("r", encoding="utf-8") as f:
-        raw_records = json.load(f)
-
-    cleaned: List[dict] = []
-    for rec in raw_records:
-        # Skip header rows or any entry that does not contain the required keys.
-        if not isinstance(rec, dict):
-            continue
-        if "name" not in rec:
-            continue
-
-        crossing = _safe_int(rec.get("crossing_number"))
-        braid = _safe_int(rec.get("braid_index"))
-        if crossing is None or braid is None:
-            # Incomplete numeric data – skip this record.
-            continue
-
-        cleaned.append(
-            {
-                "name": rec["name"],
-                "crossing_number": crossing,
-                "braid_index": braid,
-                "alternating": _safe_bool(rec.get("alternating")),
-            }
+        The function is tolerant of missing or malformed fields:
+        * ``crossing_number`` and ``braid_index`` are coerced to ``int``;
+          non‑numeric values raise ``ValueError`` which is propagated to the
+          caller (so that data‑quality checks can flag them).
+        * ``volume`` is converted to ``float`` when present.
+        * ``alternating`` is interpreted as a boolean if possible.
+        """
+        return cls(
+            name=str(raw.get("name", "")),
+            crossing_number=int(raw["crossing_number"]),
+            braid_index=int(raw["braid_index"]),
+            volume=float(raw["volume"]) if raw.get("volume") not in (None, "") else None,
+            alternating=bool(raw["alternating"])
+            if raw.get("alternating") is not None
+            else None,
         )
 
-    # Write CSV.
-    cleaned_path.parent.mkdir(parents=True, exist_ok=True)
-    with cleaned_path.open("w", newline="", encoding="utf-8") as f:
-        writer = csv.DictWriter(
-            f,
-            fieldnames=["name", "crossing_number", "braid_index", "alternating"],
-        )
+
+def parse_knot_atlas_data(raw_json_path: Path) -> List[ParsedKnotData]:
+    """Parse the raw JSON file into a list of :class:`ParsedKnotData`.
+
+    The function skips any entries that cannot be parsed (e.g. header rows
+    or malformed records) and returns the successfully parsed records.
+    """
+    with raw_json_path.open("r", encoding="utf-8") as f:
+        data = json.load(f)
+
+    parsed: List[ParsedKnotData] = []
+    for rec in data:
+        try:
+            # ``crossing_number`` must be an integer; if it is a header string
+            # like "Crossing Number" a ``ValueError`` will be raised and the
+            # record will be skipped.
+            parsed.append(ParsedKnotData.from_raw(rec))
+        except (KeyError, ValueError, TypeError):
+            # Silently skip malformed rows; downstream validator will flag
+            # missing invariants if necessary.
+            continue
+    return parsed
+
+
+def write_parsed_to_csv(
+    records: List[ParsedKnotData], output_csv_path: Path
+) -> None:
+    """Write ``records`` to ``output_csv_path`` as a CSV file."""
+    output_csv_path.parent.mkdir(parents=True, exist_ok=True)
+    fieldnames = ["name", "crossing_number", "braid_index", "volume", "alternating"]
+    with output_csv_path.open("w", newline="", encoding="utf-8") as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writeheader()
-        writer.writerows(cleaned)
+        for rec in records:
+            writer.writerow(asdict(rec))
 
-    get_logger().log(
-        "parse_knot_atlas_data",
-        status="SUCCESS",
-        records_written=len(cleaned),
+
+def main() -> None:  # pragma: no cover
+    """CLI entry point.
+
+    Example usage::
+
+        python -m code.data.parser \\
+            data/raw/knot_atlas_raw.json \\
+            data/processed/knots_cleaned.csv
+    """
+    import argparse
+
+    parser = argparse.ArgumentParser(
+        description="Parse raw KnotAtlas JSON into a cleaned CSV."
     )
-    return ParsedKnotData(records=cleaned)
-
-
-def main() -> None:
-    """Convenient CLI entry point."""
-    result = parse_knot_atlas_data()
-    print(f"Parsed {len(result.records)} records; CSV written to disk.")
-
-
-if __name__ == "__main__":
-    main()
+    parser.add_argument(
+        "input_json",
+        type=Path,
+        help="Path to the raw JSON file generated by the downloader.",
+    )
+    parser.add_argument(
+        "output_csv",
+        type=Path,
+        help="Path to write the cleaned CSV file.",
+    )
+    args = parser.parse_args()
+    records = parse_knot_atlas_data(args.input_json)
+    write_parsed_to_csv(records, args.output_csv)

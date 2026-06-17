@@ -17,6 +17,8 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 
+# The logging utility provides a singleton logger via ``get_logger``.
+# It does not accept any positional arguments.
 from reproducibility.logs import get_logger
 
 __all__ = [
@@ -43,7 +45,9 @@ def load_cleaned_knots() -> pd.DataFrame:
     """
     data_path = Path("data/processed/knots_cleaned.csv")
     if not data_path.is_file():
-        raise FileNotFoundError(f"Cleaned knot data not found at '{data_path}'.")
+        raise FileNotFoundError(
+            f"Cleaned knot data not found at '{data_path}'."
+        )
     return pd.read_csv(data_path)
 
 
@@ -99,7 +103,8 @@ def main() -> None:
     Entry‑point used by the project’s quick‑start script. It logs progress
     and writes the plot to ``data/plots/crossing_vs_braid.png``.
     """
-    logger = get_logger(__name__)  # type: ignore[arg-type]
+    # ``get_logger`` returns the singleton ``ReproducibilityLogger``.
+    logger = get_logger()
     logger.info("Running exploratory analysis: crossing number vs. braid index")
     plot_path = Path("data/plots/crossing_vs_braid.png")
     generate_exploratory_plots(plot_path)

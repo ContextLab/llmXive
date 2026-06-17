@@ -2,34 +2,21 @@
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 10 command(s) failed: python code/download/knot_atlas_loader.py (rc=1); python code/data/parser.py (rc=1); python code/data/validator.py (rc=1); 2 declared deliverable(s) absent: data/plots/complexity_visualization_examples.png; data/plots/crossing_vs_braid.png
+**Summary**: 1 run-book script(s) missing (plan/impl path mismatch): python code/reproducibility/validation_status.py; 7 command(s) failed: python code/download/knot_atlas_loader.py (rc=1); python code/analysis/exploratory.py (rc=1); python code/reproducibility/tie_breaking_validator.py (rc=1); 1 declared deliverable(s) absent: data/plots/complexity_visualization_examples.png
 
 ## Failing / missing run-book commands
 
+- python -c "from code.reproducibility.logs import get_logger; logger = get_logger(); logger.log('test', 'verification')" -> rc=1
+    Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+AttributeError: 'ReproducibilityLogger' object has no attribute 'log'
 - python code/download/knot_atlas_loader.py -> rc=1
-    ork/Versions/3.11/lib/python3.11/json/encoder.py", line 258, in iterencode
-    return _iterencode(o, 0)
-           ^^^^^^^^^^^^^^^^^
-  File "/opt/homebrew/Cellar/python@3.11/3.11.12/Frameworks/Python.framework/Versions/3.11/lib/python3.11/json/encoder.py", line 180, in default
-    raise TypeError(f'Object of type {o.__class__.__name__} '
-TypeError: Object of type PosixPath is not JSON serializable
-- python code/data/parser.py -> rc=1
-    in wrapper
-    result = func(*args, **kwargs)
-             ^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/jmanning/llmXive/projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/code/data/parser.py", line 53, in parse_knot_atlas_data
-    "crossing_number": int(rec["crossing_number"]),
-                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-ValueError: invalid literal for int() with base 10: 'Crossing Number'
-- python code/data/validator.py -> rc=1
-    Usage: python -m code.data.validator <input_csv> <output_json>
-- python code/analysis/validate_completeness.py -> rc=1
-    sis/validate_completeness.py", line 13, in <module>
-    from analysis.data_quantities import load_cleaned_knots_data
-  File "/Users/jmanning/llmXive/projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/code/analysis/data_quantities.py", line 18, in <module>
-    logger = get_logger(__name__)
-             ^^^^^^^^^^^^^^^^^^^^
-TypeError: get_logger() takes 0 positional arguments but 1 was given
+    le "/Users/jmanning/llmXive/projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/code/download/knot_atlas_loader.py", line 84, in <module>
+    main()
+  File "/Users/jmanning/llmXive/projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/code/download/knot_atlas_loader.py", line 78, in main
+    df = pd.DataFrame(cleaned)
+         ^^
+NameError: name 'pd' is not defined. Did you mean: 'id'?
 - python code/analysis/exploratory.py -> rc=1
     ying-the-complexity-of-knot-diagr/code/analysis/exploratory.py", line 110, in <module>
     main()
@@ -38,39 +25,45 @@ TypeError: get_logger() takes 0 positional arguments but 1 was given
              ^^^^^^^^^^^^^^^^^^^^
 TypeError: get_logger() takes 0 positional arguments but 1 was given
 - python code/reproducibility/tie_breaking_validator.py -> rc=1
-    Traceback (most recent call last):
-  File "/Users/jmanning/llmXive/projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/code/reproducibility/tie_breaking_validator.py", line 119, in <module>
+    ng/llmXive/projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/code/reproducibility/tie_breaking_validator.py", line 65, in <module>
     main()
-TypeError: log_operation.<locals>.decorator() missing 1 required positional argument: 'func'
+  File "/Users/jmanning/llmXive/projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/code/reproducibility/tie_breaking_validator.py", line 55, in main
+    log_operation(
+TypeError: log_operation() got an unexpected keyword argument 'operation'
+- python code/analysis/regression.py -> rc=1
+    gression.py", line 191, in main
+    df = load_cleaned_knots()
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jmanning/llmXive/projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/code/analysis/_utils.py", line 59, in load_cleaned_knots
+    logger.debug("Loading cleaned knot data from %s", str(_CLEANED_PATH))
+TypeError: ReproducibilityLogger.debug() takes 2 positional arguments but 3 were given
 - python code/analysis/residual_analysis.py -> rc=1
-    Traceback (most recent call last):
-  File "/Users/jmanning/llmXive/projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/code/analysis/residual_analysis.py", line 219, in <module>
-    main()
-TypeError: log_operation.<locals>.decorator() missing 1 required positional argument: 'func'
+    analysis.py", line 111, in main
+    df = load_cleaned_knots()
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jmanning/llmXive/projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/code/analysis/_utils.py", line 59, in load_cleaned_knots
+    logger.debug("Loading cleaned knot data from %s", str(_CLEANED_PATH))
+TypeError: ReproducibilityLogger.debug() takes 2 positional arguments but 3 were given
 - python code/analysis/correlation.py -> rc=1
-    code/analysis/correlation.py", line 16, in <module>
-    from analysis.data_quantities import load_cleaned_knots_data
-  File "/Users/jmanning/llmXive/projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/code/analysis/data_quantities.py", line 18, in <module>
-    logger = get_logger(__name__)
-             ^^^^^^^^^^^^^^^^^^^^
-TypeError: get_logger() takes 0 positional arguments but 1 was given
+    rrelation.py", line 43, in main
+    df = load_cleaned_knots()
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jmanning/llmXive/projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/code/analysis/_utils.py", line 59, in load_cleaned_knots
+    logger.debug("Loading cleaned knot data from %s", str(_CLEANED_PATH))
+TypeError: ReproducibilityLogger.debug() takes 2 positional arguments but 3 were given
 - python code/analysis/group_comparison.py -> rc=1
-    analysis/group_comparison.py", line 16, in <module>
-    from analysis.data_quantities import load_cleaned_knots_data
-  File "/Users/jmanning/llmXive/projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/code/analysis/data_quantities.py", line 18, in <module>
-    logger = get_logger(__name__)
-             ^^^^^^^^^^^^^^^^^^^^
-TypeError: get_logger() takes 0 positional arguments but 1 was given
-- python code/reproducibility/derivation_validator.py -> rc=1
-    lity/derivation_notes.md
-Sections: 0/4 passed
-Message: Failed sections: Formula Citations with Page/Section References, Step-by-Step Transformation Logic with Intermediate Values, All Parameter Values Used, Justification for Non-Standard Choices
-Validation report written to: /Users/jmanning/llmXive/projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/validation_status.md
+    omparison.py", line 49, in main
+    df = load_cleaned_knots()
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jmanning/llmXive/projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/code/analysis/_utils.py", line 59, in load_cleaned_knots
+    logger.debug("Loading cleaned knot data from %s", str(_CLEANED_PATH))
+TypeError: ReproducibilityLogger.debug() takes 2 positional arguments but 3 were given
+- python code/reproducibility/validation_status.py -> rc=2 [script missing]
+    /opt/homebrew/Cellar/python@3.11/3.11.12/Frameworks/Python.framework/Versions/3.11/Resources/Python.app/Contents/MacOS/Python: can't open file '/Users/jmanning/llmXive/projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/code/reproducibility/validation_status.py': [Errno 2] No such file or directory
 
 ## Declared deliverables still missing
 
 - data/plots/complexity_visualization_examples.png
-- data/plots/crossing_vs_braid.png
 
 ## ✅ VERIFIED REAL DATA SOURCE — use THIS in the data loader
 

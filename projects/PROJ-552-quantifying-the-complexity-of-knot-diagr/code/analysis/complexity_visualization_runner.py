@@ -1,53 +1,41 @@
-"""
-Runner that generates the complexity‑visualisation examples plot.
-"""
+"""Run-book entry: produce the declared complexity-visualization example plot.
 
+Loads the cleaned knot census, drops non-data rows (the raw KnotInfo export
+carries a human-label header row and knots with missing invariants), normalizes
+the alternating flag, and renders the example figure to the path declared in
+tasks.md (``data/plots/complexity_visualization_examples.png``).
+"""
 from __future__ import annotations
 
-import matplotlib.pyplot as plt
-import pandas as pd
 from pathlib import Path
 
-from reproducibility.logs import get_logger, log_operation
-from analysis.complexity_visualization import (
-    KnotRecord,
-    generate_complexity_visualization_examples,
-)
+import pandas as pd
+
+from analysis.complexity_visualization import generate_complexity_visualization_examples
+from reproducibility.logs import get_logger
 
 
-@log_operation("generate_complexity_visualization_examples", output_path_arg="output_path")
-def main(output_path: Path = Path("data/plots/complexity_visualization_examples.png")) -> None:
-    """
-    Produce a small set of example visualisations that illustrate how the
-    complexity metric (crossing number + braid index) behaves for a few
-    representative knots.
-    """
+def main() -> None:
     logger = get_logger()
-    logger.log("generate_complexity_visualization_examples", "start")
+    logger.info("Generating complexity visualization examples")
 
-    # Load a tiny subset of the cleaned data – the function itself knows how
-    # to pick representative knots.
-    df = pd.read_csv(Path("data/processed/knots_cleaned.csv"))
-    records = [
-        KnotRecord(
-            name=row["name"],
-            crossing_number=int(row["crossing_number"]),
-            braid_index=int(row["braid_index"]),
-            volume=float(row["volume"]) if "volume" in row and not pd.isna(row["volume"]) else None,
-        )
-        for _, row in df.head(20).iterrows()
-    ]
-
-    fig = generate_complexity_visualization_examples(records)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(output_path, dpi=300, bbox_inches="tight")
-    plt.close(fig)
-
-    logger.log(
-        "generate_complexity_visualization_examples",
-        "end_success",
-        details={"output": str(output_path)},
+    df = pd.read_csv("data/processed/knots_cleaned.csv")
+    # Coerce numerics and drop rows that aren't real knot data (the label row
+    # and any knot missing crossing number / braid index).
+    df["crossing_number"] = pd.to_numeric(df["crossing_number"], errors="coerce")
+    df["braid_index"] = pd.to_numeric(df["braid_index"], errors="coerce")
+    df = df.dropna(subset=["crossing_number", "braid_index"]).copy()
+    df["crossing_number"] = df["crossing_number"].astype(int)
+    df["braid_index"] = df["braid_index"].astype(int)
+    # Normalize the alternating flag (KnotInfo encodes it as "Y"/"N") to bool.
+    df["alternating"] = (
+        df["alternating"].astype(str).str.strip().str.upper().isin(["Y", "YES", "TRUE", "1"])
     )
+
+    output_path = Path("data/plots/complexity_visualization_examples.png")
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    generate_complexity_visualization_examples(df, output_path)
+    logger.info(f"Saved plot to {output_path} ({len(df)} knots)")
 
 
 if __name__ == "__main__":

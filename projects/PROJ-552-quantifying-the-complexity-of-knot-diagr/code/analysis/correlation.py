@@ -1,73 +1,50 @@
-"""
-correlation.py
-
-Computes Pearson and Spearman correlation coefficients between the crossing
-number and braid index of prime knots.  The results are written to
-``docs/reproducibility/correlation_metrics.md``.
-"""
-
+from __future__ import annotations
 import json
 from pathlib import Path
 
 import pandas as pd
 from scipy.stats import pearsonr, spearmanr
 
-from reproducibility.logs import log_operation, get_logger
-from analysis.data_quantities import load_cleaned_knots_data
+from reproducibility.logs import get_logger, log_operation
 
-REPORT_PATH = Path("docs/reproducibility/correlation_metrics.md")
-
-
+@log_operation
 def compute_correlations(df: pd.DataFrame) -> dict:
-    """Return Pearson and Spearman correlation results."""
-    # Ensure the required columns exist.
-    if "crossing_number" not in df.columns or "braid_index" not in df.columns:
-        raise ValueError("Dataset must contain 'crossing_number' and 'braid_index' columns.")
-    x = df["crossing_number"]
-    y = df["braid_index"]
-    pearson_r, _ = pearsonr(x, y)
-    spearman_r, _ = spearmanr(x, y)
-    return {
-        "pearson_r": round(float(pearson_r), 4),
-        "spearman_r": round(float(spearman_r), 4),
-    }
+    """Compute Pearson and Spearman correlations between selected invariants."""
+    # Ensure numeric conversion
+    numeric_cols = ["crossing_number", "braid_index", "volume"]
+    for col in numeric_cols:
+        df[col] = pd.to_numeric(df[col], errors="coerce")
 
+    results = {}
+    # Pairwise correlations
+    pairs = [("crossing_number", "volume"), ("braid_index", "volume")]
+    for x, y in pairs:
+        clean = df[[x, y]].dropna()
+        if clean.empty:
+            results[f"{x}_vs_{y}"] = {"pearson": None, "spearman": None}
+            continue
+        pearson, _ = pearsonr(clean[x], clean[y])
+        spearman, _ = spearmanr(clean[x], clean[y])
+        results[f"{x}_vs_{y}"] = {"pearson": pearson, "spearman": spearman}
+    return results
 
-def generate_report(correlations: dict) -> str:
-    """Create a Markdown report summarising the correlation metrics."""
-    lines = [
-        "# Correlation Metrics",
-        "",
-        "The following table summarises the relationship between crossing number "
-        "and braid index for the processed knot dataset.",
-        "",
-        "| Metric | Value |",
-        "|--------|-------|",
-        f"| Pearson r | {correlations['pearson_r']} |",
-        f"| Spearman ρ | {correlations['spearman_r']} |",
-        "",
-    ]
-    return "\n".join(lines)
-
+@log_operation
+def generate_report(correlations: dict, output_path: Path) -> None:
+    """Write a JSON report of correlation results."""
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with output_path.open("w", encoding="utf-8") as f:
+        json.dump(correlations, f, indent=2)
 
 def main() -> None:
     logger = get_logger()
-    log_operation(operation="correlation_start", logger=logger)
+    logger.info("Computing correlation metrics")
+    from analysis._utils import load_cleaned_knots
 
-    df = load_cleaned_knots_data()
-    correlations = compute_correlations(df)
-    report_md = generate_report(correlations)
-
-    REPORT_PATH.parent.mkdir(parents=True, exist_ok=True)
-    REPORT_PATH.write_text(report_md, encoding="utf-8")
-
-    log_operation(
-        operation="correlation_complete",
-        output_file=str(REPORT_PATH),
-        status="success",
-        logger=logger,
-    )
-
+    df = load_cleaned_knots()
+    corr = compute_correlations(df)
+    out_path = Path("data/processed/correlation_report.json")
+    generate_report(corr, out_path)
+    logger.info(f"Correlation report written to {out_path}")
 
 if __name__ == "__main__":
     main()

@@ -1,52 +1,39 @@
-"""
-Helper class that orchestrates the end‑to‑end data‑saving workflow.
+"""Data saver utilities for knot dataset.
 
-The original implementation used a ``log_operation`` decorator with a keyword
-argument that did not exist in the logger utilities.  The decorator has been
-updated to accept ``output_path_arg`` (see ``reproducibility.logs``), so the
-wrapper below now works without raising ``TypeError``.
+This module provides functions to persist raw knot records and cleaned
+DataFrames to disk in the project's data directories.
 """
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
+from typing import Iterable, List, Mapping
 
-from reproducibility.logs import get_logger, log_operation
+import pandas as pd
 
+def save_raw_and_cleaned_data(
+    raw_records: Iterable[Mapping[str, object]],
+    cleaned_df: pd.DataFrame,
+    raw_path: Path = Path("data/raw/knot_atlas_raw.json"),
+    cleaned_path: Path = Path("data/processed/knots_cleaned.csv"),
+) -> None:
+    """Save raw JSON records and a cleaned CSV file.
 
-class DataSaver:
+    Parameters
+    ----------
+    raw_records: Iterable of mapping objects representing the raw records.
+    cleaned_df: pandas.DataFrame containing cleaned knot data.
+    raw_path: Destination path for the raw JSON file.
+    cleaned_path: Destination path for the cleaned CSV file.
     """
-    Simple façade that triggers the download and parsing steps.
-    """
+    # Ensure parent directories exist
+    raw_path.parent.mkdir(parents=True, exist_ok=True)
+    cleaned_path.parent.mkdir(parents=True, exist_ok=True)
 
-    @log_operation(
-        operation_name="save_raw_and_cleaned_data",
-        output_path_arg="output_path",
-    )
-    def save_raw_and_cleaned_data(self, output_path: Path | None = None) -> None:
-        """
-        Execute the full pipeline:
-          1. Download the raw KnotInfo JSON.
-          2. Parse the JSON into a cleaned CSV.
+    # Write raw records as pretty‑printed JSON
+    with raw_path.open("w", encoding="utf-8") as f:
+        json.dump(list(raw_records), f, indent=2, ensure_ascii=False)
 
-        ``output_path`` is accepted for API compatibility but is not used
-        directly – the underlying functions know their default destinations.
-        """
-        logger = get_logger()
-        logger.info("Starting full data‑saving pipeline.")
-
-        # Import locally to avoid circular imports.
-        from data.parser import save_raw_and_cleaned_data
-
-        save_raw_and_cleaned_data()
-        logger.info("Data‑saving pipeline completed.")
-
-
-def main() -> None:  # pragma: no cover
-    """
-    Entry‑point that can be invoked as::
-
-        python -m code.data.data_saver
-    """
-    saver = DataSaver()
-    saver.save_raw_and_cleaned_data()
+    # Write cleaned DataFrame to CSV
+    cleaned_df.to_csv(cleaned_path, index=False)

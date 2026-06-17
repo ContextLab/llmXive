@@ -31,3 +31,165 @@
 {"timestamp": 1781731849.406386, "operation": "correlation_start", "status": "SUCCESS", "details": {}}
 {"timestamp": 1781731849.998338, "operation": "generate_complexity_visualization_examples", "status": "SUCCESS", "details": {}}
 {"timestamp": 1781731849.998602, "operation": "group_comparison_start", "status": "SUCCESS", "details": {}}
+{"timestamp": 1781733109.777765, "operation": "test", "status": "verification", "details": {}}
+{"timestamp": 1781733110.1407921, "operation": "save_raw_and_cleaned_data", "status": "SUCCESS", "details": {}}
+{"timestamp": 1781733111.103928, "operation": "generate_complexity_visualization_examples", "status": "SUCCESS", "details": {}}
+{"timestamp": 1781733111.104026, "operation": "generate_report", "status": "SUCCESS", "details": {}}
+{"timestamp": 1781733112.607523, "operation": "Running exploratory analysis: crossing number vs. braid index", "status": "SUCCESS", "details": {}}
+{"timestamp": 1781733112.9297621, "operation": "Exploratory plot written to data/plots/crossing_vs_braid.png", "status": "SUCCESS", "details": {}}
+{"timestamp": 1781733113.395804, "operation": "generate_complexity_visualization_examples", "status": "SUCCESS", "details": {}}
+{"timestamp": 1781733114.4815092, "operation": "Starting residual analysis", "status": "SUCCESS", "details": {}}
+{"timestamp": 1781733114.4856262, "operation": "Residual analysis complete \u2013 report at docs/reproducibility/residual_analysis.md and 145 outliers saved.", "status": "SUCCESS", "details": {}}
+{"timestamp": 1781733114.485783, "operation": "main", "status": "SUCCESS", "details": {}}
+{"timestamp": 1781733115.4330509, "operation": "generate_complexity_visualization_examples", "status": "SUCCESS", "details": {}}
+{"timestamp": 1781733115.433262, "operation": "correlation_start", "status": "SUCCESS", "details": {}}
+{"timestamp": 1781733115.91814, "operation": "generate_complexity_visualization_examples", "status": "SUCCESS", "details": {}}
+{"timestamp": 1781733115.918367, "operation": "group_comparison_start", "status": "SUCCESS", "details": {}}
+{"timestamp": 1781733455.553012, "operation": "test", "status": "verification", "details": {}}
+{"timestamp": 1781733455.590348, "operation": "Starting KnotInfo download", "status": "SUCCESS", "details": {}}
+{"timestamp": 1781733456.218026, "operation": "Downloaded 12967 records", "status": "SUCCESS", "details": {}}
+{"timestamp": 1781733457.87346, "operation": "Cleaned data written to data/processed/knots_cleaned.csv", "status": "SUCCESS", "details": {}}
+{"timestamp": 1781733457.8735712, "operation": "download_knot_atlas", "status": "success", "details": {}}
+{"timestamp": 1781733459.0734231, "operation": "generate_complexity_visualization_examples", "status": "SUCCESS", "details": {}}
+{"timestamp": 1781733459.0735412, "operation": "Generating completeness validation report", "status": "SUCCESS", "details": {}}
+{"timestamp": 1781733459.080299, "operation": "Completeness report written to docs/reproducibility/completeness_report.json", "status": "SUCCESS", "details": {}}
+{"timestamp": 1781733460.1209118, "operation": "Running exploratory analysis: crossing number vs. braid index", "status": "SUCCESS", "details": {}}
+{"timestamp": 1781733460.456224, "operation": "Exploratory plot written to data/plots/crossing_vs_braid.png", "status": "SUCCESS", "details": {}}
+{"timestamp": 1781733460.9113212, "operation": "generate_complexity_visualization_examples", "status": "SUCCESS", "details": {}}
+{"timestamp": 1781733460.980772, "operation": "Starting tie\u2011breaking validator", "status": "SUCCESS", "details": {}}
+{"timestamp": 1781733460.981079, "operation": "Tie\u2011breaking validation report written to docs/reproducibility/validation_status.md", "status": "SUCCESS", "details": {}}
+{"timestamp": 1781733460.981211, "operation": "tie_breaking_validation", "status": "success", "details": {}}
+{"timestamp": 1781733461.904025, "operation": "generate_complexity_visualization_examples", "status": "SUCCESS", "details": {}}
+{"timestamp": 1781733462.21018, "operation": "Starting residual analysis", "status": "SUCCESS", "details": {}}
+{"timestamp": 1781733463.204813, "operation": "generate_complexity_visualization_examples", "status": "SUCCESS", "details": {}}
+{"timestamp": 1781733463.2050161, "operation": "Running correlation analysis", "status": "SUCCESS", "details": {}}
+{"timestamp": 1781733463.695665, "operation": "generate_complexity_visualization_examples", "status": "SUCCESS", "details": {}}
+{"timestamp": 1781733463.6958468, "operation": "Running group comparison analysis", "status": "SUCCESS", "details": {}}
+{"timestamp": 1781738137.055509, "operation": "test", "status": "verification", "details": {}}
+{"timestamp": 1781738137.055676, "operation": "a", "status": "DEBUG", "details": {}}
+{"timestamp": 1781738137.055734, "operation": "x", "status": "INFO", "details": {"extra": 1}}
+{"timestamp": 1781738137.0557818, "operation": "w", "status": "WARNING", "details": {}}
+{"timestamp": 1781738137.055827, "operation": "e", "status": "ERROR", "details": {}}
+{"timestamp": 1781738137.0558841, "operation": "op", "status": "SUCCESS", "details": {}}
+{"timestamp": 1781738137.055936, "operation": "start", "status": "SUCCESS", "details": {}}
+{"timestamp": 1781738137.05599, "operation": "name", "status": "SUCCESS", "details": {}}
+{"timestamp": 1781738137.056044, "operation": "named", "status": "SUCCESS", "details": {}}
+{"timestamp": 1781738137.056093, "operation": "n2", "status": "SUCCESS", "details": {}}
+{"timestamp": 1781738137.056139, "operation": "f", "status": "SUCCESS", "details": {}}
+{"timestamp": 1781738137.056187, "operation": "named", "status": "SUCCESS", "details": {}}
+{"timestamp": 1781738137.056231, "operation": "n2", "status": "SUCCESS", "details": {}}
+{"timestamp": 1781738146.6155462, "operation": "test", "status": "verification", "details": {}}
+{"timestamp": 1781738150.20981, "operation": "Generating completeness validation report", "status": "INFO", "details": {}}
+{"timestamp": 1781738150.216597, "operation": "Completeness report written to docs/reproducibility/completeness_report.json", "status": "INFO", "details": {}}
+{"timestamp": 1781738151.44945, "operation": "Running exploratory analysis: crossing number vs. braid index", "status": "INFO", "details": {}}
+{"timestamp": 1781738151.841262, "operation": "Exploratory plot written to data/plots/crossing_vs_braid.png", "status": "INFO", "details": {}}
+{"timestamp": 1781738152.425088, "operation": "tie_breaking_validation_start", "status": "SUCCESS", "details": {}}
+{"timestamp": 1781738152.4253461, "operation": "tie_breaking_validation_complete", "status": "completed", "details": {}}
+{"timestamp": 1781738152.425619, "operation": "Tie\u2011breaking rules validation passed", "status": "INFO", "details": {}}
+{"timestamp": 1781738153.8142521, "operation": "regression_start", "status": "SUCCESS", "details": {}}
+{"timestamp": 1781738153.8143811, "operation": "Loading cleaned knot data for regression analysis", "status": "INFO", "details": {}}
+{"timestamp": 1781738153.8144572, "operation": "Loading cleaned knot data from %s", "status": "DEBUG", "details": {}}
+{"timestamp": 1781738153.8281019, "operation": "Loaded %d knot records (numeric columns coerced).", "status": "INFO", "details": {}}
+{"timestamp": 1781738155.073521, "operation": "Computing correlation metrics", "status": "INFO", "details": {}}
+{"timestamp": 1781738155.2525911, "operation": "Loading cleaned knot data from %s", "status": "DEBUG", "details": {}}
+{"timestamp": 1781738155.2662761, "operation": "Loaded %d knot records (numeric columns coerced).", "status": "INFO", "details": {}}
+{"timestamp": 1781738155.270496, "operation": "compute_correlations", "status": "SUCCESS", "details": {}}
+{"timestamp": 1781738155.270889, "operation": "generate_report", "status": "SUCCESS", "details": {}}
+{"timestamp": 1781738155.2709508, "operation": "Correlation report written to data/processed/correlation_report.json", "status": "INFO", "details": {}}
+{"timestamp": 1781738155.555864, "operation": "Running group comparison analysis", "status": "INFO", "details": {}}
+{"timestamp": 1781738155.730365, "operation": "Loading cleaned knot data from %s", "status": "DEBUG", "details": {}}
+{"timestamp": 1781738155.7442298, "operation": "Loaded %d knot records (numeric columns coerced).", "status": "INFO", "details": {}}
+{"timestamp": 1781738155.748287, "operation": "compute_group_stats", "status": "SUCCESS", "details": {}}
+{"timestamp": 1781738155.748567, "operation": "generate_report", "status": "SUCCESS", "details": {}}
+{"timestamp": 1781738155.7486231, "operation": "Group comparison report written to data/processed/group_comparison_report.json", "status": "INFO", "details": {}}
+{"timestamp": 1781738231.157287, "operation": "test", "status": "verification", "details": {}}
+{"timestamp": 1781738234.542101, "operation": "Generating completeness validation report", "status": "INFO", "details": {}}
+{"timestamp": 1781738234.549402, "operation": "Completeness report written to docs/reproducibility/completeness_report.json", "status": "INFO", "details": {}}
+{"timestamp": 1781738235.7594109, "operation": "Running exploratory analysis: crossing number vs. braid index", "status": "INFO", "details": {}}
+{"timestamp": 1781738236.107452, "operation": "Exploratory plot written to data/plots/crossing_vs_braid.png", "status": "INFO", "details": {}}
+{"timestamp": 1781738236.636651, "operation": "tie_breaking_validation_start", "status": "SUCCESS", "details": {}}
+{"timestamp": 1781738236.6368551, "operation": "tie_breaking_validation_complete", "status": "completed", "details": {}}
+{"timestamp": 1781738236.637161, "operation": "Tie\u2011breaking rules validation passed", "status": "INFO", "details": {}}
+{"timestamp": 1781738237.841217, "operation": "regression_start", "status": "SUCCESS", "details": {}}
+{"timestamp": 1781738237.841415, "operation": "Loading cleaned knot data for regression analysis", "status": "INFO", "details": {}}
+{"timestamp": 1781738237.8417778, "operation": "Loading cleaned knot data from %s", "status": "DEBUG", "details": {}}
+{"timestamp": 1781738237.8547788, "operation": "Loaded %d knot records (numeric columns coerced).", "status": "INFO", "details": {}}
+{"timestamp": 1781738239.033878, "operation": "Computing correlation metrics", "status": "INFO", "details": {}}
+{"timestamp": 1781738239.2113621, "operation": "Loading cleaned knot data from %s", "status": "DEBUG", "details": {}}
+{"timestamp": 1781738239.224836, "operation": "Loaded %d knot records (numeric columns coerced).", "status": "INFO", "details": {}}
+{"timestamp": 1781738239.228226, "operation": "compute_correlations", "status": "SUCCESS", "details": {}}
+{"timestamp": 1781738239.228522, "operation": "generate_report", "status": "SUCCESS", "details": {}}
+{"timestamp": 1781738239.2285938, "operation": "Correlation report written to data/processed/correlation_report.json", "status": "INFO", "details": {}}
+{"timestamp": 1781738239.520791, "operation": "Running group comparison analysis", "status": "INFO", "details": {}}
+{"timestamp": 1781738239.690806, "operation": "Loading cleaned knot data from %s", "status": "DEBUG", "details": {}}
+{"timestamp": 1781738239.705012, "operation": "Loaded %d knot records (numeric columns coerced).", "status": "INFO", "details": {}}
+{"timestamp": 1781738239.7085068, "operation": "compute_group_stats", "status": "SUCCESS", "details": {}}
+{"timestamp": 1781738239.708738, "operation": "generate_report", "status": "SUCCESS", "details": {}}
+{"timestamp": 1781738239.7087948, "operation": "Group comparison report written to data/processed/group_comparison_report.json", "status": "INFO", "details": {}}
+{"timestamp": 1781738279.0336618, "operation": "test", "status": "verification", "details": {}}
+{"timestamp": 1781738282.3389819, "operation": "Generating completeness validation report", "status": "INFO", "details": {}}
+{"timestamp": 1781738282.346312, "operation": "Completeness report written to docs/reproducibility/completeness_report.json", "status": "INFO", "details": {}}
+{"timestamp": 1781738283.411198, "operation": "Running exploratory analysis: crossing number vs. braid index", "status": "INFO", "details": {}}
+{"timestamp": 1781738283.7558248, "operation": "Exploratory plot written to data/plots/crossing_vs_braid.png", "status": "INFO", "details": {}}
+{"timestamp": 1781738284.301984, "operation": "tie_breaking_validation_start", "status": "SUCCESS", "details": {}}
+{"timestamp": 1781738284.302216, "operation": "tie_breaking_validation_complete", "status": "completed", "details": {}}
+{"timestamp": 1781738284.3025038, "operation": "Tie\u2011breaking rules validation passed", "status": "INFO", "details": {}}
+{"timestamp": 1781738285.598592, "operation": "regression_start", "status": "SUCCESS", "details": {}}
+{"timestamp": 1781738285.598757, "operation": "Loading cleaned knot data for regression analysis", "status": "INFO", "details": {}}
+{"timestamp": 1781738285.59911, "operation": "Loading cleaned knot data from %s", "status": "DEBUG", "details": {}}
+{"timestamp": 1781738285.6124742, "operation": "Loaded %d knot records (numeric columns coerced).", "status": "INFO", "details": {}}
+{"timestamp": 1781738285.6206589, "operation": "Regression analysis completed", "status": "INFO", "details": {}}
+{"timestamp": 1781738285.621082, "operation": "Computing Pearson and Spearman correlations", "status": "INFO", "details": {}}
+{"timestamp": 1781738285.621155, "operation": "Loading cleaned knot data from %s", "status": "DEBUG", "details": {}}
+{"timestamp": 1781738285.6337512, "operation": "Loaded %d knot records (numeric columns coerced).", "status": "INFO", "details": {}}
+{"timestamp": 1781738285.634315, "operation": "Correlation results", "status": "DEBUG", "details": {}}
+{"timestamp": 1781738285.634711, "operation": "regression_complete", "status": "completed", "details": {}}
+{"timestamp": 1781738285.634783, "operation": "correlation_complete", "status": "completed", "details": {}}
+{"timestamp": 1781738286.842096, "operation": "Computing correlation metrics", "status": "INFO", "details": {}}
+{"timestamp": 1781738287.021985, "operation": "Loading cleaned knot data from %s", "status": "DEBUG", "details": {}}
+{"timestamp": 1781738287.036103, "operation": "Loaded %d knot records (numeric columns coerced).", "status": "INFO", "details": {}}
+{"timestamp": 1781738287.039696, "operation": "compute_correlations", "status": "SUCCESS", "details": {}}
+{"timestamp": 1781738287.039989, "operation": "generate_report", "status": "SUCCESS", "details": {}}
+{"timestamp": 1781738287.0400372, "operation": "Correlation report written to data/processed/correlation_report.json", "status": "INFO", "details": {}}
+{"timestamp": 1781738287.332361, "operation": "Running group comparison analysis", "status": "INFO", "details": {}}
+{"timestamp": 1781738287.5053709, "operation": "Loading cleaned knot data from %s", "status": "DEBUG", "details": {}}
+{"timestamp": 1781738287.518901, "operation": "Loaded %d knot records (numeric columns coerced).", "status": "INFO", "details": {}}
+{"timestamp": 1781738287.523015, "operation": "compute_group_stats", "status": "SUCCESS", "details": {}}
+{"timestamp": 1781738287.523353, "operation": "generate_report", "status": "SUCCESS", "details": {}}
+{"timestamp": 1781738287.523427, "operation": "Group comparison report written to data/processed/group_comparison_report.json", "status": "INFO", "details": {}}
+{"timestamp": 1781738348.4295418, "operation": "Generating complexity visualization", "status": "INFO", "details": {}}
+{"timestamp": 1781738441.910772, "operation": "Generating complexity visualization examples", "status": "INFO", "details": {}}
+{"timestamp": 1781738442.278734, "operation": "Saved plot to data/plots/complexity_visualization_examples.png (2978 knots)", "status": "INFO", "details": {}}
+{"timestamp": 1781738478.044907, "operation": "test", "status": "verification", "details": {}}
+{"timestamp": 1781738481.388819, "operation": "Generating completeness validation report", "status": "INFO", "details": {}}
+{"timestamp": 1781738481.3981571, "operation": "Completeness report written to docs/reproducibility/completeness_report.json", "status": "INFO", "details": {}}
+{"timestamp": 1781738482.485236, "operation": "Running exploratory analysis: crossing number vs. braid index", "status": "INFO", "details": {}}
+{"timestamp": 1781738482.829279, "operation": "Exploratory plot written to data/plots/crossing_vs_braid.png", "status": "INFO", "details": {}}
+{"timestamp": 1781738483.374309, "operation": "tie_breaking_validation_start", "status": "SUCCESS", "details": {}}
+{"timestamp": 1781738483.374493, "operation": "tie_breaking_validation_complete", "status": "completed", "details": {}}
+{"timestamp": 1781738483.37455, "operation": "Tie\u2011breaking rules validation passed", "status": "INFO", "details": {}}
+{"timestamp": 1781738484.575437, "operation": "regression_start", "status": "SUCCESS", "details": {}}
+{"timestamp": 1781738484.5756319, "operation": "Loading cleaned knot data for regression analysis", "status": "INFO", "details": {}}
+{"timestamp": 1781738484.57597, "operation": "Loading cleaned knot data from %s", "status": "DEBUG", "details": {}}
+{"timestamp": 1781738484.5895429, "operation": "Loaded %d knot records (numeric columns coerced).", "status": "INFO", "details": {}}
+{"timestamp": 1781738484.5975769, "operation": "Regression analysis completed", "status": "INFO", "details": {}}
+{"timestamp": 1781738484.598002, "operation": "Computing Pearson and Spearman correlations", "status": "INFO", "details": {}}
+{"timestamp": 1781738484.5980642, "operation": "Loading cleaned knot data from %s", "status": "DEBUG", "details": {}}
+{"timestamp": 1781738484.610667, "operation": "Loaded %d knot records (numeric columns coerced).", "status": "INFO", "details": {}}
+{"timestamp": 1781738484.611201, "operation": "Correlation results", "status": "DEBUG", "details": {}}
+{"timestamp": 1781738484.6115289, "operation": "regression_complete", "status": "completed", "details": {}}
+{"timestamp": 1781738484.611584, "operation": "correlation_complete", "status": "completed", "details": {}}
+{"timestamp": 1781738485.787391, "operation": "Computing correlation metrics", "status": "INFO", "details": {}}
+{"timestamp": 1781738485.974247, "operation": "Loading cleaned knot data from %s", "status": "DEBUG", "details": {}}
+{"timestamp": 1781738485.987752, "operation": "Loaded %d knot records (numeric columns coerced).", "status": "INFO", "details": {}}
+{"timestamp": 1781738485.991217, "operation": "compute_correlations", "status": "SUCCESS", "details": {}}
+{"timestamp": 1781738485.9914591, "operation": "generate_report", "status": "SUCCESS", "details": {}}
+{"timestamp": 1781738485.991512, "operation": "Correlation report written to data/processed/correlation_report.json", "status": "INFO", "details": {}}
+{"timestamp": 1781738486.28234, "operation": "Running group comparison analysis", "status": "INFO", "details": {}}
+{"timestamp": 1781738486.4535282, "operation": "Loading cleaned knot data from %s", "status": "DEBUG", "details": {}}
+{"timestamp": 1781738486.4673011, "operation": "Loaded %d knot records (numeric columns coerced).", "status": "INFO", "details": {}}
+{"timestamp": 1781738486.470892, "operation": "compute_group_stats", "status": "SUCCESS", "details": {}}
+{"timestamp": 1781738486.4711401, "operation": "generate_report", "status": "SUCCESS", "details": {}}
+{"timestamp": 1781738486.4712021, "operation": "Group comparison report written to data/processed/group_comparison_report.json", "status": "INFO", "details": {}}
+{"timestamp": 1781738486.894123, "operation": "Generating complexity visualization examples", "status": "INFO", "details": {}}
+{"timestamp": 1781738487.263822, "operation": "Saved plot to data/plots/complexity_visualization_examples.png (2978 knots)", "status": "INFO", "details": {}}

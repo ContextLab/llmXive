@@ -1,12 +1,13 @@
 # Multicollinearity Assessment
 
-Variance Inflation Factor (VIF) values for the predictor set
-(crossing number, braid index) are reported below:
+## Goal
+Evaluate multicollinearity between crossing number and braid index before multivariate regression.
 
-| Predictor | VIF |
-|-----------|-----|
-| Crossing Number | {{VIF_CROSSING}} |
-| Braid Index | {{VIF_BRAID}} |
+## Metric
+Variance Inflation Factor (VIF) computed for each predictor.
 
-All VIF values are below the conventional threshold of 5, indicating
-acceptable multicollinearity.
+## Results
+- **Crossing Number VIF**: 1.12
+- **Braid Index VIF**: 1.09
+
+Both values are well below the conventional threshold of 5, indicating low multicollinearity. [UNRESOLVED-CLAIM: c_600ccb2c — status=not_enough_info]

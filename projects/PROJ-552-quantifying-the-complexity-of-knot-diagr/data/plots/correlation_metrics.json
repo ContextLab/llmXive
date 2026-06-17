@@ -1,0 +1,11 @@
+{
+  "pearson": {
+    "r": NaN,
+    "cohens_d": NaN,
+    "p_value": "not applicable for census data"
+  },
+  "spearman": {
+    "rho": NaN,
+    "p_value": "not applicable for census data"
+  }
+}
