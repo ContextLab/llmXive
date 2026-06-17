@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2005.11257",
+  "judged_at": "2026-06-17T21:43:16Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "appo: agentic procedural policy optimization computer science",
+  "rationale": "The paper focuses on Bayesian optimization for epidemiological lockdown policies, which does not involve the Agentic Procedural Policy Optimization (APPO) mechanism or related algorithmic framework, and thus is unrelated to the user's CS‑focused APPO research question.",
+  "relevant": false
+}

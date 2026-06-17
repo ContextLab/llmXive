@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2606.12384",
+  "judged_at": "2026-06-17T21:43:13Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "appo: agentic procedural policy optimization computer science",
+  "rationale": "The paper introduces and evaluates the Agentic Procedural Policy Optimization (APPO) method, directly matching the user's query about APPO in computer science (category a – same-mechanism evidence and category d – foundational methodology).",
+  "relevant": true
+}

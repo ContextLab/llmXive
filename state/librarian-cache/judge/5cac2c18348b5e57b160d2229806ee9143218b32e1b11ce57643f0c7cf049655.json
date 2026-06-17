@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2010.14374",
+  "judged_at": "2026-06-17T21:43:17Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "appo: agentic procedural policy optimization computer science",
+  "rationale": "The paper focuses on explainable machine‑learning methods for public‑policy use cases and does not address Agentic Procedural Policy Optimization, reinforcement‑learning policy optimization algorithms, or the APPO mechanism, thus it is off‑domain and unrelated to the user's research question.",
+  "relevant": false
+}

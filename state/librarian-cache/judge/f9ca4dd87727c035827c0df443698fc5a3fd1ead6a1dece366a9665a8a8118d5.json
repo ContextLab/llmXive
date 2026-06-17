@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1808.06100",
+  "judged_at": "2026-06-17T21:43:20Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "appo: agentic procedural policy optimization computer science",
+  "rationale": "The paper studies solution existence and stability for polynomial optimization problems, which is unrelated to the APPO (Agentic Procedural Policy Optimization) algorithm or its reinforcement‑learning context; it does not share the mechanism, variables, or domain of the user's question.",
+  "relevant": false
+}
