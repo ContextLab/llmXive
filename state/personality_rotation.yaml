@@ -1,14 +1,7 @@
-last_used: albert-einstein
-last_used_at: '2026-06-17T18:23:36.648070+00:00'
-last_outcome: abstained
+last_used: dan-rockmore
+last_used_at: '2026-06-17T19:19:13.999781+00:00'
+last_outcome: committed
 history:
-- slug: marie-curie
-  started_at: '2026-06-06T18:27:55.451431+00:00'
-  ended_at: '2026-06-06T18:59:03.698929+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-674-gc-content-and-thermal-stability-of-arch/reviews/research/marie-curie-simulated__2026-06-06__research.md
 - slug: richard-feynman
   started_at: '2026-06-06T18:59:03.698929+00:00'
   ended_at: '2026-06-06T19:34:30.638481+00:00'
@@ -1126,3 +1119,10 @@ history:
   ended_at: '2026-06-17T18:23:36.648070+00:00'
   outcome: abstained
   action: abstain
+- slug: dan-rockmore
+  started_at: '2026-06-17T18:23:36.648070+00:00'
+  ended_at: '2026-06-17T19:19:13.999781+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-729-empirical-analysis-of-twin-prime-gaps-up/reviews/research/dan-rockmore-simulated__2026-06-17__research.md
