@@ -122,3 +122,31 @@ def test_execute_and_gate_no_artifacts_is_failure(tmp_path: Path, monkeypatch) -
     monkeypatch.setattr("llmxive.execution.stage.run_analysis", _empty_run)
     assert execute_and_gate(proj, repo_root=tmp_path) is False
     assert execution_status.is_ok(pid, repo_root=tmp_path) is False
+
+
+# --- venv self-heal: declare missing third-party run-book imports -----------
+
+
+def test_declare_missing_imports_adds_thirdparty_skips_stdlib_and_local(tmp_path: Path) -> None:
+    """The execution stage re-declares third-party modules the run-book imports
+    but the venv lacks (implementer dropped them from requirements.txt), while
+    NOT touching the stdlib or the project's own code/ modules."""
+    from llmxive.execution.stage import _declare_missing_imports
+
+    proj = tmp_path / "projects" / "PROJ-Z"
+    (proj / "code" / "reproducibility").mkdir(parents=True)
+    (proj / "code" / "requirements.txt").write_text("database-knotinfo\n", encoding="utf-8")
+    failures = [
+        "python code/a.py\nModuleNotFoundError: No module named 'pandas'",
+        "python code/b.py\nModuleNotFoundError: No module named 'numpy'",
+        "python code/c.py\nModuleNotFoundError: No module named 'json'",            # stdlib → skip
+        "python code/d.py\nModuleNotFoundError: No module named 'reproducibility'",  # local → skip
+        "python code/e.py\nModuleNotFoundError: No module named 'pandas'",          # dupe
+    ]
+    added = _declare_missing_imports(proj, failures)
+    assert added == ["numpy", "pandas"]
+    reqs = (proj / "code" / "requirements.txt").read_text()
+    assert "numpy" in reqs and "pandas" in reqs
+    assert "json" not in reqs and "reproducibility" not in reqs
+    # idempotent: a second pass adds nothing.
+    assert _declare_missing_imports(proj, failures) == []

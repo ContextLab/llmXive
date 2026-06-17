@@ -29,6 +29,100 @@ logger = logging.getLogger(__name__)
 
 _FEEDBACK_FILENAME = "execution_feedback.md"
 
+_MODNOTFOUND_RE = re.compile(r"No module named ['\"]([A-Za-z_][A-Za-z0-9_]*)['\"]")
+
+#: Import name → PyPI distribution name, for the common cases where they differ
+#: (a bare ``pip install <import-name>`` would 404). Unmapped names install as-is.
+_IMPORT_TO_PIP = {
+    "yaml": "pyyaml", "sklearn": "scikit-learn", "cv2": "opencv-python",
+    "PIL": "pillow", "bs4": "beautifulsoup4", "skimage": "scikit-image",
+    "dateutil": "python-dateutil", "dotenv": "python-dotenv",
+}
+
+
+def _declare_missing_imports(project_dir: Path, failures: list[str]) -> list[str]:
+    """Add third-party modules the run-book imports-but-can't-find to
+    ``code/requirements.txt`` so the next ``ensure_venv`` installs them.
+
+    Generalizable self-heal for the implementer dropping deps from
+    requirements.txt. Skips the stdlib and the project's OWN ``code/`` modules
+    (those are import-path issues, not missing packages). Best-effort: a wrong
+    import→pip name simply fails to install and resurfaces (no correctness risk).
+    Returns the modules newly declared.
+    """
+    import ast
+    import os
+    import sys
+
+    code = project_dir / "code"
+    # All module/package names defined ANYWHERE under code/ (not just the top
+    # level): scripts in code/analysis/ import siblings by bare name, so
+    # `data_quality` (code/analysis/data_quality.py) is LOCAL, not a pip dep.
+    # Include directory (package) names too — even empty ones — and prune .venv.
+    local_names: set[str] = set()
+    for root, dirs, files in os.walk(code):
+        if ".venv" in Path(root).parts:
+            dirs[:] = []
+            continue
+        local_names.add(Path(root).name)
+        local_names.update(dirs)
+        local_names.update(f[:-3] for f in files if f.endswith(".py"))
+
+    def _third_party(mod: str) -> str | None:
+        """Top-level pip-installable module name, or None for stdlib/local."""
+        top = mod.split(".")[0]
+        if not top or top in sys.stdlib_module_names or top in local_names:
+            return None
+        return top
+
+    candidates: set[str] = set()
+    # (a) modules that actually raised ModuleNotFoundError this run.
+    for f in failures:
+        for mod in _MODNOTFOUND_RE.findall(f):
+            if (top := _third_party(mod)):
+                candidates.add(top)
+    # (b) STATIC scan of every code/*.py import — declares the whole third-party
+    # stack in ONE pass so deps don't peel one-failed-import-per-round (which
+    # would burn the bounded fix-round budget). ast only, no execution.
+    for py in code.rglob("*.py"):
+        if "/.venv/" in str(py):
+            continue
+        try:
+            tree = ast.parse(py.read_text(encoding="utf-8", errors="replace"))
+        except (SyntaxError, ValueError, OSError):
+            continue
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Import):
+                mods = [a.name for a in node.names]
+            elif isinstance(node, ast.ImportFrom) and node.level == 0 and node.module:
+                mods = [node.module]
+            else:
+                continue
+            for mod in mods:
+                if (top := _third_party(mod)):
+                    candidates.add(top)
+    if not candidates:
+        return []
+    req = code / "requirements.txt"
+    existing = req.read_text(encoding="utf-8") if req.is_file() else ""
+
+    def _bare(line: str) -> str:
+        return re.split(r"[<>=!~\[ ;]", line.strip(), maxsplit=1)[0].lower().replace("_", "-")
+
+    have = {_bare(ln) for ln in existing.splitlines() if ln.strip() and not ln.lstrip().startswith("#")}
+    added = []
+    for m in sorted(candidates):
+        pip = _IMPORT_TO_PIP.get(m, m)  # map import name → PyPI name where they differ
+        if pip.lower().replace("_", "-") not in have:
+            added.append(pip)
+    if not added:
+        return []
+    code.mkdir(parents=True, exist_ok=True)
+    sep = "" if (not existing or existing.endswith("\n")) else "\n"
+    block = "\n".join(f"{pip}  # auto-added: imported by run-book but missing from venv" for pip in added)
+    req.write_text(existing + sep + block + "\n", encoding="utf-8")
+    return added
+
 
 def execute_and_gate(project_dir: Path, *, repo_root: Path | None = None) -> bool:
     """Run the analysis and gate. Returns True iff it produced real artifacts.
@@ -60,6 +154,18 @@ def execute_and_gate(project_dir: Path, *, repo_root: Path | None = None) -> boo
         + (f"\n    {r.tail.strip()[-400:]}" if not r.ok and r.tail else "")
         for r in res.commands if not r.ok
     ]
+    # Self-heal a venv missing third-party deps: the implementer sometimes
+    # regenerates requirements.txt incompletely (e.g. dropping pandas/numpy when
+    # it adds the data-source package), so run-book scripts die with
+    # ModuleNotFoundError. Declare any third-party module the run-book imports
+    # but couldn't find, so the next ensure_venv installs it.
+    try:
+        added = _declare_missing_imports(project_dir, failures)
+        if added:
+            logger.info("declared missing run-book imports in requirements.txt: %s", added)
+    except Exception as exc:
+        logger.warning("_declare_missing_imports skipped: %s", exc)
+
     execution_status.record(
         project_id, ok=res.ok, reason=res.reason,
         artifacts=res.artifacts_produced, failures=failures, repo_root=repo,
