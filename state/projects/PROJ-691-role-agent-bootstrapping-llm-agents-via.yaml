@@ -6,13 +6,13 @@ failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-691-role-agent-bootstrapping-llm-agents-via
-last_run_id: null
+last_run_id: c424b5fa-2b3a-47c2-b857-4ec237813435
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
-revision_spec_path: null
+revision_spec_path: specs/auto-revisions/PROJ-691-role-agent-bootstrapping-llm-agents-via/round-1
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'Role-Agent: Bootstrapping LLM Agents via Dual-Role Evolution'
-updated_at: '2026-06-11T11:33:58.097155Z'
+updated_at: '2026-06-17T00:46:38.784230Z'

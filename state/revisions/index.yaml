@@ -51,3 +51,6 @@ ready:
 - project_id: PROJ-565-edit-compass-editreward-compass-a-unifie
   revision_spec_path: specs/auto-revisions/PROJ-565-edit-compass-editreward-compass-a-unifie/round-2
   queued_at: '2026-06-16T19:15:43.368307+00:00'
+- project_id: PROJ-691-role-agent-bootstrapping-llm-agents-via
+  revision_spec_path: specs/auto-revisions/PROJ-691-role-agent-bootstrapping-llm-agents-via/round-1
+  queued_at: '2026-06-17T00:46:38.778872+00:00'
