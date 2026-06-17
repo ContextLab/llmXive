@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2405.19266",
+  "judged_at": "2026-06-17T12:37:53Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "measuring the carbon footprint of llm‑assisted code generation computer science",
+  "rationale": "The paper focuses on developing a Chinese pediatric medical assistant LLM and does not address carbon emissions, environmental impact, or code generation; it is off‑domain and lacks any measurable connection to the user's variables or mechanism.",
+  "relevant": false
+}

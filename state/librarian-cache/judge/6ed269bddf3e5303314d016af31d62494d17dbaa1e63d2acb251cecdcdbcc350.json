@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2410.19025",
+  "judged_at": "2026-06-17T12:36:31Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "robustness of change‑point detection methods on public financial time series statistics",
+  "rationale": "The paper focuses on using large language models for financial time‑series forecasting and does not study change‑point detection methods, their robustness, or related evaluation metrics, so it lacks any of the accepted relevance criteria for the user's question.",
+  "relevant": false
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1910.09700",
+  "judged_at": "2026-06-17T12:37:48Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "measuring the carbon footprint of llm‑assisted code generation computer science",
+  "rationale": "The paper provides a methodology and tool for quantifying the carbon emissions of machine‑learning models, directly addressing the same mechanism (carbon footprint) that the user’s question concerns, albeit for ML training in general rather than specifically LLM‑assisted code generation. This makes it a foundational reference for measuring carbon impact in the relevant domain.",
+  "relevant": true
+}

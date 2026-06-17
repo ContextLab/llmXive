@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2207.07396",
+  "judged_at": "2026-06-17T12:36:44Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "robustness of change‑point detection methods on public financial time series statistics",
+  "rationale": "The paper provides a foundational methodology for multiple change‑point detection using MOSUM statistics, directly addressing the same mechanism (change‑point detection methods) that the user’s question concerns, even though it evaluates on simulated and geophysical data rather than financial series. This makes it a canonical methodological reference (category d).",
+  "relevant": true
+}

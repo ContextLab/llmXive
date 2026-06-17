@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2109.05472",
+  "judged_at": "2026-06-17T12:37:52Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "measuring the carbon footprint of llm‑assisted code generation computer science",
+  "rationale": "The paper provides empirical measurements of energy consumption for deep‑learning inference, including large language models, which directly supplies a baseline for the energy (and thus carbon) footprint of LLM usage—a key dependent variable in the user’s question (criterion b, also serving as an empirical baseline, criterion c).",
+  "relevant": true
+}

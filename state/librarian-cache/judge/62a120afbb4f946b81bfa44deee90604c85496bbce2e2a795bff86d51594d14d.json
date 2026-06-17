@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2306.08568",
+  "judged_at": "2026-06-17T12:37:50Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "measuring the carbon footprint of llm‑assisted code generation computer science",
+  "rationale": "The paper focuses on improving code generation performance of a Code LLM via instruction fine‑tuning and benchmark results, without addressing carbon emissions, energy consumption, or any methodology for measuring the environmental impact of LLM‑assisted code generation. It does not meet any of the inclusion criteria (a‑f).",
+  "relevant": false
+}

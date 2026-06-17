@@ -1,0 +1,673 @@
+{
+  "fetched_at": "2026-06-17T12:34:57Z",
+  "field": "statistics",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "statistics",
+      "idea_body_excerpt": "Evaluating the Calibration of Predictive Uncertainty Intervals in Public Regression Benchmarks",
+      "target_n": 5
+    },
+    "duration_seconds": 110.09,
+    "ended_at": "2026-06-17T12:34:57Z",
+    "expansion": null,
+    "extracted_queries": [
+      "prediction interval coverage calibration",
+      "UCI regression benchmark",
+      "conformal prediction intervals",
+      "expected calibration error regression",
+      "proper scoring rule calibration"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": false,
+      "verdict": null
+    },
+    "outcome": "success",
+    "pdf_sample": {
+      "sample_size_target": 2,
+      "sampled_count": 2,
+      "sampled_pointers": [
+        "2006.10564",
+        "2604.27149"
+      ]
+    },
+    "per_query_hit_count": {
+      "Evaluating the Calibration of Predictive Uncertainty Intervals in Public Regression Benchmarks statistics": 3,
+      "UCI regression benchmark": 3,
+      "conformal prediction intervals": 3,
+      "expected calibration error regression": 3,
+      "prediction interval coverage calibration": 3,
+      "proper scoring rule calibration": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 0,
+      "rejections": []
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-17T12:33:07Z",
+    "term_input": {
+      "normalized": "evaluating the calibration of predictive uncertainty intervals in public regression benchmarks statistics",
+      "raw": "Evaluating the Calibration of Predictive Uncertainty Intervals in Public Regression Benchmarks statistics"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "CIPM published the Supplement I for GUM in 2008 as not only an alternative approach to estimate the uncertainty for a given calibration measurement but also as a proper uncertainty estimation one, whenever any of the conditions imposed in GUM which must be satisfied does not hold [1, 2]. Before the introduction of the new approach in the Supplement I, namely Monte Carlo (MC) method, the GUM rules have been always applied even if in cases where the mentioned conditions were not fulfilled. After or even before the official introduction of this MC method, a number of published papers in uncertainty estimation by using MC method had been shown up, giving more insight for the ways the uncertainties estimated and also for the specific calibration measurements under investigation themselves [3 - 16]. However, in most of those published papers, the application conditions required before a method selection should be analyzed, in fact, has been ignored. In our uncertainty study for wavelength calibration by using beat frequency technique, the application conditions have not been ignored but analyzed carefully and it was found that a GUM application condition was unsatisfactory. However, all the MC method conditions for this calibration problem have been well fulfilled. A computer program was then coded [17] following the steps in the Supplement I. The resultant outputs showed difference in statistical nature and suggested to replace the MC method to the GUM one as soon as possible for this case.",
+          "claimed_authors": [
+            "Thang H. L.",
+            "Nguyen D. D.",
+            "Dung D. N."
+          ],
+          "claimed_title": "Monte Carlo uncertainty estimation for wavelength calibration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1012.2631"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Evaluating the Calibration of Predictive Uncertainty Intervals in Public Regress', candidate_title='Monte Carlo uncertainty estimation for wavelength calibration')",
+        "failed_at": "2026-06-17T12:34:29Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A prediction interval covers a future observation from a random process in repeated sampling, and is typically constructed by identifying a pivotal quantity that is also an ancillary statistic. Analogously, a tolerance interval covers a population percentile in repeated sampling and is often based on a pivotal quantity. One approach we consider in non-normal models leverages a link function resulting in a pivotal quantity that is approximately normally distributed. In settings where this normal approximation does not hold we consider a second approach for tolerance and prediction based on a confidence interval for the mean. These methods are intuitive, simple to implement, have proper operating characteristics, and are computationally efficient compared to Bayesian, re-sampling, and machine learning methods. This is demonstrated in the context of multi-site clinical trial recruitment with staggered site initiation, real-world time on treatment, and end-of-study success for a clinical endpoint.",
+          "claimed_authors": [
+            "Geoffrey S Johnson"
+          ],
+          "claimed_title": "Tolerance and Prediction Intervals for Non-normal Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2011.11583"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Evaluating the Calibration of Predictive Uncertainty Intervals in Public Regress', candidate_title='Tolerance and Prediction Intervals for Non-normal Models')",
+        "failed_at": "2026-06-17T12:34:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The problem of behaviour prediction for linear parameter-varying systems is considered in the interval framework. It is assumed that the system is subject to uncertain inputs and the vector of scheduling parameters is unmeasurable, but all uncertainties take values in a given admissible set. Then an interval predictor is designed and its stability is guaranteed applying Lyapunov function with a novel structure. The conditions of stability are formulated in the form of linear matrix inequalities. Efficiency of the theoretical results is demonstrated in the application to safe motion planning for autonomous vehicles.",
+          "claimed_authors": [
+            "Edouard Leurent",
+            "Denis Efimov",
+            "Tarek Raïssi",
+            "Wilfrid Perruquetti"
+          ],
+          "claimed_title": "Interval Prediction for Continuous-Time Systems with Parametric Uncertainties",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1904.04727"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Calibration of Predictive Uncertainty Intervals in Public Regress', candidate_title='Interval Prediction for Continuous-Time Systems with Parametric Uncertainties')",
+        "failed_at": "2026-06-17T12:34:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Traditional conformal prediction methods construct prediction sets such that the true label falls within the set with a user-specified coverage level. However, poorly chosen coverage levels can result in uninformative predictions, either producing overly conservative sets when the coverage level is too high, or empty sets when it is too low. Moreover, the fixed coverage level cannot adapt to the specific characteristics of each individual example, limiting the flexibility and efficiency of these methods. In this work, we leverage recent advances in e-values and post-hoc conformal inference, which allow the use of data-dependent coverage levels while maintaining valid statistical guarantees. We propose to optimize an adaptive coverage policy by training a neural network using a leave-one-out procedure on the calibration set, allowing the coverage level and the resulting prediction set size to vary with the difficulty of each individual example. We support our approach with theoretical coverage guarantees and demonstrate its practical benefits through a series of experiments.",
+          "claimed_authors": [
+            "Etienne Gauthier",
+            "Francis Bach",
+            "Michael I. Jordan"
+          ],
+          "claimed_title": "Adaptive Coverage Policies in Conformal Prediction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2510.04318"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Evaluating the Calibration of Predictive Uncertainty Intervals in Public Regress', candidate_title='Adaptive Coverage Policies in Conformal Prediction')",
+        "failed_at": "2026-06-17T12:34:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In some situations, the interpretability of the machine learning models plays a role as important as the model accuracy. Interpretability comes from the need to trust the prediction model, verify some of its properties, or even enforce them to improve fairness. Many model-agnostic explanatory methods exists to provide explanations for black-box models. In the regression task, the practitioner can use white-boxes or gray-boxes models to achieve more interpretable results, which is the case of symbolic regression. When using an explanatory method, and since interpretability lacks a rigorous definition, there is a need to evaluate and compare the quality and different explainers. This paper proposes a benchmark scheme to evaluate explanatory methods to explain regression models, mainly symbolic regression models. Experiments were performed using 100 physics equations with different interpretable and non-interpretable regression methods and popular explanation methods, evaluating the performance of the explainers performance with several explanation measures. In addition, we further analyzed four benchmarks from the GP community. The results have shown that Symbolic Regression models can be an interesting alternative to white-box and black-box models that is capable of returning accurate models with appropriate explanations. Regarding the explainers, we observed that Partial Effects and SHAP were the most robust explanation models, with Integrated Gradients being unstable only with tree-based models. This benchmark is publicly available for further experiments.",
+          "claimed_authors": [
+            "Guilherme Seidyo Imai Aldeia",
+            "Fabricio Olivetti de Franca"
+          ],
+          "claimed_title": "Interpretability in Symbolic Regression: a benchmark of Explanatory Methods using the Feynman data set",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2404.05908"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Evaluating the Calibration of Predictive Uncertainty Intervals in Public Regress', candidate_title='Interpretability in Symbolic Regression: a benchmark of Explanatory Methods using the Feynman data set')",
+        "failed_at": "2026-06-17T12:34:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Symbolic Regression (SR) is a powerful technique for discovering interpretable mathematical expressions. However, benchmarking SR methods remains challenging due to the diversity of algorithms, datasets, and evaluation criteria. In this work, we present an updated version of SRBench. Our benchmark expands the previous one by nearly doubling the number of evaluated methods, refining evaluation metrics, and using improved visualizations of the results to understand the performances. Additionally, we analyze trade-offs between model complexity, accuracy, and energy consumption. Our results show that no single algorithm dominates across all datasets. We propose a call for action from SR community in maintaining and evolving SRBench as a living benchmark that reflects the state-of-the-art in symbolic regression, by standardizing hyperparameter tuning, execution constraints, and computational resource allocation. We also propose deprecation criteria to maintain the benchmark's relevance and discuss best practices for improving SR algorithms, such as adaptive hyperparameter tuning and energy-efficient implementations.",
+          "claimed_authors": [
+            "Guilherme S. Imai Aldeia",
+            "Hengzhe Zhang",
+            "Geoffrey Bomarito",
+            "Miles Cranmer",
+            "Alcides Fonseca",
+            "Bogdan Burlacu",
+            "William G. La Cava",
+            "Fabrício Olivetti de França"
+          ],
+          "claimed_title": "Call for Action: towards the next generation of symbolic regression benchmark",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2505.03977"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Evaluating the Calibration of Predictive Uncertainty Intervals in Public Regress', candidate_title='Call for Action: towards the next generation of symbolic regression benchmark')",
+        "failed_at": "2026-06-17T12:34:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We introduce cp3-bench, a tool for comparing symbolic regression algorithms which we make publicly available at https://github.com/CP3-Origins/cp3-bench. Currently, cp3-bench includes 12 symbolic regression algorithms which can be automatically installed as part of cp3-bench. The philosophy behind cp3-bench is that it should be as user-friendly as possible, available in a ready-to-use format, and allow for easy additions of new algorithms and datasets. Our hope is that users of symbolic regression algorithms can use cp3-bench to easily install and compare symbolic regression algorithms to better decide which algorithms to use for their specific tasks at hand. To introduce and motivate the use of cp3-bench we present a benchmark of 12 symbolic regression algorithms applied to 28 datasets representing six different astrophysical setups. Overall, we find that most of the benched algorithms do poorly in the benchmark and suggest possible ways to proceed with developing algorithms that will be better at identifying ground truth expressions for cosmological datasets. Our demonstration benchmark studies the significance of dimensionality of the feature space and precision of datasets. We find both to be highly important for symbolic regression tasks to be successful. On the other hand, we find no indication that inter-dependence of features in datasets is important, i.e. it is not in general a hindrance for symbolic regression algorithms if datasets e.g. contain both $z$ and $H(z)$ as features. Lastly, we find no indication that performance of algorithms on standardized datasets are good indicators of performance on particular astrophysical datasets. This suggests that it is not necessarily prudent to choose symbolic regression algorithms based on their performance on standardized data. A more robust approach is to consider a variety of algorithms, chosen based on the particular task at hand.",
+          "claimed_authors": [
+            "Mattias E. Thing",
+            "Sofie M. Koksbang"
+          ],
+          "claimed_title": "cp3-bench: A tool for benchmarking symbolic regression algorithms tested with cosmology",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2406.15531"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Evaluating the Calibration of Predictive Uncertainty Intervals in Public Regress', candidate_title='cp3-bench: A tool for benchmarking symbolic regression algorithms tested with cosmology')",
+        "failed_at": "2026-06-17T12:34:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In response to everyday queries, humans explicitly signal uncertainty and offer alternative answers when they are unsure. Machine learning models that output calibrated prediction sets through conformal prediction mimic this human behaviour; larger sets signal greater uncertainty while providing alternatives. In this work, we study the usefulness of conformal prediction sets as an aid for human decision making by conducting a pre-registered randomized controlled trial with conformal prediction sets provided to human subjects. With statistical significance, we find that when humans are given conformal prediction sets their accuracy on tasks improves compared to fixed-size prediction sets with the same coverage guarantee. The results show that quantifying model uncertainty with conformal prediction is helpful for human-in-the-loop decision making and human-AI teams.",
+          "claimed_authors": [
+            "Jesse C. Cresswell",
+            "Yi Sui",
+            "Bhargava Kumar",
+            "Noël Vouitsis"
+          ],
+          "claimed_title": "Conformal Prediction Sets Improve Human Decision Making",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2401.13744"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Evaluating the Calibration of Predictive Uncertainty Intervals in Public Regress', candidate_title='Conformal Prediction Sets Improve Human Decision Making')",
+        "failed_at": "2026-06-17T12:34:31Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "To be considered reliable, a model must be calibrated so that its confidence in each decision closely reflects its true outcome. In this blogpost we'll take a look at the most commonly used definition for calibration and then dive into a frequently used evaluation measure for model calibration. We'll then cover some of the drawbacks of this measure and how these surfaced the need for additional notions of calibration, which require their own new evaluation measures. This post is not intended to be an in-depth dissection of all works on calibration, nor does it focus on how to calibrate models. Instead, it is meant to provide a gentle introduction to the different notions and their evaluation measures as well as to re-highlight some issues with a measure that is still widely used to evaluate calibration.",
+          "claimed_authors": [
+            "Maja Pavlovic"
+          ],
+          "claimed_title": "Understanding Model Calibration -- A gentle introduction and visual exploration of calibration and the expected calibration error (ECE)",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2501.19047"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Evaluating the Calibration of Predictive Uncertainty Intervals in Public Regress', candidate_title='Understanding Model Calibration -- A gentle introduction and visual exploration of calibration and the expected calibration error (ECE)')",
+        "failed_at": "2026-06-17T12:34:32Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Prior-weighted logistic regression has become a standard tool for calibration in speaker recognition. Logistic regression is the optimization of the expected value of the logarithmic scoring rule. We generalize this via a parametric family of proper scoring rules. Our theoretical analysis shows how different members of this family induce different relative weightings over a spectrum of applications of which the decision thresholds range from low to high. Special attention is given to the interaction between prior weighting and proper scoring rule parameters. Experiments on NIST SRE'12 suggest that for applications with low false-alarm rate requirements, scoring rules tailored to emphasize higher score thresholds may give better accuracy than logistic regression.",
+          "claimed_authors": [
+            "Niko Brümmer",
+            "George Doddington"
+          ],
+          "claimed_title": "Likelihood-ratio calibration using prior-weighted proper scoring rules",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1307.7981"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Evaluating the Calibration of Predictive Uncertainty Intervals in Public Regress', candidate_title='Likelihood-ratio calibration using prior-weighted proper scoring rules')",
+        "failed_at": "2026-06-17T12:34:32Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "People are commonly interested in predicting a statistical property of a random event such as mean and variance. Proper scoring rules assess the quality of predictions and require that the expected score gets uniquely maximized at the precise prediction, in which case we call the score directly elicits the property. Previous research work has widely studied the existence and the characterization of proper scoring rules for different properties, but little literature discusses the choice of proper scoring rules for applications at hand. In this paper, we explore a novel task, the indirect elicitation of properties with parametric assumptions, where the target property is a function of several directly-elicitable sub-properties and the total score is a weighted sum of proper scoring rules for each sub-property. Because of the restriction to a parametric model class, different settings for the weights lead to different constrained optimal solutions. Our goal is to figure out how the choice of weights affects the estimation of the target property and which choice is the best. We start it with simulation studies and observe an interesting pattern: in most cases, the optimal estimation of the target property changes monotonically with the increase of each weight, and the best configuration of weights is often to set some weights as zero. To understand how it happens, we first establish the elementary theoretical framework and then provide deeper sufficient conditions for the case of two sub-properties and of more sub-properties respectively. The theory on 2-D cases perfectly interprets the experimental results. In higher-dimensional situations, we especially study the linear cases and suggest that more complex settings can be understood with locally mapping into linear situations or using linear approximations when the true values of sub-properties are close enough to the parametric space.",
+          "claimed_authors": [
+            "Lingfang Hu",
+            "Ian A. Kash"
+          ],
+          "claimed_title": "Choice of Scoring Rules for Indirect Elicitation of Properties with Parametric Assumptions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.17880"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Calibration of Predictive Uncertainty Intervals in Public Regress', candidate_title='Choice of Scoring Rules for Indirect Elicitation of Properties with Parametric Assumptions')",
+        "failed_at": "2026-06-17T12:34:32Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Many proper scoring rules such as the Brier and log scoring rules implicitly reward a probability forecaster relative to a uniform baseline distribution. Recent work has motivated weighted proper scoring rules, which have an additional baseline parameter. To date two families of weighted proper scoring rules have been introduced, the weighted power and pseudospherical scoring families. These families are compatible with the log scoring rule: when the baseline maximizes the log scoring rule over some set of distributions, the baseline also maximizes the weighted power and pseudospherical scoring rules over the same set. We characterize all weighted proper scoring families and prove a general property: every proper scoring rule is compatible with some weighted scoring family, and every weighted scoring family is compatible with some proper scoring rule.",
+          "claimed_authors": [
+            "Peter G. M. Forbes"
+          ],
+          "claimed_title": "Compatible Weighted Proper Scoring Rules",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1311.1131"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Calibration of Predictive Uncertainty Intervals in Public Regress', candidate_title='Compatible Weighted Proper Scoring Rules')",
+        "failed_at": "2026-06-17T12:34:32Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "We consider conformal prediction for multivariate data and focus on hierarchical data, where some components are linear combinations of others. Intuitively, the hierarchical structure can be leveraged to reduce the size of prediction regions for the same coverage level. We implement this intuition by including a projection step (also called a reconciliation step) in the split conformal prediction [SCP] procedure, and prove that the resulting prediction regions are indeed globally smaller. We do so both under the classic objective of joint coverage and under a new and challenging task: component-wise coverage, for which efficiency results are more difficult to obtain. The associated strategies and their analyses are based both on the literature of SCP and of forecast reconciliation, which we connect. We also illustrate the theoretical findings, for different scales of hierarchies on simulated data.",
+          "claimed_authors": [
+            "Guillaume Principato",
+            "Gilles Stoltz",
+            "Yvenn Amara-Ouali",
+            "Yannig Goude",
+            "Bachir Hamrouche",
+            "Jean-Michel Poggi"
+          ],
+          "claimed_title": "Conformal Prediction for Hierarchical Data",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2411.13479"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Calibration of Predictive Uncertainty Intervals in Public Regress', candidate_title='Conformal Prediction for Hierarchical Data')",
+        "failed_at": "2026-06-17T12:34:32Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "For a regression problem with a binary label response, we examine the problem of constructing confidence intervals for the label probability conditional on the features. In a setting where we do not have any information about the underlying distribution, we would ideally like to provide confidence intervals that are distribution-free---that is, valid with no assumptions on the distribution of the data. Our results establish an explicit lower bound on the length of any distribution-free confidence interval, and construct a procedure that can approximately achieve this length. In particular, this lower bound is independent of the sample size and holds for all distributions with no point masses, meaning that it is not possible for any distribution-free procedure to be adaptive with respect to any type of special structure in the distribution.",
+          "claimed_authors": [
+            "Rina Foygel Barber"
+          ],
+          "claimed_title": "Is distribution-free inference possible for binary regression?",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2004.09477"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Evaluating the Calibration of Predictive Uncertainty Intervals in Public Regress', candidate_title='Is distribution-free inference possible for binary regression?')",
+        "failed_at": "2026-06-17T12:34:32Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "Machine learning methods are increasingly widely used in high-risk settings such as healthcare, transportation, and finance. In these settings, it is important that a model produces calibrated uncertainty to reflect its own confidence and avoid failures. In this paper we survey recent works on uncertainty quantification (UQ) for deep learning, in particular distribution-free Conformal Prediction method for its mathematical properties and wide applicability. We will cover the theoretical guarantees of conformal methods, introduce techniques that improve calibration and efficiency for UQ in the context of spatiotemporal data, and discuss the role of UQ in the context of safe decision making.",
+          "claimed_authors": [
+            "Sophia Sun"
+          ],
+          "claimed_title": "Conformal Methods for Quantifying Uncertainty in Spatiotemporal Data: A Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2209.03580"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Evaluating the Calibration of Predictive Uncertainty Intervals in Public Regress', candidate_title='Conformal Methods for Quantifying Uncertainty in Spatiotemporal Data: A Survey')",
+        "failed_at": "2026-06-17T12:34:32Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "This paper develops a conformal method to compute prediction intervals for non-parametric regression that can automatically adapt to skewed data. Leveraging black-box machine learning algorithms to estimate the conditional distribution of the outcome using histograms, it translates their output into the shortest prediction intervals with approximate conditional coverage. The resulting prediction intervals provably have marginal coverage in finite samples, while asymptotically achieving conditional coverage and optimal length if the black-box model is consistent. Numerical experiments with simulated and real data demonstrate improved performance compared to state-of-the-art alternatives, including conformalized quantile regression and other distributional conformal prediction approaches.",
+          "claimed_authors": [
+            "Matteo Sesia",
+            "Yaniv Romano"
+          ],
+          "claimed_title": "Conformal Prediction using Conditional Histograms",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2105.08747"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Evaluating the Calibration of Predictive Uncertainty Intervals in Public Regress', candidate_title='Conformal Prediction using Conditional Histograms')",
+        "failed_at": "2026-06-17T12:34:33Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "Most off-policy evaluation methods for contextual bandits have focused on the expected outcome of a policy, which is estimated via methods that at best provide only asymptotic guarantees. However, in many applications, the expectation may not be the best measure of performance as it does not capture the variability of the outcome. In addition, particularly in safety-critical settings, stronger guarantees than asymptotic correctness may be required. To address these limitations, we consider a novel application of conformal prediction to contextual bandits. Given data collected under a behavioral policy, we propose \\emph{conformal off-policy prediction} (COPP), which can output reliable predictive intervals for the outcome under a new target policy. We provide theoretical finite-sample guarantees without making any additional assumptions beyond the standard contextual bandit setup, and empirically demonstrate the utility of COPP compared with existing methods on synthetic and real-world data.",
+          "claimed_authors": [
+            "Muhammad Faaiz Taufiq",
+            "Jean-Francois Ton",
+            "Rob Cornish",
+            "Yee Whye Teh",
+            "Arnaud Doucet"
+          ],
+          "claimed_title": "Conformal Off-Policy Prediction in Contextual Bandits",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2206.04405"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Evaluating the Calibration of Predictive Uncertainty Intervals in Public Regress', candidate_title='Conformal Off-Policy Prediction in Contextual Bandits')",
+        "failed_at": "2026-06-17T12:34:33Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Fatima Rabia Yapicioglu",
+            "Meltem Aksoy",
+            "Alberto Rigenti",
+            "Tuwe Löfström-Cavallin",
+            "Helena Löfström-Cavallin",
+            "Seyda Yoncaci",
+            "Luca Longo"
+          ],
+          "title": "ConformaDecompose: Explaining Uncertainty via Calibration Localization",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2604.27149",
+        "summary": "Conformal Prediction provides distribution-free prediction intervals with guaranteed coverage, but its reliance on a single global calibration threshold obscures the sources of uncertainty at the instance level. In particular, it conflates irreducible noise with uncertainty induced by heterogeneous training data (aleatoric), model limitations, or calibration mismatch (epistemic), offering little insight into why an interval is wide or whether it could be reduced. We introduce an uncertainty-aware explainability framework that analyses the reducibility of calibration-induced epistemic conformal uncertainty via progressive calibration localisation for regression tasks. The approach is diagnostic rather than causal: it does not estimate true aleatoric or epistemic uncertainty, but explains how conformal intervals contract and stabilise as calibration support is localised around a test instance. Across benchmarks and real-world data, absolute reducible uncertainty aligns with epistemic proxies, while its relative contribution varies by task, revealing regimes hidden by interval width. This instance-level view complements conformal uncertainty, enhancing interpretability without altering the predictor or coverage.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2604.27149",
+          "http_status": 200,
+          "pdf_sample_score": 0.2172,
+          "query_relevance_score": 0.625,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-17T12:34:29Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Eric Zelikman",
+            "Christopher Healy",
+            "Sharon Zhou",
+            "Anand Avati"
+          ],
+          "title": "CRUDE: Calibrating Regression Uncertainty Distributions Empirically",
+          "venue": "arXiv",
+          "year": 2020
+        },
+        "primary_pointer": "2005.12496",
+        "summary": "Calibrated uncertainty estimates in machine learning are crucial to many fields such as autonomous vehicles, medicine, and weather and climate forecasting. While there is extensive literature on uncertainty calibration for classification, the classification findings do not always translate to regression. As a result, modern models for predicting uncertainty in regression settings typically produce uncalibrated and overconfident estimates. To address these gaps, we present a calibration method for regression settings that does not assume a particular uncertainty distribution over the error: Calibrating Regression Uncertainty Distributions Empirically (CRUDE). CRUDE makes the weaker assumption that error distributions have a constant arbitrary shape across the output space, shifted by predicted mean and scaled by predicted standard deviation. We detail a theoretical connection between CRUDE and conformal inference. Across an extensive set of regression tasks, CRUDE demonstrates consistently sharper, better calibrated, and more accurate uncertainty estimates than state-of-the-art techniques.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2005.12496",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-17T12:34:30Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Patrizio Giovannotti"
+          ],
+          "title": "Evaluating Machine Translation Quality with Conformal Predictive Distributions",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2306.01549",
+        "summary": "This paper presents a new approach for assessing uncertainty in machine translation by simultaneously evaluating translation quality and providing a reliable confidence score. Our approach utilizes conformal predictive distributions to produce prediction intervals with guaranteed coverage, meaning that for any given significance level $ε$, we can expect the true quality score of a translation to fall out of the interval at a rate of $1-ε$. In this paper, we demonstrate how our method outperforms a simple, but effective baseline on six different language pairs in terms of coverage and sharpness. Furthermore, we validate that our approach requires the data exchangeability assumption to hold for optimal performance.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2306.01549",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-17T12:34:30Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Lars van der Laan",
+            "Ahmed M. Alaa"
+          ],
+          "title": "Self-Calibrating Conformal Prediction",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2402.07307",
+        "summary": "In machine learning, model calibration and predictive inference are essential for producing reliable predictions and quantifying uncertainty to support decision-making. Recognizing the complementary roles of point and interval predictions, we introduce Self-Calibrating Conformal Prediction, a method that combines Venn-Abers calibration and conformal prediction to deliver calibrated point predictions alongside prediction intervals with finite-sample validity conditional on these predictions. To achieve this, we extend the original Venn-Abers procedure from binary classification to regression. Our theoretical framework supports analyzing conformal prediction methods that involve calibrating model predictions and subsequently constructing conditionally valid prediction intervals on the same data, where the conditioning set or conformity scores may depend on the calibrated predictions. Real-data experiments show that our method improves interval efficiency through model calibration and offers a practical alternative to feature-conditional validity.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2402.07307",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.625,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-17T12:34:31Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Pedro G. Fonseca",
+            "Hugo D. Lopes"
+          ],
+          "title": "Calibration of Machine Learning Classifiers for Probability of Default Modelling",
+          "venue": "arXiv",
+          "year": 2017
+        },
+        "primary_pointer": "1710.08901",
+        "summary": "Binary classification is highly used in credit scoring in the estimation of probability of default. The validation of such predictive models is based both on rank ability, and also on calibration (i.e. how accurately the probabilities output by the model map to the observed probabilities). In this study we cover the current best practices regarding calibration for binary classification, and explore how different approaches yield different results on real world credit scoring data. The limitations of evaluating credit scoring models using only rank ability metrics are explored. A benchmark is run on 18 real world datasets, and results compared. The calibration techniques used are Platt Scaling and Isotonic Regression. Also, different machine learning models are used: Logistic Regression, Random Forest Classifiers, and Gradient Boosting Classifiers. Results show that when the dataset is treated as a time series, the use of re-calibration with Isotonic Regression is able to improve the long term calibration better than the alternative methods. Using re-calibration, the non-parametric models are able to outperform the Logistic Regression on Brier Score Loss.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1710.08901",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-17T12:34:31Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Fabian Küppers",
+            "Jonas Schneider",
+            "Anselm Haselhoff"
+          ],
+          "title": "Parametric and Multivariate Uncertainty Calibration for Regression and Object Detection",
+          "venue": "arXiv",
+          "year": 2022
+        },
+        "primary_pointer": "2207.01242",
+        "summary": "Reliable spatial uncertainty evaluation of object detection models is of special interest and has been subject of recent work. In this work, we review the existing definitions for uncertainty calibration of probabilistic regression tasks. We inspect the calibration properties of common detection networks and extend state-of-the-art recalibration methods. Our methods use a Gaussian process (GP) recalibration scheme that yields parametric distributions as output (e.g. Gaussian or Cauchy). The usage of GP recalibration allows for a local (conditional) uncertainty calibration by capturing dependencies between neighboring samples. The use of parametric distributions such as as Gaussian allows for a simplified adaption of calibration in subsequent processes, e.g., for Kalman filtering in the scope of object tracking.\n  In addition, we use the GP recalibration scheme to perform covariance estimation which allows for post-hoc introduction of local correlations between the output quantities, e.g., position, width, or height in object detection. To measure the joint calibration of multivariate and possibly correlated data, we introduce the quantile calibration error which is based on the Mahalanobis distance between the predicted distribution and the ground truth to determine whether the ground truth is within a predicted quantile.\n  Our experiments show that common detection models overestimate the spatial uncertainty in comparison to the observed error. We show that the simple Isotonic Regression recalibration method is sufficient to achieve a good uncertainty quantification in terms of calibrated quantiles. In contrast, if normal distributions are required for subsequent processes, our GP-Normal recalibration method yields the best results. Finally, we show that our covariance estimation method is able to achieve best calibration results for joint multivariate calibration.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2207.01242",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-17T12:34:31Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Haoxian Chen",
+            "Ziyi Huang",
+            "Henry Lam",
+            "Huajie Qian",
+            "Haofeng Zhang"
+          ],
+          "title": "Learning Prediction Intervals for Regression: Generalization and Calibration",
+          "venue": "arXiv",
+          "year": 2021
+        },
+        "primary_pointer": "2102.13625",
+        "summary": "We study the generation of prediction intervals in regression for uncertainty quantification. This task can be formalized as an empirical constrained optimization problem that minimizes the average interval width while maintaining the coverage accuracy across data. We strengthen the existing literature by studying two aspects of this empirical optimization. First is a general learning theory to characterize the optimality-feasibility tradeoff that encompasses Lipschitz continuity and VC-subgraph classes, which are exemplified in regression trees and neural networks. Second is a calibration machinery and the corresponding statistical theory to optimally select the regularization parameter that manages this tradeoff, which bypasses the overfitting issues in previous approaches in coverage attainment. We empirically demonstrate the strengths of our interval generation and calibration algorithms in terms of testing performances compared to existing benchmarks.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "theoremsearch",
+          "final_url": "https://arxiv.org/abs/2102.13625",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.625,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-17T12:34:32Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Chirag Gupta",
+            "Aleksandr Podkopaev",
+            "Aaditya Ramdas"
+          ],
+          "title": "Distribution-free binary classification: prediction sets, confidence intervals and calibration",
+          "venue": "arXiv",
+          "year": 2020
+        },
+        "primary_pointer": "2006.10564",
+        "summary": "We study three notions of uncertainty quantification -- calibration, confidence intervals and prediction sets -- for binary classification in the distribution-free setting, that is without making any distributional assumptions on the data. With a focus towards calibration, we establish a 'tripod' of theorems that connect these three notions for score-based classifiers. A direct implication is that distribution-free calibration is only possible, even asymptotically, using a scoring function whose level sets partition the feature space into at most countably many sets. Parametric calibration schemes such as variants of Platt scaling do not satisfy this requirement, while nonparametric schemes based on binning do. To close the loop, we derive distribution-free confidence intervals for binned probabilities for both fixed-width and uniform-mass binning. As a consequence of our 'tripod' theorems, these confidence intervals for binned probabilities lead to distribution-free calibration. We also derive extensions to settings with streaming data and covariate shift.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "theoremsearch",
+          "final_url": "https://arxiv.org/abs/2006.10564",
+          "http_status": 200,
+          "pdf_sample_score": 0.4569,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-17T12:34:32Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Jianqing Fan",
+            "Jiawei Ge",
+            "Debarghya Mukherjee"
+          ],
+          "title": "UTOPIA: Universally Trainable Optimal Prediction Intervals Aggregation",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2306.16549",
+        "summary": "Uncertainty quantification in prediction presents a compelling challenge with vast applications across various domains, including biomedical science, economics, and weather forecasting. There exists a wide array of methods for constructing prediction intervals, such as quantile regression and conformal prediction. However, practitioners often face the challenge of selecting the most suitable method for a specific real-world data problem. In response to this dilemma, we introduce a novel and universally applicable strategy called Universally Trainable Optimal Predictive Intervals Aggregation (UTOPIA). This technique excels in efficiently aggregating multiple prediction intervals while maintaining a small average width of the prediction band and ensuring coverage. UTOPIA is grounded in linear or convex programming, making it straightforward to train and implement. In the specific case where the prediction methods are elementary basis functions, as in kernel and spline bases, our method becomes the construction of a prediction band. Our proposed methodologies are supported by theoretical guarantees on the coverage probability and the average width of the aggregated prediction interval, which are detailed in this paper. The practicality and effectiveness of UTOPIA are further validated through its application to synthetic data and two real-world datasets in finance and macroeconomics.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "theoremsearch",
+          "final_url": "https://arxiv.org/abs/2306.16549",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-17T12:34:32Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Carlos Sebastián",
+            "Carlos E. González-Guillén",
+            "Jesús Juan"
+          ],
+          "title": "Enhancing reliability in prediction intervals using point forecasters: Heteroscedastic Quantile Regression and Width-Adaptive Conformal Inference",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2406.14904",
+        "summary": "Constructing prediction intervals for time series forecasting is challenging, particularly when practitioners rely solely on point forecasts. While previous research has focused on creating increasingly efficient intervals, we argue that standard measures alone are inadequate. Beyond efficiency, prediction intervals must adapt their width based on the difficulty of the prediction while preserving coverage regardless of complexity. To address these issues, we propose combining Heteroscedastic Quantile Regression (HQR) with Width-Adaptive Conformal Inference (WACI). This integrated procedure guarantees theoretical coverage and enables interval widths to vary with predictive uncertainty. We assess its performance using both a synthetic example and a real world Electricity Price Forecasting scenario. Our results show that this combined approach meets or surpasses typical benchmarks for validity and efficiency, while also fulfilling important yet often overlooked practical requirements.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "theoremsearch",
+          "final_url": "https://arxiv.org/abs/2406.14904",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.625,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-17T12:34:32Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Sam Allen",
+            "Julia Burnello",
+            "Johanna Ziegel"
+          ],
+          "title": "Assessing the conditional calibration of interval forecasts using decompositions of the interval score",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2508.18034",
+        "summary": "Forecasts for uncertain future events should be probabilistic. Probabilistic forecasts are commonly issued as prediction intervals, which provide a measure of uncertainty in the unknown outcome whilst being easier to understand and communicate than full predictive distributions. The calibration of a $(1 - α)$-level prediction interval can be assessed by checking whether the probability that the outcome falls within the interval is equal to $1 - α$. However, such coverage checks are typically unconditional and therefore relatively weak. Although this is well known, there is a lack of methods to assess the conditional calibration of interval forecasts. In this work, we demonstrate how this can be achieved via decompositions of the well-known interval (or Winkler) score. We study notions of calibration for interval forecasts and then introduce a decomposition of the interval score based on isotonic distributional regression. This decomposition exhibits many desirable properties, both in theory and in practice, which allows users to accurately assess the conditional calibration of interval forecasts. This is illustrated on simulated data and in three applications to benchmark regression datasets.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "theoremsearch",
+          "final_url": "https://arxiv.org/abs/2508.18034",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.625,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-17T12:34:33Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "evaluating the calibration of predictive uncertainty intervals in public regression benchmarks statistics",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

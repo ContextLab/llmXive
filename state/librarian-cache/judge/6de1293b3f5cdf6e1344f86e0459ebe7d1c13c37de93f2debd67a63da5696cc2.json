@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2206.03038",
+  "judged_at": "2026-06-17T12:36:53Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "robustness of change‑point detection methods on public financial time series statistics",
+  "rationale": "The paper studies the robustness of a change‑point detection method (a rank‑based, distribution‑free approach) and demonstrates its resistance to heavy‑tailed distributions and outliers, which directly addresses the same mechanism (robust CPD) queried by the user, even though the application domains differ from financial time series. This makes it a relevant foundational reference for a literature review on robust CPD methods.",
+  "relevant": true
+}

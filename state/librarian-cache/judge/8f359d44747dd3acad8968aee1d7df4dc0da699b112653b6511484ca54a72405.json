@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2402.07307",
+  "judged_at": "2026-06-17T12:34:40Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "evaluating the calibration of predictive uncertainty intervals in public regression benchmarks statistics",
+  "rationale": "The paper investigates calibration of predictive uncertainty intervals for regression models using conformal prediction and Venn‑Abers calibration, directly addressing the same mechanism (interval calibration) that the user’s question concerns (category a). It also provides empirical evaluation on regression data, making it a relevant reference for assessing calibration in public regression benchmarks.",
+  "relevant": true
+}

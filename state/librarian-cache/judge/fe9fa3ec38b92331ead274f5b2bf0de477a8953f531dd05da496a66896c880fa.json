@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1803.10871",
+  "judged_at": "2026-06-17T12:36:35Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "robustness of change‑point detection methods on public financial time series statistics",
+  "rationale": "The paper presents a novel methodological framework for estimating and inferring multiple change‑points in time‑series regressions, providing theoretical and simulation‑based evidence of its performance. As a foundational methods contribution to change‑point detection (criterion d), it is a canonical reference that any review of robustness of change‑point techniques—including those applied to public financial series—should cite.",
+  "relevant": true
+}

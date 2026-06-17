@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2006.10564",
+  "judged_at": "2026-06-17T12:34:50Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "evaluating the calibration of predictive uncertainty intervals in public regression benchmarks statistics",
+  "rationale": "The paper studies calibration of predictive uncertainty (confidence intervals/prediction sets), which matches the core mechanism of the user's question—evaluating calibration of predictive uncertainty intervals—though in a binary‑classification setting rather than regression (acceptance category (a) same‑mechanism evidence and also (d) foundational methodology for calibration).",
+  "relevant": true
+}

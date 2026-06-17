@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2111.14012",
+  "judged_at": "2026-06-17T12:36:50Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "robustness of change‑point detection methods on public financial time series statistics",
+  "rationale": "The paper studies change‑point detection methods (clustering‑based) and evaluates their performance/robustness, which matches the same methodological mechanism queried (change‑point detection) even though the data domain differs from public financial series (acceptance category (a) and (c)).",
+  "relevant": true
+}

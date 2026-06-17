@@ -1,0 +1,553 @@
+{
+  "fetched_at": "2026-06-17T12:37:54Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "Measuring the Carbon Footprint of LLM‑Assisted Code Generation",
+      "target_n": 5
+    },
+    "duration_seconds": 51.042,
+    "ended_at": "2026-06-17T12:37:54Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "carbon emissions of AI‑driven code synthesis"
+        ],
+        [
+          2,
+          "energy consumption of large language model code assistants"
+        ],
+        [
+          3,
+          "environmental impact assessment of generative programming models"
+        ],
+        [
+          4,
+          "green AI metrics for automated code generation"
+        ],
+        [
+          5,
+          "carbon accounting for transformer‑based code completion tools"
+        ],
+        [
+          6,
+          "life‑cycle assessment of LLM‑powered software development"
+        ],
+        [
+          7,
+          "sustainable AI in software engineering"
+        ],
+        [
+          8,
+          "energy profiling of AI code suggestion systems"
+        ],
+        [
+          9,
+          "carbon intensity of neural code generation pipelines"
+        ],
+        [
+          10,
+          "eco‑efficiency of AI‑assisted programming environments"
+        ],
+        [
+          11,
+          "computational carbon cost of program synthesis models"
+        ],
+        [
+          12,
+          "carbon‑aware inference for code generation LLMs"
+        ],
+        [
+          13,
+          "sustainable metrics for AI‑augmented IDEs"
+        ],
+        [
+          14,
+          "energy‑aware evaluation of code autocompletion models"
+        ],
+        [
+          15,
+          "environmental sustainability of copilot‑style assistants"
+        ],
+        [
+          16,
+          "green computing for large language model code generation"
+        ],
+        [
+          17,
+          "carbon footprint estimation of AI‑based software tooling"
+        ],
+        [
+          18,
+          "power usage effectiveness of AI code generation services"
+        ],
+        [
+          19,
+          "climate impact of generative AI in software development"
+        ],
+        [
+          20,
+          "low‑carbon strategies for deploying code generation models"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Measuring the Carbon Footprint of LLM‑Assisted Code Generation computer science": 0,
+        "carbon emissions of AI‑driven code synthesis": 2,
+        "energy consumption of large language model code assistants": 3
+      },
+      "total_queries_issued": 2
+    },
+    "extracted_queries": [
+      "green AI carbon emissions",
+      "GitHub Copilot energy consumption",
+      "kilowatt-hour per token",
+      "energy profiling LLM inference",
+      "scaling laws carbon footprint"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "1910.09700"
+      ]
+    },
+    "per_query_hit_count": {
+      "GitHub Copilot energy consumption": 3,
+      "Measuring the Carbon Footprint of LLM‑Assisted Code Generation computer science": 3,
+      "energy profiling LLM inference": 1,
+      "green AI carbon emissions": 3,
+      "kilowatt-hour per token": 3,
+      "scaling laws carbon footprint": 1
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 3,
+      "rejections": [
+        {
+          "primary_pointer": "2512.04880",
+          "rationale": "The paper studies carbon nanostructure synthesis in a thermal plasma jet, which is unrelated to measuring the carbon footprint of LLM‑assisted code generation in computer science; it shares no relevant mechanism, variable, or domain with the user's question.",
+          "title": "Controlling Carbon Nanostructure Synthesis in Thermal Plasma Jet: Correlation of Process Parameters, Plasma Characteristics, and Product Morphology"
+        },
+        {
+          "primary_pointer": "2306.08568",
+          "rationale": "The paper focuses on improving code generation performance of a Code LLM via instruction fine‑tuning and benchmark results, without addressing carbon emissions, energy consumption, or any methodology for measuring the environmental impact of LLM‑assisted code generation. It does not meet any of the inclusion criteria (a‑f).",
+          "title": "WizardCoder: Empowering Code Large Language Models with Evol-Instruct"
+        },
+        {
+          "primary_pointer": "2405.19266",
+          "rationale": "The paper focuses on developing a Chinese pediatric medical assistant LLM and does not address carbon emissions, environmental impact, or code generation; it is off‑domain and lacks any measurable connection to the user's variables or mechanism.",
+          "title": "PediatricsGPT: Large Language Models as Chinese Medical Assistants for Pediatric Applications"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-17T12:37:02Z",
+    "term_input": {
+      "normalized": "measuring the carbon footprint of llm‑assisted code generation computer science",
+      "raw": "Measuring the Carbon Footprint of LLM‑Assisted Code Generation computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Measuring the Carbon Footprint of LLM‑Assisted Code Generation computer science', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-06-17T12:37:32Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Pretrained transformer-based models have shown high performance in natural language generation task. However, a new wave of interest has surged: automatic programming language generation. This task consists of translating natural language instructions to a programming code. Despite the fact that well-known pretrained models on language generation have achieved good performance in learning programming languages, effort is still needed in automatic code generation. In this paper, we introduce JaCoText, a model based on Transformers neural network. It aims to generate java source code from natural language text. JaCoText leverages advantages of both natural language and code generation models. More specifically, we study some findings from the state of the art and use them to (1) initialize our model from powerful pretrained models, (2) explore additional pretraining on our java dataset, (3) carry out experiments combining the unimodal and bimodal data in the training, and (4) scale the input and output length during the fine-tuning of the model. Conducted experiments on CONCODE dataset show that JaCoText achieves new state-of-the-art results.",
+          "claimed_authors": [
+            "Jessica López Espejel",
+            "Mahaman Sanoussi Yahaya Alassan",
+            "Walid Dahhane",
+            "El Hassane Ettifouri"
+          ],
+          "claimed_title": "JaCoText: A Pretrained Model for Java Code-Text Generation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2303.12869"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Measuring the Carbon Footprint of LLM‑Assisted Code Generation computer science', candidate_title='JaCoText: A Pretrained Model for Java Code-Text Generation')",
+        "failed_at": "2026-06-17T12:37:32Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The outstanding multidisciplinary applicability of nanomaterials has paved the path for the rapid advancement of nanoscience during the last few decades. Such technological progress subsequently results in an inevitable environmental exposure of nanomaterials. Presently, nanomaterials are employed in an extensive range of commercial products. Safe and sustainable incorporation of nanomaterials in industrial products requires a profound and comprehensive understanding of their potential toxicity. Among different nanomaterials, carbon nanomaterials marked its notable superiority toward the development of state-of-the-art nanotechnology due to the significant contribution of each of the carbon allotropes with varied dimensionality. The zero-dimensional fullerene, one-dimensional carbon nanotube, and two-dimensional graphene possess an exclusive combination of distinctive properties that are utilized in most of the nanotechnology-based products nowadays. However, potential risk factors are associated with the production and the use of carbon nanomaterials. Consequently, the number of studies regarding the assessment of the toxicity of these nanomaterials has increased rapidly in the past decade. This chapter will summarize the recent scientific efforts on the toxicity evaluation of different carbon nanomaterials.",
+          "claimed_authors": [
+            "Arpita Adhikari",
+            "Joydip Sengupta"
+          ],
+          "claimed_title": "Toxicity of Carbon Nanomaterials",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2109.13918"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Measuring the Carbon Footprint of LLM‑Assisted Code Generation computer science', candidate_title='Toxicity of Carbon Nanomaterials')",
+        "failed_at": "2026-06-17T12:37:32Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Filling of single-wall carbon nanotubes with C59N azafullerene derivatives is reported from toluene solvent at ambient temperature. The filling is characterized by high resolution transmission electron microscopy and Raman spectroscopy. The filling efficiency is the same as for C60 fullerenes and the tube-azafullerene interaction is similar to the tube-C60 interaction. Vacuum annealing of the encapsulated azafullerene results in the growth of inner tubes, however no spectroscopic signature of nitrogen built in the inner walls is detected.",
+          "claimed_authors": [
+            "F. Simon",
+            "H. Kuzmany",
+            "J. Bernardi",
+            "F. Hauke",
+            "A. Hirsch"
+          ],
+          "claimed_title": "Encapsulating C59N azafullerene derivatives inside single-wall carbon nanotubes",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2006,
+          "primary_pointer": "cond-mat/0602636"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Measuring the Carbon Footprint of LLM‑Assisted Code Generation computer science', candidate_title='Encapsulating C59N azafullerene derivatives inside single-wall carbon nanotubes')",
+        "failed_at": "2026-06-17T12:37:32Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Artificial intelligence (AI) is understood to affect the content of people's decisions. Here, using a behavioral implementation of the classic Newcomb's paradox in 1,305 participants, we show that AI can also change how people decide. In this paradigm, belief in predictive authority can lead individuals to constrain decision-making, forgoing a guaranteed reward. Over 40% of participants treated AI as such a predictive authority. This significantly increased the odds of forgoing the guaranteed reward by a factor of 3.39 (95% CI: 2.45-4.70) compared with random framing, and reduced earnings by 10.7-42.9%. The effect appeared across AI presentations and decision contexts and persisted even when predictions failed. When people believe AI can predict their behavior, they may self-constrain it in anticipation of that prediction.",
+          "claimed_authors": [
+            "Aoi Naito",
+            "Hirokazu Shirado"
+          ],
+          "claimed_title": "AI prediction leads people to forgo guaranteed rewards",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.28944"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Measuring the Carbon Footprint of LLM‑Assisted Code Generation computer science', candidate_title='AI prediction leads people to forgo guaranteed rewards')",
+        "failed_at": "2026-06-17T12:37:32Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The progress of some AI paradigms such as deep learning is said to be linked to an exponential growth in the number of parameters. There are many studies corroborating these trends, but does this translate into an exponential increase in energy consumption? In order to answer this question we focus on inference costs rather than training costs, as the former account for most of the computing effort, solely because of the multiplicative factors. Also, apart from algorithmic innovations, we account for more specific and powerful hardware (leading to higher FLOPS) that is usually accompanied with important energy efficiency optimisations. We also move the focus from the first implementation of a breakthrough paper towards the consolidated version of the techniques one or two year later. Under this distinctive and comprehensive perspective, we study relevant models in the areas of computer vision and natural language processing: for a sustained increase in performance we see a much softer growth in energy consumption than previously anticipated. The only caveat is, yet again, the multiplicative factor, as future AI increases penetration and becomes more pervasive.",
+          "claimed_authors": [
+            "Radosvet Desislavov",
+            "Fernando Martínez-Plumed",
+            "José Hernández-Orallo"
+          ],
+          "claimed_title": "Compute and Energy Consumption Trends in Deep Learning Inference",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2109.05472"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Measuring the Carbon Footprint of LLM‑Assisted Code Generation computer science', candidate_title='Compute and Energy Consumption Trends in Deep Learning Inference')",
+        "failed_at": "2026-06-17T12:37:32Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We describe the Dark Energy Survey (DES), a proposed optical-near infrared survey of 5000 sq. deg of the South Galactic Cap to ~24th magnitude in SDSS griz, that would use a new 3 sq. deg CCD camera to be mounted on the Blanco 4-m telescope at Cerro Telolo Inter-American Observatory (CTIO). The survey data will allow us to measure the dark energy and dark matter densities and the dark energy equation of state through four independent methods: galaxy clusters, weak gravitational lensing tomography, galaxy angular clustering, and supernova distances. These methods are doubly complementary: they constrain different combinations of cosmological model parameters and are subject to different systematic errors. By deriving the four sets of measurements from the same data set with a common analysis framework, we will obtain important cross checks of the systematic errors and thereby make a substantial and robust advance in the precision of dark energy measurements.",
+          "claimed_authors": [
+            " The Dark Energy Survey Collaboration"
+          ],
+          "claimed_title": "The Dark Energy Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2005,
+          "primary_pointer": "astro-ph/0510346"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Measuring the Carbon Footprint of LLM‑Assisted Code Generation computer science', candidate_title='The Dark Energy Survey')",
+        "failed_at": "2026-06-17T12:37:32Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Measuring the Carbon Footprint of LLM‑Assisted Code Generation computer science', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-06-17T12:37:32Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "LLM inference is still evaluated mainly as a model or software problem: accuracy, latency, throughput, and hardware utilization. This is incomplete. At deployment scale, the relevant output is a quality-conditioned token produced under joint constraints from effective compute, delivered data-center power, cooling capacity, PUE, and utilization.\n  We argue that the ML community should treat inference as \\emph{energy-to-token production}. We formalize this view with a dimensionally consistent Token Production Function in which token rate is bounded by both compute-per-token and energy-per-token ceilings. Listed API prices vary by over an order of magnitude across providers, but we use price dispersion only as directional motivation, not as causal evidence of marginal cost. The core physical question is instead: under fixed quality and service targets, when does the binding constraint move from theoretical peak compute toward delivered power, cooling, and operational efficiency?\n  Under this framing, system optimizations -- latent KV-cache compression, sparse or heavily compressed attention, quantization, routing, and difficulty-adaptive reasoning -- are not merely local engineering tricks. They are energy-to-token levers because they reduce FLOPs/token, joules/token, memory traffic, or utilization losses under fixed $(q^{*},s^{*})$. We therefore call for inference papers and benchmarks to report Joules/token, active binding constraint, PUE-adjusted delivered power, and utilization-adjusted token output alongside accuracy and latency.",
+          "claimed_authors": [
+            "Xiang Liu",
+            "Shimiao Yuan",
+            "Zhenheng Tang",
+            "Peijie Dong",
+            "Kaiyong Zhao",
+            "Qiang Wang",
+            "Bo Li",
+            "Xiaowen Chu"
+          ],
+          "claimed_title": "Position: LLM Inference Should Be Evaluated as Energy-to-Token Production",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2605.11733"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Measuring the Carbon Footprint of LLM‑Assisted Code Generation computer science', candidate_title='Position: LLM Inference Should Be Evaluated as Energy-to-Token Production')",
+        "failed_at": "2026-06-17T12:37:32Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Tokens are the basic units of Large Language Models (LLMs). LLMs rely on tokenizers to segment text into these tokens, and tokenization is the primary determinant of computational and inference cost. Sanskrit, one of the oldest languages, is hypothesized to express more meaning per token due to its morphology and grammar rules; however, no prior work has quantified this. We use a dataset of 701 parallel verses of the Bhagavad Gita, which comprises three languages-Sanskrit, English, and Hindi along with transliteration of Sanskrit into English. We test tokenizers including SentencePiece (SPM), older GPT models, and the latest generation tokenizers from Gemini and GPT. We use metrics of token count, characters per token (token efficiency), and tokens per character (token cost). Results show a ~2x difference in token counts between Sanskrit and English/Hindi under the unbiased SPM baseline. English/Hindi translations of Sanskrit commentary resulted in an approximately 20x increase in token count. GPT o200k base (latest, used by GPT-4o) and Gemini (latest) reduce bias by a significant degree compared to GPT cl100k base (used until GPT-4), but still fail to fully capture Sanskrit's compactness. This matters because there might be a penalty bias for non-English users, which inflates the token count. This research provides a foundation for improving future tokenizer design and shows the potential of Sanskrit for highly compact encoding, saving on cost while speeding up training and inference. The code and dataset are available at https://github.com/anshulkr713/sanskrit-token-efficiency",
+          "claimed_authors": [
+            "Anshul Kumar"
+          ],
+          "claimed_title": "Is Sanskrit the most token-efficient language? A quantitative study using GPT, Gemini, and SentencePiece",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2601.06142"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Measuring the Carbon Footprint of LLM‑Assisted Code Generation computer science', candidate_title='Is Sanskrit the most token-efficient language? A quantitative study using GPT, Gemini, and SentencePiece')",
+        "failed_at": "2026-06-17T12:37:32Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Long video understanding remains challenging for Multi-modal Large Language Models (MLLMs) due to high memory costs and context-length limits. Prior approaches mitigate this by scoring and selecting frames/tokens within short clips, but they lack a principled mechanism to (i) compare relevance across distant video clips and (ii) stop processing once sufficient evidence has been gathered. We propose AdaptToken, a training-free framework that turns an MLLM's self-uncertainty into a global control signal for long-video token selection. AdaptToken splits a video into groups, extracts cross-modal attention to rank tokens within each group, and uses the model's response entropy to estimate each group's prompt relevance. This entropy signal enables a global token budget allocation across groups and further supports early stopping (AdaptToken-Lite), skipping the remaining groups when the model becomes sufficiently certain. Across four long-video benchmarks (VideoMME, LongVideoBench, LVBench, and MLVU) and multiple base MLLMs (7B-72B), AdaptToken consistently improves accuracy (e.g., +6.7 on average over Qwen2.5-VL 7B) and continues to benefit from extremely long inputs (up to 10K frames), while AdaptToken-Lite reduces inference time by about half with comparable performance. Project page: https://haozheqi.github.io/adapt-token",
+          "claimed_authors": [
+            "Haozhe Qi",
+            "Kevin Qu",
+            "Mahdi Rad",
+            "Rui Wang",
+            "Alexander Mathis",
+            "Marc Pollefeys"
+          ],
+          "claimed_title": "AdaptToken: Entropy-based Adaptive Token Selection for MLLM Long Video Understanding",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.28696"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Measuring the Carbon Footprint of LLM‑Assisted Code Generation computer science', candidate_title='AdaptToken: Entropy-based Adaptive Token Selection for MLLM Long Video Understanding')",
+        "failed_at": "2026-06-17T12:37:32Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large language models (LLMs) drive significant financial innovations, yet their high-concurrency deployment is severely bottlenecked by KV cache memory overhead, which inflates infrastructure costs and throttles scalability. To address this, we propose YouZhi-LLM, a highly efficient financial LLM empowered by a comprehensive structural transition and training pipeline natively built on the Huawei Ascend ecosystem. At its algorithmic core, YouZhi-LLM features a layer-adaptive GQA-to-MLA transition framework that dynamically assigns per-layer FreqFold sizes, maximizing KV-cache compression while minimizing perplexity degradation. To recover representation capacity and inject domain expertise, the Ascend-based training pipeline seamlessly integrates generalized knowledge distillation with financial-specific supervised fine-tuning. Evaluations demonstrate the superiority of this systematic approach, with the adaptive transition reducing perplexity degradation by up to 35% over uniform baselines. Crucially, when evaluated on Ascend NPUs via vLLM-Ascend, the massive KV-cache reduction translates directly into deployment efficiency. Compared to their respective base models, YouZhi-7B yields a 12.3% improvement in average financial benchmark score alongside a 2.69$\\times$ increase in maximum concurrency; similarly, YouZhi-14B achieves a 7.0% accuracy gain and a 2.43$\\times$ concurrency boost, establishing a new paradigm for cost-effective, high-throughput financial inference.",
+          "claimed_authors": [
+            " PSBC LLM Team",
+            " Huawei LLM Team",
+            "Ruihan Long",
+            "Junjie Wu",
+            "Tianan Zhang",
+            "Duo Zhang",
+            "Yaozong Wu",
+            "Jinbin Fu",
+            "Chang Liu",
+            "Zhentao Tang",
+            "Wenshuang Yang",
+            "Xin Wang",
+            "Zhihao Song",
+            "Ning Huang",
+            "Wenjing Xu",
+            "Shuai Zong",
+            "Shupei Sun",
+            "Sen Wang",
+            "Jing Hu",
+            "Bin Wang",
+            "Xinyu Wang",
+            "Junkui Ju",
+            "Zequn Ding",
+            "Jie Ran",
+            "Man Luo",
+            "Shixiong Kai",
+            "Linkai Hou",
+            "Kaichao Liang",
+            "Hu Zhao",
+            "Yang Zhao",
+            "Shucheng Lin",
+            "Wei Yu",
+            "Chenghan Jiang",
+            "Jingjing Ding",
+            "Jiahui Zhang",
+            "Tian Jin",
+            "Yuhang Zhang",
+            "Dong Guo",
+            "Wei Sun",
+            "Jun Xie",
+            "Jianwei Li",
+            "Lei Cao",
+            "Pei Li",
+            "Jiabin Li",
+            "Jia Yuan",
+            "Rui Yuan",
+            "Jing Zhu",
+            "Mingxuan Yuan",
+            "Zhangcheng Lv",
+            "Xin Jiang",
+            "Xiuhong Fei",
+            "Xiaozhe Ren",
+            "Yulong Li",
+            "Zhipeng Zhang",
+            "Hang Wang",
+            "Zhaohui Xu",
+            "Rui Zhao",
+            "Yibo He",
+            "Xinzhuang Niu"
+          ],
+          "claimed_title": "YouZhi: Towards High-Concurrency Financial LLMs via Adaptive GQA-to-MLA Transition",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.05868"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Measuring the Carbon Footprint of LLM‑Assisted Code Generation computer science', candidate_title='YouZhi: Towards High-Concurrency Financial LLMs via Adaptive GQA-to-MLA Transition')",
+        "failed_at": "2026-06-17T12:37:32Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The electrical and chemical properties of carbon nanotubes vary significantly with different chirality and diameter, making the experimental determination of these structural properties important. Here, we show that the vibrational density of states (VDOS) contains information on the structure of carbon nanotubes, particularly at low frequencies. We show that the diameter and chirality of the nanotubes can be determined from the characteristic low frequency $L$ and $L'$ modes in the VDOS. For zigzag nanotubes, the $L$ peak splits into two peaks giving rise to another low energy $L\"$ peak. The significant changes in the frequencies and relative intensities of these peaks open up a route to distinguish among structurally different nanotubes. A close study of different orientations of Stone-Wales defects with varying defect density reveals that different structural defects also leave distinct fingerprints in the VDOS, particularly in the $L$ and $L'$ modes. With our results, more structural information can be obtained from experiments which can directly measure the VDOS, such as inelastic electron and inelastic neutron spectroscopy.",
+          "claimed_authors": [
+            "Albert J. Pool",
+            "Sandeep K. Jain",
+            "Gerard T. Barkema"
+          ],
+          "claimed_title": "Structural characterization of carbon nanotubes via the vibrational density of states",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1703.03758"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Measuring the Carbon Footprint of LLM‑Assisted Code Generation computer science', candidate_title='Structural characterization of carbon nanotubes via the vibrational density of states')",
+        "failed_at": "2026-06-17T12:37:32Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Kuen Sum Cheung",
+            "Mayuri Kaul",
+            "Gunel Jahangirova",
+            "Mohammad Reza Mousavi",
+            "Eric Zie"
+          ],
+          "title": "Comparative Analysis of Carbon Footprint in Manual vs. LLM-Assisted Code Development",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2505.04521",
+        "summary": "Large Language Models (LLM) have significantly transformed various domains, including software development. These models assist programmers in generating code, potentially increasing productivity and efficiency. However, the environmental impact of utilising these AI models is substantial, given their high energy consumption during both training and inference stages. This research aims to compare the energy consumption of manual software development versus an LLM-assisted approach, using Codeforces as a simulation platform for software development. The goal is to quantify the environmental impact and propose strategies for minimising the carbon footprint of using LLM in software development. Our results show that the LLM-assisted code generation leads on average to 32.72 higher carbon footprint than the manual one. Moreover, there is a significant correlation between task complexity and the difference in the carbon footprint of the two approaches.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2505.04521",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-17T12:37:32Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Alexandre Lacoste",
+            "Alexandra Luccioni",
+            "Victor Schmidt",
+            "Thomas Dandres"
+          ],
+          "title": "Quantifying the Carbon Emissions of Machine Learning",
+          "venue": "arXiv",
+          "year": 2019
+        },
+        "primary_pointer": "1910.09700",
+        "summary": "From an environmental standpoint, there are a few crucial aspects of training a neural network that have a major impact on the quantity of carbon that it emits. These factors include: the location of the server used for training and the energy grid that it uses, the length of the training procedure, and even the make and model of hardware on which the training takes place. In order to approximate these emissions, we present our Machine Learning Emissions Calculator, a tool for our community to better understand the environmental impact of training ML models. We accompany this tool with an explanation of the factors cited above, as well as concrete actions that individual practitioners and organizations can take to mitigate their carbon emissions.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1910.09700",
+          "http_status": 200,
+          "pdf_sample_score": 0.1795,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-17T12:37:36Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Radosvet Desislavov",
+            "Fernando Martínez-Plumed",
+            "José Hernández-Orallo"
+          ],
+          "title": "Compute and Energy Consumption Trends in Deep Learning Inference",
+          "venue": "arXiv",
+          "year": 2021
+        },
+        "primary_pointer": "2109.05472",
+        "summary": "The progress of some AI paradigms such as deep learning is said to be linked to an exponential growth in the number of parameters. There are many studies corroborating these trends, but does this translate into an exponential increase in energy consumption? In order to answer this question we focus on inference costs rather than training costs, as the former account for most of the computing effort, solely because of the multiplicative factors. Also, apart from algorithmic innovations, we account for more specific and powerful hardware (leading to higher FLOPS) that is usually accompanied with important energy efficiency optimisations. We also move the focus from the first implementation of a breakthrough paper towards the consolidated version of the techniques one or two year later. Under this distinctive and comprehensive perspective, we study relevant models in the areas of computer vision and natural language processing: for a sustained increase in performance we see a much softer growth in energy consumption than previously anticipated. The only caveat is, yet again, the multiplicative factor, as future AI increases penetration and becomes more pervasive.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2109.05472",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4286,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-17T12:37:41Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "measuring the carbon footprint of llm‑assisted code generation computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1904.00173",
+  "judged_at": "2026-06-17T12:36:46Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "robustness of change‑point detection methods on public financial time series statistics",
+  "rationale": "The paper provides foundational, non‑parametric theory and algorithms for change‑point estimation in stationary time series, directly addressing the same methodological mechanism (change‑point detection) that the user’s question concerns, even though it does not focus on financial data or robustness per se. This makes it a canonical methodological reference (category (a) and (d)) for a literature review on robustness of change‑point detection methods.",
+  "relevant": true
+}

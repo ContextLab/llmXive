@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2102.13625",
+  "judged_at": "2026-06-17T12:34:47Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "evaluating the calibration of predictive uncertainty intervals in public regression benchmarks statistics",
+  "rationale": "The paper investigates calibration methods for prediction intervals in regression and provides theory and empirical evaluation on benchmark datasets, directly addressing the mechanism (calibration of predictive uncertainty intervals) and the domain (public regression benchmarks) relevant to the user's question (acceptance category a/b).",
+  "relevant": true
+}

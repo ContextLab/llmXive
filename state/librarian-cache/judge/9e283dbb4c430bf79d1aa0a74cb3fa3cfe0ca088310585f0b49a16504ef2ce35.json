@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1912.07775",
+  "judged_at": "2026-06-17T12:36:33Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "robustness of change‑point detection methods on public financial time series statistics",
+  "rationale": "The paper studies the same mechanism—change‑point detection methods—using likelihood‑ratio scanning and spectral tests, and evaluates their performance across varied scenarios, providing a methodological baseline that is directly relevant to assessing robustness of such methods on time‑series data (including financial series). This satisfies criterion (a) (same‑mechanism evidence) and (c) (empirical baseline).",
+  "relevant": true
+}
