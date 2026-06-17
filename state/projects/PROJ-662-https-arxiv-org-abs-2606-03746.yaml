@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-05T09:10:43.242184Z'
-current_stage: paper_review
+current_stage: brainstormed
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-662-https-arxiv-org-abs-2606-03746
-last_run_id: null
+last_run_id: fe293478-5554-4679-96ee-e805e1680b0c
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'Qwen-Image-Flash: Beyond Objective Design'
-updated_at: '2026-06-05T11:08:45.646835Z'
+updated_at: '2026-06-17T16:25:25.542203Z'

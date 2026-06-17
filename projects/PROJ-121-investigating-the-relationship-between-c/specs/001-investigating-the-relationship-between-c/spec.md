@@ -17,7 +17,7 @@ A researcher wants to run a fully automated pipeline that downloads the IceCube 
 
 **Acceptance Scenarios**:
 
-1. **Given** a clean runner environment, **When** the `run_pipeline.sh` script is invoked, **Then** the script finishes within 6 hours, the output CSV contains ≥ 115 rows (≈10 years ÷ 27 days), and a log reports “Data acquisition completed” without errors.  
+1. **Given** a clean runner environment, **When** the `run_all.sh` script is invoked, **Then** the script finishes within 6 hours, the output CSV contains ≥ 115 rows (≈10 years ÷ 27 days), and a log reports “Data acquisition completed” without errors.  
 2. **Given** a corrupted or missing IceCube file, **When** the script reaches the download step, **Then** it retries up to 3 times, logs a warning, and proceeds using the available Auger data, still producing a CSV with ≥ 90 % of rows.
 
 ---
@@ -28,7 +28,7 @@ A scientist wants to apply Lomb‑Scargle periodograms and block‑bootstrap cro
 
 **Why this priority**: This story directly tests the hypothesis and yields the primary quantitative result (e.g., a 3 σ detection or a robust upper limit).
 
-**Independent Test**: Run the `analyze_correlation.py` module on the CSV from Story 1; verify that it outputs (a) a periodogram with a peak at ≈ 11 years, (b) Pearson/Spearman coefficients with associated p‑values, and (c) a Monte‑Carlo false‑alarm probability (FAP) ≤ 0.01 for any claimed correlation.
+**Independent Test**: Run the `analyze_correlation.py` module on the CSV from Story 1; verify that it outputs (a) a periodogram with a peak at approximately a decadal timescale, (b) Pearson/Spearman coefficients with associated p‑values, and (c) a Monte‑Carlo false‑alarm probability (FAP) ≤ 0.01 for any claimed correlation.
 
 **Acceptance Scenarios**:
 
@@ -52,6 +52,21 @@ A collaborator wants a single command that regenerates all figures, tables, and 
 
 ---
 
+### User Story 4 – Configurable Temporal Binning (Priority: P2)
+
+A researcher wants to experiment with different temporal bin sizes (e.g., 14, 27, 54 days) to test the sensitivity of the anisotropy signal to the chosen interval length.
+
+**Why this priority**: Enables systematic checks of bin‑size dependence, directly exercising Functional Requirement **FR‑010** (configurable bin size).
+
+**Independent Test**: Run the pipeline with `--bin-size 14` and `--bin-size 54` and verify that the generated CSV contains the expected number of intervals (≥ 90 % of the theoretical count) and that the log records the selected bin size.
+
+**Acceptance Scenarios**:
+
+1. **Given** a clean runner environment, **When** `run_all.sh --bin-size 14` is invoked, **Then** the pipeline completes within 6 hours, outputs a CSV with ≈ 10 years ÷ 14 days rows, and logs “Using bin size: 14 days”.  
+2. **Given** a clean runner environment, **When** `run_all.sh --bin-size 54` is invoked, **Then** the pipeline completes within 6 hours, outputs a CSV with ≈ 10 years ÷ 54 days rows, and logs “Using bin size: 54 days”.
+
+---
+
 ### Edge Cases
 
 - What happens when a data source (IceCube or Auger) is unavailable for > 30 days?  
@@ -64,23 +79,20 @@ A collaborator wants a single command that regenerates all figures, tables, and 
 
 - **FR-001**: System MUST download the IceCube muon‑track dataset (2010‑2020) and Pierre Auger surface‑detector files from their respective open‑data portals, verifying file integrity via SHA‑256 checksums.  
 - **FR-002**: System MUST retrieve daily solar‑activity indices (sunspot number, solar‑wind speed, IMF magnitude) from NOAA NGDC, handling FTP failures with up to 3 automatic retries and exponential back‑off.  
-- **FR-003**: System MUST convert event timestamps to UTC Julian dates, bin events into non‑overlapping 27‑day intervals, and generate HEALPix Nside 64 sky maps for each interval.  
+- **FR-003**: System MUST convert event timestamps to UTC Julian dates, bin events into non‑overlapping intervals of length specified by FR‑010, and generate HEALPix Nside 64 sky maps for each interval.  
 - **FR-004**: System MUST fit spherical‑harmonic coefficients up to ℓ = 2 for each sky map and export dipole amplitude, phase, and quadrupole metrics to a CSV file with column headers `interval_start, dipole_amp, dipole_phase, quad_amp`.  
-- **FR-005**: System MUST perform Lomb‑Scargle periodogram analysis on the dipole‑amplitude series, compute Pearson and Spearman cross‑correlations with each solar proxy, and estimate significance via (i) block‑bootstrap (block = 27 days, 10 000 resamples) and (ii) Monte‑Carlo shuffle (10 000 permutations).  
-- **FR-006**: System MUST produce a LaTeX‑based PDF report that includes (a) time‑series plots, (b) periodograms, (c) correlation heat‑maps, and (d) a concise interpretation of statistical significance.  
-- **FR-007**: System MUST expose a single entry‑point script (`run_all.sh`) that orchestrates data acquisition, preprocessing, analysis, and reporting, exiting with status 0 on success and non‑zero on any failure.  
+- **FR-005**: System MUST perform, for each detector (IceCube and Pierre Auger) separately, Lomb‑Scargle periodogram analysis on the dipole‑amplitude series, compute Pearson and Spearman cross‑correlations with each solar proxy, and estimate significance via (i) block‑bootstrap (block = 27 days, 10 000 resamples) and (ii) Monte‑Carlo shuffle (10 000 permutations).  
+- **FR-006**: System MUST produce a LaTeX‑based PDF report that includes (a) time‑series plots, (b) periodograms, (c) correlation heat‑maps, and (d) a concise interpretation of statistical significance, for each detector independently and optionally a combined analysis.  
+- **FR-007**: System MUST expose a single entry‑point script (`run_all.sh`) that orchestrates data acquisition, preprocessing, analysis, and reporting, invoking the modular scripts (`run_pipeline.sh`, `analyze_correlation.py`, `make_report.sh`) as sub‑steps, exiting with status 0 on success and non‑zero on any failure.  
 - **FR-008**: System MUST generate a `requirements.txt` pinning exact versions of all Python packages used (minimum Python 3.11).  
 - **FR-009**: System MUST log progress and errors to a structured `pipeline.log` file, including timestamps and retry counts.  
-
-*Clarification needed*:
-
-- **FR-010**: System MUST allow the temporal bin size to be configurable (e.g., 14, 27, 54 days) – [NEEDS CLARIFICATION: default value and allowed range].  
+- **FR-010**: System MUST allow the temporal bin size to be configurable (e.g., 14, 27, 54 days) – the default value is **27 days** (one Carrington rotation). Allowed values are **integers between 7 days and 60 days inclusive**; values that are multiples of 7 days are recommended to maintain alignment with solar‑rotation sub‑structures. This range covers common practice (half‑, single‑, and double‑Carrington bins) while preventing excessively short or long bins that would either dilute the signal or leave too few data points per interval.
 
 ### Key Entities
 
 - **EventDataset**: Represents a raw IceCube or Auger event file; attributes include `source`, `filepath`, `checksum`.  
 - **SolarProxySeries**: Time‑ordered series of a solar activity indicator; attributes `proxy_name`, `date`, `value`.  
-- **AnisotropyInterval**: One 27‑day bin; attributes `start_date`, `end_date`, `dipole_amplitude`, `dipole_phase`, `quadrupole_amplitude`.  
+- **AnisotropyInterval**: One interval of length specified by FR‑010 (default 27 days); attributes `start_date`, `end_date`, `dipole_amplitude`, `dipole_phase`, `quadrupole_amplitude`.  
 
 ## Success Criteria *(mandatory)*
 
@@ -89,8 +101,8 @@ A collaborator wants a single command that regenerates all figures, tables, and 
 - **SC-001**: End‑to‑end pipeline completes within 6 hours on a standard GitHub Actions runner (2 CPU, 4 GB RAM) for the full 10‑year dataset.  
 - **SC-002**: Dipole‑amplitude CSV contains ≥ 115 rows (≤ 5 % missing intervals) and passes schema validation (all numeric columns non‑null).  
 - **SC-003**: Lomb‑Scargle periodogram exhibits a peak at the 11‑year frequency with power ≥ 3 σ above the median noise level, as reported in the PDF.  
-- **SC-004**: At least one solar proxy yields a Pearson or Spearman correlation coefficient with absolute value ≥ 0.4 and a two‑sided p‑value ≤ 0.01 after block‑bootstrap correction.  
-- **SC-005**: Monte‑Carlo shuffle test returns a false‑alarm probability ≤ 0.01 for any claimed correlation, confirming statistical robustness.  
+- **SC-004**: For each detector (IceCube and Pierre Auger) separately, at least one solar proxy yields a Pearson or Spearman correlation coefficient with absolute value ≥ 0.4 and a two‑sided p‑value ≤ 0.01 after block‑bootstrap correction.  
+- **SC-005**: For each detector separately, the Monte‑Carlo shuffle test returns a false‑alarm probability ≤ 0.01 for any claimed correlation, confirming statistical robustness.  
 - **SC-006**: The generated `report.pdf` compiles without LaTeX errors and is ≤ 25 pages, containing all required figures and a clear statement of whether the hypothesis is supported at ≥ 3 σ confidence.  
 
 ## Assumptions
@@ -100,6 +112,4 @@ A collaborator wants a single command that regenerates all figures, tables, and 
 - The 27‑day Carrington rotation is an appropriate temporal resolution for capturing solar‑cycle modulation of TeV–PeV anisotropy; alternative bin sizes are optional enhancements.  
 - All Python dependencies are compatible with the Ubuntu‑22.04 environment used by GitHub Actions.  
 - Researchers using the pipeline have internet connectivity sufficient to download ≤ 1 GB of data within the 6‑hour runner limit.  
-- The statistical methods (Lomb‑Scargle, block‑bootstrap, shuffle test) are accepted in the cosmic‑ray community for detecting periodic signals at the 11‑year scale.  
-
----
+- The statistical methods (Lomb‑Scargle, block‑bootstrap with 27‑day blocks, shuffle test) are accepted in the cosmic‑ray community for detecting periodic signals at the 11‑year scale.  
