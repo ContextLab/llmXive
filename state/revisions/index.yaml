@@ -54,3 +54,6 @@ ready:
 - project_id: PROJ-691-role-agent-bootstrapping-llm-agents-via
   revision_spec_path: specs/auto-revisions/PROJ-691-role-agent-bootstrapping-llm-agents-via/round-1
   queued_at: '2026-06-17T00:46:38.778872+00:00'
+- project_id: PROJ-614-enhancing-train-free-infinite-frame-gene
+  revision_spec_path: specs/auto-revisions/PROJ-614-enhancing-train-free-infinite-frame-gene/round-1
+  queued_at: '2026-06-17T01:37:20.248904+00:00'
