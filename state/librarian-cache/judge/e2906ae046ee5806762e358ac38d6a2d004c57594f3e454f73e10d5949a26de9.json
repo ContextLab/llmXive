@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2509.04883",
+  "judged_at": "2026-06-17T14:24:01Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "autocorrelation of the möbius function in short intervals mathematics",
+  "rationale": "The paper studies arithmetic progressions of primes in short intervals, not the autocorrelation of the Möbius function; it does not address the same mechanism, variable, or population relevant to the user's question. Hence it is off‑topic for the literature review.",
+  "relevant": false
+}

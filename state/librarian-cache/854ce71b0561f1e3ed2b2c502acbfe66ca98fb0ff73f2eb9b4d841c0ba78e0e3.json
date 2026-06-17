@@ -1,0 +1,436 @@
+{
+  "fetched_at": "2026-06-17T14:24:11Z",
+  "field": "mathematics",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "mathematics",
+      "idea_body_excerpt": "Autocorrelation of the Möbius Function in Short Intervals",
+      "target_n": 5
+    },
+    "duration_seconds": 121.807,
+    "ended_at": "2026-06-17T14:24:11Z",
+    "expansion": null,
+    "extracted_queries": [
+      "Möbius autocorrelation",
+      "short interval Möbius sum",
+      "Chowla conjecture Möbius",
+      "Möbius sum variance",
+      "pretentious multiplicative functions"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": false,
+      "verdict": null
+    },
+    "outcome": "success",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "1609.00699"
+      ]
+    },
+    "per_query_hit_count": {
+      "Autocorrelation of the Möbius Function in Short Intervals mathematics": 3,
+      "Chowla conjecture Möbius": 3,
+      "Möbius autocorrelation": 2,
+      "Möbius sum variance": 1,
+      "pretentious multiplicative functions": 3,
+      "short interval Möbius sum": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 6,
+      "rejections": [
+        {
+          "primary_pointer": "1810.05449",
+          "rationale": "The paper studies the combinatorial Möbius function of permutation intervals, not the number‑theoretic Möbius function μ(n) nor its autocorrelation in short intervals; it therefore addresses a different construct despite the shared name.",
+          "title": "Zeros of the Möbius function of permutations"
+        },
+        {
+          "primary_pointer": "1410.8702",
+          "rationale": "The paper studies the group‑theoretic Möbius function for small Ree groups, which is unrelated to the number‑theoretic Möbius function and its autocorrelation in short intervals; it does not address the same mechanism, variables, or domain.",
+          "title": "The Möbius function of the small Ree groups"
+        },
+        {
+          "primary_pointer": "1904.10766",
+          "rationale": "The paper studies Möbius *transformations* of orthogonal polynomials, a topic in analysis and special functions, which is unrelated to the number‑theoretic Möbius function and its autocorrelation in short intervals; it only shares the homonymous term “Möbius.”",
+          "title": "Orthogonal polynomials and Möbius transformations"
+        },
+        {
+          "primary_pointer": "1405.5486",
+          "rationale": "The paper studies short‑interval variants of the Bombieri‑Vinogradov theorem and applications to primes and modular‑form coefficients, but it does not address the Möbius function or its autocorrelation; thus it lacks the required mechanism, variable, or canonical methodology for the user's question.",
+          "title": "A variant of the Bombieri-Vinogradov theorem in short intervals with applications"
+        },
+        {
+          "primary_pointer": "2509.04883",
+          "rationale": "The paper studies arithmetic progressions of primes in short intervals, not the autocorrelation of the Möbius function; it does not address the same mechanism, variable, or population relevant to the user's question. Hence it is off‑topic for the literature review.",
+          "title": "Arithmetic progressions of primes in short intervals beyond the 17/30 barrier"
+        },
+        {
+          "primary_pointer": "1902.04708",
+          "rationale": "The paper studies exponential sums of the von Mangoldt function (primes) with polynomial phases, not the autocorrelation or statistical behavior of the Möbius function in short intervals, and therefore does not address the same mechanism, variable, or empirical setting relevant to the user's question.",
+          "title": "Discorrelation between primes in short intervals and polynomial phases"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-17T14:22:09Z",
+    "term_input": {
+      "normalized": "autocorrelation of the möbius function in short intervals mathematics",
+      "raw": "Autocorrelation of the Möbius Function in Short Intervals mathematics"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The dynamics of a population expanding into unoccupied habitat has been primarily studied for situations in which growth and dispersal parameters are uniform in space or vary in one dimension. Here we study the influence of finite-sized individual inhomogeneities and their collective effect on front speed if randomly placed in a two-dimensional habitat. We use an individual-based model to investigate the front dynamics for a region in which dispersal or growth of individuals is reduced to zero (obstacles) or increased above the background (hotspots), respectively. In a regime where front dynamics is determined by a local front speed only, a principle of least time can be employed to predict front speed and shape. The resulting analytical solutions motivate an event-based algorithm illustrating the effects of several obstacles or hotspots. We finally apply the principle of least time to large heterogeneous environments by solving the Eikonal equation numerically. Obstacles lead to a slow-down that is dominated by the number density and width of obstacles, but not by their precise shape. Hotspots result in a speedup, which we characterise as function of hotspot strength and density. Our findings emphasise the importance of taking the dimensionality of the environment into account.",
+          "claimed_authors": [
+            "Wolfram Möbius",
+            "Francesca Tesser",
+            "Kim M. J. Alards",
+            "Roberto Benzi",
+            "David R. Nelson",
+            "Federico Toschi"
+          ],
+          "claimed_title": "The collective effect of finite-sized inhomogeneities on the spatial spread of populations in two dimensions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1910.05332"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Autocorrelation of the Möbius Function in Short Intervals mathematics', candidate_title='The collective effect of finite-sized inhomogeneities on the spatial spread of populations in two dimensions')",
+        "failed_at": "2026-06-17T14:23:44Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Let $x\\geq 1$ be a large integer, and let $a_0<a_1<\\cdots<a_{k-1}$ be a small fixed integer $k$-tuple, and let $μ(n)\\in\\{-1,0,1\\}$ be the periodic Mobius function. This note shows that discrete Fourier transform analysis produces a simple solution of the periodic Chowla conjecture. More precisely, it leads to an asymptotic formula of the form $\\sum_{n \\leq x} μ(n+a_0) μ(n+a_1)\\cdotsμ(n+a_{k-1}) =O\\left( x(\\log x)^{-c}\\right)$, where $c>0$ is an arbitrary constant.",
+          "claimed_authors": [
+            "N. A. Carella"
+          ],
+          "claimed_title": "Note on the Chowla Conjecture and the Discrete Fourier Transform",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2208.12219"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Autocorrelation of the Möbius Function in Short Intervals mathematics', candidate_title='Note on the Chowla Conjecture and the Discrete Fourier Transform')",
+        "failed_at": "2026-06-17T14:23:45Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "There are no square $L^2$-flat sequences of polynomials of the type\n  $$\\frac{1}{\\sqrt q}( ε_0 + ε_1z + ε_2z^2 + \\cdots + ε_{q-2}z^{q-2} +ε_q z^{q-1}),$$ where for each $j,~~ 0 \\leq j\\leq q-1,~ε_j = \\pm 1$. It follows that Erdös's conjectures on Littlewood polynomials hold. Consequently, Turyn-Golay's conjecture is true, that is, there are only finitely many Barker sequences. We further get that the spectrum of dynamical systems arising from continuous Morse sequences is singular. This settles an old question due to M. Keane. Applying our reasoning to the Liouville function we obtain that the popular Chowla conjecture on the %Bernouillicity normality of the Liouville function implies Riemann hypothesis.",
+          "claimed_authors": [
+            "el Houcein el Abdalaoui"
+          ],
+          "claimed_title": "On the Erdös flat polynomials problem, Chowla conjecture and Riemann Hypothesis",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1609.03435"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Autocorrelation of the Möbius Function in Short Intervals mathematics', candidate_title='On the Erdös flat polynomials problem, Chowla conjecture and Riemann Hypothesis')",
+        "failed_at": "2026-06-17T14:23:45Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The main purpose of the present article is to give some new Hilbert's sum type inequalities, which in special cases yield the classical Hilbert's inequalities. Our results provide some new estimates to these types of inequalities.",
+          "claimed_authors": [
+            "Chang-Jian Zhao",
+            "Wing Sum Cheung"
+          ],
+          "claimed_title": "On Hilbert's sum type inequalities",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2002.08190"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Autocorrelation of the Möbius Function in Short Intervals mathematics', candidate_title=\"On Hilbert's sum type inequalities\")",
+        "failed_at": "2026-06-17T14:23:45Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We prove structural results for measure preserving systems, called Furstenberg systems, naturally associated with bounded multiplicative functions. We show that for all pretentious multiplicative functions these systems always have rational discrete spectrum and, as a consequence, zero entropy. We obtain several other refined structural and spectral results, one consequence of which is that the Archimedean characters are the only pretentious multiplicative functions that have Furstenberg systems with trivial rational spectrum, another is that a pretentious multiplicative function has ergodic Furstenberg systems if and only if it pretends to be a Dirichlet character, and a last one is that for any fixed pretentious multiplicative function all its Furstenberg systems are isomorphic. We also study structural properties of Furstenberg systems of a class of multiplicative functions, introduced by Matomäki, Radziwill, and Tao, which lie in the intermediate zone between pretentiousness and strong aperiodicity. In a work of the last two authors and Gomilko, several examples of this class with exotic ergodic behavior were identified, and here we complement this study and discover some new unexpected phenomena. Lastly, we prove that Furstenberg systems of general bounded multiplicative functions have divisible spectrum. When these systems are obtained using logarithmic averages, we show that trivial rational spectrum implies a strong dilation invariance property, called strong stationarity, but, quite surprisingly, this property fails when the systems are obtained using Cesàro averages.",
+          "claimed_authors": [
+            "Nikos Frantzikinakis",
+            "Mariusz Lemańczyk",
+            "Thierry de la Rue"
+          ],
+          "claimed_title": "Furstenberg systems of pretentious and MRT multiplicative functions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2304.03121"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Autocorrelation of the Möbius Function in Short Intervals mathematics', candidate_title='Furstenberg systems of pretentious and MRT multiplicative functions')",
+        "failed_at": "2026-06-17T14:23:45Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We note how several central results in multiplicative number theory may be rephrased naturally in terms of multiplicative functions $f$ that pretend to be another multiplicative function $g$. We formalize a `distance' which gives a measure of such {\\sl pretentiousness}, and as one consequence obtain a curious inequality for the zeta-function.",
+          "claimed_authors": [
+            "Andrew Granville",
+            "K. Soundararajan"
+          ],
+          "claimed_title": "Pretentious multiplicative functions and an inequality for the zeta-function",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2006,
+          "primary_pointer": "math/0608407"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Autocorrelation of the Möbius Function in Short Intervals mathematics', candidate_title='Pretentious multiplicative functions and an inequality for the zeta-function')",
+        "failed_at": "2026-06-17T14:23:45Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Building on the concept of pretentious multiplicative functions, we give a new and largely elementary proof of the best result known on the counting function of primes in arithmetic progressions.",
+          "claimed_authors": [
+            "Dimitris Koukoulopoulos"
+          ],
+          "claimed_title": "Pretentious multiplicative functions and the prime number theorem for arithmetic progressions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1203.0596"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Autocorrelation of the Möbius Function in Short Intervals mathematics', candidate_title='Pretentious multiplicative functions and the prime number theorem for arithmetic progressions')",
+        "failed_at": "2026-06-17T14:23:45Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "This is a survey on Sarnak's Conjecture",
+          "claimed_authors": [
+            "Joanna Kułaga-Przymus",
+            "Mariusz Lemańczyk"
+          ],
+          "claimed_title": "Sarnak's Conjecture from the Ergodic Theory Point of View",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2009.04757"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Autocorrelation of the Möbius Function in Short Intervals mathematics', candidate_title=\"Sarnak's Conjecture from the Ergodic Theory Point of View\")",
+        "failed_at": "2026-06-17T14:23:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "We present in this paper a new method to deal with automatic sequences.\n  This method allows us to prove a Möbius-randomness-principle for automatic sequences from which we deduce the Sarnak conjecture for this class of sequences.\n  Furthermore, we can show a Prime Number Theorem for automatic sequences that are generated by strongly connected automata where the initial state is fixed by the transition corresponding to $0$.",
+          "claimed_authors": [
+            "Clemens Müllner"
+          ],
+          "claimed_title": "Automatic sequences fulfill the Sarnak conjecture",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1602.03042"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Autocorrelation of the Möbius Function in Short Intervals mathematics', candidate_title='Automatic sequences fulfill the Sarnak conjecture')",
+        "failed_at": "2026-06-17T14:23:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "A set $R\\subset \\mathbb{N}$ is called rational if it is well-approximable by finite unions of arithmetic progressions. Examples of rational sets include many classical sets of number-theoretical origin such as the set of squarefree numbers, the set of abundant numbers, or sets of the form $Φ_x:=\\{n\\in\\mathbb{N}: \\frac{\\boldsymbol{\\varphi}(n)}{n}<x\\}$, where $x\\in[0,1]$ and $\\boldsymbol{\\varphi}$ is Euler's totient function. We investigate the combinatorial and dynamical properties of rational sets and obtain new results in ergodic Ramsey theory. We show that if $R$ is a rational set with $\\overline{d}(R)>0$, then the following are equivalent:\n  (a) $R$ is divisible, i.e. $\\overline{d}(R\\cap u \\mathbb{N})>0$ for all $u\\in\\mathbb{N}$.\n  (b) $R$ is an averaging set of polynomial single recurrence.\n  (c) $R$ is an averaging set of polynomial multiple recurrence.\n  As an application, we show that if $R$ is rational and divisible, then for any set $E\\subset\\mathbb{N}$ with $\\overline{d}(E)>0$ and any polynomials $p_i\\in\\mathbb{Q}[t]$,$i=1,\\ldots,\\ell$, which satisfy $p_i(\\mathbb{Z})\\subset\\mathbb{Z}$ and $p_i(0)=0$ for all $i\\in\\{1,\\ldots,\\ell\\}$, there exists $β>0$ such that the set $$\\{n\\in R:\\overline{d}( E\\cap (E-p_1(n))\\cap\\ldots\\cap(E-p_\\ell(n)))>β\\}$$ has positive lower density.\n  Ramsey-theoretical applications naturally lead to problems in symbolic dynamics, which involve rationally almost periodic sequences. We prove that if $\\mathcal{A}$ is a finite alphabet, $η\\in\\mathcal{A}^\\mathbb{N}$ is rationally almost periodic, $S$ denotes the left-shift on $\\mathcal{A}^\\mathbb{Z}$ and $$X:=\\{y\\in \\mathcal{A}^\\mathbb{Z} : \\text{each finite word appearing in $y$ appears in }η\\},$$ then $η$ is a generic point for an $S$-invariant probability measure $ν$ on $X$ such that $(X,ν,S)$ is ergodic and has rational discrete spectrum.",
+          "claimed_authors": [
+            "Vitaly Bergelson",
+            "Joanna Kułaga-Przymus",
+            "Mariusz Lemańczyk",
+            "Florian K. Richter"
+          ],
+          "claimed_title": "Rationally almost periodic sequences, polynomial multiple recurrence and symbolic dynamics",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1611.08392"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Autocorrelation of the Möbius Function in Short Intervals mathematics', candidate_title='Rationally almost periodic sequences, polynomial multiple recurrence and symbolic dynamics')",
+        "failed_at": "2026-06-17T14:23:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "We study the asymptotic behaviour of higher order correlations $$ \\mathbb{E}_{n \\leq X/d} g_1(n+ah_1) \\cdots g_k(n+ah_k)$$ as a function of the parameters $a$ and $d$, where $g_1,\\dots,g_k$ are bounded multiplicative functions, $h_1,\\dots,h_k$ are integer shifts, and $X$ is large. Our main structural result asserts, roughly speaking, that such correlations asymptotically vanish for almost all $X$ if $g_1 \\cdots g_k$ does not (weakly) pretend to be a twisted Dirichlet character $n \\mapsto χ(n)n^{it}$, and behave asymptotically like a multiple of $d^{-it} χ(a)$ otherwise. This extends our earlier work on the structure of logarithmically averaged correlations, in which the $d$ parameter is averaged out and one can set $t=0$. Among other things, the result enables us to establish special cases of the Chowla and Elliott conjectures for (unweighted) averages at almost all scales; for instance, we establish the $k$-point Chowla conjecture $ \\mathbb{E}_{n \\leq X} λ(n+h_1) \\cdots λ(n+h_k)=o(1)$ for $k$ odd or equal to $2$ for all scales $X$ outside of a set of zero logarithmic density.",
+          "claimed_authors": [
+            "Terence Tao",
+            "Joni Teräväinen"
+          ],
+          "claimed_title": "The structure of correlations of multiplicative functions at almost all scales, with applications to the Chowla and Elliott conjectures",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1809.02518"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Autocorrelation of the Möbius Function in Short Intervals mathematics', candidate_title='The structure of correlations of multiplicative functions at almost all scales, with applications to the Chowla and Elliott conjectures')",
+        "failed_at": "2026-06-17T14:23:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "We show that $$\\sum_{\\substack{p_n \\in [x, 2x] \\\\ p_{n+1} - p_n \\ge x^{1/2}}} (p_{n+1} - p_n) \\ll x^{0.57+ε}$$ and $$\\sum_{\\substack{p_n \\in [x, 2x] \\\\ p_{n+1} - p_n \\ge x^{0.45}}} (p_{n+1} - p_n) \\ll x^{0.63+ε},$$ where $p_n$ is the $n$th prime number. The proof combines Heath-Brown's recent work with Harman's sieve, improving and extending his results. We give applications of the results to prime-representing functions, binary digits of primes and approximation of reals by multiplicative functions.",
+          "claimed_authors": [
+            "Olli Järviniemi"
+          ],
+          "claimed_title": "On large differences between consecutive primes",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2212.10965"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Autocorrelation of the Möbius Function in Short Intervals mathematics', candidate_title='On large differences between consecutive primes')",
+        "failed_at": "2026-06-17T14:23:46Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "N. A. Carella"
+          ],
+          "title": "Autocorrelation of the Mobius Function",
+          "venue": "arXiv",
+          "year": 2022
+        },
+        "primary_pointer": "2202.01071",
+        "summary": "Let $x\\geq 1$ be a large integer, and let $μ:\\mathbb{N}\\longrightarrow\\{-1,0,1\\}$ be the Mobius function. This article proposes an effective asymptotic result for the autocorrelation function $\\sum_{n \\leq x} μ(n) μ(n+t) =O\\left( e^{-c\\sqrt{\\log x}}\\right) $, where $t\\ne 0$ be a small fixed integer, and $c>0$ is a constant.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2202.01071",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-17T14:23:43Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Kaisa Matomäki",
+            "Joni Teräväinen"
+          ],
+          "title": "On the Möbius function in all short intervals",
+          "venue": "arXiv",
+          "year": 2019
+        },
+        "primary_pointer": "1911.09076",
+        "summary": "We show that, for the Möbius function $μ(n)$, we have $$ \\sum_{x < n\\leq x+x^θ}μ(n)=o(x^θ) $$ for any $θ>0.55$. This improves on a result of Ramachandra from 1976, which is valid for $θ>7/12$. Ramachandra's result corresponded to Huxley's $7/12$ exponent for the prime number theorem in short intervals. The main new idea leading to the improvement is using Ramaré's identity to extract a small prime factor from the $n$-sum. The proof method also allows us to improve on an estimate of Zhan for the exponential sum of the Möbius function as well as some results on multiplicative functions and almost primes in short intervals.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1911.09076",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-17T14:23:45Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Dan Carmon"
+          ],
+          "title": "The autocorrelation of the Möbius function and Chowla's conjecture for the rational function field in characteristic 2",
+          "venue": "arXiv",
+          "year": 2014
+        },
+        "primary_pointer": "1409.3694",
+        "summary": "We prove a function field version of Chowla's conjecture on the autocorrelation of the Möbius function in the limit of a large finite field of characteristic 2.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1409.3694",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-17T14:23:45Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Livio Flaminio",
+            "Krzysztof Frączek",
+            "Joanna Kułaga-Przymus",
+            "Mariusz Lemańczyk"
+          ],
+          "title": "Approximate orthogonality of powers for ergodic affine unipotent diffeomorphisms on nilmanifolds",
+          "venue": "arXiv",
+          "year": 2016
+        },
+        "primary_pointer": "1609.00699",
+        "summary": "Let $ G $ be a connected, simply connected nilpotent Lie group and $ Γ< G $ a lattice. We prove that each ergodic diffeomorphism $ φ(xΓ)=uA(x)Γ$ on the nilmanifold $ G/Γ$, where $ u\\in G $ and $ A:G\\to G $ is a unipotent automorphism satisfying $ A(Γ)=Γ$, enjoys the property of asymptotically orthogonal powers (AOP). Two consequences follow:\n  (i) Sarnak's conjecture on Möbius orthogonality holds in every uniquely ergodic model of an ergodic affine unipotent diffeomorphism;\n  (ii) For ergodic affine unipotent diffeomorphisms themselves, the Möbius orthogonality holds on so called typical short interval: $ \\frac1 M\\sum_{M\\leq m<2M}\\left|\\frac1H\\sum_{m\\leq n<m+H} f(φ^n(xΓ))μ(n)\\right|\\to 0$ as $ H\\to\\infty $ and $ H/M\\to0 $ for each $ xΓ\\in G/Γ$ and each $ f\\in C(G/Γ) $.\n  In particular, the results in (i) and (ii) hold for ergodic nil-translations. Moreover, we prove that each nilsequence is orthogonal to the Möbius function $μ$ on a typical short interval. We also study the problem of lifting of the AOP property to induced actions and derive some applications on uniform distribution.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "theoremsearch",
+          "final_url": "https://arxiv.org/abs/1609.00699",
+          "http_status": 200,
+          "pdf_sample_score": 0.2028,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-17T14:23:45Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "el Houcein el Abdalaoui",
+            "Mahesh Nerurkar"
+          ],
+          "title": "Sarnak's Möbius disjointness for dynamical systems with singular spectrum and dissection of Möbius flow",
+          "venue": "arXiv",
+          "year": 2020
+        },
+        "primary_pointer": "2006.07646",
+        "summary": "It is shown that Sarnak's Möbius orthogonality conjecture is fulfilled for the compact metric dynamical systems for which every invariant measure has singular spectra. This is accomplished by first establishing a special case of Chowla conjecture which gives a correlation between the Möbius function and its square. Then a computation of W. Veech, followed by an argument using the notion of `affinity between measures', (or the so-called `Hellinger method'), completes the proof. We further present an unpublished theorem of Veech which is closely related to our main result. This theorem asserts, if for any probability measure in the closure of the Cesaro averages of the Dirac measure on the shift of the Möbius function, the first projection is in the orthocomplement of its Pinsker algebra then Sarnak Möbius disjointness conjecture holds. Among other consequences, we obtain a simple proof of Matom{ä}ki-Radziwiłl-Tao's theorem and Matom{ä}ki-Radziwiłl's theorem on the correlations of order two of the Liouville function.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "theoremsearch",
+          "final_url": "https://arxiv.org/abs/2006.07646",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-17T14:23:46Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "autocorrelation of the möbius function in short intervals mathematics",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

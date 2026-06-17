@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1710.07827",
+  "judged_at": "2026-06-17T14:25:54Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "empirical analysis of twin prime gaps up to 10⁹ mathematics",
+  "rationale": "The paper provides a theoretical proof about the existence of quadratic twin primes, not an empirical study of twin prime gaps or their distribution up to 10⁹, and therefore does not address the variables or mechanisms of the user's question.",
+  "relevant": false
+}

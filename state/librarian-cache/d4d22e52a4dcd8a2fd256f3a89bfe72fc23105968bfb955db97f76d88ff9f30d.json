@@ -1,0 +1,511 @@
+{
+  "fetched_at": "2026-06-17T14:22:02Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "Assessing Energy Consumption of LLM Inference for Code Completion",
+      "target_n": 5
+    },
+    "duration_seconds": 51.135,
+    "ended_at": "2026-06-17T14:22:02Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "energy profiling of transformer-based code completion models"
+        ],
+        [
+          2,
+          "power consumption of large language model inference for programming assistance"
+        ],
+        [
+          3,
+          "carbon footprint of AI code autocompletion systems"
+        ],
+        [
+          4,
+          "energy‑aware inference of neural code generation models"
+        ],
+        [
+          5,
+          "GPU energy usage during real‑time code suggestion"
+        ],
+        [
+          6,
+          "sustainable deployment of AI‑driven code assistants"
+        ],
+        [
+          7,
+          "benchmarking energy efficiency of programming language models"
+        ],
+        [
+          8,
+          "green AI approaches for code completion inference"
+        ],
+        [
+          9,
+          "hardware power cost of autoregressive code generators"
+        ],
+        [
+          10,
+          "energy measurement methodology for LLM‑based IDE plugins"
+        ],
+        [
+          11,
+          "energy‑efficient neural code synthesis techniques"
+        ],
+        [
+          12,
+          "carbon‑aware evaluation of AI code completion services"
+        ],
+        [
+          13,
+          "low‑power inference strategies for large code models"
+        ],
+        [
+          14,
+          "energy consumption analysis of AI‑augmented software development tools"
+        ],
+        [
+          15,
+          "eco‑friendly optimization of transformer inference for programming tasks"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Assessing Energy Consumption of LLM Inference for Code Completion computer science": 0,
+        "energy profiling of transformer-based code completion models": 0,
+        "power consumption of large language model inference for programming assistance": 4
+      },
+      "total_queries_issued": 2
+    },
+    "extracted_queries": [
+      "energy efficiency LLM inference",
+      "HumanEval code completion benchmark",
+      "FLOPs per token inference",
+      "energy per inference measurement",
+      "scaling laws LLM energy"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2109.05472"
+      ]
+    },
+    "per_query_hit_count": {
+      "Assessing Energy Consumption of LLM Inference for Code Completion computer science": 3,
+      "FLOPs per token inference": 3,
+      "HumanEval code completion benchmark": 3,
+      "energy efficiency LLM inference": 2,
+      "energy per inference measurement": 1,
+      "scaling laws LLM energy": 1
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 2,
+      "rejections": [
+        {
+          "primary_pointer": "2402.11651",
+          "rationale": "The paper focuses on fine‑tuning LLM agents with negative examples and does not measure or discuss energy consumption, inference cost, or code‑completion workloads, so it lacks any of the accepted relevance criteria (a‑f).",
+          "title": "Learning From Failure: Integrating Negative Examples when Fine-tuning Large Language Models as Agents"
+        },
+        {
+          "primary_pointer": "1711.03620",
+          "rationale": "The paper focuses on static contract verification for higher-order, stateful Racket programs and does not address large language models, inference, code completion, or energy consumption, which are the core constructs of the user's research question. It is therefore off‑domain and unrelated.",
+          "title": "Soft Contract Verification for Higher-Order Stateful Programs"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-17T14:21:11Z",
+    "term_input": {
+      "normalized": "assessing energy consumption of llm inference for code completion computer science",
+      "raw": "Assessing Energy Consumption of LLM Inference for Code Completion computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Assessing Energy Consumption of LLM Inference for Code Completion computer scien', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-06-17T14:21:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Assessing Energy Consumption of LLM Inference for Code Completion computer scien', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-06-17T14:21:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We describe the Dark Energy Survey (DES), a proposed optical-near infrared survey of 5000 sq. deg of the South Galactic Cap to ~24th magnitude in SDSS griz, that would use a new 3 sq. deg CCD camera to be mounted on the Blanco 4-m telescope at Cerro Telolo Inter-American Observatory (CTIO). The survey data will allow us to measure the dark energy and dark matter densities and the dark energy equation of state through four independent methods: galaxy clusters, weak gravitational lensing tomography, galaxy angular clustering, and supernova distances. These methods are doubly complementary: they constrain different combinations of cosmological model parameters and are subject to different systematic errors. By deriving the four sets of measurements from the same data set with a common analysis framework, we will obtain important cross checks of the systematic errors and thereby make a substantial and robust advance in the precision of dark energy measurements.",
+          "claimed_authors": [
+            " The Dark Energy Survey Collaboration"
+          ],
+          "claimed_title": "The Dark Energy Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2005,
+          "primary_pointer": "astro-ph/0510346"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Assessing Energy Consumption of LLM Inference for Code Completion computer scien', candidate_title='The Dark Energy Survey')",
+        "failed_at": "2026-06-17T14:21:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large language models (LLMs) drive significant financial innovations, yet their high-concurrency deployment is severely bottlenecked by KV cache memory overhead, which inflates infrastructure costs and throttles scalability. To address this, we propose YouZhi-LLM, a highly efficient financial LLM empowered by a comprehensive structural transition and training pipeline natively built on the Huawei Ascend ecosystem. At its algorithmic core, YouZhi-LLM features a layer-adaptive GQA-to-MLA transition framework that dynamically assigns per-layer FreqFold sizes, maximizing KV-cache compression while minimizing perplexity degradation. To recover representation capacity and inject domain expertise, the Ascend-based training pipeline seamlessly integrates generalized knowledge distillation with financial-specific supervised fine-tuning. Evaluations demonstrate the superiority of this systematic approach, with the adaptive transition reducing perplexity degradation by up to 35% over uniform baselines. Crucially, when evaluated on Ascend NPUs via vLLM-Ascend, the massive KV-cache reduction translates directly into deployment efficiency. Compared to their respective base models, YouZhi-7B yields a 12.3% improvement in average financial benchmark score alongside a 2.69$\\times$ increase in maximum concurrency; similarly, YouZhi-14B achieves a 7.0% accuracy gain and a 2.43$\\times$ concurrency boost, establishing a new paradigm for cost-effective, high-throughput financial inference.",
+          "claimed_authors": [
+            " PSBC LLM Team",
+            " Huawei LLM Team",
+            "Ruihan Long",
+            "Junjie Wu",
+            "Tianan Zhang",
+            "Duo Zhang",
+            "Yaozong Wu",
+            "Jinbin Fu",
+            "Chang Liu",
+            "Zhentao Tang",
+            "Wenshuang Yang",
+            "Xin Wang",
+            "Zhihao Song",
+            "Ning Huang",
+            "Wenjing Xu",
+            "Shuai Zong",
+            "Shupei Sun",
+            "Sen Wang",
+            "Jing Hu",
+            "Bin Wang",
+            "Xinyu Wang",
+            "Junkui Ju",
+            "Zequn Ding",
+            "Jie Ran",
+            "Man Luo",
+            "Shixiong Kai",
+            "Linkai Hou",
+            "Kaichao Liang",
+            "Hu Zhao",
+            "Yang Zhao",
+            "Shucheng Lin",
+            "Wei Yu",
+            "Chenghan Jiang",
+            "Jingjing Ding",
+            "Jiahui Zhang",
+            "Tian Jin",
+            "Yuhang Zhang",
+            "Dong Guo",
+            "Wei Sun",
+            "Jun Xie",
+            "Jianwei Li",
+            "Lei Cao",
+            "Pei Li",
+            "Jiabin Li",
+            "Jia Yuan",
+            "Rui Yuan",
+            "Jing Zhu",
+            "Mingxuan Yuan",
+            "Zhangcheng Lv",
+            "Xin Jiang",
+            "Xiuhong Fei",
+            "Xiaozhe Ren",
+            "Yulong Li",
+            "Zhipeng Zhang",
+            "Hang Wang",
+            "Zhaohui Xu",
+            "Rui Zhao",
+            "Yibo He",
+            "Xinzhuang Niu"
+          ],
+          "claimed_title": "YouZhi: Towards High-Concurrency Financial LLMs via Adaptive GQA-to-MLA Transition",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.05868"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Assessing Energy Consumption of LLM Inference for Code Completion computer scien', candidate_title='YouZhi: Towards High-Concurrency Financial LLMs via Adaptive GQA-to-MLA Transition')",
+        "failed_at": "2026-06-17T14:21:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Understanding and reasoning over diagrams is a fundamental aspect of human intelligence. While Large Multimodal Models (LMMs) have demonstrated impressive capabilities across various tasks, existing benchmarks lack comprehensive evaluation of their diagram interpretation and reasoning abilities, particularly in coding contexts. We present HumanEval-V, a rigorous benchmark of human-annotated coding tasks that spans six task types and evaluates diverse visual reasoning capabilities. Each task features carefully crafted diagrams paired with function signatures and test cases, employing novel code generation tasks to thoroughly assess models' diagram comprehension. Through extensive experiments with 22 LMMs, we find that even top-performing models achieve modest success rates, with Claude 3.5 Sonnet reaching only 36.8% pass@1, highlighting substantial room for improvement. Our analysis reveals that current LMMs struggle with spatial transformations, topological relationships, and dynamic patterns that humans find intuitive. These findings provide valuable insights for advancing LMMs' visual reasoning abilities. We have open-sourced our code and benchmark at https://github.com/HumanEval-V/HumanEval-V-Benchmark.",
+          "claimed_authors": [
+            "Fengji Zhang",
+            "Linquan Wu",
+            "Huiyu Bai",
+            "Guancheng Lin",
+            "Xiao Li",
+            "Xiao Yu",
+            "Yue Wang",
+            "Bei Chen",
+            "Jacky Keung"
+          ],
+          "claimed_title": "HumanEval-V: Benchmarking High-Level Visual Reasoning with Complex Diagrams in Coding Tasks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2410.12381"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Assessing Energy Consumption of LLM Inference for Code Completion computer scien', candidate_title='HumanEval-V: Benchmarking High-Level Visual Reasoning with Complex Diagrams in Coding Tasks')",
+        "failed_at": "2026-06-17T14:21:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Quantum programs are typically developed using quantum Software Development Kits (SDKs). The rapid advancement of quantum computing necessitates new tools to streamline this development process, and one such tool could be Generative Artificial intelligence (GenAI). In this study, we introduce and use the Qiskit HumanEval dataset, a hand-curated collection of tasks designed to benchmark the ability of Large Language Models (LLMs) to produce quantum code using Qiskit - a quantum SDK. This dataset consists of more than 100 quantum computing tasks, each accompanied by a prompt, a canonical solution, a comprehensive test case, and a difficulty scale to evaluate the correctness of the generated solutions. We systematically assess the performance of a set of LLMs against the Qiskit HumanEval dataset's tasks and focus on the models ability in producing executable quantum code. Our findings not only demonstrate the feasibility of using LLMs for generating quantum code but also establish a new benchmark for ongoing advancements in the field and encourage further exploration and development of GenAI-driven tools for quantum code generation.",
+          "claimed_authors": [
+            "Sanjay Vishwakarma",
+            "Francis Harkins",
+            "Siddharth Golecha",
+            "Vishal Sharathchandra Bajpe",
+            "Nicolas Dupuis",
+            "Luca Buratti",
+            "David Kremer",
+            "Ismael Faro",
+            "Ruchir Puri",
+            "Juan Cruz-Benito"
+          ],
+          "claimed_title": "Qiskit HumanEval: An Evaluation Benchmark For Quantum Code Generative Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2406.14712"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Assessing Energy Consumption of LLM Inference for Code Completion computer scien', candidate_title='Qiskit HumanEval: An Evaluation Benchmark For Quantum Code Generative Models')",
+        "failed_at": "2026-06-17T14:21:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large pre-trained code generation models, such as OpenAI Codex, can generate syntax- and function-correct code, making the coding of programmers more productive and our pursuit of artificial general intelligence closer. In this paper, we introduce CodeGeeX, a multilingual model with 13 billion parameters for code generation. CodeGeeX is pre-trained on 850 billion tokens of 23 programming languages as of June 2022. Our extensive experiments suggest that CodeGeeX outperforms multilingual code models of similar scale for both the tasks of code generation and translation on HumanEval-X. Building upon HumanEval (Python only), we develop the HumanEval-X benchmark for evaluating multilingual models by hand-writing the solutions in C++, Java, JavaScript, and Go. In addition, we build CodeGeeX-based extensions on Visual Studio Code, JetBrains, and Cloud Studio, generating 4.7 billion tokens for tens of thousands of active users per week. Our user study demonstrates that CodeGeeX can help to increase coding efficiency for 83.4% of its users. Finally, CodeGeeX is publicly accessible and in Sep. 2022, we open-sourced its code, model weights (the version of 850B tokens), API, extensions, and HumanEval-X at https://github.com/THUDM/CodeGeeX.",
+          "claimed_authors": [
+            "Qinkai Zheng",
+            "Xiao Xia",
+            "Xu Zou",
+            "Yuxiao Dong",
+            "Shan Wang",
+            "Yufei Xue",
+            "Zihan Wang",
+            "Lei Shen",
+            "Andi Wang",
+            "Yang Li",
+            "Teng Su",
+            "Zhilin Yang",
+            "Jie Tang"
+          ],
+          "claimed_title": "CodeGeeX: A Pre-Trained Model for Code Generation with Multilingual Benchmarking on HumanEval-X",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2303.17568"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Assessing Energy Consumption of LLM Inference for Code Completion computer scien', candidate_title='CodeGeeX: A Pre-Trained Model for Code Generation with Multilingual Benchmarking on HumanEval-X')",
+        "failed_at": "2026-06-17T14:21:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Massive parameters of LLMs have made inference latency a fundamental bottleneck. Speculative decoding represents a lossless approach to accelerate inference through a guess-and-verify paradigm. Some methods rely on additional architectures to guess draft tokens, which need extra training before use. Alternatively, retrieval-based training-free techniques build libraries from pre-existing corpora or by n-gram generation. However, they face challenges like large storage requirements, time-consuming retrieval, and limited adaptability. Observing that candidate tokens generated during the decoding process are likely to reoccur in future sequences, we propose Token Recycling. It stores candidate tokens in an adjacency matrix and employs a breadth-first-search (BFS)-like algorithm to construct a draft tree, which is then validated through tree attention. New candidate tokens from the decoding process are then used to update the matrix. Token Recycling requires \\textless2MB of additional storage and achieves approximately 2x speedup across all sizes of LLMs. It significantly outperforms existing train-free methods by 30\\% and even a widely recognized training method by 25\\%.",
+          "claimed_authors": [
+            "Xianzhen Luo",
+            "Yixuan Wang",
+            "Qingfu Zhu",
+            "Zhiming Zhang",
+            "Xuanyu Zhang",
+            "Qing Yang",
+            "Dongliang Xu"
+          ],
+          "claimed_title": "Turning Trash into Treasure: Accelerating Inference of Large Language Models with Token Recycling",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2408.08696"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Assessing Energy Consumption of LLM Inference for Code Completion computer scien', candidate_title='Turning Trash into Treasure: Accelerating Inference of Large Language Models with Token Recycling')",
+        "failed_at": "2026-06-17T14:21:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Tokens are the basic units of Large Language Models (LLMs). LLMs rely on tokenizers to segment text into these tokens, and tokenization is the primary determinant of computational and inference cost. Sanskrit, one of the oldest languages, is hypothesized to express more meaning per token due to its morphology and grammar rules; however, no prior work has quantified this. We use a dataset of 701 parallel verses of the Bhagavad Gita, which comprises three languages-Sanskrit, English, and Hindi along with transliteration of Sanskrit into English. We test tokenizers including SentencePiece (SPM), older GPT models, and the latest generation tokenizers from Gemini and GPT. We use metrics of token count, characters per token (token efficiency), and tokens per character (token cost). Results show a ~2x difference in token counts between Sanskrit and English/Hindi under the unbiased SPM baseline. English/Hindi translations of Sanskrit commentary resulted in an approximately 20x increase in token count. GPT o200k base (latest, used by GPT-4o) and Gemini (latest) reduce bias by a significant degree compared to GPT cl100k base (used until GPT-4), but still fail to fully capture Sanskrit's compactness. This matters because there might be a penalty bias for non-English users, which inflates the token count. This research provides a foundation for improving future tokenizer design and shows the potential of Sanskrit for highly compact encoding, saving on cost while speeding up training and inference. The code and dataset are available at https://github.com/anshulkr713/sanskrit-token-efficiency",
+          "claimed_authors": [
+            "Anshul Kumar"
+          ],
+          "claimed_title": "Is Sanskrit the most token-efficient language? A quantitative study using GPT, Gemini, and SentencePiece",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2601.06142"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Assessing Energy Consumption of LLM Inference for Code Completion computer scien', candidate_title='Is Sanskrit the most token-efficient language? A quantitative study using GPT, Gemini, and SentencePiece')",
+        "failed_at": "2026-06-17T14:21:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The determination of the centre-of-mass energies for all LEP 2 running is presented. Accurate knowledge of these energies is of primary importance to set the absolute energy scale for the measurement of the W boson mass. The beam energy between 80 and 104 GeV is derived from continuous measurements of the magnetic bending field by 16 NMR probes situated in a number of the LEP dipoles. The relationship between the fields measured by the probes and the beam energy is defined in the NMR model, which is calibrated against precise measurements of the average beam energy between 41 and 61 GeV made using the resonant depolarisation technique. The validity of the NMR model is verified by three independent methods: the flux-loop, which is sensitive to the bending field of all the dipoles of LEP; the spectrometer, which determines the energy through measurements of the deflection of the beam in a magnet of known integrated field; and an analysis of the variation of the synchrotron tune with the total RF voltage. To obtain the centre-of-mass energies, corrections are then applied to account for sources of bending field external to the dipoles, and variations in the local beam energy at each interaction point. The relative error on the centre-of-mass energy determination for the majority of LEP 2 running is 1.2 x 10^{-4}, which is sufficiently precise so as not to introduce a dominant uncertainty on the W mass measurement.",
+          "claimed_authors": [
+            " LEP Energy Working Group",
+            "R. Assmann"
+          ],
+          "claimed_title": "Calibration of centre-of-mass energies at LEP 2 for a precise measurement of the W boson mass",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2004,
+          "primary_pointer": "hep-ex/0410026"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Assessing Energy Consumption of LLM Inference for Code Completion computer scien', candidate_title='Calibration of centre-of-mass energies at LEP 2 for a precise measurement of the W boson mass')",
+        "failed_at": "2026-06-17T14:21:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We find that the cross-entropy loss curves of neural language models empirically adhere to a scaling law with learning rate (LR) annealing over training steps: $$L(s) = L_0 + A\\cdot S_1^{-α} - C\\cdot S_2,$$ where $L(s)$ is the validation loss at step $s$, $S_1$ is the area under the LR curve, $S_2$ is the LR annealing area, and $L_0$, $A$, $C$, $α$ are constant parameters. This formulation takes into account two factors: (1) power-law scaling over data size, and (2) the additional loss reduction during LR annealing. Therefore, this formulation can describe the full loss curve at each step, rather than the single loss point at the end of training. Applying the scaling law with LR annealing and fitting only one or two training curves, we can accurately predict the loss at any given step across any learning rate scheduler (LRS). This approach significantly reduces computational cost in formulating scaling laws while providing more accuracy and expressiveness for training dynamics. Extensive experiments demonstrate that our findings hold across a range of hyper-parameters and model architectures, and our equation can extend to scaling effect of model sizes. Moreover, our formulation provides accurate theoretical verification and explanation for empirical results observed in numerous previous studies, particularly those focusing on LR schedule and annealing. We believe that this work is promising to enhance the understanding of LLM training dynamics while greatly democratizing scaling laws, and it can guide researchers in refining training strategies (e.g. critical LRS) for further LLMs.",
+          "claimed_authors": [
+            "Howe Tissue",
+            "Venus Wang",
+            "Lu Wang"
+          ],
+          "claimed_title": "Scaling Law with Learning Rate Annealing",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2408.11029"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Assessing Energy Consumption of LLM Inference for Code Completion computer scien', candidate_title='Scaling Law with Learning Rate Annealing')",
+        "failed_at": "2026-06-17T14:21:42Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Radosvet Desislavov",
+            "Fernando Martínez-Plumed",
+            "José Hernández-Orallo"
+          ],
+          "title": "Compute and Energy Consumption Trends in Deep Learning Inference",
+          "venue": "arXiv",
+          "year": 2021
+        },
+        "primary_pointer": "2109.05472",
+        "summary": "The progress of some AI paradigms such as deep learning is said to be linked to an exponential growth in the number of parameters. There are many studies corroborating these trends, but does this translate into an exponential increase in energy consumption? In order to answer this question we focus on inference costs rather than training costs, as the former account for most of the computing effort, solely because of the multiplicative factors. Also, apart from algorithmic innovations, we account for more specific and powerful hardware (leading to higher FLOPS) that is usually accompanied with important energy efficiency optimisations. We also move the focus from the first implementation of a breakthrough paper towards the consolidated version of the techniques one or two year later. Under this distinctive and comprehensive perspective, we study relevant models in the areas of computer vision and natural language processing: for a sustained increase in performance we see a much softer growth in energy consumption than previously anticipated. The only caveat is, yet again, the multiplicative factor, as future AI increases penetration and becomes more pervasive.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2109.05472",
+          "http_status": 200,
+          "pdf_sample_score": 0.2417,
+          "query_relevance_score": 0.4444,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-17T14:21:41Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Xiang Liu",
+            "Shimiao Yuan",
+            "Zhenheng Tang",
+            "Peijie Dong",
+            "Kaiyong Zhao",
+            "Qiang Wang",
+            "Bo Li",
+            "Xiaowen Chu"
+          ],
+          "title": "Position: LLM Inference Should Be Evaluated as Energy-to-Token Production",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2605.11733",
+        "summary": "LLM inference is still evaluated mainly as a model or software problem: accuracy, latency, throughput, and hardware utilization. This is incomplete. At deployment scale, the relevant output is a quality-conditioned token produced under joint constraints from effective compute, delivered data-center power, cooling capacity, PUE, and utilization.\n  We argue that the ML community should treat inference as \\emph{energy-to-token production}. We formalize this view with a dimensionally consistent Token Production Function in which token rate is bounded by both compute-per-token and energy-per-token ceilings. Listed API prices vary by over an order of magnitude across providers, but we use price dispersion only as directional motivation, not as causal evidence of marginal cost. The core physical question is instead: under fixed quality and service targets, when does the binding constraint move from theoretical peak compute toward delivered power, cooling, and operational efficiency?\n  Under this framing, system optimizations -- latent KV-cache compression, sparse or heavily compressed attention, quantization, routing, and difficulty-adaptive reasoning -- are not merely local engineering tricks. They are energy-to-token levers because they reduce FLOPs/token, joules/token, memory traffic, or utilization losses under fixed $(q^{*},s^{*})$. We therefore call for inference papers and benchmarks to report Joules/token, active binding constraint, PUE-adjusted delivered power, and utilization-adjusted token output alongside accuracy and latency.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2605.11733",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-17T14:21:42Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Luca Beurer-Kellner",
+            "Marc Fischer",
+            "Martin Vechev"
+          ],
+          "title": "Prompting Is Programming: A Query Language for Large Language Models",
+          "venue": "arXiv",
+          "year": 2022
+        },
+        "primary_pointer": "2212.06094",
+        "summary": "Large language models have demonstrated outstanding performance on a wide range of tasks such as question answering and code generation. On a high level, given an input, a language model can be used to automatically complete the sequence in a statistically-likely way. Based on this, users prompt these models with language instructions or examples, to implement a variety of downstream tasks. Advanced prompting methods can even imply interaction between the language model, a user, and external tools such as calculators. However, to obtain state-of-the-art performance or adapt language models for specific tasks, complex task- and model-specific programs have to be implemented, which may still require ad-hoc interaction.\n  Based on this, we present the novel idea of Language Model Programming (LMP). LMP generalizes language model prompting from pure text prompts to an intuitive combination of text prompting and scripting. Additionally, LMP allows constraints to be specified over the language model output. This enables easy adaption to many tasks while abstracting language model internals and providing high-level semantics.\n  To enable LMP, we implement LMQL(short for Language Model Query Language), which leverages the constraints and control flow from an LMP prompt to generate an efficient inference procedure that minimizes the number of expensive calls to the underlying language model.\n  We show that LMQL can capture a wide range of state-of-the-art prompting methods in an intuitive way, especially facilitating interactive flows that are challenging to implement with existing high-level APIs. Our evaluation shows that we retain or increase the accuracy on several downstream tasks, while also significantly reducing the required amount of computation or cost in the case of pay-to-use APIs (26-85% cost savings).",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2212.06094",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.625,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-17T14:21:51Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "assessing energy consumption of llm inference for code completion computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1902.04708",
+  "judged_at": "2026-06-17T14:24:11Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "autocorrelation of the möbius function in short intervals mathematics",
+  "rationale": "The paper studies exponential sums of the von Mangoldt function (primes) with polynomial phases, not the autocorrelation or statistical behavior of the Möbius function in short intervals, and therefore does not address the same mechanism, variable, or empirical setting relevant to the user's question.",
+  "relevant": false
+}

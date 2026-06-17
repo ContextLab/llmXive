@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1911.09076",
+  "judged_at": "2026-06-17T14:23:59Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "autocorrelation of the möbius function in short intervals mathematics",
+  "rationale": "The paper studies the behavior of the Möbius function in short intervals (the same independent variable—interval length—on the same domain), providing foundational results on short‑interval sums that are directly relevant background for any work on autocorrelation of μ in short intervals. This matches acceptance criterion (b).",
+  "relevant": true
+}

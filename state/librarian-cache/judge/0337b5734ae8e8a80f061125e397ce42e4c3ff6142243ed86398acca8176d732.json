@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1510.04225",
+  "judged_at": "2026-06-17T14:25:57Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "empirical analysis of twin prime gaps up to 10⁹ mathematics",
+  "rationale": "The paper focuses on non‑heuristic approximations of the count of twin primes, not on measuring or analyzing the gaps between twin primes up to 10⁹, so it does not provide the empirical or methodological basis needed for the user's specific question.",
+  "relevant": false
+}

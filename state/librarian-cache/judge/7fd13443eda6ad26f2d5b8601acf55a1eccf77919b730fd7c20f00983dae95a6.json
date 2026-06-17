@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2402.11651",
+  "judged_at": "2026-06-17T14:22:00Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "assessing energy consumption of llm inference for code completion computer science",
+  "rationale": "The paper focuses on fine‑tuning LLM agents with negative examples and does not measure or discuss energy consumption, inference cost, or code‑completion workloads, so it lacks any of the accepted relevance criteria (a‑f).",
+  "relevant": false
+}

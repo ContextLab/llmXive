@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1404.5094",
+  "judged_at": "2026-06-17T14:26:04Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "empirical analysis of twin prime gaps up to 10⁹ mathematics",
+  "rationale": "The paper studies limit points of normalized prime gaps in a theoretical, asymptotic setting and does not provide empirical data on twin prime gaps (gap = 2) up to \\(10^9\\); thus it does not address the specific empirical analysis the user is investigating.",
+  "relevant": false
+}

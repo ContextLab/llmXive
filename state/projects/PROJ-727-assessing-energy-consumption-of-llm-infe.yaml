@@ -1,0 +1,18 @@
+artifact_hashes: {}
+assigned_agent: null
+created_at: '2026-06-17T14:20:54.990507Z'
+current_stage: flesh_out_complete
+failed_stage: null
+field: computer science
+human_escalation_reason: null
+id: PROJ-727-assessing-energy-consumption-of-llm-infe
+last_run_id: 9a29111b-34c1-4364-8a11-8488018e4865
+last_run_status: null
+points_paper: {}
+points_research: {}
+revision_round: 0
+revision_spec_path: null
+speckit_paper_dir: null
+speckit_research_dir: null
+title: Assessing Energy Consumption of LLM Inference for Code Completion
+updated_at: '2026-06-17T14:22:08.468042Z'

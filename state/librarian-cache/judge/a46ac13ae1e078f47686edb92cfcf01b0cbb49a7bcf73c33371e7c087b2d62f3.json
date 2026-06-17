@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1306.0795",
+  "judged_at": "2026-06-17T14:25:46Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "empirical analysis of twin prime gaps up to 10⁹ mathematics",
+  "rationale": "The paper is a theoretical work proposing matrix-based proofs for the Twin Prime Conjecture and related problems, without providing empirical data or analysis of twin prime gaps up to 10⁹; it does not address the empirical measurement aspect of the user's question.",
+  "relevant": false
+}

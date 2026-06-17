@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1409.3694",
+  "judged_at": "2026-06-17T14:24:02Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "autocorrelation of the möbius function in short intervals mathematics",
+  "rationale": "The paper studies the autocorrelation of the Möbius function—a direct investigation of the same mathematical mechanism the user is interested in—though in the function‑field setting rather than short integer intervals, satisfying inclusion criterion (a) same‑mechanism evidence.",
+  "relevant": true
+}

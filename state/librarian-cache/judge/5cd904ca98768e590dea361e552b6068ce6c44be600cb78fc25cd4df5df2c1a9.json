@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1810.05449",
+  "judged_at": "2026-06-17T14:23:48Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "autocorrelation of the möbius function in short intervals mathematics",
+  "rationale": "The paper studies the combinatorial Möbius function of permutation intervals, not the number‑theoretic Möbius function μ(n) nor its autocorrelation in short intervals; it therefore addresses a different construct despite the shared name.",
+  "relevant": false
+}

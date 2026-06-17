@@ -1,0 +1,329 @@
+{
+  "fetched_at": "2026-06-17T14:26:05Z",
+  "field": "mathematics",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "mathematics",
+      "idea_body_excerpt": "Empirical Analysis of Twin Prime Gaps up to 10⁹",
+      "target_n": 5
+    },
+    "duration_seconds": 105.165,
+    "ended_at": "2026-06-17T14:26:05Z",
+    "expansion": null,
+    "extracted_queries": [
+      "prime pair gap",
+      "OEIS A001359",
+      "Hardy-Littlewood twin prime constant",
+      "maximal twin prime gap",
+      "Cramér model twin primes"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": false,
+      "verdict": null
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "1311.4600"
+      ]
+    },
+    "per_query_hit_count": {
+      "Cramér model twin primes": 2,
+      "Empirical Analysis of Twin Prime Gaps up to 10⁹ mathematics": 3,
+      "Hardy-Littlewood twin prime constant": 1,
+      "OEIS A001359": 3,
+      "maximal twin prime gap": 0,
+      "prime pair gap": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 8,
+      "rejections": [
+        {
+          "primary_pointer": "1405.2490",
+          "rationale": "The paper is a theoretical study proving the infinitude of twin primes and does not provide empirical data or analysis of twin prime gaps up to 10⁹, which is the specific focus of the user's question. It therefore lacks the required empirical measurement or baseline for inclusion.",
+          "title": "Researches on the Twin Prime Problem"
+        },
+        {
+          "primary_pointer": "1708.07884",
+          "rationale": "The paper focuses on a claimed proof of the Twin Prime Conjecture and only loosely mentions counting twin prime pairs, without providing an empirical study of twin prime gaps up to 10⁹; it does not supply the data or analysis the user's question requires.",
+          "title": "A Possible Solution for Hilbert's Unsolved 8th Problem: Twin Prime Conjecture"
+        },
+        {
+          "primary_pointer": "1306.0795",
+          "rationale": "The paper is a theoretical work proposing matrix-based proofs for the Twin Prime Conjecture and related problems, without providing empirical data or analysis of twin prime gaps up to 10⁹; it does not address the empirical measurement aspect of the user's question.",
+          "title": "Matrix Online Characteristic Number and Its applications in Goldbach Conjecture,Polignac Conjecture,the Twin Prime Conjecture"
+        },
+        {
+          "primary_pointer": "1312.2481",
+          "rationale": "The paper studies general maximal prime gaps and provides theoretical bounds, without empirical data on twin prime gaps or analysis up to 10⁹; it does not address the specific variable (twin prime gaps) or the empirical scope of the user's question.",
+          "title": "Note On The Maximal Primes Gaps"
+        },
+        {
+          "primary_pointer": "1904.00499",
+          "rationale": "The paper studies general maximal prime gaps and verifies conjectured bounds, without focusing on twin prime gaps or providing empirical data up to 10⁹; thus it does not address the specific variable (twin prime gaps) or the empirical range of interest.",
+          "title": "Verifying the Firoozbakht, Nicholson, and Farhadian conjectures up to the 81st maximal prime gap"
+        },
+        {
+          "primary_pointer": "1710.07827",
+          "rationale": "The paper provides a theoretical proof about the existence of quadratic twin primes, not an empirical study of twin prime gaps or their distribution up to 10⁹, and therefore does not address the variables or mechanisms of the user's question.",
+          "title": "Twin Primes In Quadratic Arithmetic Progressions"
+        },
+        {
+          "primary_pointer": "1510.04225",
+          "rationale": "The paper focuses on non‑heuristic approximations of the count of twin primes, not on measuring or analyzing the gaps between twin primes up to 10⁹, so it does not provide the empirical or methodological basis needed for the user's specific question.",
+          "title": "A density-based approach for non-heuristic approximations of prime counting functions"
+        },
+        {
+          "primary_pointer": "1404.5094",
+          "rationale": "The paper studies limit points of normalized prime gaps in a theoretical, asymptotic setting and does not provide empirical data on twin prime gaps (gap = 2) up to \\(10^9\\); thus it does not address the specific empirical analysis the user is investigating.",
+          "title": "On limit points of the sequence of normalized prime gaps"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-17T14:24:19Z",
+    "term_input": {
+      "normalized": "empirical analysis of twin prime gaps up to 10⁹ mathematics",
+      "raw": "Empirical Analysis of Twin Prime Gaps up to 10⁹ mathematics"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Continuing the study of the structure of semirings, we turn to the spectrum of prime congruences. Joo and Mincheva developed an elegant theory in the special case of idempotent semirings, which is generalized here to ``semiring pairs,'' which include supertropical semirings and various classes of hyperrings. Our main result is that the Joo-Mincheva spectrum can be embedded into the prime spectrum of a semiring pair, and the mapping is onto when the pair satisfies a mild restriction which we call ``positive $e$-type.''",
+          "claimed_authors": [
+            "Louis H. Rowen"
+          ],
+          "claimed_title": "The spectrum of prime congruences of a pair",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2412.18559"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Empirical Analysis of Twin Prime Gaps up to\\u202f10⁹ mathematics', candidate_title='The spectrum of prime congruences of a pair')",
+        "failed_at": "2026-06-17T14:25:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The OEIS sequence A051221 consists of nonnegative integers of the form 10^x - y^2. The known values are those less than or equal to 2000 with x <= 7, and it is conjectured that no new values in this range appear for x >= 8. In this paper, we give an elementary proof that this is indeed the case by using Pell-type equations.",
+          "claimed_authors": [
+            "Seiichi Azuma"
+          ],
+          "claimed_title": "Elementary Proof of the Completeness of OEIS A051221 Below 2000",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.00116"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Empirical Analysis of Twin Prime Gaps up to\\u202f10⁹ mathematics', candidate_title='Elementary Proof of the Completeness of OEIS A051221 Below 2000')",
+        "failed_at": "2026-06-17T14:25:39Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The On-Line Encyclopedia of Integer Sequences (OEIS) is a web-accessible database cataloging interesting integer sequences and associated theorems. With more than 12,000 citations, the OEIS is one of the most highly cited resources in all of theoretical mathematics. In this paper, we present Sequencelib, a project to formalize the mathematics contained within the OEIS using the Lean programming language. Sequencelib includes a library of Lean formalizations of OEIS sequences as well as metaprogramming tools for programmatically attaching OEIS metadata to Lean definitions and deriving theorems about their values. Further, we describe OEIS-LT, a highly scalable Lean server that exposes these tools via a low-latency API. Finally, using OEIS-LT and prior work of Gauthier, et al., we describe a computational pipeline that formalized more than 25,000 sequences from the OEIS and proved more than 1.6 million theorems about their values. Our method makes use of a transpiler, available in OEIS-LT, that is capable of translating a subset of Standard ML to Lean, together with a set of performance improvement transformations and proofs of correctness.",
+          "claimed_authors": [
+            "Walter Moreira",
+            "Joe Stubbs"
+          ],
+          "claimed_title": "Sequencelib: A Computational Platform for Formalizing the OEIS in Lean",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2601.11757"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Empirical Analysis of Twin Prime Gaps up to\\u202f10⁹ mathematics', candidate_title='Sequencelib: A Computational Platform for Formalizing the OEIS in Lean')",
+        "failed_at": "2026-06-17T14:25:39Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "An introduction to the On-Line Encyclopedia of Integer Sequences (or OEIS, https://oeis.org) for graduate students in mathematics",
+          "claimed_authors": [
+            "N. J. A. Sloane"
+          ],
+          "claimed_title": "The OEIS: A Fingerprint File for Mathematics",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2105.05111"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Empirical Analysis of Twin Prime Gaps up to\\u202f10⁹ mathematics', candidate_title='The OEIS: A Fingerprint File for Mathematics')",
+        "failed_at": "2026-06-17T14:25:39Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this note besides two abstract versions of the Vitali Covering Lemma an abstract Hardy-Littlewood Maximal Inequality, generalizing weak type (1,1) maximal function inequality, associated to any outer measure and a family of subsets on a set is introduced. The inequality is (effectively) satisfied if and only if a special numerical constant called Hardy-Littelwood maximal constant is finite. Two general sufficient conditions for the finiteness of this constant are given and upper bounds for this constant associated to the family of (centered) balls in homogeneous spaces, family of dyadic cubes in Euclidean spaces, family of admissible trapezoids in homogeneous trees, and family of Calderón-Zygmund sets in (ax+b)-group, are considered. Also a very simple application to find some nontrivial estimates about mass density in Classical Mechanics is given.",
+          "claimed_authors": [
+            "Maysam Maysami Sadr",
+            "Monireh Barzegar Ganji"
+          ],
+          "claimed_title": "Abstract Hardy-Littlewood Maximal Inequality",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2005.12846"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Empirical Analysis of Twin Prime Gaps up to\\u202f10⁹ mathematics', candidate_title='Abstract Hardy-Littlewood Maximal Inequality')",
+        "failed_at": "2026-06-17T14:25:39Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "For earlier considered our sequence A166944 in [4] we prove three statements of its connection with twin primes. We also give a sufficient condition for the infinity of twin primes and pose several new conjectures; among them we propose a very simple conjectural algorithm of constructing a pair $(p,\\enskip p+2)$ of twin primes over arbitrary given integer $m\\geq4$ such that $p+2\\geq m.$",
+          "claimed_authors": [
+            "Vladimir Shevelev"
+          ],
+          "claimed_title": "Three theorems on twin primes",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2009,
+          "primary_pointer": "0911.5478"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Empirical Analysis of Twin Prime Gaps up to\\u202f10⁹ mathematics', candidate_title='Three theorems on twin primes')",
+        "failed_at": "2026-06-17T14:25:39Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "We prove that the primes below $x$ are, on average, equidistributed in arithmetic progressions to smooth moduli of size up to $x^{1/2+1/40-ε}$. The exponent of distribution $\\tfrac{1}{2} + \\tfrac{1}{40}$ improves on a result of Polymath, who had previously obtained the exponent $\\tfrac{1}{2} + \\tfrac{7}{300}$. As a consequence, we improve results on intervals of bounded length which contain many primes, showing that $\\liminf_{n \\rightarrow \\infty} (p_{n+m}-p_n) = O(\\exp(3.8075 m))$. The main new ingredient of our proof is a modification of the q-van der Corput process. It allows us to exploit additional averaging for the exponential sums which appear in the Type I estimates of Polymath.",
+          "claimed_authors": [
+            "Julia Stadlmann"
+          ],
+          "claimed_title": "On primes in arithmetic progressions and bounded gaps between many primes",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2309.00425"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Empirical Analysis of Twin Prime Gaps up to\\u202f10⁹ mathematics', candidate_title='On primes in arithmetic progressions and bounded gaps between many primes')",
+        "failed_at": "2026-06-17T14:25:39Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "In the present paper, we have developed a method for solving \\textit{diophantine inequalities} using their relationship with the \\textit{difference between consecutive primes}.\n  Using this approach we have been able to prove some theorems, including Ingham's exponential theorem as well as some new results. Diophantine inequalities and their connection with Cramer's and Andrica's conjectures are also discussed.",
+          "claimed_authors": [
+            "Felix Sidokhine"
+          ],
+          "claimed_title": "Diophantine Inequalities as a Problem of Difference between Consecutive Primes",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1410.6856"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Empirical Analysis of Twin Prime Gaps up to\\u202f10⁹ mathematics', candidate_title='Diophantine Inequalities as a Problem of Difference between Consecutive Primes')",
+        "failed_at": "2026-06-17T14:25:39Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "This article is an expanded version of the author's lecture in the Basic Notions Seminar at Harvard, September 2013. Our goal is a brief and introductory exposition of aspects of two topics in sieve theory which have received attention recently: (1) the spectacular work of Yitang Zhang, under the title \"Level of Distribution,\" and (2) the so-called \"Affine Sieve,\" introduced by Bourgain-Gamburd-Sarnak.",
+          "claimed_authors": [
+            "Alex Kontorovich"
+          ],
+          "claimed_title": "Levels of Distribution and the Affine Sieve",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1406.1375"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Empirical Analysis of Twin Prime Gaps up to\\u202f10⁹ mathematics', candidate_title='Levels of Distribution and the Affine Sieve')",
+        "failed_at": "2026-06-17T14:25:39Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "We study small gaps between Goldbach primes $\\mathbb{P} \\cap (N-\\mathbb{P})$ using the Bombieri-Davenport method and the Maynard-Tao method, and compare the two.\n  We show that for almost all even integers $N$, the smallest gap in $\\mathbb{P} \\cap (N-\\mathbb{P})$ is at most $0.765\\ldots$ times the average gap, using the Bombieri-Davenport method. This improves a recent result of Tsuda. We also demonstrate that a straightforward application of the Maynard-Tao method is insufficient to improve this bound. However, it allows us to establish the existence of bounded gaps between Goldbach primes with bounded error for almost all even integers $N$.",
+          "claimed_authors": [
+            "Mizuki Akeno"
+          ],
+          "claimed_title": "Small gaps between Goldbach primes",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2508.02769"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Empirical Analysis of Twin Prime Gaps up to\\u202f10⁹ mathematics', candidate_title='Small gaps between Goldbach primes')",
+        "failed_at": "2026-06-17T14:25:39Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "In this paper, we first prove that given a nonnegative integer $m$ and an odd number $t$ not divisible by $3$, there exists a unique Collatz's Sequence \\[ S_{c}(m,t)=\\{n_{0}(m,t),n_{1}(m,t),n_{2}(m,t),\\ldots,n_{m}(m,t),n_{m+1}(m,t)\\} \\] produced by a function $n_{i+1}(m,t)=(3n_{i}(m,t)+1)/2$ for $i=0,1,2,\\ldots,m$ and ended by an even number $n_{m+1}(m,t)$ where $n_{i}(m,t)=2^{m+1-i}\\times3^{i}t-1$ for $i=0,1,2,\\ldots,m+1$, by which all odd numbers can be expressed.\n  Then we discuss the Collatz problem in two ways and prove that each Collatz's Sequence always returns to 1, i.e., the Collatz problem is solved.",
+          "claimed_authors": [
+            "Shan-Guang Tan"
+          ],
+          "claimed_title": "On the solution of the Collatz problem",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1110.3465"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Empirical Analysis of Twin Prime Gaps up to\\u202f10⁹ mathematics', candidate_title='On the solution of the Collatz problem')",
+        "failed_at": "2026-06-17T14:25:39Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "The lonely runner conjecture of Wills and Cusick, in its most popular formulation, asserts that if $n$ runners with distinct constant speeds run around a unit circle ${\\bf R}/{\\bf Z}$ starting at a common time and place, then each runner will at some time be separated by a distance of at least $\\frac{1}{n+1}$ from the others. In this paper we make some remarks on this conjecture. Firstly, we can improve the trivial lower bound of $\\frac{1}{2n}$ slightly for large $n$, to $\\frac{1}{2n} + \\frac{c \\log n}{n^2 (\\log\\log n)^2}$ for some absolute constant $c>0$; previous improvements were roughly of the form $\\frac{1}{2n} + \\frac{c}{n^2}$. Secondly, we show that to verify the conjecture, it suffices to do so under the assumption that the speeds are integers of size $n^{O(n^2)}$. We also obtain some results in the case when all the velocities are integers of size $O(n)$.",
+          "claimed_authors": [
+            "Terence Tao"
+          ],
+          "claimed_title": "Some remarks on the lonely runner conjecture",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1701.02048"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Empirical Analysis of Twin Prime Gaps up to\\u202f10⁹ mathematics', candidate_title='Some remarks on the lonely runner conjecture')",
+        "failed_at": "2026-06-17T14:25:39Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "James Maynard"
+          ],
+          "title": "Small gaps between primes",
+          "venue": "arXiv",
+          "year": 2013
+        },
+        "primary_pointer": "1311.4600",
+        "summary": "We introduce a refinement of the GPY sieve method for studying prime $k$-tuples and small gaps between primes. This refinement avoids previous limitations of the method, and allows us to show that for each $k$, the prime $k$-tuples conjecture holds for a positive proportion of admissible $k$-tuples. In particular, $\\liminf_{n}(p_{n+m}-p_n)<\\infty$ for any integer $m$. We also show that $\\liminf(p_{n+1}-p_n)\\le 600$, and, if we assume the Elliott-Halberstam conjecture, that $\\liminf_n(p_{n+1}-p_n)\\le 12$ and $\\liminf_n (p_{n+2}-p_n)\\le 600$.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "theoremsearch",
+          "final_url": "https://arxiv.org/abs/1311.4600",
+          "http_status": 200,
+          "pdf_sample_score": 0.1192,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-17T14:25:39Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "empirical analysis of twin prime gaps up to 10⁹ mathematics",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

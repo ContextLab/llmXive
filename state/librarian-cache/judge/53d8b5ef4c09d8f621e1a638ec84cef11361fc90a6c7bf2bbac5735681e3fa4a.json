@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1312.2481",
+  "judged_at": "2026-06-17T14:25:49Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "empirical analysis of twin prime gaps up to 10⁹ mathematics",
+  "rationale": "The paper studies general maximal prime gaps and provides theoretical bounds, without empirical data on twin prime gaps or analysis up to 10⁹; it does not address the specific variable (twin prime gaps) or the empirical scope of the user's question.",
+  "relevant": false
+}

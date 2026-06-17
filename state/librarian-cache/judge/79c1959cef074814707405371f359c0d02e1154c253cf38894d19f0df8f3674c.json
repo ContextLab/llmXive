@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1311.4600",
+  "judged_at": "2026-06-17T14:26:00Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "empirical analysis of twin prime gaps up to 10⁹ mathematics",
+  "rationale": "The paper studies the same underlying mechanism—gaps between consecutive primes (including twin primes)—using the GPY sieve method, providing foundational theoretical results on small prime gaps (category (d) foundational methodology and (a) same‑mechanism evidence).",
+  "relevant": true
+}

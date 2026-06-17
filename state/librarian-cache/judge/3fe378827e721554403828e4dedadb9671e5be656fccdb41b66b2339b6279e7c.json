@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2109.05472",
+  "judged_at": "2026-06-17T14:21:54Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "assessing energy consumption of llm inference for code completion computer science",
+  "rationale": "The paper investigates energy consumption of deep‑learning inference, including large language models for NLP, which directly measures the same mechanism (energy use of LLM inference) that the user’s question concerns, even though it does not focus specifically on code‑completion tasks. This satisfies criterion (a) same‑mechanism evidence (and also (b) independent variable on the same domain).",
+  "relevant": true
+}

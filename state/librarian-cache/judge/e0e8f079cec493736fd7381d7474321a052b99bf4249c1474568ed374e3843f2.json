@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1609.00699",
+  "judged_at": "2026-06-17T14:24:07Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "autocorrelation of the möbius function in short intervals mathematics",
+  "rationale": "The paper investigates Möbius orthogonality (i.e., correlation of the Möbius function with deterministic sequences) on typical short intervals, which is the same underlying mechanism of Möbius randomness in short intervals that the user's question concerns (acceptance category (a)).",
+  "relevant": true
+}

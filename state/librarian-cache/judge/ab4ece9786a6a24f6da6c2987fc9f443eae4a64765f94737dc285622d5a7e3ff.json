@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2212.06094",
+  "judged_at": "2026-06-17T14:21:58Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "assessing energy consumption of llm inference for code completion computer science",
+  "rationale": "The paper studies LLM inference for code‑related tasks and reports reductions in computation / cost (26–85 % savings), which serves as a proxy for energy consumption. This addresses an independent variable (compute cost) in the same domain, satisfying inclusion criterion (b).",
+  "relevant": true
+}

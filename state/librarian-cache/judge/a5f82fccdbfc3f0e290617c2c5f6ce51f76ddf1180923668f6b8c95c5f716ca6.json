@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2006.07646",
+  "judged_at": "2026-06-17T14:24:09Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "autocorrelation of the möbius function in short intervals mathematics",
+  "rationale": "The paper studies correlations of the Möbius (and Liouville) function, proving a special case of the Chowla conjecture and invoking results on short‑interval behavior (Matomäki‑Radziwiłł‑Tao). This directly concerns the autocorrelation mechanism of the Möbius function, satisfying criterion (a) (same‑mechanism evidence).",
+  "relevant": true
+}

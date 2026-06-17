@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1405.5486",
+  "judged_at": "2026-06-17T14:23:54Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "autocorrelation of the möbius function in short intervals mathematics",
+  "rationale": "The paper studies short‑interval variants of the Bombieri‑Vinogradov theorem and applications to primes and modular‑form coefficients, but it does not address the Möbius function or its autocorrelation; thus it lacks the required mechanism, variable, or canonical methodology for the user's question.",
+  "relevant": false
+}
