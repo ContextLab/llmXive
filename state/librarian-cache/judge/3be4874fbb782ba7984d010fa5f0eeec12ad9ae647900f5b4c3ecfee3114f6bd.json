@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2605.16326",
+  "judged_at": "2026-06-17T05:56:20Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting individual pain sensitivity from resting‑state eeg microstates neuroscience",
+  "rationale": "The paper investigates EEG‑based machine‑learning prediction of a pain‑related outcome (treatment efficacy) using resting‑state EEG recordings, thus addressing the same underlying mechanism (EEG features) and domain (pain) as the user’s question, even though the specific dependent variable differs. This matches acceptance criterion (a) – same‑mechanism evidence.",
+  "relevant": true
+}

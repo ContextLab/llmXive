@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2003.12796",
+  "judged_at": "2026-06-17T05:54:32Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "calibration of predictive intervals for time‑series forecasts statistics",
+  "rationale": "The paper focuses on point‑forecast methods and data leakage in the M4 competition and does not address predictive interval construction, calibration, or coverage statistics for time‑series forecasts, which are the core constructs of the user's question. Hence it lacks relevance under criteria (a)–(f).",
+  "relevant": false
+}

@@ -1,0 +1,18 @@
+artifact_hashes: {}
+assigned_agent: null
+created_at: '2026-06-17T05:52:52.052689Z'
+current_stage: flesh_out_complete
+failed_stage: null
+field: statistics
+human_escalation_reason: null
+id: PROJ-713-calibration-of-predictive-intervals-for-
+last_run_id: 8052e87c-1428-499c-85b7-20073dbd3e08
+last_run_status: null
+points_paper: {}
+points_research: {}
+revision_round: 0
+revision_spec_path: null
+speckit_paper_dir: null
+speckit_research_dir: null
+title: "Calibration of Predictive Intervals for Time\u2011Series Forecasts"
+updated_at: '2026-06-17T05:54:44.215619Z'

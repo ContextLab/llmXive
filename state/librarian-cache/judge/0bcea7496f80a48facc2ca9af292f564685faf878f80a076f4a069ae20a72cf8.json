@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2501.17375",
+  "judged_at": "2026-06-17T05:55:23Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "virtual reality exposure therapy for anxiety: a meta-analysis psychology",
+  "rationale": "The paper reviews the effectiveness of self‑guided virtual reality therapy for anxiety, directly measuring the same intervention (VR exposure therapy) and outcome (anxiety reduction) as the user's meta‑analysis question, satisfying criterion (a) – same‑mechanism evidence.",
+  "relevant": true
+}

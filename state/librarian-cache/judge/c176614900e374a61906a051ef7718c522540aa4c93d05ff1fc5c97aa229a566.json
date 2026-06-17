@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2202.07282",
+  "judged_at": "2026-06-17T05:54:37Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "calibration of predictive intervals for time‑series forecasts statistics",
+  "rationale": "The paper studies the construction and calibration of predictive (prediction) intervals for time‑series forecasts using adaptive conformal inference, directly addressing the same mechanism (interval calibration) and domain (time‑series forecasting) as the user's question (acceptance category a).",
+  "relevant": true
+}

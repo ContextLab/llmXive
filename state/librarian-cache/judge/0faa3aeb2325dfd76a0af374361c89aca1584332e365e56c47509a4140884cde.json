@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2002.05305",
+  "judged_at": "2026-06-17T05:55:28Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "virtual reality exposure therapy for anxiety: a meta-analysis psychology",
+  "rationale": "The paper studies augmented‑reality visual‑analytics interfaces and collaborative data exploration, which bears no relation to virtual‑reality exposure therapy, anxiety treatment, or the psychological outcomes central to the user's meta‑analysis. It is off‑domain and lacks any relevant mechanism, variable, or population.",
+  "relevant": false
+}

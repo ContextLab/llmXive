@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1806.06454",
+  "judged_at": "2026-06-17T05:55:30Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "virtual reality exposure therapy for anxiety: a meta-analysis psychology",
+  "rationale": "The paper studies pedestrian crossing behavior using head‑mounted VR as a distraction/safety tool, not virtual‑reality exposure therapy for anxiety, nor does it measure anxiety‑related outcomes; it falls outside the domain, variables, and mechanisms of the user's question.",
+  "relevant": false
+}

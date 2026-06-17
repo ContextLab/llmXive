@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1002.1185",
+  "judged_at": "2026-06-17T05:54:36Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "calibration of predictive intervals for time‑series forecasts statistics",
+  "rationale": "The paper focuses on mining significant intervals and frequent patterns in web log sequences, not on the statistical calibration or evaluation of predictive intervals for time‑series forecasts, and thus does not address the user's research topic.",
+  "relevant": false
+}

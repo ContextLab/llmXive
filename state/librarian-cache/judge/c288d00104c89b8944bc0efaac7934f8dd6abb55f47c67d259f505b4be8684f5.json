@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2509.11644",
+  "judged_at": "2026-06-17T05:55:34Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "virtual reality exposure therapy for anxiety: a meta-analysis psychology",
+  "rationale": "The paper investigates colour‑induced emotional and physiological responses in immersive VR, but it does not examine virtual reality exposure therapy, anxiety outcomes, or any therapeutic efficacy—key constructs of the user's meta‑analysis. Thus it falls outside the domain and variables of interest.",
+  "relevant": false
+}

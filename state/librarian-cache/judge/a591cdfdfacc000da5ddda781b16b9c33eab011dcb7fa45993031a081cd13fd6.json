@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1511.02001",
+  "judged_at": "2026-06-17T05:54:30Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "calibration of predictive intervals for time‑series forecasts statistics",
+  "rationale": "The paper studies statistical post‑processing (EMOS) to produce locally calibrated predictive distributions—and thus calibrated predictive intervals—for wind‑speed time‑series forecasts, directly addressing the mechanism of interval calibration in time‑series forecasting (acceptance category a, also serving as a foundational methodology reference).",
+  "relevant": true
+}

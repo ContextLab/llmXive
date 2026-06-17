@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2506.03520",
+  "judged_at": "2026-06-17T05:55:21Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "virtual reality exposure therapy for anxiety: a meta-analysis psychology",
+  "rationale": "The paper investigates exposure therapy delivered via large‑language‑model conversational agents, not via virtual reality; it does not address the VR modality central to the user's meta‑analysis of VR exposure therapy for anxiety. Hence it falls outside the relevant domain.",
+  "relevant": false
+}

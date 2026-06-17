@@ -1,0 +1,550 @@
+{
+  "fetched_at": "2026-06-17T05:54:37Z",
+  "field": "statistics",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "statistics",
+      "idea_body_excerpt": "Calibration of Predictive Intervals for Time‑Series Forecasts",
+      "target_n": 5
+    },
+    "duration_seconds": 90.585,
+    "ended_at": "2026-06-17T05:54:37Z",
+    "expansion": null,
+    "extracted_queries": [
+      "prediction interval coverage",
+      "M4 competition forecasts",
+      "conformal prediction intervals",
+      "interval score evaluation",
+      "forecast uncertainty quantification"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": false,
+      "verdict": null
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "1511.02001"
+      ]
+    },
+    "per_query_hit_count": {
+      "Calibration of Predictive Intervals for Time‑Series Forecasts statistics": 3,
+      "M4 competition forecasts": 3,
+      "conformal prediction intervals": 3,
+      "forecast uncertainty quantification": 3,
+      "interval score evaluation": 3,
+      "prediction interval coverage": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 2,
+      "rejections": [
+        {
+          "primary_pointer": "2003.12796",
+          "rationale": "The paper focuses on point‑forecast methods and data leakage in the M4 competition and does not address predictive interval construction, calibration, or coverage statistics for time‑series forecasts, which are the core constructs of the user's question. Hence it lacks relevance under criteria (a)–(f).",
+          "title": "Correlated daily time series and forecasting in the M4 competition"
+        },
+        {
+          "primary_pointer": "1002.1185",
+          "rationale": "The paper focuses on mining significant intervals and frequent patterns in web log sequences, not on the statistical calibration or evaluation of predictive intervals for time‑series forecasts, and thus does not address the user's research topic.",
+          "title": "Significant Interval and Frequent Pattern Discovery in Web Log Data"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-17T05:53:07Z",
+    "term_input": {
+      "normalized": "calibration of predictive intervals for time‑series forecasts statistics",
+      "raw": "Calibration of Predictive Intervals for Time‑Series Forecasts statistics"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A novel methodology is proposed for clustering multivariate time series data using energy distance defined in Székely and Rizzo (2013). Specifically, a dissimilarity matrix is formed using the energy distance statistic to measure separation between the finite dimensional distributions for the component time series. Once the pairwise dissimilarity matrix is calculated, a hierarchical clustering method is then applied to obtain the dendrogram. This procedure is completely nonparametric as the dissimilarities between stationary distributions are directly calculated without making any model assumptions. In order to justify this procedure, asymptotic properties of the energy distance estimates are derived for general stationary and ergodic time series. The method is illustrated in a simulation study for various component time series that are either linear or nonlinear. Finally the methodology is applied to two examples; one involves GDP of selected countries and the other is population size of various states in the U.S.A. in the years 1900 -1999.",
+          "claimed_authors": [
+            "Richard A. Davis",
+            "Leon Fernandes",
+            "Konstantinos Fokianos"
+          ],
+          "claimed_title": "Clustering Multivariate Time Series using Energy Distance",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2303.14295"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Calibration of Predictive Intervals for Time‑Series Forecasts statistics', candidate_title='Clustering Multivariate Time Series using Energy Distance')",
+        "failed_at": "2026-06-17T05:54:27Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Time series forecasting remains a challenging task, particularly in the context of complex multiscale temporal patterns. This study presents LLM-Mixer, a framework that improves forecasting accuracy through the combination of multiscale time-series decomposition with pre-trained LLMs (Large Language Models). LLM-Mixer captures both short-term fluctuations and long-term trends by decomposing the data into multiple temporal resolutions and processing them with a frozen LLM, guided by a textual prompt specifically designed for time-series data. Extensive experiments conducted on multivariate and univariate datasets demonstrate that LLM-Mixer achieves competitive performance, outperforming recent state-of-the-art models across various forecasting horizons. This work highlights the potential of combining multiscale analysis and LLMs for effective and scalable time-series forecasting.",
+          "claimed_authors": [
+            "Md Kowsher",
+            "Md. Shohanur Islam Sobuj",
+            "Nusrat Jahan Prottasha",
+            "E. Alejandro Alanis",
+            "Ozlem Ozmen Garibay",
+            "Niloofar Yousefi"
+          ],
+          "claimed_title": "LLM-Mixer: Multiscale Mixing in LLMs for Time Series Forecasting",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2410.11674"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Calibration of Predictive Intervals for Time‑Series Forecasts statistics', candidate_title='LLM-Mixer: Multiscale Mixing in LLMs for Time Series Forecasting')",
+        "failed_at": "2026-06-17T05:54:27Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A prediction interval covers a future observation from a random process in repeated sampling, and is typically constructed by identifying a pivotal quantity that is also an ancillary statistic. Analogously, a tolerance interval covers a population percentile in repeated sampling and is often based on a pivotal quantity. One approach we consider in non-normal models leverages a link function resulting in a pivotal quantity that is approximately normally distributed. In settings where this normal approximation does not hold we consider a second approach for tolerance and prediction based on a confidence interval for the mean. These methods are intuitive, simple to implement, have proper operating characteristics, and are computationally efficient compared to Bayesian, re-sampling, and machine learning methods. This is demonstrated in the context of multi-site clinical trial recruitment with staggered site initiation, real-world time on treatment, and end-of-study success for a clinical endpoint.",
+          "claimed_authors": [
+            "Geoffrey S Johnson"
+          ],
+          "claimed_title": "Tolerance and Prediction Intervals for Non-normal Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2011.11583"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Calibration of Predictive Intervals for Time‑Series Forecasts statistics', candidate_title='Tolerance and Prediction Intervals for Non-normal Models')",
+        "failed_at": "2026-06-17T05:54:27Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The problem of behaviour prediction for linear parameter-varying systems is considered in the interval framework. It is assumed that the system is subject to uncertain inputs and the vector of scheduling parameters is unmeasurable, but all uncertainties take values in a given admissible set. Then an interval predictor is designed and its stability is guaranteed applying Lyapunov function with a novel structure. The conditions of stability are formulated in the form of linear matrix inequalities. Efficiency of the theoretical results is demonstrated in the application to safe motion planning for autonomous vehicles.",
+          "claimed_authors": [
+            "Edouard Leurent",
+            "Denis Efimov",
+            "Tarek Raïssi",
+            "Wilfrid Perruquetti"
+          ],
+          "claimed_title": "Interval Prediction for Continuous-Time Systems with Parametric Uncertainties",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1904.04727"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Calibration of Predictive Intervals for Time‑Series Forecasts statistics', candidate_title='Interval Prediction for Continuous-Time Systems with Parametric Uncertainties')",
+        "failed_at": "2026-06-17T05:54:27Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Traditional conformal prediction methods construct prediction sets such that the true label falls within the set with a user-specified coverage level. However, poorly chosen coverage levels can result in uninformative predictions, either producing overly conservative sets when the coverage level is too high, or empty sets when it is too low. Moreover, the fixed coverage level cannot adapt to the specific characteristics of each individual example, limiting the flexibility and efficiency of these methods. In this work, we leverage recent advances in e-values and post-hoc conformal inference, which allow the use of data-dependent coverage levels while maintaining valid statistical guarantees. We propose to optimize an adaptive coverage policy by training a neural network using a leave-one-out procedure on the calibration set, allowing the coverage level and the resulting prediction set size to vary with the difficulty of each individual example. We support our approach with theoretical coverage guarantees and demonstrate its practical benefits through a series of experiments.",
+          "claimed_authors": [
+            "Etienne Gauthier",
+            "Francis Bach",
+            "Michael I. Jordan"
+          ],
+          "claimed_title": "Adaptive Coverage Policies in Conformal Prediction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2510.04318"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Calibration of Predictive Intervals for Time‑Series Forecasts statistics', candidate_title='Adaptive Coverage Policies in Conformal Prediction')",
+        "failed_at": "2026-06-17T05:54:27Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent transit surveys have discovered thousands of planetary candidates with directly measured radii, but only a small fraction have measured masses. Planetary mass is crucial in assessing the feasibility of numerous observational signatures, such as radial velocities (RVs), atmospheres, moons and rings. In the absence of a direct measurement, a data-driven, probabilistic forecast enables observational planning and so here we compute posterior distributions for the forecasted mass of approximately seven thousand Kepler Objects of Interest (KOIs). Our forecasts reveal that the predicted RV amplitudes of Neptunian planets are relatively consistent, as a result of transit survey detection bias, hovering around the few m/s level. We find that mass forecasts are unlikely to improve through more precise planetary radii, with the error budget presently dominated by the intrinsic model uncertainty. Our forecasts identify a couple of dozen KOIs near the Terran-Neptunian divide with particularly large RV semi-amplitudes which could be promising targets to follow-up, particularly in the near-IR. With several more transit surveys planned in the near-future, the need to quickly forecast observational signatures is likely to grow and the work here provides a template example of such calculations.",
+          "claimed_authors": [
+            "Jingjing Chen",
+            "David Kipping"
+          ],
+          "claimed_title": "Forecasted masses for seven thousand KOIs",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1706.01522"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Calibration of Predictive Intervals for Time‑Series Forecasts statistics', candidate_title='Forecasted masses for seven thousand KOIs')",
+        "failed_at": "2026-06-17T05:54:27Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present a new open-source framework for forecasting in Python. Our framework forms part of sktime, a more general machine learning toolbox for time series with scikit-learn compatible interfaces for different learning tasks. Our new framework provides dedicated forecasting algorithms and tools to build, tune and evaluate composite models. We use sktime to both replicate and extend key results from the M4 forecasting study. In particular, we further investigate the potential of simple off-the-shelf machine learning approaches for univariate forecasting. Our main results are that simple hybrid approaches can boost the performance of statistical models, and that simple pure approaches can achieve competitive performance on the hourly data set, outperforming the statistical algorithms and coming close to the M4 winner.",
+          "claimed_authors": [
+            "Markus Löning",
+            "Franz Király"
+          ],
+          "claimed_title": "Forecasting with sktime: Designing sktime's New Forecasting API and Applying It to Replicate and Extend the M4 Study",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2005.08067"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Calibration of Predictive Intervals for Time‑Series Forecasts statistics', candidate_title=\"Forecasting with sktime: Designing sktime's New Forecasting API and Applying It to Replicate and Extend the M4 Study\")",
+        "failed_at": "2026-06-17T05:54:27Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper presents a new approach for assessing uncertainty in machine translation by simultaneously evaluating translation quality and providing a reliable confidence score. Our approach utilizes conformal predictive distributions to produce prediction intervals with guaranteed coverage, meaning that for any given significance level $ε$, we can expect the true quality score of a translation to fall out of the interval at a rate of $1-ε$. In this paper, we demonstrate how our method outperforms a simple, but effective baseline on six different language pairs in terms of coverage and sharpness. Furthermore, we validate that our approach requires the data exchangeability assumption to hold for optimal performance.",
+          "claimed_authors": [
+            "Patrizio Giovannotti"
+          ],
+          "claimed_title": "Evaluating Machine Translation Quality with Conformal Predictive Distributions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.01549"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Calibration of Predictive Intervals for Time‑Series Forecasts statistics', candidate_title='Evaluating Machine Translation Quality with Conformal Predictive Distributions')",
+        "failed_at": "2026-06-17T05:54:27Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In response to everyday queries, humans explicitly signal uncertainty and offer alternative answers when they are unsure. Machine learning models that output calibrated prediction sets through conformal prediction mimic this human behaviour; larger sets signal greater uncertainty while providing alternatives. In this work, we study the usefulness of conformal prediction sets as an aid for human decision making by conducting a pre-registered randomized controlled trial with conformal prediction sets provided to human subjects. With statistical significance, we find that when humans are given conformal prediction sets their accuracy on tasks improves compared to fixed-size prediction sets with the same coverage guarantee. The results show that quantifying model uncertainty with conformal prediction is helpful for human-in-the-loop decision making and human-AI teams.",
+          "claimed_authors": [
+            "Jesse C. Cresswell",
+            "Yi Sui",
+            "Bhargava Kumar",
+            "Noël Vouitsis"
+          ],
+          "claimed_title": "Conformal Prediction Sets Improve Human Decision Making",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2401.13744"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Calibration of Predictive Intervals for Time‑Series Forecasts statistics', candidate_title='Conformal Prediction Sets Improve Human Decision Making')",
+        "failed_at": "2026-06-17T05:54:27Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Diversity is an important criterion for many areas of machine learning (ML), including generative modeling and dataset curation. However, existing metrics for measuring diversity are often domain-specific and limited in flexibility. In this paper, we address the diversity evaluation problem by proposing the Vendi Score, which connects and extends ideas from ecology and quantum statistical mechanics to ML. The Vendi Score is defined as the exponential of the Shannon entropy of the eigenvalues of a similarity matrix. This matrix is induced by a user-defined similarity function applied to the sample to be evaluated for diversity. In taking a similarity function as input, the Vendi Score enables its user to specify any desired form of diversity. Importantly, unlike many existing metrics in ML, the Vendi Score does not require a reference dataset or distribution over samples or labels, it is therefore general and applicable to any generative model, decoding algorithm, and dataset from any domain where similarity can be defined. We showcase the Vendi Score on molecular generative modeling where we found it addresses shortcomings of the current diversity metric of choice in that domain. We also applied the Vendi Score to generative models of images and decoding algorithms of text where we found it confirms known results about diversity in those domains. Furthermore, we used the Vendi Score to measure mode collapse, a known shortcoming of generative adversarial networks (GANs). In particular, the Vendi Score revealed that even GANs that capture all the modes of a labeled dataset can be less diverse than the original dataset. Finally, the interpretability of the Vendi Score allowed us to diagnose several benchmark ML datasets for diversity, opening the door for diversity-informed data augmentation.",
+          "claimed_authors": [
+            "Dan Friedman",
+            "Adji Bousso Dieng"
+          ],
+          "claimed_title": "The Vendi Score: A Diversity Evaluation Metric for Machine Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2210.02410"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Calibration of Predictive Intervals for Time‑Series Forecasts statistics', candidate_title='The Vendi Score: A Diversity Evaluation Metric for Machine Learning')",
+        "failed_at": "2026-06-17T05:54:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The subject of our talk is the correct evaluation of interval extension of the function specified by the expression x^y without any constraints on the values of x and y. The core of our approach is a decomposition of the graph of x^y into a small number of parts which can be transformed into subsets of the graph of x^y for non-negative bases x. Because of this fact, evaluation of interval extension of x^y, without any constraints on x and y, is not much harder than evaluation of interval extension of x^y for non-negative bases x.",
+          "claimed_authors": [
+            "Evgueni Petrov"
+          ],
+          "claimed_title": "Evaluation of interval extension of the power function by graph decomposition",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2006,
+          "primary_pointer": "cs/0603052"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Calibration of Predictive Intervals for Time‑Series Forecasts statistics', candidate_title='Evaluation of interval extension of the power function by graph decomposition')",
+        "failed_at": "2026-06-17T05:54:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This work introduces the network uncertainty quantification (NetUQ) method for performing uncertainty propagation in systems composed of interconnected components. The method assumes the existence of a collection of components, each of which is characterized by exogenous-input random variables, endogenous-input random variables, output random variables, and a local uncertainty-propagation operator that computes output random variables from input random variables. The method assembles the full-system network by connecting components, which is achieved simply by associating endogenous-input random variables for each component with output random variables from other components; no other inter-component compatibility conditions are required. The network uncertainty-propagation problem is: Compute output random variables for all components given all exogenous-input random variables. To solve this problem, the method applies classical relaxation methods (i.e., Jacobi and Gauss--Seidel iteration with Anderson acceleration), which require only black-box evaluations of component uncertainty-propagation operators. Compared with other available methods, this approach is applicable to any network topology, promotes component independence by enabling components to employ tailored uncertainty-propagation operators, supports general functional representations of random variables, and requires no offline preprocessing stage. Also, because the method propagates functional representations of random variables throughout the network (and not, e.g., probability density functions), the joint distribution of any set of random variables throughout the network can be estimated a posteriori in a straightforward manner. We perform supporting convergence and error analysis and execute numerical experiments that demonstrate the weak- and strong-scaling performance of the method.",
+          "claimed_authors": [
+            "Kevin Carlberg",
+            "Sofia Guzzetti",
+            "Mohammad Khalil",
+            "Khachik Sargsyan"
+          ],
+          "claimed_title": "The network uncertainty quantification method for propagating uncertainties in component-based systems",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1908.11476"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Calibration of Predictive Intervals for Time‑Series Forecasts statistics', candidate_title='The network uncertainty quantification method for propagating uncertainties in component-based systems')",
+        "failed_at": "2026-06-17T05:54:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Turbulent flows are of central importance across applications in science and engineering problems. For design and analysis, scientists and engineers use Computational Fluid Dynamics (CFD) simulations using turbulence models. Turbulent models are limited approximations, introducing epistemic uncertainty in CFD results. For reliable design and analysis, we require quantification of these uncertainties. The Eigenspace Perturbation Method (EPM) is the preeminent physics based approach for turbulence model UQ, but often leads to overly conservative uncertainty bounds. In this study, we use Machine Learning (ML) models to moderate the EPM perturbations and introduce our physics constrained machine learning framework for turbulence model UQ. We test this framework in multiple problems to show that it leads to improved calibration of the uncertainty estimates.",
+          "claimed_authors": [
+            "Minghan Chu",
+            "Weicheng Qian"
+          ],
+          "claimed_title": "Uncertainty Quantification For Turbulent Flows with Machine Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2310.11435"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Calibration of Predictive Intervals for Time‑Series Forecasts statistics', candidate_title='Uncertainty Quantification For Turbulent Flows with Machine Learning')",
+        "failed_at": "2026-06-17T05:54:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We consider statistical inference in the density estimation model using a tree-based Bayesian approach, with Optional Pólya trees as prior distribution. We derive near-optimal convergence rates for corresponding posterior distributions with respect to the supremum norm. For broad classes of Hölder-smooth densities, we show that the method automatically adapts to the unknown Hölder regularity parameter. We consider the question of uncertainty quantification by providing mathematical guarantees for credible sets from the obtained posterior distributions, leading to near-optimal uncertainty quantification for the density function, as well as related functionals such as the cumulative distribution function. The results are illustrated through a brief simulation study.",
+          "claimed_authors": [
+            "Ismaël Castillo",
+            "Thibault Randrianarisoa"
+          ],
+          "claimed_title": "Optional Pólya trees: posterior rates and uncertainty quantification",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2110.05265"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Calibration of Predictive Intervals for Time‑Series Forecasts statistics', candidate_title='Optional Pólya trees: posterior rates and uncertainty quantification')",
+        "failed_at": "2026-06-17T05:54:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "Machine learning methods are increasingly widely used in high-risk settings such as healthcare, transportation, and finance. In these settings, it is important that a model produces calibrated uncertainty to reflect its own confidence and avoid failures. In this paper we survey recent works on uncertainty quantification (UQ) for deep learning, in particular distribution-free Conformal Prediction method for its mathematical properties and wide applicability. We will cover the theoretical guarantees of conformal methods, introduce techniques that improve calibration and efficiency for UQ in the context of spatiotemporal data, and discuss the role of UQ in the context of safe decision making.",
+          "claimed_authors": [
+            "Sophia Sun"
+          ],
+          "claimed_title": "Conformal Methods for Quantifying Uncertainty in Spatiotemporal Data: A Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2209.03580"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Calibration of Predictive Intervals for Time‑Series Forecasts statistics', candidate_title='Conformal Methods for Quantifying Uncertainty in Spatiotemporal Data: A Survey')",
+        "failed_at": "2026-06-17T05:54:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "We study the generation of prediction intervals in regression for uncertainty quantification. This task can be formalized as an empirical constrained optimization problem that minimizes the average interval width while maintaining the coverage accuracy across data. We strengthen the existing literature by studying two aspects of this empirical optimization. First is a general learning theory to characterize the optimality-feasibility tradeoff that encompasses Lipschitz continuity and VC-subgraph classes, which are exemplified in regression trees and neural networks. Second is a calibration machinery and the corresponding statistical theory to optimally select the regularization parameter that manages this tradeoff, which bypasses the overfitting issues in previous approaches in coverage attainment. We empirically demonstrate the strengths of our interval generation and calibration algorithms in terms of testing performances compared to existing benchmarks.",
+          "claimed_authors": [
+            "Haoxian Chen",
+            "Ziyi Huang",
+            "Henry Lam",
+            "Huajie Qian",
+            "Haofeng Zhang"
+          ],
+          "claimed_title": "Learning Prediction Intervals for Regression: Generalization and Calibration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2102.13625"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Calibration of Predictive Intervals for Time‑Series Forecasts statistics', candidate_title='Learning Prediction Intervals for Regression: Generalization and Calibration')",
+        "failed_at": "2026-06-17T05:54:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "We study the problem of conformal prediction in a novel online framework that directly optimizes efficiency. In our problem, we are given a target miscoverage rate $α> 0$, and a time horizon $T$. On each day $t \\le T$ an algorithm must output an interval $I_t \\subseteq [0, 1]$, then a point $y_t \\in [0, 1]$ is revealed. The goal of the algorithm is to achieve coverage, that is, $y_t \\in I_t$ on (close to) a $(1 - α)$-fraction of days, while maintaining efficiency, that is, minimizing the average volume (length) of the intervals played. This problem is an online analogue to the problem of constructing efficient confidence intervals.\n  We study this problem over arbitrary and exchangeable (random order) input sequences. For exchangeable sequences, we show that it is possible to construct intervals that achieve coverage $(1 - α) - o(1)$, while having length upper bounded by the best fixed interval that achieves coverage in hindsight. For arbitrary sequences however, we show that any algorithm that achieves a $μ$-approximation in average length compared to the best fixed interval achieving coverage in hindsight, must make a multiplicative factor more mistakes than $αT$, where the multiplicative factor depends on $μ$ and the aspect ratio of the problem. Our main algorithmic result is a matching algorithm that can recover all Pareto-optimal settings of $μ$ and number of mistakes. Furthermore, our algorithm is deterministic and therefore robust to an adaptive adversary.\n  This gap between the exchangeable and arbitrary settings is in contrast to the classical online learning problem. In fact, we show that no single algorithm can simultaneously be Pareto-optimal for arbitrary sequences and optimal for exchangeable sequences. On the algorithmic side, we give an algorithm that achieves the near-optimal tradeoff between the two cases.",
+          "claimed_authors": [
+            "Vaidehi Srinivas"
+          ],
+          "claimed_title": "Online Conformal Prediction with Efficiency Guarantees",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2507.02496"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Calibration of Predictive Intervals for Time‑Series Forecasts statistics', candidate_title='Online Conformal Prediction with Efficiency Guarantees')",
+        "failed_at": "2026-06-17T05:54:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "We study three notions of uncertainty quantification -- calibration, confidence intervals and prediction sets -- for binary classification in the distribution-free setting, that is without making any distributional assumptions on the data. With a focus towards calibration, we establish a 'tripod' of theorems that connect these three notions for score-based classifiers. A direct implication is that distribution-free calibration is only possible, even asymptotically, using a scoring function whose level sets partition the feature space into at most countably many sets. Parametric calibration schemes such as variants of Platt scaling do not satisfy this requirement, while nonparametric schemes based on binning do. To close the loop, we derive distribution-free confidence intervals for binned probabilities for both fixed-width and uniform-mass binning. As a consequence of our 'tripod' theorems, these confidence intervals for binned probabilities lead to distribution-free calibration. We also derive extensions to settings with streaming data and covariate shift.",
+          "claimed_authors": [
+            "Chirag Gupta",
+            "Aleksandr Podkopaev",
+            "Aaditya Ramdas"
+          ],
+          "claimed_title": "Distribution-free binary classification: prediction sets, confidence intervals and calibration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2006.10564"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Calibration of Predictive Intervals for Time‑Series Forecasts statistics', candidate_title='Distribution-free binary classification: prediction sets, confidence intervals and calibration')",
+        "failed_at": "2026-06-17T05:54:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "Uncertainty quantification in prediction presents a compelling challenge with vast applications across various domains, including biomedical science, economics, and weather forecasting. There exists a wide array of methods for constructing prediction intervals, such as quantile regression and conformal prediction. However, practitioners often face the challenge of selecting the most suitable method for a specific real-world data problem. In response to this dilemma, we introduce a novel and universally applicable strategy called Universally Trainable Optimal Predictive Intervals Aggregation (UTOPIA). This technique excels in efficiently aggregating multiple prediction intervals while maintaining a small average width of the prediction band and ensuring coverage. UTOPIA is grounded in linear or convex programming, making it straightforward to train and implement. In the specific case where the prediction methods are elementary basis functions, as in kernel and spline bases, our method becomes the construction of a prediction band. Our proposed methodologies are supported by theoretical guarantees on the coverage probability and the average width of the aggregated prediction interval, which are detailed in this paper. The practicality and effectiveness of UTOPIA are further validated through its application to synthetic data and two real-world datasets in finance and macroeconomics.",
+          "claimed_authors": [
+            "Jianqing Fan",
+            "Jiawei Ge",
+            "Debarghya Mukherjee"
+          ],
+          "claimed_title": "UTOPIA: Universally Trainable Optimal Prediction Intervals Aggregation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.16549"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Calibration of Predictive Intervals for Time‑Series Forecasts statistics', candidate_title='UTOPIA: Universally Trainable Optimal Prediction Intervals Aggregation')",
+        "failed_at": "2026-06-17T05:54:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "Recently, there has been substantial interest in statistical guarantees for cross-validation (CV) methods of uncertainty quantification in statistical learning (cf. Barber et al. 2021a, Liang and Barber 2024, Steinberger and Leeb 2023). These guarantees should hold under minimal assumptions on the data generating process and conditional on the training data, because numerous predictions are usually computed based on one and the same training sample. We push this objective to the limit: We prove asymptotic conditional conservativeness of CV, that is, the probability of the actual coverage probability, conditional on the training data, undershooting its nominal level vanishes asymptotically, under minimal assumptions. In particular, we impose a stability condition, require that the prediction error is stochastically bounded, and show that neither condition can be dropped in general. By way of an asymptotic equivalence result, we also show that the closely related CV+ method of Barber et al. (2021a) provides exactly the same conditional statistical guarantees as CV in large samples, thereby extending the range of applicability of CV+ to the high-dimensional regime. We conclude that, in view of its marginal coverage guarantee, CV+ does indeed improve over simple CV. For our proofs we introduce a new concept called Lévy gauge, which can be of independent interest.",
+          "claimed_authors": [
+            "Nicolai Amann",
+            "Hannes Leeb",
+            "Lukas Steinberger"
+          ],
+          "claimed_title": "Uncertainty quantification via cross-validation and its variants under algorithmic stability",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2312.14596"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Calibration of Predictive Intervals for Time‑Series Forecasts statistics', candidate_title='Uncertainty quantification via cross-validation and its variants under algorithmic stability')",
+        "failed_at": "2026-06-17T05:54:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "We propose a computationally efficient method to construct nonparametric, heteroscedastic prediction bands for uncertainty quantification, with or without any user-specified predictive model. Our approach provides an alternative to the now-standard conformal prediction for uncertainty quantification, with novel theoretical insights and computational advantages. The data-adaptive prediction band is universally applicable with minimal distributional assumptions, has strong non-asymptotic coverage properties, and is easy to implement using standard convex programs. Our approach can be viewed as a novel variance interpolation with confidence and further leverages techniques from semi-definite programming and sum-of-squares optimization. Theoretical and numerical performances for the proposed approach for uncertainty quantification are analyzed.",
+          "claimed_authors": [
+            "Tengyuan Liang"
+          ],
+          "claimed_title": "Universal Prediction Band via Semi-Definite Programming",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2103.17203"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Calibration of Predictive Intervals for Time‑Series Forecasts statistics', candidate_title='Universal Prediction Band via Semi-Definite Programming')",
+        "failed_at": "2026-06-17T05:54:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "Most off-policy evaluation methods for contextual bandits have focused on the expected outcome of a policy, which is estimated via methods that at best provide only asymptotic guarantees. However, in many applications, the expectation may not be the best measure of performance as it does not capture the variability of the outcome. In addition, particularly in safety-critical settings, stronger guarantees than asymptotic correctness may be required. To address these limitations, we consider a novel application of conformal prediction to contextual bandits. Given data collected under a behavioral policy, we propose \\emph{conformal off-policy prediction} (COPP), which can output reliable predictive intervals for the outcome under a new target policy. We provide theoretical finite-sample guarantees without making any additional assumptions beyond the standard contextual bandit setup, and empirically demonstrate the utility of COPP compared with existing methods on synthetic and real-world data.",
+          "claimed_authors": [
+            "Muhammad Faaiz Taufiq",
+            "Jean-Francois Ton",
+            "Rob Cornish",
+            "Yee Whye Teh",
+            "Arnaud Doucet"
+          ],
+          "claimed_title": "Conformal Off-Policy Prediction in Contextual Bandits",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2206.04405"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Calibration of Predictive Intervals for Time‑Series Forecasts statistics', candidate_title='Conformal Off-Policy Prediction in Contextual Bandits')",
+        "failed_at": "2026-06-17T05:54:28Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Michael Scheuerer",
+            "David Möller"
+          ],
+          "title": "Probabilistic wind speed forecasting on a grid based on ensemble model output statistics",
+          "venue": "arXiv",
+          "year": 2015
+        },
+        "primary_pointer": "1511.02001",
+        "summary": "Probabilistic forecasts of wind speed are important for a wide range of applications, ranging from operational decision making in connection with wind power generation to storm warnings, ship routing and aviation. We present a statistical method that provides locally calibrated, probabilistic wind speed forecasts at any desired place within the forecast domain based on the output of a numerical weather prediction (NWP) model. Three approaches for wind speed post-processing are proposed, which use either truncated normal, gamma or truncated logistic distributions to make probabilistic predictions about future observations conditional on the forecasts of an ensemble prediction system (EPS). In order to provide probabilistic forecasts on a grid, predictive distributions that were calibrated with local wind speed observations need to be interpolated. We study several interpolation schemes that combine geostatistical methods with local information on annual mean wind speeds, and evaluate the proposed methodology with surface wind speed forecasts over Germany from the COSMO-DE (Consortium for Small-scale Modelling) ensemble prediction system.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1511.02001",
+          "http_status": 200,
+          "pdf_sample_score": 0.2029,
+          "query_relevance_score": 0.4286,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-17T05:54:27Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Lars van der Laan",
+            "Ahmed M. Alaa"
+          ],
+          "title": "Self-Calibrating Conformal Prediction",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2402.07307",
+        "summary": "In machine learning, model calibration and predictive inference are essential for producing reliable predictions and quantifying uncertainty to support decision-making. Recognizing the complementary roles of point and interval predictions, we introduce Self-Calibrating Conformal Prediction, a method that combines Venn-Abers calibration and conformal prediction to deliver calibrated point predictions alongside prediction intervals with finite-sample validity conditional on these predictions. To achieve this, we extend the original Venn-Abers procedure from binary classification to regression. Our theoretical framework supports analyzing conformal prediction methods that involve calibrating model predictions and subsequently constructing conditionally valid prediction intervals on the same data, where the conditioning set or conformity scores may depend on the calibrated predictions. Real-data experiments show that our method improves interval efficiency through model calibration and offers a practical alternative to feature-conditional validity.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2402.07307",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4286,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-17T05:54:27Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Margaux Zaffran",
+            "Aymeric Dieuleveut",
+            "Olivier Féron",
+            "Yannig Goude",
+            "Julie Josse"
+          ],
+          "title": "Adaptive Conformal Predictions for Time Series",
+          "venue": "arXiv",
+          "year": 2022
+        },
+        "primary_pointer": "2202.07282",
+        "summary": "Uncertainty quantification of predictive models is crucial in decision-making problems. Conformal prediction is a general and theoretically sound answer. However, it requires exchangeable data, excluding time series. While recent works tackled this issue, we argue that Adaptive Conformal Inference (ACI, Gibbs and Cand{è}s, 2021), developed for distribution-shift time series, is a good procedure for time series with general dependency. We theoretically analyse the impact of the learning rate on its efficiency in the exchangeable and auto-regressive case. We propose a parameter-free method, AgACI, that adaptively builds upon ACI based on online expert aggregation. We lead extensive fair simulations against competing methods that advocate for ACI's use in time series. We conduct a real case study: electricity price forecasting. The proposed aggregation algorithm provides efficient prediction intervals for day-ahead forecasting. All the code and data to reproduce the experiments is made available.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "theoremsearch",
+          "final_url": "https://arxiv.org/abs/2202.07282",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5714,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-17T05:54:28Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "calibration of predictive intervals for time‑series forecasts statistics",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2402.07307",
+  "judged_at": "2026-06-17T05:54:34Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "calibration of predictive intervals for time‑series forecasts statistics",
+  "rationale": "The paper addresses the same mechanism—calibration of predictive intervals—by proposing a self‑calibrating conformal prediction method that yields conditionally valid prediction intervals, which is directly relevant to the statistical calibration of forecast intervals (criterion a) and also serves as a methodological reference for interval calibration (criterion d).",
+  "relevant": true
+}

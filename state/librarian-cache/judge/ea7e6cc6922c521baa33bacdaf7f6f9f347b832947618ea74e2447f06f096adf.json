@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2509.02568",
+  "judged_at": "2026-06-17T05:56:23Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting individual pain sensitivity from resting‑state eeg microstates neuroscience",
+  "rationale": "The paper studies resting‑state EEG microstates and uses them to predict individual clinical outcomes (dementia/MCI), providing same‑mechanism evidence (category a) and measuring the key independent variable (EEG microstate features) relevant to the user’s question about pain sensitivity prediction.",
+  "relevant": true
+}

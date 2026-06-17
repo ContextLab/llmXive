@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1802.02701",
+  "judged_at": "2026-06-17T05:56:30Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting individual pain sensitivity from resting‑state eeg microstates neuroscience",
+  "rationale": "The paper provides a methodological contribution to EEG microstate analysis (comparison of reference schemes), which is a foundational technique that anyone studying resting‑state EEG microstates—including for predicting pain sensitivity—would cite (acceptance category (d)).",
+  "relevant": true
+}

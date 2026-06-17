@@ -234,5 +234,13 @@
   "PROJ-711-constraining-lorentz-invariance-violatio::1.6.0": {
     "classified_at": "2026-06-16T16:45:33Z",
     "verdict": false
+  },
+  "PROJ-712-predicting-individual-pain-sensitivity-f::1.6.0": {
+    "classified_at": "2026-06-17T05:56:10Z",
+    "verdict": false
+  },
+  "PROJ-714-virtual-reality-exposure-therapy-for-anx::1.6.0": {
+    "classified_at": "2026-06-17T05:55:13Z",
+    "verdict": false
   }
 }

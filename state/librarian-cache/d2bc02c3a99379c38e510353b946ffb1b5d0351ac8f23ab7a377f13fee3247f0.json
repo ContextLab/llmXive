@@ -1,0 +1,506 @@
+{
+  "fetched_at": "2026-06-17T05:56:30Z",
+  "field": "neuroscience",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "neuroscience",
+      "idea_body_excerpt": "Predicting Individual Pain Sensitivity from Resting‑State EEG Microstates",
+      "target_n": 5
+    },
+    "duration_seconds": 49.749,
+    "ended_at": "2026-06-17T05:56:30Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "EEG microstate analysis of pain perception"
+        ],
+        [
+          2,
+          "Resting‑state EEG biomarkers for pain sensitivity"
+        ],
+        [
+          3,
+          "Predictive modeling of pain using resting‑state EEG features"
+        ],
+        [
+          4,
+          "EEG functional connectivity patterns associated with pain susceptibility"
+        ],
+        [
+          5,
+          "Resting‑state neural oscillations as predictors of pain thresholds"
+        ],
+        [
+          6,
+          "Brain microstate dynamics and chronic pain risk assessment"
+        ],
+        [
+          7,
+          "Machine‑learning classification of pain sensitivity from EEG microstates"
+        ],
+        [
+          8,
+          "Resting‑state EEG spectral power markers of individual pain tolerance"
+        ],
+        [
+          9,
+          "EEG microstate transition probabilities linked to pain proneness"
+        ],
+        [
+          10,
+          "Resting‑state EEG network metrics for pain phenotype prediction"
+        ],
+        [
+          11,
+          "Temporal EEG microstate classes as indicators of pain sensitivity"
+        ],
+        [
+          12,
+          "Resting‑state EEG entropy and complexity in pain prediction"
+        ],
+        [
+          13,
+          "Cortical activity patterns in resting EEG correlated with pain perception"
+        ],
+        [
+          14,
+          "EEG source‑localized activity for forecasting pain sensitivity"
+        ],
+        [
+          15,
+          "Resting‑state EEG theta/beta ratio as a pain sensitivity biomarker"
+        ],
+        [
+          16,
+          "Graph‑theoretic EEG measures predicting individual pain susceptibility"
+        ],
+        [
+          17,
+          "Resting‑state EEG functional connectivity alterations in high‑pain‑sensitivity individuals"
+        ],
+        [
+          18,
+          "EEG-derived neuromarkers of pain tolerance in healthy subjects"
+        ],
+        [
+          19,
+          "Resting‑state EEG microstate duration variability and pain responsiveness"
+        ],
+        [
+          20,
+          "Multivariate EEG feature sets for individualized pain sensitivity prediction"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "EEG microstate analysis of pain perception": 3,
+        "Predicting Individual Pain Sensitivity from Resting‑State EEG Microstates neuroscience": 0
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "pain threshold EEG microstates",
+      "chronic pain resting-state EEG",
+      "microstate dynamics machine learning",
+      "visual analog scale prediction EEG",
+      "thalamocortical dysrhythmia pain sensitivity"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2509.02568"
+      ]
+    },
+    "per_query_hit_count": {
+      "Predicting Individual Pain Sensitivity from Resting‑State EEG Microstates neuroscience": 3,
+      "chronic pain resting-state EEG": 1,
+      "microstate dynamics machine learning": 3,
+      "pain threshold EEG microstates": 2,
+      "thalamocortical dysrhythmia pain sensitivity": 2,
+      "visual analog scale prediction EEG": 2
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 1,
+      "rejections": [
+        {
+          "primary_pointer": "2403.09707",
+          "rationale": "The paper focuses on TMS‑EEG methodology, stimulation protocols, and EEG oscillatory analyses, without addressing pain sensitivity or EEG microstates; it does not measure any variable related to the user’s independent (pain sensitivity) or dependent (EEG microstates) constructs, so it falls outside the relevant domain.",
+          "title": "Understanding data analysis aspects of TMS-EEG in clinical study: a mini review and a case study with open dataset"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-17T05:55:40Z",
+    "term_input": {
+      "normalized": "predicting individual pain sensitivity from resting‑state eeg microstates neuroscience",
+      "raw": "Predicting Individual Pain Sensitivity from Resting‑State EEG Microstates neuroscience"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Dementia (DEM) is a growing global health challenge, underscoring the need for early and accurate diagnosis. Electroencephalography (EEG) provides a non-invasive window into brain activity, but conventional methods struggle to capture its transient complexity. We present the \\textbf{EEG Microstate Analysis Framework (EEG-MSAF)}, an end-to-end pipeline that leverages EEG microstates discrete, quasi-stable topographies to identify DEM-related biomarkers and distinguish DEM, mild cognitive impairment (MCI), and normal cognition (NC). EEG-MSAF comprises three stages: (1) automated microstate feature extraction, (2) classification with machine learning (ML), and (3) feature ranking using Shapley Additive Explanations (SHAP) to highlight key biomarkers. We evaluate on two EEG datasets: the public Chung-Ang University EEG (CAUEEG) dataset and a clinical cohort from Thessaloniki Hospital. Our framework demonstrates strong performance and generalizability. On CAUEEG, EEG-MSAF-SVM achieves \\textbf{89\\% $\\pm$ 0.01 accuracy}, surpassing the deep learning baseline CEEDNET by \\textbf{19.3\\%}. On the Thessaloniki dataset, it reaches \\textbf{95\\% $\\pm$ 0.01 accuracy}, comparable to EEGConvNeXt. SHAP analysis identifies mean correlation and occurrence as the most informative metrics: disruption of microstate C (salience/attention network) dominates DEM prediction, while microstate F, a novel default-mode pattern, emerges as a key early biomarker for both MCI and DEM. By combining accuracy, generalizability, and interpretability, EEG-MSAF advances EEG-based dementia diagnosis and sheds light on brain dynamics across the cognitive spectrum.",
+          "claimed_authors": [
+            "Mohammad Mehedi Hasan",
+            "Pedro G. Lind",
+            "Hernando Ombao",
+            "Anis Yazidi",
+            "Rabindra Khadka"
+          ],
+          "claimed_title": "EEG-MSAF: An Interpretable Microstate Framework uncovers Default-Mode Decoherence in Early Neurodegeneration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2509.02568"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Predicting Individual Pain Sensitivity from Resting‑State EEG Microstates neuros', candidate_title='EEG-MSAF: An Interpretable Microstate Framework uncovers Default-Mode Decoherence in Early Neurodegeneration')",
+        "failed_at": "2026-06-17T05:56:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Fractals are self-similar and scale-invariant patterns found ubiquitously in nature. A lot of evidences implying fractal properties such as 1/f power spectrums have been also observed in resting state fMRI time series. To explain the fractal behavior in rs-fMRI, we have proposed the fractal-based model of resting state hemodynamic response function (rs-HRF) whose properties can be summarized by a fractal exponent. Here we show, through a simulation studies, that the fractal behavior of cerebral hemodynamics may cause significant distortion of network properties between neuronal activities and BOLD signals. We simulated neuronal population activities based on the stochastic neural field model from the Macaque brain network, and then obtained their corresponding BOLD signals by convolving them with the rs-HRF filter. The precision of centrality estimated in each node was deteriorated overall in three networks based on transfer entropy, mutual information, and Pearson correlation; particularly the distortion of transfer entropy was more sensitive to the standard deviation of fractal exponents. A node with high centrality was resilient to desynchronized fractal dynamics over all frequencies while a node with small centrality exhibited huge distortion of both wavelet correlation and centrality over low frequencies. This theoretical expectation indicates that the difference of fractal exponents between brain regions leads to discrepancy of statistical network properties, especially at nodes with small centrality, between neuronal activities and BOLD signals, and that the traditional definitions of resting state functional connectivity may not effectively reflect the dynamics of spontaneous neuronal activities.",
+          "claimed_authors": [
+            "Wonsang You",
+            "Jörg Stadler"
+          ],
+          "claimed_title": "Fractal-driven distortion of resting state functional networks in fMRI: a simulation study",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1208.0924"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Predicting Individual Pain Sensitivity from Resting‑State EEG Microstates neuros', candidate_title='Fractal-driven distortion of resting state functional networks in fMRI: a simulation study')",
+        "failed_at": "2026-06-17T05:56:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Despite the decades of efforts, the choice of EEG reference is still a debated fundamental issue. Non-neutral reference can inevitably inject the uncontrolled temporal biases into all EEG recordings, which may influence the spatiotemporal analysis of brain activity. A method, termed microstates, identifying spatiotemporal EEG features as the quasi-stable topography states in milliseconds, suggests its potential as biomarkers of neurophysiological disease. As reference electrode standardization technique (REST) could reconstruct an infinity reference approximately, it is a question whether REST or the other references will be more reliable than average reference (AR) for the microstates analysis. In this study, we design the microstate-based EEG forward model, and apply different references for microstates analysis. The spatial similarity between the generated and assumed cluster maps is mainly investigated. Furthermore, the real EEG data by the parametric bootstrap method is used to validate the performance of the references. Finally, we find that REST is robust to recover more similar cluster maps to the assumption than AR in the simulation, and the cluster maps between REST and AR on the real EEG data are quite different. This study may indicate that REST contributes to identifying more objective microstates features than AR.",
+          "claimed_authors": [
+            "Shiang Hu",
+            "Esin Karahan",
+            "Pedro A. Valdes-Sosa"
+          ],
+          "claimed_title": "Restate the reference for EEG microstate analysis",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1802.02701"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Predicting Individual Pain Sensitivity from Resting‑State EEG Microstates neuros', candidate_title='Restate the reference for EEG microstate analysis')",
+        "failed_at": "2026-06-17T05:56:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recognizing pain in video is crucial for improving patient-computer interaction systems, yet traditional data collection in this domain raises significant ethical and logistical challenges. This study introduces a novel approach that leverages synthetic data to enhance video-based pain recognition models, providing an ethical and scalable alternative. We present a pipeline that synthesizes realistic 3D facial models by capturing nuanced facial movements from a small participant pool, and mapping these onto diverse synthetic avatars. This process generates 8,600 synthetic faces, accurately reflecting genuine pain expressions from varied angles and perspectives.\n  Utilizing advanced facial capture techniques, and leveraging public datasets like CelebV-HQ and FFHQ-UV for demographic diversity, our new synthetic dataset significantly enhances model training while ensuring privacy by anonymizing identities through facial replacements.\n  Experimental results demonstrate that models trained on combinations of synthetic data paired with a small amount of real participants achieve superior performance in pain recognition, effectively bridging the gap between synthetic simulations and real-world applications. Our approach addresses data scarcity and ethical concerns, offering a new solution for pain detection and opening new avenues for research in privacy-preserving dataset generation. All resources are publicly available to encourage further innovation in this field.",
+          "claimed_authors": [
+            "Jonas Nasimzada",
+            "Jens Kleesiek",
+            "Ken Herrmann",
+            "Alina Roitberg",
+            "Constantin Seibold"
+          ],
+          "claimed_title": "Towards Synthetic Data Generation for Improved Pain Recognition in Videos under Patient Constraints",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2409.16382"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting Individual Pain Sensitivity from Resting‑State EEG Microstates neuros', candidate_title='Towards Synthetic Data Generation for Improved Pain Recognition in Videos under Patient Constraints')",
+        "failed_at": "2026-06-17T05:56:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Data science has become increasingly essential for the production of official statistics, as it enables the automated collection, processing, and analysis of large amounts of data. With such data science practices in place, it enables more timely, more insightful and more flexible reporting. However, the quality and integrity of data-science-driven statistics rely on the accuracy and reliability of the data sources and the machine learning techniques that support them. In particular, changes in data sources are inevitable to occur and pose significant risks that are crucial to address in the context of machine learning for official statistics.\n  This paper gives an overview of the main risks, liabilities, and uncertainties associated with changing data sources in the context of machine learning for official statistics. We provide a checklist of the most prevalent origins and causes of changing data sources; not only on a technical level but also regarding ownership, ethics, regulation, and public perception. Next, we highlight the repercussions of changing data sources on statistical reporting. These include technical effects such as concept drift, bias, availability, validity, accuracy and completeness, but also the neutrality and potential discontinuation of the statistical offering. We offer a few important precautionary measures, such as enhancing robustness in both data sourcing and statistical techniques, and thorough monitoring. In doing so, machine learning-based official statistics can maintain integrity, reliability, consistency, and relevance in policy-making, decision-making, and public discourse.",
+          "claimed_authors": [
+            "Cedric De Boom",
+            "Michael Reusens"
+          ],
+          "claimed_title": "Changing Data Sources in the Age of Machine Learning for Official Statistics",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.04338"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Individual Pain Sensitivity from Resting‑State EEG Microstates neuros', candidate_title='Changing Data Sources in the Age of Machine Learning for Official Statistics')",
+        "failed_at": "2026-06-17T05:56:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Modern biology frequently relies on machine learning to provide predictions and improve decision processes. There have been recent calls for more scrutiny on machine learning performance and possible limitations. Here we present a set of community-wide recommendations aiming to help establish standards of supervised machine learning validation in biology. Adopting a structured methods description for machine learning based on data, optimization, model, evaluation (DOME) will aim to help both reviewers and readers to better understand and assess the performance and limitations of a method or outcome. The recommendations are formulated as questions to anyone wishing to pursue implementation of a machine learning algorithm. Answers to these questions can be easily included in the supplementary material of published papers.",
+          "claimed_authors": [
+            "Ian Walsh",
+            "Dmytro Fishman",
+            "Dario Garcia-Gasulla",
+            "Tiina Titma",
+            "Gianluca Pollastri",
+            "The ELIXIR Machine Learning focus group",
+            "Jen Harrow",
+            "Fotis E. Psomopoulos",
+            "Silvio C. E. Tosatto"
+          ],
+          "claimed_title": "DOME: Recommendations for supervised machine learning validation in biology",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2006.16189"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Individual Pain Sensitivity from Resting‑State EEG Microstates neuros', candidate_title='DOME: Recommendations for supervised machine learning validation in biology')",
+        "failed_at": "2026-06-17T05:56:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Learning curves are a concept from social sciences that has been adopted in the context of machine learning to assess the performance of a learning algorithm with respect to a certain resource, e.g., the number of training examples or the number of training iterations. Learning curves have important applications in several machine learning contexts, most notably in data acquisition, early stopping of model training, and model selection. For instance, learning curves can be used to model the performance of the combination of an algorithm and its hyperparameter configuration, providing insights into their potential suitability at an early stage and often expediting the algorithm selection process. Various learning curve models have been proposed to use learning curves for decision making. Some of these models answer the binary decision question of whether a given algorithm at a certain budget will outperform a certain reference performance, whereas more complex models predict the entire learning curve of an algorithm. We contribute a framework that categorises learning curve approaches using three criteria: the decision-making situation they address, the intrinsic learning curve question they answer and the type of resources they use. We survey papers from the literature and classify them into this framework.",
+          "claimed_authors": [
+            "Felix Mohr",
+            "Jan N. van Rijn"
+          ],
+          "claimed_title": "Learning Curves for Decision Making in Supervised Machine Learning: A Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2201.12150"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Individual Pain Sensitivity from Resting‑State EEG Microstates neuros', candidate_title='Learning Curves for Decision Making in Supervised Machine Learning: A Survey')",
+        "failed_at": "2026-06-17T05:56:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Electroencephalography (EEG) supports a variety of brain-computer interface (BCI) tasks ranging from brain-state monitoring to human-LLM interactions. EEG foundation models are emerging, but evaluation remains fragmented due to heterogeneous datasets and nconsistent task protocols. Here, we introduce OmniEEG-Bench, a unified benchmark and downstream task roadmap for EEG foundation models (FMs). It organizes evaluation of EEG FMs into six task families spanning (i) signal reliability, (ii) biometrics and disease, (iii) consciousness and state, (iv) cognition and emotion, (v) naturalistic stimulus decoding, and (vi) motor and interaction, introducing a new generation of tasks not systematically benchmarked in prior EEG FM work. OmniEEG-Bench standardizes model deployment, task definitions, and metrics through a task-card specification, and unifies 54 EEG datasets with consistent evaluation protocols. We benchmark 10 representative EEG foundation models and report a leaderboard that covers diverse evaluation settings. Both pretraining dataset diversity and model size are significantly associated with better average ranks across datasets, revealing scaling-law behavior in EEG foundation models (Figure 1). These results suggest that scaling EEG foundation models requires not only larger architectures but also broader and more diverse pretraining data. The benchmark code is available at https://github.com/ncclab-sustech/omni-eegbench.git.",
+          "claimed_authors": [
+            "Ziling Lu",
+            "Zongsheng Li",
+            "Xinke Shen",
+            "Kexin Lou",
+            "Yingyue Xin",
+            "Xiaoqi Chen",
+            "Shinan Wang",
+            "Xiang Chen",
+            "Jiahao Fan",
+            "Chenyu Huang",
+            "Xin Xu",
+            "Zhoujie Hou",
+            "Chen Wei",
+            "Quanying Liu"
+          ],
+          "claimed_title": "OmniEEG-Bench: A Standardized Evaluation Benchmark for EEG Foundation Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.00815"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Predicting Individual Pain Sensitivity from Resting‑State EEG Microstates neuros', candidate_title='OmniEEG-Bench: A Standardized Evaluation Benchmark for EEG Foundation Models')",
+        "failed_at": "2026-06-17T05:56:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The outbreak of the COVID-19 pandemic revealed the criticality of timely intervention in a situation exacerbated by a shortage in medical staff and equipment. Pain-level screening is the initial step toward identifying the severity of patient conditions. Automatic recognition of state and feelings help in identifying patient symptoms to take immediate adequate action and providing a patient-centric medical plan tailored to a patient's state. In this paper, we propose a framework for pain-level detection for deployment in the United Arab Emirates and assess its performance using the most used approaches in the literature. Our results show that a deployment of a pain-level deep learning detection framework is promising in identifying the pain level accurately.",
+          "claimed_authors": [
+            "Leila Ismail",
+            "Muhammad Danish Waseem"
+          ],
+          "claimed_title": "Towards a Deep Learning Pain-Level Detection Deployment at UAE for Patient-Centric-Pain Management and Diagnosis Support: Framework and Performance Evaluation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2303.08273"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Predicting Individual Pain Sensitivity from Resting‑State EEG Microstates neuros', candidate_title='Towards a Deep Learning Pain-Level Detection Deployment at UAE for Patient-Centric-Pain Management and Diagnosis Support: Framework and Performance Evaluation')",
+        "failed_at": "2026-06-17T05:56:11Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Pain is a complex and subjective experience that poses a number of measurement challenges. While self-report by the patient is viewed as the gold standard of pain assessment, this approach fails when patients cannot verbally communicate pain intensity or lack normal mental abilities. Here, we present a pain intensity measurement method based on physiological signals. Specifically, we implement a multi-task learning approach based on neural networks that accounts for individual differences in pain responses while still leveraging data from across the population. We test our method in a dataset containing multi-modal physiological responses to nociceptive pain.",
+          "claimed_authors": [
+            "Daniel Lopez-Martinez",
+            "Rosalind Picard"
+          ],
+          "claimed_title": "Multi-task Neural Networks for Personalized Pain Recognition from Physiological Signals",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1708.08755"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting Individual Pain Sensitivity from Resting‑State EEG Microstates neuros', candidate_title='Multi-task Neural Networks for Personalized Pain Recognition from Physiological Signals')",
+        "failed_at": "2026-06-17T05:56:11Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Jean Li",
+            "Dirk De Ridder",
+            "Divya Adhia",
+            "Matthew Hall",
+            "Jeremiah D. Deng"
+          ],
+          "title": "Modified Feature Selection for Improved Classification of Resting-State Raw EEG Signals in Chronic Knee Pain",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2306.15194",
+        "summary": "\\textit{Objective:} Diagnosing pain in research and clinical practices still relies on self-report. This study aims to develop an automatic approach that works on resting-state raw EEG data for chronic knee pain prediction. \\textit{Method:} A new feature selection algorithm called ``modified Sequential Floating Forward Selection'' (mSFFS) is proposed. The improved feature selection scheme can better avoid local minima and explore alternative search routes. \\textit{Results:} The feature selection obtained by mSFFS displays better class separability as indicated by the Bhattacharyya distance measures and better visualization results. It also outperforms selections generated by other benchmark methods, boosting the test accuracy to 97.5\\%. \\textit{Conclusion:} The improved feature selection searches out a compact, effective subset of connectivity features that produces competitive performance on chronic knee pain prediction. \\textit{Significance:} We have shown that an automatic approach can be employed to find a compact connectivity feature set that effectively predicts chronic knee pain from EEG. It may shed light on the research of chronic pains and lead to future clinical solutions for diagnosis and treatment.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2306.15194",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5714,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-17T05:56:10Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Xiru Wang",
+            "Aiden Li",
+            "Hongzhao Tan",
+            "Stevie Foglia",
+            "Aimee Nelson",
+            "Zhen Gao"
+          ],
+          "title": "A Machine Learning Framework for EEG-Based Prediction of Treatment Efficacy in Chronic Neck Pain",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2605.16326",
+        "summary": "Chronic neck pain is a leading cause of disability worldwide, and current treatment selection remains largely trial and error. We present a machine learning framework that uses electroencephalography to predict treatment efficacy in patients with chronic neck pain, with the goal of supporting individualized therapy and reducing the burden on healthcare systems. The framework centers on a rigorous data preprocessing stage tailored to the characteristics of each EEG recording type. For resting-state EEG, the preprocessing pipeline comprises baseline signal removal, bad channel identification and exclusion, re-referencing, bandpass and notch filtering, Independent Component Analysis, and power spectral density analysis. For motor execution and motor imagery recordings, the same initial steps are applied, after which signals are aligned to trigger events so that event-related desynchronization (ERD) and event-related synchronization (ERS) can be quantified. Synchronously recorded electromyography data are bandpass filtered and smoothed with a moving average, then correlated with the corresponding EEG channels to characterize the EEG EMG relationship during attempted movement. In parallel, we performed an extensive literature review of machine learning models applied to clinical EEG (763 records initially screened, 16 patient and 47 healthy-control studies retained), to inform the post-processing strategy. Through this combined preprocessing and review effort, we aim to develop a robust predictive model that can support personalized healthcare strategies in chronic pain management.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2605.16326",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5714,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-17T05:56:10Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Mohammad Mehedi Hasan",
+            "Pedro G. Lind",
+            "Hernando Ombao",
+            "Anis Yazidi",
+            "Rabindra Khadka"
+          ],
+          "title": "EEG-MSAF: An Interpretable Microstate Framework uncovers Default-Mode Decoherence in Early Neurodegeneration",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2509.02568",
+        "summary": "Dementia (DEM) is a growing global health challenge, underscoring the need for early and accurate diagnosis. Electroencephalography (EEG) provides a non-invasive window into brain activity, but conventional methods struggle to capture its transient complexity. We present the \\textbf{EEG Microstate Analysis Framework (EEG-MSAF)}, an end-to-end pipeline that leverages EEG microstates discrete, quasi-stable topographies to identify DEM-related biomarkers and distinguish DEM, mild cognitive impairment (MCI), and normal cognition (NC). EEG-MSAF comprises three stages: (1) automated microstate feature extraction, (2) classification with machine learning (ML), and (3) feature ranking using Shapley Additive Explanations (SHAP) to highlight key biomarkers. We evaluate on two EEG datasets: the public Chung-Ang University EEG (CAUEEG) dataset and a clinical cohort from Thessaloniki Hospital. Our framework demonstrates strong performance and generalizability. On CAUEEG, EEG-MSAF-SVM achieves \\textbf{89\\% $\\pm$ 0.01 accuracy}, surpassing the deep learning baseline CEEDNET by \\textbf{19.3\\%}. On the Thessaloniki dataset, it reaches \\textbf{95\\% $\\pm$ 0.01 accuracy}, comparable to EEGConvNeXt. SHAP analysis identifies mean correlation and occurrence as the most informative metrics: disruption of microstate C (salience/attention network) dominates DEM prediction, while microstate F, a novel default-mode pattern, emerges as a key early biomarker for both MCI and DEM. By combining accuracy, generalizability, and interpretability, EEG-MSAF advances EEG-based dementia diagnosis and sheds light on brain dynamics across the cognitive spectrum.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2509.02568",
+          "http_status": 200,
+          "pdf_sample_score": 0.2338,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-17T05:56:14Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Mathis Rezzouk",
+            "Fabrice Gagnon",
+            "Alyson Champagne",
+            "Mathieu Roy",
+            "Philippe Albouy",
+            "Michel-Pierre Coll",
+            "Cem Subakan"
+          ],
+          "title": "Towards Generalizable Learning Models for EEG-Based Identification of Pain Perception",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2508.11691",
+        "summary": "EEG-based analysis of pain perception, enhanced by machine learning, reveals how the brain encodes pain by identifying neural patterns evoked by noxious stimulation. However, a major challenge that remains is the generalization of machine learning models across individuals, given the high cross-participant variability inherent to EEG signals and the limited focus on direct pain perception identification in current research. In this study, we systematically evaluate the performance of cross-participant generalization of a wide range of models, including traditional classifiers and deep neural classifiers for identifying the sensory modality of thermal pain and aversive auditory stimulation from EEG recordings. Using a novel dataset of EEG recordings from 108 participants, we benchmark model performance under both within- and cross-participant evaluation settings. Our findings show that traditional models suffered the largest drop from within- to cross-participant performance, while deep learning models proved more resilient, underscoring their potential for subject-invariant EEG decoding. Even though performance variability remained high, the strong results of the graph-based model highlight its potential to capture subject-invariant structure in EEG signals. On the other hand, we also share the preprocessed dataset used in this study, providing a standardized benchmark for evaluating future algorithms under the same generalization constraints.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2508.11691",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.75,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-17T05:56:14Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Shiang Hu",
+            "Esin Karahan",
+            "Pedro A. Valdes-Sosa"
+          ],
+          "title": "Restate the reference for EEG microstate analysis",
+          "venue": "arXiv",
+          "year": 2018
+        },
+        "primary_pointer": "1802.02701",
+        "summary": "Despite the decades of efforts, the choice of EEG reference is still a debated fundamental issue. Non-neutral reference can inevitably inject the uncontrolled temporal biases into all EEG recordings, which may influence the spatiotemporal analysis of brain activity. A method, termed microstates, identifying spatiotemporal EEG features as the quasi-stable topography states in milliseconds, suggests its potential as biomarkers of neurophysiological disease. As reference electrode standardization technique (REST) could reconstruct an infinity reference approximately, it is a question whether REST or the other references will be more reliable than average reference (AR) for the microstates analysis. In this study, we design the microstate-based EEG forward model, and apply different references for microstates analysis. The spatial similarity between the generated and assumed cluster maps is mainly investigated. Furthermore, the real EEG data by the parametric bootstrap method is used to validate the performance of the references. Finally, we find that REST is robust to recover more similar cluster maps to the assumption than AR in the simulation, and the cluster maps between REST and AR on the real EEG data are quite different. This study may indicate that REST contributes to identifying more objective microstates features than AR.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1802.02701",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-17T05:56:15Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "predicting individual pain sensitivity from resting‑state eeg microstates neuroscience",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

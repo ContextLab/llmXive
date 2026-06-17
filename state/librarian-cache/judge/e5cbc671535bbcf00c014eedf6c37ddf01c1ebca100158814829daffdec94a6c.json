@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2409.13085",
+  "judged_at": "2026-06-17T05:55:25Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "virtual reality exposure therapy for anxiety: a meta-analysis psychology",
+  "rationale": "The paper investigates the use of virtual reality as an intervention for a form of anxiety (social/public‑speaking anxiety) in a specific population, thereby measuring the same independent (VR exposure) and dependent (anxiety) variables as the user's broader question. This satisfies inclusion criterion (b) – it provides empirical evidence on VR‑based anxiety treatment within the relevant domain.",
+  "relevant": true
+}

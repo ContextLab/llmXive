@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1907.06796",
+  "judged_at": "2026-06-17T05:55:32Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "virtual reality exposure therapy for anxiety: a meta-analysis psychology",
+  "rationale": "The paper focuses on motion tracking technology for augmented reality and does not examine virtual reality exposure therapy, anxiety outcomes, or any psychological variables relevant to a meta‑analysis in psychology. It is unrelated to the user's domain and constructs.",
+  "relevant": false
+}

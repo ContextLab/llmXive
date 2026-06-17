@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2403.09707",
+  "judged_at": "2026-06-17T05:56:22Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting individual pain sensitivity from resting‑state eeg microstates neuroscience",
+  "rationale": "The paper focuses on TMS‑EEG methodology, stimulation protocols, and EEG oscillatory analyses, without addressing pain sensitivity or EEG microstates; it does not measure any variable related to the user’s independent (pain sensitivity) or dependent (EEG microstates) constructs, so it falls outside the relevant domain.",
+  "relevant": false
+}

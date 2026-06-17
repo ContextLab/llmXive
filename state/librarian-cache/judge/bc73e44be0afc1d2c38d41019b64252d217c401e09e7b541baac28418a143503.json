@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2508.11691",
+  "judged_at": "2026-06-17T05:56:27Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting individual pain sensitivity from resting‑state eeg microstates neuroscience",
+  "rationale": "The paper investigates EEG signatures that encode pain perception and evaluates cross‑participant generalization, thus providing same‑mechanism evidence (EEG‑based neural patterns related to pain) and measuring an EEG‑based dependent variable in the same domain as the user’s question, even though it uses task‑evoked data rather than resting‑state microstates. This makes it a relevant prior work for a literature review on predicting individual pain sensitivity from EEG.",
+  "relevant": true
+}

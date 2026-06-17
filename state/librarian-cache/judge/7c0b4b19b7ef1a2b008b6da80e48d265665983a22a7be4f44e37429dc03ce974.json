@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2306.15194",
+  "judged_at": "2026-06-17T05:56:17Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting individual pain sensitivity from resting‑state eeg microstates neuroscience",
+  "rationale": "The paper studies resting‑state EEG (independent variable) to predict a pain‑related outcome (chronic knee pain), which falls within the same domain of EEG‑based pain prediction as the user’s interest in individual pain sensitivity (acceptance criterion (b)). It therefore provides a relevant empirical baseline for EEG‑based pain prediction methods.",
+  "relevant": true
+}
