@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2408.03576",
+  "judged_at": "2026-06-17T10:47:35Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "resting‑state fmri global signal as a marker of mind‑wandering neuroscience",
+  "rationale": "The paper investigates mind wandering as a behavioral measure in data‑visualization user experience, without any reference to resting‑state fMRI, the global signal, or neuroimaging mechanisms, thus it is off‑domain and lacks a measurable connection to the user's variables.",
+  "relevant": false
+}

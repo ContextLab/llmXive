@@ -1,0 +1,409 @@
+{
+  "fetched_at": "2026-06-17T10:49:35Z",
+  "field": "mathematics",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "mathematics",
+      "idea_body_excerpt": "Normalized Gaps Between Consecutive Squarefree Numbers",
+      "target_n": 5
+    },
+    "duration_seconds": 100.515,
+    "ended_at": "2026-06-17T10:49:35Z",
+    "expansion": null,
+    "extracted_queries": [
+      "squarefree spacing",
+      "natural numbers squarefree gaps",
+      "Möbius function squarefree distribution",
+      "normalized gap statistics squarefree",
+      "Poisson model squarefree gaps"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": false,
+      "verdict": null
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "math/0602673"
+      ]
+    },
+    "per_query_hit_count": {
+      "Möbius function squarefree distribution": 3,
+      "Normalized Gaps Between Consecutive Squarefree Numbers mathematics": 3,
+      "Poisson model squarefree gaps": 1,
+      "natural numbers squarefree gaps": 0,
+      "normalized gap statistics squarefree": 1,
+      "squarefree spacing": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 4,
+      "rejections": [
+        {
+          "primary_pointer": "2512.01087",
+          "rationale": "The paper studies densities and translate properties of sets relative to squarefree numbers, not the distribution or normalized gaps between consecutive squarefree integers themselves, so it does not provide a direct or foundational reference for the user's specific question about normalized gaps.",
+          "title": "Growth rates of sequences governed by the squarefree properties of its translates"
+        },
+        {
+          "primary_pointer": "1902.02782",
+          "rationale": "The paper discusses probability theory and legal statistics from Poisson’s work, with no connection to number theory, squarefree integers, or the study of gaps between consecutive squarefree numbers, thus it does not meet any inclusion criteria.",
+          "title": "English Translation of Poisson's \"Recherches sur la probabilité des jugements en matière criminelle et en matière civile\" / \"Researches into the Probabilities of Judgements in Criminal and Civil Cases\""
+        },
+        {
+          "primary_pointer": "1305.0348",
+          "rationale": "The paper studies gaps between consecutive primes in various integer subsets, which is a different arithmetic object from squarefree numbers; it does not address squarefree gaps or their normalization, so it falls under the “distinct construct” rejection criterion.",
+          "title": "The existence of small prime gaps in subsets of the integers"
+        },
+        {
+          "primary_pointer": "2106.04261",
+          "rationale": "The paper studies minimal gaps and additive energy for general real‑valued sequences (α xₙ mod 1) and does not address gaps between consecutive squarefree numbers, nor the normalized gap statistic for that specific integer sequence. It falls outside the domain of the user's question.",
+          "title": "Minimal Gaps and Additive Energy in real-valued sequences"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-17T10:47:54Z",
+    "term_input": {
+      "normalized": "normalized gaps between consecutive squarefree numbers mathematics",
+      "raw": "Normalized Gaps Between Consecutive Squarefree Numbers mathematics"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The inevitability of Chern--Simons terms in constructing a variety of physical models, and the mathematical advances they in turn generate, illustrates the unexpected but profound interactions between the two disciplines.",
+          "claimed_authors": [
+            "S. Deser"
+          ],
+          "claimed_title": "Chern--Simons Terms as an Example of the Relations Between Mathematics and Physics",
+          "claimed_venue": "arXiv",
+          "claimed_year": 1998,
+          "primary_pointer": "math-ph/9805020"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Normalized Gaps Between Consecutive Squarefree Numbers mathematics', candidate_title='Chern--Simons Terms as an Example of the Relations Between Mathematics and Physics')",
+        "failed_at": "2026-06-17T10:49:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This note presents new results for the squarefree value sets of quartic polynomials over the integers.",
+          "claimed_authors": [
+            "N. A. Carella"
+          ],
+          "claimed_title": "Squarefree Values Of Polynomials",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2310.16952"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Normalized Gaps Between Consecutive Squarefree Numbers mathematics', candidate_title='Squarefree Values Of Polynomials')",
+        "failed_at": "2026-06-17T10:49:14Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Let $n \\geq 1$ be a squarefree integer, and let $M$, $A$ be two groups of order $n$. Using our previous results on the enumeration of Hopf-Galois structures on Galois extensions of fields of squarefree degree, we determine the number of skew braces (up to isomorphism) with multiplicative group $M$ and additive group $A$. As an application, we enumerate skew braces whose order is the product of three distinct primes.",
+          "claimed_authors": [
+            "Ali A. Alabdali",
+            "Nigel P. Byott"
+          ],
+          "claimed_title": "Skew Braces of Squarefree Order",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1910.07814"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Normalized Gaps Between Consecutive Squarefree Numbers mathematics', candidate_title='Skew Braces of Squarefree Order')",
+        "failed_at": "2026-06-17T10:49:14Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Möbius function for a group, $G$, was introduced in 1936 by Hall in order to count ordered generating sets of $G$. In this paper we determine the Möbius function of the simple small Ree groups, $R(q)={}^2G_2(q)$ where $q=3^{2m+1}$ for $m>0$, using their 2-transitive permutation representation of degree $q^3+1$ and describe their maximal subgroups in terms of this representation. We then use this to determine $\\vert$Epi$(Γ,G)\\vert$ for various $Γ$, such as $F_2$ or the modular group $PSL_2(\\mathbb{Z})$, with applications to Grothendieck's theory of dessins d'enfants as well as probabilistic generation of the small Ree groups.",
+          "claimed_authors": [
+            "Emilio Pierro"
+          ],
+          "claimed_title": "The Möbius function of the small Ree groups",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1410.8702"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Normalized Gaps Between Consecutive Squarefree Numbers mathematics', candidate_title='The Möbius function of the small Ree groups')",
+        "failed_at": "2026-06-17T10:49:14Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Mertens function, $M(x) := \\sum_{n \\leq x} μ(n)$, is defined as the summatory function of the classical Möbius function. The Dirichlet inverse function $g(n) := (ω+1)^{-1}(n)$ is defined in terms of the shifted strongly additive function $ω(n)$ that counts the number of distinct prime factors of $n$ without multiplicity. The Dirichlet generating function (DGF) of $g(n)$ is $ζ(s)^{-1} (1+P(s))^{-1}$ for $\\Re(s) > 1$ where $P(s) = \\sum_p p^{-s}$ is the prime zeta function. We study the distribution of the unsigned functions $|g(n)|$ with DGF $ζ(2s)^{-1}(1-P(s))^{-1}$ and $C_Ω(n)$ with DGF $(1-P(s))^{-1}$ for $\\Re(s) > 1$. We establish formulas for the average order and variance of $\\log C_Ω(n)$ and prove a central limit theorem for the distribution of its values on the integers $n \\leq x$ as $x \\rightarrow \\infty$. Discrete convolutions of the partial sums of $g(n)$ with the prime counting function provide new exact formulas for $M(x)$.",
+          "claimed_authors": [
+            "Maxie Dion Schmidt"
+          ],
+          "claimed_title": "Exact formulas for partial sums of the Möbius function expressed by partial sums weighted by the Liouville lambda function",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2102.05842"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Normalized Gaps Between Consecutive Squarefree Numbers mathematics', candidate_title='Exact formulas for partial sums of the Möbius function expressed by partial sums weighted by the Liouville lambda function')",
+        "failed_at": "2026-06-17T10:49:14Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We show that if a permutation $π$ contains two intervals of length 2, where one interval is an ascent and the other a descent, then the Möbius function $μ[π]$ of the interval $[1,π]$ is zero. As a consequence, we show that the proportion of permutations of length $n$ with principal Möbius function equal to zero is asymptotically bounded below by $(1-1/e)^2\\ge 0.3995$. This is the first result determining the value of $μ[1,π]$ for an asymptotically positive proportion of permutations $π$.\n  We also show that if a permutation $φ$ can be expressed as a direct sum of the form $α\\oplus 1 \\oplus β$, then any permutation $π$ containing an interval order-isomorphic to $φ$ has $μ[1, π]=0$; we deduce this from a more general result showing that $μ[σ, π]=0$ whenever $π$ contains an interval of a certain form. Finally, we show that if a permutation $π$ contains intervals isomorphic to certain pairs of permutations, or to certain permutations of length six, then $μ[1, π] = 0$.",
+          "claimed_authors": [
+            "Robert Brignall",
+            "Vít Jelínek",
+            "Jan Kynčl",
+            "David Marchant"
+          ],
+          "claimed_title": "Zeros of the Möbius function of permutations",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1810.05449"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Normalized Gaps Between Consecutive Squarefree Numbers mathematics', candidate_title='Zeros of the Möbius function of permutations')",
+        "failed_at": "2026-06-17T10:49:14Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Complex functional brain network analyses have exploded over the last eight years, gaining traction due to their profound clinical implications. The application of network science (an interdisciplinary offshoot of graph theory) has facilitated these analyses and enabled examining the brain as an integrated system that produces complex behaviors. While the field of statistics has been integral in advancing activation analyses and some connectivity analyses in functional neuroimaging research, it has yet to play a commensurate role in complex network analyses. Fusing novel statistical methods with network-based functional neuroimage analysis will engender powerful analytical tools that will aid in our understanding of normal brain function as well as alterations due to various brain disorders. Here we survey widely used statistical and network science tools for analyzing fMRI network data and discuss the challenges faced in filling some of the remaining methodological gaps. When applied and interpreted correctly, the fusion of network scientific and statistical methods has a chance to revolutionize the understanding of brain function.",
+          "claimed_authors": [
+            "Sean L. Simpson",
+            "F. DuBois Bowman",
+            "Paul J. Laurienti"
+          ],
+          "claimed_title": "Analyzing complex functional brain networks: fusing statistics and network science to understand the brain",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1302.5721"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Normalized Gaps Between Consecutive Squarefree Numbers mathematics', candidate_title='Analyzing complex functional brain networks: fusing statistics and network science to understand the brain')",
+        "failed_at": "2026-06-17T10:49:14Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "In this paper we study the distribution of squares modulo a square-free number $q$. We also look at inverse questions for the large sieve in the distribution aspect and we make improvements on existing results on the distribution of $s$-tuples of reduced residues.",
+          "claimed_authors": [
+            "Farzad Aryan"
+          ],
+          "claimed_title": "Distribution of squares modulo a composite number",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2015,
+          "primary_pointer": "1502.05062"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Normalized Gaps Between Consecutive Squarefree Numbers mathematics', candidate_title='Distribution of squares modulo a composite number')",
+        "failed_at": "2026-06-17T10:49:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "Let $s_1, s_2, \\ldots$ be the sequence of positive integers, arranged in increasing order, that are representable by any binary quadratic form of fixed discriminant $D$. We show that \\[\n  \\limsup_{n \\rightarrow \\infty} \\frac{s_{n+1}-s_n}{\\log s_n}\n  \\ge \\frac{\\varphi(|D|)}{2|D|(1+\\log \\varphi(|D|))}\\gg \\frac{1}{\\log \\log |D|}, \\] improving a lower bound of $\\frac{1}{|D|}$ of Richards (1982). In the special case of sums of two squares, we improve Richards's bound of $1/4$ to $\\frac{195}{449}=0.434\\ldots$. We also generalize Richards's result in another direction and establish a lower bound on long gaps between sums of two squares in certain sparse sequences.",
+          "claimed_authors": [
+            "Rainer Dietmann",
+            "Christian Elsholtz"
+          ],
+          "claimed_title": "Longer gaps between values of binary quadratic forms",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1810.03203"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Normalized Gaps Between Consecutive Squarefree Numbers mathematics', candidate_title='Longer gaps between values of binary quadratic forms')",
+        "failed_at": "2026-06-17T10:49:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "Let $E/\\mathbb{Q}$ be an elliptic curve with full rational 2-torsion. As d varies over squarefree integers, we study the behaviour of the quadratic twists $E_d$ over a fixed quadratic extension $K/\\mathbb{Q}$. We prove that for 100% of twists the dimension of the 2-Selmer group over K is given by an explicit local formula, and use this to show that this dimension follows an Erdős--Kac type distribution. This is in stark contrast to the distribution of the dimension of the corresponding 2-Selmer groups over $\\mathbb{Q}$, and this discrepancy allows us to determine the distribution of the 2-torsion in the Shafarevich--Tate groups of the $E_d$ over K also.\n  As a consequence of our methods we prove that, for 100% of twists d, the action of $\\operatorname{Gal}(K/\\mathbb{Q})$ on the 2-Selmer group of $E_d$ over K is trivial, and the Mordell--Weil group $E_d(K)$ splits integrally as a direct sum of its invariants and anti-invariants. On the other hand, we give examples of thin families of quadratic twists in which a positive proportion of the 2-Selmer groups over K have non-trivial $\\operatorname{Gal}(K/\\mathbb{Q})$-action, illustrating that the previous results are genuinely statistical phenomena.",
+          "claimed_authors": [
+            "Adam Morgan",
+            "Ross Paterson"
+          ],
+          "claimed_title": "On 2-Selmer groups of twists after quadratic extension",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2011.04374"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Normalized Gaps Between Consecutive Squarefree Numbers mathematics', candidate_title='On 2-Selmer groups of twists after quadratic extension')",
+        "failed_at": "2026-06-17T10:49:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "We establish that, for almost all natural numbers $N$, there is a sum of two positive integral cubes lying in the interval $[N-N^{7/18+ε},N]$. Here, the exponent $7/18$ lies half way between the trivial exponent $4/9$ stemming from the greedy algorithm, and the exponent $1/3$ constrained by the number of integers not exceeding $X$ that can be represented as the sum of two positive integral cubes. We also provide analogous conclusions for sums of two positive integral $k$-th powers when $k\\ge 4$.",
+          "claimed_authors": [
+            "Joerg Bruedern",
+            "Trevor D. Wooley"
+          ],
+          "claimed_title": "Additive representation in short intervals, II: sums of two like powers",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2015,
+          "primary_pointer": "1506.01902"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Normalized Gaps Between Consecutive Squarefree Numbers mathematics', candidate_title='Additive representation in short intervals, II: sums of two like powers')",
+        "failed_at": "2026-06-17T10:49:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "We show that counts of squarefree integers up to $X$ in short intervals of size $H$ tend to a Gaussian distribution as long as $H\\rightarrow\\infty$ and $H = X^{o(1)}$. This answers a question posed by R.R. Hall in 1989. More generally we prove a variant of Donsker's theorem, showing that these counts scale to a fractional Brownian motion with Hurst parameter $1/4$. In fact we are able to prove these results hold in general for collections of $B$-free integers as long as the sieving set $B$ satisfies a very mild regularity property, for Hurst parameter varying with the set $B$.",
+          "claimed_authors": [
+            "Ofir Gorodetsky",
+            "Alexander P. Mangerel",
+            "Brad Rodgers"
+          ],
+          "claimed_title": "Squarefrees are Gaussian in short intervals",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2112.12234"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Normalized Gaps Between Consecutive Squarefree Numbers mathematics', candidate_title='Squarefrees are Gaussian in short intervals')",
+        "failed_at": "2026-06-17T10:49:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "In 1940 Paul Erdős made a conjecture about the distribution of reduced residues. Here we study the distribution of $k$-tuple of reduced residues.",
+          "claimed_authors": [
+            "Farzad Aryan"
+          ],
+          "claimed_title": "The distribution of $k$-tuples of reduced residues",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1302.2296"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Normalized Gaps Between Consecutive Squarefree Numbers mathematics', candidate_title='The distribution of $k$-tuples of reduced residues')",
+        "failed_at": "2026-06-17T10:49:15Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Marek Wolf"
+          ],
+          "title": "Negative moments of the gaps between consecutive primes",
+          "venue": "arXiv",
+          "year": 2018
+        },
+        "primary_pointer": "1805.04940",
+        "summary": "We derive heuristically approximate formulas for the negative $k$--moments $M_{-k}(x)$ of the gaps between consecutive primes$<x $ represented directly by $π(x)$ --- the number of primes up to $x$. In particular we propose an analytical formula for the sum of reciprocals of gaps between consecutive primes $<x : ~ M_{-1}(x)\\sim \\frac{π^2(x)}{x-2π(x)}\\log\\Big(\\frac{x}{2π(x)}\\Big) \\sim x \\log \\log(x)/\\log^2(x)$. We illustrate obtained results by the enormous computer data up to $x=4\\times 10^{18}$.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1805.04940",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-17T10:49:13Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Tsz Ho Chan"
+          ],
+          "title": "On moments of gaps between consecutive squarefree numbers",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2310.08448",
+        "summary": "Let $s_1, s_2, s_3, \\cdots$ be the set of squarefree numbers in ascending order. In this paper, we prove that the following asymptotic on moments of gaps between squarefree numbers \\[ \\sum_{s_{k+1} \\le x} (s_{k+1} - s_k)^γ\\sim B(γ) x \\; \\; \\mbox{ with some constant} \\; \\; B(γ) > 0 \\] is true for $0 \\le γ< 3.75$. This improves the previous best range $0 \\le γ< 3.6875$.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2310.08448",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-17T10:49:13Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Hisanobu Shinya"
+          ],
+          "title": "A note on gaps",
+          "venue": "arXiv",
+          "year": 2008
+        },
+        "primary_pointer": "0809.3458",
+        "summary": "Let $p_{k}$ denote the $k$-th prime and $d(p_{k}) = p_{k} - p_{k - 1}$, the difference between consecutive primes. We denote by $N_ε(x)$ the number of primes $\\leq x$ which satisfy the inequality $d(p_{k}) \\leq (\\log p_{k})^{2 + ε}$, where $ε> 0$ is arbitrary and fixed, and by $π(x)$ the number of primes less than or equal to $x$. In this paper, we first prove a theorem that $\\lim_{x \\to \\infty} N_ε(x)/π(x) = 1$. A corollary to the proof of the theorem concerning gaps between consecutive squarefree numbers is stated.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "theoremsearch",
+          "final_url": "https://arxiv.org/abs/0809.3458",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-17T10:49:15Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "P. Kurlberg"
+          ],
+          "title": "Poisson spacing statistics for value sets of polynomials",
+          "venue": "arXiv",
+          "year": 2006
+        },
+        "primary_pointer": "math/0602673",
+        "summary": "If f is a polynomial with integer coefficients and q is an integer, we may regard f as a map from Z/qZ to Z/qZ. We show that the distribution of the (normalized) spacings between consecutive elements in the image of these maps becomes Poissonian as q tends to infinity along any sequence of square free integers such that the mean spacing modulo q tends to infinity.",
+        "summary_grounded_pdf": null,
+        "verification_log": {
+          "backend": "theoremsearch",
+          "final_url": "https://arxiv.org/abs/math/0602673",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-17T10:49:15Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "normalized gaps between consecutive squarefree numbers mathematics",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

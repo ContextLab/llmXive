@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1305.0348",
+  "judged_at": "2026-06-17T10:49:28Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "normalized gaps between consecutive squarefree numbers mathematics",
+  "rationale": "The paper studies gaps between consecutive primes in various integer subsets, which is a different arithmetic object from squarefree numbers; it does not address squarefree gaps or their normalization, so it falls under the “distinct construct” rejection criterion.",
+  "relevant": false
+}

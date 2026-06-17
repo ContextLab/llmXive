@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "0809.3458",
+  "judged_at": "2026-06-17T10:49:27Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "normalized gaps between consecutive squarefree numbers mathematics",
+  "rationale": "The paper studies gaps between consecutive squarefree numbers (via a corollary to its main theorem on prime gaps), thus providing empirical or theoretical results on the same dependent variable (squarefree gaps) that the user's question concerns, satisfying criterion (b).",
+  "relevant": true
+}

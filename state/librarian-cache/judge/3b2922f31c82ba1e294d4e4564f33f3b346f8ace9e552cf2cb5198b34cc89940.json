@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2108.09171",
+  "judged_at": "2026-06-17T10:47:37Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "resting‑state fmri global signal as a marker of mind‑wandering neuroscience",
+  "rationale": "The paper studies mathematical dynamics of meromorphic functions and wandering domains, which bears no relation to resting‑state fMRI, the global signal, or mind‑wandering in neuroscience; it is off‑domain and has no measurable connection to the user's variables or mechanisms.",
+  "relevant": false
+}

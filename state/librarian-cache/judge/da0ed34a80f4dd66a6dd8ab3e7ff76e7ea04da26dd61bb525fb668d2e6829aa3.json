@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2508.18034",
+  "judged_at": "2026-06-17T10:46:10Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "evaluating calibration of predictive intervals in time series forecasting statistics",
+  "rationale": "The paper studies calibration of prediction (predictive) intervals and introduces a method to assess conditional calibration via interval‑score decompositions, directly addressing the same mechanism (interval calibration) that the user’s question concerns, even though it is demonstrated on regression rather than time‑series data. This makes it a relevant methodological reference for evaluating predictive‑interval calibration.",
+  "relevant": true
+}

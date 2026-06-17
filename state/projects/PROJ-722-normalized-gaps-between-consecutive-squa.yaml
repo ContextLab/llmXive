@@ -1,0 +1,18 @@
+artifact_hashes: {}
+assigned_agent: null
+created_at: '2026-06-17T10:44:11.139083Z'
+current_stage: flesh_out_complete
+failed_stage: null
+field: mathematics
+human_escalation_reason: null
+id: PROJ-722-normalized-gaps-between-consecutive-squa
+last_run_id: f7a31357-2788-4e9f-a276-de662d5c8afa
+last_run_status: null
+points_paper: {}
+points_research: {}
+revision_round: 0
+revision_spec_path: null
+speckit_paper_dir: null
+speckit_research_dir: null
+title: Normalized Gaps Between Consecutive Squarefree Numbers
+updated_at: '2026-06-17T10:49:41.781096Z'

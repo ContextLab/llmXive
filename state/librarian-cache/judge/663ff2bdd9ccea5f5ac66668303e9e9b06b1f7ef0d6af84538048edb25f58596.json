@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1309.5840",
+  "judged_at": "2026-06-17T10:47:39Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "resting‑state fmri global signal as a marker of mind‑wandering neuroscience",
+  "rationale": "The paper studies resting‑state functional connectivity using fNIRS in autistic children and does not examine the fMRI global signal, mind‑wandering, or related mechanisms, so it does not meet any inclusion criteria (a‑f).",
+  "relevant": false
+}

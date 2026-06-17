@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2502.19086",
+  "judged_at": "2026-06-17T10:46:02Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "evaluating calibration of predictive intervals in time series forecasting statistics",
+  "rationale": "The paper studies probabilistic forecasting for time‑series and evaluates the quality of the resulting predictive distributions (e.g., quantile estimates), which directly relates to the calibration of predictive intervals—a core mechanism of the user's question (acceptance category (a)).",
+  "relevant": true
+}

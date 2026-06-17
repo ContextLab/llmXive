@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2512.01087",
+  "judged_at": "2026-06-17T10:49:24Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "normalized gaps between consecutive squarefree numbers mathematics",
+  "rationale": "The paper studies densities and translate properties of sets relative to squarefree numbers, not the distribution or normalized gaps between consecutive squarefree integers themselves, so it does not provide a direct or foundational reference for the user's specific question about normalized gaps.",
+  "relevant": false
+}

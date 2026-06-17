@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2310.08448",
+  "judged_at": "2026-06-17T10:49:22Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "normalized gaps between consecutive squarefree numbers mathematics",
+  "rationale": "The paper investigates the distribution of gaps between consecutive squarefree numbers by proving asymptotic formulas for moments of those gaps, directly addressing the same mathematical mechanism (gaps between squarefree numbers) that the user's question concerns (category a).",
+  "relevant": true
+}

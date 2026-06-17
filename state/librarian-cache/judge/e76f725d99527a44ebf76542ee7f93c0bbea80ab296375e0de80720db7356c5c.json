@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1902.02782",
+  "judged_at": "2026-06-17T10:49:25Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "normalized gaps between consecutive squarefree numbers mathematics",
+  "rationale": "The paper discusses probability theory and legal statistics from Poisson’s work, with no connection to number theory, squarefree integers, or the study of gaps between consecutive squarefree numbers, thus it does not meet any inclusion criteria.",
+  "relevant": false
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2604.09569",
+  "judged_at": "2026-06-17T10:47:43Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "resting‑state fmri global signal as a marker of mind‑wandering neuroscience",
+  "rationale": "The paper focuses on multimodal (EEG, video, eye‑tracking, physiological) detection of mind wandering in educational contexts and does not address resting‑state fMRI, the global signal, or its relationship to mind wandering, so it fails to meet any inclusion criteria (a‑f).",
+  "relevant": false
+}

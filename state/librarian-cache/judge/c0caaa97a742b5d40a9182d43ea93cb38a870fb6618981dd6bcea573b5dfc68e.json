@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2406.14904",
+  "judged_at": "2026-06-17T10:46:17Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "evaluating calibration of predictive intervals in time series forecasting statistics",
+  "rationale": "The paper studies prediction interval coverage (calibration) for time‑series forecasts, proposing methods that guarantee theoretical coverage and evaluating their validity—directly addressing the same mechanism (interval calibration) the user’s question concerns (criterion a).",
+  "relevant": true
+}
