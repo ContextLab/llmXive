@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-13T09:06:25.912211Z'
-current_stage: flesh_out_complete
+current_stage: validated
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-701-minimax-sparse-attention
-last_run_id: 082f3560-9f26-43ca-9e42-1fb753e79fe4
+last_run_id: 60f3c9c2-14e4-4f0c-a9bd-47cf0ab58c91
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: MiniMax Sparse Attention
-updated_at: '2026-06-17T17:23:55.246556Z'
+updated_at: '2026-06-17T17:43:47.250753Z'
