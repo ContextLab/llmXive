@@ -1,53 +1,35 @@
-"""
-Data module for knot complexity analysis.
+"""Top‑level helpers for the ``code.data`` package."""
 
-This module provides:
-- Parser for knot data from Knot Atlas
-- Validator for data quality checks
-- Data saver for persisting raw and cleaned data
-"""
+from pathlib import Path
+import json
+import pandas as pd
 
-from data.parser import ParsedKnotData, KnotParser, parse_knot_atlas_data, verify_parser_consistency
-from data.validator import (
-    DataQualityFlag,
-    DataQualityFlags,
-    MissingInvariantFlag,
-    MissingInvariantFlags,
-    check_null_values,
-    check_format_validity,
-    check_duplicate_records,
-    check_value_ranges,
-    check_classification_validity,
-    check_data_quality_issues,
-    validate_dataset_data_quality,
-    write_data_quality_report,
-    get_data_quality_summary
-)
-from data.data_saver import DataSaver, save_raw_and_cleaned_data
+from .data_saver import save_raw_and_cleaned_data
 
-__all__ = [
-    # Parser
-    'ParsedKnotData',
-    'KnotParser',
-    'parse_knot_atlas_data',
-    'verify_parser_consistency',
-    
-    # Validator
-    'DataQualityFlag',
-    'DataQualityFlags',
-    'MissingInvariantFlag',
-    'MissingInvariantFlags',
-    'check_null_values',
-    'check_format_validity',
-    'check_duplicate_records',
-    'check_value_ranges',
-    'check_classification_validity',
-    'check_data_quality_issues',
-    'validate_dataset_data_quality',
-    'write_data_quality_report',
-    'get_data_quality_summary',
-    
-    # Data Saver
-    'DataSaver',
-    'save_raw_and_cleaned_data',
-]
+RAW_JSON_PATH = Path("data/raw/knot_atlas_raw.json")
+CLEANED_CSV_PATH = Path("data/processed/knots_cleaned.csv")
+
+
+def load_cleaned_knots() -> pd.DataFrame:
+    """
+    Load the cleaned knot catalogue produced by the download‑parser pipeline.
+
+    Returns
+    -------
+    pandas.DataFrame
+        The processed knot records.
+
+    Raises
+    ------
+    FileNotFoundError
+        If the cleaned CSV does not exist yet.
+    """
+    if not CLEANED_CSV_PATH.is_file():
+        raise FileNotFoundError(f"Cleaned data file not found: {CLEANED_CSV_PATH}")
+    return pd.read_csv(CLEANED_CSV_PATH)
+
+
+# Backwards‑compatibility shim – many older modules import this name directly.
+def save_raw_and_cleaned_data(raw_records, cleaned_df) -> None:  # pragma: no cover
+    """Delegate to the implementation in ``data_saver``."""
+    return save_raw_and_cleaned_data(raw_records, cleaned_df)

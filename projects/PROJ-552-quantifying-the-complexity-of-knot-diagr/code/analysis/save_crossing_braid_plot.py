@@ -1,134 +1,121 @@
+"""Generate and save a scatter plot of crossing number vs. braid index.
+
+This script loads the cleaned knot dataset, creates a scatter plot showing the
+relationship between crossing number and braid index, and saves the figure to
+``data/plots/crossing_vs_braid.png`` with a resolution of 1200×900 pixels.
+
+The script is intended to be executed directly:
+
+    python code/analysis/save_crossing_braid_plot.py
+
+It uses the project's reproducibility logging utilities to record the operation.
 """
-Save crossing number vs braid index scatter plot to data/plots/crossing_vs_braid.png
-with resolution 1200x900 pixels (User Story 2 - T024)
-"""
-import matplotlib
-matplotlib.use('Agg')  # Non-interactive backend for script execution
-import matplotlib.pyplot as plt
-import seaborn as sns
+
+from __future__ import annotations
+
+import pathlib
 from pathlib import Path
-from typing import Optional
-from datetime import datetime
-import sys
-import os
 
-# Add project root to path for imports
-project_root = Path(__file__).parent.parent.parent
-sys.path.insert(0, str(project_root / 'code'))
+import matplotlib.pyplot as plt
+import pandas as pd
 
-from analysis.exploratory import load_cleaned_knots, create_stratified_scatter_plot
-from reproducibility.logs import log_operation, get_logger
+# The project’s logging utilities expose a parameter‑less ``get_logger``.
+from reproducibility.logs import get_logger
+
+# Helper to load the processed dataset.
+from analysis.data_quantities import load_cleaned_knots_data
 
 
-def save_crossing_braid_plot(
+def create_crossing_vs_braid_plot(
+    df: pd.DataFrame,
     output_path: Path,
-    width: int = 1200,
-    height: int = 900,
-    dpi: int = 100
-) -> dict:
+    *,
+    fig_width: float = 12,
+    fig_height: float = 9,
+    dpi: int = 100,
+) -> None:
     """
-    Generate and save crossing number vs braid index scatter plot.
+    Create a scatter plot of crossing number vs. braid index.
 
-    Args:
-        output_path: Path to save the plot (must be .png)
-        width: Plot width in pixels (default: 1200)
-        height: Plot height in pixels (default: 900)
-        dpi: Dots per inch (default: 100)
-
-    Returns:
-        dict with 'success', 'output_path', 'width', 'height', 'timestamp'
+    Parameters
+    ----------
+    df: pd.DataFrame
+        DataFrame containing at least the columns ``crossing_number`` and
+        ``braid_index``. An optional ``alternating`` column is used for colour
+        coding; if absent, all points are plotted in a single colour.
+    output_path: Path
+        Destination file for the PNG image.
+    fig_width, fig_height: float
+        Figure size in inches (defaults give 1200×900 @ 100 dpi).
+    dpi: int
+        Dots per inch for the saved PNG.
     """
     logger = get_logger()
-    operation_name = "save_crossing_braid_plot"
+    logger.info("Generating crossing‑vs‑braid plot")
 
-    # Validate output path
-    if output_path.suffix != '.png':
-        raise ValueError(f"Output path must be .png file, got: {output_path.suffix}")
+    # Ensure required columns exist; raise a clear error otherwise.
+    required = {"crossing_number", "braid_index"}
+    missing = required.difference(df.columns)
+    if missing:
+        raise ValueError(f"Missing required columns for plot: {missing}")
 
-    # Ensure output directory exists
+    # Use alternating classification for colour if present.
+    if "alternating" in df.columns:
+        categories = df["alternating"].astype(str)
+        palette = {"True": "#1f77b4", "False": "#ff7f0e"}
+        colors = categories.map(palette).fillna("#7f7f7f")
+        label = "Alternating"  # legend handled manually below
+    else:
+        colors = "#1f77b4"
+        label = None
+
+    plt.figure(figsize=(fig_width, fig_height), dpi=dpi)
+    scatter = plt.scatter(
+        df["crossing_number"],
+        df["braid_index"],
+        c=colors,
+        alpha=0.7,
+        edgecolors="w",
+        linewidths=0.5,
+    )
+
+    plt.title("Crossing Number vs. Braid Index")
+    plt.xlabel("Crossing Number")
+    plt.ylabel("Braid Index")
+
+    if label:
+        # Create a simple legend for alternating vs non‑alternating.
+        from matplotlib.lines import Line2D
+
+        legend_elements = [
+            Line2D([0], [0], marker="o", color="w", label="Alternating",
+                   markerfacecolor=palette["True"], markersize=8),
+            Line2D([0], [0], marker="o", color="w", label="Non‑alternating",
+                   markerfacecolor=palette["False"], markersize=8),
+        ]
+        plt.legend(handles=legend_elements, title="Classification")
+
     output_path.parent.mkdir(parents=True, exist_ok=True)
-
-    # Load cleaned knot data
-    logger.info(f"Loading cleaned knot data for {operation_name}")
-    knots_df = load_cleaned_knots()
-
-    if knots_df is None or len(knots_df) == 0:
-        raise ValueError("No cleaned knot data available for plotting")
-
-    # Create stratified scatter plot (alternating vs non-alternating)
-    logger.info("Creating stratified scatter plot")
-    fig = create_stratified_scatter_plot(knots_df)
-
-    if fig is None:
-        raise RuntimeError("Failed to create stratified scatter plot")
-
-    # Set figure size in inches (width/dpi, height/dpi)
-    fig.set_size_inches(width / dpi, height / dpi)
-    fig.set_dpi(dpi)
-
-    # Save the plot
-    logger.info(f"Saving plot to {output_path} with resolution {width}x{height} pixels")
-    fig.savefig(
-        output_path,
-        dpi=dpi,
-        bbox_inches='tight',
-        facecolor='white',
-        edgecolor='none'
-    )
-
-    # Close figure to free memory
-    plt.close(fig)
-
-    # Log operation
-    log_entry = log_operation(
-        operation=operation_name,
-        input_file="data/processed/knots_cleaned.csv",
-        output_file=str(output_path),
-        parameters={
-            'width': width,
-            'height': height,
-            'dpi': dpi,
-            'total_knots': len(knots_df)
-        },
-        status='success'
-    )
-
-    return {
-        'success': True,
-        'output_path': str(output_path),
-        'width': width,
-        'height': height,
-        'dpi': dpi,
-        'timestamp': datetime.now().isoformat(),
-        'total_knots': len(knots_df)
-    }
+    plt.tight_layout()
+    plt.savefig(output_path, dpi=dpi)
+    plt.close()
+    logger.info(f"Plot saved to {output_path}")
 
 
-def main():
-    """Main entry point for the plot saving script."""
-    # Define output path
-    data_plots_dir = project_root / 'data' / 'plots'
-    output_path = data_plots_dir / 'crossing_vs_braid.png'
+def main() -> None:
+    """Entry point for the script."""
+    logger = get_logger()
+    logger.info("Starting crossing‑vs‑braid plot generation")
 
-    print(f"Saving crossing vs braid index plot to: {output_path}")
-    print(f"Target resolution: 1200x900 pixels")
+    # Load the cleaned dataset (CSV created by earlier pipeline steps).
+    df = load_cleaned_knots_data()
 
-    try:
-        result = save_crossing_braid_plot(output_path, width=1200, height=900)
+    # Destination path as specified by the task.
+    output_file = Path("data/plots/crossing_vs_braid.png")
 
-        if result['success']:
-            print(f"✓ Successfully saved plot to {result['output_path']}")
-            print(f"  Resolution: {result['width']}x{result['height']} pixels")
-            print(f"  Total knots plotted: {result['total_knots']}")
-            return 0
-        else:
-            print(f"✗ Failed to save plot")
-            return 1
-
-    except Exception as e:
-        print(f"✗ Error: {str(e)}")
-        return 1
+    create_crossing_vs_braid_plot(df, output_file)
+    logger.info("Crossing vs. braid plot generation completed")
 
 
-if __name__ == '__main__':
-    sys.exit(main())
+if __name__ == "__main__":
+    main()

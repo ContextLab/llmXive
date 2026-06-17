@@ -1,74 +1,36 @@
 """
-validate_completeness.py
+Validation of dataset completeness.
 
-Checks that the cleaned knot dataset contains all required fields and that
-no rows are completely empty.  A short Markdown report is written to
-``docs/reproducibility/validation_status.md``.
+The module now imports the corrected ``log_operation`` decorator which
+supplies a default ``operation_name``.
 """
 
 import json
 from pathlib import Path
 
 import pandas as pd
-
 from reproducibility.logs import log_operation, get_logger
 from analysis.data_quantities import load_cleaned_knots_data
 
-REPORT_PATH = Path("docs/reproducibility/validation_status.md")
-
-
-def _check_required_fields(df: pd.DataFrame) -> dict:
-    """Return a dict mapping field names to the number of missing values."""
-    required = [
-        "knot_id",
-        "crossing_number",
-        "braid_index",
-        "hyperbolic_volume",
-        "alternating",
-    ]
-    missing = {col: int(df[col].isna().sum()) for col in required if col in df.columns}
-    # Include any required columns that are altogether absent.
-    absent = [col for col in required if col not in df.columns]
-    for col in absent:
-        missing[col] = "absent"
-    return missing
-
-
-def generate_report(missing_counts: dict) -> str:
-    """Create a simple Markdown report."""
-    lines = ["# Validation Status", "", "## Missing / Absent Fields", ""]
-    if not missing_counts:
-        lines.append("All required fields are present with no missing values.")
-    else:
-        for field, count in missing_counts.items():
-            lines.append(f"- **{field}**: {count}")
-    lines.append("")
-    lines.append("## Overall Row Completeness")
-    total_rows = len(df)
-    empty_rows = df.isna().all(axis=1).sum()
-    lines.append(f"- Total rows: {total_rows}")
-    lines.append(f"- Fully empty rows: {empty_rows}")
-    return "\n".join(lines)
-
+@log_operation(operation_name="generate_report", output_path_arg="output_path")
+def generate_report(output_path: Path) -> None:
+    """
+    Generate a JSON report summarising the number of records and missing fields.
+    """
+    df = load_cleaned_knots_data()
+    report = {
+        "total_records": len(df),
+        "missing_per_field": {col: int(df[col].isna().sum()) for col in df.columns},
+    }
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with output_path.open("w", encoding="utf-8") as f:
+        json.dump(report, f, indent=2)
 
 def main() -> None:
-    logger = get_logger()
-    log_operation(operation="validate_completeness_start", logger=logger)
-
-    df = load_cleaned_knots_data()
-    missing_counts = _check_required_fields(df)
-    report_md = generate_report(missing_counts)
-
-    REPORT_PATH.parent.mkdir(parents=True, exist_ok=True)
-    REPORT_PATH.write_text(report_md, encoding="utf-8")
-
-    log_operation(
-        operation="validate_completeness_complete",
-        output_file=str(REPORT_PATH),
-        status="success",
-        logger=logger,
-    )
-
+    logger = get_logger(__name__)  # type: ignore[arg-type]
+    report_path = Path("data/validation/completeness_report.json")
+    generate_report(report_path)
+    logger.info(f"Completeness report written to {report_path}")
 
 if __name__ == "__main__":
     main()

@@ -1,21 +1,72 @@
-{
-  "checksums": [
-    {
-      "file_path": "raw/knot_atlas_raw.json",
-      "algorithm": "SHA-256",
-      "hash_value": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "file_size_bytes": 0,
-      "recorded_at": "2026-01-15T10:30:00.000000Z"
-    },
-    {
-      "file_path": "processed/knots_cleaned.csv",
-      "algorithm": "SHA-256",
-      "hash_value": "a665a45920422f9d417e4867efdc4fb8a0441f203609656e7e07d7c57c0e2c85",
-      "file_size_bytes": 1024,
-      "recorded_at": "2026-01-15T10:30:00.000000Z"
-    }
-  ],
-  "recorded_at": "2026-01-15T10:30:00.000000Z",
-  "total_files": 2,
-  "data_directory": "/project/data"
-}
+[
+  {
+    "file_path": "logs.json",
+    "sha256": "4c03a25f53f26f0f04e96d41f07863e4cbeb1c3df9f924b389ac010a8a9498ab",
+    "size_bytes": 275
+  },
+  {
+    "file_path": ".gitkeep",
+    "sha256": "024201160d124b9afdafbb7557dba64188da2d1169416cdef1aa21f6eb115d6e",
+    "size_bytes": 57
+  },
+  {
+    "file_path": "checksums.sha256",
+    "sha256": "8fba2ee72cb06c1ba0a2ee1ab4104b1de526d0beca224b168011812ebbac1581",
+    "size_bytes": 343
+  },
+  {
+    "file_path": "reproducibility.log",
+    "sha256": "8fecc3766fea66d231f23aa6182650702ca1d863011b23f45d7306e26b5add20",
+    "size_bytes": 989
+  },
+  {
+    "file_path": "checksums.json",
+    "sha256": "3a0318e2b361b6ee8295a8f7199a442a2e113abbf4d855b73c91df8e2d89d8ad",
+    "size_bytes": 1821
+  },
+  {
+    "file_path": "checksums.csv",
+    "sha256": "fe7b0b60a0c03d6b18e48cc9912d3e89c3b61c08b8ed798382aa9d2c15f5386b",
+    "size_bytes": 866
+  },
+  {
+    "file_path": "logs/logs.jsonl",
+    "sha256": "a312d0b9a19fc1c47c9fb01eedec89bc615f3e609aa6c56342d8a7a69197deed",
+    "size_bytes": 530
+  },
+  {
+    "file_path": "processed/correlation_report.json",
+    "sha256": "786c03af5d814863c0b666b5a956efc5f7850f9995e24d39000df9bb8ef7fd0e",
+    "size_bytes": 71
+  },
+  {
+    "file_path": "processed/.gitkeep",
+    "sha256": "10413197dca2454418a84fc707f9db91c62b166ba258efd9afe7bf1c639fd15c",
+    "size_bytes": 52
+  },
+  {
+    "file_path": "processed/vif_report.csv",
+    "sha256": "578ea62cbd330ceb8272c9c74def802fa829c26ef1220492596b7b4edc10d558",
+    "size_bytes": 79
+  },
+  {
+    "file_path": "processed/knots_cleaned.csv",
+    "sha256": "56d5b3968cafb2be0d133240ca591edd7defe0b4d740dd78351ee9b717bd5090",
+    "size_bytes": 96831
+  },
+  {
+    "file_path": "raw/.gitkeep",
+    "sha256": "cabdabbc3681ec91596f4be50a7c29de255b8a36c702021a9079c111ea2f04a3",
+    "size_bytes": 73
+  },
+  {
+    "file_path": "raw/knot_atlas_raw.json",
+    "sha256": "e90eb3ccb6ba6f292fef6cb446e97700a4ad79efa29caafb7c8e751ba195d06f",
+    "size_bytes": 189963928
+  },
+  {
+    "file_path": "plots/reproducibility_log.jsonl",
+    "sha256": "c9d60d6d04b0f4bcf853f1175e805cd01842020108bc7a80113d73063b4cb91f",
+    "size_bytes": 1862
+  }
+]

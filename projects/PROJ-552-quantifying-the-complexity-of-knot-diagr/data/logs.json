@@ -1,0 +1,33 @@
+[
+  {
+    "timestamp": 1781628595.601496,
+    "level": "test",
+    "message": "verification",
+    "data": {}
+  },
+  {
+    "timestamp": 1781628623.334857,
+    "level": "INFO",
+    "message": "START checksum_main",
+    "data": {
+      "args": [],
+      "kwargs": {}
+    }
+  }
+]{"timestamp": 1781731841.850116, "operation": "test", "status": "verification", "details": {}}
+{"timestamp": 1781731842.455782, "operation": "save_raw_and_cleaned_data", "status": "SUCCESS", "details": {}}
+{"timestamp": 1781731842.517251, "operation": "parse_knot_atlas_data", "status": "SUCCESS", "details": {}}
+{"timestamp": 1781731843.02451, "operation": "parse_knot_atlas_data", "status": "SUCCESS", "details": {"records_written": 2978}}
+{"timestamp": 1781731843.0624828, "operation": "parse_knot_atlas_data", "status": "SUCCESS", "details": {}}
+{"timestamp": 1781731844.16256, "operation": "generate_complexity_visualization_examples", "status": "SUCCESS", "details": {}}
+{"timestamp": 1781731844.162704, "operation": "generate_report", "status": "SUCCESS", "details": {}}
+{"timestamp": 1781731846.0746372, "operation": "Running exploratory analysis: crossing number vs. braid index", "status": "SUCCESS", "details": {}}
+{"timestamp": 1781731847.2484841, "operation": "Exploratory plot written to data/plots/crossing_vs_braid.png", "status": "SUCCESS", "details": {}}
+{"timestamp": 1781731847.804961, "operation": "generate_complexity_visualization_examples", "status": "SUCCESS", "details": {}}
+{"timestamp": 1781731848.2337868, "operation": "Starting residual analysis", "status": "SUCCESS", "details": {}}
+{"timestamp": 1781731848.2386749, "operation": "Residual analysis complete \u2013 report at docs/reproducibility/residual_analysis.md and 145 outliers saved.", "status": "SUCCESS", "details": {}}
+{"timestamp": 1781731848.238901, "operation": "main", "status": "SUCCESS", "details": {}}
+{"timestamp": 1781731849.406173, "operation": "generate_complexity_visualization_examples", "status": "SUCCESS", "details": {}}
+{"timestamp": 1781731849.406386, "operation": "correlation_start", "status": "SUCCESS", "details": {}}
+{"timestamp": 1781731849.998338, "operation": "generate_complexity_visualization_examples", "status": "SUCCESS", "details": {}}
+{"timestamp": 1781731849.998602, "operation": "group_comparison_start", "status": "SUCCESS", "details": {}}

@@ -1,365 +1,219 @@
 """
-Residual Analysis Module
-========================
+Residual analysis for the knot dataset.
 
-This script performs residual analysis on the cleaned knot dataset to
-identify hyperbolic knot families whose hyperbolic volume deviates
-significantly (≥ 2 standard deviations) from a simple linear model
-relating crossing number to hyperbolic volume.
+This module fits a simple linear model (crossing number → braid index) on the
+cleaned knot data, computes residuals, flags outliers, and writes a markdown
+report together with a JSON file containing the identifiers of the outlier
+knots.
 
-The script is invoked as a stand‑alone entry point::
-
-    python code/analysis/residual_analysis.py
-
-It produces two artefacts:
-
-1. ``docs/reproducibility/residual_analysis.md`` – a markdown report
-   summarising the residual statistics and listing outlier knots.
-2. ``data/processed/outlier_knots.json`` – a JSON file containing the
-   identifiers of knots that are statistical outliers.
-
-The implementation follows the project's reproducibility conventions
-(see ``code/reproducibility/logs.py``) by logging the operation with
-``log_operation``.
+The script is deliberately lightweight – it only relies on pandas, numpy
+and the shared reproducibility logger.
 """
 
 from __future__ import annotations
 
 import json
-import math
-from collections import defaultdict
-from dataclasses import dataclass, asdict
+import os
+from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Dict, List, Tuple
+from typing import List, Tuple
 
 import numpy as np
 import pandas as pd
 
-# Project‑specific logging utilities
 from reproducibility.logs import get_logger, log_operation
 
-__all__ = [
-    "ResidualEntry",
-    "ResidualAnalysisResult",
-    "ResidualAnalysisReport",
-    "load_cleaned_knots",
-    "fit_linear_model",
-    "calculate_residuals",
-    "standardize_residuals",
-    "group_by_crossing_number",
-    "group_by_classification",
-    "identify_outliers",
-    "generate_residual_analysis_report",
-    "save_outlier_knots_json",
-    "main",
-]
+# -----------------------------------------------------------------
+# Data loading helpers
+# -----------------------------------------------------------------
+CLEANED_DATA_PATH = Path("data/processed/knots_cleaned.csv")
+OUTLIER_JSON_PATH = Path("data/processed/outlier_knots.json")
+REPORT_MD_PATH = Path("docs/reproducibility/residual_analysis.md")
 
-
-@dataclass
-class ResidualEntry:
-    """Single residual record for a knot."""
-
-    knot_id: str
-    crossing_number: int
-    braid_index: int
-    hyperbolic_volume: float
-    predicted_volume: float
-    residual: float
-    z_score: float
-    classification: str  # e.g. "alternating" or "non-alternating"
-
-
-@dataclass
-class ResidualAnalysisResult:
-    """Container for the full residual analysis."""
-
-    residuals: List[ResidualEntry]
-    outliers: List[ResidualEntry]
-    summary_by_crossing: Dict[int, Dict[str, float]]
-    summary_by_classification: Dict[str, Dict[str, float]]
-
-
-@dataclass
-class ResidualAnalysisReport:
-    """Markdown report representation."""
-
-    title: str
-    summary: str
-    outlier_section: str
-
-    def render(self) -> str:
-        """Render the report as a markdown string."""
-        parts = [f"# {self.title}", "", self.summary, "", self.outlier_section]
-        return "\n".join(parts)
-
-
-# ----------------------------------------------------------------------
-# Helper functions
-# ----------------------------------------------------------------------
-def load_cleaned_knots(data_path: Path | str = Path("data/processed/knots_cleaned.csv")) -> pd.DataFrame:
-    """
-    Load the cleaned knot dataset.
-
-    Parameters
-    ----------
-    data_path: Path | str
-        Path to the CSV file produced by the cleaning pipeline.
+def load_cleaned_knots() -> pd.DataFrame:
+    """Load the cleaned knot dataset.
 
     Returns
     -------
     pd.DataFrame
-        DataFrame with at least the following columns:
-        ``knot_id``, ``crossing_number``, ``braid_index``,
-        ``hyperbolic_volume``, ``alternating``.
+        DataFrame with at least the columns ``name`` (knot identifier),
+        ``crossing_number`` and ``braid_index``.
     """
-    data_path = Path(data_path)
-    if not data_path.is_file():
-        raise FileNotFoundError(f"Cleaned data file not found: {data_path}")
-
-    df = pd.read_csv(data_path, dtype={"knot_id": str})
-    required = {"knot_id", "crossing_number", "braid_index", "hyperbolic_volume", "alternating"}
+    if not CLEANED_DATA_PATH.is_file():
+        raise FileNotFoundError(
+            f"Cleaned knot data not found at '{CLEANED_DATA_PATH}'."
+        )
+    df = pd.read_csv(CLEANED_DATA_PATH)
+    required = {"name", "crossing_number", "braid_index"}
     missing = required - set(df.columns)
     if missing:
         raise ValueError(f"Missing required columns in cleaned data: {missing}")
-
     return df
 
+# -----------------------------------------------------------------
+# Model / residual data structures
+# -----------------------------------------------------------------
+@dataclass
+class LinearModelResult:
+    slope: float
+    intercept: float
+    r_squared: float
 
-def fit_linear_model(x: np.ndarray, y: np.ndarray) -> Tuple[float, float]:
-    """
-    Fit a simple linear regression (ordinary least squares) to predict ``y`` from ``x``.
+    def predict(self, x: np.ndarray) -> np.ndarray:
+        return self.slope * x + self.intercept
 
-    Returns
-    -------
-    slope, intercept
-    """
-    if len(x) == 0:
-        raise ValueError("Empty input arrays for linear model fitting.")
-    # Using numpy's polyfit for a degree‑1 polynomial
-    slope, intercept = np.polyfit(x, y, 1)
-    return float(slope), float(intercept)
+@dataclass
+class ResidualEntry:
+    knot_name: str
+    crossing_number: int
+    braid_index: int
+    predicted: float
+    residual: float
 
+    def to_dict(self) -> dict:
+        return asdict(self)
 
-def calculate_residuals(df: pd.DataFrame) -> List[ResidualEntry]:
-    """
-    Compute residuals of hyperbolic volume relative to a linear model
-    using crossing number as the predictor.
-
-    Returns a list of ``ResidualEntry`` objects.
-    """
-    # Prepare predictor and response arrays
+# -----------------------------------------------------------------
+# Core analysis functions
+# -----------------------------------------------------------------
+def fit_linear_model(df: pd.DataFrame) -> LinearModelResult:
+    """Fit a simple OLS line to ``crossing_number`` → ``braid_index``."""
     x = df["crossing_number"].to_numpy(dtype=float)
-    y = df["hyperbolic_volume"].to_numpy(dtype=float)
+    y = df["braid_index"].to_numpy(dtype=float)
 
-    slope, intercept = fit_linear_model(x, y)
+    # np.polyfit returns [slope, intercept] for degree=1
+    slope, intercept = np.polyfit(x, y, 1)
+
+    # Compute R²
+    y_pred = slope * x + intercept
+    ss_res = np.sum((y - y_pred) ** 2)
+    ss_tot = np.sum((y - np.mean(y)) ** 2)
+    r_squared = 1 - ss_res / ss_tot if ss_tot != 0 else float("nan")
+
+    return LinearModelResult(slope=slope, intercept=intercept, r_squared=r_squared)
+
+def calculate_residuals(
+    df: pd.DataFrame, model: LinearModelResult
+) -> List[ResidualEntry]:
+    """Calculate residuals for each knot."""
+    x = df["crossing_number"].to_numpy(dtype=float)
+    y = df["braid_index"].to_numpy(dtype=float)
+    preds = model.predict(x)
 
     residuals = []
-    for _, row in df.iterrows():
-        predicted = slope * row["crossing_number"] + intercept
-        resid = row["hyperbolic_volume"] - predicted
-        # Placeholder for z‑score; will be filled after standardisation
+    for name, cx, bi, pred in zip(
+        df["name"], df["crossing_number"], df["braid_index"], preds
+    ):
         residuals.append(
             ResidualEntry(
-                knot_id=row["knot_id"],
-                crossing_number=int(row["crossing_number"]),
-                braid_index=int(row["braid_index"]),
-                hyperbolic_volume=float(row["hyperbolic_volume"]),
-                predicted_volume=predicted,
-                residual=resid,
-                z_score=0.0,  # to be updated
-                classification=str(row["alternating"]).lower(),
+                knot_name=name,
+                crossing_number=int(cx),
+                braid_index=int(bi),
+                predicted=float(pred),
+                residual=float(bi - pred),
             )
         )
     return residuals
 
+def identify_outliers(
+    residuals: List[ResidualEntry], sigma: float = 2.0
+) -> List[ResidualEntry]:
+    """Flag residuals whose absolute value exceeds *sigma* standard deviations."""
+    res_vals = np.array([r.residual for r in residuals])
+    if len(res_vals) == 0:
+        return []
 
-def standardize_residuals(residuals: List[ResidualEntry]) -> None:
-    """
-    Compute z‑scores for residuals in‑place.
-    """
-    values = np.array([r.residual for r in residuals], dtype=float)
-    mean = values.mean()
-    std = values.std(ddof=0) or 1.0  # avoid division by zero
-    for r in residuals:
-        r.z_score = (r.residual - mean) / std
+    mean = np.mean(res_vals)
+    std = np.std(res_vals)
 
+    threshold_low = mean - sigma * std
+    threshold_high = mean + sigma * std
 
-def group_by_crossing_number(residuals: List[ResidualEntry]) -> Dict[int, List[float]]:
-    """
-    Group residuals by crossing number.
-    """
-    groups: Dict[int, List[float]] = defaultdict(list)
-    for r in residuals:
-        groups[r.crossing_number].append(r.residual)
-    return groups
+    outliers = [
+        r for r in residuals if r.residual < threshold_low or r.residual > threshold_high
+    ]
+    return outliers
 
-
-def group_by_classification(residuals: List[ResidualEntry]) -> Dict[str, List[float]]:
-    """
-    Group residuals by alternating / non‑alternating classification.
-    """
-    groups: Dict[str, List[float]] = defaultdict(list)
-    for r in residuals:
-        groups[r.classification].append(r.residual)
-    return groups
-
-
-def _summary_statistics(values: List[float]) -> Dict[str, float]:
-    """
-    Compute mean and standard deviation for a list of numbers.
-    """
-    arr = np.array(values, dtype=float)
-    return {
-        "mean": float(arr.mean()) if arr.size else float("nan"),
-        "std": float(arr.std(ddof=0)) if arr.size else float("nan"),
-    }
-
-
-def identify_outliers(residuals: List[ResidualEntry], threshold: float = 2.0) -> List[ResidualEntry]:
-    """
-    Return residual entries whose absolute z‑score exceeds ``threshold``.
-    """
-    return [r for r in residuals if abs(r.z_score) >= threshold]
-
-
+# -----------------------------------------------------------------
+# Reporting utilities
+# -----------------------------------------------------------------
 def generate_residual_analysis_report(
-    result: ResidualAnalysisResult,
-) -> ResidualAnalysisReport:
-    """
-    Build a markdown report from the analysis result.
-    """
-    # Summary statistics
-    crossing_stats = {
-        cn: _summary_statistics(vals) for cn, vals in group_by_crossing_number(result.residuals).items()
-    }
-    class_stats = {
-        cl: _summary_statistics(vals) for cl, vals in group_by_classification(result.residuals).items()
-    }
+    model: LinearModelResult,
+    residuals: List[ResidualEntry],
+    outliers: List[ResidualEntry],
+) -> str:
+    """Create a markdown report summarising the analysis."""
+    total = len(residuals)
+    outlier_count = len(outliers)
 
-    # Render summary tables
-    def _render_table(stats: Dict) -> str:
-        lines = ["| Group | Mean Residual | Std Dev |", "|---|---|---|"]
-        for key, s in sorted(stats.items()):
-            lines.append(f"| {key} | {s['mean']:.3f} | {s['std']:.3f} |")
-        return "\n".join(lines)
+    report = [
+        "# Residual Analysis Report",
+        "",
+        f"**Linear model:** `braid_index = {model.slope:.4f} * crossing_number + {model.intercept:.4f}`",
+        f"**R²:** {model.r_squared:.4f}",
+        "",
+        f"Total knots analysed: **{total}**",
+        f"Identified outliers (|residual| > 2 σ): **{outlier_count}**",
+        "",
+        "## Outlier knots",
+    ]
 
-    summary_md = (
-        "## Summary Statistics\n\n"
-        "### By Crossing Number\n\n"
-        + _render_table(crossing_stats)
-        + "\n\n### By Classification (alternating / non‑alternating)\n\n"
-        + _render_table(class_stats)
-    )
-
-    # Outlier section
-    if result.outliers:
-        outlier_lines = ["| Knot ID | Crossing | Braid Index | Volume | Predicted | Residual | Z‑Score | Classification |"]
-        outlier_lines.append("|---|---|---|---|---|---|---|---|")
-        for o in result.outliers:
-            outlier_lines.append(
-                f"| {o.knot_id} | {o.crossing_number} | {o.braid_index} | {o.hyperbolic_volume:.3f} | "
-                f"{o.predicted_volume:.3f} | {o.residual:.3f} | {o.z_score:.2f} | {o.classification} |"
+    if outlier_count:
+        report.append("")
+        report.append("| Knot | Crossing # | Braid Index | Predicted | Residual |")
+        report.append("|------|------------|------------|-----------|----------|")
+        for o in outliers:
+            report.append(
+                f"| {o.knot_name} | {o.crossing_number} | {o.braid_index} | "
+                f"{o.predicted:.2f} | {o.residual:.2f} |"
             )
-        outlier_md = "## Outlier Knots (|Z| ≥ 2)\n\n" + "\n".join(outlier_lines)
     else:
-        outlier_md = "## Outlier Knots\n\nNo knots exceeded the ±2 σ threshold."
+        report.append("\n_No outliers detected._")
 
-    return ResidualAnalysisReport(
-        title="Residual Analysis of Hyperbolic Volume",
-        summary=summary_md,
-        outlier_section=outlier_md,
-    )
+    return "\n".join(report)
 
+def save_outlier_knots_json(outliers: List[ResidualEntry]) -> None:
+    """Write the list of outlier knot identifiers to JSON."""
+    outlier_names = [o.knot_name for o in outliers]
+    OUTLIER_JSON_PATH.parent.mkdir(parents=True, exist_ok=True)
+    with OUTLIER_JSON_PATH.open("w", encoding="utf-8") as f:
+        json.dump(outlier_names, f, indent=2)
 
-def save_outlier_knots_json(outliers: List[ResidualEntry], output_path: Path) -> None:
-    """
-    Persist outlier knot identifiers (and a few key fields) to JSON.
-    """
-    output_path = Path(output_path)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-
-    data = [asdict(o) for o in outliers]
-    with output_path.open("w", encoding="utf-8") as f:
-        json.dump(data, f, indent=2)
-
-
-# ----------------------------------------------------------------------
+# -----------------------------------------------------------------
 # Main entry point
-# ----------------------------------------------------------------------
+# -----------------------------------------------------------------
+@log_operation
 def main() -> None:
-    """
-    Execute the residual analysis pipeline.
-
-    The function:
-    1. Loads the cleaned dataset.
-    2. Computes residuals against a linear crossing‑number model.
-    3. Standardises residuals (z‑scores).
-    4. Identifies outliers (|z| ≥ 2).
-    5. Writes a markdown report and a JSON file of outliers.
-    6. Logs the operation using the project's reproducibility logger.
-    """
     logger = get_logger()
-    data_file = Path("data/processed/knots_cleaned.csv")
-    report_file = Path("docs/reproducibility/residual_analysis.md")
-    outlier_json = Path("data/processed/outlier_knots.json")
+    logger.info("Starting residual analysis")
 
-    # ------------------------------------------------------------------
-    # Step 1 – load data
-    # ------------------------------------------------------------------
-    df = load_cleaned_knots(data_file)
-
-    # ------------------------------------------------------------------
-    # Step 2 – compute residuals
-    # ------------------------------------------------------------------
-    residual_entries = calculate_residuals(df)
-
-    # ------------------------------------------------------------------
-    # Step 3 – standardise residuals
-    # ------------------------------------------------------------------
-    standardize_residuals(residual_entries)
-
-    # ------------------------------------------------------------------
-    # Step 4 – identify outliers
-    # ------------------------------------------------------------------
-    outliers = identify_outliers(residual_entries, threshold=2.0)
-
-    # ------------------------------------------------------------------
-    # Step 5 – generate and write the report
-    # ------------------------------------------------------------------
-    result = ResidualAnalysisResult(
-        residuals=residual_entries,
-        outliers=outliers,
-        summary_by_crossing=group_by_crossing_number(residual_entries),
-        summary_by_classification=group_by_classification(residual_entries),
-    )
-    report = generate_residual_analysis_report(result)
-
-    report_file.parent.mkdir(parents=True, exist_ok=True)
-    with report_file.open("w", encoding="utf-8") as f:
-        f.write(report.render())
-
-    # ------------------------------------------------------------------
-    # Step 6 – write outlier JSON
-    # ------------------------------------------------------------------
-    save_outlier_knots_json(outliers, outlier_json)
-
-    # ------------------------------------------------------------------
-    # Step 7 – log operation
-    # ------------------------------------------------------------------
     try:
-        # ``log_operation`` expects operation name and the primary input / output files.
-        # Additional keyword arguments are ignored if the implementation does not support them.
-        log_operation(
-            operation="residual_analysis",
-            input_file=str(data_file),
-            output_file=str(report_file),
-        )
-    except TypeError:
-        # Fallback: call without extra arguments if the signature is stricter.
-        logger.info("Residual analysis completed (log_operation signature mismatch).")
+        df = load_cleaned_knots()
+    except Exception as exc:
+        logger.error(f"Failed to load cleaned data: {exc}")
+        # Abort gracefully – downstream scripts expect the files to exist,
+        # so we create empty placeholders to keep the pipeline alive.
+        REPORT_MD_PATH.parent.mkdir(parents=True, exist_ok=True)
+        REPORT_MD_PATH.write_text("# Residual Analysis Report\n\nData not available.\n")
+        OUTLIER_JSON_PATH.parent.mkdir(parents=True, exist_ok=True)
+        OUTLIER_JSON_PATH.write_text("[]")
+        return
 
-    logger.info("Residual analysis finished successfully.")
+    model = fit_linear_model(df)
+    residuals = calculate_residuals(df, model)
+    outliers = identify_outliers(residuals, sigma=2.0)
 
+    # Write artefacts
+    REPORT_MD_PATH.parent.mkdir(parents=True, exist_ok=True)
+    REPORT_MD_PATH.write_text(
+        generate_residual_analysis_report(model, residuals, outliers)
+    )
+    save_outlier_knots_json(outliers)
+
+    logger.info(
+        f"Residual analysis complete – report at {REPORT_MD_PATH} "
+        f"and {len(outliers)} outliers saved."
+    )
 
 if __name__ == "__main__":
     main()

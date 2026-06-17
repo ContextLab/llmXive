@@ -1,1 +1,1 @@
-"""Unit tests package for the knot complexity analysis project."""
+# Ensure the tests package is recognised as a module.

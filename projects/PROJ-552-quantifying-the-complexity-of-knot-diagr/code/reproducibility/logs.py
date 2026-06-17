@@ -1,128 +1,146 @@
-"""
-Reproducibility logging utilities.
+"""Reproducibility logging utilities.
 
-This module provides a lightweight logging system used throughout the
-project.  It records operations, input/output files, parameters, status,
-and timing information to a JSON lines file (``logs.json``) located in the
-``data/logs`` directory.  The implementation is deliberately permissive:
-``log_operation`` accepts arbitrary keyword arguments so that existing
-scripts can pass any combination of ``input_file``, ``output_file``,
-``output_files``, ``logger`` etc. without raising ``TypeError``.
+Provides a very lightweight logger that writes JSON‑line entries to a
+``logs.json`` file under the project ``data/`` directory.  The logger
+implements a ``log`` method used throughout the code base.
+
+The original implementation only accepted a parameter‑less
+``get_logger`` which caused many modules to fail when they called
+``get_logger(__name__)``.  This file now defines ``get_logger`` that
+accepts any positional/keyword arguments (they are ignored) and returns a
+singleton ``ReproducibilityLogger`` instance.
+
+The ``log_operation`` decorator is also rewritten as a proper decorator
+factory that can be used with the ``@log_operation("name",
+output_path_arg="path")`` signature used throughout the project.
 """
+from __future__ import annotations
 
 import json
 import os
 import time
 from dataclasses import asdict, dataclass, field
-from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Callable, Dict, Optional
 
-LOG_DIR = Path("data/logs")
-LOG_DIR.mkdir(parents=True, exist_ok=True)
-LOG_PATH = LOG_DIR / "logs.jsonl"
+__all__ = [
+    "LogEntry",
+    "ReproducibilityLogger",
+    "get_logger",
+    "log_operation",
+]
 
 
 @dataclass
 class LogEntry:
-    """A single log entry for a reproducibility operation."""
-
-    timestamp: str = field(default_factory=lambda: datetime.utcnow().isoformat())
-    operation: str = ""
-    input_file: Optional[str] = None
-    output_file: Optional[str] = None
-    # ``output_files`` can be a list or a single string; we store the JSON
-    # representation so that downstream tools can parse it uniformly.
-    output_files: Optional[Any] = None
-    parameters: Dict[str, Any] = field(default_factory=dict)
-    status: str = "success"
-    duration_ms: Optional[int] = None
-
-    def to_json(self) -> str:
-        """Serialise the entry to a single‑line JSON string."""
-        # ``asdict`` recursively converts dataclass fields.
-        return json.dumps(asdict(self), ensure_ascii=False)
+    timestamp: float
+    operation: str
+    status: str
+    details: Dict[str, Any] = field(default_factory=dict)
 
 
 class ReproducibilityLogger:
+    """Simple JSON‑line logger.
+
+    All entries are appended to ``data/logs.json``.  The directory is
+    created on first use.
     """
-    Simple logger that writes ``LogEntry`` objects to ``data/logs/logs.jsonl``.
-    It mimics the subset of the standard ``logging.Logger`` API that the
-    project uses (currently only ``info`` is required).
+
+    _instance: Optional["ReproducibilityLogger"] = None
+    _log_path: Path = Path("data/logs.json")
+
+    def __new__(cls) -> "ReproducibilityLogger":
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+        return cls._instance
+
+    def __init__(self) -> None:
+        # Ensure the log file exists.
+        self._log_path.parent.mkdir(parents=True, exist_ok=True)
+        if not self._log_path.exists():
+            self._log_path.touch()
+
+    def log(self, operation: str, status: str = "SUCCESS", **details: Any) -> None:
+        """Append a log entry."""
+        entry = LogEntry(
+            timestamp=time.time(),
+            operation=operation,
+            status=status,
+            details=details,
+        )
+        with self._log_path.open("a", encoding="utf-8") as f:
+            f.write(json.dumps(asdict(entry)) + "\n")
+
+    # Compatibility shim used by older code that expected ``info``.
+    def info(self, *args: Any, **kwargs: Any) -> None:  # pragma: no cover
+        self.log(*args, **kwargs)
+
+
+def get_logger(*_args: Any, **_kwargs: Any) -> ReproducibilityLogger:
+    """Return the singleton logger.
+
+    The function accepts arbitrary positional and keyword arguments so that
+    existing calls such as ``get_logger(__name__)`` continue to work.
     """
-
-    def __init__(self, name: str = "reproducibility"):
-        self.name = name
-        self.log_path = LOG_PATH
-
-    def _write(self, entry: LogEntry) -> None:
-        """Append a JSON line to the log file."""
-        with open(self.log_path, "a", encoding="utf-8") as f:
-            f.write(entry.to_json() + "\n")
-
-    def info(self, message: str, **kwargs: Any) -> None:
-        """
-        Record an informational message.
-
-        ``message`` is stored in the ``operation`` field; any additional
-        keyword arguments are stored in ``parameters``.
-        """
-        entry = LogEntry(operation=message, parameters=kwargs)
-        self._write(entry)
-
-    # Additional logging levels can be added later if needed.
+    return ReproducibilityLogger()
 
 
-_global_logger: Optional[ReproducibilityLogger] = None
+def _safe_log(operation: str, status: str = "SUCCESS", **details: Any) -> None:
+    """Best-effort log entry; logging must never break a real computation."""
+    try:
+        get_logger().log(operation, status=status, **details)
+    except Exception:  # pragma: no cover - logging is auxiliary
+        pass
 
 
-def get_logger() -> ReproducibilityLogger:
+def _op_name(args: tuple, kwargs: dict) -> str:
+    """Derive an operation name from whatever the caller passed."""
+    for a in args:
+        if isinstance(a, str):
+            return a
+    for key in ("operation_name", "operation", "name"):
+        v = kwargs.get(key)
+        if isinstance(v, str):
+            return v
+    return "operation"
+
+
+def log_operation(*args: Any, **kwargs: Any) -> Any:
+    """Polymorphic operation logger — used three incompatible ways across this
+    codebase, so it must tolerate ALL of them and NEVER raise (a logging
+    utility must not crash the real analysis):
+
+    1. **bare decorator** ``@log_operation`` — wraps the function, logging each call;
+    2. **decorator factory** ``@log_operation("name", output_path_arg="p")`` /
+       ``@log_operation(operation_name=..., output_path_arg=...)`` — returns a decorator;
+    3. **direct call** ``log_operation("op", in, out, params, status)`` /
+       ``log_operation(operation="op", logger=lg)`` / ``log_operation(lg, "op", {...})``
+       — logs immediately; the return value is ignored by such callers.
+
+    Logging is best-effort/auxiliary; the wrapped function's real work and
+    outputs are always preserved.
     """
-    Return a singleton ``ReproducibilityLogger`` instance.
-    The first call creates the logger; subsequent calls return the same
-    instance, ensuring all scripts write to the same log file.
-    """
-    global _global_logger
-    if _global_logger is None:
-        _global_logger = ReproducibilityLogger()
-    return _global_logger
+    import functools
 
+    def _wrap(func: Callable, name: str) -> Callable:
+        @functools.wraps(func)
+        def wrapper(*a: Any, **k: Any) -> Any:
+            result = func(*a, **k)
+            _safe_log(name, status="SUCCESS")
+            return result
+        return wrapper
 
-def log_operation(
-    *,
-    operation: str,
-    input_file: Optional[str] = None,
-    output_file: Optional[str] = None,
-    output_files: Optional[Any] = None,
-    logger: Optional[ReproducibilityLogger] = None,
-    **parameters: Any,
-) -> LogEntry:
-    """
-    Record an operation in the reproducibility log.
+    # (1) bare decorator: a single callable positional, no keywords.
+    if len(args) == 1 and callable(args[0]) and not kwargs:
+        func = args[0]
+        return _wrap(func, getattr(func, "__name__", "operation"))
 
-    The function is deliberately tolerant of extra keyword arguments.
-    Callers may supply any subset of the documented parameters as well as
-    additional custom fields; they will be captured verbatim in the
-    ``parameters`` dictionary of the resulting ``LogEntry``.
+    # (3) direct-call side effect (harmless for the factory form too).
+    _safe_log(_op_name(args, kwargs), status=str(kwargs.get("status", "SUCCESS")))
 
-    Returns the ``LogEntry`` instance for optional downstream use.
-    """
-    start = time.time()
-    entry = LogEntry(
-        operation=operation,
-        input_file=input_file,
-        output_file=output_file,
-        output_files=output_files,
-        parameters=parameters,
-    )
-    # If a logger instance is supplied, use its ``info`` method to also
-    # emit a human‑readable line.  This mirrors the previous behaviour of
-    # the project where scripts passed ``logger=`` to the helper.
-    if logger is not None:
-        logger.info(operation, **parameters)
+    # (2) decorator factory: return a decorator so @log_operation(...) works;
+    # direct callers simply ignore this return value.
+    def decorator(func: Callable) -> Callable:
+        return _wrap(func, _op_name(args, kwargs) if (args or kwargs) else getattr(func, "__name__", "operation"))
 
-    # Record duration.
-    entry.duration_ms = int((time.time() - start) * 1000)
-    # Persist the entry.
-    get_logger()._write(entry)
-    return entry
+    return decorator

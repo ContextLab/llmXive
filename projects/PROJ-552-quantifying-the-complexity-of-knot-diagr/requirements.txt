@@ -6,5 +6,4 @@ matplotlib
 seaborn
 requests
 pyyaml
-# Added for regression analysis (already present via statsmodels) 
-# No new third‑party dependencies required beyond the existing list.
+database-knotinfo

@@ -1,0 +1,2 @@
+{"timestamp": 1781632007.311146, "operation": "main_regression", "status": "failure", "duration_ms": 0.018835067749023438, "input_file": null, "output_file": null, "parameters": {}, "message": "Cleaned knot data not found at 'data/processed/knots_cleaned.csv'. Run the upstream data\u2011download and cleaning pipeline first."}
+{"timestamp": 1781632010.1896992, "operation": "main", "status": "failure", "duration_ms": 0.0019073486328125, "input_file": null, "output_file": null, "parameters": {}, "message": "name 'LogEntry' is not defined"}
