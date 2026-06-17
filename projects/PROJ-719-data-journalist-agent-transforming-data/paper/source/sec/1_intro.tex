@@ -1,0 +1,66 @@
+\begin{figure}[!t]
+    \centering
+    \includegraphics[width=\columnwidth]{fig/teaser.pdf}
+\caption{
+\textbf{\methodshort~turns a raw dataset (\eg~a CSV) into a verifiable, multimodal article (\ie~a website).} 
+We use a \href{https://osf.io/534g2/overview}{“Pick a card” dataset} as an illustration.
+This transformation involves information seeking (\eg~``why the Ace of Spades dominates human choice?''), data analysis via programming (\eg~computing card-selection distributions across demographics), narrative storytelling (\eg~weaving cultural and psychological explanations into a cohesive article), and multimodal design (\eg~an interactive card-drawing demo).
+}
+\vspace{-1em}
+\label{fig:teaser}
+\end{figure}
+
+\section{Introduction}
+\label{sec:introduction}
+Data journalists turn raw data into stories like {``How has the way pop singers use their voice changed across generations?''} that everyday readers can follow, helping the public understand what lies behind the data -- yet a small newsroom team can spend weeks on a single high-quality article.
+Recent agents are individually capable at each of these steps: automated data-science agents~\citep{dsbench,scienceagentbench,mlebench,mlagentbench} can profile a dataset, run the right statistics, and return defensible results with reproducible code.
+% close the analysis loop end to end: they profile a dataset, run the right statistics, and return a defensible number with code that reproduces. 
+Visualization agents~\cite{matplotagent,lida,coda,design2code} generate visual artifacts (such as websites) from a language instruction. 
+\textit{But can agents serve as journalists end to end, taking raw data all the way to a story readers actually want to finish and can trust?}
+
+However, building such an end to end agentic journalist system is non-trivial. 
+Behind each finished article is a long process: gathering background, running careful statistics, choosing an angle, designing assets, building an appealing page, and several rounds of editing. 
+% In practice, producing a data-driven article requires humans weeks of coordinated effort spanning data collection, analysis, writing, and design. 
+The task is fundamentally \textbf{multi-disciplinary}, 
+demanding the simultaneous exercise of multiple skills that rarely co-exist in a single contributor, which is why news is typically the product of a coordinated newsroom team. 
+
+% \kevin{
+Companies such as \href{https://citizenportal.ai/home}{CitizenPortal} and \href{https://www.locunity.com/#preview}{Locunity} are already deploying AI agents to produce news articles at scale, signalling that AI-enabled journalism is no longer hypothetical.
+However, a critical challenge shared by these systems is the lack of \textbf{verification and traceability} (as highlighted by the recent discussion~\cite{rusch2025aicitycouncil}): 
+readers and editors have no reliable way to confirm where a number came from, whether a chart accurately reflects the underlying data, or whether a claim was inferred or hallucinated.
+This is a particularly demanding requirement for language agents, which are prone to hallucination~\cite{ji2023survey}.
+\methodshort\ directly addresses this gap: nearly all statistic, visual asset, and factual claim is grounded in executable code or a verifiable source URL, making the full reasoning chain auditable end to end.
+% }
+
+% most numbers, quotes, and visual assets should trace back to a program with data or a source URL reference. This is a particularly challenging requirement for language agents, which are prone to hallucination~\cite{ji2023survey}.}
+
+% Beyond effort, the article must also be \textbf{trustable}: most numbers, quotes, and visual assets should trace back to a program with data or a source URL reference. This is a particularly challenging requirement for language agents, which are prone to hallucination~\cite{ji2023survey}.
+
+Motivated by this, we introduce \textbf{\method\ (\methodshort)}, a multi-agent framework that orchestrates seven specialised roles into a virtual newsroom: a Detective for context hunting, an Analyst for running statistics, an Editor for narrative framing, a Designer for visual assets, a Programmer for website creation, an Auditor for reviewing the Programmer's output and offering suggestions for revision, and, most notably, an “Inspector” that traces elements of the final article back to its upstream evidence.
+As illustrated in Figure~\ref{fig:teaser}, \method\ takes any data source as input and emits a generative multimedia article. Its key contributions are as follows:
+\textbf{(i) Claims are evidence-grounded.} To ensure the output is grounded in verifiable evidence, we introduce a dedicated agent that links most elements of the published article (\ie~numbers, quotes, and visual assets) back to their provenance (\ie~a specific line of code, a data source, or an external URL). This makes the resulting article \textit{verifiable and auditable}.
+\textbf{(ii) Articles are multimodally generative.} Rather than formatting articles as plain text or static documents, we argue that an article should be multimedia-rich (e.g., interactive charts, images, video, and audio).
+We let a Designer reason about the topic and what readers will want to see and interact with.
+For example, as shown in Figure~\ref{fig:teaser}, for an article on card-game outcome statistics, we add a playable starter so that readers can interact with this game directly.
+
+To validate the effectiveness of \method, we first showcase \methodshort\ on the newest datasets that few humans have yet written up (\eg~the 2026 World Cup schedule), where it discovers original findings of its own, such as an interactive map that ties venue geography to weather and highlights the matches at greatest high-temperature risk. This demonstrates its value for discovery and display via a user-friendly medium.
+Moreover, we collect 18 data samples from three representative publication sources, each paired with the  expert-written piece.
+For a comprehensive assessment, we design metrics along four complementary axes. 
+\textbf{(a) Human--agent angle coverage} extracts the factual claims from articles and reports similarity-matched coverage between human and agent.
+\textbf{(b) Rubric evaluation with human judges} asks 53 participants to score agent-generated or human-written articles blind on five rubric dimensions covering visual design, narrative pacing, data transparency, claim-data alignment, and insight value, and pick the preferred one overall. 
+\textbf{(c) Computer-use agent as judge}:
+we explore a cost-saving automatic proxy for how real-world users navigate and interact with an article, employing computer-use agents that perceive the rendered interface through actions such as clicking and scrolling;
+\textbf{(d) Verifiability} uses a cross-family coding agent to validate claims by verifying statements such as executing code or searching the reference source.
+
+% Our experiments show that \methodshort\ produces multimedia-rich articles that are visually appealing and content-rich across diverse topics.
+% In human studies, \methodshort\ receives favorable ratings from both human participants and agent judges, on rubric evaluation as well as side-by-side preference.
+% Moreover, the Inspector design makes the auditability of article claims explicit and measurable, an attribute that human articles, even carefully crafted ones, rarely provide natively.
+% We position \methodshort\ as a \textit{collaborator} rather than a replacement for human journalists: our work shows that agent-generated articles can augment the human workflow by contributing multimodal assets and an auditability dimension that is rarely formalized.
+% In the future, humans set the perspective and editorial judgment, while agents handle the labor-intensive work of gathering and computation.
+Our experiments show that \methodshort{} produces multimodal articles that readers find compelling and are independently verifiable, with built-in evidence traceability at the claim level.
+Human raters judge them favorably across multiple quality dimensions;
+however, human journalists retain a clear edge in editorial angle, creative design, and informative presentation.
+\methodshort{}'s greatest advantage instead lies in \textit{auditability}: it makes the evidentiary basis of each claim explicit and measurable — something even carefully crafted human articles rarely provide natively. 
+% We therefore position \methodshort{} as a collaborator rather than a replacement: humans set perspective and editorial judgment, while agents handle the labor-intensive gathering and computation.
+
+We therefore position \methodshort{} as a collaborator rather than a replacement: humans set the perspective and editorial judgment, while (i) agents handle labor-intensive computation and graphics design and (ii) open the door to specialised, data-rich stories that newsrooms do not have the bandwidth to cover.

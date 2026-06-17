@@ -1,0 +1,163 @@
+
+\subsection{Reinforcement Learning}
+
+\begin{figure}[!htbp]
+\centering
+\resizebox{\linewidth}{!}{%
+\begin{tikzpicture}[
+    font=\sffamily\footnotesize,
+    box/.style={
+        draw=amapblue!50,
+        line width=0.65pt,
+        rounded corners=3pt,
+        fill=white,
+        align=center,
+        inner sep=5.5pt,
+        minimum height=1.02cm
+    },
+    model/.style={
+        box,
+        draw=amapblue!90,
+        fill=amapblue,
+        text=white,
+        font=\sffamily\bfseries\footnotesize,
+        minimum height=1.12cm
+    },
+    reward/.style={
+        box,
+        draw=BrandCyan!75!black,
+        fill=BrandCyan!7
+    },
+    update/.style={
+        box,
+        draw=BrandPurple!80!black,
+        fill=BrandPurple!7
+    },
+    clip/.style={
+        box,
+        draw=amapblue!70!black,
+        fill=amapblue!6
+    },
+    panel/.style={
+        draw=amapblue!18,
+        line width=0.45pt,
+        rounded corners=5pt,
+        fill=amapblue!2
+    },
+    rewardpanel/.style={
+        panel,
+        draw=BrandCyan!30,
+        fill=BrandCyan!3
+    },
+    updatepanel/.style={
+        panel,
+        draw=BrandPurple!30,
+        fill=BrandPurple!3
+    },
+    arrow/.style={
+        ->,
+        >=stealth,
+        draw=amapblue!70!black,
+        line width=0.8pt
+    },
+    rewardline/.style={
+        draw=BrandCyan!75!black,
+        line width=0.9pt,
+        rounded corners=3pt
+    },
+    rewardarrow/.style={
+        ->,
+        >=stealth,
+        draw=BrandCyan!75!black,
+        line width=0.9pt,
+        rounded corners=3pt
+    },
+    updatearrow/.style={
+        ->,
+        >=stealth,
+        draw=BrandPurple!80!black,
+        line width=0.8pt
+    },
+    note/.style={
+        font=\sffamily\scriptsize\bfseries,
+        text=amapfg!72,
+        align=center
+    }
+]
+
+\node[panel, minimum width=8.95cm, minimum height=2.58cm] at (2.83,0) {};
+\node[rewardpanel, minimum width=6.84cm, minimum height=2.58cm] at (10.87,0) {};
+\node[updatepanel, minimum width=3.45cm, minimum height=2.58cm] at (16.25,0) {};
+
+\node[model, minimum width=2.45cm] (model) at (-0.30,0)
+    {DMD-distilled\\AR model};
+\node[box, minimum width=2.65cm] (rollouts) at (2.72,0)
+    {Long-horizon\\rollout candidates};
+\node[clip, minimum width=2.65cm] (clips) at (5.90,0)
+    {Sampled\\short clips};
+\node[reward, minimum width=2.95cm] (quality) at (9.20,0.62)
+    {Video-quality\\reward model};
+\node[reward, minimum width=2.95cm] (camera) at (9.20,-0.62)
+    {Camera-control\\reward model};
+\node[box, minimum width=2.85cm, draw=amapblue!45] (reward) at (12.75,0)
+    {Reward fusion};
+\node[update, minimum width=3.05cm] (update) at (16.25,0)
+    {DiffusionNFT\\soft model update};
+
+\draw[arrow] (model) -- (rollouts);
+\draw[arrow] (rollouts) -- (clips);
+\coordinate (rewardSplit) at (7.45,0);
+\coordinate (rewardMerge) at (11.05,0);
+\draw[rewardline] (clips.east) -- (rewardSplit);
+\draw[rewardarrow] (rewardSplit) |- (quality.west);
+\draw[rewardarrow] (rewardSplit) |- (camera.west);
+\draw[rewardline] (quality.east) -| (rewardMerge);
+\draw[rewardline] (camera.east) -| (rewardMerge);
+\draw[rewardarrow] (rewardMerge) -- (reward.west);
+\draw[updatearrow] (reward) -- (update);
+
+\end{tikzpicture}%
+}
+\caption{RL training overview. The model first produces long-horizon autoregressive rollouts, then samples short clips for video-quality and camera-control reward-model evaluation. The fused reward drives a moderated DiffusionNFT soft update, decoupling rollout horizon from the optimization window.}
+\label{fig:rl-alignment}
+\end{figure}
+
+
+
+DMD distillation enables efficient autoregressive generation,
+but reducing the number of denoising steps can \emph{degrade video generation quality}
+and \emph{weaken camera controllability}.
+After DMD distillation,
+we further train the model with reinforcement learning (RL) \citep{schulman2017proximal,chu2026gpg}
+as a post-training stage to enhance video quality and strengthen camera following.
+
+RL after DMD distillation needs to be applied carefully.
+Because the model already runs with very few denoising steps,
+strong reward updates can make RL training highly unstable.
+To keep training stable, we adopt a gradual update strategy,
+allowing the model to change step by step.
+With this update schedule, RL training proceeds stably
+and avoids early collapse.
+
+For each text-image-camera condition,
+the current model generates several long-horizon rollout candidates.
+The full rollout preserves the autoregressive context,
+and short clips sampled from candidates are used for reward computation and DiffusionNFT training \citep{zheng2025diffusionnft,zhang2026astrolabe}
+(Figure~\ref{fig:rl-alignment}).
+Because the reward models operate on short temporal windows,
+the RL update backpropagates through sampled clips rather than the full rollout,
+keeping GPU memory within a practical range.
+We adopt two reward models:
+one measures horizontal translation and rotation accuracy,
+and the other evaluates the visual quality of generated clips.
+KL regularization balances the two rewards
+and keeps the updated model close to the original DMD-distilled model.
+
+\FloatBarrier
+
+RL post-training makes the model better at following camera commands
+and improves the visual quality of the generated videos.
+At the same time,
+the model retains the key strengths of DMD distillation:
+long-horizon video generation remains stable,
+and the few-step inference efficiency is not compromised.

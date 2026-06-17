@@ -1,0 +1,37 @@
+\newcommand{\tabitem}{\hspace{0.3em}$+$\hspace{0.25em}}
+
+\begin{wraptable}[15]{r}{0.38\textwidth}
+% \vspace{-0.4em}
+\vspace{-10pt}
+\centering
+\footnotesize
+\setlength{\tabcolsep}{5.0pt}
+\renewcommand{\arraystretch}{1.06}
+
+\caption{\textbf{Average success rates on RoboCasa Kitchen.}}
+\label{tab:training-demos-average-sr}
+
+\begin{tabular}{@{}lc@{}}
+\toprule
+Method & Avg. SR (\%) \\
+\midrule
+GROOT-N1              & 49.6 \\
+\tabitem DreamGen     & 57.6 \\
+\tabitem DUST         & 58.5 \\
+\addlinespace[0.25em]
+UWM                   & 60.8 \\
+$\pi_0$               & 62.5 \\
+\addlinespace[0.25em]
+GROOT-N1.5            & 64.1 \\
+\tabitem HAMLET       & 66.4 \\
+\addlinespace[0.25em]
+Video Policy          & 66.0 \\
+FLARE                 & 66.4 \\
+Cosmos Policy         & 67.1 \\
+\textbf{GAM (Ours)}  & \textbf{69.4} \\
+
+\bottomrule
+\end{tabular}
+
+\vspace{-0.8em}
+\end{wraptable}

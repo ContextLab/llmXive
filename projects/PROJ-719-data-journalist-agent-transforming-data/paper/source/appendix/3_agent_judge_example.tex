@@ -1,0 +1,50 @@
+\section{Agent-as-Judge demonstration}
+\label{sec:agent-judge-demo}
+
+We illustrate how a computer-use agent reads a generated article and prepares its rubric judgements. The actions by computer-use agents are highlighted in red.
+% Here, for demonstration we use Claude computer-use; in paper main experiments, we use OpenAI computer-use agent.
+
+\begin{table}[!h]
+\centering
+\small
+\renewcommand{\arraystretch}{1.25}
+\caption{Agent-as-judge, \emph{Inspector-off} run on \emph{The Space Launches}.
+}
+\label{tab:vlm-judge-closed}
+\begin{tabularx}{\linewidth}{@{}p{3.0cm} X@{}}
+\toprule
+\textbf{Initial state} &
+The judge loads the article and observes the introductory animation, mirroring a human reader's first encounter with the page.
+\par\smallskip
+{\centering\includegraphics[width=\linewidth]{example/agent_as_judge_codex/Inspector_closed/initial.png}\par} \\
+\midrule
+\textbf{Reading the article} &
+The agent then traverses the body via batched scroll-and-screenshot loops, accumulating a visual record of the prose, charts, and stat callouts in the natural reading order.
+\par\smallskip
+{\centering\includegraphics[width=\linewidth]{example/agent_as_judge_codex/Inspector_closed/arrow.png}\par} \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\begin{table}[!h]
+\centering
+\small
+\renewcommand{\arraystretch}{1.25}
+\caption{Agent-as-judge, \emph{Inspector-on} run on \emph{The Space Launches}.
+}
+\label{tab:vlm-judge-open}
+\begin{tabularx}{\linewidth}{@{}p{3.0cm} X@{}}
+\toprule
+\textbf{Initial state} &
+On arrival, the Inspector panel is already open. 
+It exposes the article as two structured views: a list of every annotated sentence with its lineage badges, and a list of every named asset (chart, callout, interactive element) the article renders.
+\par\smallskip
+{\centering\includegraphics[width=\linewidth]{example/agent_as_judge_codex/Inspector_open/initial.png}\par} \\
+\midrule
+\textbf{Reading the article with the Inspector} &
+After reading the body, the agent navigates between the Inspector's two views (the action stream shows it locating and clicking the asset tab, then capturing what it reveals) to verify how each rendered claim and each visual asset traces back to its source (code lines, data tables, or external links) before issuing scores.
+\par\smallskip
+{\centering\includegraphics[width=\linewidth]{example/agent_as_judge_codex/Inspector_open/arrow.png}\par} \\
+\bottomrule
+\end{tabularx}
+\end{table}

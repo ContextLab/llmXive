@@ -1,0 +1,24 @@
+\abstract{
+Data tells stories that shape society, and the data journalist's job is to turn raw information into a story that non-expert audiences can understand and trust through to the end.
+A high-quality news feature routinely takes a newsroom team weeks, including hunting for context, running statistics, choosing an angle, and designing visuals.
+Recent agents are capable at individual steps: automated data-science agents close the analysis loop, while design agents can synthesize beautiful websites.
+\emph{But can an agent serve as a data journalist end to end?}
+We introduce \textbf{\method\ (\methodshort)}, a multi-agent framework that orchestrates specialised roles into a single virtual newsroom. \methodshort\ highlights two innovations over prior approaches.
+\textbf{(i) Claims are evidence-grounded and verifiable.} We introduce an “Inspector”, which links the intermediate results produced by individual roles to their sources so that the numbers, angles, and assets are grounded in data, code, or a reference (\eg~an external URL).
+\textbf{(ii) Articles are multimodally generative.}
+Rather than defaulting to plain text and static charts, \methodshort\ reasons about what its readers will want to read visually, then deploys multimodal tools so that the article fits both the data topic and the intended audience (\eg~an interactive map with zoom for a geography piece, or an audio clip for a music piece), making the result readable and engaging.
+We evaluate \method\ on 18 articles from diverse topics and publication sources, each paired with the originally published expert-written piece, along four axes:
+\textbf{(a) Human--agent angle coverage}, measuring the overlap and complementarity of angles between \methodshort\ and human-authored articles, to characterize what each side covers;
+\textbf{(b) Rubric evaluation with a human study} across 53 human participants, with the rubric covering visual design, narrative pacing, data transparency, claim-data alignment, and insight value;
+\textbf{(c) Computer-use agents as judge}: as an automatic cost-saving proxy for how real-world users navigate and interact with the article, we employ computer-use agents that fully perceive the interface through actions such as clicking and scrolling;
+and lastly, \textbf{(d) Verifiability}, where a coding verifier re-executes every statement against the data and checks that the claims are verifiable or can be grounded in a reference.
+% Our experimental results show that \methodshort\ receives favorable ratings from human participants and agent judges in both rubric-based evaluation and side-by-side preference.
+% Notably, the Inspector substantially improves the transparency of data and methods, making auditability explicit and measurable.
+% Our central finding is that \methodshort{} makes data-driven reporting auditable: the Inspector renders each story's data sources and analytical steps explicit and machine-checkable.  
+Our central finding is that \methodshort{} produces competitive and evidence-traceable multimedia stories, with particularly strong performance on transparency and auditability dimensions.
+However, human-authored articles retain a clear edge in editorial angle, creative design, and informative presentation.
+ \methodshort{} is not intended to replace journalists. Rather, it serves as a solution to support story development, enabling reporting that is more evidence-based, transparent, and verifiable. 
+% Our experimental results show that \methodshort\ receives favorable ratings from human participants and agent judges in both rubric-based evaluation and side-by-side preference.
+% Notably, the Inspector substantially improves the transparency of data and methods, making auditability explicit and measurable.
+% We hope this work moves toward a reproducible agentic data system.
+}

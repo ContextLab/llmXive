@@ -1,0 +1,145 @@
+\documentclass{article}
+
+% \usepackage{corl_2026} % Use this for the initial submission.
+% \usepackage[final]{corl_2026} % Uncomment for the camera-ready ``final'' version.
+\usepackage[preprint]{corl_2026} % Uncomment for pre-prints (e.g., arxiv); This is like ``final'', but will remove the CORL footnote.
+
+\usepackage{booktabs}
+\usepackage[table]{xcolor}
+\usepackage{multirow}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{subcaption}
+\usepackage{caption}
+\usepackage{booktabs}
+\usepackage{amsmath}
+\usepackage{makecell}
+\usepackage{amssymb}
+\usepackage{wrapfig}
+\usepackage{pifont}
+\usepackage{cleveref}
+
+\newcommand{\xmark}{\ding{55}}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\definecolor{lowgray}{gray}{0.55}
+\newcommand{\low}[1]{\textcolor{lowgray}{#1}}
+\newcommand{\our}[1]{\textbf{#1}}
+
+% Jisang
+\usepackage{lipsum}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\newcommand\blfootnote[1]{
+        \begingroup
+        \renewcommand\thefootnote{}\footnote{#1}
+        \addtocounter{footnote}{-1}
+        \endgroup
+    }
+\definecolor{g_sum}{HTML}{3479E5}
+
+\title{Geometric Action Model for Robot Policy Learning}
+
+% The \author macro works with any number of authors. There are two
+% commands used to separate the names and addresses of multiple
+% authors: \And and \AND.
+%
+% Using \And between authors leaves it to LaTeX to determine where to
+% break the lines. Using \AND forces a line break at that point. So,
+% if LaTeX puts 3 of 4 authors names on the first line, and the last
+% on the second line, try using \AND instead of \And before the third
+% author name.
+
+% NOTE: authors will be visible only in the camera-ready and preprint versions (i.e., when using the option 'final' or 'preprint'). 
+% 	For the initial submission the authors will be anonymized.
+
+\author{
+  Jisang Han$^{*\,1}$ \quad Seonghu Jeon$^{*\,1}$ \quad Jaewoo Jung$^{1}$ \quad René Zurbrügg$^{2,3}$\\
+  \textbf{Honggyu An$^{1}$
+  \quad Tifanny Portela$^{2,3}$
+  \quad Marco Hutter$^{2}$}\\
+  \textbf{Marc Pollefeys$^{2}$ \quad Seungryong Kim$^{\dagger\, 1}$ \quad Sunghwan Hong$^{\dagger \, 2,3}$} \\[8pt]
+  % \normalfont\normalsize
+  $^{1}$KAIST AI \quad $^{2}$ETH Zurich \quad $^{3}$ETH AI Center\\[2pt]
+  % $^{*}$Equal contribution \quad $\dagger$Corresponding author\\\\
+  {\tt \href{https://cvlab-kaist.github.io/Geometric-Action-Model/}{\textcolor{g_sum}{https://cvlab-kaist.github.io/Geometric-Action-Model}}}
+  \vspace{-25pt}
+}
+
+
+\begin{document}
+\maketitle
+\blfootnote{$^*$Equal contribution.}
+\blfootnote{$^\dagger$Corresponding author.}
+%===============================================================================
+
+
+
+% Two or three meaningful keywords should be added here
+
+
+%===============================================================================
+
+\vspace{-20px}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=1\linewidth]{figures/teaser3.pdf}
+    \vspace{-10px}
+    \caption{\textbf{GAM repurposes geometric foundation models into fast and robust robot policies.} (a) GAM jointly predicts future 3D geometry and action chunks within a shared geometric backbone. (b) By leveraging explicit 3D geometric priors, GAM improves robustness and real-world performance while reducing latency and model size compared to existing baselines.}
+    % \caption{\textbf{Intuition of GAM.} \textbf{(a) Video WAMs} predict future latents and actions with a video diffusion model and decode them back to future RGB frames, operating in 2D pixel space. \textbf{(b) Geometry-aware VLAs} predict actions with a VLA while distilling features from a separate GFM that serves only as an external feature provider, outside the predictive pathway. \textbf{(c) GAM (ours)} repurposes one GFM as encoder and decoder, inserting a geometric world model between its shallow and deep layers to predict future geometry and actions in a single backbone.}
+    \vspace{-3pt}
+    \label{fig:intuition}
+\end{figure}
+
+
+\input{sections/Abstract}
+% \keywords{Robot Foundation Model, Geometric Foundation Model, World Model, Visuomotor Control } 
+\input{sections/intro_jw}
+\input{sections/Related_work}
+\input{sections/Method_jw}
+\input{sections/Experiments}
+
+
+
+%===============================================================================
+\section{Conclusion and Limitation}
+\label{sec:conclusion}
+We introduced Geometric Action Model, which unifies geometry and action prediction with temporal world modeling inside a single shared GFM. By inserting a causal transformer between the GFM's shallow and deep layers, GAM autoregressively decodes actions and future geometries, resolving the spatial ambiguities of traditional foundation-model substrates. Across extensive simulation and real-world benchmarks, GAM achieves superior accuracy, faster inference, and strong out-of-distribution robustness to environmental perturbations.
+The framework also has limitations. Its language reasoning and commonsense capabilities are bounded by the frozen text encoder; integrating a large language model or an external reasoning module is a natural next step.
+
+% \section{Conclusion and Limitation}
+% In this work, we introduce Geometric Action Model (GAM), which unifies geometry and action prediction with temporal world modeling within a single shared GFM. By embedding a causal transformer inside the GFM, GAM autoregressively decodes actions and future geometries, effectively resolving the spatial ambiguities of traditional foundation models. Across extensive simulation and real-world benchmarks, GAM achieves superior accuracy, faster inference, and exceptional out-of-distribution robustness against environmental perturbations.
+
+% \section{Limitation}
+% \label{sec:conclusion}
+% While our framework excels at geometric control, its language reasoning and commonsense capabilities are limited by its reliance on a frozen text encoder. Integrating language models or external reasoning modules remains a potential direction. Moreover, due to the lack of larger GFMs, our work does not explore when the data and model is scaled up, which we leave as future work.
+
+
+
+%===============================================================================
+
+% \clearpage
+% % The acknowledgments are automatically included only in the final and preprint versions of the paper.
+\acknowledgments{This work was supported under project ID a144 as part of
+the Swiss AI Initiative, through a grant from the ETH Domain and computational
+resources provided by the Swiss National Supercomputing Centre (CSCS) under
+the Alps infrastructure.}
+
+% %===============================================================================
+
+% % no \bibliographystyle is required, since the corl style is automatically used.
+% \bibliography{articles}  % .bib
+
+\clearpage
+
+\title{Geometric Action Model for Visuomotor Control\\\texttt{- Supplementary Materials -}}
+
+
+% Teaser ====================================================
+%\maketitlesupp
+\appendix
+
+\input{sections/appendix}
+\clearpage
+\bibliography{articles}  % .bib
+\end{document}

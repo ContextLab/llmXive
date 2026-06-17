@@ -1,0 +1,41 @@
+{
+   "sources" : [
+      {
+         "usage" : "toplevel",
+         "filename" : "iclr2026_conference.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "iclr2026_conference.bbl"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "iclr2026_conference.bib"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "iclr2026_conference.bst"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "iclr2026_conference.sty"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "math_commands.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "natbib.sty"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "plainnat.bst"
+      }
+   ],
+   "spec_version" : 1,
+   "texlive_version" : "2025",
+   "process" : {
+      "compiler" : "pdflatex"
+   }
+}

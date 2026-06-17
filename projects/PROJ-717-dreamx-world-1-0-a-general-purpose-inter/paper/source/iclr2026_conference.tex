@@ -1,0 +1,226 @@
+\documentclass[]{fairmeta}
+\usepackage{pifont}
+\newcommand{\cmark}{\ding{51}}
+\newcommand{\xmark}{\ding{55}}
+\newcommand{\pmark}{\ensuremath{\triangle}}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{makecell}
+\usepackage{atbegshi}
+\usepackage{mathtools}
+\usepackage{amsthm}
+\usepackage{enumitem}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{wrapfig}
+\usepackage{colortbl}
+\usepackage{fancyhdr}
+\usepackage[most]{tcolorbox}
+\usepackage{xcolor}
+\usepackage{fvextra}
+\usepackage{xurl}
+\usepackage{hyperref}
+\usepackage{wrapfig}
+\emergencystretch=2em
+\usepackage{eso-pic}
+
+%% ============================================================
+%% Watermark
+%% ============================================================
+% \AddToShipoutPictureFG*{%
+%   \AtPageLowerLeft{%
+%     \raisebox{1cm}{%
+%       \hspace*{1.5cm}%
+%       {\normalfont\small\textit{Work in Progress}}
+%     }%
+%   }
+% }
+
+%% ============================================================
+%% Accent colors (fairmeta already defines amapblue / amapfg / amapbg)
+%% ============================================================
+\definecolor{BrandPurple}{HTML}{7366CC}
+\definecolor{BrandCyan}{HTML}{00B4E5}
+\definecolor{LightGray}{HTML}{F5F5F5}
+\definecolor{TableRowAlt}{HTML}{EAF4FB}
+\definecolor{HeaderGray}{HTML}{888888}
+
+%% ============================================================
+%% Custom column types and theorems
+%% ============================================================
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}m{#1}}
+\newcolumntype{C}[1]{>{\centering\arraybackslash}m{#1}}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+%% ============================================================
+%% Boxes
+%% ============================================================
+\newtcolorbox{templatebox}[1]{
+    breakable,
+    enhanced,
+    colback=white,
+    colframe=gray!80!black,
+    colbacktitle=gray!80!black,
+    coltitle=white,
+    fonttitle=\bfseries,
+    title=#1,
+    arc=3mm,
+    boxrule=1pt,
+    drop fuzzy shadow={gray!50!white},
+    left=5mm, right=5mm, top=3mm, bottom=3mm
+}
+
+% Cyan-bordered, untitled tip — for inline highlights inside body text
+\newtcolorbox{highlight}{
+    colback=BrandCyan!5,
+    colframe=BrandCyan,
+    arc=2pt,
+    boxrule=0.8pt,
+    left=6pt, right=6pt, top=4pt, bottom=4pt,
+    breakable
+}
+
+% Purple-titled "Key Finding" — for emphasizing a specific takeaway
+\newtcolorbox{keyfinding}{
+    colback=BrandPurple!5,
+    colframe=BrandPurple,
+    coltitle=white,
+    fonttitle=\bfseries,
+    title=Key Finding,
+    arc=2pt,
+    boxrule=1pt,
+    left=6pt, right=6pt, top=4pt, bottom=4pt,
+    breakable
+}
+
+% Generic titled box using the primary brand color — for arbitrary tips
+% Usage: \begin{tipbox}{Your Title}...\end{tipbox}
+\newtcolorbox{tipbox}[1]{
+    colback=amapbg,
+    colframe=amapblue,
+    coltitle=white,
+    fonttitle=\bfseries,
+    title=#1,
+    arc=2pt,
+    boxrule=1pt,
+    left=6pt, right=6pt, top=4pt, bottom=4pt,
+    breakable
+}
+
+%% ============================================================
+%% Figure placeholder macro
+%% Use when the real image is not yet ready. Once you have the file,
+%% replace `\figplaceholder{Title}{Description}` with
+%% `\includegraphics[width=...]{path/to/image}`.
+%% ============================================================
+\newcommand{\figplaceholder}[2]{%
+    \fcolorbox{amapblue!40}{LightGray}{%
+        \parbox{0.95\linewidth}{%
+            \vspace{2.5cm}
+            \centering
+            {\large\color{amapblue}\textbf{#1}}\\[0.5em]
+            {\color{amapfg}#2}
+            \vspace{2cm}
+        }%
+    }
+}
+
+%% ============================================================
+%% Page styles
+%% Default running header (every page): subtle title left, page right.
+%% First page overrides with a more prominent variant.
+%% ============================================================
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\footnotesize\color{HeaderGray}\sffamily DreamX-World}
+\fancyhead[R]{\footnotesize\color{HeaderGray} \thepage}
+\fancyfoot[C]{}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+
+%% ============================================================
+%% Float spacing
+%% Keep related figures and tables visually grouped, especially on
+%% float-only pages, without loosening the body-text rhythm.
+%% ============================================================
+\setlength{\textfloatsep}{11pt plus 2pt minus 3pt}
+\setlength{\floatsep}{10pt plus 2pt minus 2pt}
+\setlength{\intextsep}{10pt plus 2pt minus 2pt}
+\renewcommand{\topfraction}{0.9}
+\renewcommand{\bottomfraction}{0.8}
+\renewcommand{\textfraction}{0.08}
+\renewcommand{\floatpagefraction}{0.72}
+\makeatletter
+\setlength{\@fptop}{0pt}
+\setlength{\@fpsep}{12pt plus 2pt minus 2pt}
+\setlength{\@fpbot}{0pt plus 1fil}
+\makeatother
+
+\fancypagestyle{firstpage}{%
+    \fancyhf{}
+    \fancyhead[L]{\small\sffamily\color{amapblue} DreamX Team}
+    \fancyhead[R]{\small\color{HeaderGray} June 2026}
+    \fancyfoot[C]{\footnotesize\color{gray}\thepage}
+    \renewcommand{\headrulewidth}{0.4pt}
+    \renewcommand{\footrulewidth}{0pt}
+    \renewcommand{\headrule}{\vspace{-4pt}\color{HeaderGray}\hrule width\headwidth height 0.4pt}
+}
+
+%% ============================================================
+%% Brand commands
+%% ============================================================
+\newcommand{\method}{DreamX-World 1.0}
+\newcommand{\eprope}{E-PRoPE}
+
+%% ============================================================
+%% Title block (individual contributors moved to end of document;
+%% only the team name is shown under the title)
+%% ============================================================
+\title{%
+\method{}: A General-Purpose Interactive World Model
+}
+
+\author{DreamX Team}
+
+\abstract{\input{sections/abstract}}
+
+% Resource links rendered in the title box's metadata row
+\metadata[GitHub]{\url{https://github.com/AMAP-ML/DreamX-World}}
+\metadata[Project Page]{\url{https://dreamx-world.github.io}}
+% \metadata[Paper]{\url{https://arxiv.org/abs/xxxx.xxxxx}}
+% \correspondence{\email{author@example.com}}
+% \date{June 2026}
+
+\begin{document}
+\maketitle
+
+\thispagestyle{firstpage}
+
+\input{sections/teaser}
+
+\input{sections/introduction}
+
+\input{sections/data_system}
+
+\input{sections/training_pipeline}
+
+\input{sections/inference_acceleration}
+
+\input{sections/evaluation}
+
+\input{sections/related_work}
+
+\input{sections/limitations}
+
+\input{sections/conclusion}
+
+\input{sections/authors}
+
+\bibliographystyle{plainnat}
+\bibliography{iclr2026_conference}
+
+\end{document}

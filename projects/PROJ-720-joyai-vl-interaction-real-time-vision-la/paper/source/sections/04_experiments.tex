@@ -1,0 +1,112 @@
+\section{Experiments}
+\label{sec:experiments}
+% \subsection{Benchmark}
+\subsection{Benchmark}\label{sec:benchmark}
+We evaluate JoyAI-VL-Interaction not on offline video-understanding benchmarks but against the real, deployed products people would actually reach for, in the live, event-driven setting this paper is about. Concretely, we compare it head-to-head with the in-app video-call assistants of Doubao and Gemini, today's most mature and recognizable real-time multimodal products (\S\ref{sec:product}). We choose six everyday scenarios that fall squarely in the advantage zone of the interaction-model paradigm: settings that demand being present, acting unprompted at the right moment, and tracking events over time, precisely what a turn-based product, waiting to be addressed, is structurally unequipped to deliver however fast it answers once asked.
+
+\paragraph{\textbf{Scenarios.}} The six scenarios are: (1) \textit{monitoring and alerting}, flagging an event the instant it occurs; (2) \textit{real-time counting} of objects or events over time; (3) \textit{real-time translation} of on-screen content; (4) \textit{time awareness}, acting on its own sense of elapsed time, for instance speaking once every few seconds on request or timing how long an activity lasts; (5) \textit{live commentary and guidance}, narrating or walking the user through an unfolding scene at the right moments; and (6) \textit{long-horizon memory}, answering about something seen far earlier in the stream. Underneath the six lie the three capabilities that define an interaction model: real-time operation, proactive response driven by what it sees, and long-horizon memory. The six are thus not an arbitrary set but a sampling of these axes, and the same capabilities reach far beyond this benchmark, into AI glasses, assistance for the blind, security monitoring, home robots, home and elder care, vision-grounded chat and companionship apps, live sports commentary, and delegation to background agents, among others. All are settings where being present and acting at the right moment is the whole task, the dimension on which turn-based products structurally fall short, so the six probe the paradigm gap itself rather than any single product feature.
+The six scenarios comprise 58 cases in total: 10 each for monitoring, counting, translation, and time awareness, and 9 each for commentary and memory. 
+The cases are drawn mostly from public footage on the web, with a few recorded by us.
+% and each is replayed identically to all three systems: most are streamed in over RTSP, with the server pulling the address and decoding it back into raw frames, while a few are delivered as a camera stream to the server through WebRTC SDP negotiation (\S\ref{sec:system}); either path feeds the systems exactly as in live deployment, so all three see the same frames at the same pace and the comparison turns only on how each one responds.
+
+\paragraph{\textbf{Baselines.}} Our baselines are the video-call features of the Doubao and Gemini apps, the products we single out in \S\ref{sec:product} as turn-based at the core, each evaluated as it is actually deployed to end users. We use the app versions current in late May and early June 2026, and drive each product with the same input under matched conditions. We run JoyAI-VL-Interaction through our own system (\S\ref{sec:system}) and compare it against each baseline separately, pairwise. 
+The JoyAI-VL-Interaction system uses a three-tier memory with $T_s=100$\,s, $M=5$, and $L=15$ (\S\ref{sec:sys-mem}).
+At evaluation time, our JoyAI-VL-Interaction system simulates offline videos as a live streaming source over RTSP, served by MediaMTX.
+Since Doubao and Gemini expose no system-level API, we drive them through their apps: we play the same video to each and pose identical questions at matched timestamps.
+
+
+\paragraph{\textbf{Protocol and metric.}} For every case, human raters score each system on two equally important axes: \textit{quality}, whether the response is correct, relevant, and well-formed; and \textit{timing}, whether it arrives at the right moment, neither premature nor late, and whether the system stays silent when nothing is worth saying. Each axis is rated on a three-level scale, good, fair, or poor, and a system's score for the case is the equal-weight average of its two axis ratings. The timing axis is the crux of the event-driven setting and the one turn-based products structurally struggle with (\S\ref{sec:introduction}). To reduce bias, system identities are hidden from raters and the presentation order is randomized. Five raters carry out the ratings, all educated to at least the university level and working as researchers in LLMs, and inter-rater agreement is high. For each case we then compare the two systems' weighted-average scores, which gives a win, tie, or loss for JoyAI-VL-Interaction. We report the per-scenario and overall \textit{win rate}, the fraction of comparisons it wins, against Doubao and against Gemini respectively, alongside the tie and loss rates; a tie counts as neither a win nor a loss.
+
+
+
+\begin{table}[h]
+\centering
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Scenario} & \textbf{JoyAI-VL-Interaction} & \textbf{Tie} & \textbf{Doubao} \\
+\midrule
+Monitoring and alerting      & \textbf{100.0\%} & 0.0\%  & 0.0\%  \\
+Real-time counting                & \textbf{70.0\%}  & 30.0\% & 0.0\%  \\
+Real-time translation        & \textbf{80.0\%}  & 20.0\% & 0.0\%  \\
+Time awareness               & \textbf{80.0\%}  & 10.0\% & 10.0\% \\
+Live commentary and guidance & \textbf{55.6\%}  & 22.2\% & 22.2\% \\
+Long-horizon memory          & \textbf{77.8\%}  & 22.2\% & 0.0\%  \\
+\midrule
+\textbf{Overall}             & \textbf{77.6\%}  & \textbf{17.2\%} & \textbf{5.2\%} \\
+\bottomrule
+\end{tabular}
+\caption{Head-to-head human evaluation, JoyAI-VL-Interaction versus Doubao's in-app video-call assistant.}
+\end{table}
+
+
+\begin{table}[h]
+\centering
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Scenario} & \textbf{JoyAI-VL-Interaction} & \textbf{Tie} & \textbf{Gemini} \\
+\midrule
+Monitoring and alerting      & \textbf{100.0\%} & 0.0\%  & 0.0\%  \\
+Real-time counting                & \textbf{100.0\%} & 0.0\%  & 0.0\%  \\
+Real-time translation        & \textbf{100.0\%} & 0.0\%  & 0.0\%  \\
+Time awareness               & \textbf{50.0\%}  & 40.0\% & 10.0\% \\
+Live commentary and guidance & \textbf{100.0\%} & 0.0\%  & 0.0\%  \\
+Long-horizon memory          & \textbf{77.8\%}  & 22.2\% & 0.0\%  \\
+\midrule
+\textbf{Overall}             & \textbf{87.9\%}  & \textbf{10.3\%} & \textbf{1.7\%} \\
+\bottomrule
+\end{tabular}
+\caption{Head-to-head human evaluation, JoyAI-VL-Interaction versus Gemini's in-app video-call assistant.}
+\end{table}
+
+
+
+
+\subsection{Results and Case Study}
+
+\paragraph{\textbf{Experimental Results.}}
+Across both comparisons JoyAI-VL-Interaction is the preferred system by a wide margin, and in every scenario it wins more comparisons than it loses. Against Doubao it is preferred in 77.6\% of cases, ties 17.2\%, and loses only 5.2\%; against Gemini the margin is wider still, at 87.9\% wins, 10.3\% ties, and just 1.7\% losses. The two baselines, in other words, almost never come out ahead overall.
+
+Our model's clearest advantage falls exactly on the vision-driven, time-critical scenarios that define the paradigm. In monitoring and alerting, the purest test of catching an event the instant it occurs, it wins every single comparison against both baselines (100\%). Real-time translation and fast counting are similarly lopsided: it sweeps both at 100\% against Gemini, and wins 80\% and 70\% against Doubao with no losses at all. These are precisely the settings where being present and acting at the right moment is the whole task, and they are where our margins are largest, which is the central claim of the benchmark borne out in the numbers. Long-horizon memory is also strong, at 77.8\% against each. Part of this margin reflects a structural limit of the baselines rather than a single weak answer: in video-call mode Doubao automatically hangs up after about five minutes with no voice input, and Gemini at around two minutes fifteen seconds, so in around half of the memory cases the question we ask falls past these cutoffs and neither baseline is even present to respond, scoring nothing. However, on the shorter cases that stay within their session limits, our model still wins or ties. We credit it to our long-horizon memory design: a mid-term and a long-term step that continuously compress, merge, and organize what the model has seen, so that information from far earlier in the stream is still at hand when a question finally arrives.
+
+Where the baselines do gain ground, they do so for different reasons, and never on timing. Doubao's main foothold is live commentary and guidance, where it wins 22.2\% of cases and ties another 22.2\% against our 55.6\%. Its edge here is one of quality rather than timing: a larger model scale gives it broader knowledge, richer style, and more varied phrasing, which lands it in the comfort zone of some narration tasks. Its timing, in fact, is a weakness. On commentary, however, its timing works against it: the responses are temporally erratic, arriving too frequently in some passages and too sparsely in others, because its periodic external trigger has no means of judging when a remark is genuinely warranted. This corroborates our central design principle: deciding when to respond must be a native capability of the model, learned and judged internally, rather than a behavior supplied by an external trigger. Doubao therefore prevails on these cases only when its quality advantage is large enough to offset its weaker timing under the equal-weight scoring. Our own losses, in turn, are confined to quality: the model occasionally hallucinates during commentary, a limitation we attribute primarily to its parameter scale and regard as a principal direction for future work.
+Gemini's single foothold is time awareness, the closest-contested axis against it, where it ties 40\% of cases and wins 10\%, holding our win rate to 50\%, while on every other scenario it fails to win a single comparison. The reason is specific to this scenario: some time-awareness cases are user-triggered, with the question asked only after the relevant moment has passed, so the real-time demand is low. On these ask-after-the-fact questions, Gemini's strong underlying model answers well on quality alone.
+In both cases the baselines close the gap only where timing pressure is lowest, winning on raw answer quality or on questions that no longer require a split-second response, and they fall furthest behind exactly where a reply must land at the right moment.
+
+
+
+\paragraph{\textbf{Case Study.}}
+To make the quantitative gap concrete, we walk through six representative cases; the full side-by-side video comparisons are available in our blog.\footnote{\url{https://joyai-vl-video-future-academy-jd.github.io/JoyAI-VL-Interaction}} Each contrasts JoyAI-VL-Interaction with Doubao's and Gemini's in-app video-call assistants on identical input.
+
+In the \textit{Fall Detection Alert} case (02 Monitoring and alerting in the blog), a person collapses on camera. JoyAI-VL-Interaction raises the alert at the instant of the fall, whereas Doubao reacts four to five seconds later, and Gemini explicitly concedes that it is unable to monitor the scene at all. The lag is not incidental: it is the polling interval of an external trigger surfacing as latency on an event that allows no delay.
+The \textit{Real-time Dart Throw Counting} case (05 Real-time counting in the blog) tests sustained, event-locked counting. JoyAI-VL-Interaction increments its count exactly as each dart strikes the board, registering all six throws on time, while Doubao counts only two and with noticeable delay, and Gemini offers a single ``let me check'' before falling silent.
+The \textit{Street Interview Translation} case (01 Real-time translation in the blog) probes continuity, with the task being to translate the interview's on-screen subtitles in real time rather than its audio. JoyAI-VL-Interaction translates the speech continuously and stays accurate even when Chinese pinyin appears in the on-screen subtitles, whereas both Doubao and Gemini translate only what was visible at the moment the request was issued and then stop, treating an ongoing task as a single turn.
+The \textit{Timed Cooking Scene} case (06 Time awareness in the blog) asks the system to signal once a twenty-second interval has elapsed, a direct probe of an internal sense of time. JoyAI-VL-Interaction is off by only one to two seconds; Doubao fails to signal at the mark altogether, and Gemini does so only at around forty seconds, roughly double the target.
+The \textit{Pet Livestream Commentary} case (04 Live commentary in the blog) plays a continuous stream of short clips of different pets, requiring the model to keep pace with the changing scene and to recognize and narrate each animal's emotional state. JoyAI-VL-Interaction narrates each pet as it appears, whereas Doubao cannot keep up, describing only three of thirteen and inaccurately at that, and Gemini comments just once, and only when prompted.
+The \textit{Phone App Delegation} case (09 Agent delegation in the blog) illustrates a capability the baselines do not offer at all: when a phone's app interface appears on screen, the model is asked to produce HTML that renders a similar screen. JoyAI-VL-Interaction recognizes that this exceeds real-time inference, hands the task to the background model, and returns working HTML reproducing the observed interface, all without leaving the live session.
+
+
+\paragraph{\textbf{Emergent capabilities.}}
+Two further cases are more striking still, in that they exercise capabilities the model was never trained for. In the \textit{Shopping App Guidance} case (03 App guidance in the blog), the user pursues a shopping goal while swiping through a phone's screens. JoyAI-VL-Interaction responds promptly and narrates in step with each swipe, guiding the user to the intended item, whereas neither Doubao nor Gemini reacts proactively or in real time, describing only a few of the screens first shown. Notably, our training data contains no app-interface video of any kind: the ability to follow a changing interface is one the model acquired on its own, generalizing to a domain it never saw.
+In the \textit{Travel Scene Commentary} case (04 Live commentary in the blog), the system is asked to narrate once every four seconds. JoyAI-VL-Interaction holds to this cadence throughout and keeps the commentary substantively strong; Doubao narrates only the opening scene for some twenty seconds and ignores the four-second instruction entirely, while Gemini, though asked in Chinese, replies in English and comments only once. The task combines two abilities, timed action and live commentary, that never co-occur in our training data: the model composes them at inference time, an emergent crossing of capabilities rather than a pattern it was shown.
+
+Across these cases the same factor separates JoyAI-VL-Interaction from systems many tens or even hundreds of times its size: timing. By making the decision of when to respond a native, learned capability of the model rather than a behavior imposed by an external trigger, JoyAI-VL-Interaction acts at the moment each event demands, where larger but turn-based or polling-based systems arrive late, stop after a single turn, or never engage. Moreover, its compact size imposes no ceiling on what it can ultimately handle: when a problem genuinely calls for a more powerful model, JoyAI-VL-Interaction does not attempt to answer it inline but delegates it, dispatching the hard subtask to a background model through an asynchronous request and folding the result back in once it returns, all while remaining present with the user in real time. A compact 8B model thus pairs real-time, well-timed presence with on-demand access to heavier reasoning, which we regard as the decisive reason it can outperform far larger models and mature products on the dimension that matters most in the streaming setting.
+
+
+% \subsection{Emergent capabilities: behaviors we never trained for}\label{emergent}
+
+
+
+\subsection{Limitations}\label{sec:limitations}
+A fair reading of our comparison has to start with scale. The two video-call assistants we evaluate against are powered by far larger models, Seed 2.0 behind Doubao and Gemini-3.1-flash-live behind Gemini, and both are mature products tuned over time against real users and use cases. JoyAI-VL-Interaction, by comparison, is a compact 8B-scale model. We therefore expect, and do not claim otherwise, that on general turn-based ability these products are stronger than ours: broader world knowledge, a more polished one-on-one chat experience, and greater robustness on complex or rarely seen inputs.
+
+Our claim is narrower, and we think more telling. In the six event-driven scenarios this paper targets, the ones that turn on real-time presence, proactive interaction, and a sense of time, and that already carry rich deployment value, a far smaller model holds a natural advantage simply by being an interaction model rather than a turn-based one. That a compact, open model can outperform far larger and heavily optimized products precisely in this regime is, to us, the point: interactivity is worth scaling as a capability in its own right, and it begins to pay off well before enormous scale.
+
+% The training data behind this release is, by deliberate choice, still at an early stage. We have not yet tuned its mixture or scaled it to the volume we ultimately intend, and a further round of data cleaning remains. One consequence is already evident in our evaluation: the commentary data is comparatively sparse, which is the principal cause of the occasional hallucination the model exhibits during live narration (\S\ref{sec:experiments}). We nonetheless release the model at this stage. Even now it exhibits capabilities we never trained for, and the emergence of these behaviors persuaded us that the approach merited release to the community rather than awaiting a fully optimized data recipe. A subsequent version will tune the data mixture and scale the corpus; in the interim, it is the data-construction methodology itself, rather than this particular corpus, that we expect others can most readily adapt and extend.
+
+Both the data and the evaluation behind this release are, by deliberate choice, still at an early stage. On the data side, we have not yet tuned the mixture or scaled it to the volume we ultimately intend, and a further round of cleaning remains; one consequence is already visible in our results, where the comparatively sparse commentary data, together with the model's compact scale, is the main cause of the occasional hallucination during live narration (\S\ref{sec:experiments}). The evaluation is similarly preliminary, six scenarios and 58 human-rated cases against two products, rather than the larger, more fine-grained study we ultimately want. We release at this stage regardless, and the reason is the same for both: even with this early data and this limited evaluation, the model already exhibits interaction capabilities we never explicitly trained for, and watching them emerge convinced us, more than any single number could, that interactivity is a direction worth scaling in its own right. That conviction is exactly why we would rather put the model, the recipe, and the system into the community's hands now than hold them back for a polished data recipe and a larger benchmark: we are eager to scale this direction together rather than alone. A subsequent version will tune the data mixture, scale the corpus, and report a broader and more systematic evaluation; in the interim, it is the data-construction methodology and the approach itself, rather than this particular corpus or benchmark, that we expect others can most readily adapt and extend. These limitations also chart the road ahead: closing the gap in general ability and robustness, widening the set of scenarios, and pushing further on what an interaction model can do.
+
+% Our evaluation is likewise still limited in scale, six scenarios and 58 human-rated cases against two products; a future version will broaden the scenarios, enlarge the case set, add more baselines, and report a more fine-grained and systematic evaluation.
+
+% These limitations also chart the road ahead. Closing the gap in general ability and robustness, widening the set of scenarios, and pushing on what an interaction model can do are exactly the directions we hope to pursue together with the community; we release JoyAI-VL-Interaction in full so that anyone can help build out and extend its capabilities.

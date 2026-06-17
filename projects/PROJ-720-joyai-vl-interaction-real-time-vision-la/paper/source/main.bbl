@@ -1,0 +1,201 @@
+\begin{thebibliography}{36}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Bai et~al.(2025)Bai, Cai, Chen, Chen, Chen, Cheng, Deng, Ding, Gao, Ge, Ge, Guo, Huang, Huang, Huang, Hui, Jiang, Li, Li, Li, Li, Lin, Lin, Liu, Liu, Liu, Liu, Liu, Liu, Lu, Luo, Lv, Men, Meng, Ren, Ren, Song, Sun, Tang, Tu, Wan, Wang, Wang, Wang, Wang, Xie, Xu, Xu, Xu, Yang, Yang, Yang, Yang, Yu, Zhang, Zhang, Zhang, Zheng, Zhong, Zhou, Zhou, Zhou, Zhu, and Zhu]{bai2025qwen3vltechnicalreport}
+Shuai Bai, Yuxuan Cai, Ruizhe Chen, Keqin Chen, Xionghui Chen, Zesen Cheng, Lianghao Deng, Wei Ding, Chang Gao, Chunjiang Ge, Wenbin Ge, Zhifang Guo, Qidong Huang, Jie Huang, Fei Huang, Binyuan Hui, Shutong Jiang, Zhaohai Li, Mingsheng Li, Mei Li, Kaixin Li, Zicheng Lin, Junyang Lin, Xuejing Liu, Jiawei Liu, Chenglong Liu, Yang Liu, Dayiheng Liu, Shixuan Liu, Dunjie Lu, Ruilin Luo, Chenxu Lv, Rui Men, Lingchen Meng, Xuancheng Ren, Xingzhang Ren, Sibo Song, Yuchong Sun, Jun Tang, Jianhong Tu, Jianqiang Wan, Peng Wang, Pengfei Wang, Qiuyue Wang, Yuxuan Wang, Tianbao Xie, Yiheng Xu, Haiyang Xu, Jin Xu, Zhibo Yang, Mingkun Yang, Jianxin Yang, An~Yang, Bowen Yu, Fei Zhang, Hang Zhang, Xi~Zhang, Bo~Zheng, Humen Zhong, Jingren Zhou, Fan Zhou, Jing Zhou, Yuanzhi Zhu, and Ke~Zhu.
+\newblock Qwen3-vl technical report, 2025.
+\newblock \url{https://arxiv.org/abs/2511.21631}.
+
+\bibitem[{ByteDance Seed}(2026)]{seed2_2026}
+{ByteDance Seed}.
+\newblock {Seed2.0 Model Card: Towards Intelligence Frontier for Real-World Complexity}.
+\newblock Available at \href{https://lf3-static.bytednsdoc.com/obj/eden-cn/lapzild-tss/ljhwZthlaukjlkulzlp/seed2/0214/Seed2.0%20Model%20Card.pdf}{ByteDance Seed Model Cards}, 2026.
+
+\bibitem[Chen et~al.(2024)Chen, Lv, Wu, Lin, Song, Gao, Liu, Gao, Mao, and Shou]{videollm-online}
+Joya Chen, Zhaoyang Lv, Shiwei Wu, Kevin~Qinghong Lin, Chenan Song, Difei Gao, Jia-Wei Liu, Ziteng Gao, Dongxing Mao, and Mike~Zheng Shou.
+\newblock Videollm-online: Online video large language model for streaming video.
+\newblock In \emph{CVPR}, 2024.
+
+\bibitem[Chien et~al.(2026)Chien, Orsini, Kharitonov, Zeghidour, Livescu, and Défossez]{chien2026moshiragasynchronousknowledgeretrieval}
+Chung-Ming Chien, Manu Orsini, Eugene Kharitonov, Neil Zeghidour, Karen Livescu, and Alexandre Défossez.
+\newblock Moshirag: Asynchronous knowledge retrieval for full-duplex speech language models, 2026.
+\newblock \url{https://arxiv.org/abs/2604.12928}.
+
+\bibitem[Du et~al.(2025)Du, Gao, Wang, Yu, Zhao, Wang, Lv, Wang, Shi, An, et~al.]{du2025cosyvoice}
+Zhihao Du, Changfeng Gao, Yuxuan Wang, Fan Yu, Tianyu Zhao, Hao Wang, Xiang Lv, Hui Wang, Xian Shi, Keyu An, et~al.
+\newblock Cosyvoice 3: Towards in-the-wild speech generation via scaling-up and post-training.
+\newblock \emph{arXiv preprint arXiv:2505.17589}, 2025.
+
+\bibitem[Gao et~al.(2023)]{gao2023funasr}
+Zhifu Gao et~al.
+\newblock Funasr: A fundamental end-to-end speech recognition toolkit.
+\newblock In \emph{INTERSPEECH}, 2023.
+
+\bibitem[{Google}(2026)]{gemini31flashlive}
+{Google}.
+\newblock {Gemini 3.1 Flash Live: Making Audio AI More Natural and Reliable}.
+\newblock Google Blog (The Keyword), March 2026.
+\newblock \url{https://blog.google/innovation-and-ai/models-and-research/gemini-models/gemini-3-1-flash-live/}.
+\newblock Posted 2026-03-26. Accessed 2026-06-06.
+
+\bibitem[Guan et~al.(2026)Guan, Yin, Liang, Ju, Luo, Luan, Liu, and Bai]{guan2026videostreamingthinking}
+Yiran Guan, Liang Yin, Dingkang Liang, Jianzhong Ju, Zhenbo Luo, Jian Luan, Yuliang Liu, and Xiang Bai.
+\newblock Video streaming thinking: Videollms can watch and think simultaneously.
+\newblock \emph{arXiv preprint arXiv:2603.12262}, 2026.
+
+\bibitem[Hou et~al.(2026)Hou, Huang, Liang, Si, Li, Dong, Shao, Li, Wang, Duan, and Wang]{hou2026adacodecpredictivevisualcode}
+Haowen Hou, Zhen Huang, Zheming Liang, Qingyi Si, Chenglin Li, Shuai Dong, Kele Shao, Ruilin Li, Dianyi Wang, Nan Duan, and Jiaqi Wang.
+\newblock Adacodec: A predictive visual code for video mllms, 2026.
+\newblock \url{https://arxiv.org/abs/2606.02569}.
+
+\bibitem[Kwon et~al.(2023)Kwon, Li, Zhuang, Sheng, Zheng, Yu, Gonzalez, Zhang, and Stoica]{kwon2023efficientmemorymanagementlarge}
+Woosuk Kwon, Zhuohan Li, Siyuan Zhuang, Ying Sheng, Lianmin Zheng, Cody~Hao Yu, Joseph~E. Gonzalez, Hao Zhang, and Ion Stoica.
+\newblock Efficient memory management for large language model serving with pagedattention, 2023.
+\newblock \url{https://arxiv.org/abs/2309.06180}.
+
+\bibitem[Lab(2026)]{thinkingmachines2026interactionmodels}
+Thinking~Machines Lab.
+\newblock Interaction models: A scalable approach to human-ai collaboration.
+\newblock \emph{Thinking Machines Lab: Connectionism}, May 2026.
+\newblock \doi{10.64434/tml.20260511}.
+\newblock https://thinkingmachines.ai/blog/interaction-models/.
+
+\bibitem[Li et~al.(2025)Li, Niu, Miao, Ge, Zhou, He, Dong, Duan, Ding, Qian, Zhang, Zang, Cao, He, and Wang]{li2025ovobenchfarvideollmsrealworld}
+Yifei Li, Junbo Niu, Ziyang Miao, Chunjiang Ge, Yuanhang Zhou, Qihao He, Xiaoyi Dong, Haodong Duan, Shuangrui Ding, Rui Qian, Pan Zhang, Yuhang Zang, Yuhang Cao, Conghui He, and Jiaqi Wang.
+\newblock Ovo-bench: How far is your video-llms from real-world online video understanding?, 2025.
+\newblock \url{https://arxiv.org/abs/2501.05510}.
+
+\bibitem[Lin et~al.(2024)Lin, Fang, Chen, Wan, Luo, Li, Liu, and Sun]{lin2024streamingbenchassessinggapmllms}
+Junming Lin, Zheng Fang, Chi Chen, Zihao Wan, Fuwen Luo, Peng Li, Yang Liu, and Maosong Sun.
+\newblock Streamingbench: Assessing the gap for mllms to achieve streaming video understanding, 2024.
+\newblock \url{https://arxiv.org/abs/2411.03628}.
+
+\bibitem[Liu et~al.(2026)Liu, Dong, Lu, Diao, Belcak, Liu, Chen, Yin, Wang, Cheng, Choi, Kautz, and Molchanov]{liu2026gdpogrouprewarddecouplednormalization}
+Shih-Yang Liu, Xin Dong, Ximing Lu, Shizhe Diao, Peter Belcak, Mingjie Liu, Min-Hung Chen, Hongxu Yin, Yu-Chiang~Frank Wang, Kwang-Ting Cheng, Yejin Choi, Jan Kautz, and Pavlo Molchanov.
+\newblock Gdpo: Group reward-decoupled normalization policy optimization for multi-reward rl optimization, 2026.
+\newblock \url{https://arxiv.org/abs/2601.05242}.
+
+\bibitem[Lu and Lab(2025)]{lu2025onpolicydistillation}
+Kevin Lu and Thinking~Machines Lab.
+\newblock On-policy distillation.
+\newblock \emph{Thinking Machines Lab: Connectionism}, 2025.
+\newblock \doi{10.64434/tml.20251026}.
+\newblock https://thinkingmachines.ai/blog/on-policy-distillation.
+
+\bibitem[{Nous Research}(2026)]{hermesagent}
+{Nous Research}.
+\newblock Hermes agent: A self-improving open-source ai agent.
+\newblock \url{https://github.com/NousResearch/hermes-agent}, 2026.
+\newblock GitHub repository.
+
+\bibitem[{OpenAI}(2026)]{openai2026gptrealtime2}
+{OpenAI}.
+\newblock Advancing voice intelligence with new models in the {API} ({GPT-Realtime-2}).
+\newblock OpenAI Blog, May 2026.
+\newblock Announced 2026-05-07. \url{https://openai.com/index/advancing-voice-intelligence/}. Accessed 2026-06-02.
+
+\bibitem[{OpenClaw Foundation}(2026)]{openclaw}
+{OpenClaw Foundation}.
+\newblock Openclaw: An open-source autonomous ai assistant.
+\newblock \url{https://github.com/openclaw/openclaw}, 2026.
+\newblock GitHub repository.
+
+\bibitem[Qian et~al.(2025{\natexlab{a}})Qian, Ding, Dong, Zhang, Zang, Cao, Lin, and Wang]{qian2025dispider}
+Rui Qian, Shuangrui Ding, Xiaoyi Dong, Pan Zhang, Yuhang Zang, Yuhang Cao, Dahua Lin, and Jiaqi Wang.
+\newblock Dispider: Enabling video llms with active real-time interaction via disentangled perception, decision, and reaction.
+\newblock \emph{arXiv preprint arXiv:2501.03218}, 2025{\natexlab{a}}.
+
+\bibitem[Qian et~al.(2025{\natexlab{b}})Qian, Dong, Zhang, Zang, Ding, Lin, and Wang]{qian2025streaming}
+Rui Qian, Xiaoyi Dong, Pan Zhang, Yuhang Zang, Shuangrui Ding, Dahua Lin, and Jiaqi Wang.
+\newblock Streaming long video understanding with large language models.
+\newblock \emph{Advances in Neural Information Processing Systems}, 37:\penalty0 119336--119360, 2025{\natexlab{b}}.
+
+\bibitem[Qin et~al.(2026)Qin, Yang, Si, Gu, Yao, Lin, Fu, Duan, and Wang]{qin2026easyvideor1easierrlvideo}
+Chuanyu Qin, Chenxu Yang, Qingyi Si, Naibin Gu, Dingyu Yao, Zheng Lin, Peng Fu, Nan Duan, and Jiaqi Wang.
+\newblock Easyvideor1: Easier rl for video understanding, 2026.
+\newblock \url{https://arxiv.org/abs/2604.16893}.
+
+\bibitem[{Qwen Team}(2026)]{qwen2026omni}
+{Qwen Team}.
+\newblock Qwen3.5-omni technical report, 2026.
+\newblock \url{https://arxiv.org/abs/2604.15804}.
+
+\bibitem[Shao et~al.(2024)Shao, Wang, Zhu, Xu, Song, Bi, Zhang, Zhang, Li, Wu, and Guo]{shao2024deepseekmathpushinglimitsmathematical}
+Zhihong Shao, Peiyi Wang, Qihao Zhu, Runxin Xu, Junxiao Song, Xiao Bi, Haowei Zhang, Mingchuan Zhang, Y.~K. Li, Y.~Wu, and Daya Guo.
+\newblock Deepseekmath: Pushing the limits of mathematical reasoning in open language models, 2024.
+\newblock \url{https://arxiv.org/abs/2402.03300}.
+
+\bibitem[{Volcano Engine (ByteDance)}(2026)]{volcengine2026videounderstanding}
+{Volcano Engine (ByteDance)}.
+\newblock Real-time conversational {AI}: Video and image understanding.
+\newblock Volcano Engine Documentation, 2026.
+\newblock \url{https://www.volcengine.com/docs/6348/1408245}. Accessed 2026-06-02.
+
+\bibitem[Wang et~al.(2026)Wang, Liu, Gui, Lin, Yang, Liao, Chen, and Zhang]{wang2026acceleratingstreamingvideolarge}
+Yiyu Wang, Xuyang Liu, Xiyan Gui, Xinying Lin, Boxue Yang, Chenfei Liao, Tailai Chen, and Linfeng Zhang.
+\newblock Accelerating streaming video large language models via hierarchical token compression, 2026.
+\newblock \url{https://arxiv.org/abs/2512.00891}.
+
+\bibitem[Wang et~al.(2024)Wang, Meng, Wang, Liang, Wei, Zhang, and Zhao]{wang2024mmduet}
+Yueqian Wang, Xiaojun Meng, Yuxuan Wang, Jianxin Liang, Jiansheng Wei, Huishuai Zhang, and Dongyan Zhao.
+\newblock Videollm knows when to speak: Enhancing time-sensitive video comprehension with video-text duet interaction format, 2024.
+\newblock \url{https://arxiv.org/abs/2411.17991}.
+
+\bibitem[Xia et~al.(2025)Xia, Chen, Zhang, Sun, and Zhou]{xia2025streamingvideoinstructiontuning}
+Jiaer Xia, Peixian Chen, Mengdan Zhang, Xing Sun, and Kaiyang Zhou.
+\newblock Streaming video instruction tuning, 2025.
+\newblock \url{https://arxiv.org/abs/2512.21334}.
+
+\bibitem[Xu et~al.(2025)Xu, Xiao, Chen, He, Peng, Lu, and Han]{xu2025streamingvlmrealtimeunderstandinginfinite}
+Ruyi Xu, Guangxuan Xiao, Yukang Chen, Liuning He, Kelly Peng, Yao Lu, and Song Han.
+\newblock Streamingvlm: Real-time understanding for infinite video streams, 2025.
+\newblock \url{https://arxiv.org/abs/2510.09608}.
+
+\bibitem[Yan et~al.(2026)Yan, Dai, Ran, Li, Lin, Liao, Xie, Jin, and Lian]{yan2026proactvl}
+Weicai Yan, Yuhong Dai, Qi~Ran, Haodong Li, Wang Lin, Hao Liao, Xing Xie, Tao Jin, and Jianxun Lian.
+\newblock Proact-vl: A proactive videollm for real-time ai companions, 2026.
+\newblock \url{https://arxiv.org/abs/2603.03447}.
+
+\bibitem[Yang et~al.(2025)Yang, Li, Yang, Zhang, Hui, Zheng, Yu, Gao, Huang, Lv, Zheng, Liu, Zhou, Huang, Hu, Ge, Wei, Lin, Tang, Yang, Tu, Zhang, Yang, Yang, Zhou, Zhou, Lin, Dang, Bao, Yang, Yu, Deng, Li, Xue, Li, Zhang, Wang, Zhu, Men, Gao, Liu, Luo, Li, Tang, Yin, Ren, Wang, Zhang, Ren, Fan, Su, Zhang, Zhang, Wan, Liu, Wang, Cui, Zhang, Zhou, and Qiu]{yang2025qwen3technicalreport}
+An~Yang, Anfeng Li, Baosong Yang, Beichen Zhang, Binyuan Hui, Bo~Zheng, Bowen Yu, Chang Gao, Chengen Huang, Chenxu Lv, Chujie Zheng, Dayiheng Liu, Fan Zhou, Fei Huang, Feng Hu, Hao Ge, Haoran Wei, Huan Lin, Jialong Tang, Jian Yang, Jianhong Tu, Jianwei Zhang, Jianxin Yang, Jiaxi Yang, Jing Zhou, Jingren Zhou, Junyang Lin, Kai Dang, Keqin Bao, Kexin Yang, Le~Yu, Lianghao Deng, Mei Li, Mingfeng Xue, Mingze Li, Pei Zhang, Peng Wang, Qin Zhu, Rui Men, Ruize Gao, Shixuan Liu, Shuang Luo, Tianhao Li, Tianyi Tang, Wenbiao Yin, Xingzhang Ren, Xinyu Wang, Xinyu Zhang, Xuancheng Ren, Yang Fan, Yang Su, Yichang Zhang, Yinger Zhang, Yu~Wan, Yuqiong Liu, Zekun Wang, Zeyu Cui, Zhenru Zhang, Zhipeng Zhou, and Zihan Qiu.
+\newblock Qwen3 technical report, 2025.
+\newblock \url{https://arxiv.org/abs/2505.09388}.
+
+\bibitem[Yao et~al.(2026)Yao, Gu, Si, Zhou, Yang, Qin, Gu, Lin, Wang, Duan, and Wang]{yao2026harnessingstreamingvideowild}
+Dingyu Yao, Shuhuan Gu, Qingyi Si, Junhao Zhou, Chenxu Yang, Chuanyu Qin, Naibin Gu, Zheng Lin, Weiping Wang, Nan Duan, and Jiaqi Wang.
+\newblock Harnessing streaming video in the wild, 2026.
+\newblock \url{https://arxiv.org/abs/2606.08615}.
+
+\bibitem[Yao et~al.(2025)Yao, Li, Wei, Li, Ren, Liu, Ouyang, Wang, Li, Li, et~al.]{yao2025timechatonline}
+Linli Yao, Yicheng Li, Yuancheng Wei, Lei Li, Shuhuai Ren, Yuanxin Liu, Kun Ouyang, Lean Wang, Shicheng Li, Sida Li, et~al.
+\newblock Timechat-online: 80\% visual tokens are naturally redundant in streaming videos.
+\newblock In \emph{Proceedings of the 33rd ACM International Conference on Multimedia}, pages 10807--10816, 2025.
+
+\bibitem[{ydyhello}(2026)]{awesomevlmstreaming}
+{ydyhello}.
+\newblock {Awesome-VLM-Streaming-Video: A Curated Collection of Papers and Open-Source Code on Vision-Language Models for Streaming Video}.
+\newblock GitHub repository, 2026.
+\newblock \url{https://github.com/ydyhello/Awesome-VLM-Streaming-Video}.
+\newblock Accessed 2026-06-06.
+
+\bibitem[Zeng et~al.(2026)Zeng, Qiu, Zhang, Li, Wang, Li, Yan, Tian, Tian, Zhao, Wang, and Wang]{zeng2026streamforest}
+Xiangyu Zeng, Kefan Qiu, Qingyu Zhang, Xinhao Li, Jing Wang, Jiaxin Li, Ziang Yan, Kun Tian, Meng Tian, Xinhai Zhao, Yi~Wang, and Limin Wang.
+\newblock Streamforest: Efficient online video understanding with persistent event memory.
+\newblock In \emph{The Thirty-ninth Annual Conference on Neural Information Processing Systems}, 2026.
+\newblock \url{https://openreview.net/forum?id=9loSPaBwGO}.
+
+\bibitem[Zhang et~al.(2026)Zhang, Yang, Fu, Ng, and Qiu]{zhang2026hermeskvcachehierarchical}
+Haowei Zhang, Shudong Yang, Jinlan Fu, See-Kiong Ng, and Xipeng Qiu.
+\newblock Hermes: Kv cache as hierarchical memory for efficient streaming video understanding, 2026.
+\newblock \url{https://arxiv.org/abs/2601.14724}.
+
+\bibitem[Zheng et~al.(2024)Zheng, Yin, Xie, Sun, Huang, Yu, Cao, Kozyrakis, Stoica, Gonzalez, Barrett, and Sheng]{zheng2024sglangefficientexecutionstructured}
+Lianmin Zheng, Liangsheng Yin, Zhiqiang Xie, Chuyue Sun, Jeff Huang, Cody~Hao Yu, Shiyi Cao, Christos Kozyrakis, Ion Stoica, Joseph~E. Gonzalez, Clark Barrett, and Ying Sheng.
+\newblock Sglang: Efficient execution of structured language model programs, 2024.
+\newblock \url{https://arxiv.org/abs/2312.07104}.
+
+\end{thebibliography}

@@ -1,0 +1,43 @@
+\begin{table*}[t]
+\providecommand{\toksave}[1]{\,{\scriptsize\textcolor{colorsave}{$\downarrow$#1\%}}}
+\providecommand{\scoregain}[1]{\,{\scriptsize\textcolor{red}{$\uparrow$#1}}}
+\providecommand{\scoreloss}[1]{\,{\scriptsize\textcolor{colorsave}{$\downarrow$#1}}}
+\centering
+\caption{End-to-end performance and efficiency across three benchmarks. Score denotes the benchmark success metric; Tokens and Turns are measured on the main-agent trajectory. Score deltas and token reductions are computed relative to \textit{w/o Explore} for the same main agent. The best and the second best results are marked in \textbf{bold} and \underline{underlined}.}
+\label{tab:e2e_main}
+\small
+\setlength{\tabcolsep}{3.5pt}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{ll ccc ccc ccc}
+\toprule
+\rowcolor{colorhead}
+& & \multicolumn{3}{c}{\textbf{SWE-bench Multilingual}} & \multicolumn{3}{c}{\textbf{SWE-bench Pro}} & \multicolumn{3}{c}{\textbf{SWE-QA}} \\
+\rowcolor{colorhead}
+\textbf{Main Agent} & \textbf{Subagent} & \textbf{Score} & \textbf{Tokens} & \textbf{Turns} & \textbf{Score} & \textbf{Tokens} & \textbf{Turns} & \textbf{Score} & \textbf{Tokens} & \textbf{Turns} \\
+\midrule
+\multirow{5}{*}{GPT-5.4}
+ & \textit{w/o Explore}          & 71.7 & 457k & 17.7 & 46.0 & 818k & 20.7 & 81.3 & 418k & 15.7 \\
+ & \textit{GPT-5.4}      & 73.3\scoregain{1.6} & 379k\toksave{17.1} & 18.3 & \textbf{51.5}\scoregain{5.5} & 703k\toksave{14.1} & 23.7 & 81.4\scoregain{0.1} & \textbf{166k}\toksave{60.3} & 9.8  \\
+ & \textit{FC-30B-SFT}  & \textbf{75.0}\scoregain{3.3} & \underline{356k}\toksave{22.1} & 18.2 & \underline{49.0}\scoregain{3.0} & \textbf{688k}\toksave{15.9} & 23.5 & \textbf{82.0}\scoregain{0.7} & \underline{206k}\toksave{50.7} & 11.2 \\
+ & \textit{FC-4B-SFT}   & 73.3\scoregain{1.6} & 364k\toksave{20.4} & 18.3 & 47.0\scoregain{1.0} & \underline{689k}\toksave{15.8} & 23.2 & \underline{81.9}\scoregain{0.6} & 213k\toksave{49.0} & 11.6 \\
+ & \textit{FC-4B-RL}    & \underline{74.7}\scoregain{3.0} & \textbf{338k}\toksave{26.0} & 18.3 & 48.5\scoregain{2.5} & 701k\toksave{14.3} & 23.5 & \textbf{82.0}\scoregain{0.7} & 210k\toksave{49.8} & 11.4 \\
+ 
+\midrule
+\multirow{5}{*}{GLM-5.1}
+ & \textit{w/o Explore}          & 72.3 & 2514k & 73.9 & 17.5 & 2692k & 67.4 & 72.7 & 401k & 27.7 \\
+ & \textit{GLM-5.1}      & \underline{73.3}\scoregain{1.0} & 1994k\toksave{20.7} & 55.9 & 18.0\scoregain{0.5} & 2356k\toksave{12.5} & 63.9 & \underline{73.4}\scoregain{0.7} & \textbf{249k}\toksave{37.9} & 20.4 \\
+ & \textit{FC-30B-SFT}  & \textbf{73.7}\scoregain{1.4} & \textbf{1797k}\toksave{28.5} & 55.0 & \underline{20.0}\scoregain{2.5} & 2370k\toksave{12.0} & 64.2 & 73.3\scoregain{0.6} & \underline{292k}\toksave{27.2} & 23.0 \\
+ & \textit{FC-4B-SFT}   & \underline{73.3}\scoregain{1.0} & \underline{1919k}\toksave{23.7} & 56.9 & 18.0\scoregain{0.5} & \underline{2279k}\toksave{15.3} & 64.0 & \underline{73.4}\scoregain{0.7} & 306k\toksave{23.7} & 23.8 \\
+ & \textit{FC-4B-RL}    & \textbf{73.7}\scoregain{1.4} & 1971k\toksave{21.6} & 56.6 & \textbf{22.5}\scoregain{5.0} & \textbf{2210k}\toksave{17.9} & 64.3 & \textbf{73.5}\scoregain{0.8} & 302k\toksave{24.7} & 23.2 \\
+\midrule
+\multirow{5}{*}{Kimi-K2.6}
+ & \textit{w/o Explore}          & 76.3 & 1553k & 55.7 & 31.0 & 2383k & 68.0 & 71.6 & 510k & 32.5 \\
+ & \textit{Kimi-K2.6}      & 76.3\scoregain{0.0} & 1367k\toksave{12.0} & 50.5 & 32.0\scoregain{1.0} & \textbf{2060k}\toksave{13.6} & 58.0 & \textbf{73.0}\scoregain{1.4} & \textbf{361k}\toksave{29.2} & 24.4 \\
+ & \textit{FC-30B-SFT}  & \underline{76.7}\scoregain{0.4} & \underline{1360k}\toksave{12.4} & 49.9 & \underline{33.0}\scoregain{2.0} & \underline{2150k}\toksave{9.8} & 58.8 & \underline{72.8}\scoregain{1.2} & \underline{373k}\toksave{26.9} & 26.4 \\
+ & \textit{FC-4B-SFT}   & 75.3\scoreloss{1.0} & \textbf{1306k}\toksave{15.9} & 49.3 & 32.5\scoregain{1.5} & 2159k\toksave{9.4} & 61.6 & 72.6\scoregain{1.0} & 402k\toksave{21.2} & 28.0 \\
+ & \textit{FC-4B-RL}    & \textbf{78.3}\scoregain{2.0} & 1384k\toksave{10.9} & 52.1 & \textbf{33.5}\scoregain{2.5} & 2158k\toksave{9.4} & 61.1 & 72.6\scoregain{1.0} & 378k\toksave{25.9} & 27.5 \\
+\bottomrule
+\end{tabular}%
+}
+\vspace{-5mm}
+\end{table*}

@@ -1,0 +1,387 @@
+\section{Evaluation}
+\newcommand{\evalmodel}{DreamX-World-1.0-5B}
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics[width=\textwidth]{figures/qualitative_results.jpg}
+\end{center}
+\caption{Qualitative results of \evalmodel{}. Each row shows five uniformly sampled keyframes from a generated video sequence under different scene types and camera controls.}
+\label{fig:qual-base}
+\end{figure}
+
+% Fig.~\ref{fig:qual-base} illustrates generated sequences across diverse scene types, camera trajectories, and visual styles. The model produces smooth, temporally coherent transitions while faithfully following the specified camera controls. Additional samples and interactive demos are available in our GitHub repository\footnote{\url{https://github.com/AMAP-ML/DreamX-World}}.
+
+Since the evaluation of interactive world models is still at an exploratory stage, we devise our own evaluation suite that jointly probes camera controllability, perceptual quality, long-horizon behavior, and memory consistency. We first inspect the model qualitatively. Fig.~\ref{fig:qual-base} illustrates generated sequences across diverse scene types, camera trajectories, and visual styles. As the camera moves through the scene, the model produces smooth, temporally coherent transitions while maintaining high visual fidelity across heterogeneous scenes and styles. Additional samples and interactive demos are available on our project page\footnote{\url{https://amap-ml.github.io/DreamX_World}}. We then turn to the quantitative evaluation detailed below.
+
+We compare \evalmodel{} against two representative open-source world models---HY-WorldPlay 1.5 \citep{hyworld2025} (8B) and LingBot-World \citep{gao2026lingbotworld} (14B)---through quantitative evaluation on three complementary axes: basic evaluation on 5-second clips covering camera controllability and visual quality (\cref{tab:basic-metrics}), long-horizon evaluation on ${\sim}$30-second rollouts (\cref{tab:long-horizon}), and memory consistency via revisit-based protocols (\cref{sec:memory-eval}). We additionally conduct a blind human preference study (\cref{sec:user-study}).
+
+\subsection{Basic Evaluation}
+
+We begin with a basic evaluation on standard 5-second generated videos, the most commonly used inference duration, focusing on camera controllability and visual quality. Extended evaluation over longer horizons is reported in \cref{tab:long-horizon}.
+
+\paragraph{\bf{Camera Control Metric.}}
+We follow the camera controllability evaluation in WorldScore \citep{duan2025worldscore}, but replace its pose estimator with MegaSaM \citep{li2025megasam} for more accurate camera pose recovery. Beyond adopting the evaluation protocol, we further enrich the evaluation camera trajectories and test data. On the trajectory side, we augment the original set with commonly encountered real-world camera motions such as upward tilt, downward tilt, and diagonal movement, which are under-represented in existing benchmarks yet frequent in practical interactive scenarios. On the data side, our evaluation set covers a broad spectrum of visual domains including AI-generated imagery, stylized content, and simulation-rendered scenes, ensuring that controllability is assessed across a wide range of appearance distributions. The camera control error is computed as:
+\begin{equation}
+    e_{\mathrm{camera}} = \sqrt{e_{\theta} \cdot e_{t}},
+\end{equation}
+where $e_{\theta}$ and $e_{t}$ are scale-invariant rotation and translation errors with respect to the ground-truth trajectory, respectively. 
+% Both errors are normalized to $[0,1]$ using empirical bounds so that higher scores indicate better adherence.
+% We compute camera errors across all the frames of the generated video $V$.
+We compute the camera errors across all frames of the generated video V, which are subsequently normalized to yield a final score, where a higher score denotes superior camera controllability.
+
+\paragraph{\bf{Visual Quality metrics.}}
+Following Omni-WorldBench \citep{wu2026omniworldbench}, we assess visual quality from multiple complementary dimensions: imaging quality, temporal flickering, motion smoothness, dynamic degree, and transition detection. Together, these metrics comprehensively evaluate the generated videos in terms of frame-level clarity, inter-frame stability, motion intensity, and temporal coherence.
+
+\paragraph{\bf{Artifact Detection Metric.}}
+% Complementing the subjective quality metric, we introduce a predominantly objective metric for structural artifact detection, following recent work that emphasizes fine-grained artifact-aware evaluation for generated videos \citep{zhu2026artifactaware}. This metric focuses on critical defects and failures during the generation process, such as duplicated limbs, objects instantaneously vanishing, and geometric pass-through, among others. The VLM examines each generated frame and outputs a binary pass/fail judgment. Each test case is evaluated twice and averaged; the final artifact score $S_{\mathrm{artifact}}$ is the mean pass rate across the evaluation set.
+
+Complementing the visual quality metrics above, we further introduce a multimodal large language model (Gemini-3.1-Pro) for artifact detection, leveraging its strong perceptual reasoning to flag visible defects in the generated frames. This metric focuses on critical defects and failures during the generation process, such as duplicated limbs, objects instantaneously vanishing, and geometric pass-through, among others. We sample frames from each generated video at 2 FPS and prompt the VLM to output a binary pass/fail judgment per sampled frame. Each test case is evaluated twice and averaged, and the final artifact score is the mean pass rate across the evaluation set.
+
+\begin{table}[H]
+\caption{Quantitative comparisons on basic metrics. All scores are normalized to $[0,100]$ with higher being better.}
+\label{tab:basic-metrics}
+\centering
+\renewcommand{\arraystretch}{1.2}
+\footnotesize
+\setlength{\tabcolsep}{2.8pt}
+\begin{tabularx}{\linewidth}{@{}lc*{8}{>{\centering\arraybackslash}X}@{}}
+\toprule
+\rowcolor{amapblue}
+\textcolor{white}{\textbf{Model}} &
+\textcolor{white}{\textbf{Params}} &
+\textcolor{white}{\textbf{Camera\,$\uparrow$}} &
+\textcolor{white}{\textbf{Quality\,$\uparrow$}} &
+\textcolor{white}{\textbf{Trans.\,$\uparrow$}} &
+\textcolor{white}{\textbf{Flicker\,$\uparrow$}} &
+\textcolor{white}{\textbf{Smooth.\,$\uparrow$}} &
+\textcolor{white}{\textbf{Dynamic\,$\uparrow$}} &
+\textcolor{white}{\textbf{Artifact\,$\uparrow$}} &
+\textcolor{white}{\textbf{Overall\,$\uparrow$}} \\
+\midrule
+\rowcolor{TableRowAlt}
+% HY-WorldPlay 1.5 & 8B & 65.12 & \textbf{68.23} & \textbf{98.33} & \textbf{96.45} & \textbf{99.05} & 66.67 & 71.66 & 80.79 \\
+HY-WorldPlay 1.5 & 8B & 65.12 & 68.23 & 98.33 & 96.45 & 99.05 & 66.67 & 71.66 & 80.79 \\
+% LingBot-World & 14B & 71.73 & 67.76 & 85.00 & 94.94 & 97.06 & \textbf{88.33} & 58.33 & 80.45 \\
+LingBot-World & 14B & 71.73 & 67.76 & 85.00 & 94.94 & 97.06 & 88.33 & 58.33 & 80.45 \\
+\midrule
+\rowcolor{TableRowAlt}
+% \textbf{\evalmodel{}} & 5B & \textbf{73.89} & 66.15 & 96.67 & 96.02 & 98.65 & 87.50 & \textbf{71.67} & \textbf{84.36} \\
+% \textbf{\evalmodel{}} & 5B & 73.89 & 66.15 & 96.67 & 96.02 & 98.65 & 87.50 & 71.67 & \textbf{84.36} \\
+\textbf{\evalmodel{}} & 5B & 73.75 & 66.75 & 98.33 & 96.17 & 98.79 & 85.83 & 73.75 & \textbf{84.76} \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+The overall score is the average of all individual metrics. As shown in Tab.~\ref{tab:basic-metrics}, our method achieves the highest camera control score and the best overall score while maintaining competitive visual quality. The combination of \eprope{} camera conditioning and RL-based alignment enables precise trajectory adherence while maintaining competitive perceptual quality. In terms of motion naturalness, our model generates richer and more physically plausible dynamics, benefiting from the diverse camera coverage in the UE data engine and the forcing-based training that encourages robust temporal evolution.
+
+\subsection{Long-Horizon Evaluation}
+
+% We further evaluate on approximately 30s generated rollouts to assess long-horizon consistency. We adopt the same evaluation metrics as the basic evaluation (\cref{tab:basic-metrics}).
+
+We further extend the evaluation to approximately 30-second generated rollouts to measure how each metric behaves under the long-horizon regime. We adopt the same set of metrics as the basic evaluation.
+
+\begin{table}[H]
+\caption{Long-horizon evaluation on 30s generation rollouts. All scores are normalized to $[0,100]$ with higher being better.}
+\label{tab:long-horizon}
+\centering
+\renewcommand{\arraystretch}{1.2}
+\footnotesize
+\setlength{\tabcolsep}{2.8pt}
+\begin{tabularx}{\linewidth}{@{}lc*{8}{>{\centering\arraybackslash}X}@{}}
+\toprule
+\rowcolor{amapblue}
+\textcolor{white}{\textbf{Model}} &
+\textcolor{white}{\textbf{Params}} &
+\textcolor{white}{\textbf{Camera\,$\uparrow$}} &
+\textcolor{white}{\textbf{Quality\,$\uparrow$}} &
+\textcolor{white}{\textbf{Trans.\,$\uparrow$}} &
+\textcolor{white}{\textbf{Flicker\,$\uparrow$}} &
+\textcolor{white}{\textbf{Smooth.\,$\uparrow$}} &
+\textcolor{white}{\textbf{Dynamic\,$\uparrow$}} &
+\textcolor{white}{\textbf{Artifact\,$\uparrow$}} &
+\textcolor{white}{\textbf{Overall\,$\uparrow$}} \\
+\midrule
+\rowcolor{TableRowAlt}
+% HY-WorldPlay 1.5 & 8B & \textbf{65.86} & 63.02 & \textbf{91.00} & \textbf{97.00} & \textbf{99.11} & 52.00 & 14.00 & 68.85 \\
+HY-WorldPlay 1.5 & 8B & 65.86 & 63.02 & 91.00 & 97.00 & 99.11 & 52.00 & 14.00 & 68.85 \\
+% LingBot-World & 14B & 63.76 & 60.81 & 54.00 & 96.59 & 97.86 & \textbf{87.00} & 12.00 & 67.43 \\
+LingBot-World & 14B & 63.76 & 60.81 & 54.00 & 96.59 & 97.86 & 87.00 & 12.00 & 67.43 \\
+\midrule
+\rowcolor{TableRowAlt}
+% \textbf{\evalmodel{}} & 5B & 62.03 & \textbf{64.11} & 80.00 & 96.35 & 98.41 & 75.00 & \textbf{17.00} & \textbf{70.41} \\
+\textbf{\evalmodel{}} & 5B & 62.03 & 64.11 & 80.00 & 96.35 & 98.41 & 75.00 & 17.00 & \textbf{70.41} \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+As shown in \cref{tab:long-horizon}, \evalmodel{} achieves the highest overall score (70.41), outperforming both HY-WorldPlay 1.5 (68.85, 8B) and LingBot-World (67.43, 14B). Our model attains the best imaging quality and artifact detection scores, demonstrating that the forcing-based architecture sustains higher visual fidelity over long horizons than larger competing models.
+
+\subsection{Memory Evaluation via Revisit Consistency}
+\label{sec:memory-eval}
+
+Existing world-model benchmarks such as WorldScore~\citep{duan2025worldscore}
+and Omni-WorldBench~\citep{wu2026omniworldbench}
+primarily assess short-term properties---visual quality, temporal flickering,
+and camera controllability---without requiring the agent
+to return to a previously visited region.
+Distributional metrics such as FVD and FID capture overall generation quality
+but cannot reveal whether a model remembers
+the \emph{specific} scene it generated moments ago.
+In interactive settings, however, users inevitably revisit earlier locations,
+making long-horizon spatial memory a critical yet largely unevaluated capability.
+
+To address this gap, we evaluate memory through \emph{revisit consistency},
+which detects frame pairs visiting the same spatial location
+at different times and checks whether the generated observations agree.
+A practical challenge is that imprecise camera control
+can introduce slight viewpoint offsets between revisit pairs,
+producing apparent inconsistencies unrelated to memory.
+We therefore adopt a multi-level metric suite
+so that each level captures a distinct facet of memory
+while offering progressively greater robustness to such offsets:
+pixel-level fidelity measures exact appearance preservation,
+perceptual consistency reflects human-perceived similarity,
+semantic identity captures high-level scene content,
+place recognition identifies the same location across viewpoint changes,
+and geometric structure verifies local feature correspondence.
+A temporal-smoothness metric further ensures
+that memory is not achieved at the cost of incoherent transitions.
+
+\paragraph{\bf{Trajectory Construction.}}
+We construct camera trajectories that explicitly induce revisits
+using simple navigation primitives
+(forward/backward translation, left/right rotation).
+As shown in Fig.~\ref{fig:trajectory-templates},
+three complementary templates are used:
+(1)~an \emph{out-and-back} path that revisits with nearly identical orientation,
+testing appearance stability;
+(2)~a \emph{closed-loop} path that returns to the starting pose,
+testing globally consistent layout under loop closure;
+and (3)~a \emph{translation-rotation} path that introduces heading changes,
+testing place-identity preservation under viewpoint variation.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\linewidth]{figures/trajectory_construction.pdf}
+    \caption{%
+        Bird's-eye view of the three evaluation trajectory templates.
+        Color encodes temporal progression from start
+        (\textcolor{blue}{blue}) to end (\textcolor{red}{red});
+        arrows indicate camera movement direction.
+        %
+        \textbf{(a)}~\emph{Out-and-back}:
+        translates laterally (D$\times$3) then reverses (A$\times$3),
+        returning with identical orientation.
+        %
+        \textbf{(b)}~\emph{Translation--rotation}:
+        combines translation with heading changes
+        (W$\cdot$S$\cdot$L$\cdot$R$\cdot$R$\cdot$L$\cdot$L),
+        revisiting from a different yaw angle.
+        %
+        \textbf{(c)}~\emph{Closed-loop}:
+        traverses a rectangular path back to the exact starting pose.
+        %
+        The $\star$ marker denotes the revisit point
+        that coincides with the start.%
+    }
+    \label{fig:trajectory-templates}
+\end{figure}
+
+\paragraph{\bf{Revisit Pair Detection.}}
+From camera extrinsics, we extract position
+$\mathbf{t}=(t_x,t_y,t_z)$ and yaw $\theta$ for each frame.
+A revisit pair $(i,j)$ requires
+\begin{equation}
+    |\theta_i-\theta_j| \leq \tau_\theta,
+    \qquad
+    \|\mathbf{t}_i-\mathbf{t}_j\|_2 \leq \tau_t,
+\end{equation}
+with $\tau_\theta=2^\circ$, $\tau_t=0.1$,
+and a minimum temporal gap
+$|j-i| \geq \lfloor 0.2\,T \rfloor$
+to focus on long-horizon memory.
+Among multiple candidates, we select the pair
+with the smallest weighted pose distance
+$|\theta_i-\theta_j| + 10\,\|\mathbf{t}_i-\mathbf{t}_j\|_2$.
+
+\paragraph{\bf{Metrics.}}
+For each revisit pair $(I_i, I_j)$ we compute metrics
+spanning all five aspects.
+\textbf{(i)~Pixel-level fidelity.}
+\textbf{PSNR} and \textbf{SSIM} measure signal-to-noise ratio
+and local structural similarity, respectively,
+providing strict low-level references sensitive to any scene-content drift.
+\textbf{(ii)~Perceptual consistency.}
+\textbf{LPIPS}~\citep{zhang2018lpips} measures perceptual distance
+in a deep feature space,
+capturing whether the two frames \emph{look} different to a human observer;
+lower values indicate higher consistency.
+\textbf{(iii)~Semantic identity.}
+\textbf{DINO-Sim} computes cosine similarity
+between frozen DINOv2~\citep{oquab2023dinov2} features of the two frames;
+a drop signals altered semantic content upon revisitation.
+\textbf{(iv)~Place recognition.}
+\textbf{VPR-Sim} uses global descriptors
+from MutualVPR~\citep{gu2026mutualvpr},
+which is trained to retrieve the same location across viewpoint changes,
+thereby reducing the confounding effect of camera-control error.
+\textbf{(v)~Geometric structure.}
+\textbf{SP-Match} detects up to 1024
+SuperPoint~\citep{detone2018superpoint} keypoints per frame
+and matches them with LightGlue~\citep{lindenberger2023lightglue};
+we report the matching ratio
+$r_{\text{match}} = N_{\text{match}} / \min(N_i, N_j)$.
+We additionally report \textbf{CLIP-Video}~\citep{radford2021clip},
+the average CLIP similarity between consecutive frames,
+as a complementary temporal-smoothness measure.
+
+\paragraph{\bf{Gain-based Scoring.}}
+Absolute similarity scores can be inflated by slow camera movement
+rather than genuine memory.
+We therefore sample non-revisit baseline pairs
+with a matched temporal-gap distribution
+and report all metrics as gains:
+$S_{\mathrm{revisit}} - S_{\mathrm{baseline}}$ for similarity metrics,
+$S_{\mathrm{baseline}} - S_{\mathrm{revisit}}$ for LPIPS,
+so that positive values consistently indicate better memory.
+CLIP-Video is reported as an absolute value.
+
+\begin{table}[H]
+\caption{Memory consistency evaluation on 10-second generated videos.
+Metrics span pixel-level fidelity ($\Delta$PSNR, $\Delta$SSIM),
+perceptual consistency ($\Delta$LPIPS),
+semantic identity ($\Delta$DINO-Sim),
+place recognition ($\Delta$VPR-Sim),
+and geometric structure ($\Delta$SP-Match).
+All gains are over non-revisit baselines; CLIP-V is absolute.
+Higher is better for all columns.}
+\label{tab:memory-consistency}
+\centering
+\renewcommand{\arraystretch}{1.1}
+\setlength{\tabcolsep}{3.5pt}
+\footnotesize
+\begin{tabular}{@{}lccccccc@{}}
+\toprule
+\rowcolor{amapblue}
+\textcolor{white}{\textbf{Model}} &
+\textcolor{white}{$\Delta$\textbf{PSNR}} &
+\textcolor{white}{$\Delta$\textbf{SSIM}} &
+\textcolor{white}{$\Delta$\textbf{LPIPS}} &
+\textcolor{white}{$\Delta$\textbf{DINO-Sim}} &
+\textcolor{white}{$\Delta$\textbf{VPR-Sim}} &
+\textcolor{white}{$\Delta$\textbf{SP-Match}} &
+\textcolor{white}{\textbf{CLIP-V}} \\
+\midrule
+\rowcolor{TableRowAlt}
+LingBot-World & 0.61 & 0.019 & 0.039 & 0.090 & 0.100 & 0.088 & 0.987 \\
+HY-WorldPlay 1.5 & 3.19 & 0.079 & 0.202 & 0.200 & 0.110 & \textbf{0.251} & \textbf{0.992} \\
+\midrule
+\rowcolor{TableRowAlt}
+\textbf{\evalmodel{}} & \textbf{3.92} & \textbf{0.098} & \textbf{0.232} & \textbf{0.246} & \textbf{0.142} & 0.216 & 0.991 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+As shown in Table~\ref{tab:memory-consistency},
+\evalmodel{} achieves the highest gains on pixel-level, perceptual,
+semantic, and place-recognition metrics,
+demonstrating stronger memory at every level of abstraction.
+HY-WorldPlay 1.5 leads on SP-Match and CLIP-Video,
+while LingBot-World shows lower gains across all revisit metrics.
+
+\subsection{Human Preference Study}
+\label{sec:user-study}
+
+To complement automatic metrics, we conduct a blind side-by-side human
+preference study. Each trial compares \evalmodel{} with one baseline under the
+same prompt, initial condition, camera/action trajectory, and playback setting.
+The model identities are anonymized and the left-right order is randomized.
+Assessors report whether \evalmodel{} wins, ties, or loses along four dimensions:
+overall preference, camera control, visual quality, and artifact detection. We
+report all percentages from the perspective of \evalmodel{}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{figures/user_study_results.pdf}
+    \caption{Human preference study comparing \evalmodel{} with HY-WorldPlay 1.5
+    and LingBot-World. Each horizontal stacked bar reports Win/Tie/Lose
+    percentages from the perspective of \evalmodel{} under blind side-by-side
+    comparison. \evalmodel{} is preferred in overall preference, visual quality,
+    and artifact detection, while camera-control judgments are close with many
+    ties, indicating comparable perceived controllability.}
+    \label{fig:user-study}
+\end{figure}
+
+As shown in \cref{fig:user-study}, \evalmodel{} is preferred more often in overall preference, achieving win/tie/loss rates of 57.5/14.4/28.1 against HY-WorldPlay 1.5
+and 61.9/10.6/27.5 against LingBot-World. The preference is also consistent in
+visual quality, where \evalmodel{} obtains 57.5\% and 61.3\% win rates against
+the two baselines, and in artifact detection, where it wins 59.4\% and 56.2\%
+of comparisons. Camera-control judgments are closer, with higher tie rates,
+suggesting comparable perceived controllability among the systems under
+side-by-side viewing. Overall, the human study supports the automatic
+evaluation: \evalmodel{} improves perceptual quality and artifact robustness while
+maintaining competitive camera controllability.
+
+\FloatBarrier
+
+% \subsection{Event Responsiveness Evaluation}
+% \label{sec:event-eval}
+
+% Table~\ref{tab:event-general} confirms that Event Instruction Tuning preserves general
+% visual quality and camera control.
+% To measure event controllability, we construct a dedicated evaluation set covering
+% single-object and composable-event scenarios and assess two VLM-judged metrics:
+% \textbf{Event Occurrence} (whether each specified event actually happens) and
+% \textbf{Event Reasonableness} (whether the triggered event is visually plausible and
+% physically coherent).
+% As shown in Table~\ref{tab:event-quality}, the model achieves high event fidelity across
+% all scenario types.
+
+% \begin{table}[!htbp]
+% \caption{General capability before and after Event Instruction Tuning. This stage
+% preserves camera control and visual quality while adding event responsiveness.}
+% \label{tab:event-general}
+% \centering
+% \renewcommand{\arraystretch}{1.2}
+% \footnotesize
+% \setlength{\tabcolsep}{2.8pt}
+% \begin{tabularx}{\linewidth}{@{}p{0.95in}*{6}{>{\centering\arraybackslash}X}@{}}
+% \toprule
+% \rowcolor{amapblue}
+% \textcolor{white}{\textbf{Model}} &
+% \textcolor{white}{\textbf{\shortstack{Camera\\Control $\uparrow$}}} &
+% \textcolor{white}{\textbf{\shortstack{Image\\Quality $\uparrow$}}} &
+% \textcolor{white}{\textbf{\shortstack{Dynamic\\Degree $\uparrow$}}} &
+% \textcolor{white}{\textbf{\shortstack{Transition\\Detect $\uparrow$}}} &
+% \textcolor{white}{\textbf{\shortstack{Temporal\\Flicker $\downarrow$}}} &
+% \textcolor{white}{\textbf{\shortstack{Motion\\Smooth. $\uparrow$}}} \\
+% \midrule
+% \rowcolor{TableRowAlt}
+% Pretrained \\
+% \textbf{+ Event Instruction Tuning} \\
+% \bottomrule
+% \end{tabularx}
+% \end{table}
+
+% \begin{table}[!htbp]
+% \caption{Event controllability evaluation judged by an advanced VLM.}
+% \label{tab:event-quality}
+% \centering
+% \renewcommand{\arraystretch}{1.2}
+% \footnotesize
+% \setlength{\tabcolsep}{4pt}
+% \begin{tabularx}{\linewidth}{@{}p{1.1in}*{2}{>{\centering\arraybackslash}X}@{}}
+% \toprule
+% \rowcolor{amapblue}
+% \textcolor{white}{\textbf{Scenario}} &
+% \textcolor{white}{\textbf{\shortstack{Event\\Occurrence $\uparrow$}}} &
+% \textcolor{white}{\textbf{\shortstack{Event\\Reasonable. $\uparrow$}}} \\
+% \midrule
+% \rowcolor{TableRowAlt}
+% Single-object event \\
+% Composable event \\
+% \rowcolor{TableRowAlt}
+% Object interaction \\
+% \bottomrule
+% \end{tabularx}
+% \end{table}

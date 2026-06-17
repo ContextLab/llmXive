@@ -1,0 +1,56 @@
+\begin{table*}[t]
+\centering
+\caption{Standalone exploration quality on \textbf{SWE-bench Verified} using patch-derived reference locations. We report F1, precision, and recall at file, module, and function granularity. \textbf{Bold} marks the best result per column excluding GPT-5.4, GLM-5.1, and Kimi-K2.6 rows; \underline{underline} marks the second best.}
+\label{tab:explore_main}
+\scriptsize
+\newcommand{\ourscell}[1]{\cellcolor{colorours}#1}
+\newcommand{\oursgray}[1]{\textcolor{gray}{#1}}
+\setlength{\tabcolsep}{3.0pt}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{ll ccc ccc ccc}
+\toprule
+\rowcolor{colorhead}
+ & & \multicolumn{3}{c}{\textbf{File-level}} & \multicolumn{3}{c}{\textbf{Module-level}} & \multicolumn{3}{c}{\textbf{Function-level}} \\
+\rowcolor{colorhead}
+\multirow{-2}{*}{\textbf{Scaffold}} & \multirow{-2}{*}{\textbf{LLM}} & \textbf{F1} & \textbf{Prec.} & \textbf{Rec.} & \textbf{F1} & \textbf{Prec.} & \textbf{Rec.} & \textbf{F1} & \textbf{Prec.} & \textbf{Rec.} \\
+\midrule
+\multirow{2}{*}{RepoSearcher} 
+ & Qwen3-4B                      & 55.83 & 59.32 & 54.48 & 38.66 & 35.39 & 53.53 & 20.76 & 15.26 & 46.71 \\
+ & Qwen3-30B                     & 67.14 & 70.94 & 65.61 & 25.18 & 22.24 & 35.93 & 15.40 & 11.82 & 33.11 \\
+\midrule
+\multirow{2}{*}{LocAgent}     
+ & Qwen3-4B                      & 61.78 & 65.13 & 60.42 & 43.88 & 44.80 & 47.27 & 28.04 & 24.66 & 41.73 \\
+ & Qwen3-30B                     & 43.14 & 45.86 & 42.19 & 30.09 & 30.90 & 32.58 & 20.63 & 17.60 & 30.35 \\ 
+\midrule
+\multirow{2}{*}{Agentless}    
+ & Qwen3-4B                      & 55.44 & 58.72 & 54.22 & 42.06 & 40.15 & 52.77 & 23.55 & 20.70 & 35.76 \\
+ & Qwen3-30B                     & 65.89 & 69.54 & 64.48 & 47.29 & 43.07 & 65.12 & 26.38 & 19.73 & 51.77 \\
+\midrule
+\multirow{2}{*}{OrcaLoca}     
+ & Qwen3-4B                      & 64.12 & 67.70 & 62.69 & 49.72 & 51.34 & 51.16 & \underline{41.56} & \underline{42.61} & 44.17 \\
+ & Qwen3-30B                     & 55.93 & 60.00 & 54.67 & 34.30 & 37.21 & 33.67 & 29.07 & 30.23 & 28.68 \\ 
+\midrule
+\multirow{2}{*}{CoSIL}        
+ & Qwen3-4B                      & 59.47 & 62.73 & 58.22 & 41.15 & 37.86 & 56.30 & 24.21 & 18.37 & 52.13 \\
+ & Qwen3-30B                     & 68.08 & 71.74 & 66.63 & 37.48 & 33.47 & 51.84 & 23.63 & 18.28 & 48.18 \\
+
+\midrule
+\multirow{3}{*}{OpenHands-Bash}
+ & Qwen3-4B                      & 49.73 & 49.69 & 53.34 & 19.32 & 19.86 & 20.15 & 13.27 & 14.17 & 13.74 \\
+ & \textsc{CodeScout}-4B         & 68.52 & 71.53 & 67.74 & 45.97 & 49.70 & 44.97 & 36.78 & 40.71 & 35.72 \\
+ & \textsc{CodeScout}-14B        & 68.57 & 71.00 & 68.69 & 50.88 & 53.71 & 50.88 & 40.32 & \textbf{43.74} & 40.27 \\
+\midrule
+\multirow{8}{*}{\approach}
+ & \oursgray{GPT-5.4}            & \oursgray{72.34} & \oursgray{76.55} & \oursgray{70.69} & \oursgray{55.16} & \oursgray{51.63} & \oursgray{71.76} & \oursgray{35.91} & \oursgray{29.15} & \oursgray{70.81} \\
+ & \oursgray{GLM-5.1}            & \oursgray{73.88} & \oursgray{77.96} & \oursgray{72.29} & \oursgray{59.31} & \oursgray{56.28} & \oursgray{73.51} & \oursgray{43.50} & \oursgray{37.46} & \oursgray{72.02} \\
+ & \oursgray{Kimi-K2.6}          & \oursgray{71.34} & \oursgray{75.15} & \oursgray{69.86} & \oursgray{59.34} & \oursgray{56.85} & \oursgray{70.80} & \oursgray{43.87} & \oursgray{38.68} & \oursgray{68.22} \\
+ & Qwen3-4B                      & 62.57 & 66.13 & 61.19 & 51.25 & 53.05 & 53.79 & 37.80 & 37.37 & 47.22 \\
+ & Qwen3-30B                     & 65.29 & 69.14 & 63.78 & \underline{57.04} & \underline{56.48} & 64.04 & \textbf{42.90} & 39.98 & 60.62 \\
+ & \ourscell{FC-30B-SFT}            & \ourscell{\textbf{73.71}} & \ourscell{\textbf{77.76}} & \ourscell{\textbf{72.13}} & \ourscell{\textbf{60.35}} & \ourscell{\textbf{58.43}} & \ourscell{\textbf{71.17}} & \ourscell{40.74} & \ourscell{35.32} & \ourscell{\underline{67.97}} \\
+ & \ourscell{FC-4B-SFT}             & \ourscell{70.55} & \ourscell{74.75} & \ourscell{68.85} & \ourscell{55.26} & \ourscell{53.00} & \ourscell{69.25} & \ourscell{37.48} & \ourscell{32.83} & \ourscell{66.82} \\
+ & \ourscell{FC-4B-RL}              & \ourscell{\underline{71.48}} & \ourscell{\underline{75.35}} & \ourscell{\underline{69.92}} & \ourscell{56.26} & \ourscell{53.80} & \ourscell{\underline{70.49}} & \ourscell{38.45} & \ourscell{32.79} & \ourscell{\textbf{68.05}} \\
+\bottomrule
+\end{tabular}%
+}
+\vspace{-3mm}
+\end{table*}

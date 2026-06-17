@@ -1,0 +1,87 @@
+\section{Evaluation}
+\label{sec:eval}
+In this section, we investigate three research questions:
+\textbf{(i)} How can we fairly evaluate data-journalism articles produced by either humans or agents -- what metrics and protocols faithfully capture the quality of such outputs?
+\textbf{(ii)} How do \methodshort-generated articles compare against human-written counterparts, and along which dimensions?
+\textbf{(iii)} To what extent do human and agent judges agree, and how consistent are they across samples?
+
+\subsection{Setting}
+\label{sec:setting}
+
+\input{tab/datasets}
+
+We evaluate \methodshort\ on various  examples drawn from three stylistically distinct sources, deliberately chosen to span the spectrum of contemporary data storytelling. In curating the evaluation set, we sought diversity along the following axes: domain (science, media, sports, politics, health, and others), temporal coverage (spanning 2018–2026), and data modality (time series and tabular data, among others). 
+
+For publication source, we consider: 
+\href{https://www.economist.com/graphic-detail}{(i) The Economist}, featuring concise, analytical economics-style reporting; 
+\href{https://pudding.cool/}{(ii) The Pudding}, known for artistically rich, long-form interactive essays; 
+and \href{https://github.com/rfordatascience/tidytuesday}{(iii) TidyTuesday}, a community initiative providing more diverse datasets together with data-processing code and their original source articles. 
+For every example, we pair the underlying data with the human-written reference piece, enabling head-to-head comparison against the \method\ outcome. 
+Table~\ref{tab:datasets} lists all 18 original articles. 
+% Both the human  and our AI generated articles are publicly browsable at \url{https://data-journalist-agent.github.io/}.
+
+% \kevin{
+\textbf{Potential training-data contamination.} 
+We acknowledge that well-known Economist and Pudding articles may sit in model pretraining corpora, which we cannot rule out. 
+But \textit{recalling text alone earns no score}: 
+(i) coverage is bidirectional, rewarding not only matching the human angle but also surfacing claims the human article omits, which memorising that article cannot supply;
+and (ii) human articles ship no code, so even a memorised angle cannot help pass verifiability, which a cross-family verifier checks by re-running code against the data.
+% }
+
+\method\ articles are produced using Claude Code with \texttt{claude-opus-4.7}. We provide full details information in Appendix \ref{sec:app:rubric}.
+
+\subsection{Evaluation Metrics}
+\label{sec:eval:metrics}
+
+We evaluate \method\ along three orthogonal axes.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{fig/eval.pdf}
+\caption{\textbf{Three complementary evaluation protocols for \methodshort.} 
+\textbf{(A) Human-agent angle coverage:} the agent and a human author independently produce articles from the same dataset; we measure overlap in the claims and insights surfaced by each. \textbf{(B) Rubric evaluation with reader as judge:} a human (or a computer-use agent) reader scores the agent's article against the human-written reference along five rubric dimensions, yielding graded quality assessments. \textbf{(C) Verifiability:} a verifier agent attempts to reproduce the agent's output from the same inputs, yielding a binary judgment of whether the artefact is faithfully verifiable.}
+\vspace{-2em}
+\label{fig:metric}
+\end{figure}
+
+\textbf{Human-agent angle coverage.}
+For every paired human--agent article, we measure how much overlap exists between the human-written reference and the \method\ output. As shown in Figure \ref{fig:metric}A, we parse the article into various sentences, then apply \texttt{gpt-4o-mini} to filter the article content (such as advertisements), resulting in a set of factual claims from the human article $\mathrm{Human}$ and from the agent article $\mathrm{Agent}$ respectively.
+We then match claims across the two sides: OpenAI's \texttt{text-embedding-3-small} retrieves the top-3 nearest candidates by cosine similarity, and \texttt{gpt-4o-mini} decides under a relaxed prompt whether the candidate pair covers the same topic. A claim is covered if at least one of its candidates passes the LLM check. This gives us two directional coverage scores:
+\begin{itemize}
+    \item \textbf{Human-in-Agent} $\mathrm{P}(\mathrm{Agent} \mid \mathrm{Human})$: the fraction of human claims that the agent article also surfaces. \textit{\ie~did the agent catch what a journalist would catch?}
+    \item \textbf{Agent-in-Human} $\mathrm{P}(\mathrm{Human} \mid \mathrm{Agent})$: the fraction of agent claims that also appear in the human article, indicating how closely the agent's claims track the human-curated angle.
+\end{itemize}
+Formally,
+\[
+\mathrm{P}(\mathrm{Agent} \mid \mathrm{Human}) \;=\; \frac{|\mathrm{Human} \cap \mathrm{Agent}|}{|\mathrm{Human}|}, \qquad
+\mathrm{P}(\mathrm{Human} \mid \mathrm{Agent}) \;=\; \frac{|\mathrm{Human} \cap \mathrm{Agent}|}{|\mathrm{Agent}|},
+\]
+where $\mathrm{Human} \cap \mathrm{Agent}$ denotes the set of claims matched across both sides. A high $\mathrm{P}(\mathrm{Agent} \mid \mathrm{Human})$ indicates that the agent covers more of the human's angle, while a high $\mathrm{P}(\mathrm{Human} \mid \mathrm{Agent})$ indicates that the human covers more of the agent's angle;
+a high value on either side indicates strong coverage of that side's angle, while a gap between the two reflects claims unique to one side, whether from divergence or broader coverage.
+
+\textbf{Rubric evaluation \& Human as judge.}
+An article is ultimately meant to be read, so the \textit{primary} evaluation is to place it in front of readers (illustrated in Figure~\ref{fig:metric}B). 
+Because a data-driven article is not a single output but a composite artefact spanning prose, visuals, and analysis, a one-dimensional score cannot capture its quality~\cite{handbook,datajournalism}; we thus assess it along a rubric. We recruit $53$ reviewers via the Prolific platform\footnote{https://www.prolific.com/}; each is assigned one \methodshort{}--human pair (presentation order randomised, blind) and scores both versions along the five rubric dimensions below on a $1$--$7$ scale:
+
+\begin{enumerate}
+\item \textbf{Visual Design~\cite{tufte2001visual,ware2004information}.} Whether palette, typography, layout, and chart-type choice are polished and well matched to the claim each chart supports.
+\item \textbf{Narrative \& Pacing~\cite{segel2010narrative,knaflic2025storytelling}.} Whether the hook, ordering, rhythm, and ending make the artefact read as a guided tour rather than a list of facts.
+\item \textbf{Data \& Method Transparency~\cite{cohen2011computational,diakopoulos2015algorithmic}.} Whether sources are cited specifically, methodology is described, data is accessible, and limitations are acknowledged with concrete numbers or exclusions.
+\item \textbf{Claim--Data Alignment~\cite{gelman2013garden,cairo2016truthful}.} Whether quantitative claims are bounded by what the data can support, confounders are named, and chart encodings are unambiguous.
+\item \textbf{Insight Value~\cite{grice1975logic,north2006toward}.} Whether the reader gains a non-trivial cognitive update; capped at 3 if the takeaway restates common knowledge, capped at 5 if the update is meaningful only to a lay reader.
+\end{enumerate}
+
+After viewing both, each reviewer also expresses a binary preference indicating which version they prefer overall.
+
+\textbf{Computer-use agent as Judge.}
+Beyond human evaluation (which requires costly manual efforts), we also consider a cost-saving protocol that uses a model as judge. This follows the same setup as Figure~\ref{fig:metric}B, with the human reader replaced by an agent. We use an across-family agent, OpenAI’s browser-use \texttt{gpt-5.5-xhigh}. 
+An article, however, is an interactive website: standard LLM~\cite{zheng2023judging,zhuge2024agent} or VLM~\cite{chen2024mllm} judges perceive only static screenshots and cannot scroll, hover, or trigger animations, missing precisely the dynamic elements that distinguish a polished interactive piece from a static one. We therefore employ a computer-use agent~\cite{zhou2024webarena} as judge, which navigates the rendered page like a human reader and scores it along the same rubric dimensions used in our human studies. 
+
+\textbf{Verifiability.}
+To verify that the published narrative is faithfully grounded in the underlying data (Figure \ref{fig:metric} C), we replay every article with an across-family verifier (OpenAI’s Coder \texttt{codex-GPT-5.4}). 
+From each article, we extract the set of factual statements $\mathrm{S}$, which fall into two categories:
+(a) \emph{computational claims}, \ie~numbers or findings derived from the data, which the checker verifies by re-executing the supporting \texttt{Python} or \texttt{R} scripts against the raw dataset;
+and (b) \emph{reference-supported claims}, \ie~statements backed by an external reference, which the checker verifies by re-fetching the cited source URL and confirming the claim against its content.
+For each claim, the checker returns a boolean result. We report the average pass rate as the article verifiability rate.
+
+Notably, in verifiability experiments, the verifier has access to the original dataset when evaluating human-written articles, rather than the article text alone. For agent-written articles, the verifier additionally receives the full reasoning trajectory (by our Inspector) — a form of provenance made possible by evidence-grounded design.

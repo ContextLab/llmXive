@@ -1,0 +1,18 @@
+\begin{table}[t]
+\centering
+\caption{Standalone exploration evaluation protocol. We follow the CodeScout benchmark setting for patch-derived file/module/function targets, while adapting predictions from \approach's file-line citation format.}
+\label{tab:explore-protocol}
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lp{0.68\linewidth}}
+\toprule
+\textbf{Stage} & \textbf{Protocol detail} \\
+\midrule
+Repository state & Evaluate on the pre-PR checkout for each SWE-bench Verified instance. \\
+Input & Provide the issue/query and repository workspace to the explorer; the reference patch is hidden. \\
+References & Derive edited files and old-side edited ranges from the reference patch, then map edited ranges to enclosing module/class and function/method spans. \\
+Predictions & Parse \texttt{<final\_answer>} citations, normalize paths, and map cited line ranges to the same file/module/function target space. \\
+Scoring & Compute per-instance precision, recall, and F1 for each granularity, then report instance-wise averages. \\
+\bottomrule
+\end{tabular}
+\end{table}

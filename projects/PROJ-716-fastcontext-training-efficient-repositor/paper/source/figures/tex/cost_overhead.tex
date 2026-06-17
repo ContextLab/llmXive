@@ -1,0 +1,6 @@
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.55\linewidth]{figures/cost_overhead.pdf}
+  \caption{Cost audit for GPT-5.4 on SWE-bench Multilingual. Main-agent bars use the provider-recorded GPT-5.4 API cost in the direct and 4B-RL-augmented trajectory logs. The 4B-RL subagent bar is a counterfactual serverless estimate from its measured token usage and a \$0.20 / 1M-token 4B--16B pricing tier; in our deployment the 4B explorer is served locally, so this per-token API cost is not incurred.}
+  \label{fig:cost-overhead}
+\end{figure}

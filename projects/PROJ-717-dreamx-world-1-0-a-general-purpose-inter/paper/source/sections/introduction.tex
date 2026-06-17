@@ -1,0 +1,105 @@
+\section{Introduction}
+
+World models extend video generation from passive visual synthesis to
+interactive simulation. While modern video diffusion models can produce
+high-quality short clips, interactive systems must additionally respond to
+user controls and preserve scene state over long horizons
+\citep{wan2025wan, gao2026lingbotworld, hyworld2025}.
+Changing the camera trajectory should reveal a consistent scene rather than
+produce an unrelated plausible view; revisiting a location should preserve its
+layout and identity; and prompted events should modify the existing world
+state. These requirements become particularly difficult when a single model
+must operate across photorealistic, game-style, and stylized domains.
+
+Building such a model requires videos spanning different visual domains,
+together with reliable camera, action, and event annotations. No single data
+source provides this coverage at sufficient scale, motivating the combination
+of synthetic, game, and real-world data. Beyond the data problem, three coupled
+technical challenges remain.
+
+First, camera control must translate a prescribed trajectory into consistent
+viewpoint changes across scenes with different scales and motion distributions
+\citep{bahmani2025ac3d}. The conditioning mechanism must provide sufficient
+geometric accuracy without substantially increasing the cost of the video
+backbone.
+% 
+Second, interactive generation must preserve scene content beyond the local
+context window. Once an earlier view leaves the context, the model may render a
+different plausible scene when that region is revisited
+\citep{hong2025relic}. Autoregressive generation compounds this problem because
+small prediction errors accumulate into appearance, style, and color drift
+\citep{huang2025selfforcing}.
+% 
+Finally, continuous interaction imposes a latency requirement that is absent
+from offline video generation. Reducing the number of diffusion steps improves
+throughput, but aggressive distillation can weaken visual quality, camera
+control, and rollout stability \citep{zhu2026causalforcing}. A practical system
+must therefore reduce both sampling and decoding costs while retaining the
+capabilities of the bidirectional model.
+
+We present \method{}, a general-purpose interactive world model initialized
+from Wan2.2 \citep{wan2025wan}. Its training pipeline progressively
+introduces camera conditioning, non-local scene memory, event interaction, and
+autoregressive long-video generation, followed by post-distillation alignment.
+% 
+The data engine combines Unreal Engine trajectories with exact camera geometry,
+gameplay recordings with action-rich dynamics, and real-world videos with
+recovered camera poses. After geometric filtering and normalization, these
+sources provide a common training representation across photorealistic,
+game-style, and stylized domains.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.885\linewidth]{figures/pipeline_overall.pdf}
+% \vspace{-0.5em}
+\caption{\textbf{System overview of \method{}.}
+The pipeline integrates camera-accurate data, efficient control, autoregressive
+distillation, long-range memory, interaction alignment, and optimized serving.}
+\label{fig:pipeline}
+\end{figure}
+
+Camera control is introduced through \eprope{}, an efficient variant of PRoPE \citep{li2025cameras}. It computes projective attention on spatially reduced
+tokens, retaining comparable trajectory-following performance while reducing
+inference latency by approximately 30\%. Once camera motion is controllable, a
+memory-conditioned stage addresses a different failure mode: previously
+observed content may change after leaving the local context window.
+Camera-geometry-based retrieval supplies non-local visual evidence, while
+residual recycling improves robustness to imperfect memory latents.
+
+Event Instruction Tuning subsequently adds structured multi-entity event
+control through the text-conditioning interface. For streaming generation, the
+bidirectional video model is converted into a few-step autoregressive generator
+using causal forcing, DMD, and long student rollouts
+\citep{zhu2026causalforcing, yin2024onestep, huang2025selfforcing}. This training exposes the model to generated history and reduces the style and color drift that accumulates across chunks.
+
+Because distillation can reduce visual diversity, motion quality, and camera
+controllability, the final training stage applies reinforcement learning to the
+DMD-distilled model. Camera-control and video-quality rewards guide a
+conservative update while preserving the few-step autoregressive interface.
+Mixed-precision DiT execution, residual reuse, pruned VAE decoding, and
+asynchronous pipeline parallelism then enable streaming generation at up to
+16\,FPS on eight RTX\,5090 GPUs.
+
+\begin{highlight}
+\textbf{Our main contributions are:}
+\begin{itemize}[leftmargin=*, itemsep=1pt, topsep=2pt]
+    \item \textbf{Efficient and controllable world generation.}
+        We build a multi-source data system and introduce \eprope{} for
+        camera-controlled generation. By applying projective conditioning to
+        spatially reduced tokens, \eprope{} retains comparable
+        trajectory-following performance to PRoPE with approximately 30\%
+        lower inference latency.
+% 
+    \item \textbf{Long-horizon generation with scene persistence.}
+        Geometry-guided memory preserves earlier observations during camera
+        revisits, while autoregressive distillation and long-rollout training
+        reduce the style and color drift accumulated across generated chunks.
+        Reinforcement learning further improves the camera control and visual quality
+        of the DMD-distilled model without changing its few-step inference interface.
+% 
+    \item \textbf{Real-time streaming deployment.}
+        Together with mixed-precision DiT inference, residual
+        reuse, pruned VAE decoding, and asynchronous pipeline parallelism, the
+        system reaches up to 16\,FPS on eight RTX\,5090 GPUs.
+\end{itemize}
+\end{highlight}

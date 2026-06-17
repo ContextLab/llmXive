@@ -1,0 +1,122 @@
+\definecolor{rankone}{RGB}{255,220,220}   % light red
+\definecolor{ranktwo}{RGB}{255,235,200}   % light orange
+\definecolor{rankthree}{RGB}{255,250,200} % light yellow
+
+\newcommand{\drop}[1]{{\scriptsize\,($\downarrow$#1)}}
+
+\begin{table*}[t]
+\centering
+% \scriptsize
+% \setlength{\tabcolsep}{3pt}
+% \renewcommand{\arraystretch}{0.98}
+
+\caption{\textbf{Evaluation results on LIBERO and LIBERO-Plus.} Success rates are reported in \% with absolute performance drops from LIBERO to LIBERO-Plus shown in parentheses. Color highlights denote the top three performing methods within each column: \colorbox{rankone}{first}, \colorbox{ranktwo}{second}, and \colorbox{rankthree}{third}.}
+\label{tab:sim}
+
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}l|c|cc|rrrrrrr}
+\toprule
+Method & Size & Orig. & Plus & Cam. & Robot & Lang. & Light & BG & Noise & Layout \\
+\midrule
+
+\multicolumn{11}{c}{\textit{VLAs}} \\
+\midrule
+$\pi_{0.5}$~\citep{pi05} & 3.3B
+& 96.9
+& \cellcolor{ranktwo}84.6\drop{12.3}
+& \cellcolor{rankthree}72.0
+& \cellcolor{rankone}76.6
+& \cellcolor{ranktwo}86.5
+& \cellcolor{rankthree}96.1
+& \cellcolor{rankone}95.2
+& \cellcolor{rankthree}86.7
+& \cellcolor{rankone}86.0 \\
+
+OpenVLA-OFT~\cite{openvla_oft} & 7B
+& 97.1 & 69.6\drop{27.5}
+& 56.4 & 31.9 & 79.5 & 88.7
+& \cellcolor{rankthree}93.3
+& 75.8 & 74.3 \\
+
+RIPT-VLA~\cite{riptvla} & 7B
+& 97.5 & 68.4\drop{29.1}
+& 55.2 & 31.2 & 77.6 & 88.4
+& 91.6
+& 73.5 & 74.2 \\
+
+$\pi_0$~\cite{wang2025pi} & 3.3B
+& 91.3 & 69.3\drop{22.0}
+& 61.0 & 40.8 & 63.7 & 89.3 & 84.1 & 80.1 & 75.9 \\
+
+$\pi_0$-FAST~\cite{pi0_fast} & 3.3B
+& 85.5 & 61.6\drop{23.9}
+& 65.1 & 21.6 & 61.0 & 73.2 & 73.3 & 74.4 & 68.8 \\
+
+UniVLA~\cite{univla} & 8.5B
+& 95.2 & 42.9\drop{52.3}
+& 1.8 & 46.2 & 69.5 & 69.0 & 81.0 & 21.2 & 31.9 \\
+
+NORA~\cite{nora} & 3B
+& 87.9 & 39.0\drop{48.9}
+& 2.2 & 37.0 & 65.1 & 45.7 & 58.6 & 12.8 & 62.1 \\
+
+OpenVLA~\citep{kim2024openvla} & 7B
+& 76.5 & 15.6\drop{60.9}
+& 0.8 & 3.5 & 23.0 & 8.1 & 34.8 & 15.2 & 28.5 \\
+
+\midrule
+\multicolumn{11}{c}{\textit{WAMs}} \\
+\midrule
+Cosmos-Policy~\citep{kim2026cosmos} & 2B
+& \cellcolor{rankone}98.5
+& \cellcolor{rankthree}82.4\drop{16.1}
+& \cellcolor{ranktwo}73.4
+& \cellcolor{rankthree}63.3
+& \cellcolor{rankone}89.3
+& \cellcolor{rankone}98.9
+& 83.5
+& \cellcolor{ranktwo}89.3
+& \cellcolor{ranktwo}84.0 \\
+
+Fast-WAM~\citep{yuan2026fast} & 6B
+& \cellcolor{ranktwo}97.6 & 50.0\drop{47.5}
+& 16.4 & 44.5 & 68.9 & 78.2 & 53.7 & 37.7 & 60.7 \\
+
+WorldVLA~\cite{worldvla} & 7B
+& 79.1 & 25.0\drop{54.1}
+& 0.1 & 27.9 & 41.6 & 43.7 & 17.1 & 11.0 & 38.0 \\
+
+
+
+\midrule
+\multicolumn{11}{c}{\textit{Geometry-aware VLAs}} \\
+\midrule
+$\pi_{0.5}$ + Spatial Forcing~\cite{li2025spatial} & 3.3B
+& 94.0 & 25.7\drop{58.3}
+& 0.1 & 0.3 & 26.8 & 66.0 & 45.9 & 0.1 & 59.8 \\
+
+$\pi_{0.5}$ + ROCKET~\cite{sun2026rocket} & 3.3B
+& 95.3 & 47.5\drop{46.6}
+& 30.9
+& 75.6
+& 29.3 & 69.2 & 47.0 & 25.4 & 62.0 \\
+
+\midrule
+\multicolumn{11}{c}{\textit{GAM}} \\
+\midrule
+\textbf{GAM (Ours)} & 1.4B
+& \cellcolor{ranktwo}97.6
+& \cellcolor{rankone}85.5\drop{12.1}
+& \cellcolor{rankone}83.1
+& \cellcolor{ranktwo}70.0
+& \cellcolor{rankthree}84.8
+& \cellcolor{ranktwo}97.2
+& \cellcolor{ranktwo}94.3
+& \cellcolor{rankone}95.3
+& \cellcolor{rankthree}79.1 \\
+\bottomrule
+\end{tabular}%
+}
+
+\vspace{-10pt}
+\end{table*}

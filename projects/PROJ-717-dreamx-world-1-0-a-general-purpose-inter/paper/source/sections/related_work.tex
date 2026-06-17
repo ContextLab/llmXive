@@ -1,0 +1,86 @@
+\section{Related Work}
+
+\paragraph{\bf{Video Generation and Interactive World Models.}}
+Diffusion models~\citep{ho2020denoising, song2021scorebasedgenerativemodelingstochastic, peebles2023scalable, song2021scorebasedgenerativemodelingstochastic} have become a standard approach to video generation, progressing
+from simple image synthesis~\citep{Chu_2025_ICCV, lei2023maskeddiffusionmodelsfast, lei2026vaeendtoendpixelspacegenerative} to complex cinematic video generation~\citep{wan2025wan, feng2026enhancing}.
+Current interactive world models extend this setting by conditioning future observations
+on user inputs or agent actions. Early systems primarily target gaming scenarios.
+Genie~\citep{bruce2024genie} learns action-conditioned environments from videos, GameNGen~\citep{valevski2024gamengen} demonstrates real-time neural game simulation, and GameGen-X~\citep{che2025gamegen} supports interactive open-world game
+generation. More recent systems move toward
+general-domain video worlds with camera navigation, streaming generation, or
+object interaction
+\citep{hyworld2025,gao2026lingbotworld,hong2025relic,
+wang2026matrixgame,zhao2026minwm,gu2026worldcraft}.
+Our work follows this general direction and studies camera control,
+long-horizon generation, scene memory, event control, real-time interaction, and world model evaluation.
+% with a
+% single 5B model.
+
+\paragraph{\bf{Camera-controlled Video Generation.}}
+Camera conditioning has been introduced through explicit motion features,
+camera embeddings, and geometric representations. MotionCtrl separates camera
+and object motion control \citep{wang2024motionctrl}, while CameraCtrl injects
+camera trajectories into pretrained video diffusion models
+\citep{he2025cameractrl}. AC3D analyzes the representation and training choices
+required for 3D camera control in video DiTs \citep{bahmani2025ac3d}. PRoPE
+instead incorporates camera intrinsics and extrinsics directly into
+self-attention as a projective relative positional encoding
+\citep{li2025cameras}. Following this, 
+% These methods improve geometric control but add
+% computation when applied at full token resolution. 
+we further introduce \eprope{}, which applies camera-aware attention to a spatially reduced token set, significantly improving computation efficiency.
+
+\paragraph{\bf{Long-horizon Generation and Memory.}}
+Autoregressive video generation enables streaming but introduces exposure bias
+and accumulated errors. Self-Forcing~\citep{huang2025selfforcing} address this by directly training on model outputs, while Stable Video Infinity~\citep{li2025stablevideoinfinity} adds prediction error injection to model input to reduce its reliance on clean frames, mitigating the negative impact of imperfect context during inference. LongLive and Infinity-RoPE primarily study long-context autoregressive generation
+\citep{yang2025longlive,yesiltepe2025infinityrope}. Causal Forcing identifies
+the mismatch between bidirectional teachers and causal students and proposes distillation from an autoregressive teacher
+\citep{zhu2026causalforcing,zhao2026causalforcingplusplus}.
+Beyond recent context, memory-based methods retrieve or compress earlier
+observations to preserve scene identity during revisits
+\citep{yu2025contextmemory,sun2025worldplay,hong2025relic,
+yu2026mosaicmem,wang2026matrixgame}. Our training pipeline combines
+autoregressive distillation and rollout-based correction with geometry-guided
+retrieval and error-recycled memory conditioning.
+
+\paragraph{\bf{Efficient Sampling.}}
+Existing popular few-step diffusion reduces sampling cost primarily through distribution matching
+distillation \citep{yin2024onestep,yin2024improved}. Interactive video systems
+combine such distillation with causal generation and KV caching to produce
+frames incrementally
+\citep{huang2025selfforcing,yang2025longlive,zhu2026causalforcing}.
+Complementary systems techniques reduce the cost of individual model
+components~\citep{zhang2025sageattention, wang2026fasa, liu2025teacache, riseai2026paravae}: SageAttention provides low-precision attention
+\citep{zhang2025sageattention}, TeaCache reuses intermediate results across
+diffusion timesteps \citep{liu2025teacache}, and ParaVAE distributes VAE
+decoding across devices \citep{riseai2026paravae}. We combine few-step
+autoregressive generation with quantized DiT execution, residual reuse,
+parallel VAE decoding, and asynchronous serving.
+
+\paragraph{\bf{Reinforcement Learning.}}
+Reinforcement learning enables diffusion models to optimize non-differentiable
+objectives such as perceptual quality and prompt alignment. DDPO formulates
+denoising as a sequential decision process \citep{black2023ddpo}, while
+Flow-GRPO extends online policy optimization to flow-matching models
+\citep{liu2025flowgrpo}. DiffusionNFT instead applies negative-aware
+fine-tuning directly to the forward process, avoiding reverse-process likelihood
+estimation and solver-specific training \citep{zheng2025diffusionnft}.
+However, aggressive reward optimization can reduce generative diversity
+\citep{chen2025taming}.
+For video world models, reinforcement learning must additionally preserve
+temporal coherence during autoregressive rollout. WorldCompass combines
+clip-level sampling with interaction and visual-quality rewards
+\citep{wang2026worldcompass}, while Astrolabe applies forward-process
+reinforcement learning to distilled autoregressive video models using streaming
+rollouts and local optimization windows \citep{zhang2026astrolabe}.
+Our reinforcement learning stage follows this setting: long rollouts provide temporal
+context, short clips serve as reward-bearing units, and camera-control and
+video-quality rewards guide a conservative update that preserves the distilled
+prior.
+
+\paragraph{\bf{World Model Evaluation}} 
+World-model evaluation has gradually moved beyond frame-level video quality~\citep{chen2025finger, ling2025vmbench}
+toward controllability, consistency, and interactive response. WorldScore~\citep{duan2025worldscore}
+evaluates world generation under prescribed camera trajectories along
+controllability, quality, and dynamics. Omni-WorldBench\citep{wu2026omniworldbench} focuses on whether user
+interactions produce the intended outcomes and intermediate state transitions. WBench~\citep{ying2026wbenchcomprehensivemultiturnbenchmark} further considers multi-turn navigation, subject actions, event editing, and perspective switching, measuring interaction adherence, consistency, and physical compliance. Complementary to these benchmarks, our evaluation separately examines short-video camera control and visual quality, long-horizon autoregressive generation, and revisit consistency over extended trajectories.

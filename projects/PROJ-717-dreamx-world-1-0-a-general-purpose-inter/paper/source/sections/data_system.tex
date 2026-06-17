@@ -1,0 +1,78 @@
+\section{Data}
+\label{sec:data-system}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\linewidth]{figures/pipeline_data.pdf}
+\caption{UE data generation pipeline. Trajectories are collected and validated online, then rendered offline with camera poses, actions, and metadata. The runtime layer supports distributed rendering and failure recovery.}
+\label{fig:ue_pipeline}
+\end{figure}
+
+Training interactive world models requires diverse videos with reliable camera and action annotations. Real-world data provides visual diversity but often lacks such annotations, whereas synthetic and game data offer precise control but have limited domain coverage. We therefore combine UE-generated, real-world, and game data in a unified pipeline for annotation, geometric processing, and quality control.
+
+\subsection{Data Curation}
+
+\subsubsection{UE-generated Data}
+\label{sec:ue_data}
+
+We synthesize a substantial portion of the training data in UE5 (Unreal Engine 5), which provides controllable camera and agent motion together with ground-truth annotations.
+
+The UE data comprises three observation modes: \textit{first-person}, third-person, and event subsets, which share a unified output schema. The \textit{first-person} subset records free camera exploration, the third-person subset follows a moving character, and the event subset captures object interactions and visible state changes. A distinctive property of the UE subset is its per-frame ground-truth annotation: each frame includes a discrete action vector encoded as keyboard-style control signals (WASD for translation, IJKL for rotation) and camera pose (position and Euler angles). Third-person clips additionally record the character's world position and heading, enabling joint reasoning over camera and agent motion.
+
+UE clips are generated through a two-stage pipeline: first-person and third-person engines explore scenes to discover high-quality trajectories, which are then rendered offline. This decoupled design avoids wasting computational resources on invalid or low-motion clips.
+
+\paragraph{\bf{First-person Free-camera Generation.}}
+ 
+An free camera explores each scene using UE's NavMesh navigation system. It navigates toward sampled goals with randomized heading and pitch adjustments. Collision checking, minimum-duration and path-length constraints, and stuck detection are used to reject invalid trajectories. Accepted trajectories are replayed for offline rendering.
+
+\paragraph{\bf{Third-person Character-driven Generation.}}
+A rigged character follows navigation paths while a follow camera records the motion. The camera uses smooth tracking, collision avoidance, and occlusion handling to maintain visibility of the character.
+
+\paragraph{\bf{Rendering and Runtime Management.}}
+Validated trajectories are rendered with UE's Movie Render Queue and stored with their poses, actions, and metadata. Rendering jobs are distributed across multiple GPUs with checkpoint resumption and automatic failure recovery.
+
+\subsubsection{Real-world and Game Data}
+\label{sec:realworld_pipeline}
+\label{sec:game_pipeline}
+
+We collect real-world videos from SpatialVID~\citep{wang2025spatialvid}, RealEstate10K~\citep{zhou2018stereo}, Sekai~\citep{li2025sekai}, and DL3DV~\citep{ling2024dl3dv}. Camera poses are sparsely estimated on several key frames using MegaSaM~\citep{li2025megasam} and interpolated through the pipeline in Section~\ref{sec:cleaning}. Game data is collected from Sekai-Game~\citep{li2025sekai} and OmniWorld-Game~\citep{zhou2025omniworld}. Their engine-exported poses are converted to the same camera coordinate system as the UE and real-world data.
+
+\subsection{Data Annotation and Filtering}
+\label{sec:cleaning}
+
+Our data processing pipeline consists of three-stage quality control: basic filtering, geometric camera-pose cleaning, and video captioning and attribute tagging.
+
+\paragraph{\bf{Basic Filtering.}}
+We remove clips with insufficient duration or frame rate, excessive overlaid text, black borders, or limited visual change. Visual change is measured using the cosine similarity between CLIP embeddings of the first and last frames.
+
+\begin{wrapfigure}{r}{0.45\textwidth}
+\centering
+% \vspace{-10pt}
+\includegraphics[width=0.4\textwidth]{figures/data_filtering.pdf}
+\caption{Overview of the cleaning, filtering, and attribute tagging pipeline.}
+\label{fig:cleaning_pie}
+\vspace{-10pt}
+\end{wrapfigure}
+
+\paragraph{\bf{Geometric Camera-pose Cleaning.}}
+For real-world videos, sparse camera poses are densified using SLERP for rotation and linear interpolation for translation. Each trajectory is normalized and checked for inconsistent intrinsics, translation spikes, rapid rotations, vertical jitter, and invalid orientations.
+
+\paragraph{\bf{Video Captioning and Attribute Tagging.}}
+Each clip is annotated with a global caption describing the scene, subjects, actions, and temporal changes. Retained clips are further tagged with aesthetic quality, motion intensity, scene category, visual style, subject type, and motion category. The motion category distinguishes static scenes with camera motion (3D) from scenes containing both camera and object motion (4D). These annotations and tags are used for filtering and training.
+
+\subsection{Event Instruction Data}
+\label{sec:event-data}
+
+For Event Instruction Tuning, we select high-quality clips that contain visible state
+changes from the cleaned and tagged data pool and annotate them with structured event
+descriptions.
+Following a hierarchical captioning strategy, each annotation pairs a holistic
+\emph{global description} with dense, time-aligned entity-level event records.
+The global description summarizes the static scene context and overall temporal evolution,
+while each event record specifies the \emph{entity reference}, \emph{event predicate},
+\emph{spatial anchor}, and \emph{temporal interval} of a dynamic change.
+For composable-event examples, each participating object is assigned its own event record,
+and inter-object interactions (e.g., collision, handoff) are explicitly described in the
+global caption.
+The dataset mixes single-object events and composable events so that the model learns to
+ground both atomic and compositional instructions.

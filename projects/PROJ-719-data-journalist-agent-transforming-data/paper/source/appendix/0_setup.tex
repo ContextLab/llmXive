@@ -1,0 +1,26 @@
+\section{Model Settings}
+\label{sec:app:setup}
+
+\method~is based on Claude-code \texttt{opus-4.7}.
+We detail the tools employed in the Designer role. We use OpenRouter as the unified provider for all generative models, as summarized in Table~\ref{tab:abilities}.
+
+\begin{table}[!h]
+    \centering
+    \caption{Generative capabilities and the OpenRouter API model backing each tool.}
+    \label{tab:abilities}
+    \begin{tabular}{@{}lll@{}}
+      \toprule
+      \textbf{Tool} & \textbf{Modality} & \textbf{API Model (version)} \\
+      \midrule
+      \texttt{openrouter-text2image}   & Text $\rightarrow$ Image  & \texttt{openai/gpt-5.4-image-2} \\
+      \texttt{openrouter-text2video}   & Text $\rightarrow$ Video  & \texttt{bytedance/seedance-2.0} \\
+      \texttt{openrouter-image2video}  & Image $\rightarrow$ Video & \texttt{google/veo-3.1-fast} \\
+      \texttt{openrouter-text2music}   & Text $\rightarrow$ Audio  & \texttt{google/lyria-3-pro-preview} \\
+      \texttt{openrouter-embeddings}   & Text $\rightarrow$ Vector & \texttt{qwen/qwen3-embedding-8b} \\
+      \bottomrule
+    \end{tabular}
+\end{table}
+
+In Human-agent angle coverage, we use OpenAI’s \texttt{text-embedding-3-small} for retrieval similarity calculation, then use \texttt{gpt-4o-mini} to decide matching.
+
+In Computer-use agent as judge experiments, we use the OpenAI’s browser-use \texttt{gpt-5.5-xhigh}.

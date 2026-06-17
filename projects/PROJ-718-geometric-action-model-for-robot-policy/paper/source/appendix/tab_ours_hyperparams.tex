@@ -1,0 +1,29 @@
+\begin{table*}[t]
+\centering
+\caption{\textbf{Hyperparameters for LIBERO, LIBERO-Plus and real-world experiments.}}
+\label{suptab:gam_hp}
+\resizebox{1.0\linewidth}{!}{
+\begin{tabular}{ll}
+\toprule
+hyperparameter & value \\
+\midrule
+\# GPUs & 8 $\times$ NVIDIA GH200 \\
+learning rate (LR) & 5.16e-5 backbone; 5.16e-4 action head and predictor \\
+total batch size & 160 \\
+input images & 1 external camera image, 1 wrist-mounted camera image \\
+input image size & 224 x 224 px \\
+use observation history & no (use single-step inputs) \\
+action chunk size & 8 steps (predict 8, execute all 8 open-loop at test time) \\
+use proprio (robot state) & yes \\
+\# trainable parameters & 983.2M total \\
+image augmentations & 90\% random crop, $\pm5^\circ$ rotation, color jitter, JPEG q95: \\
+& \;\; \texttt{random\_resized\_crop=dict(scale=[0.9, 0.9], ratio=[1.0, 1.0])} \\
+& \;\; \texttt{base\_only\_rotation=[$\pm$5 deg]} \\
+& \;\; \texttt{random\_brightness=[0.3]} \\
+& \;\; \texttt{random\_contrast=[0.6, 1.4]} \\
+& \;\; \texttt{random\_saturation=[0.5, 1.5]} \\
+& \;\; \texttt{random\_hue=[0.05]} \\
+& \;\; \texttt{jpeg\_quality=95} \\
+\bottomrule
+\end{tabular}}
+\end{table*}

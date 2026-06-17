@@ -1,0 +1,20 @@
+\section{Discussion}
+\label{sec:con}
+
+We introduced \method, a multi-agent framework that orchestrates specialised roles into a single virtual newsroom for end-to-end data journalism. \methodshort{} contributes two properties absent from prior approaches: an evidence-traceable Inspector that binds each number, quote, and asset to a specific code line or reference, and multimodal generative storytelling in which the agent reasons about audience needs before deploying sub-agents and tools that fit both the data and the reader. 
+Across 18 samples paired with expert references, \methodshort{} receives favourable ratings from 53 human participants and from computer-use agent judges on both rubric dimensions and side-by-side preference, with the Inspector specifically improving data and method transparency. 
+% \kevin{
+
+We position \method{} as a collaborator for human journalists: 
+(i) agent-generated articles can augment the newsroom workflow by contributing creative multimodal assets and an auditability dimension that is rarely formalised. 
+(ii) Beyond augmenting existing coverage, \methodshort{} opens a complementary path: surfacing specialised or niche datasets that human journalists rarely have the bandwidth to investigate in depth, turning overlooked data into accessible, verifiable stories.
+We hope this work moves us toward a trustworthy agentic data system.
+\textbf{Limitations.}
+% \kevin{
+\methodshort{} so far runs fully automatically. A more reliable design would let it take human feedback and adjust in the loop -- exploring whether an agent can interpret reader feedback and revise as professionally as a journalist.
+Meanwhile, our multimodal storytelling offers a new perspective on presenting data, yet the depth a human writer brings to the written angle should not be underestimated, and we leave a direct comparison to future work.
+% }
+%\textbf{Future plans.}
+%\kevin{
+%Our next step is to recruit expert journalists as judges, collecting their ratings and qualitative comments to test \methodshort{} against professional standards rather than general-reader acceptance.
+%}

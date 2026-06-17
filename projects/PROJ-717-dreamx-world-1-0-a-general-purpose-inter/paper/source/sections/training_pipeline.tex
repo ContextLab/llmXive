@@ -1,0 +1,21 @@
+\section{Progressive Training Pipeline}
+
+We initialize \method{} from the Wan2.2-TI2V model~\citep{wan2025wan} and progressively adapt it for camera control, memory conditioning, event interaction, and autoregressive generation.
+
+% CORE: DO NOT REMOVE
+\input{sections/camera_training}
+
+% CORE: DO NOT REMOVE
+\FloatBarrier
+\input{sections/memory_training}
+
+% CORE: DO NOT REMOVE
+\input{sections/event}
+
+% CORE: DO NOT REMOVE
+\input{sections/dmd_forcing}
+
+\FloatBarrier
+
+% CORE: DO NOT REMOVE
+\input{sections/rl}

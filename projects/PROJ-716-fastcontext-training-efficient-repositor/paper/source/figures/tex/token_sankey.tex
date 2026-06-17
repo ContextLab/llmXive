@@ -1,0 +1,8 @@
+\begin{figure*}[t]
+	\centering
+	\includegraphics[width=\textwidth]{figures/token_savings_sankey.pdf}
+    \vspace{-8mm}
+	\caption{Breakdown of GPT-5.4 main-agent total tokens before and after adding \approach with the FC-4B-RL explorer. Each panel compares direct solving against FastContext-augmented solving on one benchmark, with tokens grouped by action category. \approach substantially reduces main-agent context consumption, especially from file reading and code search, while adding only a small FastContext invocation overhead.}
+	\label{fig:token_sankey}
+    % \vspace{-5mm}
+\end{figure*}

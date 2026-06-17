@@ -1,0 +1,15 @@
+\begin{figure*}[t]
+  \centering
+  \begin{minipage}[t]{0.48\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/motivation_cost_breakdown.pdf}
+  \end{minipage}
+  \hfill
+  \begin{minipage}[t]{0.48\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/motivation_parallel_space.pdf}
+  \end{minipage}
+  \caption{Trajectory analysis of GPT-5.4-high with Mini-SWE-Agent. Left: reading and searching dominate both tool-use turns and frontier-model prompt-token usage across the full trajectory. Right: before the first edit, agents execute many exploration tool calls across multiple sequential exploration turns, motivating an exploration component that can issue parallel tool calls outside the main solver trajectory.}
+  \label{fig:motivation}
+  \vspace{-4mm}
+\end{figure*}

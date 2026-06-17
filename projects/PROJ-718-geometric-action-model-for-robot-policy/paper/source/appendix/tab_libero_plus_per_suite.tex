@@ -1,0 +1,132 @@
+
+% Add to preamble:
+\definecolor{rankone}{RGB}{255,220,220}   % light red
+\definecolor{ranktwo}{RGB}{255,235,200}   % light orange
+\definecolor{rankthree}{RGB}{255,250,200} % light yellow
+\newcommand{\rkone}[1]{\cellcolor{rankone}#1}
+\newcommand{\rktwo}[1]{\cellcolor{ranktwo}#1}
+\newcommand{\rkthree}[1]{\cellcolor{rankthree}#1}
+
+\begin{table*}[h]
+\centering
+\caption{\textbf{LIBERO-Plus robustness results across four task suites.} Success rates are reported in \%. "Orig." denotes the results of LIBERO benchmark without any perturbation. } 
+\vspace{0.2em}
+\label{tab:libero-plus-2x2}
+\scriptsize
+\setlength{\tabcolsep}{1.5pt}
+\renewcommand{\arraystretch}{0.76}
+
+\begin{minipage}[t]{0.49\textwidth}
+\centering
+\textbf{(a) Spatial}
+\vspace{0.2em}
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{@{}lrrrrrrrrr@{}}
+\toprule
+Method & Orig. & Cam. & Robot & Lang. & Light & BG & Noise & Layout & Total \\
+\midrule
+\textbf{GAM (Ours)} & \rktwo{98.6} & \rkone{91.5} & \rktwo{79.4} & \rkthree{95.6} & \rkone{100.0} & \rktwo{99.6} & \rkone{96.6} & 94.3 & \rkone{93.4} \\
+$\pi_{0.5}$ & \rkone{98.8} & 76.6 & \rkone{86.3} & \rktwo{96.4} & 97.9 & \rktwo{99.6} & 92.0 & \rkone{98.2} & \rktwo{92.0} \\
+Cosmos-policy & 98.1 & 83.5 & \rkthree{59.7} & \rktwo{96.4} & \rktwo{99.7} & 85.3 & 91.7 & \rkthree{95.1} & \rkthree{87.3} \\
+Fast-WAM & \rkthree{98.2} & 14.4 & 44.0 & 69.5 & 87.3 & 69.8 & 35.0 & 60.5 & 54.4 \\
+OpenVLA-OFT & 97.6 & \rktwo{88.3} & 40.0 & 80.5 & \rkthree{98.3} & 97.3 & \rktwo{96.3} & 93.9 & 84.0 \\
+RIPT-VLA & 97.5 & 85.4 & 38.0 & \rkone{99.7} & \rktwo{99.7} & \rkone{100.0} & 92.0 & 92.3 & 85.8 \\
+$\pi_0$ & 96.8 & 70.7 & 49.1 & 67.9 & 92.8 & 95.0 & 87.7 & 94.0 & 78.6 \\
+$\pi_0^{\ast}$ & 96.8 & 17.8 & 6.6 & 58.8 & 89.7 & 90.7 & 90.9 & 89.1 & 60.7 \\
+$\pi_0$-Fast & 96.4 & \rkthree{87.2} & 26.9 & 84.2 & 37.0 & \rkthree{97.7} & \rkthree{93.2} & \rktwo{95.5} & 74.4 \\
+UniVLA & 96.5 & 1.1 & 52.6 & 83.9 & 96.6 & 90.7 & 15.7 & 69.5 & 55.5 \\
+NORA & 92.2 & 4.3 & 50.9 & 63.8 & 66.8 & 65.5 & 12.5 & 84.6 & 47.6 \\
+WorldVLA & 85.6 & 0.0 & 44.3 & 46.3 & 65.1 & 19.8 & 11.7 & 46.1 & 32.5 \\
+OpenVLA & 84.7 & 0.0 & 3.7 & 27.7 & 12.3 & 50.4 & 12.0 & 40.7 & 19.4 \\
+$\pi_{0.5}$ + ROCKET & 96.4 & 14.9 & 18.0 & 35.4 & 50.7 & 45.0 & 13.7 & 48.6 & 31.5 \\
+\bottomrule
+\end{tabular}%
+}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.49\textwidth}
+\centering
+\textbf{(b) Object}
+\vspace{0.2em}
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{@{}lrrrrrrrrr@{}}
+\toprule
+Method & Orig. & Cam. & Robot & Lang. & Light & BG & Noise & Layout & Total \\
+\midrule
+\textbf{GAM (Ours)} & \rktwo{99.6} & \rkone{91.4} & \rkone{76.9} & \rkone{100.0} & \rkone{100.0} & \rkone{99.7} & \rkone{99.2} & 79.7 & \rkone{90.6} \\
+$\pi_{0.5}$ & 98.2 & \rkthree{86.4} & \rktwo{71.9} & 91.0 & \rkthree{99.0} & \rktwo{99.2} & \rkthree{96.2} & \rkone{91.1} & \rktwo{89.9} \\
+Cosmos-policy & \rkone{100.0} & \rktwo{88.6} & 61.6 & 94.1 & \rktwo{99.7} & 96.8 & \rktwo{97.4} & \rktwo{86.4} & \rkthree{88.3} \\
+Fast-WAM & \rkone{100.0} & 25.3 & \rkthree{64.1} & \rkthree{96.3} & 97.9 & 77.8 & 63.7 & 73.0 & 71.2 \\
+OpenVLA-OFT & 98.4 & 38.9 & 25.4 & \rktwo{99.0} & 73.7 & \rkthree{97.6} & 72.3 & 71.8 & 66.5 \\
+RIPT-VLA & 97.5 & 37.9 & 26.4 & 80.8 & 85.9 & \rktwo{99.2} & 68.0 & 70.1 & 64.3 \\
+$\pi_0$ & \rkthree{98.8} & 80.1 & 31.9 & 75.4 & 94.3 & 85.9 & 87.9 & 76.2 & 74.7 \\
+$\pi_0^{\ast}$ & \rkthree{98.8} & 22.2 & 8.3 & 70.0 & 90.9 & 91.1 & 87.0 & 76.2 & 61.4 \\
+$\pi_0$-Fast & 96.8 & 72.0 & 27.6 & 71.5 & 71.0 & 95.2 & 93.1 & \rkthree{84.5} & 72.7 \\
+UniVLA & 96.8 & 0.0 & 42.2 & 86.9 & 25.6 & 81.5 & 10.4 & 27.3 & 36.7 \\
+NORA & 95.4 & 0.5 & 28.4 & 76.4 & 25.3 & 54.8 & 5.7 & 55.8 & 34.4 \\
+WorldVLA & 89.0 & 0.0 & 26.4 & 57.2 & 20.5 & 17.3 & 18.0 & 53.6 & 28.6 \\
+OpenVLA & 88.4 & 0.5 & 4.5 & 21.0 & 1.0 & 45.2 & 11.4 & 22.4 & 14.0 \\
+$\pi_{0.5}$ + ROCKET & \rkthree{98.8} & 41.4 & 27.1 & 44.6 & 91.6 & 69.8 & 34.1 & 83.6 & 53.9 \\
+\bottomrule
+\end{tabular}%
+}
+\end{minipage}
+
+\vspace{0.8em}
+
+\begin{minipage}[t]{0.49\textwidth}
+\centering
+\textbf{(c) Goal}
+\vspace{0.2em}
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{@{}lrrrrrrrrr@{}}
+\toprule
+Method & Orig. & Cam. & Robot & Lang. & Light & BG & Noise & Layout & Total \\
+\midrule
+\textbf{GAM (Ours)} & 97.4 & \rkone{94.9} & \rktwo{67.5} & \rkthree{67.8} & \rkone{100.0} & \rktwo{91.8} & \rkone{97.1} & \rkthree{64.5} & \rkone{80.4} \\
+$\pi_{0.5}$ & \rktwo{98.0} & \rktwo{77.2} & \rkone{73.6} & \rktwo{70.5} & 93.2 & \rkone{92.5} & \rktwo{87.3} & \rkone{70.4} & \rktwo{79.3} \\
+Cosmos-policy & \rkone{98.2} & 64.0 & \rkthree{64.1} & \rkone{73.4} & \rkone{100.0} & \rkthree{85.1} & 75.2 & \rktwo{65.2} & \rkthree{73.5} \\
+Fast-WAM & 97.0 & 8.1 & 24.7 & 49.8 & 75.3 & 44.5 & 23.7 & 48.0 & 39.2 \\
+OpenVLA-OFT & \rkthree{97.9} & 62.0 & 25.2 & 53.2 & \rkthree{93.9} & \rkone{92.5} & 75.2 & 59.1 & 63.0 \\
+RIPT-VLA & 97.5 & 65.7 & 23.2 & 45.4 & 74.2 & 79.7 & 71.0 & 59.8 & 58.0 \\
+$\pi_0$ & 95.8 & 56.6 & 43.3 & 43.2 & 90.3 & 84.7 & \rkthree{82.8} & 59.8 & 63.4 \\
+$\pi_0^{\ast}$ & 95.8 & 12.3 & 5.6 & 39.3 & 84.2 & 76.5 & 76.5 & 44.7 & 44.9 \\
+$\pi_0$-Fast & 88.6 & \rkthree{70.8} & 20.5 & 47.3 & \rktwo{95.3} & 60.9 & 69.7 & 51.6 & 57.5 \\
+UniVLA & 95.6 & 3.9 & 37.9 & 45.6 & 89.6 & 78.3 & 33.5 & 22.6 & 40.7 \\
+NORA & 89.4 & 2.9 & 31.1 & 56.6 & 60.6 & 60.5 & 18.2 & 53.9 & 38.8 \\
+WorldVLA & 82.6 & 0.3 & 30.6 & 42.2 & 68.8 & 30.3 & 13.5 & 47.4 & 31.8 \\
+OpenVLA & 79.2 & 2.5 & 2.7 & 21.5 & 9.0 & 27.1 & 19.5 & 25.6 & 15.1 \\
+$\pi_{0.5}$ + ROCKET & 96.6 & 41.2 & 36.9 & 27.6 & 57.0 & 47.0 & 28.2 & 46.8 & 39.7 \\
+\bottomrule
+\end{tabular}%
+}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.49\textwidth}
+\centering
+\textbf{(d) Long}
+\vspace{0.2em}
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{@{}lrrrrrrrrr@{}}
+\toprule
+Method & Orig. & Cam. & Robot & Lang. & Light & BG & Noise & Layout & Total \\
+\midrule
+\textbf{GAM (Ours)} & 94.6 & \rkone{62.5} & \rkthree{62.8} & \rkone{95.3} & 91.6 & \rkthree{88.2} & \rktwo{89.5} & \rkthree{79.5} & \rktwo{78.0} \\
+$\pi_{0.5}$ & 92.4 & \rkthree{49.2} & \rkone{76.1} & \rkthree{89.6} & \rktwo{93.8} & \rkone{90.3} & \rkthree{73.1} & \rktwo{85.9} & \rkthree{77.9} \\
+Cosmos-policy & \rkone{97.6} & \rktwo{58.9} & \rktwo{67.4} & \rktwo{94.8} & \rkone{96.4} & 68.9 & \rkone{91.8} & \rkone{92.9} & \rkone{81.0} \\
+Fast-WAM & \rkthree{95.2} & 17.7 & 45.3 & 60.1 & 52.2 & 22.8 & 28.5 & 61.2 & 41.1 \\
+OpenVLA-OFT & 94.5 & 38.7 & 38.2 & 87.0 & 89.4 & 86.8 & 63.5 & 76.9 & 66.4 \\
+RIPT-VLA & \rktwo{97.5} & 34.1 & 38.4 & 88.3 & \rkthree{93.4} & \rktwo{89.3} & 66.4 & 79.2 & 67.5 \\
+$\pi_0$ & 73.8 & 38.7 & 39.9 & 69.7 & 79.2 & 72.3 & 64.6 & 77.6 & 61.3 \\
+$\pi_0^{\ast}$ & 85.2 & 3.8 & 3.6 & 68.4 & 74.5 & 69.5 & 64.4 & 69.6 & 48.4 \\
+$\pi_0$-Fast & 60.2 & 33.2 & 12.0 & 43.6 & 91.6 & 44.6 & 46.1 & 47.8 & 43.4 \\
+UniVLA & 92.0 & 1.9 & 53.2 & 64.2 & 65.7 & 74.4 & 25.4 & 16.4 & 39.9 \\
+NORA & 74.6 & 1.2 & 39.4 & 64.0 & 30.3 & 54.0 & 15.1 & 59.5 & 36.3 \\
+WorldVLA & 59.0 & 0.0 & 12.2 & 20.6 & 20.4 & 1.7 & 1.6 & 4.4 & 8.2 \\
+OpenVLA & 53.7 & 0.0 & 3.0 & 22.2 & 10.6 & 19.4 & 17.6 & 28.3 & 14.3 \\
+$\pi_{0.5}$ + ROCKET & 89.2 & 25.3 & 38.4 & 11.0 & 77.0 & 29.4 & 23.8 & 71.5 & 36.7 \\
+\bottomrule
+\end{tabular}%
+}
+\end{minipage}
+\end{table*}

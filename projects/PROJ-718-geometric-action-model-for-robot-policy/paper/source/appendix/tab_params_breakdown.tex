@@ -1,0 +1,18 @@
+\begin{table}[t]
+\centering
+\caption{\textbf{Parameter breakdown of the DA3-based GAM model.}}
+\label{suptab:gam_param_breakdown}
+\resizebox{1.0\linewidth}{!}{
+\begin{tabular}{llll}
+\toprule
+Module & Parameters & Trainable? & Trainable parameters \\
+\midrule
+backbone (ViT-Giant, 40 blocks) & 1136.5M & blocks 13--39 trainable; blocks 0--12 frozen & $\approx$765M \\
+DPT head & 50.1M & frozen & 0 \\
+Causal Future Predictor & 210.2M & trainable & 210.2M \\
+action head & 8.0M & trainable & 8.0M \\
+\midrule
+total & $\approx$1404.8M & -- & $\approx$983.2M \\
+\bottomrule
+\end{tabular}}
+\end{table}

@@ -1,0 +1,77 @@
+\begin{figure*}[!t]
+\centering
+\setlength{\tabcolsep}{6pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{@{}c|c|c@{}}
+\toprule
+% --- Row 1: data type / domain ---
+\shortstack{\textbf{Sport \& Climate}\\[1pt] \footnotesize FIFA 2026 schedule \href{https://data2story.github.io/new/fifa26_schedule/blog_opus47_0525_1345/viewer.html}{[link]}} &
+\shortstack{\textbf{Science}\\[1pt] \footnotesize ArXiv submissions 1991--2026
+\href{https://data2story.github.io/new/arxiv/blog_opus47_0525_1802/viewer.html}{[link]}
+} &
+\shortstack{\textbf{Society}\\[1pt] \footnotesize Time-use diaries (MTUS)
+\href{https://data2story.github.io/new/mtus/blog_opus47_0525_1248/viewer.html}{[link]}
+}
+\\[3pt]
+
+\begin{subfigure}[b]{0.30\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{fig/discovery/b1.png}
+    \caption{\textit{Sixteen Climates}}
+    \label{fig:disc-a1}
+\end{subfigure} &
+\begin{subfigure}[b]{0.30\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{fig/discovery/d1.png}
+    \caption{\textit{Not Physics Anymore}}
+    \label{fig:disc-b1}
+\end{subfigure} &
+\begin{subfigure}[b]{0.30\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{fig/discovery/a1.png}
+    \caption{\textit{1,440 Minutes}}
+    \label{fig:disc-c1}
+\end{subfigure} \\[4pt]
+
+% --- Row 3: signature data view / core finding (a2 / b2 / c2) ---
+\begin{subfigure}[b]{0.30\textwidth}
+    \centering
+    \includegraphics[height=4.4cm]{fig/discovery/b2.png}
+    \caption{Interactive venue weather map}
+    \label{fig:disc-a2}
+\end{subfigure} &
+\begin{subfigure}[b]{0.30\textwidth}
+    \centering
+    \includegraphics[height=4.4cm]{fig/discovery/d2.png}
+    \caption{The climb past 30{,}000 a month}
+    \label{fig:disc-b2}
+\end{subfigure} &
+\begin{subfigure}[b]{0.30\textwidth}
+    \centering
+    \includegraphics[height=4.4cm]{fig/discovery/a2.png}
+    \caption{Screens vs.\ the day's trade-off}
+    \label{fig:disc-c2}
+\end{subfigure} \\
+\bottomrule
+\end{tabular}
+\caption{\textbf{\methodshort{} discovering findings on new data with no human reference.} Three datasets from 2026 that have no canonical human-written piece, covering sport (\subref{fig:disc-a1}), science (\subref{fig:disc-b1}), and society (\subref{fig:disc-c1}). 
+The \textbf{top row} is the opening cover of each piece; the \textbf{bottom row} is its signature data view.
+}
+\vspace{-1em}
+\label{fig:discovery}
+\end{figure*}
+
+\subsection{\methodshort{} discovers findings on underexplored data}
+\label{sec:discovery}
+To illustrate \methodshort{}, we apply it to \emph{new} datasets rarely written by journalists, to show that it can autonomously \emph{discover} an original angle and back it with its own analysis. We chose three datasets that are publicly available in 2026 (Figure~\ref{fig:discovery}), spanning society, sport, and the AI industry. For each, we describe \methodshort{}'s writing angle and the core findings the article surfaces.
+
+\textbf{(a) FIFA 2026 schedule\footnote{\url{https://www.fifa.com/}}: geography fused with climate.} 
+The $2026$ World Cup is the first one to spread across a whole continent, so \methodshort{} fuses each venue's geographic location with its typical climate (Open-Meteo) and FIFPRO's heat-risk flags, interpreting the fixture list as a climate document rather than a sports calendar. The cover (Figure~\ref{fig:disc-a1}) embodies that tension with a blazing sun over a packed stadium under the title \textit{``One Tournament, Sixteen Climates,''} dramatising a feels-like gulf between a furnace-like Houston and a cool Vancouver, baked into the bracket before a ball is kicked. The core finding is striking: roughly four in ten matches are booked at the venues FIFPRO flags as ``extremely high risk,'' and humidity, not air temperature, drives the worst penalties. The interactive weather map (Figure~\ref{fig:disc-a2}), the article's centerpiece, lets the reader see this venue by venue. Throughout, the piece keeps the caveat visible: these are typical-climate odds, not a $2026$ forecast.
+
+\textbf{(b) ArXiv submissions\footnote{\url{https://arxiv.org/stats/main}}: a physics preprint server that has become a computer science platform.} Reading three decades of submissions to arXiv, the preprint server that physicist Paul Ginsparg launched in $1991$, \methodshort{} writes from a contrarian angle: the ``physics archive'' everyone still pictures has quietly become a computer-science one. 
+The cover (Figure~\ref{fig:disc-b1}), \textit{``A Physics Server That Isn't Physics Anymore,''} embodies this as a sunlit corridor of dusty paper stacks dissolving into a glowing data-network on the right, the founding discipline giving way to the field that overran it. 
+The core finding is stark: computer science is now $42.5\%$ of everything posted, and in May $2025$ it crossed half of all submissions in a single month for the first time. 
+The chart (Figure~\ref{fig:disc-b2}), with data running through $2026$, traces the total monthly output still bending upward, reaching arXiv's first-ever $30,000$-submission month in March $2026$. The piece ties this surge to a sharper policy turn: facing a wave of LLM-generated ``slop'' that sent rejection rates climbing, \textit{arXiv stopped treating an institutional email as enough to endorse a first-time submitter in January $2026$}, so for the first time the archive is actively deciding who gets to post.
+
+\textbf{(c) Time-use diaries\footnote{\url{https://rdr.ucl.ac.uk/articles/dataset/Multinational_time_use_study_release_version_11/28682660}}: the day as a fairness ledger.} From the Multinational Time Use Study, harmonised from large-scale national diary surveys across dozens of countries and six decades, \methodshort{} writes from a single angle: a day is the one resource everyone owns in equal measure, exactly $1{,}440$ minutes, yet who spends them on unpaid work splits sharply by sex, country, and decade. The cover (Figure~\ref{fig:disc-c1}) embodies that angle with a luminous $24$-hour clock face filled with silhouettes of cooking, childcare, and sleep, captioned \textit{``everyone gets the same day, almost no one spends it the same way,''} so an abstract statistic becomes the reader's own morning. The core finding follows from the diaries: women do more than twice men's unpaid work, and once paid and unpaid hours are summed, they work longer days overall.
+Read by decade (Figure~\ref{fig:disc-c2}), “\textbf{screen time}” (TV, radio, computer, internet) rose while paid work and housework fell, and the gender gap narrowed not because women were freed but because men slowly did more at home. The total work society performs barely moves over the decades; only its division by sex and kind shifts, the ``work-time invariance'' pattern.

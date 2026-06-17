@@ -1,0 +1,28 @@
+\section{Inference Acceleration}
+For interactive deployment, our inference pipeline enables streaming autoregressive generation while further accelerating DiT denoising and VAE decoding to reduce latency.
+
+
+Our deployment target is interactive streaming generation with bounded latency. We first define the shared chunk-wise autoregressive inference interface for camera-controlled T2V and I2V, then summarize the optimizations that make it run in real time. In our asynchronous deployment, 8 RTX 5090 GPUs jointly execute DiT denoising and VAE decoding, reaching up to 16 FPS.
+
+\subsection{Autoregressive Streaming Inference}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\linewidth]{figures/autoregressive_streaming_inference-crop.pdf}
+    \caption{Autoregressive streaming inference. The distilled sampler generates chunks from noise, updates the rolling KV cache, and uses chunk-relative camera controls.}
+    \label{fig:autoregressive-streaming-inference}
+\end{figure}
+
+As shown in Figure~\ref{fig:autoregressive-streaming-inference}, the video is generated chunk by chunk: each chunk starts from noise, is denoised by the distilled few-step sampler under the text prompt, the chunk-relative camera trajectory, and the rolling KV cache, and then writes its generated tokens back into the cache for subsequent chunks. This keeps inference streaming-friendly because the model only needs to carry a autoregressive history rather than regenerate previous video content.
+
+For camera-controlled I2V, the inference procedure is almost identical to T2V. The only difference is the first chunk: its first frame is replaced by the input image, which anchors the generated video to the reference frame. All later chunks follow the same rolling-cache procedure as T2V and continue from the accumulated generated history.
+
+Camera controls are represented in a chunk-relative form, following E-PRoPE relative camera conditioning \citep{li2025cameras}. The first chunk uses poses relative to its first frame, while each later chunk uses poses relative to the last frame of the previous chunk. This chunk-local relative parameterization keeps the camera condition aligned with the current autoregressive context and prevents the conditioning signal from weakening over long sequences.
+
+\subsection{Inference Optimizations}
+
+For DiT denoising, we combine precision, parallelism, kernel, and timestep-level optimizations. The attention layers use INT8 SageAttention \citep{zhang2025sageattention}, while FFN layers are quantized to FP8 with AngelSlim \citep{cen2026angelslim}. Long spatio-temporal token sequences are sharded across GPUs with sequence parallelism, synchronizing only the required attention and normalization statistics to reduce per-GPU activation memory while preserving full-sequence computation. We further rewrite frequent Transformer-block operators as fused Triton kernels, combining elementwise operations, layout transforms, and small reductions to reduce intermediate allocations and kernel-launch overhead. Following TeaCache \citep{liu2025teacache}, we also reuse denoising residuals in empirically stable timestep regions, skipping selected Transformer-block forward passes when adjacent-step residuals change only marginally.
+
+For VAE decoding, we adopt the Matrix-Game 3.0 VAE \citep{wang2026matrixgame} as the VAE decoder with a 75\% pruning ratio, reducing single-chunk decoding to approximately 0.25 seconds. After the first iteration, \texttt{torch.compile} further reduces later decoding latency. We also follow ParaVAE \citep{riseai2026paravae}: the latent video is split mainly along height, each GPU decodes a local patch, and the decoded patches are gathered into the final video, reducing peak per-GPU memory.
+
+For serving, we use asynchronous pipeline parallelism to overlap the VAE decoding of chunk $k$ with the control reception, KV-cache update, and DiT denoising of chunk $k+1$. This hides most VAE latency behind diffusion computation and enables continuous decoded-chunk emission for real-time interaction.

@@ -1,0 +1,19 @@
+\begin{table}[t]
+\centering
+\caption{Token and cost audit for the GPT-5.4 SWE-bench Multilingual run. Main-agent token averages are the normalized values reported in Table~\ref{tab:e2e_main}; main-agent costs are estimated from these token totals using GPT-5.4-high reasoning prices. The subagent estimate uses the measured 4B-RL token total and the Fireworks 4B--16B serverless tier of \$0.20 per 1M tokens, ignoring any caching discount.}
+\label{tab:runtime-cost}
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lcc}
+\toprule
+\textbf{Component} & \textbf{Tokens} & \textbf{API cost} \\
+\midrule
+Direct main & 457k / task & \$282.47 \\
+Main + 4B-RL & 338k / task & \$208.92 \\
+4B-RL explorer & 22.58M total & \$4.52 \\
+\midrule
+Augmented total & -- & \$213.44 \\
+Net saving & -- & \$69.03 \\
+\bottomrule
+\end{tabular}
+\end{table}

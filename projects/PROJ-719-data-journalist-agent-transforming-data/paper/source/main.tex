@@ -1,0 +1,134 @@
+\documentclass[11pt]{style/prism-princeton}
+
+\input{preamble}
+
+% Authors
+\author[\heartsuit]{Kevin Qinghong Lin}
+\author[\spadesuit]{Batu EI}
+\author[\heartsuit]{Yuhong Shi}
+\author[\spadesuit]{Pan Lu}
+\author[\heartsuit]{Philip Torr\textsuperscript{\Letter}}
+\author[\spadesuit]{James Zou\textsuperscript{\Letter}}
+
+\newcommand{\kevin}[1]{\textcolor{red}{#1}}
+
+\affiliation[\heartsuit]{University of Oxford}
+\affiliation[\spadesuit]{Stanford University}
+
+\usepackage{wrapfig}
+\usepackage[most]{tcolorbox}
+\usepackage{xcolor}
+\usepackage{arydshln, subcaption}
+\usepackage{epigraph}
+\usepackage{fontawesome5, wasysym, textcomp}
+
+\usepackage[most]{tcolorbox}
+\definecolor{citecolor}{HTML}{0071bc}
+\hypersetup{
+    % colorlinks=true,
+    citecolor=citecolor,
+    % filecolor=magenta,
+    % urlcolor=pink,
+    % pdftitle={Data Journalist Agent},
+    % pdfpagemode=FullScreen,
+}
+
+% PolaRiS colors
+\definecolor{polaris-bg-elevated}{HTML}{f5f5f5}
+\definecolor{polaris-border-subtle}{HTML}{e5e5e5}
+
+\definecolor{filter-bg}{HTML}{ebebeb}
+\definecolor{filter-border}{HTML}{c8c8c8}
+
+%%%%%%%%% PAPER ID  - VIDEONET SPECIFIC CONFIGS
+% \newcommand{\model}{Molmo2-4B}
+
+\newcommand{\filter}[1]{%
+  \tcbox[
+    on line,
+    boxsep=0pt,
+    left=3pt, right=3pt, top=1pt, bottom=1pt,
+    boxrule=0.4pt,
+    arc=2pt,
+    colback=filter-bg,
+    colframe=filter-border,
+  ]{\textsc{#1}}%
+}
+
+\newcommand{\titleoneclip}{%
+  \filter{SingleAction}%
+}
+
+\newcommand{\transcript}{%
+  \filter{TranscriptLocalized}%
+}
+
+\newcommand{\strict}{%
+  \filter{TranscriptLocalizedTitleMatch}%
+}
+
+\newcommand{\stricttitleunion}{%
+  \tcbox{\textsc{SingleAction} $\cup$ \textsc{TranscriptLocalizedTitleMatch}}%
+}
+%%%%%%%%% TITLE - PLEASE UPDATE
+\begin{document}
+\newcommand{\method}{Data Journalist Agent}
+\newcommand{\methodshort}{Data2Story}
+\newcommand{\eg}{\textit{e.g.,}}
+\newcommand{\ie}{\textit{i.e.,}}
+
+\definecolor{googlered}{HTML}{EA4335}
+\newcommand{\anno}[1]{\textcolor{googlered}{#1}}
+\definecolor{okgreen}{HTML}{2E8B57}
+\definecolor{nored}{HTML}{C0504D}
+\definecolor{midgray}{HTML}{9A9A9A}
+\definecolor{lightgreen}{RGB}{240, 251, 237}
+\definecolor{grouprow}{HTML}{EDEDED}
+\definecolor{ourrow}{HTML}{FFF4D6}
+\newcommand{\yes}{\textcolor{okgreen}{\ding{51}}}
+\newcommand{\no}{\textcolor{nored}{\ding{55}}}
+\newcommand{\yespart}{\textcolor{midgray}{\ding{51}}}
+
+\input{sec/0_abstract}
+
+\title{
+\raisebox{-0.25\height}{\includegraphics[height=1.3em]{fig/logo.png}}
+\method: Transforming Data into Verifiable Multimodal Stories
+% Data2Story: Agentic Data Journalism for Verifiable Multimodal Stories
+}
+
+\website{https://data2story.github.io}{https://data2story.github.io}
+\code{https://github.com/QinghongLin/data2story-skill}{https://github.com/QinghongLin/data2story-skill}
+\correspondence{\email{philip.torr@eng.ox.ac.uk},\quad \email{jamesz@stanford.edu}}
+
+\maketitle
+
+\input{sec/1_intro}
+\input{sec/2_related_work}
+\input{sec/3_method}
+\input{sec/3_discovery}
+\input{sec/4_evaluation}
+\input{sec/5_experiments}
+\input{sec/6_conclusion}
+
+% ====================================================================
+% References
+% ====================================================================
+% \clearpage
+{
+    \small
+    % \bibliographystyle{plainnat}
+    \bibliographystyle{unsrt} % unsorted references, listed by order of citation
+    \bibliography{main}
+}
+
+%====================================================================
+% Appendix
+%====================================================================
+% \clearpage
+
+\beginappendix{
+    \input{sec/appendix}
+}
+
+\end{document}

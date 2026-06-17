@@ -1,0 +1,166 @@
+\setcounter{section}{0}
+\renewcommand{\thesection}{\Alph{section}}
+
+% \maketitle
+
+\section*{\Large Appendix}
+This appendix provides experimental details, results, and analyses that complement the main paper. 
+\begin{itemize}
+\item Section~\ref{sec:appendix-experimental_settings} describes the training data, implementation details, simulation and real-world evaluation settings, baseline settings, and inference benchmark protocol.
+\item Section~\ref{sec:appendix-additional_results} presents additional simulation benchmark results on LIBERO, LIBERO-Plus, and RoboCasa.
+\item Section~\ref{sec:appendix-ablation_analysis} provides additional ablations and analyses, including backbone variants, pre-training ablations, split-layer analysis, action-token attention, and robustness trends.
+\end{itemize}
+
+\label{secA}
+
+\section{Experimental Settings and Reproducibility Details}
+\label{sec:appendix-experimental_settings}
+
+GAM is trained in two stages, following standard practice for generalist robot policies~\citep{openvla_oft, black2024pi_0}. The first stage jointly trains the predictor, action head, and the GFM backbone end-to-end on a large mixture of single-arm robot data. The model was trained using 64 NVIDIA GH200 GPUs witch batch size of 1024, which takes approximately \textasciitilde 96 hours. The second stage fine-tunes the entire model on each benchmark's official training set before evaluation. The second stage on simulation benchmark was trained using 16 NVIDIA GH200 GPUs with batch size of 160, which takes \textasciitilde 48 hours.
+\subsection{Pre-training Details}
+\label{sec:appendix-pretraining_details}
+We pre-train GAM on a weighted mixture of Open-X Embodiment~\cite{collaboration2023open} (OXE), MimicGen~\cite{mandlekar2023mimicgen}, and RoboCasa365~\cite{nasiriany2026robocasa365}. OXE provides broad real-robot coverage across multiple embodiments and manipulation domains, while MimicGen and RoboCasa365 provide simulation demonstrations with clean geometric supervision. The sampling ratios are 72\%, 18\%, and 10\% for OXE, MimicGen, and RoboCasa365, respectively. For future-depth supervision, we use teacher pseudo-depth for OXE and re-rendered simulator depth for MimicGen and RoboCasa365. Figure~\ref{supfig:training_data} shows the dataset mixture used for pre-training.
+
+For OXE, we use the subset whose actions can be mapped to our common control interface and exclude datasets that are incompatible with our action space.. For RoboCasa365, we use only the manipulation-task subset. Across all three sources, we keep the original task language provided by the datasets and do not synthesize additional instructions. The language encoder is kept frozen during pre-training.
+
+All datasets are converted to a common observation and action format before training. Images are resized to \(224\times224\), and the model uses two RGB views when available: an external view and a wrist view. Following Cosmos-policy~\cite{kim2026cosmos} and $\pi_{0.5}$~\cite{pi05}, standard image augmentations such as random cropping, rotation, and color jitter are applied during training and disabled during evaluation.
+
+
+\input{appendix/fig_data}
+\input{appendix/tab_ours_hyperparams}
+
+\subsection{Simulation Experiments Details}
+\label{sec:appendix-simulation_details}
+We adopt the LIBERO evaluation protocol established by OpenVLA~\cite{kim2024openvla} and OpenVLA-OFT~\cite{openvla_oft}. Specifically, we evaluate on the four standard LIBERO task suites: LIBERO-Spatial, LIBERO-Object, LIBERO-Goal, and LIBERO-Long, each consisting of 10 tasks. Following OpenVLA-OFT, we train on filtered LIBERO demonstrations by removing unsuccessful episodes and filtering idle/no-op frames, i.e., training samples with near-zero actions. We fine-tune a separate policy for each LIBERO suite. 
+
+We report task execution success rate (SR, \%) as our primary evaluation metric. For the original LIBERO benchmark, each task is evaluated over 50 randomized trials, resulting in 500 rollouts per suite. For LIBERO-Plus, we follow the official evaluation setting and use one rollout per perturbed task instance. All models are trained with a global batch size of 160 for up to 110k training steps, until convergence is achieved. 
+% Checkpoints are evaluated periodically throughout training, and we report the best-performing checkpoint for each run.
+
+For baseline comparison, we re-evaluate $\pi_{0.5}$ and Cosmos-Policy under our evaluation setting using publicly available checkpoints. We also re-evaluate $\pi_{0.5}$ + Spatial Forcing and $\pi_{0.5}$ + ROCKET using reproduced checkpoints from ROCKET~\cite{sun2026rocket}. Results for the remaining baselines are taken from~\citet{fei2025libero} and ~\citet{zheng2026pokevla}.
+
+\subsection{Real-World Experiments Details}
+\label{sec:appendix-real_world_details}
+Figure~\ref{supfig:real_world_setup} illustrates the experimental environment used for our real-world evaluations. Our hardware setup includes a wrist-mounted ZED Camera and an external RealSense camera providing a third-person perspective. 
+
+\begin{figure*}[t]
+    \centering
+    \includegraphics[width=\textwidth]{figures/physical_setup3.pdf}
+    \caption{
+    \textbf{Real-world experiments environment setup and ID vs. OOD Camera setup.}
+    }
+    \label{supfig:real_world_setup}
+\end{figure*}
+
+
+\begin{figure*}[t]
+    \centering
+    \includegraphics[width=\textwidth]{figures/tasks3.pdf}
+    \caption{
+    \textbf{Illustration of four real-world manipulation tasks.}
+    }
+    \label{supfig:real_world_tasks}
+\end{figure*}
+
+For training and evaluation, we defined four distinct tasks: Pick and place, Stack milk and cube, Place pot and pan on cooktop, and Insert cube into covered pot. We collected teleoperated demonstrations for each task: 284, 202, 184, and 169 demonstrations, respectively. Figure~\ref{supfig:real_world_tasks} shows the text instructions and corresponding visual illustrations for each task. All tasks were jointly trained within a unified dataset. The hardware specifications and hyperparameters used to train GAM, alongside the baselines ($\pi_{0.5}$~\cite{pi05} and Spatial Forcing~\cite{li2025spatial}), are detailed in Tables~\ref{suptab:gam_hp}, \ref{suptab:pi_hp}, and \ref{suptab:sf_hp}, respectively. All baseline models were trained until convergence using the default hyperparameters from the paper.
+
+
+During evaluation, we measured the success rate of each task across 20 trials. Specifically, 10 trials were conducted under a normal setup (ID), while the remaining 10 trials evaluated robustness under an out-of-distribution (OOD) setup with camera perturbation. The camera perturbation was introduced by applying a translation of 85~cm and a rotation of 45$^\circ$ to the external camera shown in Figure~\ref{supfig:real_world_setup}. The left side of Figure~\ref{supfig:real_world_setup}, we provide a visualization comparing ID and OOD environment settings. This perturbation setup was kept consistent across all evaluations.
+
+\input{appendix/tab_baselines_hyperparams}
+
+\subsection{Real-World Experiments Baseline Training Details}
+\label{sec:appendix-baseline_training}
+
+For the baseline methods of real-world experiments, we follow the training recipes and default hyperparameters from the corresponding papers~\cite{li2025spatial, pi05}, changing only the task data and camera streams to match our evaluation setup (Table~\ref{suptab:pi_hp} and \ref{suptab:sf_hp}). Both $\pi_{0.5}$~\cite{pi05} and Spatial Forcing~\cite{li2025spatial} use the same two RGB inputs as GAM, one external camera and one wrist-mounted camera, resized to \(224\times224\). We keep each baseline's original inference protocol to preserve its intended deployment behavior. The main baseline-specific settings are summarized below; $\pi_{0.5}$ uses flow-matching action decoding with 10 integration steps, while Spatial Forcing adopts its feature alignment loss recipe.
+
+\subsection{Inference Latency Comparison Details}
+\label{sec:appendix-inference_details}
+\input{appendix/tab_detailed_latency}
+Table~\ref{tab:inference_time_supp} reports the runtime configuration used for the inference-speed comparison in the main paper. 
+All policies are evaluated on a single GH200 GPU with the same canonical observation input, bf16 precision, warmup and measurement protocol, and model-only latency metric, excluding model loading and input preprocessing. 
+
+In main paper, We use the official PyTorch inference path for each baseline. For $\pi_{0.5}$, whose original implementation is based on JAX, we use the official PyTorch implementation. To separate common compiler and runtime effects from deployment-specific execution, we report a matched setting in which all policies use Torch Compile and none uses CUDA Graphs.
+Under this setting, GAM requires 17.5\,ms for a single feed-forward action prediction, compared to 29.2\,ms for $\pi_{0.5}$, 70.1\,ms for OpenVLA-OFT, and 382.4\,ms for Cosmos Policy. 
+GAM's deployment setting further uses CUDA Graphs over its static single-pass inference path, reducing latency to 6.9\,ms. This corresponds to approximately 145\,Hz control and up to a \textbf{55.4}$\times$ speedup over the diffusion-based Cosmos Policy.
+
+
+\subsection{Model Size Breakdown}
+\label{sec:appendix-params_breakdown}
+\input{appendix/tab_params_breakdown}
+Table~\ref{suptab:gam_param_breakdown} details the parameter breakdown of the DA3-based GAM architecture. As reported, GAM uses a 1.4B-parameter model, making it substantially smaller than VLM-based and video-diffusion-based baselines such as $\pi_{0.5}$, OpenVLA-OFT, and Cosmos-Policy. This compact size comes from repurposing a pretrained geometric backbone~\cite{lin2025depth} as the shared substrate for perception, future-geometry prediction, and action decoding, rather than attaching a large language model or video-generation model as the policy backbone.
+
+Of the full model, approximately 983.2M parameters are trainable. Most of these trainable parameters come from the later blocks of the ViT-Giant backbone, while the initial geometric layers and the DPT depth head remain frozen to preserve pretrained geometric structure. The Causal Future Predictor and lightweight action head are fully trainable and account for the remaining trainable parameters. This design allows GAM to adapt the geometric representation for control while keeping the overall model size below the larger foundation-model baselines in the main comparison.
+
+
+\section{Additional Benchmark Results}
+\label{sec:appendix-additional_results}
+\subsection{Additional Results on RoboCasa-kitchen}
+\label{sec:appendix-robocasa}
+\input{appendix/tab_robocasa}
+
+RoboCasa-Kitchen is a simulation benchmark derived from RoboCasa~\cite{nasiriany2024robocasa}, which focuses on everyday manipulation in realistic and diverse kitchen environments. We evaluate on 24 kitchen manipulation tasks that cover pick-and-place, articulated-object interaction, appliance control, and coffee-related manipulation skills.
+
+Because our base pre-training setup uses two camera views, whereas RoboCasa-Kitchen adopts a 3-view observation, we further train GAM from the base pre-training checkpoint for 3-view format. We also increase the action chunk size from 8 to 16 steps to better accommodate the longer-horizon nature of RoboCasa-Kitchen tasks. For the benchmark demonstrations, we re-extract depth for the 300 demonstrations per task and use only successful trajectories for training. As summarized in Table~\ref{tab:training-demos-average-sr}, We find that GAM outperforms existing baselines, including Cosmos Policy~\cite{kim2026cosmos}, on RoboCasa-Kitchen,  We additionally provide the per-task breakdown of RoboCasa-Kitchen in Table~\ref{tab:robocasa_taskwise_mean}.
+
+
+\input{appendix/tab_robocasa_detailed}
+\subsection{Additional LIBERO and LIBERO-Plus Results}
+\label{sec:appendix-additional_libero}
+\input{appendix/tab_libero_plus_per_suite}
+\input{appendix/fig_libero_plus_detailed}
+\input{appendix/tab_libero_org_detailed}
+
+
+Table~\ref{tab:libero-plus-2x2} provides the suite-by-perturbation breakdown for LIBERO-Plus~\cite{fei2025libero}, expanding the aggregate LIBERO and LIBERO-Plus results reported in the main paper. Figure~\ref{fig:perturb_robustness} further breaks down LIBERO-Plus performance by perturbation difficulty level, showing how GAM behaves as each perturbation becomes more severe. Table~\ref{tab:libero_original_per_task_sr_compact} reports task-wise success rates on the original LIBERO~\cite{liu2023libero} benchmark.
+
+Overall, these breakdowns show that GAM preserves strong performance on the original LIBERO tasks while improving robustness on LIBERO-Plus, especially under perturbations that require stable geometric understanding such as camera-viewpoint changes.
+
+\subsection{Generated Future Depth Maps}
+\label{sec:appendix-generated_depth}
+\input{appendix/fig_libero_depth_vis}
+
+In Figure~\ref{fig:libero_future_depth_visualizations}, we visualize the future depth predictions generated by GAM across each task suite in the LIBERO benchmark. Given a current RGB observation, GAM predicts the and future depth maps while simultaneously generating actions that align spatially with the anticipated future geometry. As demonstrated in the visualizations, GAM accurately forecasts the future depth alongside its corresponding action sequence.
+
+
+\clearpage
+\section{Ablation and Diagnostic Analyses}
+\label{sec:appendix-ablation_analysis}
+
+
+\subsection{When to Predict Actions?}
+\label{sec:appendix-layer_ablation}
+
+
+\begin{wraptable}{r}{0.43\textwidth}
+    \vspace{-10pt}
+    \centering
+    \footnotesize
+    \setlength{\tabcolsep}{3.5pt}
+    \caption{\textbf{Direct action-token ablation.}}
+    \label{tab:action_decoding_path_ablation}
+    \begin{tabular}{lccc}
+    \toprule
+    Variant  & Orig. & Plus \\
+    \midrule
+    Direct-action supervision & 98.4 & 84.1 \\
+    \textbf{GAM (Ours)}  & 99.6 & 89.7 \\
+    \bottomrule
+    \end{tabular}\vspace{-10pt}
+\end{wraptable}
+
+We additionally evaluate a direct-action supervision variant that applies the action loss directly to the output action token of the causal future predictor, without passing the action token through the remaining DA3 blocks. This ablation uses the same setting as the main component ablation on LIBERO-Object.
+ 
+Passing the action token through the deep geometric decoder provides an additional improvement, particularly on LIBERO-Plus Object, suggesting that the remaining GFM layers contribute to refine the action representation, especially under camera perturbations.
+
+\subsection{Attention Analysis}
+\label{sec:appendix-attention_analysis}
+In Figure~\ref{supfig:attention}, we visualize the attention maps of action tokens across GFM layers to inspect which visual regions contribute to action decoding. As shown in the attention maps, several intermediate layers attend to task-relevant regions, with clear saliency around manipulated objects and nearby contact regions. This qualitative trend is consistent with the layer ablation: mid-level representations retain object-level structure while still leaving enough depth in the GFM decoder for action-token refinement.
+
+\begin{figure*}[t]
+    \centering
+    \includegraphics[width=\textwidth]{figures/attention_layers_timestep_subset_pretendard_v4.pdf}
+    \caption{
+    \textbf{Attention visualizations of action tokens.}
+    }
+    \label{supfig:attention}
+\end{figure*}

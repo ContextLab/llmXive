@@ -1,0 +1,68 @@
+\begin{table*}[!t]
+\centering
+\small
+\caption{\textbf{Comparison with related works.}
+\textit{Ext. Search}: the system actively browses the web.
+\textit{Narr. Angle}: the output is organized around a story angle rather than merely presenting data.
+\textit{Multimodal} (\textit{Image}, \textit{Video}, \textit{Audio}, \textit{Interact.}): whether the system generates the corresponding modality or produces reader-interactive output.
+\textit{Evidence} (\textit{Source}, \textit{Code}, \textit{Grounded}): whether the output cites sources, ships runnable code, and makes each claim independently verifiable.
+\yes~present, \yespart~partially present or not provided by default, \no~absent.}
+\label{tab:related_compare}
+\footnotesize
+\setlength{\tabcolsep}{1pt}
+\renewcommand{\arraystretch}{1}
+\begin{tabularx}{\textwidth}{@{}
+  >{\raggedright\arraybackslash}p{3cm}
+  >{\raggedright\arraybackslash}p{2.2cm}
+  >{\raggedright\arraybackslash}p{1.2cm}
+  *{9}{>{\centering\arraybackslash}X} @{}}
+\toprule
+\multirow{2}{*}{\textbf{System}}
+ & \multirow{2}{*}{\textbf{Inputs}}
+ & \multirow{2}{*}{\textbf{Outputs}}
+ & \multirow{2}{*}{\shortstack{\textbf{Ext.}\\\textbf{Search}}}
+ & \multirow{2}{*}{\shortstack{\textbf{Narr.}\\\textbf{Angle}}}
+ & \multicolumn{4}{c}{\textbf{Multimodal Generative?}}
+ & \multicolumn{3}{c}{\textbf{Evidence}} \\
+\cmidrule(lr){6-9}\cmidrule(lr){10-12}
+ & & & &
+ & \textbf{Image}
+ & \textbf{Video}
+ & \textbf{Audio}
+ & \textbf{Interact.}
+ & \textbf{Source}
+ & \textbf{Code}
+ & \textbf{Grounded} \\
+\midrule
+\rowcolor{grouprow}\multicolumn{12}{@{}l}{\textit{Search Agents}} \\
+% OpenAI Deep Research~\citep{openaidr}                & Query + Multimodal files & Report                    & \yes & \no & \yes & \no  & \no  & \no  & \yes & \no  & \yes \\
+MindSearch~\citep{mindsearch}                        & Query                    & Report                    & \yes & \no & \no  & \no  & \no  & \no  & \yes & \no  & \yespart \\
+% DeepResearcher~\citep{deepresearcher}                & Query                    & Text                      & \yes & \no & \no  & \no  & \no  & \no  & \no  & \no  & \no  \\
+MMSearch~\citep{mmsearch}                           & Query+Image            & Text                      & \yes & \no & \no  & \no  & \no  & \no  & \yes  & \no  & \yespart  \\
+DR Tulu~\citep{drtulu}                           & Query            & Text                      & \yes & \no & \no  & \no  & \no  & \no  & \yes  & \no  & \yespart  \\
+\midrule
+\rowcolor{grouprow}\multicolumn{12}{@{}l}{\textit{Data Visualization Agents}} \\
+% Design2Code~\citep{design2code}                      & Image                    & Website                  & \no  & \no & \yes  & \no  & \no  & \no  & \no  & \yes  & \no  \\
+MatplotAgent~\citep{matplotagent}                      & Query+Data     & Infographic       & \no  & \no & \yes & \no  & \no  & \no  & \no  & \yes  & \yes  \\
+LIDA~\citep{lida}                                    & Query+Data     & Infographic       & \no  & \no & \yes & \no  & \no  & \no  & \no  & \yes  & \yes  \\
+% DataNarrative~\citep{datanarrative}                  & Query + Data     & Chart + text              & \no  & \no & \yes & \no  & \no  & \no  & \no  & \no  & \no  \\
+% Agentic Visual Reporting~\citep{agenticvisualreport} & Query + Data     & Report                    & \yes & \no & \yes & \no  & \no  & \yes & \yes & \yes & \yes \\
+CoDA~\citep{coda} & Query+Data     & Infographic              & \no  & \no & \yes & \no  & \no  & \yespart  & \no  & \yes & \yes  \\
+\midrule
+\rowcolor{grouprow}\multicolumn{12}{@{}l}{\textit{Data Science Agents}} \\
+DSGym~\citep{dsgym}                                  & Query+Data     & Score              & \no  & \no & \no  & \no  & \no  & \no  & \no  & \yes & \yespart  \\
+% DeepAnalyze~\citep{deepanalyze}                      & Query + Tabular data     & Report                    & \no  & \no & \yes & \no  & \no  & \no  & \no  & \no  & \no  \\
+Data Interpreter~\citep{datainterpreter}             & Query+Data & Report         & \yes & \no & \yes & \no  & \no  & \yespart & \yes & \yes & \yespart  \\
+% PublicAgent~\citep{publicagent}                      & Query                    & Report                    & \yes & \no & \no  & \no  & \no  & \no  & \yes & \no  & \yes \\
+AI Scientist~\citep{aiscientist,aiscientistv2}                & Query                    & Report                    & \yes & \yespart & \yes & \no  & \no  & \no  & \yes & \yes & \yespart \\
+\midrule
+\rowcolor{grouprow}\multicolumn{12}{@{}l}{\textit{Data Journalist Agents}} \\
+% DataDirector~\citep{datadirector}                    & Query + Tabular data     & Video                     & \no  & \no & \yes & \yes & \yes & \no  & \no  & \no  & \no  \\
+LLM writer~\citep{journalistplan} & Press release            & Angle           & \no  & \yes & \no  & \no  & \no  & \no  & \yes  & \no  & \yespart  \\
+\textcolor{gray}{Human writer}~\cite{handbook}              & Data            & Article                   & \yes & \yes & \yespart & \yespart & \yespart & \yespart & \yespart & \no & \yespart \\
+% \midrule
+\rowcolor{ourrow}\textbf{\methodshort (Ours)}        & Data  & \textbf{Article}   & \yes & \yes & \yes & \yes & \yes & \yes & \yes & \yes & \yes \\
+\bottomrule
+\label{tab:comparison}
+\end{tabularx}
+\end{table*}

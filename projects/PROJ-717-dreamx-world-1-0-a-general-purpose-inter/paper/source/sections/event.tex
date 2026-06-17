@@ -1,0 +1,78 @@
+\subsection{Event Instruction Tuning for Composable Events}
+
+Recent interactive world models expose event-related controls at different
+granularities.
+LingBot-World~\citep{gao2026lingbotworld} demonstrates promptable global and
+local world events, HY-WorldPlay 1.5~\citep{hyworld2025,sun2025worldplay}
+supports text-triggered dynamic events during streaming generation, and
+Yume-1.5~\citep{mao2025yume15} introduces text-controlled event editing.
+Matrix-Game 3.0~\citep{wang2026matrixgame} focuses instead on action-conditioned
+long-horizon memory and real-time streaming.
+Related spatially controllable video-generation work, such as
+Omni-Effects~\citep{mao2025omnieffects}, studies compositional visual effects
+specified by category and location, but does not target persistent interactive
+world events under navigation.
+However, existing public systems do not provide explicit \emph{composable
+events}---multiple objects appearing, acting, and interacting within the same
+generation under structured event instructions
+(Table~\ref{tab:event-comparison}).
+Composable events are essential for realistic world simulation, where
+meaningful state changes rarely involve a single object in isolation:
+a traffic scene requires pedestrians, vehicles, and signals to respond
+concurrently, and an indoor scene may involve multiple characters acting and
+reacting to one another.
+\method{} introduces an Event Instruction Tuning stage that closes this gap:
+users describe the coarse region or relation in which each object appears,
+what it does, and how objects interact, and the model responds to all specified
+events in a single forward pass.
+
+\begin{table}[!htbp]
+\caption{Comparison of event-control capabilities across interactive world
+models.
+Composable events subsume multi-object and multi-event settings: the model
+handles multiple objects with distinct actions and mutual interactions in one
+generation.}
+\label{tab:event-comparison}
+\centering
+\renewcommand{\arraystretch}{1.2}
+\scriptsize
+\setlength{\tabcolsep}{2pt}
+\begin{tabularx}{\linewidth}{@{}p{0.95in}*{5}{>{\centering\arraybackslash}X}@{}}
+\toprule
+\rowcolor{amapblue}
+\textcolor{white}{\textbf{Model}} &
+\textcolor{white}{\textbf{\shortstack{Promptable\\Events}}} &
+\textcolor{white}{\textbf{\shortstack{Object-Level\\Events}}} &
+\textcolor{white}{\textbf{\shortstack{Region-Guided\\Events}}} &
+\textcolor{white}{\textbf{\shortstack{Multi-Entity\\Composition}}} &
+\textcolor{white}{\textbf{\shortstack{Inter-Object\\Interaction}}} \\
+\midrule
+\rowcolor{TableRowAlt}
+LingBot-World & \cmark & \cmark & \pmark & \pmark & \xmark \\
+HY-WorldPlay 1.5 & \cmark & \cmark & \xmark & \pmark & \xmark \\
+\rowcolor{TableRowAlt}
+Matrix-Game 3.0 & \xmark & \xmark & \xmark & \xmark & \xmark \\
+Yume-1.5 & \cmark & \cmark & \xmark & \xmark & \xmark \\
+\rowcolor{TableRowAlt}
+\textbf{\method{}} & \cmark & \cmark & \cmark & \cmark & \cmark \\
+\bottomrule
+\end{tabularx}
+\vspace{2pt}
+\scriptsize{\pmark indicates qualitative or partial support without structured
+per-object event instructions. Object-level events denote single object/category
+events; multi-entity composition requires distinct entities and actions in one
+structured instruction. Region-guided events refer to coarse regions or relative
+placement rather than coordinate-level localization.}
+\end{table}
+
+\paragraph{\bf{Training.}}
+Using the event instruction data described in Section~\ref{sec:event-data},
+we fine-tune the full DiT while keeping the architecture unchanged.
+Event semantics enter exclusively through the text-conditioning interface,
+where structured event instructions are rendered as natural-language prompts
+covering the global scene and per-entity dynamics.
+The tuning mixture combines event-instruction samples with non-event training
+clips, which preserves the model's general world-generation capability while
+adding responsiveness to promptable events.
+We use conservative updates and strict gradient clipping to avoid disrupting
+the pretrained visual and motion priors.

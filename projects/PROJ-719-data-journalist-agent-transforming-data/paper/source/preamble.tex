@@ -1,0 +1,49 @@
+% This file contains the notation macros for the entire paper.
+\usepackage{marvosym}
+% Sets and spaces
+\newcommand{\reals}{\mathbb{R}}
+\newcommand{\integers}{\mathbb{Z}}
+\newcommand{\R}{\mathbb{R}} % Alias
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+
+\newcommand{\spade}{\ding{171}}
+\newcommand{\heart}{\ding{170}}
+% \newcommand{\diamond}{\ding{169}}
+% \newcommand{\club}{\ding{168}}
+
+% Math Operators
+\DeclareMathOperator*{\argmax}{arg\,max}
+\DeclareMathOperator*{\argmin}{arg\,min}
+\newcommand{\maximize}[1]{\ensuremath{\underset{#1}{\mathrm{maximize}}\ }}
+\newcommand{\minimize}[1]{\ensuremath{\underset{#1}{\mathrm{minimize}}\ }}
+
+% Linear Algebra
+\newcommand{\mb}[1]{\mathbf{#1}}
+\newcommand{\mbf}[1]{\mathbf{#1}}
+\newcommand{\mcal}[1]{\mathcal{#1}}
+\newcommand{\mbb}[1]{\mathbb{#1}}
+\newcommand{\T}{\mathsf{T}}
+\newcommand{\diag}{\mathrm{\mathbf{diag}}}
+\newcommand{\sign}{\mathrm{sign}}
+\newcommand{\trace}[1]{\ensuremath{\mathrm{trace}\left({#1}\right)}}
+\newcommand{\norm}[1]{\left\Vert #1 \right\Vert}
+
+% Probability
+\newcommand{\Expect}{\mathbb{E}}
+\newcommand{\Cov}{\mathrm{Cov}}
+\newcommand{\KL}{\mathrm{KL}}
+
+% General Utils
+\newcommand{\placeholder}[1]{\textcolor{purple}{placeholder: #1}}
+\newcommand{\commentfont}[1]{{\small\ttfamily\textcolor{blue!90}{#1}}}
+\newcommand{\algsep}{\\[0.4em]}
+
+% Dashes
+\makeatletter
+\newcommand{\longdash}[1][2em]{%
+  \makebox[#1]{$\m@th\smash-\mkern-7mu\cleaders\hbox{$\mkern-2mu\smash-\mkern-2mu$}\hfill\mkern-7mu\smash-$}}
+\makeatother
+\newcommand{\omitskip}{\kern-\arraycolsep}
+\newcommand{\llongdash}[1][2em]{\longdash[#1]\omitskip}
+\newcommand{\rlongdash}[1][2em]{\omitskip\longdash[#1]}

@@ -1,0 +1,440 @@
+\documentclass[11pt]{article}
+
+% Change "review" to "final" to generate the final (sometimes called camera-ready) version.
+% Change to "preprint" to generate a non-anonymous version with page numbers.
+\usepackage[preprint]{acl}
+\usepackage{xspace}
+% Standard package includes
+\usepackage{times}
+\usepackage{latexsym}
+
+% For proper rendering and hyphenation of words containing Latin characters (including in bib files)
+\usepackage[T1]{fontenc}
+% For Vietnamese characters
+% \usepackage[T5]{fontenc}
+% See https://www.latex-project.org/help/documentation/encguide.pdf for other character sets
+
+% This assumes your files are encoded as UTF8
+\usepackage[utf8]{inputenc}
+
+% This is not strictly necessary, and may be commented out,
+% but it will improve the layout of the manuscript,
+% and will typically save some space.
+\usepackage{microtype}
+
+% This is also not strictly necessary, and may be commented out.
+% However, it will improve the aesthetics of text in
+% the typewriter font.
+\usepackage{inconsolata}
+\usepackage{hyperref}       % hyperlinks
+\usepackage{url}            % simple URL typesetting
+\usepackage{booktabs}       % professional-quality tables
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{amsmath}        % math environments
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage[table]{xcolor}         % colors
+\usepackage{multirow}
+\usepackage{pifont}
+\usepackage[most]{tcolorbox}
+
+%Including images in your LaTeX document requires adding
+%additional package(s)
+\usepackage{graphicx}
+
+% If the title and author information does not fit in the area allocated, uncomment the following
+%
+%\setlength\titlebox{<dim>}
+%
+% and set <dim> to something 5cm or larger.
+% \newcommand{\approach}{~} % alternatives: SWE-Glance, SWE-Scout, SWE-Spot
+\newcommand{\approach}{{FastContext}\xspace}
+
+% ---- Review comment commands ----
+\newcommand{\wang}[1]{\textcolor{orange}{\textbf{[WANG: #1]}}}
+\newcommand{\shi}[1]{\textcolor{blue}{\textbf{[SHI: #1]}}}
+\newcommand{\gu}[1]{\textcolor{red}{\textbf{[GU: #1]}}}
+\newcommand{\zhang}[1]{\textcolor{teal}{\textbf{[ZHANG: #1]}}}
+\newcommand{\mq}[1]{\textcolor{green}
+{\textbf{[MQ: #1]}}}
+
+
+\definecolor{colorours}{HTML}{FFFFE0}
+\definecolor{colorhead}{HTML}{e2ecda}
+\definecolor{colorsave}{HTML}{6BAA75}
+\definecolor{promptborder}{HTML}{B9C3CF}
+\definecolor{promptblue}{HTML}{F2F7FF}
+\definecolor{promptorange}{HTML}{FFF7E8}
+\definecolor{promptgreen}{HTML}{F2FBF5}
+\newtcolorbox{promptbox}[2][]{
+  enhanced,
+  breakable,
+  colback=#2,
+  colframe=promptborder,
+  coltitle=black,
+  fonttitle=\bfseries\small,
+  title={#1},
+  boxrule=0.5pt,
+  arc=1mm,
+  left=1mm,
+  right=1mm,
+  top=1mm,
+  bottom=1mm,
+  before skip=1.0em,
+  after skip=1.0em
+}
+
+% Note. For the workshop paper template, both \title{} and \workshoptitle{} are required, with the former indicating the paper title shown in the title and the latter indicating the workshop title displayed in the footnote. 
+
+\title{\approach: Training Efficient Repository Explorer for Coding Agents}
+
+
+\author{
+\textbf{Shaoqiu Zhang}\textsuperscript{1}\textsuperscript{2}\footnotemark[1]\footnotemark[2] \hspace{.1cm} 
+\textbf{Maoquan Wang}\textsuperscript{1}\footnotemark[1] \hspace{.1cm}
+\textbf{Yuling Shi}\textsuperscript{2}\footnotemark[1] \hspace{.1cm}
+\textbf{Yuhang Wang}\textsuperscript{2} \hspace{.1cm}
+\textbf{Xiaodong Gu}\textsuperscript{2} \hspace{.1cm}\\
+\textbf{Yongqiang Yao}\textsuperscript{1}
+\textbf{Rao Fu}\textsuperscript{1}
+\textbf{Shengyu Fu}\textsuperscript{1}\footnotemark[3] \\
+\textsuperscript{1} Microsoft \hspace{.1cm} \textsuperscript{2} Shanghai Jiao Tong University\\
+\texttt{\{maoquanwang, yongqiangyao, raofu, shengyufu\}@microsoft.com}\\
+\texttt{\{Qiushao418, yuling.shi, lingbo\_2022, xiaodong.gu\}@sjtu.com}
+}
+
+\begin{document}
+\maketitle
+
+
+\begin{abstract}
+Large Language Model (LLM) coding agents have achieved strong results on software engineering tasks, yet repository exploration remains a major bottleneck: locating relevant code consumes substantial token budget and pollutes the agent's context with irrelevant snippets.
+%
+In most agents, the same model explores the repository and solves the task, leaving exploratory reads and searches in the solver's history.
+We present \approach, a dedicated exploration subagent that separates repository exploration from solving.
+Invoked on demand, \approach issues parallel tool calls and returns concise file paths and line ranges as focused context.
+%
+\approach is powered by specialized exploration models spanning 4B--30B parameters.
+We bootstrap them from strong reference-model trajectories and refine them with task-grounded rewards for broad first-turn search, multi-turn evidence gathering, and precise citation generation.
+%
+Across SWE-bench Multilingual, SWE-bench Pro, and SWE-QA, integrating \approach into Mini-SWE-Agent improves end-to-end resolution rates up to \textbf{5.5\%} while reducing coding-agent token consumption up to \textbf{60\%}, with marginal overhead.
+These results show that repository exploration can be separated from solving and handled effectively by specialized models. Code and data: \url{https://github.com/microsoft/fastcontext}
+
+\begingroup
+\renewcommand{\thefootnote}{\fnsymbol{footnote}}
+\setcounter{footnote}{0}
+\footnotetext[1]{Equal contribution.}
+\footnotetext[2]{Work done during a project at Microsoft CoreAI.}
+\footnotetext[3]{Corresponding author.}
+\endgroup
+\end{abstract}
+
+\section{Introduction}
+\label{sec:intro}
+
+Coding agents have become a prominent approach for automated software engineering, capable of handling everything from localized code refactoring to repository-level question answering~\cite{sweagent, autocoderover, agentless, openhands}. Industry-leading assistants such as Claude Code, Codex, GitHub Copilot CLI, and Cursor~\cite{claudecode, openaicodex, githubcopilotcli, cursor} continuously push these boundaries through increasingly sophisticated mechanisms, with the recent rise of specialized subagents marking a vital frontier in the field. However, the repository exploration mechanisms powering these advanced systems are typically proprietary, leaving the research community without open training and evaluation recipes to build upon.
+
+Benchmarks such as SWE-bench and SWE-QA exemplify the community's shift from isolated coding problems toward realistic tasks that require navigating large, multi-file codebases~\cite{swebench, sweqa}; newer suites further broaden this setting across harder, multilingual, and decontaminated evaluations~\cite{swebenchpro, rebench}.
+Across these tasks, an agent must explore the repository to identify relevant files and code regions before it can reason about a fix or answer.
+As such, this exploration stage plays a critical role in both task success and inference efficiency.
+We use \emph{main agent} to refer to the coding agent responsible for solving the task, and \emph{subagent} to refer to a specialized helper that the main agent can invoke for a narrower repository-exploration job.
+
+\input{figures/tex/compare}
+
+However, repository exploration remains a costly part of current agent trajectories, as also observed by SWE-Pruner for coding-agent context consumption~\cite{swepruner}.
+Our preliminary analysis shows that reading and searching account for a large share of tool-use turns and main-agent total tokens in our trajectories.
+This cost is consistent with prior systems that devote substantial machinery to localization, search, or code-search training before patch generation~\cite{autocoderover, agentless, codescout}.
+When exploration misses key files or accumulates irrelevant snippets, the main agent must reason from noisy context and may spend later turns repairing a mistaken hypothesis rather than addressing the true cause.
+
+
+Recent work has begun to study repository context selection.
+Graph- and structure-guided methods use program information to improve localization~\cite{autocoderover, locagent, cosil, cgm}; retrieval, compression, and workflow methods select or condense repository context before generation~\cite{repocoder, longcodezip, codeocr, agentless}; and RL or search-based systems train or refine repository-search agents~\cite{codescout, swegrep}.
+These studies show that better context can improve software agents, but they leave open the role of a lightweight, trained explorer that can coexist with a standard main agent.
+Many localization-oriented evaluations emphasize file- or function-level metrics, while end-to-end gains are often reported inside specialized pipelines; in either case, broad localization can still hand the main agent noisy or overly broad context that does not fit its actual decision point.
+Moreover, graph construction, specialized workflows, or frontier-model exploration can be too expensive to serve as a simple reusable component for minimal frameworks such as Mini-SWE-Agent.
+
+
+To address these limitations, we propose \textbf{\approach}, a dedicated exploration \emph{subagent} that isolates repository search from the main solving agent.
+\approach receives a natural-language issue description or a request for repository context, iteratively plans and executes \emph{parallel} tool calls for file reading, glob matching, and regex search, and returns concise file paths with line ranges as focused context for the main agent.
+By moving broad exploration into a separate subagent, the main agent can receive cleaner repository evidence rather than carrying the irrelevant code accumulated during navigation.
+
+To make this delegation inexpensive, we train specialized exploration models spanning 4B--30B parameters with supervised fine-tuning and reinforcement learning, bootstrapping from strong reference-model trajectories and refining the models with task-grounded rewards.
+Integrated into Mini-SWE-Agent, \approach improves end-to-end resolution rates up to \textbf{5.5\%} while reducing main model token consumption up to \textbf{60\%} on SWE-bench Multilingual, SWE-bench Pro, and SWE-QA benchmarks.
+
+In summary, our contributions are as follows:
+\begin{itemize}
+\vspace{-2mm}
+  \item We propose \approach, an exploration subagent that decouples repository search from main-agent solving, which performs iterative, parallel tool use and returns grounded file-and-line citations as compact context.
+  \vspace{-2mm}
+  \item We train a family of specialized exploration models (4B--30B) via SFT and RL, teaching them to start with broad search, gather evidence over multiple turns, and produce precise final file-line evidence.
+  \vspace{-2mm}
+  \item End-to-end experiments with Mini-SWE-Agent on 3 benchmarks show that our exploration subagents improve resolution accuracy up to \textbf{5.5\%} while reducing main model token consumption up to \textbf{60\%}.
+\end{itemize}
+
+
+\input{figures/tex/motivation}
+
+% \vspace{-4mm}
+\section{Preliminary Analysis}
+\label{sec:motivation}
+\vspace{-2mm}
+To understand whether repository exploration is a distinct bottleneck worth delegating, we analyze all 300 GPT-5.4-high trajectories produced by Mini-SWE-Agent on the full SWE-bench Multilingual set to quantify where the main agent spends its budget.
+This analysis follows recent observations from SWE-Pruner that coding agents can spend substantial token budget on read/search context and therefore benefit from context pruning~\cite{swepruner}.
+Figure~\ref{fig:motivation} categorizes tool calls into reading, searching, editing, testing, and other actions, and reports their shares in both tool-use turns and total tokens.
+For assistant turns containing multiple tool calls, we distribute the turn and token counts across the called tools.
+Reading and searching dominate the full trajectory: together they account for 9.96 of 17.72 tool-use turns per instance on average, or 56.2\% of all tool-use turns, and consume 46.5\% of the main agent's total tokens.
+This token share directly corresponds to inference cost and to context that the frontier agent must carry forward.
+
+% \vspace{-4mm}
+The turn-level view reveals a second bottleneck: exploration is also a long sequential prelude before editing.
+Among the 284 trajectories where a first source-code edit can be identified, the agent starts editing at turn 8.47 on average.
+Even with parallel tool calls enabled, the median trajectory still requires six sequential exploration turns and 15.5 exploration tool calls before the first edit.
+Unresolved trajectories are associated with more pre-edit exploration turns than resolved ones, with 8.34 versus 6.67 turns on average.
+This pattern is expected: harder issues naturally require more search.
+Rather than proving that exploration itself causes failure, this comparison exposes where a separate exploration component can help.
+When hard instances demand many exploratory turns, moving this search outside the main agent creates an opportunity to reduce the context and token burden that the solver must carry.
+At the same time, hard instances often require sharper guidance toward the few files and lines that determine the fix; a trained explorer can potentially provide this guidance by returning compact evidence instead of a long trail of exploratory context.
+These results motivate \approach as a reusable exploration component: repository exploration is expensive enough to affect cost, yet structured enough to be delegated to a subagent that performs parallel search and returns compact file-and-line context for the main agent.
+
+\vspace{-2mm}
+\section{Method}
+\label{sec:method}
+
+\vspace{-2mm}
+We present \approach, a lightweight exploration subagent that separates repository search from main-agent issue solving.
+Given an issue or a request for repository context, \approach explores the target repository with read-only tools and returns compact file-line evidence for the main agent to consume.
+The main text focuses on the delegation contract and training recipe; implementation details for prompts, runtime limits, and reward thresholds are deferred to the appendix.
+The method consists of a simple runtime harness and two training stages: supervised fine-tuning (SFT) to initialize exploration behavior, followed by reinforcement learning (RL) to align the returned evidence with task-relevant code locations.
+Figure~\ref{fig:overview} gives an overview of this workflow: the explorer gathers repository evidence through parallel tools, compresses it into file-line citations, and passes the resulting context to the main agent.
+
+
+\input{figures/tex/overview}
+
+\vspace{-2mm}
+\subsection{\approach Subagent Architecture}
+\label{sec:architecture}
+
+\vspace{-1mm}
+\approach is a runtime delegation mechanism: the main agent delegates repository exploration to the explorer, which returns evidence rather than a patch.
+The main agent then consumes this narrowed context, avoiding the long sequence of exploratory reads and searches that would otherwise remain in its own conversation history.
+
+The subagent deliberately exposes only three language-agnostic tools: \textsc{Read} for line-numbered file contents, \textsc{Glob} for path discovery, and \textsc{Grep}\footnote{\url{https://github.com/BurntSushi/ripgrep}} for regex search over repository text.
+At each turn, the explorer either issues one or more tool calls or stops with a final evidence list.
+Multiple tool calls in the same turn are executed in parallel, allowing the explorer to cover complementary hypotheses before synthesizing the observations.
+
+The output contract is a compact final answer block containing file paths and line ranges, optionally followed by short relevance notes.
+A typical answer is:
+\begin{verbatim}
+<final_answer>
+/src/router.py:42-58 (Router definition)
+/tests/test_router.py:101-119
+</final_answer>
+\end{verbatim}
+This format makes the explorer's output directly consumable as focused context for the main agent.
+
+\subsection{Policy Initialization with Supervised Fine-Tuning}
+\label{sec:sft}
+
+We train the initial exploration policy through supervised fine-tuning. 
+Specifically, we construct training examples from SWE-bench-style repository-exploration tasks, each containing an issue description, a repository snapshot, and workspace metadata.
+Instead of training only on final locations, we decompose supervision according to the runtime behaviors the subagent must perform.
+This exposes the model to the full exploration loop, from broad initial search to observation-driven refinement and compact citation output.
+
+We construct 2,954 filtered SFT examples from Sonnet 4.6 exploration traces, split into three sources that match the runtime behavior of the subagent.
+
+
+The first source, \texttt{parallel\_toolcalls}, targets \emph{broad first-turn search}: the reference model is prompted with the query and top-level directory listing and asked to issue nonredundant parallel tool calls that cover complementary signals such as path patterns, symbols, and likely entry points.
+The second source, \texttt{multiturn\_traj}, targets \emph{multi-turn evidence gathering}: we retain reference-model trajectories, including system and user messages, assistant tool-call arguments, and raw tool observations.
+The third source, \texttt{linerange}, targets \emph{precise citation generation}: we provide retrieved file contents and ask the reference model to emit only a narrow \texttt{<final\_answer>} block with relevant file-and-line ranges.
+Additional construction details are deferred to Appendix~\ref{app:training-details}.
+
+These sources are merged into a multi-turn chat dataset $\mathcal{D}_{\mathrm{sft}}$ with the same tool schemas used at inference time.
+Let $x$ denote the visible conversation prefix and $y$ denote the reference assistant continuation, which may be natural-language text, tool-call arguments, or a final citation block.
+We optimize an assistant-token-only objective
+\begin{equation}
+\mathcal{L}_{\mathrm{SFT}}
+= -\frac{1}{|\mathcal{D}_{\mathrm{sft}}|}
+\sum_{(x,y) \in \mathcal{D}_{\mathrm{sft}}}
+\sum_{t=1}^{|y|} m_t \log p_{\theta}(y_t \mid x, y_{<t}),
+\end{equation}
+where $m_t$ masks out non-assistant tokens and keeps both ordinary assistant text and structured tool call arguments in the loss.
+We fine-tune explorer checkpoints with this objective; model scales and optimization details are reported in Section~\ref{sec:setup} and Appendices~\ref{app:training-details}--\ref{app:sft-optimization}.
+
+
+\input{figures/tex/token_sankey}
+
+\subsection{Policy Refinement with Reinforcement Learning}
+\label{sec:rl}
+% \vspace{-2mm}
+SFT imitation does not directly optimize whether the final citations cover the code locations needed to solve the issue.
+We therefore refine the explorer with task-grounded RL.
+We construct a 400-prompt RL set from issue-resolution tasks with reference patches.
+Each prompt contains the explorer instruction, workspace metadata, a top-level directory listing, and a natural-language repository exploration query.
+For each training instance, we parse the reference patch into target file-and-line ranges and use them as exploration labels, replacing teacher continuations with a patch-derived \texttt{<final\_answer>} target.
+Appendix~\ref{app:rl-data} gives the data construction and rollout details.
+The model is rolled out as the actual \approach subagent: it receives the same repository workspace and instruction prompt, interacts with \textsc{Read}, \textsc{Glob}, and \textsc{Grep} for a bounded number of turns, and finally produces a \texttt{<final\_answer>} block.
+
+
+The reward is deterministic and tied to the explorer's output contract.
+It combines patch-derived localization accuracy, structured parallel exploration, and output-validity penalties.
+Let $G_f$ and $G_l$ denote the target file and line sets induced by the reference patch, and let $P_f$ and $P_l$ denote the corresponding sets parsed from the model's final citations.
+The scalar reward is
+% \vspace{-4mm}
+\begin{equation}
+\begin{aligned}
+R =
+&\underbrace{F_1(P_f, G_f) + F_1(P_l, G_l)}_{\text{task outcome}}
++ \underbrace{r_{\mathrm{parallel}}}_{\substack{\text{parallel}\\\text{function call}}}
+- \underbrace{r_{\mathrm{format}}}_{\text{penalty}}.
+\end{aligned}
+\end{equation}
+Here the task-outcome term is the sum of file-level and line-level F1 after path normalization, with zero score for empty sets; $r_{\mathrm{parallel}}$ gives a small bonus to bounded multi-call exploration; and $r_{\mathrm{format}}$ rejects empty, overly long, malformed, or excessive-fan-out outputs.
+Exact thresholds and rollout settings are deferred to Appendix~\ref{app:reward-details}.
+We initialize from the SFT checkpoint and optimize with GRPO~\cite{shao2024deepseekmathpushinglimitsmathematical}, sampling multiple trajectories per prompt.
+This stage aligns the model with the practical goal of returning a small citation set that gives the main agent the code regions most likely to matter.
+
+\section{Experiments}
+\label{sec:experiments}
+
+We evaluate \approach from two complementary perspectives.
+First, we measure end-to-end task performance when FastContext is attached to a coding agent, where the main question is whether focused repository evidence improves success while reducing the main agent's context cost.
+Second, we evaluate standalone exploration quality, isolating whether the explorer can recover the code locations implicated by a reference patch.
+
+\input{tables/tab_e2e_main}
+
+
+\subsection{Experimental Setup}
+\label{sec:setup}
+
+\paragraph{End-to-end benchmarks.}
+We use three benchmarks for full agent evaluation.
+SWE-bench Multilingual contains 300 issue-resolution instances spanning multiple programming languages.
+SWE-bench Pro~\cite{swebenchpro} provides more challenging software-engineering tasks; we evaluate on a fixed randomly sampled 200-instance subset listed in Appendix~\ref{app:swebench-pro-subset}.
+SWE-QA~\cite{sweqa} evaluates repository-level question answering, where the agent must locate and reason over relevant code rather than produce a patch.
+For SWE-QA, we use GPT-5.4 as the LLM-as-judge evaluator.
+Together, these benchmarks cover multilingual and harder issue resolution, and codebase question answering.
+
+% \vspace{-2mm}
+\paragraph{End-to-end protocol.}
+All end-to-end experiments use Mini-SWE-Agent as the terminal-only main-agent scaffold with GPT-5.4, GLM-5.1, and Kimi-K2.6 as main agents.
+For each main agent, we compare direct solving, same-model exploration where the frontier model also performs delegated search, and trained \approach explorers, including 30B-SFT, 4B-SFT, and 4B-RL variants.
+The 4B models are our deployment targets because exploration should be cheap enough to run as a practical helper; 30B-SFT serves as a scaling reference, and 4B-RL tests whether task-grounded optimization can make a compact explorer competitive without a 30B RL run.
+In augmented settings, the main agent invokes the explorer as needed and receives compact file-line citations rather than the full exploratory trajectory.
+We report benchmark success, main-agent tokens, and main-agent turns, with token reductions computed against the direct-solving baseline for the same main agent.
+Appendix~\ref{app:runtime-accounting} gives runtime and overhead details.
+
+\vspace{-3mm}
+\paragraph{Standalone exploration protocol and benchmark.}
+To evaluate the explorer itself, we use a standalone patch-localization benchmark on SWE-bench Verified~\cite{swebench}.
+For each instance, we use patch-derived reference locations~\cite{codescout} and compute instance-wise precision, recall, and F1 at file, module, and function granularity.
+Predicted file-line citations are mapped into the same target space before scoring, so all methods are compared under a shared localization protocol.
+Baseline scaffolds, model backbones, patch parsing, line-to-symbol mapping, and edge-case handling are detailed in Appendix~\ref{app:explore-eval}.
+
+\input{tables/tab_explore}
+\subsection{End-to-End Results}
+\label{sec:e2e-results}
+\vspace{-1mm}
+\textbf{\approach improves end-to-end accuracy.}
+Table~\ref{tab:e2e_main} shows that, for every main agent and benchmark, the best explorer-augmented run outperforms direct solving.
+The largest gains appear on SWE-bench Pro: GPT-5.4 improves from 46.0 to 51.5, GLM-5.1 from 17.5 to 22.5, and Kimi-K2.6 from 31.0 to 33.5.
+SWE-bench Multilingual also improves for all three main agents, while SWE-QA shows smaller but still positive gains.
+
+
+\paragraph{\approach consistently saves main-agent tokens.}
+Every explorer-augmented setting uses fewer main-agent tokens than direct solving.
+The largest savings occur on SWE-QA, reaching 60.3\% for GPT-5.4 and 37.9\% for GLM-5.1; trained explorers still save about 50\% and 24--27\% respectively on the same benchmark.
+Figure~\ref{fig:swefc-token-dist} further shows the per-instance total-token distributions for GPT-5.4 on SWE-bench Multilingual.
+All explorer variants shift the distribution toward lower token usage, indicating that the average savings in Table~\ref{tab:e2e_main} reflect a broad reduction across instances.
+
+
+\paragraph{The gains depend on the main agent and benchmark.}
+GLM-5.1 has the most verbose direct trajectories, so \approach removes hundreds of thousands of tokens on SWE-bench Multilingual and SWE-bench Pro.
+Kimi-K2.6 starts from a stronger and shorter baseline, so its token savings are smaller on issue-resolution tasks, but it still gains accuracy on both SWE-bench Multilingual and SWE-bench Pro.
+Detailed case studies are provided in Appendix~\ref{app:case-study}.
+
+
+\subsection{Ablation Analysis}
+\label{sec:e2e-ablation}
+
+\paragraph{Same-model exploration is not usually the best trade-off.}
+Trained \approach models often dominate same-model exploration in both score and tokens.
+For GPT-5.4 on SWE-bench Multilingual, same-model exploration reaches 73.3 with 379k tokens, while 30B-SFT reaches 75.0 with 356k tokens and 4B-RL reaches 74.7 with 338k tokens.
+For GLM-5.1 on SWE-bench Pro, 4B-RL improves the same-model explorer from 18.0 to 22.5 while reducing tokens from 2356k to 2210k.
+
+\paragraph{The 4B-RL explorer can outperform the larger 30B-SFT explorer.}
+On GLM-5.1 SWE-bench Pro, 4B-RL reaches 22.5 versus 20.0 for 30B-SFT while using fewer tokens.
+It also exceeds 30B-SFT on Kimi-K2.6 SWE-bench Multilingual and SWE-bench Pro.
+
+\paragraph{RL consistently improves the compact explorer.}
+Compared with 4B-SFT, 4B-RL improves or ties the score in all nine end-to-end settings, with clear gains on GPT-5.4 SWE-bench Pro, GLM-5.1 SWE-bench Pro, and both Kimi-K2.6 issue-resolution benchmarks.
+Thus, 30B-SFT serves as a larger-model reference, while 4B-RL supports our main design choice: task-grounded RL is an effective path toward small exploration subagents without requiring an expensive 30B-RL variant.
+
+\input{figures/tex/swefc_total_token_distributions}
+
+
+\subsection{Standalone Exploration Quality}
+\label{sec:explore-results}
+\vspace{-2mm}
+
+\paragraph{\approach recovers patch-relevant locations more accurately.}
+Table~\ref{tab:explore_main} evaluates standalone exploration using locations derived from the final patch as reference locations.
+Under this proxy, \approach variants form the strongest group at file and module granularity, indicating that the end-to-end gains partly reflect better recovery of patch-relevant evidence.
+Frontier-model explorers serve as reference upper bounds, while the highlighted comparison follows the small-model deployment setting.
+Among non-frontier rows, trained \approach checkpoints reach 73.71 file-level F1 and 60.35 module-level F1, compared with 68.57 and 50.88 for the best non-\approach rows.
+The advantage is clearest at module and function level, suggesting that \approach narrows evidence toward the code regions most likely to matter.
+
+\paragraph{Training improves compact explorers.}
+Within the \approach scaffold, SFT substantially improves the 4B explorer at coarser granularities, raising file-level F1 from 62.57 to 70.55 and module-level F1 from 51.25 to 55.26.
+RL further improves the 4B model to 71.48 file-level F1, 56.26 module-level F1, and 38.45 function-level F1.
+The RL gains mainly come from higher recall with similar precision, which is consistent with the reward's goal of covering patch-relevant locations while keeping the final evidence set well formed.
+
+\section{Related Work}
+\label{sec:related}
+
+\subsection{Coding Agents}
+
+LLM-based coding agents typically follow a reasoning-and-acting pattern inspired by ReAct~\cite{react}, using tools to inspect repositories, edit files, and validate patches.
+Representative systems include SWE-agent~\cite{sweagent}, AutoCodeRover~\cite{autocoderover}, Agentless~\cite{agentless}, Lita~\cite{lita}, and OpenHands~\cite{openhands}.
+These systems differ in how they organize the software-engineering workflow: some expose a general shell-and-editor loop, while others decompose issue resolution into localization, patch generation, and validation stages, or add repository-specific search and planning heuristics.
+Related training and scaling work studies workflow priors, experience reuse, debate, environment rewards, scaffolds, and post-training recipes~\cite{kimidev, swefixer, swegym, sweexp, swedebate, agentrlvr, slime_github, hyperagent, sweprotege, sweworld, swemaster}.
+Developer-facing products such as Claude Code, Codex, GitHub Copilot CLI, and Cursor also expose agentic coding workflows~\cite{claudecode, openaicodex, githubcopilotcli, cursor}.
+These systems generally keep exploration, reasoning, editing, and validation within one main trajectory.
+
+
+\subsection{Exploration and Context Refinement}
+Several lines of work study how to retrieve or refine repository context before generation.
+RepoCoder~\cite{repocoder} performs iterative retrieval and generation for repository-level code completion, LongCodeZip~\cite{longcodezip} and CodeOCR~\cite{codeocr} compress or encode long code contexts, and Agentless~\cite{agentless} decomposes issue resolution into localization, repair, and validation.
+Graph- or structure-aware methods such as AutoCodeRover~\cite{autocoderover}, LocAgent~\cite{locagent}, CoSIL~\cite{cosil}, and CGM~\cite{cgm} use explicit program structure to improve localization.
+CodeScout~\cite{codescout} and SWE-grep~\cite{swegrep} train code-search agents for fast context retrieval, SWE-Search and SWE-Replay explore test-time search and scaling~\cite{swesearch, swereplay}, SWE-Pruner~\cite{swepruner} and SWE-Pruner-Pro~\cite{sweprunerpro} reduces coding-agent context cost by pruning observed code context.
+SWE-Explore~\cite{sweexplore} complements these efforts by benchmarking how coding agents explore repositories, whereas our work trains a lightweight explorer that can be delegated to by a main agent.
+These methods demonstrate the value of context selection, though many emphasize standalone localization, compression, or specialized pipelines.
+
+
+% \vspace{-1.5mm}
+\section{Conclusion}
+\vspace{-1.5mm}
+We presented \approach, a lightweight exploration subagent for coding agents. \approach performs parallel read-only tool use and returns compact file-line evidence, providing the main agent with focused repository context.
+We trained specialized 4B--30B explorers with SFT and task-grounded RL, targeting broad first-turn search, multi-turn evidence gathering, and precise citation generation. Across three benchmarks, integrating \approach into Mini-SWE-Agent improves end-to-end success while substantially reducing main-agent token consumption; standalone localization results further show that the trained explorers recover patch-relevant files and symbols more accurately. These findings suggest that repository exploration should be treated as a first-class, trainable component of coding agents rather than an implicit cost inside monolithic solver trajectories.
+More broadly, the results point to a modular view of coding agents in which repository navigation can be optimized and evaluated separately from patch generation or answer synthesis.
+We hope this perspective encourages future systems to expose exploration as an explicit interface, enabling smaller specialized models and stronger main agents to collaborate with clearer context boundaries.
+
+
+
+
+
+
+\newpage
+\section*{Limitations}
+Our current end-to-end evaluation integrates \approach only with Mini-SWE-Agent; future work will adapt it to broader coding-agent frameworks with different tool interfaces, memory policies, and subagent orchestration mechanisms.
+Second, our main-agent experiments focus on strong models, including GPT-5.4, GLM-5.1, and Kimi-K2.6, leaving \approach paired with smaller main models, such as 30B-class coding agents, for future study.
+As with other public agent benchmarks, some tasks may overlap with data seen during frontier-model pretraining or product tuning, so the results should be interpreted as controlled benchmark evidence rather than deployment guarantees.
+Finally, the smallest explorer trained here has 4B parameters, and we plan to investigate whether the same SFT and RL recipe can support still smaller explorers, such as 1.7B or 0.6B models.
+
+\section*{Ethics Statement}
+Our research adheres to the ACL Code of Ethics. We do not collect new human-subject data. The benchmarks, repositories, and model-generated traces used in this study are derived from public software-engineering datasets or generated within controlled experiment environments, and should be used under their respective licenses. LLMs were used for exploration-trace generation, model inference experiments, and paper polishing; the authors are responsible for the claims and analyses reported in the paper.
+ 
+
+\bibliography{refs}
+
+
+\input{appendix}
+\end{document}

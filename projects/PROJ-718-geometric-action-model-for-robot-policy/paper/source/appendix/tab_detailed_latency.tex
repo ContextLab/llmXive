@@ -1,0 +1,33 @@
+
+
+\renewcommand{\cmark}{\textcolor{green!60!black}{\ding{51}}}
+\renewcommand{\xmark}{\textcolor{red!75!black}{\ding{55}}}
+
+\begin{table}[t]
+\centering
+\small
+\caption{
+\textbf{Model-only inference latency on a single GH200 GPU.}
+}
+\setlength{\tabcolsep}{4.8pt}
+\begin{tabular}{@{}lccccc@{}}
+\toprule
+\textbf{Policy} &
+\begin{tabular}{@{}c@{}}\textbf{Official}\\\textbf{PyTorch}\end{tabular} &
+\begin{tabular}{@{}c@{}}\textbf{bf16}\\\textbf{precision}\end{tabular} &
+\begin{tabular}{@{}c@{}}\textbf{Torch}\\\textbf{Compile}\end{tabular} &
+\begin{tabular}{@{}c@{}}\textbf{CUDA}\\\textbf{Graphs}\end{tabular} &
+% \begin{tabular}{@{}c@{}}\textbf{Sampling}\\\textbf{steps}\end{tabular} &
+\begin{tabular}{@{}c@{}}\textbf{Model-only}\\\textbf{latency}\end{tabular} \\
+\midrule
+\textbf{GAM (Ours)}    & \cmark & \cmark & \cmark & \xmark  & 17.5\,ms \\
+\textbf{GAM (Ours)} & \cmark & \cmark & \cmark & \cmark   & \textbf{6.9\,ms} \\
+\midrule
+pi0.5                 & \cmark & \cmark & \cmark & \xmark  & 29.2\,ms \\
+OpenVLA-OFT           & \cmark & \cmark & \cmark & \xmark   & 70.1\,ms \\
+Cosmos Policy         & \cmark & \cmark & \cmark & \xmark   & 382.4\,ms \\
+\bottomrule
+\end{tabular}
+
+\label{tab:inference_time_supp}
+\end{table}

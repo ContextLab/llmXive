@@ -1,0 +1,155 @@
+\section{Rubric Evaluation Scoring Standard}
+In this section, we present the detailed scoring standard used in our rubric evaluation, which applies to both the human study and the agent judges. For each of the five dimensions, we provide detailed instructions for scores ranging from 1 to 7, where a score of 3 serves as our typical default.
+
+\label{sec:app:rubric}
+
+% --- Light-blue "reproduced instructions" card -------------------------------
+% Shared style + helpers; \tcbset / \definecolor / \providecommand are all safe
+% to repeat, so this block may appear in more than one \input'd file.
+\definecolor{promptframe}{HTML}{5B9BD5}   % medium blue frame
+\definecolor{promptback}{HTML}{EAF3FC}    % very light blue background
+\definecolor{prompttitle}{HTML}{1F4E79}   % deep blue inner headings
+\tcbset{
+  promptbox/.style={
+    breakable, enhanced,
+    colback=promptback, colframe=promptframe,
+    boxrule=1pt, arc=2.5mm,
+    coltitle=white, colbacktitle=promptframe,
+    fonttitle=\bfseries, fontupper=\normalsize,
+    left=3.5mm, right=3.5mm, top=3mm, bottom=3mm,
+  }
+}
+\providecommand{\promptsec}[1]{%
+  \par\medskip{\color{prompttitle}\bfseries\large #1}\par\smallskip}
+\providecommand{\promptsub}[1]{%
+  \par\smallskip{\color{prompttitle}\bfseries #1}\par\smallskip}
+\providecommand{\promptnote}[1]{%
+  \par\smallskip\begin{quote}\itshape #1\end{quote}\par}
+% -----------------------------------------------------------------------------
+
+\begin{tcolorbox}[promptbox, title={Rubric Evaluation scoring guideline}]
+
+\promptsec{Dimension 1 --- Visual Design}
+\textbf{What it evaluates}: the artifact as a visual product --- palette,
+typography, layout, whitespace, fit between chart type and the claim it
+supports, overall polish.
+\begin{center}
+\small
+\begin{tabularx}{\linewidth}{cX}
+\toprule
+Score & Description \\
+\midrule
+\textbf{7} & Indistinguishable from the best work published in the past year by top editorial graphics desks. Every chart is the optimal encoding for its claim. At least one design choice is so well-targeted that you can describe what trade-off it earns. \\
+\textbf{6} & Coherent design system \textbf{plus} at least one design move you've rarely seen executed this well --- name it specifically. No wrong chart types, no missing labels or legends. \\
+\textbf{5} & Cohesive design with intentional palette, typographic hierarchy, and chart selection. At most one minor named weakness. \\
+\textbf{4} & Polished but with two or three specific weaknesses you can point to (busy chart, label collision, palette drift, missing in-figure legend). No chart is the wrong tool for its claim. \\
+\textbf{3} & Looks like a competent person used a charting library with sensible defaults. Nothing offensive, nothing memorable. \textbf{Typical score.} \\
+\textbf{2} & At least one of: mismatched chart type, jarring palette, truncated/missing labels, cluttered layout, visible default-styling residue. \\
+\textbf{1} & Reads as raw library output or a database UI. Aesthetically mishandled to the point of impeding reading. \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\promptsec{Dimension 2 --- Narrative \& Pacing}
+\textbf{What it evaluates}: the author as a tour guide --- hook, ordering,
+rhythm, ending.
+\begin{center}
+\small
+\begin{tabularx}{\linewidth}{cX}
+\toprule
+Score & Description \\
+\midrule
+\textbf{7} & A piece you remember the shape of years later. Hook, layered progression, \textbf{and} a structural move (reframe, inversion, reveal) that recasts everything before it. The closing line bends back to the opening. The argument has a one-sentence summary that is itself non-obvious. \\
+\textbf{6} & Strong arc with a clear structural move and a closing reframe that wasn't already spoiled by the standfirst. \\
+\textbf{5} & Clear arc, real ending, at most one minor lull. \\
+\textbf{4} & Logical ordering, real ending, two or three minor lulls or one stretched section. \\
+\textbf{3} & Three-act competence: setup $\rightarrow$ data $\rightarrow$ conclusion. Readable but unsurprising in shape; no structural move. \textbf{Typical score.} \\
+\textbf{2} & Sections organized by topic, not by argument. Reader has to stitch meaning together. \\
+\textbf{1} & No through-line. A list of facts or charts; the artifact does not act as a guide. \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\promptnote{\textbf{For non-narrative artifacts (datasets, tools)}: score on
+whatever framing exists (intro, README, landing copy). Bare dataset with title
+only $\rightarrow$ 1. README that motivates use without an arc $\rightarrow$ 2.
+README with a clear analytic arc $\rightarrow$ 3. Higher requires explicit
+narrative scaffolding.}
+
+\promptsec{Dimension 3 --- Data \& Method Transparency}
+\textbf{What it evaluates}: procedural credibility. Four things to look for:
+\begin{enumerate}
+\item \textbf{Sources cited specifically} --- named dataset or URL, not ``public data''
+\item \textbf{Methodology described} --- definitions, transformations, exclusions
+\item \textbf{Data accessible} --- link, download, repo, or in-page table
+\item \textbf{Limitations acknowledged concretely} --- specific percentages, specific exclusion rules
+\end{enumerate}
+\begin{center}
+\small
+\begin{tabularx}{\linewidth}{cX}
+\toprule
+Score & Description \\
+\midrule
+\textbf{7} & Fully replicable \textbf{and} audit-grade. All four components present; multiple are unusually deep (line-level code references, public repo, processed-data table, dedicated methods note). A motivated outsider could replicate without contacting the author. \\
+\textbf{6} & Replicable in principle. All four components present \textbf{and} at least one is unusually deep. \\
+\textbf{5} & All four components present; methodology and caveats are concrete with specific numbers/exclusions; data access at least gestured at (e.g., named CSVs). \\
+\textbf{4} & Three of four components, with sources and methodology mandatory among them. Caveats present but light. \\
+\textbf{3} & Sources cited, methodology gestured at briefly, no data access, caveats minimal. \textbf{Industry-typical.} \\
+\textbf{2} & Sources mentioned without specifics (``government data''); no methodology; no caveats. \\
+\textbf{1} & No sources, no methods, claims of unclear origin. \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\promptsub{Inspector panel rule for this dimension}
+\begin{itemize}
+\item \textbf{Panel \texttt{not present}}: rate based on the normal reading surface only.
+\item \textbf{Panel \texttt{disabled}}: only count sources, methods, and caveats visible in the \textbf{normal reading surface} (prose, footnotes, in-page methodology sections, etc.). Do not credit anything that requires the \faSearch{} button.
+\item \textbf{Panel \texttt{enabled}}: you may credit panel contents, \textbf{but only if you actually completed the exploration in \S1.4}. Reference specific card numbers and tags you saw, not just the card's surface text.
+\end{itemize}
+
+\promptsec{Dimension 4 --- Claim--Data Alignment}
+\textbf{What it evaluates}: substantive credibility --- are claims actually
+supported by the data?
+\begin{center}
+\small
+\begin{tabularx}{\linewidth}{cX}
+\toprule
+Score & Description \\
+\midrule
+\textbf{7} & Surgical. Every quantitative claim is bounded by what the data can support; every place a reader might overinterpret is explicitly defused; uncertainty is quantified where relevant; chart encodings are unambiguous; correlation is never dressed as causation. \\
+\textbf{6} & Precisely scoped, with at least one explicit sensitivity check or robustness gesture (alternative cut, what-if, named confound addressed quantitatively). \\
+\textbf{5} & Precisely scoped. Quantitative claims bounded; major confounders named in prose; encodings unambiguous; no causal overreach. \\
+\textbf{4} & Solid, with one or two minor stretches where an adjective or annotation slightly exceeds the data. Nothing structurally misleading. \\
+\textbf{3} & Most claims supported; some loose framing; no major distortions. \textbf{Typical score.} \\
+\textbf{2} & Several unsupported claims \textbf{or} at least one misleading visual element (truncated axis without flag, dual axis implying correlation, cherry-picked window, missing baseline). \\
+\textbf{1} & Charts illustrate unproven claims; clear cherry-picking; encoding is materially deceptive. \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\promptsec{Dimension 5 --- Insight Value}
+\textbf{What it evaluates}: whether the reader gains a non-trivial cognitive
+update.
+\begin{center}
+\small
+\begin{tabularx}{\linewidth}{cX}
+\toprule
+Score & Description \\
+\midrule
+\textbf{7} & Field-shaping for a domain reader. A finding or reframe a specialist would cite. Updates a prior held by people who already know the topic. The reader can articulate the change in one sentence weeks later. \\
+\textbf{6} & Updates a domain prior. Counterintuitive finding, structural pattern not previously legible, or reframe that makes a familiar topic newly readable. \\
+\textbf{5} & Sharpens a domain intuition meaningfully. Quantifies something a specialist suspected but had not seen pinned down at this resolution. \\
+\textbf{4} & Sharpens a lay intuition. Quantifies or sharpens something the lay reader vaguely believed; goes beyond surface summary. \\
+\textbf{3} & Precise common knowledge. Well-supported, but the conclusion is what an informed reader would have predicted before reading. \textbf{Typical score.} \\
+\textbf{2} & Awareness, not judgment. Reader leaves knowing the data exists; no new judgment is formed. \\
+\textbf{1} & No thesis. Restates conventional wisdom or has no claim at all. \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\promptnote{\textbf{Quick test}: if the takeaway is just ``this dataset
+exists,'' cap at 2. If the reader doesn't reach synthesis or evaluation, cap at
+3. If the update is meaningful only to a lay reader (not a specialist), cap at
+5.}
+\end{tcolorbox}

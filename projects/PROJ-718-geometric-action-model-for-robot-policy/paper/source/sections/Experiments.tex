@@ -1,0 +1,72 @@
+
+\section{Experiments}
+\label{sec:exp}
+\subsection{Implementation Details}
+
+
+We use DA3-Giant~\citep{lin2025depth} fine-tuned on Track4World~\citep{lu2026track4world} as the backbone. We insert a 12-layer causal predictor with width $d_g=1024$ at layer $L_s=12$, where alternating attention begins. For the task instruction, we extract language tokens using a frozen T5 encoder~\citep{raffel2020exploring}. The policy uses a context horizon of $H=4$ for pre-training and $H=1$ for post-training and predicts $C=8$ step action chunks in a $d_a=7$ end-effector action space from $d_s=7$ proprioceptive states. We pretrain GAM on 784K single-arm robot trajectories from RoboCasa365~\citep{nasiriany2026robocasa365}, MimicGen~\citep{mandlekar2023mimicgen}, and OpenX-Embodiment~\citep{collaboration2023open}, then post-train it on each benchmark. We optimize with AdamW using a constant learning rate, freeze layers before $L_s$ and the depth head, and supervise depth with simulator ground truth. We set $\lambda_{\text{act}}=3$, $\lambda_{\text{feat}}=1$, and $\lambda_{\text{depth}}=3$. Further details are provided in the appendix.
+
+
+\subsection{Experimental Setup}
+\label{sec:exp:setup}
+
+
+\noindent\textbf{Simulation Benchmarks.}
+We evaluate generalization across distinct axes using two simulation benchmarks. Specifically, we train our policy on \textbf{LIBERO}~\citep{liu2023libero}, a lifelong single-arm manipulation benchmark spanning diverse spatial layouts, object identities, and task goals. To rigorously assess out-of-distribution robustness, we then evaluate the trained models in a zero-shot manner on \textbf{LIBERO-Plus}~\citep{fei2025libero}, which introduces controlled environmental perturbations across dimensions such as camera viewpoint, lighting, and backgrounds. We report additional results in the appendix.
+
+
+\input{tables/libero_plus_agg}
+
+
+\noindent\textbf{Real-Robot Setup.}
+We train on four manipulation tasks ($\sim$200 demonstrations each) using wrist-mounted and third-person cameras, adhering to the simulation protocol. Since ground-truth geometry is unavailable in the real world, target future depth maps are obtained as pseudo-labels directly from the pretrained backbone GFM. We evaluate robustness via 20 trials per task, divided equally between nominal setups and perturbed environments, specifically varying external camera positions. See the appendix for robot environment with full task and evaluation details.
+
+
+\noindent\textbf{Baselines.}
+We compare GAM against representative baselines from three families discussed in §\ref{sec:related}: \textbf{VLAs}~\citep{kim2024openvla, openvla_oft, black2024pi_0, pi05, pi0_fast, nora, univla, riptvla}, \textbf{WAMs}~\citep{kim2026cosmos, worldvla, yuan2026fast}, and \textbf{geometry-aware VLAs}~\citep{li2025spatial, sun2026rocket}. For the real-robot setup, we compare against $\pi_{0.5}$~\cite{pi05} and Spatial Forcing~\cite{li2025spatial}. For fairness, comparisons utilize a matched evaluation protocol, with performance numbers either re-evaluated using available checkpoints or taken directly from their respective published benchmarks.
+
+\subsection{Main Results}
+\label{sec:exp:main}
+
+\noindent\textbf{Simulation Results.} As shown in Table~\ref{tab:sim}, GAM achieves highly competitive success rates on the standard LIBERO benchmark, where performance is heavily saturated. Crucially, on the more challenging LIBERO-Plus benchmark, our model consistently outperforms competing baselines, demonstrating a remarkable improvement in the \textbf{camera-perturbation setting ($\uparrow$9.7\%p)}. This gain highlights the advantage of our end-to-end integration of the GFM. While existing geometry-aware VLAs only partially exploit GFM representations, GAM embeds the GFM throughout its entire predictive pathway to yield a deeply geometry-aware policy.
+
+
+\noindent\textbf{Real-world Results.} 
+To examine whether the gains observed in simulation transfer to physical execution, we additionally evaluate GAM in a real-world setting. Figure~\ref{fig:real_world_eval} shows that GAM substantially outperforms all baselines. In particular, our model remains robust under out-of-domain conditions (the camera-perturbation setting) where other baselines struggle. These results demonstrate that GAM generalizes to the real-world domain and is robust under perturbations, owing to its thorough exploitation of the GFM when training the policy.
+
+
+\subsection{Ablation Study}
+\label{sec:exp:ablation}
+
+
+\paragraph{Post-training Component Analysis.}
+Table~\ref{tab:loss_h_ablation} summarizes ablation study of key post-training components on Object suite of LIBERO and LIBERO-Plus. Pretraining is crucial for robustness: omitting it mildly affects nominal LIBERO but severely degrades LIBERO-Plus. With a pretrained backbone, removing $L_{\text{depth}}$ or $L_{\text{feat}}$ has minimal impact, suggesting geometric dynamics are already encoded.
+Notably, even without pretraining, these future-prediction losses provide strong geometric supervision and substantially improve robustness on LIBERO-Plus. Finally, the horizon ablation shows that $H=1$ is sufficient and more robust than longer histories, consistent with prior observations that extended context can introduce spurious correlations~\cite{wen2020fighting,de2019causal}.
+
+\input{tables/ablation_and_depth}
+
+
+
+\noindent\textbf{Split Layer $L_s$ Selection.}
+Table~\ref{tab:predictor_layer_ablation} evaluates the depth of future predictor by shifting the split layer $L_s$ and re-initializing the predictor. We exclude future-depth loss in this experiment because it is not equally applicable to all split layers and could isolate the effect of $\mathcal{L}_{\text{feat}}$ itself. Our default choice of $L_s=12$ achieves peak performance, validating it as the optimal seam between frame-wise and cross-view attention. While layer 19 remains competitive, inserting the predictor too early ($L_s=0$) or late ($L_s\in\{27,33,39\}$) causes total performance collapse. This confirms that forecasted tokens require sufficient interaction through deep layers to properly integrate into the pretrained 3D geometric prior.
+
+\input{tables/real_robot}
+\subsection{Analysis}
+\label{sec:exp:analysis}
+
+
+\begin{wrapfigure}[11]{r}{0.32\textwidth}
+    \centering
+    \vspace{-18pt}
+    \includegraphics[width=0.9\linewidth]{figures/camera_perturb.pdf}
+    \vspace{-5pt}
+    \caption{\textbf{Success rate vs.\ camera perturbation difficulty.}}
+    \label{fig:camera_perturb}
+\end{wrapfigure}
+\textbf{Inference Speed and Model Size.}
+As shown in Table~\ref{tab:inference_time}, GAM achieves the lowest latency among all baselines, requiring only \textbf{6.9\,ms ($\approx$145\,Hz)} for a single feed-forward pass and running up to 55$\times$ faster than the diffusion-based Cosmos Policy. 
+ 
+All methods are benchmarked under the same setup, with further details provided in the appendix. By utilizing single-pass prediction, GAM avoids the multi-step denoising of diffusion policies, achieving low latency while matching prior accuracy and robustness with only 1.4B parameters.
+
+
+\noindent\textbf{Robustness to Viewpoint and Scene Variation.} Figure~\ref{fig:camera_perturb} further breaks down the camera-perturbation results by difficulty level of LIBERO-Plus~\cite{fei2025libero}. GAM achieves consistently higher success rates than all baselines at every level, and the advantage remains clear even under the strongest perturbations.

@@ -1,0 +1,90 @@
+
+
+\newcommand{\cmark}{\textcolor{green!60!black}{\ding{51}}}
+\renewcommand{\xmark}{\textcolor{red!75!black}{\ding{55}}}
+
+
+\begin{wraptable}[12]{r}{0.66\textwidth}
+\centering
+\small
+\renewcommand{\arraystretch}{0.96}
+\vspace{-0.3em} % 주변 텍스트와의 상단 간격
+
+% --- 좌측 열: Table 3 (크기를 살짝 키움) ---
+\begin{minipage}[t]{0.56\linewidth}
+\centering
+\captionof{table}{\textbf{Component ablation.}}
+\label{tab:loss_h_ablation}
+\vspace{-0.55em}
+\resizebox{1.02\linewidth}{!}{% % 1.02로 기본보다 살짝 확대
+\begin{tabular}{@{}cccccc@{}}
+\toprule
+Pretrain & $\mathcal{L}_{\text{depth}}$ & $\mathcal{L}_{\text{feat}}$ & H &
+\begin{tabular}{@{}c@{}}Orig.\\SR (\%)\end{tabular} &
+\begin{tabular}{@{}c@{}}Plus\\SR (\%)\end{tabular} \\
+\midrule
+\cmark & \cmark & \cmark & 1 & \textbf{99.6} & \textbf{89.7}\\
+\midrule
+\cmark & \cmark & \cmark & 2 & 97.2 & 84.4 \\
+\cmark & \cmark & \cmark & 4 & 98.2 & 85.1 \\
+\midrule
+\cmark & \xmark & \cmark & 1 & 98.4 & 89.0 \\
+\cmark & \xmark & \xmark & 1 & 98.6 & 89.5 \\
+\cmark & \cmark & \xmark & 1 & \textbf{99.6} & \textbf{89.7} \\
+\midrule
+\xmark & \cmark & \cmark & 1 & 98.4 & 73.4 \\
+\xmark & \xmark & \cmark & 1 & 95.2 & 66.5 \\
+\xmark & \cmark & \xmark & 1 & 96.4 & 80.0 \\
+\xmark & \xmark & \xmark & 1 & 93.6 & 50.0 \\
+\bottomrule
+\end{tabular}%
+}
+\end{minipage}%
+\hfill
+% --- 우측 열: Table 4 & Table 5 (각각 크기를 줄여 높이를 맞춤) ---
+\begin{minipage}[t]{0.41\linewidth}
+\centering
+
+% [상단] Table 4: Layer ablation (축소 및 캡션 줄바꿈 방지)
+\captionof{table}{\textbf{Layer ablation.}}
+\label{tab:predictor_layer_ablation}
+\vspace{-0.65em}
+{% <-- 1. Table 4에만 설정을 제한하기 위한 그룹 시작
+\setlength{\tabcolsep}{2.7pt}%
+\resizebox{0.85\linewidth}{!}{% % 0.88로 축소하여 세로 높이를 줄임
+\begin{tabular}{@{}ccc@{}}
+\toprule
+Split layer $L_s$  & Orig. (\%)& Plus (\%) \\
+\midrule
+0  & 5.4 & 1.8 \\
+12 & \textbf{99.6} & \textbf{70.1} \\
+19 & 95.6 & 63.4 \\
+27 & 1.2 & 1.6 \\
+33 & 0.0 & 0.0 \\
+39 & 0.0 & 0.0 \\
+\bottomrule
+\end{tabular}%
+}}
+
+\vspace{-0.25em} % 우측 두 표 사이의 간격을 좁혀 전체 높이를 튜닝
+
+% [하단] Table 5: Inference efficiency (축소)
+\captionof{table}{\textbf{Inference cost.}}
+\label{tab:inference_time}
+\vspace{0.15em}
+\resizebox{0.95\linewidth}{!}{%
+\begin{tabular}{@{}lcc@{}}
+\toprule
+Method & Size & Time \\
+\midrule
+OpenVLA-OFT~\cite{kim2024openvla}     & 7B   & 77.8ms \\
+$\pi_{0.5}$~\cite{pi05}               & 3.3B & 29.2ms   \\
+Cosmos-Policy~\cite{kim2026cosmos}    & 2B   & 382.4ms  \\
+\textbf{GAM (Ours)}                                  & \textbf{1.4B} & \textbf{6.9ms} \\
+\bottomrule
+\end{tabular}%
+    }
+\end{minipage}
+
+\vspace{-1em} % 주변 텍스트와의 하단 간격
+\end{wraptable}

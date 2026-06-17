@@ -1,0 +1,27 @@
+\begin{table}[t]
+    \centering
+    \caption{
+    \textbf{Task-wise success rates on RoboCasa-Kitchen.}
+    We report per-task success rates and the overall average.
+    }
+    \label{tab:robocasa_taskwise_mean}
+    \small
+    \setlength{\tabcolsep}{5pt}
+    \renewcommand{\arraystretch}{1.05}
+    \resizebox{\linewidth}{!}{
+    \begin{tabular}{lc lc lc lc}
+        \toprule
+        Task & SR & Task & SR & Task & SR & Task & SR \\
+        \midrule
+        PnPCabToCounter       & 40.0\% & PnPSinkToCounter   & 71.3\% & CloseDoubleDoor     & 90.0\% & TurnOffSinkFaucet & 88.3\% \\
+        PnPCounterToCab       & 50.3\% & PnPStoveToCounter  & 56.3\% & CloseSingleDoor     & 100.0\% & TurnSinkSpout     & 84.7\% \\
+        PnPCounterToMicrowave & 29.3\% & OpenSingleDoor     & 70.3\% & OpenDrawer          & 92.3\% & CoffeePressButton & 79.0\% \\
+        PnPCounterToSink      & 75.7\% & OpenDoubleDoor     & 98.3\% & CloseDrawer         & 99.3\% & TurnOnMicrowave   & 90.7\% \\
+        PnPCounterToStove     & 44.0\% & TurnOnStove        & 74.3\% & TurnOnSinkFaucet    & 89.7\% & TurnOffMicrowave  & 94.3\% \\
+        PnPMicrowaveToCounter & 11.3\% & TurnOffStove       & 30.0\% & CoffeeServeMug      & 71.3\% & CoffeeSetupMug    & 33.7\% \\
+        \midrule
+        \multicolumn{7}{r}{\textbf{Overall}} & \textbf{69.4\%} \\
+        \bottomrule
+    \end{tabular}
+    }
+\end{table}

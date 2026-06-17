@@ -1,0 +1,14 @@
+\section{Limitations}
+
+Although \method{} improves interaction, controllability, and efficiency,
+several challenges remain.
+First, long-horizon visual and geometric consistency is still difficult:
+generated worlds may drift drastically in object appearance or layout
+after extended interaction.
+% Second, event prompts can be underspecified,
+% making it hard to distinguish legitimate creative variation from failure.
+Second, control signals like caption, camera and event may conflict
+when an event produces visual content that is incompatible with the future observations in certain world settings specified by the caption.
+Third, automatic evaluation of world models remains imperfect;
+benchmarks such as Omni-WorldBench V2 are important,
+but human and task-based evaluation will remain necessary for open-ended interaction.

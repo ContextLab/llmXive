@@ -1,0 +1,34 @@
+\section{Related Work}
+\label{sec:related}
+
+\input{tab/relatedworks}
+In this section, we compare \methodshort{} against representative works in relevant fields. The comparison is illustrated in Tab.\ref{tab:comparison}.
+
+\textbf{Deep Search Agents}
+\label{sec:related:search}
+take a natural-language query and autonomously browse the web to produce a retrieval-augmented text deliverable~\cite{rag}.
+OpenAI’s Deep Research~\citep{openaidr} is the representative commercial demonstration, which browses the web~\citep{browsecomp} to collect knowledge, then augments the answer.
+MindSearch~\citep{mindsearch} decomposes the query into a graph of atomic sub-questions, each answered by a search-and-summarize role, while DeepResearcher~\citep{deepresearcher} trains the browsing policy end-to-end with reinforcement learning. MMSearch~\citep{mmsearch} casts the requery, rerank, and summarize loop as a benchmark over short-answer outputs, and OpenResearcher~\citep{openresearcher} and DR Tulu~\citep{drtulu} extend the open-source side of this line with retrieval-augmented scientific question answering and long-form report generation. 
+These systems optimize the retrieval and synthesis of sources in response to a given query, but their deliverable remains a source-centric text document: they surface and summarize evidence rather than construct a narrative angle, and the query, not an editorial judgment about what is worth telling, drives the output.
+
+\textbf{Data Visualization Agents}
+\label{sec:related:design}
+convert a fixed input into a visual or narrative artifact. 
+LIDA~\citep{lida} compiles a tabular dataset into executable visualization code, optionally restyled into an infographic. 
+DataNarrative~\citep{datanarrative} pairs a generator and an evaluator to turn tables and a story intent into a narrative interleaved with chart specifications.
+MatplotAgent~\citep{matplotagent} generates plotting code through a collaborative agent system, but fails in metadata analysis.
+CoDA~\citep{coda} further coordinates specialized agents to carry a dataset through analysis and into a composed visual report. 
+On the other hand, 
+these systems operate on the data they are given: they assume the input dataset as fixed and do not actively search for external evidence, and their output is for the most part a static visual artifact rather than an interactive one.
+
+\textbf{Data Science Agents}
+\label{sec:related:dsagent}
+take a task description with data files and use executed code to produce their deliverable. DSGym~\citep{dsgym} scores answer strings or CSV submissions in a sandbox with external tools disabled. DeepAnalyze~\citep{deepanalyze} trains an agentic model end-to-end to interleave analysis, code, and execution into a research report. Data Interpreter~\citep{datainterpreter} plans a task as a hierarchical subtask graph and emits whatever artifact the task requires, from a numeric answer to a playable mini-game. PublicAgent~\citep{publicagent} routes an ambiguous question through four agents that discover an open-data table and run validated experiments into a traceable report. AI Scientist~\citep{aiscientist,aiscientistv2} chains literature retrieval, experimentation, and writing into a workshop paper that cleared peer review. Across these systems the deliverable is a structured text artifact, and the form stays text-and-charts even when the target reader is a non-expert. In contrast, \methodshort\ packages the analysis as a multimedia article rather than a static PDF, the form a data-journalism reader actually consumes.
+
+\textbf{Data Journalists}
+\label{sec:related:journalist}
+target general-audience data communication, either producing a publishable artifact for a non-expert reader or studying the journalism workflow empirically~\cite{handbook}. 
+Recent work~\cite{brigham2024developing,journalistplan,cheng2025journalism,spangher2025novel,alshomary2026llms} has explored the use of language models in journalistic roles, such as assisting with article planning, recommending angles, and identifying sources.
+DataDirector~\citep{datadirector} fuses Vega-Lite charts, TTS audio, and animation into a passive animated data video. 
+The human data-journalist baseline produces a multimedia article with inline source citations, the gold-standard reader-facing form, but most human articles lack code-line provenance. 
+\methodshort\ closes this gap: it routes structured multi-source data through seven specialized roles into a multimedia-rich article whose Inspector binds rendered sentences and charts to specific code lines or source URLs.

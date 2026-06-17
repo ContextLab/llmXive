@@ -1,0 +1,40 @@
+\begin{table}[!h]
+\centering
+\caption{\textbf{Evaluation set.} Each row pairs a dataset with a published human-written piece. 
+Human articles rarely ship complete code, so \yespart in \textbf{Code} marks partial code (\eg~data-cleaning only).
+% Both sides of every pair are linked at \url{https://data-journalist-agent.github.io/}.
+}
+\label{tab:datasets}
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\linewidth}{@{}c c l l c >{\raggedright\arraybackslash}X@{}}
+\toprule
+\textbf{\#} & \textbf{Year} & \textbf{Domain} & \textbf{Modality} & \textbf{Code} & \textbf{Title of Human Article} \\
+\midrule
+\rowcolor{grouprow}\multicolumn{6}{@{}l}{\normalfont\rmfamily\textit{Source: The Economist}} \\
+1 & 2018 & Science  & timeseries & & The space race is dominated by new contenders \href{https://www.economist.com/graphic-detail/2018/10/18/the-space-race-is-dominated-by-new-contenders}{[link]} \\
+2 & 2018 & Media    & timeseries & & TV's golden age is real \href{https://www.economist.com/graphic-detail/2018/11/24/tvs-golden-age-is-real}{[link]} \\
+3 & 2019 & Sports   & panel      & & Managers in football matter much less than most fans think \href{https://www.economist.com/graphic-detail/2019/01/19/managers-in-football-matter-much-less-than-most-fans-think}{[link]} \\
+4 & 2019 & Politics & geospatial & & Israel's growing settlements force stark choices about its future \href{https://www.economist.com/graphic-detail/2019/02/02/israels-growing-settlements-force-stark-choices-about-its-future}{[link]} \\
+5 & 2019 & Media    & tabular    & & The Oscars' influence has waned \href{https://www.economist.com/graphic-detail/2019/03/02/the-oscars-influence-has-waned}{[link]} \\
+6 & 2020 & Health   & panel      & & Tourism flows and death rates suggest covid-19 is being under-reported \href{https://www.economist.com/graphic-detail/2020/03/07/tourism-flows-and-death-rates-suggest-covid-19-is-being-under-reported}{[link]} \\
+\midrule
+\rowcolor{grouprow}\multicolumn{6}{@{}l}{\normalfont\rmfamily\textit{Source: The Pudding}} \\
+7  & 2018 & Culture  & text       & & The Structure of Stand-Up Comedy \href{https://pudding.cool/2018/02/stand-up}{[link]} \\
+8  & 2019 & Music    & tabular    & & Vocal Register in Pop Music \href{https://pudding.cool/2019/08/register/}{[link]} \\
+9  & 2023 & Music    & tabular    & & They Won't Play a Lady-O on Country Radio \href{https://pudding.cool/2023/05/country-radio/}{[link]} \\
+10 & 2018 & Music    & tabular    & & The Eras of Boy Bands \href{https://pudding.cool/2018/11/boy-bands/}{[link]} \\
+11 & 2017 & Health   & geospatial & & How Far Is Too Far for an Abortion Clinic \href{https://pudding.cool/2017/09/clinics/}{[link]} \\
+12 & 2018 & Food     & text       & & Baking the Most Average Chocolate Chip Cookie \href{https://pudding.cool/2018/05/cookies}{[link]} \\
+\midrule
+\rowcolor{grouprow}\multicolumn{6}{@{}l}{\normalfont\rmfamily\textit{Source: TidyTuesday}} \\
+13 & 2019 & Tech     & timeseries & \yespart & Technological Progress (Moore's Law) \href{https://ourworldindata.org/grapher/transistors-per-microprocessor}{[link]} \\
+14 & 2026 & Science  & text       & \yespart & How Many Decimals of Pi Do We Really Need? \href{https://www.jpl.nasa.gov/edu/news/how-many-decimals-of-pi-do-we-really-need/}{[link]} \\
+15 & 2020 & Music    & text       & \yespart & Taylor Swift and Beyonc\'e Lyric Analysis \href{https://rpubs.com/RosieB/taylorswiftlyricanalysis}{[link]} \\
+16 & 2026 & Climate  & tabular    & \yespart & Repair Caf\'es and Consumer Waste \href{https://insideclimatenews.org/news/11112025/todays-climate-repair-cafe-consumer-waste/}{[link]} \\
+17 & 2026 & Sports   & tabular    & \yespart & Milano Cortina 2026 Olympic Schedule \href{https://www.olympics.com/en/milano-cortina-2026/schedule}{[link]} \\
+18 & 2025 & Climate  & timeseries & \yespart & Sechsel\"auten Snowman (B\"o\"ogg) Forecast \href{https://www.meteoswiss.admin.ch/weather/weather-and-climate-from-a-to-z/boeoegg-prediction.html}{[link]} \\
+\bottomrule
+\end{tabularx}
+\end{table}

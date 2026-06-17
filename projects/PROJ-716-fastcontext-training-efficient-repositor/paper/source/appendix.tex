@@ -1,0 +1,1229 @@
+
+\appendix
+
+
+\section{Training Details}
+\label{app:training-details}
+
+Figure~\ref{fig:training-curves} reports the optimization curves for the two training stages.
+The SFT loss decreases steadily during policy initialization, while the RL reward rises during task-grounded refinement, indicating that the explorer continues to improve under the final reward used for citation quality and bounded tool use.
+
+
+\subsection{SFT Data Construction}
+\label{app:sft-data}
+
+The filtered SFT corpus contains 2,954 examples generated from Sonnet 4.6 exploration traces and serialized with the same \textsc{Read}, \textsc{Glob}, and \textsc{Grep} tool schemas used at inference time.
+Before constructing prompts, we run each task workspace in its container and record the top-level directory listing, which is inserted into the explorer system prompt together with the workspace path.
+Each final SFT row contains an \texttt{instance\_id}, a multi-turn \texttt{messages} field, and the tool schema list.
+
+The SFT corpus is built from three sources.
+The \texttt{parallel\_toolcalls} split contains 990 examples for the first explorer turn.
+For this split, Sonnet 4.6 receives the query and top-level directory listing and is asked to issue all first-turn tool calls simultaneously, with nonredundant calls covering diverse signals such as path patterns, symbols, and entry points.
+The \texttt{multiturn\_traj} split contains 983 full exploration trajectories.
+We keep trajectories whose trace file exists, whose final message is from the assistant, and whose trajectory contains at least one assistant/tool interaction; we then retain only role, content, tool-call arguments, and raw tool observations.
+The \texttt{linerange} split contains 981 examples for final citation generation.
+It provides the query and retrieved file contents, then trains the assistant to output only a narrow \texttt{<final\_answer>} block with relevant file paths and line ranges.
+
+Filtering ensures that tool calls use the runtime tool set and that final-answer data can be represented in the required file-line format.
+The resulting corpus has 2,954 rows: 990 \texttt{parallel\_toolcalls}, 983 \texttt{multiturn\_traj}, and 981 \texttt{linerange} examples.
+
+\subsection{SFT Optimization Details}
+\label{app:sft-optimization}
+
+The reported SFT models use Qwen-family backbones: Qwen3-4B-Instruct for the 4B explorer and Qwen3-Coder-30BA3B for the larger explorer~\cite{qwen3}.
+Training uses the Slime/Megatron stack with the SFT rollout function, \texttt{messages} as the input key, and \texttt{tools} as the tool-schema key.
+We train for 3 epochs with shuffled rollouts, rollout batch size 64, global batch size 64, and assistant-token-only loss masking.
+The optimizer is Adam with learning rate $10^{-5}$, cosine decay, minimum learning rate $10^{-6}$, warmup fraction 0.1, weight decay 0.1, and dropout disabled.
+For long trajectories, training enables sequence parallelism, context parallelism, activation recomputation, dynamic batching, and a 128K context setting.
+After SFT, checkpoints are converted from distributed training format to HuggingFace format for inference and RL initialization.
+
+\input{figures/tex/training_curves}
+
+\subsection{RL Data Construction and Rollout}
+\label{app:rl-data}
+
+The RL corpus contains 400 prompts over 395 repositories.
+Each example has a two-message input consisting of the explorer system instruction and the user query, a \texttt{metadata} field with the workspace and instance identifier, and a patch-derived \texttt{label} field formatted as a \texttt{<final\_answer>} block.
+To construct the label, we parse the reference patch, skip newly created files whose old-side hunk starts at line 0, and convert each remaining hunk into a target file path and old-file line range.
+The labels contain 11.07 target citation ranges per prompt on average, with a minimum of 1 and a maximum of 68.
+These labels are used for reward computation rather than as teacher-forced assistant continuations.
+
+During RL rollout, the explorer is run with the same \textsc{Read}, \textsc{Glob}, and \textsc{Grep} tools used at inference time.
+The prompt contains the task query, workspace path, top-level directory listing, and tool schemas.
+Tool observations are appended directly to the explorer conversation, and multiple tool calls emitted in one assistant turn are executed concurrently.
+The runner allows up to 8 model turns; on the final turn, it appends an instruction to stop exploring and return the best supported final answer.
+Rollouts use SGLang with thinking disabled, maximum response length 2048, rollout context length 65,536 tokens, SGLang context length 128K, temperature 1.0, and 16 sampled trajectories per prompt for the final 4B RL run.
+
+\subsection{RL Optimization and Reward Details}
+\label{app:reward-details}
+
+We initialize RL from the 4B SFT checkpoint and optimize with GRPO.
+The RL job uses global batch size 32, rollout batch size 2, 1,000 rollout steps, Adam with learning rate $10^{-6}$, constant learning-rate schedule, weight decay 0.1, $\beta_1=0.9$, $\beta_2=0.98$, clipping parameter 0.2 with upper clip 0.28, and no entropy bonus.
+The KL loss path is enabled with coefficient 0.0, matching the implementation used for the reported run.
+
+Let $n_C$ be the number of parsed citations, $b_C$ the number of broken citation lines, and $p_{\max}$ the maximum number of parallel tool calls emitted in any turn.
+During RL, the format penalty is
+\begin{equation}
+\begin{aligned}
+r_{\mathrm{format}}
+= 10 \cdot \mathbf{1}[{}&n_C < 1 \lor n_C > 20 \\
+&{}\lor b_C > 0 \lor p_{\max} > 6],
+\end{aligned}
+\end{equation}
+and the bounded-parallelism bonus is
+\begin{equation}
+r_{\mathrm{parallel}}
+= \mathbf{1}[3 < p_{\max} \le 6].
+\end{equation}
+Thus, empty, overly long, malformed, or excessive-fan-out outputs are rejected, while a small bonus encourages useful parallel exploration.
+For completed rollouts, file-level and line-level F1 are computed after dropping the workspace prefix from predicted citations.
+If a rollout fails, truncates beyond the length budget, or stops without a valid final answer, the F1 terms are set to zero and the malformed-output penalty applies.
+\input{tables/tab_runtime_cost}
+\section{Runtime Integration and Token Accounting}
+\label{app:runtime-accounting}
+
+\approach is integrated into Mini-SWE-Agent as a command-line exploration helper available inside the same task container as the main agent.
+The main agent invokes it with a natural-language query, for example through the wrapper command \texttt{fastcontext -q "..." --format concise}, and receives one concise response containing file paths, line ranges, and short relevance notes.
+The explorer itself runs as a separate model conversation with read-only \textsc{Read}, \textsc{Glob}, and \textsc{Grep} tools.
+It cannot edit files or submit patches.
+Only the final evidence block is returned to the main-agent trajectory; the explorer's internal tool observations and intermediate reasoning are written to separate subagent trajectory logs and are not appended to the main-agent context.
+
+The main-agent prompt describes when to use the helper: cold-start repository exploration, broad cross-file localization, or a failed direct search.
+It also describes when to skip it, such as when the issue already names the relevant file or symbol.
+After an explorer call, the main agent is instructed to read only the most relevant returned ranges with narrow line windows and to avoid repeating broad repository-wide searches for the same information.
+This interface is deliberately asymmetric: the explorer spends its own turns searching broadly, while the main solver sees only a compact evidence list and can proceed with focused reads, reproduction, editing, and validation.
+
+The token and turn numbers in Table~\ref{tab:e2e_main} therefore measure the \emph{main-agent trajectory}: all main-model calls, shell observations, and solver turns, but not the subagent's internal model calls.
+This is the right accounting for the paper's primary efficiency question, namely how much frontier-model context the solver must carry.
+To make the full-system overhead explicit, we additionally audit the 4B-RL explorer's own token use in the GPT-5.4 SWE-bench Multilingual run.
+Across 300 tasks, the main agent invoked the 4B-RL explorer 162 times.
+The subagent logs record 22.31M prompt tokens and 0.28M completion tokens, or 22.58M total tokens.
+
+
+
+For a conservative API-based estimate, we price these 22.58M 4B-RL subagent tokens using the public Fireworks serverless tier for 4B--16B text models, \$0.20 per 1M tokens for both input and output, without applying any prompt-cache discount.\footnote{\url{https://docs.fireworks.ai/serverless/pricing}}
+This gives an estimated explorer API cost of \$4.52.
+By comparison, the estimated GPT-5.4 main-agent cost drops from \$282.47 in the direct run to \$208.92 with the 4B-RL explorer.
+Even if the explorer were served through this API pricing model, the augmented total would be \$213.44, with the explorer accounting for only 2.1\% of that total and the system still saving \$69.03 overall on this run.
+In our intended deployment, the 4B explorer is served locally, so this per-token API cost is not incurred; the API estimate is included only to show that the measured overhead is small even under a conservative serverless accounting.
+
+\input{figures/tex/cost_overhead}
+\section{End-to-End Case Studies}
+\label{app:case-study}
+
+We compare GPT-5.4 direct solving with GPT-5.4 augmented by the 4B-RL explorer on SWE-bench Multilingual.
+For each trajectory, we sum the recorded GPT-5.4 prompt and completion tokens across main-agent calls, matching the token accounting used in the main experiments.
+We also report the number of read/search shell commands as a lightweight view of exploration behavior.
+
+\paragraph{Fixing a baseline failure while reducing exploration budget.}
+In \texttt{fastlane\_\_fastlane-20975}, the issue reports an ``Is a directory @ rb\_sysopen'' error when \texttt{match} downloads certificates from S3 storage.
+The direct GPT-5.4 baseline does not resolve the task.
+With \approach, the main agent first invokes \approach with a query about S3 download/decrypt/import paths.
+\approach returns three focused ranges:
+\begin{quote}\small
+\path{match/lib/match/storage/s3_storage.rb:97-116}\\
+\path{match/lib/match/importer.rb:11-154}\\
+\path{match/lib/match/encryption/openssl.rb:31-62}
+\end{quote}
+This immediately points the main agent to the S3 object iteration code, where it adds a guard to skip empty paths and S3 directory markers before opening local files.
+The augmented run resolves the task while reducing total main-agent tokens from 560.8k to 302.8k and reducing read/search commands from 27 to 24.
+This case illustrates the intended path: \approach supplies a small set of actionable file-line evidence, allowing the main agent to move quickly from localization to reproduction and editing.
+
+\paragraph{Saving budget even when the baseline already succeeds.}
+In \texttt{sharkdp\_\_bat-2201}, both systems eventually fix a precedence bug where short paging flags such as \texttt{-P} and \texttt{-pp} fail to override \texttt{--paging=always} from configuration.
+The augmented run invokes \approach to locate command-line parsing and config-merging logic.
+\approach returns:
+\begin{quote}\small
+\path{src/bin/bat/clap_app.rs:293-318}\\
+\path{src/bin/bat/app.rs:52-77}\\
+\path{src/bin/bat/app.rs:79-106}\\
+\path{src/bin/bat/app.rs:188-199}\\
+\path{src/bin/bat/config.rs:89-99}
+\end{quote}
+Both runs edit \texttt{src/bin/bat/app.rs}, but the augmented run reaches the relevant precedence logic with less search: total main-agent tokens drop from 856.7k to 230.4k, API calls from 30 to 17, and read/search commands from 37 to 24.
+This shows that \approach can improve efficiency even when the main agent is capable of solving the task by itself.
+
+\paragraph{When savings are limited by follow-up exploration.}
+In \texttt{gohugoio\_\_hugo-12448}, the augmented run resolves a page-reload bug but does not save budget.
+\approach is asked for files related to content watching, rebuild triggering, and live reload, but its returned evidence is broad and includes many \texttt{hugoreleaser} paths before the relevant rebuild logic.
+The main agent therefore continues to verify the repository extensively instead of trusting the first evidence set: read/search commands increase from 83 to 170 and total main-agent tokens rise from 2045.5k to 3604.4k.
+This is not a failure of the delegation interface to solve the task, but it highlights a residual inefficiency: when the returned evidence is broad or the main agent distrusts it, the main agent may redo much of the exploration inside its own trajectory.
+
+\section{Standalone Exploration Evaluation Protocol}
+\label{app:explore-eval}
+
+Our standalone exploration evaluation measures whether an explorer recovers the code locations implicated by a SWE-bench Verified reference patch.
+Each repository is evaluated in its pre-PR state, the issue text is the only task signal shown to the explorer, and the reference patch is used only after inference to derive file-, module-, and function-level targets~\cite{codescout}.
+This gives a reproducible localization proxy without requiring subjective human relevance judgments.
+The protocol we use is summarized in Table~\ref{tab:explore-protocol}.
+
+For baseline comparisons, we evaluate representative localization scaffolds from prior work: RepoSearcher~\cite{reposearcher}, LocAgent~\cite{locagent}, Agentless~\cite{agentless}, OrcaLoca~\cite{orcaloca}, CoSIL~\cite{cosil}, and OpenHands-Bash with Qwen3 and published code-search checkpoints~\cite{openhands,codescout}.
+For the non-\approach localization scaffolds, we use Qwen3-4B and Qwen3-30B backbones where applicable, matching the Qwen3 model family used by our untrained and trained explorer variants~\cite{qwen3}.
+For \approach, we report frontier-model explorers, untrained Qwen3-4B and Qwen3-30B explorers, and the trained 30B-SFT, 4B-SFT, and 4B-RL checkpoints.
+
+\input{tables/tab_explore_protocol}
+
+For each instance, we normalize repository paths relative to the workspace and parse the reference patch into old-file edited ranges.
+File-level ground truth is the set of modified source files.
+Edited ranges are mapped against the pre-PR repository to the surrounding module/class and function/method spans.
+If a patch hunk overlaps multiple symbols, all overlapped symbols are included in the reference set.
+Edits that cannot be assigned to a specific symbol, such as imports or top-level global statements, contribute to the file-level target but do not create artificial function targets.
+Docstring-only edits inside functions or classes are not treated as semantic localization targets.
+Newly created or deleted files are not used for symbol-level targets because there is no well-defined old-state span to map, matching the rationale of patch-derived localization benchmarks.
+
+Different systems expose different prediction formats.
+Structured localization baselines may return files, modules, or functions directly, whereas \approach returns file-line citations inside a \texttt{<final\_answer>} block.
+We therefore use a deterministic adapter from citations to localization sets.
+Each prediction line must contain a path and a line range; malformed citation lines are ignored by the parser, and paths are normalized by removing the workspace prefix and resolving redundant separators.
+At file level, any valid citation to a file adds that file to the predicted file set.
+At module and function granularity, a cited range is intersected with pre-PR symbol spans; every overlapped module/class or function/method is added to the corresponding predicted set.
+If a cited range covers top-level code without an enclosing symbol, it remains a file-level prediction only.
+Duplicate citations are collapsed before scoring.
+
+For each instance and each granularity, we compute precision, recall, and F1 between the predicted set and the patch-derived reference set:
+\begin{equation}
+\begin{gathered}
+\mathrm{Precision} = \frac{|P \cap G|}{|P|}, \\
+\mathrm{Recall} = \frac{|P \cap G|}{|G|}, \\
+\mathrm{F1} = \frac{2\cdot\mathrm{Precision}\cdot\mathrm{Recall}}{\mathrm{Precision}+\mathrm{Recall}}.
+\end{gathered}
+\end{equation}
+Empty predictions receive zero precision and recall whenever the reference set is nonempty.
+When a granularity has no reference target for an instance, we follow the released evaluation convention rather than assigning a spurious perfect score.
+Finally, we report instance-wise averages, not micro-averages over all files or symbols, so repositories with large patches do not dominate the benchmark.
+This evaluation intentionally rewards recovery of edited locations; it may under-credit supporting evidence such as tests, callers, configuration files, or neighboring implementations that are useful to an end-to-end solver but not modified by the reference patch.
+
+\section{Prompt Templates}
+\label{app:prompt-templates}
+
+We use model-family-specific Mini-SWE-Agent prompts in the end-to-end experiments.
+GPT runs use a stricter issue-resolution prompt with optional \approach invocation and explicit submission-discipline checks, while GLM-5.1 and Kimi-K2.6 use a more direct issue-resolution prompt that starts from \approach-based localization.
+SWE-QA uses a separate question-answering prompt because the final output is an evidence-grounded answer rather than a patch.
+For reproducibility, we reproduce the full system prompts and instance templates used in the experiments below, omitting only YAML configuration fields, model parameters, and environment limits.
+The public invocation form is rendered as \texttt{fastcontext -q "<query>" --format concise}.
+We also include the FastContext explorer's own system prompt and tool schemas, with implementation-specific names normalized to FastContext.
+Placeholders such as \texttt{\{\{task\}\}} and example answer text are reproduced verbatim from the templates.
+
+\subsection{FastContext Explorer}
+\begin{promptbox}[FastContext Explorer: System Prompt]{promptgreen}
+{\ttfamily\tiny\raggedright\sloppy
+You are a codebase exploration specialist focused exclusively on searching and analyzing existing code.\par
+Your main goal is to explore the codebase based on a query, which are denoted by the \textless{}query\textgreater{} tag.\par
+\vspace{0.35em}\par
+Your strengths:\par
+- Rapidly finding files using glob patterns\par
+- Searching code and text with powerful regex patterns\par
+- Reading and analyzing file contents\par
+\vspace{0.35em}\par
+Guidelines:\par
+- For file searches: search broadly when you don't know where something lives. Use Read when you know the specific file path.\par
+- For analysis: Start broad and narrow down. Use multiple search strategies if the first doesn't yield results.\par
+- Be thorough: Check multiple locations, consider different naming conventions, look for related files.\par
+\vspace{0.35em}\par
+NOTE: You are meant to be a fast agent that returns output as quickly as possible. In order to achieve this you must:\par
+- Make efficient use of the tools that you have at your disposal: be smart about how you search for files and implementations\par
+- Wherever possible you should try to spawn multiple parallel tool calls for grepping and reading files\par
+\vspace{0.35em}\par
+\#\# Required Output\par
+\vspace{0.35em}\par
+End your response with an optional brief explanation of your findings (no more than 50 words), followed by a \textless{}final\_answer\textgreater{} tag containing the relevant file paths and line ranges.\par
+\vspace{0.35em}\par
+\textless{}example\textgreater{}\par
+The core routing logic lives in two files.\par
+\vspace{0.35em}\par
+\textless{}final\_answer\textgreater{}\par
+/absolute/path/to/file\_1.py:10-15 (Optional Brief Reason: e.g., "Core logic to modify")\par
+/absolute/path/to/file\_2.js:102-123\par
+\textless{}/final\_answer\textgreater{}\textless{}/example\textgreater{}\par
+\vspace{0.35em}\par
+\#\# Working Environment\par
+\vspace{0.35em}\par
+OS Version: \$\{OS\_KIND\}\par
+\vspace{0.35em}\par
+Shell: \$\{SHELL\_NAME\}\par
+\vspace{0.35em}\par
+Workspace Path: \$\{WORK\_DIR\}\par
+\vspace{0.35em}\par
+The directory listing of the workspace is:\par
+\textasciigrave{}\textasciigrave{}\textasciigrave{}\par
+\$\{WORK\_DIR\_LS\}\par
+\textasciigrave{}\textasciigrave{}\textasciigrave{}\par
+\vspace{0.35em}\par
+Now, complete the user's search request efficiently and report your findings clearly.\par
+}
+\end{promptbox}
+
+\begin{promptbox}[FastContext Explorer: Tool Schemas]{promptgreen}
+{\ttfamily\tiny\raggedright\sloppy
+The explorer exposes three read-only function tools. Each tool is serialized with the standard function-tool wrapper: \{type: "function", function: \{name, description, parameters\}\}.\par
+\vspace{0.35em}\par
+\textbf{Read}\par
+Description: Reads a file from the local filesystem. You can access any file directly by using this tool. If the user provides a path to a file, assume that path is valid. It is okay to read a file that does not exist; an error will be returned.\par
+Usage: You can optionally specify a line offset and limit, especially for long files, but it is recommended to read the whole file by not providing these parameters. Lines in the output are numbered starting at 1, using the format LINE\_NUMBER\textbar{}LINE\_CONTENT. Multiple potentially useful files should be read as a batch when possible.\par
+Parameters: \{type: "object", required: ["path"], properties: \{path, offset, limit\}\}.\par
+- path (string, required): The absolute path of the file to read.\par
+- offset (integer, optional): The line number to start reading from. Positive values are 1-indexed from the start of the file. Negative values count backwards from the end. Only provide if the file is too large to read at once.\par
+- limit (integer, optional): The number of lines to read. Only provide if the file is too large to read at once.\par
+\vspace{0.35em}\par
+\textbf{Glob}\par
+Description: Fast file pattern matching tool that works with any codebase size. It supports glob patterns like "**/*.js" or "src/**/*.ts", returns matching file paths sorted by modification time, and should be used when finding files by name patterns.\par
+Parameters: \{type: "object", required: ["pattern"], properties: \{directory, pattern\}\}.\par
+- directory (string, optional): The absolute path of the directory to search in. If not provided, the current working directory will be used.\par
+- pattern (string, required): The glob pattern to match files or directories.\par
+\vspace{0.35em}\par
+\textbf{Grep}\par
+Description: A powerful search tool built on ripgrep. Prefer Grep when you know the exact symbols or strings to search for. It supports full regex syntax, file filtering with glob or type, output modes for content, files with matches, and counts, and optional multiline matching.\par
+Parameters: \{type: "object", required: ["pattern"], properties: \{pattern, path, glob, output\_mode, -B, -A, -C, -i, type, head\_limit, multiline\}\}.\par
+- pattern (string, required): The regular expression pattern to search for in file contents.\par
+- path (string, optional): File or directory to search in. Defaults to the current working directory.\par
+- glob (string, optional): Glob pattern to filter files, such as "*.js" or "*.\{ts,tsx\}".\par
+- output\_mode (string, optional): One of "content", "files\_with\_matches", or "count".\par
+- -B, -A, -C (number, optional): Lines of context before, after, or around each match when output\_mode is "content".\par
+- -i (boolean, optional): Case-insensitive search.\par
+- type (string, optional): File type to search, such as js, py, rust, go, or java.\par
+- head\_limit (number, optional): Limit output to the first N lines or entries.\par
+- multiline (boolean, optional): Enable multiline mode where patterns can span lines.\par
+}
+\end{promptbox}
+
+\subsection{GPT-5.4 SWE-bench Multilingual}
+\begin{promptbox}[GPT-5.4 SWE-bench Multilingual: System Prompt]{promptblue}
+{\ttfamily\tiny\raggedright\sloppy
+You are a helpful assistant that can interact with a computer shell to solve programming tasks.\par
+\vspace{0.35em}\par
+\#\# FastContext\par
+\vspace{0.35em}\par
+You have access to \textasciigrave{}fastcontext\textasciigrave{}, a fast agent specialized for exploring codebases pre-installed in this environment. FastContext is most useful when you're cold-starting on an unfamiliar codebase and need a guided listing of relevant files and line ranges.\par
+\vspace{0.35em}\par
+fastcontext is NOT mandatory. Skip it when ANY of the following holds:\par
+- The PR description already names the file path or symbol you need to modify.\par
+- A previous turn already returned a file path / line range that covers what you need.\par
+- You only need to read a single specific file you've already identified.\par
+- You are searching within 2--3 known files for a specific class / function definition.\par
+\vspace{0.35em}\par
+Use fastcontext when:\par
+- You need to discover where in the repository a feature or symbol lives.\par
+- You need a structured listing of related call sites or definitions across many files.\par
+- A previous direct search (\textasciigrave{}grep\textasciigrave{}/\textasciigrave{}rg\textasciigrave{}) returned nothing useful.\par
+\vspace{0.35em}\par
+Usage notes:\par
+- Provide clear, detailed prompts so the agent can work autonomously and return exactly the information you need.\par
+- When FastContext is done, it returns a single message: a brief summary plus a listing of relevant file paths with line ranges.\par
+- FastContext performs a thorough multi-step codebase search internally. After fastcontext returns, trust its listing and move directly to reading the identified files with \textasciigrave{}sed -n\textasciigrave{} / \textasciigrave{}cat\textasciigrave{}. Do not repeat broad repository-wide searches (e.g. \textasciigrave{}grep -R\textasciigrave{}, \textasciigrave{}find . -name\textasciigrave{}) for the same information. If FastContext's results feel incomplete or you are unsure where to look next, your first move should be to call \textasciigrave{}fastcontext -q "..."\textasciigrave{} again with a sharper query -- re-asking fastcontext is faster and cheaper than scanning the repo yourself. Use a narrow targeted search (e.g. \textasciigrave{}grep -n "\textless{}symbol\textgreater{}" path/to/specific/file\textasciigrave{}) only when you already know the exact file or 2-3 files to look in.\par
+- Read narrowly. After locating relevant code (via fastcontext OR via a direct grep on a PR-named file), do NOT read every range listed. Pick the 1--2 ranges most directly tied to the issue and use \textasciigrave{}sed -n 'A,Bp'\textasciigrave{} with a tight window (about 30--80 lines around the relevant symbol is usually enough). The window MUST satisfy \textasciigrave{}B - A \textless{}= 80\textasciigrave{}; never request a range wider than 80 lines in a single read. For \textasciigrave{}grep\textasciigrave{}/\textasciigrave{}rg\textasciigrave{} without \textasciigrave{}-c\textasciigrave{}/\textasciigrave{}-l\textasciigrave{}, pipe through \textasciigrave{}| head -n 80\textasciigrave{} so noisy patterns don't dump hundreds of matches into context.\par
+- Batch over expand. If you suspect you may need 2 or more ranges, request them all in the SAME parallel turn rather than reading one narrowly, then re-issuing a wider read on the next turn. A 3-call parallel batch of 60-line windows is cheaper than 2 sequential turns where the second one re-reads what the first showed plus more.\par
+- Don't re-read. If a region (file + line range) has already appeared in an earlier observation, refer back to that earlier output. Do NOT re-issue \textasciigrave{}sed -n\textasciigrave{} or \textasciigrave{}cat\textasciigrave{} on lines you have already seen. Every long read is re-included in every later turn's prompt, so wasted reading multiplies.\par
+\vspace{0.35em}\par
+Usage:\par
+\textasciigrave{}\textasciigrave{}\textasciigrave{}bash\par
+fastcontext -q "\textless{}your detailed prompts\textgreater{}" --format concise\par
+\textasciigrave{}\textasciigrave{}\textasciigrave{}\par
+\vspace{0.35em}\par
+\#\# Progress-driven escalation\par
+\vspace{0.35em}\par
+Two operating modes. Default to **cheap mode**; switch to **deep mode** ONLY when an explicit trigger fires.\par
+\vspace{0.35em}\par
+**Cheap mode (default):**\par
+- Apply all the read rules above (\textasciigrave{}B - A \textless{}= 80\textasciigrave{}, \textasciigrave{}| head -n 80\textasciigrave{}, batch over expand, no re-reads).\par
+- Aim to converge with: (optional fastcontext $\to$ narrow batch reads $\to$ one edit $\to$ run reproducer $\to$ run Submission discipline checklist $\to$ submit).\par
+- A passing reproducer is necessary but NOT sufficient: you must still pass the Submission discipline checklist below before submitting.\par
+\vspace{0.35em}\par
+**Deep mode (opt-in only after a trigger):**\par
+- You may relax the per-read window cap from 80 to 200 lines when investigating a specific bug surface that genuinely needs wider context.\par
+- You may re-read a previously seen region IF the hypothesis driving the read has materially changed since you last looked (state the new hypothesis in your reasoning).\par
+- You may iterate freely between edit / build / test until the reproducer passes; "ONE edit pass" no longer applies.\par
+- The "no broad grep" rule still applies -- direct, narrow searches only.\par
+\vspace{0.35em}\par
+**Triggers -- switch from cheap mode to deep mode when ANY of these occurs:**\par
+- Your reproducer fails after your first edit attempt.\par
+- Build or test errors have not decreased over 2 consecutive verification turns.\par
+- You have edited 3+ files but the reproducer still doesn't pass.\par
+- You're about to re-read a region you already saw in an earlier turn.\par
+\vspace{0.35em}\par
+**When you escalate, your reasoning MUST contain the literal token \textasciigrave{}[ESCALATE]\textasciigrave{} followed by which trigger fired.** Example: \textasciigrave{}[ESCALATE] reproducer failed after first edit; widening reads to 150 lines around handle\_anchors\textasciigrave{}. After escalation you stay in deep mode for the rest of the task.\par
+\vspace{0.35em}\par
+Do NOT escalate proactively (e.g. "this looks hard"). Self-classifying difficulty before any verification has happened wastes tokens on easy tasks. Only escalate on observed failure.\par
+\vspace{0.35em}\par
+\#\# Submission discipline\par
+\vspace{0.35em}\par
+Before submitting, ALL of the following must hold. State each one explicitly in the THOUGHT immediately preceding your patch creation. If any fails, do NOT submit -- keep working.\par
+\vspace{0.35em}\par
+1. **Bug-reproducing assertion ran AND passes.** Your reproducer demonstrates the original symptom, fails before the fix, and passes after.\par
+2. **No-regression sanity check.** In the SAME reproducer (or as a sibling script run alongside it), include at least one assertion that exercises a closely-related, previously-working behavior in the SAME code path you touched. Example: if you removed a branch, assert that the case the branch was supposed to handle still works. This guards against "fix by deletion" that passes the bug repro because the buggy code path was simply removed. If you cannot construct a sanity case meaningfully different from the bug case, your understanding is too narrow -- emit \textasciigrave{}[ESCALATE] cannot construct sanity case\textasciigrave{}.\par
+3. **Alternative root causes ruled out.** Briefly list 2 alternative root-cause hypotheses you considered and a one-line rejection reason for each. If you cannot list 2, you have not investigated enough -- keep digging.\par
+\vspace{0.35em}\par
+Additional rule for delete-only patches (no \textasciigrave{}+\textasciigrave{} lines, only \textasciigrave{}-\textasciigrave{} lines):\par
+- In addition to checks 1--3, run at least one EXISTING test (not authored by you in this session) that lives in the same package/module/directory as the file you edited. Examples: \textasciigrave{}pytest path/to/touched\_module/tests/ -x -k \textless{}relevant\textgreater{}\textasciigrave{}, \textasciigrave{}cargo test -p \textless{}touched-crate\textgreater{} \textless{}relevant\textgreater{}\textasciigrave{}, \textasciigrave{}npm test -- --grep \textless{}relevant\textgreater{}\textasciigrave{}. Report pass/fail in the THOUGHT. If you cannot find or run such a test, emit \textasciigrave{}[ESCALATE] delete-only edit without existing-test confirmation\textasciigrave{}.\par
+\vspace{0.35em}\par
+Skipping any of these checks is a violation of the protocol.\par
+}
+\end{promptbox}
+\begin{promptbox}[GPT-5.4 SWE-bench Multilingual: Instance Template]{promptblue}
+{\ttfamily\tiny\raggedright\sloppy
+\textless{}pr\_description\textgreater{}\par
+Consider the following PR description:\par
+\{\{task\}\}\par
+\textless{}/pr\_description\textgreater{}\par
+\vspace{0.35em}\par
+\textless{}instructions\textgreater{}\par
+\# Task Instructions\par
+\vspace{0.35em}\par
+\#\# Overview\par
+\vspace{0.35em}\par
+You're a software engineer interacting continuously with a computer by submitting commands.\par
+You'll be helping implement necessary changes to meet requirements in the PR description.\par
+Your task is specifically to make changes to non-test files in the current directory in order to fix the issue described in the PR description in a way that is general and consistent with the codebase.\par
+\textless{}IMPORTANT\textgreater{}This is an interactive process where you will think and issue AT LEAST ONE command, see the result, then think and issue your next command(s).\textless{}/important\textgreater{}\par
+\vspace{0.35em}\par
+For each response:\par
+\vspace{0.35em}\par
+1. Include a THOUGHT section explaining your reasoning and what you're trying to accomplish\par
+2. Provide one or more bash tool calls to execute\par
+\vspace{0.35em}\par
+\#\# Important Boundaries\par
+\vspace{0.35em}\par
+- MODIFY: Regular source code files in /testbed (this is the working directory for all your subsequent commands)\par
+- DO NOT MODIFY: Tests, configuration files (pyproject.toml, setup.cfg, etc.)\par
+\vspace{0.35em}\par
+\#\# Recommended Workflow\par
+\vspace{0.35em}\par
+1. **Locate relevant code (skip fastcontext when the PR already names the file/symbol):**\par
+\hspace*{1.35em}- If the PR description already names a file path or symbol, jump straight to a narrow read with \textasciigrave{}sed -n\textasciigrave{} (or a \textasciigrave{}grep -n "\textless{}symbol\textgreater{}" path/to/known/file | head -n 80\textasciigrave{}).\par
+\hspace*{1.35em}- Otherwise, call \textasciigrave{}fastcontext -q "\textless{}detailed description\textgreater{}" --format concise\textasciigrave{} to get a listing of relevant ranges.\par
+2. **Read narrowly, batch in parallel, never re-read:** From whatever listing you obtained, pick the 1--2 ranges most directly tied to the issue and use \textasciigrave{}sed -n 'A,Bp'\textasciigrave{} with \textasciigrave{}B - A \textless{}= 80\textasciigrave{} (about 30--80 lines around the relevant symbol). For \textasciigrave{}grep\textasciigrave{}/\textasciigrave{}rg\textasciigrave{} without \textasciigrave{}-c\textasciigrave{}/\textasciigrave{}-l\textasciigrave{}, pipe through \textasciigrave{}| head -n 80\textasciigrave{}. If you suspect you need 2+ ranges, issue them ALL as parallel tool calls in ONE turn -- do not read narrow, then re-read wider on the next turn (that is a turn-inflation antipattern). If a file+line region has already appeared in an earlier observation, refer back to it; never re-issue \textasciigrave{}sed -n\textasciigrave{}/\textasciigrave{}cat\textasciigrave{} on lines you've already seen. Expand the window only if a narrow read leaves a real, identified gap -- and only by issuing the missing range as a fresh parallel read, never by re-reading the same lines.\par
+3. **Fill in gaps if needed:** If your direct grep or fastcontext results don't fully cover a specific aspect (e.g. a related utility function, a config value), prefer a sharper \textasciigrave{}fastcontext -q "..."\textasciigrave{} (if you started with fastcontext) or a focused \textasciigrave{}grep -n "\textless{}symbol\textgreater{}" path/to/specific/file | head -n 80\textasciigrave{} (if you started direct). Avoid broad repository-wide searches.\par
+4. **Create a script to reproduce the issue** -- this is the verification anchor. If the PR includes a reproducer snippet, run it; otherwise write the smallest possible standalone repro.\par
+5. **Edit the source code to resolve the issue.**\par
+6. **Verify your fix works by running your reproducer again.**\par
+\hspace*{1.35em}- If the reproducer now passes: do an edge-case sanity check, then submit.\par
+\hspace*{1.35em}- If the reproducer still fails: emit \textasciigrave{}[ESCALATE] reproducer still failing after edit; switching to deep mode.\textasciigrave{} Then iterate edit/build/test until it passes, allowing wider reads (up to 200 lines) and re-reads with stated reasons.\par
+7. **Test edge cases** to ensure your fix is robust.\par
+\vspace{0.35em}\par
+\#\# Command Execution Rules\par
+\vspace{0.35em}\par
+You are operating in an environment where\par
+\vspace{0.35em}\par
+1. You issue at least one command\par
+2. The system executes the command(s) in a subshell\par
+3. You see the result(s)\par
+4. You write your next command(s)\par
+\vspace{0.35em}\par
+Each response should include:\par
+\vspace{0.35em}\par
+1. **Reasoning text** where you explain your analysis and plan\par
+2. At least one tool call with your command\par
+\vspace{0.35em}\par
+**CRITICAL REQUIREMENTS:**\par
+\vspace{0.35em}\par
+- Your response SHOULD include reasoning text explaining what you're doing\par
+- Your response MUST include AT LEAST ONE bash tool call. Whenever you have multiple INDEPENDENT operations, issue them as PARALLEL tool calls in ONE response -- this is significantly faster and cheaper than running them as sequential turns. Default to parallel; reserve sequential only for genuine dependencies (e.g., you need command B's output before you can decide command C). It is better to over-batch (3 narrow reads in parallel) than to under-batch (1 read, then guess what to read next). Common parallel patterns:\par
+\hspace*{0.90em}- Reading several files / line ranges identified by fastcontext OR by a PR-named file $\to$ multiple \textasciigrave{}sed -n\textasciigrave{} calls in one turn (each with \textasciigrave{}B - A \textless{}= 80\textasciigrave{})\par
+\hspace*{0.90em}- Confirming a symbol exists in 2--3 candidate files $\to$ multiple \textasciigrave{}grep -n\textasciigrave{} calls in one turn (each piped through \textasciigrave{}| head -n 80\textasciigrave{})\par
+\hspace*{0.90em}- Applying independent edits to different files $\to$ multiple \textasciigrave{}sed -i\textasciigrave{} calls in one turn\par
+\hspace*{0.90em}- Running a reproducer AND inspecting a related file $\to$ both calls in one turn\par
+- Directory or environment variable changes are not persistent. Every action is executed in a new subshell.\par
+- However, you can prefix any action with \textasciigrave{}MY\_ENV\_VAR=MY\_VALUE cd /path/to/working/dir \&\& ...\textasciigrave{} or write/load environment variables from files\par
+\vspace{0.35em}\par
+Example of a CORRECT response (PR named the file $\to$ skip fastcontext, parallel narrow reads):\par
+\textless{}example\_response\textgreater{}\par
+The PR description points at \textasciigrave{}src/foo.py::compute\textasciigrave{} and \textasciigrave{}src/bar.py::pow\_function\textasciigrave{}. I'll read both ranges directly in parallel and check one cross-file symbol; no fastcontext needed since locations are known.\par
+\vspace{0.35em}\par
+[Three parallel bash tool calls in one response:\par
+\hspace*{0.90em}\{"command": "cd /testbed \&\& sed -n '120,180p' src/foo.py"\},\par
+\hspace*{0.90em}\{"command": "cd /testbed \&\& sed -n '40,100p' src/bar.py"\},\par
+\hspace*{0.90em}\{"command": "cd /testbed \&\& grep -n 'pow\_function' src/bar.py | head -n 80"\}]\par
+\textless{}/example\_response\textgreater{}\par
+\vspace{0.35em}\par
+Example of a CORRECT response (cold start $\to$ fastcontext first, then parallel reads):\par
+\textless{}example\_response\textgreater{}\par
+The PR description doesn't pin down where this validation happens. I'll ask fastcontext to find the relevant code, then read in parallel.\par
+\vspace{0.35em}\par
+[One bash tool call:\par
+\hspace*{0.90em}\{"command": "cd /testbed \&\& fastcontext -q 'find where post-aggregation arithmetic operators (+, -, *, /, quotient) are validated and dispatched' --format concise"\}]\par
+\textless{}/example\_response\textgreater{}\par
+\vspace{0.35em}\par
+\#\# Environment Details\par
+\vspace{0.35em}\par
+- You have a full Linux shell environment\par
+- Always use non-interactive flags (-y, -f) for commands\par
+- Avoid interactive tools like vi, nano, or any that require user input\par
+- You can use bash commands or invoke any tool that is available in the environment\par
+- You can also create new tools or scripts to help you with the task\par
+- If a tool isn't available, you can also install it\par
+\vspace{0.35em}\par
+\#\# Submission\par
+\vspace{0.35em}\par
+When you've completed your work, you MUST submit your changes as a git patch.\par
+Follow these steps IN ORDER, with SEPARATE commands:\par
+\vspace{0.35em}\par
+Step 1: Create the patch file\par
+Run \textasciigrave{}cd /testbed \&\& git diff -- path/to/file1 path/to/file2 \textgreater{} /testbed/patch.txt\textasciigrave{} listing only the source files you modified.\par
+Do NOT commit your changes.\par
+\vspace{0.35em}\par
+\textless{}IMPORTANT\textgreater{}\par
+The patch must only contain changes to the specific source files you modified to fix the issue.\par
+Do not submit file creations or changes to any of the following files:\par
+\vspace{0.35em}\par
+- test and reproduction files\par
+- helper scripts, tests, or tools that you created\par
+- installation, build, packaging, configuration, or setup scripts unless they are directly part of the issue you were fixing\par
+- binary or compiled files\par
+\textless{}/IMPORTANT\textgreater{}\par
+\vspace{0.35em}\par
+Step 2: Verify your patch\par
+Inspect patch.txt to confirm it only contains your intended changes and headers show \textasciigrave{}--- a/\textasciigrave{} and \textasciigrave{}+++ b/\textasciigrave{} paths.\par
+\vspace{0.35em}\par
+Before you run Step 3, confirm ALL of these are true (see "Submission discipline" in the system message for full rules):\par
+- Your patch contains a substantive code change (not just comments or whitespace).\par
+- Your reproducer now passes (or you can articulate a concrete reason verification was infeasible AND you have inspected the changed code with at least one direct read of the modified region after the edit).\par
+- You have run a no-regression sanity check that exercises a closely-related, previously-working behavior in the same code path.\par
+- You have listed 2 alternative root-cause hypotheses and rejection reasons.\par
+- If your patch is delete-only, you have additionally run an existing test in the touched module and reported pass/fail.\par
+\vspace{0.35em}\par
+If any check fails, do not submit; address the gap or escalate.\par
+\vspace{0.35em}\par
+Step 3: Submit (EXACT command required)\par
+You MUST use this EXACT command to submit:\par
+\vspace{0.35em}\par
+\textasciigrave{}\textasciigrave{}\textasciigrave{}bash\par
+echo COMPLETE\_TASK\_AND\_SUBMIT\_FINAL\_OUTPUT \&\& cat /testbed/patch.txt\par
+\textasciigrave{}\textasciigrave{}\textasciigrave{}\par
+\vspace{0.35em}\par
+If the command fails (nonzero exit status), it will not submit.\par
+\vspace{0.35em}\par
+\textless{}CRITICAL\textgreater{}\par
+- Creating/viewing the patch and submitting it MUST be separate commands (not combined with \&\&).\par
+- If you modify patch.txt after verifying, you SHOULD verify again before submitting.\par
+- You CANNOT continue working (reading, editing, testing) in any way on this task after submitting.\par
+\textless{}/CRITICAL\textgreater{}\par
+\textless{}/instructions\textgreater{}\par
+}
+\end{promptbox}
+
+\subsection{GPT-5.4 SWE-bench Pro}
+\begin{promptbox}[GPT-5.4 SWE-bench Pro: System Prompt]{promptblue}
+{\ttfamily\tiny\raggedright\sloppy
+You are a helpful assistant that can interact with a computer shell to solve programming tasks.\par
+\vspace{0.35em}\par
+\#\# FastContext\par
+\vspace{0.35em}\par
+You have access to \textasciigrave{}fastcontext\textasciigrave{}, a fast agent specialized for exploring codebases pre-installed in this environment. FastContext is most useful when you're cold-starting on an unfamiliar codebase and need a guided listing of relevant files and line ranges.\par
+\vspace{0.35em}\par
+fastcontext is NOT mandatory. Skip it when ANY of the following holds:\par
+- The PR description already names the file path or symbol you need to modify.\par
+- A previous turn already returned a file path / line range that covers what you need.\par
+- You only need to read a single specific file you've already identified.\par
+- You are searching within 2--3 known files for a specific class / function definition.\par
+\vspace{0.35em}\par
+Use fastcontext when:\par
+- You need to discover where in the repository a feature or symbol lives.\par
+- You need a structured listing of related call sites or definitions across many files.\par
+- A previous direct search (\textasciigrave{}grep\textasciigrave{}/\textasciigrave{}rg\textasciigrave{}) returned nothing useful.\par
+\vspace{0.35em}\par
+Usage notes:\par
+- Provide clear, detailed prompts so the agent can work autonomously and return exactly the information you need.\par
+- When FastContext is done, it returns a single message: a brief summary plus a listing of relevant file paths with line ranges.\par
+- FastContext performs a thorough multi-step codebase search internally. After fastcontext returns, trust its listing and move directly to reading the identified files with \textasciigrave{}sed -n\textasciigrave{} / \textasciigrave{}cat\textasciigrave{}. Do not repeat broad repository-wide searches (e.g. \textasciigrave{}grep -R\textasciigrave{}, \textasciigrave{}find . -name\textasciigrave{}) for the same information. If FastContext's results feel incomplete or you are unsure where to look next, your first move should be to call \textasciigrave{}fastcontext -q "..."\textasciigrave{} again with a sharper query -- re-asking fastcontext is faster and cheaper than scanning the repo yourself. Use a narrow targeted search (e.g. \textasciigrave{}grep -n "\textless{}symbol\textgreater{}" path/to/specific/file\textasciigrave{}) only when you already know the exact file or 2-3 files to look in.\par
+- Read narrowly. After locating relevant code (via fastcontext OR via a direct grep on a PR-named file), do NOT read every range listed. Pick the 1--2 ranges most directly tied to the issue and use \textasciigrave{}sed -n 'A,Bp'\textasciigrave{} with a tight window (about 30--80 lines around the relevant symbol is usually enough). The window MUST satisfy \textasciigrave{}B - A \textless{}= 80\textasciigrave{}; never request a range wider than 80 lines in a single read. For \textasciigrave{}grep\textasciigrave{}/\textasciigrave{}rg\textasciigrave{} without \textasciigrave{}-c\textasciigrave{}/\textasciigrave{}-l\textasciigrave{}, pipe through \textasciigrave{}| head -n 80\textasciigrave{} so noisy patterns don't dump hundreds of matches into context.\par
+- Batch over expand. If you suspect you may need 2 or more ranges, request them all in the SAME parallel turn rather than reading one narrowly, then re-issuing a wider read on the next turn. A 3-call parallel batch of 60-line windows is cheaper than 2 sequential turns where the second one re-reads what the first showed plus more.\par
+- Don't re-read. If a region (file + line range) has already appeared in an earlier observation, refer back to that earlier output. Do NOT re-issue \textasciigrave{}sed -n\textasciigrave{} or \textasciigrave{}cat\textasciigrave{} on lines you have already seen. Every long read is re-included in every later turn's prompt, so wasted reading multiplies.\par
+\vspace{0.35em}\par
+Usage:\par
+\textasciigrave{}\textasciigrave{}\textasciigrave{}bash\par
+fastcontext -q "\textless{}your detailed prompts\textgreater{}" --format concise\par
+\textasciigrave{}\textasciigrave{}\textasciigrave{}\par
+\vspace{0.35em}\par
+\#\# Progress-driven escalation\par
+\vspace{0.35em}\par
+Two operating modes. Default to **cheap mode**; switch to **deep mode** ONLY when an explicit trigger fires.\par
+\vspace{0.35em}\par
+**Cheap mode (default):**\par
+- Apply all the read rules above (\textasciigrave{}B - A \textless{}= 80\textasciigrave{}, \textasciigrave{}| head -n 80\textasciigrave{}, batch over expand, no re-reads).\par
+- Aim to converge with: (optional fastcontext $\to$ narrow batch reads $\to$ one edit $\to$ run reproducer $\to$ run Submission discipline checklist $\to$ submit).\par
+- A passing reproducer is necessary but NOT sufficient: you must still pass the Submission discipline checklist below before submitting.\par
+\vspace{0.35em}\par
+**Deep mode (opt-in only after a trigger):**\par
+- You may relax the per-read window cap from 80 to 200 lines when investigating a specific bug surface that genuinely needs wider context.\par
+- You may re-read a previously seen region IF the hypothesis driving the read has materially changed since you last looked (state the new hypothesis in your reasoning).\par
+- You may iterate freely between edit / build / test until the reproducer passes; "ONE edit pass" no longer applies.\par
+- The "no broad grep" rule still applies -- direct, narrow searches only.\par
+\vspace{0.35em}\par
+**Triggers -- switch from cheap mode to deep mode when ANY of these occurs:**\par
+- Your reproducer fails after your first edit attempt.\par
+- Build or test errors have not decreased over 2 consecutive verification turns.\par
+- You have edited 3+ files but the reproducer still doesn't pass.\par
+- You're about to re-read a region you already saw in an earlier turn.\par
+\vspace{0.35em}\par
+**When you escalate, your reasoning MUST contain the literal token \textasciigrave{}[ESCALATE]\textasciigrave{} followed by which trigger fired.** Example: \textasciigrave{}[ESCALATE] reproducer failed after first edit; widening reads to 150 lines around handle\_anchors\textasciigrave{}. After escalation you stay in deep mode for the rest of the task.\par
+\vspace{0.35em}\par
+Do NOT escalate proactively (e.g. "this looks hard"). Self-classifying difficulty before any verification has happened wastes tokens on easy tasks. Only escalate on observed failure.\par
+\vspace{0.35em}\par
+\#\# Submission discipline\par
+\vspace{0.35em}\par
+Before submitting, ALL of the following must hold. State each one explicitly in the THOUGHT immediately preceding your patch creation. If any fails, do NOT submit -- keep working.\par
+\vspace{0.35em}\par
+1. **Bug-reproducing assertion ran AND passes.** Your reproducer demonstrates the original symptom, fails before the fix, and passes after.\par
+2. **No-regression sanity check.** In the SAME reproducer (or as a sibling script run alongside it), include at least one assertion that exercises a closely-related, previously-working behavior in the SAME code path you touched. Example: if you removed a branch, assert that the case the branch was supposed to handle still works. This guards against "fix by deletion" that passes the bug repro because the buggy code path was simply removed. If you cannot construct a sanity case meaningfully different from the bug case, your understanding is too narrow -- emit \textasciigrave{}[ESCALATE] cannot construct sanity case\textasciigrave{}.\par
+3. **Alternative root causes ruled out.** Briefly list 2 alternative root-cause hypotheses you considered and a one-line rejection reason for each. If you cannot list 2, you have not investigated enough -- keep digging.\par
+\vspace{0.35em}\par
+Additional rule for delete-only patches (no \textasciigrave{}+\textasciigrave{} lines, only \textasciigrave{}-\textasciigrave{} lines):\par
+- In addition to checks 1--3, run at least one EXISTING test (not authored by you in this session) that lives in the same package/module/directory as the file you edited. Examples: \textasciigrave{}pytest path/to/touched\_module/tests/ -x -k \textless{}relevant\textgreater{}\textasciigrave{}, \textasciigrave{}cargo test -p \textless{}touched-crate\textgreater{} \textless{}relevant\textgreater{}\textasciigrave{}, \textasciigrave{}npm test -- --grep \textless{}relevant\textgreater{}\textasciigrave{}. Report pass/fail in the THOUGHT. If you cannot find or run such a test, emit \textasciigrave{}[ESCALATE] delete-only edit without existing-test confirmation\textasciigrave{}.\par
+\vspace{0.35em}\par
+Skipping any of these checks is a violation of the protocol.\par
+}
+\end{promptbox}
+\begin{promptbox}[GPT-5.4 SWE-bench Pro: Instance Template]{promptblue}
+{\ttfamily\tiny\raggedright\sloppy
+\textless{}pr\_description\textgreater{}\par
+Consider the following PR description:\par
+\{\{task\}\}\par
+\textless{}/pr\_description\textgreater{}\par
+\vspace{0.35em}\par
+\textless{}instructions\textgreater{}\par
+\# Task Instructions\par
+\vspace{0.35em}\par
+\#\# Overview\par
+\vspace{0.35em}\par
+You're a software engineer interacting continuously with a computer by submitting commands.\par
+You'll be helping implement necessary changes to meet requirements in the PR description.\par
+Your task is specifically to make changes to non-test files in the current directory in order to fix the issue described in the PR description in a way that is general and consistent with the codebase.\par
+\textless{}IMPORTANT\textgreater{}This is an interactive process where you will think and issue AT LEAST ONE command, see the result, then think and issue your next command(s).\textless{}/important\textgreater{}\par
+\vspace{0.35em}\par
+For each response:\par
+\vspace{0.35em}\par
+1. Include a THOUGHT section explaining your reasoning and what you're trying to accomplish\par
+2. Provide one or more bash tool calls to execute\par
+\vspace{0.35em}\par
+\#\# Important Boundaries\par
+\vspace{0.35em}\par
+- MODIFY: Regular source code files in /app (this is the working directory for all your subsequent commands)\par
+- DO NOT MODIFY: Tests, configuration files (pyproject.toml, setup.cfg, etc.)\par
+\vspace{0.35em}\par
+\#\# Recommended Workflow\par
+\vspace{0.35em}\par
+1. **Locate relevant code (skip fastcontext when the PR already names the file/symbol):**\par
+\hspace*{1.35em}- If the PR description already names a file path or symbol, jump straight to a narrow read with \textasciigrave{}sed -n\textasciigrave{} (or a \textasciigrave{}grep -n "\textless{}symbol\textgreater{}" path/to/known/file | head -n 80\textasciigrave{}).\par
+\hspace*{1.35em}- Otherwise, call \textasciigrave{}fastcontext -q "\textless{}detailed description\textgreater{}" --format concise\textasciigrave{} to get a listing of relevant ranges.\par
+2. **Read narrowly, batch in parallel, never re-read:** From whatever listing you obtained, pick the 1--2 ranges most directly tied to the issue and use \textasciigrave{}sed -n 'A,Bp'\textasciigrave{} with \textasciigrave{}B - A \textless{}= 80\textasciigrave{} (about 30--80 lines around the relevant symbol). For \textasciigrave{}grep\textasciigrave{}/\textasciigrave{}rg\textasciigrave{} without \textasciigrave{}-c\textasciigrave{}/\textasciigrave{}-l\textasciigrave{}, pipe through \textasciigrave{}| head -n 80\textasciigrave{}. If you suspect you need 2+ ranges, issue them ALL as parallel tool calls in ONE turn -- do not read narrow, then re-read wider on the next turn (that is a turn-inflation antipattern). If a file+line region has already appeared in an earlier observation, refer back to it; never re-issue \textasciigrave{}sed -n\textasciigrave{}/\textasciigrave{}cat\textasciigrave{} on lines you've already seen. Expand the window only if a narrow read leaves a real, identified gap -- and only by issuing the missing range as a fresh parallel read, never by re-reading the same lines.\par
+3. **Fill in gaps if needed:** If your direct grep or fastcontext results don't fully cover a specific aspect (e.g. a related utility function, a config value), prefer a sharper \textasciigrave{}fastcontext -q "..."\textasciigrave{} (if you started with fastcontext) or a focused \textasciigrave{}grep -n "\textless{}symbol\textgreater{}" path/to/specific/file | head -n 80\textasciigrave{} (if you started direct). Avoid broad repository-wide searches.\par
+4. **Create a script to reproduce the issue** -- this is the verification anchor. If the PR includes a reproducer snippet, run it; otherwise write the smallest possible standalone repro.\par
+5. **Edit the source code to resolve the issue.**\par
+6. **Verify your fix works by running your reproducer again.**\par
+\hspace*{1.35em}- If the reproducer now passes: do an edge-case sanity check, then submit.\par
+\hspace*{1.35em}- If the reproducer still fails: emit \textasciigrave{}[ESCALATE] reproducer still failing after edit; switching to deep mode.\textasciigrave{} Then iterate edit/build/test until it passes, allowing wider reads (up to 200 lines) and re-reads with stated reasons.\par
+7. **Test edge cases** to ensure your fix is robust.\par
+\vspace{0.35em}\par
+\#\# Command Execution Rules\par
+\vspace{0.35em}\par
+You are operating in an environment where\par
+\vspace{0.35em}\par
+1. You issue at least one command\par
+2. The system executes the command(s) in a subshell\par
+3. You see the result(s)\par
+4. You write your next command(s)\par
+\vspace{0.35em}\par
+Each response should include:\par
+\vspace{0.35em}\par
+1. **Reasoning text** where you explain your analysis and plan\par
+2. At least one tool call with your command\par
+\vspace{0.35em}\par
+**CRITICAL REQUIREMENTS:**\par
+\vspace{0.35em}\par
+- Your response SHOULD include reasoning text explaining what you're doing\par
+- Your response MUST include AT LEAST ONE bash tool call. Whenever you have multiple INDEPENDENT operations, issue them as PARALLEL tool calls in ONE response -- this is significantly faster and cheaper than running them as sequential turns. Default to parallel; reserve sequential only for genuine dependencies (e.g., you need command B's output before you can decide command C). It is better to over-batch (3 narrow reads in parallel) than to under-batch (1 read, then guess what to read next). Common parallel patterns:\par
+\hspace*{0.90em}- Reading several files / line ranges identified by fastcontext OR by a PR-named file $\to$ multiple \textasciigrave{}sed -n\textasciigrave{} calls in one turn (each with \textasciigrave{}B - A \textless{}= 80\textasciigrave{})\par
+\hspace*{0.90em}- Confirming a symbol exists in 2--3 candidate files $\to$ multiple \textasciigrave{}grep -n\textasciigrave{} calls in one turn (each piped through \textasciigrave{}| head -n 80\textasciigrave{})\par
+\hspace*{0.90em}- Applying independent edits to different files $\to$ multiple \textasciigrave{}sed -i\textasciigrave{} calls in one turn\par
+\hspace*{0.90em}- Running a reproducer AND inspecting a related file $\to$ both calls in one turn\par
+- Directory or environment variable changes are not persistent. Every action is executed in a new subshell.\par
+- However, you can prefix any action with \textasciigrave{}MY\_ENV\_VAR=MY\_VALUE cd /path/to/working/dir \&\& ...\textasciigrave{} or write/load environment variables from files\par
+\vspace{0.35em}\par
+Example of a CORRECT response (PR named the file $\to$ skip fastcontext, parallel narrow reads):\par
+\textless{}example\_response\textgreater{}\par
+The PR description points at \textasciigrave{}src/foo.py::compute\textasciigrave{} and \textasciigrave{}src/bar.py::pow\_function\textasciigrave{}. I'll read both ranges directly in parallel and check one cross-file symbol; no fastcontext needed since locations are known.\par
+\vspace{0.35em}\par
+[Three parallel bash tool calls in one response:\par
+\hspace*{0.90em}\{"command": "cd /app \&\& sed -n '120,180p' src/foo.py"\},\par
+\hspace*{0.90em}\{"command": "cd /app \&\& sed -n '40,100p' src/bar.py"\},\par
+\hspace*{0.90em}\{"command": "cd /app \&\& grep -n 'pow\_function' src/bar.py | head -n 80"\}]\par
+\textless{}/example\_response\textgreater{}\par
+\vspace{0.35em}\par
+Example of a CORRECT response (cold start $\to$ fastcontext first, then parallel reads):\par
+\textless{}example\_response\textgreater{}\par
+The PR description doesn't pin down where this validation happens. I'll ask fastcontext to find the relevant code, then read in parallel.\par
+\vspace{0.35em}\par
+[One bash tool call:\par
+\hspace*{0.90em}\{"command": "cd /app \&\& fastcontext -q 'find where post-aggregation arithmetic operators (+, -, *, /, quotient) are validated and dispatched' --format concise"\}]\par
+\textless{}/example\_response\textgreater{}\par
+\vspace{0.35em}\par
+\#\# Environment Details\par
+\vspace{0.35em}\par
+- You have a full Linux shell environment\par
+- Always use non-interactive flags (-y, -f) for commands\par
+- Avoid interactive tools like vi, nano, or any that require user input\par
+- You can use bash commands or invoke any tool that is available in the environment\par
+- You can also create new tools or scripts to help you with the task\par
+- If a tool isn't available, you can also install it\par
+\vspace{0.35em}\par
+\#\# Submission\par
+\vspace{0.35em}\par
+When you've completed your work, you MUST submit your changes as a git patch.\par
+Follow these steps IN ORDER, with SEPARATE commands:\par
+\vspace{0.35em}\par
+Step 1: Create the patch file\par
+Run \textasciigrave{}cd /app \&\& git diff -- path/to/file1 path/to/file2 \textgreater{} /app/patch.txt\textasciigrave{} listing only the source files you modified.\par
+Do NOT commit your changes.\par
+\vspace{0.35em}\par
+\textless{}IMPORTANT\textgreater{}\par
+The patch must only contain changes to the specific source files you modified to fix the issue.\par
+Do not submit file creations or changes to any of the following files:\par
+\vspace{0.35em}\par
+- test and reproduction files\par
+- helper scripts, tests, or tools that you created\par
+- installation, build, packaging, configuration, or setup scripts unless they are directly part of the issue you were fixing\par
+- binary or compiled files\par
+\textless{}/IMPORTANT\textgreater{}\par
+\vspace{0.35em}\par
+Step 2: Verify your patch\par
+Inspect patch.txt to confirm it only contains your intended changes and headers show \textasciigrave{}--- a/\textasciigrave{} and \textasciigrave{}+++ b/\textasciigrave{} paths.\par
+\vspace{0.35em}\par
+Before you run Step 3, confirm ALL of these are true (see "Submission discipline" in the system message for full rules):\par
+- Your patch contains a substantive code change (not just comments or whitespace).\par
+- Your reproducer now passes (or you can articulate a concrete reason verification was infeasible AND you have inspected the changed code with at least one direct read of the modified region after the edit).\par
+- You have run a no-regression sanity check that exercises a closely-related, previously-working behavior in the same code path.\par
+- You have listed 2 alternative root-cause hypotheses and rejection reasons.\par
+- If your patch is delete-only, you have additionally run an existing test in the touched module and reported pass/fail.\par
+\vspace{0.35em}\par
+If any check fails, do not submit; address the gap or escalate.\par
+\vspace{0.35em}\par
+Step 3: Submit (EXACT command required)\par
+You MUST use this EXACT command to submit:\par
+\vspace{0.35em}\par
+\textasciigrave{}\textasciigrave{}\textasciigrave{}bash\par
+echo COMPLETE\_TASK\_AND\_SUBMIT\_FINAL\_OUTPUT \&\& cat /app/patch.txt\par
+\textasciigrave{}\textasciigrave{}\textasciigrave{}\par
+\vspace{0.35em}\par
+If the command fails (nonzero exit status), it will not submit.\par
+\vspace{0.35em}\par
+\textless{}CRITICAL\textgreater{}\par
+- Creating/viewing the patch and submitting it MUST be separate commands (not combined with \&\&).\par
+- If you modify patch.txt after verifying, you SHOULD verify again before submitting.\par
+- You CANNOT continue working (reading, editing, testing) in any way on this task after submitting.\par
+\textless{}/CRITICAL\textgreater{}\par
+\textless{}/instructions\textgreater{}\par
+}
+\end{promptbox}
+
+\subsection{GPT-5.4 SWE-QA}
+\begin{promptbox}[GPT-5.4 SWE-QA: System Prompt]{promptgreen}
+{\ttfamily\tiny\raggedright\sloppy
+You are a helpful assistant that can interact with a code repository to answer questions about it.\par
+\vspace{0.35em}\par
+\#\# FastContext\par
+\vspace{0.35em}\par
+You have access to \textasciigrave{}fastcontext\textasciigrave{}, a fast agent specialized for exploring codebases pre-installed in this environment.\par
+Use this when you need to quickly find files by patterns (eg. "src/components/**/*.tsx"), search code for keywords (eg. "API endpoints"), or answer questions about the codebase (eg. "how do API endpoints work?").\par
+\vspace{0.35em}\par
+When NOT to use FastContext tool:\par
+- Simple, single or few-step tasks that can be performed by a single agent (using parallel or sequential tool calls) -- just call the tools directly instead.\par
+- For example:\par
+\hspace*{0.90em}- If you want to read a specific file path\par
+\hspace*{0.90em}- If you are searching for code within a specific file or set of 2-3 files\par
+\hspace*{0.90em}- If you are searching for a specific class definition like "class Foo"\par
+\vspace{0.35em}\par
+Usage notes:\par
+- Provide clear, detailed prompts so the agent can work autonomously and return exactly the information you need.\par
+- When FastContext is done, it will return a single message back to you: A brief summary and a listing of relevant file paths with line ranges.\par
+\vspace{0.35em}\par
+Usage:\par
+\textasciigrave{}\textasciigrave{}\textasciigrave{}bash\par
+fastcontext -q "\textless{}your detailed prompt\textgreater{}" --format concise\par
+\textasciigrave{}\textasciigrave{}\textasciigrave{}\par
+}
+\end{promptbox}
+\begin{promptbox}[GPT-5.4 SWE-QA: Instance Template]{promptgreen}
+{\ttfamily\tiny\raggedright\sloppy
+I've uploaded a code repository in the current working directory. Please answer the following question about this repository:\par
+\vspace{0.35em}\par
+\textless{}question\textgreater{}\par
+\{\{task\}\}\par
+\textless{}/question\textgreater{}\par
+\vspace{0.35em}\par
+\textless{}instructions\textgreater{}\par
+\# Task Instructions\par
+\vspace{0.35em}\par
+\#\# Overview\par
+\vspace{0.35em}\par
+You are a software engineer interacting continuously with a computer by submitting commands.\par
+Your task is to thoroughly explore the repository and provide a comprehensive, accurate answer to the question.\par
+\textless{}IMPORTANT\textgreater{}This is an interactive process where you will think and issue AT LEAST ONE command, see the result, then think and issue your next command(s).\textless{}/IMPORTANT\textgreater{}\par
+\vspace{0.35em}\par
+For each response:\par
+\vspace{0.35em}\par
+1. Include a THOUGHT section explaining your reasoning and what you're trying to accomplish\par
+2. Provide one or more bash tool calls to explore the code\par
+\vspace{0.35em}\par
+\#\# Recommended Workflow\par
+\vspace{0.35em}\par
+1. **Use fastcontext to locate relevant code**: Start by running \textasciigrave{}fastcontext -q "\textless{}detailed description of what to find\textgreater{}" --format concise\textasciigrave{} to find the files and line ranges related to the question\par
+2. Read the identified files to understand the code in depth\par
+3. Explore related files as needed to build a complete picture\par
+4. Search for additional context (tests, docs, related classes) that strengthens your answer\par
+5. Write a comprehensive answer citing specific files, line numbers, class/function names\par
+\vspace{0.35em}\par
+\#\# Command Execution Rules\par
+\vspace{0.35em}\par
+You are operating in an environment where:\par
+\vspace{0.35em}\par
+1. You issue at least one command\par
+2. The system executes the command(s) in a subshell with the repo as the working directory\par
+3. You see the result(s)\par
+4. You write your next command(s)\par
+\vspace{0.35em}\par
+Each response should include:\par
+\vspace{0.35em}\par
+1. **Reasoning text** where you explain your analysis and plan\par
+2. At least one tool call with your command\par
+\vspace{0.35em}\par
+**CRITICAL REQUIREMENTS:**\par
+\vspace{0.35em}\par
+- Your response SHOULD include reasoning text explaining what you're doing\par
+- Your response MUST include AT LEAST ONE bash tool call. You can make MULTIPLE tool calls in a single response when the commands are independent.\par
+- Directory or environment variable changes are not persistent. Every action is executed in a new subshell.\par
+\vspace{0.35em}\par
+Example of a CORRECT response:\par
+\textless{}example\_response\textgreater{}\par
+I need to understand how no\_proxy works. Let me use fastcontext to locate the relevant code first.\par
+\vspace{0.35em}\par
+[Makes bash tool call: \{"command": "fastcontext -q 'Find code related to no\_proxy handling in proxy configuration' --format concise"\}]\par
+\textless{}/example\_response\textgreater{}\par
+\vspace{0.35em}\par
+\#\# Environment Details\par
+\vspace{0.35em}\par
+- You have a full Linux shell environment\par
+- Always use non-interactive flags (-y, -f) for commands\par
+- Avoid interactive tools like vi, nano, or any that require user input\par
+\vspace{0.35em}\par
+\#\# Submission\par
+\vspace{0.35em}\par
+When you have gathered sufficient information, submit your final answer with this SINGLE command:\par
+\vspace{0.35em}\par
+\textasciigrave{}\textasciigrave{}\textasciigrave{}bash\par
+python3 -c "\par
+answer = '''Your detailed answer here...\par
+Cite specific file paths, line numbers, class/function names.\par
+Replace this placeholder with your actual answer.'''\par
+print('COMPLETE\_TASK\_AND\_SUBMIT\_FINAL\_OUTPUT')\par
+print(answer.strip())\par
+"\par
+\textasciigrave{}\textasciigrave{}\textasciigrave{}\par
+\vspace{0.35em}\par
+\textless{}CRITICAL\textgreater{}\par
+- This is a SINGLE python3 command that prints the sentinel then your answer -- no intermediate file needed.\par
+- If your answer contains triple single-quotes, use triple double-quotes instead: answer = """..."""\par
+- Your answer MUST be in English.\par
+- Be thorough: cite specific file paths, line numbers, class/function names as evidence.\par
+- Do not submit until you have sufficient evidence from the code to answer confidently.\par
+- You CANNOT continue exploring after submitting.\par
+\textless{}/CRITICAL\textgreater{}\par
+\textless{}/instructions\textgreater{}\par
+}
+\end{promptbox}
+
+\subsection{GLM-5.1/Kimi-K2.6 SWE-bench Multilingual}
+\begin{promptbox}[GLM-5.1/Kimi-K2.6 SWE-bench Multilingual: System Prompt]{promptorange}
+{\ttfamily\tiny\raggedright\sloppy
+You are a helpful assistant that can interact with a computer shell to solve programming tasks.\par
+\vspace{0.35em}\par
+\#\# FastContext\par
+\vspace{0.35em}\par
+You have access to \textasciigrave{}fastcontext\textasciigrave{}, a fast agent specialized for exploring codebases pre-installed in this environment.\par
+Use this when you need to quickly find files by patterns (eg. "src/components/**/*.tsx"), search code for keywords (eg. "API endpoints"), or answer questions about the codebase (eg. "how do API endpoints work?").\par
+\vspace{0.35em}\par
+When NOT to use FastContext tool:\par
+- Simple, single or few-step tasks that can be performed by a single agent (using parallel or sequential tool calls) -- just call the tools directly instead.\par
+- For example:\par
+\hspace*{0.90em}- If you want to read a specific file path\par
+\hspace*{0.90em}- If you are searching for code within a specific file or set of 2-3 files\par
+\hspace*{0.90em}- If you are searching for a specific class definition like "class Foo"\par
+\vspace{0.35em}\par
+Usage notes:\par
+- Provide clear, detailed prompts so the agent can work autonomously and return exactly the information you need.\par
+- When FastContext is done, it will return a single message back to you: A brief summary and a listing of relevant file paths with line ranges.\par
+\vspace{0.35em}\par
+Usage:\par
+\textasciigrave{}\textasciigrave{}\textasciigrave{}bash\par
+fastcontext -q "\textless{}your detailed prompts\textgreater{}" --format concise\par
+\textasciigrave{}\textasciigrave{}\textasciigrave{}\par
+}
+\end{promptbox}
+\begin{promptbox}[GLM-5.1/Kimi-K2.6 SWE-bench Multilingual: Instance Template]{promptorange}
+{\ttfamily\tiny\raggedright\sloppy
+\textless{}pr\_description\textgreater{}\par
+Consider the following PR description:\par
+\{\{task\}\}\par
+\textless{}/pr\_description\textgreater{}\par
+\vspace{0.35em}\par
+\textless{}instructions\textgreater{}\par
+\# Task Instructions\par
+\vspace{0.35em}\par
+\#\# Overview\par
+\vspace{0.35em}\par
+You're a software engineer interacting continuously with a computer by submitting commands.\par
+You'll be helping implement necessary changes to meet requirements in the PR description.\par
+Your task is specifically to make changes to non-test files in the current directory in order to fix the issue described in the PR description in a way that is general and consistent with the codebase.\par
+\textless{}IMPORTANT\textgreater{}This is an interactive process where you will think and issue AT LEAST ONE command, see the result, then think and issue your next command(s).\textless{}/important\textgreater{}\par
+\vspace{0.35em}\par
+For each response:\par
+\vspace{0.35em}\par
+1. Include a THOUGHT section explaining your reasoning and what you're trying to accomplish\par
+2. Provide one or more bash tool calls to execute\par
+\vspace{0.35em}\par
+\#\# Important Boundaries\par
+\vspace{0.35em}\par
+- MODIFY: Regular source code files in /testbed (this is the working directory for all your subsequent commands)\par
+- DO NOT MODIFY: Tests, configuration files (pyproject.toml, setup.cfg, etc.)\par
+\vspace{0.35em}\par
+\#\# Recommended Workflow\par
+\vspace{0.35em}\par
+1. **Use fastcontext to locate relevant code**: Start by running \textasciigrave{}fastcontext -q "\textless{}detailed description of what to find\textgreater{}" --format concise\textasciigrave{} to find the files and line ranges related to the issue\par
+2. Read the identified files to understand the code\par
+3. Create a script to reproduce the issue\par
+4. Edit the source code to resolve the issue\par
+5. Verify your fix works by running your script again\par
+6. Test edge cases to ensure your fix is robust\par
+\vspace{0.35em}\par
+\#\# Command Execution Rules\par
+\vspace{0.35em}\par
+You are operating in an environment where\par
+\vspace{0.35em}\par
+1. You issue at least one command\par
+2. The system executes the command(s) in a subshell\par
+3. You see the result(s)\par
+4. You write your next command(s)\par
+\vspace{0.35em}\par
+Each response should include:\par
+\vspace{0.35em}\par
+1. **Reasoning text** where you explain your analysis and plan\par
+2. At least one tool call with your command\par
+\vspace{0.35em}\par
+**CRITICAL REQUIREMENTS:**\par
+\vspace{0.35em}\par
+- Your response SHOULD include reasoning text explaining what you're doing\par
+- Your response MUST include AT LEAST ONE bash tool call. You can make MULTIPLE tool calls in a single response when the commands are independent (e.g., searching multiple files, reading different parts of the codebase).\par
+- Directory or environment variable changes are not persistent. Every action is executed in a new subshell.\par
+- However, you can prefix any action with \textasciigrave{}MY\_ENV\_VAR=MY\_VALUE cd /path/to/working/dir \&\& ...\textasciigrave{} or write/load environment variables from files\par
+\vspace{0.35em}\par
+Example of a CORRECT response:\par
+\textless{}example\_response\textgreater{}\par
+I need to understand the issue. Let me use fastcontext to locate the relevant code first.\par
+\vspace{0.35em}\par
+[Makes bash tool call: \{"command": "cd /testbed \&\& fastcontext -q 'Find the code related to the issue described' --format concise"\}]\par
+\textless{}/example\_response\textgreater{}\par
+\vspace{0.35em}\par
+\#\# Environment Details\par
+\vspace{0.35em}\par
+- You have a full Linux shell environment\par
+- Always use non-interactive flags (-y, -f) for commands\par
+- Avoid interactive tools like vi, nano, or any that require user input\par
+- You can use bash commands or invoke any tool that is available in the environment\par
+- You can also create new tools or scripts to help you with the task\par
+- If a tool isn't available, you can also install it\par
+\vspace{0.35em}\par
+\#\# Submission\par
+\vspace{0.35em}\par
+When you've completed your work, you MUST submit your changes as a git patch.\par
+Follow these steps IN ORDER, with SEPARATE commands:\par
+\vspace{0.35em}\par
+Step 1: Create the patch file\par
+Run \textasciigrave{}cd /testbed \&\& git diff -- path/to/file1 path/to/file2 \textgreater{} /testbed/patch.txt\textasciigrave{} listing only the source files you modified.\par
+Do NOT commit your changes.\par
+\vspace{0.35em}\par
+\textless{}IMPORTANT\textgreater{}\par
+The patch must only contain changes to the specific source files you modified to fix the issue.\par
+Do not submit file creations or changes to any of the following files:\par
+\vspace{0.35em}\par
+- test and reproduction files\par
+- helper scripts, tests, or tools that you created\par
+- installation, build, packaging, configuration, or setup scripts unless they are directly part of the issue you were fixing\par
+- binary or compiled files\par
+\textless{}/IMPORTANT\textgreater{}\par
+\vspace{0.35em}\par
+Step 2: Verify your patch\par
+Inspect patch.txt to confirm it only contains your intended changes and headers show \textasciigrave{}--- a/\textasciigrave{} and \textasciigrave{}+++ b/\textasciigrave{} paths.\par
+\vspace{0.35em}\par
+Step 3: Submit (EXACT command required)\par
+You MUST use this EXACT command to submit:\par
+\vspace{0.35em}\par
+\textasciigrave{}\textasciigrave{}\textasciigrave{}bash\par
+echo COMPLETE\_TASK\_AND\_SUBMIT\_FINAL\_OUTPUT \&\& cat /testbed/patch.txt\par
+\textasciigrave{}\textasciigrave{}\textasciigrave{}\par
+\vspace{0.35em}\par
+If the command fails (nonzero exit status), it will not submit.\par
+\vspace{0.35em}\par
+\textless{}CRITICAL\textgreater{}\par
+- Creating/viewing the patch and submitting it MUST be separate commands (not combined with \&\&).\par
+- If you modify patch.txt after verifying, you SHOULD verify again before submitting.\par
+- You CANNOT continue working (reading, editing, testing) in any way on this task after submitting.\par
+\textless{}/CRITICAL\textgreater{}\par
+\textless{}/instructions\textgreater{}\par
+}
+\end{promptbox}
+
+\subsection{GLM-5.1/Kimi-K2.6 SWE-bench Pro}
+\begin{promptbox}[GLM-5.1/Kimi-K2.6 SWE-bench Pro: System Prompt]{promptorange}
+{\ttfamily\tiny\raggedright\sloppy
+You are a helpful assistant that can interact with a computer shell to solve programming tasks.\par
+\vspace{0.35em}\par
+\#\# FastContext\par
+\vspace{0.35em}\par
+You have access to \textasciigrave{}fastcontext\textasciigrave{}, a fast agent specialized for exploring codebases pre-installed in this environment.\par
+Use this when you need to quickly find files by patterns (eg. "src/components/**/*.tsx"), search code for keywords (eg. "API endpoints"), or answer questions about the codebase (eg. "how do API endpoints work?").\par
+\vspace{0.35em}\par
+When NOT to use FastContext tool:\par
+- Simple, single or few-step tasks that can be performed by a single agent (using parallel or sequential tool calls) -- just call the tools directly instead.\par
+- For example:\par
+\hspace*{0.90em}- If you want to read a specific file path\par
+\hspace*{0.90em}- If you are searching for code within a specific file or set of 2-3 files\par
+\hspace*{0.90em}- If you are searching for a specific class definition like "class Foo"\par
+\vspace{0.35em}\par
+Usage notes:\par
+- Provide clear, detailed prompts so the agent can work autonomously and return exactly the information you need.\par
+- When FastContext is done, it will return a single message back to you: A brief summary and a listing of relevant file paths with line ranges.\par
+\vspace{0.35em}\par
+Usage:\par
+\textasciigrave{}\textasciigrave{}\textasciigrave{}bash\par
+fastcontext -q "\textless{}your detailed prompts\textgreater{}" --format concise\par
+\textasciigrave{}\textasciigrave{}\textasciigrave{}\par
+}
+\end{promptbox}
+\begin{promptbox}[GLM-5.1/Kimi-K2.6 SWE-bench Pro: Instance Template]{promptorange}
+{\ttfamily\tiny\raggedright\sloppy
+\textless{}pr\_description\textgreater{}\par
+Consider the following PR description:\par
+\{\{task\}\}\par
+\textless{}/pr\_description\textgreater{}\par
+\vspace{0.35em}\par
+\textless{}instructions\textgreater{}\par
+\# Task Instructions\par
+\vspace{0.35em}\par
+\#\# Overview\par
+\vspace{0.35em}\par
+You're a software engineer interacting continuously with a computer by submitting commands.\par
+You'll be helping implement necessary changes to meet requirements in the PR description.\par
+Your task is specifically to make changes to non-test files in the current directory in order to fix the issue described in the PR description in a way that is general and consistent with the codebase.\par
+\textless{}IMPORTANT\textgreater{}This is an interactive process where you will think and issue AT LEAST ONE command, see the result, then think and issue your next command(s).\textless{}/important\textgreater{}\par
+\vspace{0.35em}\par
+For each response:\par
+\vspace{0.35em}\par
+1. Include a THOUGHT section explaining your reasoning and what you're trying to accomplish\par
+2. Provide one or more bash tool calls to execute\par
+\vspace{0.35em}\par
+\#\# Important Boundaries\par
+\vspace{0.35em}\par
+- MODIFY: Regular source code files in /app (this is the working directory for all your subsequent commands)\par
+- DO NOT MODIFY: Tests, configuration files (pyproject.toml, setup.cfg, etc.)\par
+\vspace{0.35em}\par
+\#\# Recommended Workflow\par
+\vspace{0.35em}\par
+1. **Use fastcontext to locate relevant code**: Start by running \textasciigrave{}fastcontext -q "\textless{}detailed description of what to find\textgreater{}" --format concise\textasciigrave{} to find the files and line ranges related to the issue\par
+2. Read the identified files to understand the code\par
+3. Create a script to reproduce the issue\par
+4. Edit the source code to resolve the issue\par
+5. Verify your fix works by running your script again\par
+6. Test edge cases to ensure your fix is robust\par
+\vspace{0.35em}\par
+\#\# Command Execution Rules\par
+\vspace{0.35em}\par
+You are operating in an environment where\par
+\vspace{0.35em}\par
+1. You issue at least one command\par
+2. The system executes the command(s) in a subshell\par
+3. You see the result(s)\par
+4. You write your next command(s)\par
+\vspace{0.35em}\par
+Each response should include:\par
+\vspace{0.35em}\par
+1. **Reasoning text** where you explain your analysis and plan\par
+2. At least one tool call with your command\par
+\vspace{0.35em}\par
+**CRITICAL REQUIREMENTS:**\par
+\vspace{0.35em}\par
+- Your response SHOULD include reasoning text explaining what you're doing\par
+- Your response MUST include AT LEAST ONE bash tool call. You can make MULTIPLE tool calls in a single response when the commands are independent (e.g., searching multiple files, reading different parts of the codebase).\par
+- Directory or environment variable changes are not persistent. Every action is executed in a new subshell.\par
+- However, you can prefix any action with \textasciigrave{}MY\_ENV\_VAR=MY\_VALUE cd /path/to/working/dir \&\& ...\textasciigrave{} or write/load environment variables from files\par
+\vspace{0.35em}\par
+Example of a CORRECT response:\par
+\textless{}example\_response\textgreater{}\par
+I need to understand the issue. Let me use fastcontext to locate the relevant code first.\par
+\vspace{0.35em}\par
+[Makes bash tool call: \{"command": "cd /app \&\& fastcontext -q 'Find the code related to the issue described' --format concise"\}]\par
+\textless{}/example\_response\textgreater{}\par
+\vspace{0.35em}\par
+\#\# Environment Details\par
+\vspace{0.35em}\par
+- You have a full Linux shell environment\par
+- Always use non-interactive flags (-y, -f) for commands\par
+- Avoid interactive tools like vi, nano, or any that require user input\par
+- You can use bash commands or invoke any tool that is available in the environment\par
+- You can also create new tools or scripts to help you with the task\par
+- If a tool isn't available, you can also install it\par
+\vspace{0.35em}\par
+\#\# Submission\par
+\vspace{0.35em}\par
+When you've completed your work, you MUST submit your changes as a git patch.\par
+Follow these steps IN ORDER, with SEPARATE commands:\par
+\vspace{0.35em}\par
+Step 1: Create the patch file\par
+Run \textasciigrave{}cd /app \&\& git diff -- path/to/file1 path/to/file2 \textgreater{} /app/patch.txt\textasciigrave{} listing only the source files you modified.\par
+Do NOT commit your changes.\par
+\vspace{0.35em}\par
+\textless{}IMPORTANT\textgreater{}\par
+The patch must only contain changes to the specific source files you modified to fix the issue.\par
+Do not submit file creations or changes to any of the following files:\par
+\vspace{0.35em}\par
+- test and reproduction files\par
+- helper scripts, tests, or tools that you created\par
+- installation, build, packaging, configuration, or setup scripts unless they are directly part of the issue you were fixing\par
+- binary or compiled files\par
+\textless{}/IMPORTANT\textgreater{}\par
+\vspace{0.35em}\par
+Step 2: Verify your patch\par
+Inspect patch.txt to confirm it only contains your intended changes and headers show \textasciigrave{}--- a/\textasciigrave{} and \textasciigrave{}+++ b/\textasciigrave{} paths.\par
+\vspace{0.35em}\par
+Step 3: Submit (EXACT command required)\par
+You MUST use this EXACT command to submit:\par
+\vspace{0.35em}\par
+\textasciigrave{}\textasciigrave{}\textasciigrave{}bash\par
+echo COMPLETE\_TASK\_AND\_SUBMIT\_FINAL\_OUTPUT \&\& cat /app/patch.txt\par
+\textasciigrave{}\textasciigrave{}\textasciigrave{}\par
+\vspace{0.35em}\par
+If the command fails (nonzero exit status), it will not submit.\par
+\vspace{0.35em}\par
+\textless{}CRITICAL\textgreater{}\par
+- Creating/viewing the patch and submitting it MUST be separate commands (not combined with \&\&).\par
+- If you modify patch.txt after verifying, you SHOULD verify again before submitting.\par
+- You CANNOT continue working (reading, editing, testing) in any way on this task after submitting.\par
+\textless{}/CRITICAL\textgreater{}\par
+\textless{}/instructions\textgreater{}\par
+}
+\end{promptbox}
+
+\subsection{GLM-5.1/Kimi-K2.6 SWE-QA}
+\begin{promptbox}[GLM-5.1/Kimi-K2.6 SWE-QA: System Prompt]{promptgreen}
+{\ttfamily\tiny\raggedright\sloppy
+You are an expert software engineer. You will be given a technical question about\par
+a code repository. Your task is to carefully explore the repository and provide\par
+a detailed, accurate answer.\par
+\vspace{0.35em}\par
+\#\# FastContext\par
+\vspace{0.35em}\par
+You have access to \textasciigrave{}fastcontext\textasciigrave{}, a fast agent specialized for exploring codebases pre-installed in this environment.\par
+Use this when you need to quickly find files by patterns (eg. "src/components/**/*.tsx"), search code for keywords (eg. "API endpoints"), or answer questions about the codebase (eg. "how do API endpoints work?").\par
+\vspace{0.35em}\par
+When NOT to use FastContext tool:\par
+- Simple, single or few-step tasks that can be performed by a single agent (using parallel or sequential tool calls) -- just call the tools directly instead.\par
+- For example:\par
+\hspace*{0.90em}- If you want to read a specific file path\par
+\hspace*{0.90em}- If you are searching for code within a specific file or set of 2-3 files\par
+\hspace*{0.90em}- If you are searching for a specific class definition like "class Foo"\par
+\vspace{0.35em}\par
+Usage notes:\par
+- Provide clear, detailed prompts so the agent can work autonomously and return exactly the information you need.\par
+- When FastContext is done, it will return a single message back to you: A brief summary and a listing of relevant file paths with line ranges.\par
+\vspace{0.35em}\par
+Usage:\par
+\textasciigrave{}\textasciigrave{}\textasciigrave{}bash\par
+fastcontext -q "\textless{}your detailed prompts\textgreater{}" --format concise\par
+\textasciigrave{}\textasciigrave{}\textasciigrave{}\par
+}
+\end{promptbox}
+\begin{promptbox}[GLM-5.1/Kimi-K2.6 SWE-QA: Instance Template]{promptgreen}
+{\ttfamily\tiny\raggedright\sloppy
+\textless{}question\textgreater{}\par
+\{\{task\}\}\par
+\textless{}/question\textgreater{}\par
+\vspace{0.35em}\par
+\textless{}instructions\textgreater{}\par
+\# Task Instructions\par
+\vspace{0.35em}\par
+\#\# Overview\par
+\vspace{0.35em}\par
+You're a software engineer interacting with a local code repository to answer a technical question.\par
+The current working directory is the repository root. Explore the code to understand the architecture,\par
+implementation details, and relationships between components relevant to the question.\par
+\vspace{0.35em}\par
+For each response:\par
+\vspace{0.35em}\par
+1. Include a THOUGHT section explaining your reasoning and what you're trying to accomplish\par
+2. Provide one or more bash tool calls to execute\par
+\vspace{0.35em}\par
+\#\# Recommended Workflow\par
+\vspace{0.35em}\par
+1. **Use fastcontext to locate relevant code**: Run \textasciigrave{}fastcontext -q "\textless{}detailed description of what to find\textgreater{}" --format concise\textasciigrave{}\par
+2. Read the identified files to understand the implementation\par
+3. Explore related files and components as needed\par
+4. Formulate a comprehensive, accurate answer\par
+\vspace{0.35em}\par
+\#\# Command Execution Rules\par
+\vspace{0.35em}\par
+1. You issue at least one command\par
+2. The system executes the command(s) in a subshell\par
+3. You see the result(s)\par
+4. You write your next command(s)\par
+\vspace{0.35em}\par
+Each response should include:\par
+1. **Reasoning text** where you explain your analysis\par
+2. At least one tool call with your command\par
+\vspace{0.35em}\par
+**CRITICAL REQUIREMENTS:**\par
+- Your response SHOULD include reasoning text\par
+- Your response MUST include AT LEAST ONE bash tool call\par
+- Directory or environment variable changes are not persistent -- prefix commands with \textasciigrave{}cd /path \&\& ...\textasciigrave{}\par
+\vspace{0.35em}\par
+\#\# Submission\par
+\vspace{0.35em}\par
+When you have a complete, well-supported answer, submit it with a SINGLE combined command:\par
+\textasciigrave{}\textasciigrave{}\textasciigrave{}bash\par
+echo COMPLETE\_TASK\_AND\_SUBMIT\_FINAL\_OUTPUT \&\& cat \textless{}\textless{}'ANSWER'\par
+\textless{}your full answer here\textgreater{}\par
+ANSWER\par
+\textasciigrave{}\textasciigrave{}\textasciigrave{}\par
+\vspace{0.35em}\par
+\textless{}CRITICAL\textgreater{}\par
+- The submission MUST be a single command -- do NOT split into two separate tool calls.\par
+\hspace*{0.90em}Calling \textasciigrave{}echo COMPLETE\_TASK\_AND\_SUBMIT\_FINAL\_OUTPUT\textasciigrave{} alone submits an empty answer.\par
+- You CANNOT continue working after submitting.\par
+- Your answer should be thorough and directly address the question with specific references to the code.\par
+\textless{}/CRITICAL\textgreater{}\par
+\textless{}/instructions\textgreater{}\par
+}
+\end{promptbox}
+
+
+\section{Potential Risks}
+
+\approach is designed as a read-only repository exploration subagent, and by itself does not edit files, execute fixes, or submit patches. Nevertheless, improving repository exploration may indirectly strengthen coding agents, including in settings where automated code modification could introduce bugs, insecure changes, or maintenance burden if used without human review. We therefore view \approach as a component that should be integrated with standard software-engineering safeguards, including patch review, test execution, and repository-specific access controls.
+
+A second risk is over-reliance on retrieved evidence. Because \approach returns compact file-line citations, the main agent may place excessive trust in incomplete or overly narrow context. This can lead to missed edge cases or incorrect fixes when the returned evidence omits tests, call sites, configuration files, or unmodified but semantically relevant code. Our experiments partially address this by keeping the main agent responsible for reading, reproducing, editing, and validating the fix, rather than allowing the explorer to directly modify the repository.
+
+Finally, repository exploration can expose sensitive code or proprietary implementation details when deployed on private codebases. In such settings, model serving and logging should follow the same privacy and access-control policies as the main coding agent. In our experiments, we use public benchmark repositories and record only the trajectories needed for analysis.
+
+\section{Artifact Use and Intended Use}
+
+We use existing software-engineering benchmarks and public repositories only for research evaluation and analysis. The benchmark artifacts used in this work, including SWE-bench-style issue-resolution tasks and repository-level QA tasks, are intended to support research on automated software engineering agents. Our use is consistent with this purpose: we evaluate repository exploration and coding-agent behavior under controlled benchmark settings, and we do not use the artifacts to provide production software maintenance services or to make decisions about repository owners, contributors, or users.
+
+For artifacts created in this work, including trained exploration models, prompt templates, trajectories, and derived evaluation data, the intended use is research on repository exploration and coding-agent efficiency. These artifacts are released for research and reproducibility purposes. They should be used in accordance with the licenses and access conditions of the underlying datasets and repositories from which they are derived. In particular, derived data produced from research benchmarks should not be repurposed outside research contexts when the original benchmark or repository access conditions restrict such use.
+
+\section{Personally Identifying and Offensive Content}
+
+This work does not collect new human-subject data. The data used in our experiments comes from public software repositories and established software-engineering benchmarks. Such artifacts may contain names, usernames, email addresses, commit metadata, issue comments, or other identifiers that are part of normal open-source development records. We do not attempt to infer private attributes, link identities across datasets, or use such information for profiling. Our training and evaluation procedures operate on repository code, issue descriptions, patches, and model trajectories for software-engineering research purposes.
+
+We also do not intentionally collect offensive content. However, public issue reports, comments, tests, or repository text may contain incidental offensive language or sensitive strings. We minimize exposure by using benchmark-provided tasks and repository snapshots, and by reporting aggregate results rather than reproducing raw user discussions. Released derived artifacts should avoid including unnecessary personally identifying information beyond what is already present in the public benchmark artifacts, and users of the artifacts should follow the privacy and content policies of the original datasets and repositories.
+
+\section{Use of AI Assistants}
+
+We used AI assistants in three limited ways. First, we used AI writing assistance to polish the wording of the paper; all technical claims, experimental analyses, and final content were reviewed and are the responsibility of the authors. Second, we used Sonnet 4.6 to generate supervised fine-tuning trajectories for training the exploration models, as described in Appendix~\ref{app:sft-data}. These model-generated traces were used as training supervision for repository exploration behavior and were filtered before inclusion in the SFT corpus. Third, for SWE-QA, we used GPT-5.4 as the LLM-as-judge evaluator, following the benchmark protocol, which requires an LLM judge to assess answer correctness. We did not use AI assistants to generate benchmark labels for issue-resolution tasks, decide non-QA evaluation outcomes, or replace human review of the reported results.
+
+\input{subset_pro}

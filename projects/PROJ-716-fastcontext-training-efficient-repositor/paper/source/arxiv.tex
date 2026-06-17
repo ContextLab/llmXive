@@ -1,0 +1,94 @@
+                \PassOptionsToPackage{table}{xcolor}
+\documentclass{arxiv/aifrontiers}
+\usepackage{arxiv/aifrontiers}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{xspace}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{colortbl}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{multirow}
+\usepackage{multicol}
+\usepackage{float}
+\usepackage{enumitem}
+\usepackage{nicefrac}
+\usepackage{pifont}
+\usepackage{inconsolata}
+
+\captionsetup{font=small}
+
+\graphicspath{{figures/}{arxiv/}}
+
+\renewcommand{\AIFLogo}{%
+  \raisebox{-0.3ex}{\includegraphics[height=1.4em]{arxiv/logo/ms-logo.png}}%
+  \hspace{0.6em}%
+  {\sffamily\bfseries\large Microsoft}%
+}
+
+\renewcommand{\weblink}{}
+\renewcommand{\foundrylink}{}
+\renewcommand{\hflink}{}
+\renewcommand{\ghlink}{}
+
+\renewcommand{\thefootnote}{\fnsymbol{footnote}}
+
+\makeatletter
+\let\FC@aifrontiers@maketitle\maketitle
+\newcommand{\FC@authorfootnotes}{%
+  \begingroup
+  \renewcommand{\thefootnote}{\fnsymbol{footnote}}%
+  \setcounter{footnote}{0}%
+  \footnotetext[1]{Equal contribution.}%
+  \footnotetext[2]{Work done during a project at Microsoft CoreAI.}%
+  \footnotetext[3]{Corresponding author.}%
+  \endgroup
+  \setcounter{footnote}{0}%
+  \renewcommand{\thefootnote}{\arabic{footnote}}%
+}
+\newcommand{\FC@maketitle}{%
+  \begingroup
+  \renewcommand{\footnotetext}[2][]{ }%
+  \FC@aifrontiers@maketitle
+  \endgroup
+  \FC@authorfootnotes
+}
+\renewcommand{\maketitle}{}
+\AtEndEnvironment{abstract}{\FC@maketitle}
+
+\let\FC@aifrontiers@title\title
+\renewcommand{\title}[1]{%
+  \FC@aifrontiers@title{#1}%
+  \shorttitle{#1}%
+}
+
+\let\FC@aifrontiers@author\author
+\renewcommand{\author}[1]{%
+  \FC@aifrontiers@author{%
+  \textbf{Shaoqiu Zhang}\textsuperscript{1,2,*,\textdagger} \hspace{.1cm}
+  \textbf{Maoquan Wang}\textsuperscript{1,*} \hspace{.1cm}
+  \textbf{Yuling Shi}\textsuperscript{2,*} \hspace{.1cm}
+  \textbf{Yuhang Wang}\textsuperscript{2} \hspace{.1cm}
+  \textbf{Xiaodong Gu}\textsuperscript{2} \hspace{.1cm}\\
+  \textbf{Yongqiang Yao}\textsuperscript{1}
+  \textbf{Rao Fu}\textsuperscript{1}
+  \textbf{Shengyu Fu}\textsuperscript{1,\textdaggerdbl} \\
+  \textsuperscript{1} Microsoft \hspace{.1cm} \textsuperscript{2} Shanghai Jiao Tong University\\
+  \texttt{\{maoquanwang, yongqiangyao, raofu, shengyufu\}@microsoft.com}\\
+  \texttt{\{Qiushao418, yuling.shi, lingbo\_2022, xiaodong.gu\}@sjtu.com}%
+  }%
+}
+
+\newcommand{\FC@ignorewithopt}[2][]{}
+\renewcommand{\documentclass}{\@ifnextchar[{\FC@ignorewithopt}{\FC@ignorewithopt[]}}
+\renewcommand{\usepackage}{\@ifnextchar[{\FC@ignorewithopt}{\FC@ignorewithopt[]}}
+\makeatother
+
+\AtBeginDocument{%
+  \bibliographystyle{plainnat}%
+  \let\cite\citep
+}
+
+\input{main}
