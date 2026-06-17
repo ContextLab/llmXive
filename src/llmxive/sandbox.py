@@ -108,11 +108,17 @@ def run_in_venv(
     """
     import time
 
-    # Resolve to ABSOLUTE: subprocess runs with cwd=project_dir, so a
-    # relative venv-python path (when the caller passes a relative
-    # project_dir) would resolve against the changed cwd and vanish
-    # (FileNotFoundError). Absolute paths are cwd-independent.
-    py = ensure_venv(project_dir).resolve()
+    # ABSOLUTE but SYMLINK-PRESERVING. The subprocess runs with cwd=project_dir,
+    # so a relative venv-python path would resolve against the changed cwd and
+    # vanish (FileNotFoundError) — hence make it absolute. But NEVER ``.resolve()``
+    # it: a venv's ``bin/python`` is a SYMLINK to the base interpreter, and
+    # resolving it follows the symlink to e.g. ``/opt/homebrew/.../python3.11`` —
+    # the SYSTEM python, which lacks the per-project venv's site-packages. That
+    # silently ran every project's analysis against the base interpreter (niche
+    # deps like ``database_knotinfo`` → ModuleNotFoundError; common ones happened
+    # to be globally present, masking the bug). ``os.path.abspath`` makes it
+    # cwd-independent WITHOUT dereferencing the venv symlink.
+    py = Path(os.path.abspath(ensure_venv(project_dir)))
     run_cwd = Path(cwd or project_dir).resolve()
     env = os.environ.copy()
     env["PYTHONUNBUFFERED"] = "1"
