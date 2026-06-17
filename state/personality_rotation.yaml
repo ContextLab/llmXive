@@ -1,14 +1,7 @@
-last_used: alan-turing
-last_used_at: '2026-06-17T17:31:48.265384+00:00'
+last_used: albert-einstein
+last_used_at: '2026-06-17T18:23:36.648070+00:00'
 last_outcome: abstained
 history:
-- slug: linus-pauling
-  started_at: '2026-06-06T17:54:26.764916+00:00'
-  ended_at: '2026-06-06T18:27:55.451431+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-674-gc-content-and-thermal-stability-of-arch/reviews/research/linus-pauling-simulated__2026-06-06__research.md
 - slug: marie-curie
   started_at: '2026-06-06T18:27:55.451431+00:00'
   ended_at: '2026-06-06T18:59:03.698929+00:00'
@@ -1126,5 +1119,10 @@ history:
 - slug: alan-turing
   started_at: '2026-06-17T16:17:43.424557+00:00'
   ended_at: '2026-06-17T17:31:48.265384+00:00'
+  outcome: abstained
+  action: abstain
+- slug: albert-einstein
+  started_at: '2026-06-17T17:31:48.265384+00:00'
+  ended_at: '2026-06-17T18:23:36.648070+00:00'
   outcome: abstained
   action: abstain
