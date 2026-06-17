@@ -1,0 +1,14 @@
+{
+  "pdf": "/home/runner/work/llmXive/llmXive/projects/PROJ-719-data-journalist-agent-transforming-data/paper/pdf/2606.11176.pdf",
+  "audit": null,
+  "repair_rounds": 0,
+  "llmxive_compile_attempts": 1,
+  "status": "fallback_original",
+  "failure": {
+    "stage": "compile",
+    "reason": "lualatex failed:\n\nLaTeX Warning: There were undefined references.\n\n! You can't use `\\end' in internal vertical mode.\n\\enddocument ...cument/end}\\deadcycles \\z@ \\@@end \n                                                  \nl.1713 \\end{document}\n                   \n\n! LaTeX Error: \\begin{minipage} on input line 188 ended by \\end{document}.\n\nSee the LaTeX manual or LaTeX Companion for explanation.\nType  H <return>  for immediate help.\n ...                                              \n                                                  \nl.1713 \\end{document}\n                   \n)\n! Emergency stop.\n<*> ...ransforming-data/paper/source/main-llmxive.tex\n                                                  \n 655488 words of node memory still in use:\n   1878 hlist, 103 vlist, 363 rule, 49 mark, 5375 disc, 253 local_par, 2 dir, 3\n08 math, 12728 glue, 5000 kern, 1205 penalty, 395 margin_kern, 61355 glyph, 417\n5 attribute, 85 glue_spec, 4175 attribute_list, 2 temp, 91 write, 257 pdf_liter\nal, 58 pdf_star",
+    "log_excerpt": "lualatex failed:\n\nLaTeX Warning: There were undefined references.\n\n! You can't use `\\end' in internal vertical mode.\n\\enddocument ...cument/end}\\deadcycles \\z@ \\@@end \n                                                  \nl.1713 \\end{document}\n                   \n\n! LaTeX Error: \\begin{minipage} on input line 188 ended by \\end{document}.\n\nSee the LaTeX manual or LaTeX Companion for explanation.\nType  H <return>  for immediate help.\n ...                                              \n                                                  \nl.1713 \\end{document}\n                   \n)\n! Emergency stop.\n<*> ...ransforming-data/paper/source/main-llmxive.tex\n                                                  \n 655488 words of node memory still in use:\n   1878 hlist, 103 vlist, 363 rule, 49 mark, 5375 disc, 253 local_par, 2 dir, 3\n08 math, 12728 glue, 5000 kern, 1205 penalty, 395 margin_kern, 61355 glyph, 417\n5 attribute, 85 glue_spec, 4175 attribute_list, 2 temp, 91 write, 257 pdf_liter\nal, 58 pdf_start_link, 58 pdf_end_link, 91 pdf_dest, 58 pdf_action, 617 pdf_col\norstack, 10 pdf_setmatrix, 10 pdf_save, 10 pdf_restore nodes\n   avail lists: 1:11,2:697,3:67,4:52,5:173,6:64,7:2002,8:95,9:443,10:21,11:127\n!  ==> Fatal error occurred, no output PDF file produced!\nTranscript written on main-llmxive.log."
+  },
+  "paper_id": "PROJ-719-data-journalist-agent-transforming-data",
+  "updated_at": "2026-06-17T11:39:51.706576+00:00"
+}
