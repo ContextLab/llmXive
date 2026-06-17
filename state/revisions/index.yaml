@@ -57,3 +57,6 @@ ready:
 - project_id: PROJ-614-enhancing-train-free-infinite-frame-gene
   revision_spec_path: specs/auto-revisions/PROJ-614-enhancing-train-free-infinite-frame-gene/round-1
   queued_at: '2026-06-17T01:37:20.248904+00:00'
+- project_id: PROJ-566-mint-managed-infrastructure-for-training
+  revision_spec_path: specs/auto-revisions/PROJ-566-mint-managed-infrastructure-for-training/round-2
+  queued_at: '2026-06-17T04:35:10.668985+00:00'

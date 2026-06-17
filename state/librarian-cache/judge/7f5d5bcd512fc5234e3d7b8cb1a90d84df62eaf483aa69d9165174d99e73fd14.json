@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2506.18783",
+  "judged_at": "2026-06-17T04:34:59Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "phenomenological ai: first-person experience modeling in language models philosophy",
+  "rationale": "The paper focuses on a multi‑agent LLM system for TRIZ‑based innovation, which is unrelated to phenomenological AI, first‑person experience modeling, or the philosophical aspects of language models; it does not share the relevant mechanisms, variables, or domain.",
+  "relevant": false
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2110.01835",
+  "judged_at": "2026-06-17T04:34:57Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "phenomenological ai: first-person experience modeling in language models philosophy",
+  "rationale": "The paper discusses AGI communication, compression, and the Fermi paradox, without addressing first‑person experience modeling in language models or the phenomenological AI framework the user is investigating; it does not meet any of the inclusion criteria (a‑f).",
+  "relevant": false
+}

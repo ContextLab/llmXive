@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2204.10358",
+  "judged_at": "2026-06-17T04:34:52Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "phenomenological ai: first-person experience modeling in language models philosophy",
+  "rationale": "The paper surveys creative problem‑solving methods for AI agents and proposes a framework for problem formulation, knowledge representation, etc. It does not address phenomenological AI, first‑person experience modeling, language models, or related philosophical constructs, so it is unrelated to the user's research question.",
+  "relevant": false
+}

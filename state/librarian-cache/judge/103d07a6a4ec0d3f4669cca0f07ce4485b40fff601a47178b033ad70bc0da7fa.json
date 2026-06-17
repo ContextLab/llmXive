@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2402.11651",
+  "judged_at": "2026-06-17T04:34:47Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "phenomenological ai: first-person experience modeling in language models philosophy",
+  "rationale": "The paper focuses on fine‑tuning language models with negative (failed) trajectories to improve agent performance, which is unrelated to phenomenological AI, first‑person experience modeling, or the philosophical aspects of language models. It does not share the relevant constructs, mechanisms, or variables needed for the user's question.",
+  "relevant": false
+}

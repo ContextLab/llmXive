@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2503.21676",
+  "judged_at": "2026-06-17T04:34:45Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "phenomenological ai: first-person experience modeling in language models philosophy",
+  "rationale": "The paper investigates factual knowledge acquisition, learning dynamics, and hallucinations in language models, without addressing phenomenological AI, first‑person experience modeling, or related philosophical constructs, so it does not meet any inclusion criteria.",
+  "relevant": false
+}

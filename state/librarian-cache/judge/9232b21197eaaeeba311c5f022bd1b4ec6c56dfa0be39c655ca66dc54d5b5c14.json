@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2603.12895",
+  "judged_at": "2026-06-17T04:34:50Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "phenomenological ai: first-person experience modeling in language models philosophy",
+  "rationale": "The paper evaluates human factors (trust, usability) of an LLM‑based process‑modeling tool, which does not address phenomenological AI or first‑person experience modeling in language models; it falls outside the domain and mechanism of the user's philosophical question.",
+  "relevant": false
+}

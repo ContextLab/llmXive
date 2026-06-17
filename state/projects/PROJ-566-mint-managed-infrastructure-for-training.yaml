@@ -6,13 +6,13 @@ failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-566-mint-managed-infrastructure-for-training
-last_run_id: e50b26f0-9311-43dd-9dc9-be9c36600412
+last_run_id: a305b424-3375-406c-9541-390ed5a5ed2e
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
-revision_spec_path: null
+revision_spec_path: specs/auto-revisions/PROJ-566-mint-managed-infrastructure-for-training/round-2
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'MinT: Managed Infrastructure for Training and Serving Millions of LLMs'
-updated_at: '2026-06-16T16:36:24.511870Z'
+updated_at: '2026-06-17T04:35:10.676216Z'

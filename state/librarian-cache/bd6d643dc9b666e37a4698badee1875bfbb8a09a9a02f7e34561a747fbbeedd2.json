@@ -1,0 +1,729 @@
+{
+  "fetched_at": "2026-06-17T04:34:59Z",
+  "field": "philosophy",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "philosophy",
+      "idea_body_excerpt": "Phenomenological AI: First-Person Experience Modeling in Language Models",
+      "target_n": 5
+    },
+    "duration_seconds": 53.594,
+    "ended_at": "2026-06-17T04:34:59Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "phenomenology of artificial agents"
+        ],
+        [
+          2,
+          "first‑person perspective modeling in neural networks"
+        ],
+        [
+          3,
+          "subjective experience simulation in AI"
+        ],
+        [
+          4,
+          "qualia modeling in large language models"
+        ],
+        [
+          5,
+          "intentionality in language model representations"
+        ],
+        [
+          6,
+          "AI self‑awareness frameworks"
+        ],
+        [
+          7,
+          "phenomenological grounding of AI language generation"
+        ],
+        [
+          8,
+          "embodied cognition in language models"
+        ],
+        [
+          9,
+          "computational phenomenology"
+        ],
+        [
+          10,
+          "experiential semantics in transformer models"
+        ],
+        [
+          11,
+          "reflective self‑modeling in artificial intelligence"
+        ],
+        [
+          12,
+          "subjectivity in artificial intelligence"
+        ],
+        [
+          13,
+          "enactivist approaches to AI cognition"
+        ],
+        [
+          14,
+          "situated cognition in large language models"
+        ],
+        [
+          15,
+          "phenomenological analysis of language model outputs"
+        ],
+        [
+          16,
+          "consciousness‑oriented AI"
+        ],
+        [
+          17,
+          "phenomenal consciousness in deep learning"
+        ],
+        [
+          18,
+          "AI models of lived experience"
+        ],
+        [
+          19,
+          "first‑person phenomenology and AI alignment"
+        ],
+        [
+          20,
+          "phenomenological modeling of machine cognition"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Phenomenological AI: First-Person Experience Modeling in Language Models philosophy": 0,
+        "phenomenology of artificial agents": 5
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "qualia modeling language models",
+      "large language model phenomenology",
+      "self‑supervised self‑modeling transformer",
+      "human evaluation subjective coherence",
+      "integrated information theory LLM"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2204.10358"
+      ]
+    },
+    "per_query_hit_count": {
+      "Phenomenological AI: First-Person Experience Modeling in Language Models philosophy": 3,
+      "human evaluation subjective coherence": 3,
+      "integrated information theory LLM": 3,
+      "large language model phenomenology": 3,
+      "qualia modeling language models": 1,
+      "self‑supervised self‑modeling transformer": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": true,
+      "rejected_count": 8,
+      "rejections": [
+        {
+          "primary_pointer": "2503.21676",
+          "rationale": "The paper investigates factual knowledge acquisition, learning dynamics, and hallucinations in language models, without addressing phenomenological AI, first‑person experience modeling, or related philosophical constructs, so it does not meet any inclusion criteria.",
+          "title": "How do language models learn facts? Dynamics, curricula and hallucinations"
+        },
+        {
+          "primary_pointer": "2402.11651",
+          "rationale": "The paper focuses on fine‑tuning language models with negative (failed) trajectories to improve agent performance, which is unrelated to phenomenological AI, first‑person experience modeling, or the philosophical aspects of language models. It does not share the relevant constructs, mechanisms, or variables needed for the user's question.",
+          "title": "Learning From Failure: Integrating Negative Examples when Fine-tuning Large Language Models as Agents"
+        },
+        {
+          "primary_pointer": "2603.12895",
+          "rationale": "The paper evaluates human factors (trust, usability) of an LLM‑based process‑modeling tool, which does not address phenomenological AI or first‑person experience modeling in language models; it falls outside the domain and mechanism of the user's philosophical question.",
+          "title": "Human-Centered Evaluation of an LLM-Based Process Modeling Copilot: A Mixed-Methods Study with Domain Experts"
+        },
+        {
+          "primary_pointer": "2204.10358",
+          "rationale": "The paper surveys creative problem‑solving methods for AI agents and proposes a framework for problem formulation, knowledge representation, etc. It does not address phenomenological AI, first‑person experience modeling, language models, or related philosophical constructs, so it is unrelated to the user's research question.",
+          "title": "Creative Problem Solving in Artificially Intelligent Agents: A Survey and Framework"
+        },
+        {
+          "primary_pointer": "2110.01831",
+          "rationale": "The paper discusses broad AGI approaches (logicist, emergentist, universalist) and the concept of an “Artificial Scientist,” but it does not address phenomenological AI, first‑person experience modeling, or language‑model philosophy, so it lacks the required mechanism, variable, or domain relevance.",
+          "title": "The Artificial Scientist: Logicist, Emergentist, and Universalist Approaches to Artificial General Intelligence"
+        },
+        {
+          "primary_pointer": "2511.02841",
+          "rationale": "The paper focuses on decentralized digital identities and trust mechanisms for AI agents, which is unrelated to phenomenological AI, first‑person experience modeling, or philosophical aspects of language models. It does not address the relevant mechanisms, variables, or domain of the user's question.",
+          "title": "AI Agents with Decentralized Identifiers and Verifiable Credentials"
+        },
+        {
+          "primary_pointer": "2110.01835",
+          "rationale": "The paper discusses AGI communication, compression, and the Fermi paradox, without addressing first‑person experience modeling in language models or the phenomenological AI framework the user is investigating; it does not meet any of the inclusion criteria (a‑f).",
+          "title": "Compression, The Fermi Paradox and Artificial Super-Intelligence"
+        },
+        {
+          "primary_pointer": "2506.18783",
+          "rationale": "The paper focuses on a multi‑agent LLM system for TRIZ‑based innovation, which is unrelated to phenomenological AI, first‑person experience modeling, or the philosophical aspects of language models; it does not share the relevant mechanisms, variables, or domain.",
+          "title": "TRIZ Agents: A Multi-Agent LLM Approach for TRIZ-Based Innovation"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-17T04:34:06Z",
+    "term_input": {
+      "normalized": "phenomenological ai: first-person experience modeling in language models philosophy",
+      "raw": "Phenomenological AI: First-Person Experience Modeling in Language Models philosophy"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "When language models (LMs) are trained to forget (or \"unlearn'') a skill, how precisely does their behavior change? We study the behavior of transformer LMs in which tasks have been forgotten via fine-tuning on randomized labels. Such LMs learn to generate near-random predictions for individual examples in the \"training'' set used for forgetting. Across tasks, however, LMs exhibit extreme variability in whether LM predictions change on examples outside the training set. In some tasks (like entailment classification), forgetting generalizes robustly, and causes models to produce uninformative predictions on new task instances; in other tasks (like physical commonsense reasoning and scientific question answering) forgetting affects only the training examples, and models continue to perform the \"forgotten'' task accurately even for examples very similar to those that appeared in the training set. Dataset difficulty is not predictive of whether a behavior can be forgotten; instead, generalization in forgetting is (weakly) predicted by the confidence of LMs' initial task predictions and the variability of LM representations of training data, with low confidence and low variability both associated with greater generalization. Perhaps most surprisingly, random-label forgetting appears to be somewhat insensitive to the contents of the training set: for example, models trained on science questions with random labels continue to answer other science questions accurately, but begin to produce random labels on entailment classification tasks. Finally, we show that even generalizable forgetting is shallow: linear probes trained on LMs' representations can still perform tasks reliably after forgetting. Our results highlight the difficulty and unpredictability of performing targeted skill removal from models via fine-tuning.",
+          "claimed_authors": [
+            "Eric Zhang",
+            "Leshem Chosen",
+            "Jacob Andreas"
+          ],
+          "claimed_title": "Unforgettable Generalization in Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2409.02228"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Phenomenological AI: First-Person Experience Modeling in Language Models philoso', candidate_title='Unforgettable Generalization in Language Models')",
+        "failed_at": "2026-06-17T04:34:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This research critically navigates the intricate landscape of AI deception, concentrating on deceptive behaviours of Large Language Models (LLMs). My objective is to elucidate this issue, examine the discourse surrounding it, and subsequently delve into its categorization and ramifications. The essay initiates with an evaluation of the AI Safety Summit 2023 (ASS) and introduction of LLMs, emphasising multidimensional biases that underlie their deceptive behaviours.The literature review covers four types of deception categorised: Strategic deception, Imitation, Sycophancy, and Unfaithful Reasoning, along with the social implications and risks they entail. Lastly, I take an evaluative stance on various aspects related to navigating the persistent challenges of the deceptive AI. This encompasses considerations of international collaborative governance, the reconfigured engagement of individuals with AI, proposal of practical adjustments, and specific elements of digital education.",
+          "claimed_authors": [
+            "Linge Guo"
+          ],
+          "claimed_title": "Unmasking the Shadows of AI: Investigating Deceptive Capabilities in Large Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2403.09676"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Phenomenological AI: First-Person Experience Modeling in Language Models philoso', candidate_title='Unmasking the Shadows of AI: Investigating Deceptive Capabilities in Large Language Models')",
+        "failed_at": "2026-06-17T04:34:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Language models have shown unprecedented capabilities, sparking debate over the source of their performance. Is it merely the outcome of learning syntactic patterns and surface level statistics, or do they extract semantics and a world model from the text? Prior work by Li et al. investigated this by training a GPT model on synthetic, randomly generated Othello games and found that the model learned an internal representation of the board state. We extend this work into the more complex domain of chess, training on real games and investigating our model's internal representations using linear probes and contrastive activations. The model is given no a priori knowledge of the game and is solely trained on next character prediction, yet we find evidence of internal representations of board state. We validate these internal representations by using them to make interventions on the model's activations and edit its internal board state. Unlike Li et al's prior synthetic dataset approach, our analysis finds that the model also learns to estimate latent variables like player skill to better predict the next character. We derive a player skill vector and add it to the model, improving the model's win rate by up to 2.6 times.",
+          "claimed_authors": [
+            "Adam Karvonen"
+          ],
+          "claimed_title": "Emergent World Models and Latent Variable Estimation in Chess-Playing Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2403.15498"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Phenomenological AI: First-Person Experience Modeling in Language Models philoso', candidate_title='Emergent World Models and Latent Variable Estimation in Chess-Playing Language Models')",
+        "failed_at": "2026-06-17T04:34:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Instruction tuning significantly enhances the performance of large language models (LLMs) across various tasks. However, the procedure to optimizing the mixing of instruction datasets for LLM fine-tuning is still poorly understood. This study categorizes instructions into three primary types: NLP downstream tasks, coding, and general chat. We explore the effects of instruction tuning on different combinations of datasets on LLM performance, and find that certain instruction types are more advantageous for specific applications but can negatively impact other areas. This work provides insights into instruction mixtures, laying the foundations for future research.",
+          "claimed_authors": [
+            "Renxi Wang",
+            "Haonan Li",
+            "Minghao Wu",
+            "Yuxia Wang",
+            "Xudong Han",
+            "Chiyu Zhang",
+            "Timothy Baldwin"
+          ],
+          "claimed_title": "Demystifying Instruction Mixing for Fine-tuning Large Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2312.10793"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Phenomenological AI: First-Person Experience Modeling in Language Models philoso', candidate_title='Demystifying Instruction Mixing for Fine-tuning Large Language Models')",
+        "failed_at": "2026-06-17T04:34:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Training large language models (LLMs) with open-domain instruction following data brings colossal success. However, manually creating such instruction data is very time-consuming and labor-intensive. Moreover, humans may struggle to produce high-complexity instructions. In this paper, we show an avenue for creating large amounts of instruction data with varying levels of complexity using LLM instead of humans. Starting with an initial set of instructions, we use our proposed Evol-Instruct to rewrite them step by step into more complex instructions. Then, we mix all generated instruction data to fine-tune LLaMA. We call the resulting model WizardLM. Human evaluations on a complexity-balanced test bed and Vicuna's testset show that instructions from Evol-Instruct are superior to human-created ones. By analyzing the human evaluation results of the high complexity part, we demonstrate that outputs from our WizardLM are preferred to outputs from OpenAI ChatGPT. In GPT-4 automatic evaluation, WizardLM achieves more than 90\\% capacity of ChatGPT on 17 out of 29 skills. Even though WizardLM still lags behind ChatGPT in some aspects, our findings suggest that fine-tuning with AI-evolved instructions is a promising direction for enhancing LLMs. Our code and data are public at https://github.com/nlpxucan/WizardLM",
+          "claimed_authors": [
+            "Can Xu",
+            "Qingfeng Sun",
+            "Kai Zheng",
+            "Xiubo Geng",
+            "Pu Zhao",
+            "Jiazhan Feng",
+            "Chongyang Tao",
+            "Qingwei Lin",
+            "Daxin Jiang"
+          ],
+          "claimed_title": "WizardLM: Empowering large pre-trained language models to follow complex instructions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2304.12244"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Phenomenological AI: First-Person Experience Modeling in Language Models philoso', candidate_title='WizardLM: Empowering large pre-trained language models to follow complex instructions')",
+        "failed_at": "2026-06-17T04:34:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Masked autoencoder (MAE) has drawn attention as a representative self-supervised approach for masked image modeling with vision transformers. However, even though MAE shows better generalization capability than fully supervised training from scratch, the reason why has not been explored. In another line of work, the Reconstruction Consistent Masked Auto Encoder (RC-MAE), has been proposed which adopts a self-distillation scheme in the form of an exponential moving average (EMA) teacher into MAE, and it has been shown that the EMA-teacher performs a conditional gradient correction during optimization. To further investigate the reason for better generalization of the self-supervised ViT when trained by MAE (MAE-ViT) and the effect of the gradient correction of RC-MAE from the perspective of optimization, we visualize the loss landscapes of the self-supervised vision transformer by both MAE and RC-MAE and compare them with the supervised ViT (Sup-ViT). Unlike previous loss landscape visualizations of neural networks based on classification task loss, we visualize the loss landscape of ViT by computing pre-training task loss. Through the lens of loss landscapes, we find two interesting observations: (1) MAE-ViT has a smoother and wider overall loss curvature than Sup-ViT. (2) The EMA-teacher allows MAE to widen the region of convexity in both pretraining and linear probing, leading to quicker convergence. To the best of our knowledge, this work is the first to investigate the self-supervised ViT through the lens of the loss landscape.",
+          "claimed_authors": [
+            "Youngwan Lee",
+            "Jeffrey Ryan Willette",
+            "Jonghee Kim",
+            "Sung Ju Hwang"
+          ],
+          "claimed_title": "Visualizing the loss landscape of Self-supervised Vision Transformer",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.18042"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Phenomenological AI: First-Person Experience Modeling in Language Models philoso', candidate_title='Visualizing the loss landscape of Self-supervised Vision Transformer')",
+        "failed_at": "2026-06-17T04:34:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Image captioning, a fundamental task in vision-language understanding, seeks to generate accurate natural language descriptions for provided images. Current image captioning approaches heavily rely on high-quality image-caption pairs, which can be hard to obtain for many domains. To address this, we introduce a self-supervised image captioning method. After learning an initial signal from a small labeled dataset, our method transitions to self-supervised learning on unlabeled data, leveraging the auxiliary task of enhancing the CLIP relevance between images and generated captions. Remarkably, despite utilizing less than 2% of the labeled COCO dataset, our method delivers a performance comparable to state-of-the-art models trained on the complete dataset. Human evaluations further reveal that our method produces captions with greater distinctiveness and informativeness, two attributes inherently challenging to achieve through supervised learning.",
+          "claimed_authors": [
+            "Chuanyang Jin"
+          ],
+          "claimed_title": "Self-Supervised Image Captioning with CLIP",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.15111"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Phenomenological AI: First-Person Experience Modeling in Language Models philoso', candidate_title='Self-Supervised Image Captioning with CLIP')",
+        "failed_at": "2026-06-17T04:34:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Self-supervision may boost model performance in downstream tasks. However, there is no principled way of selecting the self-supervised objectives that yield the most adaptable models. Here, we study this problem on daily time-series data generated from wearable sensors used to detect onset of influenza-like illness (ILI). We first show that using self-supervised learning to predict next-day time-series values allows us to learn rich representations which can be adapted to perform accurate ILI prediction. Second, we perform an empirical analysis of three different self-supervised objectives to assess their adaptability to ILI prediction. Our results show that predicting the next day's resting heart rate or time-in-bed during sleep provides better representations for ILI prediction. These findings add to previous work demonstrating the practical application of self-supervised learning from activity data to improve health predictions.",
+          "claimed_authors": [
+            "Arinbjörn Kolbeinsson",
+            "Piyusha Gade",
+            "Raghu Kainkaryam",
+            "Filip Jankovic",
+            "Luca Foschini"
+          ],
+          "claimed_title": "Self-supervision of wearable sensors time-series data for influenza detection",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2112.13755"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Phenomenological AI: First-Person Experience Modeling in Language Models philoso', candidate_title='Self-supervision of wearable sensors time-series data for influenza detection')",
+        "failed_at": "2026-06-17T04:34:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "By defining the current limits (and thereby the frontiers), many boundaries are shaping, and will continue to shape, the future of Artificial Intelligence (AI). We push on these boundaries in order to make further progress into what were yesterday's frontiers. They are both pliable and resilient - always creating new boundaries of what AI can (or should) achieve. Among these are technical boundaries (such as processing capacity), psychological boundaries (such as human trust in AI systems), ethical boundaries (such as with AI weapons), and conceptual boundaries (such as the AI people can imagine). It is within this final category while it can play a fundamental role in all other boundaries} that we find the construct of needs and the limitations that our current concept of need places on the future AI.",
+          "claimed_authors": [
+            "Ryan Watkins",
+            "Soheil Human"
+          ],
+          "claimed_title": "Needs-aware Artificial Intelligence: AI that 'serves [human] needs'",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2202.04977"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Phenomenological AI: First-Person Experience Modeling in Language Models philoso', candidate_title=\"Needs-aware Artificial Intelligence: AI that 'serves [human] needs'\")",
+        "failed_at": "2026-06-17T04:34:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Heuristic evaluation is a widely used method in Human-Computer Interaction (HCI) to inspect interfaces and identify issues based on heuristics. Recently, Large Language Models (LLMs), such as GPT-4o, have been applied in HCI to assist in persona creation, the ideation process, and the analysis of semi-structured interviews. However, considering the need to understand heuristics and the high degree of abstraction required to evaluate them, LLMs may have difficulty conducting heuristic evaluation. However, prior research has not investigated GPT-4o's performance in heuristic evaluation compared to HCI experts in web-based systems. In this context, this study aims to compare the results of a heuristic evaluation performed by GPT-4o and human experts. To this end, we selected a set of screenshots from a web system and asked GPT-4o to perform a heuristic evaluation based on Nielsen's Heuristics from a literature-grounded prompt. Our results indicate that only 21.2% of the issues identified by human experts were also identified by GPT-4o, despite it found 27 new issues. We also found that GPT-4o performed better for heuristics related to aesthetic and minimalist design and match between system and real world, whereas it has difficulty identifying issues in heuristics related to flexibility, control, and user efficiency. Additionally, we noticed that GPT-4o generated several false positives due to hallucinations and attempts to predict issues. Finally, we highlight five takeaways for the conscious use of GPT-4o in heuristic evaluations.",
+          "claimed_authors": [
+            "Guilherme Guerino",
+            "Luiz Rodrigues",
+            "Bruna Capeleti",
+            "Rafael Ferreira Mello",
+            "André Freire",
+            "Luciana Zaina"
+          ],
+          "claimed_title": "Can GPT-4o Evaluate Usability Like Human Experts? A Comparative Study on Issue Identification in Heuristic Evaluation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.16345"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Phenomenological AI: First-Person Experience Modeling in Language Models philoso', candidate_title='Can GPT-4o Evaluate Usability Like Human Experts? A Comparative Study on Issue Identification in Heuristic Evaluation')",
+        "failed_at": "2026-06-17T04:34:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this article we review Tononi's (2008) theory of consciousness as integrated information. We argue that previous formalizations of integrated information (e.g. Griffith, 2014) depend on information loss. Since lossy integration would necessitate continuous damage to existing memories, we propose it is more natural to frame consciousness as a lossless integrative process and provide a formalization of this idea using algorithmic information theory. We prove that complete lossless integration requires noncomputable functions. This result implies that if unitary consciousness exists, it cannot be modelled computationally.",
+          "claimed_authors": [
+            "Phil Maguire",
+            "Philippe Moser",
+            "Rebecca Maguire",
+            "Virgil Griffith"
+          ],
+          "claimed_title": "Is Consciousness Computable? Quantifying Integrated Information Using Algorithmic Information Theory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1405.0126"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Phenomenological AI: First-Person Experience Modeling in Language Models philoso', candidate_title='Is Consciousness Computable? Quantifying Integrated Information Using Algorithmic Information Theory')",
+        "failed_at": "2026-06-17T04:34:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The group testing problem concerns discovering a small number of defective items within a large population by performing tests on pools of items. A test is positive if the pool contains at least one defective, and negative if it contains no defectives. This is a sparse inference problem with a combinatorial flavour, with applications in medical testing, biology, telecommunications, information technology, data science, and more. In this monograph, we survey recent developments in the group testing problem from an information-theoretic perspective. We cover several related developments: efficient algorithms with practical storage and computation requirements, achievability bounds for optimal decoding methods, and algorithm-independent converse bounds. We assess the theoretical guarantees not only in terms of scaling laws, but also in terms of the constant factors, leading to the notion of the {\\em rate} of group testing, indicating the amount of information learned per test. For the noiseless setting, we present a series of results leading to optimal rates, which in turn imply optimality and suboptimality results of various algorithms depending on the sparsity regime. We also survey analogous developments in noisy settings. In addition, we survey results concerning a number of variations on the standard group testing problem, including approximate recovery criteria, adaptive algorithms with a limited number of stages, sublinear-time algorithms, and settings with additional prior information, among others.",
+          "claimed_authors": [
+            "Matthew Aldridge",
+            "Oliver Johnson",
+            "Jonathan Scarlett"
+          ],
+          "claimed_title": "Group Testing: An Information Theory Perspective",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1902.06002"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Phenomenological AI: First-Person Experience Modeling in Language Models philoso', candidate_title='Group Testing: An Information Theory Perspective')",
+        "failed_at": "2026-06-17T04:34:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large language models (LLMs) drive significant financial innovations, yet their high-concurrency deployment is severely bottlenecked by KV cache memory overhead, which inflates infrastructure costs and throttles scalability. To address this, we propose YouZhi-LLM, a highly efficient financial LLM empowered by a comprehensive structural transition and training pipeline natively built on the Huawei Ascend ecosystem. At its algorithmic core, YouZhi-LLM features a layer-adaptive GQA-to-MLA transition framework that dynamically assigns per-layer FreqFold sizes, maximizing KV-cache compression while minimizing perplexity degradation. To recover representation capacity and inject domain expertise, the Ascend-based training pipeline seamlessly integrates generalized knowledge distillation with financial-specific supervised fine-tuning. Evaluations demonstrate the superiority of this systematic approach, with the adaptive transition reducing perplexity degradation by up to 35% over uniform baselines. Crucially, when evaluated on Ascend NPUs via vLLM-Ascend, the massive KV-cache reduction translates directly into deployment efficiency. Compared to their respective base models, YouZhi-7B yields a 12.3% improvement in average financial benchmark score alongside a 2.69$\\times$ increase in maximum concurrency; similarly, YouZhi-14B achieves a 7.0% accuracy gain and a 2.43$\\times$ concurrency boost, establishing a new paradigm for cost-effective, high-throughput financial inference.",
+          "claimed_authors": [
+            " PSBC LLM Team",
+            " Huawei LLM Team",
+            "Ruihan Long",
+            "Junjie Wu",
+            "Tianan Zhang",
+            "Duo Zhang",
+            "Yaozong Wu",
+            "Jinbin Fu",
+            "Chang Liu",
+            "Zhentao Tang",
+            "Wenshuang Yang",
+            "Xin Wang",
+            "Zhihao Song",
+            "Ning Huang",
+            "Wenjing Xu",
+            "Shuai Zong",
+            "Shupei Sun",
+            "Sen Wang",
+            "Jing Hu",
+            "Bin Wang",
+            "Xinyu Wang",
+            "Junkui Ju",
+            "Zequn Ding",
+            "Jie Ran",
+            "Man Luo",
+            "Shixiong Kai",
+            "Linkai Hou",
+            "Kaichao Liang",
+            "Hu Zhao",
+            "Yang Zhao",
+            "Shucheng Lin",
+            "Wei Yu",
+            "Chenghan Jiang",
+            "Jingjing Ding",
+            "Jiahui Zhang",
+            "Tian Jin",
+            "Yuhang Zhang",
+            "Dong Guo",
+            "Wei Sun",
+            "Jun Xie",
+            "Jianwei Li",
+            "Lei Cao",
+            "Pei Li",
+            "Jiabin Li",
+            "Jia Yuan",
+            "Rui Yuan",
+            "Jing Zhu",
+            "Mingxuan Yuan",
+            "Zhangcheng Lv",
+            "Xin Jiang",
+            "Xiuhong Fei",
+            "Xiaozhe Ren",
+            "Yulong Li",
+            "Zhipeng Zhang",
+            "Hang Wang",
+            "Zhaohui Xu",
+            "Rui Zhao",
+            "Yibo He",
+            "Xinzhuang Niu"
+          ],
+          "claimed_title": "YouZhi: Towards High-Concurrency Financial LLMs via Adaptive GQA-to-MLA Transition",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.05868"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Phenomenological AI: First-Person Experience Modeling in Language Models philoso', candidate_title='YouZhi: Towards High-Concurrency Financial LLMs via Adaptive GQA-to-MLA Transition')",
+        "failed_at": "2026-06-17T04:34:38Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Nicolas Zucchet",
+            "Jörg Bornschein",
+            "Stephanie Chan",
+            "Andrew Lampinen",
+            "Razvan Pascanu",
+            "Soham De"
+          ],
+          "title": "How do language models learn facts? Dynamics, curricula and hallucinations",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2503.21676",
+        "summary": "Large language models accumulate vast knowledge during pre-training, yet the dynamics governing this acquisition remain poorly understood. This work investigates the learning dynamics of language models on a synthetic factual recall task, uncovering three key findings: First, language models learn in three phases, exhibiting a performance plateau before acquiring precise factual knowledge. Mechanistically, this plateau coincides with the formation of attention-based circuits that support recall. Second, the training data distribution significantly impacts learning dynamics, as imbalanced distributions lead to shorter plateaus. Finally, hallucinations emerge simultaneously with knowledge, and integrating new knowledge into the model through fine-tuning is challenging, as it quickly corrupts its existing parametric memories. Our results emphasize the importance of data distribution in knowledge acquisition and suggest novel data scheduling strategies to accelerate neural network training.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2503.21676",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-17T04:34:37Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Renxi Wang",
+            "Haonan Li",
+            "Xudong Han",
+            "Yixuan Zhang",
+            "Timothy Baldwin"
+          ],
+          "title": "Learning From Failure: Integrating Negative Examples when Fine-tuning Large Language Models as Agents",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2402.11651",
+        "summary": "Large language models (LLMs) have achieved success in acting as agents, which interact with environments through tools such as search engines. However, LLMs are optimized for language generation instead of tool use during training or alignment, limiting their effectiveness as agents. To resolve this problem, previous work has first collected interaction trajectories between LLMs and environments, using only trajectories that successfully finished the task to fine-tune smaller models, making fine-tuning data scarce and acquiring it both difficult and costly. Discarding failed trajectories also leads to significant wastage of data and resources and limits the possible optimization paths during fine-tuning. In this paper, we argue that unsuccessful trajectories offer valuable insights, and LLMs can learn from these trajectories through appropriate quality control and fine-tuning strategies. By simply adding a prefix or suffix that tells the model whether to generate a successful trajectory during training, we improve model performance by a large margin on mathematical reasoning, multi-hop question answering, and strategic question answering tasks. We further analyze the inference results and find that our method provides a better trade-off between valuable information and errors in unsuccessful trajectories. To our knowledge, we are the first to demonstrate the value of negative trajectories and their application in agent-tunning scenarios. Our findings offer guidance for developing better agent-tuning methods and low-resource data usage techniques.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2402.11651",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-17T04:34:37Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Chantale Lauer",
+            "Peter Pfeiffer",
+            "Nijat Mehdiyev"
+          ],
+          "title": "Human-Centered Evaluation of an LLM-Based Process Modeling Copilot: A Mixed-Methods Study with Domain Experts",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2603.12895",
+        "summary": "Integrating Large Language Models (LLMs) into business process management tools promises to democratize Business Process Model and Notation (BPMN) modeling for non-experts. While automated frameworks assess syntactic and semantic quality, they miss human factors like trust, usability, and professional alignment. We conducted a mixed-methods evaluation of our proposed solution, an LLM-powered BPMN copilot, with five process modeling experts using focus groups and standardized questionnaires. Our findings reveal a critical tension between acceptable perceived usability (mean CUQ score: 67.2/100) and notably lower trust (mean score: 48.8\\%), with reliability rated as the most critical concern (M=1.8/5). Furthermore, we identified output-quality issues, prompting difficulties, and a need for the LLM to ask more in-depth clarifying questions about the process. We envision five use cases ranging from domain-expert support to enterprise quality assurance. We demonstrate the necessity of human-centered evaluation complementing automated benchmarking for LLM modeling agents.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2603.12895",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-17T04:34:38Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Evana Gizzi",
+            "Lakshmi Nair",
+            "Sonia Chernova",
+            "Jivko Sinapov"
+          ],
+          "title": "Creative Problem Solving in Artificially Intelligent Agents: A Survey and Framework",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2022
+        },
+        "primary_pointer": "2204.10358",
+        "summary": "Creative Problem Solving (CPS) is a sub-area within Artificial Intelligence (AI) that focuses on methods for solving off-nominal, or anomalous problems in autonomous systems. Despite many advancements in planning and learning, resolving novel problems or adapting existing knowledge to a new context, especially in cases where the environment may change in unpredictable ways post deployment, remains a limiting factor in the safe and useful integration of intelligent systems. The emergence of increasingly autonomous systems dictates the necessity for AI agents to deal with environmental uncertainty through creativity. To stimulate further research in CPS, we present a definition and a framework of CPS, which we adopt to categorize existing AI methods in this field. Our framework consists of four main components of a CPS problem, namely, 1) problem formulation, 2) knowledge representation, 3) method of knowledge manipulation, and 4) method of evaluation. We conclude our survey with open research questions, and suggested directions for the future.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2204.10358",
+          "http_status": 200,
+          "pdf_sample_score": 0.1869,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-17T04:34:41Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Michael Timothy Bennett",
+            "Yoshihiro Maruyama"
+          ],
+          "title": "The Artificial Scientist: Logicist, Emergentist, and Universalist Approaches to Artificial General Intelligence",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2021
+        },
+        "primary_pointer": "2110.01831",
+        "summary": "We attempt to define what is necessary to construct an Artificial Scientist, explore and evaluate several approaches to artificial general intelligence (AGI) which may facilitate this, conclude that a unified or hybrid approach is necessary and explore two theories that satisfy this requirement to some degree.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2110.01831",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-17T04:34:42Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Sandro Rodriguez Garzon",
+            "Awid Vaziry",
+            "Enis Mert Kuzu",
+            "Dennis Enrique Gehrmann",
+            "Buse Varkan",
+            "Alexander Gaballa",
+            "Axel Küpper"
+          ],
+          "title": "AI Agents with Decentralized Identifiers and Verifiable Credentials",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2511.02841",
+        "summary": "A fundamental limitation of current LLM-based AI agents is their inability to build differentiated trust among each other at the onset of an agent-to-agent dialogue. However, autonomous and interoperable trust establishment becomes essential once agents start to operate beyond isolated environments and engage in dialogues across individual or organizational boundaries. A promising way to fill this gap in Agentic AI is to equip agents with long-lived digital identities and introduce tamper-proof and flexible identity-bound attestations of agents, provisioned by commonly trusted third parties and designed for cross-domain verifiability. This article presents a conceptual framework and a prototypical multi-agent system, where each agent is endowed with a self-sovereign digital identity. It combines a unique and ledger-anchored W3C Decentralized Identifier (DID) of an agent with a set of third-party issued W3C Verifiable Credentials (VCs). This enables agents at the start of a dialog to prove ownership of their self-controlled DIDs for authentication purposes and to establish various cross-domain trust relationships through the spontaneous exchange of their self-hosted DID-bound VCs. A comprehensive evaluation of the prototypical implementation demonstrates technical feasibility but also reveals limitations once an agent's LLM is in sole charge to control the respective security procedures.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2511.02841",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-17T04:34:42Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Michael Timothy Bennett"
+          ],
+          "title": "Compression, The Fermi Paradox and Artificial Super-Intelligence",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2021
+        },
+        "primary_pointer": "2110.01835",
+        "summary": "The following briefly discusses possible difficulties in communication with and control of an AGI (artificial general intelligence), building upon an explanation of The Fermi Paradox and preceding work on symbol emergence and artificial general intelligence. The latter suggests that to infer what someone means, an agent constructs a rationale for the observed behaviour of others. Communication then requires two agents labour under similar compulsions and have similar experiences (construct similar solutions to similar tasks). Any non-human intelligence may construct solutions such that any rationale for their behaviour (and thus the meaning of their signals) is outside the scope of what a human is inclined to notice or comprehend. Further, the more compressed a signal, the closer it will appear to random noise. Another intelligence may possess the ability to compress information to the extent that, to us, their signals would appear indistinguishable from noise (an explanation for The Fermi Paradox). To facilitate predictive accuracy an AGI would tend to more compressed representations of the world, making any rationale for their behaviour more difficult to comprehend for the same reason. Communication with and control of an AGI may subsequently necessitate not only human-like compulsions and experiences, but imposed cognitive impairment.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2110.01835",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-17T04:34:43Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Kamil Szczepanik",
+            "Jarosław A. Chudziak"
+          ],
+          "title": "TRIZ Agents: A Multi-Agent LLM Approach for TRIZ-Based Innovation",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2506.18783",
+        "summary": "TRIZ, the Theory of Inventive Problem Solving, is a structured, knowledge-based framework for innovation and abstracting problems to find inventive solutions. However, its application is often limited by the complexity and deep interdisciplinary knowledge required. Advancements in Large Language Models (LLMs) have revealed new possibilities for automating parts of this process. While previous studies have explored single LLMs in TRIZ applications, this paper introduces a multi-agent approach. We propose an LLM-based multi-agent system, called TRIZ agents, each with specialized capabilities and tool access, collaboratively solving inventive problems based on the TRIZ methodology. This multi-agent system leverages agents with various domain expertise to efficiently navigate TRIZ steps. The aim is to model and simulate an inventive process with language agents. We assess the effectiveness of this team of agents in addressing complex innovation challenges based on a selected case study in engineering. We demonstrate the potential of agent collaboration to produce diverse, inventive solutions. This research contributes to the future of AI-driven innovation, showcasing the advantages of decentralized problem-solving in complex ideation tasks.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2506.18783",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-17T04:34:43Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "phenomenological ai: first-person experience modeling in language models philosophy",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

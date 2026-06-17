@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2110.01831",
+  "judged_at": "2026-06-17T04:34:54Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "phenomenological ai: first-person experience modeling in language models philosophy",
+  "rationale": "The paper discusses broad AGI approaches (logicist, emergentist, universalist) and the concept of an “Artificial Scientist,” but it does not address phenomenological AI, first‑person experience modeling, or language‑model philosophy, so it lacks the required mechanism, variable, or domain relevance.",
+  "relevant": false
+}
