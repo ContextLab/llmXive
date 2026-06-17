@@ -1,0 +1,387 @@
+project_id: PROJ-574-eva-bench-a-new-end-to-end-framework-for
+round: 1
+revision_kind: paper_science
+from_stage: paper_review
+to_stage: clarified
+worst_severity: science
+seed_action_items:
+- id: 29d5fc6fde79
+  text: Paper claims open-source release but no code repository is accessible during
+    review. Add working links to the actual implementation repository with version
+    tags matching the paper submission date for reproducibility verification.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-574-eva-bench-a-new-end-to-end-framework-for/paper/source/
+  location: ''
+- id: 95753ce12db1
+  text: Methodology describes log processing and metric calculations but lacks implementation-level
+    detail. Include pseudocode or reference specific module paths (e.g., 'metrics/turn_taking.py')
+    to enable independent verification of scoring logic.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-574-eva-bench-a-new-end-to-end-framework-for/paper/source/
+  location: ''
+- id: 16ef891a13ad
+  text: Framework claims 'automated simulator validation' and 'regeneration on failure'
+    but provides no test suite or validation script paths. Document test infrastructure
+    location and coverage metrics for reproducibility.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-574-eva-bench-a-new-end-to-end-framework-for/paper/source/
+  location: ''
+- id: '615814674414'
+  text: The Abstract states the data is released under an 'open-source license' but
+    does not specify which one (e.g., MIT, Apache 2.0). This ambiguity prevents users
+    from understanding usage rights and compliance requirements.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-574-eva-bench-a-new-end-to-end-framework-for/paper/source/
+  location: ''
+- id: 1b0be1d70a9c
+  text: There is no dataset version number (e.g., v1.0) or persistent DOI (e.g., Zenodo)
+    cited for the benchmark data. Relying solely on GitHub/HuggingFace links risks
+    link rot and makes reproducibility across time difficult.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-574-eva-bench-a-new-end-to-end-framework-for/paper/source/
+  location: ''
+- id: 027b59b91398
+  text: While log file schemas (JSON/JSONL) are described in Section 'Log Processing',
+    the schema for the scenario data (user goals, personas, ground truth) is only
+    described textually. A formal schema definition or sample file reference should
+    be added to Appendix~\ref{app:data}.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-574-eva-bench-a-new-end-to-end-framework-for/paper/source/
+  location: ''
+- id: 595466f53419
+  text: Add shape/pattern differentiation to perturbation bar charts (e.g., fig:perturbation-eva-a-pass-pooled)
+    for grayscale accessibility.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-574-eva-bench-a-new-end-to-end-framework-for/paper/source/
+  location: ''
+- id: 3b66a70aeb33
+  text: Insert \\alttext for all \\begin{figure} environments to support screen readers
+    and meet accessibility standards.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-574-eva-bench-a-new-end-to-end-framework-for/paper/source/
+  location: ''
+- id: 0ca7e60b2744
+  text: Verify all plotted figures (e.g., fig:threshold_sensitivity) are vector graphics
+    to ensure print legibility at 300 DPI.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-574-eva-bench-a-new-end-to-end-framework-for/paper/source/
+  location: ''
+- id: 9ce1107a4280
+  text: Define acronyms IAA, REML, ANOVA, SLA, MFA, AD, IRROPS, and VAD at first use.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-574-eva-bench-a-new-end-to-end-framework-for/paper/source/
+  location: ''
+- id: e384e738df46
+  text: Replace 'validation-gated' and 'bot-to-bot' with plainer alternatives like
+    'validation-controlled' and 'agent-to-agent'.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-574-eva-bench-a-new-end-to-end-framework-for/paper/source/
+  location: ''
+- id: 202b84099d7f
+  text: Simplify statistical terminology (e.g., 'percentile bootstrap CI') for broader
+    readability.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-574-eva-bench-a-new-end-to-end-framework-for/paper/source/
+  location: ''
+- id: 64205eb2492c
+  text: Verify the '0.23 gap' claim in Appendix A.4 (Turn-Taking threshold justification)
+    against Turn-Taking Mean scores in Table accuracy-experience-tables (Section 5.2),
+    which show a larger gap (~0.38) between S2S and Cascade systems.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-574-eva-bench-a-new-end-to-end-framework-for/paper/source/
+  location: ''
+- id: f667bbd54530
+  text: Clarify the magnitude of perturbation effects in Section 5.2 ('Turn-taking
+    most sensitive (81% degradation)') to ensure alignment with the Abstract's claim
+    ('mean Delta up to 0.314'), as 81% degradation implies a larger score drop than
+    0.314 if interpreted as a metric delta.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-574-eva-bench-a-new-end-to-end-framework-for/paper/source/
+  location: ''
+- id: 1d33b0cd7465
+  text: Temper the absolute novelty claim in the Abstract ('no existing benchmark
+    jointly addresses...') to acknowledge partial overlaps with prior work like tau-Voice
+    or FDB-v3 regarding simulation or audio realism.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-574-eva-bench-a-new-end-to-end-framework-for/paper/source/
+  location: ''
+- id: 9b25f3054aa3
+  text: Restrict generalizations about 'Voice Agents' in the Introduction and Abstract
+    to 'Enterprise Task-Oriented Voice Agents' given the 213 scenarios are strictly
+    domain-specific (Airline, HR, ITSM).
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-574-eva-bench-a-new-end-to-end-framework-for/paper/source/
+  location: ''
+- id: 5186b48e167e
+  text: Clarify that EVA-A/EVA-X thresholds (e.g., Turn-Taking >= 0.8) are benchmark-specific
+    baselines rather than universal standards for voice agent quality, to avoid overclaiming
+    normative validity.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-574-eva-bench-a-new-end-to-end-framework-for/paper/source/
+  location: ''
+- id: 6f24cbb745e8
+  text: Add a Data Availability statement explicitly confirming that all released
+    synthetic scenarios have been scrubbed of PII (e.g., phone numbers, employee IDs)
+    to prevent privacy leakage under the open-source license.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-574-eva-bench-a-new-end-to-end-framework-for/paper/source/
+  location: ''
+- id: 0f9fa270fbad
+  text: Include a Dual-Use statement addressing the potential misuse of the 9 adversarial
+    ITSM scenarios (Section "Enterprise ITSM Workflows") for training agents to bypass
+    safety guardrails.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-574-eva-bench-a-new-end-to-end-framework-for/paper/source/
+  location: ''
+- id: 08fb81144cfb
+  text: Disclose funding sources and potential Conflicts of Interest, particularly
+    given the framework is hosted on the ServiceNow GitHub organization while evaluating
+    competitors (OpenAI, Google, ElevenLabs).
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-574-eva-bench-a-new-end-to-end-framework-for/paper/source/
+  location: ''
+- id: 7c4792162a89
+  text: The correlation claim between transcription accuracy and task completion (r=0.93,
+    p=0.002) is based on only 7 systems (N=7). This sample size is insufficient for
+    robust Pearson correlation inference. Please provide confidence intervals for
+    the correlation coefficient or qualify the claim as preliminary.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-574-eva-bench-a-new-end-to-end-framework-for/paper/source/
+  location: ''
+- id: '619832153797'
+  text: The 12.0% simulator regeneration rate indicates non-trivial instability in
+    the user simulator. Clarify whether variance from 'valid' but potentially drifted
+    simulator behavior is fully captured in the reported 'Trial' variance component
+    in the LMM analysis (Table LMM).
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-574-eva-bench-a-new-end-to-end-framework-for/paper/source/
+  location: ''
+- id: 66ea7009b040
+  text: The perturbation suite is limited to French accent and coffee noise. While
+    the robustness findings are valid for these conditions, explicitly acknowledge
+    that generalizability to other accents or acoustic environments is an assumption
+    not tested by the current data.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-574-eva-bench-a-new-end-to-end-framework-for/paper/source/
+  location: ''
+- id: 335b7282933b
+  text: "Clarify the multiple\u2011comparison correction strategy. While Holm\u2011\
+    Bonferroni is applied to perturbation significance (Fig.\u202F5\u20119), other\
+    \ families of tests (e.g., pairwise architecture comparisons in Fig.\u202F4 and\
+    \ Table\u202F1) lack correction, inflating Type\u202FI error risk."
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-574-eva-bench-a-new-end-to-end-framework-for/paper/source/
+  location: ''
+- id: 56d152c75488
+  text: "Provide effect\u2011size estimates (e.g., Cohen\u2019s\u202Fd or odds ratios)\
+    \ alongside p\u2011values for the reported significant differences (e.g., the\
+    \ 10\u2011point drop in task completion under accent, Fig.\u202F5). This will\
+    \ aid interpretation of practical significance."
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-574-eva-bench-a-new-end-to-end-framework-for/paper/source/
+  location: ''
+- id: efe4a7f4cd8d
+  text: "Justify the choice of the pass\u2011at\u2011k thresholds (\u03C4\u202F=\u202F\
+    0.8 for turn\u2011taking, \u03C4\u202F=\u202F0.5 for other EVA\u2011X sub\u2011\
+    metrics). Include a sensitivity analysis showing how varying \u03C4 influences\
+    \ system rankings (beyond Fig.\u202F13)."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-574-eva-bench-a-new-end-to-end-framework-for/paper/source/
+  location: ''
+- id: 75f2737d1f06
+  text: "Report the raw bootstrap samples or seeds used for confidence\u2011interval\
+    \ estimation (Section\u202F4.2) to enable exact reproducibility of the CIs shown\
+    \ in Table\u202F1 and Fig.\u202F4."
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-574-eva-bench-a-new-end-to-end-framework-for/paper/source/
+  location: ''
+- id: 54b9e714f487
+  text: "Expand the variance decomposition (Section\u202F4.2) to include confidence\
+    \ intervals for the variance components and clarify the model (e.g., REML) assumptions;\
+    \ this will strengthen claims about trial vs. judge stochasticity."
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-574-eva-bench-a-new-end-to-end-framework-for/paper/source/
+  location: ''
+- id: 06708652af41
+  text: "Wrap excessively long lines (e.g., the abstract, table definitions, and long\
+    \ paragraphs) to stay within the typical 80\u2011character line width to avoid\
+    \ overfull \\hbox warnings."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-574-eva-bench-a-new-end-to-end-framework-for/paper/source/
+  location: ''
+- id: 8c0a4c9e7481
+  text: Ensure all \caption commands appear *before* the corresponding \label within
+    figures and tables; some tables place \label after the caption which is acceptable,
+    but for consistency move \label immediately after \caption.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-574-eva-bench-a-new-end-to-end-framework-for/paper/source/
+  location: ''
+- id: 61a41d8e83a4
+  text: "Standardize citation commands: the manuscript mixes \\cite, \\citep, and\
+    \ \\citet. Choose a single style (e.g., natbib\u2019s \\citep for parenthetical\
+    \ citations) and apply it uniformly."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-574-eva-bench-a-new-end-to-end-framework-for/paper/source/
+  location: ''
+- id: 5c743975e93e
+  text: "Verify that every \\ref or \\autoref points to an existing \\label. A quick\
+    \ grep shows a few references like Figure~\\ref{fig:perturbation-conversation-progression-pooled}\
+    \ that are correctly labeled, but double\u2011check that no label is misspelled\
+    \ (e.g., missing hyphens or underscores)."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-574-eva-bench-a-new-end-to-end-framework-for/paper/source/
+  location: ''
+- id: 275245c09d89
+  text: "Check figure placement specifiers (e.g., [t], [h]) for potential float conflicts.\
+    \ Consider using the `float` or `placeins` package to keep figures close to their\
+    \ first reference, especially for large multi\u2011panel figures."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-574-eva-bench-a-new-end-to-end-framework-for/paper/source/
+  location: ''
+- id: df6e2197a8db
+  text: "In tables that span the full page width, move the \\caption *outside* the\
+    \ \\resizebox environment (i.e., place \\caption before \\resizebox) to prevent\
+    \ caption width issues and ensure proper list\u2011of\u2011tables entry."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-574-eva-bench-a-new-end-to-end-framework-for/paper/source/
+  location: ''
+- id: c7ac50ab93f9
+  text: "Replace manual line breaks inside \\caption text (e.g., using \\newline)\
+    \ with proper punctuation; some captions contain line\u2011break commands that\
+    \ can cause inconsistent formatting."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-574-eva-bench-a-new-end-to-end-framework-for/paper/source/
+  location: ''
+- id: ab898372f13a
+  text: Add missing \subsection or \subsubsection headings where the narrative jumps
+    (e.g., after "Metric Details" there is a long paragraph without a heading). This
+    improves hierarchical clarity.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-574-eva-bench-a-new-end-to-end-framework-for/paper/source/
+  location: ''
+- id: 4dfcb46c0405
+  text: Ensure all list environments (itemize, enumerate) are properly indented and
+    have a blank line before and after the environment to avoid LaTeX compilation
+    warnings.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-574-eva-bench-a-new-end-to-end-framework-for/paper/source/
+  location: ''
+- id: cc2989ebd78b
+  text: Convert sentence fragments in Section 4 (Experiments & Empirical Analysis)
+    into complete sentences to improve readability.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-574-eva-bench-a-new-end-to-end-framework-for/paper/source/
+  location: ''
+- id: d17f83d23912
+  text: Fix missing verbs in Appendix text (e.g., 'transcription accuracy and task
+    completion tightly coupled').
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-574-eva-bench-a-new-end-to-end-framework-for/paper/source/
+  location: ''
+- id: dde8edb529e2
+  text: Ensure consistent formatting of metric names throughout the document (e.g.,
+    EVA-A vs EVA-A).
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-574-eva-bench-a-new-end-to-end-framework-for/paper/source/
+  location: ''
+kickback_reason: 'advancement.evaluate: paper-review non-convergence; routing via
+  engine adapter.'
+kickback_artifact_links:
+- projects/PROJ-574-eva-bench-a-new-end-to-end-framework-for/paper/source/
+stage_results:
+- name: specify
+  status: success
+- name: clarify
+  status: success
+  note: auto-resolved; deterministic adapter needs no clarifications
+- name: plan
+  status: success
+- name: tasks
+  status: success
+  note: 40 tasks emitted (one per concern)
+- name: analyze
+  status: success
+  iterations: 1
+  finding_count: 0
+final_outcome: ready_for_implementation
+produced_at: '2026-06-17T08:01:04.068699+00:00'

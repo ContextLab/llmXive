@@ -6,13 +6,13 @@ failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-574-eva-bench-a-new-end-to-end-framework-for
-last_run_id: null
+last_run_id: 50f97ea1-f295-4dfc-ad51-3b9e5b3b8616
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
-revision_spec_path: null
+revision_spec_path: specs/auto-revisions/PROJ-574-eva-bench-a-new-end-to-end-framework-for/round-1
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'EVA-Bench: A New End-to-end Framework for Evaluating Voice Agents'
-updated_at: '2026-05-15T15:15:26.205401Z'
+updated_at: '2026-06-17T08:01:04.091260Z'
