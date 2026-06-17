@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-11T11:34:02.892217Z'
-current_stage: flesh_out_complete
+current_stage: validated
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-693-abot-earth-0-5-generative-3d-earth-model
-last_run_id: c1ad9080-ac6e-4ba9-b4eb-835315583a8f
+last_run_id: dcb98eef-b3a6-41f1-bb45-aba807747295
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'ABot-Earth 0.5: Generative 3D Earth Model'
-updated_at: '2026-06-17T08:11:53.034598Z'
+updated_at: '2026-06-17T08:36:02.731274Z'
