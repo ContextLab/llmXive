@@ -1,20 +1,21 @@
 {
   "project_id": "PROJ-552-quantifying-the-complexity-of-knot-diagr",
-  "ok": false,
-  "reason": "10 command(s) failed: python code/download/knot_atlas_loader.py (rc=1); python code/data/parser.py (rc=1); python code/data/validator.py (rc=1); 2 declared deliverable(s) absent: data/plots/complexity_visualization_examples.png; data/plots/crossing_vs_braid.png",
-  "artifacts": [],
-  "failures": [
-    "python code/download/knot_atlas_loader.py -> rc=1\n    ork/Versions/3.11/lib/python3.11/json/encoder.py\", line 258, in iterencode\n    return _iterencode(o, 0)\n           ^^^^^^^^^^^^^^^^^\n  File \"/opt/homebrew/Cellar/python@3.11/3.11.12/Frameworks/Python.framework/Versions/3.11/lib/python3.11/json/encoder.py\", line 180, in default\n    raise TypeError(f'Object of type {o.__class__.__name__} '\nTypeError: Object of type PosixPath is not JSON serializable",
-    "python code/data/parser.py -> rc=1\n    in wrapper\n    result = func(*args, **kwargs)\n             ^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/jmanning/llmXive/projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/code/data/parser.py\", line 53, in parse_knot_atlas_data\n    \"crossing_number\": int(rec[\"crossing_number\"]),\n                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^\nValueError: invalid literal for int() with base 10: 'Crossing Number'",
-    "python code/data/validator.py -> rc=1\n    Usage: python -m code.data.validator <input_csv> <output_json>",
-    "python code/analysis/validate_completeness.py -> rc=1\n    sis/validate_completeness.py\", line 13, in <module>\n    from analysis.data_quantities import load_cleaned_knots_data\n  File \"/Users/jmanning/llmXive/projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/code/analysis/data_quantities.py\", line 18, in <module>\n    logger = get_logger(__name__)\n             ^^^^^^^^^^^^^^^^^^^^\nTypeError: get_logger() takes 0 positional arguments but 1 was given",
-    "python code/analysis/exploratory.py -> rc=1\n    ying-the-complexity-of-knot-diagr/code/analysis/exploratory.py\", line 110, in <module>\n    main()\n  File \"/Users/jmanning/llmXive/projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/code/analysis/exploratory.py\", line 102, in main\n    logger = get_logger(__name__)  # type: ignore[arg-type]\n             ^^^^^^^^^^^^^^^^^^^^\nTypeError: get_logger() takes 0 positional arguments but 1 was given",
-    "python code/reproducibility/tie_breaking_validator.py -> rc=1\n    Traceback (most recent call last):\n  File \"/Users/jmanning/llmXive/projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/code/reproducibility/tie_breaking_validator.py\", line 119, in <module>\n    main()\nTypeError: log_operation.<locals>.decorator() missing 1 required positional argument: 'func'",
-    "python code/analysis/residual_analysis.py -> rc=1\n    Traceback (most recent call last):\n  File \"/Users/jmanning/llmXive/projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/code/analysis/residual_analysis.py\", line 219, in <module>\n    main()\nTypeError: log_operation.<locals>.decorator() missing 1 required positional argument: 'func'",
-    "python code/analysis/correlation.py -> rc=1\n    code/analysis/correlation.py\", line 16, in <module>\n    from analysis.data_quantities import load_cleaned_knots_data\n  File \"/Users/jmanning/llmXive/projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/code/analysis/data_quantities.py\", line 18, in <module>\n    logger = get_logger(__name__)\n             ^^^^^^^^^^^^^^^^^^^^\nTypeError: get_logger() takes 0 positional arguments but 1 was given",
-    "python code/analysis/group_comparison.py -> rc=1\n    analysis/group_comparison.py\", line 16, in <module>\n    from analysis.data_quantities import load_cleaned_knots_data\n  File \"/Users/jmanning/llmXive/projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/code/analysis/data_quantities.py\", line 18, in <module>\n    logger = get_logger(__name__)\n             ^^^^^^^^^^^^^^^^^^^^\nTypeError: get_logger() takes 0 positional arguments but 1 was given",
-    "python code/reproducibility/derivation_validator.py -> rc=1\n    lity/derivation_notes.md\nSections: 0/4 passed\nMessage: Failed sections: Formula Citations with Page/Section References, Step-by-Step Transformation Logic with Intermediate Values, All Parameter Values Used, Justification for Non-Standard Choices\nValidation report written to: /Users/jmanning/llmXive/projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/validation_status.md"
+  "ok": true,
+  "reason": "ok",
+  "artifacts": [
+    "data/logs.json",
+    "data/plots/complexity_visualization_examples.png",
+    "data/plots/correlation_metrics.json",
+    "data/plots/crossing_vs_braid.png",
+    "data/plots/regression_metrics.json",
+    "data/processed/correlation_report.json",
+    "data/processed/group_comparison_report.json",
+    "data/processed/knots_cleaned.csv",
+    "data/processed/outlier_knots.json",
+    "data/processed/validation_flags.json",
+    "data/raw/knot_atlas_raw.json"
   ],
-  "fix_rounds": 2,
-  "updated_at": "2026-06-17T19:15:53Z"
+  "failures": [],
+  "fix_rounds": 0,
+  "updated_at": "2026-06-17T23:22:26Z"
 }

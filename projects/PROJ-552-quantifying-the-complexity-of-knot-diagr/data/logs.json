@@ -193,3 +193,36 @@
 {"timestamp": 1781738486.4712021, "operation": "Group comparison report written to data/processed/group_comparison_report.json", "status": "INFO", "details": {}}
 {"timestamp": 1781738486.894123, "operation": "Generating complexity visualization examples", "status": "INFO", "details": {}}
 {"timestamp": 1781738487.263822, "operation": "Saved plot to data/plots/complexity_visualization_examples.png (2978 knots)", "status": "INFO", "details": {}}
+{"timestamp": 1781738537.164479, "operation": "test", "status": "verification", "details": {}}
+{"timestamp": 1781738540.4798982, "operation": "Generating completeness validation report", "status": "INFO", "details": {}}
+{"timestamp": 1781738540.4867132, "operation": "Completeness report written to docs/reproducibility/completeness_report.json", "status": "INFO", "details": {}}
+{"timestamp": 1781738541.566512, "operation": "Running exploratory analysis: crossing number vs. braid index", "status": "INFO", "details": {}}
+{"timestamp": 1781738541.909963, "operation": "Exploratory plot written to data/plots/crossing_vs_braid.png", "status": "INFO", "details": {}}
+{"timestamp": 1781738542.43941, "operation": "tie_breaking_validation_start", "status": "SUCCESS", "details": {}}
+{"timestamp": 1781738542.4396281, "operation": "tie_breaking_validation_complete", "status": "completed", "details": {}}
+{"timestamp": 1781738542.439896, "operation": "Tie\u2011breaking rules validation passed", "status": "INFO", "details": {}}
+{"timestamp": 1781738543.659895, "operation": "regression_start", "status": "SUCCESS", "details": {}}
+{"timestamp": 1781738543.6600661, "operation": "Loading cleaned knot data for regression analysis", "status": "INFO", "details": {}}
+{"timestamp": 1781738543.660392, "operation": "Loading cleaned knot data from %s", "status": "DEBUG", "details": {}}
+{"timestamp": 1781738543.673549, "operation": "Loaded %d knot records (numeric columns coerced).", "status": "INFO", "details": {}}
+{"timestamp": 1781738543.681782, "operation": "Regression analysis completed", "status": "INFO", "details": {}}
+{"timestamp": 1781738543.6822028, "operation": "Computing Pearson and Spearman correlations", "status": "INFO", "details": {}}
+{"timestamp": 1781738543.682271, "operation": "Loading cleaned knot data from %s", "status": "DEBUG", "details": {}}
+{"timestamp": 1781738543.694722, "operation": "Loaded %d knot records (numeric columns coerced).", "status": "INFO", "details": {}}
+{"timestamp": 1781738543.695362, "operation": "Correlation results", "status": "DEBUG", "details": {}}
+{"timestamp": 1781738543.6957152, "operation": "regression_complete", "status": "completed", "details": {}}
+{"timestamp": 1781738543.69578, "operation": "correlation_complete", "status": "completed", "details": {}}
+{"timestamp": 1781738544.8888462, "operation": "Computing correlation metrics", "status": "INFO", "details": {}}
+{"timestamp": 1781738545.065034, "operation": "Loading cleaned knot data from %s", "status": "DEBUG", "details": {}}
+{"timestamp": 1781738545.077825, "operation": "Loaded %d knot records (numeric columns coerced).", "status": "INFO", "details": {}}
+{"timestamp": 1781738545.0813582, "operation": "compute_correlations", "status": "SUCCESS", "details": {}}
+{"timestamp": 1781738545.0816, "operation": "generate_report", "status": "SUCCESS", "details": {}}
+{"timestamp": 1781738545.081656, "operation": "Correlation report written to data/processed/correlation_report.json", "status": "INFO", "details": {}}
+{"timestamp": 1781738545.367133, "operation": "Running group comparison analysis", "status": "INFO", "details": {}}
+{"timestamp": 1781738545.532494, "operation": "Loading cleaned knot data from %s", "status": "DEBUG", "details": {}}
+{"timestamp": 1781738545.545608, "operation": "Loaded %d knot records (numeric columns coerced).", "status": "INFO", "details": {}}
+{"timestamp": 1781738545.548888, "operation": "compute_group_stats", "status": "SUCCESS", "details": {}}
+{"timestamp": 1781738545.549133, "operation": "generate_report", "status": "SUCCESS", "details": {}}
+{"timestamp": 1781738545.5491872, "operation": "Group comparison report written to data/processed/group_comparison_report.json", "status": "INFO", "details": {}}
+{"timestamp": 1781738545.973492, "operation": "Generating complexity visualization examples", "status": "INFO", "details": {}}
+{"timestamp": 1781738546.3428211, "operation": "Saved plot to data/plots/complexity_visualization_examples.png (2978 knots)", "status": "INFO", "details": {}}
