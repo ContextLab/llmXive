@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2512.07011",
+  "judged_at": "2026-06-17T17:23:43Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "minimax sparse attention computer science",
+  "rationale": "The paper investigates a sparse attention technique (Block‑Sparse FlashAttention) that operates on the same domain—sparse attention mechanisms for long‑context transformers—as the MiniMax Sparse Attention query, providing an alternative‑vocabulary (block‑sparse) example of the same underlying concept (criterion b/f).",
+  "relevant": true
+}

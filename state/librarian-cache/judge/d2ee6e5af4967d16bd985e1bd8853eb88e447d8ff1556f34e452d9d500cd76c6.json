@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2510.11852",
+  "judged_at": "2026-06-17T17:22:39Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "qwen-image-flash: beyond objective design computer science",
+  "rationale": "The paper evaluates various open‑source vision‑language models (including Qwen‑VL) on multimodal sarcasm detection, which does not address the design, objectives, or mechanisms of Qwen‑Image‑Flash as implied by the user's question. It falls outside the relevant construct and domain.",
+  "relevant": false
+}

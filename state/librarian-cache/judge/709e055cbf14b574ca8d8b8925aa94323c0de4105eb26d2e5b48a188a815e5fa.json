@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2506.13585",
+  "judged_at": "2026-06-17T17:23:31Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "minimax sparse attention computer science",
+  "rationale": "The paper studies a MiniMax model that uses an efficient “lightning attention” mechanism, which is an alternative formulation of sparse/efficient attention (cross‑vocabulary alt‑cluster, criterion f) and thus provides relevant prior work on MiniMax‑style sparse attention in computer science.",
+  "relevant": true
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2601.15305",
+  "judged_at": "2026-06-17T17:23:39Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "minimax sparse attention computer science",
+  "rationale": "The paper investigates a variant of sparse attention (gated sparse attention) and reports efficiency and quality metrics for long‑context language models, thus measuring a key dependent variable (attention sparsity/performance) within the same computer‑science domain as MiniMax Sparse Attention (acceptance category (b)).",
+  "relevant": true
+}

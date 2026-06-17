@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2606.03746",
+  "judged_at": "2026-06-17T17:22:35Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "qwen-image-flash: beyond objective design computer science",
+  "rationale": "The paper studies the same model (Qwen-Image-Flash) and the same focus (“beyond objective design”) as the user’s question, providing direct evidence on the training recipe and factors influencing few‑step distillation, satisfying criterion (a) same‑mechanism evidence.",
+  "relevant": true
+}

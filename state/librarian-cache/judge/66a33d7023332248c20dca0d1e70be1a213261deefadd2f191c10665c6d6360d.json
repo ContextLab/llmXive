@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2605.02568",
+  "judged_at": "2026-06-17T17:23:36Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "minimax sparse attention computer science",
+  "rationale": "The paper studies a sparse‑attention mechanism (compressed sparse attention with a streaming top‑k indexer), which is the same underlying construct as MiniMax Sparse Attention, just under different terminology. It therefore provides same‑mechanism evidence (category a) and belongs in a literature review of sparse‑attention methods.",
+  "relevant": true
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2504.09480",
+  "judged_at": "2026-06-17T17:22:42Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "qwen-image-flash: beyond objective design computer science",
+  "rationale": "The paper provides a systematic review and comprehensive evaluation of vision‑language models (VLMs) across detection and segmentation tasks, establishing empirical baselines and methodological insights for VLM performance—relevant background for any work on Qwen‑Image‑Flash and its objective design. This matches acceptance criteria (b) (measures VLM performance on the same domain) and (d) (foundational methodology for evaluating VLMs).",
+  "relevant": true
+}

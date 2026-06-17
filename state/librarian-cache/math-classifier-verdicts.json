@@ -175,6 +175,10 @@
     "classified_at": "2026-06-16T15:59:38Z",
     "verdict": false
   },
+  "PROJ-662-https-arxiv-org-abs-2606-03746::1.6.0": {
+    "classified_at": "2026-06-17T17:22:28Z",
+    "verdict": false
+  },
   "PROJ-664-https-arxiv-org-abs-2606-02060::1.6.0": {
     "classified_at": "2026-06-16T16:04:48Z",
     "verdict": false
@@ -233,6 +237,10 @@
   },
   "PROJ-696-agentic-environment-engineering-for-larg::1.6.0": {
     "classified_at": "2026-06-17T08:12:24Z",
+    "verdict": false
+  },
+  "PROJ-701-minimax-sparse-attention::1.6.0": {
+    "classified_at": "2026-06-17T17:23:26Z",
     "verdict": false
   },
   "PROJ-709-evaluating-resting-state-fmri-entropy-as::1.6.0": {

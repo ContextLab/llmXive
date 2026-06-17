@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2308.12966",
+  "judged_at": "2026-06-17T17:22:37Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "qwen-image-flash: beyond objective design computer science",
+  "rationale": "The paper studies Qwen‑VL, a vision‑language model built on the Qwen family, which shares the same underlying architecture and training paradigm as the Qwen‑Image‑Flash model the user is investigating; thus it provides same‑mechanism evidence (criterion a) relevant for a literature review on Qwen‑Image‑Flash.",
+  "relevant": true
+}

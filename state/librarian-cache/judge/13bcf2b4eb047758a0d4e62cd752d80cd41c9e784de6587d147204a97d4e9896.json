@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2508.19294",
+  "judged_at": "2026-06-17T17:22:47Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "qwen-image-flash: beyond objective design computer science",
+  "rationale": "The paper reviews multimodal large vision‑language models applied to object detection, covering the same mechanism (LVLMs) that underlies Qwen‑Image‑Flash, and discusses architectural and training aspects relevant to “beyond objective” design. This matches acceptance criterion (a).",
+  "relevant": true
+}

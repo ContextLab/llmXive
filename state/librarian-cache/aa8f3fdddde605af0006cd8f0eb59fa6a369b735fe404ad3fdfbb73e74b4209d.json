@@ -1,0 +1,669 @@
+{
+  "fetched_at": "2026-06-17T17:23:45Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "MiniMax Sparse Attention",
+      "target_n": 5
+    },
+    "duration_seconds": 48.198,
+    "ended_at": "2026-06-17T17:23:45Z",
+    "expansion": null,
+    "extracted_queries": [
+      "top‑k sparse attention",
+      "Long‑Range Arena benchmark",
+      "linear attention transformer",
+      "perplexity throughput evaluation",
+      "sparsity regularization transformer theory"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2605.02568"
+      ]
+    },
+    "per_query_hit_count": {
+      "Long‑Range Arena benchmark": 3,
+      "MiniMax Sparse Attention computer science": 3,
+      "linear attention transformer": 3,
+      "perplexity throughput evaluation": 3,
+      "sparsity regularization transformer theory": 3,
+      "top‑k sparse attention": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 0,
+      "rejections": []
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-17T17:22:57Z",
+    "term_input": {
+      "normalized": "minimax sparse attention computer science",
+      "raw": "MiniMax Sparse Attention computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The paper presents analytic expressions of minimax (worst-case) estimates for solutions of linear abstract Neumann problems in Hilbert space with uncertain (not necessarily bounded!) inputs and boundary conditions given incomplete observations with stochastic noise. The latter is assumed to have uncertain but bounded correlation operator. It is demonstrated that the minimax estimate is asymptotically exact under mild assumptions on observations and bounding sets. A relationship between the proposed estimates and a robust pseudo-inversion of compact operators is revealed. This relationship is demonstrated on an academic numerical example: homogeneous Neumann problem for Poisson equation in two spatial dimensions.",
+          "claimed_authors": [
+            "Alexander Nakonechnyi",
+            "Sergiy Zhuk"
+          ],
+          "claimed_title": "Minimax state estimates for abstract Neumann problems",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1710.07448"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='MiniMax Sparse Attention computer science', candidate_title='Minimax state estimates for abstract Neumann problems')",
+        "failed_at": "2026-06-17T17:23:27Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Foundation models (FMs), particularly large language models (LLMs), have shown significant promise in various software engineering (SE) tasks, including code generation, debugging, and requirement refinement. Despite these advances, existing evaluation frameworks are insufficient for assessing model performance in iterative, context-rich workflows characteristic of SE activities. To address this limitation, we introduce \\emph{SWE-Arena}, an interactive platform designed to evaluate FMs in SE tasks. SWE-Arena provides a transparent, open-source leaderboard, supports multi-round conversational workflows, and enables end-to-end model comparisons. The platform introduces novel metrics, including \\emph{model consistency score} that measures the consistency of model outputs through self-play matches, and \\emph{conversation efficiency index} that evaluates model performance while accounting for the number of interaction rounds required to reach conclusions. Moreover, SWE-Arena incorporates a new feature called \\emph{RepoChat}, which automatically injects repository-related context (e.g., issues, commits, pull requests) into the conversation, further aligning evaluations with real-world development processes. This paper outlines the design and capabilities of SWE-Arena, emphasizing its potential to advance the evaluation and practical application of FMs in software engineering.",
+          "claimed_authors": [
+            "Zhimin Zhao"
+          ],
+          "claimed_title": "SWE-Arena: An Interactive Platform for Evaluating Foundation Models in Software Engineering",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2502.01860"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='MiniMax Sparse Attention computer science', candidate_title='SWE-Arena: An Interactive Platform for Evaluating Foundation Models in Software Engineering')",
+        "failed_at": "2026-06-17T17:23:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Spontaneous synchronization is a general phenomenon in which a large population of coupled oscillators of diverse natural frequencies self-organize to operate in unison. The phenomenon occurs in physical and biological systems over a wide range of spatial and temporal scales, e.g., in electrochemical and electronic oscillators, Josephson junctions, laser arrays, animal flocking, pedestrians on footbridges, audience clapping, etc. Besides the obvious necessity of the synchronous firings of cardiac cells to keep the heart beating, synchrony is desired in many man-made systems such as parallel computing, electrical power-grids. On the contrary, synchrony could also be hazardous, e.g., in neurons, leading to impaired brain function in Parkinson's disease and epilepsy. Due to this wide range of applications, collective synchrony in networks of oscillators has attracted the attention of physicists, applied mathematicians and researchers from many other fields. An essential aspect of synchronizing systems is that long-range order naturally appear in these systems, which questions the fact whether long-range interactions may be particular suitable to synchronization. In this context, it is interesting to remind that long-range interacting system required several adaptations from statistical mechanics à la Gibbs Boltzmann, in order to deal with the peculiarities of these systems: negative specific heat, breaking of ergodicity or lack of extensivity. As for synchrony, it is still lacking a theoretical framework to use the tools from statistical mechanics. The present issue presents a collection of exciting recent theoretical developments in the field of synchronization and long-range interactions, in order to highlight the mutual progresses of these twin areas.",
+          "claimed_authors": [
+            "Shamik Gupta",
+            "Romain Bachelard",
+            "Tarcisio Rocha Filho"
+          ],
+          "claimed_title": "Preface: Long-range Interactions and Synchronization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2101.05298"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='MiniMax Sparse Attention computer science', candidate_title='Preface: Long-range Interactions and Synchronization')",
+        "failed_at": "2026-06-17T17:23:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Long Range Arena (LRA) benchmark was designed to evaluate the performance of Transformer improvements and alternatives in long-range dependency modeling tasks. The Transformer and its main variants performed poorly on this benchmark, and a new series of architectures such as State Space Models (SSMs) gained some traction, greatly outperforming Transformers in the LRA. Recent work has shown that with a denoising pre-training phase, Transformers can achieve competitive results in the LRA with these new architectures. In this work, we discuss and explain the superiority of architectures such as MEGA and SSMs in the Long Range Arena, as well as the recent improvement in the results of Transformers, pointing to the positional and local nature of the tasks. We show that while the LRA is a benchmark for long-range dependency modeling, in reality most of the performance comes from short-range dependencies. Using training techniques to mitigate data inefficiency, Transformers are able to reach state-of-the-art performance with proper positional encoding. In addition, with the same techniques, we were able to remove all restrictions from SSM convolutional kernels and learn fully parameterized convolutions without decreasing performance, suggesting that the design choices behind SSMs simply added inductive biases and learning efficiency for these particular tasks. Our insights indicate that LRA results should be interpreted with caution and call for a redesign of the benchmark.",
+          "claimed_authors": [
+            "Pablo Miralles-González",
+            "Javier Huertas-Tato",
+            "Alejandro Martín",
+            "David Camacho"
+          ],
+          "claimed_title": "On the locality bias and results in the Long Range Arena",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2501.14850"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='MiniMax Sparse Attention computer science', candidate_title='On the locality bias and results in the Long Range Arena')",
+        "failed_at": "2026-06-17T17:23:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Standard transformer attention computes pairwise token similarity but treats all tokens as equally salient and all positions as equally local, regardless of the informational structure of the input. We identify two complementary inductive biases that standard attention lacks: energy salience (which tokens concentrate informational energy, learned end-to-end without explicit frequency decomposition) and scale-selective locality (how far positional influence extends at each frequency, implemented via Morlet wavelet encoding). We address both with two simple components. Energy-Gated Attention (EGA) gates value aggregation by a learned energy estimate of key token embeddings, computed via a single linear projection; it selects what to attend to. Morlet Positional Encoding (MoPE) replaces fixed sinusoidal encodings with learned Gaussian-windowed wavelets that adapt the joint position-frequency localization to the corpus; it specifies where attention operates at each scale. On TinyShakespeare, EGA alone achieves +0.092 validation loss improvement over standard attention (+0.103 over Phase 1-3 baseline); MoPE alone is -0.032 (below baseline as a standalone encoding); but their combination achieves +0.119 -- more than the sum of parts. This superadditivity, observed across two independent training runs, is the central empirical finding: salience and locality are complementary inductive biases, each addressing a gap the other cannot fill alone. Ablations confirm that structured spectral priors (Morlet wavelet gates, scale-initialized heads, fixed sinusoidal PE) consistently underperform their unconstrained learned counterparts, while complementary learned components interact superadditively. All experiments are at small scale (<=6M parameters, character-level benchmarks, single seed); larger-scale multi-seed validation is the most important direction for future work.",
+          "claimed_authors": [
+            "Athanasios Zeris"
+          ],
+          "claimed_title": "Energy-Gated Attention and Wavelet Positional Encoding: Complementary Inductive Biases for Transformer Attention",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2605.26355"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='MiniMax Sparse Attention computer science', candidate_title='Energy-Gated Attention and Wavelet Positional Encoding: Complementary Inductive Biases for Transformer Attention')",
+        "failed_at": "2026-06-17T17:23:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recently, transformer-based methods have dominated 3D instance segmentation, where mask attention is commonly involved. Specifically, object queries are guided by the initial instance masks in the first cross-attention, and then iteratively refine themselves in a similar manner. However, we observe that the mask-attention pipeline usually leads to slow convergence due to low-recall initial instance masks. Therefore, we abandon the mask attention design and resort to an auxiliary center regression task instead. Through center regression, we effectively overcome the low-recall issue and perform cross-attention by imposing positional prior. To reach this goal, we develop a series of position-aware designs. First, we learn a spatial distribution of 3D locations as the initial position queries. They spread over the 3D space densely, and thus can easily capture the objects in a scene with a high recall. Moreover, we present relative position encoding for the cross-attention and iterative refinement for more accurate position queries. Experiments show that our approach converges 4x faster than existing work, sets a new state of the art on ScanNetv2 3D instance segmentation benchmark, and also demonstrates superior performance across various datasets. Code and models are available at https://github.com/dvlab-research/Mask-Attention-Free-Transformer.",
+          "claimed_authors": [
+            "Xin Lai",
+            "Yuhui Yuan",
+            "Ruihang Chu",
+            "Yukang Chen",
+            "Han Hu",
+            "Jiaya Jia"
+          ],
+          "claimed_title": "Mask-Attention-Free Transformer for 3D Instance Segmentation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2309.01692"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='MiniMax Sparse Attention computer science', candidate_title='Mask-Attention-Free Transformer for 3D Instance Segmentation')",
+        "failed_at": "2026-06-17T17:23:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A robotic swarm may encounter traffic congestion when many robots simultaneously attempt to reach the same area. For solving that efficiently, robots must execute decentralised traffic control algorithms. In this work, we propose a measure for evaluating the access efficiency of a common target area as the number of robots in the swarm rises: the common target area throughput. We also employ here the target area asymptotic throughput -- that is, the throughput of a target region with a limited area as the time tends to infinity -- because it is always finite as the number of robots grows, opposed to the relation arrival time at the target per number of robots that tends to infinity. Using this measure, we can analytically compare the effectiveness of different algorithms. In particular, we propose and formally evaluate three different theoretical strategies for getting to a circular target area: (i) forming parallel queues towards the target area, (ii) forming a hexagonal packing through a corridor going to the target, and (iii) making multiple curved trajectories towards the boundary of the target area. We calculate the throughput for a fixed time and the asymptotic throughput for these strategies. Additionally, we corroborate these results by simulations, showing that when a strategy has higher throughput, its arrival time per number of robots is lower. Thus, we conclude that using throughput is well suited for comparing congestion algorithms for a common target area in robotic swarms even if we do not have their closed asymptotic equation.",
+          "claimed_authors": [
+            "Yuri Tavares dos Passos",
+            "Xavier Duquesne",
+            "Leandro Soriano Marcolino"
+          ],
+          "claimed_title": "On the throughput of the common target area for robotic swarm strategies -- extended version",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2201.09335"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='MiniMax Sparse Attention computer science', candidate_title='On the throughput of the common target area for robotic swarm strategies -- extended version')",
+        "failed_at": "2026-06-17T17:23:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Wireless information-centric networks consider storage as one of the network primitives, and propose to cache data within the network in order to improve latency and reduce bandwidth consumption. We study the throughput capacity and delay in an information-centric network when the data cached in each node has a limited lifetime. The results show that with some fixed request and cache expiration rates, the order of the data access time does not change with network growth, and the maximum throughput order is inversely proportional to the square root and logarithm of the network size $n$ in cases of grid and random networks, respectively. Comparing these values with the corresponding throughput and latency with no cache capability (throughput inversely proportional to the network size, and latency of order $\\sqrt{n}$ and $\\sqrt{\\frac{n}{\\log n}}$ in grid and random networks, respectively), we can actually quantify the asymptotic advantage of caching. Moreover, we compare these scaling laws for different content discovery mechanisms and illustrate that not much gain is lost when a simple path search is used.",
+          "claimed_authors": [
+            "Bita Azimdoost",
+            "Cedric Westphal",
+            "Hamid R. Sadjadpour"
+          ],
+          "claimed_title": "Scaling Laws of the Throughput Capacity and Latency in Information-Centric Networks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1210.1185"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='MiniMax Sparse Attention computer science', candidate_title='Scaling Laws of the Throughput Capacity and Latency in Information-Centric Networks')",
+        "failed_at": "2026-06-17T17:23:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Peer-evaluation based measures of group research quality such as the UK's Research Assessment Exercise (RAE), which do not employ bibliometric analyses, cannot directly avail of such methods to normalize research impact across disciplines. This is seen as a conspicuous flaw of such exercises and calls have been made to find a remedy. Here a simple, systematic solution is proposed based upon a mathematical model for the relationship between research quality and group quantity. This model manifests both the Matthew effect and a phenomenon akin to the Ringelmann effect and reveals the existence of two critical masses for each academic discipline: a lower value, below which groups are vulnerable, and an upper value beyond which the dependency of quality on quantity reduces and plateaus appear when the critical masses are large. A possible normalization procedure is then to pitch these plateaus at similar levels. We examine the consequences of this procedure at RAE for a multitude of academic disciplines, corresponding to a range of critical masses.",
+          "claimed_authors": [
+            "Ralph Kenna",
+            "Bertrand Berche"
+          ],
+          "claimed_title": "Normalization of peer-evaluation measures of group research quality across academic disciplines",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1006.3863"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='MiniMax Sparse Attention computer science', candidate_title='Normalization of peer-evaluation measures of group research quality across academic disciplines')",
+        "failed_at": "2026-06-17T17:23:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The functional Schrodinger picture formulation of quantum field theory and the variational Gaussian approximation method based on the formulation are briefly reviewed. After presenting recent attempts to improve the variational approximation, we introduce a new systematic method based on the background field method, which enables one to compute the order-by-order correction terms to the Gaussian approximation of the effective action.",
+          "claimed_authors": [
+            "Jae Hyung Yee"
+          ],
+          "claimed_title": "Variational Approach to Quantum Field Theory: Gaussian Approximation and the Perturbative Expansion around It",
+          "claimed_venue": "arXiv",
+          "claimed_year": 1997,
+          "primary_pointer": "hep-th/9707234"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='MiniMax Sparse Attention computer science', candidate_title='Variational Approach to Quantum Field Theory: Gaussian Approximation and the Perturbative Expansion around It')",
+        "failed_at": "2026-06-17T17:23:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Jupiter-Saturn 2:5 near-commensurability is analyzed in a fully analytic Hamiltonian planetary theory. Computations for the Sun-Jupiter-Saturn system, extending to the third order of the masses and to the 8th degree in the eccentricities and inclinations, reveal an unexpectedly sensitive dependence of the solution on initial data and its likely nonconvergence. The source of the sensitivity and apparent lack of convergence is this near-commensurability, the so-called great inequality. This indicates that simple averaging, still common in current semi-analytic planetary theories, may not be an adequate technique to obtain information on the long-term dynamics of the Solar System.\n  Preliminary results suggest that these difficulties can be overcome by using resonant normal forms.",
+          "claimed_authors": [
+            "F. Varadi",
+            "M. Ghil",
+            "W. M. Kaula",
+            " Keywords",
+            " :",
+            "Hamiltonian systems",
+            "planetary motion",
+            "perturbation theory",
+            " resonances"
+          ],
+          "claimed_title": "The Great Inequality In A Hamiltonian Planetary Theory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 1993,
+          "primary_pointer": "chao-dyn/9311011"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='MiniMax Sparse Attention computer science', candidate_title='The Great Inequality In A Hamiltonian Planetary Theory')",
+        "failed_at": "2026-06-17T17:23:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper studies the curious phenomenon for machine learning models with Transformer architectures that their activation maps are sparse. By activation map we refer to the intermediate output of the multi-layer perceptrons (MLPs) after a ReLU activation function, and by sparse we mean that on average very few entries (e.g., 3.0% for T5-Base and 6.3% for ViT-B16) are nonzero for each input to MLP. Moreover, larger Transformers with more layers and wider MLP hidden dimensions are sparser as measured by the percentage of nonzero entries. Through extensive experiments we demonstrate that the emergence of sparsity is a prevalent phenomenon that occurs for both natural language processing and vision tasks, on both training and evaluation data, for Transformers of various configurations, at layers of all depth levels, as well as for other architectures including MLP-mixers and 2-layer MLPs. We show that sparsity also emerges using training datasets with random labels, or with random inputs, or with infinite amount of data, demonstrating that sparsity is not a result of a specific family of datasets. We discuss how sparsity immediately implies a way to significantly reduce the FLOP count and improve efficiency for Transformers. Moreover, we demonstrate perhaps surprisingly that enforcing an even sparser activation via Top-k thresholding with a small value of k brings a collection of desired but missing properties for Transformers, namely less sensitivity to noisy training data, more robustness to input corruptions, and better calibration for their prediction confidence.",
+          "claimed_authors": [
+            "Zonglin Li",
+            "Chong You",
+            "Srinadh Bhojanapalli",
+            "Daliang Li",
+            "Ankit Singh Rawat",
+            "Sashank J. Reddi",
+            "Ke Ye",
+            "Felix Chern",
+            "Felix Yu",
+            "Ruiqi Guo",
+            "Sanjiv Kumar"
+          ],
+          "claimed_title": "The Lazy Neuron Phenomenon: On Emergence of Activation Sparsity in Transformers",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2210.06313"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='MiniMax Sparse Attention computer science', candidate_title='The Lazy Neuron Phenomenon: On Emergence of Activation Sparsity in Transformers')",
+        "failed_at": "2026-06-17T17:23:28Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            " MiniMax",
+            " :",
+            "Aili Chen",
+            "Aonian Li",
+            "Bangwei Gong",
+            "Binyang Jiang",
+            "Bo Fei",
+            "Bo Yang",
+            "Boji Shan",
+            "Changqing Yu",
+            "Chao Wang",
+            "Cheng Zhu",
+            "Chengjun Xiao",
+            "Chengyu Du",
+            "Chi Zhang",
+            "Chu Qiao",
+            "Chunhao Zhang",
+            "Chunhui Du",
+            "Congchao Guo",
+            "Da Chen",
+            "Deming Ding",
+            "Dianjun Sun",
+            "Dong Li",
+            "Enwei Jiao",
+            "Haigang Zhou",
+            "Haimo Zhang",
+            "Han Ding",
+            "Haohai Sun",
+            "Haoyu Feng",
+            "Huaiguang Cai",
+            "Haichao Zhu",
+            "Jian Sun",
+            "Jiaqi Zhuang",
+            "Jiaren Cai",
+            "Jiayuan Song",
+            "Jin Zhu",
+            "Jingyang Li",
+            "Jinhao Tian",
+            "Jinli Liu",
+            "Junhao Xu",
+            "Junjie Yan",
+            "Junteng Liu",
+            "Junxian He",
+            "Kaiyi Feng",
+            "Ke Yang",
+            "Kecheng Xiao",
+            "Le Han",
+            "Leyang Wang",
+            "Lianfei Yu",
+            "Liheng Feng",
+            "Lin Li",
+            "Lin Zheng",
+            "Linge Du",
+            "Lingyu Yang",
+            "Lunbin Zeng",
+            "Minghui Yu",
+            "Mingliang Tao",
+            "Mingyuan Chi",
+            "Mozhi Zhang",
+            "Mujie Lin",
+            "Nan Hu",
+            "Nongyu Di",
+            "Peng Gao",
+            "Pengfei Li",
+            "Pengyu Zhao",
+            "Qibing Ren",
+            "Qidi Xu",
+            "Qile Li",
+            "Qin Wang",
+            "Rong Tian",
+            "Ruitao Leng",
+            "Shaoxiang Chen",
+            "Shaoyu Chen",
+            "Shengmin Shi",
+            "Shitong Weng",
+            "Shuchang Guan",
+            "Shuqi Yu",
+            "Sichen Li",
+            "Songquan Zhu",
+            "Tengfei Li",
+            "Tianchi Cai",
+            "Tianrun Liang",
+            "Weiyu Cheng",
+            "Weize Kong",
+            "Wenkai Li",
+            "Xiancai Chen",
+            "Xiangjun Song",
+            "Xiao Luo",
+            "Xiao Su",
+            "Xiaobo Li",
+            "Xiaodong Han",
+            "Xinzhu Hou",
+            "Xuan Lu",
+            "Xun Zou",
+            "Xuyang Shen",
+            "Yan Gong",
+            "Yan Ma",
+            "Yang Wang",
+            "Yiqi Shi",
+            "Yiran Zhong",
+            "Yonghong Duan",
+            "Yongxiang Fu",
+            "Yongyi Hu",
+            "Yu Gao",
+            "Yuanxiang Fan",
+            "Yufeng Yang",
+            "Yuhao Li",
+            "Yulin Hu",
+            "Yunan Huang",
+            "Yunji Li",
+            "Yunzhi Xu",
+            "Yuxin Mao",
+            "Yuxuan Shi",
+            "Yuze Wenren",
+            "Zehan Li",
+            "Zelin Li",
+            "Zhanxu Tian",
+            "Zhengmao Zhu",
+            "Zhenhua Fan",
+            "Zhenzhen Wu",
+            "Zhichao Xu",
+            "Zhihang Yu",
+            "Zhiheng Lyu",
+            "Zhuo Jiang",
+            "Zibo Gao",
+            "Zijia Wu",
+            "Zijian Song",
+            "Zijun Sun"
+          ],
+          "title": "MiniMax-M1: Scaling Test-Time Compute Efficiently with Lightning Attention",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2506.13585",
+        "summary": "We introduce MiniMax-M1, the world's first open-weight, large-scale hybrid-attention reasoning model. MiniMax-M1 is powered by a hybrid Mixture-of-Experts (MoE) architecture combined with a lightning attention mechanism. The model is developed based on our previous MiniMax-Text-01 model, which contains a total of 456 billion parameters with 45.9 billion parameters activated per token. The M1 model natively supports a context length of 1 million tokens, 8x the context size of DeepSeek R1. Furthermore, the lightning attention mechanism in MiniMax-M1 enables efficient scaling of test-time compute. These properties make M1 particularly suitable for complex tasks that require processing long inputs and thinking extensively. MiniMax-M1 is trained using large-scale reinforcement learning (RL) on diverse problems including sandbox-based, real-world software engineering environments. In addition to M1's inherent efficiency advantage for RL training, we propose CISPO, a novel RL algorithm to further enhance RL efficiency. CISPO clips importance sampling weights rather than token updates, outperforming other competitive RL variants. Combining hybrid-attention and CISPO enables MiniMax-M1's full RL training on 512 H800 GPUs to complete in only three weeks, with a rental cost of just $534,700. We release two versions of MiniMax-M1 models with 40K and 80K thinking budgets respectively, where the 40K model represents an intermediate phase of the 80K training. Experiments on standard benchmarks show that our models are comparable or superior to strong open-weight models such as the original DeepSeek-R1 and Qwen3-235B, with particular strengths in complex software engineering, tool utilization, and long-context tasks. We publicly release MiniMax-M1 at https://github.com/MiniMax-AI/MiniMax-M1.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2506.13585",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-17T17:23:26Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            " MiniMax",
+            "Aonian Li",
+            "Bangwei Gong",
+            "Bo Yang",
+            "Boji Shan",
+            "Chang Liu",
+            "Cheng Zhu",
+            "Chunhao Zhang",
+            "Congchao Guo",
+            "Da Chen",
+            "Dong Li",
+            "Enwei Jiao",
+            "Gengxin Li",
+            "Guojun Zhang",
+            "Haohai Sun",
+            "Houze Dong",
+            "Jiadai Zhu",
+            "Jiaqi Zhuang",
+            "Jiayuan Song",
+            "Jin Zhu",
+            "Jingtao Han",
+            "Jingyang Li",
+            "Junbin Xie",
+            "Junhao Xu",
+            "Junjie Yan",
+            "Kaishun Zhang",
+            "Kecheng Xiao",
+            "Kexi Kang",
+            "Le Han",
+            "Leyang Wang",
+            "Lianfei Yu",
+            "Liheng Feng",
+            "Lin Zheng",
+            "Linbo Chai",
+            "Long Xing",
+            "Meizhi Ju",
+            "Mingyuan Chi",
+            "Mozhi Zhang",
+            "Peikai Huang",
+            "Pengcheng Niu",
+            "Pengfei Li",
+            "Pengyu Zhao",
+            "Qi Yang",
+            "Qidi Xu",
+            "Qiexiang Wang",
+            "Qin Wang",
+            "Qiuhui Li",
+            "Ruitao Leng",
+            "Shengmin Shi",
+            "Shuqi Yu",
+            "Sichen Li",
+            "Songquan Zhu",
+            "Tao Huang",
+            "Tianrun Liang",
+            "Weigao Sun",
+            "Weixuan Sun",
+            "Weiyu Cheng",
+            "Wenkai Li",
+            "Xiangjun Song",
+            "Xiao Su",
+            "Xiaodong Han",
+            "Xinjie Zhang",
+            "Xinzhu Hou",
+            "Xu Min",
+            "Xun Zou",
+            "Xuyang Shen",
+            "Yan Gong",
+            "Yingjie Zhu",
+            "Yipeng Zhou",
+            "Yiran Zhong",
+            "Yongyi Hu",
+            "Yuanxiang Fan",
+            "Yue Yu",
+            "Yufeng Yang",
+            "Yuhao Li",
+            "Yunan Huang",
+            "Yunji Li",
+            "Yunpeng Huang",
+            "Yunzhi Xu",
+            "Yuxin Mao",
+            "Zehan Li",
+            "Zekang Li",
+            "Zewei Tao",
+            "Zewen Ying",
+            "Zhaoyang Cong",
+            "Zhen Qin",
+            "Zhenhua Fan",
+            "Zhihang Yu",
+            "Zhuo Jiang",
+            "Zijia Wu"
+          ],
+          "title": "MiniMax-01: Scaling Foundation Models with Lightning Attention",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2501.08313",
+        "summary": "We introduce MiniMax-01 series, including MiniMax-Text-01 and MiniMax-VL-01, which are comparable to top-tier models while offering superior capabilities in processing longer contexts. The core lies in lightning attention and its efficient scaling. To maximize computational capacity, we integrate it with Mixture of Experts (MoE), creating a model with 32 experts and 456 billion total parameters, of which 45.9 billion are activated for each token. We develop an optimized parallel strategy and highly efficient computation-communication overlap techniques for MoE and lightning attention. This approach enables us to conduct efficient training and inference on models with hundreds of billions of parameters across contexts spanning millions of tokens. The context window of MiniMax-Text-01 can reach up to 1 million tokens during training and extrapolate to 4 million tokens during inference at an affordable cost. Our vision-language model, MiniMax-VL-01 is built through continued training with 512 billion vision-language tokens. Experiments on both standard and in-house benchmarks show that our models match the performance of state-of-the-art models like GPT-4o and Claude-3.5-Sonnet while offering 20-32 times longer context window. We publicly release MiniMax-01 at https://github.com/MiniMax-AI.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2501.08313",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-17T17:23:26Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Jaber Jaber",
+            "Osama Jaber"
+          ],
+          "title": "StreamIndex: Memory-Bounded Compressed Sparse Attention via Streaming Top-k",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2605.02568",
+        "summary": "DeepSeek-V3.2 and V4 introduce Compressed Sparse Attention (CSA): a lightning indexer (a learned scoring projection over compressed keys) scores them, the top-k are selected per query, and a sparse attention kernel reads only those. Public CSA implementations materialize a [B, S, H_I, T] FP32 score tensor before the top-k reduction. With H_I=64 indexer heads and the V4-Flash compression ratio m=4, that intermediate is 256 GB at sequence length S=65,536, exceeding any single-GPU high-bandwidth-memory (HBM) budget. We present StreamIndex, a Triton implementation of the CSA pipeline whose central component is a chunked partition-merge top-k driver that never materializes the full intermediate. On synthetic-but-realistic V4-shaped inputs at the indexer-step (layer) level on a single NVIDIA H200, the materialize path runs out of memory (OOMs) at S=65,536 with V4-Flash dimensions; StreamIndex runs the same indexer to S=1,048,576 with 6.21 GB peak HBM, a 32x regime extension. Set-overlap recall against the materialize ground truth is bit-exact at small S where both fit; across three 5-point design-space sweeps (chunk size, key-tile size, top-k), mean recall rounds to 1.0000 with min recall at least 0.9980 in every cell. The chunked driver composes with TileLang's pipelined attention kernel: at S=262,144 with V4-Flash dimensions, the materialize indexer paired with TileLang attention OOMs while the chunked indexer paired with the same attention runs in 1.97 s at 18.56 GB peak. Our contribution targets the indexer step; we make no claim of a faster attention kernel or of real-checkpoint end-to-end behavior. Code: https://github.com/RightNow-AI/StreamIndex.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2605.02568",
+          "http_status": 200,
+          "pdf_sample_score": 0.3898,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-17T17:23:27Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Alfred Shen",
+            "Aaron Shen"
+          ],
+          "title": "Gated Sparse Attention: Combining Computational Efficiency with Training Stability for Long-Context Language Models",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2601.15305",
+        "summary": "The computational burden of attention in long-context language models has motivated two largely independent lines of work: sparse attention mechanisms that reduce complexity by attending to selected tokens, and gated attention variants that improve training sta-bility while mitigating the attention sink phenomenon. We observe that these approaches address complementary weaknesses and propose Gated Sparse Attention (GSA), an architecture that realizes the benefits of both. GSA incorporates a gated lightning indexer with sigmoid activations that produce bounded, interpretable selection scores, an adaptive sparsity controller that modulates the number of attended tokens based on local uncertainty, and dual gating at the value and output stages. We establish theoretical foundations for the approach, including complexity analysis, expressiveness results, and convergence guarantees. In experiments with 1.7B parameter models trained on 400B tokens, GSA matches the efficiency of sparse-only baselines (12-16x speedup at 128K context) while achieving the quality gains associated with gated attention: perplexity improves from 6.03 to 5.70, RULER scores at 128K context nearly double, and attention to the first token, a proxy for attention sinks, drops from 47% to under 4%. Training stability improves markedly, with loss spikes reduced by 98%.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2601.15305",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-17T17:23:27Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Daniel Ohayon",
+            "Itay Lamprecht",
+            "Itay Hubara",
+            "Israel Cohen",
+            "Daniel Soudry",
+            "Noam Elata"
+          ],
+          "title": "Block Sparse Flash Attention",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2512.07011",
+        "summary": "Modern large language models increasingly require long contexts for reasoning and multi-document tasks, but attention's quadratic complexity creates a severe computational bottleneck. We present Block-Sparse FlashAttention (BSFA), a drop-in replacement that accelerates long-context inference while preserving model quality. Unlike methods that predict importance before computing scores, BSFA computes exact query-key similarities to select the top-k most important value blocks for each query. By comparing per-block maximum scores against calibrated thresholds, we skip approximately 50% of the computation and memory transfers for pruned blocks. Our training-free approach requires only a one-time threshold calibration on a small dataset to learn the per-layer and per-head attention score distributions. We provide a CUDA kernel implementation that can be used as a drop-in replacement for FlashAttention. On Llama-3.1-8B, BSFA achieves up to 1.10x speedup on real-world reasoning benchmarks and up to 1.24x for needle-in-a-haystack retrieval tasks while maintaining above 99% baseline accuracy, with certain configurations even improving accuracy by focusing on the most relevant content, substantially outperforming existing sparse attention methods. The implementation is available at https://github.com/Danielohayon/Block-Sparse-Flash-Attention",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2512.07011",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-17T17:23:27Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Ali Hassani",
+            "Humphrey Shi"
+          ],
+          "title": "Dilated Neighborhood Attention Transformer",
+          "venue": "arXiv",
+          "year": 2022
+        },
+        "primary_pointer": "2209.15001",
+        "summary": "Transformers are quickly becoming one of the most heavily applied deep learning architectures across modalities, domains, and tasks. In vision, on top of ongoing efforts into plain transformers, hierarchical transformers have also gained significant attention, thanks to their performance and easy integration into existing frameworks. These models typically employ localized attention mechanisms, such as the sliding-window Neighborhood Attention (NA) or Swin Transformer's Shifted Window Self Attention. While effective at reducing self attention's quadratic complexity, local attention weakens two of the most desirable properties of self attention: long range inter-dependency modeling, and global receptive field. In this paper, we introduce Dilated Neighborhood Attention (DiNA), a natural, flexible and efficient extension to NA that can capture more global context and expand receptive fields exponentially at no additional cost. NA's local attention and DiNA's sparse global attention complement each other, and therefore we introduce Dilated Neighborhood Attention Transformer (DiNAT), a new hierarchical vision transformer built upon both. DiNAT variants enjoy significant improvements over strong baselines such as NAT, Swin, and ConvNeXt. Our large model is faster and ahead of its Swin counterpart by 1.6% box AP in COCO object detection, 1.4% mask AP in COCO instance segmentation, and 1.4% mIoU in ADE20K semantic segmentation. Paired with new frameworks, our large variant is the new state of the art panoptic segmentation model on COCO (58.5 PQ) and ADE20K (49.4 PQ), and instance segmentation model on Cityscapes (45.1 AP) and ADE20K (35.4 AP) (no extra data). It also matches the state of the art specialized semantic segmentation models on ADE20K (58.1 mIoU), and ranks second on Cityscapes (84.5 mIoU) (no extra data).",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2209.15001",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-17T17:23:28Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "minimax sparse attention computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

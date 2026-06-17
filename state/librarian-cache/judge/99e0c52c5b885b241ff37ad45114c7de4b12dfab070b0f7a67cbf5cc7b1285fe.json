@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2209.15001",
+  "judged_at": "2026-06-17T17:23:45Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "minimax sparse attention computer science",
+  "rationale": "The paper studies a sparse attention mechanism (Dilated Neighborhood Attention) for transformers, which falls under the same general mechanism category as MiniMax Sparse Attention, satisfying criterion (a) same‑mechanism evidence (alternative sparse‑attention pattern).",
+  "relevant": true
+}

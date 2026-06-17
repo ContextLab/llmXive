@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2501.08313",
+  "judged_at": "2026-06-17T17:23:34Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "minimax sparse attention computer science",
+  "rationale": "The paper investigates a MiniMax‑named model that uses an efficient “lightning” attention mechanism, which is a form of sparse/long‑context attention; thus it provides same‑mechanism evidence (criterion a) relevant to MiniMax sparse attention research.",
+  "relevant": true
+}
