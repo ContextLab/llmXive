@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1607.01582",
+  "judged_at": "2026-06-17T08:13:52Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "physical activity levels and mood variability in daily life psychology",
+  "rationale": "The paper introduces a machine‑learning algorithm for classifying EMA data but does not examine physical activity levels, mood variability, or their relationship; it is not a foundational or canonical EMA methodology that would be a standard reference for studies of activity‑mood links. Hence it does not meet any inclusion criteria.",
+  "relevant": false
+}

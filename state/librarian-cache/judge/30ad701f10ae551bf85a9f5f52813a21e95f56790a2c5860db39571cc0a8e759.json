@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2604.14214",
+  "judged_at": "2026-06-17T08:12:44Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "agentic environment engineering for large language models: a survey of environment modeling, synthesis, evaluation, and application linguistics",
+  "rationale": "The paper studies a key variable (token consumption/efficiency) of LLM behavior and proposes a prompt‑optimization method, which is directly relevant to engineering the environment (prompt design) for agentic LLMs—meeting criterion (b) (independent/dependent variable on the same domain) and also providing a methodological contribution to environment synthesis.",
+  "relevant": true
+}

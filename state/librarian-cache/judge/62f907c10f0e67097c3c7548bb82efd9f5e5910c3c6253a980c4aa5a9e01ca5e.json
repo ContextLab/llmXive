@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2606.09967",
+  "judged_at": "2026-06-17T08:11:34Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "abot-earth 0.5: generative 3d earth model computer science",
+  "rationale": "The paper presents the ABot‑Earth 0.5 generative 3D Earth model, directly matching the mechanism and topic of the user's query (same‑mechanism evidence, criterion a). It is essentially the canonical reference for that specific system.",
+  "relevant": true
+}

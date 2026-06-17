@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2504.19565",
+  "judged_at": "2026-06-17T08:12:41Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "agentic environment engineering for large language models: a survey of environment modeling, synthesis, evaluation, and application linguistics",
+  "rationale": "The paper studies an agentic multi‑agent framework that models, synthesizes, and self‑evaluates a training environment (a distilled biomedical corpus) for LLMs, directly exemplifying the “environment engineering” mechanisms (modeling, synthesis, evaluation) the user’s survey seeks to cover. This matches acceptance criterion (a) (same‑mechanism evidence) and also (b) (measures an independent variable—agentic environment creation—for LLM training).",
+  "relevant": true
+}

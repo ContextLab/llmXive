@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2107.12533",
+  "judged_at": "2026-06-17T08:11:42Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "abot-earth 0.5: generative 3d earth model computer science",
+  "rationale": "The paper studies co‑creative procedural generation of dungeon rooms in games, which is unrelated to generative 3D Earth modeling; it does not share the domain, variables, or specific mechanism (Earth terrain generation) required for the user's question.",
+  "relevant": false
+}

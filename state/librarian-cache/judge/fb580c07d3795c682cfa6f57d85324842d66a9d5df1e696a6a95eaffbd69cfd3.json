@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2405.06457",
+  "judged_at": "2026-06-17T08:13:49Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "physical activity levels and mood variability in daily life psychology",
+  "rationale": "The study measures mood (the dependent variable of interest) using questionnaires and physiological indices in a psychological population, satisfying criterion (b) – it provides empirical data on mood variability (though without addressing physical activity).",
+  "relevant": true
+}

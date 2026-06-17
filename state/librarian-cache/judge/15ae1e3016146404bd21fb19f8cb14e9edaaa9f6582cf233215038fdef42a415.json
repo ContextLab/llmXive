@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2402.14679",
+  "judged_at": "2026-06-17T08:12:53Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "agentic environment engineering for large language models: a survey of environment modeling, synthesis, evaluation, and application linguistics",
+  "rationale": "The paper studies LLM personality consistency rather than environment modeling, synthesis, or agentic environment engineering, and does not provide baseline, methodology, or canonical data relevant to the user's focus on environment engineering for LLMs. It therefore falls outside the required domain.",
+  "relevant": false
+}

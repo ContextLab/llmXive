@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2501.05032",
+  "judged_at": "2026-06-17T08:12:47Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "agentic environment engineering for large language models: a survey of environment modeling, synthesis, evaluation, and application linguistics",
+  "rationale": "The paper focuses on making LLMs more human-like through fine‑tuning and psychological principles, without addressing environment modeling, synthesis, evaluation, or agentic environment engineering, which are the core constructs of the user's question. It therefore does not meet any inclusion criteria (a‑f).",
+  "relevant": false
+}

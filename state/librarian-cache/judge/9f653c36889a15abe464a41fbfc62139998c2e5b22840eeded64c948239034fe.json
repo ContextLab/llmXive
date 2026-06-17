@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2512.08309",
+  "judged_at": "2026-06-17T08:11:36Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "abot-earth 0.5: generative 3d earth model computer science",
+  "rationale": "The paper studies generative terrain generation at planetary (Earth) scale using diffusion models combined with procedural noise properties, directly addressing the mechanisms and domain of a generative 3D Earth model (category (a) same‑mechanism evidence).",
+  "relevant": true
+}

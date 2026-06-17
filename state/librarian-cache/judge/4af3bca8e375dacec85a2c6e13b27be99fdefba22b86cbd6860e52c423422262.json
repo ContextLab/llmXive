@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2309.02427",
+  "judged_at": "2026-06-17T08:12:38Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "agentic environment engineering for large language models: a survey of environment modeling, synthesis, evaluation, and application linguistics",
+  "rationale": "The paper proposes the CoALA framework that systematically organizes and surveys language agents, covering modular memory, action spaces, and interaction with external environments—directly relevant to “agentic environment engineering” for LLMs and serves as a foundational methodology/reference (category d).",
+  "relevant": true
+}

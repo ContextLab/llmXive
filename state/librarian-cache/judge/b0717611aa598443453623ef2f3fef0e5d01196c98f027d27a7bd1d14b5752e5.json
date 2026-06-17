@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2402.11651",
+  "judged_at": "2026-06-17T08:12:36Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "agentic environment engineering for large language models: a survey of environment modeling, synthesis, evaluation, and application linguistics",
+  "rationale": "The paper studies a key aspect of LLM agents—how fine‑tuning with negative (failed) interaction trajectories affects their performance—providing empirical data on a dependent variable (agent success) within the same domain of agentic environment engineering, satisfying inclusion criterion (b).",
+  "relevant": true
+}

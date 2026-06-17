@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2403.09832",
+  "judged_at": "2026-06-17T08:12:50Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "agentic environment engineering for large language models: a survey of environment modeling, synthesis, evaluation, and application linguistics",
+  "rationale": "The paper studies how engineered prompts (a form of environment manipulation) affect LLM behavior, providing empirical evidence on a key mechanism—prompt injection attacks—relevant to environment modeling, synthesis, and evaluation in agentic LLM research (acceptance category (a) and (b)).",
+  "relevant": true
+}

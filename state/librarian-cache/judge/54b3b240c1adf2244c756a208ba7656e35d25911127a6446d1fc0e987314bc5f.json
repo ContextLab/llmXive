@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2107.12532",
+  "judged_at": "2026-06-17T08:11:45Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "abot-earth 0.5: generative 3d earth model computer science",
+  "rationale": "The paper focuses on procedural generation of 2D game levels using LSTMs, which is unrelated to generating 3D Earth models; it does not share the domain, variables, or specific mechanisms relevant to the user's Earth‑modeling research question.",
+  "relevant": false
+}

@@ -1,0 +1,604 @@
+{
+  "fetched_at": "2026-06-17T08:11:46Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "ABot-Earth 0.5: Generative 3D Earth Model",
+      "target_n": 5
+    },
+    "duration_seconds": 52.075,
+    "ended_at": "2026-06-17T08:11:46Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "procedural planetary terrain generation"
+        ],
+        [
+          2,
+          "neural implicit representation of Earth surfaces"
+        ],
+        [
+          3,
+          "deep generative models for global topography"
+        ],
+        [
+          4,
+          "GAN-based 3D Earth synthesis"
+        ],
+        [
+          5,
+          "diffusion models for planetary terrain creation"
+        ],
+        [
+          6,
+          "physics-informed generative Earth modeling"
+        ],
+        [
+          7,
+          "voxel-based planetary surface generation"
+        ],
+        [
+          8,
+          "multi‑resolution 3D globe reconstruction using neural networks"
+        ],
+        [
+          9,
+          "synthetic geospatial dataset generation"
+        ],
+        [
+          10,
+          "AI‑driven planetary terrain simulation"
+        ],
+        [
+          11,
+          "generative adversarial networks for terrain elevation maps"
+        ],
+        [
+          12,
+          "implicit neural rendering of Earth‑like planets"
+        ],
+        [
+          13,
+          "data‑driven 3D Earth model generation"
+        ],
+        [
+          14,
+          "procedural world generation for scientific visualization"
+        ],
+        [
+          15,
+          "deep learning for global digital elevation model synthesis"
+        ],
+        [
+          16,
+          "generative modeling of planetary crustal features"
+        ],
+        [
+          17,
+          "hybrid physics‑generative Earth simulation"
+        ],
+        [
+          18,
+          "large‑scale terrain synthesis using point clouds"
+        ],
+        [
+          19,
+          "conditional generative models for geospatial textures"
+        ],
+        [
+          20,
+          "probabilistic 3D Earth surface generation"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "ABot-Earth 0.5: Generative 3D Earth Model computer science": 0,
+        "procedural planetary terrain generation": 4
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "procedural terrain generation",
+      "SRTM digital elevation model",
+      "implicit neural representation terrain",
+      "elevation RMSE benchmark",
+      "Gaussian random field synthesis"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2606.09967"
+      ]
+    },
+    "per_query_hit_count": {
+      "ABot-Earth 0.5: Generative 3D Earth Model computer science": 3,
+      "Gaussian random field synthesis": 3,
+      "SRTM digital elevation model": 3,
+      "elevation RMSE benchmark": 3,
+      "implicit neural representation terrain": 3,
+      "procedural terrain generation": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 3,
+      "rejections": [
+        {
+          "primary_pointer": "2107.12524",
+          "rationale": "The paper studies ensemble-based procedural generation of 2D Mega Man game levels, which is unrelated to generative 3D Earth modeling; it does not address the same domain, variables, or mechanism relevant to the user's question.",
+          "title": "Ensemble Learning For Mega Man Level Generation"
+        },
+        {
+          "primary_pointer": "2107.12533",
+          "rationale": "The paper studies co‑creative procedural generation of dungeon rooms in games, which is unrelated to generative 3D Earth modeling; it does not share the domain, variables, or specific mechanism (Earth terrain generation) required for the user's question.",
+          "title": "Toward Co-creative Dungeon Generation via Transfer Learning"
+        },
+        {
+          "primary_pointer": "2107.12532",
+          "rationale": "The paper focuses on procedural generation of 2D game levels using LSTMs, which is unrelated to generating 3D Earth models; it does not share the domain, variables, or specific mechanisms relevant to the user's Earth‑modeling research question.",
+          "title": "Generating Lode Runner Levels by Learning Player Paths with LSTMs"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-17T08:10:54Z",
+    "term_input": {
+      "normalized": "abot-earth 0.5: generative 3d earth model computer science",
+      "raw": "ABot-Earth 0.5: Generative 3D Earth Model computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Little is known about Earth quasi-satellites, a class of near-Earth small solar system bodies that orbit the sun but remain close to the Earth, because they are faint and difficult to observe. Here we use the Large Binocular Telescope (LBT) and the Lowell Discovery Telescope (LDT) to conduct a comprehensive physical characterization of quasi-satellite (469219) Kamo`oalewa and assess its affinity with other groups of near-Earth objects. We find that (469219) Kamo`oalewa rotates with a period of 28.3 (+1.8/-1.3) minutes and displays a reddened reflectance spectrum from 0.4-2.2 microns. This spectrum is indicative of a silicate-based composition, but with reddening beyond what is typically seen amongst asteroids in the inner solar system. We compare the spectrum to those of several material analogs and conclude that the best match is with lunar-like silicates. This interpretation implies extensive space weathering and raises the prospect that Kamo`oalewa could comprise lunar material.",
+          "claimed_authors": [
+            "Benjamin N. L. Sharkey",
+            "Vishnu Reddy",
+            "Renu Malhotra",
+            "Audrey Thirouin",
+            "Olga Kuhn",
+            "Albert Conrad",
+            "Barry Rothberg",
+            "Juan A. Sanchez",
+            "David Thompson",
+            "Christian Veillet"
+          ],
+          "claimed_title": "Lunar-like silicate material forms the Earth quasisatellite (469219) 2016 HO3 Kamo`oalewa",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2111.06372"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='ABot-Earth 0.5: Generative 3D Earth Model computer science', candidate_title='Lunar-like silicate material forms the Earth quasisatellite (469219) 2016 HO3 Kamo`oalewa')",
+        "failed_at": "2026-06-17T08:11:27Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Astronomical solutions provide calculated orbital and rotational parameters of solar system bodies based on the dynamics and physics of the solar system. Application of astronomical solutions in the Earth sciences has revolutionized our understanding in at least two areas of active research. (i) The Astronomical (or Milankovic) forcing of climate on time scales > ~10 kyr and (ii) the dating of geologic archives. The latter has permitted the development of the astronomical time scale, widely used today to reconstruct highly accurate geological dates and chronologies. The tasks of computing vs. applying astronomical solutions are usually performed by investigators from different backgrounds, which has led to confusion and recent inaccurate results on the side of the applications. Here we review astronomical solutions and Milankovic forcing in the Earth sciences, primarily aiming at clarifying the astronomical basis, applicability, and limitations of the solutions. We provide a summary of current up-to-date and outdated astronomical solutions and their valid time span. We discuss the fundamental limits imposed by dynamical solar system chaos on astronomical calculations and geological/astrochronological applications. We illustrate basic features of chaotic behavior using a simple mechanical system, i.e., the driven pendulum. Regarding so-called astronomical \"metronomes\", we point out that the current evidence does not support the notion of generally stable and prominent metronomes for universal use in astrochronology and cyclostratigraphy. We also describe amplitude and frequency modulation of astronomical forcing signals and the relation to their expression in cyclostratigraphic sequences. Furthermore, the various quantities and terminology associated with Earth's axial precession are discussed in detail. Finally, we provide some suggestions regarding practical considerations.",
+          "claimed_authors": [
+            "Richard E. Zeebe",
+            "Ilja J. Kocken"
+          ],
+          "claimed_title": "Applying Astronomical Solutions and Milankovi{ć} Forcing in the Earth Sciences",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2410.12977"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='ABot-Earth 0.5: Generative 3D Earth Model computer science', candidate_title='Applying Astronomical Solutions and Milankovi{ć} Forcing in the Earth Sciences')",
+        "failed_at": "2026-06-17T08:11:27Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Tabletop roleplaying games (TTRPGs) and procedural content generators can both be understood as systems of rules for producing content. In this paper, we argue that TTRPG design can usefully be viewed as procedural content generator design. We present several case studies linking key concepts from PCG research -- including possibility spaces, expressive range analysis, and generative pipelines -- to key concepts in TTRPG design. We then discuss the implications of these relationships and suggest directions for future work uniting research in TTRPGs and PCG.",
+          "claimed_authors": [
+            "Matthew Guzdial",
+            "Devi Acharya",
+            "Max Kreminski",
+            "Michael Cook",
+            "Mirjam Eladhari",
+            "Antonios Liapis",
+            "Anne Sullivan"
+          ],
+          "claimed_title": "Tabletop Roleplaying Games as Procedural Content Generators",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2007.06108"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='ABot-Earth 0.5: Generative 3D Earth Model computer science', candidate_title='Tabletop Roleplaying Games as Procedural Content Generators')",
+        "failed_at": "2026-06-17T08:11:27Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "For decades, procedural worlds have been built on procedural noise functions such as Perlin noise, which are fast and infinite, yet fundamentally limited in realism and large-scale coherence. Conversely, diffusion models offer unprecedented fidelity but remain generally confined to bounded canvases. We introduce InfiniteDiffusion, a training-free algorithm that reformulates diffusion sampling for lazy and unbounded generation, bridging the fidelity of diffusion models with the properties that made procedural noise indispensable: seamless infinite extent, seed-consistency, and constant-time random access. To demonstrate the utility of this approach, we present Terrain Diffusion, a framework for learned procedural terrain generation with a procedural noise-like interface. Our framework outpaces orbital velocity by 9 times on a consumer GPU, enabling realistic terrain generation at interactive rates. We integrate a hierarchical stack of diffusion models to couple planetary context with local detail, a compact Laplacian encoding to stabilize outputs across Earth-scale dynamic ranges, and an open-source infinite-tensor framework for constant-memory manipulation of unbounded tensors. Together, these components position diffusion models as a practical foundation for the next generation of infinite virtual worlds.",
+          "claimed_authors": [
+            "Alexander Goslin"
+          ],
+          "claimed_title": "InfiniteDiffusion: Bridging Learned Fidelity and Procedural Utility for Open-World Terrain Generation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.08309"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='ABot-Earth 0.5: Generative 3D Earth Model computer science', candidate_title='InfiniteDiffusion: Bridging Learned Fidelity and Procedural Utility for Open-World Terrain Generation')",
+        "failed_at": "2026-06-17T08:11:27Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Procedural content generation via machine learning (PCGML) is the process of procedurally generating game content using models trained on existing game content. PCGML methods can struggle to capture the true variance present in underlying data with a single model. In this paper, we investigated the use of ensembles of Markov chains for procedurally generating \\emph{Mega Man} levels. We conduct an initial investigation of our approach and evaluate it on measures of playability and stylistic similarity in comparison to a non-ensemble, existing Markov chain approach.",
+          "claimed_authors": [
+            "Bowei Li",
+            "Ruohan Chen",
+            "Yuqing Xue",
+            "Ricky Wang",
+            "Wenwen Li",
+            "Matthew Guzdial"
+          ],
+          "claimed_title": "Ensemble Learning For Mega Man Level Generation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2107.12524"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='ABot-Earth 0.5: Generative 3D Earth Model computer science', candidate_title='Ensemble Learning For Mega Man Level Generation')",
+        "failed_at": "2026-06-17T08:11:27Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Fashion styles adopted every day are an important aspect of culture, and style trend analysis helps provide a deeper understanding of our societies and cultures. To analyze everyday fashion trends from the humanities perspective, we need a digital archive that includes images of what people wore in their daily lives over an extended period. In fashion research, building digital fashion image archives has attracted significant attention. However, the existing archives are not suitable for retrieving everyday fashion trends. In addition, to interpret how the trends emerge, we need non-fashion data sources relevant to why and how people choose fashion. In this study, we created a new fashion image archive called Chronicle Archive of Tokyo Street Fashion (CAT STREET) based on a review of the limitations in the existing digital fashion archives. CAT STREET includes images showing the clothing people wore in their daily lives during the period 1970--2017, which contain timestamps and street location annotations. We applied machine learning to CAT STREET and found two types of fashion trend patterns. Then, we demonstrated how magazine archives help us interpret how trend patterns emerge. These empirical analyses show our approach's potential to discover new perspectives to promote an understanding of our societies and cultures through fashion embedded in consumers' daily lives.",
+          "claimed_authors": [
+            "Satoshi Takahashi",
+            "Keiko Yamaguchi",
+            "Asuka Watanabe"
+          ],
+          "claimed_title": "A Novel Approach to Analyze Fashion Digital Archive from Humanities",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2107.08351"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='ABot-Earth 0.5: Generative 3D Earth Model computer science', candidate_title='A Novel Approach to Analyze Fashion Digital Archive from Humanities')",
+        "failed_at": "2026-06-17T08:11:27Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A procedure for constructing a digital elevation model (DEM) of the northern part of the Volga-Akhtuba interfluve is described. The basis of our DEM is the elevation matrix of Shuttle Radar Topography Mission (SRTM) for which we carried out the refinement and updating of spatial data using satellite imagery, GPS data, depth measurements of the River Volga and River Akhtuba stream beds. The most important source of high-altitude data for the Volga-Akhtuba floodplain (VAF) can be the results of observations of the coastlines dynamics of small reservoirs (lakes, eriks, small channels) arising in the process of spring flooding and disappearing during low-flow periods. A set of digitized coastlines at different times of flooding can significantly improve the quality of the DEM. The method of constructing a digital elevation model includes an iterative procedure that uses the results of morphostructural analysis of the DEM and the numerical hydrodynamic simulations of the VAF flooding based on the shallow water model.",
+          "claimed_authors": [
+            "Anna Klikunova",
+            "Alexander Khoperskov"
+          ],
+          "claimed_title": "Creation of digital elevation models for river floodplains",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1908.09005"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='ABot-Earth 0.5: Generative 3D Earth Model computer science', candidate_title='Creation of digital elevation models for river floodplains')",
+        "failed_at": "2026-06-17T08:11:27Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In the dynamic landscape of digital forensics, the integration of Artificial Intelligence (AI) and Machine Learning (ML) stands as a transformative technology, poised to amplify the efficiency and precision of digital forensics investigations. However, the use of ML and AI in digital forensics is still in its nascent stages. As a result, this paper gives a thorough and in-depth analysis that goes beyond a simple survey and review. The goal is to look closely at how AI and ML techniques are used in digital forensics and incident response. This research explores cutting-edge research initiatives that cross domains such as data collection and recovery, the intricate reconstruction of cybercrime timelines, robust big data analysis, pattern recognition, safeguarding the chain of custody, and orchestrating responsive strategies to hacking incidents. This endeavour digs far beneath the surface to unearth the intricate ways AI-driven methodologies are shaping these crucial facets of digital forensics practice. While the promise of AI in digital forensics is evident, the challenges arising from increasing database sizes and evolving criminal tactics necessitate ongoing collaborative research and refinement within the digital forensics profession. This study examines the contributions, limitations, and gaps in the existing research, shedding light on the potential and limitations of AI and ML techniques. By exploring these different research areas, we highlight the critical need for strategic planning, continual research, and development to unlock AI's full potential in digital forensics and incident response. Ultimately, this paper underscores the significance of AI and ML integration in digital forensics, offering insights into their benefits, drawbacks, and broader implications for tackling modern cyber threats.",
+          "claimed_authors": [
+            "Dipo Dunsin",
+            "Mohamed C. Ghanem",
+            "Karim Ouazzane",
+            "Vassil Vassilev"
+          ],
+          "claimed_title": "A Comprehensive Analysis of the Role of Artificial Intelligence and Machine Learning in Modern Digital Forensics and Incident Response",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2309.07064"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='ABot-Earth 0.5: Generative 3D Earth Model computer science', candidate_title='A Comprehensive Analysis of the Role of Artificial Intelligence and Machine Learning in Modern Digital Forensics and Incident Response')",
+        "failed_at": "2026-06-17T08:11:27Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Implicit neural representation (INR) characterizes the attributes of a signal as a function of corresponding coordinates which emerges as a sharp weapon for solving inverse problems. However, the expressive power of INR is limited by the spectral bias in the network training. In this paper, we find that such a frequency-related problem could be greatly solved by re-arranging the coordinates of the input signal, for which we propose the disorder-invariant implicit neural representation (DINER) by augmenting a hash-table to a traditional INR backbone. Given discrete signals sharing the same histogram of attributes and different arrangement orders, the hash-table could project the coordinates into the same distribution for which the mapped signal can be better modeled using the subsequent INR network, leading to significantly alleviated spectral bias. Furthermore, the expressive power of the DINER is determined by the width of the hash-table. Different width corresponds to different geometrical elements in the attribute space, \\textit{e.g.}, 1D curve, 2D curved-plane and 3D curved-volume when the width is set as $1$, $2$ and $3$, respectively. More covered areas of the geometrical elements result in stronger expressive power. Experiments not only reveal the generalization of the DINER for different INR backbones (MLP vs. SIREN) and various tasks (image/video representation, phase retrieval, refractive index recovery, and neural radiance field optimization) but also show the superiority over the state-of-the-art algorithms both in quality and speed. \\textit{Project page:} \\url{https://ezio77.github.io/DINER-website/}",
+          "claimed_authors": [
+            "Hao Zhu",
+            "Shaowen Xie",
+            "Zhen Liu",
+            "Fengyi Liu",
+            "Qi Zhang",
+            "You Zhou",
+            "Yi Lin",
+            "Zhan Ma",
+            "Xun Cao"
+          ],
+          "claimed_title": "Disorder-invariant Implicit Neural Representation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2304.00837"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='ABot-Earth 0.5: Generative 3D Earth Model computer science', candidate_title='Disorder-invariant Implicit Neural Representation')",
+        "failed_at": "2026-06-17T08:11:27Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Representing and processing data in spherical domains presents unique challenges, primarily due to the curvature of the domain, which complicates the application of classical Euclidean techniques. Implicit neural representations (INRs) have emerged as a promising alternative for high-fidelity data representation; however, to effectively handle spherical domains, these methods must be adapted to the inherent geometry of the sphere to maintain both accuracy and stability. In this context, we propose Herglotz-NET (HNET), a novel INR architecture that employs a harmonic positional encoding based on complex Herglotz mappings. This encoding yields a well-posed representation on the sphere with interpretable and robust spectral properties. Moreover, we present a unified expressivity analysis showing that any spherical-based INR satisfying a mild condition exhibits a predictable spectral expansion that scales with network depth. Our results establish HNET as a scalable and flexible framework for accurate modeling of spherical data.",
+          "claimed_authors": [
+            "Théo Hanon",
+            "Nicolas Mil-Homens Cavaco",
+            "John Kiely",
+            "Laurent Jacques"
+          ],
+          "claimed_title": "Herglotz-NET: Implicit Neural Representation of Spherical Data with Harmonic Positional Encoding",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2502.13777"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='ABot-Earth 0.5: Generative 3D Earth Model computer science', candidate_title='Herglotz-NET: Implicit Neural Representation of Spherical Data with Harmonic Positional Encoding')",
+        "failed_at": "2026-06-17T08:11:27Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Implicit Neural Representation (INR), which utilizes a neural network to map coordinate inputs to corresponding attributes, is causing a revolution in the field of signal processing. However, current INR techniques suffer from the \"frequency\"-specified spectral bias and capacity-convergence gap, resulting in imperfect performance when representing complex signals with multiple \"frequencies\". We have identified that both of these two characteristics could be handled by increasing the utilization of definition domain in current activation functions, for which we propose the FINER++ framework by extending existing periodic/non-periodic activation functions to variable-periodic ones. By initializing the bias of the neural network with different ranges, sub-functions with various frequencies in the variable-periodic function are selected for activation. Consequently, the supported frequency set can be flexibly tuned, leading to improved performance in signal representation. We demonstrate the generalization and capabilities of FINER++ with different activation function backbones (Sine, Gauss. and Wavelet) and various tasks (2D image fitting, 3D signed distance field representation, 5D neural radiance fields optimization and streamable INR transmission), and we show that it improves existing INRs. Project page: {https://liuzhen0212.github.io/finerpp/}",
+          "claimed_authors": [
+            "Hao Zhu",
+            "Zhen Liu",
+            "Qi Zhang",
+            "Jingde Fu",
+            "Weibing Deng",
+            "Zhan Ma",
+            "Yanwen Guo",
+            "Xun Cao"
+          ],
+          "claimed_title": "FINER++: Building a Family of Variable-periodic Functions for Activating Implicit Neural Representation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2407.19434"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='ABot-Earth 0.5: Generative 3D Earth Model computer science', candidate_title='FINER++: Building a Family of Variable-periodic Functions for Activating Implicit Neural Representation')",
+        "failed_at": "2026-06-17T08:11:27Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Through the examination of the Theory of Seismic Energy and the Theory of Volcanic Energy, we understand that the interaction of internal and external energies in favourable terrain has led to countless transformations over geological time frames. Therefore, this research aims to understand the evolution of the Earth's surface based on the theories proposed by Claudio Valverde Ramirez. This study introduces the concept of inverse elevation transition, which explains the formation of mountains, the constant and irregular dynamics of terrestrial relief, and the ongoing reshaping of the coastlines of continents and islands, which also depends on the fluidity of water masses.",
+          "claimed_authors": [
+            "Yulisa Valverde",
+            "Milton Valverde",
+            "Jhair Tarazona",
+            "Giorgio Tarazona",
+            "Yehosua Tarazona"
+          ],
+          "claimed_title": "Analysis of the evolution of terrestrial relief through inverse elevation transition",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2507.03173"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='ABot-Earth 0.5: Generative 3D Earth Model computer science', candidate_title='Analysis of the evolution of terrestrial relief through inverse elevation transition')",
+        "failed_at": "2026-06-17T08:11:27Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Advancements in ultra-low-power tiny machine learning (TinyML) systems promise to unlock an entirely new class of smart applications. However, continued progress is limited by the lack of a widely accepted and easily reproducible benchmark for these systems. To meet this need, we present MLPerf Tiny, the first industry-standard benchmark suite for ultra-low-power tiny machine learning systems. The benchmark suite is the collaborative effort of more than 50 organizations from industry and academia and reflects the needs of the community. MLPerf Tiny measures the accuracy, latency, and energy of machine learning inference to properly evaluate the tradeoffs between systems. Additionally, MLPerf Tiny implements a modular design that enables benchmark submitters to show the benefits of their product, regardless of where it falls on the ML deployment stack, in a fair and reproducible manner. The suite features four benchmarks: keyword spotting, visual wake words, image classification, and anomaly detection.",
+          "claimed_authors": [
+            "Colby Banbury",
+            "Vijay Janapa Reddi",
+            "Peter Torelli",
+            "Jeremy Holleman",
+            "Nat Jeffries",
+            "Csaba Kiraly",
+            "Pietro Montino",
+            "David Kanter",
+            "Sebastian Ahmed",
+            "Danilo Pau",
+            "Urmish Thakker",
+            "Antonio Torrini",
+            "Peter Warden",
+            "Jay Cordaro",
+            "Giuseppe Di Guglielmo",
+            "Javier Duarte",
+            "Stephen Gibellini",
+            "Videet Parekh",
+            "Honson Tran",
+            "Nhan Tran",
+            "Niu Wenxu",
+            "Xu Xuesong"
+          ],
+          "claimed_title": "MLPerf Tiny Benchmark",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2106.07597"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='ABot-Earth 0.5: Generative 3D Earth Model computer science', candidate_title='MLPerf Tiny Benchmark')",
+        "failed_at": "2026-06-17T08:11:27Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Clinical notes are assigned ICD codes - sets of codes for diagnoses and procedures. In the recent years, predictive machine learning models have been built for automatic ICD coding. However, there is a lack of widely accepted benchmarks for automated ICD coding models based on large-scale public EHR data.\n  This paper proposes a public benchmark suite for ICD-10 coding using a large EHR dataset derived from MIMIC-IV, the most recent public EHR dataset. We implement and compare several popular methods for ICD coding prediction tasks to standardize data preprocessing and establish a comprehensive ICD coding benchmark dataset. This approach fosters reproducibility and model comparison, accelerating progress toward employing automated ICD coding in future studies. Furthermore, we create a new ICD-9 benchmark using MIMIC-IV data, providing more data points and a higher number of ICD codes than MIMIC-III. Our open-source code offers easy access to data processing steps, benchmark creation, and experiment replication for those with MIMIC-IV access, providing insights, guidance, and protocols to efficiently develop ICD coding models.",
+          "claimed_authors": [
+            "Thanh-Tung Nguyen",
+            "Viktor Schlegel",
+            "Abhinav Kashyap",
+            "Stefan Winkler",
+            "Shao-Syuan Huang",
+            "Jie-Jyun Liu",
+            "Chih-Jen Lin"
+          ],
+          "claimed_title": "Mimic-IV-ICD: A new benchmark for eXtreme MultiLabel Classification",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2304.13998"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='ABot-Earth 0.5: Generative 3D Earth Model computer science', candidate_title='Mimic-IV-ICD: A new benchmark for eXtreme MultiLabel Classification')",
+        "failed_at": "2026-06-17T08:11:27Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present a learning-based system for rapid mass-scale material synthesis that is useful for novice and expert users alike. The user preferences are learned via Gaussian Process Regression and can be easily sampled for new recommendations. Typically, each recommendation takes 40-60 seconds to render with global illumination, which makes this process impracticable for real-world workflows. Our neural network eliminates this bottleneck by providing high-quality image predictions in real time, after which it is possible to pick the desired materials from a gallery and assign them to a scene in an intuitive manner. Workflow timings against Disney's \"principled\" shader reveal that our system scales well with the number of sought materials, thus empowering even novice users to generate hundreds of high-quality material models without any expertise in material modeling. Similarly, expert users experience a significant decrease in the total modeling time when populating a scene with materials. Furthermore, our proposed solution also offers controllable recommendations and a novel latent space variant generation step to enable the real-time fine-tuning of materials without requiring any domain expertise.",
+          "claimed_authors": [
+            "Károly Zsolnai-Fehér",
+            "Peter Wonka",
+            "Michael Wimmer"
+          ],
+          "claimed_title": "Gaussian Material Synthesis",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1804.08369"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='ABot-Earth 0.5: Generative 3D Earth Model computer science', candidate_title='Gaussian Material Synthesis')",
+        "failed_at": "2026-06-17T08:11:27Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Time-domain simulation of wave phenomena on a finite computational domain often requires a fictitious outer boundary. An important practical issue is the specification of appropriate boundary conditions on this boundary, often conditions of complete transparency. Attention to this issue has been paid elsewhere, and here we consider a different, although related, issue: far-field signal recovery. Namely, from smooth data recorded on the outer boundary we wish to recover the far-field signal which would reach arbitrarily large distances. These signals encode information about interior scatterers and often correspond to actual measurements. This article expresses far-field signal recovery in terms of time-domain convolutions, each between a solution multipole moment recorded at the boundary and a sum-of-exponentials kernel. Each exponential corresponds to a pole term in the Laplace transform of the kernel, a finite sum of simple poles. Greengard, Hagstrom, and Jiang have derived the large-$\\ell$ (spherical-harmonic index) asymptotic expansion for the pole residues, and their analysis shows that, when expressed in terms of the exact sum-of-exponentials, large-$\\ell$ signal recovery is plagued by cancellation errors. Nevertheless, through an alternative integral representation of the kernel and its subsequent approximation by a {\\em smaller} number of exponential terms (kernel compression), we are able to alleviate these errors and achieve accurate signal recovery. We empirically examine scaling relations between the parameters which determine a compressed kernel, and perform numerical tests of signal \"teleportation\" from one radial value $r_1$ to another $r_2$, including the case $r_2=\\infty$. We conclude with a brief discussion on application to other hyperbolic equations posed on non-flat geometries where waves undergo backscatter.",
+          "claimed_authors": [
+            "Scott E. Field",
+            "Stephen R. Lau"
+          ],
+          "claimed_title": "Fast evaluation of far-field signals for time-domain wave propagation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1409.5893"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='ABot-Earth 0.5: Generative 3D Earth Model computer science', candidate_title='Fast evaluation of far-field signals for time-domain wave propagation')",
+        "failed_at": "2026-06-17T08:11:27Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Many synthesis approaches for reversible and quantum logic have been proposed so far. However, most of them generate circuits with respect to simple metrics, i.e. gate count or quantum cost. On the other hand, to physically realize reversible and quantum hardware, additional constraints exist. In this paper, we describe cost metrics beyond gate count and quantum cost that should be considered while synthesizing reversible and quantum logic for the respective target technologies. We show that the evaluation of a synthesis approach may differ if additional costs are applied. In addition, a new cost metric, namely Nearest Neighbor Cost (NNC) which is imposed by realistic physical quantum architectures, is considered in detail. We discuss how existing synthesis flows can be extended to generate optimal circuits with respect to NNC while still keeping the quantum cost small.",
+          "claimed_authors": [
+            "Robert Wille",
+            "Mehdi Saeedi",
+            "Rolf Drechsler"
+          ],
+          "claimed_title": "Synthesis of Reversible Functions Beyond Gate Count and Quantum Cost",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1004.4609"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='ABot-Earth 0.5: Generative 3D Earth Model computer science', candidate_title='Synthesis of Reversible Functions Beyond Gate Count and Quantum Cost')",
+        "failed_at": "2026-06-17T08:11:27Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Ming Qian",
+            "Tianjian Ouyang",
+            "Mingchao Sun",
+            "Zijian Wang",
+            "Jincheng Xiong",
+            "Jiarong Han",
+            "Yongchang Zhang",
+            "Jiawei Zhang",
+            "Xu Wang",
+            "Yu Liu",
+            "Luyang Tang",
+            "Fei Yu",
+            "Zengye Ge",
+            "Mengmeng Du",
+            "Yuan Liu",
+            "Nianfei Fan",
+            "Song Wang",
+            "Yingliang Peng",
+            "Chunxue Jia",
+            "Yang Liu",
+            "Shiying Zeng",
+            "Haozhe Shi",
+            "Junnan Lai",
+            "Hongyu Pan",
+            "Zheng Wu",
+            "Ning Guo",
+            "Mu Xu",
+            "Hang Zhang"
+          ],
+          "title": "ABot-Earth 0.5: Generative 3D Earth Model",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2606.09967",
+        "summary": "We present ABot-Earth 0.5, a generative 3D framework designed to synthesize vast, seamless 3D environments from ubiquitous, geospatially referenced satellite imagery. To achieve this, we propose a novel generative model formulated directly with the 3D Gaussian Splatting (3DGS) representation. The model is trained on a diverse corpus of existing real-world urban reconstructions, learning to generate realistic geometry and textures. At inference, it synthesizes novel 3D scenes conditioned solely on satellite imagery at a scalable rate of under 10 minutes per square kilometer, while demonstrating exceptional realism. The framework is designed for accessibility, with integrated hierarchical level-of-detail (LOD) structures that permit real-time, interactive visualization on web-based map engines. This high-fidelity simulation sandbox effectively mitigates the sim-to-real domain gap, enabling critical downstream Embodied AI applications like closed-loop UAV navigation. By providing an ultra-low-cost and high-efficiency solution, ABot-Earth 0.5 significantly lowers the technical and financial barriers to large-scale 3D reconstruction and empowers the future of global digital earth visualization.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2606.09967",
+          "http_status": 200,
+          "pdf_sample_score": 0.2343,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-17T08:11:27Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Alexander Goslin"
+          ],
+          "title": "InfiniteDiffusion: Bridging Learned Fidelity and Procedural Utility for Open-World Terrain Generation",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2512.08309",
+        "summary": "For decades, procedural worlds have been built on procedural noise functions such as Perlin noise, which are fast and infinite, yet fundamentally limited in realism and large-scale coherence. Conversely, diffusion models offer unprecedented fidelity but remain generally confined to bounded canvases. We introduce InfiniteDiffusion, a training-free algorithm that reformulates diffusion sampling for lazy and unbounded generation, bridging the fidelity of diffusion models with the properties that made procedural noise indispensable: seamless infinite extent, seed-consistency, and constant-time random access. To demonstrate the utility of this approach, we present Terrain Diffusion, a framework for learned procedural terrain generation with a procedural noise-like interface. Our framework outpaces orbital velocity by 9 times on a consumer GPU, enabling realistic terrain generation at interactive rates. We integrate a hierarchical stack of diffusion models to couple planetary context with local detail, a compact Laplacian encoding to stabilize outputs across Earth-scale dynamic ranges, and an open-source infinite-tensor framework for constant-memory manipulation of unbounded tensors. Together, these components position diffusion models as a practical foundation for the next generation of infinite virtual worlds.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2512.08309",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 1.0,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-17T08:11:30Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "abot-earth 0.5: generative 3d earth model computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

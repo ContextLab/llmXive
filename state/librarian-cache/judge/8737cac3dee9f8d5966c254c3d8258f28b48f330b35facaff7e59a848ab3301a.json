@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2305.03214",
+  "judged_at": "2026-06-17T08:13:54Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "physical activity levels and mood variability in daily life psychology",
+  "rationale": "The paper provides a foundational methodological framework (state‑space modeling) for analyzing EMA data, which is the typical data source for studying daily‑life physical activity and mood variability; thus it serves as a canonical methods reference that would be cited in a literature review on this topic.",
+  "relevant": true
+}

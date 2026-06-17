@@ -227,6 +227,14 @@
     "classified_at": "2026-06-16T13:46:14Z",
     "verdict": false
   },
+  "PROJ-693-abot-earth-0-5-generative-3d-earth-model::1.6.0": {
+    "classified_at": "2026-06-17T08:11:27Z",
+    "verdict": false
+  },
+  "PROJ-696-agentic-environment-engineering-for-larg::1.6.0": {
+    "classified_at": "2026-06-17T08:12:24Z",
+    "verdict": false
+  },
   "PROJ-709-evaluating-resting-state-fmri-entropy-as::1.6.0": {
     "classified_at": "2026-06-16T16:47:42Z",
     "verdict": false
@@ -241,6 +249,10 @@
   },
   "PROJ-714-virtual-reality-exposure-therapy-for-anx::1.6.0": {
     "classified_at": "2026-06-17T05:55:13Z",
+    "verdict": false
+  },
+  "PROJ-715-physical-activity-levels-and-mood-variab::1.6.0": {
+    "classified_at": "2026-06-17T08:13:30Z",
     "verdict": false
   }
 }

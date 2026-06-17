@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2107.12524",
+  "judged_at": "2026-06-17T08:11:39Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "abot-earth 0.5: generative 3d earth model computer science",
+  "rationale": "The paper studies ensemble-based procedural generation of 2D Mega Man game levels, which is unrelated to generative 3D Earth modeling; it does not address the same domain, variables, or mechanism relevant to the user's question.",
+  "relevant": false
+}

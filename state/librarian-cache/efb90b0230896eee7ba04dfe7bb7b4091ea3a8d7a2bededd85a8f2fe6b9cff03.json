@@ -1,0 +1,543 @@
+{
+  "fetched_at": "2026-06-17T08:13:59Z",
+  "field": "psychology",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "psychology",
+      "idea_body_excerpt": "Physical Activity Levels and Mood Variability in Daily Life",
+      "target_n": 5
+    },
+    "duration_seconds": 56.875,
+    "ended_at": "2026-06-17T08:13:59Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "ecological momentary assessment of physical activity and mood variability"
+        ],
+        [
+          2,
+          "ambulatory monitoring of exercise intensity and affect fluctuations"
+        ],
+        [
+          3,
+          "daily affect dynamics linked to movement behavior"
+        ],
+        [
+          4,
+          "wearable sensor data on activity levels and emotional lability"
+        ],
+        [
+          5,
+          "exercise dosage and daily affective variability"
+        ],
+        [
+          6,
+          "objective activity tracking and mood swings in naturalistic settings"
+        ],
+        [
+          7,
+          "physical exertion and momentary emotional changes"
+        ],
+        [
+          8,
+          "activity patterns and affective oscillations across the day"
+        ],
+        [
+          9,
+          "behavioral activation and mood variability in real‑world contexts"
+        ],
+        [
+          10,
+          "physical fitness correlates of daily mood fluctuations"
+        ],
+        [
+          11,
+          "movement behavior and emotional variability in daily life"
+        ],
+        [
+          12,
+          "daily physical activity intensity and affective instability"
+        ],
+        [
+          13,
+          "relationship between exercise and daily mood lability"
+        ],
+        [
+          14,
+          "physical activity and emotional variability in naturalistic observation"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Physical Activity Levels and Mood Variability in Daily Life psychology": 0,
+        "ambulatory monitoring of exercise intensity and affect fluctuations": 2,
+        "ecological momentary assessment of physical activity and mood variability": 2
+      },
+      "total_queries_issued": 2
+    },
+    "extracted_queries": [
+      "exercise intensity affective instability",
+      "ecological momentary assessment physical activity",
+      "step count positive affect",
+      "within-person affect variance",
+      "behavioral activation mood regulation"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2405.06457"
+      ]
+    },
+    "per_query_hit_count": {
+      "Physical Activity Levels and Mood Variability in Daily Life psychology": 3,
+      "behavioral activation mood regulation": 3,
+      "ecological momentary assessment physical activity": 3,
+      "exercise intensity affective instability": 3,
+      "step count positive affect": 3,
+      "within-person affect variance": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 3,
+      "rejections": [
+        {
+          "primary_pointer": "1607.01582",
+          "rationale": "The paper introduces a machine‑learning algorithm for classifying EMA data but does not examine physical activity levels, mood variability, or their relationship; it is not a foundational or canonical EMA methodology that would be a standard reference for studies of activity‑mood links. Hence it does not meet any inclusion criteria.",
+          "title": "Bagged Boosted Trees for Classification of Ecological Momentary Assessment Data"
+        },
+        {
+          "primary_pointer": "1607.01075",
+          "rationale": "The paper focuses on multimodal affect intensity estimation and does not examine physical activity levels, mood variability, or their relationship in daily life, so it lacks any of the inclusion criteria (a‑f).",
+          "title": "Affect Intensity Estimation Using Multiple Modalities"
+        },
+        {
+          "primary_pointer": "1010.1224",
+          "rationale": "The paper focuses on statistical methods for analyzing 24‑hour ambulatory blood pressure data and does not address physical activity, mood variability, or their relationship in daily life, thus it is off‑domain and unrelated to the user's research question.",
+          "title": "Analysis of 24-Hour Ambulatory Blood Pressure Monitoring Data using Orthonormal Polynomials in the Linear Mixed Model"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-17T08:13:02Z",
+    "term_input": {
+      "normalized": "physical activity levels and mood variability in daily life psychology",
+      "raw": "Physical Activity Levels and Mood Variability in Daily Life psychology"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Aims: Optical interferometry from space for the purpose of detecting and characterising exoplanets is seeing a revival, specifically from missions such as the proposed Large Interferometer For Exoplanets (LIFE). A default assumption since the design studies of Darwin and TPF-I has been that the Emma X-array configuration is the optimal architecture for this goal. Here, we examine whether new advances in the field of nulling interferometry, such as the concept of kernel nulling, challenge this assumption.\n  Methods: We develop a tool designed to derive the photon-limited signal to noise ratio of a large sample of simulated planets for different architecture configurations and beam combination schemes. We simulate four basic configurations: the double Bracewell/X-array, and kernel nullers with three, four and five telescopes respectively.\n  Results: We find that a configuration of five telescopes in a pentagonal shape, using a five aperture kernel nulling scheme, outperforms the X-array design in both search (finding more planets) and characterisation (obtaining better signal, faster) when total collecting area is conserved. This is especially the case when trying to detect Earth twins (temperate, rocky planets in the habitable zone), showing a 23% yield increase over the X-array. On average, we find that a five telescope design receives 1.2 times the signal over the X-array design.\n  Conclusions: With the results of this simulation, we conclude that the Emma X-array configuration may not be the best architecture choice for the upcoming LIFE mission, and that a five telescope design utilising kernel nulling concepts will likely provide better scientific return for the same collecting area, provided that technical solutions for the required achromatic phase shifts can be implemented.",
+          "claimed_authors": [
+            "Jonah T. Hansen",
+            "Michael J. Ireland",
+            "the LIFE Collaboration"
+          ],
+          "claimed_title": "Large Interferometer For Exoplanets (LIFE): IV. Ideal kernel-nulling array architectures for a space-based mid-infrared nulling interferometer",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2201.04891"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Physical Activity Levels and Mood Variability in Daily Life psychology', candidate_title='Large Interferometer For Exoplanets (LIFE): IV. Ideal kernel-nulling array architectures for a space-based mid-infrared nulling interferometer')",
+        "failed_at": "2026-06-17T08:13:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Following the recommendations to NASA and ESA, the search for life on exoplanets will be a priority in the next decades. Two direct imaging space mission concepts are being developed: the Habitable Worlds Observatory (HWO) and the Large Interferometer for Exoplanets (LIFE). HWO focuses on reflected light spectra in the ultraviolet/visible/near-infrared (UV/VIS/NIR), while LIFE captures the mid-infrared (MIR) emission of temperate exoplanets. We assess the potential of HWO and LIFE in characterizing a cloud-free Earth twin orbiting a Sun-like star at 10 pc, both separately and synergistically, aiming to quantify the increase in information from joint atmospheric retrievals on a habitable planet. We perform Bayesian retrievals on simulated data from an HWO-like and a LIFE-like mission separately, then jointly, considering the baseline spectral resolutions currently assumed for these concepts and using two increasingly complex noise simulations. HWO would constrain H$_2$O, O$_2$, and O$_3$, in the atmosphere, with ~ 100 K uncertainty on the temperature profile. LIFE would constrain CO$_2$, H$_2$O, O$_3$ and provide constraints on the thermal atmospheric structure and surface temperature (~ 10 K uncertainty). Both missions would provide an upper limit on CH$_4$. Joint retrievals on HWO and LIFE data would accurately define the atmospheric thermal profile and planetary parameters, decisively constrain CO$_2$, H$_2$O, O$_2$, and O$_3$, and weakly constrain CO and CH$_4$. The detection significance is greater or equal to single-instrument retrievals. Both missions provide specific information to characterize a terrestrial habitable exoplanet, but the scientific yield is maximized with synergistic UV/VIS/NIR+MIR observations. Using HWO and LIFE together will provide stronger constraints on biosignatures and life indicators, potentially transforming the search for life in the universe.",
+          "claimed_authors": [
+            "E. Alei",
+            "S. P. Quanz",
+            "B. S. Konrad",
+            "E. O. Garvin",
+            "V. Kofman",
+            "A. Mandell",
+            "D. Angerhausen",
+            "P. Mollière",
+            "M. R. Meyer",
+            "T. Robinson",
+            "S. Rugheimer",
+            "the LIFE Collaboration"
+          ],
+          "claimed_title": "Large Interferometer For Exoplanets (LIFE): XIII. The Value of Combining Thermal Emission and Reflected Light for the Characterization of Earth Twins",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2406.13037"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Physical Activity Levels and Mood Variability in Daily Life psychology', candidate_title='Large Interferometer For Exoplanets (LIFE): XIII. The Value of Combining Thermal Emission and Reflected Light for the Characterization of Earth Twins')",
+        "failed_at": "2026-06-17T08:13:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "An important future goal in exoplanetology is to detect and characterize potentially habitable planets. Using nulling interferometry, LIFE will allow us to constrain the radius and effective temperature of (terrestrial) exoplanets, as well as provide unique information about their atmospheric structure and composition. We explore the potential of LIFE in characterizing emission spectra of Earth at various stages of its evolution. We perform Bayesian retrievals on simulated spectra of 8 different scenarios, which correspond to cloud-free and cloudy spectra of four different epochs of the evolution of the Earth. Assuming a distance of 10 pc and a Sun-like host star, we simulate observations obtained with LIFE using its simulator LIFEsim, considering all major astrophysical noise sources. With the nominal spectral resolution (R=50) and signal-to-noise ratio (assumed to be S/N=10 at 11.2 $μ$m), we can identify the main spectral features of all the analyzed scenarios (most notably CO$_2$, H$_2$O, O$_3$, CH$_4$). This allows us to distinguish between inhabited and lifeless scenarios. Results suggest that particularly O$_3$ and CH$_4$ yield an improved abundance estimate by doubling the S/N from 10 to 20. We conclude that the baseline requirements for R and S/N are sufficient for LIFE to detect O$_3$ and CH$_4$ in the atmosphere of an Earth-like planet with an abundance of O$_2$ of around 2% in volume mixing ratio. This information is relevant in terms of the LIFE mission planning. We also conclude that cloud-free retrievals of cloudy planets can be used to characterize the atmospheric composition of terrestrial habitable planets, but not the thermal structure of the atmosphere. From the inter-model comparison performed, we deduce that differences in the opacity tables (caused by e.g. a different line wing treatment) may be an important source of systematic errors.",
+          "claimed_authors": [
+            "Eleonora Alei",
+            "Björn S. Konrad",
+            "Daniel Angerhausen",
+            "John Lee Grenfell",
+            "Paul Mollière",
+            "Sascha P. Quanz",
+            "Sarah Rugheimer",
+            "Fabian Wunderlich",
+            "the LIFE collaboration"
+          ],
+          "claimed_title": "Large Interferometer For Exoplanets (LIFE): V. Diagnostic potential of a mid-infrared space-interferometer for studying Earth analogs",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2204.10041"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Physical Activity Levels and Mood Variability in Daily Life psychology', candidate_title='Large Interferometer For Exoplanets (LIFE): V. Diagnostic potential of a mid-infrared space-interferometer for studying Earth analogs')",
+        "failed_at": "2026-06-17T08:13:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper introduces BReG-NeXt, a residual-based network architecture using a function wtih bounded derivative instead of a simple shortcut path (a.k.a. identity mapping) in the residual units for automatic recognition of facial expressions based on the categorical and dimensional models of affect. Compared to ResNet, our proposed adaptive complex mapping results in a shallower network with less numbers of training parameters and floating point operations per second (FLOPs). Adding trainable parameters to the bypass function further improves fitting and training the network and hence recognizing subtle facial expressions such as contempt with a higher accuracy. We conducted comprehensive experiments on the categorical and dimensional models of affect on the challenging in-the-wild databases of AffectNet, FER2013, and Affect-in-Wild. Our experimental results show that our adaptive complex mapping approach outperforms the original ResNet consisting of a simple identity mapping as well as other state-of-the-art methods for Facial Expression Recognition (FER). Various metrics are reported in both affect models to provide a comprehensive evaluation of our method. In the categorical model, BReG-NeXt-50 with only 3.1M training parameters and 15 MFLOPs, achieves 68.50% and 71.53% accuracy on AffectNet and FER2013 databases, respectively. In the dimensional model, BReG-NeXt achieves 0.2577 and 0.2882 RMSE value on AffectNet and Affect-in-Wild databases, respectively.",
+          "claimed_authors": [
+            "Behzad Hasani",
+            "Pooran Singh Negi",
+            "Mohammad H. Mahoor"
+          ],
+          "claimed_title": "BReG-NeXt: Facial Affect Computing Using Adaptive Residual Networks With Bounded Gradient",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2004.08495"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Physical Activity Levels and Mood Variability in Daily Life psychology', candidate_title='BReG-NeXt: Facial Affect Computing Using Adaptive Residual Networks With Bounded Gradient')",
+        "failed_at": "2026-06-17T08:13:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "How could we gather affect annotations in a rapid, unobtrusive, and accessible fashion? How could we still make sure that these annotations are reliable enough for data-hungry affect modelling methods? This paper addresses these questions by introducing PAGAN, an accessible, general-purpose, online platform for crowdsourcing affect labels in videos. The design of PAGAN overcomes the accessibility limitations of existing annotation tools, which often require advanced technical skills or even the on-site involvement of the researcher. Such limitations often yield affective corpora that are restricted in size, scope and use, as the applicability of modern data-demanding machine learning methods is rather limited. The description of PAGAN is accompanied by an exploratory study which compares the reliability of three continuous annotation tools currently supported by the platform. Our key results reveal higher inter-rater agreement when annotation traces are processed in a relative manner and collected via unbounded labelling.",
+          "claimed_authors": [
+            "David Melhart",
+            "Antonios Liapis",
+            "Georgios N. Yannakakis"
+          ],
+          "claimed_title": "PAGAN: Video Affect Annotation Made Easy",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1907.01008"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Physical Activity Levels and Mood Variability in Daily Life psychology', candidate_title='PAGAN: Video Affect Annotation Made Easy')",
+        "failed_at": "2026-06-17T08:13:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Video-based facial affect analysis has recently attracted increasing attention owing to its critical role in human-computer interaction. Previous studies mainly focus on developing various deep learning architectures and training them in a fully supervised manner. Although significant progress has been achieved by these supervised methods, the longstanding lack of large-scale high-quality labeled data severely hinders their further improvements. Motivated by the recent success of self-supervised learning in computer vision, this paper introduces a self-supervised approach, termed Self-supervised Video Facial Affect Perceiver (SVFAP), to address the dilemma faced by supervised methods. Specifically, SVFAP leverages masked facial video autoencoding to perform self-supervised pre-training on massive unlabeled facial videos. Considering that large spatiotemporal redundancy exists in facial videos, we propose a novel temporal pyramid and spatial bottleneck Transformer as the encoder of SVFAP, which not only largely reduces computational costs but also achieves excellent performance. To verify the effectiveness of our method, we conduct experiments on nine datasets spanning three downstream tasks, including dynamic facial expression recognition, dimensional emotion recognition, and personality recognition. Comprehensive results demonstrate that SVFAP can learn powerful affect-related representations via large-scale self-supervised pre-training and it significantly outperforms previous state-of-the-art methods on all datasets. Code is available at https://github.com/sunlicai/SVFAP.",
+          "claimed_authors": [
+            "Licai Sun",
+            "Zheng Lian",
+            "Kexin Wang",
+            "Yu He",
+            "Mingyu Xu",
+            "Haiyang Sun",
+            "Bin Liu",
+            "Jianhua Tao"
+          ],
+          "claimed_title": "SVFAP: Self-supervised Video Facial Affect Perceiver",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2401.00416"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Physical Activity Levels and Mood Variability in Daily Life psychology', candidate_title='SVFAP: Self-supervised Video Facial Affect Perceiver')",
+        "failed_at": "2026-06-17T08:13:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Ecological systems are governed by complex interactions which are mainly nonlinear. In order to capture this complexity and nonlinearity, statistical models recently gained popularity. However, although these models are commonly applied in ecology, there are no studies to date aiming to assess the applicability and performance. We provide an overview for nature of the wide range of the data sets and predictive variables, from both aquatic and terrestrial ecosystems with different scales of time-dependent dynamics, and the applicability and robustness of predictive modeling methods on such data sets by comparing different statistical modeling approaches. The methods considered k-NN, LDA, QDA, generalized linear models (GLM) feedforward multilayer backpropagation networks and pseudo-supervised network ARTMAP. For ecosystems involving time-dependent dynamics and periodicities whose frequency are possibly less than the time scale of the data considered, GLM and connectionist neural network models appear to be most suitable and robust, provided that a predictive variable reflecting these time-dependent dynamics included in the model either implicitly or explicitly. For spatial data, which does not include any time-dependence comparable to the time scale covered by the data, on the other hand, neighborhood based methods such as k-NN and ARTMAP proved to be more robust than other methods considered in this study. In addition, for predictive modeling purposes, first a suitable, computationally inexpensive method should be applied to the problem at hand a good predictive performance of which would render the computational cost and efforts associated with complex variants unnecessary.",
+          "claimed_authors": [
+            "Can Ozan Tan",
+            "Uygar Ozesmi",
+            "Meryem Beklioglu",
+            "Esra Per",
+            "Bahtiyar Kurt"
+          ],
+          "claimed_title": "Statistical Predictive Models in Ecology: Comparison of Performances and Assessment of Applicability",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2005,
+          "primary_pointer": "q-bio/0510031"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Physical Activity Levels and Mood Variability in Daily Life psychology', candidate_title='Statistical Predictive Models in Ecology: Comparison of Performances and Assessment of Applicability')",
+        "failed_at": "2026-06-17T08:13:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Despite major advances in quantitative approaches to natural resource management, there has been resistance to using these tools in the actual practice of managing ecological populations. Given a managed system and a set of assumptions, translated into a model, optimization methods can be used to solve for the most cost effective management actions. However, when the underlying assumptions are not met, such methods can potentially lead to poor decisions. Managers who develop decisions based on past experience and judgment, without the aid of mathematical models, can potentially learn about the system and develop flexible management strategies. However, these strategies are often based on subjective criteria and equally invalid and often unstated assumptions. Given the drawbacks of both methods, it is unclear whether simple quantitative models improve environmental decision making over expert opinion. In this paper, we explore how well students, using their experience and judgment, manage simulated fishery populations in an online computer game and compare their management outcomes to the performance of model-based decisions. We consider harvest decisions generated using four different quantitative models: 1. the model used to produce the simulated population dynamics observed in the game, with all underlying parameter values known [a control], 2. the same model, but with unknown parameter values that must be estimated during the game from observed data, 3. models that are structurally different from those used to simulate the population dynamics and 4. a model that ignores age structure. Humans on average performed much worse than the models in cases 1 - 3. When the models ignored age structure, they generated poorly performing management decisions, but still outperformed students using experience and judgment 66 percent of the time.",
+          "claimed_authors": [
+            "Matthew Holden",
+            "Stephen Ellner"
+          ],
+          "claimed_title": "Human judgment vs. theoretical models for the management of ecological resources",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1603.04518"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Physical Activity Levels and Mood Variability in Daily Life psychology', candidate_title='Human judgment vs. theoretical models for the management of ecological resources')",
+        "failed_at": "2026-06-17T08:13:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Ecological Momentary Assessment (EMA) data is organized in multiple levels (per-subject, per-day, etc.) and this particular structure should be taken into account in machine learning algorithms used in EMA like decision trees and its variants. We propose a new algorithm called BBT (standing for Bagged Boosted Trees) that is enhanced by a over/under sampling method and can provide better estimates for the conditional class probability function. Experimental results on a real-world dataset show that BBT can benefit EMA data classification and performance.",
+          "claimed_authors": [
+            "Gerasimos Spanakis",
+            "Gerhard Weiss",
+            "Anne Roefs"
+          ],
+          "claimed_title": "Bagged Boosted Trees for Classification of Ecological Momentary Assessment Data",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1607.01582"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Physical Activity Levels and Mood Variability in Daily Life psychology', candidate_title='Bagged Boosted Trees for Classification of Ecological Momentary Assessment Data')",
+        "failed_at": "2026-06-17T08:13:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper, we present an innovative process-oriented math process reward model called \\textbf{Math-Shepherd}, which assigns a reward score to each step of math problem solutions. The training of Math-Shepherd is achieved using automatically constructed process-wise supervision data, breaking the bottleneck of heavy reliance on manual annotation in existing work. We explore the effectiveness of Math-Shepherd in two scenarios: 1) \\textit{Verification}: Math-Shepherd is utilized for reranking multiple outputs generated by Large Language Models (LLMs); 2) \\textit{Reinforcement Learning}: Math-Shepherd is employed to reinforce LLMs with step-by-step Proximal Policy Optimization (PPO). With Math-Shepherd, a series of open-source LLMs demonstrates exceptional performance. For instance, the step-by-step PPO with Math-Shepherd significantly improves the accuracy of Mistral-7B (77.9\\%$\\to$84.1\\% on GSM8K and 28.6\\%$\\to$33.0\\% on MATH). The accuracy can be further enhanced to 89.1\\% and 43.5\\% on GSM8K and MATH with the verification of Math-Shepherd, respectively. We believe that automatic process supervision holds significant potential for the future evolution of LLMs.",
+          "claimed_authors": [
+            "Peiyi Wang",
+            "Lei Li",
+            "Zhihong Shao",
+            "R. X. Xu",
+            "Damai Dai",
+            "Yifei Li",
+            "Deli Chen",
+            "Y. Wu",
+            "Zhifang Sui"
+          ],
+          "claimed_title": "Math-Shepherd: Verify and Reinforce LLMs Step-by-step without Human Annotations",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2312.08935"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Physical Activity Levels and Mood Variability in Daily Life psychology', candidate_title='Math-Shepherd: Verify and Reinforce LLMs Step-by-step without Human Annotations')",
+        "failed_at": "2026-06-17T08:13:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We consider the problem of incrementally maintaining the triangle count query under single-tuple updates to the input relations. We introduce an approach that exhibits a space-time tradeoff such that the space-time product is quadratic in the size of the input database and the update time can be as low as the square root of this size. This lowest update time is worst-case optimal conditioned on the Online Matrix-Vector Multiplication conjecture. The classical and factorized incremental view maintenance approaches are recovered as special cases of our approach within the space-time tradeoff. In particular, they require linear-time update maintenance, which is suboptimal. Our approach also recovers the worst-case optimal time complexity for computing the triangle count in the non-incremental setting.",
+          "claimed_authors": [
+            "Ahmet Kara",
+            "Hung Q. Ngo",
+            "Milos Nikolic",
+            "Dan Olteanu",
+            "Haozhe Zhang"
+          ],
+          "claimed_title": "Counting Triangles under Updates in Worst-Case Optimal Time",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1804.02780"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Physical Activity Levels and Mood Variability in Daily Life psychology', candidate_title='Counting Triangles under Updates in Worst-Case Optimal Time')",
+        "failed_at": "2026-06-17T08:13:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Despite the unprecedented success of text-to-image diffusion models, controlling the number of depicted objects using text is surprisingly hard. This is important for various applications from technical documents, to children's books to illustrating cooking recipes. Generating object-correct counts is fundamentally challenging because the generative model needs to keep a sense of separate identity for every instance of the object, even if several objects look identical or overlap, and then carry out a global computation implicitly during generation. It is still unknown if such representations exist. To address count-correct generation, we first identify features within the diffusion model that can carry the object identity information. We then use them to separate and count instances of objects during the denoising process and detect over-generation and under-generation. We fix the latter by training a model that predicts both the shape and location of a missing object, based on the layout of existing ones, and show how it can be used to guide denoising with correct object count. Our approach, CountGen, does not depend on external source to determine object layout, but rather uses the prior from the diffusion model itself, creating prompt-dependent and seed-dependent layouts. Evaluated on two benchmark datasets, we find that CountGen strongly outperforms the count-accuracy of existing baselines.",
+          "claimed_authors": [
+            "Lital Binyamin",
+            "Yoad Tewel",
+            "Hilit Segev",
+            "Eran Hirsch",
+            "Royi Rassin",
+            "Gal Chechik"
+          ],
+          "claimed_title": "Make It Count: Text-to-Image Generation with an Accurate Number of Objects",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2406.10210"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Physical Activity Levels and Mood Variability in Daily Life psychology', candidate_title='Make It Count: Text-to-Image Generation with an Accurate Number of Objects')",
+        "failed_at": "2026-06-17T08:13:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Suppose Vν is the pseudo-variance function of the Cauchy-Stieltjes Kernel (CSK) family K+(ν) generated by a non degenerate probability measure ν with support bounded from above. We determine the formula for pseudo-variance function (or variance function Vν in case of existence) under boolean additive convolution power. This formulas is used to identify the relation between variance functions under Boolean Bercovici-Bata Bijection between probability measures. We also gives the connection between boolean cumulants and variance function and we relate boolean cumulants of some probability measures to Catalan numbers and Fuss Catalan numbers.",
+          "claimed_authors": [
+            "Raouf Fakhfakh"
+          ],
+          "claimed_title": "Variance function of boolean additive convolution",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2003.09703"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Physical Activity Levels and Mood Variability in Daily Life psychology', candidate_title='Variance function of boolean additive convolution')",
+        "failed_at": "2026-06-17T08:13:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper examines whether personality influences the allocation of resources within households. To do so, I model households as couples who make Pareto-efficient allocations and divide resources according to a distribution function. Using a sample of Dutch couples from the LISS survey with detailed information on consumption, labor supply, and personality traits at the individual level, I find that personality affects intrahousehold allocations through two channels. Firstly, the level of these traits acts as preference factors that shape individual tastes for consumed goods and leisure time. Secondly, by testing distribution factor proportionality and the exclusion restriction of a conditional demand system, I observe that differences in personality between spouses act as distribution factors. Specifically, these differences in personality impact the allocation of resources by affecting the bargaining process within households. For example, women who are relatively more conscientious, have higher self-esteem, and engage more cognitively than their male partners receive a larger share of intrafamily resources.",
+          "claimed_authors": [
+            "Gastón P. Fernández"
+          ],
+          "claimed_title": "Does personality affect the allocation of resources within households?",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2307.02918"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Physical Activity Levels and Mood Variability in Daily Life psychology', candidate_title='Does personality affect the allocation of resources within households?')",
+        "failed_at": "2026-06-17T08:13:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present new M-estimators of the mean and variance of real valued random variables, based on PAC-Bayes bounds. We analyze the non-asymptotic minimax properties of the deviations of those estimators for sample distributions having either a bounded variance or a bounded variance and a bounded kurtosis. Under those weak hypotheses, allowing for heavy-tailed distributions, we show that the worst case deviations of the empirical mean are suboptimal. We prove indeed that for any confidence level, there is some M-estimator whose deviations are of the same order as the deviations of the empirical mean of a Gaussian statistical sample, even when the statistical sample is instead heavy-tailed. Experiments reveal that these new estimators perform even better than predicted by our bounds, showing deviation quantile functions uniformly lower at all probability levels than the empirical mean for non Gaussian sample distributions as simple as the mixture of two Gaussian measures.",
+          "claimed_authors": [
+            "Olivier Catoni"
+          ],
+          "claimed_title": "Challenging the empirical mean and empirical variance: a deviation study",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1009.2048"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Physical Activity Levels and Mood Variability in Daily Life psychology', candidate_title='Challenging the empirical mean and empirical variance: a deviation study')",
+        "failed_at": "2026-06-17T08:13:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper, we propose a simple and effective way to improve one-look regression models for object counting from images. We use class activation map visualizations to illustrate the drawbacks of learning a pure one-look regression model for a counting task. Based on these insights, we enhance one-look regression counting models by regulating activation maps from the final convolution layer of the network with coarse ground-truth activation maps generated from simple dot annotations. We call this strategy heatmap regulation (HR). We show that this simple enhancement effectively suppresses false detections generated by the corresponding one-look baseline model and also improves the performance in terms of false negatives. Evaluations are performed on four different counting datasets --- two for car counting (CARPK, PUCPR+), one for crowd counting (WorldExpo) and another for biological cell counting (VGG-Cells). Adding HR to a simple VGG front-end improves performance on all these benchmarks compared to a simple one-look baseline model and results in state-of-the-art performance for car counting.",
+          "claimed_authors": [
+            "Shubhra Aich",
+            "Ian Stavness"
+          ],
+          "claimed_title": "Improving Object Counting with Heatmap Regulation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1803.05494"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Physical Activity Levels and Mood Variability in Daily Life psychology', candidate_title='Improving Object Counting with Heatmap Regulation')",
+        "failed_at": "2026-06-17T08:13:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The proposed European Artificial Intelligence Act (AIA) is the first attempt to elaborate a general legal framework for AI carried out by any major global economy. As such, the AIA is likely to become a point of reference in the larger discourse on how AI systems can (and should) be regulated. In this article, we describe and discuss the two primary enforcement mechanisms proposed in the AIA: the conformity assessments that providers of high-risk AI systems are expected to conduct, and the post-market monitoring plans that providers must establish to document the performance of high-risk AI systems throughout their lifetimes. We argue that AIA can be interpreted as a proposal to establish a Europe-wide ecosystem for conducting AI auditing, albeit in other words. Our analysis offers two main contributions. First, by describing the enforcement mechanisms included in the AIA in terminology borrowed from existing literature on AI auditing, we help providers of AI systems understand how they can prove adherence to the requirements set out in the AIA in practice. Second, by examining the AIA from an auditing perspective, we seek to provide transferable lessons from previous research about how to refine further the regulatory approach outlined in the AIA. We conclude by highlighting seven aspects of the AIA where amendments (or simply clarifications) would be helpful. These include, above all, the need to translate vague concepts into verifiable criteria and to strengthen the institutional safeguards concerning conformity assessments based on internal checks.",
+          "claimed_authors": [
+            "Jakob Mokander",
+            "Maria Axente",
+            "Federico Casolari",
+            "Luciano Floridi"
+          ],
+          "claimed_title": "Conformity Assessments and Post-market Monitoring: A Guide to the Role of Auditing in the Proposed European AI Regulation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2111.05071"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Physical Activity Levels and Mood Variability in Daily Life psychology', candidate_title='Conformity Assessments and Post-market Monitoring: A Guide to the Role of Auditing in the Proposed European AI Regulation')",
+        "failed_at": "2026-06-17T08:13:30Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Makiko Aoki",
+            "Masato Suzuki",
+            "Satoshi Suzuki",
+            "Kosuke Oiwa",
+            "Yoshitaka Maeda",
+            "Hisayo Okayama"
+          ],
+          "title": "Characterization of mood and emotion regulation in females with PMS/PMDD using near-infrared spectroscopy to assess prefrontal cerebral blood flow and the mood questionnaire",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2405.06457",
+        "summary": "Many sexually mature women experience premenstrual syndrome (PMS) or premenstrual dysphoric mood disorder (PMDD). Current approaches for managing PMS and PMDD rely on daily mental condition recording, which many discontinue due to its impracticality. Hence, there's a critical need for a simple, objective method to monitor mental symptoms. One of the principal symptoms of PMDD is a dysfunction in emotional regulation, which has been demonstrated through brain-function imaging measurements to involve hyperactivity in the amygdala and a decrease in functionality in the prefrontal cortex (PFC). However, most research has been focused on PMDD, leaving a gap in understanding of PMS. Near-infrared spectroscopy (NIRS) measures brain activity by spectroscopically determining the amount of hemoglobin in the blood vessels. This study aimed to characterize the emotional regulation function in PMS. We measured brain activity in the PFC region using NIRS when participants were presented with emotion-inducing pictures. Furthermore, moods highly associated with emotions were assessed through questionnaires. Forty-six participants were categorized into non-PMS, PMS, and PMDD groups based on the gynecologist's diagnosis. POMS2 scores revealed higher negative mood and lower positive mood in the follicular phase for the PMS group, while the PMDD group exhibited heightened negative mood during the luteal phase. NIRS results showed reduced emotional expression in the PMS group during both phases, while no significant differences were observed in the PMDD group compared to non-PMS. It was found that there are differences in the distribution of mood during the luteal and follicular phase and in cerebral blood flow responses to emotional stimuli between PMS and PMDD. These findings suggest the potential for providing individuals with awareness of PMS or PMDD through scores on the POMS2 and NIRS measurements.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2405.06457",
+          "http_status": 200,
+          "pdf_sample_score": 0.397,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-17T08:13:30Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Lindley R. Slipetz",
+            "Jeremy W. Eberle",
+            "Cheri A. Levinson",
+            "Ami Falk",
+            "Claire E. Cusack",
+            "Teague R. Henry"
+          ],
+          "title": "Analyzing Ecological Momentary Assessment Data with State-Space Models: Considerations and Recommendations",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2305.03214",
+        "summary": "Ecological momentary assessment (EMA) data have a broad base of application in the study of time trends and relations. In EMA studies, there are a number of design considerations which influence the analysis of the data. One general modeling framework is particularly well-suited for these analyses: state-space modeling. Here, we present the state-space modeling framework with recommendations for the considerations that go into modeling EMA data. These recommendations can account for the issues that come up in EMA data analysis such as idiographic versus nomothetic modeling, missing data, and stationary versus non-stationary data. In addition, we suggest R packages in order to implement these recommendations in practice. Overall, well-designed EMA studies offer opportunities for researchers to handle the momentary minutiae in their assessment of psychological phenomena.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2305.03214",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4286,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-17T08:13:35Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "physical activity levels and mood variability in daily life psychology",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}
