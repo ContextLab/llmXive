@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-02T09:29:04.755488Z'
-current_stage: paper_review
+current_stage: brainstormed
 failed_stage: null
 field: linguistics
 human_escalation_reason: null
 id: PROJ-647-mellum2-technical-report
-last_run_id: null
+last_run_id: 0f23c7cb-c3bc-4e99-a1a9-6c5088b4e256
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: Mellum2 Technical Report
-updated_at: '2026-06-02T09:29:04.945633Z'
+updated_at: '2026-06-18T10:37:22.072583Z'
