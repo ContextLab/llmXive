@@ -63,3 +63,6 @@ ready:
 - project_id: PROJ-574-eva-bench-a-new-end-to-end-framework-for
   revision_spec_path: specs/auto-revisions/PROJ-574-eva-bench-a-new-end-to-end-framework-for/round-1
   queued_at: '2026-06-17T08:01:04.083055+00:00'
+- project_id: PROJ-697-redesign-mixture-of-experts-routers-with
+  revision_spec_path: specs/auto-revisions/PROJ-697-redesign-mixture-of-experts-routers-with/round-1
+  queued_at: '2026-06-18T04:40:21.510451+00:00'
