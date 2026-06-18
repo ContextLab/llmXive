@@ -1,0 +1,95 @@
+\documentclass[10pt]{article}
+
+\usepackage[letterpaper,margin=0.72in]{geometry}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{xcolor}
+\usepackage{parskip}
+
+\definecolor{midgray}{gray}{0.40}
+
+% Compact lists (no enumitem available)
+\setlength{\leftmargini}{1.5em}
+\newcommand{\heading}[1]{\vspace{4pt}\noindent{\large\bfseries #1}\par\vspace{1pt}}
+\newcommand{\notetext}[1]{{\footnotesize\color{midgray} #1\par}}
+
+\setlength{\parskip}{3pt}
+\pagestyle{empty}
+
+\begin{document}
+
+{\LARGE\bfseries Funding Proposal: GPU Compute Node for the Dartmouth Research Cluster\par}
+\vspace{3pt}
+{\color{black}\hrule height 1pt}
+\vspace{2pt}
+
+\heading{Summary}
+We propose a one-time investment of \$185{,}000 to purchase a high-end GPU compute node and add
+it to the existing Dartmouth research cluster (Slurm-scheduled, InfiniBand-connected). The node
+provides four NVIDIA H200 accelerators with 564~GB of pooled high-bandwidth memory. It addresses
+a gap in large-memory accelerated computing that currently sends AI and machine-learning research
+to metered cloud GPUs. As a shared cluster resource, it would serve multiple labs while supporting
+model training, fine-tuning, and high-throughput inference, and would help keep Dartmouth
+competitive in AI research.
+
+\heading{Justification}
+\begin{itemize}
+  \setlength{\itemsep}{2pt}\setlength{\parsep}{0pt}\setlength{\topsep}{2pt}
+  \item \textbf{Capability gap.} Training, fine-tuning, and serving current open models (roughly
+    70B to 400B parameters) need 100~GB or more of GPU memory and NVLink-coupled accelerators. The
+    cluster has no large-VRAM GPUs today, so this work either waits in queue or runs on costly
+    on-demand cloud instances.
+  \item \textbf{Cost relative to cloud.} A comparable four-GPU H200 cloud instance rents for about
+    \$14 to \$16 per hour, or roughly \$90{,}000 to \$120{,}000 per year at sustained research use.
+    The node reaches break-even in about 18 to 24 months and then provides two to three further
+    years of compute at only power and maintenance cost, on campus, with no data leaving the
+    institution.
+  \item \textbf{Competitiveness in AI research.} Large-memory GPUs are now standard infrastructure
+    for competitive AI and machine-learning research. On-site capacity lets faculty and students
+    train and fine-tune models and run inference at scale, and supports the externally funded AI
+    projects that increasingly assume access to this class of hardware. It strengthens Dartmouth's
+    position for faculty recruiting, grant competitiveness, and collaborations.
+  \item \textbf{Shared resource.} The node joins the existing Slurm scheduler, so idle cycles are
+    available to other groups across campus.
+\end{itemize}
+
+\heading{Proposed System and Budget}
+\begin{center}
+\renewcommand{\arraystretch}{1.08}
+\begin{tabular}{@{}p{1.45in} p{4.05in} >{\raggedleft\arraybackslash}p{0.80in}@{}}
+\toprule
+\textbf{Component} & \textbf{Specification} & \textbf{Cost (USD)} \\
+\midrule
+GPU accelerators & 4 $\times$ NVIDIA H200 SXM, 141~GB HBM3e (HGX baseboard, NVLink/NVSwitch); 564~GB pooled & \$128{,}000 \\
+Server platform & Dual AMD EPYC (192 cores), HGX carrier, redundant 3~kW PSUs & \$20{,}000 \\
+System memory & 1.5~TB DDR5 ECC & \$10{,}000 \\
+Local storage & About 30~TB NVMe (RAID1 OS plus high-speed scratch) & \$8{,}000 \\
+Cluster networking & NVIDIA ConnectX-7 NDR 400~Gb InfiniBand HCA plus cabling & \$6{,}000 \\
+Integration & Rack, rails, PDU, Slurm integration, burn-in testing & \$3{,}000 \\
+Warranty and support & 3-year 24/7 on-site, next-business-day parts & \$10{,}000 \\
+\midrule
+\textbf{Total} & & \textbf{\$185{,}000} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\notetext{Cost figures are planning estimates from our June 2026 conversation with Dartmouth
+Research Computing (ITC) and are subject to final vendor quotes. Power and cooling are assumed
+available in the existing cluster facility.}
+\vspace{1pt}
+\notetext{Alternative configuration: for workloads dominated by many-user inference rather than
+large-model training, the same budget buys 8 $\times$ NVIDIA L40S (48~GB) for higher aggregate
+throughput. The H200 build above is recommended as the more training-capable option.}
+
+\heading{Expected Outcomes}
+\begin{itemize}
+  \setlength{\itemsep}{2pt}\setlength{\parsep}{0pt}\setlength{\topsep}{2pt}
+  \item Continuous on-campus training and inference for AI and machine-learning research, without
+    queueing for scarce accelerators.
+  \item Reduced recurring cloud GPU spend once the node is in sustained use.
+  \item Capacity to train and fine-tune models on institutional data, kept on campus.
+  \item A shared accelerator resource that strengthens Dartmouth's competitiveness for AI research,
+    recruiting, and grants.
+\end{itemize}
+
+\end{document}
