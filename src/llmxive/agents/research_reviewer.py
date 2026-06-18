@@ -179,6 +179,43 @@ class ResearchReviewerAgent(Agent):
             {"project_id": ctx.project_id, "reviewer_name": self.entry.name},
             repo_root=repo,
         )
+
+        # Re-review diff-check (mirrors the paper-side FR-014 protocol). When THIS
+        # specialist has reviewed THIS project before, prepend the shared research
+        # re-review block listing its OWN most-recent action items, so the verdict
+        # becomes a deterministic "are my prior concerns resolved?" diff-check
+        # rather than a fresh, stochastic critique — concerns only get resolved
+        # across rounds, so the panel converges to accept once the bar is met.
+        try:
+            prior_for_self = reviews_store.prior_reviews_for_specialist(
+                ctx.project_id, self.entry.name, stage="research", repo_root=repo,
+            )
+        except Exception:
+            prior_for_self = []
+        if prior_for_self:
+            most_recent = prior_for_self[-1]
+            prior_items_yaml = (
+                yaml.safe_dump(
+                    [{"id": ai.id, "text": ai.text, "severity": ai.severity}
+                     for ai in most_recent.action_items],
+                    sort_keys=False,
+                )
+                if most_recent.action_items else "[]\n"
+            )
+            snippet_path = (
+                repo / "agents" / "prompts" / "_shared" / "rereview_block_research.md"
+            )
+            try:
+                snippet = snippet_path.read_text(encoding="utf-8")
+            except OSError:
+                snippet = ""
+            if snippet:
+                system = (
+                    snippet.replace("{prior_action_items_yaml}", prior_items_yaml.strip())
+                    + "\n\n"
+                    + system
+                )
+
         user = (
             f"# project_id\n{ctx.project_id}\n\n"
             f"# spec.md\n\n{spec_text}\n\n"

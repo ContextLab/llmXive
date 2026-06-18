@@ -162,3 +162,55 @@ class TestPaperReviewerBuildsRereviewPrompt:
         assert len(out) == 1
         assert len(out[0].action_items) == 1
         assert out[0].action_items[0].id == items[0].id
+
+
+class TestResearchRereviewProtocol:
+    """The research-stage re-review diff-check (mirrors paper FR-014): research
+    reviewers converge by verifying prior concerns are resolved, not by fresh
+    stochastic critique. Pins the snippet + research-stage prior retrieval."""
+
+    def test_research_snippet_exists_with_research_taxonomy(self) -> None:
+        repo = Path(__file__).resolve().parents[2]
+        snippet = (
+            repo / "agents" / "prompts" / "_shared" / "rereview_block_research.md"
+        ).read_text()
+        assert "diff-check" in snippet
+        assert "ADEQUATELY ADDRESSED" in snippet
+        assert "DO NOT generate a fresh independent critique" in snippet
+        assert "{prior_action_items_yaml}" in snippet
+        # research verdict taxonomy (NOT the paper-side major_revision_* names)
+        assert "`minor_revision`" in snippet and "`full_revision`" in snippet
+        assert "major_revision_writing" not in snippet
+        flat = " ".join(snippet.split())
+        assert "ORIGINAL ID PRESERVED" in flat
+
+    def test_prior_reviews_for_specialist_research_stage(self, tmp_path: Path) -> None:
+        proj = "PROJ-100-test"
+        rdir = tmp_path / "projects" / proj / "reviews" / "research"
+        rdir.mkdir(parents=True)
+        rec = ReviewRecord(
+            reviewer_name="research_reviewer_data_quality_research",
+            reviewer_kind=ReviewerKind.LLM,
+            artifact_path=f"projects/{proj}/specs/x/tasks.md",
+            artifact_hash="a" * 64,
+            score=0.0,
+            verdict="minor_revision",
+            feedback="x",
+            reviewed_at=_NOW,
+            prompt_version="1.1.0",
+            model_name="openai.gpt-oss-120b",
+            backend=BackendName.DARTMOUTH,
+            action_items=[ActionItem.from_text("Add a data-license note.", "writing")],
+        )
+        import yaml
+        (rdir / "research_reviewer_data_quality_research__2026-05-17__research.md").write_text(
+            "---\n" + yaml.safe_dump(rec.model_dump(mode="json"), sort_keys=True) + "---\n\n# b\n"
+        )
+        out = prior_reviews_for_specialist(
+            proj, "research_reviewer_data_quality_research", stage="research", repo_root=tmp_path,
+        )
+        assert len(out) == 1 and out[0].action_items[0].text == "Add a data-license note."
+        # a different specialist sees no priors -> no re-review block for it
+        assert prior_reviews_for_specialist(
+            proj, "research_reviewer_creativity", stage="research", repo_root=tmp_path,
+        ) == []
