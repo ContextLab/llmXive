@@ -105,18 +105,70 @@ def _is_forbidden_deletion(search: str, replace: str) -> bool:
     return any(p.search(search) for p in _FORBIDDEN_DELETION_PATTERNS)
 
 
+def _normalize_line(line: str, level: int) -> str:
+    """Progressive per-line normalization for flexible matching (aider-style)."""
+    if level <= 0:
+        return line
+    if level == 1:
+        return line.rstrip()           # trailing-whitespace drift
+    if level == 2:
+        return line.strip()            # leading+trailing (indentation) drift
+    return " ".join(line.split())      # collapse internal whitespace runs
+
+
+def _flexible_replace(text: str, search: str, replace: str) -> tuple[str | None, str]:
+    """Replace ``search`` with ``replace`` in ``text``, tolerant of the whitespace
+    / indentation drift that causes ~62% of real edit failures ('search string
+    not found'). LLM-emitted ``search`` blocks rarely reproduce a file's exact
+    whitespace, so after an exact attempt we fall back to line-based matching
+    under progressively looser per-line normalization — but ONLY apply a match
+    that is UNIQUE at that level, so we never silently edit the wrong place
+    (mirrors aider's flexible-but-safe patch application).
+
+    Returns ``(new_text, reason)`` on success or ``(None, reason)`` on failure.
+    """
+    if not search:
+        return None, "empty-search"
+    exact = text.count(search)
+    if exact == 1:
+        return text.replace(search, replace, 1), "exact"
+    if exact > 1:
+        return None, f"ambiguous: search string matches {exact} locations"
+
+    flines = text.splitlines()
+    slines = search.splitlines()
+    n = len(slines)
+    if n == 0 or n > len(flines):
+        return None, "no-match: search string not found"
+    rep_lines = replace.splitlines()
+    for level in (1, 2, 3):
+        norm_s = [_normalize_line(s, level) for s in slines]
+        hits = [
+            i
+            for i in range(len(flines) - n + 1)
+            if [_normalize_line(flines[i + k], level) for k in range(n)] == norm_s
+        ]
+        if len(hits) == 1:
+            i = hits[0]
+            out = "\n".join(flines[:i] + rep_lines + flines[i + n:])
+            if text.endswith("\n"):
+                out += "\n"
+            return out, f"flexible-match(level={level})"
+        if len(hits) > 1:
+            return None, (
+                f"ambiguous: search string matches {len(hits)} locations (flexible)"
+            )
+    return None, "no-match: search string not found (tried exact + flexible)"
+
+
 def apply_search_and_replace(
     file_path: Path, search: str, replace: str,
 ) -> EditResult:
-    """Apply a search/replace edit. Returns EditResult with applied=False
-    when:
-      - the file doesn't exist
-      - the search string doesn't appear in the file
-      - the search string appears more than once (ambiguous)
-      - the search matches a forbidden deletion target (abstract /
-        bibliography) AND replace is empty (FR-017)
-    Otherwise writes the replaced content and returns applied=True with
-    before/after hashes.
+    """Apply a search/replace edit, tolerant of whitespace/indentation drift.
+
+    Returns EditResult applied=False when the file doesn't exist, the search
+    can't be located (even flexibly), the match is ambiguous, or the search is a
+    forbidden deletion target (abstract/bibliography with empty replace, FR-017).
     """
     if not file_path.is_file():
         return EditResult(False, [], {}, {}, f"file-not-found: {file_path}")
@@ -127,15 +179,9 @@ def apply_search_and_replace(
             False, [], {}, {},
             "FR-017: refusing to delete abstract/bibliography/thebibliography",
         )
-    count = before_text.count(search)
-    if count == 0:
-        return EditResult(False, [], {}, {}, "no-match: search string not found")
-    if count > 1:
-        return EditResult(
-            False, [], {}, {},
-            f"ambiguous: search string matches {count} locations",
-        )
-    after_text = before_text.replace(search, replace, 1)
+    after_text, reason = _flexible_replace(before_text, search, replace)
+    if after_text is None:
+        return EditResult(False, [], {}, {}, reason)
     file_path.write_text(after_text, encoding="utf-8")
     after_bytes = file_path.read_bytes()
     rel = str(file_path)

@@ -225,3 +225,41 @@ def test_feature_dir_for_honors_project_pointer(tmp_path: Path) -> None:
     # protection for arXiv-intake projects).
     (state / f"{pid}.yaml").write_text(yaml.safe_dump({}), encoding="utf-8")
     assert feature_dir_for(proj, track="research").name == "004-old"
+
+
+def test_flexible_replace_handles_whitespace_and_indent_drift() -> None:
+    """~62% of real edit failures are 'search string not found' from whitespace/
+    indent drift. The flexible matcher must locate a UNIQUE multi-line block under
+    looser normalization, while still refusing ambiguous / absent searches."""
+    from llmxive.agents.implementer import _flexible_replace
+
+    # Multi-line block: LLM dedented the nested line (indentation drift) -> no
+    # exact substring, but a unique line-based match under strip-normalization.
+    text = "def f():\n    if x:\n        return 1\n"
+    out, why = _flexible_replace(text, "if x:\n    return 1", "if x:\n    return 2")
+    assert out is not None and "return 2" in out and "return 1" not in out
+
+    # Internal-whitespace drift on a single line.
+    out2, _ = _flexible_replace("a\ny   =    1\nb\n", "y = 1", "y = 99")
+    assert out2 is not None and "y = 99" in out2
+
+    # Ambiguous -> refuse (never silently edit the wrong place).
+    out3, why3 = _flexible_replace("p=1\np=1\n", "p=1", "q")
+    assert out3 is None and "ambiguous" in why3
+
+    # Genuinely absent -> refuse.
+    out4, why4 = _flexible_replace("nothing here\n", "absent multi\nline block", "z")
+    assert out4 is None and "no-match" in why4
+
+    # Exact still wins and is preserved verbatim.
+    out5, why5 = _flexible_replace("alpha\nbeta\n", "beta", "BETA")
+    assert out5 == "alpha\nBETA\n" and why5 == "exact"
+
+
+def test_apply_search_and_replace_uses_flexible_matching(tmp_path: Path) -> None:
+    from llmxive.agents.implementer import apply_search_and_replace
+
+    f = tmp_path / "m.py"
+    f.write_text("class C:\n        value =  1\n", encoding="utf-8")  # odd indent + double space
+    res = apply_search_and_replace(f, "value = 1", "value = 2")
+    assert res.applied and "value = 2" in f.read_text()
