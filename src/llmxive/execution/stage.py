@@ -124,6 +124,70 @@ def _declare_missing_imports(project_dir: Path, failures: list[str]) -> list[str
     return added
 
 
+def _deliverable_repair_feedback(project_dir: Path, res: AnalysisRunResult) -> str:
+    """Guidance for declared deliverables the run-book DID NOT produce.
+
+    A declared figure/data file can be absent even when every command exits 0 —
+    because the script that should write it has a bug, writes the wrong path, or
+    (the quickstart↔tasks mismatch) is never INVOKED by the run-book at all. The
+    implement-loop can't see the run-book gap, so spell it out: which scripts
+    reference the deliverable, whether each is a run-book command, and that the
+    fix is to make one WRITE the exact path AND be invoked by quickstart.md.
+    """
+    if not res.declared_missing:
+        return ""
+    code = project_dir / "code"
+    if not code.is_dir():
+        return ""
+    runbook: set[str] = set()
+    for c in res.commands:
+        m = re.search(r"\b(code/[\w./-]+\.py)\b", c.command)
+        if m:
+            runbook.add(m.group(1))
+    py_files = [p for p in code.rglob("*.py") if "/.venv/" not in str(p)]
+
+    blocks: list[str] = []
+    for d in res.declared_missing:
+        base, stem = Path(d).name, Path(d).stem
+        refs: list[tuple[str, bool]] = []
+        for p in py_files:
+            try:
+                txt = p.read_text(encoding="utf-8", errors="replace")
+            except OSError:
+                continue
+            if base in txt or (stem and stem in txt):
+                rel = str(p.relative_to(project_dir))
+                refs.append((rel, ("code/" + str(p.relative_to(code))) in runbook))
+        if refs:
+            ln = [f"- `{d}` is declared but was NOT written. Scripts referencing it:"]
+            for rel, in_rb in refs[:8]:
+                ln.append(f"    - `{rel}` — {'IS a run-book command' if in_rb else 'NOT invoked by the run-book'}")
+            ln.append(
+                f"  Make ONE of these WRITE `{d}` to that EXACT path. If its producing "
+                "script is not a run-book command, ADD `python code/<script>.py` to "
+                "quickstart.md so the run-book invokes it."
+            )
+            blocks.append("\n".join(ln))
+        else:
+            blocks.append(
+                f"- `{d}` is declared but NOT written and NO script references it — "
+                "create the script that produces it and add it to quickstart.md."
+            )
+    if not blocks:
+        return ""
+    return "\n".join([
+        "",
+        "## Declared deliverables NOT produced — make the run-book produce them",
+        "",
+        "Every command may exit 0 yet a declared data/figure file is still absent. "
+        "Fix the producing script to WRITE it to the exact declared path, and ensure "
+        "that script is INVOKED by the quickstart run-book (you may edit "
+        "quickstart.md to add the command).",
+        "",
+        *blocks,
+    ])
+
+
 def execute_and_gate(project_dir: Path, *, repo_root: Path | None = None) -> bool:
     """Run the analysis and gate. Returns True iff it produced real artifacts.
 
@@ -266,6 +330,15 @@ def _write_execution_feedback(
                 lines.append(block)
         except Exception as exc:
             logger.warning("contract feedback skipped: %s", exc)
+
+    # Run-book-repair guidance for declared deliverables that no command produced
+    # (a script with a bug / wrong path, or a producer the quickstart never runs).
+    try:
+        repair = _deliverable_repair_feedback(mem_dir.parent.parent, res)
+        if repair:
+            lines.append(repair)
+    except Exception as exc:
+        logger.warning("deliverable-repair feedback skipped: %s", exc)
 
     (mem_dir / _FEEDBACK_FILENAME).write_text("\n".join(lines) + "\n", encoding="utf-8")
 

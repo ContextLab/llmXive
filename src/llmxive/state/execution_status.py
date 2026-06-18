@@ -23,7 +23,7 @@ from llmxive.config import repo_root as _repo_root
 
 #: After this many execution-fix rounds without a clean run, the project
 #: escalates honestly (HUMAN_INPUT_NEEDED) instead of looping forever.
-MAX_EXECUTION_FIX_ROUNDS = 5
+MAX_EXECUTION_FIX_ROUNDS = 8
 
 
 def _dir(repo_root: Path | None = None) -> Path:
