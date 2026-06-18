@@ -60,3 +60,19 @@ def test_execution_evidence_reports_pass_and_artifacts(tmp_path: Path) -> None:
 
     # No record → honest "not gated yet", never a crash.
     assert "not been gated" in _execution_evidence("PROJ-NONE", repo)
+
+
+def test_doc_contents_surfaces_file_bodies_for_verification(tmp_path: Path) -> None:
+    """Reviewers must SEE doc content (not just listings) to verify fixes —
+    pins the data_quality holdout ('license present but content not shown')."""
+    from llmxive.agents.research_reviewer import _doc_contents
+
+    proj = tmp_path
+    rdir = proj / "docs" / "reproducibility"
+    rdir.mkdir(parents=True)
+    (rdir / "data_license.md").write_text("Knot Atlas: CC-BY-4.0; KnotInfo: public.", encoding="utf-8")
+    (proj / "README.md").write_text("# Knot Complexity\nReproduce via quickstart.", encoding="utf-8")
+    out = _doc_contents(proj)
+    assert "CC-BY-4.0" in out               # license CONTENT, not just the name
+    assert "data_license.md" in out
+    assert "Reproduce via quickstart" in out  # top-level README content

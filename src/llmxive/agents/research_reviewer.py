@@ -92,6 +92,40 @@ def _summarize_tree(root: Path, *, max_files: int = 400) -> str:
     return "\n".join(lines) if lines else "(empty)"
 
 
+def _doc_contents(project_dir: Path, *, max_total: int = 18000, max_per_file: int = 900) -> str:
+    """Concatenate the CONTENT of small documentation/reproducibility files so a
+    reviewer can VERIFY them, not merely see that they exist. Listings alone made
+    data_quality / filesystem reviewers withhold accept ('content not shown —
+    cannot verify the license/provenance doc'). Scoped to the small markdown
+    artifacts reviewers actually judge (docs/reproducibility/*.md + top-level
+    README/LICENSE), capped so the prompt stays bounded."""
+    cands: list[Path] = []
+    rdir = project_dir / "docs" / "reproducibility"
+    if rdir.is_dir():
+        cands += sorted(rdir.glob("*.md"))
+    for name in ("README.md", "LICENSE.md", "LICENSE", "CONTRIBUTING.md"):
+        p = project_dir / name
+        if p.is_file():
+            cands.append(p)
+    out: list[str] = []
+    total = 0
+    for p in cands:
+        try:
+            txt = p.read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            continue
+        rel = p.relative_to(project_dir).as_posix()
+        block = f"### `{rel}` ({len(txt)} bytes)\n{txt[:max_per_file]}" + (
+            "\n…(truncated)" if len(txt) > max_per_file else ""
+        )
+        if total + len(block) > max_total:
+            out.append("…(remaining doc files omitted for length)")
+            break
+        out.append(block)
+        total += len(block)
+    return "\n\n".join(out) if out else "(no documentation files found)"
+
+
 def _execution_evidence(project_id: str, repo: Path) -> str:
     """Factual evidence of whether the analysis run-book actually executed and
     produced real artifacts, so reviewers judging implementation correctness /
@@ -160,6 +194,7 @@ class ResearchReviewerAgent(Agent):
         # docs/ holds the reproducibility documentation (FR-007 etc.). Omitting it
         # made implementation reviewers falsely report those docs "missing".
         docs_summary = _summarize_tree(project_dir / "docs")
+        doc_contents = _doc_contents(project_dir)
         results_summary = _read_optional(project_dir / "results.md")
         execution_evidence = _execution_evidence(ctx.project_id, repo)
 
@@ -228,6 +263,7 @@ class ResearchReviewerAgent(Agent):
             f"# code summary\n\n{code_summary}\n\n"
             f"# data summary\n\n{data_summary}\n\n"
             f"# docs summary (incl. docs/reproducibility/)\n\n{docs_summary}\n\n"
+            f"# documentation contents (verify these — do not assume from the listing)\n\n{doc_contents}\n\n"
             f"# execution evidence\n\n{execution_evidence}\n\n"
             f"# results summary\n\n{results_summary}\n\n"
             f"# prior reviews\n\n{prior_block}\n\n"
