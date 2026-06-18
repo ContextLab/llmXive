@@ -184,14 +184,27 @@ def execute_and_gate(project_dir: Path, *, repo_root: Path | None = None) -> boo
         return True
 
     logger.warning("execution FAILED for %s: %s", project_id, res.reason)
-    _write_execution_feedback(mem, res, failures)
-    reopened = _reopen_failing_tasks(project_dir, res)
+    # Detect shared-module API-contract failures (a symbol the project defines,
+    # called incompatibly by many scripts). The implementer must fix the ONE
+    # definition tolerant of all callers — not the callers — else the loop
+    # oscillates forever. Feed it the call sites + re-open the DEFINING module's
+    # task so it works on the root.
+    try:
+        from llmxive.execution.shared_contract import find_contract_issues
+
+        contract_issues = find_contract_issues(project_dir, failures)
+    except Exception as exc:
+        logger.warning("shared-contract analysis skipped: %s", exc)
+        contract_issues = []
+    _write_execution_feedback(mem, res, failures, contract_issues)
+    reopened = _reopen_failing_tasks(project_dir, res, contract_issues)
     logger.info("re-opened %d task(s) for the auto-fix loop", reopened)
     return False
 
 
 def _write_execution_feedback(
-    mem_dir: Path, res: AnalysisRunResult, failures: list[str]
+    mem_dir: Path, res: AnalysisRunResult, failures: list[str],
+    contract_issues: list | None = None,
 ) -> None:
     mem_dir.mkdir(parents=True, exist_ok=True)
     lines = [
@@ -241,10 +254,25 @@ def _write_execution_feedback(
         except Exception as exc:  # never block feedback-writing on discovery
             logger.warning("data-source discovery skipped: %s", exc)
 
+    # Shared-module contract guidance (call sites + "fix the definition, tolerant
+    # of all callers") — the thing that lets the loop converge a shared symbol
+    # used incompatibly by many scripts instead of oscillating.
+    if contract_issues:
+        try:
+            from llmxive.execution.shared_contract import render_contract_feedback
+
+            block = render_contract_feedback(contract_issues)
+            if block:
+                lines.append(block)
+        except Exception as exc:
+            logger.warning("contract feedback skipped: %s", exc)
+
     (mem_dir / _FEEDBACK_FILENAME).write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
-def _reopen_failing_tasks(project_dir: Path, res: AnalysisRunResult) -> int:
+def _reopen_failing_tasks(
+    project_dir: Path, res: AnalysisRunResult, contract_issues: list | None = None
+) -> int:
     """Un-check tasks.md lines that reference a failed/missing script path or
     its stem, so the implementer re-implements them. Returns count re-opened.
     """
@@ -267,6 +295,15 @@ def _reopen_failing_tasks(project_dir: Path, res: AnalysisRunResult) -> int:
     for d in res.declared_missing:
         targets.add(d)
         targets.add(Path(d).name)
+    # Re-open the task that owns the SHARED MODULE behind a contract error, so the
+    # implementer fixes the ROOT definition (not just the failing callers).
+    if contract_issues:
+        try:
+            from llmxive.execution.shared_contract import defining_files
+
+            targets |= defining_files(contract_issues)
+        except Exception:
+            pass
     if not targets:
         return 0
 
