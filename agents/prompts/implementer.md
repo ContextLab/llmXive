@@ -35,6 +35,26 @@ The `search` string MUST match exactly one location in the file (whitespace + pu
 
 The diff MUST apply cleanly to the current file (`git apply --check` passes).
 
+### Form C — move/rename a file (relocate a misplaced artifact)
+
+```json
+{ "kind": "move_file", "file": "<current path>", "to": "<new path>" }
+```
+
+Use this when a reviewer asks to RELOCATE a file (e.g. "move logs/ to
+docs/reproducibility/", "checksum manifests belong under data/"). Both paths must
+be within the project's editable area; the destination must not already exist.
+
+### Form D — delete a file (prune a redundant/duplicate artifact)
+
+```json
+{ "kind": "delete_file", "file": "<path>" }
+```
+
+Use this ONLY when a reviewer asks to REMOVE a redundant/duplicate/obsolete file
+(e.g. "consolidate the three checksum manifests", "prune redundant documents").
+Never delete source/data needed by the analysis.
+
 ## Hard constraints
 
 1. **Output JSON only.** No prose around the JSON, no markdown fences.

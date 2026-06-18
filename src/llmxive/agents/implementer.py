@@ -366,6 +366,54 @@ def apply_unified_diff(file_path: Path, diff: str) -> EditResult:
     )
 
 
+def apply_delete_file(file_path: Path) -> EditResult:
+    """Delete a file (e.g. pruning a redundant/duplicate artifact a reviewer
+    flagged). Refuses if absent; the caller snapshots for rollback."""
+    if not file_path.is_file():
+        return EditResult(False, [], {}, {}, f"file-not-found: {file_path}")
+    before = file_path.read_bytes()
+    file_path.unlink()
+    rel = str(file_path)
+    return EditResult(True, [rel], {rel: _sha256(before)}, {rel: ""})
+
+
+def apply_move_file(from_path: Path, to_path: Path) -> EditResult:
+    """Move/rename a file (e.g. relocating a misplaced log/checksum manifest a
+    reviewer flagged). Refuses if the source is absent; creates dest parents."""
+    if not from_path.is_file():
+        return EditResult(False, [], {}, {}, f"file-not-found: {from_path}")
+    if to_path.exists():
+        return EditResult(False, [], {}, {}, f"destination-exists: {to_path}")
+    before = from_path.read_bytes()
+    to_path.parent.mkdir(parents=True, exist_ok=True)
+    to_path.write_bytes(before)
+    from_path.unlink()
+    rf, rt = str(from_path), str(to_path)
+    return EditResult(True, [rf, rt], {rf: _sha256(before)}, {rt: _sha256(before)})
+
+
+def _verify_changed_python(paths: list[str]) -> str | None:
+    """Compile every changed/created ``.py`` file. Returns a human-readable error
+    on the FIRST syntax error, else None. The cheap, universal guard against the
+    implementer leaving broken Python behind — applied to research code edits so
+    a revision can never degrade the analysis into an un-importable state."""
+    import py_compile
+
+    for p in paths:
+        if not p.endswith(".py"):
+            continue
+        fp = Path(p)
+        if not fp.is_file():
+            continue
+        try:
+            py_compile.compile(str(fp), doraise=True)
+        except py_compile.PyCompileError as exc:
+            return f"{fp.name}: {str(exc).splitlines()[-1][:160]}"
+        except (OSError, ValueError) as exc:  # pragma: no cover - defensive
+            return f"{fp.name}: {type(exc).__name__}: {exc}"
+    return None
+
+
 # --- LaTeX compile gate (FR-003 step e, FR-012) ----------------------------
 
 def _compile_paper(source_dir: Path, *, timeout: float = 300.0) -> tuple[bool, str]:
@@ -413,11 +461,16 @@ _JSON_BLOCK_RE = re.compile(
 )
 
 
+#: Edit kinds the implementer understands. search_and_replace / unified_diff
+#: modify file content; move_file / delete_file are structural (relocate or prune
+#: a file) — needed for review concerns like "relocate logs/ -> docs/" or "prune
+#: redundant documents" that pure content edits cannot satisfy.
+_EDIT_KINDS = {"search_and_replace", "unified_diff", "move_file", "delete_file"}
+
+
 def _parse_llm_edit(response_text: str) -> dict[str, object] | None:
-    """Parse an LLM response into a structured edit dict. Returns None
-    if no valid JSON-edit block is found. We extract the first valid
-    JSON object that has a `kind` field matching `search_and_replace`
-    or `unified_diff`."""
+    """Parse an LLM response into a structured edit dict. Returns None if no valid
+    JSON-edit block (one with a recognized ``kind``) is found."""
     # First try the whole response as JSON.
     text = response_text.strip()
     if text.startswith("```"):
@@ -426,7 +479,7 @@ def _parse_llm_edit(response_text: str) -> dict[str, object] | None:
         text = re.sub(r"\s*```\s*$", "", text)
     try:
         data = json.loads(text)
-        if isinstance(data, dict) and data.get("kind") in {"search_and_replace", "unified_diff"}:
+        if isinstance(data, dict) and data.get("kind") in _EDIT_KINDS:
             return data
     except json.JSONDecodeError:
         pass
@@ -434,7 +487,7 @@ def _parse_llm_edit(response_text: str) -> dict[str, object] | None:
     for m in _JSON_BLOCK_RE.finditer(text):
         try:
             data = json.loads(m.group(0))
-            if isinstance(data, dict) and data.get("kind") in {"search_and_replace", "unified_diff"}:
+            if isinstance(data, dict) and data.get("kind") in _EDIT_KINDS:
                 return data
         except json.JSONDecodeError:
             continue
@@ -1075,6 +1128,16 @@ class LLMXiveImplementer(Agent):
                 error_reason="LLM did not emit a parseable JSON edit",
             )
 
+        # Structural edits (move/delete a file) — for concerns that content edits
+        # can't satisfy ("relocate logs/ -> docs/reproducibility/", "prune
+        # redundant documents"). Handled separately from search/replace + diff.
+        if edit["kind"] in ("move_file", "delete_file"):
+            return self._apply_structural_edit(
+                edit, project_id=project_id, repo_root=repo_root, track=track,
+                severity=severity, item_text=item_text, task_id=task_id,
+                response_text=response_text, t_started=t_started,
+            )
+
         # Path validation (FR-019).
         target = _validate_edit_path(
             str(edit.get("file", "")), project_id=project_id, severity=severity,
@@ -1156,6 +1219,28 @@ class LLMXiveImplementer(Agent):
                     error_reason=f"lualatex failed: {log_tail[-200:]}",
                 )
 
+        # Research code edits must not leave broken Python (the paper track's
+        # lualatex gate has no analogue here). py_compile every changed .py and
+        # ROLL BACK on a syntax error, so a revision can never degrade the
+        # analysis into an un-importable state.
+        if track == "research":
+            syn_err = _verify_changed_python(result.files_modified)
+            if syn_err is not None:
+                _restore(snap)
+                return ImplementerLogEntry(
+                    task_id=task_id,
+                    status="compile-failed",
+                    action_item_severity=cast(Literal["writing", "science"], severity) if severity in {"writing", "science"} else None,
+                    action_item_text=item_text,
+                    edit_kind=edit["kind"],
+                    files_modified=result.files_modified,
+                    before_hashes=result.before_hashes,
+                    after_hashes={},  # rolled back
+                    model_response_excerpt=response_text[:500],
+                    duration_s=time.monotonic() - t_started,
+                    error_reason=f"python syntax error after edit: {syn_err}",
+                )
+
         # Science-class: best-effort analysis-script execution (FR-019).
         if severity == "science":
             needs_data = _run_referenced_analysis_scripts(target, repo_root=repo_root)
@@ -1183,6 +1268,57 @@ class LLMXiveImplementer(Agent):
             files_modified=result.files_modified,
             before_hashes=result.before_hashes,
             after_hashes=result.after_hashes,
+            model_response_excerpt=response_text[:500],
+            duration_s=time.monotonic() - t_started,
+        )
+
+    def _apply_structural_edit(
+        self,
+        edit: Mapping[str, object],
+        *,
+        project_id: str,
+        repo_root: Path,
+        track: str,
+        severity: str,
+        item_text: str,
+        task_id: str,
+        response_text: str,
+        t_started: float,
+    ) -> ImplementerLogEntry:
+        """Apply a move_file / delete_file structural edit (validated to the
+        track's allowed bases, with the same path guards as content edits)."""
+        kind = str(edit["kind"])
+        sev = cast(Literal["writing", "science"], severity) if severity in {"writing", "science"} else None
+
+        def _skip(reason: str) -> ImplementerLogEntry:
+            return ImplementerLogEntry(
+                task_id=task_id, status="skipped", action_item_severity=sev,
+                action_item_text=item_text, model_response_excerpt=response_text[:500],
+                duration_s=time.monotonic() - t_started, error_reason=reason,
+            )
+
+        src_raw = str(edit.get("file") or edit.get("from") or edit.get("src") or "")
+        src = _validate_edit_path(
+            src_raw, project_id=project_id, severity=severity, repo_root=repo_root, track=track,
+        )
+        if src is None:
+            return _skip(f"{kind}: disallowed/invalid source path: {src_raw!r}")
+        if kind == "delete_file":
+            result = apply_delete_file(src)
+        else:  # move_file
+            dst_raw = str(edit.get("to") or edit.get("dest") or edit.get("destination") or "")
+            dst = _validate_edit_path(
+                dst_raw, project_id=project_id, severity=severity, repo_root=repo_root, track=track,
+            )
+            if dst is None:
+                return _skip(f"move_file: disallowed/invalid destination path: {dst_raw!r}")
+            result = apply_move_file(src, dst)
+        if not result.applied:
+            return _skip(result.reject_reason or f"{kind} failed")
+        return ImplementerLogEntry(
+            task_id=task_id, status="done", action_item_severity=sev,
+            action_item_text=item_text, files_modified=result.files_modified,
+            before_hashes=result.before_hashes, after_hashes=result.after_hashes,
             model_response_excerpt=response_text[:500],
             duration_s=time.monotonic() - t_started,
         )

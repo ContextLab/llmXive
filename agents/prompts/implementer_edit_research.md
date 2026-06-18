@@ -37,6 +37,11 @@ allowed `search_and_replace` / `unified_diff` forms) that addresses THIS action 
   `unified_diff`.
 - **Create a new file** the concern says is missing (e.g. a license note, a small doc)
   → a `unified_diff` against `/dev/null` with the new file's full contents.
+- **Relocate a misplaced file** the concern says is in the wrong place (e.g. "move
+  logs/ to docs/reproducibility/", "checksums belong under data/") → `move_file`
+  with `file` (current path) and `to` (new path).
+- **Remove a redundant/duplicate file** the concern says to prune/consolidate (e.g.
+  "consolidate the three checksum manifests") → `delete_file` with `file`.
 
 Important reminders:
 

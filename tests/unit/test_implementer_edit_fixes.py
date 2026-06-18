@@ -343,3 +343,53 @@ def test_research_target_window_gives_exact_content_for_named_files(tmp_path: Pa
     assert "def validate" in w2
     # no named file -> directive, never a crash
     assert "does not name a specific" in _research_target_window(proj, "improve code quality")
+
+
+def test_apply_move_and_delete_file(tmp_path: Path) -> None:
+    """Structural edits let the implementer satisfy 'relocate logs->docs' /
+    'prune redundant manifests' concerns that content edits cannot."""
+    from llmxive.agents.implementer import apply_delete_file, apply_move_file
+
+    # delete
+    f = tmp_path / "redundant.md"
+    f.write_text("dup", encoding="utf-8")
+    assert apply_delete_file(f).applied and not f.exists()
+    assert not apply_delete_file(tmp_path / "ghost.md").applied  # absent -> refused
+
+    # move (creates dest parents); refuses if dest exists
+    src = tmp_path / "logs" / "run.log"
+    src.parent.mkdir()
+    src.write_text("log", encoding="utf-8")
+    dst = tmp_path / "docs" / "reproducibility" / "run.log"
+    assert apply_move_file(src, dst).applied and dst.is_file() and not src.exists()
+    a = tmp_path / "a.txt"; a.write_text("x", encoding="utf-8")
+    b = tmp_path / "b.txt"; b.write_text("y", encoding="utf-8")
+    assert not apply_move_file(a, b).applied  # dest exists -> refused
+    assert a.is_file()  # source untouched on refusal
+
+
+def test_verify_changed_python_rolls_back_broken_edits(tmp_path: Path) -> None:
+    """A research code edit must never leave un-importable Python."""
+    from llmxive.agents.implementer import _verify_changed_python
+
+    good = tmp_path / "g.py"; good.write_text("x = 1\n", encoding="utf-8")
+    bad = tmp_path / "b.py"; bad.write_text("def f(:\n    pass\n", encoding="utf-8")
+    doc = tmp_path / "d.md"; doc.write_text("not python", encoding="utf-8")
+    assert _verify_changed_python([str(good), str(doc)]) is None
+    assert _verify_changed_python([str(bad)]) is not None  # syntax error reported
+
+
+def test_parse_llm_edit_accepts_structural_kinds() -> None:
+    from llmxive.agents.implementer import _parse_llm_edit
+
+    assert _parse_llm_edit('{"kind":"move_file","file":"logs/a.log","to":"docs/a.log"}')["kind"] == "move_file"
+    assert _parse_llm_edit('{"kind":"delete_file","file":"checksums.csv"}')["kind"] == "delete_file"
+    assert _parse_llm_edit('{"kind":"nonsense","file":"x"}') is None
+
+
+def test_system_prompt_documents_all_four_edit_kinds() -> None:
+    from llmxive.agents.prompts import render_prompt
+
+    sys = render_prompt("agents/prompts/implementer.md", {}, repo_root=REAL_REPO)
+    for kind in ("search_and_replace", "unified_diff", "move_file", "delete_file"):
+        assert kind in sys, kind
