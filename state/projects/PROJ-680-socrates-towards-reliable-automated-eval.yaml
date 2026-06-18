@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-09T09:10:21.377456Z'
-current_stage: flesh_out_complete
+current_stage: validated
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-680-socrates-towards-reliable-automated-eval
-last_run_id: e817515f-814b-4539-a671-70ae38f834a3
+last_run_id: da6fc642-1ced-4d0c-9cfd-ac151f9af445
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: null
 title: 'SoCRATES: Towards Reliable Automated Evaluation of Proactive LLM Mediation
   across Domains and Socio-cognitive Variations'
-updated_at: '2026-06-18T01:21:40.242995Z'
+updated_at: '2026-06-18T02:38:36.426499Z'
