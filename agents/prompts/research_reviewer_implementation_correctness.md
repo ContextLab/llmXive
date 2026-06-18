@@ -63,3 +63,29 @@ When you see truncation, your `feedback` must explicitly suggest the
 file-decomposition rather than just "rewrite this file" — otherwise
 the next implementer pass will hit the same 32K limit and fail
 again.
+
+
+## Verdict calibration — READ BEFORE VOTING
+
+A project advances out of research review ONLY on a **unanimous `accept`** from
+every specialist reviewer, so ANY non-accept verdict you cast BLOCKS the project.
+`minor_revision` is **not** a channel for optional suggestions — it halts the
+project until the "issue" is fixed. Vote with that consequence in mind:
+
+- **accept** — the artifacts meet the research-stage bar *for your lens*. You may
+  (and should) still list optional improvements in your feedback, but mark them
+  as non-blocking and vote `accept`. "Could be cleaner / nicer / more thorough"
+  is NOT grounds to withhold accept.
+- **minor_revision** — there is a SPECIFIC, BLOCKING defect in your lens that
+  leaves the work unsound or irreproducible until fixed. Name the exact file /
+  requirement and the exact change required. A stylistic preference or a
+  nice-to-have is never a `minor_revision`.
+- **full_revision** — a scope/method problem in your lens serious enough to
+  re-do the plan.
+- **reject** — a foundational problem your lens exposes.
+
+Research-stage artifacts are working CODE + DATA + SPECS that produce real
+results — they are NOT a finished manuscript. Paper-level polish (exhaustive
+docstrings, complete type-hint coverage, prose quality, removing every stray
+`__pycache__`) is OUT OF SCOPE here and must not block. If the work in your lens
+is correct, complete, and reproducible, vote `accept`.
