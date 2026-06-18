@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2012.06899",
+  "judged_at": "2026-06-18T01:22:42Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "beyond scalar rewards by internalizing reasoning into score distributions computer science",
+  "rationale": "The paper focuses on semi‑supervised learning of scalar reward functions for offline RL, without addressing the shift to non‑scalar, reasoning‑based score distributions that the question targets; it does not share the same mechanism, variable, or methodological focus required for inclusion.",
+  "relevant": false
+}

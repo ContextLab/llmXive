@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-16T09:58:12.944418Z'
-current_stage: brainstormed
+current_stage: flesh_out_complete
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-707-appo-agentic-procedural-policy-optimizat
-last_run_id: 9d649d83-ea0c-4b38-80cc-f0ed19a0694c
+last_run_id: 15d48f3c-8f20-468a-956c-3d95687854df
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'APPO: Agentic Procedural Policy Optimization'
-updated_at: '2026-06-17T21:20:11.247085Z'
+updated_at: '2026-06-18T01:21:51.217707Z'

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1807.05037",
+  "judged_at": "2026-06-18T01:22:50Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "beyond scalar rewards by internalizing reasoning into score distributions computer science",
+  "rationale": "The paper studies hierarchical inverse reinforcement learning and inference of scalar reward functions for hierarchical planners, which does not address the mechanism of internalizing reasoning into score distributions or moving beyond scalar rewards. It therefore does not provide relevant evidence or methodology for the user's question.",
+  "relevant": false
+}

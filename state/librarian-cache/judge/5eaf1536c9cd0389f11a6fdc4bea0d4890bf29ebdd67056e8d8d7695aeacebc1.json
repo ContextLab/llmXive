@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2602.12375",
+  "judged_at": "2026-06-18T01:22:40Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "beyond scalar rewards by internalizing reasoning into score distributions computer science",
+  "rationale": "The paper focuses on exploration bonuses using ensemble error estimates in reinforcement learning, which does not address the mechanism of internalizing reasoning into score distributions or moving beyond scalar rewards. It lacks relevance to the user's core construct and domain.",
+  "relevant": false
+}

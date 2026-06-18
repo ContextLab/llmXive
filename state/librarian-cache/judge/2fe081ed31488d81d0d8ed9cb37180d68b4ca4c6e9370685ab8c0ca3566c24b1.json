@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2410.10578",
+  "judged_at": "2026-06-18T01:22:48Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "beyond scalar rewards by internalizing reasoning into score distributions computer science",
+  "rationale": "The paper studies reinforcement learning with objectives that go beyond scalar rewards by optimizing a risk‑aware measure (CVaR) over the reward distribution, directly addressing the theme of moving past scalar rewards to distributional/score‑based objectives (acceptance category (a)).",
+  "relevant": true
+}

@@ -1,0 +1,566 @@
+{
+  "fetched_at": "2026-06-18T01:21:31Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "SoCRATES: Towards Reliable Automated Evaluation of Proactive LLM Mediation across Domains and Socio-cognitive Variations",
+      "target_n": 5
+    },
+    "duration_seconds": 55.141,
+    "ended_at": "2026-06-18T01:21:31Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "automated evaluation of LLM mediation"
+        ],
+        [
+          2,
+          "proactive language model mediation assessment"
+        ],
+        [
+          3,
+          "cross‑domain LLM mediation benchmarking"
+        ],
+        [
+          4,
+          "reliable metrics for LLM‑mediated interaction"
+        ],
+        [
+          5,
+          "socio‑cognitive variation impact on LLM mediation"
+        ],
+        [
+          6,
+          "domain‑agnostic evaluation framework for LLM facilitators"
+        ],
+        [
+          7,
+          "LLM‑driven mediation performance measurement"
+        ],
+        [
+          8,
+          "AI‑mediated dialogue quality assessment"
+        ],
+        [
+          9,
+          "robustness testing of proactive LLM assistance"
+        ],
+        [
+          10,
+          "LLM mediation effectiveness across user demographics"
+        ],
+        [
+          11,
+          "cognitive bias mitigation by LLMs evaluation"
+        ],
+        [
+          12,
+          "automated reliability scoring for LLM‑mediated tasks"
+        ],
+        [
+          13,
+          "multi‑domain LLM intervention assessment methodology"
+        ],
+        [
+          14,
+          "LLM‑facilitated human‑AI collaboration evaluation"
+        ],
+        [
+          15,
+          "systematic benchmarking of proactive LLM mediators"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "SoCRATES: Towards Reliable Automated Evaluation of Proactive LLM Mediation across Domains and Socio-cognitive Variations computer science": 0,
+        "automated evaluation of LLM mediation": 5
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "AI mediator proactive prompting",
+      "MTurk human evaluation LLM mediation",
+      "conflict resolution agreement metric",
+      "user satisfaction dialogue success",
+      "theory of mind prompting LLM"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2510.25224"
+      ]
+    },
+    "per_query_hit_count": {
+      "AI mediator proactive prompting": 3,
+      "MTurk human evaluation LLM mediation": 3,
+      "SoCRATES: Towards Reliable Automated Evaluation of Proactive LLM Mediation across Domains and Socio-cognitive Variations computer science": 3,
+      "conflict resolution agreement metric": 3,
+      "theory of mind prompting LLM": 3,
+      "user satisfaction dialogue success": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 3,
+      "rejections": [
+        {
+          "primary_pointer": "2606.05868",
+          "rationale": "The paper focuses on architectural and efficiency improvements for financial LLMs (KV‑cache compression, concurrency) and does not address the evaluation of proactive LLM mediation, cross‑domain reliability, or socio‑cognitive variations, which are the core constructs of the user's question. Hence it falls outside the relevant mechanism, variables, and domain.",
+          "title": "YouZhi: Towards High-Concurrency Financial LLMs via Adaptive GQA-to-MLA Transition"
+        },
+        {
+          "primary_pointer": "2509.21557",
+          "rationale": "The paper focuses on evaluating LLM citation generation (generation-time vs. post‑hoc citation) rather than the automated evaluation of proactive LLM mediation across domains and socio‑cognitive variations. It does not address the same mechanism, variables, or population relevant to the user's research question.",
+          "title": "Generation-Time vs. Post-hoc Citation: A Holistic Evaluation of LLM Attribution"
+        },
+        {
+          "primary_pointer": "2311.18580",
+          "rationale": "The paper focuses on evaluating LLM harmlessness (factuality, fairness, toxicity), which does not address the mechanism of proactive LLM mediation or its socio‑cognitive variations; it falls outside the construct and variables of the user's research question.",
+          "title": "FFT: Towards Harmlessness Evaluation and Analysis for LLMs with Factuality, Fairness, Toxicity"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-18T01:20:36Z",
+    "term_input": {
+      "normalized": "socrates: towards reliable automated evaluation of proactive llm mediation across domains and socio-cognitive variations computer science",
+      "raw": "SoCRATES: Towards Reliable Automated Evaluation of Proactive LLM Mediation across Domains and Socio-cognitive Variations computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large Language Models (LLMs) increasingly support applications in a wide range of domains, some with potential high societal impact such as biomedicine, yet their reliability in realistic use cases is under-researched. In this work we introduce the Reliability AssesMent for Biomedical LLM Assistants (RAmBLA) framework and evaluate whether four state-of-the-art foundation LLMs can serve as reliable assistants in the biomedical domain. We identify prompt robustness, high recall, and a lack of hallucinations as necessary criteria for this use case. We design shortform tasks and tasks requiring LLM freeform responses mimicking real-world user interactions. We evaluate LLM performance using semantic similarity with a ground truth response, through an evaluator LLM.",
+          "claimed_authors": [
+            "William James Bolton",
+            "Rafael Poyiadzi",
+            "Edward R. Morrell",
+            "Gabriela van Bergen Gonzalez Bueno",
+            "Lea Goetz"
+          ],
+          "claimed_title": "RAmBLA: A Framework for Evaluating the Reliability of LLMs as Assistants in the Biomedical Domain",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2403.14578"
+        },
+        "details": "query-relevance 0.231 < 0.3 (query='SoCRATES: Towards Reliable Automated Evaluation of Proactive LLM Mediation acros', candidate_title='RAmBLA: A Framework for Evaluating the Reliability of LLMs as Assistants in the Biomedical Domain')",
+        "failed_at": "2026-06-18T01:21:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Artificial intelligence (AI) is understood to affect the content of people's decisions. Here, using a behavioral implementation of the classic Newcomb's paradox in 1,305 participants, we show that AI can also change how people decide. In this paradigm, belief in predictive authority can lead individuals to constrain decision-making, forgoing a guaranteed reward. Over 40% of participants treated AI as such a predictive authority. This significantly increased the odds of forgoing the guaranteed reward by a factor of 3.39 (95% CI: 2.45-4.70) compared with random framing, and reduced earnings by 10.7-42.9%. The effect appeared across AI presentations and decision contexts and persisted even when predictions failed. When people believe AI can predict their behavior, they may self-constrain it in anticipation of that prediction.",
+          "claimed_authors": [
+            "Aoi Naito",
+            "Hirokazu Shirado"
+          ],
+          "claimed_title": "AI prediction leads people to forgo guaranteed rewards",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.28944"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='SoCRATES: Towards Reliable Automated Evaluation of Proactive LLM Mediation acros', candidate_title='AI prediction leads people to forgo guaranteed rewards')",
+        "failed_at": "2026-06-18T01:21:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The chapter discusses the foundational impact of modern generative AI models on information access (IA) systems. In contrast to traditional AI, the large-scale training and superior data modeling of generative AI models enable them to produce high-quality, human-like responses, which brings brand new opportunities for the development of IA paradigms. In this chapter, we identify and introduce two of them in details, i.e., information generation and information synthesis. Information generation allows AI to create tailored content addressing user needs directly, enhancing user experience with immediate, relevant outputs. Information synthesis leverages the ability of generative AI to integrate and reorganize existing information, providing grounded responses and mitigating issues like model hallucination, which is particularly valuable in scenarios requiring precision and external knowledge. This chapter delves into the foundational aspects of generative models, including architecture, scaling, and training, and discusses their applications in multi-modal scenarios. Additionally, it examines the retrieval-augmented generation paradigm and other methods for corpus modeling and understanding, demonstrating how generative AI can enhance information access systems. It also summarizes potential challenges and fruitful directions for future studies.",
+          "claimed_authors": [
+            "Qingyao Ai",
+            "Jingtao Zhan",
+            "Yiqun Liu"
+          ],
+          "claimed_title": "Foundations of GenIR",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2501.02842"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='SoCRATES: Towards Reliable Automated Evaluation of Proactive LLM Mediation acros', candidate_title='Foundations of GenIR')",
+        "failed_at": "2026-06-18T01:21:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Introduction. AI Ethics is framed distinctly across actors and stakeholder groups. We report results from a case study of OpenAI analysing ethical AI discourse. Method. Research addressed: How has OpenAI's public discourse leveraged 'ethics', 'safety', 'alignment' and adjacent related concepts over time, and what does discourse signal about framing in practice? A structured corpus, differentiating between communication for a general audience and communication with an academic audience, was assembled from public documentation. Analysis. Qualitative content analysis of ethical themes combined inductively derived and deductively applied codes. Quantitative analysis leveraged computational content analysis methods via NLP to model topics and quantify changes in rhetoric over time. Visualizations report aggregate results. For reproducible results, we have released our code at https://github.com/famous-blue-raincoat/AI_Ethics_Discourse. Results. Results indicate that safety and risk discourse dominate OpenAI's public communication and documentation, without applying academic and advocacy ethics frameworks or vocabularies. Conclusions. Implications for governance are presented, along with discussion of ethics-washing practices in industry.",
+          "claimed_authors": [
+            "Melissa Wilfley",
+            "Mengting Ai",
+            "Madelyn Rose Sanfilippo"
+          ],
+          "claimed_title": "Competing Visions of Ethical AI: A Case Study of OpenAI",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2601.16513"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='SoCRATES: Towards Reliable Automated Evaluation of Proactive LLM Mediation acros', candidate_title='Competing Visions of Ethical AI: A Case Study of OpenAI')",
+        "failed_at": "2026-06-18T01:21:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Integrating Large Language Models (LLMs) into business process management tools promises to democratize Business Process Model and Notation (BPMN) modeling for non-experts. While automated frameworks assess syntactic and semantic quality, they miss human factors like trust, usability, and professional alignment. We conducted a mixed-methods evaluation of our proposed solution, an LLM-powered BPMN copilot, with five process modeling experts using focus groups and standardized questionnaires. Our findings reveal a critical tension between acceptable perceived usability (mean CUQ score: 67.2/100) and notably lower trust (mean score: 48.8\\%), with reliability rated as the most critical concern (M=1.8/5). Furthermore, we identified output-quality issues, prompting difficulties, and a need for the LLM to ask more in-depth clarifying questions about the process. We envision five use cases ranging from domain-expert support to enterprise quality assurance. We demonstrate the necessity of human-centered evaluation complementing automated benchmarking for LLM modeling agents.",
+          "claimed_authors": [
+            "Chantale Lauer",
+            "Peter Pfeiffer",
+            "Nijat Mehdiyev"
+          ],
+          "claimed_title": "Human-Centered Evaluation of an LLM-Based Process Modeling Copilot: A Mixed-Methods Study with Domain Experts",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.12895"
+        },
+        "details": "query-relevance 0.154 < 0.3 (query='SoCRATES: Towards Reliable Automated Evaluation of Proactive LLM Mediation acros', candidate_title='Human-Centered Evaluation of an LLM-Based Process Modeling Copilot: A Mixed-Methods Study with Domain Experts')",
+        "failed_at": "2026-06-18T01:21:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recently, large language models (LLMs) have been deployed to tackle various software engineering (SE) tasks like code generation, significantly advancing the automation of SE tasks. However, assessing the quality of these LLM-generated code and text remains challenging. The commonly used Pass@k metric necessitates extensive unit tests and configured environments, demands a high labor cost, and is not suitable for evaluating LLM-generated text. Conventional metrics like BLEU, which measure only lexical rather than semantic similarity, have also come under scrutiny. In response, a new trend has emerged to employ LLMs for automated evaluation, known as LLM-as-a-judge. These LLM-as-a-judge methods are claimed to better mimic human assessment than conventional metrics without relying on high-quality reference answers. Nevertheless, their exact human alignment in SE tasks remains unexplored.\n  In this paper, we empirically explore LLM-as-a-judge methods for evaluating SE tasks, focusing on their alignment with human judgments. We select seven LLM-as-a-judge methods that utilize general-purpose LLMs, alongside two LLMs specifically fine-tuned for evaluation. After generating and manually scoring LLM responses on three recent SE datasets of code translation, code generation, and code summarization, we then prompt these methods to evaluate each response. Finally, we compare the scores generated by these methods with human evaluation. The results indicate that output-based methods reach the highest Pearson correlation of 81.32 and 68.51 with human scores in code translation and generation, achieving near-human evaluation, noticeably outperforming ChrF++, one of the best conventional metrics, at 34.23 and 64.92. Such output-based methods prompt LLMs to output judgments directly, and exhibit more balanced score distributions that resemble human score patterns. Finally, we provide...",
+          "claimed_authors": [
+            "Ruiqi Wang",
+            "Jiyu Guo",
+            "Cuiyun Gao",
+            "Guodong Fan",
+            "Chun Yong Chong",
+            "Xin Xia"
+          ],
+          "claimed_title": "Can LLMs Replace Human Evaluators? An Empirical Study of LLM-as-a-Judge in Software Engineering",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2502.06193"
+        },
+        "details": "query-relevance 0.154 < 0.3 (query='SoCRATES: Towards Reliable Automated Evaluation of Proactive LLM Mediation acros', candidate_title='Can LLMs Replace Human Evaluators? An Empirical Study of LLM-as-a-Judge in Software Engineering')",
+        "failed_at": "2026-06-18T01:21:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Heuristic evaluation is a widely used method in Human-Computer Interaction (HCI) to inspect interfaces and identify issues based on heuristics. Recently, Large Language Models (LLMs), such as GPT-4o, have been applied in HCI to assist in persona creation, the ideation process, and the analysis of semi-structured interviews. However, considering the need to understand heuristics and the high degree of abstraction required to evaluate them, LLMs may have difficulty conducting heuristic evaluation. However, prior research has not investigated GPT-4o's performance in heuristic evaluation compared to HCI experts in web-based systems. In this context, this study aims to compare the results of a heuristic evaluation performed by GPT-4o and human experts. To this end, we selected a set of screenshots from a web system and asked GPT-4o to perform a heuristic evaluation based on Nielsen's Heuristics from a literature-grounded prompt. Our results indicate that only 21.2% of the issues identified by human experts were also identified by GPT-4o, despite it found 27 new issues. We also found that GPT-4o performed better for heuristics related to aesthetic and minimalist design and match between system and real world, whereas it has difficulty identifying issues in heuristics related to flexibility, control, and user efficiency. Additionally, we noticed that GPT-4o generated several false positives due to hallucinations and attempts to predict issues. Finally, we highlight five takeaways for the conscious use of GPT-4o in heuristic evaluations.",
+          "claimed_authors": [
+            "Guilherme Guerino",
+            "Luiz Rodrigues",
+            "Bruna Capeleti",
+            "Rafael Ferreira Mello",
+            "André Freire",
+            "Luciana Zaina"
+          ],
+          "claimed_title": "Can GPT-4o Evaluate Usability Like Human Experts? A Comparative Study on Issue Identification in Heuristic Evaluation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.16345"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='SoCRATES: Towards Reliable Automated Evaluation of Proactive LLM Mediation acros', candidate_title='Can GPT-4o Evaluate Usability Like Human Experts? A Comparative Study on Issue Identification in Heuristic Evaluation')",
+        "failed_at": "2026-06-18T01:21:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The composition of Ultra High Energy Cosmic Rays (UHECR) is measured with the High Resolution Fly's Eye cosmic ray observatory (HiRes) data using the Xmax technique. Data were collected in stereo between 1999 November and 2001 September. The data are reconstructed with well-determined geometry. Measurements of the atmospheric transmission are incorporated in the reconstruction. The detector resolution is found to be 30 g cm^-2 in Xmax and 13% in Energy. The Xmax elongation rate between 10^18.0 eV and 10^19.4 eV is measured to be 54.5 +/- 6.5 (stat) +/- 4.5 (sys) g cm^-2 per decade. This is compared to predictions using the QGSJet01 and SIBYLL 2.1 hadronic interaction models for both protons and iron nuclei. CORSIKA-generated Extensive Air Showers (EAS) are incorporated directly into a detailed detector Monte Carlo program. The elongation rate and the Xmax distribution widths are consistent with a constant or slowly changing and predominantly light composition. A simple model containing only protons and iron nuclei is compared to QGSJet and SIBYLL. The best agreement between the model and the data is at 80% protons for QGSJet and 60% protons for SIBYLL.",
+          "claimed_authors": [
+            "The High Resolution Fly's Eye Collaboration"
+          ],
+          "claimed_title": "A Study of the Composition of Ultra High Energy Cosmic Rays Using the High Resolution Fly's Eye",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2004,
+          "primary_pointer": "astro-ph/0407622"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='SoCRATES: Towards Reliable Automated Evaluation of Proactive LLM Mediation acros', candidate_title=\"A Study of the Composition of Ultra High Energy Cosmic Rays Using the High Resolution Fly's Eye\")",
+        "failed_at": "2026-06-18T01:21:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We have measured the cosmic ray spectrum above 10^17.2 eV using the two air fluorescence detectors of the High Resolution Fly's Eye observatory operating in monocular mode. We describe the detector, photo-tube and atmospheric calibrations, as well as the analysis techniques for the two detectors. We fit the spectrum to a model consisting of galactic and extra-galactic sources.",
+          "claimed_authors": [
+            "The High Resolution Fly's Eye Collaboration"
+          ],
+          "claimed_title": "Measurement of the Flux of Ultrahigh Energy Cosmic Rays from Monocular Observations by the High Resolution Fly's Eye Experiment",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2002,
+          "primary_pointer": "astro-ph/0208243"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='SoCRATES: Towards Reliable Automated Evaluation of Proactive LLM Mediation acros', candidate_title=\"Measurement of the Flux of Ultrahigh Energy Cosmic Rays from Monocular Observations by the High Resolution Fly's Eye Experiment\")",
+        "failed_at": "2026-06-18T01:21:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper, we will study Lee, Kim and Yoo, a verifier password typed key agreement scheme and demonstrate that the scheme is not secure. Then, the authors will propose an enhanced verifier typed key agreement scheme relied on Lee, Kim and Yoo scheme and demonstrate that the propose scheme resists against password guessing attack and stolen verifier attack. The authors are claimed that the proposed scheme is more secure and efficient compare with Lee, Kim and Yoo.",
+          "claimed_authors": [
+            "Sattar J Aboud"
+          ],
+          "claimed_title": "Efficient Password-Typed Key Agreement Scheme",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.1163"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='SoCRATES: Towards Reliable Automated Evaluation of Proactive LLM Mediation acros', candidate_title='Efficient Password-Typed Key Agreement Scheme')",
+        "failed_at": "2026-06-18T01:21:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper, we introduce Dependency Dialogue Acts (DDA), a novel framework for capturing the structure of speaker-intentions in multi-party dialogues. DDA combines and adapts features from existing dialogue annotation frameworks, and emphasizes the multi-relational response structure of dialogues in addition to the dialogue acts and rhetorical relations. It represents the functional, discourse, and response structure in multi-party multi-threaded conversations. A few key features distinguish DDA from existing dialogue annotation frameworks such as SWBD-DAMSL and the ISO 24617-2 standard. First, DDA prioritizes the relational structure of the dialogue units and the dialog context, annotating both dialog acts and rhetorical relations as response relations to particular utterances. Second, DDA embraces overloading in dialogues, encouraging annotators to specify multiple response relations and dialog acts for each dialog unit. Lastly, DDA places an emphasis on adequately capturing how a speaker is using the full dialog context to plan and organize their speech. With these features, DDA is highly expressive and recall-oriented with regard to conversation dynamics between multiple speakers. In what follows, we present the DDA annotation framework and case studies annotating DDA structures in multi-party, multi-threaded conversations.",
+          "claimed_authors": [
+            "Jon Z. Cai",
+            "Brendan King",
+            "Margaret Perkoff",
+            "Shiran Dudy",
+            "Jie Cao",
+            "Marie Grace",
+            "Natalia Wojarnik",
+            "Ananya Ganesh",
+            "James H. Martin",
+            "Martha Palmer",
+            "Marilyn Walker",
+            "Jeffrey Flanigan"
+          ],
+          "claimed_title": "Dependency Dialogue Acts -- Annotation Scheme and Case Study",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2302.12944"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='SoCRATES: Towards Reliable Automated Evaluation of Proactive LLM Mediation acros', candidate_title='Dependency Dialogue Acts -- Annotation Scheme and Case Study')",
+        "failed_at": "2026-06-18T01:21:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In task-oriented dialogues with symbiotic robots, the robot usually takes the initiative in dialogue progression and topic selection. In such robot-driven dialogue, the user's sense of participation in the dialogue is reduced because the degree of freedom in timing and content of speech is limited, and as a result, the user's familiarity with and trust in the robot as a dialogue partner and the level of dialogue satisfaction decrease. In this study, we constructed a travel agent dialogue system focusing on improving the sense of dialogue participation. At the beginning of the dialogue, the robot tells the user the purpose of the upcoming dialogue and indicates that it is responsible for assisting the user in making decisions. In addition, in situations where users were asked to state their preferences, the robot encourages them to express their intentions with actions, as well as spoken language responses. In addition, we attempted to reduce the sense of discomfort felt toward the android robot by devising a timing control for the robot's detailed movements and facial expressions.",
+          "claimed_authors": [
+            "Makoto Kawamoto",
+            "Masaki Shuzo",
+            "Eisaku Maeda"
+          ],
+          "claimed_title": "Improving User's Sense of Participation in Robot-Driven Dialogue",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2210.09746"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='SoCRATES: Towards Reliable Automated Evaluation of Proactive LLM Mediation acros', candidate_title=\"Improving User's Sense of Participation in Robot-Driven Dialogue\")",
+        "failed_at": "2026-06-18T01:21:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Dialogue systems have received increasing attention while automatically evaluating their performance remains challenging. User satisfaction estimation (USE) has been proposed as an alternative. It assumes that the performance of a dialogue system can be measured by user satisfaction and uses an estimator to simulate users. The effectiveness of USE depends heavily on the estimator. Existing estimators independently predict user satisfaction at each turn and ignore satisfaction dynamics across turns within a dialogue. In order to fully simulate users, it is crucial to take satisfaction dynamics into account. To fill this gap, we propose a new estimator ASAP (sAtisfaction eStimation via HAwkes Process) that treats user satisfaction across turns as an event sequence and employs a Hawkes process to effectively model the dynamics in this sequence. Experimental results on four benchmark dialogue datasets demonstrate that ASAP can substantially outperform state-of-the-art baseline estimators.",
+          "claimed_authors": [
+            "Fanghua Ye",
+            "Zhiyuan Hu",
+            "Emine Yilmaz"
+          ],
+          "claimed_title": "Modeling User Satisfaction Dynamics in Dialogue via Hawkes Process",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2305.12594"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='SoCRATES: Towards Reliable Automated Evaluation of Proactive LLM Mediation acros', candidate_title='Modeling User Satisfaction Dynamics in Dialogue via Hawkes Process')",
+        "failed_at": "2026-06-18T01:21:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Within the context of human-robot interaction (HRI), Theory of Mind (ToM) is intended to serve as a user-friendly backend to the interface of robotic systems, enabling robots to infer and respond to human mental states. When integrated into robots, ToM allows them to adapt their internal models to users' behaviors, enhancing the interpretability and predictability of their actions. Similarly, Explainable Artificial Intelligence (XAI) aims to make AI systems transparent and interpretable, allowing humans to understand and interact with them effectively. Since ToM in HRI serves related purposes, we propose to consider ToM as a form of XAI and evaluate it through the eValuation XAI (VXAI) framework and its seven desiderata. This paper identifies a critical gap in the application of ToM within HRI, as existing methods rarely assess the extent to which explanations correspond to the robot's actual internal reasoning. To address this limitation, we propose to integrate ToM within XAI frameworks. By embedding ToM principles inside XAI, we argue for a shift in perspective, as current XAI research focuses predominantly on the AI system itself and often lacks user-centered explanations. Incorporating ToM would enable a change in focus, prioritizing the user's informational needs and perspective.",
+          "claimed_authors": [
+            "Marie S. Bauer",
+            "Julia Gachot",
+            "Matthias Kerzel",
+            "Cornelius Weber",
+            "Stefan Wermter"
+          ],
+          "claimed_title": "Theory of Mind for Explainable Human-Robot Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.23482"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='SoCRATES: Towards Reliable Automated Evaluation of Proactive LLM Mediation acros', candidate_title='Theory of Mind for Explainable Human-Robot Interaction')",
+        "failed_at": "2026-06-18T01:21:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Originating in psychology, $\\textit{Theory of Mind}$ (ToM) has attracted significant attention across multiple research communities, especially logic, economics, and robotics. Most psychological work does not aim at formalizing those central concepts, namely $\\textit{goals}$, $\\textit{intentions}$, and $\\textit{beliefs}$, to automate a ToM-based computational process, which, by contrast, has been extensively studied by logicians. In this paper, we offer a different perspective by proposing a computational framework viewed through the lens of game theory. On the one hand, the framework prescribes how to make boudedly rational decisions while maintaining a theory of mind about others (and recursively, each of the others holding a theory of mind about the rest); on the other hand, it employs statistical techniques and approximate solutions to retain computability of the inherent computational problem.",
+          "claimed_authors": [
+            "Fengming Zhu",
+            "Yuxin Pan",
+            "Xiaomeng Zhu",
+            "Fangzhen Lin"
+          ],
+          "claimed_title": "A Computable Game-Theoretic Framework for Multi-Agent Theory of Mind",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2511.22536"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='SoCRATES: Towards Reliable Automated Evaluation of Proactive LLM Mediation acros', candidate_title='A Computable Game-Theoretic Framework for Multi-Agent Theory of Mind')",
+        "failed_at": "2026-06-18T01:21:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Theory of Mind (ToM), the ability to attribute mental states to others and predict their behaviour, is fundamental to social intelligence. In this paper, we survey studies evaluating behavioural and representational ToM in Large Language Models (LLMs), identify important safety risks from advanced LLM ToM capabilities, and suggest several research directions for effective evaluation and mitigation of these risks.",
+          "claimed_authors": [
+            "Hieu Minh \"Jord\" Nguyen"
+          ],
+          "claimed_title": "A Survey of Theory of Mind in Large Language Models: Evaluations, Representations, and Safety Risks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2502.06470"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='SoCRATES: Towards Reliable Automated Evaluation of Proactive LLM Mediation acros', candidate_title='A Survey of Theory of Mind in Large Language Models: Evaluations, Representations, and Safety Risks')",
+        "failed_at": "2026-06-18T01:21:10Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Taewon Yun",
+            "Hyeonseong Park",
+            "Jeonghwan Choi",
+            "Hayoon Park",
+            "Yeeun Choi",
+            "Hwanjun Song"
+          ],
+          "title": "SoCRATES: Towards Reliable Automated Evaluation of Proactive LLM Mediation across Domains and Socio-cognitive Variations",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2606.05563",
+        "summary": "Evaluating LLM mediators remains challenging, as mediation unfolds as a real-time trajectory shaped by disputants' shifting emotions, intentions, and context. Existing testbeds rely on a few expert-authored domains, vary mainly strategic posture, and score every turn against every topic, introducing off-topic noise. We introduce SoCRATES, a benchmark for evaluating proactive LLM mediators in realistic, multi-domain testbeds. It constructs scenarios from real conflicts through an agentic pipeline across eight domains, probes five socio-cognitive adaptation axes (strategic posture, party composition, history length, emotional reactivity, and cultural identity), and scores each topic only on the turns that advance it via a topic-localized evaluator. The evaluator reaches 0.82 alignment with human experts, more than doubling a per-turn baseline. Benchmarking eight frontier LLMs, we find that even the strongest mediator closes only about a third of the unmediated consensus gap under diverse and realistic testbeds, with performance varying sharply by socio-cognitive axis, highlighting that progress lies in social adaptation to diverse conditions.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2606.05563",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8462,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-18T01:21:09Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Ziyi Liu",
+            "Bahar Sarrafzadeh",
+            "Pei Zhou",
+            "Longqi Yang",
+            "Jieyu Zhao",
+            "Ashish Sharma"
+          ],
+          "title": "ProMediate: A Socio-cognitive framework for evaluating proactive agents in multi-party negotiation",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2510.25224",
+        "summary": "While Large Language Models (LLMs) are increasingly used in agentic frameworks to assist individual users, there is a growing need for agents that can proactively manage complex, multi-party collaboration. Systematic evaluation methods for such proactive agents remain scarce, limiting progress in developing AI that can effectively support multiple people together. Negotiation offers a demanding testbed for this challenge, requiring socio-cognitive intelligence to navigate conflicting interests between multiple participants and multiple topics and build consensus. Here, we present ProMediate, the first framework for evaluating proactive AI mediator agents in complex, multi-topic, multi-party negotiations. ProMediate consists of two core components: (i) a simulation testbed based on realistic negotiation cases and theory-driven difficulty levels (ProMediate-Easy, ProMediate-Medium, and ProMediate-Hard), with a plug-and-play proactive AI mediator grounded in socio-cognitive mediation theories, capable of flexibly deciding when and how to intervene; and (ii) a socio-cognitive evaluation framework with a new suite of metrics to measure consensus changes, intervention latency, mediator effectiveness, and intelligence. Together, these components establish a systematic framework for assessing the socio-cognitive intelligence of proactive AI agents in multi-party settings. Our results show that a socially intelligent mediator agent outperforms a generic baseline, via faster, better-targeted interventions. In the ProMediate-Hard setting, our social mediator increases consensus change by 3.6 percentage points compared to the generic baseline (10.65\\% vs 7.01\\%) while being 77\\% faster in response (15.98s vs. 3.71s). In conclusion, ProMediate provides a rigorous, theory-grounded testbed to advance the development of proactive, socially intelligent agents.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2510.25224",
+          "http_status": 200,
+          "pdf_sample_score": 0.2813,
+          "query_relevance_score": 0.3077,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-18T01:21:09Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Bhashithe Abeysinghe",
+            "Ruhan Circi"
+          ],
+          "title": "The Challenges of Evaluating LLM Applications: An Analysis of Automated, Human, and LLM-Based Approaches",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2406.03339",
+        "summary": "Chatbots have been an interesting application of natural language generation since its inception. With novel transformer based Generative AI methods, building chatbots have become trivial. Chatbots which are targeted at specific domains for example medicine and psychology are implemented rapidly. This however, should not distract from the need to evaluate the chatbot responses. Especially because the natural language generation community does not entirely agree upon how to effectively evaluate such applications. With this work we discuss the issue further with the increasingly popular LLM based evaluations and how they correlate with human evaluations. Additionally, we introduce a comprehensive factored evaluation mechanism that can be utilized in conjunction with both human and LLM-based evaluations. We present the results of an experimental evaluation conducted using this scheme in one of our chatbot implementations which consumed educational reports, and subsequently compare automated, traditional human evaluation, factored human evaluation, and factored LLM evaluation. Results show that factor based evaluation produces better insights on which aspects need to be improved in LLM applications and further strengthens the argument to use human evaluation in critical spaces where main functionality is not direct retrieval.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2406.03339",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-18T01:21:13Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Steven Cho",
+            "Stefano Ruberto",
+            "Valerio Terragni"
+          ],
+          "title": "LLMORPH: Automated Metamorphic Testing of Large Language Models",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2603.23611",
+        "summary": "Automated testing is essential for evaluating and improving the reliability of Large Language Models (LLMs), yet the lack of automated oracles for verifying output correctness remains a key challenge. We present LLMORPH, an automated testing tool specifically designed for LLMs performing NLP tasks, which leverages Metamorphic Testing (MT) to uncover faulty behaviors without relying on human-labeled data. MT uses Metamorphic Relations (MRs) to generate follow-up inputs from source test input, enabling detection of inconsistencies in model outputs without the need of expensive labelled data. LLMORPH is aimed at researchers and developers who want to evaluate the robustness of LLM-based NLP systems. In this paper, we detail the design, implementation, and practical usage of LLMORPH, demonstrating how it can be easily extended to any LLM, NLP task, and set of MRs. In our evaluation, we applied 36 MRs across four NLP benchmarks, testing three state-of-the-art LLMs: GPT-4, LLAMA3, and HERMES 2. This produced over 561,000 test executions. Results demonstrate LLMORPH's effectiveness in automatically exposing inconsistencies.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2603.23611",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-18T01:21:14Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "socrates: towards reliable automated evaluation of proactive llm mediation across domains and socio-cognitive variations computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

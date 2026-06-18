@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2606.05563",
+  "judged_at": "2026-06-18T01:21:16Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "socrates: towards reliable automated evaluation of proactive llm mediation across domains and socio-cognitive variations computer science",
+  "rationale": "The paper investigates the exact mechanism and evaluation framework (proactive LLM mediation across multiple domains and socio‑cognitive axes) that the user's question concerns, serving as a foundational reference and same‑mechanism evidence for the topic.",
+  "relevant": true
+}

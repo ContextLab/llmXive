@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2509.21557",
+  "judged_at": "2026-06-18T01:21:25Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "socrates: towards reliable automated evaluation of proactive llm mediation across domains and socio-cognitive variations computer science",
+  "rationale": "The paper focuses on evaluating LLM citation generation (generation-time vs. post‑hoc citation) rather than the automated evaluation of proactive LLM mediation across domains and socio‑cognitive variations. It does not address the same mechanism, variables, or population relevant to the user's research question.",
+  "relevant": false
+}

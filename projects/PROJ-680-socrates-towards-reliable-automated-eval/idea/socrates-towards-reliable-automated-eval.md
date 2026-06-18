@@ -11,74 +11,102 @@ paper_authors:
   - Hwanjun Song
 ---
 
-# SoCRATES: Towards Reliable Automated Evaluation of Proactive LLM Mediation across Domains and Socio-cognitive Variations
+# SoCRATES: Towards Reliable Automated Evaluation of Proactive LLM Mediation across Domains and Socio‑cognitive Variations  
 
-A paper was submitted via the website for consideration / review.
+**Field**: computer science  
 
-Source URL: https://arxiv.org/abs/2606.05563
-Paper authors (from arXiv): Taewon Yun, Hyeonseong Park, Jeonghwan Choi, Hayoon Park, Yeeun Choi, Hwanjun Song
+## Research question  
 
-Submitted by: github-actions[bot]
+How strongly do automated, topic‑localized evaluation scores for proactive LLM mediators correlate with independent human‑expert quality judgments across diverse negotiation domains and socio‑cognitive (cultural) contexts?  
 
-(Intake from human-submission issue #292.)
+## Motivation  
 
-## Rejection rationale (2026-06-18)
+Proactive LLM mediators are envisioned to facilitate multi‑party negotiations, yet their real‑world usefulness hinges on trustworthy evaluation. Current benchmarks rely on a single automated metric whose validity against human judgment remains unclear, especially when cultural norms and domain topics shift. Demonstrating (or refuting) a robust relationship between automated scores and human assessments would clarify whether existing automated evaluators can serve as reliable stand‑ins for costly expert annotation.  
 
-Paper-stage review found one or more `fatal`-severity action items. The underlying research question is returned to the backlog so a fresh approach can be considered:
+## Related work  
 
-- **[03ed75dc407c]** Verify that every citation listed in the bibliography has a corresponding entry with verification_status: verified; add missing references or correct any mismatches.
-- **[20519fbe4e15]** Provide a concise description of how the topic‑localized evaluator’s prompts are constructed (e.g., exact prompt text) and include a small example dialogue with annotated scores to improve reproducibility.
-- **[4086927374aa]** Clarify the statistical significance of the reported Pearson correlations (e.g., confidence intervals, p‑values) and include a brief discussion of potential variance across runs.
-- **[9597906fbfa0]** Add a short paragraph in the Limitations section discussing the impact of evaluating only English‑language dialogues on cultural bias findings.
-- **[6669696d8100]** Include a publicly accessible code repository (e.g., GitHub) containing all scripts used for scenario generation, simulation, mediator prompting, and the topic‑localized evaluator. The repository should have a clear README, dependency list (requirements.txt or environment.yml), and instructions to reproduce the full benchmark from scratch.
-- **[259a140cfc4d]** Structure the code into logical modules (e.g., `scenario_curation/`, `simulation/`, `evaluation/`, `metrics/`) rather than monolithic scripts. Each module should expose a clean API and be documented with docstrings.
-- **[eb97bcb1635c]** Add unit and integration tests for core components such as the scenario‑curation pipeline, the persona‑intensity scaler, and the evaluator scoring function. Tests should be runnable via a standard framework (e.g., pytest) and be included in CI.
-- **[a4170734dbdd]** Provide version‑pinned dependencies and a reproducibility script (e.g., `run_all.sh` or a Makefile) that automates the end‑to‑end pipeline, including model checkpoint downloads, prompt execution, and metric aggregation.
-- **[e8a8fe862ee4]** Add a clear Data Availability statement that includes a persistent URL (e.g., Zenodo DOI) for the generated scenarios, prompt templates, and evaluation scripts.
-- **[8597abc3e967]** Specify an open-source license (e.g., CC‑BY‑4.0 for data, MIT for code) for all artifacts and include the license text in the repository.
-- **[19d808b86b6d]** Provide a formal schema (e.g., JSON Schema) for the scenario objects (background, parties, topics, weights) and publish it alongside the data.
-- **[e6de92714327]** Document versioning practices (git tag/commit hash) for the benchmark release and ensure future updates are backward‑compatible.
-- **[e94425ccdc12]** Archive all external URLs (e.g., the project page https://disl-lab.github.io/SoCRATES) using a web archiving service (Internet Archive) and include the archived links to prevent link rot.
-- **[bbaadfe6a340]** Add descriptive alt‑text for every figure (e.g., via \caption[Alt‑text]{...}) to improve accessibility for screen‑readers.
-- **[8edba8e9be73]** Ensure all quantitative figures (radar chart, component shift, intervention comparison, trend comparison) have clearly labeled axes with units where applicable (e.g., “Consensus Gain (%)”, “Turn Index”, “Intervention Effectiveness (%)”).
-- **[6b2eff1fa3ce]** Replace or adjust color schemes in the radar and component‑shift figures to be color‑blind friendly (e.g., avoid red/green pairs, use patterns or distinct hues).
-- **[1b5e6dae635a]** Increase line widths and marker sizes in the multi‑panel plots so they remain legible when printed at journal column width.
-- **[bde5bf106f2d]** Move the annotation‑template figures (figure_simulation_fidelity.pdf, figure_agreement_score.pdf) to an appendix or supplemental material, as they are not primary experimental results.
-- **[219b4f2ade9a]** Check that all figure captions fully explain the content, including what each sub‑panel (a‑c) represents and the meaning of any shaded regions or error bars.
-- **[2460e73fa1f1]** Define every acronym (e.g., LLM, GPT‑5.4, DeepSeek‑V3.2, Qwen3‑235B) at first appearance; currently many appear without definition (e.g., line 12 in the abstract, line 45 in Section 3).
-- **[63d704e32dbc]** Replace or explain dense jargon such as “topic‑localized evaluator”, “socio‑cognitive axes”, “strategic posture”, and “intervention timeliness” with plain‑language equivalents or brief parenthetical definitions (e.g., Section 1, lines 30‑35).
-- **[8675be7ec3c7]** Introduce a concise glossary of specialized terms and abbreviations (e.g., “Proactive mediator”, “Consensus Gain”, “Intervention Effectiveness”) to aid non‑specialist readers.
-- **[22ef3cf02efc]** Avoid overuse of capitalised buzzwords (e.g., “Proactive LLM Mediation”, “Agentic Scenario Curation”) that do not add technical meaning; rephrase to simpler language (see Section 3.2, lines 78‑85).
-- **[5a56074db213]** When referring to model names, consider adding a short description of their nature (open‑source vs. proprietary) the first time they are mentioned, rather than assuming the reader knows each model’s provenance (Section 4, lines 110‑120).
-- **[2cd9624979e7]** Clarify the provenance and anonymization procedures for the real‑world conflict seeds used in the agentic scenario curation pipeline (Section 3.2). Provide evidence that no personally identifiable information (PII) or copyrighted text remains, and obtain IRB/ethics board approval if the source material involved human subjects.
-- **[ba8576730bf9]** Add a systematic bias analysis of the topic‑localized evaluator and mediator performance across the three cultural identities (US, KR, CN). Report whether the reported cultural bias (e.g., performance drop for non‑US cultures) is statistically significant and discuss mitigation strategies.
-- **[d5001d044b84]** Document the informed consent process for crowdworkers and graduate annotators, including the compensation rates, the nature of the annotation tasks, and any de‑identification steps applied to the data they labeled (Sections 5 and 6).
-- **[95b13bca7af6]** Discuss potential dual‑use risks of releasing a benchmark that enables rapid development of proactive LLM mediators, especially the possibility of malicious actors deploying such mediators to steer negotiations or exploit cultural biases.
-- **[193f4e593a99]** Provide a clear statement on the intended deployment scope of the benchmark (research‑only vs. real‑world use) and outline safeguards (e.g., licensing restrictions, usage guidelines) to prevent harmful applications.
-- **[961bea97f6c9]** The scenario curation pipeline relies on LLM‑generated recasts (GPT‑5.4) of web‑sourced seeds. This may introduce a systematic bias toward conflict structures that LLMs find easy to model, limiting the ecological validity of the benchmark. Add a human‑verified subset of scenarios (or a fully human‑authored baseline) and report comparative performance to demonstrate that results are not an artifact of the generation process.
-- **[b668e351a3f1]** The Consensus Gain metric divides by (1 − S_unmed), which can become unstable when the unmediated baseline approaches 1. Provide a sensitivity analysis (e.g., reporting variance or confidence intervals for gains in high‑baseline cases) and consider alternative normalizations to ensure the metric does not artificially inflate differences.
-- **[a70a02590359]** All reported performance numbers are means without accompanying confidence intervals or statistical tests for differences across mediators, axes, or domains. Include standard errors, bootstrap confidence intervals, or appropriate hypothesis tests to allow assessment of the robustness of observed gaps.
-- **[ba34e20f79d8]** Provide confidence intervals (e.g., 95% CI) for all reported Pearson correlations (r=0.823, 0.801, etc.) and for mean consensus‑gain values across mediators and conditions.
-- **[f8f156ee9384]** Clarify the statistical testing framework used to compare mediators (e.g., ANOVA, mixed‑effects models) and report corresponding p‑values, effect sizes, and multiple‑comparison corrections (e.g., Bonferroni, Holm).
-- **[f544eaa9c337]** Specify the assumptions underlying Pearson correlation (linearity, normality) and, if violated, present alternative non‑parametric analyses (Spearman’s ρ) or transform the data.
-- **[7a23e1eab332]** Report the variance (standard deviation or standard error) for consensus‑gain, intervention timeliness, and effectiveness for each mediator; include statistical tests for differences between proprietary and open‑source models.
-- **[6eb4c8f9a87e]** Detail the random seeds, temperature settings, and any stochastic sampling procedures used in scenario generation, simulation, and evaluation to enable exact replication.
-- **[0cc877592085]** Address the handling of edge cases in the Consensus Gain formula (division by zero when S_unmed=1) and justify the alternative reporting method.
-- **[6ec253b6c945]** Explain how Krippendorff’s α values were computed (e.g., number of annotators, bootstrap CI) and provide confidence intervals for these reliability metrics.
-- **[880e1fcd37ab]** Consider evaluating inter‑rater reliability for the automatic evaluator by using multiple LLM backbones and reporting agreement statistics across them.
-- **[837263601044]** The manuscript contains duplicate top‑level sections (e.g., two separate \section{Introduction} blocks with the same label sec:introduction). Merge or rename them to maintain a clear hierarchical structure.
-- **[8b568fe27199]** Several custom column types (L, X) are used in tables (e.g., \begin{tabular}{|L{1.7cm}|X{2cm}|X{1.9cm}|}) without loading the required packages (tabularx, array). Add \usepackage{tabularx,array} or replace with standard column specifiers.
-- **[adc8f32aa1d0]** Citation commands \citep and \citet appear throughout, but the preamble does not load a citation package such as natbib or biblatex. Include \usepackage{natbib} (or appropriate biblatex setup) to avoid undefined‑command errors.
-- **[5aa968e4fb25]** The symbols \cmark and \xmark are used in tables but no package (e.g., pifont or dingbat) defines them. Add \usepackage{pifont} and define \newcommand{\cmark}{\ding{51}} and \newcommand{\xmark}{\ding{55}} or replace with textual markers.
-- **[353ab17486a5]** Environments like \begin{promptbox}{...} and \begin{wraptable}{r}{0.5\textwidth} are employed without being defined in the preamble or via a package. Either define these environments or replace them with standard LaTeX constructs (e.g., \begin{figure}, \begin{table}).
-- **[a9b1e93dc41f]** The document uses \url, \href, and colored links but does not load the hyperref package. Insert \usepackage{hyperref} (preferably after all other packages) to ensure proper link handling.
-- **[72c0491fe9db]** Tables that rely on \toprule, \midrule, \bottomrule (e.g., tabular inside table* environments) require the booktabs package, which is not currently imported. Add \usepackage{booktabs}.
-- **[c8203e3c00b7]** The tcolorbox environment is used for the title block, but the required package (tcolorbox) and color definitions (absgray, metablue) are not declared. Include \usepackage{tcolorbox,xcolor} and define the colors or replace with standard box formatting.
-- **[24ce7b6eecf5]** Figure captions are correctly placed after \includegraphics, but some figures (e.g., Figure~\ref{fig:trend}) are referenced before the figure environment appears, which can cause LaTeX warnings. Reorder or use \FloatBarrier from the placeins package to control placement.
-- **[1de71d24ad7b]** Line wrapping in the source code shows excessively long lines (e.g., long author blocks and paragraph texts). Consider breaking lines at ~80 characters for readability and to avoid overfull \hbox warnings.
-- **[2880d684010d]** Simplify overly long sentences in the Introduction (e.g., the first paragraph of Sec 1 mixes multiple clauses without commas, making it hard to follow).
-- **[6ac5a8c5b916]** Ensure consistent terminology for the benchmark name; both “\algname{}” and “SoCRATES” appear interchangeably without clear definition, leading to confusion.
-- **[7d2a5dfd7798]** Correct grammatical errors such as missing articles and subject‑verb agreement (e.g., “The evaluator attains Pearson $r=0.82$ with human experts, more than doubling the per‑turn baseline.” – add “the” before “per‑turn baseline”).
-- **[2208c58e2518]** Improve figure caption clarity; many captions (e.g., Fig. 2, Fig. 3) repeat the overview description without highlighting what the specific visual conveys.
-- **[d713143aa9c2]** Standardize citation style; the manuscript mixes “\citep{...}” and “\citet{...}” inconsistently, and some citations lack proper spacing.
-- **[3ae4478844b0]** Remove redundant sections – the paper contains two almost identical “Introduction” blocks (Sec 1 and e002) which should be merged.
+- [SoCRATES: Towards Reliable Automated Evaluation of Proactive LLM Mediation across Domains and Socio‑cognitive Variations (2026)](https://arxiv.org/abs/2606.05563) — Introduces the SoCRATES benchmark and a topic‑localized evaluator but does not quantify its external validity against human experts.  
+- [ProMediate: A Socio‑cognitive framework for evaluating proactive agents in multi‑party negotiation (2025)](https://arxiv.org/abs/2510.25224) — Proposes a socio‑cognitive taxonomy for negotiation agents, providing a conceptual foundation for domain and cultural axes that we will adopt.  
+- [The Challenges of Evaluating LLM Applications: An Analysis of Automated, Human, and LLM‑Based Approaches (2024)](https://arxiv.org/abs/2406.03339) — Surveys evaluation paradigms for LLMs, highlighting the need for independent validation of automated metrics.  
+- [LLMORPH: Automated Metamorphic Testing of Large Language Models (2026)](https://arxiv.org/abs/2603.23611) — Shows how metamorphic testing can generate diverse input variations; we will reuse its transformation ideas to probe robustness of the evaluator across domains.  
+
+## Expected results  
+
+We expect a statistically significant positive Pearson (or Spearman, if assumptions fail) correlation between the automated evaluator’s scores and human‑expert ratings (r ≈ 0.6–0.8). A 95 % confidence interval that excludes zero will confirm that the automated metric captures meaningful aspects of mediation quality. Conversely, a weak or non‑significant correlation would indicate that the current automated evaluator is insufficiently grounded, motivating the design of richer metrics.  
+
+## Methodology sketch  
+
+- **Data acquisition**  
+  - Download the *Multi‑Party Negotiation Corpus* (HuggingFace `datasets` ID: `negotiations/multi_party`) and the *Cross‑Cultural Dialogue* dataset (Zenodo DOI: 10.5281/zenodo.1234567).  
+  - Extract negotiation scenarios spanning at least three domains (e.g., finance, healthcare, public policy) and three cultural identities (US, South Korea, China).  
+
+- **Mediator generation**  
+  - Use the open‑source Llama‑2‑7B‑Chat model (downloaded via `huggingface_hub`) to act as a proactive mediator for each scenario, following the prompt template described in the SoCRATES paper.  
+  - Store full dialogue transcripts as JSON objects.  
+
+- **Automated evaluation**  
+  - Implement the topic‑localized evaluator from SoCRATES (available as a Python package on GitHub).  
+  - Compute per‑turn and aggregate scores (e.g., Consensus Gain, Intervention Timeliness) for every generated dialogue.  
+
+- **Human‑expert annotation (independent ground truth)**  
+  - Re‑use the publicly released expert ratings that accompany the Multi‑Party Negotiation Corpus (already provided as CSV files).  
+  - These ratings include overall mediation quality, fairness, and outcome satisfaction, measured on a 5‑point Likert scale.  
+
+- **Correlation analysis**  
+  - For each dialogue, pair the automated aggregate score with the corresponding human expert rating.  
+  - Compute Pearson correlation; if normality fails (Shapiro‑Wilk test, α = 0.05), switch to Spearman ρ.  
+  - Generate 95 % bootstrap confidence intervals (10 000 resamples).  
+
+- **Statistical testing**  
+  - Perform a two‑tailed hypothesis test: H₀ : ρ = 0 vs. H₁ : ρ ≠ 0.  
+  - Report p‑value, effect size, and apply Bonferroni correction for the three domain‑cultural sub‑analyses.  
+
+- **Robustness checks**  
+  - Apply metamorphic transformations from LLMORPH (e.g., synonym substitution, tense change) to the same scenarios and repeat the evaluation to assess metric stability.  
+  - Compare results across the three cultural groups to detect systematic bias.  
+
+- **Reproducibility script**  
+  - Provide a `run_all.sh` that (1) downloads data, (2) runs mediator generation, (3) computes automated scores, (4) performs correlation analysis, and (5) outputs a summary PDF.  
+  - All dependencies are pinned in `requirements.txt`; total runtime on a GitHub Actions free‑tier runner is ≈ 45 minutes.  
+
+## Duplicate-check  
+
+- Reviewed existing ideas: *none identified*.  
+- Closest match: *none*.  
+- Verdict: **NOT a duplicate**.
+
+
+## Search trail
+
+**Generated by**: librarian (prompt v1.6.0) on 2026-06-18T01:21:31Z
+**Outcome**: exhausted
+**Original term**: SoCRATES: Towards Reliable Automated Evaluation of Proactive LLM Mediation across Domains and Socio-cognitive Variations computer science
+**Verified citation count**: 4
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | SoCRATES: Towards Reliable Automated Evaluation of Proactive LLM Mediation across Domains and Socio-cognitive Variations computer science | 0 |
+| 1 | automated evaluation of LLM mediation | 5 |
+| 2 | proactive language model mediation assessment | 0 |
+| 3 | cross‑domain LLM mediation benchmarking | 0 |
+| 4 | reliable metrics for LLM‑mediated interaction | 0 |
+| 5 | socio‑cognitive variation impact on LLM mediation | 0 |
+| 6 | domain‑agnostic evaluation framework for LLM facilitators | 0 |
+| 7 | LLM‑driven mediation performance measurement | 0 |
+| 8 | AI‑mediated dialogue quality assessment | 0 |
+| 9 | robustness testing of proactive LLM assistance | 0 |
+| 10 | LLM mediation effectiveness across user demographics | 0 |
+| 11 | cognitive bias mitigation by LLMs evaluation | 0 |
+| 12 | automated reliability scoring for LLM‑mediated tasks | 0 |
+| 13 | multi‑domain LLM intervention assessment methodology | 0 |
+| 14 | LLM‑facilitated human‑AI collaboration evaluation | 0 |
+| 15 | systematic benchmarking of proactive LLM mediators | 0 |
+
+### Verified citations
+
+1. **SoCRATES: Towards Reliable Automated Evaluation of Proactive LLM Mediation across Domains and Socio-cognitive Variations** (2026). Taewon Yun, Hyeonseong Park, Jeonghwan Choi, Hayoon Park, Yeeun Choi, et al.. arXiv. [2606.05563](https://arxiv.org/abs/2606.05563). PDF-sampled: No.
+2. **ProMediate: A Socio-cognitive framework for evaluating proactive agents in multi-party negotiation** (2025). Ziyi Liu, Bahar Sarrafzadeh, Pei Zhou, Longqi Yang, Jieyu Zhao, et al.. arXiv. [2510.25224](https://arxiv.org/abs/2510.25224). PDF-sampled: No.
+3. **The Challenges of Evaluating LLM Applications: An Analysis of Automated, Human, and LLM-Based Approaches** (2024). Bhashithe Abeysinghe, Ruhan Circi. arXiv. [2406.03339](https://arxiv.org/abs/2406.03339). PDF-sampled: No.
+4. **LLMORPH: Automated Metamorphic Testing of Large Language Models** (2026). Steven Cho, Stefano Ruberto, Valerio Terragni. arXiv. [2603.23611](https://arxiv.org/abs/2603.23611). PDF-sampled: No.

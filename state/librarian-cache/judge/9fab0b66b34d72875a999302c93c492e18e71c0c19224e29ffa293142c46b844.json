@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2510.25224",
+  "judged_at": "2026-06-18T01:21:17Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "socrates: towards reliable automated evaluation of proactive llm mediation across domains and socio-cognitive variations computer science",
+  "rationale": "The paper introduces a framework (ProMediate) that evaluates proactive AI mediator agents—potentially LLMs—using socio‑cognitive metrics in multi‑party negotiations, directly matching the user’s focus on reliable automated evaluation of proactive LLM mediation across domains and socio‑cognitive variations (acceptance category a).",
+  "relevant": true
+}

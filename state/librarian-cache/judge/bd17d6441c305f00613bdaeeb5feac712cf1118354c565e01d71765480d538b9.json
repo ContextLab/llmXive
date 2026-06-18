@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2603.23611",
+  "judged_at": "2026-06-18T01:21:30Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "socrates: towards reliable automated evaluation of proactive llm mediation across domains and socio-cognitive variations computer science",
+  "rationale": "The paper introduces LLMORPH, a foundational methodology for automated, reliability‑focused testing of LLMs using metamorphic testing, which directly relates to the user’s need for reliable automated evaluation of LLM behavior (category (d)).",
+  "relevant": true
+}

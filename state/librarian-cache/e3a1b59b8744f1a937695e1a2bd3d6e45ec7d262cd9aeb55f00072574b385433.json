@@ -1,0 +1,575 @@
+{
+  "fetched_at": "2026-06-18T01:22:51Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "Beyond Scalar Rewards by Internalizing Reasoning into Score Distributions",
+      "target_n": 5
+    },
+    "duration_seconds": 58.929,
+    "ended_at": "2026-06-18T01:22:51Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "distributional reinforcement learning with reasoning-based rewards"
+        ],
+        [
+          2,
+          "reward modeling using internal reasoning representations"
+        ],
+        [
+          3,
+          "non‑scalar reward functions for reinforcement learning"
+        ],
+        [
+          4,
+          "reasoning‑aware reward shaping techniques"
+        ],
+        [
+          5,
+          "hierarchical reward decomposition into score distributions"
+        ],
+        [
+          6,
+          "multi‑objective reinforcement learning with reasoning constraints"
+        ],
+        [
+          7,
+          "preference learning for distributional reward signals"
+        ],
+        [
+          8,
+          "latent reward distribution inference in RL agents"
+        ],
+        [
+          9,
+          "uncertainty‑aware reward modeling and optimization"
+        ],
+        [
+          10,
+          "cognitive reasoning integration in reinforcement learning policies"
+        ],
+        [
+          11,
+          "structured reasoning for reward function learning"
+        ],
+        [
+          12,
+          "probabilistic reward distributions in policy gradient methods"
+        ],
+        [
+          13,
+          "reasoning‑augmented value distribution networks"
+        ],
+        [
+          14,
+          "internalized reasoning for adaptive reward shaping"
+        ],
+        [
+          15,
+          "distributional policy gradients guided by reasoning priors"
+        ],
+        [
+          16,
+          "multi‑modal reward representations for complex environments"
+        ],
+        [
+          17,
+          "reasoning‑driven reward decomposition frameworks"
+        ],
+        [
+          18,
+          "reward inference from logical and constraint‑based reasoning"
+        ],
+        [
+          19,
+          "structured reward distributions for hierarchical tasks"
+        ],
+        [
+          20,
+          "learning mappings from scalar to distributional rewards."
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Beyond Scalar Rewards by Internalizing Reasoning into Score Distributions computer science": 0,
+        "distributional reinforcement learning with reasoning-based rewards": 5
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "distributional reinforcement learning reasoning",
+      "Atari benchmark distributional RL",
+      "intrinsic motivation reward shaping",
+      "sample efficiency cumulative return",
+      "risk-sensitive reward distribution"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2606.09076"
+      ]
+    },
+    "per_query_hit_count": {
+      "Atari benchmark distributional RL": 3,
+      "Beyond Scalar Rewards by Internalizing Reasoning into Score Distributions computer science": 3,
+      "distributional reinforcement learning reasoning": 3,
+      "intrinsic motivation reward shaping": 3,
+      "risk-sensitive reward distribution": 3,
+      "sample efficiency cumulative return": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 4,
+      "rejections": [
+        {
+          "primary_pointer": "2602.12375",
+          "rationale": "The paper focuses on exploration bonuses using ensemble error estimates in reinforcement learning, which does not address the mechanism of internalizing reasoning into score distributions or moving beyond scalar rewards. It lacks relevance to the user's core construct and domain.",
+          "title": "Value Bonuses using Ensemble Errors for Exploration in Reinforcement Learning"
+        },
+        {
+          "primary_pointer": "2012.06899",
+          "rationale": "The paper focuses on semi‑supervised learning of scalar reward functions for offline RL, without addressing the shift to non‑scalar, reasoning‑based score distributions that the question targets; it does not share the same mechanism, variable, or methodological focus required for inclusion.",
+          "title": "Semi-supervised reward learning for offline reinforcement learning"
+        },
+        {
+          "primary_pointer": "2507.02910",
+          "rationale": "The paper focuses on curriculum reinforcement learning using causal task differences and reward gain, which does not address the mechanism of internalizing reasoning into score distributions or moving beyond scalar rewards; it falls outside the user's research focus.",
+          "title": "Causal-Paced Deep Reinforcement Learning"
+        },
+        {
+          "primary_pointer": "1807.05037",
+          "rationale": "The paper studies hierarchical inverse reinforcement learning and inference of scalar reward functions for hierarchical planners, which does not address the mechanism of internalizing reasoning into score distributions or moving beyond scalar rewards. It therefore does not provide relevant evidence or methodology for the user's question.",
+          "title": "Exploring Hierarchy-Aware Inverse Reinforcement Learning"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-18T01:21:52Z",
+    "term_input": {
+      "normalized": "beyond scalar rewards by internalizing reasoning into score distributions computer science",
+      "raw": "Beyond Scalar Rewards by Internalizing Reasoning into Score Distributions computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Here we survey the compactness and geometric stability conjectures formulated by the participants at the 2018 IAS Emerging Topics Workshop on {\\em Scalar Curvature and Convergence}. We have tried to survey all the progress towards these conjectures as well as related examples, although it is impossible to cover everything. We focus primarily on sequences of compact Riemannian manifolds with nonnegative scalar curvature and their limit spaces. Christina Sormani is grateful to have had the opportunity to write up our ideas and has done her best to credit everyone involved within the paper even though she is the only author listed above. In truth we are a team of over thirty people working together and apart on these deep questions and we welcome everyone who is interested in these conjectures to join us.",
+          "claimed_authors": [
+            "Christina Sormani",
+            "Participants at the IAS Emerging Topics Workshop on Scalar Curvature",
+            " Convergence"
+          ],
+          "claimed_title": "Conjectures on Convergence and Scalar Curvature",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2103.10093"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Beyond Scalar Rewards by Internalizing Reasoning into Score Distributions comput', candidate_title='Conjectures on Convergence and Scalar Curvature')",
+        "failed_at": "2026-06-18T01:22:22Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Flow theory describes an optimal cognitive state where individuals experience deep focus and intrinsic motivation when a task's difficulty aligns with their skill level. In AI-augmented reasoning, interventions that disrupt the state of cognitive flow can hinder rather than enhance decision-making. This paper proposes a context-aware cognitive augmentation framework that adapts interventions based on three key contextual factors: type, timing, and scale. By leveraging multimodal behavioral cues (e.g., gaze behavior, typing hesitation, interaction speed), AI can dynamically adjust cognitive support to maintain or restore flow. We introduce the concept of cognitive flow, an extension of flow theory in AI-augmented reasoning, where interventions are personalized, adaptive, and minimally intrusive. By shifting from static interventions to context-aware augmentation, our approach ensures that AI systems support deep engagement in complex decision-making and reasoning without disrupting cognitive immersion.",
+          "claimed_authors": [
+            "Dinithi Dissanayake",
+            "Suranga Nanayakkara"
+          ],
+          "claimed_title": "Navigating the State of Cognitive Flow: Context-Aware AI Interventions for Effective Reasoning Support",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.16021"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Beyond Scalar Rewards by Internalizing Reasoning into Score Distributions comput', candidate_title='Navigating the State of Cognitive Flow: Context-Aware AI Interventions for Effective Reasoning Support')",
+        "failed_at": "2026-06-18T01:22:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Optimistic value estimates provide one mechanism for directed exploration in reinforcement learning (RL). The agent acts greedily with respect to an estimate of the value plus what can be seen as a value bonus. The value bonus can be learned by estimating a value function on reward bonuses, propagating local uncertainties around rewards. However, this approach only increases the value bonus for an action retroactively, after seeing a higher reward bonus from that state and action. Such an approach does not encourage the agent to visit a state and action for the first time. In this work, we introduce an algorithm for exploration called Value Bonuses with Ensemble errors (VBE), that maintains an ensemble of random action-value functions (RQFs). VBE uses the errors in the estimation of these RQFs to design value bonuses that provide first-visit optimism and deep exploration. The key idea is to design the rewards for these RQFs in such a way that the value bonus can decrease to zero. We show that VBE outperforms Bootstrap DQN and two reward bonus approaches (RND and ACB) on several classic environments used to test exploration and provide demonstrative experiments that it can scale easily to more complex environments like Atari.",
+          "claimed_authors": [
+            "Abdul Wahab",
+            "Raksha Kumaraswamy",
+            "Martha White"
+          ],
+          "claimed_title": "Value Bonuses using Ensemble Errors for Exploration in Reinforcement Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2602.12375"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Beyond Scalar Rewards by Internalizing Reasoning into Score Distributions comput', candidate_title='Value Bonuses using Ensemble Errors for Exploration in Reinforcement Learning')",
+        "failed_at": "2026-06-18T01:22:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Reinforcement Learning with Verifiable Rewards (RLVR) has proven effective for training large language models (LLMs) on complex reasoning tasks, such as mathematical problem solving. A prerequisite for the scalability of RLVR is a high-quality problem set with precise and verifiable answers. However, the scarcity of well-crafted human-labeled math problems and limited-verification answers in existing distillation-oriented synthetic datasets limit their effectiveness in RL. Additionally, most problem synthesis strategies indiscriminately expand the problem set without considering the model's capabilities, leading to low efficiency in generating useful questions. To mitigate this issue, we introduce a Self-aware Weakness-driven problem Synthesis framework (SwS) that systematically identifies model deficiencies and leverages them for problem augmentation. Specifically, we define weaknesses as questions that the model consistently fails to learn through its iterative sampling during RL training. We then extract the core concepts from these failure cases and synthesize new problems to strengthen the model's weak areas in subsequent augmented training, enabling it to focus on and gradually overcome its weaknesses. Without relying on external knowledge distillation, our framework enables robust generalization byempowering the model to self-identify and address its weaknesses in RL, yielding average performance gains of 10.0% and 7.7% on 7B and 32B models across eight mainstream reasoning benchmarks.",
+          "claimed_authors": [
+            "Xiao Liang",
+            "Zhong-Zhi Li",
+            "Yeyun Gong",
+            "Yang Wang",
+            "Hengyuan Zhang",
+            "Yelong Shen",
+            "Ying Nian Wu",
+            "Weizhu Chen"
+          ],
+          "claimed_title": "SwS: Self-aware Weakness-driven Problem Synthesis in Reinforcement Learning for LLM Reasoning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.08989"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Beyond Scalar Rewards by Internalizing Reasoning into Score Distributions comput', candidate_title='SwS: Self-aware Weakness-driven Problem Synthesis in Reinforcement Learning for LLM Reasoning')",
+        "failed_at": "2026-06-18T01:22:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent progress in Large Language Model (LLM) reasoning is increasingly driven by the refinement of post-training loss functions and alignment strategies. However, standard Reinforcement Learning (RL) paradigms like Group Relative Policy Optimization (GRPO) remain constrained by static uniformity: uniform prompt sampling and a fixed number of rollouts per prompt. For heterogeneous, heavy-tailed reasoning data, this creates structural inefficiencies that waste compute on already-solved patterns while under-training the long tail of hard problems. To address this, we propose Multi-Adversary Group Distributionally Robust Optimization (GDRO), an optimization-first framework that moves beyond uniform reasoning models by dynamically adapting the training distribution.\n  We introduce an Online Difficulty Classifier that partitions prompts into dynamic pass@k difficulty groups. We then propose two independent GDRO games for post-training: (1) Prompt-GDRO, which employs an EMA-debiased multiplicative-weights bandit sampler to target the intensive difficulty margin and upweight persistently hard groups without frequency bias; and (2) Rollout-GDRO, which uses a shadow-price controller to reallocate rollouts across groups, maximizing gradient variance reduction on hard tasks under a fixed mean budget (compute-neutral). We provide no-regret guarantees for both controllers and additionally a variance-proxy analysis motivating a square-root optimal rollout allocation for Rollout-GDRO. We validate our framework on the DAPO 14.1k dataset using Qwen3-Base models. Prompt-GDRO and Rollout-GDRO achieve average relative gains of +10.6% and +10.1%, respectively, in pass@8 accuracy across 1.7B, 4B, and 8B scales compared to the GRPO baseline. Qualitative analysis shows an emergent curriculum: the adversaries shift resources to the evolving reasoning frontier, enhancing the reasoning model's performance.",
+          "claimed_authors": [
+            "Kishan Panaganti",
+            "Zhenwen Liang",
+            "Wenhao Yu",
+            "Haitao Mi",
+            "Dong Yu"
+          ],
+          "claimed_title": "Group Distributionally Robust Optimization-Driven Reinforcement Learning for LLM Reasoning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2601.19280"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Beyond Scalar Rewards by Internalizing Reasoning into Score Distributions comput', candidate_title='Group Distributionally Robust Optimization-Driven Reinforcement Learning for LLM Reasoning')",
+        "failed_at": "2026-06-18T01:22:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Reinforcement Learning (RL) has achieved significant milestones in the gaming domain, most notably Google DeepMind's AlphaGo defeating human Go champion Ken Jie. This victory was also made possible through the Atari Learning Environment (ALE): The ALE has been foundational in RL research, facilitating significant RL algorithm developments such as AlphaGo and others. In current Atari video game RL research, RL agents' perceptions of its environment is based on raw pixel data from the Atari video game screen with minimal image preprocessing. Contrarily, cutting-edge ML research, external to the Atari video game RL research domain, is focusing on enhancing image perception. A notable example is Meta Research's \"Segment Anything Model\" (SAM), a foundation model capable of segmenting images without prior training (zero-shot). This paper addresses a novel methodical question: Can state-of-the-art image segmentation models such as SAM improve the performance of RL agents playing Atari video games? The results suggest that SAM can serve as a \"virtual augmented reality\" for the RL agent, boosting its Atari video game playing performance under certain conditions. Comparing RL agent performance results from raw and augmented pixel inputs provides insight into these conditions. Although this paper was limited by computational constraints, the findings show improved RL agent performance for augmented pixel inputs and can inform broader research agendas in the domain of \"virtual augmented reality for video game playing RL agents\".",
+          "claimed_authors": [
+            "Christian A. Schiller"
+          ],
+          "claimed_title": "Virtual Augmented Reality for Atari Reinforcement Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2310.08683"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Beyond Scalar Rewards by Internalizing Reasoning into Score Distributions comput', candidate_title='Virtual Augmented Reality for Atari Reinforcement Learning')",
+        "failed_at": "2026-06-18T01:22:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "While deep reinforcement learning (deep RL) agents are effective at maximizing rewards, it is often unclear what strategies they use to do so. In this paper, we take a step toward explaining deep RL agents through a case study using Atari 2600 environments. In particular, we focus on using saliency maps to understand how an agent learns and executes a policy. We introduce a method for generating useful saliency maps and use it to show 1) what strong agents attend to, 2) whether agents are making decisions for the right or wrong reasons, and 3) how agents evolve during learning. We also test our method on non-expert human subjects and find that it improves their ability to reason about these agents. Overall, our results show that saliency information can provide significant insight into an RL agent's decisions and learning behavior.",
+          "claimed_authors": [
+            "Sam Greydanus",
+            "Anurag Koul",
+            "Jonathan Dodge",
+            "Alan Fern"
+          ],
+          "claimed_title": "Visualizing and Understanding Atari Agents",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1711.00138"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Beyond Scalar Rewards by Internalizing Reasoning into Score Distributions comput', candidate_title='Visualizing and Understanding Atari Agents')",
+        "failed_at": "2026-06-18T01:22:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Atari games have been a long-standing benchmark in the reinforcement learning (RL) community for the past decade. This benchmark was proposed to test general competency of RL algorithms. Previous work has achieved good average performance by doing outstandingly well on many games of the set, but very poorly in several of the most challenging games. We propose Agent57, the first deep RL agent that outperforms the standard human benchmark on all 57 Atari games. To achieve this result, we train a neural network which parameterizes a family of policies ranging from very exploratory to purely exploitative. We propose an adaptive mechanism to choose which policy to prioritize throughout the training process. Additionally, we utilize a novel parameterization of the architecture that allows for more consistent and stable learning.",
+          "claimed_authors": [
+            "Adrià Puigdomènech Badia",
+            "Bilal Piot",
+            "Steven Kapturowski",
+            "Pablo Sprechmann",
+            "Alex Vitvitskyi",
+            "Daniel Guo",
+            "Charles Blundell"
+          ],
+          "claimed_title": "Agent57: Outperforming the Atari Human Benchmark",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2003.13350"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Beyond Scalar Rewards by Internalizing Reasoning into Score Distributions comput', candidate_title='Agent57: Outperforming the Atari Human Benchmark')",
+        "failed_at": "2026-06-18T01:22:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Q-shaping is an extension of Q-value initialization and serves as an alternative to reward shaping for incorporating domain knowledge to accelerate agent training, thereby improving sample efficiency by directly shaping Q-values. This approach is both general and robust across diverse tasks, allowing for immediate impact assessment while guaranteeing optimality. We evaluated Q-shaping across 20 different environments using a large language model (LLM) as the heuristic provider. The results demonstrate that Q-shaping significantly enhances sample efficiency, achieving a \\textbf{16.87\\%} improvement over the best baseline in each environment and a \\textbf{253.80\\%} improvement compared to LLM-based reward shaping methods. These findings establish Q-shaping as a superior and unbiased alternative to conventional reward shaping in reinforcement learning.",
+          "claimed_authors": [
+            "Xiefeng Wu"
+          ],
+          "claimed_title": "From Reward Shaping to Q-Shaping: Achieving Unbiased Learning with LLM-Guided Knowledge",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2410.01458"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Beyond Scalar Rewards by Internalizing Reasoning into Score Distributions comput', candidate_title='From Reward Shaping to Q-Shaping: Achieving Unbiased Learning with LLM-Guided Knowledge')",
+        "failed_at": "2026-06-18T01:22:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recently there has been a proliferation of intrinsic motivation (IM) reward-shaping methods to learn in complex and sparse-reward environments. These methods can often inadvertently change the set of optimal policies in an environment, leading to suboptimal behavior. Previous work on mitigating the risks of reward shaping, particularly through potential-based reward shaping (PBRS), has not been applicable to many IM methods, as they are often complex, trainable functions themselves, and therefore dependent on a wider set of variables than the traditional reward functions that PBRS was developed for. We present an extension to PBRS that we prove preserves the set of optimal policies under a more general set of functions than has been previously proven. We also present {\\em Potential-Based Intrinsic Motivation} (PBIM), a method for converting IM rewards into a potential-based form that is useable without altering the set of optimal policies. Testing in the MiniGrid DoorKey and Cliff Walking environments, we demonstrate that PBIM successfully prevents the agent from converging to a suboptimal policy and can speed up training.",
+          "claimed_authors": [
+            "Grant C. Forbes",
+            "Nitish Gupta",
+            "Leonardo Villalobos-Arias",
+            "Colin M. Potts",
+            "Arnav Jhala",
+            "David L. Roberts"
+          ],
+          "claimed_title": "Potential-Based Reward Shaping For Intrinsic Motivation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2402.07411"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Beyond Scalar Rewards by Internalizing Reasoning into Score Distributions comput', candidate_title='Potential-Based Reward Shaping For Intrinsic Motivation')",
+        "failed_at": "2026-06-18T01:22:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Reinforcement Learning (RL) models have continually evolved to navigate the exploration - exploitation trade-off in uncertain Markov Decision Processes (MDPs). In this study, I leverage the principles of stochastic thermodynamics and system dynamics to explore reward shaping via diffusion processes. This provides an elegant framework as a way to think about exploration-exploitation trade-off. This article sheds light on relationships between information entropy, stochastic system dynamics, and their influences on entropy production. This exploration allows us to construct a dual-pronged framework that can be interpreted as either a maximum entropy program for deriving efficient policies or a modified cost optimization program accounting for informational costs and benefits. This work presents a novel perspective on the physical nature of information and its implications for online learning in MDPs, consequently providing a better understanding of information-oriented formulations in RL.",
+          "claimed_authors": [
+            "Peeyush Kumar"
+          ],
+          "claimed_title": "Reward Shaping via Diffusion Process in Reinforcement Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.11885"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Beyond Scalar Rewards by Internalizing Reasoning into Score Distributions comput', candidate_title='Reward Shaping via Diffusion Process in Reinforcement Learning')",
+        "failed_at": "2026-06-18T01:22:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Comets hold answers to mysteries of the Solar System by recording presolar history, the initial states of planet formation and prebiotic organics and volatiles to the early Earth. Analysis of returned samples from a comet nucleus will provide unparalleled knowledge about the Solar System starting materials and how they came together to form planets and give rise to life:\n  1. How did comets form?\n  2. Is comet material primordial, or has it undergone a complex alteration history?\n  3. Does aqueous alteration occur in comets?\n  4. What is the composition of cometary organics?\n  5. Did comets supply a substantial fraction of Earth's volatiles?\n  6. Did cometary organics contribute to the homochirality in life on Earth?\n  7. How do complex organic molecules form and evolve in interstellar, nebular, and planetary environments?\n  8. What can comets tell us about the mixing of materials in the protosolar nebula?",
+          "claimed_authors": [
+            "Keiko Nakamura-Messenger",
+            "Alexander G. Hayes",
+            "Scott Sandford",
+            "Carol Raymond",
+            "Steven W. Squyres",
+            "Larry R. Nittler",
+            "Samuel Birch",
+            "Denis Bodewits",
+            "Nancy Chabot",
+            "Meenakshi Wadhwa",
+            "Mathieu Choukroun",
+            "Simon J. Clemett",
+            "Maitrayee Bose",
+            "Neil Dello Russo",
+            "Jason P. Dworkin",
+            "Jamie E. Elsila",
+            "Kenton Fisher",
+            "Perry Gerakines",
+            "Daniel P. Glavin",
+            "Julie Mitchell",
+            "Michael Mumma",
+            "Ann. N. Nguyen",
+            "Lisa Pace",
+            "Jason Soderblom",
+            "Jessica M. Sunshine"
+          ],
+          "claimed_title": "The Case for Non-Cryogenic Comet Nucleus Sample Return",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2009.14366"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Beyond Scalar Rewards by Internalizing Reasoning into Score Distributions comput', candidate_title='The Case for Non-Cryogenic Comet Nucleus Sample Return')",
+        "failed_at": "2026-06-18T01:22:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Origins, Spectral Interpretation, Resource Identification, and Security Regolith Explorer (OSIRIS-REx) spacecraft arrived at its target, near-Earth asteroid 101955 Bennu, in December 2018. After one year of operating in proximity, the team selected a primary site for sample collection. In October 2020, the spacecraft descended to the surface of Bennu and collected a sample. The spacecraft departed Bennu in May 2021 and will return the sample to Earth in September 2023. The analysis of the returned sample will produce key data to determine the history of this B-type asteroid and that of its components and precursor objects. The main goal of the OSIRIS-REx Sample Analysis Plan is to provide a framework for the Sample Analysis Team to meet the Level 1 mission requirement to analyze the returned sample to determine presolar history, formation age, nebular and parent-body alteration history, relation to known meteorites, organic history, space weathering, resurfacing history, and energy balance in the regolith of Bennu. To achieve this goal, this plan establishes a hypothesis-driven framework for coordinated sample analyses, defines the analytical instrumentation and techniques to be applied to the returned sample, provides guidance on the analysis strategy for baseline, overguide, and threshold amounts of returned sample, including a rare or unique lithology, describes the data storage, management, retrieval, and archiving system, establishes a protocol for the implementation of a micro-geographical information system to facilitate co-registration and coordinated analysis of sample science data, outlines the plans for Sample Analysis Readiness Testing, and provides guidance for the transfer of samples from curation to the Sample Analysis Team.",
+          "claimed_authors": [
+            "Dante S. Lauretta",
+            "Harold C. Connolly",
+            "Jeffrey N. Grossman",
+            "Anjani T. Polit",
+            "the OSIRIS-REx Sample Analysis Team"
+          ],
+          "claimed_title": "OSIRIS-REx Sample Analysis Plan -- Revision 3.0",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2308.11794"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Beyond Scalar Rewards by Internalizing Reasoning into Score Distributions comput', candidate_title='OSIRIS-REx Sample Analysis Plan -- Revision 3.0')",
+        "failed_at": "2026-06-18T01:22:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Cumulative observables often exhibit saturation in systems involving propagation or spreading with local dissipation. This work shows that bounded cumulative response follows directly from local linear relaxation. Linear cumulative observables accumulated over the lifetime of a relaxing signal are limited by a scale set by the relaxation time, independent of geometry, dimensionality, or microscopic transport dynamics. When relaxation is mapped to space through transport or spreading, this temporal bound yields a corresponding spatial saturation scale determined by the transport law. The result shows that cumulative saturation follows directly from exponential local relaxation and does not depend on the specific transport mechanism.",
+          "claimed_authors": [
+            "Sanjeev Kumar Verma"
+          ],
+          "claimed_title": "Bounded cumulative observables from local linear relaxation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2601.16157"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Beyond Scalar Rewards by Internalizing Reasoning into Score Distributions comput', candidate_title='Bounded cumulative observables from local linear relaxation')",
+        "failed_at": "2026-06-18T01:22:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We propose Frictive Policy Optimization (FPO), a framework for learning language model policies that regulate not only what to say, but when and how to intervene in order to manage epistemic and normative risk. Unlike standard alignment methods that optimize surface-level preference or task utility, FPO treats clarification, verification, challenge, redirection, and refusal as explicit control actions whose purpose is to shape the evolution of belief, commitment, and uncertainty over time. We formalize alignment as a risk-sensitive epistemic control problem in which intervention decisions are selected based on their expected effect on downstream epistemic quality rather than on immediate reward alone. We introduce a compact taxonomy of frictive interventions, a structured friction functional that operationalizes multiple alignment failure modes, and a unified family of FPO methods spanning reward shaping, preference pairing, group-relative ranking, and risk-conditioned trust regions. We further propose an evaluation framework that measures epistemic competence directly through clarification behavior, calibration, contradiction repair, refusal proportionality, and information efficiency. Together, these results provide a formal and algorithmic foundation for learning agents that are aligned not only in outcome, but in epistemic conduct.",
+          "claimed_authors": [
+            "James Pustejovsky",
+            "Nikhil Krishnaswamy"
+          ],
+          "claimed_title": "Frictive Policy Optimization for LLMs: Epistemic Intervention, Risk-Sensitive Control, and Reflective Alignment",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2604.25136"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Beyond Scalar Rewards by Internalizing Reasoning into Score Distributions comput', candidate_title='Frictive Policy Optimization for LLMs: Epistemic Intervention, Risk-Sensitive Control, and Reflective Alignment')",
+        "failed_at": "2026-06-18T01:22:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We introduce a novel framework to account for sensitivity to rewards uncertainty in sequential decision-making problems. While risk-sensitive formulations for Markov decision processes studied so far focus on the distribution of the cumulative reward as a whole, we aim at learning policies sensitive to the uncertain/stochastic nature of the rewards, which has the advantage of being conceptually more meaningful in some cases. To this end, we present a new decomposition of the randomness contained in the cumulative reward based on the Doob decomposition of a stochastic process, and introduce a new conceptual tool - the \\textit{chaotic variation} - which can rigorously be interpreted as the risk measure of the martingale component associated to the cumulative reward process. We innovate on the reinforcement learning side by incorporating this new risk-sensitive approach into model-free algorithms, both policy gradient and value function based, and illustrate its relevance on grid world and portfolio optimization problems.",
+          "claimed_authors": [
+            "Nelson Vadori",
+            "Sumitra Ganesh",
+            "Prashant Reddy",
+            "Manuela Veloso"
+          ],
+          "claimed_title": "Risk-Sensitive Reinforcement Learning: a Martingale Approach to Reward Uncertainty",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2006.12686"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Beyond Scalar Rewards by Internalizing Reasoning into Score Distributions comput', candidate_title='Risk-Sensitive Reinforcement Learning: a Martingale Approach to Reward Uncertainty')",
+        "failed_at": "2026-06-18T01:22:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "CVaR (Conditional Value at Risk) is a risk metric widely used in finance. However, dynamically optimizing CVaR is difficult since it is not a standard Markov decision process (MDP) and the principle of dynamic programming fails. In this paper, we study the infinite-horizon discrete-time MDP with a long-run CVaR criterion, from the view of sensitivity-based optimization. By introducing a pseudo CVaR metric, we derive a CVaR difference formula which quantifies the difference of long-run CVaR under any two policies. The optimality of deterministic policies is derived. We obtain a so-called Bellman local optimality equation for CVaR, which is a necessary and sufficient condition for local optimal policies and only necessary for global optimal policies. A CVaR derivative formula is also derived for providing more sensitivity information. Then we develop a policy iteration type algorithm to efficiently optimize CVaR, which is shown to converge to local optima in the mixed policy space. We further discuss some extensions including the mean-CVaR optimization and the maximization of CVaR. Finally, we conduct numerical experiments relating to portfolio management to demonstrate the main results. Our work may shed light on dynamically optimizing CVaR from a sensitivity viewpoint.",
+          "claimed_authors": [
+            "Li Xia",
+            "Peter W. Glynn"
+          ],
+          "claimed_title": "Risk-Sensitive Markov Decision Processes with Long-Run CVaR Criterion",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2210.08740"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Beyond Scalar Rewards by Internalizing Reasoning into Score Distributions comput', candidate_title='Risk-Sensitive Markov Decision Processes with Long-Run CVaR Criterion')",
+        "failed_at": "2026-06-18T01:22:30Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Xin Jin",
+            "Huanqia Cai",
+            "Zhen Li",
+            "Zechao Zhan",
+            "Dengyang Jiang",
+            "Aiming Hao",
+            "Yuming Jiang",
+            "Chunle Guo",
+            "Peng Gao",
+            "Ming-Ming Cheng",
+            "Steven C. H. Hoi"
+          ],
+          "title": "Beyond Scalar Rewards by Internalizing Reasoning into Score Distributions",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2606.09076",
+        "summary": "Reward models are central to text-to-image post-training, but visual preference is subjective and better represented as a distribution over rubric scores than as a deterministic scalar. Existing scalar, score-token, and pairwise reward models over-compress uncertainty and fine-grained score differences, while reasoning-based generative rewards provide stronger judgments but are costly to deploy and difficult to use as direct optimization signals. We propose Z-Reward, a teacher-student reward modeling framework that decouples reasoning-heavy judgment from efficient reward deployment. The teacher is a large VLM that uses reasoning to infer rubric-aligned score distributions, and is trained with Group-wise Direct Score Optimization (GDSO), which combines policy-gradient rewards from distribution expectations with direct pointwise and pairwise supervision on score distributions and score gaps. The student is trained with Reasoning-Internalized Score Distillation (RISD), which transfers the teacher's reasoning-conditioned score distribution into a compact VLM without requiring explicit reasoning chains at inference time. On our internally annotated evaluation set, the 27B GDSO teacher reaches 89.6% human preference accuracy, outperforming SFT, RewardDance, and GRPO, while the 9B RISD student reaches 88.6%, outperforming the OPD baseline and closely matching the larger teacher. We further show that Z-Reward can serve as a differentiable reward signal for text-to-image optimization, yielding a 41.3% net human-preference improvement over the SFT baseline.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2606.09076",
+          "http_status": 200,
+          "pdf_sample_score": 0.2801,
+          "query_relevance_score": 0.7778,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-18T01:22:22Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Juan Sebastian Rojas",
+            "Chi-Guhn Lee"
+          ],
+          "title": "Burning RED: Unlocking Subtask-Driven Reinforcement Learning and Risk-Awareness in Average-Reward Markov Decision Processes",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2410.10578",
+        "summary": "Average-reward Markov decision processes (MDPs) provide a foundational framework for sequential decision-making under uncertainty. However, average-reward MDPs have remained largely unexplored in reinforcement learning (RL) settings, with the majority of RL-based efforts having been allocated to discounted MDPs. In this work, we study a unique structural property of average-reward MDPs and utilize it to introduce Reward-Extended Differential (or RED) reinforcement learning: a novel RL framework that can be used to effectively and efficiently solve various learning objectives, or subtasks, simultaneously in the average-reward setting. We introduce a family of RED learning algorithms for prediction and control, including proven-convergent algorithms for the tabular case. We then showcase the power of these algorithms by demonstrating how they can be used to learn a policy that optimizes, for the first time, the well-known conditional value-at-risk (CVaR) risk measure in a fully-online manner, without the use of an explicit bi-level optimization scheme or an augmented state-space.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2410.10578",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-18T01:22:34Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "beyond scalar rewards by internalizing reasoning into score distributions computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

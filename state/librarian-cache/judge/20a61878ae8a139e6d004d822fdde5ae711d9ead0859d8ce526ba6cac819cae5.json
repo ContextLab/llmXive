@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2406.03339",
+  "judged_at": "2026-06-18T01:21:22Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "socrates: towards reliable automated evaluation of proactive llm mediation across domains and socio-cognitive variations computer science",
+  "rationale": "The paper studies automated, human, and LLM‑based evaluation methods for domain‑specific chatbots, directly addressing the mechanism of evaluating LLM applications (category (a) same‑mechanism evidence) and provides empirical data on automated evaluation metrics in the same domain of interest (category (b) independent variable on the same domain).",
+  "relevant": true
+}

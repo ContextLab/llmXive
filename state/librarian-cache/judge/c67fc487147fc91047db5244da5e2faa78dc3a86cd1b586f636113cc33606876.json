@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2606.05868",
+  "judged_at": "2026-06-18T01:21:20Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "socrates: towards reliable automated evaluation of proactive llm mediation across domains and socio-cognitive variations computer science",
+  "rationale": "The paper focuses on architectural and efficiency improvements for financial LLMs (KV‑cache compression, concurrency) and does not address the evaluation of proactive LLM mediation, cross‑domain reliability, or socio‑cognitive variations, which are the core constructs of the user's question. Hence it falls outside the relevant mechanism, variables, and domain.",
+  "relevant": false
+}

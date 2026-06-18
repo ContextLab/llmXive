@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2606.09076",
+  "judged_at": "2026-06-18T01:22:38Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "beyond scalar rewards by internalizing reasoning into score distributions computer science",
+  "rationale": "The paper studies the exact mechanism the user is interested in—moving from scalar reward models to reasoning‑internalized score‑distribution rewards for text‑to‑image generation—fulfilling criterion (a) same‑mechanism evidence (and also (d) as a canonical methodological reference for this approach).",
+  "relevant": true
+}

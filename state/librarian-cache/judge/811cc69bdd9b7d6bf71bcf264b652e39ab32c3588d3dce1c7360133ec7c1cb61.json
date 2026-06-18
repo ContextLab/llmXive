@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2311.18580",
+  "judged_at": "2026-06-18T01:21:27Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "socrates: towards reliable automated evaluation of proactive llm mediation across domains and socio-cognitive variations computer science",
+  "rationale": "The paper focuses on evaluating LLM harmlessness (factuality, fairness, toxicity), which does not address the mechanism of proactive LLM mediation or its socio‑cognitive variations; it falls outside the construct and variables of the user's research question.",
+  "relevant": false
+}
