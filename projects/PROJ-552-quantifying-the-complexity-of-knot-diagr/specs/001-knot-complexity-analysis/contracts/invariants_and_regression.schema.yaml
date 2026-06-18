@@ -1,0 +1,42 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: InvariantsDataset
+type: object
+properties:
+  dataset_id:
+    type: string
+  knots:
+    type: array
+    items:
+      $ref: "knot_record.schema.yaml"
+required:
+  - dataset_id
+  - knots
+additionalProperties: false
+
+---
+
+$schema: "http://json-schema.org/draft-07/schema#"
+title: RegressionModel
+type: object
+properties:
+  model_id:
+    type: string
+  parameters:
+    type: object
+    additionalProperties: true
+  performance:
+    type: object
+    properties:
+      r2:
+        type: number
+      mae:
+        type: number
+    required:
+      - r2
+      - mae
+required:
+  - model_id
+  - parameters
+  - performance
+additionalProperties: false
+

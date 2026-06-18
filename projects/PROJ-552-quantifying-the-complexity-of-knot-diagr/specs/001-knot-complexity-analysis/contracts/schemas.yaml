@@ -1,0 +1,47 @@
+# Schema definitions for KnotRecord, InvariantsDataset, and RegressionModel
+---
+# KnotRecord schema
+type: object
+properties:
+  knot_id:
+    type: string
+    description: Unique identifier for the knot
+  crossing_number:
+    type: integer
+    description: Minimal crossing number of the knot
+  invariants:
+    type: object
+    description: Mapping of invariant names to values
+required:
+  - knot_id
+  - crossing_number
+---
+# InvariantsDataset schema
+type: object
+properties:
+  dataset_name:
+    type: string
+  records:
+    type: array
+    items:
+      $ref: '#/definitions/KnotRecord'
+required:
+  - dataset_name
+  - records
+---
+# RegressionModel schema
+type: object
+properties:
+  model_name:
+    type: string
+  coefficients:
+    type: array
+    items:
+      type: number
+  intercept:
+    type: number
+required:
+  - model_name
+  - coefficients
+  - intercept
+

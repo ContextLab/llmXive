@@ -160,3 +160,38 @@ runs (no agent_blocked) and correctly skips the paper compile, but round-2 found
 
 ### 552 state now: at research_full_revision; with b222dc632 it settles cleanly into
 ### HUMAN_INPUT_NEEDED (honest 'panel could not auto-converge') instead of erroring.
+
+## ADDENDUM 3 (~11:45 ET) — reliability stack VALIDATED; research_review at 6/7
+
+Per maintainer guidance (keep unanimous gate; make review reliable+specific; no
+brute force), shipped + pushed a reviewer reliability stack:
+- re-review diff-check protocol (a4412629f): re-reviews verify prior concerns, not
+  fresh critique -> monotonic convergence.
+- reviewer determinism temperature=0 (486f4996f): gpt-oss honors it (verified);
+  killed the run-to-run 2-5/7 variance -> STABLE verdicts. NOT bar-lowering.
+- doc-CONTENT visibility (f726fd299): reviewers see file BODIES, not just listings
+  (data_quality could finally verify the license/provenance docs).
+- implementer apply-layer (8f2ea4890 + 26cc0cd33): research edits actually apply
+  (new-file creation, relative-path diffs, per-task paper-compile skipped).
+
+RESULT: research_review went 0-accepts-ever -> STABLE 6/7. Reviews are now
+high-quality + specific (creativity self-resolved to accept once it could verify;
+implementation lenses accept from full tree + execution evidence).
+
+LAST HOLDOUT = data_quality_research (1/7), and it is NOT a review-quality problem:
+its review is excellent with 2 specific, legitimate blocking concerns (schema
+version + in-manifest; consolidate 3 parallel checksum manifests). They stay
+unresolved because the IMPLEMENTER'S EDITS FAIL TO APPLY:
+  - 'git apply --check failed: corrupt patch / patch failed'
+  - 'no-match: search string not found'
+i.e. LLM-generated unified diffs / search_and_replace are fragile when the model
+lacks the target file's EXACT content (it diffs against guessed content). 8/17
+edits applied; the data_quality ones are in the failed bucket.
+
+### Next engineering area (well-bounded): IMPLEMENTER EDIT ROBUSTNESS
+- Give the per-task prompt the EXACT current content of the file it will edit
+  (research prompt only windows a file when the action item names a path).
+- Prefer search_and_replace over unified_diff; on git-apply failure, retry with a
+  content-anchored strategy (or full-file rewrite for small docs).
+- This is the gap between 6/7 and 7/7 -> research_accepted. The review machinery
+  itself is now reliable + correct.

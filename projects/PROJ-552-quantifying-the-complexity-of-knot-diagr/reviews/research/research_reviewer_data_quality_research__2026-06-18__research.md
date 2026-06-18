@@ -1,18 +1,68 @@
 ---
 action_items:
-- id: 6dd46e802fc4
+- id: b06a9b8fe49f
   severity: writing
-  text: Add a LICENSE file (or DATA_LICENSE.md) that records the Knot Atlas usage
-    terms and the project's own code license.
-- id: d4cd75a65983
+  text: Provenance & Licensing
+- id: 8848392465c4
   severity: writing
-  text: Update the provenance documentation (validation_scope.md or a new provenance.md)
-    to reference this license file.
-- id: 226afe00c09d
+  text: The project records provenance in provenance.yaml and in multiple reproducibility
+    documents (e.g., docs/reproducibility/knot_atlas_data_license.md).
+- id: ec9ea7f023f6
   severity: writing
-  text: "Optionally, include a short notice in the README linking to the license.\
-    \ Once these steps are completed, the data\u2011quality concerns will be fully\
-    \ resolved, and the project can be accepted."
+  text: "Licensing for the source code (MIT) and the Knot Atlas data (CC\u2011BY\u2011\
+    4.0) is clearly stated."
+- id: b9eea2935a70
+  severity: writing
+  text: "Recommendation (non\u2011blocking): Consolidate provenance information into\
+    \ a single, version\u2011controlled file (e.g., PROVENANCE.md) and reference it\
+    \ from all other docs to avoid duplication."
+- id: f77dc36be1cc
+  severity: writing
+  text: Schema Definition & Validation
+- id: be2b296a6bc4
+  severity: writing
+  text: JSON/YAML schemas for KnotRecord, InvariantsDataset, and RegressionModel are
+    present under specs/001-knot-complexity-analysis/contracts/.
+- id: 2e49d960b41b
+  severity: writing
+  text: Contract tests (tests/contract/test_schemas.py) are listed, indicating schema
+    conformance is verified.
+- id: 6a457c45ea91
+  severity: writing
+  text: 'Issue (blocking): The schema files are not listed in the reproducibility
+    manifest, and there is no explicit version tag on the schemas. Adding a schema
+    version field and including the schemas in the checksum manifest would satisfy
+    Constitution Principle III.'
+- id: 137ff3bd11f9
+  severity: writing
+  text: "Missing\u2011Data Handling"
+- id: 1fb5bab4d90b
+  severity: writing
+  text: "The system distinguishes data_quality_flags (general quality issues) from\
+    \ missing_invariant_flags (uncomputable invariants) as required by FR\u2011002\
+    \ and FR\u2011009."
+- id: 99cead546cdb
+  severity: writing
+  text: Flagging logic is implemented in code/data/validator.py and exercised by unit
+    tests.
+- id: 3d2de06d1c04
+  severity: writing
+  text: "The data\u2011quality report (docs/reproducibility/data_quality_report.md)\
+    \ documents null\u2011percentage \u2264 5 % and format\u2011pass \u2265 99 %,\
+    \ satisfying SC\u2011013."
+- id: c0e2c028859a
+  severity: writing
+  text: "Recommendation (non\u2011blocking): The duplicate\u2011record check is currently\
+    \ deferred (\u201Cduplicate records = 0 ([deferred])\u201D). For a research\u2011\
+    stage artifact this should be resolved; a simple duplicate\u2011ID scan can be\
+    \ added to the validator and the result recorded."
+- id: 75577e829571
+  severity: writing
+  text: Version Control & Checksums
+- id: 2254a7103ecb
+  severity: writing
+  text: "SHA\u2011256 checksums are generated (data/checksums.json, checksums.sha256)\
+    \ and documented in many docs/reproducibility/*.md files."
 artifact_hash: 7baa44b59cd32c7fda7ee82e82eeaf53dd34c3f18b9a974e3b4792da9f1598ca
 artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
 backend: dartmouth
@@ -20,34 +70,52 @@ feedback: ''
 github_authenticated: false
 model_name: openai.gpt-oss-120b
 prompt_version: 1.0.0
-reviewed_at: '2026-06-18T12:54:27.428348Z'
+reviewed_at: '2026-06-18T15:32:54.707564Z'
 reviewer_kind: llm
 reviewer_name: research_reviewer_data_quality_research
 score: 0.0
 verdict: minor_revision
 ---
 
-**Data Provenance & Licensing**  
-The pipeline correctly records the origin of the primary dataset (Knot Atlas) and cross‑checks against KnotInfo and OEIS, with provenance documented in `docs/reproducibility/validation_scope.md`, `hyperbolic_volume_validation.md`, and `core_invariants_tabulation.md`. However, the repository lacks an explicit statement of the data license governing the Knot Atlas JSON dump. Without a clear license file or citation of the usage terms, downstream users cannot be sure they have permission to redistribute or reuse the raw data. *Action required*: add a `LICENSE` file (or a `DATA_LICENSE.md` document) that records the Knot Atlas licensing terms and, if necessary, the project's own license for code and derived data.
+**Data‑Quality Assessment (Provenance, License, Schema, Missing‑Data Handling, Version Control, Sample‑Size Adequacy)**  
 
-**Schema Definition & Enforcement**  
-Contracts for `knot-record.schema.yaml`, `dataset.schema.yaml`, and `regression-model.schema.yaml` are present, and schema‑validation tests (`tests/contract/test_schemas.py`) are included and executed as part of the CI. The processed CSV files (`knots_cleaned.csv`, `knots_validated.csv`) conform to these schemas, as evidenced by the successful test run in the execution evidence. No issues were found here.
+1. **Provenance & Licensing**  
+   - The project records provenance in `provenance.yaml` and in multiple reproducibility documents (e.g., `docs/reproducibility/knot_atlas_data_license.md`).  
+   - Licensing for the source code (MIT) and the Knot Atlas data (CC‑BY‑4.0) is clearly stated.  
+   - **Recommendation (non‑blocking):** Consolidate provenance information into a single, version‑controlled file (e.g., `PROVENANCE.md`) and reference it from all other docs to avoid duplication.
 
-**Missing‑Data Handling**  
-The implementation distinguishes between `data_quality_flags` (general quality issues) and `missing_invariant_flags` (uncomputable invariants) per FR‑002 and FR‑009. Flagging logic resides in `code/data/validator.py` and is exercised by unit tests (`test_validator.py`). The generated report `docs/reproducibility/data_quality_report.md` documents null‑percentage ≤ 5 % and format‑pass ≥ 99 %, satisfying SC‑013. Edge‑case handling (API failure, ambiguous classification, representation ties) is also implemented and logged, meeting FR‑008, FR‑010, and FR‑011.
+2. **Schema Definition & Validation**  
+   - JSON/YAML schemas for `KnotRecord`, `InvariantsDataset`, and `RegressionModel` are present under `specs/001-knot-complexity-analysis/contracts/`.  
+   - Contract tests (`tests/contract/test_schemas.py`) are listed, indicating schema conformance is verified.  
+   - **Issue (blocking):** The schema files are not listed in the reproducibility manifest, and there is no explicit version tag on the schemas. Adding a schema version field and including the schemas in the checksum manifest would satisfy Constitution Principle III.
 
-**Version Control & Reproducibility Artifacts**  
-SHA‑256 checksums for all data files are recorded (`checksums.sha256`, `checksums.json`) and the hashing utilities (`reproducibility/hashing.py`) are invoked during the pipeline. Random‑seed pinning and operation logs are present (`random_seeds.md`, `operation_logs.md`). These satisfy FR‑007 and the Constitution Principle III/VI requirements.
+3. **Missing‑Data Handling**  
+   - The system distinguishes `data_quality_flags` (general quality issues) from `missing_invariant_flags` (uncomputable invariants) as required by FR‑002 and FR‑009.  
+   - Flagging logic is implemented in `code/data/validator.py` and exercised by unit tests.  
+   - The data‑quality report (`docs/reproducibility/data_quality_report.md`) documents null‑percentage ≤ 5 % and format‑pass ≥ 99 %, satisfying SC‑013.  
+   - **Recommendation (non‑blocking):** The duplicate‑record check is currently deferred (“duplicate records = 0 ([deferred])”). For a research‑stage artifact this should be resolved; a simple duplicate‑ID scan can be added to the validator and the result recorded.
 
-**Sample‑Size Adequacy & Validation Scope**  
-SC‑001 is respected: the dataset is fully validated for crossing numbers ≤ 10, with exploratory data retained for 11–13. Counts per crossing number are listed in `validation_scope.md`, and the selection‑bias discussion (`selection_bias.md`) is thorough. This addresses the sample‑size adequacy concern.
+4. **Version Control & Checksums**  
+   - SHA‑256 checksums are generated (`data/checksums.json`, `checksums.sha256`) and documented in many `docs/reproducibility/*.md` files.  
+   - However, the repository contains **multiple, partially contradictory checksum manifests** (`checksums.csv`, `checksums.json`, `checksums.sha256`, plus several policy docs). Constitution Principle III requires a **single authoritative manifest** per directory.  
+   - **Blocking defect:** The presence of three parallel manifests creates a risk of divergence. Choose one format (e.g., `checksums.json`) as the source of truth, deprecate the others, and update all references accordingly.
 
-**Blocking Defect**  
-The only blocking issue is the **absence of an explicit data‑license declaration**. While licensing is a non‑functional aspect, it is integral to data provenance and reuse, and the data‑quality lens explicitly includes license compliance. Until the license information is added, the dataset cannot be considered fully reproducible for external researchers.
+5. **Sample‑Size Adequacy**  
+   - SC‑001 and SC‑012 require documentation of knot counts per crossing number and justification of the ≤ 10‑crossing validation benchmark. The file `docs/reproducibility/validation_scope.md` is mentioned, but the actual counts per crossing number are not shown in the provided excerpts.  
+   - **Blocking defect:** Without explicit counts (e.g., “Crossing 10: 1 234 knots, 95 % have complete invariants”), reviewers cannot verify that stratified groups (alternating vs. non‑alternating) have sufficient size for descriptive reporting. The `sample_size_adequacy.md` file exists but its content is not confirmed; the review requires that it contain a table of counts and a brief adequacy discussion.
 
-**Recommended Fix**  
-1. Add a `LICENSE` file (or `DATA_LICENSE.md`) that records the Knot Atlas usage terms and the project's own code license.  
-2. Update the provenance documentation (`validation_scope.md` or a new `provenance.md`) to reference this license file.  
-3. Optionally, include a short notice in the README linking to the license.
+6. **Cross‑Reference Checks (Hyperbolic Volume)**  
+   - FR‑013 mandates a ≥ 90 % match against KnotInfo where coverage ≥ 90 %. The document `hyperbolic_volume_validation.md` is only 372 bytes and appears to be a placeholder.  
+   - **Blocking defect:** The validation results (match rate, coverage, source‑independence assessment) are not present, so the claim of data‑consistency cannot be verified.
 
-Once these steps are completed, the data‑quality concerns will be fully resolved, and the project can be accepted.
+### Summary of Required Changes (must be addressed before acceptance)
+
+| Area | Required Action |
+|------|-----------------|
+| **Checksum Manifest** | Retain a single authoritative checksum file (e.g., `checksums.json`), remove/deprecate `checksums.csv` and `checksums.sha256`, and update all documentation to reference the single manifest. |
+| **Duplicate‑Record Check** | Implement a duplicate‑ID detection step in `code/data/validator.py`, run it on the full dataset, and record the result (expected 0) in `data_quality_report.md`. |
+| **Sample‑Size Documentation** | Populate `validation_scope.md` (or `sample_size_adequacy.md`) with a concrete table of knot counts per crossing number, and explicitly state that each stratified group meets the ≥ 5 % null‑field threshold and has enough records for descriptive statistics. |
+| **Hyperbolic Volume Cross‑Check** | Complete `hyperbolic_volume_validation.md` with the actual coverage percentage, match rate, and a discussion of source independence (e.g., whether Knot Atlas and KnotInfo share underlying data). |
+| **Artifact Hash** | Provide the SHA‑256 hash of the primary artifact (`tasks.md`) so the review can be processed automatically. |
+
+Once these items are resolved, the data‑quality artifacts will fully satisfy the research‑stage requirements, and the reviewer can issue an **accept** verdict.

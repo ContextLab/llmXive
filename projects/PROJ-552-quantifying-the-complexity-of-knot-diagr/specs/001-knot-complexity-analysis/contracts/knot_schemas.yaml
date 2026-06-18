@@ -1,0 +1,59 @@
+# Schema definitions for core data structures used in the knot complexity analysis.
+
+KnotRecord:
+  type: object
+  description: Representation of a single knot with its basic attributes.
+  properties:
+    id:
+      type: string
+      description: Unique identifier for the knot.
+    name:
+      type: string
+      description: Human‑readable name of the knot.
+    crossings:
+      type: integer
+      description: Number of crossings in the knot diagram.
+    braid_word:
+      type: string
+      description: Braid word representation of the knot.
+  required:
+    - id
+    - name
+    - crossings
+    - braid_word
+
+InvariantsDataset:
+  type: object
+  description: Collection of knots and their computed invariants.
+  properties:
+    knots:
+      type: array
+      items:
+        $ref: '#/definitions/KnotRecord'
+    invariants:
+      type: object
+      description: Mapping from invariant names to their values per knot.
+  required:
+    - knots
+    - invariants
+
+RegressionModel:
+  type: object
+  description: Specification of a trained regression model used to predict knot complexity.
+  properties:
+    model_type:
+      type: string
+      description: Identifier of the regression algorithm (e.g., linear, random_forest).
+    parameters:
+      type: object
+      description: Hyper‑parameters of the model.
+    performance_metrics:
+      type: object
+      description: Evaluation metrics such as RMSE, R², etc.
+  required:
+    - model_type
+    - parameters
+    - performance_metrics
+
+definitions:
+  KnotRecord: *KnotRecord

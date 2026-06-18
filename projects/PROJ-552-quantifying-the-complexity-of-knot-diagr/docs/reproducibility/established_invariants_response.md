@@ -1,0 +1,4 @@
+# Response to Reviewer on Use of Established Invariants
+
+We acknowledge that crossing number and braid index are long‑studied, classical knot invariants and that their basic inequality (braid index ≤ crossing number) and individual correlations with hyperbolic volume are well‑documented in the knot‑theory literature.
+Our contribution does not claim to introduce a new invariant. Instead, we focus on (i) a systematic quantitative analysis of how these established invariants jointly relate to hyperbolic volume across the full Knot Atlas dataset, and (ii) the development of composite metrics that combine crossing number, braid index, and additional topological features to improve predictive power for knot complexity. By providing extensive reproducible analyses, visualizations, and validation pipelines, we aim to deepen empirical understanding of the interplay among classic invariants rather than to propose a fundamentally new theoretical construct.

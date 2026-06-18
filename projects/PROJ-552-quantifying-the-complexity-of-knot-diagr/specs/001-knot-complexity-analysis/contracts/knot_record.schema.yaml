@@ -1,0 +1,25 @@
+# KnotRecord Schema
+# This file provides a JSON/YAML schema for the KnotRecord data model.
+# It mirrors the schema defined in the primary analysis specifications
+# (specs/010-quantifying-the-complexity-of-knot-diagr/contracts/knot-record.schema.yaml).
+
+type: object
+required:
+  - id
+  - name
+  - crossings
+  - braid_word
+properties:
+  id:
+    type: string
+    description: Unique identifier for the knot.
+  name:
+    type: string
+    description: Human‑readable name of the knot.
+  crossings:
+    type: integer
+    description: Number of crossings in the knot diagram.
+  braid_word:
+    type: string
+    description: Braid word representation of the knot.
+additionalProperties: false

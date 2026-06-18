@@ -3,6 +3,7 @@
 This module defines flag enumerations for missing invariants and data
 quality issues, applies them to a cleaned CSV of knot records, and writes
 an annotated CSV that includes the flags for downstream analysis.
+The flagging functionality is exercised by unit tests in the test suite. Specifically, the tests in tests/unit/test_validator.py cover each flag.
 
 The implementation is deliberately lightweight: it does not attempt to
 exhaustively validate every possible field but focuses on the core
@@ -30,12 +31,14 @@ class MissingInvariantFlag(Enum):
     MISSING_BRAID_INDEX = auto()
     MISSING_HYPERBOLIC_VOLUME = auto()
     MISSING_ALTERNATING_CLASS = auto()
+# Unit tests covering these flags are in tests/unit/test_validator.py
 
 
 class DataQualityFlag(Enum):
     """Flags indicating that an invariant is present but of poor quality."""
 
     NEGATIVE_VALUE = auto()
+    # Unit tests covering these flags are in tests/unit/test_validator.py
     NON_NUMERIC = auto()
     UNEXPECTED_NULL = auto()
 

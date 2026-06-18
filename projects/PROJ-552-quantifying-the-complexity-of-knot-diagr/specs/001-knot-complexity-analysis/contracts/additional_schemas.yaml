@@ -1,0 +1,34 @@
+# Additional schemas for the knot complexity analysis project
+
+# InvariantsDataset schema
+InvariantsDataset:
+  type: object
+  description: Dataset containing knot invariants.
+  properties:
+    dataset_id:
+      type: string
+    records:
+      type: array
+      items:
+        $ref: '#/components/schemas/KnotRecord'
+  required:
+    - dataset_id
+    - records
+
+# RegressionModel schema
+RegressionModel:
+  type: object
+  description: Trained regression model metadata.
+  properties:
+    model_id:
+      type: string
+    model_type:
+      type: string
+    hyperparameters:
+      type: object
+    training_metrics:
+      type: object
+  required:
+    - model_id
+    - model_type
+

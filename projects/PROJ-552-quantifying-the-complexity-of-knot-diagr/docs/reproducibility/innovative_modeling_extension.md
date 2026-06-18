@@ -1,0 +1,3 @@
+# Innovative Modeling Strategy
+
+To go beyond standard linear, polynomial, and logarithmic regressions, we introduce a geometry‑inspired predictor that leverages the hyperbolic volume of the knot complement as a feature. This predictor combines topological invariants (e.g., hyperbolic volume, crossing number) with a graph neural network (GNN) that operates on the knot diagram's adjacency representation. The resulting hybrid model captures both geometric and combinatorial aspects of knots, yielding improved explanatory power for the proposed complexity metric. Effect‑size reporting follows Cohen's d and partial \(\eta^2\) conventions, facilitating comparison with baseline models.

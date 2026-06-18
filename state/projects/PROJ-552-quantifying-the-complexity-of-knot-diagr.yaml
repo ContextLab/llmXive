@@ -6,7 +6,7 @@ failed_stage: null
 field: mathematics
 human_escalation_reason: null
 id: PROJ-552-quantifying-the-complexity-of-knot-diagr
-last_run_id: 35992549-030d-4203-ba08-f7a8b6eb8f66
+last_run_id: c24fc212-82ed-424e-b589-609f338dae1f
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: specs/auto-revisions/PROJ-552-quantifying-the-complexity-of-
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr
 title: Quantifying the Complexity of Knot Diagrams via Crossing Number and Braid Index
-updated_at: '2026-06-18T12:54:39.470965Z'
+updated_at: '2026-06-18T15:33:13.935329Z'

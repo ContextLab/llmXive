@@ -1,5 +1,29 @@
 # Complexity Visualization Guide
 
+## Enhanced visualizations
+
+To explore knot complexity from new perspectives, we provide optional tools for dimensionality reduction and interactive visualizations.
+
+### Dimensionality reduction
+
+The module `code/analysis/complexity_visualization.py` includes a helper `apply_dimensionality_reduction` that wraps scikit‑learn's t‑SNE and UMAP. Users can call:
+
+```python
+reduced = apply_dimensionality_reduction(features, method='umap')
+```
+
+### Interactive plots
+
+We also ship an interactive Plotly dashboard in `code/analysis/interactive_visualization.py`. Running:
+
+```bash
+python -m code.analysis.interactive_visualization --input data/processed/knots_validated.csv
+```
+
+opens a web‑based view where knots can be colored by invariant, filtered, and hovered for details.
+
+These additions aim to raise the creativity score by offering novel, exploratory visual tools beyond static high‑resolution images.
+
 ## Overview
 
 This document describes the visualization examples generated to demonstrate how

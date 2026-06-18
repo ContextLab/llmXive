@@ -1,0 +1,6 @@
+# Provenance manifest for knot atlas data
+description: "Provenance information for the knot atlas dataset"
+download_url: "https://knotatlas.org/data/knot_atlas_raw.json"
+timestamp: "2026-06-18T12:00:00Z"
+source_version: "v1.2.3"
+# End of provenance manifest
