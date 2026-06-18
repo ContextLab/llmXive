@@ -121,3 +121,42 @@ Net for the session: research_review went from STRUCTURALLY IMPOSSIBLE (0 accept
 ever, no accept criteria, reviewers blind to most of the project) to FUNCTIONING
 (fact-based lenses reliably accept; remaining gap is the revision-convergence
 machinery for the subjective lenses).
+
+## ADDENDUM 2 (post-maintenance, ~09:30 ET) — convergence cascade fully mapped
+
+Post-maintenance I shipped + pushed the remaining clear fixes and ran convergence twice:
+- track-aware research-revision implementer (26cc0cd33)
+- apply-layer: new-file creation via /dev/null diffs + relative-path scope/cwd +
+  project-root research edits (061fd529b)
+- lifecycle: research-side stages -> HUMAN_INPUT_NEEDED so the convergence-cap
+  escalation stops throwing 'invalid revision-routing transition' every tick (b222dc632)
+
+Convergence runs: distinct-accepts reached **4/7** (run A) then **2/7** (run B) — same
+artifact, different runs => the specialist reviewers are STOCHASTIC. Implementer now
+runs (no agent_blocked) and correctly skips the paper compile, but round-2 found
+0/21 edits applied (all new-file creations + relative-path diffs — now fixed by
+061fd529b).
+
+### The remaining blocker is DESIGN-LEVEL (needs a human decision):
+1. **Stochastic reviewers vs unanimous gate.** 7 specialists, each accepts with p<1
+   per round; the gate is `_all_specialists_accept` = each has >=1 accept record EVER
+   (accumulating across rounds). Accumulation CAN converge (P(all 7 accept once in K
+   rounds)=[1-(1-p)^K]^7; ~8 rounds at p~0.4 => ~0.9), BUT:
+2. **MAX_REVISION_ROUNDS=3 (advancement.py)** cuts it off at 3 rounds -> research_full_revision
+   -> (now) clean HUMAN_INPUT_NEEDED escalation. 3 is too few for stochastic accumulation.
+3. **Concurrent crons** are ALSO driving 552's revisions (revisions/index.yaml had 552 +
+   614 queued by cron lanes) — they fight a manual driver, inflate the round counter, and
+   cause state conflicts. A clean convergence experiment needs the crons paused OR must be
+   driven solely by the crons.
+
+### Candidate fixes (judgment calls for the user):
+- Raise MAX_REVISION_ROUNDS for research (e.g. 3->8) so accumulation can reach 7/7 — the
+  implementer now genuinely improves the artifact each round (creates the requested docs/
+  README, edits code), so more rounds = legitimate convergence, not re-rolling.
+- Reviewer DETERMINISM: pass temperature=0 to reviewer chat calls (backends support it),
+  so a calibrated reviewer reliably accepts sound work. RISK: gpt-oss-120b on Dartmouth may
+  reject non-1 temperature (dartmouth.py has an 'unsupported temperature -> drop' fallback).
+- Quorum instead of strict unanimous (design change to the gate).
+
+### 552 state now: at research_full_revision; with b222dc632 it settles cleanly into
+### HUMAN_INPUT_NEEDED (honest 'panel could not auto-converge') instead of erroring.
