@@ -153,6 +153,9 @@ class ResearchReviewerAgent(Agent):
         tasks_text = _read_optional(feature_dir / "tasks.md")
         code_summary = _summarize_tree(project_dir / "code")
         data_summary = _summarize_tree(project_dir / "data")
+        # docs/ holds the reproducibility documentation (FR-007 etc.). Omitting it
+        # made implementation reviewers falsely report those docs "missing".
+        docs_summary = _summarize_tree(project_dir / "docs")
         results_summary = _read_optional(project_dir / "results.md")
         execution_evidence = _execution_evidence(ctx.project_id, repo)
 
@@ -183,6 +186,7 @@ class ResearchReviewerAgent(Agent):
             f"# tasks.md\n\n{tasks_text}\n\n"
             f"# code summary\n\n{code_summary}\n\n"
             f"# data summary\n\n{data_summary}\n\n"
+            f"# docs summary (incl. docs/reproducibility/)\n\n{docs_summary}\n\n"
             f"# execution evidence\n\n{execution_evidence}\n\n"
             f"# results summary\n\n{results_summary}\n\n"
             f"# prior reviews\n\n{prior_block}\n\n"
