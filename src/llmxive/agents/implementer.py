@@ -179,7 +179,10 @@ def apply_unified_diff(file_path: Path, diff: str) -> EditResult:
     # absolute, so compare by path-component-aligned suffix (not equality) — a
     # declared path must be the tail of the absolute target, or its bare name.
     declared = set(re.findall(r"^(?:---|\+\+\+)\s+(?:a/|b/)?(\S+)", diff, re.M))
+    # /dev/null marks a new/deleted file; the a/ b/ strip can leave it as
+    # "dev/null" too — discard both forms so new-file diffs aren't rejected.
     declared.discard("/dev/null")
+    declared.discard("dev/null")
     rel = file_path.as_posix()
     if declared and not all(
         rel == d or rel.endswith("/" + d) or d == file_path.name for d in declared
@@ -968,23 +971,28 @@ class LLMXiveImplementer(Agent):
                 error_reason=result.reject_reason,
             )
 
-        # Compile gate.
-        ok, log_tail = _compile_paper(source_dir)
-        if not ok:
-            _restore(snap)
-            return ImplementerLogEntry(
-                task_id=task_id,
-                status="compile-failed",
-                action_item_severity=cast(Literal["writing", "science"], severity) if severity in {"writing", "science"} else None,
-                action_item_text=item_text,
-                edit_kind=edit["kind"],
-                files_modified=result.files_modified,
-                before_hashes=result.before_hashes,
-                after_hashes={},  # rolled back
-                model_response_excerpt=response_text[:500],
-                duration_s=time.monotonic() - t_started,
-                error_reason=f"lualatex failed: {log_tail[-200:]}",
-            )
+        # Compile gate — PAPER track only. A research revision has no manuscript;
+        # compiling a (non-existent) paper after every research edit would fail
+        # ('no main.tex') and roll back every edit -> tasks_done=0. A research
+        # edit to code/specs/docs stands once applied (science-class code edits
+        # are still exec-verified below).
+        if track == "paper":
+            ok, log_tail = _compile_paper(source_dir)
+            if not ok:
+                _restore(snap)
+                return ImplementerLogEntry(
+                    task_id=task_id,
+                    status="compile-failed",
+                    action_item_severity=cast(Literal["writing", "science"], severity) if severity in {"writing", "science"} else None,
+                    action_item_text=item_text,
+                    edit_kind=edit["kind"],
+                    files_modified=result.files_modified,
+                    before_hashes=result.before_hashes,
+                    after_hashes={},  # rolled back
+                    model_response_excerpt=response_text[:500],
+                    duration_s=time.monotonic() - t_started,
+                    error_reason=f"lualatex failed: {log_tail[-200:]}",
+                )
 
         # Science-class: best-effort analysis-script execution (FR-019).
         if severity == "science":

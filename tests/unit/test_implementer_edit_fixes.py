@@ -138,6 +138,16 @@ def test_apply_unified_diff_creates_new_file(tmp_path: Path) -> None:
     assert res.applied and target.is_file()
     assert "Data licenses" in target.read_text() and "CC-BY" in target.read_text()
 
+    # gpt-oss emits the a/ b/-prefixed form (`--- a/dev/null`); the a/ strip
+    # leaves "dev/null", which must also be treated as new-file (not rejected).
+    target2 = tmp_path / "docs" / "reproducibility" / "layout.md"
+    diff2 = (
+        "--- a/dev/null\n+++ b/docs/reproducibility/layout.md\n"
+        "@@ -0,0 +1,1 @@\n+Layout confirmed.\n"
+    )
+    res2 = apply_unified_diff(target2, diff2)
+    assert res2.applied and target2.is_file() and "Layout confirmed" in target2.read_text()
+
 
 def test_apply_unified_diff_existing_relative_path_and_scope(tmp_path: Path) -> None:
     """Existing-file diffs name the target with a PROJECT-relative path; the
