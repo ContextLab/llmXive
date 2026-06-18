@@ -122,6 +122,8 @@ ALLOWED_TRANSITIONS: dict[Stage, set[Stage]] = {
         Stage.TASKED,
         Stage.CLARIFIED,
         Stage.BRAINSTORMED,
+        # Convergence-kickback cap exceeded -> honest human escalation:
+        Stage.HUMAN_INPUT_NEEDED,
     },
     # Research-quality review (US3):
     Stage.RESEARCH_REVIEW: {
@@ -134,10 +136,14 @@ ALLOWED_TRANSITIONS: dict[Stage, set[Stage]] = {
         Stage.BRAINSTORMED,
         # T042 diagnostic-mode failsafe:
         Stage.AGENT_BLOCKED,
+        # Convergence-kickback cap exceeded -> honest human escalation:
+        Stage.HUMAN_INPUT_NEEDED,
     },
     Stage.RESEARCH_ACCEPTED: {Stage.PAPER_DRAFTING_INIT},
-    Stage.RESEARCH_FULL_REVISION: {Stage.CLARIFIED},  # back to clarified with feedback
-    Stage.RESEARCH_REJECTED: {Stage.BRAINSTORMED},
+    # back to clarified with feedback, OR honest escalation when the convergence
+    # engine's kickback cap is exhausted (else the routing throws every tick).
+    Stage.RESEARCH_FULL_REVISION: {Stage.CLARIFIED, Stage.HUMAN_INPUT_NEEDED},
+    Stage.RESEARCH_REJECTED: {Stage.BRAINSTORMED, Stage.HUMAN_INPUT_NEEDED},
     # Paper Spec Kit pipeline (US4):
     Stage.PAPER_DRAFTING_INIT: {Stage.PAPER_SPECIFIED},
     # Spec 015 F-20 Part B: the paper_spec convergence panel (run by the

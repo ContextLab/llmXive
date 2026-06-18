@@ -31,421 +31,196 @@ seed_action_items:
   reviewer: research_reviewer
   artifact: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/
   location: ''
-- id: 05763dd9bae8
-  text: "Well\u2011studied invariants \u2013 Both crossing number and braid index\
-    \ have been tabulated for decades, and their relationship to hyperbolic volume\
-    \ has been examined in the knot theory literature (e.g., Birman\u2011Menasco,\
-    \ Ohyama). The specification does not introduce a new invariant, a novel computational\
-    \ technique, or a fundamentally different theoretical perspective."
+- id: 8c91264026aa
+  text: "Choice of invariants \u2013 Crossing number and braid index are classic,\
+    \ well\u2011studied knot invariants. Their relationship to hyperbolic volume has\
+    \ been explored in the literature (e.g., Birman & Menasco 1988; Ohyama 1993).\
+    \ The specification does not propose a new invariant, a novel combination, or\
+    \ a fundamentally different mathematical perspective. Consequently, the work is\
+    \ largely an incremental application of existing theory rather than a creative\
+    \ breakthrough."
   severity: writing
   engine_severity: writing
   reviewer: research_reviewer
   artifact: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/
   location: ''
-- id: 2b7d8a23dfa1
-  text: "Predictive modeling is descriptive \u2013 Because the dataset is a complete\
-    \ census, the regression models serve only to describe existing correlations rather\
-    \ than to predict unseen data. This limits the methodological novelty; the analysis\
-    \ essentially re\u2011states known monotonic trends (braid index \u2264 crossing\
-    \ number) with additional goodness\u2011of\u2011fit metrics."
+- id: 47706a444261
+  text: "Analytical methodology \u2013 The regression and residual analyses (FR\u2011\
+    005, SC\u2011011) follow a standard statistical workflow. No unconventional modeling\
+    \ techniques (e.g., kernel methods, Bayesian hierarchical models, or topological\u2011\
+    data\u2011analysis embeddings) are introduced, and the plan explicitly avoids\
+    \ more sophisticated approaches such as ridge regression or PCA, citing the census\
+    \ nature of the data."
   severity: writing
   engine_severity: writing
   reviewer: research_reviewer
   artifact: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/
   location: ''
-- id: 1b0d495794cb
-  text: "Creative leap is missing \u2013 The most inventive aspects lie in the software\
-    \ infrastructure (e.g., reproducibility logs, exponential back\u2011off, flag\
-    \ taxonomy). These are valuable for reproducible research but do not advance the\
-    \ *conceptual* understanding of knot complexity. A truly creative contribution\
-    \ would, for example, propose a new composite complexity measure, apply machine\u2011\
-    learning on diagram images, or uncover a previously unknown non\u2011linear relationship\
-    \ that contradicts existing theory."
+- id: ebf85620571d
+  text: "Aesthetic/Conceptual novelty \u2013 The most distinctive element is the meticulous\
+    \ reproducibility infrastructure. While valuable for scientific rigor, reproducibility\
+    \ engineering does not, in itself, constitute a creative scientific contribution.\
+    \ The specification lacks an unexpected insight, a surprising hypothesis, or a\
+    \ new way of visualising knot complexity (beyond conventional scatter plots and\
+    \ PNG outputs). What would raise the creativity bar?"
   severity: writing
   engine_severity: writing
   reviewer: research_reviewer
   artifact: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/
   location: ''
-- id: b433d5e551eb
-  text: "Aesthetic/Conceptual appeal \u2013 The idea of \u201Cquantifying knot complexity\u201D\
-    \ is aesthetically appealing, yet the chosen metrics are the most obvious choices.\
-    \ The project could be made more interesting by exploring less conventional descriptors\
-    \ (e.g., knot energy, ropelength, or diagrammatic entropy) or by linking the invariants\
-    \ to physical models (e.g., DNA supercoiling). Blocking Issue for Creativity Lens\
-    \ The current scope does not demonstrate a novel research question or a new methodological\
-    \ angle"
+- id: 4ad821f70596
+  text: "Introduce a novel complexity metric derived from the knot diagram\u2019s\
+    \ geometry (e.g., curvature\u2011based descriptors, graph\u2011neural\u2011network\
+    \ embeddings of Dowker\u2013Thistlethwaite codes, or persistent homology signatures)."
   severity: writing
   engine_severity: writing
   reviewer: research_reviewer
   artifact: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/
   location: ''
-- id: 3275b2a6c2f8
-  text: "Introduce at least one novel invariant or composite metric (e.g., a weighted\
-    \ combination of crossing number, braid index, and a diagram\u2011based entropy\
-    \ measure) and justify why it might capture aspects of complexity that the two\
-    \ classical invariants miss."
+- id: cbc32b745c9c
+  text: "Explore cross\u2011modal learning by feeding knot images into a convolutional\
+    \ network to predict hyperbolic volume, then compare learned features with crossing\
+    \ number and braid index."
   severity: writing
   engine_severity: writing
   reviewer: research_reviewer
   artifact: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/
   location: ''
-- id: 000e2e0f90c3
-  text: "Show evidence of a surprising or non\u2011trivial pattern (e.g., a subset\
-    \ of hyperbolic knots where volume grows super\u2011linearly with braid index,\
-    \ contrary to prior expectations) that would constitute a genuine discovery."
+- id: 3996daee4cd4
+  text: "Propose a theoretical conjecture linking braid index to a newly defined \u201C\
+    diagram entropy\u201D and test it empirically. Required revision Amend the specification\
+    \ (spec.md) to include at least one new, non\u2011trivial invariant or modeling\
+    \ approach that is not a simple re\u2011use of crossing number and braid index.\
+    \ The new element should be described in a dedicated user story (e.g., \u201C\
+    As a researcher, I want to compute a graph\u2011theoretic complexity score from\
+    \ the knot\u2019s planar diagram and assess its predictive"
   severity: writing
   engine_severity: writing
   reviewer: research_reviewer
   artifact: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/
   location: ''
-- id: 14bd5f443603
-  text: Employ an unconventional analytical technique (e.g., topological data analysis,
-    graph neural networks on knot diagrams) that brings a fresh perspective to the
-    problem. Addressing any of the above would transform the work from a thorough
-    reproducibility exercise into a creatively compelling study. Recommendation Given
-    the lack of a clearly novel scientific contribution, I must issue a minor_revision.
-    The authors should revise the specification to incorporate a creative element
-    as outlined, then u
+- id: 6dd46e802fc4
+  text: Add a LICENSE file (or DATA_LICENSE.md) that records the Knot Atlas usage
+    terms and the project's own code license.
   severity: writing
   engine_severity: writing
   reviewer: research_reviewer
   artifact: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/
   location: ''
-- id: 433cf9c903a1
-  text: "The specification (spec.md) and implementation clearly state that the primary\
-    \ dataset is downloaded from *Knot Atlas* (https://katlas.org) and cross\u2011\
-    checked against *KnotInfo*. However, the repository does not contain any explicit\
-    \ documentation of the license under which Knot Atlas data are redistributed.\
-    \ FR\u2011001 and FR\u2011013 require provenance, but a reproducibility artifact\
-    \ such as docs/reproducibility/data_source_license.md (or equivalent) is missing.\
-    \ Without a clear license statement, downstrea"
+- id: d4cd75a65983
+  text: Update the provenance documentation (validation_scope.md or a new provenance.md)
+    to reference this license file.
   severity: writing
   engine_severity: writing
   reviewer: research_reviewer
   artifact: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/
   location: ''
-- id: d3749ccb7588
-  text: "Contract files (knot-record.schema.yaml, dataset.schema.yaml, regression-model.schema.yaml)\
-    \ are present, satisfying the schema\u2011definition requirement."
+- id: 226afe00c09d
+  text: "Optionally, include a short notice in the README linking to the license.\
+    \ Once these steps are completed, the data\u2011quality concerns will be fully\
+    \ resolved, and the project can be accepted."
   severity: writing
   engine_severity: writing
   reviewer: research_reviewer
   artifact: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/
   location: ''
-- id: 7d3a2c3b136c
-  text: "The data\u2011quality report (docs/reproducibility/data_quality_report.md)\
-    \ exists but is only 352 bytes; it is unclear whether it records the concrete\
-    \ metrics required by SC\u2011013 (null\u2011percentage \u2264 5 % per field,\
-    \ format\u2011validation pass\u2011rate \u2265 99 %). The review cannot verify\
-    \ that these thresholds are met. The report should include a tabular summary (e.g.,\
-    \ field | null % | format\u2011pass % | duplicates) to make the compliance evidence\
-    \ explicit. Missing\u2011Data Handling"
+- id: ce7f3dfea023
+  text: "Missing top\u2011level README The repository does not contain a README.md\
+    \ at the project root. According to Constitution Principle V and common best\u2011\
+    practice, a concise README should be present to describe the purpose of the repository,\
+    \ how to run the quick\u2011start, and where the main artefacts live. Its absence\
+    \ makes the project harder to discover and violates the \u201Csingle source of\
+    \ truth\u201D discipline."
   severity: writing
   engine_severity: writing
   reviewer: research_reviewer
   artifact: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/
   location: ''
-- id: 4f4416ee6b98
-  text: "The codebase defines two distinct flag categories (missing_invariant_flags\
-    \ and data_quality_flags) and the validator implements them (see code/data/validator.py).\
-    \ This satisfies FR\u2011009 and FR\u2011002 at a design level."
+- id: 376bf729cc5f
+  text: "Duplicate/over\u2011lapping documentation files"
   severity: writing
   engine_severity: writing
   reviewer: research_reviewer
   artifact: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/
   location: ''
-- id: fb14f8e2f371
-  text: "Nevertheless, SC\u2011013 demands that the *actual* missing\u2011data rates\
-    \ be measured and documented. The current data_quality_report.md does not show\
-    \ these numbers, nor does it indicate which records were flagged. A supplemental\
-    \ file such as docs/reproducibility/missing_data_summary.md should list counts\
-    \ and percentages per invariant and confirm that the \u2265 5 % null\u2011threshold\
-    \ is respected. Version Control & Reproducibility Metadata"
+- id: 1d49fc2c71d8
+  text: "docs/reproducibility/validation_status.md and docs/reproducibility/validation_status_generator.md\
+    \ both claim to report validation status. Keeping two files with overlapping responsibilities\
+    \ can cause drift; the specification only requires a single validation\u2011status\
+    \ document."
   severity: writing
   engine_severity: writing
   reviewer: research_reviewer
   artifact: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/
   location: ''
-- id: 648594dfbba8
-  text: "The repository appears to be under Git, and artifact hashes are recorded\
-    \ for several outputs (e.g., checksums.sha256). However, the raw source data file\
-    \ (data/raw/knot_atlas_raw.json) does not have an associated version identifier\
-    \ (e.g., download timestamp, source version tag, or hash of the original remote\
-    \ file). FR\u2011007 requires \u201Cchecksums for all data files recorded under\
-    \ data/ directory\u201D. While a checksum file exists, the provenance metadata\
-    \ (date, URL, version) is not explicitly captured in"
+- id: e3864c5b8f80
+  text: "Similarly, docs/reproducibility/tie_breaking_rules.md (the human\u2011readable\
+    \ rule description) and docs/reproducibility/tie_breaking_validation.md (a short\
+    \ validation report) are both present, but the pipeline also includes a script\
+    \ reproducibility/tie_breaking_validator.py. The naming inconsistency between\
+    \ the *rules* file, the *validation* report, and the *validator* script makes\
+    \ it easy to confuse which artefact is the authoritative source. Recommendation:\
+    \ consolidate the two validation\u2011status f"
   severity: writing
   engine_severity: writing
   reviewer: research_reviewer
   artifact: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/
   location: ''
-- id: 44f23bcf3472
-  text: "The project includes docs/reproducibility/dataset_counts.md and docs/reproducibility/validation_scope.md,\
-    \ which presumably contain knot counts per crossing number. The specification\
-    \ (SC\u2011001) states that validation is limited to \u2264 10 crossings, with\
-    \ 11\u201113 crossings treated as exploratory. To satisfy the data\u2011quality\
-    \ lens, the authors should explicitly report the absolute number of hyperbolic\
-    \ prime knots used in each analysis subgroup (alternating vs. non\u2011alternating)\
-    \ and argue that these counts a"
+- id: 2a2509f97d95
+  text: "Placement of reproducibility artefacts All reproducibility artefacts (checksums,\
+    \ logs, derivation notes, random\u2011seed listings) are correctly stored under\
+    \ docs/reproducibility/ and the raw/processed data files under data/. This complies\
+    \ with Constitution Principle III (no in\u2011place modification) and Principle\
+    \ V (versioning discipline)."
   severity: writing
   engine_severity: writing
   reviewer: research_reviewer
   artifact: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/
   location: ''
-- id: bdcd452820fc
-  text: "Add a license provenance document (docs/reproducibility/data_source_license.md)\
-    \ that cites the Knot Atlas license (or states \u201Cpublic domain / CC\u2011\
-    BY\u2011SA\u201D if applicable) and confirms that redistribution complies with\
-    \ it."
+- id: 2e1c8d02d31d
+  text: Naming conventions
   severity: writing
   engine_severity: writing
   reviewer: research_reviewer
   artifact: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/
   location: ''
-- id: 0a02b2aff483
-  text: "Expand the data\u2011quality report to include explicit null\u2011percentage\
-    \ and format\u2011validation metrics, with a clear pass/fail status per SC\u2011\
-    013."
+- id: ae5c02483e7a
+  text: The codebase follows the snake_case.py convention for modules, which is consistent.
   severity: writing
   engine_severity: writing
   reviewer: research_reviewer
   artifact: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/
   location: ''
-- id: d439a3239de1
-  text: "Create a data acquisition log capturing download URL, timestamp, and SHA\u2011\
-    256 of the raw JSON file."
+- id: 2d5739f7182b
+  text: "Some documentation files use mixed naming styles (validation_status_generator.md\
+    \ vs validation_status.md). It is preferable to adopt a single convention (e.g.,\
+    \ *_status.md for human\u2011readable reports, *_generator.py for scripts) to\
+    \ avoid confusion."
   severity: writing
   engine_severity: writing
   reviewer: research_reviewer
   artifact: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/
   location: ''
-- id: 742c0366cb99
-  text: "Provide a sample\u2011size adequacy summary showing counts for each crossing\u2011\
-    number tier and for alternating/non\u2011alternating groups, with a brief justification\
-    \ that the numbers support the reported descriptive statistics."
+- id: e33768de3bd4
+  text: "Currency of documentation The docs/reproducibility/ directory contains a\
+    \ large number of markdown files, but there is no clear indication (e.g., a timestamp\
+    \ or version header) that they have been regenerated after the most recent pipeline\
+    \ run. Adding a short \u201Clast\u2011generated: YYYY\u2011MM\u2011DD\u201D header\
+    \ to each autogenerated document would make it easy to verify that they are up\u2011\
+    to\u2011date with the current data."
   severity: writing
   engine_severity: writing
   reviewer: research_reviewer
   artifact: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/
   location: ''
-- id: 4fd2049da4df
-  text: "Compute and insert the SHA\u2011256 hash of the current tasks.md file into\
-    \ the review record (replace the placeholder <SHA-256 hash \u2026>). Addressing\
-    \ these points will resolve the blocking data\u2011quality deficiencies and allow\
-    \ the project to proceed to the next review stage."
-  severity: writing
-  engine_severity: writing
-  reviewer: research_reviewer
-  artifact: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/
-  location: ''
-- id: 6d8921068818
-  text: "Missing top\u2011level README and LICENSE \u2013 The repository root contains\
-    \ no README.md or LICENSE file. Per Constitution Principle V, a brief README describing\
-    \ the project, its entry point (code/main.py), and any licensing terms is mandatory\
-    \ for traceability and reproducibility."
-  severity: writing
-  engine_severity: writing
-  reviewer: research_reviewer
-  artifact: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/
-  location: ''
-- id: 227402f315a1
-  text: "Checksums stored in the wrong location \u2013 FR\u2011007 requires *\u201C\
-    checksums (SHA\u2011256) for all data files recorded under data/ directory\u201D\
-    *. The three checksum artifacts (checksums.csv, checksums.json, checksums.sha256)\
-    \ reside at the repository root, not inside data/. This violates the prescribed\
-    \ data\u2011hygiene layout and makes automated reproducibility scripts (which\
-    \ expect data/checksums.*) fail."
-  severity: writing
-  engine_severity: writing
-  reviewer: research_reviewer
-  artifact: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/
-  location: ''
-- id: 56052c3bb833
-  text: "Log files misplaced \u2013 Persistent logs (logs/logs.jsonl, logs/reproducibility.log,\
-    \ logs.json, logs.jsonl, operation_logs.jsonl) are stored under a top\u2011level\
-    \ logs/ directory. FR\u2011007 explicitly states that *\u201Ctimestamped logs\
-    \ stored in docs/reproducibility/\u201D*. While a docs/reproducibility/operation_logs.md\
-    \ exists, the raw log files should also be under docs/reproducibility/ (or a sub\u2011\
-    directory thereof) to satisfy the principle that *all reproducibility artifacts\
-    \ live within docs/reproducibility/*."
-  severity: writing
-  engine_severity: writing
-  reviewer: research_reviewer
-  artifact: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/
-  location: ''
-- id: 58cd1f8de395
-  text: "State file for content hashes missing \u2013 Constitution Principle V requires\
-    \ a *state file* (e.g., state/projects/PROJ-552-quantifying-the-complexity-of-knot-diagr.yaml)\
-    \ that records artifact hashes and an updated_at timestamp. No such state/ directory\
-    \ or file appears in the tree. Without it, version\u2011discipline cannot be verified."
-  severity: writing
-  engine_severity: writing
-  reviewer: research_reviewer
-  artifact: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/
-  location: ''
-- id: 0cb52512af45
-  text: "Inconsistent naming of tie\u2011breaking artifacts \u2013 Both docs/reproducibility/tie_breaking_rules.md\
-    \ and docs/reproducibility/tie_breaking_validation.md exist, which is acceptable,\
-    \ but the corresponding validator script is named reproducibility/tie_breaking_validator.py.\
-    \ For clarity and uniformity, the validator script should be named tie_breaking_validation.py\
-    \ to mirror the documentation name, aligning with the naming convention that code\
-    \ and docs share a base name."
-  severity: writing
-  engine_severity: writing
-  reviewer: research_reviewer
-  artifact: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/
-  location: ''
-- id: df110d431d99
-  text: "Redundant/Orphaned files \u2013 The file docs/reproducibility/validation_status_generator.md\
-    \ duplicates functionality already covered by docs/reproducibility/validation_status.md\
-    \ and the script reproducibility/validation_status_generator.py. Keeping both\
-    \ markdown files creates potential confusion about which is the authoritative\
-    \ source. Required Changes to Achieve Acceptable Hygiene | File / Directory |\
-    \ Required Action | |------------------|-----------------| | Root | Add a concise\
-    \ README.md (project"
-  severity: writing
-  engine_severity: writing
-  reviewer: research_reviewer
-  artifact: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/
-  location: ''
-- id: fa71b2e22d73
-  text: "Feedback (Idea Quality) The research idea is clearly articulated: it seeks\
-    \ to quantify knot\u2011diagram complexity using the crossing number and braid\
-    \ index, and to assess how these combinatorial invariants jointly predict hyperbolic\
-    \ volume. The specification identifies a concrete gap in the literature\u2014\
-    namely, the lack of a systematic, reproducible analysis that (i) validates braid\u2011\
-    index measurements across alternating and non\u2011alternating prime knots, (ii)\
-    \ examines the precision of these core invari"
-  severity: writing
-  engine_severity: writing
-  reviewer: research_reviewer
-  artifact: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/
-  location: ''
-- id: 597bb4038096
-  text: "Data acquisition & retry logic \u2013 code/download/knot_atlas_loader.py\
-    \ (\u22484 KB) implements download with exponential back\u2011off and partial\u2011\
-    result caching (FR\u2011001, FR\u2011008)."
-  severity: writing
-  engine_severity: writing
-  reviewer: research_reviewer
-  artifact: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/
-  location: ''
-- id: 49db8199744f
-  text: "Parsing, cleaning, flagging \u2013 code/data/parser.py, code/data/validator.py\
-    \ (\u22487 KB) provide the required extraction, data_quality_flags and missing_invariant_flags\
-    \ handling (FR\u2011002, FR\u2011009, FR\u2011010)."
-  severity: writing
-  engine_severity: writing
-  reviewer: research_reviewer
-  artifact: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/
-  location: ''
-- id: d13986af5456
-  text: "Tie\u2011breaking rules \u2013 documented in docs/reproducibility/tie_breaking_rules.md\
-    \ and validated by reproducibility/tie_breaking_validator.py (FR\u2011011, SC\u2011\
-    007)."
-  severity: writing
-  engine_severity: writing
-  reviewer: research_reviewer
-  artifact: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/
-  location: ''
-- id: d0ea01954561
-  text: "Filtering & hyperbolic\u2011volume cross\u2011check \u2013 filter/hyperbolic_filter.py\
-    \ and analysis/hyperbolic_volume_validation.py (\u224815 KB) implement FR\u2011\
-    012 and FR\u2011013, with output logged in docs/reproducibility/hyperbolic_volume_validation.md."
-  severity: writing
-  engine_severity: writing
-  reviewer: research_reviewer
-  artifact: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/
-  location: ''
-- id: 252d600d5291
-  text: "Exploratory plots & regression \u2013 analysis/save_crossing_braid_plot.py,\
-    \ analysis/regression.py, analysis/residual_analysis.py produce the required PNGs,\
-    \ model metrics, VIF, residual family reports (FR\u2011004, FR\u2011005, FR\u2011\
-    006, SC\u2011011)."
-  severity: writing
-  engine_severity: writing
-  reviewer: research_reviewer
-  artifact: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/
-  location: ''
-- id: b9ea8b282541
-  text: "Reproducibility artifacts \u2013 checksums, logs, derivation notes, random\u2011\
-    seed documentation, multicollinearity assessment, etc., are all present under\
-    \ docs/reproducibility/ (FR\u2011007). However, two blocking omissions remain\
-    \ that prevent the implementation from being *complete* with respect to the plan:"
-  severity: writing
-  engine_severity: writing
-  reviewer: research_reviewer
-  artifact: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/
-  location: ''
-- id: 5b58b53add82
-  text: "Missing quickstart.md *Task T008* in the plan explicitly requires a quickstart.md\
-    \ in specs/001-knot-complexity-analysis/ that documents the end\u2011to\u2011\
-    end execution steps. This file is not present in the repository tree. The quick\u2011\
-    start guide is essential for reproducibility (FR\u2011007, SC\u2011007) and is\
-    \ referenced by later tasks (e.g., T056)."
-  severity: writing
-  engine_severity: writing
-  reviewer: research_reviewer
-  artifact: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/
-  location: ''
-- id: 46609c7c374b
-  text: "Absent test suite The plan and many tasks (e.g., T011, T012, T021, T031,\
-    \ T057) assume the existence of unit, integration, and contract tests under a\
-    \ tests/ directory. No tests/ folder or test files appear in the file listing.\
-    \ While tests are optional per the spec, the plan treats them as required for\
-    \ verification of each user story, and the earlier \u201Cresearch_reviewer_implementation_correctness\u201D\
-    \ acceptance was based on the assumption that the test suite existed. Their absence\
-    \ leaves the pipeline"
-  severity: writing
-  engine_severity: writing
-  reviewer: research_reviewer
-  artifact: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/
-  location: ''
-- id: d3b95d2aa1ef
-  text: 'Add specs/001-knot-complexity-analysis/quickstart.md that:'
-  severity: writing
-  engine_severity: writing
-  reviewer: research_reviewer
-  artifact: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/
-  location: ''
-- id: 2733ebe8f6ec
-  text: Lists the exact command(s) to run the pipeline (python -m code.main or similar).
-  severity: writing
-  engine_severity: writing
-  reviewer: research_reviewer
-  artifact: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/
-  location: ''
-- id: 0f5a244aaacf
-  text: Describes required environment variables, seed settings, and where to find
-    generated artifacts.
-  severity: writing
-  engine_severity: writing
-  reviewer: research_reviewer
-  artifact: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/
-  location: ''
-- id: 764813121ae8
-  text: References the reproducibility logs and checksum files.
-  severity: writing
-  engine_severity: writing
-  reviewer: research_reviewer
-  artifact: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/
-  location: ''
-- id: a831cf8e07f9
-  text: 'Create a minimal but functional test suite under tests/:'
-  severity: writing
-  engine_severity: writing
-  reviewer: research_reviewer
-  artifact: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/
-  location: ''
-- id: 39a29114bdd7
-  text: Contract tests for the three YAML schemas (tests/contract/test_schemas.py).
-  severity: writing
-  engine_severity: writing
-  reviewer: research_reviewer
-  artifact: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/
-  location: ''
-- id: 367b9c59586d
-  text: "Integration test for the download\u2011parse\u2011clean pipeline (tests/integration/test_pipeline.py)."
+- id: 92e423e2dcf8
+  text: "Artifact hash requirement The review contract mandates the SHA\u2011256 hash\
+    \ of the primary artifact (tasks.md). The hash is currently missing from the review\
+    \ record, preventing automated verification of the artefact\u2019s integrity.\
+    \ Required actions to achieve an accept verdict | Issue | Required change | |-------|-----------------|\
+    \ | Missing top\u2011level README | Add a README.md at the repository root summarising\
+    \ the project, usage instructions, and directory layout. | | Duplicate validation\u2011\
+    status files"
   severity: writing
   engine_severity: writing
   reviewer: research_reviewer
@@ -465,10 +240,10 @@ stage_results:
   status: success
 - name: tasks
   status: success
-  note: 43 tasks emitted (one per concern)
+  note: 21 tasks emitted (one per concern)
 - name: analyze
   status: success
   iterations: 1
   finding_count: 0
 final_outcome: ready_for_implementation
-produced_at: '2026-06-18T07:59:18.524934+00:00'
+produced_at: '2026-06-18T12:54:39.459519+00:00'

@@ -87,3 +87,6 @@ ready:
 - project_id: PROJ-614-enhancing-train-free-infinite-frame-gene
   revision_spec_path: specs/auto-revisions/PROJ-614-enhancing-train-free-infinite-frame-gene/round-2
   queued_at: '2026-06-18T13:10:24.148448+00:00'
+- project_id: PROJ-552-quantifying-the-complexity-of-knot-diagr
+  revision_spec_path: specs/auto-revisions/PROJ-552-quantifying-the-complexity-of-knot-diagr/round-1
+  queued_at: '2026-06-18T12:54:39.464908+00:00'

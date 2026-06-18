@@ -1,51 +1,67 @@
 ---
 action_items:
-- id: 6d8921068818
+- id: ce7f3dfea023
   severity: writing
-  text: "Missing top\u2011level README and LICENSE \u2013 The repository root contains\
-    \ no README.md or LICENSE file. Per Constitution Principle V, a brief README describing\
-    \ the project, its entry point (code/main.py), and any licensing terms is mandatory\
-    \ for traceability and reproducibility."
-- id: 227402f315a1
+  text: "Missing top\u2011level README The repository does not contain a README.md\
+    \ at the project root. According to Constitution Principle V and common best\u2011\
+    practice, a concise README should be present to describe the purpose of the repository,\
+    \ how to run the quick\u2011start, and where the main artefacts live. Its absence\
+    \ makes the project harder to discover and violates the \u201Csingle source of\
+    \ truth\u201D discipline."
+- id: 376bf729cc5f
   severity: writing
-  text: "Checksums stored in the wrong location \u2013 FR\u2011007 requires *\u201C\
-    checksums (SHA\u2011256) for all data files recorded under data/ directory\u201D\
-    *. The three checksum artifacts (checksums.csv, checksums.json, checksums.sha256)\
-    \ reside at the repository root, not inside data/. This violates the prescribed\
-    \ data\u2011hygiene layout and makes automated reproducibility scripts (which\
-    \ expect data/checksums.*) fail."
-- id: 56052c3bb833
+  text: "Duplicate/over\u2011lapping documentation files"
+- id: 1d49fc2c71d8
   severity: writing
-  text: "Log files misplaced \u2013 Persistent logs (logs/logs.jsonl, logs/reproducibility.log,\
-    \ logs.json, logs.jsonl, operation_logs.jsonl) are stored under a top\u2011level\
-    \ logs/ directory. FR\u2011007 explicitly states that *\u201Ctimestamped logs\
-    \ stored in docs/reproducibility/\u201D*. While a docs/reproducibility/operation_logs.md\
-    \ exists, the raw log files should also be under docs/reproducibility/ (or a sub\u2011\
-    directory thereof) to satisfy the principle that *all reproducibility artifacts\
-    \ live within docs/reproducibility/*."
-- id: 58cd1f8de395
+  text: "docs/reproducibility/validation_status.md and docs/reproducibility/validation_status_generator.md\
+    \ both claim to report validation status. Keeping two files with overlapping responsibilities\
+    \ can cause drift; the specification only requires a single validation\u2011status\
+    \ document."
+- id: e3864c5b8f80
   severity: writing
-  text: "State file for content hashes missing \u2013 Constitution Principle V requires\
-    \ a *state file* (e.g., state/projects/PROJ-552-quantifying-the-complexity-of-knot-diagr.yaml)\
-    \ that records artifact hashes and an updated_at timestamp. No such state/ directory\
-    \ or file appears in the tree. Without it, version\u2011discipline cannot be verified."
-- id: 0cb52512af45
+  text: "Similarly, docs/reproducibility/tie_breaking_rules.md (the human\u2011readable\
+    \ rule description) and docs/reproducibility/tie_breaking_validation.md (a short\
+    \ validation report) are both present, but the pipeline also includes a script\
+    \ reproducibility/tie_breaking_validator.py. The naming inconsistency between\
+    \ the *rules* file, the *validation* report, and the *validator* script makes\
+    \ it easy to confuse which artefact is the authoritative source. Recommendation:\
+    \ consolidate the two validation\u2011status f"
+- id: 2a2509f97d95
   severity: writing
-  text: "Inconsistent naming of tie\u2011breaking artifacts \u2013 Both docs/reproducibility/tie_breaking_rules.md\
-    \ and docs/reproducibility/tie_breaking_validation.md exist, which is acceptable,\
-    \ but the corresponding validator script is named reproducibility/tie_breaking_validator.py.\
-    \ For clarity and uniformity, the validator script should be named tie_breaking_validation.py\
-    \ to mirror the documentation name, aligning with the naming convention that code\
-    \ and docs share a base name."
-- id: df110d431d99
+  text: "Placement of reproducibility artefacts All reproducibility artefacts (checksums,\
+    \ logs, derivation notes, random\u2011seed listings) are correctly stored under\
+    \ docs/reproducibility/ and the raw/processed data files under data/. This complies\
+    \ with Constitution Principle III (no in\u2011place modification) and Principle\
+    \ V (versioning discipline)."
+- id: 2e1c8d02d31d
   severity: writing
-  text: "Redundant/Orphaned files \u2013 The file docs/reproducibility/validation_status_generator.md\
-    \ duplicates functionality already covered by docs/reproducibility/validation_status.md\
-    \ and the script reproducibility/validation_status_generator.py. Keeping both\
-    \ markdown files creates potential confusion about which is the authoritative\
-    \ source. Required Changes to Achieve Acceptable Hygiene | File / Directory |\
-    \ Required Action | |------------------|-----------------| | Root | Add a concise\
-    \ README.md (project"
+  text: Naming conventions
+- id: ae5c02483e7a
+  severity: writing
+  text: The codebase follows the snake_case.py convention for modules, which is consistent.
+- id: 2d5739f7182b
+  severity: writing
+  text: "Some documentation files use mixed naming styles (validation_status_generator.md\
+    \ vs validation_status.md). It is preferable to adopt a single convention (e.g.,\
+    \ *_status.md for human\u2011readable reports, *_generator.py for scripts) to\
+    \ avoid confusion."
+- id: e33768de3bd4
+  severity: writing
+  text: "Currency of documentation The docs/reproducibility/ directory contains a\
+    \ large number of markdown files, but there is no clear indication (e.g., a timestamp\
+    \ or version header) that they have been regenerated after the most recent pipeline\
+    \ run. Adding a short \u201Clast\u2011generated: YYYY\u2011MM\u2011DD\u201D header\
+    \ to each autogenerated document would make it easy to verify that they are up\u2011\
+    to\u2011date with the current data."
+- id: 92e423e2dcf8
+  severity: writing
+  text: "Artifact hash requirement The review contract mandates the SHA\u2011256 hash\
+    \ of the primary artifact (tasks.md). The hash is currently missing from the review\
+    \ record, preventing automated verification of the artefact\u2019s integrity.\
+    \ Required actions to achieve an accept verdict | Issue | Required change | |-------|-----------------|\
+    \ | Missing top\u2011level README | Add a README.md at the repository root summarising\
+    \ the project, usage instructions, and directory layout. | | Duplicate validation\u2011\
+    status files"
 artifact_hash: 7baa44b59cd32c7fda7ee82e82eeaf53dd34c3f18b9a974e3b4792da9f1598ca
 artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
 backend: dartmouth
@@ -53,37 +69,45 @@ feedback: ''
 github_authenticated: false
 model_name: openai.gpt-oss-120b
 prompt_version: 1.0.0
-reviewed_at: '2026-06-18T07:59:18.414440Z'
+reviewed_at: '2026-06-18T12:54:39.349321Z'
 reviewer_kind: llm
 reviewer_name: research_reviewer_filesystem_hygiene
 score: 0.0
 verdict: minor_revision
 ---
 
-**Filesystem Hygiene Findings (Constitution Principles III & V, naming & documentation placement)**  
+**Filesystem hygiene assessment**
 
-1. **Missing top‑level README and LICENSE** – The repository root contains no `README.md` or `LICENSE` file. Per Constitution Principle V, a brief README describing the project, its entry point (`code/main.py`), and any licensing terms is mandatory for traceability and reproducibility.
+1. **Missing top‑level README**  
+   The repository does not contain a `README.md` at the project root.  According to Constitution Principle V and common best‑practice, a concise README should be present to describe the purpose of the repository, how to run the quick‑start, and where the main artefacts live. Its absence makes the project harder to discover and violates the “single source of truth” discipline.
 
-2. **Checksums stored in the wrong location** – FR‑007 requires *“checksums (SHA‑256) for all data files recorded under data/ directory”*. The three checksum artifacts (`checksums.csv`, `checksums.json`, `checksums.sha256`) reside at the repository root, not inside `data/`. This violates the prescribed data‑hygiene layout and makes automated reproducibility scripts (which expect `data/checksums.*`) fail.
+2. **Duplicate/over‑lapping documentation files**  
+   - `docs/reproducibility/validation_status.md` and `docs/reproducibility/validation_status_generator.md` both claim to report validation status. Keeping two files with overlapping responsibilities can cause drift; the specification only requires a single validation‑status document.  
+   - Similarly, `docs/reproducibility/tie_breaking_rules.md` (the human‑readable rule description) and `docs/reproducibility/tie_breaking_validation.md` (a short validation report) are both present, but the pipeline also includes a script `reproducibility/tie_breaking_validator.py`. The naming inconsistency between the *rules* file, the *validation* report, and the *validator* script makes it easy to confuse which artefact is the authoritative source.
 
-3. **Log files misplaced** – Persistent logs (`logs/logs.jsonl`, `logs/reproducibility.log`, `logs.json`, `logs.jsonl`, `operation_logs.jsonl`) are stored under a top‑level `logs/` directory. FR‑007 explicitly states that *“timestamped logs stored in docs/reproducibility/”*. While a `docs/reproducibility/operation_logs.md` exists, the raw log files should also be under `docs/reproducibility/` (or a sub‑directory thereof) to satisfy the principle that *all reproducibility artifacts live within `docs/reproducibility/`*.
+   Recommendation: consolidate the two validation‑status files into a single `validation_status.md` (generated by the existing `validation_status_generator.py`) and keep only one concise tie‑breaking documentation file (e.g., `tie_breaking_rules.md`) while the validator script remains separate.
 
-4. **State file for content hashes missing** – Constitution Principle V requires a *state file* (e.g., `state/projects/PROJ-552-quantifying-the-complexity-of-knot-diagr.yaml`) that records artifact hashes and an `updated_at` timestamp. No such `state/` directory or file appears in the tree. Without it, version‑discipline cannot be verified.
+3. **Placement of reproducibility artefacts**  
+   All reproducibility artefacts (checksums, logs, derivation notes, random‑seed listings) are correctly stored under `docs/reproducibility/` and the raw/processed data files under `data/`.  This complies with Constitution Principle III (no in‑place modification) and Principle V (versioning discipline).
 
-5. **Inconsistent naming of tie‑breaking artifacts** – Both `docs/reproducibility/tie_breaking_rules.md` and `docs/reproducibility/tie_breaking_validation.md` exist, which is acceptable, but the corresponding validator script is named `reproducibility/tie_breaking_validator.py`. For clarity and uniformity, the validator script should be named `tie_breaking_validation.py` to mirror the documentation name, aligning with the naming convention that code and docs share a base name.
+4. **Naming conventions**  
+   - The codebase follows the `snake_case.py` convention for modules, which is consistent.  
+   - Some documentation files use mixed naming styles (`validation_status_generator.md` vs `validation_status.md`). It is preferable to adopt a single convention (e.g., `*_status.md` for human‑readable reports, `*_generator.py` for scripts) to avoid confusion.
 
-6. **Redundant/Orphaned files** – The file `docs/reproducibility/validation_status_generator.md` duplicates functionality already covered by `docs/reproducibility/validation_status.md` and the script `reproducibility/validation_status_generator.py`. Keeping both markdown files creates potential confusion about which is the authoritative source.
+5. **Currency of documentation**  
+   The `docs/reproducibility/` directory contains a large number of markdown files, but there is no clear indication (e.g., a timestamp or version header) that they have been regenerated after the most recent pipeline run.  Adding a short “last‑generated: YYYY‑MM‑DD” header to each autogenerated document would make it easy to verify that they are up‑to‑date with the current data.
 
-**Required Changes to Achieve Acceptable Hygiene**
+6. **Artifact hash requirement**  
+   The review contract mandates the SHA‑256 hash of the primary artifact (`tasks.md`).  The hash is currently missing from the review record, preventing automated verification of the artefact’s integrity.
 
-| File / Directory | Required Action |
-|------------------|-----------------|
-| Root | Add a concise `README.md` (project overview, quick‑start command, entry point) and a `LICENSE` file. |
-| `checksums.*` | Move all checksum files into `data/` (e.g., `data/checksums.csv`). Update any scripts that reference them accordingly. |
-| `logs/` | Relocate raw log files into `docs/reproducibility/` (e.g., `docs/reproducibility/logs/`). Adjust log‑generation code to write to the new path. |
-| `state/` | Create a `state/projects/PROJ-552-quantifying-the-complexity-of-knot-diagr.yaml` containing SHA‑256 hashes for all primary artifacts (spec, plan, tasks, code modules) and an `updated_at` timestamp. Ensure the CI pipeline updates this file on each commit. |
-| `reproducibility/tie_breaking_validator.py` | Rename to `tie_breaking_validation.py` (or add a thin wrapper) so the filename matches the documentation (`tie_breaking_validation.md`). |
-| `docs/reproducibility/validation_status_generator.md` | Delete or merge into `validation_status.md` to avoid duplication. Keep only one authoritative markdown file. |
-| Update references | Search the code base for any hard‑coded paths that assume the old locations (checksum files, logs) and modify them to the new locations. |
+**Required actions to achieve an `accept` verdict**
 
-Once these adjustments are made, the project will fully comply with the filesystem‑hygiene requirements of Constitution Principles III and V, and the review can be upgraded to **accept**.
+| Issue | Required change |
+|-------|-----------------|
+| Missing top‑level README | Add a `README.md` at the repository root summarising the project, usage instructions, and directory layout. |
+| Duplicate validation‑status files | Keep a single `validation_status.md` (generated by the existing generator script) and delete or rename the redundant `validation_status_generator.md`. |
+| Inconsistent tie‑breaking documentation | Ensure the authoritative rule description lives in `tie_breaking_rules.md`; optionally keep a separate short validation report, but rename it to avoid the “validation” suffix clash with the script (`tie_breaking_validation_report.md`). |
+| Documentation currency | Add a “last‑generated” timestamp header to each autogenerated markdown file in `docs/reproducibility/`. |
+| SHA‑256 hash missing | Provide the exact SHA‑256 hexadecimal hash of the current `tasks.md` file in the review record. |
+
+Once these modifications are made and the correct hash is supplied, the filesystem hygiene will satisfy all Constitution principles, and the reviewer can issue an `accept` verdict.
