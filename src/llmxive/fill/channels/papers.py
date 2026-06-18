@@ -44,6 +44,57 @@ def _shared_arxiv_client() -> ArxivClient:
 
 
 # ---------------------------------------------------------------------------
+# SemanticScholar availability breaker (Fix E): SS rate-limits aggressively
+# (HTTP 429) and recovers slowly.  Re-querying it once per claim after a 429
+# wedges a whole pipeline run in fail-soft retries (observed: the in_progress
+# tick logging nothing but "SS failed: 429" for minutes while verifying a
+# report's claims, never reaching execution).  Once SS signals it is
+# unavailable (429 / rate-limit / 403), skip it for the REMAINDER of the
+# process; arXiv and the other fill channels still run, so claims still get
+# real sources — we just stop hammering a service that has told us to stop.
+# ---------------------------------------------------------------------------
+_SS_BREAKER_LOCK = threading.Lock()
+_ss_unavailable = False
+_SS_UNAVAILABLE_MARKERS = (
+    "429",
+    "too many requests",
+    "rate limit",
+    "ratelimit",
+    "403",
+    "forbidden",
+)
+
+
+def _ss_is_unavailable() -> bool:
+    with _SS_BREAKER_LOCK:
+        return _ss_unavailable
+
+
+def _trip_ss_breaker_if_persistent(exc: Exception) -> None:
+    """Trip the SS breaker when the error is a persistent unavailability signal."""
+    text = str(exc).lower()
+    if not any(marker in text for marker in _SS_UNAVAILABLE_MARKERS):
+        return
+    global _ss_unavailable
+    with _SS_BREAKER_LOCK:
+        already = _ss_unavailable
+        _ss_unavailable = True
+    if not already:
+        logger.warning(
+            "papers.search_and_fetch: SemanticScholar unavailable (%s); skipping "
+            "SS for the rest of this run, using arXiv + other channels only.",
+            exc,
+        )
+
+
+def _reset_ss_breaker() -> None:
+    """Test hook: clear the SS availability breaker (does not touch disk)."""
+    global _ss_unavailable
+    with _SS_BREAKER_LOCK:
+        _ss_unavailable = False
+
+
+# ---------------------------------------------------------------------------
 # Negative-result cache (Fix B): remember failed (paper, id) retrieves so a
 # 503 / empty-PDF candidate is not re-fetched within or across rounds.  Scoped
 # to the specific id — never the whole claim.
@@ -144,14 +195,17 @@ def search_and_fetch(
     try:
         candidates: list[Candidate] = []
 
-        # SemanticScholar
-        try:
-            ss = SemanticScholarClient()
-            if ss.has_key:
-                ss_results = ss.search_papers(query, limit=_MAX_CANDIDATES)
-                candidates.extend(ss_results)
-        except Exception as exc:
-            logger.warning("papers.search_and_fetch: SS failed: %s", exc)
+        # SemanticScholar — skipped for the rest of the run once it has signalled
+        # unavailability (429/403), so a rate-limited SS cannot wedge the loop.
+        if not _ss_is_unavailable():
+            try:
+                ss = SemanticScholarClient()
+                if ss.has_key:
+                    ss_results = ss.search_papers(query, limit=_MAX_CANDIDATES)
+                    candidates.extend(ss_results)
+            except Exception as exc:
+                logger.warning("papers.search_and_fetch: SS failed: %s", exc)
+                _trip_ss_breaker_if_persistent(exc)
 
         # arXiv — use the SHARED ArxivClient so the circuit breaker is honoured
         # across calls (Fix D).
@@ -203,6 +257,8 @@ def search_and_fetch(
 __all__ = [
     "_candidate_to_source",
     "_reset_negative_cache",
+    "_reset_ss_breaker",
     "_shared_arxiv_client",
+    "_ss_is_unavailable",
     "search_and_fetch",
 ]
