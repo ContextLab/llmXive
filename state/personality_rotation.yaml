@@ -1,12 +1,7 @@
 last_used: marie-curie
-last_used_at: '2026-06-18T10:59:25.847567+00:00'
-last_outcome: triage_rejected_advanced_as_abstain
+last_used_at: '2026-06-18T12:13:14.897965+00:00'
+last_outcome: model_error
 history:
-- slug: freeman-dyson
-  started_at: '2026-06-07T00:36:30.308213+00:00'
-  ended_at: '2026-06-07T01:46:14.041014+00:00'
-  outcome: triage_rejected_advanced_as_abstain
-  action: comment
 - slug: geoffrey-west
   started_at: '2026-06-07T01:46:14.041014+00:00'
   ended_at: '2026-06-07T03:07:40.433005+00:00'
@@ -1128,3 +1123,7 @@ history:
   ended_at: '2026-06-18T10:59:25.847567+00:00'
   outcome: triage_rejected_advanced_as_abstain
   action: comment
+- slug: richard-feynman
+  started_at: '2026-06-18T10:59:25.847567+00:00'
+  ended_at: '2026-06-18T12:13:14.897965+00:00'
+  outcome: model_error
