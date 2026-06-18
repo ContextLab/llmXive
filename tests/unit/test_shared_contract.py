@@ -13,6 +13,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from llmxive.execution.shared_contract import (
+    accumulate_contract_issues,
     defining_files,
     find_contract_issues,
     render_contract_feedback,
@@ -90,3 +91,46 @@ def test_missing_method_feedback_is_cumulative_not_rotating(tmp_path: Path) -> N
     # both method names appear grouped under the single owning class
     assert "`info`" in fb and "`debug`" in fb
     assert fb.count("class `Logger`") == 1  # one cumulative block, not one-per-method
+
+
+def test_locals_decorator_error_maps_to_enclosing_function(tmp_path: Path) -> None:
+    """``X.<locals>.Y() takes ...`` is a closure/decorator arity error; the
+    fixable definition is the ENCLOSING function ``X`` (``log_operation``), NOT the
+    inner closure ``Y`` (``decorator``). Pins PROJ-552's undetected log_operation bug.
+    """
+    p = _proj(tmp_path)
+    (p / "code" / "util" / "logs.py").write_text(
+        "def log_it(*a, **k):\n    def decorator(f):\n        return f\n    return decorator\n",
+        encoding="utf-8",
+    )
+    failures = [
+        "x.py -> rc=1\n    TypeError: log_it.<locals>.decorator() takes 1 positional argument but 2 were given"
+    ]
+    issues = find_contract_issues(p, failures)
+    syms = {(i.symbol, i.owner) for i in issues}
+    assert ("log_it", None) in syms  # the enclosing function is the target
+    assert "decorator" not in {i.symbol for i in issues}  # not the inner closure
+
+
+def test_ledger_accumulates_contracts_across_rounds(tmp_path: Path) -> None:
+    """The anti-thrash ledger: a symbol flagged in round 1 must still be rendered
+    in round 2 even if round 2's traceback only mentions a different symbol — so
+    the implementer cannot silently drop a previously-satisfied contract.
+    """
+    p = _proj(tmp_path)
+    mem = p / ".specify" / "memory"
+    # round 1: only log_it fails
+    r1 = accumulate_contract_issues(
+        mem, p, find_contract_issues(p, ["x.py\n    TypeError: log_it() takes no arguments"])
+    )
+    assert ("log_it", None) in {(i.symbol, i.owner) for i in r1}
+    # round 2: a DIFFERENT symbol fails; ledger must still carry log_it forward
+    r2 = accumulate_contract_issues(
+        mem,
+        p,
+        find_contract_issues(p, ["y.py\n    AttributeError: 'Logger' object has no attribute 'debug'"]),
+    )
+    syms = {(i.symbol, i.owner) for i in r2}
+    assert ("log_it", None) in syms  # carried forward despite not failing this round
+    assert ("debug", "Logger") in syms  # plus the new one
+    assert (mem / "contract_ledger.json").exists()

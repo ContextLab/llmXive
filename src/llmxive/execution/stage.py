@@ -254,9 +254,15 @@ def execute_and_gate(project_dir: Path, *, repo_root: Path | None = None) -> boo
     # oscillates forever. Feed it the call sites + re-open the DEFINING module's
     # task so it works on the root.
     try:
-        from llmxive.execution.shared_contract import find_contract_issues
+        from llmxive.execution.shared_contract import (
+            accumulate_contract_issues,
+            find_contract_issues,
+        )
 
         contract_issues = find_contract_issues(project_dir, failures)
+        # Carry every contract ever seen forward so a symbol satisfied in an
+        # earlier round is not silently dropped (the fix-one-break-another thrash).
+        contract_issues = accumulate_contract_issues(mem, project_dir, contract_issues)
     except Exception as exc:
         logger.warning("shared-contract analysis skipped: %s", exc)
         contract_issues = []
