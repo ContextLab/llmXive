@@ -13,6 +13,7 @@ project advances to `research_accepted` / `research_minor_revision` /
 
 from __future__ import annotations
 
+import json
 import re
 from datetime import UTC, datetime
 from pathlib import Path
@@ -48,23 +49,74 @@ _FORMAT_REMINDER = (
 )
 
 
-def _summarize_tree(root: Path, *, max_files: int = 25) -> str:
-    """Bulleted listing of files under `root` with byte sizes."""
+#: Directories/artifacts that are NOT part of a project's authored source and
+#: must never crowd out real files in the reviewer's tree view. A virtualenv
+#: alone is thousands of files; with the old 25-file cap it (and __pycache__)
+#: hid the project's actual source, producing false "this file is missing"
+#: reviews that blocked advancement.
+_TREE_SKIP_DIRS = frozenset(
+    {
+        "__pycache__", ".venv", "venv", "env", ".env", "site-packages",
+        "node_modules", ".git", ".pytest_cache", ".mypy_cache", ".ruff_cache",
+        ".ipynb_checkpoints", ".tox", "build", "dist",
+    }
+)
+
+
+def _summarize_tree(root: Path, *, max_files: int = 400) -> str:
+    """Bulleted listing of a project's AUTHORED files under `root` with sizes.
+
+    Excludes virtualenvs, caches, and compiled artifacts so the reviewer sees the
+    real project structure. The cap is high enough to show an entire project's
+    source + docs; only pathological trees hit it (and then we say how many were
+    omitted, so a reviewer never silently mistakes truncation for absence).
+    """
     if not root.is_dir():
         return "(no files)"
-    lines: list[str] = []
-    for path in sorted(root.rglob("*")):
-        if not path.is_file():
-            continue
-        if any(p.startswith(".") for p in path.parts):
-            continue
-        rel = path.relative_to(root).as_posix()
-        size = path.stat().st_size
-        lines.append(f"- `{rel}` ({size} bytes)")
-        if len(lines) >= max_files:
-            lines.append(f"- ... ({sum(1 for _ in root.rglob('*')) - max_files} more)")
-            break
+
+    def _skip(path: Path) -> bool:
+        for part in path.relative_to(root).parts:
+            if part in _TREE_SKIP_DIRS or part.startswith("."):
+                return True
+            if part.endswith((".egg-info", ".dist-info")):
+                return True
+        return path.suffix in {".pyc", ".pyo"}
+
+    files = [p for p in sorted(root.rglob("*")) if p.is_file() and not _skip(p)]
+    lines = [
+        f"- `{p.relative_to(root).as_posix()}` ({p.stat().st_size} bytes)"
+        for p in files[:max_files]
+    ]
+    if len(files) > max_files:
+        lines.append(f"- ... ({len(files) - max_files} more authored files)")
     return "\n".join(lines) if lines else "(empty)"
+
+
+def _execution_evidence(project_id: str, repo: Path) -> str:
+    """Factual evidence of whether the analysis run-book actually executed and
+    produced real artifacts, so reviewers judging implementation correctness /
+    completeness don't have to infer it from a file listing (and don't hedge on
+    'does it actually run')."""
+    path = repo / "state" / "execution_status" / f"{project_id}.json"
+    try:
+        d = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return "(no execution-gate record — the analysis run-book has not been gated yet)"
+    ok = bool(d.get("ok"))
+    artifacts = d.get("artifacts") or []
+    if ok:
+        head = (
+            "PASSED — the dedicated execution gate ran the project's quickstart "
+            "run-book end-to-end in its venv and recorded ok=True (real data + "
+            "figures were produced; results are not hallucinated)."
+        )
+    else:
+        head = f"NOT yet passed (ok=False): {str(d.get('reason', ''))[:200]}"
+    lines = [f"- Execution gate: {head}", f"- Artifacts produced ({len(artifacts)}):"]
+    lines += [f"  - {a}" for a in artifacts[:50]]
+    if len(artifacts) > 50:
+        lines.append(f"  - ... ({len(artifacts) - 50} more)")
+    return "\n".join(lines)
 
 
 def _read_optional(path: Path) -> str:
@@ -102,6 +154,7 @@ class ResearchReviewerAgent(Agent):
         code_summary = _summarize_tree(project_dir / "code")
         data_summary = _summarize_tree(project_dir / "data")
         results_summary = _read_optional(project_dir / "results.md")
+        execution_evidence = _execution_evidence(ctx.project_id, repo)
 
         # Prior research-stage reviews (if any).
         prior = reviews_store.list_for(ctx.project_id, stage="research", repo_root=repo)
@@ -130,6 +183,7 @@ class ResearchReviewerAgent(Agent):
             f"# tasks.md\n\n{tasks_text}\n\n"
             f"# code summary\n\n{code_summary}\n\n"
             f"# data summary\n\n{data_summary}\n\n"
+            f"# execution evidence\n\n{execution_evidence}\n\n"
             f"# results summary\n\n{results_summary}\n\n"
             f"# prior reviews\n\n{prior_block}\n\n"
             "# Task\n\nReturn the review record per the contract."
