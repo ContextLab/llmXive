@@ -29,7 +29,7 @@ The following table summarizes the counts of each data quality flag applied to t
 
 This document summarizes the data quality assessment performed on the processed knot dataset.
 
-The dataset meets SC‑013 reproducibility criteria: null‑percentage ≤ 5 % and format‑pass ≥ 99 %.
+The dataset meets SC-013 reproducibility criteria: null-percentage ≤ 5 % and format-pass ≥ 99 %.
 
 ## Overview
 

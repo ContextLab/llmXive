@@ -1,5 +1,7 @@
 # License and Provenance
 
+For provenance details, see [PROVENANCE.md](../PROVENANCE.md).
+
 See [PROVENANCE.md](../PROVENANCE.md) for detailed provenance information.
 
 This repository contains both software and data artifacts.  Their licensing and provenance are documented below.

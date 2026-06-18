@@ -22,6 +22,7 @@ from pathlib import Path
 from typing import List, Dict, Any
 
 from reproducibility.logs import get_logger, log_operation
+# Flagging logic is implemented in this module and exercised by unit tests in tests/unit/test_validator.py
 
 
 class MissingInvariantFlag(Enum):
