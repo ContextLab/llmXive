@@ -195,3 +195,36 @@ edits applied; the data_quality ones are in the failed bucket.
   content-anchored strategy (or full-file rewrite for small docs).
 - This is the gap between 6/7 and 7/7 -> research_accepted. The review machinery
   itself is now reliable + correct.
+
+## ADDENDUM 4 (~13:30 ET) — edit-ROBUSTNESS done (general); exposed edit-QUALITY as the deeper problem
+
+Research across ALL 17 projects (parallel scientists): edit application was broken
+platform-wide (83.7% of revision tasks skipped). Shipped 4 GENERAL fixes in the
+shared implementer.py (both tracks, all projects), grounded in aider's approach:
+- Fix 1 flexible matcher (95cd3aacc): exact->rstrip->strip->collapse-ws, unique-only -> the 62.4% no-match class.
+- Fix 2 filename resolution (d4989482a): wrong .tex->primary tex; wrong dir->unique basename -> 16.4% wrong-filename.
+- Fix 3 flexible diff fallback (fd07b6f0a): git-apply fail -> hunk->search/replace.
+- Fix 4 exact content up front (f6f795033): FULL file content for named/bare files so search/diff match verbatim.
+Full suite GREEN: 2171 passed, 7 skipped. Edits now APPLY reliably (compile-failures eliminated).
+
+KEY FINDING: making edits apply REVEALED that the implementer's edit QUALITY is the
+real blocker. With Fix 4 the implementer applied 25/48 edits (was ~7); convergence
+DROPPED 5-6/7 -> 2/7 because the heavy edits DEGRADED the research code, and the
+implementation-soundness reviewers (correctness/completeness/code_quality/data_quality)
+CORRECTLY flipped to minor_revision. (creativity + idea_quality accepted this run.)
+The edit-application failures had been MASKING poor edit quality; the unanimous gate
+is working exactly as the maintainer intends — it refuses to advance broken science.
+
+### Next frontier = edit QUALITY (not application). Options:
+1. Verify research CODE edits don't break the analysis: at least py_compile each
+   edited .py (rollback on SyntaxError); ideally re-run the affected script /
+   run-book and rollback semantically-breaking edits (extends the science-class
+   exec path to all research code edits). Cost: per-edit execution.
+2. Temper aggressiveness: only apply an edit that clearly maps to a concern; cap
+   edits/round; prefer doc edits over code rewrites.
+3. Allow tests/ as a research base (reviewers asked to edit tests; currently rejected).
+4. The scope-exempt holdouts (creativity novelty / filesystem placement) only bind
+   when the CODE is intact (5-6/7 runs) — a smaller, separate calibration question.
+
+This is a genuine design fork (edit-quality verification + cost) that touches the
+quality philosophy — surface to maintainer before piling on more layers.
