@@ -81,3 +81,6 @@ ready:
 - project_id: PROJ-552-quantifying-the-complexity-of-knot-diagr
   revision_spec_path: specs/auto-revisions/PROJ-552-quantifying-the-complexity-of-knot-diagr/round-1
   queued_at: '2026-06-18T07:59:18.534920+00:00'
+- project_id: PROJ-633-mobilegym-a-verifiable-and-highly-parall
+  revision_spec_path: specs/auto-revisions/PROJ-633-mobilegym-a-verifiable-and-highly-parall/round-2
+  queued_at: '2026-06-18T10:04:51.501800+00:00'
