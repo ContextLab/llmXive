@@ -319,3 +319,26 @@ def test_apply_unified_diff_flexible_fallback_on_bad_context(tmp_path: Path) -> 
         g, "--- a/code/g.txt\n+++ b/code/g.txt\n@@ -1,2 +1,2 @@\n totally\n-absent\n+X\n"
     )
     assert not res2.applied
+
+
+def test_research_target_window_gives_exact_content_for_named_files(tmp_path: Path) -> None:
+    """The #1 root cause of no-match/corrupt-patch is the LLM never seeing the
+    file's exact text. The implementer prompt must surface FULL current content
+    for any file the action item names — dir-prefixed OR bare (resolved by unique
+    basename) — so search strings/diffs match verbatim."""
+    from llmxive.agents.implementer import _research_target_window
+
+    proj = tmp_path
+    (proj / "code" / "data").mkdir(parents=True)
+    (proj / "code" / "data" / "validator.py").write_text("def validate(df):\n    return df\n", encoding="utf-8")
+    (proj / "data").mkdir(exist_ok=True)
+    (proj / "data" / "checksums.json").write_text('{"a.csv": "abc123"}\n', encoding="utf-8")
+
+    # bare filename anywhere under the project -> resolved + FULL content
+    w1 = _research_target_window(proj, "Consolidate the checksums.json manifest")
+    assert "checksums.json" in w1 and "abc123" in w1 and "FULL current content" in w1
+    # dir-prefixed path -> FULL content
+    w2 = _research_target_window(proj, "code/data/validator.py needs two flag columns")
+    assert "def validate" in w2
+    # no named file -> directive, never a crash
+    assert "does not name a specific" in _research_target_window(proj, "improve code quality")

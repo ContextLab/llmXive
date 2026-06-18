@@ -1010,7 +1010,9 @@ class LLMXiveImplementer(Agent):
             )
         else:
             primary_tex = _find_primary_tex(source_dir)
-            manuscript_window = _windowed_view(source_dir / primary_tex, item_text)
+            # Wider window than the old 60 lines: the LLM needs enough exact
+            # surrounding text to produce a search string / diff that applies.
+            manuscript_window = _windowed_view(source_dir / primary_tex, item_text, window=140)
             science_note = (
                 "\n- **Science-class task**: this task may modify files under "
                 "`projects/<id>/code/` or `projects/<id>/data/`. Any referenced "
@@ -1294,19 +1296,65 @@ def _windowed_view(tex_path: Path, action_item_text: str, *, window: int = 60) -
 # A research action item often names the file it concerns (e.g.
 # "code/data/validator.py should expose two flag columns"). Surface that file's
 # content so the implementer can produce an exact-matching search_and_replace.
-_RESEARCH_PATH_RE = re.compile(r"((?:code|specs|docs|data)/[\w./+-]+\.[A-Za-z0-9]+)")
+#: Any path/filename with a source-ish extension mentioned in an action item —
+#: dir-prefixed ("code/x.py") OR bare ("checksums.json", "README.md").
+_RESEARCH_FILE_RE = re.compile(
+    r"`?([\w./+-]+\.(?:py|md|json|ya?ml|csv|tex|txt|toml|cfg|ini|sh|rst))`?"
+)
 
 
 def _research_target_window(
-    project_dir: Path, action_item_text: str, *, window: int = 80
+    project_dir: Path,
+    action_item_text: str,
+    *,
+    max_files: int = 3,
+    full_below: int = 260,
 ) -> str:
-    """Window the project file named in the action item (if any), else a directive."""
-    for m in _RESEARCH_PATH_RE.finditer(action_item_text or ""):
-        target = project_dir / m.group(1)
-        if target.is_file():
-            return f"`{m.group(1)}` (numbered):\n" + _windowed_view(
-                target, action_item_text, window=window
+    """Show the EXACT current content of files the action item references.
+
+    The #1 edit failure is the LLM emitting a search string / diff that doesn't
+    match because it never saw the file's exact text. So for every file the action
+    item names — dir-prefixed OR bare (resolved to a unique match anywhere under
+    the project) — surface its FULL current content (line-numbered) when small,
+    or a generous window when large, telling the model to copy search strings
+    VERBATIM from it. Falls back to a directive when no existing file is named.
+    """
+    seen: set[Path] = set()
+    blocks: list[str] = []
+    skip = ("/.venv/", "/.git/", "__pycache__", "/site-packages/")
+    for m in _RESEARCH_FILE_RE.finditer(action_item_text or ""):
+        ref = m.group(1)
+        cand: Path | None = project_dir / ref
+        if not cand.is_file():
+            base = Path(ref).name
+            hits = [
+                p for p in project_dir.rglob(base)
+                if p.is_file() and not any(s in str(p) for s in skip)
+            ]
+            cand = hits[0] if len(hits) == 1 else None
+        if cand is None or cand in seen:
+            continue
+        seen.add(cand)
+        try:
+            lines = cand.read_text(encoding="utf-8", errors="replace").splitlines()
+        except OSError:
+            continue
+        rel = cand.relative_to(project_dir).as_posix()
+        if len(lines) <= full_below:
+            body = "\n".join(f"{i + 1:5d}: {ln}" for i, ln in enumerate(lines))
+            blocks.append(
+                f"`{rel}` — FULL current content ({len(lines)} lines); copy any "
+                f"`search` string VERBATIM from here (drop the NNN: prefix):\n{body}"
             )
+        else:
+            blocks.append(
+                f"`{rel}` — {len(lines)} lines (windowed):\n"
+                + _windowed_view(cand, action_item_text, window=140)
+            )
+        if len(blocks) >= max_files:
+            break
+    if blocks:
+        return "\n\n".join(blocks)
     return (
         "(The action item does not name a specific existing file. Choose the most "
         "appropriate target from the file tree above — modify an existing file, or "
