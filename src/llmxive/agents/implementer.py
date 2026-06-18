@@ -279,12 +279,16 @@ def _parse_llm_edit(response_text: str) -> dict[str, object] | None:
 
 def _validate_edit_path(
     rel_path: str, *, project_id: str, severity: str, repo_root: Path,
+    track: str = "paper",
 ) -> Path | None:
     """Return the absolute path if the LLM's `file` field is in an
-    allowed location for the given severity; None otherwise.
+    allowed location for the given severity/track; None otherwise.
 
-    - writing: only `projects/<id>/paper/source/` (any sub-path)
-    - science: also `projects/<id>/code/` and `projects/<id>/data/`
+    - paper track   — writing: only `projects/<id>/paper/source/`;
+                      science: also `projects/<id>/code/` and `.../data/`.
+    - research track — a RESEARCH revision has no manuscript; the editable
+                      surface is the research artifacts themselves, so allow
+                      `projects/<id>/{code,data,specs,docs}/` for ANY severity.
     """
     norm = rel_path.replace("\\", "/")
     if norm.startswith("./"):
@@ -299,11 +303,23 @@ def _validate_edit_path(
         (repo_root / norm).resolve(),
         (repo_root / "projects" / project_id / norm).resolve(),
     ]
-    paper_src = (repo_root / "projects" / project_id / "paper" / "source").resolve()
-    science_bases = [
-        (repo_root / "projects" / project_id / sub).resolve()
-        for sub in ("code", "data")
-    ]
+    proj = repo_root / "projects" / project_id
+
+    if track == "research":
+        research_bases = [
+            (proj / sub).resolve() for sub in ("code", "data", "specs", "docs")
+        ]
+        for abs_path in candidates:
+            try:
+                abs_path.relative_to(repo_root.resolve())
+            except ValueError:
+                continue  # outside repo
+            if any(str(abs_path).startswith(str(base)) for base in research_bases):
+                return abs_path
+        return None
+
+    paper_src = (proj / "paper" / "source").resolve()
+    science_bases = [(proj / sub).resolve() for sub in ("code", "data")]
     for abs_path in candidates:
         try:
             abs_path.relative_to(repo_root.resolve())
@@ -382,8 +398,27 @@ class LLMXiveImplementer(Agent):
             # tasks.md + action items.
             round_number = self._derive_round_number(project.revision_spec_path)
             self._round_n_cached = round_number
-            paper_dir = repo / "projects" / project.id / "paper"
+            project_dir = repo / "projects" / project.id
+            paper_dir = project_dir / "paper"
             source_dir = paper_dir / "source"
+
+            # Track determines what the revision edits and whether a paper is
+            # compiled. A RESEARCH revision edits the project's research artifacts
+            # (code/specs/docs/data) and has NO manuscript to compile; a PAPER
+            # revision edits paper/source and recompiles. For an AGENT_BLOCKED
+            # retry, infer the track from whether a manuscript exists.
+            track = (
+                "research"
+                if project.current_stage == Stage.RESEARCH_REVIEW
+                else "paper"
+                if project.current_stage == Stage.PAPER_REVIEW
+                else (
+                    "paper"
+                    if (source_dir / "main.tex").is_file()
+                    or (source_dir / "main-llmxive.tex").is_file()
+                    else "research"
+                )
+            )
 
             tasks = _read_tasks_md(repo / project.revision_spec_path / "tasks.md")
             action_items = _read_action_items(repo / project.revision_spec_path)
@@ -397,6 +432,8 @@ class LLMXiveImplementer(Agent):
                     project_id=project.id,
                     source_dir=source_dir,
                     repo_root=repo,
+                    track=track,
+                    project_dir=project_dir,
                 )
                 log_entries.append(outcome_entry)
                 if outcome_entry.status == "done":
@@ -415,7 +452,10 @@ class LLMXiveImplementer(Agent):
             pdf_bytes_n: int | None = None
             author_added = False
             author_entry: AuthorEntry | None = None
-            if success_count > 0:
+            # Paper post-processing (author block, \paperstatus, lualatex recompile)
+            # applies ONLY to paper-track revisions. A research revision has no
+            # manuscript — success means its edits applied; re-review follows.
+            if success_count > 0 and track == "paper":
                 # Author addition (FR-006..FR-008).
                 metadata_path = paper_dir / "metadata.json"
                 author_added = authors_module.add_implementer(
@@ -550,9 +590,7 @@ class LLMXiveImplementer(Agent):
             # PAPER_REVIEW; research-side to RESEARCH_REVIEW. We default
             # to whichever was set on the project before the run.
             source_review_stage = (
-                Stage.RESEARCH_REVIEW
-                if project.current_stage == Stage.RESEARCH_REVIEW
-                else Stage.PAPER_REVIEW
+                Stage.RESEARCH_REVIEW if track == "research" else Stage.PAPER_REVIEW
             )
 
             failsafe_triggered = new_zero_count >= 3
@@ -728,6 +766,8 @@ class LLMXiveImplementer(Agent):
         project_id: str,
         source_dir: Path,
         repo_root: Path,
+        track: str = "paper",
+        project_dir: Path | None = None,
     ) -> ImplementerLogEntry:
         t_started = time.monotonic()
         task_id: str = str(task["id"])
@@ -736,36 +776,58 @@ class LLMXiveImplementer(Agent):
         _it = action_item.get("text") or task.get("text") or task.get("title") or ""
         item_text: str = str(_it) if _it else ""
 
-        # Build the LLM prompt.
+        # Build the LLM prompt (track-aware).
         system_prompt = load_prompt("agents/prompts/implementer.md", repo_root=repo_root)
-        primary_tex = _find_primary_tex(source_dir)
-        manuscript_window = _windowed_view(source_dir / primary_tex, item_text)
-        science_note = (
-            "\n- **Science-class task**: this task may modify files under "
-            "`projects/<id>/code/` or `projects/<id>/data/`. Any referenced "
-            "analysis script will be exec'd after the edit; non-zero exit "
-            "triggers rollback.\n"
-            if severity == "science" else ""
-        )
-        edit_prompt = render_prompt(
-            "agents/prompts/implementer_edit.md",
-            {
-                "project_id": project_id,
-                "round_number": str(self._current_round_number),
-                "revision_spec_path": str(self._revision_spec_path),
-                "task_id": task_id,
-                "severity": severity,
-                "action_item_text": item_text,
-                "manuscript_window": manuscript_window,
-                "science_note": str(science_note) if science_note else "",
-                # The ACTUAL primary manuscript file — arXiv-intake papers
-                # use main-llmxive.tex, not main.tex (spec 023 defect #10:
-                # the hard-coded name sent every round-2 edit to a
-                # nonexistent file).
-                "primary_tex": str(primary_tex),
-            },
-            repo_root=repo_root,
-        )
+        if track == "research":
+            # A RESEARCH revision edits the project's OWN artifacts (code / specs
+            # / docs / data) — there is no manuscript. Show the authored file tree
+            # plus, when the action item names a file, a window over it.
+            from llmxive.agents.research_reviewer import _summarize_tree
+
+            pdir = project_dir if project_dir is not None else source_dir.parent.parent
+            edit_prompt = render_prompt(
+                "agents/prompts/implementer_edit_research.md",
+                {
+                    "project_id": project_id,
+                    "round_number": str(self._current_round_number),
+                    "revision_spec_path": str(self._revision_spec_path),
+                    "task_id": task_id,
+                    "severity": severity,
+                    "action_item_text": item_text,
+                    "file_tree": _summarize_tree(pdir),
+                    "target_window": _research_target_window(pdir, item_text),
+                },
+                repo_root=repo_root,
+            )
+        else:
+            primary_tex = _find_primary_tex(source_dir)
+            manuscript_window = _windowed_view(source_dir / primary_tex, item_text)
+            science_note = (
+                "\n- **Science-class task**: this task may modify files under "
+                "`projects/<id>/code/` or `projects/<id>/data/`. Any referenced "
+                "analysis script will be exec'd after the edit; non-zero exit "
+                "triggers rollback.\n"
+                if severity == "science" else ""
+            )
+            edit_prompt = render_prompt(
+                "agents/prompts/implementer_edit.md",
+                {
+                    "project_id": project_id,
+                    "round_number": str(self._current_round_number),
+                    "revision_spec_path": str(self._revision_spec_path),
+                    "task_id": task_id,
+                    "severity": severity,
+                    "action_item_text": item_text,
+                    "manuscript_window": manuscript_window,
+                    "science_note": str(science_note) if science_note else "",
+                    # The ACTUAL primary manuscript file — arXiv-intake papers
+                    # use main-llmxive.tex, not main.tex (spec 023 defect #10:
+                    # the hard-coded name sent every round-2 edit to a
+                    # nonexistent file).
+                    "primary_tex": str(primary_tex),
+                },
+                repo_root=repo_root,
+            )
 
         # Single LLM call per task.
         try:
@@ -803,7 +865,8 @@ class LLMXiveImplementer(Agent):
 
         # Path validation (FR-019).
         target = _validate_edit_path(
-            str(edit.get("file", "")), project_id=project_id, severity=severity, repo_root=repo_root,
+            str(edit.get("file", "")), project_id=project_id, severity=severity,
+            repo_root=repo_root, track=track,
         )
         if target is None:
             return ImplementerLogEntry(
@@ -1002,6 +1065,29 @@ def _windowed_view(tex_path: Path, action_item_text: str, *, window: int = 60) -
     lo = max(0, target_idx - window // 2)
     hi = min(len(lines), target_idx + window // 2)
     return "\n".join(f"{n+1:5d}: {ln}" for n, ln in enumerate(lines[lo:hi], start=lo))
+
+
+# A research action item often names the file it concerns (e.g.
+# "code/data/validator.py should expose two flag columns"). Surface that file's
+# content so the implementer can produce an exact-matching search_and_replace.
+_RESEARCH_PATH_RE = re.compile(r"((?:code|specs|docs|data)/[\w./+-]+\.[A-Za-z0-9]+)")
+
+
+def _research_target_window(
+    project_dir: Path, action_item_text: str, *, window: int = 80
+) -> str:
+    """Window the project file named in the action item (if any), else a directive."""
+    for m in _RESEARCH_PATH_RE.finditer(action_item_text or ""):
+        target = project_dir / m.group(1)
+        if target.is_file():
+            return f"`{m.group(1)}` (numbered):\n" + _windowed_view(
+                target, action_item_text, window=window
+            )
+    return (
+        "(The action item does not name a specific existing file. Choose the most "
+        "appropriate target from the file tree above — modify an existing file, or "
+        "create a new one with a unified_diff against /dev/null.)"
+    )
 
 
 def _read_tasks_md(tasks_path: Path) -> list[dict[str, str]]:

@@ -83,6 +83,47 @@ def test_validate_edit_path_still_rejects_escapes(tmp_path: Path) -> None:
     ) is not None
 
 
+def test_validate_edit_path_research_track_allows_all_research_bases(tmp_path: Path) -> None:
+    """A RESEARCH revision has no manuscript — it edits the project's own
+    artifacts. code/specs/docs/data are allowed for ANY severity (incl. the
+    default 'writing'); paper/ is NOT (no paper exists). Pins PROJ-552's
+    agent_blocked: writing-severity edits to code/ were rejected -> 0 success."""
+    proj = tmp_path / "projects" / "PROJ-9-z"
+    for sub in ("code", "specs", "docs", "data"):
+        (proj / sub).mkdir(parents=True)
+    for ok in (
+        "code/analysis/regression.py",
+        "specs/001-x/tasks.md",
+        "docs/reproducibility/licenses.md",
+        "data/processed/notes.md",
+        "projects/PROJ-9-z/code/analysis/regression.py",  # repo-relative form
+    ):
+        assert _validate_edit_path(
+            ok, project_id="PROJ-9-z", severity="writing", repo_root=tmp_path,
+            track="research",
+        ) is not None, ok
+    for bad in ("", "../../etc/passwd", "paper/source/main.tex",
+                "projects/PROJ-OTHER/code/x.py"):
+        assert _validate_edit_path(
+            bad, project_id="PROJ-9-z", severity="writing", repo_root=tmp_path,
+            track="research",
+        ) is None, bad
+
+
+def test_research_target_window_finds_named_file_else_directive(tmp_path: Path) -> None:
+    from llmxive.agents.implementer import _research_target_window
+
+    proj = tmp_path / "projects" / "PROJ-9-z"
+    (proj / "code" / "data").mkdir(parents=True)
+    (proj / "code" / "data" / "validator.py").write_text(
+        "def validate():\n    return True\n", encoding="utf-8"
+    )
+    win = _research_target_window(proj, "code/data/validator.py should expose two columns")
+    assert "validator.py" in win and "def validate" in win
+    # No named file -> a directive, never a crash.
+    assert "does not name a specific" in _research_target_window(proj, "improve code quality")
+
+
 def test_read_tasks_md_parses_adapter_rev_tag(tmp_path: Path) -> None:
     tasks = tmp_path / "tasks.md"
     tasks.write_text(
