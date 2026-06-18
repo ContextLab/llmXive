@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-16T09:58:03.641591Z'
-current_stage: flesh_out_complete
+current_stage: validated
 failed_stage: null
 field: linguistics
 human_escalation_reason: null
 id: PROJ-704-measuring-epistemic-resilience-of-llms-u
-last_run_id: 7325b080-4fd8-4223-83b9-f138273a795d
+last_run_id: 08f40556-1278-431d-b874-b868b14b66ab
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: Measuring Epistemic Resilience of LLMs Under Misleading Medical Context
-updated_at: '2026-06-18T23:02:19.165359Z'
+updated_at: '2026-06-18T23:21:38.180359Z'
