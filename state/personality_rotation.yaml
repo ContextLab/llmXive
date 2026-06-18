@@ -1,12 +1,7 @@
-last_used: freeman-dyson
-last_used_at: '2026-06-18T03:07:01.532419+00:00'
-last_outcome: librarian_held
+last_used: geoffrey-west
+last_used_at: '2026-06-18T05:07:49.156915+00:00'
+last_outcome: triage_rejected_advanced_as_abstain
 history:
-- slug: dan-rockmore
-  started_at: '2026-06-06T22:23:53.339088+00:00'
-  ended_at: '2026-06-06T22:50:32.386757+00:00'
-  outcome: triage_rejected_advanced_as_abstain
-  action: comment
 - slug: daniel-kahneman
   started_at: '2026-06-06T22:50:32.386757+00:00'
   ended_at: '2026-06-06T23:23:14.542229+00:00'
@@ -1126,3 +1121,8 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-727-assessing-energy-consumption-of-llm-infe/reviews/research/_held/geoffrey-west-simulated__2026-06-18__research.1.md
+- slug: geoffrey-west
+  started_at: '2026-06-18T03:07:01.532419+00:00'
+  ended_at: '2026-06-18T05:07:49.156915+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
