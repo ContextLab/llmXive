@@ -48,6 +48,67 @@ def _rec(name: str, verdict: str, *, hash_: str = _HASH_A, when: datetime = _NOW
     )
 
 
+# --- Prose-to-action-item synthesis (anti-stall) -----------------------------
+
+
+def test_action_items_from_text_structures_and_degrades() -> None:
+    """The shared helper: numbered/bulleted prose -> one item each; unstructured
+    prose -> a single item; empty -> nothing; severity follows the verdict."""
+    from llmxive.types import action_items_from_text
+
+    items = action_items_from_text(
+        "1. First concern here.\n2. Second concern here.", verdict="minor_revision"
+    )
+    assert len(items) == 2 and all(i.severity == "writing" for i in items)
+    one = action_items_from_text(
+        "Just a paragraph of feedback with no list structure at all.",
+        verdict="major_revision",
+    )
+    assert len(one) == 1 and one[0].severity == "science"
+    assert action_items_from_text("", verdict="reject") == []
+
+
+def test_consolidate_synthesizes_from_prose_when_structured_items_empty() -> None:
+    """A non-accept review with EMPTY action_items but prose feedback must still
+    contribute concrete items, else the convergence engine no-ops forever at
+    research_review. Pins PROJ-552's all-minor_revision-with-empty-action_items
+    stall (reviews_store maps the body onto `feedback`)."""
+    prose = (
+        "**Findings**\n\n"
+        "1. **Repository hygiene** - committed __pycache__ and a huge log file.\n"
+        "2. **Type hints** - several modules lack annotations.\n"
+        "3. **Docstrings** - public functions are undocumented.\n"
+    )
+    rec = ReviewRecord(
+        reviewer_name="research_reviewer_code_quality_research",
+        reviewer_kind=ReviewerKind.LLM,
+        artifact_path="projects/PROJ-100-test/specs/tasks.md",
+        artifact_hash=_HASH_A,
+        score=0.0,
+        verdict="minor_revision",
+        feedback=prose,
+        reviewed_at=_NOW,
+        # 1.0.x is grandfathered to allow empty action_items — exactly the
+        # legacy shape that produced PROJ-552's stalled records.
+        prompt_version="1.0.0",
+        model_name="openai.gpt-oss-120b",
+        backend=BackendName.DARTMOUTH,
+        action_items=[],
+    )
+    items = _consolidate_action_items([rec])
+    texts = " ".join(i.text for i in items)
+    assert len(items) >= 3
+    assert "Repository hygiene" in texts and "Type hints" in texts
+    # Explicit structured items still take precedence (no synthesis when present).
+    explicit = _rec(
+        "research_reviewer_idea_quality",
+        "minor_revision",
+        items=[ActionItem.from_text("explicit concern X.", "writing")],
+    )
+    only = _consolidate_action_items([explicit])
+    assert [i.text for i in only] == ["explicit concern X."]
+
+
 # --- Most-recent-per-specialist gate -----------------------------------------
 
 

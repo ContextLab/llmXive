@@ -74,6 +74,7 @@ from llmxive.types import (
     ReviewRecord,
     Stage,
     VerificationStatus,
+    action_items_from_text,
 )
 
 logger = logging.getLogger(__name__)
@@ -345,7 +346,16 @@ def _consolidate_action_items(
     for rec in latest.values():
         if rec.verdict == "accept":
             continue
-        for item in rec.action_items:
+        items = rec.action_items
+        if not items:
+            # A non-accept verdict with EMPTY structured action_items but prose
+            # feedback (reviews_store.read maps the body onto `feedback`) would
+            # otherwise contribute nothing — the convergence engine then finds
+            # no concerns, cannot revise, and the project no-ops forever at
+            # research_review. Reshape the reviewer's own prose into action
+            # items so its stated concerns actually drive the revision.
+            items = action_items_from_text(rec.feedback or "", verdict=rec.verdict)
+        for item in items:
             if item.id not in seen:
                 seen[item.id] = item
     return list(seen.values())

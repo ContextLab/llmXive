@@ -30,6 +30,7 @@ from llmxive.types import (
     AgentRegistryEntry,
     ReviewerKind,
     ReviewRecord,
+    action_items_from_text,
 )
 
 _FRONTMATTER_RE = re.compile(
@@ -180,6 +181,24 @@ class ResearchReviewerAgent(Agent):
 
                 front["artifact_hash"] = hash_file(tasks_path)
                 front["artifact_path"] = str(tasks_path.relative_to(repo))
+
+        # A non-accept verdict with NO structured action_items stalls the
+        # convergence engine (advancement finds nothing to revise → infinite
+        # no-op at research_review) and is outright rejected by the ReviewRecord
+        # schema at prompt_version >= 1.1.0. Weak models reliably write their
+        # findings as body prose while leaving the YAML list empty — reshape that
+        # prose into items BEFORE validation so the record is both schema-valid
+        # and actionable for every downstream consumer.
+        _verdict = front.get("verdict")
+        if (
+            isinstance(_verdict, str)
+            and _verdict != "accept"
+            and not (front.get("action_items") or [])
+            and body
+        ):
+            synth = action_items_from_text(body, verdict=_verdict)
+            if synth:
+                front["action_items"] = [it.model_dump() for it in synth]
 
         try:
             record = ReviewRecord.model_validate(front)

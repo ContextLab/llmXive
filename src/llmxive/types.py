@@ -315,6 +315,67 @@ class ActionItem(_Strict):
         return cls(id=action_item_id(text), text=text, severity=severity)
 
 
+_VERDICT_SEVERITY: dict[str, Literal["writing", "science", "fatal"]] = {
+    "minor_revision": "writing",
+    "major_revision": "science",
+    "full_revision": "science",
+    "reject": "fatal",
+}
+_BODY_ITEM_RE = re.compile(r"^\s*(?:\d+[.)]|[-*•])\s+(.+)$")
+
+
+def action_items_from_text(
+    text: str,
+    *,
+    verdict: str = "minor_revision",
+    max_items: int = 15,
+) -> list[ActionItem]:
+    """Structure a prose review body into ``ActionItem``\\ s.
+
+    A non-accept review with an EMPTY ``action_items`` list but substantive prose
+    feedback stalls the convergence engine — there is nothing concrete to revise,
+    so the project can neither advance (not unanimous) nor revise. Weak models
+    reliably write their findings as numbered/bulleted body prose while leaving
+    the structured field empty. This faithfully reshapes that prose into action
+    items (one per top-level numbered/bulleted finding; the whole body as a single
+    item when unstructured), so the reviewer's ACTUAL stated concerns drive the
+    revision. It invents nothing: every item's text comes verbatim from the body.
+    """
+    text = (text or "").strip()
+    if not text:
+        return []
+    severity = _VERDICT_SEVERITY.get(verdict, "science")
+    chunks: list[str] = []
+    cur: str | None = None
+    for line in text.splitlines():
+        m = _BODY_ITEM_RE.match(line)
+        if m:
+            if cur:
+                chunks.append(cur)
+            cur = m.group(1).strip()
+        elif cur is not None and line.strip():
+            cur += " " + line.strip()
+    if cur:
+        chunks.append(cur)
+    if not chunks:  # no list structure — fall back to the whole body as one item
+        chunks = [" ".join(text.split())]
+
+    items: list[ActionItem] = []
+    seen: set[str] = set()
+    for chunk in chunks:
+        cleaned = " ".join(chunk.replace("**", "").replace("`", "").split())[:500].strip()
+        if len(cleaned) < 8:  # skip trivial fragments
+            continue
+        item = ActionItem.from_text(cleaned, severity)
+        if item.id in seen:
+            continue
+        seen.add(item.id)
+        items.append(item)
+        if len(items) >= max_items:
+            break
+    return items
+
+
 class ReviewRecord(_Strict):
     """Frontmatter of a review file under projects/<PROJ-ID>/reviews/{research,paper}/."""
 
