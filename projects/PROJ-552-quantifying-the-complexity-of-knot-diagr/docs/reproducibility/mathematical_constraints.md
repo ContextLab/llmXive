@@ -1,12 +1,7 @@
 # Mathematical Constraints
 
-## Assumptions
-- Knot diagrams are planar projections of smooth embeddings.
-- Crossing number is the minimal number of crossings over all projections.
-- Braid index is the minimal number of strands in any braid representation of the knot.
+The analysis respects the following mathematical constraints:
 
-## Constraints
-- **Crossing Number ≤ 13** for all records (per data acquisition limits).
-- **Braid Index ≤ Crossing Number** (theoretical bound).
-
-These constraints are enforced during parsing (`code/data/parser.py`).
+- All invariants are defined for prime knots only.
+- Crossing numbers are limited to ≤ 13 as per the knot census. [UNRESOLVED-CLAIM: c_7546460e — status=not_enough_info]
+- Braid index values are taken from tabulated sources; no computation is performed in Phase 1.

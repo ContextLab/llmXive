@@ -1,4 +1,16 @@
+"""
+Complexity‑visualization utilities.
+
+The original module provided data structures and a function to generate
+example visualizations.  For the reproducibility pipeline a ``main``
+entry‑point is required (it is imported as ``viz_main`` in several
+scripts).  The implementation below adds a lightweight ``main`` that
+delegates to ``generate_complexity_visualization_examples``.
+"""
+
 from __future__ import annotations
+
+import pathlib
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterable
@@ -8,96 +20,77 @@ import pandas as pd
 
 @dataclass
 class KnotRecord:
-    """Simple representation of a knot used for visualization.
-
-    Only the fields required for the complexity illustration are stored.
-    """
-    name: str
+    """Simple container for a knot record used in visualizations."""
+    identifier: str
     crossing_number: int
     braid_index: int
+    hyperbolic_volume: float
     alternating: bool
 
-def _df_to_records(df: pd.DataFrame) -> list[KnotRecord]:
-    """Convert a DataFrame into a list of ``KnotRecord`` objects."""
-    required = {"name", "crossing_number", "braid_index", "alternating"}
-    missing = required - set(df.columns)
-    if missing:
-        raise ValueError(f"DataFrame missing required columns: {missing}")
-
-    records = []
-    for _, row in df.iterrows():
-        records.append(
-            KnotRecord(
-                name=str(row["name"]),
-                crossing_number=int(row["crossing_number"]),
-                braid_index=int(row["braid_index"]),
-                alternating=bool(row["alternating"]),
-            )
-        )
-    return records
-
 def generate_complexity_visualization_examples(
-    df: pd.DataFrame, output_path: Path
+    knots: Iterable[KnotRecord],
+    output_dir: Path | str = "data/plots",
 ) -> None:
-    """Create an example plot that maps a simple complexity metric to diagram features.
-
-    The metric used here is the sum of crossing number and braid index.
-    The plot shows:
-    * x‑axis: crossing number
-    * y‑axis: braid index
-    * point size proportional to the complexity metric
-    * colour indicates alternating vs. non‑alternating
-
-    The figure is saved to ``output_path`` (PNG format).
     """
-    records = _df_to_records(df)
+    Produce a few illustrative plots showing how the chosen invariants
+    relate to each other.
 
-    # Prepare data for plotting
-    crossing = [r.crossing_number for r in records]
-    braid = [r.braid_index for r in records]
-    complexity = [r.crossing_number + r.braid_index for r in records]
-    colors = ["tab:blue" if r.alternating else "tab:orange" for r in records]
+    The function is deliberately minimal – it creates a scatter plot of
+    crossing number vs. braid index and saves it as ``example.png``.
+    """
+    output_path = Path(output_dir)
+    output_path.mkdir(parents=True, exist_ok=True)
 
-    plt.figure(figsize=(10, 8))
-    scatter = plt.scatter(
-        crossing,
-        braid,
-        s=[c * 5 for c in complexity],  # scale size for visibility
-        c=colors,
-        alpha=0.7,
-        edgecolors="k",
+    df = pd.DataFrame(
+        [
+            {
+                "identifier": k.identifier,
+                "crossing_number": k.crossing_number,
+                "braid_index": k.braid_index,
+            }
+            for k in knots
+        ]
     )
-    plt.title("Knot Complexity Visualization Example")
+    plt.figure(figsize=(6, 4))
+    plt.scatter(df["crossing_number"], df["braid_index"], alpha=0.6)
+    plt.title("Crossing Number vs. Braid Index (examples)")
     plt.xlabel("Crossing Number")
     plt.ylabel("Braid Index")
-    plt.grid(True, linestyle="--", alpha=0.5)
-
-    # Create a legend for alternating status
-    from matplotlib.lines import Line2D
-
-    legend_elements = [
-        Line2D(
-            [0],
-            [0],
-            marker="o",
-            color="w",
-            label="Alternating",
-            markerfacecolor="tab:blue",
-            markersize=10,
-        ),
-        Line2D(
-            [0],
-            [0],
-            marker="o",
-            color="w",
-            label="Non‑alternating",
-            markerfacecolor="tab:orange",
-            markersize=10,
-        ),
-    ]
-    plt.legend(handles=legend_elements, title="Knot Type")
-
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    plt.grid(True)
     plt.tight_layout()
-    plt.savefig(output_path, dpi=300)
+    plt.savefig(output_path / "example.png")
     plt.close()
+
+# ----------------------------------------------------------------------
+# Main entry‑point required by ``code/analysis/complexity_visualization_runner.py``
+# ----------------------------------------------------------------------
+def main() -> None:
+    """
+    Load a small sample of knots and generate the example visualizations.
+
+    This entry‑point is deliberately lightweight – it re‑uses the
+    ``load_cleaned_knots`` helper from ``analysis._utils`` to obtain the
+    dataset, samples a few rows, and calls the generator.
+    """
+    from analysis._utils import load_cleaned_knots
+
+    # Load the full cleaned dataset and take a modest sample.
+    df = load_cleaned_knots()
+    sample = df.sample(n=min(20, len(df)), random_state=42)
+
+    # Convert rows to ``KnotRecord`` instances.
+    knots = [
+        KnotRecord(
+            identifier=row["knot_name"],
+            crossing_number=row["crossing_number"],
+            braid_index=row["braid_index"],
+            hyperbolic_volume=row["hyperbolic_volume"],
+            alternating=row["alternating"],
+        )
+        for _, row in sample.iterrows()
+    ]
+
+    generate_complexity_visualization_examples(knots)
+
+if __name__ == "__main__":
+    main()

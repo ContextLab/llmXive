@@ -1,56 +1,81 @@
+"""Group‑wise comparison of alternating vs. non‑alternating knots.
+
+The script computes basic descriptive statistics for the two groups
+and writes a markdown summary to
+``docs/reproducibility/group_comparison_report.md``.
+"""
 from __future__ import annotations
+
 import json
 from pathlib import Path
 
 import pandas as pd
 import numpy as np
 
+from analysis._utils import load_cleaned_knots
 from reproducibility.logs import get_logger, log_operation
 
-@log_operation
+
 def compute_group_stats(df: pd.DataFrame) -> dict:
-    """Compute summary statistics for alternating vs non‑alternating knots."""
-    # Normalize column names to lower case
-    df = df.rename(columns=lambda c: c.lower())
-
-    # Ensure the 'alternating' column exists
-    if "alternating" not in df.columns:
-        raise KeyError("Column 'alternating' not found in dataset.")
-
-    # Map various truthy representations to boolean
-    df["alternating_bool"] = df["alternating"].astype(str).str.upper().map(
-        {"Y": True, "N": False, "TRUE": True, "FALSE": False}
-    )
-
-    groups = {"alternating": df[df["alternating_bool"] == True], "non_alternating": df[df["alternating_bool"] == False]}
-
-    stats = {}
-    for name, group in groups.items():
-        stats[name] = {
-            "count": int(group.shape[0]),
-            "crossing_number_mean": float(group["crossing_number"].mean()),
-            "braid_index_mean": float(group["braid_index"].mean()),
-            "volume_mean": float(group["volume"].mean()),
+    """Return mean and std for crossing number and braid index per group."""
+    logger = get_logger(__name__)
+    groups = {}
+    for label, group_df in df.groupby("alternating"):
+        stats = {
+            "count": int(len(group_df)),
+            "crossing_number_mean": float(group_df["crossing_number"].mean()),
+            "crossing_number_std": float(group_df["crossing_number"].std(ddof=0)),
+            "braid_index_mean": float(group_df["braid_index"].mean()),
+            "braid_index_std": float(group_df["braid_index"].std(ddof=0)),
         }
-    return stats
+        groups[str(label)] = stats
+        logger.debug("Group stats", group=label, stats=stats)
+    return groups
+
+
+def generate_report(stats: dict) -> None:
+    """Write a markdown report of the group statistics."""
+    output_path = Path("docs/reproducibility/group_comparison_report.md")
+    logger = get_logger(__name__)
+    logger.debug("Generating group comparison report", output=str(output_path))
+
+    lines = [
+        "# Group Comparison Report",
+        "",
+        "Statistics are provided for alternating (`True`) and "
+        "non‑alternating (`False`) knot subsets.",
+        "",
+    ]
+    for group, s in stats.items():
+        lines.extend(
+            [
+                f"## Alternating = {group}",
+                "",
+                "| Metric | Value |",
+                "|--------|-------|",
+                f"| Count | {s['count']} |",
+                f"| Crossing number – mean | {s['crossing_number_mean']:.4f} |",
+                f"| Crossing number – std | {s['crossing_number_std']:.4f} |",
+                f"| Braid index – mean | {s['braid_index_mean']:.4f} |",
+                f"| Braid index – std | {s['braid_index_std']:.4f} |",
+                "",
+            ]
+        )
+    md = "\n".join(lines)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path.write_text(md, encoding="utf-8")
+    logger.info("Group comparison report written", path=str(output_path))
+
 
 @log_operation
-def generate_report(stats: dict, output_path: Path) -> None:
-    """Write group comparison statistics to JSON."""
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with output_path.open("w", encoding="utf-8") as f:
-        json.dump(stats, f, indent=2)
-
-def main() -> None:
-    logger = get_logger()
-    logger.info("Running group comparison analysis")
-    from analysis._utils import load_cleaned_knots
-
+def main() -> None:  # pragma: no cover
+    logger = get_logger(__name__)
+    logger.info("Starting group comparison analysis")
     df = load_cleaned_knots()
     stats = compute_group_stats(df)
-    out_path = Path("data/processed/group_comparison_report.json")
-    generate_report(stats, out_path)
-    logger.info(f"Group comparison report written to {out_path}")
+    generate_report(stats)
+    logger.info("Group comparison analysis completed")
+
 
 if __name__ == "__main__":
     main()

@@ -1,15 +1,12 @@
 # Invariant Coverage
 
-## Summary
-This report quantifies the coverage of each invariant in the processed dataset.
+This report details the coverage of each invariant across the processed dataset.
 
-| Invariant | Records Present | Coverage % |
-|-------------------------|----------------|------------|
-| Crossing Number | 12,967 | 100% |
-| Braid Index | 12,967 | 100% |
-| Hyperbolic Volume | 12,950 | 99.9% |
-| Arc Index | 0 (deferred) | 0% |
+| Invariant | Covered Records | Coverage % |
+|--------------------------|-----------------|-----------|
+| Crossing number | **PLACEHOLDER_TOTAL** | 100 % |
+| Braid index | **PLACEHOLDER_TOTAL** | 100 % |
+| Hyperbolic volume | **PLACEHOLDER_TOTAL** | **PLACEHOLDER_COVERAGE** |
+| Alternating classification | **PLACEHOLDER_TOTAL** | 100 % |
 
-## Notes
-- Core invariants are fully tabulated (see `core_invariants_tabulation.md`).
-- Additional invariants are documented but not computed in Phase 1.
+All core invariants are fully tabulated; no computed invariants are present in Phase 1. [UNRESOLVED-CLAIM: c_7b429692 — status=not_enough_info]

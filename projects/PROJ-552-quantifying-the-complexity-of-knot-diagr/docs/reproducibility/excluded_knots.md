@@ -1,15 +1,10 @@
 # Excluded Knots
 
-The following knots were excluded from the primary analysis based on the hyperbolic‑filter criteria (see `filter/hyperbolic_filter.py`).
+The filtering step removed knots that are non‑hyperbolic (i.e., hyperbolic volume ≤ 0).
 
-## Exclusion Criteria
-- Missing hyperbolic volume.
-- Non‑hyperbolic knot types.
+## Exclusion Summary
 
-## Excluded Knot Identifiers
-| Knot Name | Reason |
-|-----------|--------|
-| 4₁ | Missing volume |
-| 5₂ | Non‑hyperbolic |
+- Total excluded knots: **PLACEHOLDER_EXCLUDED_COUNT**
+- Reason: Non‑hyperbolic (volume ≤ 0)
 
-*The list above is illustrative; the actual file is generated automatically during pipeline execution.*
+The full list of excluded knot identifiers is recorded in `data/processed/excluded_knots.csv`.

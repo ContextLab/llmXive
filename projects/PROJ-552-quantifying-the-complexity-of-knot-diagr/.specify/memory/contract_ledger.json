@@ -1,0 +1,10 @@
+[
+  {
+    "symbol": "get_logger",
+    "owner": null
+  },
+  {
+    "symbol": "log_operation",
+    "owner": null
+  }
+]

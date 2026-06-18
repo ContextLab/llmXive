@@ -1,72 +1,82 @@
 [
   {
-    "file_path": "logs.json",
-    "sha256": "4c03a25f53f26f0f04e96d41f07863e4cbeb1c3df9f924b389ac010a8a9498ab",
-    "size_bytes": 275
-  },
-  {
-    "file_path": ".gitkeep",
-    "sha256": "024201160d124b9afdafbb7557dba64188da2d1169416cdef1aa21f6eb115d6e",
-    "size_bytes": 57
-  },
-  {
-    "file_path": "checksums.sha256",
-    "sha256": "8fba2ee72cb06c1ba0a2ee1ab4104b1de526d0beca224b168011812ebbac1581",
-    "size_bytes": 343
-  },
-  {
-    "file_path": "reproducibility.log",
-    "sha256": "8fecc3766fea66d231f23aa6182650702ca1d863011b23f45d7306e26b5add20",
-    "size_bytes": 989
-  },
-  {
-    "file_path": "checksums.json",
-    "sha256": "3a0318e2b361b6ee8295a8f7199a442a2e113abbf4d855b73c91df8e2d89d8ad",
-    "size_bytes": 1821
-  },
-  {
-    "file_path": "checksums.csv",
+    "path": "data/checksums.csv",
     "sha256": "fe7b0b60a0c03d6b18e48cc9912d3e89c3b61c08b8ed798382aa9d2c15f5386b",
-    "size_bytes": 866
+    "size": 866
   },
   {
-    "file_path": "logs/logs.jsonl",
-    "sha256": "a312d0b9a19fc1c47c9fb01eedec89bc615f3e609aa6c56342d8a7a69197deed",
-    "size_bytes": 530
+    "path": "data/processed/knots_validated.csv",
+    "sha256": "010a3f827fa2627b95dcc552c15fe2797d2e8edc5d32e66645497e01675bac17",
+    "size": 1337518
   },
   {
-    "file_path": "processed/correlation_report.json",
-    "sha256": "786c03af5d814863c0b666b5a956efc5f7850f9995e24d39000df9bb8ef7fd0e",
-    "size_bytes": 71
-  },
-  {
-    "file_path": "processed/.gitkeep",
-    "sha256": "10413197dca2454418a84fc707f9db91c62b166ba258efd9afe7bf1c639fd15c",
-    "size_bytes": 52
-  },
-  {
-    "file_path": "processed/vif_report.csv",
+    "path": "data/processed/vif_report.csv",
     "sha256": "578ea62cbd330ceb8272c9c74def802fa829c26ef1220492596b7b4edc10d558",
-    "size_bytes": 79
+    "size": 79
   },
   {
-    "file_path": "processed/knots_cleaned.csv",
-    "sha256": "56d5b3968cafb2be0d133240ca591edd7defe0b4d740dd78351ee9b717bd5090",
-    "size_bytes": 96831
+    "path": "data/processed/knots_cleaned.csv",
+    "sha256": "e85c81f8e9108b352fb7fc071a834ab400a48ce73bab4d3424aa0fa427e4c44c",
+    "size": 372633
   },
   {
-    "file_path": "raw/.gitkeep",
-    "sha256": "cabdabbc3681ec91596f4be50a7c29de255b8a36c702021a9079c111ea2f04a3",
-    "size_bytes": 73
+    "path": "data/logs.json",
+    "sha256": "546c7e1c72560948f55da8daa74c94285e7c983abfa4989a8900360d373ff338",
+    "size": 25986
   },
   {
-    "file_path": "raw/knot_atlas_raw.json",
+    "path": "data/checksums.json",
+    "sha256": "4c0b8b2e546d41da6e7ffd299f8b0ea20e9b37286f948c918719031b9e38eb76",
+    "size": 2506
+  },
+  {
+    "path": "data/analysis/correlation_effects.json",
+    "sha256": "d3fcc0b468b45d1e5a212b4e6f710fc77903b5b5c3f3756cf9962f91c830a887",
+    "size": 775
+  },
+  {
+    "path": "data/processed/validation_flags.json",
+    "sha256": "c69e6d5c2f1cd3850fee6a2558f96eacbfd2833ae102f5ff8cbea264b60817ed",
+    "size": 2606768
+  },
+  {
+    "path": "data/processed/group_comparison_report.json",
+    "sha256": "6f6880552bb24c6efa412ab672a313f1ffbb147ef932805a05802a1b3b0dac27",
+    "size": 350
+  },
+  {
+    "path": "data/processed/correlation_report.json",
+    "sha256": "a42452706557b675ffe4974d5a38a74ef21174121642693559369594d639486f",
+    "size": 215
+  },
+  {
+    "path": "data/processed/outlier_knots.json",
+    "sha256": "98874f2236a1bf213028e16d6a00164fff2d8aca261a60ab0b18c0b0fecf9359",
+    "size": 7345
+  },
+  {
+    "path": "data/raw/knot_atlas_raw.json",
     "sha256": "e90eb3ccb6ba6f292fef6cb446e97700a4ad79efa29caafb7c8e751ba195d06f",
-    "size_bytes": 189963928
+    "size": 189963928
   },
   {
-    "file_path": "plots/reproducibility_log.jsonl",
-    "sha256": "c9d60d6d04b0f4bcf853f1175e805cd01842020108bc7a80113d73063b4cb91f",
-    "size_bytes": 1862
+    "path": "data/plots/regression_metrics.json",
+    "sha256": "cda2d29fba4742b0f8c7f78aab5a257f6300bd7c68eed931add80e4f1a8f795e",
+    "size": 424
+  },
+  {
+    "path": "data/plots/correlation_metrics.json",
+    "sha256": "5246d13fef8c38c9048fd54d6a9d087ac5f1dcb4bd14cd5a064f4221ba0434db",
+    "size": 190
+  },
+  {
+    "path": "data/plots/crossing_vs_braid.png",
+    "sha256": "19ba2f6c8e0b68dd0b53702591f47f40c36ecbce227114a278c5a5ac4732b808",
+    "size": 27632
+  },
+  {
+    "path": "data/plots/complexity_visualization_examples.png",
+    "sha256": "5062101942b272d00c257c5fdd60b661f44c283135b8e8be4849846a78bb2931",
+    "size": 170053
   }
 ]

@@ -1,0 +1,16 @@
+{
+  "project_id": "PROJ-552-quantifying-the-complexity-of-knot-diagr",
+  "ok": true,
+  "reason": "ok",
+  "artifacts": [
+    "data/checksums.json",
+    "data/plots/crossing_vs_braid.png",
+    "data/processed/knots_cleaned.csv",
+    "data/processed/knots_validated.csv",
+    "data/processed/outlier_knots.json",
+    "data/raw/knot_atlas_raw.json"
+  ],
+  "failures": [],
+  "fix_rounds": 0,
+  "updated_at": "2026-06-18T06:42:24Z"
+}

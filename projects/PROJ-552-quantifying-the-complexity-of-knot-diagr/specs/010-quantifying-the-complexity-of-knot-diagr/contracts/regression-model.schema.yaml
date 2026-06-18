@@ -1,70 +1,79 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: Regression Model Schema
+# Regression Model Schema
+#
+# This schema defines the structure of a regression model artifact produced by the
+# analysis pipeline. It captures the model type, fitted parameters, and goodness‑of‑fit
+# metrics required for reproducibility and downstream comparison.
+#
+# Schema versioning follows the convention `schema_version: "<major>.<minor>"`.
+# Increment the minor version for non‑breaking additions and the major version for
+# breaking changes.
+#
+schema_version: "1.0"
+title: "Regression Model Record"
 description: |
-  JSON‑Schema definition for regression model metadata produced by the
-  analysis pipeline.  Each model record captures the type of regression,
-  its fitted parameters, and a set of goodness‑of‑fit metrics.
+  A record describing a regression model fitted to knot invariants. Each record
+  corresponds to one model configuration (e.g., linear, polynomial degree 2,
+  logarithmic) and stores the fitted coefficients as well as evaluation metrics.
 type: object
 required:
+  - model_id
   - model_name
   - model_type
-  - coefficients
-  - intercept
+  - parameters
   - metrics
+  - created_at
 properties:
+  model_id:
+    type: string
+    description: |
+      Unique identifier for the model record (e.g., UUID or deterministic hash).
   model_name:
     type: string
-    description: Unique identifier for the model (e.g., "crossing_vs_braid_linear").
+    description: |
+      Human‑readable name for the model (e.g., "Linear model: volume ~ crossing").
   model_type:
     type: string
-    enum:
-      - linear
-      - polynomial
-      - logarithmic
-    description: Type of regression fitted.
+    enum: [linear, polynomial, logarithmic, other]
+    description: |
+      Classification of the regression model. Use "polynomial" for any degree >1.
   degree:
     type: integer
     minimum: 1
     description: |
-      Degree of the polynomial model. Present only when model_type is
-      "polynomial".
-  coefficients:
-    type: array
-    items:
-      type: number
+      Polynomial degree; required only when `model_type` is "polynomial".
+  parameters:
+    type: object
     description: |
-      List of fitted coefficients ordered from highest‑degree term to the
-      constant term (excluding intercept which is stored separately).
-  intercept:
-    type: number
-    description: Intercept term of the regression.
+      Mapping of parameter names to their fitted numeric values.
+    additionalProperties:
+      type: number
   metrics:
     type: object
+    description: |
+      Goodness‑of‑fit and error metrics for the fitted model.
     required:
       - r_squared
-      - mae
       - aic
       - bic
+      - mae
     properties:
       r_squared:
         type: number
-        minimum: 0
-        maximum: 1
-        description: Coefficient of determination.
-      mae:
-        type: number
-        minimum: 0
-        description: Mean absolute error.
+        description: Coefficient of determination (R²).
       aic:
         type: number
-        description: Akaike information criterion.
+        description: Akaike Information Criterion.
       bic:
         type: number
-        description: Bayesian information criterion.
-  fit_timestamp:
+        description: Bayesian Information Criterion.
+      mae:
+        type: number
+        description: Mean Absolute Error.
+  created_at:
     type: string
     format: date-time
-    description: ISO‑8601 timestamp when the model was fitted.
+    description: ISO‑8601 timestamp when the model was trained.
   notes:
     type: string
-    description: Optional free‑form notes about the fitting procedure.
+    description: |
+      Optional free‑form notes (e.g., data subset used, hyperparameters, observations).

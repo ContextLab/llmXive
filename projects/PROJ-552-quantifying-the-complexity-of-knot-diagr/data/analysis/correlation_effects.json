@@ -1,0 +1,28 @@
+{
+  "correlations": [
+    {
+      "name": "crossing_vs_braid",
+      "coefficient": NaN,
+      "method": "pearson",
+      "note": "Pearson correlation (r) between crossing number and braid index"
+    },
+    {
+      "name": "crossing_vs_braid",
+      "coefficient": NaN,
+      "method": "spearman",
+      "note": "Spearman rank correlation (rho) between crossing number and braid index"
+    }
+  ],
+  "effect_sizes": [
+    {
+      "name": "crossing_number_alternating_vs_non",
+      "cohen_d": NaN,
+      "note": "Cohen's d for crossing_number between alternating and non‑alternating knots"
+    },
+    {
+      "name": "braid_index_alternating_vs_non",
+      "cohen_d": NaN,
+      "note": "Cohen's d for braid_index between alternating and non‑alternating knots"
+    }
+  ]
+}

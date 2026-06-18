@@ -1,20 +1,9 @@
 # Validation Scope
 
-## Purpose
-This document defines the scope of validation activities performed across the project.
+This document enumerates the external references used to validate core knot invariants.
 
-## Core Invariants Validated
-- Crossing Number
-- Braid Index
+- **Crossing number** and **braid index** are taken directly from the Knot Atlas (see T013).
+- Hyperbolic volume values are cross‑checked against KnotInfo where coverage exceeds 90 %. [UNRESOLVED-CLAIM: c_e54c08f0 — status=not_enough_info]
+- {{claim:c_6816c32b}}
 
-## Additional Invariants Reviewed
-- Hyperbolic Volume
-- Arc Index
-- Bridge Number
-
-## Validation Methods
-- Cross‑reference with KnotInfo database.
-- Consistency checks against tie‑breaking rules.
-
-## Limitations
-Validation of computed invariants (e.g., arc index) is deferred to Phase 2+ per SC‑010.
+No additional validation was required for computed invariants at this stage.

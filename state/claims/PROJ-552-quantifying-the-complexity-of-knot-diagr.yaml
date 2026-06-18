@@ -16878,26 +16878,6 @@
   updated_at: '2026-06-16T12:14:28Z'
 - artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
   attempts: 1
-  canonical: format pass rate at least 99 percent
-  claim_id: c_a733d95d
-  context: "Implement data cleaning to flag nulls and format failures in code/data/validator.py\
-    \ (per FR-002; verification: {{claim:c_3a76cda6}} (Wikipedia: Type I and type\
-    \ II errors, https://en.wikipedia.org/wiki/Type_I_and_type_II_errors), format\
-    \ pass rate \u226599%, duplicate records = 0 per FR-002 thresholds)"
-  evidence:
-    candidates_found: 0
-    reason: candidate set too small to verify ordering
-    source_url: https://aacrjournals.org/cancerres/article/84/6_Supplement/6616/738322/Abstract-6616-Polygenic-risk-score-associated-with
-  kind: magnitude
-  raw_text: "format pass rate \u226599%"
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-06-16T12:14:31Z'
-- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
-  attempts: 1
   canonical: duplicate records equal zero
   claim_id: c_eb9fc54e
   context: "Implement data cleaning to flag nulls and format failures in code/data/validator.py\
@@ -21268,24 +21248,6 @@
   updated_at: '2026-06-17T21:58:31Z'
 - artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
   attempts: 1
-  canonical: black check passes with no violations
-  claim_id: c_75b43114
-  context: T055 Code cleanup and refactoring in code/ to meet linting standards (black
-    --check pass with no violations) and document linting report in docs/reproducibility/linting_report.md
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://arxiv.org/abs/2604.13417
-  kind: entity_fact
-  raw_text: black --check pass with no violations
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-06-17T22:00:50Z'
-- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
-  attempts: 1
   canonical: exponential backoff delays 1s 2s 4s
   claim_id: c_6c5822ac
   context: "T057 test_download_retry_logic that verifies exponential backoff delays\
@@ -21869,3 +21831,2150 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-06-17T22:24:38Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/methodology_appendix.md
+  attempts: 0
+  canonical: prime knots with 3 crossings = 1
+  claim_id: c_9a2446ad
+  context: The knot counts by crossing number table lists the number of prime knots
+    for each crossing number.
+  evidence:
+    fill:
+      channel: oeis
+      conflicts: []
+      quote: 1 0
+      source_id: A002863
+      url: https://oeis.org/A002863
+      value: '0'
+    filled: true
+  kind: numeric
+  raw_text: There is 1 prime knot with crossing number 3
+  resolved_value: '0'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-18T04:50:27Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/methodology_appendix.md
+  attempts: 0
+  canonical: prime knots with 4 crossings = 1
+  claim_id: c_4b7b7228
+  context: The knot counts by crossing number table lists the number of prime knots
+    for each crossing number.
+  evidence:
+    fill:
+      channel: oeis
+      conflicts: []
+      quote: 1 0
+      source_id: A002863
+      url: https://oeis.org/A002863
+      value: '0'
+    filled: true
+  kind: numeric
+  raw_text: There is 1 prime knot with crossing number 4
+  resolved_value: '0'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-18T04:50:29Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/methodology_appendix.md
+  attempts: 0
+  canonical: prime knots with 5 crossings = 2
+  claim_id: c_0ab908a5
+  context: The knot counts by crossing number table lists the number of prime knots
+    for each crossing number.
+  evidence:
+    fill:
+      channel: oeis
+      conflicts: []
+      quote: 1 0
+      source_id: A002863
+      url: https://oeis.org/A002863
+      value: '0'
+    filled: true
+  kind: numeric
+  raw_text: There are 2 prime knots with crossing number 5
+  resolved_value: '0'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-18T04:50:31Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/methodology_appendix.md
+  attempts: 0
+  canonical: prime knots with 6 crossings = 3
+  claim_id: c_040ff30d
+  context: The knot counts by crossing number table lists the number of prime knots
+    for each crossing number.
+  evidence:
+    fill:
+      channel: oeis
+      conflicts: []
+      quote: 1 0
+      source_id: A002863
+      url: https://oeis.org/A002863
+      value: '1'
+    filled: true
+  kind: numeric
+  raw_text: There are 3 prime knots with crossing number 6
+  resolved_value: '1'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-18T04:50:33Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/methodology_appendix.md
+  attempts: 0
+  canonical: prime knots with 7 crossings = 7
+  claim_id: c_5813a77b
+  context: The knot counts by crossing number table lists the number of prime knots
+    for each crossing number.
+  evidence:
+    fill:
+      channel: oeis
+      conflicts:
+      - channel: paper
+        source_id: '2406.15361'
+        url: https://arxiv.org/abs/2406.15361
+        value: '4878'
+      quote: 13 9988
+      source_id: A002863
+      url: https://oeis.org/A002863
+      value: '9988'
+    filled: true
+  kind: numeric
+  raw_text: There are 7 prime knots with crossing number 7
+  resolved_value: '9988'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-18T04:50:35Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/methodology_appendix.md
+  attempts: 0
+  canonical: prime knots with 9 crossings = 49
+  claim_id: c_e185938e
+  context: The knot counts by crossing number table lists the number of prime knots
+    for each crossing number.
+  evidence:
+    fill:
+      channel: oeis
+      conflicts: []
+      quote: 13 9988
+      source_id: A002863
+      url: https://oeis.org/A002863
+      value: '9988'
+    filled: true
+  kind: numeric
+  raw_text: There are 49 prime knots with crossing number 9
+  resolved_value: '9988'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-18T04:50:38Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/methodology_appendix.md
+  attempts: 1
+  canonical: "total prime knots \u226413 crossings = 1701"
+  claim_id: c_9bd7ee94
+  context: "This appendix documents the concrete data quantities used throughout the\
+    \ project and the measurement\u2011precision standards applied to each invariant."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Total prime knots (\u2264\u202F13 crossings) is 1\u202F701"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-18T04:52:25Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/methodology_appendix.md
+  attempts: 1
+  canonical: total records after cleaning = 1701
+  claim_id: c_321192cb
+  context: All numbers are derived from the processed dataset `data/processed/knots_cleaned.csv`
+    and the accompanying reproducibility reports.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Total records after cleaning is 1\u202F701"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-18T04:52:57Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/methodology_appendix.md
+  attempts: 1
+  canonical: records with missing crossing number = 0
+  claim_id: c_eec7bde3
+  context: "The table of data quantities lists missing\u2011value counts for each\
+    \ invariant."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Records with missing crossing number is 0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-18T04:53:22Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/methodology_appendix.md
+  attempts: 1
+  canonical: records with missing braid index = 0
+  claim_id: c_478be07b
+  context: "The table of data quantities lists missing\u2011value counts for each\
+    \ invariant."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Records with missing braid index is 0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-18T04:54:06Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/methodology_appendix.md
+  attempts: 1
+  canonical: records with missing hyperbolic volume = 342
+  claim_id: c_b56d798e
+  context: "The table of data quantities lists missing\u2011value counts for each\
+    \ invariant."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Records with missing hyperbolic volume is 342
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-18T04:54:32Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/methodology_appendix.md
+  attempts: 1
+  canonical: hyperbolic knots retained for analysis = 1359
+  claim_id: c_d107ed0b
+  context: After filtering out records lacking hyperbolic volume, the remaining hyperbolic
+    knots count is reported.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Hyperbolic knots retained for analysis is 1\u202F359"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-18T04:54:57Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/methodology_appendix.md
+  attempts: 1
+  canonical: null percentage for crossing number = 0
+  claim_id: c_51800dad
+  context: "Null\u2011percentage thresholds are reported for each invariant in the\
+    \ data quantities table."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Null\u2011percentage for crossing number is 0\u202F%"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-18T04:56:26Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/methodology_appendix.md
+  attempts: 1
+  canonical: null percentage for braid index = 0
+  claim_id: c_bc53b221
+  context: "Null\u2011percentage thresholds are reported for each invariant in the\
+    \ data quantities table."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Null\u2011percentage for braid index is 0\u202F%"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-18T04:57:58Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/methodology_appendix.md
+  attempts: 1
+  canonical: null percentage for hyperbolic volume = 20.1
+  claim_id: c_d6185e6b
+  context: "Null\u2011percentage thresholds are reported for each invariant in the\
+    \ data quantities table."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Null\u2011percentage for hyperbolic volume is 20.1\u202F%"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-18T04:58:24Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/methodology_appendix.md
+  attempts: 1
+  canonical: prime knots with 8 crossings = 21
+  claim_id: c_374a4dad
+  context: The knot counts by crossing number table lists the number of prime knots
+    for each crossing number.
+  evidence:
+    fill:
+      channel: oeis
+      conflicts:
+      - channel: oeis
+        source_id: A086825
+        url: https://oeis.org/A086825
+        value: '26'
+      quote: 8 21
+      source_id: A002863
+      url: https://oeis.org/A002863
+      value: '21'
+    filled: true
+  kind: numeric
+  raw_text: There are 21 prime knots with crossing number 8
+  resolved_value: '21'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-18T04:58:39Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/methodology_appendix.md
+  attempts: 1
+  canonical: prime knots with 10 crossings = 165
+  claim_id: c_c6f75419
+  context: The knot counts by crossing number table lists the number of prime knots
+    for each crossing number.
+  evidence:
+    fill:
+      channel: oeis
+      conflicts: []
+      quote: 10 165
+      source_id: A002863
+      url: https://oeis.org/A002863
+      value: '165'
+    filled: true
+  kind: numeric
+  raw_text: There are 165 prime knots with crossing number 10
+  resolved_value: '165'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-18T04:58:42Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/methodology_appendix.md
+  attempts: 1
+  canonical: prime knots with 11 crossings = 552
+  claim_id: c_36bbc9df
+  context: The knot counts by crossing number table lists the number of prime knots
+    for each crossing number.
+  evidence:
+    fill:
+      channel: oeis
+      conflicts: []
+      quote: 11 552
+      source_id: A002863
+      url: https://oeis.org/A002863
+      value: '552'
+    filled: true
+  kind: numeric
+  raw_text: There are 552 prime knots with crossing number 11
+  resolved_value: '552'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-18T04:58:44Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/methodology_appendix.md
+  attempts: 1
+  canonical: prime knots with 12 crossings = 2176
+  claim_id: c_0e68f078
+  context: The knot counts by crossing number table lists the number of prime knots
+    for each crossing number.
+  evidence:
+    fill:
+      channel: oeis
+      conflicts: []
+      quote: 12 2176
+      source_id: A002863
+      url: https://oeis.org/A002863
+      value: '2176'
+    filled: true
+  kind: numeric
+  raw_text: "There are 2\u202F176 prime knots with crossing number 12"
+  resolved_value: '2176'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-18T04:58:55Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/methodology_appendix.md
+  attempts: 1
+  canonical: prime knots with 13 crossings = 7595
+  claim_id: c_0e632229
+  context: The knot counts by crossing number table lists the number of prime knots
+    for each crossing number.
+  evidence:
+    fill:
+      channel: oeis
+      conflicts: []
+      quote: 13 9988
+      source_id: A002863
+      url: https://oeis.org/A002863
+      value: '9988'
+    filled: true
+  kind: numeric
+  raw_text: "There are 7\u202F595 prime knots with crossing number 13"
+  resolved_value: '9988'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-18T04:59:06Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 0
+  canonical: braid index is less than or equal to crossing number
+  claim_id: c_67f85a02
+  context: "Task T038 documents multicollinearity assessment with acknowledgment of\
+    \ the braid index \u2264 crossing number constraint."
+  evidence:
+    entailment_evidence: Braid index is less than or equal to crossing number - Wikipedia
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Braid_index_is_less_than_or_equal_to_crossing_number
+  kind: magnitude
+  raw_text: "braid index \u2264 crossing number constraint"
+  resolved_value: braid index is less than or equal to crossing number
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-18T04:59:18Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: hyperbolic knots possess positive hyperbolic volume
+  claim_id: c_d9e1f5e7
+  context: Task T019 filters the dataset to hyperbolic knots using the condition volume
+    > 0.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: hyperbolic knots have volume > 0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-18T04:59:23Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 0
+  canonical: braid index is less than or equal to crossing number
+  claim_id: c_f874ec02
+  context: The mathematical constraints documented in docs/reproducibility/mathematical_constraints.md
+    acknowledge that the braid index is less than or equal to the crossing number.
+  evidence:
+    entailment_evidence: Braid index is less than or equal to crossing number - Wikipedia
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Braid_index_is_less_than_or_equal_to_crossing_number
+  kind: magnitude
+  raw_text: "braid index \u2264 crossing number"
+  resolved_value: braid index is less than or equal to crossing number
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-18T05:00:01Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 0
+  canonical: core invariants crossing number and braid index tabulated from Wikidata
+    Q16963570
+  claim_id: c_ce1f0dce
+  context: Note that braid index is TABULATED from {{claim:c_3ea0f57a}} (Wikidata
+    Q16963570, https://www.wikidata.org/wiki/Q16963570) per FR-003 and SC-008, not
+    computed - algorithm validation applies only to additional invariants in Phase
+    2+.
+  evidence:
+    entailment_evidence: Crossing number braid index tabulated from Wikidata Q1696357
+      - Wikipedia Jump to content Main menu Main menu move to sidebar hide
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Crossing_number_braid_index_tabulated_from_Wikidata_Q1696357
+  kind: entity_fact
+  raw_text: core invariants (crossing number, braid index) are TABULATED from Wikidata
+    Q16963570
+  resolved_value: crossing number braid index tabulated from Wikidata Q16963570
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-18T05:00:36Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 0
+  canonical: download knot data from the Knot Atlas including crossing numbers, braid
+    indices, hyperbolic volume, and alternating classification for all prime knots
+  claim_id: c_8072f82b
+  context: "Phase 3: User Story 1 \u2013 Download and Parse Knot Data ... Goal: Download\
+    \ knot data from {{claim:c_3ea0f57a}} including crossing numbers, braid indices,\
+    \ hyperbolic volume, and alternating/non-alternating classification for all {{claim:c_afa0a894}}"
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P910: Category:Goal'
+      source_id: Q4503831
+      url: https://www.wikidata.org/wiki/Q4503831
+      value: Goal
+    filled: true
+  kind: entity_fact
+  raw_text: 'Goal: Download knot data from {{claim:c_3ea0f57a}} including crossing
+    numbers, braid indices, hyperbolic volume, and alternating/non-alternating classification
+    for all {{claim:c_afa0a894}}'
+  resolved_value: Goal
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-18T05:02:13Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: arc index, Seifert circle count, and bridge number have documented references
+    to primary mathematical literature
+  claim_id: c_5d70e63f
+  context: T026a implements Constitution Principle VI invariant verification ... additional
+    invariants (arc index, Seifert circle count, bridge number) have documented reference
+    to primary mathematical literature
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Arc_index,_Seifert_circle_count,_and_bridge_number_have_docu
+  kind: entity_fact
+  raw_text: additional invariants (arc index, Seifert circle count, bridge number)
+    have documented reference to primary mathematical literature
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-18T05:02:56Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: hyperbolic knots have hyperbolic volume greater than zero
+  claim_id: c_93a98c56
+  context: T019 Filter dataset to hyperbolic knots (volume > 0) and log excluded knots
+    in docs/reproducibility/excluded_knots.md
+  evidence:
+    candidates:
+    - - ANDERSEN-KASHAEV VOLUME CONJECTURE FOR
+      - 42000.0
+    - - Xiv
+      - 2512.17437
+    - - Xiv
+      - 2410.10776
+    - - Dec
+      - 2025.0
+    - - Among the 59
+      - 937.0
+    - - This leaves us with 42
+      - 123.0
+    - - For these 42
+      - 117.0
+    - - K7a1
+      - 77.0
+    - - K7a2
+      - 76.0
+    - - K7a3
+      - 75.0
+    ordering_correct: false
+    source_url: https://arxiv.org/abs/2512.17437
+  kind: magnitude
+  raw_text: Filter dataset to hyperbolic knots (volume > 0) and log excluded knots
+    in docs/reproducibility/excluded_knots.md
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-06-18T05:03:29Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 0
+  canonical: core invariants crossing number and braid index tabulated from Wikidata
+    Q16963570
+  claim_id: c_6daceb72
+  context: 'T026a verification: all ADDITIONAL invariants have documented reference
+    to primary literature, while core invariants (crossing number, braid index) are
+    TABULATED from Wikidata Q16963570 per FR-003 and SC-008.'
+  evidence:
+    entailment_evidence: Crossing number braid index tabulated from Wikidata Q1696357
+      - Wikipedia Jump to content Main menu Main menu move to sidebar hide
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Crossing_number_braid_index_tabulated_from_Wikidata_Q1696357
+  kind: entity_fact
+  raw_text: core invariants (crossing number, braid index) are TABULATED from Wikidata
+    Q16963570
+  resolved_value: crossing number braid index tabulated from Wikidata Q16963570
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-18T05:04:56Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 0
+  canonical: title token overlap at least 0.7 for all citations
+  claim_id: c_55a09473
+  context: "T065 verification: run Reference-Validator Agent on all citations in code/;\
+    \ title-token-overlap\u22650.7 for all."
+  evidence:
+    entailment_evidence: Title-token overlap of at least 0.7 for all citations
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Title-token_overlap_of_at_least_0.7_for_all_citations
+  kind: magnitude
+  raw_text: "title-token-overlap \u22650.7 for all citations"
+  resolved_value: title-token overlap of at least 0.7 for all citations
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-18T05:05:03Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: 90 percent match against KnotInfo reference values
+  claim_id: c_3d58df0c
+  context: "T040 verification: validate hyperbolic volume data against KnotInfo reference\
+    \ values with \u226590% match against KnotInfo reference values per FR-013."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "\u226590% match against KnotInfo reference values"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-18T05:05:07Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: format pass rate at least 99 percent
+  claim_id: c_eb47dd88
+  context: "T016 verification: data cleaning includes format pass rate \u226599%,\
+    \ duplicate records = 0 per FR-002 thresholds."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://aacrjournals.org/cancerres/article/84/6_Supplement/6616/738322/Abstract-6616-Polygenic-risk-score-associated-with
+  kind: magnitude
+  raw_text: "format pass rate \u226599%"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-18T05:05:13Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: duplicate records zero
+  claim_id: c_e82d230b
+  context: "T016 verification: data cleaning includes format pass rate \u226599%,\
+    \ duplicate records = 0 per FR-002 thresholds."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: duplicate records = 0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-18T05:05:15Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 0
+  canonical: core invariants tabulated from Wikidata Q16963570
+  claim_id: c_0a6737cf
+  context: T026 validates tabulation accuracy for core invariants (crossing number,
+    braid index) against KnotInfo reference values and notes that braid index is TABULATED
+    from {{claim:c_3ea0f57a}} per FR-003/SC-008.
+  evidence:
+    entailment_evidence: Core invariants are tabulated from Wikidata Q16963570 - Wikipedia
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Core_invariants_are_tabulated_from_Wikidata_Q16963570
+  kind: entity_fact
+  raw_text: core invariants (crossing number, braid index) are TABULATED from {{claim:c_3ea0f57a}}
+    (Wikidata Q16963570, https://www.wikidata.org/wiki/Q16963570)
+  resolved_value: core invariants are tabulated from Wikidata Q16963570
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-18T05:06:00Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 0
+  canonical: at least 90 percent match against KnotInfo reference values
+  claim_id: c_dafcb946
+  context: "T040 [US1] Validate hyperbolic volume data against KnotInfo reference\
+    \ values and document source independence assessment in docs/reproducibility/hyperbolic_volume_validation.md\
+    \ (per FR-013; verification: \u226590% match against KnotInfo reference values\
+    \ per FR-013; IF KnotInfo reference coverage <90%, skip cross-check and document\
+    \ limitation with skip rationale per FR-013; Depends on T019)"
+  evidence:
+    entailment_evidence: At least 90 percent match against KnotInfo reference values
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/At_least_90_percent_match_against_KnotInfo_reference_values
+  kind: magnitude
+  raw_text: "\u226590% match against KnotInfo reference values"
+  resolved_value: at least 90 percent match against KnotInfo reference values
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-18T05:06:37Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 0
+  canonical: deviations of at least two standard deviations
+  claim_id: c_c70ab3de
+  context: "T034 [US3] Implement residual analysis to identify hyperbolic knot families\
+    \ deviating \u22652 standard deviations in code/analysis/residual_analysis.py\
+    \ (per FR-005, SC-011)"
+  evidence:
+    entailment_evidence: "extreme El Ni\xF1os we selected have amplitudes at or larger\
+      \ than +2.0 standard deviation"
+    entailment_status: grounded
+    source_url: https://tellusjournal.org/articles/10.1080/16000870.2019.1704342
+  kind: magnitude
+  raw_text: "deviating \u22652 standard deviations"
+  resolved_value: deviation of at least 2 standard deviations
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-18T05:06:39Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 0
+  canonical: download knot data from source {{claim:c_3ea0f57a}} for all {{claim:c_afa0a894}}
+    knots
+  claim_id: c_0687be35
+  context: 'Phase 3: User Story 1 goal description states the intention to download
+    knot data from a specified source for all knots.'
+  evidence:
+    entailment_evidence: Download knot data from source c 3ea0f57a for all c afa0a894
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Download_knot_data_from_source_c_3ea0f57a_for_all_c_afa0a894
+  kind: entity_fact
+  raw_text: Download knot data from {{claim:c_3ea0f57a}} including crossing numbers,
+    braid indices, hyperbolic volume, and alternating/non-alternating classification
+    for all {{claim:c_afa0a894}}.
+  resolved_value: download knot data from source c_3ea0f57a for all c_afa0a894 knots
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-18T05:08:58Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: validate hyperbolic volume data against KnotInfo reference values
+  claim_id: c_379688c9
+  context: Task T040 outlines verification of hyperbolic volume data against KnotInfo
+    reference values.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://jtd.amegroups.org/article/view/17180/13821
+  kind: entity_fact
+  raw_text: Validate hyperbolic volume data against KnotInfo reference values and
+    document source independence assessment.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-18T05:09:46Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: validate core invariants tabulation accuracy against KnotInfo reference
+    values
+  claim_id: c_38e29018
+  context: Task T026 specifies validation of core invariant tabulation against KnotInfo.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Validate_core_invariants_tabulation_accuracy_against_KnotInf
+  kind: entity_fact
+  raw_text: Validate tabulation accuracy for core invariants (crossing number, braid
+    index) against KnotInfo reference values.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-18T05:10:25Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/checksums.md
+  attempts: 1
+  canonical: document lists SHA-256 checksums and file sizes for every file in data
+    directory
+  claim_id: c_63256194
+  context: Introductory statement describing the contents of the document.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "This document lists the SHA\u2011256 checksums and file sizes for every\
+    \ file stored in the ``data/`` directory (including sub\u2011directories)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-18T05:12:54Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/checksums.md
+  attempts: 1
+  canonical: table generated automatically by code/reproducibility/checksums.py
+  claim_id: c_5cc79721
+  context: Explanation of how the checksum table is produced.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://ojs.aaai.org/index.php/AAAI/article/view/12326
+  kind: entity_fact
+  raw_text: The table is generated automatically by ``code/reproducibility/checksums.py``
+    and should be regenerated whenever new data files are added.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-18T05:13:23Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/core_invariants_tabulation.md
+  attempts: 1
+  canonical: verification of crossing number and braid index against KnotInfo reference
+    tables
+  claim_id: c_d03559be
+  context: Verification of crossing number and braid index against the KnotInfo reference
+    tables.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verification_of_crossing_number_and_braid_index_against_Knot
+  kind: entity_fact
+  raw_text: Verification of crossing number and braid index against the KnotInfo reference
+    tables.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-18T05:15:43Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: at least one knot record downloaded successfully
+  claim_id: c_9fe958dd
+  context: 'Implement {{claim:c_3ea0f57a}} downloader in code/download/knot_atlas_loader.py
+    (fetch from https://katlas.org with retry logic; verification: verified by successful
+    download of at least one knot record with all required fields; retry logic tested
+    with simulated failures confirming exponential backoff)'
+  evidence:
+    candidates:
+    - - Arab Society for Plant Protection eSSN
+      - 2412.0
+    - - March
+      - 2026.0
+    - - Archives Archives Select Month September
+      - 2024.0
+    - - December
+      - 2023.0
+    - - December
+      - 2022.0
+    - - December
+      - 2021.0
+    - - December
+      - 2020.0
+    - - October
+      - 2019.0
+    - - December
+      - 2018.0
+    - - December
+      - 2017.0
+    ordering_correct: false
+    source_url: https://www.arabjournalpp.org/article/2025/02/4545/
+  kind: magnitude
+  raw_text: 'verification: verified by successful download of at least one knot record
+    with all required fields'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-06-18T05:20:02Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 2
+  canonical: format pass rate at least 99 percent
+  claim_id: c_a733d95d
+  context: "Implement data cleaning to flag nulls and format failures in code/data/validator.py\
+    \ (per FR-002; verification: {{claim:c_3a76cda6}} (Wikipedia: Type I and type\
+    \ II errors, https://en.wikipedia.org/wiki/Type_I_and_type_II_errors), format\
+    \ pass rate \u226599%, duplicate records = 0 per FR-002 thresholds)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Format_pass_rate_at_least_99_percent
+  kind: magnitude
+  raw_text: "format pass rate \u226599%"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-18T05:20:09Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: zero duplicate records
+  claim_id: c_6f4019d7
+  context: "Implement data cleaning to flag nulls and format failures in code/data/validator.py\
+    \ (per FR-002; verification: {{claim:c_3a76cda6}} (Wikipedia: Type I and type\
+    \ II errors, https://en.wikipedia.org/wiki/Type_I_and_type_II_errors), format\
+    \ pass rate \u226599%, duplicate records = 0 per FR-002 thresholds)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: duplicate records = 0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-18T05:20:11Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: exponential backoff delays of 1 second, 2 seconds, and 4 seconds
+  claim_id: c_cc0c9396
+  context: "Additional unit tests in tests/unit/ (test_download_retry_logic that verifies\
+    \ exponential backoff delays 1s\u21922s\u21924s on simulated failures; test_download_partial_cache\
+    \ that verifies cache creation after 3 consecutive failures; test_download_timeout\
+    \ that verifies timeout handling; test_parser.py with test_crossing_number_parsing,\
+    \ test_braid_index_parsing, test_hyperbolic_volume_parsing)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "exponential backoff delays 1s\u21922s\u21924s"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-18T05:20:40Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: cache created after three consecutive failures
+  claim_id: c_96938e57
+  context: "Additional unit tests in tests/unit/ (test_download_retry_logic that verifies\
+    \ exponential backoff delays 1s\u21922s\u21924s on simulated failures; test_download_partial_cache\
+    \ that verifies cache creation after 3 consecutive failures; test_download_timeout\
+    \ that verifies timeout handling; test_parser.py with test_crossing_number_parsing,\
+    \ test_braid_index_parsing, test_hyperbolic_volume_parsing)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: cache creation after 3 consecutive failures
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-18T05:20:42Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: downloaded at least one knot record with all required fields
+  claim_id: c_5ecb4e12
+  context: Implement downloader in code/download/knot_atlas_loader.py; verification
+    confirms successful download of at least one knot record with all required fields.
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: verification
+      source_id: Q953429
+      url: https://www.wikidata.org/wiki/Q953429
+      value: verification
+    filled: true
+  kind: magnitude
+  raw_text: 'Verification: successful download of at least one knot record with all
+    required fields.'
+  resolved_value: verification
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-18T05:26:15Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: exponential backoff delays of 1, 2, and 4 seconds verified in retry logic
+    test
+  claim_id: c_7913b1a8
+  context: "Unit tests include test_download_retry_logic that verifies exponential\
+    \ backoff delays 1s\u21922s\u21924s on simulated failures."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Test_download_retry_logic verifies exponential backoff delays 1s\u2192\
+    2s\u21924s on simulated failures."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-18T05:26:17Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/derivation_notes.md
+  attempts: 1
+  canonical: crossing number definition by Adams 1994
+  claim_id: c_6dd94ac8
+  context: Listed under Formula Citations as the source for the crossing number definition.
+  evidence:
+    fill:
+      channel: oeis
+      conflicts: []
+      quote: 3 1
+      source_id: A002863
+      url: https://oeis.org/A002863
+      value: '3'
+    filled: true
+  kind: numeric
+  raw_text: "Equation (1): Crossing number definition \u2013 Adams, The Knot Book,\
+    \ 1994, p.\u202F23."
+  resolved_value: '3'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-18T05:30:21Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/derivation_notes.md
+  attempts: 1
+  canonical: braid index bound by Morton and Short 1995
+  claim_id: c_233766a7
+  context: Listed under Formula Citations as the source for the braid index bound.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Equation (2): Braid index bound \u2013 Morton & Short, J. Knot Theory\
+    \ Ramifications, 1995, \xA72."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-18T05:31:42Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/derivation_notes.md
+  attempts: 1
+  canonical: hyperbolic volume approximation by Thurston 1997
+  claim_id: c_5d06d828
+  context: Listed under Formula Citations as the source for the hyperbolic volume
+    approximation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Equation (3): Hyperbolic volume approximation \u2013 Thurston, The Geometry\
+    \ and Topology of 3\u2011Manifolds, 1997, p.\u202F57."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-18T05:33:13Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/derivation_notes.md
+  attempts: 1
+  canonical: relationship between crossing number and hyperbolic volume per Adams
+    1994 Eq 3.4
+  claim_id: c_f3f1cd80
+  context: "Reference: Adams, C. C. (1994). The Knot Book. American Mathematical Society,\
+    \ p.\u202F122, Eq.\u202F(3.4)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Knot crossing number \u2194 hyperbolic volume relationship"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-18T05:36:38Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/derivation_notes.md
+  attempts: 1
+  canonical: braid index bounded by (c + s)/2 per Birman & Menasco 1993 Theorem 2.1
+  claim_id: c_06a591dc
+  context: "Reference: Birman, J. S., & Menasco, W. W. (1993). Studying surfaces in\
+    \ 3\u2011manifolds via braids. Annals of Mathematics, 137(3), 465\u2011547, p.\u202F\
+    470, Theorem\u202F2.1."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Braid index bound
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-18T05:36:40Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/derivation_notes.md
+  attempts: 1
+  canonical: regression intercept gamma equals 0.042
+  claim_id: c_e02af011
+  context: "The regression performed in the analysis phase yielded the following coefficients\
+    \ (rounded to three decimal places): Intercept \u03B3 = 0.042."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Intercept \u03B3 = 0.042"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-18T05:37:12Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/derivation_notes.md
+  attempts: 1
+  canonical: torus and satellite knots have zero hyperbolic volume and lack a hyperbolic
+    structure
+  claim_id: c_f1184166
+  context: "Excluding non\u2011standard choices: Knots with zero hyperbolic volume\
+    \ (torus and satellite knots) do not admit a hyperbolic structure, making volume\u2011\
+    based modelling meaningless for them."
+  evidence:
+    fill:
+      channel: oeis
+      conflicts: []
+      quote: 0 1
+      source_id: A003600
+      url: https://oeis.org/A003600
+      value: '0'
+    filled: true
+  kind: entity_fact
+  raw_text: Knots with zero hyperbolic volume (torus and satellite knots) do not admit
+    a hyperbolic structure
+  resolved_value: '0'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-18T05:37:37Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 0
+  canonical: download knot data from {{claim:c_3ea0f57a}} for all {{claim:c_afa0a894}}
+  claim_id: c_18c1d075
+  context: User Story 1 aims to obtain a complete dataset of knot invariants by downloading
+    from the specified source and covering every knot listed in the referenced collection.
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P910: Category:Goal'
+      source_id: Q4503831
+      url: https://www.wikidata.org/wiki/Q4503831
+      value: Goal
+    filled: true
+  kind: entity_fact
+  raw_text: 'Goal: Download knot data from {{claim:c_3ea0f57a}} including crossing
+    numbers, braid indices, hyperbolic volume, and alternating/non-alternating classification
+    for all {{claim:c_afa0a894}}'
+  resolved_value: Goal
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-18T05:39:39Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: validate hyperbolic volume data against KnotInfo reference values
+  claim_id: c_03648fcb
+  context: "After filtering to hyperbolic knots, the pipeline will cross\u2011check\
+    \ volume measurements with the KnotInfo database and record an independence assessment."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://jtd.amegroups.org/article/view/17180/13821
+  kind: entity_fact
+  raw_text: Validate hyperbolic volume data against KnotInfo reference values and
+    document source independence assessment in docs/reproducibility/hyperbolic_volume_validation.md
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-18T05:40:31Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: validate crossing number and braid index tabulation against KnotInfo
+    reference values; braid index sourced from {{claim:c_3ea0f57a}}
+  claim_id: c_1bd6990b
+  context: User Story 1 includes a verification step ensuring that the primary invariants
+    are correctly tabulated by comparing them to the authoritative KnotInfo dataset.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address causal claim
+    source_url: https://en.wikipedia.org/wiki/Validate_crossing_number_and_braid_index_tabulation_against
+  kind: causal
+  raw_text: Validate tabulation accuracy for core invariants (crossing number, braid
+    index) against KnotInfo reference values and document results in docs/reproducibility/core_invariants_tabulation.md
+    with pass/fail status and coverage percentage; note that braid index is TABULATED
+    from {{claim:c_3ea0f57a}}
+  resolved_value: null
+  resolver: resolve_causal
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-18T05:40:35Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/derivation_notes.md
+  attempts: 1
+  canonical: regression coefficients alpha 0.87 beta 1.13 from OLS fit
+  claim_id: c_943ef3e3
+  context: "The metric C = \u03B1\xB7crossing_number + \u03B2\xB7braid_index is computed\
+    \ with coefficients \u03B1 = 0.87 and \u03B2 = 1.13 obtained from the ordinary\u2011\
+    least\u2011squares fit. These coefficients are the result of the ordinary\u2011\
+    least\u2011squares fit performed in code/analysis/regression.py."
+  evidence:
+    asserted: '0.87'
+    authority: scipy.constants.c (CODATA 2018, exact by SI definition)
+    constant: speed_of_light
+    corrected: true
+    mode: approximate
+    true_value: 299792458.0
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?c
+  kind: numeric
+  raw_text: "The metric C = \u03B1\xB7crossing_number + \u03B2\xB7braid_index is computed\
+    \ with coefficients \u03B1 = 0.87 and \u03B2 = 1.13 obtained from the ordinary\u2011\
+    least\u2011squares fit."
+  resolved_value: '299792458'
+  resolver: approximate
+  source_hash: ed6beba62768b545595a642e36f33757964b4e3db2d209e7dd6059f9670b6f46
+  source_type: external
+  status: verified
+  updated_at: '2026-06-18T05:46:42Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/tie_breaking_rules.md
+  attempts: 1
+  canonical: braid word uniquely determines knot up to isotopy
+  claim_id: c_9e123c6a
+  context: In the Braid Word Preference rule the authors state that the braid word
+    representation is preferred over all other encodings because it uniquely determines
+    the knot up to isotopy and is directly usable for braid-index calculations.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Braid_word_uniquely_determines_knot_up_to_isotopy
+  kind: entity_fact
+  raw_text: The braid word representation is preferred over all other encodings because
+    it uniquely determines the knot up to isotopy and is directly usable for braid-index
+    calculations.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-18T05:49:57Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/tie_breaking_rules.md
+  attempts: 1
+  canonical: DT code is a compact integer sequence capturing crossing information
+  claim_id: c_2a7b057b
+  context: "When a braid word is not available, the DT code (Dowker\u2013Thistlethwaite)\
+    \ is used. This code is a compact integer sequence that captures the crossing\
+    \ information."
+  evidence:
+    entailment_evidence: DT code is a compact integer sequence capturing crossing
+      inf
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/DT_code_is_a_compact_integer_sequence_capturing_crossing_inf
+  kind: entity_fact
+  raw_text: This code is a compact integer sequence that captures the crossing information.
+  resolved_value: DT code is a compact integer sequence capturing crossing information
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-18T05:50:06Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/tie_breaking_rules.md
+  attempts: 1
+  canonical: DT code uniquely determines the knot diagram
+  claim_id: c_004060dc
+  context: "The rule hierarchy uses DT Code \u2013 Used when a braid word is unavailable;\
+    \ the DT (Dowker\u2013Thistlethwaite) code uniquely determines the knot diagram."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/DT_code_uniquely_determines_the_knot_diagram
+  kind: entity_fact
+  raw_text: "DT (Dowker\u2013Thistlethwaite) code uniquely determines the knot diagram."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-18T05:52:37Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/derivation_notes.md
+  attempts: 1
+  canonical: crossing number correlates with hyperbolic volume
+  claim_id: c_55d13ce9
+  context: In the Formula Citations section, the document references a relationship
+    between crossing number and hyperbolic volume.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Crossing number \u2194 hyperbolic volume \u2013 See Hoste, Thistlethwaite,\
+    \ Weeks, \u2018The enumeration of knots and links\u2019, J. Knot Theory Ramifications\
+    \ 4 (1995), pp.\u202F37\u201170."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-18T05:54:54Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/derivation_notes.md
+  attempts: 1
+  canonical: braid index bounds as described by Morton 1978
+  claim_id: c_efb0bd9d
+  context: In the Formula Citations section, the document cites Morton for braid index
+    bounds.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Braid index bounds \u2013 See Morton, \u2018Braids and Seifert surfaces\u2019\
+    , Proc. London Math. Soc. (1978), 36(2), 295\u2011306."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-18T05:56:12Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/derivation_notes.md
+  attempts: 1
+  canonical: non-hyperbolic knots have hyperbolic volume equal to zero
+  claim_id: c_017820e9
+  context: "The justification section notes that non\u2011hyperbolic knots have volume\u202F\
+    =\u202F0, which would dominate correlation statistics."
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: More generally, the hyperbolic volume may be defined for any hyperbolic
+        3-manifold. The Weeks manifold has the smallest possible volume of any closed
+        manifold (a manifold that, unlike link complements, has no cusps); its volume
+        is approximately 0.9427.
+      source_id: Hyperbolic volume
+      url: https://en.wikipedia.org/wiki/Hyperbolic_volume
+      value: '0'
+    filled: true
+  kind: numeric
+  raw_text: "Non\u2011hyperbolic knots have volume = 0."
+  resolved_value: '0'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-18T05:56:22Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/validation_status.md
+  attempts: 1
+  canonical: All reproducibility checks have passed
+  claim_id: c_f1b71e52
+  context: All reproducibility checks have passed.
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P1813: ALL'
+      source_id: Q655020
+      url: https://www.wikidata.org/wiki/Q655020
+      value: ALL
+    filled: true
+  kind: entity_fact
+  raw_text: All reproducibility checks have passed.
+  resolved_value: ALL
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-18T05:56:52Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 2
+  canonical: black check passes with no violations
+  claim_id: c_75b43114
+  context: T055 Code cleanup and refactoring in code/ to meet linting standards (black
+    --check pass with no violations) and document linting report in docs/reproducibility/linting_report.md
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://arxiv.org/abs/2604.13417
+  kind: entity_fact
+  raw_text: black --check pass with no violations
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-18T05:58:05Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: exponential backoff delays of 1 second, 2 seconds, and 4 seconds on simulated
+    failures
+  claim_id: c_78cf53e0
+  context: "T057 Additional unit tests in tests/unit/ (test_download_retry_logic that\
+    \ verifies exponential backoff delays 1s\u21922s\u21924s on simulated failures;\
+    \ ..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "exponential backoff delays 1s\u21922s\u21924s on simulated failures"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-18T05:58:07Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: cache is created after three consecutive failures
+  claim_id: c_cf1cfede
+  context: T057 Additional unit tests in tests/unit/ (test_download_partial_cache
+    that verifies cache creation after 3 consecutive failures; ...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: cache creation after 3 consecutive failures
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-18T05:58:09Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: hyperbolic knots have positive hyperbolic volume
+  claim_id: c_51841877
+  context: 'Filter dataset to hyperbolic knots (volume > 0) and log excluded knots
+    in docs/reproducibility/excluded_knots.md (per FR-012; verification: confirm exclusion
+    count matches docs/reproducibility/excluded_knots.md per SC-012 explicit verification
+    requirement)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: hyperbolic knots (volume > 0)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-18T06:09:09Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: duplicate records zero
+  claim_id: c_6a89a6fe
+  context: "T016 ... format pass rate \u226599%, duplicate records = 0 per FR-002\
+    \ thresholds"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: duplicate records = 0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-18T06:11:15Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: hyperbolic knots have positive volume
+  claim_id: c_a4f92616
+  context: T019 Filter dataset to hyperbolic knots (volume > 0) and log excluded knots
+    in docs/reproducibility/excluded_knots.md
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: hyperbolic knots (volume > 0)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-18T06:11:17Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/derivation_notes.md
+  attempts: 1
+  canonical: maximum crossing number is 13
+  claim_id: c_407f9957
+  context: Parameter Values bullet list noting c_max = 13 (all prime knots up to 13
+    crossings are considered).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Maximum crossing number (c_max): 13 (all prime knots up to 13 crossings
+    are considered).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-18T06:13:31Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/derivation_notes.md
+  attempts: 1
+  canonical: maximum braid index is 7
+  claim_id: c_95e019ae
+  context: Parameter Values bullet list noting b_max = 7 (observed maximum in the
+    dataset).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Maximum braid index (b_max): 7 (observed maximum in the dataset).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-18T06:16:08Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/derivation_notes.md
+  attempts: 1
+  canonical: "weighting factor \u03B1 is 0.6"
+  claim_id: c_39911d5e
+  context: "Parameter Values bullet list describing \u03B1 = 0.6 as empirically determined\
+    \ for best predictive performance for hyperbolic volume."
+  evidence:
+    asserted: '0.6'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: "Weighting factor (\u03B1): 0.6 (empirically determined to give the best\
+    \ predictive performance for hyperbolic volume, see Results section of [1])."
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-06-18T06:16:10Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/derivation_notes.md
+  attempts: 1
+  canonical: "\u03B1 = 0.6 maximised Pearson correlation with hyperbolic volume at\
+    \ approximately 0.78"
+  claim_id: c_ad27d120
+  context: "Justification paragraph stating that \u03B1 = 0.6 gave the highest Pearson\
+    \ correlation (r \u2248 0.78) with hyperbolic volume."
+  evidence:
+    asserted: '0.6'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: "The value 0.6 maximised the correlation (r\u202F\u2248\u202F0.78) while\
+    \ keeping the variance of the derived metric within a manageable range."
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-06-18T06:16:12Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/derivation_notes.md
+  attempts: 1
+  canonical: combined complexity metric derivation follows formulation of Hoste et
+    al. 2008
+  claim_id: c_872e02aa
+  context: Formula Citations section indicating the derivation follows the formulation
+    presented in Hoste et al. 2008.
+  evidence:
+    asserted: '1.0'
+    authority: (1+sqrt(5))/2 (IEEE-754 double, Python stdlib math.sqrt)
+    constant: golden_ratio
+    corrected: true
+    mode: approximate
+    true_value: 1.618033988749895
+    url: https://en.wikipedia.org/wiki/Golden_ratio
+  kind: numeric
+  raw_text: "The derivation of the combined complexity metric follows the formulation\
+    \ presented in [1] J. Hoste, M. Thistlethwaite, J. Weeks, 'The First 1.7 Million\
+    \ Knots,' Mathematical Proceedings of the Cambridge Philosophical Society, vol.\
+    \ 145, no. 3, pp. 447\u2011460, 2008, p.\u202F452, Section\u202F2.2."
+  resolved_value: '2'
+  resolver: approximate
+  source_hash: 290a41cc5fb1b98dcc344e1c80bbc36f6fae8c957aab54f9535e67f96da14e06
+  source_type: external
+  status: verified
+  updated_at: '2026-06-18T06:16:14Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/derivation_notes.md
+  attempts: 1
+  canonical: algebraic manipulations based on braid index relationships described
+    in Adams 2004
+  claim_id: c_9fc0cec3
+  context: Formula Citations section noting algebraic manipulations are based on braid
+    index relationships described in Adams 2004.
+  evidence:
+    asserted: '2.0'
+    authority: scipy.constants.c (CODATA 2018, exact by SI definition)
+    constant: speed_of_light
+    corrected: true
+    mode: approximate
+    true_value: 299792458.0
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?c
+  kind: numeric
+  raw_text: "Additional algebraic manipulations are based on the braid index relationships\
+    \ described in [2] C. C. Adams, 'The Knot Book,' American Mathematical Society,\
+    \ 2004, pp.\u202F123\u2011125, Eq.\u202F(4.7)."
+  resolved_value: '299792458'
+  resolver: approximate
+  source_hash: ed6beba62768b545595a642e36f33757964b4e3db2d209e7dd6059f9670b6f46
+  source_type: external
+  status: verified
+  updated_at: '2026-06-18T06:16:15Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: hyperbolic knots have positive volume
+  claim_id: c_a195efc5
+  context: T019 filters the dataset to hyperbolic knots (volume > 0) and logs excluded
+    knots in docs/reproducibility/excluded_knots.md.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Filter dataset to hyperbolic knots (volume > 0) and log excluded knots
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-18T06:21:49Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: format pass rate at least 99 percent and zero duplicate records
+  claim_id: c_f296d556
+  context: "T016 implements data cleaning with verification that the format pass rate\
+    \ is \u226599% and duplicate records equal 0."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Format_pass_rate_at_least_99_percent_and_zero_duplicate_reco
+  kind: magnitude
+  raw_text: "format pass rate \u226599%, duplicate records = 0"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-18T06:21:53Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/derivation_notes.md
+  attempts: 1
+  canonical: mean crossing number is 7.4
+  claim_id: c_a70b50ae
+  context: 'During the fitting process the following intermediate statistics were
+    recorded: - Mean crossing number: 7.4'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Mean crossing number: 7.4'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-18T06:23:37Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/derivation_notes.md
+  attempts: 1
+  canonical: mean braid index is 5.1
+  claim_id: c_9a24ce63
+  context: 'During the fitting process the following intermediate statistics were
+    recorded: - Mean braid index: 5.1'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Mean braid index: 5.1'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-18T06:24:04Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/derivation_notes.md
+  attempts: 1
+  canonical: standard deviation of hyperbolic volume is 2.3
+  claim_id: c_051e04d3
+  context: 'During the fitting process the following intermediate statistics were
+    recorded: - Standard deviation of hyperbolic volume: 2.3'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Standard deviation of hyperbolic volume: 2.3'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-18T06:24:27Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/derivation_notes.md
+  attempts: 1
+  canonical: number of knots used in the fit is 1658
+  claim_id: c_bcd89bd6
+  context: 'During the fitting process the following intermediate statistics were
+    recorded: - Number of knots used in the fit: 1658'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Number of knots used in the fit: 1658'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-18T06:24:51Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/derivation_notes.md
+  attempts: 1
+  canonical: relationship taken from Knot Theory and Its Applications chapter 3 equation
+    3.12
+  claim_id: c_e8f520d1
+  context: "This relationship is taken from Knot Theory and Its Applications, Chapter\u202F\
+    3, Equation\u202F(3.12)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: This relationship is taken from Knot Theory and Its Applications, Chapter
+    3, Equation (3.12)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-18T06:26:27Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/data_quality_report.md
+  attempts: 1
+  canonical: zero duplicate records
+  claim_id: c_cf8445d0
+  context: 'Duplicate records: 0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Duplicate records: 0'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-18T06:27:32Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/validation_scope.md
+  attempts: 1
+  canonical: hyperbolic volume values coverage exceeds 90 percent in KnotInfo
+  claim_id: c_e54c08f0
+  context: "Hyperbolic volume values are cross\u2011checked against KnotInfo where\
+    \ coverage exceeds 90\u202F%."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Hyperbolic volume values are cross\u2011checked against KnotInfo where\
+    \ coverage exceeds 90\u202F%."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-18T06:28:01Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/validation_scope.md
+  attempts: 1
+  canonical: OEIS A002863 is referenced for prime knot counts per crossing number
+  claim_id: c_6816c32b
+  context: OEIS A002863 is referenced for prime knot counts per crossing number.
+  evidence:
+    entailment_evidence: OEIS A002863 is referenced for prime knot counts per crossin
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/OEIS_A002863_is_referenced_for_prime_knot_counts_per_crossin
+  kind: entity_fact
+  raw_text: OEIS A002863 is referenced for prime knot counts per crossing number.
+  resolved_value: OEIS A002863 is referenced for prime knot counts per crossing number
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-18T06:28:07Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/invariant_coverage.md
+  attempts: 1
+  canonical: All core invariants are fully tabulated and no computed invariants are
+    present in Phase 1
+  claim_id: c_7b429692
+  context: "All core invariants are fully tabulated; no computed invariants are present\
+    \ in Phase\u202F1."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "All core invariants are fully tabulated; no computed invariants are present\
+    \ in Phase\u202F1."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-18T06:28:40Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/validation_status.md
+  attempts: 1
+  canonical: schema validation passed
+  claim_id: c_4b6b289a
+  context: 'All validation steps executed successfully: Schema validation: PASS'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://www.ijsat.org/research-paper.php?id=10656
+  kind: entity_fact
+  raw_text: 'Schema validation: PASS'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-18T06:29:31Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/validation_status.md
+  attempts: 1
+  canonical: data quality checks passed
+  claim_id: c_c1751e36
+  context: 'All validation steps executed successfully: Data quality checks: PASS'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Data_quality_checks_passed
+  kind: entity_fact
+  raw_text: 'Data quality checks: PASS'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-18T06:30:05Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/validation_status.md
+  attempts: 1
+  canonical: "hyperbolic volume cross\u2011validation passed with coverage over 90\
+    \ percent"
+  claim_id: c_13fcec91
+  context: "All validation steps executed successfully: Hyperbolic volume cross\u2011\
+    validation: PASS (coverage >\u202F90\u202F%)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Hyperbolic volume cross\u2011validation: PASS (coverage >\u202F90\u202F\
+    %)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-18T06:30:33Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/validation_status.md
+  attempts: 1
+  canonical: "tie\u2011breaking rule consistency passed"
+  claim_id: c_cedc4157
+  context: "All validation steps executed successfully: Tie\u2011breaking rule consistency:\
+    \ PASS"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Tie%E2%80%91breaking_rule_consistency_passed
+  kind: entity_fact
+  raw_text: "Tie\u2011breaking rule consistency: PASS"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-18T06:30:40Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/validation_status.md
+  attempts: 1
+  canonical: derivation notes completeness passed
+  claim_id: c_5d7c385d
+  context: 'All validation steps executed successfully: Derivation notes completeness:
+    PASS'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P1036: 121.65'
+      source_id: Q2762418
+      url: https://www.wikidata.org/wiki/Q2762418
+      value: '121.65'
+    filled: true
+  kind: entity_fact
+  raw_text: 'Derivation notes completeness: PASS'
+  resolved_value: '121.65'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-18T06:31:03Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/validation_status.md
+  attempts: 1
+  canonical: all validation steps executed successfully
+  claim_id: c_a11e31cd
+  context: 'All validation steps executed successfully: list of PASS results follows.'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts:
+      - channel: wikipedia
+        source_id: Happy path
+        url: https://en.wikipedia.org/wiki/Happy_path
+        value: happy path
+      quote: 'P1813: ALL'
+      source_id: Q655020
+      url: https://www.wikidata.org/wiki/Q655020
+      value: ALL
+    filled: true
+  kind: entity_fact
+  raw_text: All validation steps executed successfully
+  resolved_value: ALL
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-18T06:31:22Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/algorithm_validation.md
+  attempts: 1
+  canonical: Phase 1 does not include computed invariants
+  claim_id: c_4bdc6791
+  context: "This document records the validation of algorithmic implementations for\
+    \ computed invariants. Phase\u202F1 does not include computed invariants; therefore,\
+    \ algorithm validation is deferred to Phase\u202F2+ as specified in the project\
+    \ plan."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Phase\u202F1 does not include computed invariants"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-18T06:31:52Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/algorithm_validation.md
+  attempts: 1
+  canonical: algorithm validation is deferred to Phase 2+ as specified in the project
+    plan
+  claim_id: c_a53a597e
+  context: "Phase\u202F1 does not include computed invariants; therefore, algorithm\
+    \ validation is deferred to Phase\u202F2+ as specified in the project plan."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "algorithm validation is deferred to Phase\u202F2+ as specified in the\
+    \ project plan"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-18T06:32:38Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/hyperbolic_volume_validation.md
+  attempts: 1
+  canonical: coverage of reference values exceeds 90 percent
+  claim_id: c_b6cf273f
+  context: "Coverage of reference values exceeds 90\u202F%, satisfying the validation\
+    \ requirement."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Coverage of reference values exceeds 90\u202F%, satisfying the validation\
+    \ requirement."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-18T06:33:16Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/hyperbolic_volume_validation.md
+  attempts: 1
+  canonical: no discrepancies above the tolerance threshold were observed
+  claim_id: c_22df3b71
+  context: No discrepancies above the tolerance threshold were observed.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://link.springer.com/article/10.1140/epja/i2002-10164-y
+  kind: entity_fact
+  raw_text: No discrepancies above the tolerance threshold were observed.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-18T06:33:46Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/residual_analysis.md
+  attempts: 1
+  canonical: no knot families exhibited extreme outliers beyond 3 sigma
+  claim_id: c_d993ecac
+  context: "Residuals from the regression models were examined to identify knot families\
+    \ with systematic deviation. No specific families exhibited extreme outliers beyond\
+    \ the 3\u2011sigma threshold."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "No specific families exhibited extreme outliers beyond the 3\u2011sigma\
+    \ threshold."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-18T06:34:26Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/residual_analysis.md
+  attempts: 1
+  canonical: all residuals are approximately normally distributed
+  claim_id: c_57691fec
+  context: Residuals from the regression models were examined to identify knot families
+    with systematic deviation. All residuals appear approximately normally distributed.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/All_residuals_are_approximately_normally_distributed
+  kind: entity_fact
+  raw_text: All residuals appear approximately normally distributed.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-18T06:35:14Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/uncomputable_invariants.md
+  attempts: 1
+  canonical: certain invariants are not computable with the current pipeline
+  claim_id: c_16ce6f5d
+  context: Certain invariants (e.g., knot Floer homology) are not computable with
+    the current pipeline and are therefore omitted.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Certain_invariants_are_not_computable_with_the_current_pipel
+  kind: entity_fact
+  raw_text: Certain invariants (e.g., knot Floer homology) are not computable with
+    the current pipeline and are therefore omitted.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-18T06:35:58Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/operation_logs.md
+  attempts: 1
+  canonical: log stored at logs/reproducibility.log
+  claim_id: c_be44726a
+  context: 'A chronological log of all pipeline operations is stored in `logs/reproducibility.log`.
+    Each entry records:'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://www.longdom.org/open-access/effect-of-sodium-chloride-nacl-on-the-growth-of-pediococcus-acidilactici-used-for-the-improvement-of-nutritional-and-microbial-qua-2155-9600-1000614.pdf
+  kind: entity_fact
+  raw_text: A chronological log of all pipeline operations is stored in `logs/reproducibility.log`.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-18T06:36:44Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/operation_logs.md
+  attempts: 1
+  canonical: log entries record timestamp, operation name, input/output paths, parameters,
+    status, duration
+  claim_id: c_de8abfb9
+  context: 'A chronological log of all pipeline operations is stored in `logs/reproducibility.log`.
+    Each entry records: Timestamp, Operation name, Input and output file paths, Parameters
+    used, Status and duration. The log file is generated automatically by the `reproducibility.logs`
+    module.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://link.springer.com/book/10.1007/978-1-4612-3724-2
+  kind: entity_fact
+  raw_text: 'Each entry records: Timestamp, Operation name, Input and output file
+    paths, Parameters used, Status and duration.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-18T06:37:29Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/operation_logs.md
+  attempts: 1
+  canonical: log file generated automatically by reproducibility.logs module
+  claim_id: c_89397b8d
+  context: 'Each entry records: Timestamp, Operation name, Input and output file paths,
+    Parameters used, Status and duration. The log file is generated automatically
+    by the `reproducibility.logs` module.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Log_file_generated_automatically_by_reproducibility.logs_mod
+  kind: entity_fact
+  raw_text: The log file is generated automatically by the `reproducibility.logs`
+    module.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-18T06:37:53Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/census_interpretation.md
+  attempts: 1
+  canonical: dataset comprises all prime knots up to 13 crossings
+  claim_id: c_966b8c5f
+  context: The dataset comprises all prime knots with up to 13 crossings. Since the
+    census is exhaustive, statistical inference does not rely on sampling assumptions...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The dataset comprises all prime knots with up to 13 crossings.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-18T06:39:39Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/mathematical_constraints.md
+  attempts: 1
+  canonical: crossing numbers limited to 13 in knot census
+  claim_id: c_7546460e
+  context: "Crossing numbers are limited to \u2264\u202F13 as per the knot census."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Crossing numbers are limited to \u2264\u202F13 as per the knot census."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-18T06:41:14Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/core_invariants_tabulation.md
+  attempts: 1
+  canonical: core invariants are tabulated from the Knot Atlas
+  claim_id: c_a220c550
+  context: Core invariants (crossing number and braid index) are directly tabulated
+    from the Knot Atlas.
+  evidence:
+    entailment_evidence: Core invariants are tabulated from the Knot Atlas - Wikipedia
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Core_invariants_are_tabulated_from_the_Knot_Atlas
+  kind: entity_fact
+  raw_text: Core invariants (crossing number and braid index) are directly tabulated
+    from the Knot Atlas.
+  resolved_value: core invariants are tabulated from the Knot Atlas
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-18T06:41:26Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/ambiguous_classification_log.md
+  attempts: 1
+  canonical: zero ambiguous records remain after applying flagging logic
+  claim_id: c_f16b158b
+  context: "Each entry records the knot identifier and the reason for exclusion or\
+    \ the \u201Cunclassifiable\u201D flag applied. No ambiguous records remain after\
+    \ applying the flagging logic defined in code/data/validator.py."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Zero_ambiguous_records_remain_after_applying_flagging_logic
+  kind: entity_fact
+  raw_text: No ambiguous records remain after applying the flagging logic defined
+    in code/data/validator.py.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-18T06:42:00Z'

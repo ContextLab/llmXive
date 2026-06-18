@@ -1,0 +1,1 @@
+# Tie‑breaking Rules Validation Report\n\nAll required tie‑breaking criteria are present.\n

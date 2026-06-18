@@ -1,9 +1,5 @@
 # Algorithm Validation
 
-This document records verification of algorithmic implementations for computed invariants.
+This document records the validation of algorithmic implementations for computed invariants.
 
-## Invariants Covered
-- None in Phase 1 (core invariants are tabulated, not computed). [UNRESOLVED-CLAIM: c_9f93f142 — status=not_enough_info]
-
-## Future Work
-Validation of additional invariants (arc index, bridge number, etc.) will be performed in Phase 2+ as required by SC‑010.
+*Phase 1* does not include computed invariants; therefore, algorithm validation is deferred to Phase 2+ as specified in the project plan [UNRESOLVED-CLAIM: c_a53a597e — status=not_enough_info].
