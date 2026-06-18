@@ -473,7 +473,8 @@ def _validate_edit_path(
 
     if track == "research":
         research_bases = [
-            (proj / sub).resolve() for sub in ("code", "data", "specs", "docs")
+            (proj / sub).resolve()
+            for sub in ("code", "data", "specs", "docs", "tests")
         ]
         proj_root = proj.resolve()
         specify_dir = (proj / ".specify").resolve()  # state internals — never edit
@@ -530,7 +531,7 @@ def _resolve_edit_target(
                 return cand
     # Otherwise: a UNIQUE same-basename file within the track's allowed bases.
     if track == "research":
-        bases = [proj / s for s in ("code", "data", "specs", "docs")]
+        bases = [proj / s for s in ("code", "data", "specs", "docs", "tests")]
     else:
         bases = [proj / "paper" / "source", proj / "code", proj / "data"]
     hits: list[Path] = []

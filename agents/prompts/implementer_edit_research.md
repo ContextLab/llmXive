@@ -18,7 +18,7 @@ you edit the project's own research artifacts: source code under `code/`, specs 
 
 ## Authored project files (your editable surface)
 
-You may edit any file under `code/`, `specs/`, `docs/`, or `data/` (give the path
+You may edit any file under `code/`, `specs/`, `docs/`, `data/`, or `tests/` (give the path
 **project-relative**, e.g. `code/data/validator.py` or `docs/reproducibility/licenses.md`).
 
 {{file_tree}}
@@ -41,7 +41,7 @@ allowed `search_and_replace` / `unified_diff` forms) that addresses THIS action 
 Important reminders:
 
 - **Output JSON only.** No prose, no markdown fences, no commentary.
-- **Project-relative `file` path** under `code/`, `specs/`, `docs/`, or `data/`. Do NOT
+- **Project-relative `file` path** under `code/`, `specs/`, `docs/`, `data/`, or `tests/`. Do NOT
   target `paper/…` — no paper exists at this stage.
 - **Localized scope.** Address ONLY this action item; do not touch unrelated content.
 - **`search` must match exactly once.** Include enough surrounding context to be unique.

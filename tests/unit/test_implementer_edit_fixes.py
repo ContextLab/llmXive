@@ -89,13 +89,14 @@ def test_validate_edit_path_research_track_allows_all_research_bases(tmp_path: P
     default 'writing'); paper/ is NOT (no paper exists). Pins PROJ-552's
     agent_blocked: writing-severity edits to code/ were rejected -> 0 success."""
     proj = tmp_path / "projects" / "PROJ-9-z"
-    for sub in ("code", "specs", "docs", "data"):
+    for sub in ("code", "specs", "docs", "data", "tests"):
         (proj / sub).mkdir(parents=True)
     for ok in (
         "code/analysis/regression.py",
         "specs/001-x/tasks.md",
         "docs/reproducibility/licenses.md",
         "data/processed/notes.md",
+        "tests/integration/test_edge_cases.py",  # reviewers ask to add tests
         "projects/PROJ-9-z/code/analysis/regression.py",  # repo-relative form
     ):
         assert _validate_edit_path(
