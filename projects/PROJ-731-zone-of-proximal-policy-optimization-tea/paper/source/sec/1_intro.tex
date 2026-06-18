@@ -1,0 +1,61 @@
+\section{Introduction}
+\label{sec:intro}
+
+\begin{figure*}[t!]
+    \vspace{-3mm}
+    \centering
+    \includegraphics[width=\linewidth]{figures/figure_high_concept.png}
+    \vspace{-5mm}
+    \caption{
+    (a)~Two failure modes that motivate ZPPO. In the small-student regime, fitting the student to a much larger teacher's logits is brittle; on the RL side, injecting a teacher response into the policy gradient as if it were on-policy introduces drift.
+    (b)~BCQ recovers a learning signal on hard questions by pairing a correct teacher response with a wrong student response as anonymized in-prompt candidates, asking the student to reason about which one is correct.
+    (c)~NCQ aggregates the student's own wrong rollouts into a single prompt, surfacing shared error patterns.}
+    \label{fig:concept}
+    % \vspace{-3mm}
+\end{figure*}
+
+Large language models (LLMs) and vision--language models (VLMs) have made rapid progress~\citep{hurst2024gpt,team2023gemini,claude3series2024,qwen3.5,guo2025deepseek} on broad benchmarks, with reinforcement learning post-training~\citep{guo2025deepseek,team2025kimi,liu2025understanding,yu2025dapo,he2025justrl,khatri2025art}. The cost of those gains, however, has scaled with the cost of the model: tens of billions of activated parameters. Nearly all of the gains we see at the frontier do not transport to the regime that matters for deployment on mobile phones, AR/VR glasses, or embodied robots~\citep{Lee_2025_CVPR,NEURIPS2025_e5849736,Lee_2026_CVPR_Masters,marafioti2025smolvlm,vasu2025fastvlm,qu2025mobile}, where compute and memory budgets are much smaller.
+
+Closing this deployment gap requires \emph{small} models that generalize broadly, not narrow specialists. The standard knowledge-transfer recipe is \emph{knowledge distillation}: a small student is trained to imitate the logits, hidden states, or sampled outputs of a strong teacher~\citep{hinton2015distilling,gou2021knowledge,sanh2019distilbert,gu2024minillm,ko2024distillm}. Despite its effectiveness, distillation carries a structural limitation that becomes severe when the student is much smaller than the teacher. Logit imitation is, at its core, supervised fitting on the teacher's distribution: with limited training data, students memorize teacher answers~\citep{kim2026does,li2026rethinking,song2026survey}, and the limited capacity (\textit{e.g.}, ``mode-seeking bias'') concentrates the student on the teacher's sharpest peaks~\citep{gu2024minillm,agarwal2024policy}. The result is a student whose generalization on benchmark families beyond the training corpus is brittle, and whose responses rarely venture beyond the paths the teacher has already taken (Tab.~\ref{tab:generalization}).
+
+A line of work tries to alleviate these issues by using the student's own rollouts to conduct distillation from the teacher to the student (\emph{on-policy} distillation~\citep{agarwal2024policy,lu2025onpolicydistillation,fu2026revisiting,bousselham2025vold,yang2026learning,zhang2026fast,wu2026lightning}) or by removing the external teacher and letting the student teach itself (\emph{self}-distillation~\citep{shenfeld2026self,zhao2026self,hubotter2026reinforcement,kim2026does,yang2026self}). These reduce the teacher--student capacity gap, but they all share the same fundamental constraint: the training signal is still a logit distribution that the student must match. For 0.8B or 2B students, model capacity is too limited to absorb such a distribution broadly, and the resulting models lose generalization on benchmarks beyond the narrow training data~\citep{kim2026does,li2026rethinking,song2026survey}.
+
+A natural alternative is reinforcement learning (RL)~\citep{guo2025deepseek,shao2024deepseekmath,hu2025reinforce++,yu2025dapo,liu2025understanding,he2025justrl,khatri2025art,liu2025prorl,hu2025brorl,liu2025dler,liu2026gdpo}, which avoids logit imitation entirely and trains directly on the student's own rollouts. However, RL has its own pathology in the small-model regime: hard questions with zero successful rollouts produce zero advantage and are silently discarded, so the student never learns from the questions where it most needs help. A simple fix -- using a stronger teacher's correct response as if it were the student's -- breaks the on-policy assumption and induces policy drift, because the teacher's response lies far outside the student's rollout distribution. Fig.~\ref{fig:concept}a summarizes these two failure modes.
+
+In this paper, we ask a single question: \emph{how can we transfer the teacher's knowledge to the student without ever imitating the teacher's logits or injecting the teacher's response directly into the student's policy gradient?} Our answer, which we call \textbf{Zone of Proximal Policy Optimization} (ZPPO), borrows its name from Vygotsky's \emph{zone of proximal development}~\citep{vygotsky1978mind} -- the band of tasks a learner cannot yet solve alone but \emph{can} solve with a small amount of guidance from a more capable peer. Concretely, ZPPO keeps the teacher only inside the \emph{prompt}, never inside the student's policy gradient (Fig.~\ref{fig:concept}b,c and Fig.~\ref{fig:method}):
+
+\begin{figure*}[t]
+    \vspace{-3mm}
+    \centering
+    \includegraphics[width=\linewidth]{figures/figure2.pdf}
+    \vspace{-5mm}
+    \caption{\textbf{Overview of ZPPO.}
+    (a)~Hard questions (mean rollout accuracy below half) are admitted to the prompt replay buffer.
+    (b)~BCQ pairs one correct teacher response with one wrong student response.
+    (c)~NCQ aggregates the student's wrong rollouts into a single prompt.
+    (d)~Integrated batch drives the policy gradient update with RL Recipe.}
+    \label{fig:method}
+    % \vspace{-5mm}
+\end{figure*}
+
+\begin{itemize}[leftmargin=12pt,topsep=2pt,itemsep=2pt]
+  \item For each hard question (defined as one where the student's mean rollout accuracy is below half), we construct a reformulated prompt -- a \emph{Binary Candidate-included Question} (BCQ) -- that appends one correct teacher response and one wrong student response as shuffled, anonymized candidates, and asks the student to solve the problem afresh while consulting them. Since the student generates its own response, its policy gradient remains on-policy at the response level.
+  \item In parallel, we construct a \emph{Negative Candidate-included Question} (NCQ) that appends \emph{all} of the student's wrong responses, explicitly shows the student that all of them are wrong, and asks for a correct answer. Within independent rollout groups, rollouts cannot ``see'' each other's wrong answers; inside our training loop, NCQ is the first place at which a student's failed attempts become collectively visible to the student, turning independent negatives into a shared signal.
+  \item Hard questions are also pushed into a \emph{prompt} replay buffer (no responses are stored). They are repeatedly sampled until they either \emph{graduate} (rollout accuracy reaches half, i.e.\ $\bar{r}_x\!\geq\!0.5$) or are FIFO-evicted once the buffer reaches capacity (Sec.~\ref{sec:method:buffer}, Appendix~\ref{sec:appendix:dynamics_2b}). This focuses repeated practice precisely on prompts inside the student's zone of proximal development.
+\end{itemize}
+
+These three components (BCQ, NCQ, and prompt replay buffer) are layered on top of GRPO~\citep{shao2024deepseekmath} augmented with DAPO's clip-higher and token-level policy gradient loss~\citep{yu2025dapo}. We also adopt two simple but easily mishandled recipe choices that materially affect a small model's training dynamics: \emph{iterations per step} and \emph{batch-level advantage normalization} of REINFORCE++~\citep{hu2025reinforce++}, with zero-advantage groups excluded from the batch statistics. Both are low-cost, yet ablating them accounts for a sizeable fraction of the performance drop we observe, despite their simplicity.
+
+We instantiate ZPPO on the Qwen3.5 family at four student scales -- 0.8B, 2B, 4B, and 9B -- with a 27B teacher~\citep{qwen3.5}, post-train each student as a VLM on a multimodal RL dataset of image--question pairs, and evaluate on a $31$-benchmark suite spanning 16 VLM, 10 LLM, and 5 Video benchmarks. At every scale, ZPPO outperforms (i)~off- and on-policy distillation and (ii)~GRPO (Fig.~\ref{fig:teaser}), and ablating any single component -- BCQ, NCQ, or the prompt replay buffer -- strictly degrades the recipe at every scale (Tab.~\ref{tab:ablation}, Tab.~\ref{tab:ablation_4b9b}). The improvements are largest precisely where the small-model gap is widest -- a 0.8B student gains $+9.3$~pp on the VLM benchmarks, while a 9B student gains $+2.8$~pp -- and, crucially, ZPPO also improves on the LLM and Video benchmark families that lie beyond the training corpus, the very families where distillation hurts.
+
+\input{tables/table1}
+\input{tables/table2}
+
+\begin{finding}{\textsc{Distillation hurts generalization beyond the training corpus; ZPPO does not}}
+  \small
+  \textcolor{OliveGreen}{\textbf{16 VLM benchmarks (training-aligned):}} Distillation lifts the student only marginally -- averaging Off- and On-policy variants gives $+0.9$/$+0.9$/$+0.7$/$+0.6$~pp at $0.8$B/$2$B/$4$B/$9$B (Tab.~\ref{tab:main}, Tab.~\ref{tab:main_4b9b}), while ZPPO gains $+9.3$/$+5.2$/$+4.0$/$+2.8$~pp.
+  
+  \textcolor{OliveGreen}{\textbf{10 LLM and 5 Video benchmarks (beyond the training corpus):}} Distillation \emph{degrades} the same students by $-2.5$/$-1.8$/$-0.9$/$-0.3$~pp (Tab.~\ref{tab:generalization}, Tab.~\ref{tab:generalization_4b9b}), whereas ZPPO \emph{improves} them by $+6.8$/$+4.3$/$+2.7$/$+2.7$~pp.
+\end{finding}
+
+% In summary, we identify a structural obstacle to using teacher knowledge inside RL for small students -- policy drift caused by feeding the teacher's response into the student's policy gradient -- and resolve it by moving the teacher into the \emph{prompt}, via two complementary question reformulations (BCQ, NCQ) gated on hard questions. We pair the reformulations with a prompt replay buffer that graduates a question once the student crosses the half-accuracy line, making the ``zone of proximal development'' an explicit training principle. On a $31$-benchmark suite spanning four student scales, ZPPO outperforms off-/on-policy distillation, GRPO, and every isolated component, with the gap widening at smaller scales while preserving the student's generalization.

@@ -1,0 +1,324 @@
+\section{Hyperparameters and baseline implementations}
+\label{sec:appendix:hyperparameters}
+
+\subsection{ZPPO hyperparameters}
+\label{sec:appendix:hyperparameters:zppo}
+
+Tab.~\ref{tab:appendix:hyperparameters} lists every hyperparameter used to produce the ZPPO numbers reported in the main paper, including the prompt replay buffer $\mathcal{B}$ and its capacity $|\mathcal{B}|_{\max}$. All ZPPO and baseline runs share the same hardware pool: $64$ NVIDIA H100-$80$\,GB GPUs, organized as $8$ nodes of $8$ GPUs each; on every node $6$ GPUs serve student rollouts and the gradient update, and $2$ GPUs serve frozen teacher rollouts, teacher-side candidate compression, and the LLM-as-a-judge, with teacher generation overlapped with student rollouts so the wall-clock per step is dominated by the student-side cost. All RL rows -- GRPO, GRPO$^{\dagger}$, GRPO\,$+$\,Both (BCQ$+$NCQ without the buffer), GRPO$^{\dagger}\!+\!$BCQ, GRPO$^{\dagger}\!+\!$NCQ, the Hint and Prefix baselines, and ZPPO (which is GRPO$^{\dagger}\!+\!$Both) -- inherit every entry below; the only differences live in \emph{which} student rollout source enters the gradient (Sec.~\ref{sec:appendix:baselines}).
+
+\begin{table*}[!htbp]
+    \centering
+    \resizebox{\linewidth}{!}{%
+    \renewcommand{\arraystretch}{1.05}
+    \begin{tabular}{lll}
+        \toprule
+        Group & Hyperparameter & Value \\
+        \midrule
+        \multirow{5}{*}{Student / teacher}
+            & Student initialization                      & \texttt{Qwen/Qwen3.5-\{0.8,2,4,9\}B} (HF), base checkpoints post-trained as a VLM in this paper \\
+            & Teacher                                     & \texttt{Qwen/Qwen3.5-27B-FP8} (HF), base post-trained as a VLM and then frozen during ZPPO \\
+            & Backbone family naming                      & every model uses ``Qwen3.5'' \\
+            & GPUs per node (student / teacher)           & $6\,/\,2$ \\
+            & Total GPUs                                  & $64$ H100-$80$\,GB ($8$ nodes $\times$ $8$) \\
+        \midrule
+        \multirow{14}{*}{Optimization}
+            & Optimizer                                   & AdamW (\texttt{AnyPrecisionAdamW}, bf16 optimizer state) \\
+            & Learning rate                               & $1.0\!\times\!10^{-6}$ (constant for the full run) \\
+            & LR scheduler                                & constant, no warmup, no decay (\texttt{lr\_warmup\_ratio}$=\!0$) \\
+            & AdamW $(\beta_1, \beta_2)$                  & $(0.9,\,0.999)$ \\
+            & AdamW $\epsilon$                            & $10^{-8}$ \\
+            & Weight decay                                & $0.1$ \\
+            & Gradient clipping (max grad norm)           & $1.0$ \\
+            & PPO inner epochs (over a global batch)      & $1$ (no inner re-iteration of the global batch) \\
+            & Mixed precision                             & bfloat16 \\
+            & FSDP sharding                               & full-shard, bfloat16, rank-0 init \\
+            & Fused LM-head kernel                        & on, PyTorch backend \\
+            & KL penalty against reference policy         & $0$ (following DAPO) \\
+            & Reference reset count                       & $0$ \\
+            & Online filtering                            & disabled \\
+        \midrule
+        \multirow{7}{*}{Rollouts}
+            & Student group size $G_{\rm S}$              & $8$ \\
+            & Teacher group size $G_{\rm T}$ (BCQ pool)   & $4$ \\
+            & Tensor-parallel size (student / teacher)    & $1\,/\,1$ \\
+            & Sampling temperature (student / teacher)    & $1.0\,/\,1.0$ (training-time rollouts) \\
+            & Top-$p$ (student / teacher)                 & $1.0\,/\,1.0$ (no nucleus truncation during training) \\
+            & Max prompt length                           & $4{,}096$ tokens (plain rollouts only; BCQ/NCQ rollouts are bounded only by the policy's $262$K context window) \\
+            & Max response length (student / teacher)     & $12{,}288$ / $12{,}288$ tokens \\
+        \midrule
+        \multirow{6}{*}{GRPO backbone}
+            & Reward                                      & rule-based binary $\in\{0,1\}$ (math-aware boxed grader; details below) \\
+            & Advantage estimator                         & two-step (REINFORCE++~\citep{hu2025reinforce++}), zero-advantage groups excluded from batch stats \\
+            & Clip-lower $\epsilon_{\rm low}$             & $0.20$ \\
+            & Clip-higher $\epsilon_{\rm high}$           & $0.28$ (DAPO clip-higher) \\
+            & Dual clip ratio                             & $10.0$ \\
+            & Loss aggregation                            & token-level (DAPO) \\
+        \midrule
+        \multirow{2}{*}{Recipe choices}
+            & Iterations per step $I$                     & $4$ gradient updates per rollout step (Sec.~\ref{sec:experiments:recipe}) \\
+            & Batch advantage normalization               & on, with zero-advantage groups excluded from the batch statistics \\
+        \midrule
+        \multirow{6}{*}{ZPPO-specific}
+            & Hard-question threshold $\tau$              & $0.5$ (mean rollout accuracy) \\
+            & Replay fraction $\rho_{\rm replay}$         & $0.25$ \\
+            & Prompt replay buffer capacity $|\mathcal{B}|_{\max}$ & $10{,}000$ prompts \\
+            & Augmentation fraction $\rho_{\rm aug}$      & $0.25$ \\
+            & Eviction policy                             & FIFO once $|\mathcal{B}|\!>\!|\mathcal{B}|_{\max}$ \\
+            & Candidate compression                      & on, max $512$ tokens \\
+        \midrule
+        \multirow{8}{*}{Schedule \& batching}
+            & Data sampling                               & single pass over the entire ZPPO-$77$K corpus \\
+            & Micro-batch size per device (update / exp.)& $4\,/\,4$ \\
+            & Global batch size                            & $4\!\times\!\text{micro}\!\times\!\text{student-GPUs}\!\times\!\text{nodes}/G_{\rm S}=96$ prompts (one gradient update) \\
+            & Rollout batch size                          & $I\!\cdot\!\text{global}=384$ prompts (one rollout step $=I$ gradient updates) \\
+            & Gradient accumulation per update            & $4$ micro-batches per device ($96\!\times\!G_{\rm S}/(\text{micro}\!\times\!\text{student-GPUs}\!\times\!\text{nodes})$) \\
+            & Total rollout steps per run                 & $200$ \\
+            & Total gradient updates per run              & $800$ ($I\!\cdot\!200$) \\
+            & Padding-free training                       & on \\
+        \bottomrule
+    \end{tabular}}
+    \caption{Training hyperparameters for ZPPO. Values shared with GRPO/GRPO$^{\dagger}$ are unchanged across all RL rows of Tab.~\ref{tab:main}, Tab.~\ref{tab:generalization}, Tab.~\ref{tab:ablation}, Tab.~\ref{tab:hintprefix}, and the appendix tables.}
+    \label{tab:appendix:hyperparameters}
+\end{table*}
+
+\paragraph{Rule-based reward grader.}
+The binary reward in the GRPO-backbone row of Tab.~\ref{tab:appendix:hyperparameters} is computed by a math-aware boxed grader from the \texttt{mathruler.grader} library. \texttt{extract\_boxed\_content} first pulls the content inside the last \texttt{\textbackslash boxed\{\dots\}} span of the response; \texttt{grade\_answer} then compares that content to the gold short answer $a^{\star}$, treating LaTeX/numerical equivalences (e.g.\ \texttt{1/2} vs.\ \texttt{0.5}, \texttt{\textbackslash frac\{1\}\{2\}} vs.\ \texttt{0.5}) as matches. If this strict comparison fails but the response did contain a boxed span, both sides are stripped of degree (${}^{\circ}$, \texttt{\textbackslash circ}, \texttt{\textbackslash deg}) and percent (\texttt{\%}, \texttt{\textbackslash \%}) annotations and re-graded once; the reward is $1$ iff either pass succeeds and $0$ otherwise. Free-form questions (math derivations, OCR, open-ended VLM) instead route to the LLM-as-a-judge described next; this routing is identical across every method in Tab.~\ref{tab:main}--Tab.~\ref{tab:hintprefix}.
+
+\paragraph{Parallel teacher generation.}
+Teacher rollouts $\{y_{\rm T}\}$ for the BCQ pool are generated by a co-located inference engine on $2$ of every $8$ per-node GPUs; their wall-clock overlaps with the student rollout phase, so they do not appear on the critical path of any training step.
+
+\paragraph{LLM-as-a-judge for free-form rewards.}
+Whenever a question's gold answer is free-form (math derivations, OCR, open-ended VLM questions where exact-match parsing is unsafe), the binary reward is decided by the same LLM-as-a-judge configuration~\citep{zheng2023judging} used at evaluation (Appendix~\ref{sec:appendix:benchmarks}). The judge runs in parallel with student rollout scoring on a sidecar inference pool and never touches the gradient. Numbers in Tab.~\ref{tab:main}--Tab.~\ref{tab:hintprefix} use this judge identically across every method.
+
+\paragraph{Candidate compression.}
+The frozen teacher rewrites candidate responses into concise reasoning traces whose final answers are preserved verbatim. The cap of $512$ tokens per candidate is chosen so that even an NCQ prompt carrying every wrong rollout in a group fits well below the policy's $262$K context window, and so that BCQ candidates from the teacher and the student have comparable length. This compression runs in parallel with rollout scoring on the same teacher-side inference pool and is therefore off the gradient path. The exact teacher-side prompt is shown in Fig.~\ref{fig:prompt-compression}:
+\begin{figure*}[!htbp]
+\begin{prompttemplatefig}
+\small
+\emph{Compress the response below into a summary (in 5 lines max).}
+
+\emph{Rules:}
+\begin{itemize}[leftmargin=12pt,topsep=1pt,itemsep=1pt]
+    \item \emph{Response is in \texttt{<response>}...\texttt{</response>} tags}
+    \item \emph{Summary should be in \texttt{<summary>}...\texttt{</summary>} tags and should be in 5 lines max}
+    \item \emph{Keep ONLY the essential reasoning steps and the final answer}
+    \item \emph{Remove ALL exploratory text, self-corrections, retries, and filler}
+    \item \emph{Do NOT re-derive or add new information}
+    \item \emph{End with the final answer in \texttt{\textbackslash boxed\{\}} format}
+\end{itemize}
+\emph{\texttt{<response>}\\
+$\langle$\emph{candidate response to be compressed} -- $y_{\rm T}^{(+)}$ for BCQ, $y_{\rm S}^{(-)}$ for NCQ$\rangle$\\
+\texttt{</response>}}
+\end{prompttemplatefig}
+\caption{Teacher-side candidate compression prompt (off the gradient path).}
+\label{fig:prompt-compression}
+\end{figure*}
+
+\paragraph{Reformulated prompts (BCQ and NCQ).}
+The body of the paper (Sec.~\ref{sec:method:bcqncq}) already shows the BCQ and NCQ instructions in compact form. For full reproducibility, the strings below are the exact templates appended to the original question $x$ -- preserving the literal string concatenation, including the leading blank line and the per-candidate \texttt{<candidate>...</candidate>} blocks. \texttt{$\langle$candidate$_i\rangle$} placeholders are filled at construction time with the teacher-compressed traces produced by the prompt above.
+
+\noindent\textbf{BCQ} (Fig.~\ref{fig:prompt-bcq})\textbf{.} For each hard question with at least one correct teacher rollout, we draw one $y_{\rm T}^{(+)}$ and one $y_{\rm S}^{(-)}$, teacher-compress both, randomly shuffle the order, and append:
+\begin{figure*}[!htbp]
+\begin{prompttemplatefig}
+\small
+$\langle$\emph{original question} $x$$\rangle$
+
+\emph{Here are two candidate responses in \texttt{<candidate> </candidate>} tags to the question above. One is correct and another is wrong. Use these as references to help you solve the problem.}\\
+\texttt{<candidate>}\\
+$\langle$\emph{candidate$_1$ -- compressed $y_{\rm T}^{(+)}$ or $y_{\rm S}^{(-)}$, shuffled}$\rangle$\\
+\texttt{</candidate>}\\
+\texttt{<candidate>}\\
+$\langle$\emph{candidate$_2$ -- the other one}$\rangle$\\
+\texttt{</candidate>}
+\end{prompttemplatefig}
+\caption{BCQ reformulated-prompt template (one correct teacher candidate paired with one wrong student candidate, shuffled).}
+\label{fig:prompt-bcq}
+\end{figure*}
+
+\noindent\textbf{NCQ} (Fig.~\ref{fig:prompt-ncq})\textbf{.} For each hard question with at least one wrong student rollout, we collect \emph{every} wrong rollout in the current group, parse each rollout's final boxed answer (deduplicated and joined with ``\texttt{, }''), teacher-compress every wrong rollout, and append:
+\begin{figure*}[!htbp]
+\begin{prompttemplatefig}
+\small
+$\langle$\emph{original question} $x$$\rangle$
+
+\emph{The following answers are all WRONG: \texttt{\textbackslash boxed\{}$a_1$\texttt{\}}, \texttt{\textbackslash boxed\{}$a_2$\texttt{\}}, \dots, \texttt{\textbackslash boxed\{}$a_K$\texttt{\}}. Below are the incorrect reasoning processes in \texttt{<candidate> </candidate>} tags.}\\
+\texttt{<candidate>}\\
+$\langle$\emph{compressed wrong rollout $1$}$\rangle$\\
+\texttt{</candidate>}\\
+\texttt{<candidate>}\\
+$\langle$\emph{compressed wrong rollout $2$}$\rangle$\\
+\texttt{</candidate>}\\
+\dots\\
+\texttt{<candidate>}\\
+$\langle$\emph{compressed wrong rollout $K$}$\rangle$\\
+\texttt{</candidate>}
+\end{prompttemplatefig}
+\caption{NCQ reformulated-prompt template (aggregates all wrong student rollouts in the group).}
+\label{fig:prompt-ncq}
+\end{figure*}
+The shared RL closer of Appendix~\ref{sec:appendix:benchmarks} (``You FIRST think about the reasoning process \dots put the final answer in \texttt{\textbackslash boxed\{\}}'') is then applied on top of $x_{\rm BCQ}$ and $x_{\rm NCQ}$, identical to new questions; the student therefore samples $y_{\rm BCQ},y_{\rm NCQ}\!\sim\!\pi_\theta(\cdot|x_{\rm BCQ/NCQ})$ in the same think-then-boxed format used everywhere else.
+
+\paragraph{Prompt length budget and the role of dataset filtering.}
+Plain student rollouts use a $4{,}096$-token max prompt budget (Tab.~\ref{tab:appendix:hyperparameters}, \emph{Rollouts} row). This budget is enforced \emph{only at dataset construction time}: ZPPO-77K is filtered so that every base prompt $x$ -- the original question text plus its post-tokenization image tokens, plus the shared RL closer -- fits comfortably inside $4{,}096$ tokens (details in Appendix~\ref{sec:appendix:dataset}). At training time, BCQ and NCQ append additional text on top of $x$: (i)~the per-block instruction string and \texttt{<candidate>...</candidate>} tags, (ii)~the parsed wrong-answer list (NCQ only), and (iii)~the teacher-compressed candidate traces (each individually capped at $512$ tokens by candidate compression; see the previous paragraph). BCQ and NCQ rollouts do not apply the $4{,}096$-token plain-rollout cap and are bounded only by the policy's $262$K architectural context window (the Qwen3.5 long-context backbone), so the per-block instruction, candidate traces, and parsed wrong-answer list are passed to the student without truncation.
+
+\subsection{Baseline implementations}
+\label{sec:appendix:baselines}
+
+This subsection describes the implementation of every baseline reported in Tab.~\ref{tab:main}, Tab.~\ref{tab:generalization}, Tab.~\ref{tab:ablation}, Tab.~\ref{tab:ablation_gen}, and Tab.~\ref{tab:hintprefix}. All baselines share the same student initialization, the same dataset (ZPPO-77K), the same evaluation pipeline, and the same rollout-side hyperparameters (rollout batch size, $G_{\rm S}/G_{\rm T}$, sequence-length budget, optimizer, schedule). The gradient-side differs by loss family: RL methods (GRPO, GRPO$^{\dagger}$, ZPPO, Hint, Prefix) split the per-step rollout batch into $I$ equal-sized mini-batches and apply $I$ gradient updates on the clipped surrogate (with PPO inner-epoch $=1$ so no rollout token is re-iterated), while distillation methods (Off-Distill, On-Distill) apply a single gradient update on the entire per-step rollout batch under the JSD imitation loss. Each rollout token therefore enters the gradient exactly once per rollout step under both families.
+
+\paragraph{Off-policy distillation.}
+We instantiate the standard teacher-trajectory imitation paradigm of Hinton-style knowledge distillation~\citep{hinton2015distilling} as adapted to sequence models by~\citet{sanh2019distilbert}, with two modifications motivated by the RL post-training setting: (O1)~we filter the teacher's trajectories by correctness using the same rule-based reward as ZPPO before they enter the imitation loss, instead of imitating the teacher unconditionally; (O2)~we draw teacher trajectories \emph{online on every rollout step}, with no precomputed pool, so that the buffer ablation in Tab.~\ref{tab:ablation} is not confounded by a one-time amortized teacher pre-compute. Concretely, on every rollout step, for every prompt $x$ in the rollout batch -- both new prompts $x\!\in\!X_{\rm new}$ and (under the $^{\dagger}$ variant) replayed prompts $x\!\in\!X_{\rm replay}$ -- we draw $G_{\rm T}\!=\!4$ teacher rollouts $\{y_{\rm T}^{(g)}(x)\}_{g=1}^{G_{\rm T}}\!\sim\!\pi_{\rm T}(\cdot|x)$ \emph{online} from the frozen teacher, grade them with the same rule-based reward as ZPPO, and keep only the correct subset $\{y_{\rm T}^{(+,n)}(x)\}_{n=1}^{N_x}$ ($0\!\leq\!N_x\!\leq\!G_{\rm T}$). The teacher samples for a given $x$ on visit $k$ are statistically independent of those on visit $k\!-\!1$ (whether or not $x$ is replayed). In parallel we draw $G_{\rm S}\!=\!8$ student rollouts $\{y_{\rm S}^{(g)}(x)\}$ that are used for hard-prompt bookkeeping (and, under $^{\dagger}$, for buffer admission/graduation), but the student rollouts \emph{never} enter the imitation gradient. When $N_x\!>\!0$, we minimize the average over the $N_x$ correct teacher targets of the per-token Jensen--Shannon divergence (JSD) between $\pi_\theta(\cdot|x, y_{\rm T}^{(+,n)})$ and the teacher's per-token distribution at the same prefix~\citep{hinton2015distilling,sanh2019distilbert,ko2024distillm} -- this is the standard sequence-distillation imitation loss specialized to the teacher's correct trajectories; when $N_x\!=\!0$ (the teacher fails on $x$ at this step), the question contributes no imitation loss. Optimization shares the same AdamW configuration as ZPPO. The $^{\dagger}$ variant additionally maintains the prompt replay buffer (\textbf{[O3]}: our extension) with identical admission/graduation/eviction policies as ZPPO; because both new and replayed prompts re-draw teacher rollouts every step, Off-Distill$^{\dagger}$ matches ZPPO's teacher-freshness symmetrically on every visit. Compared to a hypothetical offline-pool variant that caches the first batch of $G_{\rm T}$ teacher rollouts per $x$ and reuses them on every revisit, the fully online setup we adopt costs proportionally more teacher-side compute (linear in the number of rollout steps a prompt participates in), but it removes the cache-staleness confound when interpreting the buffer ablation in Tab.~\ref{tab:ablation} -- any gain ZPPO shows over Off-Distill$^{\dagger}$ cannot be attributed to ZPPO seeing fresher teacher samples on the same hard prompt.
+\begin{algorithm*}[!htbp]
+\SetAlgoLined
+\DontPrintSemicolon
+\KwIn{Student $\pi_\theta$, frozen teacher $\pi_{\rm T}$, dataset $\mathcal{D}$, buffer $\mathcal{B}$ (only for $^{\dagger}$); teacher group size $G_{\rm T}\!=\!4$, student group size $G_{\rm S}\!=\!8$, $\rho_{\rm replay},|\mathcal{B}|_{\max},\tau$ (only for $^{\dagger}$).}
+\textit{// Step tags annotate the component inherited from Hinton-style distillation~\citep{hinton2015distilling} (H1--H2) or Sanh-style sequence-model distillation~\citep{sanh2019distilbert} (S1--S2); O1--O3 mark our setup-specific extensions (correct-only filtering, fully online teacher sampling, optional buffer).}\;
+Sample $X_{\rm new}\!\sim\!\mathcal{D}$ and (for $^{\dagger}$) $X_{\rm replay}\!\sim\!\mathcal{B}$ with $|X_{\rm replay}|\!=\!\rho_{\rm replay}|X_{\rm new}|$; set $X\!\leftarrow\!X_{\rm new}\!\cup\!X_{\rm replay}$.\;
+\ForEach{$x \in X$}{
+    Draw $G_{\rm S}$ student rollouts $\{y_{\rm S}^{(g)}\}_{g=1}^{G_{\rm S}}\!\sim\!\pi_\theta(\cdot|x)$ and score them for hard-prompt bookkeeping only (not used in the imitation gradient).\;
+    Draw $G_{\rm T}$ fresh teacher rollouts $\{y_{\rm T}^{(g)}(x)\}_{g=1}^{G_{\rm T}}\!\sim\!\pi_{\rm T}(\cdot|x)$ \emph{online on this step}. \textit{// \textbf{[H1, H2]} teacher imitation targets; \textbf{[O2]} drawn online each step (no cached pool).}\;
+    Grade $\{y_{\rm T}^{(g)}(x)\}$ with the rule-based reward and keep the correct subset $\{y_{\rm T}^{(+,n)}(x)\}_{n=1}^{N_x}$. \textit{// \textbf{[S2, O1]} correctness filtering of teacher outputs.}\;
+    \uIf{$N_x\!=\!0$ (teacher fails on $x$ at this step)}{Skip the imitation gradient for this $x$ (its student rollouts still feed hard-prompt bookkeeping / buffer admission).\;}
+    \Else{Compute the average over $n\!=\!1,\dots,N_x$ of the per-token Jensen--Shannon divergence between $\pi_\theta(\cdot|x, y_{\rm T}^{(+,n)})$ and $\pi_{\rm T}$ at the same prefix. \textit{// \textbf{[S1]} per-token JSD on teacher trajectories.}\;}
+}
+Update $\pi_\theta$ on the aggregated JSD loss (AdamW; same schedule as ZPPO).\;
+\textbf{($^{\dagger}$ only)} Use the student rollout scores to admit $\{x:\bar{r}_x<\tau\}$ to $\mathcal{B}$, graduate the rest, FIFO-evict until $|\mathcal{B}|\!\leq\!|\mathcal{B}|_{\max}$. \textit{// \textbf{[O3]} our extension: optional prompt replay buffer, matching ZPPO's admission/graduation/FIFO policy.}\;
+\Return{$\pi_\theta$ (and $\mathcal{B}$ for $^{\dagger}$).}
+\caption{Off-policy distillation training step (with optional $^{\dagger}$ buffer variant). Each step is tagged with the Hinton~\citep{hinton2015distilling} (H1--H2) or Sanh~\citep{sanh2019distilbert} (S1--S2) component it inherits; O1--O3 mark our setup-specific extensions. \emph{Fully online}: $G_{\rm T}\!=\!4$ teacher rollouts are drawn on every prompt on every step, with no precomputed pool and no cross-step caching, so the same $x$ visited on different steps consumes independent teacher samples.}
+\label{alg:offpolicy}
+\end{algorithm*}
+
+\paragraph{On-policy distillation.}
+We follow the on-policy distillation paradigm of~\citet{agarwal2024policy}, with a per-token Jensen--Shannon divergence (JSD) between student and teacher as the imitation loss. Specifically: (P1)~the student samples its own trajectories rather than imitating teacher trajectories (the defining property of on-policy distillation); (P2)~the frozen teacher rescores the student's trajectories to produce per-token target distributions; (P3)~the loss is the per-token JSD between student and teacher at the same prefix. Our only setup-specific extension is the optional buffer (\textbf{[O4]}) for the $^{\dagger}$ variant, which is the same prompt replay buffer used by ZPPO and Off-Distill$^{\dagger}$. Concretely, for each question $x$, the student first samples the full group of $G_{\rm S}\!=\!8$ responses $\{y_{\rm S}^{(g)}\}_{g=1}^{G_{\rm S}}\!\sim\!\pi_\theta(\cdot|x)$, we then forward all student responses through the frozen teacher to obtain target logits, and we minimize the per-token JSD between the student and teacher distributions on the student's own rollouts~\citep{agarwal2024policy,ko2024distillm}. The $^{\dagger}$ variant adds the prompt replay buffer in the same way as Off-Distill$^{\dagger}$.
+
+\begin{algorithm*}[!htbp]
+\SetAlgoLined
+\DontPrintSemicolon
+\KwIn{Student $\pi_\theta$, frozen teacher $\pi_{\rm T}$, dataset $\mathcal{D}$, buffer $\mathcal{B}$ (only for $^{\dagger}$); hyperparameters $G_{\rm S},\rho_{\rm replay},|\mathcal{B}|_{\max},\tau$ (only for $^{\dagger}$).}
+\textit{// Step tags annotate the components inherited from on-policy distillation~\citep{agarwal2024policy} (P1--P3); O4 marks our setup-specific extension (optional buffer).}\;
+Sample $X_{\rm new}\!\sim\!\mathcal{D}$ and (for $^{\dagger}$) $X_{\rm replay}\!\sim\!\mathcal{B}$ with $|X_{\rm replay}|\!=\!\rho_{\rm replay}|X_{\rm new}|$; set $X\!\leftarrow\!X_{\rm new}\!\cup\!X_{\rm replay}$.\;
+\ForEach{$x \in X$}{
+    Draw $G_{\rm S}$ student rollouts $\{y_{\rm S}^{(g)}\}_{g=1}^{G_{\rm S}}\!\sim\!\pi_\theta(\cdot|x)$. \textit{// \textbf{[P1]} student samples its own trajectories.}\;
+    Forward every $y_{\rm S}^{(g)}$ through $\pi_{\rm T}$ to obtain teacher per-token target distributions on the student's own responses. \textit{// \textbf{[P2]} teacher rescores the student's trajectories.}\;
+    Compute the per-token Jensen--Shannon divergence loss between $\pi_\theta(\cdot|x, y_{\rm S}^{(g)})$ and these teacher targets for all $g\!=\!1,\dots,G_{\rm S}$. \textit{// \textbf{[P3]} per-token JSD on the student's own samples.}\;
+}
+Update $\pi_\theta$ on the aggregated on-policy JSD loss.\;
+\textbf{($^{\dagger}$ only)} Score $\{y_{\rm S}^{(g)}\}_{g=1}^{G_{\rm S}}$ with the binary reward to obtain $\bar{r}_x$; update $\mathcal{B}$ with the same admission/graduation/FIFO policy as ZPPO. \textit{// \textbf{[O4]} our extension: optional prompt replay buffer, matching ZPPO's admission/graduation/FIFO policy.}\;
+\Return{$\pi_\theta$ (and $\mathcal{B}$ for $^{\dagger}$).}
+\caption{On-policy distillation training step (with optional $^{\dagger}$ buffer variant). Each step is tagged with the Agarwal~\citep{agarwal2024policy} (P1--P3) component it inherits; O4 marks our setup-specific extension.}
+\label{alg:onpolicy}
+\end{algorithm*}
+
+\paragraph{GRPO and GRPO$^{\dagger}$.}
+GRPO inherits three families of components from the recent RL post-training literature, and our setup adds three minor changes. \emph{Adopted from GRPO~\citep{shao2024deepseekmath}}: (G1)~the group-relative advantage formulation that draws $G_{\rm S}$ rollouts per prompt and centers their rewards within the per-prompt group; (G2)~the PPO-style clipped surrogate objective on the centered advantages. \emph{Adopted from DAPO~\citep{yu2025dapo}}: (Da1)~asymmetric clip-higher with $(\epsilon_{\rm low},\epsilon_{\rm high})\!=\!(0.20, 0.28)$; (Da2)~token-level loss aggregation rather than sequence-level; (Da3)~no KL penalty against a reference policy (\texttt{kl\_coef}$=\!0$). \emph{Adopted from REINFORCE++~\citep{hu2025reinforce++}}: (R1)~the two-step advantage estimator (within-group centering in Step~1 and across-group batch normalization in Step~2; see Eqs.~\ref{eq:adv-step1}--\ref{eq:adv-step2}). \emph{Our setup-specific recipe choices on top}: (OG1)~lower inner-iteration count $I\!=\!4$ instead of the standard $I\!=\!16$ (Sec.~\ref{sec:experiments:recipe}); (OG2)~optional prompt replay buffer in the $^{\dagger}$ variant; (OG3)~exclusion of zero-advantage (all-correct or all-wrong) groups from the batch-statistics computation in Step~2 of the two-step estimator (Eqs.~\ref{eq:adv-step1}--\ref{eq:adv-step2}; ablated in Sec.~\ref{sec:experiments:recipe}(ii)). GRPO is identical to ZPPO with the BCQ, NCQ, and replay-buffer branches all disabled; GRPO$^{\dagger}$ adds the buffer alone ($\rho_{\rm replay}\!=\!0.25$, same admission/graduation/eviction policy as ZPPO).
+\begin{algorithm*}[!htbp]
+\SetAlgoLined
+\DontPrintSemicolon
+\KwIn{Student $\pi_\theta$, dataset $\mathcal{D}$, buffer $\mathcal{B}$ (only for $^{\dagger}$); hyperparameters $G_{\rm S},\rho_{\rm replay},|\mathcal{B}|_{\max},I,\tau$.}
+\textit{// Step tags annotate the component inherited from GRPO~\citep{shao2024deepseekmath} (G1--G2), DAPO~\citep{yu2025dapo} (Da1--Da3), or REINFORCE++~\citep{hu2025reinforce++} (R1); OG1--OG3 mark our recipe-side choices.}\;
+Sample $X_{\rm new}\!\sim\!\mathcal{D}$ and (for $^{\dagger}$) $X_{\rm replay}\!\sim\!\mathcal{B}$ with $|X_{\rm replay}|\!=\!\rho_{\rm replay}|X_{\rm new}|$; set $X\!\leftarrow\!X_{\rm new}\!\cup\!X_{\rm replay}$.\;
+\ForEach{$x \in X$}{
+    Draw $G_{\rm S}$ student rollouts $\{y_{\rm S}^{(g)}\}_{g=1}^{G_{\rm S}}\!\sim\!\pi_\theta(\cdot|x)$. \textit{// \textbf{[G1]} group-relative GRPO: $G_{\rm S}$ rollouts per prompt to form the per-prompt group.}\;
+    Score each rollout with the binary reward and compute group-relative advantages via the two-step estimator (within-group centering, then cross-group normalization over the non-trivial subset; Eqs.~\ref{eq:adv-step1}--\ref{eq:adv-step2}). \textit{// \textbf{[G1, R1, OG3]} group-relative two-step advantages with zero-advantage-group exclusion.}\;
+}
+Update $\pi_\theta$ for $I$ iterations on \emph{all} student rollouts (no BCQ/NCQ branch is constructed), using the asymmetric clip-higher PPO surrogate at the token level and no reference-KL penalty. \textit{// \textbf{[G2]} clipped surrogate; \textbf{[Da1]} clip-higher $(0.20,0.28)$; \textbf{[Da2]} token-level loss; \textbf{[Da3]} no reference-KL; \textbf{[OG1]} $I\!=\!4$.}\;
+\textbf{($^{\dagger}$ only)} Compute mean rollout accuracy $\bar{r}_x$; admit $\{x:\bar{r}_x<\tau\}$ to $\mathcal{B}$, graduate the rest, FIFO-evict until $|\mathcal{B}|\leq|\mathcal{B}|_{\max}$. \textit{// \textbf{[OG2]} our extension: optional prompt replay buffer with admission/graduation/FIFO eviction.}\;
+\Return{$\pi_\theta$ (and $\mathcal{B}$ for $^{\dagger}$).}
+\caption{GRPO training step (with optional $^{\dagger}$ buffer variant; matches Algorithm~\ref{alg:zppo} with the BCQ/NCQ branches removed). Each step is tagged with the GRPO~\citep{shao2024deepseekmath} (G1--G2), DAPO~\citep{yu2025dapo} (Da1--Da3), or REINFORCE++~\citep{hu2025reinforce++} (R1) component it inherits; OG1--OG3 mark our recipe-side choices, including the zero-advantage-group exclusion from batch statistics.}
+\label{alg:grpo}
+\end{algorithm*}
+
+\paragraph{Hint baseline (Tab.~\ref{tab:hintprefix}).}
+On each hard question, we follow Guide-GRPO~\citep{nath2025adaptive} (with SEELE~\citep{li2025staying} as another member of the same prompt-injected hint family). As with Off-Distill above, teacher rollouts are drawn \emph{online on every step} -- there is no precomputed teacher pool -- but only on the $X_{\rm aug}$ subset of hard prompts that the augmentation branch actually consumes (a small fraction $\rho_{\rm aug}\!=\!0.25$ of $X_{\rm new}$), which keeps the teacher-side cost of Hint substantially below that of Off-Distill.
+
+\emph{Adopted from Guide-GRPO}~\citep{nath2025adaptive}: (A1)~appending a natural-language hint to the prompt as the augmentation mechanism, before any student rollout; (A2)~using a frozen teacher to generate that hint from a correct teacher trace; (A3)~keeping the student rollout from the hint-augmented prompt \emph{on-policy at the response-token level} -- the gradient is computed under $\pi_\theta(\cdot|x_{\rm Hint})$ with every response token sampled from the current student, identical to Guide-GRPO's guided-rollout formulation modulo the IS ratio it adds on top; (A4)~applying the hint augmentation only on \emph{hard} prompts where the unguided student rollouts fail, rather than uniformly over the dataset.
+
+\emph{Adopted from SEELE}~\citep{li2025staying}: (B1)~sourcing the hint material from a teacher-derived correct trace rather than from a hand-written rule or a separate hint generator (SEELE uses partial solutions; we use an answer-free summary of the same correct teacher rollout, see the hint-generation prompt below); (B2)~one hint per question per rollout step, i.e.\ a single shared hint string for the augmented group of $G_{\rm S}$ student rollouts (SEELE generates one hint per training sample per step); (B3)~the hint-augmented branch is applied as an \emph{additional} augmentation group on top of plain student rollouts, rather than replacing them, mirroring SEELE's augmented-sample construction.
+
+The goal of this baseline is to capture the prompt-side hint \emph{mechanism} of Guide-GRPO (A1--A4) and SEELE (B1--B3). Algorithm~\ref{alg:hint} annotates each step with the component it inherits. Hard questions on which the teacher itself never succeeds on the $G_{\rm T}\!=\!4$ online rollouts at this step (i.e.\ $N_x\!=\!0$) contribute no hint group for that step: their plain student rollouts still feed buffer admission/graduation, but Algorithm~\ref{alg:hint} skips the hint-augmented branch entirely (the empirically-observed fraction of such ``teacher-fails'' hard questions is small at every scale, since the $27$B teacher is much stronger than the $\leq\!9$B students at exactly the hard prompts the student is failing on). The hint-generation prompt is shown in Fig.~\ref{fig:prompt-hint}:
+\begin{figure*}[!htbp]
+\begin{prompttemplatefig}
+\small
+\emph{Read the solved response below and write a concise hint that helps solve the original question. Do NOT reveal the final answer, do NOT include any \texttt{\textbackslash boxed\{\}} expression, and do NOT copy the full solution. Keep only high-level guidance or the key intermediate idea.}
+
+\emph{\texttt{<response>}\\
+$y_{\rm T}^{(+)}$\\
+\texttt{</response>}}
+\end{prompttemplatefig}
+\caption{Hint-generation prompt for the Hint baseline (answer-free guidance from a correct teacher trace).}
+\label{fig:prompt-hint}
+\end{figure*}
+The generated hint $h_{\rm T}$ is then appended to the question inside \texttt{<hint>}\,$\cdots$\,\texttt{</hint>} tags, and the student samples a new rollout group from this hint-augmented prompt. Because every response token is sampled by the current student, the gradient remains on-policy at the response-token level (the prompt is augmented with teacher-derived hint text). Unlike BCQ, however, Hint gives one-sided teacher guidance without forcing the student to discriminate between a correct and an incorrect candidate; unlike NCQ, it never exposes the student's own collective negatives.
+\begin{algorithm*}[!htbp]
+\SetAlgoLined
+\DontPrintSemicolon
+\KwIn{Student $\pi_\theta$, frozen teacher $\pi_{\rm T}$, dataset $\mathcal{D}$, buffer $\mathcal{B}$; teacher group size $G_{\rm T}\!=\!4$, hyperparameters $G_{\rm S},\rho_{\rm replay},\rho_{\rm aug},|\mathcal{B}|_{\max},I,\tau$.}
+\textit{// Step tags annotate the component inherited from Guide-GRPO (A1--A4) or SEELE (B1--B3). Teacher rollouts are drawn \emph{online on this step}, on $X_{\rm aug}$ only, with no precomputed pool.}\;
+Sample $X_{\rm new}\!\sim\!\mathcal{D}$ and $X_{\rm replay}\!\sim\!\mathcal{B}$ with $|X_{\rm replay}|\!=\!\rho_{\rm replay}|X_{\rm new}|$; set $X\!\leftarrow\!X_{\rm new}\!\cup\!X_{\rm replay}$.\;
+\ForEach{$x \in X$}{
+    Draw $G_{\rm S}$ student rollouts $\{y_{\rm S}^{(g)}\}\!\sim\!\pi_\theta(\cdot|x)$ and compute $\bar{r}_x$.\;
+}
+$X_{\rm hard}\!\leftarrow\!\{x\!\in\!X:\bar{r}_x\!<\!\tau\}$; rank by ascending $\bar{r}_x$ and keep the top $\rho_{\rm aug}|X_{\rm new}|$ as $X_{\rm aug}$. \textit{// \textbf{[A4]} Guide-GRPO's hard-prompt-selective application of the hint augmentation.}\;
+\ForEach{$x \in X_{\rm aug}$}{
+    Draw $G_{\rm T}$ fresh teacher rollouts $\{y_{\rm T}^{(g)}(x)\}_{g=1}^{G_{\rm T}}\!\sim\!\pi_{\rm T}(\cdot|x)$ \emph{online on this step}, grade them, and keep the correct subset $\{y_{\rm T}^{(+,n)}(x)\}_{n=1}^{N_x}$. \textit{// online; no precomputed pool.}\;
+    \uIf{$N_x\!=\!0$ (the teacher has no correct rollout on $x$ at this step)}{Skip the hint branch for this $x$: no hint group is constructed, and $x$ contributes only its plain $\{y_{\rm S}^{(g)}\}$ to the gradient and to buffer bookkeeping.\;}
+    \Else{
+        Pick one $y_{\rm T}^{(+)}\!\in\!\{y_{\rm T}^{(+,n)}(x)\}_{n=1}^{N_x}$ (uniform random over the correct rollouts drawn at this step). \textit{// \textbf{[B1]} SEELE-style hint material sourced from a teacher-derived correct trace.}\;
+        Query $\pi_{\rm T}$ with the hint-generation prompt above, instantiated on $y_{\rm T}^{(+)}$, to obtain an answer-free hint $h_{\rm T}$. \textit{// \textbf{[A2]} frozen teacher generates the hint (Guide-GRPO-style).}\;
+        Form $x_{\rm Hint}\!\leftarrow\!x\,\Vert\,$\texttt{<hint>}$\,h_{\rm T}\,$\texttt{</hint>}. \textit{// \textbf{[A1, B2]} one shared hint string appended to the prompt.}\;
+        Draw $G_{\rm S}$ student rollouts $\{y_{\rm Hint}^{(g)}\}_{g=1}^{G_{\rm S}}\!\sim\!\pi_\theta(\cdot|x_{\rm Hint})$ as a fresh group with its own group identifier $\mathrm{uid}_{\rm Hint}$ (advantages computed within this $G_{\rm S}$-sized group, identical to ZPPO's BCQ/NCQ groups). \textit{// \textbf{[A3, B3]} on-policy augmentation group on top of plain rollouts.}\;
+    }
+}
+Update $\pi_\theta$ for $I$ iterations on plain $\{y_{\rm S}^{(g)}\}$ and hint-augmented $\{y_{\rm Hint}^{(g)}\}$ rollouts under the same group-relative advantages and batch normalization as ZPPO.\;
+Update $\mathcal{B}$ with the same admission/graduation/FIFO policy as ZPPO.\;
+\Return{$\pi_\theta$, $\mathcal{B}$.}
+\caption{Hint training step. Each step is tagged with the Guide-GRPO~\citep{nath2025adaptive} (A1--A4) and SEELE~\citep{li2025staying} (B1--B3) component it inherits. Teacher rollouts are drawn \emph{online on this step}, on the $X_{\rm aug}$ subset only, with no precomputed pool. Hint augmentation requires a correct teacher rollout at this step; hard questions without one (i.e.\ teacher fails on all $G_{\rm T}$ rollouts) fall back to the plain student rollout only.}
+\label{alg:hint}
+\end{algorithm*}
+
+\paragraph{Prefix baseline (Tab.~\ref{tab:hintprefix}).}
+On each hard question, we follow BREAD~\citep{zhang2025bread} (with StepHint~\citep{zhang2025stephint} as another member of the same prefix-injection family). For implementation simplicity we omit BREAD's adaptive Episode Anchor Search (EAS) and fix the prefix at a single token fraction $\alpha\!=\!0.4$ shared across all hard questions and all rollout steps; every other ingredient of BREAD (expert-trace anchor, branched rollouts, group-relative advantages, failure-conditioned application) is adopted as-is. As in Off-Distill and Hint, teacher rollouts are drawn \emph{online on every step} -- there is no precomputed teacher pool -- and the draw happens only on the $X_{\rm aug}$ subset of hard prompts that the prefix branch actually consumes.
+
+\emph{Adopted from BREAD}~\citep{zhang2025bread}: (E1)~the teacher-forced prefix anchor as the start of the student rollout, drawn from a correct teacher rollout sampled \emph{online on this step} (BREAD's ``expert trace anchor''); (E2)~the \emph{branched-rollout} structure that draws $G_{\rm S}\!=\!8$ student continuations from the \emph{same} shared anchor $(x,\,p)$, so all $G_{\rm S}$ rollouts in the augmented group condition on the identical prefix (BREAD's defining ``branched rollouts'' design); (E3)~GRPO-style group-relative advantages computed over those $G_{\rm S}$ branched continuations (BREAD scores the branched group exactly this way, including the same group-relative normalization that we share with ZPPO/BCQ/NCQ); (E4)~failure-conditioned application -- BREAD invokes prefix injection on hard prompts where the student fails unaided, and we similarly route Prefix only through the $X_{\rm aug}$ subset of hard questions selected by our $\rho_{\rm aug}$ rule; (E5)~\emph{teacher-prefix masking from the policy loss}, i.e.\ the per-token policy-gradient summation runs over the student-continuation tokens $c^{(g)}$ only and the teacher-forced prefix tokens $p$ are masked out so they cannot inherit the continuation's advantage (this matches BREAD's Eq.~1 in~\citep{zhang2025bread}, whose objective sums $t\!=\!1\ldots|c^{(g)}|$ with $p$ acting purely as conditioning context). \emph{Omitted for simplicity}: BREAD's Episode Anchor Search (EAS), the per-question binary search over an episode-split expert trace that picks the shortest sufficient prefix; we replace it with the fixed $\alpha\!=\!0.4$ token fraction above.
+
+\emph{Adopted from StepHint}~\citep{zhang2025stephint}: (F1)~using a strong frozen teacher (rather than human annotations or a curated SFT dataset) as the source of the reasoning trace that the prefix is cut from (StepHint draws traces from DeepSeek-R1-class teachers, we draw from our $27$B Qwen3.5 teacher); (F2)~truncating the trace at the \emph{initial} portion of the solution and feeding only that prefix to the student (StepHint's ``initial few steps as hints''), in our case at the fixed token fraction $\alpha\!=\!0.4$; (F3)~selective application of the prefix-injection to a subset of training prompts rather than to the entire dataset (StepHint's selective hinting policy).
+
+The goal of this baseline is to capture the response-prefix \emph{mechanism} of BREAD (E1--E4) and StepHint (F1--F3). Algorithm~\ref{alg:prefix} annotates each step with the component it inherits. Hard questions on which the teacher itself never succeeds on the $G_{\rm T}\!=\!4$ online rollouts at this step (i.e.\ $N_x\!=\!0$) fall back to the plain student rollout only, exactly as in Algorithm~\ref{alg:hint}. All other hyperparameters (replay buffer, $G_{\rm S}$, optimizer) are identical to ZPPO.
+\begin{algorithm*}[!htbp]
+\SetAlgoLined
+\DontPrintSemicolon
+\KwIn{Student $\pi_\theta$, frozen teacher $\pi_{\rm T}$, dataset $\mathcal{D}$, buffer $\mathcal{B}$; teacher group size $G_{\rm T}\!=\!4$, prefix fraction $\alpha\!=\!0.4$, hyperparameters $G_{\rm S},\rho_{\rm replay},\rho_{\rm aug},|\mathcal{B}|_{\max},I,\tau$.}
+\textit{// Step tags annotate the component inherited from BREAD (E1--E5) or StepHint (F1--F3). EAS omitted; fixed $\alpha\!=\!0.4$ used instead. Teacher rollouts drawn \emph{online on this step} on $X_{\rm aug}$ only, no precomputed pool. Prefix tokens $p$ are masked from the policy loss (BREAD-style); only student-continuation tokens $c^{(g)}$ enter the gradient.}\;
+Sample $X_{\rm new}\!\sim\!\mathcal{D}$ and $X_{\rm replay}\!\sim\!\mathcal{B}$ with $|X_{\rm replay}|\!=\!\rho_{\rm replay}|X_{\rm new}|$; set $X\!\leftarrow\!X_{\rm new}\!\cup\!X_{\rm replay}$.\;
+\ForEach{$x \in X$}{
+    Draw $G_{\rm S}$ student rollouts and compute $\bar{r}_x$ as in GRPO.\;
+}
+Select $X_{\rm aug}$ as the top $\rho_{\rm aug}|X_{\rm new}|$ hardest questions ($\bar{r}_x\!<\!\tau$). \textit{// \textbf{[E4, F3]} failure-conditioned selective prefix injection.}\;
+\ForEach{$x \in X_{\rm aug}$}{
+    Draw $G_{\rm T}$ fresh teacher rollouts $\{y_{\rm T}^{(g)}(x)\}_{g=1}^{G_{\rm T}}\!\sim\!\pi_{\rm T}(\cdot|x)$ \emph{online on this step}, grade them, and keep the correct subset $\{y_{\rm T}^{(+,n)}(x)\}_{n=1}^{N_x}$. \textit{// online; no precomputed pool.}\;
+    \uIf{$N_x\!=\!0$}{Skip the prefix branch; $x$ contributes only its plain $\{y_{\rm S}^{(g)}\}$.\;}
+    \Else{
+        Pick one $y_{\rm T}^{(+)}\!=\!(t_1,\dots,t_L)\!\in\!\{y_{\rm T}^{(+,n)}(x)\}_{n=1}^{N_x}$ (uniform random). \textit{// \textbf{[E1, F1]} expert-trace anchor from a strong online teacher.}\;
+        Form the shared forced prefix $p\!\leftarrow\!(t_1,\dots,t_{\lfloor\alpha L\rfloor})$. \textit{// \textbf{[F2]} fixed token-fraction cut ($\alpha\!=\!0.4$); EAS omitted.}\;
+        Draw $G_{\rm S}$ student continuations $\{c^{(g)}\}_{g=1}^{G_{\rm S}}\!\sim\!\pi_\theta(\cdot|x, p)$ autoregressively from the \emph{same} shared $(x, p)$. \textit{// \textbf{[E2]} BREAD branched rollouts under one shared anchor.}\;
+        Assemble the prefix-augmented group $\{y_{\rm Prefix}^{(g)}\!=\!p\,\Vert\,c^{(g)}\}_{g=1}^{G_{\rm S}}$ under a fresh $\mathrm{uid}_{\rm Prefix}$; compute group-relative advantages over the $G_{\rm S}$ continuations with the same REINFORCE++ estimator and zero-advantage-group exclusion as ZPPO. \textit{// \textbf{[E3]} BREAD group-relative advantages.}\;
+        Score the augmented group in the PPO surrogate under $\pi_\theta(\cdot|x, (p\,\Vert\,c^{(g)})_{<t})$, with the policy-gradient summation restricted to the student-continuation tokens $c^{(g)}$ and prefix tokens $p$ masked out. \textit{// \textbf{[E5]} BREAD-style prefix masking.}\;
+    }
+}
+Update $\pi_\theta$ for $I$ iterations on plain $\{y_{\rm S}^{(g)}\}$ and prefix-augmented $\{y_{\rm Prefix}^{(g)}\}$ rollouts.\;
+Update $\mathcal{B}$ with the same admission/graduation/FIFO policy as ZPPO.\;
+\Return{$\pi_\theta$, $\mathcal{B}$.}
+\caption{Prefix training step. Steps are tagged with the BREAD~\citep{zhang2025bread} (E1--E5) and StepHint~\citep{zhang2025stephint} (F1--F3) component each inherits, including BREAD-style teacher-prefix masking from the policy loss (E5). EAS is omitted and the prefix fraction is fixed at $\alpha\!=\!0.4$. Teacher rollouts are drawn online on $X_{\rm aug}$ only, and each prefix-augmented question contributes a $G_{\rm S}$-sized group sharing the same prefix, scored with group-relative advantages identical to ZPPO/BCQ/NCQ.}
+\label{alg:prefix}
+\end{algorithm*}
+
+\subsection{Compute cost per run}
+\label{sec:appendix:hyperparameters:compute}
+
+Tab.~\ref{tab:appendix:compute} reports per-run wall-clock time and total training FLOPs for the headline methods of the main paper across all four student scales $\{0.8\text{B},2\text{B},4\text{B},9\text{B}\}$. Wall-clock time is the measured per-run cost under the shared hardware setup ($64\!\times\!$H100-$80$\,GB, $8$ nodes $\times\,8$ GPUs, per-node $6\!:\!2$ student/teacher split), averaged across the per-scale runs to the nearest hour. FLOPs are estimated from the algorithms in Appendix~\ref{sec:appendix:hyperparameters} under the standard token-level convention -- $2N$ per token for KV-cached forwards (student rollouts, teacher rollouts, teacher KL target forwards, candidate compression) and $6N$ per token for forward+backward -- with $L_{\rm gen}\!=\!12{,}288$ (the configured maximum response length, Tab.~\ref{tab:appendix:hyperparameters}) used as a uniform upper bound across every method. RL methods (GRPO, GRPO$^{\dagger}$, ZPPO) apply the $I\!=\!4$ inner-iteration multiplier on every rollout token that enters the gradient -- including, for ZPPO, the BCQ and NCQ groups in addition to plain and replay rollouts. Distillation methods (Off-Distill, On-Distill) perform a single gradient update per rollout step (no PPO inner loop) but incur a teacher KL forward at $2N_{\rm T}$ per target token. Crucially, \textbf{Off-Distill is fully online} in our setup (Algorithm~\ref{alg:offpolicy}): no precomputed teacher pool is materialized in advance, and $G_{\rm T}\!=\!4$ fresh teacher rollouts are drawn on \emph{every} prompt on \emph{every} step, then graded and reduced to their correct subset before entering the imitation gradient. The teacher-side FLOPs of Off-Distill therefore scale as $G_{\rm T}\!\cdot\!$(\,total prompts the gradient sees across all steps\,) rather than as a one-time amortized precompute; Off-Distill$^{\dagger}$ pays the same per-step teacher cost on both new and replayed prompts, so by construction it matches ZPPO's teacher-freshness symmetrically on every visit. The Hint and Prefix baselines (Algorithms~\ref{alg:hint} and \ref{alg:prefix}) likewise draw $G_{\rm T}\!=\!4$ teacher rollouts online on every step, but only on the $X_{\rm aug}$ subset of hard prompts ($\rho_{\rm aug}\!=\!0.25\,$of $|X_{\rm new}|$), which keeps their teacher-side cost substantially below Off-Distill's. On-Distill instead forwards \emph{every} $G_{\rm S}\!=\!8$ student rollout through the $27$B teacher for KL targets, which dominates its FLOPs column.
+
+\paragraph{Wall-clock note.} Each ZPPO run terminates after the rollout-step budget in Tab.~\ref{tab:appendix:hyperparameters} (one rollout batch per step, $I$ gradient updates per rollout step over equal-sized mini-batches, $I$-times-the-rollout-step-budget gradient updates per run in total). The reported wall-clock is \emph{student-side compute bound}: on every step the per-node $6\!:\!2$ student/teacher split runs teacher generation, teacher-side candidate compression, and the sidecar judge in parallel with the student rollout, and the student rollout phase (longer responses, larger group size $G_{\rm S}\!=\!8$) is always slower than the teacher phase ($G_{\rm T}\!=\!4$), so the teacher branch fully overlaps and does not extend the critical path. FLOPs in Tab.~\ref{tab:appendix:compute} are upper-bound estimates that count every gradient-counted and generated token at the uniform configured cap $L_{\rm gen}\!=\!12{,}288$ tokens with the standard $6N$/$2N$ token-level convention, so per-method FLOPs track the algorithm-level cost (rollouts $+$ gradient passes) and are insensitive to per-method variations in average actual response length.
+
+\input{tables/appendix_table_compute}
+
+\paragraph{Other rows follow from removing or replacing the BCQ/NCQ rollout and the policy gradient pass.} (i)~\textbf{GRPO} differs from ZPPO only in disabling BCQ/NCQ; in our parallel implementation teacher generation is fully overlapped with student rollout, so the wall-clock difference between ZPPO and GRPO is essentially the cumulative cost of the BCQ/NCQ rollout phase. (ii)~\textbf{GRPO$^{\dagger}$, On-Distill$^{\dagger}$, Off-Distill$^{\dagger}$} add the prompt replay buffer on top of their base method; the buffer contributes a small additional overhead coming from buffer admission/graduation bookkeeping plus the longer responses that hard prompts elicit. (iii)~\textbf{Off-policy distillation} draws $G_{\rm S}\!=\!8$ student rollouts and $G_{\rm T}\!=\!4$ \emph{online} teacher rollouts on every prompt every step (Algorithm~\ref{alg:offpolicy}); the teacher rollouts are graded by the rule-based reward and only their correct subset enters the imitation JSD. There is no precomputed pool to amortize this cost, so Off-Distill's teacher-side FLOPs accumulate linearly with the number of rollout steps. The $^{\dagger}$ variant inherits exactly the same per-step teacher cost on the additional $\rho_{\rm replay}|X_{\rm new}|$ replayed prompts, so on a replayed visit Off-Distill$^{\dagger}$ and ZPPO see independent, equally fresh teacher samples by construction. Teacher work is overlapped with student rollouts on the teacher-side $2$-GPU-per-node pool and therefore mostly stays off the critical path, but it contributes additively to the FLOPs column; the relative ordering of Off-Distill and GRPO in Tab.~\ref{tab:appendix:compute} reflects this scaling: at the smallest student ($0.8$B) the teacher-side cost dominates and Off-Distill sits above GRPO, whereas at larger students the GRPO column grows faster because RL methods apply the $I\!=\!4$ inner-iteration multiplier on top of the $\Theta(N)$ student-side per-token cost. (iv)~\textbf{On-policy distillation} samples $G_{\rm S}\!=\!8$ student rollouts per question and forwards \emph{all eight} through the $27$B teacher to form per-token KL targets; this makes its FLOPs substantially larger than GRPO, whose repeated logit computation is student-side only.

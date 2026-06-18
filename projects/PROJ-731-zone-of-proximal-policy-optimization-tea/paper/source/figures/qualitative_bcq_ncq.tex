@@ -1,0 +1,74 @@
+\begin{figure*}[!p]
+\centering
+\scriptsize
+
+\begin{questionbox}
+\textbf{Original question} (a $2$B student gets $0$/$8$ plain rollouts correct; $\bar{r}_x\!=\!0$, triggering both the BCQ and the NCQ branch in Algorithm~\ref{alg:zppo})\textbf{.}
+
+\smallskip
+\begin{center}
+\includegraphics[width=0.42\linewidth, height=2.6cm, keepaspectratio]{figures/qualitative_images/banana_0.png}
+\end{center}
+
+\smallskip
+\texttt{How many bananas have stickers on them?}
+
+\smallskip
+\textbf{Reference answer:} \texttt{2} \quad (\textbf{Student's plain rollouts:} all eight answer \texttt{3}, counting every banana in the bunch.)
+\end{questionbox}
+
+\vspace{1pt}\noindent\textbf{(a) BCQ reformulated prompt.} The teacher's correct trace and one of the student's wrong traces are teacher-compressed under a shared prompt and token cap, randomly shuffled, and inserted into a binary-discrimination template. The student then rolls out $G_{\rm S}\!=\!8$ times on the new prompt; one correct rollout is shown below.
+
+\begin{negcandidatebox}
+\textbf{Candidate~A} (anonymized; \emph{here, the student-derived wrong trace -- not labelled as such to the student}):
+
+\smallskip
+\texttt{Visual inspection of the bananas in the bottom right corner reveals small rectangular stickers on their skins. Each of the three bananas in the bunch displays a distinct sticker, likely indicating weight or size. Close examination confirms the presence of these labels on the top, middle, and bottom bananas. ---\textbf{omitted}--- $\backslash$boxed\{3\}}
+\end{negcandidatebox}
+
+\begin{prompttemplatefig}
+\textbf{Candidate~B} (anonymized; \emph{here, the teacher-derived correct trace -- not labelled as such to the student}):
+
+\smallskip
+\texttt{Visual inspection of the banana bunch identifies the front-facing bananas. A sticker is clearly visible on the top banana in the bunch. A second sticker is clearly visible on the bottom banana in the bunch. The middle banana and the side banana do not display any visible stickers. ---\textbf{omitted}--- $\backslash$boxed\{2\}}
+\end{prompttemplatefig}
+
+\begin{prompttemplatefig}
+\textbf{Student's BCQ rollout} (one of $G_{\rm S}\!=\!8$; this one is judged correct):
+
+\smallskip
+\texttt{<think> The two candidates are anonymized, so I cannot tell which is teacher-correct from the label. Candidate~A asserts a uniform ``each of the three'' without per-position evidence; Candidate~B distinguishes the top and the bottom from the middle and the side. The per-position decomposition is concrete and falsifiable in a way a blanket ``three'' is not, so I commit to Candidate~B on reasoning quality alone: top and bottom stickered, middle and side bare. ---\textbf{omitted}--- Answer: 2. </think>}
+
+\smallskip
+\texttt{$\backslash$boxed\{2\}} \quad \textcolor{posgain}{\checkmark}
+\end{prompttemplatefig}
+
+\vspace{1pt}\noindent\textbf{(b) NCQ reformulated prompt.} \emph{All} of the student's wrong rollouts on this question are collected, teacher-compressed under the same shared prompt and token cap, and concatenated with their parsed final answers. The teacher's correct trace is \emph{not} inserted. The student then rolls out $G_{\rm S}\!=\!8$ times on the new prompt; one correct rollout is shown below.
+
+\begin{negcandidatebox}
+\textbf{Listed wrong candidates} (all eight of the student's previous attempts on this question, each teacher-rewritten; only two are shown; remaining six follow the same pattern):
+
+\smallskip
+\texttt{<candidate> The bunch contains three distinct bananas. Each banana displays a small rectangular adhesive label. ---\textbf{omitted}--- $\backslash$boxed\{3\} </candidate>}
+
+\smallskip
+\texttt{<candidate> Three individual bananas are observed within the bunch. Each of these three bananas displays a small rectangular sticker. ---\textbf{omitted}--- $\backslash$boxed\{3\} </candidate>}
+
+\smallskip
+\textbf{Parsed final answers from the listed candidates:} \texttt{[3, 3, 3, 3, 3, 3, 3, 3]} \\
+\textbf{Instruction to the student:} the answer is \emph{not} one of the listed values.
+\end{negcandidatebox}
+
+\begin{prompttemplatefig}
+\textbf{Student's NCQ rollout} (one of $G_{\rm S}\!=\!8$; this one is judged correct):
+
+\smallskip
+\texttt{<think> All eight listed candidates report 3 with the same generic ``each banana has a sticker'' justification; none localises which banana is stickered. The prompt rules 3 out, which means the consensus over-counts a specific position rather than the count being arbitrarily off. The position most consistent with being silently absorbed by such a generic sweep is the middle one, so correcting this specific failure mode -- not eliminating from a closed answer set -- yields 2. ---\textbf{omitted}--- Answer: 2. </think>}
+
+\smallskip
+\texttt{$\backslash$boxed\{2\}} \quad \textcolor{posgain}{\checkmark}
+\end{prompttemplatefig}
+
+\caption{\textbf{Visual counting, $2$B student.} Worked BCQ/NCQ example on a hard ZPPO-$77$K question that the $2$B student fails on every plain rollout ($\bar{r}_x\!=\!0$). \textbf{(a)~BCQ}: one teacher-correct and one student-wrong trace, teacher-rewritten to length parity, anonymized, and randomly shuffled. \textbf{(b)~NCQ}: all of the student's wrong rollouts listed as negatives, with the teacher trace excluded from the prompt. Both branches recover a correct rollout. Figs.~\ref{fig:appendix:bcq_ncq_books}--\ref{fig:appendix:bcq_ncq_straws} extend the same template to four other (scale, domain, outcome) cells.}
+\label{fig:appendix:bcq_ncq_qualitative}
+\end{figure*}

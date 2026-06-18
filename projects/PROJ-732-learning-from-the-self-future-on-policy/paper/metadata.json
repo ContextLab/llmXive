@@ -1,0 +1,46 @@
+{
+  "arxiv_id": "2606.18195",
+  "arxiv_url": "https://arxiv.org/abs/2606.18195",
+  "title": "Learning from the Self-future: On-policy Self-distillation for dLLMs",
+  "authors": [
+    "Yifu Luo",
+    "Zeyu Chen",
+    "Haoyu Wang",
+    "Xinhao Hu",
+    "Yuxuan Zhang",
+    "Zhizhou Sha",
+    "Shiwei Liu"
+  ],
+  "submitter": "github-actions[bot]",
+  "abstract": "On-policy self-distillation (OPSD) has proven effective for post-training large language models (LLMs), yet its application to diffusion LLMs (dLLMs) remains unexplored. Existing OPSD methods are inherently autoregressive-centric. They inject privileged information via left-to-right prefix conditioning with token-level divergence supervision, a design that fundamentally conflicts with the arbitraryorder generation of dLLMs. We introduce d-OPSD, the first OPSD framework tailored for dLLMs. Our approach makes two core contributions. First, we reframe self-teacher construction by using self-generated answers as suffix conditioning, enabling the student model to learn from \"self future-experience\" rather than privileged prefixes. Second, we shift supervision from token-level to step-level, aligning training with the iterative denoising process of dLLMs. Experiments across four reasoning benchmarks show that d-OPSD consistently outperforms RLVR and SFT baselines with superior sample efficiency, requiring only around 10% of the optimization steps by RLVR and opening a promising pathway for dLLM posttraining. The code is available at https://github.com/xingzhejun/d-OPSD.",
+  "submitted_via": "llmXive dashboard, GitHub issue #336",
+  "license": "arXiv Non-exclusive Distribution License",
+  "license_url": "http://arxiv.org/licenses/nonexclusive-distrib/1.0/",
+  "code": [
+    "https://github.com/xingzhejun/d-OPSD"
+  ],
+  "data": [],
+  "toplevel_tex": [
+    "neurips_2026.tex"
+  ],
+  "source_files": [
+    "00README.json",
+    "figure",
+    "figure/fig2.png",
+    "figure/app1.png",
+    "figure/app2.png",
+    "figure/app3.png",
+    "figure/fig3.png",
+    "figure/app4.png",
+    "figure/app5.png",
+    "figure/app6.png",
+    "figure/app7.png",
+    "figure/app8.png",
+    "figure/app9.png",
+    "figure/fig4.png",
+    "figure/try1.png",
+    "neurips_2026.bib",
+    "neurips_2026.sty",
+    "neurips_2026.tex"
+  ]
+}

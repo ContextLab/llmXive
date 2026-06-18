@@ -1,0 +1,25 @@
+\begin{table*}[!htbp]
+    \centering
+    \resizebox{0.6\linewidth}{!}{%
+    \renewcommand{\arraystretch}{1.10}
+    \begin{tabular}{llcccccc}
+        \toprule
+        Scale & Subset & $N$ & match-pos & match-neg & other & BCQ acc \\
+        \midrule
+        \multirow{2}{*}{$0.8$B} & Correct & $450$ & $90.7\%$ & $\phantom{0}3.3\%$ & $\phantom{0}6.0\%$ & \multirow{2}{*}{$68.6\%$} \\
+                                & Wrong   & $206$ & $\phantom{0}0.0\%$ & $90.3\%$ & $\phantom{0}9.7\%$ & \\
+        \cdashline{1-7}\noalign{\vskip 0.4ex}
+        \multirow{2}{*}{$2$B}   & Correct & $271$ & $79.7\%$ & $\phantom{0}0.0\%$ & $20.3\%$ & \multirow{2}{*}{$60.5\%$} \\
+                                & Wrong   & $177$ & $\phantom{0}0.0\%$ & $77.4\%$ & $22.6\%$ & \\
+        \cdashline{1-7}\noalign{\vskip 0.4ex}
+        \multirow{2}{*}{$4$B}   & Correct & $\phantom{0}97$ & $78.4\%$ & $\phantom{0}0.0\%$ & $21.6\%$ & \multirow{2}{*}{$39.1\%$} \\
+                                & Wrong   & $151$ & $\phantom{0}0.0\%$ & $97.4\%$ & $\phantom{0}2.6\%$ & \\
+        \cdashline{1-7}\noalign{\vskip 0.4ex}
+        \multirow{2}{*}{$9$B}   & Correct & $\phantom{0}64$ & $84.4\%$ & $\phantom{0}0.0\%$ & $15.6\%$ & \multirow{2}{*}{$36.4\%$} \\
+                                & Wrong   & $112$ & $\phantom{0}2.7\%$ & $86.6\%$ & $10.7\%$ & \\
+        \bottomrule
+    \end{tabular}%
+    }
+    \caption{BCQ candidate-match audit on the convergence-regime snapshots (three BCQ-instance dumps per scale recorded near the end of training, $1{,}528$ rollouts in total). For each BCQ rollout we extract the final $\backslash$boxed string and check whether the normalized string matches any positive candidate (\texttt{teacher\_pos\_compressed}), any negative candidate (\texttt{student\_neg\_compressed}), or neither (\emph{other}; includes the $\leq\!1\%$ of rollouts with no parseable $\backslash$boxed). Rows are split by judge correctness. The reading we emphasize in Sec.~\ref{sec:appendix:bcq_audit} is that BCQ accuracy plateaus at $36$--$69\%$ (not $\sim$$100\%$), so the anonymized candidates -- compressed under a shared prompt and token cap -- do not appear to expose a trivially separable surface signal; the within-subset rows (Correct$\to$match-pos $78$--$91\%$, Wrong$\to$match-neg $77$--$97\%$) show the student committing to one of the two candidates rather than to a third option.}
+    \label{tab:appendix:bcq_audit}
+\end{table*}

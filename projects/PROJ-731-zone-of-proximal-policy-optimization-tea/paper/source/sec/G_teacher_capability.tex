@@ -1,0 +1,116 @@
+\section{Teacher capability on the same benchmarks}
+\label{sec:appendix:teacher_capability}
+
+This appendix focuses solely on the $27$B teacher used throughout the paper. We report its per-benchmark accuracy on the exact $10$ LLM, $16$ VLM, and $5$ Video benchmarks used throughout the paper (Appendix~\ref{sec:appendix:benchmarks}), evaluated with the same decoding settings, judges, and benchmark harness as the main-paper tables (Tab.~\ref{tab:appendix:teacher_capability:llm}--Tab.~\ref{tab:appendix:teacher_capability:video}). The cross-teacher comparison ($4$B/$9$B/$27$B teachers in Fig.~\ref{fig:teacher_scale}) is presented in the body (Sec.~\ref{sec:experiments:discussion}); this appendix does not expand it. The teacher-size sweep in Fig.~\ref{fig:teacher_scale} keeps the student initialization, the ZPPO-$77$K training data, the rollout-step budget, the candidate-compression prompt, and every hyperparameter in Tab.~\ref{tab:appendix:hyperparameters} identical to the $27$B-teacher headline run; only the teacher checkpoint changes between the $4$B/$9$B/$27$B variants.
+
+\subsection{ZPPO students vs.\ the $27$B teacher}
+\label{sec:appendix:teacher_capability:vs_teacher}
+
+Tab.~\ref{tab:appendix:teacher_capability:vs_teacher} pairs every base student in the main paper with its ZPPO-trained counterpart and lines them up against the $27$B teacher; for each benchmark family we report Base, ZPPO, and the macro-average delta $\Delta\!=\!\text{ZPPO}\!-\!\text{Base}$.
+
+\begin{table*}[!htbp]
+    \centering
+    \resizebox{0.6\linewidth}{!}{
+    \renewcommand{\arraystretch}{1.1}
+    \renewcommand{\tabcolsep}{1.5mm}
+    \begin{tabular}{l ccc ccc ccc}
+        \toprule
+         & \multicolumn{3}{c}{LLM Avg} & \multicolumn{3}{c}{VLM Avg} & \multicolumn{3}{c}{Video Avg} \\
+        \cmidrule(lr){2-4}\cmidrule(lr){5-7}\cmidrule(lr){8-10}
+        Model & Base & ZPPO & $\Delta$ & Base & ZPPO & $\Delta$ & Base & ZPPO & $\Delta$ \\
+        \midrule
+        Qwen3.5-0.8B & $25.2$ & $\mathbf{33.1}$ & \dpos{7.9} & $41.0$ & $\mathbf{50.3}$ & \dpos{9.3} & $48.3$ & $\mathbf{52.8}$ & \dpos{4.5} \\
+        Qwen3.5-2B   & $45.3$ & $\mathbf{50.4}$ & \dpos{5.1} & $56.8$ & $\mathbf{62.0}$ & \dpos{5.2} & $60.6$ & $\mathbf{63.2}$ & \dpos{2.6} \\
+        Qwen3.5-4B   & $61.6$ & $\mathbf{65.5}$ & \dpos{3.9} & $66.9$ & $\mathbf{70.9}$ & \dpos{4.0} & $71.5$ & $\mathbf{71.8}$ & \dpos{0.3} \\
+        Qwen3.5-9B   & $64.9$ & $\mathbf{68.8}$ & \dpos{3.9} & $70.2$ & $\mathbf{73.0}$ & \dpos{2.8} & $73.8$ & $\mathbf{74.2}$ & \dpos{0.4} \\
+        \midrule
+        \rowcolor{colorful}
+        Qwen3.5-27B & \multicolumn{3}{c}{$71.8$} & \multicolumn{3}{c}{$75.5$} & \multicolumn{3}{c}{$77.4$} \\
+        \bottomrule
+    \end{tabular}}
+    \caption{ZPPO-trained students at four scales vs.\ the $27$B teacher, on the shared $10$ LLM, $16$ VLM, $5$ Video benchmark suite. $\Delta\!=\!\text{ZPPO}-\text{Base}$. Two patterns: (i)~$\Delta$ is largest at $0.8$B and $2$B, where the teacher--student gap is widest and BCQ has the most room to inject useful candidates; (ii)~at every scale $\Delta$ is smaller on Video than on LLM/VLM, which fits the fact that VLM is the training data (Appendix~\ref{sec:appendix:dataset:corpus}) while Video is reached only by transfer rather than by direct optimization.}
+    \label{tab:appendix:teacher_capability:vs_teacher}
+\end{table*}
+
+\subsection{Per-benchmark results: ZPPO students vs.\ the $27$B teacher}
+\label{sec:appendix:teacher_capability:detail}
+
+The next three tables expand both the $27$B row and the four ZPPO rows of Tab.~\ref{tab:appendix:teacher_capability:vs_teacher} into per-benchmark numbers. All values are PASS-AT-$1$ accuracy under the shared evaluation harness of Appendix~\ref{sec:appendix:benchmarks}, so the per-cell comparison between a ZPPO student and the $27$B teacher is directly meaningful.
+
+\begin{table*}[!htbp]
+    \centering
+    \resizebox{0.9\linewidth}{!}{
+    \renewcommand{\tabcolsep}{2mm}
+    \renewcommand{\arraystretch}{1.1}
+    \begin{tabular}{lccccccccccc}
+        \toprule
+        Model & AIME25 & AIME26 & CEval & GPQA-D & HLE & IMO-AB & MMLU & MMLU-Pro & MMLU-Rd & MultiCh & Avg \\
+        \midrule
+        Qwen3.5-0.8B $+\,$ZPPO & $3.3$ & $0.0$ & $57.6$ & $42.4$ & $5.0$ & $10.5$ & $63.0$ & $51.7$ & $69.0$ & $28.6$ & $33.1$ \\
+        Qwen3.5-2B   $+\,$ZPPO & $26.7$ & $40.0$ & $74.0$ & $60.6$ & $5.1$ & $29.5$ & $76.4$ & $68.2$ & $82.9$ & $40.6$ & $50.4$ \\
+        Qwen3.5-4B   $+\,$ZPPO & $56.7$ & $66.7$ & $86.1$ & $77.3$ & $8.3$ & $48.0$ & $86.0$ & $79.7$ & $90.1$ & $56.0$ & $65.5$ \\
+        Qwen3.5-9B   $+\,$ZPPO & $70.0$ & $73.3$ & $87.2$ & $78.8$ & $9.8$ & $49.8$ & $88.1$ & $82.0$ & $91.7$ & $56.8$ & $68.8$ \\
+        \midrule
+        \rowcolor{colorful}
+        Qwen3.5-27B & $\mathbf{70.0}$ & $\mathbf{76.7}$ & $\mathbf{91.2}$ & $\mathbf{83.3}$ & $\mathbf{16.0}$ & $\mathbf{51.3}$ & $\mathbf{91.6}$ & $\mathbf{86.3}$ & $\mathbf{94.3}$ & $\mathbf{57.5}$ & $\mathbf{71.8}$ \\
+        \bottomrule
+    \end{tabular}}
+    \caption{Per-benchmark accuracy on the $10$ LLM benchmarks: ZPPO students at four scales vs.\ the $27$B teacher used throughout the paper. The $9$B ZPPO row approaches the $27$B teacher on AIME25 ($70.0$ vs.\ $70.0$) and on the MMLU family (within ${\sim}4$\,pp on MMLU, MMLU-Pro, MMLU-Rd) while never seeing teacher logits in the gradient.}
+    \label{tab:appendix:teacher_capability:llm}
+\end{table*}
+
+\begin{table*}[!htbp]
+    \centering
+    \resizebox{\linewidth}{!}{
+    \renewcommand{\tabcolsep}{1.5mm}
+    \renewcommand{\arraystretch}{1.1}
+    \begin{tabular}{lccccccccccccccccc}
+        \toprule
+        Model & AI2D & BabyV & CharXiv & DynaM & EmbSp & InfoVQA & MVerse & MVision & MVista & MMMU$^\text{Pro}$ & MM-Vet & OCR$^\text{EN}$ & OCR$^\text{ZH}$ & VisP & VBlind & WeMath & Avg \\
+        \midrule
+        Qwen3.5-0.8B $+\,$ZPPO & $76.5$ & $13.9$ & $63.9$ & $31.1$ & $71.5$ & $75.3$ & $59.3$ & $29.2$ & $73.2$ & $37.6$ & $59.9$ & $42.5$ & $18.7$ & $35.0$ & $44.7$ & $71.7$ & $50.3$ \\
+        Qwen3.5-2B   $+\,$ZPPO & $85.3$ & $18.6$ & $73.9$ & $52.7$ & $79.5$ & $84.6$ & $76.0$ & $50.5$ & $80.5$ & $53.2$ & $77.1$ & $48.8$ & $26.0$ & $42.0$ & $60.5$ & $82.6$ & $62.0$ \\
+        Qwen3.5-4B   $+\,$ZPPO & $89.6$ & $27.8$ & $82.8$ & $63.9$ & $82.4$ & $88.8$ & $85.7$ & $72.2$ & $85.4$ & $67.1$ & $79.8$ & $54.6$ & $33.0$ & $54.5$ & $74.9$ & $92.6$ & $70.9$ \\
+        Qwen3.5-9B   $+\,$ZPPO & $90.8$ & $26.3$ & $83.7$ & $66.7$ & $82.1$ & $91.4$ & $88.1$ & $75.9$ & $87.5$ & $70.2$ & $83.9$ & $56.7$ & $35.6$ & $56.4$ & $79.4$ & $92.9$ & $73.0$ \\
+        \midrule
+        \rowcolor{colorful}
+        Qwen3.5-27B & $\mathbf{92.1}$ & $\mathbf{30.4}$ & $\mathbf{86.0}$ & $\mathbf{70.5}$ & $\mathbf{84.2}$ & $\mathbf{91.5}$ & $\mathbf{89.1}$ & $\mathbf{80.0}$ & $\mathbf{88.2}$ & $\mathbf{74.0}$ & $\mathbf{84.9}$ & $55.7$ & $33.5$ & $\mathbf{61.9}$ & $\mathbf{92.1}$ & $\mathbf{93.8}$ & $\mathbf{75.5}$ \\
+        \bottomrule
+    \end{tabular}}
+    \caption{Per-benchmark accuracy on the $16$ VLM benchmarks: ZPPO students at four scales vs.\ the $27$B teacher. The $9$B ZPPO row approaches the $27$B teacher within ${\sim}1$\,pp on OCR$^\text{EN}$ ($56.7$ vs.\ $55.7$), InfoVQA, MVerse, MVista, MM-Vet, and WeMath; the largest remaining teacher--student gaps are on VBlind, VisP, and BabyV. Benchmark abbreviations: Appendix~\ref{sec:appendix:benchmarks}.}
+    \label{tab:appendix:teacher_capability:vlm}
+\end{table*}
+
+\begin{table*}[!htbp]
+    \centering
+    \resizebox{0.6\linewidth}{!}{
+    \renewcommand{\tabcolsep}{2mm}
+    \renewcommand{\arraystretch}{1.1}
+    \begin{tabular}{lcccccc}
+        \toprule
+        Model & MMVU & MVBench & VMME & VMME$^\text{S}$ & VMMMU & Avg \\
+        \midrule
+        Qwen3.5-0.8B $+\,$ZPPO & $42.5$ & $56.6$ & $53.9$ & $54.9$ & $56.4$ & $52.8$ \\
+        Qwen3.5-2B   $+\,$ZPPO & $59.0$ & $62.7$ & $62.4$ & $63.9$ & $68.1$ & $63.2$ \\
+        Qwen3.5-4B   $+\,$ZPPO & $70.6$ & $69.6$ & $68.5$ & $70.2$ & $80.2$ & $71.8$ \\
+        Qwen3.5-9B   $+\,$ZPPO & $74.2$ & $71.7$ & $70.2$ & $72.8$ & $82.1$ & $74.2$ \\
+        \midrule
+        \rowcolor{colorful}
+        Qwen3.5-27B & $\mathbf{75.7}$ & $\mathbf{74.6}$ & $\mathbf{76.1}$ & $\mathbf{76.0}$ & $\mathbf{84.7}$ & $\mathbf{77.4}$ \\
+        \bottomrule
+    \end{tabular}
+    }
+    \caption{Per-benchmark accuracy on the $5$ Video benchmarks: ZPPO students at four scales vs.\ the $27$B teacher. The teacher--student gap is the narrowest of the three benchmark families (e.g.\ at $9$B, every Video benchmark sits within a few pp of the $27$B teacher, with the largest residual on VMME at $5.9$\,pp), even though the student is trained as a VLM and Video is purely a generalization eval.}
+    \label{tab:appendix:teacher_capability:video}
+\end{table*}
+
+\subsection{Discussion}
+\label{sec:appendix:teacher_capability:disc}
+
+Two observations on the $27$B teacher link Tab.~\ref{tab:appendix:teacher_capability:vs_teacher} and Tab.~\ref{tab:appendix:teacher_capability:llm}--Tab.~\ref{tab:appendix:teacher_capability:video} back to the per-benchmark structure of ZPPO's gains.
+
+\textbf{(1)~The $27$B teacher's accuracy varies sharply across benchmarks.} Even at $27$B, the teacher is far from saturated on the hard math/reasoning slices: HLE ($16.0$), OCR$^\text{ZH}$ ($33.5$), BabyV ($30.4$), and OCR$^\text{EN}$ ($55.7$) all sit well below the macro-averages. BCQ candidates can therefore exist on hard benchmarks (HLE, BabyV, $\dots$) because the teacher still occasionally solves what the student cannot, but the candidate pool is intrinsically thinner there than on saturated benchmarks (AI2D, MMLU-Rd, $\dots$), and ZPPO's gains correspondingly correlate with how often the teacher--student gap on a benchmark is non-trivial but non-empty.
+
+\textbf{(2)~A ZPPO-trained $9$B student approaches the $27$B teacher on several benchmarks.} Per-benchmark, the $9$B$+$ZPPO row of Tab.~\ref{tab:appendix:teacher_capability:llm}--Tab.~\ref{tab:appendix:teacher_capability:video} sits within ${\le}1.0$~pp of the $27$B teacher on AIME25 ($70.0$ vs.\ $70.0$), OCR$^\text{EN}$ ($56.7$ vs.\ $55.7$), InfoVQA, MultiCh, MVerse, MVista, MM-Vet, and WeMath. We do not interpret these proximate values as the student strictly surpassing the teacher: the per-run noise band on single ZPPO runs is comparable to the residual gaps. The largest remaining gaps (HLE, VBlind, VMME) line up with benchmarks where the $27$B teacher itself is least saturated -- exactly the benchmarks on which BCQ has the least leverage because the teacher cannot supply many extra solved instances the student is missing.
+
+Putting the two together, the BCQ-pool argument can be read straight off Tab.~\ref{tab:appendix:teacher_capability:vs_teacher}--Tab.~\ref{tab:appendix:teacher_capability:video}. Under the $27$B teacher we use throughout, ZPPO's per-benchmark gains follow wherever the teacher--student capability gap is non-trivial but non-empty, and by $9$B the student has closed in on the teacher across a good part of the suite.

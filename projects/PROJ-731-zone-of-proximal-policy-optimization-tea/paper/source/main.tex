@@ -1,0 +1,260 @@
+\documentclass[11pt, logo, copyright, colorlinks=true, allcolors=blue]{nvidiatechreport}
+
+\PassOptionsToPackage{numbers, compress}{natbib}
+\bibliographystyle{unsrtnat}
+
+\usepackage[utf8]{inputenc} % allow utf-8 input
+\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+\usepackage{url}            % simple URL typesetting
+\usepackage{booktabs}       % professional-quality tables
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{microtype}      % microtypography
+\usepackage{xcolor}         % colors
+\usepackage{colortbl}       % row/column coloring in tables
+\usepackage{multirow}       % multirow cells
+\usepackage[numbers]{natbib}  % for \citep / \citet (numerical citation style)
+
+\usepackage{bbm}
+\usepackage{pifont}
+\usepackage{subcaption}
+\captionsetup{font=small, singlelinecheck=true}
+\captionsetup[sub]{font=small, singlelinecheck=true}
+\usepackage{graphicx}
+
+% ─── Packages ───
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{enumitem}
+\usepackage[most]{tcolorbox}
+\usepackage{mathtools}
+\usepackage{xspace}
+\usepackage{dsfont}
+\usepackage{fvextra}
+\usepackage{hyperref}
+
+% ─── Extra packages required by the migrated ZPPO content ───
+\usepackage[ruled,linesnumbered]{algorithm2e} % ZPPO training-step algorithm
+\usepackage{arydshln}                          % \cdashline dashed rules in tables
+
+\graphicspath{{./}{figures/}{appendix/}}
+
+\newcommand{\customfootnotetext}[2]{{\renewcommand{\thefootnote}{#1}\footnotetext[0]{#2}}}
+
+% ─── Theorem Environments ───
+\newtheorem{proposition}{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}[section]
+\newtheorem{claim}{Claim}[section]
+\theoremstyle{remark}
+\newtheorem{remark}{Remark}[section]
+\newtheorem{theorem}{\textbf{Theorem}}
+\newtheorem{corollary}[theorem]{\textbf{Corollary}}
+
+% ─── Custom Colors ───
+\definecolor{remarkgreen}{HTML}{2d6a4f}
+\definecolor{claimred}{HTML}{c25e3f}
+\definecolor{takeawayblue}{HTML}{1f4e8a}
+\definecolor{Red}{rgb}{0.768, 0.054, 0.054}
+\definecolor{Blue}{rgb}{0.152, 0.294, 0.925}
+\definecolor{Green}{rgb}{0,0.4,0.7}
+\definecolor{darkgray}{gray}{0.3}
+\definecolor{chocolate}{HTML}{D2691E}
+\definecolor{maroon}{HTML}{A00000}
+\definecolor{indigo}{HTML}{4B0082}
+\definecolor{newred}{HTML}{a91e1e}
+\definecolor{cadmiumgreen}{rgb}{0.0, 0.42, 0.24}
+\definecolor{forestgreen}{rgb}{0.13, 0.55, 0.13}
+\definecolor{deltateal}{HTML}{0F766E}
+% Table accent colors
+\definecolor{mygray}{gray}{0.92}
+\definecolor{myblue}{HTML}{E8F0FB}
+\definecolor{linkcolor}{RGB}{190,105,30}
+
+% ─── ZPPO content colors / delta macros ───
+\definecolor{colorful}{RGB}{232,245,233}
+\definecolor{posgain}{RGB}{30,128,55}
+\definecolor{neggain}{RGB}{195,40,40}
+\newcommand{\dpos}[1]{\textcolor{posgain}{$\boldsymbol{+#1}$}}
+\newcommand{\dneg}[1]{\textcolor{neggain}{$\boldsymbol{-#1}$}}
+\newcommand{\dzero}{$\boldsymbol{0.0}$}
+
+% Pastel NVIDIA-green palette for all tcolorboxes (NVIDIA signature: #76B900 = RGB 118,185,0).
+\definecolor{nvidiagreen}{HTML}{76B900}
+\definecolor{nvgreen}{RGB}{118,185,0}        % official NVIDIA green (thin frame lines)
+\definecolor{nvgreendark}{RGB}{95,150,0}     % darker NVIDIA, used for title bars (white text)
+\definecolor{nvgreenpastel}{RGB}{236,248,218} % very pale pastel NVIDIA-green background
+\definecolor{findingframe}{RGB}{95,150,0}
+\definecolor{findingback}{RGB}{236,248,218}
+
+% ─── ZPPO tcolorboxes ───
+\newtcolorbox{finding}[1]{%
+  enhanced,
+  breakable,
+  colback=findingback,
+  colframe=findingframe,
+  boxrule=0.5pt,
+  arc=2pt,
+  left=8pt, right=8pt, top=4pt, bottom=5pt,
+  fonttitle=\bfseries\footnotesize,
+  coltitle=white,
+  colbacktitle=findingframe,
+  title={#1},
+  before skip=4pt, after skip=4pt,
+}
+\definecolor{promptframe}{RGB}{118,185,0}
+\definecolor{promptback}{RGB}{236,248,218}
+\newtcolorbox{prompttemplate}{%
+  enhanced,
+  breakable,
+  colback=promptback,
+  colframe=promptframe,
+  boxrule=0.4pt,
+  arc=2pt,
+  left=8pt, right=8pt, top=4pt, bottom=4pt,
+  before skip=4pt, after skip=4pt,
+}
+% Non-breakable variant for use inside figure*/table* floats (no continuation artifacts).
+\newtcolorbox{prompttemplatefig}{%
+  enhanced,
+  colback=promptback,
+  colframe=promptframe,
+  boxrule=0.4pt,
+  arc=2pt,
+  left=8pt, right=8pt, top=2pt, bottom=2pt,
+  before skip=2pt, after skip=2pt,
+}
+% Qualitative-example boxes (question header, wrong candidate).
+\definecolor{qframe}{RGB}{160,160,160}
+\definecolor{qback}{RGB}{246,246,246}
+\definecolor{negframe}{RGB}{195,80,80}
+\definecolor{negback}{RGB}{253,234,234}
+\newtcolorbox{questionbox}{%
+  enhanced,
+  colback=qback,
+  colframe=qframe,
+  boxrule=0.4pt,
+  arc=2pt,
+  left=8pt, right=8pt, top=2pt, bottom=2pt,
+  before skip=2pt, after skip=2pt,
+}
+\newtcolorbox{negcandidatebox}{%
+  enhanced,
+  colback=negback,
+  colframe=negframe,
+  boxrule=0.4pt,
+  arc=2pt,
+  left=8pt, right=8pt, top=2pt, bottom=2pt,
+  before skip=2pt, after skip=2pt,
+}
+
+% ─── Editorial helper macros ───
+\newcommand{\editcomment}[1]{#1}
+\newcommand{\ximing}[1]{\editcomment{\textcolor{olive}{Ximing: #1}}}
+
+% ─── Hyperref / autoref styling (NVIDIA brand green) ───
+\hypersetup{
+    colorlinks=true,
+    citecolor=teal,
+    linkcolor=nvidiagreen,  % NVIDIA brand green for autoref/cross-references
+    urlcolor=Green,
+}
+
+\AtBeginDocument{%
+  \renewcommand{\sectionautorefname}{Section}%
+  \renewcommand{\subsectionautorefname}{Section}%
+  \renewcommand{\subsubsectionautorefname}{Section}%
+}
+\newcommand{\propositionautorefname}{Proposition}
+\newcommand{\appref}[1]{\hyperref[#1]{Appendix~\ref*{#1}}}
+
+\title{Zone of Proximal Policy Optimization:\\ Teacher in Prompts, Not Gradients}
+
+\fancyhead[C]{\footerfont Zone of Proximal Policy Optimization}
+
+% Author names typeset directly (bypassing authblk) so the manual line break
+% keeps a consistent bold font across both lines.
+\newcommand{\authorblock}{%
+  Byung-Kwan Lee$^{\dagger}$,
+  Ximing Lu,
+  Shizhe Diao,
+  Minki Kang,
+  Saurav Muralidharan,
+  Karan Sapra,\\
+  Andrew Tao,
+  Pavlo Molchanov,
+  Yejin Choi,
+  Yu-Chiang Frank Wang,
+  Ryo Hachiuma%
+}
+\author{\authorblock}
+\correspondingauthor{$^\dagger$Project Lead, \texttt{byungkwanl@nvidia.com}}
+
+% Title color: NVIDIA brand green (#76B900) instead of the class default OliveGreen.
+\renewcommand{\titlefont}{\color{nvidiagreen}\normalfont\bfseries\fontsize{17}{20}\selectfont}
+
+% Left-aligned title/author/affiliation (matches the NVIDIA tech-report layout).
+\makeatletter
+\renewcommand{\maketitle}{\bgroup\setlength{\parindent}{0pt}
+  \begin{adjustwidth}{0pt}{24pt}
+  \begin{flushleft}
+    {\raggedright \titlefont \@title\par}%
+    \vskip11pt
+    {\raggedright \normalfont\bfseries\fontsize{9}{13}\selectfont \authorblock\par}%
+    \vskip12pt
+    {\normalfont\bfseries\fontsize{9}{13}\selectfont NVIDIA\par}%
+    \vskip16pt%
+  \end{flushleft}
+  \end{adjustwidth}
+  \egroup
+  \thispagestyle{firststyle}
+}
+\makeatother
+
+\input{sec/0_abstract}
+
+\begin{document}
+
+\maketitle
+
+% ─── Teaser figure (between authors/affiliation and abstract) ───
+\begin{center}
+    \includegraphics[width=\linewidth]{figures/figure1.pdf}
+    \vspace{-3mm}
+    \captionof{figure}{Average accuracy gain ($\Delta$, pp) from \emph{Qwen3.5 Family} on $10$ LLM (left), $16$ VLM (middle), and $5$ Video benchmarks (right). All methods are trained on the same multimodal dataset for vision-language models (VLMs) and evaluated on various benchmarks for generalization. ${\dagger}$ denotes augmentation with the prompt replay buffer.}
+    \label{fig:teaser}
+\end{center}
+
+\vskip6pt
+\section*{Abstract}
+{\abscontent}
+
+\input{sec/1_intro}
+\input{sec/2_related_work}
+\input{sec/3_method}
+\input{sec/4_experiments}
+\input{sec/6_conclusion}
+
+\clearpage
+\input{sec/7_limitations}
+\input{sec/8_ethics}
+
+\clearpage
+\bibliography{ref}
+
+\clearpage
+\appendix
+\input{sec/A_related_work_full}
+\clearpage
+\input{sec/B_dataset}
+\clearpage
+\input{sec/C_algorithm}
+\clearpage
+\input{sec/D_hyperparameters}
+\clearpage
+\input{sec/E_main_tables_extended}
+\clearpage
+\input{sec/F_additional_results}
+\clearpage
+\input{sec/G_teacher_capability}
+
+\end{document}

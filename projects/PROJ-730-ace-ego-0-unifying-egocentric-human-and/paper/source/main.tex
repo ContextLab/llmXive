@@ -1,0 +1,657 @@
+\documentclass{article}
+
+%% ============================================================
+%% Style Selection Guide:
+%%
+%% [CoRL Submission] Anonymous, with line numbers, CoRL format:
+%%   \documentclass{article}
+%%   \usepackage{corl_2026}
+%%
+%% [CoRL Camera-Ready] De-anonymized, CoRL format:
+%%   \documentclass{article}
+%%   \usepackage[final]{corl_2026}
+%%
+%% [arXiv / Public Release] ACE style, with logo, no line numbers:
+%%   \documentclass{article}
+%%   \usepackage[logo]{ace_ego}
+%% ============================================================
+
+% --- Uncomment ONE of the following lines ---
+% \usepackage{corl_2026}              % CoRL submission (anonymous, line numbers)
+% \usepackage[final]{corl_2026}       % CoRL camera-ready
+\usepackage[logo]{ace_ego}            % arXiv / public release (ACE style)
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{placeins}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{multirow}
+\usepackage{xspace}
+\usepackage{subcaption}
+\definecolor{mypurple}{RGB}{160,80,200}
+\usepackage{booktabs}
+\usepackage[normalem]{ulem}
+\usepackage{marvosym}
+\definecolor{hsyblue}{RGB}{0,90,200}
+\definecolor{hsygray}{RGB}{140,140,140}
+\newcommand{\yf}[1]{\textcolor{mypurple}{[Yufei: #1]}}
+\newcommand{\hsy}[1]{\textcolor{hsyblue}{#1}}
+\newcommand{\hsydel}[1]{\textcolor{hsygray}{\sout{#1}}}
+
+% Paper name macro (change here to rename everywhere)
+\newcommand{\OURS}{\textsc{ACE-Ego-0}\xspace}
+\newcommand{\Ours}{\OURS}
+
+% \title{\Ours: Scalable Cross-Embodiment Manipulation Learning from Heterogeneous Robot and Human Data}
+
+\title{\Ours: Unifying Egocentric Human and Robotic Data for VLA Pretraining}
+
+\date{Jun 2026}
+\metadata[Website]{\url{https://acerobotics-vla.github.io/ACE-Ego/}}
+\metadata[Code]{\url{https://github.com/ACERobotics-VLA/ACE-Ego}}
+
+% The \author macro works with any number of authors. There are two
+% commands used to separate the names and addresses of multiple
+% authors: \And and \AND.
+%
+% Using \And between authors leaves it to LaTeX to determine where to
+% break the lines. Using \AND forces a line break at that point. So,
+% if LaTeX puts 3 of 4 authors names on the first line, and the last
+% on the second line, try using \AND instead of \And before the third
+% author name.
+
+% NOTE: authors will be visible only in the camera-ready and preprint versions (i.e., when using the option 'final' or 'preprint'). 
+% 	For the initial submission the authors will be anonymized.
+
+\author{%
+  \sffamily\bfseries\small
+  Hao Li$^{1,2*}$ \And
+  Ganlong Zhao$^{1,2*,\dagger}$ \And
+  Yufei Liu$^{1,4*}$ \And
+  Haotian Hou$^{1,2*}$ \And
+  Guoquan Ye$^{1,3}$ \And
+  Tongyan Fang$^{1,5}$ \AND
+  Chunxiao Liu$^{1}$ \And
+  Siyuan Huang$^{1\dagger}$ \And
+  Jianbo Liu$^{1}$ \And
+  Xiaogang Wang$^{1,2}$ \And
+  Hongsheng Li$^{2,1{\,\scalebox{0.75}{\normalfont\Letter}}}$
+  \\[6pt]
+  \mdseries\normalsize
+  \begin{tabular}[t]{@{}l@{}}
+    $^{1}$ACE Robotics \quad
+    $^{2}$CUHK MMLab \quad
+    $^{3}$CUHK, Shenzhen \quad
+    $^{4}$SJTU \quad
+    $^{5}$THU\\[3pt]
+    {\footnotesize
+    $^*$Equal contribution \quad
+    $^\dagger$Project lead \quad
+    $^{{\scalebox{0.75}{\normalfont\Letter}}}$Corresponding author}
+  \end{tabular}
+}
+
+
+\begin{document}
+\maketitle
+
+%===============================================================================
+
+% \begin{figure}[h]
+%   \centering
+%   \includegraphics[width=\linewidth]{images/teaser.png}
+%   \caption{Overview of \Ours. We pretrain a single VLA policy on a 5.9K+ hour mixed pool of egocentric human videos, robot demonstrations, and simulation rollouts. \Ours resolves two mismatches between these sources along separate axes of the system. To address representation mismatch, it aligns heterogeneous sources through a camera-space action format, morphology tokens derived from robot URDFs (or learned human surrogates), and time-aligned action chunks across control frequencies. To address supervision-quality mismatch, it uses a reliability-aware loss that keeps full-strength supervision on sensor-logged robot actions while routing noisier human pseudo-actions through quality-weighted auxiliary losses. The resulting policy reaches strong performance on RoboCasa GR1 TableTop, RoboTwin~2.0, and real bimanual manipulation.}
+%   \label{fig:teaser}
+% \end{figure}
+
+
+
+% \begin{abstract}
+% A central premise of modern VLA research is that a single robot policy can  become more capable by learning from the full spectrum of embodied experience:  action trajectories collected on diverse robot platforms, rollouts from diverse simulation environments, and egocentric human videos. Realizing this vision requires resolving two distinct mismatches between these sources. The first is the \textbf{representation mismatch}: actions are expressed in different coordinate frames, embodiments exhibit different kinematic structures, and datasets are collected at different control frequencies. The second is the \textbf{supervision-quality mismatch}:  sensor-logged robot trajectories provide accurate action labels, while human pseudo-actions estimated from video are noisy and biased. Treating them identically causes the policy to inherit estimation errors from the noisier source. To address both mismatches jointly, we present \Ours, a VLA pretraining framework. \Ours addresses the representation mismatch through a unified camera-space action representation, morphology tokens that encode embodiment information, and time-aligned action chunking. \Ours further addresses the supervision-quality mismatch through a reliability-aware objective: sensor-logged robot data supervises the primary flow-matching loss, while human pseudo-actions supervise a reduced-weight auxiliary loss modulated by quality weights. We instantiate \Ours on a pretraining pool of 4.45K hours of robot demonstrations and simulation rollouts together with 1.48K hours of pseudo-labeled egocentric human videos, achieving state-of-the-art results on RoboCasa GR1 TableTop and RoboTwin~2.0, alongside strong real-world performance on a bimanual ARX platform.
+% \end{abstract}
+
+\begin{abstract}
+
+Vision-Language-Action (VLA) models benefit from large-scale and diverse embodied data, yet scaling robot trajectory collection is costly and labor-intensive.
+Recent advances show that large-scale egocentric human videos provide complementary real-world supervision in pretraining.
+However, joint training on human and robot data remains challenging due to divergences in action spaces, embodiment structures, temporal dynamics, and supervision quality. 
+We introduce \Ours,  a unified VLA pretraining framework jointly leveraging heterogeneous data sources. To extract large-scale pretraining supervision from egocentric human videos, we build a scalable egocentric video-to-action pipeline that converts raw human videos into robot-format pseudo-action trajectories. To make these labels comparable with robot demonstrations, \Ours uses a unified action representation based on camera-space actions, morphology conditioning, and time-aligned action chunking. To robustly leverage noisy pseudo-action supervision from egocentric human videos, we formulate a reliability-aware training objective with a human auxiliary loss that concentrates supervision on reliable signals. 
+% We introduce \Ours, a unified VLA pretraining framework for taking advantage of heterogeneous data sources. To bridge spatial, structural, and temporal discrepancies across heterogeneous sources, we propose a unified action representation comprising canonical action space construction, cross-embodiment morphology conditioning, and time-aligned action chunking. We propose a scalable pipeline that converts large-scale egocentric human videos into robot-compatible pseudo-action trajectories, enabling the use of abundant human interaction data for robot pretraining. 
+We instantiate \Ours on 4.53K hours of robot and simulation data, together with 1.48K hours of pseudo-action-labeled egocentric human data. Experiments show that incorporating large-scale human supervision under reliability-aware weighting consistently improves both unified joint pretraining and supervised fine-tuning. 
+\Ours achieves state-of-the-art performance on RoboCasa GR1 TableTop and RoboTwin~2.0, while demonstrating strong transfer to real-world bimanual manipulation.
+
+\end{abstract}
+
+% Two or three meaningful keywords should be added here
+\keywords{Vision-Language-Action Models, Robot Manipulation, Learning from Human Video} 
+
+\begin{figure}[bhpt] 
+    \centering 
+\includegraphics[width=\linewidth]{images/teaser.pdf} \caption{Overview of \Ours. We pretrain a unified VLA policy on a 6.0K+ hour mixed embodied dataset comprising large-scale egocentric human videos, multi-embodiment robot demonstrations, and simulation rollouts. \Ours unifies heterogeneous human and multi-embodiment robot data into a shared representation space through spatial, structural, and temporal alignment. We achieve state-of-the-art performance on RoboCasa and RoboTwin~2.0, while demonstrating strong real-world bimanual transfer.}
+\label{fig:teaser} \end{figure}
+
+
+%===============================================================================
+
+
+\section{Introduction}
+\label{sec:introduction}
+
+Developing general-purpose robotic systems capable of operating across diverse real-world environments remains a central objective of embodied AI. Vision-Language-Action (VLA) models~\cite{brohan2023rt,zitkovich2023rt,BlackK-RSS-25,pmlr-v305-black25a} offer a promising path toward this goal by jointly modeling perception, language, and action. A common premise is that broad and diverse embodied experience is critical for acquiring generalizable manipulation skills. Similar to the scaling trends observed in language and vision foundation models, the performance of VLA policies is strongly correlated with the scale and diversity of the training data available during pretraining. However, collecting robot demonstrations at scale remains costly and labor-intensive, limiting both dataset size and behavioral diversity. Large-scale egocentric human videos provide a compelling complementary source of embodied supervision, offering substantially broader coverage of real-world interactions at much lower collection cost. Integrating these heterogeneous data sources into a unified training framework remains challenging due to discrepancies in spatial representations, embodiment structures, temporal horizons, and supervision fidelity.
+
+Existing cross-embodiment VLA methods~\cite{o2024open,octo_2023,wang2024hpt,bjorck2025gr00t,zheng2025x} address representation heterogeneity through shared action spaces, embodiment-specific tokenizers, soft-prompted action experts, or latent action representations, enabling heterogeneous robot demonstrations to be trained within a unified policy framework. However, these approaches remain bottlenecked by the scalability of robot data collection, as they rely primarily on teleoperated demonstrations.
+Large-scale egocentric human videos have recently emerged as an appealing complementary source: they are far cheaper to collect and cover a much broader range of manipulation skills in everyday scenes. Several recent works~\cite{bjorck2025gr00t,kareer2024egomimic,yang2025egovla,fu2024humanplus} leverage egocentric human videos, reconstructing hand trajectories and contact targets as action proxies for pseudo-action supervision. However, treating pseudo-actions as equivalent to sensor-logged robotics actions during training injects the label noise directly into the model. In addition, current 3D human hand reconstruction methods typically express hand poses in local space~\cite{pavlakos2024reconstructing,wilor} using MANO~\cite{romero2022embodied}, whereas robot demonstrations are generally recorded in global world space. This misalignment prevents policy models from effectively using both human and robot data for unified policy training. Neither representation heterogeneity nor supervision-quality mismatch is fully resolved in current mixed-source VLA pretraining frameworks.
+
+We present \Ours, a VLA pretraining framework with unified action representation for heterogeneous embodied data, bridging spatial, structural, and temporal discrepancies. Specifically, we introduce canonical action space construction that represents both robot end-effector trajectories and reconstructed human hand pseudo-action trajectories in a common observation-centric coordinate frame, eliminating the need for the policy to learn embodiment-specific coordinate transformations beyond a standard camera extrinsic. To accommodate diverse embodiments, we incorporate cross-embodiment morphology conditioning via embedding robot kinematic descriptions and learned surrogate embeddings for human-video sources. Furthermore, we propose time-aligned action chunking, which indexes future actions according to physical timestamps rather than frame indices, ensuring temporal consistency across datasets collected at different control frequencies. As supervision quality varies substantially across data sources, representation alignment alone is insufficient to achieve effective mixed-source pretraining. We introduce a reliability-aware training objective that explicitly accounts for supervision fidelity. Sensor-logged robot trajectories supervise the primary flow-matching objective, while pseudo-actions are down-weighted and serve as auxiliary supervision primarily on noiseless position channels and modulated by dataset-level and step-level quality estimates. 
+
+% We formulate a scalable data pipeline to convert raw egocentric videos into robot-compatible pseudo-action trajectories. The pipeline consists of data source collection, video curation, motion reconstruction, action parameterization, and quality control, producing metrically consistent hand trajectories represented in the same camera-space format used by robot demonstrations. Running this pipeline 
+
+We propose a scalable five-stage egocentric data processing pipeline and apply it over six diverse egocentric video datasets to obtain 1.48K hours of pseudo-action-labeled human video. Combining it with 4.53K+ hours of sensor-logged multi-embodiment robot demonstrations and simulation rollouts yields a 6.0K+ hour heterogeneous pretraining dataset for our proposed \Ours. We evaluate \Ours on RoboCasa, RoboTwin~2.0, and a real bimanual ARX platform. \Ours reaches 72.8\% average success on RoboCasa GR1 TableTop benchmark, achieves 91.12\% and 90.62\% average success rates on RoboTwin~2.0 Easy/Hard splits, and demonstrates strong real-world bimanual performance on long-horizon, contact-rich tasks. Ablation studies confirm that morphology conditioning, time-aligned action chunking, and reliability-aware human supervision each contribute to the final performance, and that scaling pseudo-action-labeled human video on top of robot data yields further gains.
+
+Our contributions are summarized as follows.
+\begin{itemize}
+    % \item We introduce \Ours, a unified action space representation for mixed-source VLA pretraining, bridging spatial, structural, and temporal discrepancies across heterogeneous robot and human data through camera-space action representation, cross-embodiment morphology conditioning, and time-aligned action chunking.
+    % \item We formulate a scalable five-stage pipeline that converts large-scale egocentric human videos into robot-compatible pseudo-action trajectories, producing 1.48K hours of pseudo-action-labeled human videos and enabling joint pretraining with 4.53K hours of multi-embodiment robot demonstrations and simulation rollouts.
+    % \item We propose a reliability-aware training objective that explicitly accounts for supervision fidelity, enabling robust integration of noisy human pseudo-actions with sensor-logged robot trajectories. Extensive experiments demonstrate that incorporating high-quality human supervision consistently improves both unified VLA pretraining and downstream fine-tuning, achieving state-of-the-art performance on RoboCasa, RoboTwin~2.0, and strong transfer to real-world bimanual manipulation.
+    \item We introduce \Ours, a unified VLA pretraining framework addressing representation heterogeneity via a unified action representation and supervision-quality mismatch via a reliability-aware training objective.
+    \item We develop a scalable five-stage pipeline that converts large-scale egocentric human videos into robot-compatible pseudo-action trajectories, producing 1.48K hours of pseudo-action-labeled human data and enabling joint pretraining with 4.53K hours of multi-embodiment robot and simulation data.
+    \item We demonstrate that large-scale human supervision consistently improves both unified VLA pretraining and downstream supervised fine-tuning, achieving state-of-the-art performance on RoboCasa and RoboTwin~2.0 while exhibiting strong transfer to real-world bimanual manipulation.
+\end{itemize}
+
+%===============================================================================
+
+\section{Related Work}
+
+\subsection{Scalable Vision-Language-Action Model Pretraining}
+Recent progress in robot learning has moved from task-specific imitation policies toward generalist vision-language-action (VLA) models trained on large and diverse robot datasets.
+RT-1~\cite{brohan2023rt} showed that transformer policies can absorb large-scale real-robot demonstrations and generalize across language-conditioned manipulation tasks, and RT-2~\cite{zitkovich2023rt} connected web-scale vision-language pretraining with robot action prediction. 
+The Open X-Embodiment and RT-X effort~\cite{o2024open} then aggregated robot trajectories across institutions, embodiments, and task families, establishing cross-embodiment training as a viable route to broader generalization.  
+A growing family of open and large-scale VLA systems---including Octo~\cite{octo_2023}, OpenVLA~\cite{kim2025openvla}, $\pi_0$~\cite{BlackK-RSS-25}, $\pi_{0.5}$~\cite{pmlr-v305-black25a}, RDT~\cite{liu2025rdt}, CogACT~\cite{li2024cogact}, and GR00T~\cite{bjorck2025gr00t}---has since scaled model capacity, data diversity, and action-generation flexibility.
+However, the very data scaling that fuels these foundation models also introduces a fundamental bottleneck: as a single policy ingests increasingly diverse sources, treating them as a homogeneous corpus becomes exceptionally challenging, because robot datasets differ simultaneously in coordinate frames, kinematic structure, and control frequency.
+
+Prior works have attempted to mitigate this \emph{representation mismatch} along individual axes. Shared end-effector action formats and discrete action tokenizers facilitate cross-dataset training~\cite{o2024open,kim2025openvla}; embodiment-aware tokenizers, adapters, or projectors handle kinematic heterogeneity prior to a shared backbone~\cite{wang2024hpt,bjorck2025gr00t}; and universal or latent action spaces seek to minimize embodiment-specific action discrepancies~\cite{zheng2025uniact,ye2025lapa,liu2026rdt2}. Spatially grounded policies, such as SpatialVLA~\cite{qu2025spatialvla}, 3D-VLA~\cite{zhen2024threedvla}, and TraceVLA~\cite{zheng2024tracevla}, incorporate 3D geometric structures or image-space trajectories to align perception and action. 
+Yet, these mechanisms rarely address all three dimensions of heterogeneity jointly: a shared action vector does not guarantee aligned coordinate frames; fixed-length action chunks span disparate physical durations under varying control frequencies; and kinematic structures are often implicitly absorbed via simple dataset IDs or learned codes. 
+In contrast, \Ours systematically aligns heterogeneous robot sources across all three axes prior to the shared VLA training objective---employing a unified camera-space action representation, cross-embodiment morphology tokens, and time-aligned action chunking.
+
+
+\subsection{Learning from Egocentric Human Video}
+Beyond robot-collected data, egocentric human video offers a highly scalable and cost-effective source of manipulation experience, capturing rich object interactions, diverse environments, and long-tail behaviors that are difficult to acquire via robot teleoperation. Large-scale egocentric datasets, such as Ego4D~\cite{grauman2022ego4d}, EPIC-KITCHENS~\cite{damen2022epickitchens}, EgoExo4D~\cite{grauman2024egoexo4d}, EgoDex~\cite{hoque2025egodex}, and EgoScale~\cite{zheng2026egoscale}, have significantly amplified this potential. 
+Earlier paradigms leveraged such videos primarily for representation or visual reward learning~\cite{nair2022r3m,ma2022vip,ma2023liv,xiao2022mvp,majumdar2023vc1,karamcheti2023voltron,lin2022egovlp,zhao2023lavila}; while these methods extract strong visual priors, they still rely heavily on downstream robot demonstrations to map perception to motor control. 
+More recent endeavors extract direct action-level supervision from human videos, either by learning latent or inverse-dynamics actions from action-free footage~\cite{ye2025lapa}, or by reconstructing explicit hand, wrist, or body trajectories and mapping them to robot-compatible commands via retargeting, inverse kinematics, visual domain translation, or morphology-agnostic formulations~\cite{fu2024humanplus,li2024okami,kareer2024egomimic,lepert2025phantom,yang2025egovla,zhu2025emma,li2025h2r,liu2025egozero,bharadhwaj2025zeromimic}.
+DIAL~\cite{chen2026dial} takes a different route, incorporating egocentric human video into VLA pretraining through a latent world model that decouples high-level intent prediction from low-level action generation.
+
+
+Although these advances unlock human video as a scalable supervision source, they expose a critical \emph{supervision-quality mismatch} that is orthogonal to representation heterogeneity. Unlike high-fidelity sensor-logged robot trajectories, human action labels extracted via vision pipelines are inherently noisy pseudo-actions, prone to tracking jitter, occlusions, and estimation bias. 
+Existing frameworks typically either bypass direct action-level training or naively feed these noisy pseudo-actions into the same behavior-cloning or diffusion objectives used for clean robot data. This equivalent treatment forces the policy to directly mimic the artifacts and failures of the reconstruction pipeline. 
+To resolve this, \Ours routes human-video samples through a reliability-aware auxiliary objective. By restricting supervision to highly reliable position channels and dynamically weighting the loss based on both dataset-level and step-level quality estimates, we ensure that high-fidelity robot data anchor the primary action expert, while human videos provide safe, robust, and complementary auxiliary supervision.
+%===============================================================================
+
+
+\section{Method}
+To pretrain a generalizable VLA policy on heterogeneous embodied data, we must overcome two fundamental challenges: \emph{representation heterogeneity} and \emph{supervision-quality mismatch}. \Ours introduces a two-fold framework as illustrated in Fig.~\ref{fig:method}. First, we establish a \textbf{Unified Action Representation} (Sec.~\ref{sec:unified-interface}) that aligns multi-embodiment data along spatial, structural, and temporal spaces. Second, to prevent estimation noise from human pseudo-actions from corrupting the shared policy in the unified action representation, we propose a \textbf{Reliability-Aware Training Objective} (Sec.~\ref{sec:reliability-aware-objective}) that leverages noisy human pseudo-actions as auxiliary supervision.
+
+\subsection{Unified Action Representation}
+\label{sec:unified-interface}
+
+Jointly training on diverse robot trajectories and human videos requires a shared action interface that removes dataset-specific coordinate and temporal conventions. We achieve this by projecting all data sources from three perspectives: \emph{spatial} alignment via camera-space coordinates (Sec.~\ref{sec:camera-space-action}), \emph{structural} alignment via kinematic morphology conditioning (Sec.~\ref{sec:urdf-conditioning}), and \emph{temporal} alignment via time-aligned action chunking (Sec.~\ref{sec:time-aligned-dynamic-chunking}). Together, these mechanisms map heterogeneous trajectories into a single, embodiment-agnostic action space.
+
+\subsubsection{Canonical Action Space}
+\label{sec:camera-space-action}
+
+\Ours first aligns sources spatially by representing actions from both robot and human data in the head-camera coordinate frame before they enter the model. Predicting in the camera frame keeps actions and observations in a unified coordinate system, eliminating the need for the policy to learn complex, platform-specific world-to-camera transformations. Under this formulation, actions and observations are fed in a platform-agnostic framework, and the pretrained policy transfers to a new embodiment by simply swapping a single camera extrinsic at inference time.
+
+\paragraph{Robot action convention.}
+For each robot source, the bimanual end-effector poses are projected into the head-camera frame. Poses on top of a robot base or in a world frame $s$ are transformed using the calibrated camera extrinsic:
+
+\begin{equation}
+  p_{\mathrm{cam}} = R_{\mathrm{cam}\leftarrow s}\, p_s + t_{\mathrm{cam}\leftarrow s},
+  \qquad
+  R_{\mathrm{cam},ee} = R_{\mathrm{cam}\leftarrow s}\, R_{s,ee},
+  \label{eq:cam-transform}
+\end{equation}
+where $p_s$ and $R_{s,ee}$ denote the end-effector position and orientation in the source frame, respectively. Orientations are parameterized using a continuous 6D representation~\cite{zhou2019continuity}. Combined with gripper commands and arm activity flags, this yields a unified bimanual action vector (see Appendix~\ref{app:robot-action-standardization} for the details). Expressing actions in this unified format ensures that the action expert consumes both human and robot trajectories through a shared states interface.
+
+\paragraph{Human end-effector equivalents.}
+Since human hands do not have a physical end-effector, we define a hand-centric coordinate frame as proxy end-effector, allowing human motions to be represented in a robot-compatible form while remaining directly connected to hand mesh reconstruction.
+We designate the wrist joint as the end-effector origin, as it is reconstructed most consistently in HaMeR's~\cite{pavlakos2024reconstructing} frame-wise predictions. To mitigate yaw drift under occlusion, we construct a stable hand-centric orientation frame $R \in \mathrm{SO}(3)$ using the palm plane and wrist-to-finger vectors, which is then converted to the same continuous 6D representation used for robots. For gripper openness, we employ the normalized thumb-to-palm distance as a proxy for hand closure, linearly scaled to match the robot's physical gripper stroke. This parameterization normalizes human trajectories using the base value and maps them into the shared bimanual action space, which is used for seamless joint training across human and robot data. The exact geometric derivations of the hand frame are detailed in Appendix~\ref{app:robot-action-standardization}.
+
+
+
+% We take the wrist joint as the end-effector origin, since it is the most reliably tracked joint in HaMeR~\cite{pavlakos2024reconstructing} reconstructions and corresponds most directly to a robot tool-center point. For orientation, the raw MANO wrist estimate has an under-constrained yaw component that drifts under occlusion; we therefore define a hand-centric frame from the palm plane, using the palm centroid $\mathbf{p}_{\mathrm{palm}}$ (the mean of the index, middle, and ring fingertip positions) together with the wrist, thumb, and middle-finger joints:
+
+% \begin{equation}
+%   \mathbf{x} = \frac{\mathbf{p}_{\mathrm{palm}} - \mathbf{p}_{\mathrm{wrist}}}{\|\mathbf{p}_{\mathrm{palm}} - \mathbf{p}_{\mathrm{wrist}}\|},
+%   \quad
+%   \mathbf{z} = \hat{n}(\mathbf{p}_{\mathrm{wrist}}, \mathbf{p}_{\mathrm{thumb}}, \mathbf{p}_{\mathrm{middle}}),
+%   \quad
+%   \mathbf{y} = \mathbf{z} \times \mathbf{x},
+% \end{equation}
+
+% where $\hat{n}(\mathbf{a},\mathbf{b},\mathbf{c})$ denotes the unit normal of the plane through points $\mathbf{a},\mathbf{b},\mathbf{c}$, with sign chosen to point away from the palm. The columns $[\mathbf{x},\mathbf{y},\mathbf{z}]$ form the hand orientation $\mathbf{R}\in\mathrm{SO}(3)$, which is then converted to the same 6D representation used for robot orientations. For gripper openness, the thumb-to-palm distance $d_t = \|\mathbf{p}_{\mathrm{thumb},t} - \mathbf{p}_{\mathrm{palm},t}\|_2$ varies monotonically with hand closure, so we use it as a proxy, linearly normalized to the gripper stroke range of our robot platforms.
+% After this parameterization, human samples produce the same 22-dimensional bimanual action vector as robot samples, and the action expert consumes both through one shared interface. 
+
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\linewidth]{images/method.pdf}
+    \caption{Architecture of \Ours. The vision-language backbone processes multi-view images and language instructions into shared representations. The action expert receives these representations together with morphology tokens that encode each source's embodiment (robot URDF or human surrogate) to predict time-aligned camera-space action chunks via flow matching. Robot samples supervise the primary action loss; human samples contribute through an auxiliary loss with per-channel reliability weighting that concentrates supervision on the position channels.}
+
+  \label{fig:method}
+\end{figure}
+
+\subsubsection{Cross-Embodiment Morphology Conditioning}
+\label{sec:urdf-conditioning}
+
+Although a canonical action space resolves spatial discrepancies, differences in kinematic chains, joint limits, and physical dimensions still persist across embodiments. To unify the cross-embodiment discrepancy, we embed humans and each robot type into a shared morphology space. A major contribution of \Ours is addressing this structural mismatch by conditioning the action expert on a morphology token. For robots, this token is dynamically computed from its URDF graph; for humans, it is shared across different people and updated via back-propagation. Crucially, we keep this morphology token isolated from the vision-language backbone and inject it only during action decoding, thereby keeping our VLM backbone embodiment-agnostic.
+Robot and human morphologies are projected into this shared token space via parallel pathways:
+
+\begin{equation}
+  h_{\mathrm{morph}}
+  =
+  \begin{cases}
+  P_{\mathrm{morph}}\!\left(E_{\mathrm{urdf}}(\mathcal{G}_{r})\right),
+    & \text{robot source } r, \\[4pt]
+  P_{\mathrm{surr}}(e_{d}),
+    & \text{human source } d,
+  \end{cases}
+  \label{eq:morph-token}
+\end{equation}
+where $E_{\mathrm{urdf}}$ encodes the URDF graph $\mathcal{G}_r$ at both global and local manipulation scales (Appendix~\ref{app:urdf-graph-construction}), and $e_d$ is a learned surrogate embedding capturing the visual and dataset-specific priors of human source $d$ (Appendix~\ref{app:human-surrogate-details}). Both pathways condition the action expert through a unified interface.
+
+
+% For a robot $r$, the graph encoder $E_{\mathrm{urdf}}$ summarizes the URDF graph $\mathcal{G}_r$ at two scales, one for the whole body and one for the active manipulation chain, and $P_{\mathrm{morph}}$ projects this summary into the token (Appendix~\ref{app:urdf-graph-construction}, \ref{app:morphology-encoder-details}). Human egocentric video has no URDF, but each human source carries stable visual and annotation characteristics worth encoding. For a human source $d$, we assign a learned embedding $e_d$ and pass it through $P_{\mathrm{surr}}$ into the same space (Appendix~\ref{app:human-surrogate-details}). Either path conditions the action expert and leaves the shared vision-language representation untouched.
+
+
+\subsubsection{Time-Aligned Action Chunking}
+\label{sec:time-aligned-dynamic-chunking}
+
+For temporal alignment, robot datasets often have different control frequencies.
+% such as 15\,Hz and 30\,Hz. 
+If we predict a fixed number of future steps, the policy must plan for different physical durations across datasets. To prevent this temporal mismatch, \Ours defines action chunks by physical duration rather than step count.
+For a dataset \(d\) with control frequency \(f_d\), we set the step horizon \(H_d\) based on a target physical duration \(T^\star\):
+\begin{equation}
+H_d = \mathrm{round}\!\left(f_d T^\star\right).
+\label{eq:horizon}
+\end{equation}
+This formulation ensures that all datasets supervise the same future physical window \(T^\star\). However, training on variable-horizon chunks within the same batch can cause large padding overhead and training instability. We address these issues with a structured batch sampling strategy. Specifically, trajectories are pre-chunked according to the target physical window to maintain temporal consistency and minimize padding overhead. For a sample starting at index \(t\) in an episode of length \(L_e\), we define the normalized episode phase \(\phi\) as:
+\begin{equation}
+\phi = \operatorname{clip}\!\left( \frac{t + \tfrac{1}{2}H_d}{L_e}, 0, 1 \right),
+\label{eq:episode-phase}
+\end{equation}
+Since \(H_d\) is determined by the target physical duration and dataset control frequency, \(\phi\) is comparable across datasets with different frame rates. We discretize \(\phi\) into a phase bucket \(b_{\phi}\) and \(H_d\) into a horizon bucket \(b_H\). We then form mini-batches using a composite key:
+\begin{equation}
+k = \left(c_{\mathrm{task}}, b_{\phi}, b_H\right),
+\label{eq:batch-key}
+\end{equation}
+where \(c_{\mathrm{task}}\) is a task cluster from episode metadata. 
+This bucketing strategy balances training stability and computational efficiency. Grouping by task ensures semantic coherence within each batch, while grouping by horizon minimizes the padding required for samples with different chunk lengths, thereby significantly reducing padding overhead and stabilizing the gradient updates.
+
+% \begin{equation}
+% H_d = \mathrm{round}\!\left(f_d T^\star\right),
+% \label{eq:horizon}
+% \end{equation}
+% where $\mathrm{round}(\cdot)$ rounds to the nearest integer number of action steps. Every dataset then supervises roughly the same future duration $T^\star$, even though $H_d$ itself varies with $f_d$.
+
+% Because $H_d$ varies across datasets, chunks within a minibatch have different lengths. For a minibatch $\mathcal{B}$ we pad every chunk to $H_{\mathcal{B}} = \max_{i \in \mathcal{B}} H_{d_i}$, and for each sample we attach a mask $M \in \{0,1\}^{H_{\mathcal{B}} \times D_a}$ that is zero on padded time steps and on invalid action dimensions; the loss is computed only on entries where $M_{t,j}=1$. To further improve training coherence, the sampler groups samples by a coarse (task, episode-phase, horizon) key, so each minibatch draws chunks from similar temporal contexts; details are in Appendix~\ref{app:chunking-details}.
+
+\subsection{Reliability-Aware Training Objective}
+\label{sec:reliability-aware-objective}
+
+Even with aligned action spaces, naive joint training on mixed-source data risks propagating estimation noise from human pseudo-actions directly into the action expert, which degrades the learning of the robust control policy from high-fidelity robot data. To resolve this supervision-quality mismatch, we propose a reliability-aware training objective. 
+We formally define the spatiotemporal reliability for each action dimension (e.g., control channel) \(j \in \{1, \dots, D\}\) at step \(t\) as:
+\begin{equation}
+W_{t,j} = \rho_j \cdot w_{t,j},
+\label{eq:reliability}
+\end{equation}
+where \(\rho_j \in [0, 1]\) is a static, channel-level prior reflecting the intrinsic tracking stability of different action dimensions. In practice, these priors \(\rho_j\) are empirically assigned based on the measurement noise of the human pose estimator (e.g., positioning channels are highly reliable and assigned \(\rho=1.0\), whereas wrist rotations and gripper states are prone to occlusion noise and assigned lower weights). The term \(w_{t,j} \in [0, 1]\) represents a dynamic, step-level smoothness factor that down-weights local tracking failures or implausible kinematic jumps. 
+
+With this reliability-aware weighting strategy, high-fidelity robot data anchors the primary objective across all channels, while noisy human pseudo-actions contribute to training through a robust auxiliary loss scaled by \(W_{t,j}\). The dynamic term \(w_{t,j}\) further factorizes into a dataset-level prior and a local step-level smoothness weight, with exact formulations detailed in Appendix~\ref{app:reliability-aware-human-details}.
+
+\paragraph{Robot Primary Loss}
+
+The primary robot loss follows the standard conditional flow-matching formulation, optimized over the valid action dimensions selected by the action mask $M$. Given a clean, sensor-logged robot action target $\mathbf{a}$ and Gaussian noise $\boldsymbol{\epsilon} \sim \mathcal{N}(0, I)$, the flow interpolant is defined as $\mathbf{a}_s = s\mathbf{a} + (1{-}s)\boldsymbol{\epsilon}$ for $s \sim \mathcal{U}(0,1)$. Then the robot loss is formulated as:
+
+
+\begin{equation}
+\label{equ:action_loss}
+\mathcal{L}_{\mathrm{action}}
+=
+\mathbb{E}_{s,\boldsymbol{\epsilon}}
+\sum_{t,j}
+M_{t,j}
+\left\|
+\hat{v}_\theta(\mathbf{a}_s, s)_{t,j}
+-
+(\mathbf{a} - \boldsymbol{\epsilon})_{t,j}
+\right\|^2,
+\end{equation}
+where $\hat{v}_\theta$ is the predicted velocity field and $M_{t,j} \in \{0,1\}$ is the action mask. During training, we use the delta action chunk formulation following~\cite{BlackK-RSS-25}, expressed in the head-camera frame.
+
+
+
+\paragraph{Human Auxiliary Loss}
+\label{sec:human-auxiliary-loss}
+
+To incorporate human demonstrations without corrupting the policy's primary control capabilities, we introduce human auxiliary loss. Let $\tilde{\mathbf{a}}$ denote the temporally smoothed human target, and $\mathbf{a}_s = s\tilde{\mathbf{a}} + (1{-}s)\boldsymbol{\epsilon}$ be the corresponding flow interpolant. We apply the spatiotemporal reliability weight $W_{t,j}$ within a robust Huber regression loss:
+
+\begin{equation}
+  \mathcal{L}_{\mathrm{haux}}
+  =
+  \mathbb{E}_{s,\boldsymbol{\epsilon}}\,
+  \frac{1}{Z}
+  \sum_{t,j}
+  M_{t,j}\,
+  W_{t,j}\,
+  \operatorname{Huber}_{\beta}\!\left(
+  \hat{v}_\theta(\mathbf{a}_s, s)_{t,j}
+  -
+  (\tilde{\mathbf{a}} - \boldsymbol{\epsilon})_{t,j}
+  \right),
+\end{equation}
+where $Z = \sum_{t,j} M_{t,j} W_{t,j}$ is the normalization factor. This formulation concentrates human supervision on highly reliable position channels while safely discounting noisy rotation and gripper signals (see Appendix~\ref{app:reliability-aware-human-details} for details on the smoothness statistics and thresholds).
+
+% \paragraph{Combined Objective.}
+The joint training objective is a weighted combination of the two losses:
+\begin{equation}
+\mathcal{L} = \mathcal{L}_{\mathrm{action}} + \lambda_{\mathrm{haux}}\, \mathcal{L}_{\mathrm{haux}},
+\end{equation}
+where $\lambda_{\mathrm{haux}}$ balances the contribution of the human auxiliary loss (hyperparameters and sensitivity analyses are provided in Appendix~\ref{app:reliability-aware-human-details}).
+
+
+% Not all action channels in the human pseudo-action are recovered with equal fidelity by the hand-reconstruction pipeline. In a preliminary inspection of reconstructed trajectories on a held-out subset of our human data, we observe that camera-space end-effector \emph{positions} are estimated with substantially lower jitter than wrist \emph{rotations} and finger-derived \emph{gripper} signals; the latter two are sensitive to MANO fitting errors and to partial occlusions of the hand during manipulation. To reflect this observation in the loss without hard-masking any channel, we introduce a per-channel reliability prior $\rho_j \in [0,1]$ that scales the auxiliary contribution of each action dimension. We let $\mathcal{P}$ denote the position channel set and treat it as the fully reliable reference: $\rho_j = 1$ for $j \in \mathcal{P}$, and $\rho_j = \rho_{\mathrm{low}} \ll 1$ for rotation and gripper channels, so that human supervision is concentrated on position while the less reliable channels retain only a small residual contribution.
+
+% For a human sample, let $\tilde{\mathbf{a}}$ denote the clean target obtained by temporal smoothing of the raw pseudo-action to suppress high-frequency jitter, and let $\mathbf{a}_s = s\tilde{\mathbf{a}} + (1{-}s)\boldsymbol{\epsilon}$ be the flow interpolant at sampled flow time $s \sim \mathcal{U}(0,1)$. The auxiliary loss takes the same velocity form as Eq.~\ref{equ:action_loss}, but with per-channel reliability weighting and a robust regression term:
+% \begin{equation}
+%   \mathcal{L}_{\mathrm{haux}}
+%   =
+%   \mathbb{E}_{s,\boldsymbol{\epsilon}}\,
+%   \frac{1}{Z}
+%   \sum_{t,j}
+%   M_{t,j}\,
+%   \rho_j\,
+%   w_{t,j}\,
+%   \operatorname{Huber}_{\beta}\!\left(
+%   \hat{v}_\theta(\mathbf{a}_s, s)_{t,j}
+%   -
+%   (\tilde{\mathbf{a}} - \boldsymbol{\epsilon})_{t,j}
+%   \right),
+% \end{equation}
+% where the expectation is taken over human samples in the minibatch, $Z = \sum_{t,j} M_{t,j}\, \rho_j\, w_{t,j}$ is the per-sample effective normalizer, and $\mathcal{L}_{\mathrm{haux}}$ is set to zero when the minibatch contains no human sample. The time-step weight $w_{t,j}$ combines a dataset-level prior with a local smoothness factor, so that noisier sources and locally implausible motion segments contribute less; we compute it on the clean position chunks before the flow-matching noise is added. The construction of $w_{t,j}$, the smoothness statistics it relies on, the value of $\rho_{\mathrm{low}}$, and the associated thresholds are reported in Appendix~\ref{app:reliability-aware-human-details}.
+
+% Human egocentric videos provide useful motion supervision, but their labels are less reliable than robot-executed actions: end-effector poses are estimated from video and can contain jitter, missing observations, and dimension-specific noise. We therefore keep the primary action objective unchanged and add a human-only auxiliary term with per-channel reliability weighting.
+
+% Not all action channels in the human pseudo-action are recovered with equal fidelity by the hand-reconstruction pipeline. In a preliminary inspection of reconstructed trajectories on a held-out subset of our human data, we observe that camera-space end-effector \emph{positions} are estimated with substantially lower jitter than wrist \emph{rotations} and finger-derived \emph{gripper} signals; the latter two are sensitive to MANO fitting errors and to partial occlusions of the hand during manipulation. To reflect this observation in the loss without hard-masking any channel, we introduce a per-channel reliability prior $\rho_j \in [0,1]$ that scales the auxiliary contribution of each action dimension, and let $\mathcal{P}$ denote the position channel set used as a reference for what we treat as fully reliable. Let $m_i^{\mathrm{human}}$ indicate whether sample $i$ comes from a human-video source. Since the action expert is trained with flow matching, the auxiliary target is written in the same velocity form as Eq.~\ref{equ:action_loss}:
+
+% \begin{equation}
+%   \mathcal{L}_{\mathrm{hpos}}
+%   =
+%   \mathbb{E}_{s,\boldsymbol{\epsilon}}
+%   \frac{1}{Z_{\mathrm{h}}}
+%   \sum_i
+%   m_i^{\mathrm{human}}
+%   \sum_t
+%   \sum_{j}
+%   M_{i,t,j}\,
+%   \rho_j\,
+%   w_{i,t,j}\,
+%   \operatorname{Huber}_{\beta}
+%   \!\left(
+%   \hat{v}_\theta(\mathbf{a}_{s,i}, s_i)_{t,j}
+%   -
+%   (\tilde{\mathbf{a}}^{\mathrm{human}}_i-\boldsymbol{\epsilon}_i)_{t,j}
+%   \right),
+% \end{equation}
+% where $Z_{\mathrm{h}}$ is the total effective weight summed over all supervised entries (the term is taken to be zero when a minibatch contains no valid human entry). In our default configuration we set $\rho_j = 1$ for $j \in \mathcal{P}$ and $\rho_j = \rho_{\mathrm{low}}$ with $\rho_{\mathrm{low}} \ll 1$ for rotation and gripper channels, so that human supervision is concentrated on position while the less reliable channels retain only a small residual contribution. Here $\tilde{\mathbf{a}}^{\mathrm{human}}_i$ is the clean human action target obtained by temporal smoothing of the raw human targets to suppress high-frequency pose jitter, and $\mathbf{a}_{s,i}=s_i\tilde{\mathbf{a}}^{\mathrm{human}}_i+(1-s_i)\boldsymbol{\epsilon}_i$ is the corresponding flow interpolant at sampled flow time $s_i$. The sample-and-time-step weight $w_{i,t,j}$ combines a dataset-level prior with a local smoothness factor, so that noisier sources and locally implausible motion segments contribute less; we compute it on the clean position chunks before the flow-matching noise is added. The construction of $w_{i,t,j}$, the smoothness statistics it relies on, the value of $\rho_{\mathrm{low}}$, and the associated thresholds are reported in Appendix~\ref{app:reliability-aware-human-details}.
+
+
+% We supervise only the camera-space end-effector \emph{position} channels, denoted by $\mathcal{P}$, and exclude rotation and gripper channels from the human auxiliary loss because they are noisier under MANO-based reconstruction. Let $m_i^{\mathrm{human}}$ indicate whether sample $i$ comes from a human-video source. Since the action expert is trained with flow matching, the auxiliary target is written in the same velocity form as Eq.~\ref{equ:action_loss} and can be written as:
+
+% \begin{equation}
+%   \mathcal{L}_{\mathrm{hpos}}
+%   =
+%   \mathbb{E}_{s,\boldsymbol{\epsilon}}
+%   \frac{1}{Z_{\mathrm{h}}}
+%   \sum_i
+%   m_i^{\mathrm{human}}
+%   \sum_t
+%   \sum_{j \in \mathcal{P}}
+%   M_{i,t,j}\,
+%   w_{i,t,j}\,
+%   \operatorname{Huber}_{\beta}
+%   \!\left(
+%   \hat{v}_\theta(\mathbf{a}_{s,i}, s_i)_{t,j}
+%   -
+%   (\tilde{\mathbf{a}}^{\mathrm{human}}_i-\boldsymbol{\epsilon}_i)_{t,j}
+%   \right),
+% \end{equation}
+
+% where $Z_{\mathrm{h}}$ is the total effective weight summed over all supervised human position entries (the term is taken to be zero when a minibatch contains no valid human entry). Here $\tilde{\mathbf{a}}^{\mathrm{human}}_i$ is the clean human action target after temporal smoothing, $\mathbf{a}_{s,i}=s_i\tilde{\mathbf{a}}^{\mathrm{human}}_i+(1-s_i)\boldsymbol{\epsilon}_i$ is the corresponding flow interpolant, and $s_i$ is the sampled flow time for sample $i$.
+% The reliability weight $w_{i,t,j}$ combines a dataset-level prior with a time-step-level smoothness factor, so that noisier sources and locally implausible motion segments contribute less. We compute $w_{i,t,j}$ on the clean position chunks before the flow-matching noise is added, and we apply a temporal smoothing filter to $\tilde{\mathbf{a}}^{\mathrm{human}}_i$ to suppress high-frequency pose jitter. The construction of $w_{i,t,j}$, the smoothness statistics it is derived from, and the associated thresholds are reported in Appendix~\ref{app:reliability-aware-human-details}.
+
+% \paragraph{Combined Objective}
+
+% The full training objective combines the robot flow-matching loss with the human position auxiliary term:
+% \begin{equation}
+% \mathcal{L}
+% =
+% \mathcal{L}_{\mathrm{action}}
+% +
+% \lambda_{\mathrm{hpos}}\mathcal{L}_{\mathrm{hpos}}.
+% \end{equation}
+% Robot samples contribute to $\mathcal{L}_{\mathrm{action}}$ on all valid action dimensions, while human samples contribute only to $\mathcal{L}_{\mathrm{hpos}}$ on the position channels in $\mathcal{P}$. We set $\lambda_{\mathrm{hpos}} = 0.1$ to bound the influence of human pseudo-actions on the shared action expert.
+
+
+
+\input{data_pipeline}
+
+%===============================================================================
+
+\section{Experiments}
+
+\subsection{Experimental Setup}
+\label{sec:exp_setup}
+We evaluate \Ours on two simulation benchmarks and one real-robot platform: RoboCasa GR1 TableTop~\cite{bjorck2025gr00t}, a humanoid tabletop benchmark with 24 pick-and-place and articulated-object tasks; RoboTwin~2.0~\cite{robotwin2.0}, a bimanual benchmark with 50 tasks and strong domain randomization; and an ARX bimanual platform with six real-world manipulation tasks. For simulation evaluation, we compare against GR00T-N1.6~\cite{bjorck2025gr00t}, Qwen3PI, FLARE~\cite{pmlr-v305-zheng25a}, ABot-M0~\cite{yang2026abot}, JoyAI-RA~\cite{zhang2026joyaira}, and DIAL~\cite{chen2026dial} on RoboCasa, as well as $\pi_{0.5}$~\cite{pmlr-v305-black25a}, Motus~\cite{bi2025motusunifiedlatentaction}, LingBot-VLA~\cite{wu2026pragmatic}, ABot-M0~\cite{yang2026abot}, JoyAI-RA~\cite{zhang2026joyaira}, and Hy-VLA~\cite{hunyuan2026hyembod} on RoboTwin~2.0 (full per-task comparisons including $\pi_0$ are in Appendix~\ref{app:full-robotwin-results}). For the physical real-robot evaluation, we compare against fine-tuned $\pi_{0.5}$ and GR00T-N1.7~\cite{bjorck2025gr00t}, adopting the N1.7 version to leverage its latest optimizations for physical deployment. All models are trained in a multi-task setting and evaluated by task success rate. Model architecture, training protocol, and evaluation details are provided in Appendix~\ref{app:training-details}.
+
+\paragraph{Camera-space inference.}
+To execute these camera-space action chunks on a physical robot, we apply the inverse of the camera extrinsic used during data standardization:
+\begin{equation}
+\hat{p}_s = R_{\mathrm{cam}\leftarrow s}^{\top}\!\left(\hat{p}_{\mathrm{cam}} - t_{\mathrm{cam}\leftarrow s}\right),
+\qquad
+\hat{R}_{s,ee} = R_{\mathrm{cam}\leftarrow s}^{\top}\hat{R}_{\mathrm{cam},ee},
+\end{equation}
+where $s$ denotes the robot's execution frame (e.g., base or torso). The 6D rotation output is first reconstructed into a full rotation matrix via Gram--Schmidt orthogonalization before applying the inverse transform.
+Because \Ours predicts actions in the head-camera coordinate frame, deployment only requires a standard extrinsic transform to convert predicted camera-frame end-effector poses into the robot coordinate frame. A new embodiment can be integrated by registering its URDF to obtain a morphology token and executing the resulting poses with its own low-level controller. Thus, camera-space prediction removes the need for the policy to learn source-specific coordinate transforms, while embodiment differences are handled by morphology conditioning.
+
+\subsection{Simulation Results}
+\label{sec:sim_results}
+
+\subsubsection{RoboCasa GR1 TableTop}
+\label{sec:robocasa}
+
+RoboCasa GR1 TableTop evaluates humanoid tabletop manipulation on the GR1 platform across 24 tasks: 18 pick-and-place rearrangement tasks and 6 articulated-object interaction tasks. 
+We train one model jointly on all 24 tasks and report mean success rate over 50 rollouts per task.
+
+\begin{table*}[t]
+\centering
+\caption{Evaluation results on the RoboCasa GR1 TableTop benchmark (selected tasks). Success rates (\%) over 50 rollouts per task. Full 24-task results are in Appendix~\ref{app:full-robocasa-results}.}
+\label{tab:robocasa_gr1_results}
+\vspace{0.3em}
+\small
+\renewcommand{\arraystretch}{1.1}
+\setlength{\tabcolsep}{4pt}
+\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lccccccc}
+\hline
+\textbf{Task} & GR00T-N1.6 & Qwen3PI & FLARE & ABot-M0 & JoyAI-RA & DIAL & \Ours \\
+\hline
+CuttingboardToCardboardbox & 46.5 & 46.0 & 54.0 & 58.0 & 46.0 & -- & \textbf{84.0} \\
+PlacematToTieredshelf      & 28.5 & 28.0 & 26.0 & 26.0 & 14.0 & -- & \textbf{44.0} \\
+PlateToPlate               & 78.7 & 48.0 & 76.0 & 64.0 & 88.0 & -- & \textbf{98.0} \\
+PlateToBowl                & 57.0 & 52.0 & 50.0 & 54.0 & 48.0 & -- & \textbf{68.0} \\
+TrayToPlate                & 71.0 & 64.0 & 64.0 & 68.0 & 88.0 & -- & \textbf{90.0} \\
+\multicolumn{8}{c}{\ldots\,(24 tasks total; see Appendix for full results)} \\
+\hline
+\textbf{Average (24 tasks)} & 47.6 & 43.9 & 55.0 & 58.3 & 63.2 & 70.2 & \textbf{72.8} \\
+\hline
+\end{tabular*}
+\end{table*}
+
+As shown in Table~\ref{tab:robocasa_gr1_results}, \Ours achieves \textbf{72.8\%} average success rate, surpassing all baselines including DIAL~\cite{chen2026dial} (70.2\%), JoyAI-RA~\cite{zhang2026joyaira} (63.2\%), ABot-M0~\cite{yang2026abot} (58.3\%), and FLARE~\cite{pmlr-v305-zheng25a} (55.0\%). The gains are consistent across both articulated-object interaction and pick-and-place rearrangement task categories, suggesting that the camera-space action interface and reliability-aware training generalize broadly rather than benefiting a narrow subset of tasks.
+
+\subsubsection{RoboTwin~2.0}
+\label{sec:robotwin}
+
+RoboTwin~2.0 is a bimanual tabletop manipulation benchmark covering 50 tasks with strong domain randomization. 
+We train on 2,500 clean demonstrations (50 per task) plus 25,000 randomized demonstrations (500 per task), and evaluate under both Easy/Clean and Hard/Randomized settings. Overall results are shown in Table~\ref{tab:robotwin2_results}, with full per-task results in Appendix~\ref{app:full-robotwin-results}, Table~\ref{tab:robotwin2_full_task_results}.
+
+\begin{table*}[t]
+\centering
+\caption{Overall evaluation results on the RoboTwin~2.0 benchmark. Success rates (\%) averaged over 50 tasks, 100 trials per task. Easy denotes the clean setting and Hard denotes the randomized setting. Full per-task results are in Appendix~\ref{app:full-robotwin-results}.}
+\label{tab:robotwin2_results}
+\vspace{0.3em}
+\small
+\renewcommand{\arraystretch}{1.1}
+\setlength{\tabcolsep}{3pt}
+\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lcccccccccccccc}
+\hline
+\textbf{Method} & \multicolumn{2}{c}{$\pi_{0.5}$} & \multicolumn{2}{c}{Motus} & \multicolumn{2}{c}{LingBot-VLA} & \multicolumn{2}{c}{ABot-M0} & \multicolumn{2}{c}{JoyAI-RA} & \multicolumn{2}{c}{Hy-VLA} &\multicolumn{2}{c}{\Ours} \\
+ & Easy & Hard & Easy & Hard & Easy & Hard & Easy & Hard & Easy & Hard & Easy & Hard & Easy & Hard \\
+\hline
+Success Rate & 82.74 & 76.76 & 88.66 & 87.02 & 88.56 & 86.68 & 86.06 & 85.08 & 90.48 & 89.28 & 90.9 & 90.1 & \textbf{91.12} & \textbf{90.62} \\
+\hline
+\end{tabular*}
+\end{table*}
+
+\Ours achieves \textbf{91.12\%} average success rate on the Easy/Clean setting and \textbf{90.62\%} on the Hard/Randomized setting, surpassing JoyAI-RA by 0.64\% and 1.34\%, respectively.
+The improvement is distributed across diverse manipulation primitives---grasping, placement, tool use, and bimanual coordination---indicating that the unified pretraining recipe transfers effectively to multi-task bimanual control under strong domain randomization.
+
+\subsection{Real-Robot Evaluation}
+\label{sec:real_robot}
+
+\begin{figure}[t]
+  \centering
+  \begin{subfigure}[t]{0.48\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{images/real_robot_bar_repro.pdf}
+    \caption{Real-robot results on the ARX bimanual platform vs.\ $\pi_{0.5}$. Trials: 30 per task.}
+    \label{fig:real_robot}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[t]{0.48\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{images/ablation_waterfall_repro.pdf}
+    \caption{Component ablation on RoboCasa GR1 TableTop. Each bar shows the effect of removing one component from the full model.}
+    \label{fig:ablation}
+  \end{subfigure}
+  \caption{Real-robot evaluation (a) and ablation study (b) for \Ours.}
+  \label{fig:real_robot_ablation}
+\end{figure}
+
+We evaluate \OURS on an ARX bimanual platform equipped with a head-mounted RGB-D camera, controlled via camera-space delta end-effector commands. 
+The policy outputs actions directly in the head-camera coordinate frame and is deployed by simply applying a single camera extrinsic at inference time.
+
+We evaluate on six manipulation tasks of increasing complexity—spanning single-arm pick-and-place, long-horizon multi-step manipulation, contact-rich bimanual coordination, and language-grounded semantic reasoning (see Appendix~\ref{app:real-robot-task-descriptions} for full descriptions). 
+We compare against two strong baseline methods: $\pi_{0.5}$ fine-tuned on the same downstream task data, and GR00T-N1.7.
+A trial is considered successful only if the robot completes the entire task sequence without human intervention; per-task success criteria are detailed in Appendix~\ref{app:real-robot-success-criteria}, and the quantitative results are summarized in Figure~\ref{fig:real_robot_ablation}(a).
+
+
+\Ours achieves a \textbf{78.3\%} average success rate across the six tasks, outperforming $\pi_{0.5}$ (71.7\%) by 6.6\%, and demonstrating a decisive margin over GR00T-N1.7, which struggles on several long-horizon sequences and obtains a 35.6\% average success rate.
+Specifically, \Ours leads across five out of the six tasks. On Scoop Coffee, a contact-rich bimanual task requiring tight spatiotemporal coordination between both arms, \Ours achieves 86.7\%, outperforming $\pi_{0.5}$ (70.0\%) by 16.7\% and GR00T-N1.7 (36.7\%) by 50.0\%.
+
+In the multi-class object placement task, Category Sorting, \Ours maintains a steady performance of 90.0\%, compared to 80.0\% for $\pi_{0.5}$ and 83.3\% for GR00T-N1.7. While GR00T-N1.7 exhibits reasonable capability on relatively structured setups such as Stack Bowls (73.3\%), its execution consistency drops sharply on tasks that require extended horizontal trajectories or explicit bimanual coordination, such as Sweep Cubes (6.7\%).
+
+In sharp contrast, \Ours demonstrates its clear advantage in spatiotemporal alignment on Scoop Coffee, a contact-rich bimanual task requiring tight synchronization between both arms, sustaining an 86.7\% success rate while GR00T-N1.7 falls to 36.7\%. On Pack Shoes, which features the longest operational sequence including a delicate lid-closing phase, all evaluated models experience a visible degradation in performance. This joint performance drop suggests that managing compounding trajectory drift over long-horizon manipulation chains remains a common shared challenge for existing pretrained VLA architectures.
+
+
+\subsection{Ablation Studies}
+\label{sec:ablation_studies}
+
+\paragraph{Component ablation.}
+We ablate three components of \Ours on RoboCasa GR1 TableTop, removing one at a time from the full model and reporting the average success rates of the checkpoints trained for 190K steps (Figure~\ref{fig:real_robot_ablation}(b)).
+Removing either one of the three components reduces performance.
+Removing morphology tokens makes the success rate drop from 72.8\% to 70.9\% ($-1.9\%$): even though all sources share the same camera-space action format, different robot platforms have different kinematic structures, and the morphology tokens provide the action expert kinematics-related information.
+Removing time-aligned action chunking drops the success rate to 71.7\% ($-1.1\%$): a fixed number of actions now covers different physical durations across datasets collected at different frame rates and introduces temporal inconsistency between the mixed-source data.
+Removing the reliability-aware human auxiliary loss leads to the largest success rate drop to 69.2\% ($-3.6\%$): without label-quality weighting, noisy pseudo-actions from human videos receive equal supervision weight as sensor-logged robot actions, which confuses the action expert training.
+
+
+
+\paragraph{Data source ablation.}
+We also evaluate three pretraining configurations on RoboCasa GR1 TableTop to assess the contribution of each data source (see Table~\ref{tab:human_scaling}).
+
+\begin{table}[h]
+  \centering
+  \small
+  \caption{Pretraining data ablation on RoboCasa GR1 TableTop (success rate).}
+  \label{tab:human_scaling}
+  \begin{tabular}{p{0.45\textwidth}r}
+    \toprule
+    Pretraining Configuration & Success Rate (\%) \\
+    \midrule
+    Robot + Human (full \Ours)          & \textbf{72.8} \\
+    Robot Only (no human video)         & 68.3 \\
+    From Qwen (no embodied pretrain)    & 65.4 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+The success rate increases with each additional data source.
+The Qwen-initialized model without embodied pretraining reaches 65.4\%.
+Adding robot data raises the success rate to 68.3\% ($+2.9\%$), showing that embodied pretraining provides action-level knowledge that pure language-vision pretraining does not.
+Adding human videos further raises the rate to 72.8\% ($+4.5\%$, the largest single gain), showing that human videos contribute diverse behavioral coverage beyond the robot demonstrations alone.
+
+
+% \begin{figure}[t]
+%   \centering
+%   \includegraphics[width=0.75\linewidth]{images/human_scaling.pdf}
+%   \caption{Human data scaling on RoboCasa GR1 TableTop. Success rate vs.\ training steps for different pretraining configurations: full recipe (1500h human + robot), reduced human video (1000h human + robot), robot-only pretraining (no human video), and no embodied pretraining (from Qwen).}
+%   \label{fig:human_scaling}
+% \end{figure}
+
+\subsection{Human Data for Augmented Fine-Tuning}
+\label{sec:human-mid-training}
+
+We investigate how human egocentric videos improve task-specific adaptation when robot demonstration data alone are insufficient.
+Starting from the pretrained \Ours checkpoint, we fine-tune on the Sweep Cubes task using only 34 robot demonstrations (2 sessions, $\sim$45.8K frames). With robot data alone, the policy achieves only a 10\% success rate (1/10 trials).
+
+Figure~\ref{fig:action_distribution} shows the reason: The 34 robot demonstrations occupy only a narrow region of the action space, covering only 0.062 m$^2$ of the end-effector workspace. The 419 episodes of task-matched human video spread across 0.296 m$^2$, 4.8$\times$ broader coverage, filling in motion patterns that the limited robot data does not include.
+Augmenting the fine-tuning mixture with this human video ($\sim$117.5K frames) increases the success rate to 40\% (4/10 trials), a 4$\times$ improvement, confirming that human video provides complementary action coverage and substantially recovers performance in data-scarce fine-tuning regimes.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\linewidth]{images/coverage_A_trajectories.pdf}
+  \caption{Right end-effector trajectories for the Sweep Cubes fine-tuning data, projected onto the horizontal plane. Axes are remapped to $[-1, 1]$ for readability; each panel uses the same scale.
+  \textbf{Left:} 34 robot demonstrations are concentrated in a small region (0.062 m$^2$ convex-hull area).
+  \textbf{Middle:} 419 human video episodes cover a substantially broader area (0.296 m$^2$, 4.8$\times$ larger).
+  \textbf{Right:} both sources overlaid, showing the robot cluster embedded within the wider human distribution.}
+  \label{fig:action_distribution}
+\end{figure}
+
+
+%===============================================================================
+
+\section{Conclusion}
+\label{sec:conclusion}
+We presented \Ours, a VLA pretraining framework that jointly resolves representational and label-quality heterogeneity when learning from large-scale human and multi-embodiment robot data.
+\Ours resolves representation heterogeneity through a unified action representation, aligning heterogeneous sources along spatial, structural, and temporal spaces via camera-space actions, cross-embodiment morphology tokens, and time-aligned action chunking. It further addresses the supervision-quality mismatch through a reliability-aware training objective that provides noise-resilient supervision for large-scale pseudo-action labels.
+Instantiated on a 6.0K+ hour pool spanning multiple robot platforms, simulation environments, and 1.48K hours of large-scale egocentric human video, \Ours achieves 72.8\% on RoboCasa GR1 TableTop and 91.12\%/90.62\% on RoboTwin~2.0 Easy/Hard splits, outperforming all compared methods; human-augmented fine-tuning further demonstrates a 4$\times$ improvement in data-scarce regimes.
+On a real bimanual ARX platform, \Ours reaches a 78.3\% average success rate across six physical manipulation tasks, consistently outperforming fine-tuned $\pi_{0.5}$ (71.7\%) and demonstrating a decisive margin over GR00T-N1.7 (35.6\%), with prominent capabilities in multi-step sequential execution and coordinated bimanual control.
+
+%===============================================================================
+\section{Limitations} 
+While \Ours demonstrates strong performance across simulation and real-world benchmarks, several directions remain open. Our current evaluation focuses on tabletop manipulation; extending to mobile manipulation, whole-body humanoid control, or deformable-object tasks would test the generality of the camera-space action interface under more diverse spatial conventions and longer task horizons. The pretraining pool, though large, does not yet include dexterous hand data or force/torque sensing; incorporating richer modalities could further improve contact-rich manipulation. Finally, scaling the human-video portion and improving the fidelity of pseudo-action pipelines---particularly for rotation and fine-grained finger motion---would allow the reliability-aware objective to supervise additional action dimensions beyond position, potentially unlocking stronger transfer from human demonstrations to robot control.
+
+
+
+%===============================================================================
+
+\clearpage
+% The acknowledgments are automatically included only in the final and preprint versions of the paper.
+\acknowledgments{If a paper is accepted, the final camera-ready version will (and probably should) include acknowledgments. All acknowledgments go at the end of the paper, including thanks to reviewers who gave useful comments, to colleagues who contributed to the ideas, and to funding agencies and corporate sponsors that provided financial support.}
+
+%===============================================================================
+
+% no \bibliographystyle is required, since the corl style is automatically used.
+\bibliography{main}  % .bib
+\clearpage
+\input{appendix}
+
+\end{document}

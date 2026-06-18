@@ -1,0 +1,57 @@
+\begin{table*}[t!]
+    \centering
+    \caption{Component ablation of ZPPO on the 10 LLM and 5 Video benchmarks; same row structure as Tab.~\ref{tab:ablation}. Distillation baselines are in Tab.~\ref{tab:generalization} and Tab.~\ref{tab:generalization_4b9b}; benchmark abbreviations: Appendix~\ref{sec:appendix:benchmarks}.}
+    \label{tab:ablation_gen}
+    \resizebox{\linewidth}{!}{
+    \renewcommand{\tabcolsep}{0.9mm}
+    \renewcommand{\arraystretch}{1.05}
+    \begin{tabular}{lccccccccccccccccc}
+    \toprule
+    & \multicolumn{11}{c}{10 LLM Benchmarks} & \multicolumn{6}{c}{5 Video Benchmarks} \\
+    \cmidrule(lr){2-12}\cmidrule(lr){13-18}
+    Method & AIME25 & AIME26 & CEval & GPQA-D & HLE & IMO-AB & MMLU & MMLU-Pro & MMLU-Rd & MultiCh & Avg & MMVU & MVBench & VMME & VMME$^\text{S}$ & VMMMU & Avg \\
+    \midrule
+    Qwen3.5-0.8B & \textbf{3.3} & 0.0 & 52.3 & 12.1 & 2.2 & 3.3 & 57.7 & 41.7 & 62.5 & 16.6 & \cellcolor{gray!10}25.2 & 39.0 & 51.6 & 50.3 & 51.6 & 48.8 & \cellcolor{gray!10}48.3 \\
+    \cdashline{1-18}\noalign{\vskip 0.5ex}
+    $+$ GRPO & 0.0 & 0.0 & 53.9 & 20.0 & 3.2 & 5.1 & 59.4 & 44.8 & 64.5 & 19.7 & \cellcolor{gray!10}27.1 & 39.9 & 53.2 & 51.4 & 52.7 & 50.8 & \cellcolor{gray!10}49.6 \\
+    $+$ GRPO$^{\dagger}$ & 3.3 & 0.0 & 54.5 & 25.5 & 3.5 & 7.0 & 59.9 & 47.1 & 65.1 & 20.8 & \cellcolor{gray!10}28.7 & 41.3 & 53.5 & 52.2 & 53.0 & 52.5 & \cellcolor{gray!10}50.5 \\
+    $+$ GRPO $+$ Both & 3.3 & 0.0 & 54.8 & 25.2 & 2.6 & 5.8 & 60.4 & 45.9 & 64.2 & 20.7 & \cellcolor{gray!10}28.3 & 40.3 & 53.5 & 51.0 & 51.8 & 51.3 & \cellcolor{gray!10}49.6 \\
+    $+$ GRPO$^{\dagger}$ $+$ BCQ & 3.3 & 0.0 & 56.7 & 35.8 & 4.4 & 8.9 & 62.1 & 50.0 & 67.9 & 25.9 & \cellcolor{gray!10}31.5 & 41.8 & 55.8 & 53.3 & 54.4 & 54.8 & \cellcolor{gray!10}52.0 \\
+    $+$ GRPO$^{\dagger}$ $+$ NCQ & 3.3 & 0.0 & 55.2 & 27.0 & 4.1 & 7.4 & 60.6 & 47.5 & 66.0 & 22.5 & \cellcolor{gray!10}29.4 & 41.6 & 54.3 & 52.5 & 53.6 & 52.9 & \cellcolor{gray!10}51.0 \\
+    \rowcolor{colorful}
+    $+$ ZPPO & \textbf{3.3} & 0.0 & \textbf{57.6} & \textbf{42.4} & \textbf{5.0} & \textbf{10.5} & \textbf{63.0} & \textbf{51.7} & \textbf{69.0} & \textbf{28.6} & \cellcolor{gray!10}\textbf{33.1} & \textbf{42.5} & \textbf{56.6} & \textbf{53.9} & \textbf{54.9} & \textbf{56.4} & \cellcolor{gray!10}\textbf{52.8} \\
+    \midrule
+    Qwen3.5-2B & \textbf{26.7} & 30.0 & 71.1 & 53.5 & 3.5 & 11.3 & 74.6 & 66.2 & 80.4 & 35.8 & \cellcolor{gray!10}45.3 & 53.7 & 60.7 & 59.9 & 61.2 & 67.6 & \cellcolor{gray!10}60.6 \\
+    \cdashline{1-18}\noalign{\vskip 0.5ex}
+    $+$ GRPO & 26.7 & 33.3 & 72.0 & 55.3 & 3.8 & 15.8 & 74.9 & 66.8 & 81.1 & 37.0 & \cellcolor{gray!10}46.7 & 55.1 & 61.3 & 60.7 & 62.1 & 66.8 & \cellcolor{gray!10}61.2 \\
+    $+$ GRPO$^{\dagger}$ & 26.7 & 33.3 & 72.4 & 56.5 & 4.2 & 19.3 & 75.4 & 67.3 & 81.4 & 37.3 & \cellcolor{gray!10}47.3 & 56.7 & 61.7 & 61.2 & 62.6 & 67.3 & \cellcolor{gray!10}61.9 \\
+    $+$ GRPO $+$ Both & 26.7 & 33.3 & 72.7 & 56.1 & 4.3 & 18.3 & 75.4 & 66.6 & 80.4 & 36.7 & \cellcolor{gray!10}47.0 & 55.7 & 61.0 & 60.3 & 61.6 & 67.3 & \cellcolor{gray!10}61.2 \\
+    $+$ GRPO$^{\dagger}$ $+$ BCQ & 26.7 & 36.7 & 73.4 & 58.7 & 4.9 & 24.6 & 76.0 & 68.0 & 82.3 & 39.3 & \cellcolor{gray!10}49.1 & 57.6 & 62.3 & 61.9 & 63.4 & 67.9 & \cellcolor{gray!10}62.6 \\
+    $+$ GRPO$^{\dagger}$ $+$ NCQ & 26.7 & 36.7 & 73.0 & 57.8 & 4.6 & 22.3 & 75.8 & 67.8 & 81.9 & 38.7 & \cellcolor{gray!10}48.5 & 56.9 & 62.0 & 61.8 & 63.1 & 67.5 & \cellcolor{gray!10}62.3 \\
+    \rowcolor{colorful}
+    $+$ ZPPO & \textbf{26.7} & \textbf{40.0} & \textbf{74.0} & \textbf{60.6} & \textbf{5.1} & \textbf{29.5} & \textbf{76.4} & \textbf{68.2} & \textbf{82.9} & \textbf{40.6} & \cellcolor{gray!10}\textbf{50.4} & \textbf{59.0} & \textbf{62.7} & \textbf{62.4} & \textbf{63.9} & \textbf{68.1} & \cellcolor{gray!10}\textbf{63.2} \\
+    \midrule
+    Qwen3.5-4B & 53.3 & 63.3 & 83.6 & 69.7 & 7.8 & 35.5 & 85.3 & 79.4 & 89.5 & 48.9 & \cellcolor{gray!10}61.6 & 69.2 & \textbf{70.2} & 68.1 & 69.9 & \textbf{80.3} & \cellcolor{gray!10}71.5 \\
+    \cdashline{1-18}\noalign{\vskip 0.5ex}
+    $+$ GRPO & 53.3 & 63.3 & 84.1 & 70.9 & 7.5 & 38.9 & 85.3 & 78.1 & 88.6 & 50.5 & \cellcolor{gray!10}62.1 & 69.1 & 68.3 & 66.8 & 69.2 & 79.6 & \cellcolor{gray!10}70.6 \\
+    $+$ GRPO$^{\dagger}$ & 53.3 & 63.3 & 84.6 & 73.5 & 7.1 & 40.6 & 85.9 & 79.2 & 88.9 & 50.7 & \cellcolor{gray!10}62.7 & 69.2 & 69.1 & 68.2 & 68.7 & 79.4 & \cellcolor{gray!10}70.9 \\
+    $+$ GRPO $+$ Both & 53.3 & 63.3 & 84.2 & 72.7 & 8.2 & 39.6 & 85.5 & 79.1 & 89.7 & 51.5 & \cellcolor{gray!10}62.8 & 70.2 & 68.1 & 67.7 & 69.2 & 79.5 & \cellcolor{gray!10}70.9 \\
+    $+$ GRPO$^{\dagger}$ $+$ BCQ & 53.3 & 66.7 & 85.2 & 74.9 & 8.2 & 44.4 & 85.4 & 78.9 & 89.4 & 54.3 & \cellcolor{gray!10}64.1 & 70.3 & 69.0 & 68.3 & 69.3 & 79.4 & \cellcolor{gray!10}71.3 \\
+    $+$ GRPO$^{\dagger}$ $+$ NCQ & 56.7 & 66.7 & 85.5 & 75.4 & 8.2 & 44.5 & 85.6 & 79.5 & 89.7 & 54.2 & \cellcolor{gray!10}64.6 & 70.2 & 69.2 & 68.4 & 70.0 & 80.0 & \cellcolor{gray!10}71.6 \\
+    \rowcolor{colorful}
+    $+$ ZPPO & \textbf{56.7} & \textbf{66.7} & \textbf{86.1} & \textbf{77.3} & \textbf{8.3} & \textbf{48.0} & \textbf{86.0} & \textbf{79.7} & \textbf{90.1} & \textbf{56.0} & \cellcolor{gray!10}\textbf{65.5} & \textbf{70.6} & 69.6 & \textbf{68.5} & \textbf{70.2} & 80.2 & \cellcolor{gray!10}\textbf{71.8} \\
+    \midrule
+    Qwen3.5-9B & 60.0 & 70.0 & 84.0 & 77.3 & 8.9 & 38.8 & 87.3 & 81.1 & 90.5 & 50.8 & \cellcolor{gray!10}64.9 & 73.8 & 71.4 & \textbf{70.5} & 72.4 & 80.9 & \cellcolor{gray!10}73.8 \\
+    \cdashline{1-18}\noalign{\vskip 0.5ex}
+    $+$ GRPO & 63.3 & 70.0 & 84.3 & 77.4 & 8.9 & 41.5 & 87.5 & 80.6 & 90.9 & 52.2 & \cellcolor{gray!10}65.7 & 73.5 & 70.9 & 69.2 & 71.6 & 80.9 & \cellcolor{gray!10}73.2 \\
+    $+$ GRPO$^{\dagger}$ & 63.3 & 70.0 & 85.3 & 77.8 & 8.8 & 43.6 & 87.4 & 81.3 & 90.9 & 53.0 & \cellcolor{gray!10}66.2 & 73.1 & 71.5 & 69.3 & 71.2 & 82.0 & \cellcolor{gray!10}73.4 \\
+    $+$ GRPO $+$ Both & 63.3 & 70.0 & 85.3 & 77.9 & 9.2 & 42.6 & 87.6 & 81.0 & 90.8 & 52.9 & \cellcolor{gray!10}66.0 & 73.1 & 71.1 & 69.5 & 72.1 & 81.4 & \cellcolor{gray!10}73.4 \\
+    $+$ GRPO$^{\dagger}$ $+$ BCQ & 66.7 & 73.3 & 86.7 & 77.8 & 9.0 & 45.8 & 87.9 & 81.8 & 91.0 & 54.5 & \cellcolor{gray!10}67.5 & 73.8 & 71.5 & 68.8 & 72.6 & 81.5 & \cellcolor{gray!10}73.6 \\
+    $+$ GRPO$^{\dagger}$ $+$ NCQ & 70.0 & 73.3 & 86.9 & 78.1 & 9.5 & 48.3 & 87.8 & 81.7 & 91.6 & 55.6 & \cellcolor{gray!10}68.3 & 73.9 & 71.6 & 69.7 & 72.5 & 81.7 & \cellcolor{gray!10}73.9 \\
+    \rowcolor{colorful}
+    $+$ ZPPO & \textbf{70.0} & \textbf{73.3} & \textbf{87.2} & \textbf{78.8} & \textbf{9.8} & \textbf{49.8} & \textbf{88.1} & \textbf{82.0} & \textbf{91.7} & \textbf{56.8} & \cellcolor{gray!10}\textbf{68.8} & \textbf{74.2} & \textbf{71.7} & 70.2 & \textbf{72.8} & \textbf{82.1} & \cellcolor{gray!10}\textbf{74.2} \\
+    \bottomrule
+    \end{tabular}
+    }
+\end{table*}
+

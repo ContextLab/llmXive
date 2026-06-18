@@ -1,0 +1,538 @@
+\appendix
+
+\section{Additional Method Details}
+\label{app:method-details}
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.95\linewidth]{images/dataset_vis.pdf}
+  \caption{Camera-space action visualization across real robot demonstrations, simulation rollouts, and human egocentric video. All sources express end-effector or hand motion relative to the head-camera frame, making heterogeneous action labels comparable under the same observation-aligned coordinate convention.}
+  \label{fig:camera-space-action-vis}
+\end{figure}
+
+
+\subsection{Camera-Space Action Standardization and Layout}
+\label{app:robot-action-standardization}
+
+This subsection details the spatial alignment pipeline for both robot and human sources introduced in Sec.~\ref{sec:camera-space-action}.
+
+\paragraph{Coordinate Transformation.}
+For robot sources, action labels are sensor-grounded end-effector poses. If an end-effector pose is reported in a source frame $s$ (e.g., robot base or world frame), we convert it to the head-camera frame using the calibrated camera extrinsic as formulated in Eq.~\ref{eq:cam-transform}. For bimanual platforms, this transformation is applied independently to the left and right end-effectors. If a dataset already stores aligned camera-frame actions, the conversion is the identity.
+
+\paragraph{Continuous 6D Orientation.}
+To avoid the discontinuities of quaternions or Euler angles during training, orientations are normalized to a continuous 6D representation~\cite{zhou2019continuity}. Quaternions are first converted to rotation matrices $R_{\mathrm{cam},ee} \in \mathrm{SO}(3)$. We then extract and concatenate the first two columns of the rotation matrix:
+\begin{equation}
+    \mathrm{rot6d}(R_{\mathrm{cam},ee})
+    =
+    \left[
+    R_{\mathrm{cam},ee}^{(:,1)};\,
+    R_{\mathrm{cam},ee}^{(:,2)}
+    \right] \in \mathbb{R}^6.
+\end{equation}
+
+\paragraph{Human Hand-Centric Frame Derivation.}
+To parameterize human trajectories into the identical coordinate space, we construct a stable hand-centric coordinate frame $R_{\mathrm{cam}, hand} = [\mathbf{x}, \mathbf{y}, \mathbf{z}] \in \mathrm{SO}(3)$ from the reconstructed hand mesh. We designate the wrist joint $\mathbf{p}_{\mathrm{wrist}}$ as the origin. Let $\mathbf{p}_{\mathrm{palm}}$ denote the palm centroid, computed as the mean of the index, middle, and ring fingertip positions. The orthogonal axes of the hand frame are constructed as:
+\begin{equation}
+  \mathbf{x} = \frac{\mathbf{p}_{\mathrm{palm}} - \mathbf{p}_{\mathrm{wrist}}}{\|\mathbf{p}_{\mathrm{palm}} - \mathbf{p}_{\mathrm{wrist}}\|_2},
+  \quad
+  \mathbf{z} = \hat{n}(\mathbf{p}_{\mathrm{wrist}}, \mathbf{p}_{\mathrm{thumb}}, \mathbf{p}_{\mathrm{middle}}),
+  \quad
+  \mathbf{y} = \mathbf{z} \times \mathbf{x},
+\end{equation}
+where $\hat{n}(\mathbf{a},\mathbf{b},\mathbf{c})$ denotes the unit normal of the plane defined by points $\mathbf{a},\mathbf{b},\mathbf{c}$, with the sign chosen to point away from the palm. The resulting rotation matrix $R_{\mathrm{cam}, hand}$ is then converted to the continuous 6D representation. For gripper openness, the thumb-to-palm distance $d_t = \|\mathbf{p}_{\mathrm{thumb},t} - \mathbf{p}_{\mathrm{palm},t}\|_2$ is linearly normalized to the gripper stroke range of our robot platforms.
+
+\paragraph{Unified 22-Dimensional Action Layout.}
+After standardization, both robot and human trajectories are mapped into a unified 22-dimensional bimanual action vector $\mathbf{a} \in \mathbb{R}^{22}$. The vector is structured as a concatenation of symmetric 11-dimensional single-arm action blocks:
+\begin{equation}
+\mathbf{a} = \left[ \mathbf{a}_{\mathrm{left}};\, \mathbf{a}_{\mathrm{right}} \right] \in \mathbb{R}^{22},
+\end{equation}
+where each arm's action block $\mathbf{a}_{\mathrm{arm}} \in \mathbb{R}^{11}$ is defined as:
+\begin{equation}
+\mathbf{a}_{\mathrm{arm}} = \left[ \underbrace{p_x, p_y, p_z}_{\text{Position (3D)}}, \, \underbrace{r_1, \dots, r_6}_{\text{Continuous Orientation (6D)}}, \, \underbrace{g}_{\text{Gripper (1D)}}, \, \underbrace{\alpha}_{\text{Activity Flag (1D)}} \right].
+\end{equation}
+The binary activity flag $\alpha \in \{0, 1\}$ indicates whether the corresponding arm is active in the dataset, allowing the policy to seamlessly handle both single-arm and bimanual embodiments.
+
+\paragraph{Projection-Based Data Validation.}
+We utilize camera projection as a validation signal to filter out tracking failures. Given a camera-frame end-effector position $(X,Y,Z)$ and camera intrinsics $(f_x,f_y,c_x,c_y)$, the projection onto the image plane is:
+\begin{equation}
+    u = f_x \frac{X}{Z} + c_x,
+    \qquad
+    v = f_y \frac{Y}{Z} + c_y.
+\end{equation}
+Frames with non-positive depth ($Z \le 0$) or projections falling outside the image boundaries are flagged and masked out using the action validity mask $M$.
+
+\subsection{Robot Kinematic Graph Construction}
+\label{app:urdf-graph-construction}
+
+For each robot embodiment with a URDF, we build the compact kinematic graph $\mathcal{G}_{r}$ used by the morphology encoder. This graph feeds only the morphology conditioning and never enters the shared vision-language trunk. Training samples carry a robot identifier rather than a URDF path. A registry maps each identifier to a canonical robot name, a URDF file, a base link, and left/right end-effector links. We cache the graph tensors by canonical name, so URDF parsing and graph construction happen once and are reused across training.
+
+We use a joint-centric graph: each node is a URDF joint, and edges follow the parent--child relations of the kinematic tree. This puts the quantities most relevant to control---joint type, motion axis, origin transform, limits, and actuation state---directly on the nodes. The registered end-effector links define the left and right manipulation chains $\mathcal{C}^{r}_{L}$ and $\mathcal{C}^{r}_{R}$, which we use to mark action-relevant joints and to measure each joint's distance to the terminal joints of the two chains.
+
+Each joint carries a fixed-dimensional descriptor with four groups of information: local kinematic attributes, range and actuation properties, graph-topological position, and relation to the left/right end-effector chains. In our implementation this is a $29$-dimensional node feature vector. Stacking the descriptors for all joints gives a node feature matrix $X_r \in \mathbb{R}^{N_r \times 29}$ for robot $r$, where $N_r$ is the number of URDF joints. The cached payload holds $X_r$, the normalized adjacency matrix, the left/right chain masks $\mathcal{C}^{r}_{L}, \mathcal{C}^{r}_{R}$, and joint metadata.
+
+
+\subsection{Morphology Encoder}
+\label{app:morphology-encoder-details}
+
+
+This subsection details the URDF encoder $E_{\mathrm{urdf}}$ introduced in Sec.~\ref{sec:urdf-conditioning}. It maps the cached graph $\mathcal{G}_r$ (Appendix~\ref{app:urdf-graph-construction}) to the body summary $z_{\mathrm{body}}^{r}$ and manipulation-chain summary $z_{\mathrm{chain}}^{r}$ that make up $E_{\mathrm{urdf}}(\mathcal{G}_r)$ in Eq.~\ref{eq:morph-token}.
+
+The encoder has two stages: it first contextualizes each joint by message passing over the kinematic tree, then pools the joint states into the two summaries.
+
+\paragraph{Message Passing.}
+Starting from the joint descriptors $X_r$, the encoder runs $L$ residual layers:
+\begin{equation}
+    H^{(0)} = \phi_{\mathrm{in}}(X_r),
+    \qquad
+    H^{(\ell+1)}
+    =
+    H^{(\ell)}
+    +
+    \phi_{\ell}
+    \!\left(
+    \left[
+    H^{(\ell)};\,
+    \bar{A}_r H^{(\ell)}
+    \right]
+    \right),
+    \quad \ell = 0,\dots,L-1,
+\end{equation}
+where $\bar{A}_r = D_r^{-1}(A_r + I)$ is the adjacency matrix with self-loops, row-normalized by its degree matrix $D_r$; $\phi_{\mathrm{in}}$ and $\phi_{\ell}$ are MLPs. At each layer, $\bar{A}_r H^{(\ell)}$ averages every joint with its neighbors, while the residual path preserves the joint's own state.
+
+\paragraph{Pooling and Concatenation.}
+Writing $\operatorname{mp}(\mathcal{S}) = \frac{1}{|\mathcal{S}|}\sum_{j \in \mathcal{S}} H^{(L)}_j$ for the mean of the final states over a joint set $\mathcal{S}$, the two summaries are:
+\begin{equation}
+    z_{\mathrm{body}}^{r} = \rho_{\mathrm{body}}\!\left(\operatorname{mp}(\mathcal{J}_r)\right),
+    \qquad
+    z_{\mathrm{chain}}^{r} = \rho_{\mathrm{chain}}\!\left(\left[\operatorname{mp}(\mathcal{C}^{r}_{L});\,\operatorname{mp}(\mathcal{C}^{r}_{R})\right]\right),
+\end{equation}
+where $\mathcal{J}_r$ is the full joint set and $\mathcal{C}^{r}_{L}, \mathcal{C}^{r}_{R}$ are the left and right end-effector chains from Appendix~\ref{app:urdf-graph-construction}, and $\rho_{\mathrm{body}}, \rho_{\mathrm{chain}}$ are MLPs. The body summary captures the global embodiment, while the chain summary focuses on the kinematic paths most involved in manipulation. The final URDF representation is the concatenation of these two summaries:
+\begin{equation}
+E_{\mathrm{urdf}}(\mathcal{G}_r) = \left[ z_{\mathrm{body}}^{r};\, z_{\mathrm{chain}}^{r} \right],
+\end{equation}
+which is then projected by $P_{\mathrm{morph}}$ into the shared morphology token space as shown in Eq.~\ref{eq:morph-token}.
+
+
+\subsection{Human Surrogate Morphology Embeddings}
+\label{app:human-surrogate-details}
+
+Human egocentric video has no robot URDF, so the encoder $E_{\mathrm{urdf}}$ of Appendix~\ref{app:morphology-encoder-details} does not apply. Human sources still differ from one another in embodiment and capture conditions, and the action expert should be conditioned on these differences just as it is for robots. We therefore represent each human-video source by a learned surrogate embedding $e_{d} \in \mathbb{R}^{D}$ and project it with $P_{\mathrm{surr}}$ into the same morphology token as the URDF-conditioned robots (Eq.~\ref{eq:morph-token}).
+
+The surrogate absorbs stable source-level factors that the shared camera-space action representation does not explain: camera placement and field of view, the visual domain of each corpus, annotation quality, and source-specific action statistics. These factors stay roughly constant within a source but differ across sources, so a per-source embedding fits them better than a per-sample input. We can allocate the embedding per dataset (one $e_{d}$ per human-video source) or share it across all human-video data, and we use the per-dataset variant by default. After the morphology-token interface, the action expert treats robot and human-video samples the same way: robots get the condition from a structured URDF graph, and human-video sources get it from learned surrogate embeddings. The surrogate embeddings $e_d$ are randomly initialized and optimized end-to-end during pretraining alongside all other model parameters.
+
+
+
+% \subsection{Time-Aligned Action Chunking and Sampling}
+% \label{app:chunking-details}
+
+% This subsection expands the batch sampler summarized in Section~\ref{sec:time-aligned-dynamic-chunking}.
+
+% \paragraph{Task-phase-horizon batch sampling.}
+% Time-aligned chunks also give a comparable measure of progress within an episode. For a sample starting at index $t$ in an episode of length $L_e$, we define the episode phase as the normalized center of the target window,
+% \begin{equation}
+% \phi =
+% \operatorname{clip}\!\left(
+% \frac{t + \tfrac{1}{2}H_d}{L_e},
+% 0, 1
+% \right).
+% \end{equation}
+% Because $H_d$ is computed in physical time, $\phi$ is comparable across datasets at different frame rates. We discretize $\phi$ into a phase bucket $b_{\phi}$ and $H_d$ into a horizon bucket $b_H$, and form batches using the key
+% \begin{equation}
+% k = \left(c_{\mathrm{task}}, b_{\phi}, b_H\right),
+% \end{equation}
+% where $c_{\mathrm{task}}$ is a task cluster from episode metadata. Grouping by task and phase keeps samples at a similar stage of the same task together. Grouping by horizon reduces padding across samples with different chunk lengths.
+
+% If a bucket has too few samples, the sampler relaxes constraints in order: same task with adjacent phase, then same task with adjacent horizon, then same task with both. Samples without task metadata are excluded from this grouping but are still used in training. This preserves the full data mixture while keeping each minibatch temporally coherent.
+
+\subsection{Reliability-Aware Human Auxiliary Loss Details}
+\label{app:reliability-aware-human-details}
+
+This subsection expands the mathematical formulation of the spatiotemporal reliability weight $W_{t,j}$ and the temporal smoothing summarized in Sec.~\ref{sec:reliability-aware-objective}. All quantitative thresholds are collected in Table~\ref{tab:reliability-hparams}.
+
+\paragraph{Hierarchical Reliability Decomposition.}
+As introduced in Eq.~\ref{eq:reliability}, the spatiotemporal reliability $W_{t,j}$ of channel $j$ at step $t$ is decomposed into a static channel-level prior $\rho_j$ and a dynamic step-level weight $w_{t,j}$. We further decompose the step-level weight $w_{t,j}$ into a dataset-level prior $w_{\mathrm{data}}$ and a local step-level smoothness factor $w_{\mathrm{step}}$, yielding the final hierarchical formulation:
+\begin{equation}
+W_{t,j} = \rho_j \cdot w_{\mathrm{data}}(d, h(j)) \cdot w_{\mathrm{step}}(t, h(j)),
+\end{equation}
+where $h(j)$ maps action channel $j$ to its corresponding hand (left or right). The dataset prior $w_{\mathrm{data}}$ sets a global quality ceiling for each source, while the step weight $w_{\mathrm{step}}$ modulates it locally in response to tracking anomalies.
+
+
+
+\paragraph{Normalization.}
+The human auxiliary loss $\mathcal{L}_{\mathrm{haux}}$ is normalized per sample by the total effective supervision weight:
+\begin{equation}
+Z = \sum_{t,j} M_{t,j}\,W_{t,j}.
+\end{equation}
+This formulation ensures that the auxiliary loss is scale-invariant to the number of valid entries and concentrates supervision on highly reliable channels. When a minibatch contains no human sample, $\mathcal{L}_{\mathrm{haux}}$ is set to zero.
+
+
+% \paragraph{Normalization.}
+% The human auxiliary loss $\mathcal{L}_{\mathrm{hpox}}$ is normalized
+% by the total effective supervision weight over all supervised human position
+% entries in the minibatch,
+% \begin{equation}
+% Z_{\mathrm{h}} =
+% \sum_{i,t}
+% \sum_{j \in \mathcal{P}}
+% m_i^{\mathrm{human}}\,
+% M_{i,t,j}\,
+% w_{i,t,j},
+% \end{equation}
+% where $M$ is the action validity mask from
+% Section~\ref{sec:time-aligned-dynamic-chunking} and $m_i^{\mathrm{human}}$ flags
+% human-video samples. This normalization makes the auxiliary loss scale
+% invariant to the number of human samples and valid position dimensions in a
+% given batch. When $Z_{\mathrm{h}} = 0$---no human sample or no valid
+% supervised dimension is present---the auxiliary term is set to zero for that
+% minibatch.
+
+\paragraph{Step-Level Smoothness Weight.}
+The time-step factor $w_{\mathrm{step}}$ down-weights segments whose motion is locally implausible, which typically indicates reconstruction error rather than genuine fast motion. For hand $h$ we compute, from the clean position chunk, the first- and second-order differences:
+\begin{equation}
+\Delta p_t^{h} = \left\|p_t^{h} - p_{t-1}^{h}\right\|_2,
+\qquad
+\Delta^2 p_t^{h} =
+\left\|p_{t+1}^{h} - 2p_t^{h} + p_{t-1}^{h}\right\|_2,
+\end{equation}
+which measure inter-frame speed and jerk, respectively. For each human-video dataset $d$ and hand $h$, we precompute robust thresholds $\tau_{\mathrm{jump}}(d,h)$ and $\tau_{\mathrm{jerk}}(d,h)$ as the 95th percentiles of $\Delta p_t^h$ and $\Delta^2 p_t^h$ over clean position chunks from that dataset. At training time, we compute:
+\begin{equation}
+q_{t,h}
+=
+\max\!\left(
+\frac{\Delta p_t^h}{\tau_{\mathrm{jump}}(d,h)},
+\frac{\Delta^2 p_t^h}{\tau_{\mathrm{jerk}}(d,h)}
+\right).
+\end{equation}
+The step weight is then formulated as:
+\begin{equation}
+w_{\mathrm{step}}(t,h)
+=
+\begin{cases}
+1, & q_{t,h} \le 1,\\
+\max\!\left\{w_{\min}, \exp[-\alpha(q_{t,h}-1)]\right\}, & q_{t,h} > 1.
+\end{cases}
+\end{equation}
+Thus, nominally smooth steps retain full weight, while unusually large jumps or jerks relative to the dataset-hand statistics are softly attenuated.
+
+
+\paragraph{Dataset-Level Prior.}
+Each human-video source carries a different reconstruction quality, so we attach a per-source, per-hand prior $w_{\mathrm{data}}(d,h) \in (0,1]$. For dataset $d$ and hand $h$ this prior is estimated from the clean position trajectories of that source: we aggregate the fraction of frames surviving the sanity filters together with the median normalized jerk of the retained trajectories, and map sources with higher survival and lower jerk to priors closer to $1$. The prior is computed once per source and held fixed during training.
+
+\paragraph{Temporal Smoothing.}
+Before constructing the auxiliary target velocity $(\tilde{\mathbf{a}} - \boldsymbol{\epsilon})$, we apply a temporal smoothing filter of window $W_{\mathrm{smooth}}$ to the clean human action targets. This suppresses high-frequency pose jitter introduced by per-frame hand mesh regression without altering the supervised dimensions or the $W_{t,j}$ weights, which are computed from the pre-smoothing chunk.
+
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{Reliability-aware human supervision hyperparameters used in the
+human auxiliary loss (Section~\ref{sec:human-auxiliary-loss}). Values are
+shared across the six human-video sources unless noted otherwise.}
+\label{tab:reliability-hparams}
+\renewcommand{\arraystretch}{1.1}
+\begin{tabular}{lll}
+\toprule
+\textbf{Component} & \textbf{Hyperparameter} & \textbf{Value} \\
+\midrule
+\multirow{2}{*}{Auxiliary loss}
+  & Loss weight $\lambda_{\mathrm{haux}}$           & 0.1 \\
+  & Huber transition $\beta$                        & 1.0 \\
+
+\midrule
+\multirow{3}{*}{Human channel prior $\rho_j$}
+  & Position channels $\mathcal{P}$ ($\rho_j$)        & 1.0 \\
+  & Rotation / gripper channels ($\rho_{\mathrm{low}}$) & 0.001 \\  % ← 
+  & Position channel set $\mathcal{P}$                  & wrist xyz, both hands (6 dims) \\
+\midrule
+\multirow{4}{*}{Step weight}
+  & Jump threshold $\tau_{\mathrm{jump}}(d,h)$      & per-dataset/hand 95th percentile \\
+  & Jerk threshold $\tau_{\mathrm{jerk}}(d,h)$      & per-dataset/hand 95th percentile \\
+  & Attenuation sharpness $\alpha$                  & 1.5 \\
+  & Minimum step weight $w_{\min}$                  & 0.2 \\
+\midrule
+\multirow{2}{*}{Dataset prior}
+  & Prior range $w_{\mathrm{data}}$                 & [0.25, 1.0] \\
+  & Estimation                                      & q95 jump/jerk ratio to robot reference \\
+\midrule
+Smoothing
+  & Smoothing window $W_{\mathrm{smooth}}$          & 3 frames \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\section{Training Details}
+\label{app:training-details}
+
+\subsection{Architecture, Training, and Evaluation Protocol}
+\label{app:training-details-protocol}
+
+\paragraph{Model architecture.}
+\Ours uses Qwen3-VL-4B-Instruct as the vision-language backbone and a
+flow-matching Diffusion Transformer ($\sim$600M parameters) as the action
+expert. Images from head and wrist cameras are processed at $256{\times}256$
+resolution, and actions are decoded in 4 flow-matching steps at inference.
+Full layer and dimension configurations are listed in
+Table~\ref{tab:architecture}.
+
+\paragraph{Training protocol.}
+Pretraining runs on 128$\times$A800 (80GB) GPUs with AdamW and a
+cosine schedule; task-specific fine-tuning uses 16$\times$A800 GPUs with the
+same optimizer settings. Full optimizer hyperparameters, learning rates, and
+schedule are listed in Table~\ref{tab:hyperparams}.
+
+\paragraph{Evaluation protocol.}
+RoboCasa evaluates 50 rollouts per task across 24 tasks. RoboTwin 2.0
+evaluates 100 trials per task across 50 tasks under both Easy and Hard
+settings. Real-robot experiments use 30 trials per task.
+A trial is considered successful only if the robot completes the entire task
+sequence without human intervention; per-task real-robot success criteria are
+detailed in Appendix~\ref{app:real-robot-success-criteria}.
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{Model architecture configuration for \Ours.}
+\label{tab:architecture}
+\renewcommand{\arraystretch}{1.1}
+\begin{tabular}{ll}
+\toprule
+\textbf{Component} & \textbf{Configuration} \\
+\midrule
+VLM backbone              & Qwen3-VL-4B-Instruct ($\sim$4B params) \\
+\quad Vision encoder      & 24 layers, patch size $16{\times}16$ \\
+\quad Language model      & 36 layers, hidden size 2560 \\
+Input resolution          & $256{\times}256$ (head + wrist) \\
+\midrule
+Action expert             & Flow-matching DiT \\
+\quad Layers / hidden     & 36 / 1024 \\
+\quad Attention heads     & 16 (head dim 64) \\
+\quad Parameters          & $\sim$600M \\
+Inference decoding steps  & 4 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Hyperparameters}
+\label{app:hyperparameters}
+
+Table~\ref{tab:hyperparams} summarizes the key training hyperparameters for \Ours pretraining and fine-tuning.
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{Training hyperparameters for \Ours pretraining and fine-tuning.}
+\label{tab:hyperparams}
+\begin{tabular}{ll}
+\toprule
+\textbf{Hyperparameter} & \textbf{Value} \\
+\midrule
+VLM backbone & Qwen3-VL-4B-Instruct \\
+Action expert & Flow-matching DiT (36 layers, 1024 hidden, 16 heads) \\
+Action expert parameters & $\sim$600M \\
+Image resolution & 256$\times$256 \\
+Action horizon & dataset-specific \(H_d = \mathrm{round}(f_d T^\star)\), with \(T^\star = 2\,\mathrm{s}\) \\ & 40 steps for 20 Hz RoboCasa SFT sources \\
+Flow matching inference steps & 4 \\
+Optimizer & AdamW ($\beta_1$=0.9, $\beta_2$=0.95, $\epsilon$=1e-8) \\
+VLM learning rate & 2e-5 \\
+Action expert learning rate & 1e-4 \\
+LR schedule & Cosine with min LR 5e-7 \\
+Warmup steps & 5000 \\
+Weight decay & 1e-8 \\
+Gradient clipping & 1.0 \\
+Batch size (per device) & 8 \\
+Pretraining GPUs & 128$\times$A800 (80GB) \\
+Pretraining steps & 200K \\
+Fine-tuning GPUs & 16$\times$A800 (80GB) \\
+$\lambda_{\mathrm{haux}}$ & 0.1 \\
+Human quality mode & dataset + step \\
+Repeated diffusion steps & 4 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Dataset Mixtures and Sampling}
+\label{app:dataset-mixtures}
+
+Full dataset statistics are reported in Table~\ref{tab:pretraining-data-main} (main text). The pool is assembled from named dataset groups rather than from one monolithic corpus, which lets us
+control the sampling weight and preprocessing path of each source independently. The Ego4D entry combines cooking and non-cooking splits; hours are computed from LeRobot metadata as
+frames/(fps$\times$3600).
+
+Sampling is performed at the dataset-group level. Each mixture entry has a sampling weight and a source type. Human-video sources are marked with the \texttt{human\_video} source type and are routed
+through the camera-space pseudo-action path and reliability-aware human loss. Robot sources use their corresponding robot type and are supervised with the main robot action objective. This separation lets
+large but noisy human-video corpora contribute broad visual and behavioral coverage without overwhelming higher-fidelity robot demonstrations.
+
+\section{Additional Experiments}
+\label{app:additional-experiments}
+
+% \subsection{Additional Ablations}
+% \label{app:additional-ablations}
+
+% We report the main ablation results in Section~\ref{sec:ablation_studies}. The three ablated components---URDF-derived morphology tokens, time-aligned action chunking, and reliability-aware human auxiliary loss---are evaluated on RoboCasa GR1 TableTop at 190K training steps. The full model achieves 72.8\%, while removing URDF tokens, action chunking, and human auxiliary loss yields \textcolor{red}{64.3\%} (\textcolor{red}{$-8.5$}), \textcolor{red}{63.9\%} (\textcolor{red}{$-8.9$}), and \textcolor{red}{62.4\%} (\textcolor{red}{$-10.4$}), respectively.
+
+\subsection{Real-Robot Task Descriptions}
+\label{app:real-robot-task-descriptions}
+
+The six real-robot tasks, ordered by increasing complexity, are:
+
+\begin{itemize}
+    \item \textbf{Pick Tea}: grasp a shopping basket and place it at the workspace center, then pick up a tea box and drop it into the basket.
+    \item \textbf{Scoop Coffee}: the right arm grasps a coffee scoop while the left arm holds a coffee canister; the right arm scoops coffee from the canister and pours it into a designated cup.
+    \item \textbf{Category Sorting}: multiple objects (toiletries and beverages) are scattered on the workspace; the robot sorts each object into the corresponding bin based on semantic category.
+    \item \textbf{Sweep Cubes}: the left arm holds a dustpan in a fixed pose while the right arm uses a broom to sweep cubes on the workspace into the dustpan.
+    \item \textbf{Stack Bowls}: sequentially pick up three bowls from the workspace and stack them vertically.
+    \item \textbf{Pack Shoes}: move a shoe box to the workspace center, sequentially place two shoes inside, and close the lid.
+\end{itemize}
+
+\subsection{Real-Robot Success Criteria}
+\label{app:real-robot-success-criteria}
+
+Each real-robot trial is evaluated by a human judge. A trial is marked successful only if the robot completes the full task sequence without human intervention. The per-task success definitions are:
+
+\begin{itemize}
+    \item \textbf{Pick Tea}: The shopping basket is placed at the workspace center and the tea box is dropped inside the basket.
+    \item \textbf{Scoop Coffee}: Coffee is scooped from the canister and a visible amount is deposited into the designated cup.
+    \item \textbf{Category Sorting}: All scattered objects are placed into their correct category bins (toiletries vs.\ beverages).
+    \item \textbf{Sweep Cubes}: All cubes on the workspace are swept into the dustpan held by the left arm.
+    \item \textbf{Stack Bowls}: All three bowls are picked up and stacked vertically without toppling.
+    \item \textbf{Pack Shoes}: Both shoes are placed inside the shoe box and the lid is closed.
+\end{itemize}
+
+\subsection{Qualitative Results}
+\label{app:qualitative-results}
+
+Figure~\ref{fig:quality-results} shows qualitative rollout sequences of \Ours on the real ARX bimanual platform. Each row visualizes key frames from a successful episode, illustrating the policy's ability to execute long-horizon multi-step manipulation, bimanual coordination, and contact-rich tool use in real-world settings.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\linewidth]{images/quality_video_demo.pdf}
+  \caption{Qualitative rollout sequences of \Ours on the real ARX bimanual platform. Each row shows key frames from a representative task, demonstrating the policy's capability across single-arm placement, bimanual coordination, and contact-rich manipulation.}
+  \label{fig:quality-results}
+\end{figure}
+
+\subsection{Full RoboCasa GR1 TableTop Results}
+\label{app:full-robocasa-results}
+
+Table~\ref{tab:robocasa_full_results} reports per-task success rates on all 24 RoboCasa GR1 TableTop tasks.
+
+\begin{table*}[tp]
+\centering
+\caption{Full evaluation results on the RoboCasa GR1 TableTop benchmark. Success rates (\%) over 50 rollouts per task.}
+\label{tab:robocasa_full_results}
+\vspace{0.3em}
+\small
+\renewcommand{\arraystretch}{1.1}
+\setlength{\tabcolsep}{4pt}
+\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lcccccc}
+\hline
+\textbf{Task} & GR00T-N1.6 & Qwen3PI & FLARE & ABot-M0 & JoyAI-RA & \Ours \\
+\hline
+CupToDrawerClose           &  8.5 & 42.0 & 46.0 & \textbf{48.0} & \textbf{48.0} & 36.0 \\
+PotatoToMicrowaveClose     & 41.5 & 42.0 & 30.0 & 50.0 & \textbf{70.0} & 58.0 \\
+MilkToMicrowaveClose       & 14.0 & 50.0 & 58.0 & 46.0 & \textbf{84.0} & 56.0 \\
+BottleToCabinetClose       & 51.5 & 26.0 & 66.0 & \textbf{86.0} & 84.0 & 78.0 \\
+WineToCabinetClose         & 16.5 & 32.0 & 38.0 & \textbf{66.0} & 54.0 & 56.0 \\
+CanToDrawerClose           & 13.0 & 62.0 & 64.0 & 74.0 & \textbf{90.0} & 70.0 \\
+\hline
+CuttingboardToBasket       & 58.0 & 40.0 & 44.0 & 70.0 & \textbf{88.0} & 84.0 \\
+CuttingboardToCardboardbox & 46.5 & 46.0 & 54.0 & 58.0 & 46.0 & \textbf{84.0} \\
+CuttingboardToPan          & 68.5 & 60.0 & 80.0 & 76.0 & \textbf{92.0} & \textbf{92.0} \\
+CuttingboardToPot          & 65.0 & 40.0 & 64.0 & 66.0 & 80.0 & \textbf{84.0} \\
+CuttingboardToTieredbasket & 46.5 & 44.0 & 46.0 & 38.0 & 36.0 & \textbf{72.0} \\
+\hline
+PlacematToBasket           & 58.5 & 44.0 & 48.0 & 52.0 & 76.0 & \textbf{86.0} \\
+PlacematToBowl             & 57.5 & 52.0 & 58.0 & 66.0 & 52.0 & \textbf{72.0} \\
+PlacematToPlate            & 63.0 & 50.0 & 74.0 & 60.0 & 38.0 & \textbf{80.0} \\
+PlacematToTieredshelf      & 28.5 & 28.0 & 26.0 & 26.0 & 14.0 & \textbf{44.0} \\
+\hline
+PlateToBowl                & 57.0 & 52.0 & 50.0 & 54.0 & 48.0 & \textbf{68.0} \\
+PlateToCardboardbox        & 43.5 & 40.0 & 56.0 & 48.0 & 38.0 & \textbf{70.0} \\
+PlateToPan                 & 51.0 & 36.0 & \textbf{70.0} & 66.0 & 46.0 & \textbf{70.0} \\
+PlateToPlate               & 78.7 & 48.0 & 76.0 & 64.0 & 88.0 & \textbf{98.0} \\
+\hline
+TrayToCardboardbox         & 51.5 & 34.0 & 52.0 & 54.0 & \textbf{82.0} & 78.0 \\
+TrayToPlate                & 71.0 & 64.0 & 64.0 & 68.0 & 88.0 & \textbf{90.0} \\
+TrayToPot                  & 64.5 & 44.0 & 70.0 & 64.0 & 88.0 & \textbf{98.0} \\
+TrayToTieredbasket         & 57.0 & 50.0 & 60.0 & 60.0 & 62.0 & \textbf{74.0} \\
+TrayToTieredshelf          & 31.5 & 28.0 & 28.0 & 38.0 & 24.0 & \textbf{50.0} \\
+\hline
+\textbf{Average}           & 47.6 & 43.9 & 55.0 & 58.3 & 63.2 & \textbf{72.8} \\
+\hline
+\end{tabular*}
+\end{table*}
+
+\subsection{Full RoboTwin 2.0 Results}
+\label{app:full-robotwin-results}
+
+Table~\ref{tab:robotwin2_full_task_results} reports per-task success rates on all 50 RoboTwin 2.0
+tasks under both Easy/Clean and Hard/Randomized settings.
+
+\begin{table*}[tp]
+    \centering
+    \caption{Full evaluation results on the RoboTwin 2.0 benchmark. Success rates are reported in
+    percentage. Easy denotes the clean setting and Hard denotes the randomized setting. 100 trials per
+    task.}
+    \label{tab:robotwin2_full_task_results}
+    \vspace{0.3em}
+    \resizebox{\textwidth}{!}{
+        \renewcommand{\arraystretch}{1.05}
+        \begin{tabular}{l*{14}{c}}
+            \toprule
+        \multirow{2}{*}{Simulation Task} & \multicolumn{2}{c}{$\pi_0$} & \multicolumn{2}{c}{$\pi_{0.5}$} & \multicolumn{2}{c}{Motus} & \multicolumn{2}{c}{LingBot-VLA} & \multicolumn{2}{c}{ABot-M0} & \multicolumn{2}{c}{JoyAI-RA} & \multicolumn{2}{c}{\Ours} \\
+         & Easy & Hard & Easy & Hard & Easy & Hard & Easy & Hard & Easy & Hard & Easy & Hard & Easy & Hard \\
+            \midrule
+        Adjust Bottle               & 99 & 95 & 100 & 99 & 89 & 93 & 100 & 100 & -- & -- & 100 & 100 & 100 & 100 \\
+        Beat Block Hammer           & 79 & 84 & 96 & 93 & 95 & 88 & 92 & 89 & -- & -- & 95 & 91 & 98 & 92 \\
+        Blocks Ranking RGB          & 80 & 63 & 92 & 85 & 99 & 97 & 92 & 91 & 90 & 79 & 94 & 93 & 98 & 97 \\
+        Blocks Ranking Size         & 14 & 5 & 49 & 26 & 75 & 63 & 76 & 70 & -- & -- & 81 & 75 & 89 & 91 \\
+        Click Alarmclock            & 77 & 68 & 98 & 89 & 100 & 100 & 97 & 43 & -- & -- & 64 & 56 & 52 & 38 \\
+        Click Bell                  & 71 & 48 & 99 & 66 & 100 & 100 & 43 & 36 & -- & -- & 81 & 70 & 66 & 71 \\
+        Dump Bin Bigbin             & 88 & 83 & 92 & 97 & 95 & 91 & 97 & 97 & -- & -- & 97 & 99 & 100 & 97 \\
+        Grab Roller                 & 98 & 94 & 100 & 100 & 100 & 100 & 100 & 100 & -- & -- & 100 & 100 & 100 & 100 \\
+        Handover Block              & 47 & 31 & 66 & 57 & 86 & 73 & 83 & 95 & 72 & 69 & 99 & 93 & 96 & 85 \\
+        Handover Mic                & 97 & 97 & 98 & 97 & 78 & 63 & 94 & 99 & -- & -- & 100 & 99 & 91 & 94 \\
+        Hanging Mug                 & 14 & 11 & 18 & 17 & 38 & 38 & 34 & 53 & -- & -- & 31 & 28 & 29 & 31 \\
+        Lift Pot                    & 80 & 72 & 96 & 85 & 96 & 99 & 100 & 100 & -- & -- & 100 & 99 & 100 & 100 \\
+        Move Can Pot                & 68 & 48 & 51 & 55 & 34 & 74 & 89 & 87 & -- & -- & 97 & 87 & 100 & 98 \\
+        Move Pillbottle Pad         & 67 & 46 & 84 & 61 & 93 & 96 & 92 & 90 & 94 & 86 & 98 & 99 & 100 & 100 \\
+        Move Playingcard Away       & 74 & 65 & 96 & 84 & 100 & 96 & 98 & 100 & -- & -- & 99 & 95 & 100 & 98 \\
+        Move Stapler Pad            & 41 & 24 & 56 & 42 & 83 & 85 & 74 & 48 & 57 & 61 & 93 & 96 & 90 & 89 \\
+        Open Laptop                 & 71 & 81 & 90 & 96 & 95 & 91 & 98 & 96 & -- & -- & 96 & 100 & 100 & 98 \\
+        Open Microwave              & 4 & 32 & 34 & 77 & 95 & 91 & 91 & 92 & 88 & 84 & 97 & 99 & 91 & 85 \\
+        Pick Diverse Bottles        & 69 & 31 & 81 & 71 & 90 & 91 & 88 & 85 & 71 & 65 & 85 & 90 & 84 & 86 \\
+        Pick Dual Bottles           & 59 & 37 & 93 & 63 & 96 & 90 & 99 & 90 & 70 & 61 & 95 & 93 & 89 & 88 \\
+        Place A2B Left              & 43 & 47 & 87 & 82 & 88 & 79 & 89 & 85 & -- & -- & 99 & 96 & 95 & 96 \\
+        Place A2B Right             & 39 & 34 & 87 & 84 & 91 & 87 & 80 & 80 & -- & -- & 97 & 92 & 90 & 94 \\
+        Place Bread Basket          & 62 & 46 & 77 & 64 & 91 & 94 & 95 & 93 & 89 & 86 & 88 & 91 & 92 & 93 \\
+        Place Bread Skillet         & 66 & 49 & 85 & 66 & 86 & 83 & 90 & 92 & -- & -- & 92 & 89 & 94 & 89 \\
+        Place Burger Fries          & 81 & 76 & 94 & 87 & 98 & 98 & 98 & 94 & -- & -- & 99 & 93 & 98 & 100 \\
+        Place Can Basket            & 55 & 46 & 62 & 62 & 81 & 76 & 75 & 72 & 72 & 63 & 71 & 73 & 78 & 82 \\
+        Place Cans Plasticbox       & 63 & 45 & 94 & 84 & 98 & 94 & 100 & 98 & -- & -- & 100 & 98 & 100 & 98 \\
+        Place Container Plate       & 97 & 92 & 99 & 95 & 98 & 99 & 99 & 100 & -- & -- & 96 & 99 & 98 & 100 \\
+        Place Dual Shoes            & 59 & 51 & 75 & 75 & 93 & 87 & 87 & 86 & 80 & 80 & 90 & 97 & 95 & 96 \\
+        Place Empty Cup             & 91 & 85 & 100 & 99 & 99 & 98 & 100 & 100 & -- & -- & 100 & 100 & 100 & 100 \\
+        Place Fan                   & 66 & 71 & 87 & 85 & 91 & 87 & 92 & 87 & 97 & 95 & 91 & 92 & 94 & 93 \\
+        Place Mouse Pad             & 20 & 20 & 60 & 39 & 66 & 68 & 86 & 79 & -- & -- & 89 & 82 & 96 & 95 \\
+        Place Object Basket         & 67 & 70 & 80 & 76 & 81 & 87 & 90 & 88 & 91 & 88 & 90 & 88 & 93 & 89 \\
+        Place Object Scale          & 57 & 52 & 86 & 80 & 88 & 85 & 90 & 88 & -- & -- & 90 & 87 & 95 & 92 \\
+        Place Object Stand          & 82 & 68 & 91 & 85 & 98 & 97 & 93 & 88 & 90 & 91 & 95 & 93 & 95 & 94 \\
+        Place Phone Stand           & 49 & 53 & 81 & 81 & 87 & 86 & 90 & 87 & -- & -- & 95 & 95 & 91 & 98 \\
+        Place Shoe                  & 76 & 76 & 92 & 93 & 99 & 97 & 99 & 99 & -- & -- & 99 & 100 & 100 & 100 \\
+        Press Stapler               & 44 & 37 & 87 & 83 & 93 & 98 & 86 & 93 & -- & -- & 87 & 81 & 98 & 98 \\
+        Put Bottles Dustbin         & 65 & 56 & 84 & 79 & 81 & 79 & 92 & 93 & 80 & 89 & 95 & 97 & 94 & 93 \\
+        Put Object Cabinet          & 73 & 60 & 80 & 79 & 88 & 71 & 85 & 88 & -- & -- & 87 & 86 & 82 & 79 \\
+        Rotate QRcode               & 74 & 70 & 89 & 87 & 89 & 73 & 86 & 82 & -- & -- & 83 & 82 & 94 & 95 \\
+        Scan Object                 & 55 & 42 & 72 & 65 & 67 & 66 & 92 & 96 & 85 & 86 & 98 & 96 & 95 & 97 \\
+        Shake Bottle Horizontally   & 98 & 92 & 99 & 99 & 100 & 98 & 99 & 98 & -- & -- & 100 & 100 & 100 & 100 \\
+        Shake Bottle                & 94 & 91 & 99 & 97 & 100 & 97 & 100 & 99 & -- & -- & 100 & 100 & 100 & 100 \\
+        Stack Blocks Three          & 72 & 52 & 91 & 76 & 91 & 95 & 96 & 95 & 84 & 77 & 60 & 62 & 87 & 82 \\
+        Stack Blocks Two            & 93 & 79 & 97 & 100 & 100 & 98 & 100 & 99 & 96 & 98 & 95 & 93 & 100 & 100 \\
+        Stack Bowls Three           & 77 & 75 & 77 & 71 & 79 & 87 & 71 & 77 & 80 & 86 & 80 & 81 & 80 & 85 \\
+        Stack Bowls Two             & 94 & 95 & 95 & 96 & 98 & 98 & 90 & 97 & -- & -- & 95 & 93 & 96 & 98 \\
+        Stamp Seal                  & 46 & 33 & 79 & 55 & 93 & 92 & 74 & 77 & 72 & 75 & 90 & 90 & 94 & 100 \\
+        Turn Switch                 & 41 & 42 & 62 & 54 & 84 & 78 & 67 & 63 & 55 & 66 & 71 & 76 & 59 & 57 \\
+            \midrule
+        Average (\%) & 65.92 & 58.40 & 82.74 & 76.76 & 88.66 & 87.02 & 88.56 & 86.68 & 86.06 & 85.08 & 90.48 & 89.28 & \textbf{91.12} & \textbf{90.62} \\
+            \bottomrule
+        \end{tabular}
+    }
+\end{table*}

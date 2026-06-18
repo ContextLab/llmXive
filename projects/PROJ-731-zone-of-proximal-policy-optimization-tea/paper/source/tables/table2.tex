@@ -1,0 +1,40 @@
+\begin{table*}[t!]
+    % \vspace{-3mm}
+    \centering
+    \resizebox{\linewidth}{!}{
+    \renewcommand{\tabcolsep}{1mm}
+    \renewcommand{\arraystretch}{1.05}
+    \begin{tabular}{lccccccccccccccccc}
+    \toprule
+    & \multicolumn{11}{c}{10 LLM Benchmarks} & \multicolumn{6}{c}{5 Video Benchmarks} \\
+    \cmidrule(lr){2-12}\cmidrule(lr){13-18}
+    Method & AIME25 & AIME26 & CEval & GPQA-D & HLE & IMO-AB & MMLU & MMLU-Pro & MMLU-Rd & MultiCh & Avg & MMVU & MVBench & VMME & VMME$^\text{S}$ & VMMMU & Avg \\
+    \midrule
+    Qwen3.5-0.8B & \textbf{3.3} & 0.0 & 52.3 & 12.1 & 2.2 & 3.3 & 57.7 & 41.7 & 62.5 & 16.6 & \cellcolor{gray!10}25.2 & 39.0 & 51.6 & 50.3 & 51.6 & 48.8 & \cellcolor{gray!10}48.3 \\
+    \cdashline{1-18}\noalign{\vskip 0.5ex}
+    $+$ Off-Distill$^{\dagger}$ & 0.0 & 0.0 & 47.9 & 10.1 & 2.1 & 2.9 & 52.6 & 38.3 & 56.9 & 14.7 & \cellcolor{gray!10}22.5 & 35.4 & 48.9 & 46.8 & 48.5 & 45.4 & \cellcolor{gray!10}45.0 \\
+    $+$ On-Distill$^{\dagger}$ & 0.0 & 0.0 & 49.2 & 10.6 & 2.8 & 4.0 & 53.8 & 38.8 & 58.2 & 14.9 & \cellcolor{gray!10}23.2 & 36.8 & 49.2 & 47.8 & 49.6 & 45.7 & \cellcolor{gray!10}45.8 \\
+    $+$ GRPO$^{\dagger}$ & 3.3 & 0.0 & 54.5 & 25.5 & 3.5 & 7.0 & 59.9 & 47.1 & 65.1 & 20.8 & \cellcolor{gray!10}28.7 & 41.3 & 53.5 & 52.2 & 53.0 & 52.5 & \cellcolor{gray!10}50.5 \\
+    \rowcolor{colorful}
+    $+$ ZPPO & \textbf{3.3} & 0.0 & \textbf{57.6} & \textbf{42.4} & \textbf{5.0} & \textbf{10.5} & \textbf{63.0} & \textbf{51.7} & \textbf{69.0} & \textbf{28.6} & \cellcolor{gray!10}\textbf{33.1} & \textbf{42.5} & \textbf{56.6} & \textbf{53.9} & \textbf{54.9} & \textbf{56.4} & \cellcolor{gray!10}\textbf{52.8} \\
+    \cdashline{1-18}\noalign{\vskip 0.3ex}
+    $\Delta$ & \dzero & \dzero & \dpos{3.1} & \dpos{16.9} & \dpos{1.5} & \dpos{3.5} & \dpos{3.1} & \dpos{4.6} & \dpos{3.9} & \dpos{7.8} & \cellcolor{gray!10}\dpos{4.4} & \dpos{1.2} & \dpos{3.1} & \dpos{1.7} & \dpos{1.9} & \dpos{3.9} & \cellcolor{gray!10}\dpos{2.3} \\
+    \midrule
+    Qwen3.5-2B & \textbf{26.7} & 30.0 & 71.1 & 53.5 & 3.5 & 11.3 & 74.6 & 66.2 & 80.4 & 35.8 & \cellcolor{gray!10}45.3 & 53.7 & 60.7 & 59.9 & 61.2 & 67.6 & \cellcolor{gray!10}60.6 \\
+    \cdashline{1-18}\noalign{\vskip 0.5ex}
+    $+$ Off-Distill$^{\dagger}$ & 26.7 & 26.7 & 68.2 & 50.3 & 2.0 & 10.9 & 71.2 & 63.8 & 77.5 & 34.0 & \cellcolor{gray!10}43.1 & 51.5 & 59.2 & 57.9 & 59.0 & 65.4 & \cellcolor{gray!10}58.6 \\
+    $+$ On-Distill$^{\dagger}$ & 23.3 & 30.0 & 69.3 & 51.9 & 3.8 & 11.5 & 72.2 & 63.8 & 77.9 & 34.0 & \cellcolor{gray!10}43.7 & 52.4 & 59.9 & 58.6 & 59.4 & 65.5 & \cellcolor{gray!10}59.2 \\
+    $+$ GRPO$^{\dagger}$ & 26.7 & 33.3 & 72.4 & 56.5 & 4.2 & 19.3 & 75.4 & 67.3 & 81.4 & 37.3 & \cellcolor{gray!10}47.3 & 56.7 & 61.7 & 61.2 & 62.6 & 67.3 & \cellcolor{gray!10}61.9 \\
+    \rowcolor{colorful}
+    $+$ ZPPO & \textbf{26.7} & \textbf{40.0} & \textbf{74.0} & \textbf{60.6} & \textbf{5.1} & \textbf{29.5} & \textbf{76.4} & \textbf{68.2} & \textbf{82.9} & \textbf{40.6} & \cellcolor{gray!10}\textbf{50.4} & \textbf{59.0} & \textbf{62.7} & \textbf{62.4} & \textbf{63.9} & \textbf{68.1} & \cellcolor{gray!10}\textbf{63.2} \\
+    \cdashline{1-18}\noalign{\vskip 0.3ex}
+    $\Delta$ & \dzero & \dpos{6.7} & \dpos{1.6} & \dpos{4.1} & \dpos{0.9} & \dpos{10.2} & \dpos{1.0} & \dpos{0.9} & \dpos{1.5} & \dpos{3.3} & \cellcolor{gray!10}\dpos{3.1} & \dpos{2.3} & \dpos{1.0} & \dpos{1.2} & \dpos{1.3} & \dpos{0.5} & \cellcolor{gray!10}\dpos{1.3} \\
+    \bottomrule
+    \end{tabular}
+    }
+    \vspace{-3mm}
+    \caption{Evaluation on the 10 LLM and 5 Video benchmarks (probing generalization beyond the multimodal training data). 4B and 9B results: Tab.~\ref{tab:generalization_4b9b}.}
+    \label{tab:generalization}
+    % \vspace{-5mm}
+\end{table*}
+

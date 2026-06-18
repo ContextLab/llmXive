@@ -1,0 +1,74 @@
+\begin{figure*}[!p]
+\centering
+\scriptsize
+
+\begin{questionbox}
+\textbf{Original question} (a $2$B student gets $0$/$8$ plain rollouts correct; $\bar{r}_x\!=\!0$, triggering both the BCQ and the NCQ branch in Algorithm~\ref{alg:zppo})\textbf{.}
+
+\smallskip
+\begin{center}
+\includegraphics[width=0.42\linewidth, height=2.6cm, keepaspectratio]{figures/qualitative_images/coat_0.png}
+\end{center}
+
+\smallskip
+\texttt{What's attached to the coat? \quad A.~belt \quad B.~button \quad C.~pocket \quad D.~rope}
+
+\smallskip
+\textbf{Reference answer:} \texttt{D} (i.e., \texttt{rope}) \quad (\textbf{Student's plain rollouts:} six answer \texttt{C} and two answer \texttt{B}, latching onto a pocket flap or a button rather than the braided cord.)
+\end{questionbox}
+
+\vspace{1pt}\noindent\textbf{(a) BCQ reformulated prompt.} The teacher's correct trace and one of the student's wrong traces are teacher-compressed under a shared prompt and token cap, randomly shuffled, and inserted into a binary-discrimination template. The student then rolls out $G_{\rm S}\!=\!8$ times on the new prompt; one correct rollout is shown below.
+
+\begin{negcandidatebox}
+\textbf{Candidate~A} (anonymized; \emph{here, the student-derived wrong trace -- not labelled as such to the student}):
+
+\smallskip
+\texttt{Visual inspection of the yellow coat reveals distinct small circular shapes at the center front area near the neckline. These round objects are identified as metallic buttons used for fastening the garment. The location and appearance confirm functional fasteners typical for this coat style. ---\textbf{omitted}--- $\backslash$boxed\{B\}}
+\end{negcandidatebox}
+
+\begin{prompttemplatefig}
+\textbf{Candidate~B} (anonymized; \emph{here, the teacher-derived correct trace -- not labelled as such to the student}):
+
+\smallskip
+\texttt{A distinct white object on the yellow coat is identified as a braided cord tied in a knot at the chest level. The feature rules out belts and standard pockets; the white braided cord is determined to be a rope, serving as a decorative fastener. ---\textbf{omitted}--- $\backslash$boxed\{D\}}
+\end{prompttemplatefig}
+
+\begin{prompttemplatefig}
+\textbf{Student's BCQ rollout} (one of $G_{\rm S}\!=\!8$; this one is judged correct):
+
+\smallskip
+\texttt{<think> Anonymized, Candidate~A reads small circular shapes as buttons -- a generic feature with no count or location -- while Candidate~B names a singular feature with a specific texture (braiding), colour (white), and configuration (a knot at the chest). A specific, harder-to-fabricate commitment outranks a generic reading on reasoning quality alone. ---\textbf{omitted}--- Answer: D (rope). </think>}
+
+\smallskip
+\texttt{$\backslash$boxed\{D\}} \quad \textcolor{posgain}{\checkmark}
+\end{prompttemplatefig}
+
+\vspace{1pt}\noindent\textbf{(b) NCQ reformulated prompt.} \emph{All} of the student's wrong rollouts on this question are collected, teacher-compressed under the same shared prompt and token cap, and concatenated with their parsed final answers. The teacher's correct trace is \emph{not} inserted. The student then rolls out $G_{\rm S}\!=\!8$ times on the new prompt; one correct rollout is shown below.
+
+\begin{negcandidatebox}
+\textbf{Listed wrong candidates} (all eight of the student's previous attempts on this question, each teacher-rewritten; only two are shown; remaining six follow the same pattern):
+
+\smallskip
+\texttt{<candidate> Small circular shapes at the center front are identified as metallic buttons used for fastening. The features match buttons rather than belts, pockets, or ropes. ---\textbf{omitted}--- $\backslash$boxed\{B\} </candidate>}
+
+\smallskip
+\texttt{<candidate> A rectangular stitched shape on the front resembles a pocket flap; the pocket design is the distinct attachment. ---\textbf{omitted}--- $\backslash$boxed\{C\} </candidate>}
+
+\smallskip
+\textbf{Parsed final answers from the listed candidates:} \texttt{[C, C, B, C, C, C, B, C]} \\
+\textbf{Instruction to the student:} the answer is \emph{not} one of the listed values.
+\end{negcandidatebox}
+
+\begin{prompttemplatefig}
+\textbf{Student's NCQ rollout} (one of $G_{\rm S}\!=\!8$; this one is judged correct):
+
+\smallskip
+\texttt{<think> The prompt rules out B (button) and C (pocket); A (belt) and D (rope) remain. The decision between the two is not by exclusion alone: a belt is a long horizontal strap running across the waist, whereas the listed wrong candidates' own descriptions consistently localise the attachment at the chest with a knot-like configuration. The remaining option that matches this named configuration is rope. ---\textbf{omitted}--- Answer: D (rope). </think>}
+
+\smallskip
+\texttt{$\backslash$boxed\{D\}} \quad \textcolor{posgain}{\checkmark}
+\end{prompttemplatefig}
+
+\caption{\textbf{Scene QA, $2$B student.} Worked BCQ/NCQ example on a hard ZPPO-$77$K question that the $2$B student fails on every plain rollout ($\bar{r}_x\!=\!0$) by misidentifying the salient attachment (six rollouts pick the pocket flap, two pick buttons). \textbf{(a)~BCQ} contrasts the misidentification trace against the braided-cord trace; \textbf{(b)~NCQ} confronts the student with both of its own wrong answer modes (\texttt{B} and \texttt{C}); after ruling them out, the student matches the chest-knot configuration described in the listed traces to the remaining option \texttt{D}. Both branches recover the correct answer.}
+\label{fig:appendix:bcq_ncq_coat}
+\end{figure*}

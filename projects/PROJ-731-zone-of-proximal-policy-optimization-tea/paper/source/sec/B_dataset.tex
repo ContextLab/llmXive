@@ -1,0 +1,282 @@
+\section{Training Dataset and Benchmarks}
+\label{sec:appendix:dataset}
+
+\subsection{ZPPO-77K training corpus}
+\label{sec:appendix:dataset:corpus}
+
+ZPPO-77K, the multimodal RL training corpus used throughout the paper, contains $\sim$$77$K $(x_{\rm image},x_{\rm text},a^{\star})$ triples --- where $x_{\rm image}$ is the input image, $x_{\rm text}$ is the text question, and $a^{\star}$ is the short gold answer used as the rule-based reward target --- assembled from two publicly released sources:
+\begin{itemize}[leftmargin=12pt,topsep=2pt,itemsep=2pt]
+    \item \texttt{zlab-princeton/Vero-600k}~\citep{sarch2026vero}\footnote{\url{https://huggingface.co/datasets/zlab-princeton/Vero-600k}}: $34$ sub-datasets covering STEM (math, science, geometry diagrams), chart/OCR (chart, table, diagram, infographic), knowledge/recognition (general VQA), and counting/grounding/search.
+    \item \texttt{OpenDataArena/MMFineReason-SFT-586K}~\citep{lin2026mmfinereason}\footnote{\url{https://huggingface.co/datasets/OpenDataArena/MMFineReason-SFT-586K-Qwen3-VL-235B-Thinking}}: a $586$K-sample chain-of-thought VLM corpus annotated with a per-example \texttt{pass\_rate} computed by Qwen3-VL-4B-Thinking (the smaller checkpoint released alongside the 235B-distilled corpus). The dataset name retains the 235B teacher tag because the corpus is distilled from the 235B model; the \texttt{pass\_rate} column itself, which we use for our hard-example filter below, is the 4B model's empirical success rate on each prompt.
+\end{itemize}
+We split sub-datasets into two tiers by their relevance to challenging multimodal reasoning:
+\begin{itemize}[leftmargin=12pt,topsep=2pt,itemsep=2pt]
+    \item \textbf{Tier 1} (caps at $2{,}800$ samples per sub-dataset): STEM and Chart/OCR sub-datasets that are directly aligned with the reasoning content the student is asked to learn (\texttt{ai2d}~\citep{kembhavi2016diagram}, \texttt{geo170k}~\citep{gao2023g}, \texttt{geomverse}~\citep{kazemi2023geomverse}, \texttt{geoqa\_plus}~\citep{cao2022augmented}, \texttt{mmk12}~\citep{meng2025mmeureka}, \texttt{cosyn\_math/chart/diagram/table}~\citep{yang2025cosyn}, \texttt{wemath}~\citep{qiao2024we}, \texttt{tqa}~\citep{kembhavi2017you}, \texttt{visualwebinstruct}~\citep{jia2025visualwebinstruct}, \texttt{chartqa}~\citep{masry2022chartqa}, \texttt{arxivqa}~\citep{li2024multimodal}; on the MMFineReason side, \texttt{MMR1}~\citep{leng2025mmr1}, \texttt{Euclid}~\citep{zhang2024euclid}, \texttt{Geo170K}, \texttt{Geo3K}/\texttt{Geometry3K}~\citep{lu2021inter}, \texttt{mm-openr1}, \texttt{WeMath}, \texttt{VisualWebInstruct}, \texttt{BMMR}~\citep{xi2025bmmr}, \texttt{TQA}, \texttt{AI2D}, \texttt{ScienceQA}~\citep{lu2022learn}, \texttt{ViRL39K}~\citep{wang2025vlrethinker}).
+    \item \textbf{Tier 2} (caps at $1{,}400$ samples per sub-dataset): auxiliary VQA, knowledge, and counting/grounding sub-datasets (\texttt{pathvqa}~\citep{he2020pathvqa}, \texttt{vqarad}~\citep{lau2018vqarad}, \texttt{raven}~\citep{zhang2019raven}, \texttt{evochart}~\citep{huang2024evochart}, \texttt{infographic\_vqa}~\citep{mathew2022infographicvqa}, \texttt{aokvqa}~\citep{schwenk2022aokvqa}, \texttt{gqa}~\citep{hudson2019gqa}, \texttt{iconqa}~\citep{lu2021iconqa}, \texttt{vqav2}~\citep{balanced_vqa_v2}, \texttt{visual7w}~\citep{zhu2016visual7w}, \texttt{tallyqa}~\citep{acharya2019tallyqa}, \texttt{pixelreasoner}~\citep{wang2025pixelreasoner}, \texttt{multihop}, \texttt{pixmo}~\citep{deitke2024molmo}, \texttt{visual\_probe}; MMFineReason \texttt{Raven}, \texttt{VisualSphinx}~\citep{feng2025visualsphinx}, \texttt{PuzzleQA}~\citep{chia2024puzzlevqa}, \texttt{LLaVA-CoT}~\citep{xu2024llavacot}, \texttt{Zebra-CoT}~\citep{li2025zebracot}).
+\end{itemize}
+Cross-source duplicates (e.g.\ Vero's \texttt{stem-ai2d\_merged} and MMFineReason's \texttt{AI2D}) are merged via a canonical-name map and the priority-1 source (Vero) wins. Within MMFineReason we additionally drop every example whose Qwen3-VL-4B-Thinking \texttt{pass\_rate}$>0.5$ -- i.e.\ questions the 4B annotator solves more often than not -- so that the corpus is biased toward genuinely hard examples. Per-sample filters: answer length $\leq 512$ characters, image $\geq 100$ pixels in both dimensions (\textit{i.e.}, $\min(h, w)\!\geq\!100$).
+
+\subsection{Evaluation benchmarks}
+\label{sec:appendix:benchmarks}
+
+The 31-benchmark evaluation suite reported in the main paper consists of 16 VLM benchmarks, 10 LLM benchmarks, and 5 Video benchmarks. Tab.~\ref{tab:appendix:vlm_benchmarks}, Tab.~\ref{tab:appendix:llm_benchmarks}, and Tab.~\ref{tab:appendix:video_benchmarks} list the abbreviation used throughout the main-paper tables, the full benchmark name, the scoring protocol, and the HuggingFace data source. In the scoring column, \textsc{Exact+Judge} first applies exact/rule matching and falls back to the shared LLM-as-a-judge only on unresolved rows; \textsc{Rule+Judge} uses a benchmark-specific deterministic parser before the same fallback; \textsc{Det.} uses a deterministic official metric with no LLM-as-a-judge; and \textsc{BenchJudge} uses a benchmark-specific official judge prompt.
+
+\begin{table*}[!htbp]
+    \centering
+    \resizebox{\linewidth}{!}{%
+    \renewcommand{\arraystretch}{1.05}
+    \begin{tabular}{llll}
+        \toprule
+        Abbreviation & Full name & Scoring & Data source (HF) \\
+        \midrule
+        AI2D                  & AI2 Diagrams~\citep{kembhavi2016diagram}                                  & \textsc{Exact+Judge} & \texttt{lmms-lab/ai2d} \\
+        BabyV                 & BabyVision~\citep{chen2026babyvision}                                    & \textsc{Exact+Judge} & \texttt{UnipatAI/BabyVision} \\
+        CharXiv               & CharXiv (chart understanding)~\citep{wang2024charxiv}                 & \textsc{BenchJudge} & \texttt{princeton-nlp/CharXiv} \\
+        DynaM                 & DynaMath ($501$ seeds $\times$ $10$ variants)~\citep{zou2024dynamath}& \textsc{Exact+Judge} & \texttt{DynaMath/DynaMath\_Sample} \\
+        EmbSp                 & EmbSpatial-Bench~\citep{du2024embspatial}                              & \textsc{Exact+Judge} & \texttt{FlagEval/EmbSpatial-Bench} \\
+        InfoVQA               & InfographicVQA~\citep{mathew2022infographicvqa}                                & \textsc{Det.} & \texttt{lmms-lab/DocVQA} (\texttt{InfographicVQA}) \\
+        MVerse                & MathVerse (\texttt{testmini})~\citep{zhang2024mathverse}                & \textsc{Exact+Judge} & \texttt{CaraJ/MathVerse-lmmseval} \\
+        MVision               & MathVision~\citep{wang2024measuring}                                    & \textsc{Exact+Judge} & \texttt{MathLLMs/MathVision} \\
+        MVista                & MathVista (\texttt{testmini})~\citep{lu2023mathvista}                & \textsc{Rule+Judge} & \texttt{AI4Math/MathVista} \\
+        MMMU$^\text{Pro}$     & MMMU-Pro (\texttt{all} 3 configs)~\citep{yue2024mmmupro}            & \textsc{Exact+Judge} & \texttt{MMMU/MMMU\_Pro} \\
+        MM-Vet                & MM-Vet~\citep{yu2024mm}                                        & \textsc{BenchJudge} & \texttt{lmms-lab/MMVet} \\
+        OCR$^\text{EN}$       & OCRBench v2 (English subset)~\citep{fu2024ocrbench}                  & \textsc{Det.} & \texttt{ling99/OCRBench\_v2} \\
+        OCR$^\text{ZH}$       & OCRBench v2 (Chinese subset)~\citep{fu2024ocrbench}                  & \textsc{Det.} & \texttt{ling99/OCRBench\_v2} \\
+        VisP                  & VisualPuzzles~\citep{song2025visualpuzzles}                                 & \textsc{Exact+Judge} & \texttt{neulab/VisualPuzzles} \\
+        VBlind                & VLMs-are-Blind~\citep{rahmanzadehgervi2024vision}                                & \textsc{Exact+Judge} & \texttt{XAI/vlmsareblind} \\
+        WeMath                & WeMath (\texttt{testmini})~\citep{qiao2024we}                   & \textsc{Exact+Judge} & \texttt{We-Math/We-Math} \\
+        \bottomrule
+    \end{tabular}}
+    \caption{16 VLM benchmarks (Tab.~\ref{tab:main} and Tab.~\ref{tab:ablation}).}
+    \label{tab:appendix:vlm_benchmarks}
+\end{table*}
+
+\begin{table*}[!htbp]
+    \centering
+    \resizebox{\linewidth}{!}{%
+    \renewcommand{\arraystretch}{1.05}
+    \begin{tabular}{llll}
+        \toprule
+        Abbreviation & Full name & Scoring & Data source (HF) \\
+        \midrule
+        AIME25            & AIME 2025 (\texttt{AIME2025-I/II}, $30$ problems)  & \textsc{Exact+Judge} & \texttt{opencompass/AIME2025} \\
+        AIME26            & AIME 2026                                          & \textsc{Exact+Judge} & \texttt{MathArena/aime\_2026} \\
+        CEval             & C-Eval (\texttt{val}, all $52$ subjects)~\citep{huang2023c}            & \textsc{Exact+Judge} & \texttt{ceval/ceval-exam} \\
+        GPQA-D            & GPQA-Diamond ($198$ rows, gated)~\citep{rein2023gpqa}                   & \textsc{Exact+Judge} & \texttt{Idavidrein/gpqa} \\
+        HLE               & Humanity's Last Exam~\citep{phan2025humanity} (mostly text; small image-bearing subset) & \textsc{BenchJudge} & \texttt{cais/hle} \\
+        IMO-AB            & IMO-AnswerBench~\citep{luong2025towards}                                    & \textsc{Exact+Judge} & \texttt{OpenEvals/IMO-AnswerBench} \\
+        MMLU              & MMLU (\texttt{test}, all subjects)~\citep{hendrycks2020measuring}                 & \textsc{Exact+Judge} & \texttt{cais/mmlu} \\
+        MMLU-Pro          & MMLU-Pro~\citep{wang2024mmlu}                                           & \textsc{Exact+Judge} & \texttt{TIGER-Lab/MMLU-Pro} \\
+        MMLU-Rd           & MMLU-Redux 2.0 (all $57$ subjects)~\citep{gema2024are}                 & \textsc{Exact+Judge} & \texttt{edinburgh-dawg/mmlu-redux-2.0} \\
+        MultiCh           & MultiChallenge~\citep{sirdeshmukh2025multichallenge}                                     & \textsc{BenchJudge} & \texttt{ScaleAI/MultiChallenge} \\
+        \bottomrule
+    \end{tabular}}
+    \caption{10 LLM benchmarks (Tab.~\ref{tab:generalization}, LLM block).}
+    \label{tab:appendix:llm_benchmarks}
+\end{table*}
+
+\begin{table*}[!htbp]
+    \centering
+    \resizebox{0.8\linewidth}{!}{%
+    \renewcommand{\arraystretch}{1.05}
+    \begin{tabular}{llll}
+        \toprule
+        Abbreviation & Full name & Scoring & Data source (HF) \\
+        \midrule
+        MMVU              & MMVU (\texttt{validation}, $1{,}000$ rows)~\citep{zhao2025mmvu}         & \textsc{BenchJudge} & \texttt{yale-nlp/MMVU} \\
+        MVBench           & MVBench ($20$ task configs)~\citep{li2024mvbench}                        & \textsc{Rule+Judge} & \texttt{OpenGVLab/MVBench} \\
+        VMME              & Video-MME (w/o subtitles)~\citep{fu2024video}                          & \textsc{Rule+Judge} & \texttt{lmms-lab/Video-MME} \\
+        VMME$^\text{S}$   & Video-MME (with subtitles)~\citep{fu2024video}                         & \textsc{Rule+Judge} & \texttt{lmms-lab/Video-MME} \\
+        VMMMU             & Video-MMMU~\citep{hu2025video}                                         & \textsc{Rule+Judge} & \texttt{lmms-lab/VideoMMMU} \\
+        \bottomrule
+    \end{tabular}}
+    \caption{5 Video benchmarks (Tab.~\ref{tab:generalization}, Video block).}
+    \label{tab:appendix:video_benchmarks}
+\end{table*}
+
+\paragraph{Decoding configuration.}
+Training and evaluation deliberately use \emph{different} decoding settings. Training-time student and teacher rollouts (Appendix~\ref{sec:appendix:hyperparameters:zppo}, Tab.~\ref{tab:appendix:hyperparameters}) sample at \texttt{temperature=1.0}, \texttt{top-p=1.0} with no top-$k$/penalty terms, so the policy gradient sees a high-entropy distribution and explores. Evaluation, by contrast, uses a single more deterministic configuration shared across every benchmark and every model checkpoint -- \texttt{temperature=0.6}, \texttt{top-p=0.95}, \texttt{top-k=20}, \texttt{min-p=0}, \texttt{presence-penalty=1.5}, \texttt{repetition-penalty=1.0}, \texttt{max-new-tokens=12288}, \texttt{max-model-len=262144}, \texttt{min-pixels=256$\times$32$\times$32}, \texttt{max-pixels=1280$\times$32$\times$32} -- so that any difference between methods at the same student scale is attributable to training, not to evaluation hyperparameters.
+
+\paragraph{Prompt and judge templates.}
+For every benchmark we strip all reasoning- and answer-format directives from the upstream prompt (e.g.\ ``Think step by step'' or ``put your final answer within \verb|\boxed{}|'') and rely on a single shared RL closer that the student is also trained against (Fig.~\ref{fig:prompt-rl-closer}):
+\begin{figure*}[!htbp]
+\begin{prompttemplatefig}
+\small
+\emph{You FIRST think about the reasoning process as an internal monologue and then provide the final answer. The reasoning process MUST BE enclosed within \texttt{<think>}\,\texttt{</think>} tags. The final answer MUST BE put in \texttt{\textbackslash boxed\{\}}.}
+\end{prompttemplatefig}
+\caption{RL closer enforcing the think/boxed answer format, applied identically at training and evaluation.}
+\label{fig:prompt-rl-closer}
+\end{figure*}
+This guarantees that the answer-extraction format used at evaluation time is the same one the policy gradient was optimized against.
+
+For benchmarks where exact-match parsing is unsafe, we use the shared LLM-as-judge only after deterministic parsing fails (e.g.\ math derivations and open-ended VLM/video questions), and use benchmark-specific judge prompts for official judge-based tasks (CharXiv, MM-Vet, HLE, MultiChallenge, and MMVU). The judge model itself is the same Qwen3.5-27B-FP8 used as the teacher in training (Tab.~\ref{tab:appendix:hyperparameters}, Appendix~\ref{sec:appendix:teacher_capability}), running on a dedicated sidecar pool at \texttt{temperature=0.0}, \texttt{top-p=1.0}, \texttt{max-new-tokens=512}, and parsing only a strict JSON \texttt{\{"verdict": "correct"\,|\,"wrong"\}} from the response (any malformed or out-of-vocabulary verdict is conservatively scored as $0$, i.e.\ wrong). The same judge model, prompt, and fallback policy -- including the look-inside-reasoning fallback used when a strict \texttt{\textbackslash boxed\{\}} cannot be parsed -- are applied identically to every method in the paper at every evaluation step, so any cross-method delta is attributable to method behaviour rather than to evaluation-protocol differences. The shared judge uses a single Jinja2 template, reproduced verbatim in Fig.~\ref{fig:prompt-judge-shared}:
+\begin{figure*}[!htbp]
+\begin{prompttemplatefig}
+\small
+\emph{You are an expert judge evaluating whether a model's response is correct according to the ground truth.}
+
+\textbf{\emph{\#\# Your Role (READ FIRST)}}\\
+\emph{You are a COMPARATOR, not a solver. Your ONLY job is to decide how well the model's response matches the provided GROUND TRUTH.}
+\begin{itemize}[leftmargin=12pt,topsep=1pt,itemsep=1pt]
+    \item \emph{Do NOT attempt to solve the problem yourself.}
+    \item \emph{Do NOT infer or derive what the ``real'' answer should be.}
+    \item \emph{Do NOT second-guess the ground truth, even if it seems wrong.}
+    \item \emph{The ``Model Response'' section below MAY be either (a) the model's full trajectory including any \texttt{<think>...</think>} reasoning and a concluding \texttt{\textbackslash boxed\{...\}} answer, OR (b) a short EXTRACTED snippet that was already pulled out as the candidate final answer (e.g.\ a bare letter like \texttt{B}, a number like \texttt{42}, an expression like \texttt{x = 5/3}). Treat both forms uniformly: the snippet (when given) IS the model's committed final answer, and a full trajectory's final answer is the content inside the last \texttt{\textbackslash boxed\{...\}} or the concluding sentence AFTER any \texttt{</think>} tag.}
+    \item \emph{If the final answer is missing due to answer format error, truncation, or other reasons, look inside thinking or reasoning.}
+    \item \emph{You should OUTPUT JSON with the format \texttt{\{"verdict": "correct" or "wrong"\}} based on the model's response and the ground truth.}
+\end{itemize}
+
+\textbf{\emph{\#\# Question}}\\
+\emph{\texttt{\{\{ question \}\}}}
+
+\textbf{\emph{\#\# Answer Options}} (rendered only when non-empty)\\
+\emph{\texttt{\{\{ options \}\}}}
+
+\textbf{\emph{\#\# Model Response}}\\
+\emph{\texttt{\{\{ model\_response \}\}}}
+
+\textbf{\emph{\#\# Ground Truth Answer}}\\
+\emph{\texttt{\{\{ ground\_truth \}\}}}
+
+\emph{Output ONLY a valid JSON object with exactly this format (no prose, no code fences, no trailing commentary):} \texttt{\{"verdict": "correct" or "wrong"\}}
+\end{prompttemplatefig}
+\caption{Shared LLM-as-a-judge template used across every method at every evaluation step.}
+\label{fig:prompt-judge-shared}
+\end{figure*}
+The same judge configuration is used for every method in Tab.~\ref{tab:main}, Tab.~\ref{tab:generalization}, Tab.~\ref{tab:ablation}, Tab.~\ref{tab:hintprefix}, and the appendix tables.
+
+\paragraph{Benchmark-specific judge prompts.}
+Five of our $31$ benchmarks ship their own official judge prompt that we reproduce verbatim from the upstream evaluators so our reported numbers match the published leaderboards: MM-Vet, MultiChallenge, MMVU, HLE, and CharXiv (which uses two separate templates for its Reasoning and Descriptive question types). Placeholders in \texttt{\{\{\,\dots\,\}\}} are filled in at judge call time.
+
+\textbf{MM-Vet} (Fig.~\ref{fig:prompt-judge-mmvet}) -- ported verbatim from the official MM-Vet evaluator; absolute $[0,1]$ correctness with the dataset's own \texttt{<AND>}/\texttt{<OR>} tags and 15 paper-frozen few-shot exemplars (truncated below to the first 6 rows that drive the rubric; the full table is shipped with the codebase):
+\begin{figure*}[!htbp]
+\begin{prompttemplatefig}
+\small
+\emph{Compare the ground truth and prediction from AI models, to give a correctness score for the prediction. \texttt{<AND>} in the ground truth means it is totally right only when all elements in the ground truth are present in the prediction, and \texttt{<OR>} means it is totally right when any one element in the ground truth is present in the prediction. The correctness score is $0.0$ (totally wrong), $0.1, 0.2, \dots, 0.9$, or $1.0$ (totally right). Just complete the last space of the correctness score.}
+
+\emph{Question | Ground truth | Prediction | Correctness}\\
+\emph{--- | --- | --- | ---}\\
+\emph{What is x in the equation? | -1 \texttt{<AND>} -5 | x = 3 | 0.0}\\
+\emph{What is x in the equation? | -1 \texttt{<AND>} -5 | x = -1 | 0.5}\\
+\emph{What is x in the equation? | -1 \texttt{<AND>} -5 | x = -5 | 0.5}\\
+\emph{What is x in the equation? | -1 \texttt{<AND>} -5 | x = -5 or 5 | 0.5}\\
+\emph{What is x in the equation? | -1 \texttt{<AND>} -5 | x = -1 or x = -5 | 1.0}\\
+\emph{$\dots$ (9 additional MM-Vet exemplars covering meme-explanation and free-form rows, kept verbatim)}\\
+\emph{\texttt{\{\{ question \}\}} | \texttt{\{\{ ground\_truth \}\}} | \texttt{\{\{ prediction \}\}} |}
+\end{prompttemplatefig}
+\caption{MM-Vet official judge prompt (verbatim from upstream evaluator).}
+\label{fig:prompt-judge-mmvet}
+\end{figure*}
+
+\textbf{MultiChallenge} (Fig.~\ref{fig:prompt-judge-multich}) -- official YES/NO verifier (Scale AI, 2501.17399); the criterion is hidden from the student and revealed only to the judge:
+\begin{figure*}[!htbp]
+\begin{prompttemplatefig}
+\small
+\emph{You are tasked with evaluating a model response to see if it meets a specific criteria. The criteria will always be YES/NO evaluation.}
+
+\emph{The model response is as follows:\\
+\texttt{<MODEL\_RESPONSE>}\\
+\texttt{\{\{ response \}\}}\\
+\texttt{</MODEL\_RESPONSE>}}
+
+\emph{The criteria that the model response must meet is as follows. Be VERY STRICT!:\\
+\texttt{<CRITERIA>}\\
+\texttt{\{\{ target\_question \}\}}\\
+\texttt{</CRITERIA>}}
+
+\emph{Print your reasoning followed by your verdict, either ``YES'' or ``NO''.}
+\end{prompttemplatefig}
+\caption{MultiChallenge YES/NO verifier prompt (Scale AI official).}
+\label{fig:prompt-judge-multich}
+\end{figure*}
+
+\textbf{MMVU} (Fig.~\ref{fig:prompt-judge-mmvu}) -- two-mode official template (Yale-NLP, 2501.12380); the open-ended branch enforces the official ``exact same technique or concept'' criterion:
+\begin{figure*}[!htbp]
+\begin{prompttemplatefig}
+\small
+\emph{Evaluate whether the model's final answer is correct by comparing it to the ground-truth answer provided for the given question. You should first extract the final answer from the model's response, and then compare the extracted answer with the ground-truth answer to determine its accuracy.}
+
+\emph{(Open-ended branch only) The final answer generated by the model does not need to match the ground-truth answer word-for-word. However, it should ONLY be considered correct if it demonstrates the exact same technique or concept explicitly and unambiguously equivalent to the ground-truth answer.}
+
+\textbf{\emph{\#\# Question}}\ \emph{\texttt{\{\{ question \}\}}}
+
+\textbf{\emph{\#\# Options}} (MCQ only) \emph{\texttt{\{\{ options \}\}}}
+
+\textbf{\emph{\#\# Ground Truth Answer}}\ \emph{\texttt{\{\{ ground\_truth \}\}}}
+
+\textbf{\emph{\#\# Model's Full Response}}\ \emph{\texttt{\{\{ model\_response \}\}}}
+
+\emph{Output ONLY a valid JSON object with exactly this format (no prose, no code fences, no trailing commentary): \texttt{\{"verdict": "correct" or "wrong"\}}}
+\end{prompttemplatefig}
+\caption{MMVU two-mode official judge prompt (Yale-NLP).}
+\label{fig:prompt-judge-mmvu}
+\end{figure*}
+
+\textbf{HLE (Humanity's Last Exam)} (Fig.~\ref{fig:prompt-judge-hle}) -- official CAIS judge; the judge inspects the full response (including \texttt{<think>}) and emits four fields with \texttt{correct} $\in\{$\texttt{yes,no}$\}$:
+\begin{figure*}[!htbp]
+\begin{prompttemplatefig}
+\small
+\emph{Judge whether the following [response] to [question] is correct or not based on the precise and unambiguous [correct\_answer] below.}
+
+\emph{[question]: \texttt{\{\{ question \}\}}}
+
+\emph{[response]: \texttt{\{\{ response \}\}}}
+
+\emph{Your judgement must be in the format and criteria specified below:}
+
+\emph{\texttt{extracted\_final\_answer}: The final exact answer extracted from the [response]. Put the extracted answer as `None' if there is no exact, final answer to extract from the response.}
+
+\emph{[correct\_answer]: \texttt{\{\{ correct\_answer \}\}}}
+
+\emph{\texttt{reasoning}: Explain why the extracted answer is correct or incorrect based on [correct\_answer], focusing only on whether there are meaningful differences. Do not solve the problem, do not argue for any answer different than [correct\_answer], focus only on whether the answers match.}
+
+\emph{\texttt{correct}: Answer `yes' if extracted\_final\_answer matches [correct\_answer] (or is within a small margin of error for numerical problems), `no' otherwise.}
+
+\emph{\texttt{confidence}: Confidence score $\in[0\%,100\%]$ extracted from [response] (default $100$).}
+
+\emph{Respond with ONLY a single JSON object using exactly these keys: \texttt{extracted\_final\_answer}, \texttt{reasoning}, \texttt{correct} (\texttt{"yes"}/\texttt{"no"}), \texttt{confidence} (integer $0$--$100$).}
+\end{prompttemplatefig}
+\caption{HLE (Humanity's Last Exam) official CAIS judge prompt.}
+\label{fig:prompt-judge-hle}
+\end{figure*}
+
+\textbf{CharXiv -- Reasoning} (Fig.~\ref{fig:prompt-judge-charxiv-r}; official CharXiv Reasoning rubric; the rubric body is one of 4 categories: text-in-chart, text-in-general, number-in-chart, number-in-general):
+\begin{figure*}[!htbp]
+\begin{prompttemplatefig}
+\small
+\emph{You will be given a question, a ground truth answer and a model response. You need to extract the final answer from the model response, compare it with the ground truth answer, and then assign a binary score. Avoid providing explanations in your response. If there is no provided model response, please leave the extracted answer empty and give a score of $0$.}
+
+\emph{Your response must follow JSON format with keys \texttt{[extracted\_answer, score]} where \texttt{score}$\in\{0,1\}$. You must follow the scoring rules:}
+
+\emph{\texttt{\{\{ rules \}\}}}
+
+\emph{\textbf{\#\#\# Your Turn \#\#\#}\\
+* Question: \texttt{\{\{ question \}\}}\\
+* Ground Truth: \texttt{\{\{ ground\_truth \}\}}\\
+* Response: \texttt{\{\{ response \}\}}}
+
+\emph{Respond with ONLY a single JSON object using exactly these keys: \texttt{extracted\_answer} (string), \texttt{score} (integer $0$ or $1$).}
+\end{prompttemplatefig}
+\caption{CharXiv Reasoning official judge prompt (4 rubric variants).}
+\label{fig:prompt-judge-charxiv-r}
+\end{figure*}
+
+\textbf{CharXiv -- Descriptive} (Fig.~\ref{fig:prompt-judge-charxiv-d}; official CharXiv Descriptive rubric; the rubric body is one of 7 classes: title, ocr, quant, bool, enum, trend, layout):
+\begin{figure*}[!htbp]
+\begin{prompttemplatefig}
+\small
+\emph{You will be given a pair of ground truth answer and model response under an overarching question. You need to extract the final answer from the model response, compare it with the ground truth answer, and then assign a binary score. Avoid providing explanations in your response. If there is no provided model response, please leave the extracted answer empty and give a score of $0$. Your response must follow JSON format with keys \texttt{[extracted\_answer, score]} where \texttt{score}$\in\{0,1\}$.}
+
+\emph{Overarching Question: \texttt{\{\{ overarching\_question \}\}}}
+
+\emph{\texttt{\{\{ rubric \}\}}}
+
+\emph{\textbf{\#\#\# Your Turn \#\#\#}\\
+Response: \texttt{\{\{ response \}\}}\\
+Ground Truth: \texttt{\{\{ ground\_truth \}\}}}
+
+\emph{Respond with ONLY a single JSON object using exactly these keys: \texttt{extracted\_answer} (string), \texttt{score} (integer $0$ or $1$).}
+\end{prompttemplatefig}
+\caption{CharXiv Descriptive official judge prompt (7 rubric classes).}
+\label{fig:prompt-judge-charxiv-d}
+\end{figure*}

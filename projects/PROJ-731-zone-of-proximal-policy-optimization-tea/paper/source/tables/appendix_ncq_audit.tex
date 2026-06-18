@@ -1,0 +1,18 @@
+\begin{table*}[!htbp]
+    \centering
+    \resizebox{0.65\linewidth}{!}{%
+    \renewcommand{\arraystretch}{1.10}
+    \begin{tabular}{lcccccc}
+        \toprule
+        Scale & $N$ & match-neg (failure) & match-pos & other & NCQ acc \\
+        \midrule
+        $0.8$B & $1{,}656$ & $82.7\%$ & $\phantom{0}0.4\%$ & $16.9\%$ & $\phantom{0}1.2\%$ \\
+        $2$B   & $1{,}872$ & $\phantom{0}2.2\%$ & $\phantom{0}4.8\%$ & $92.9\%$ & $22.1\%$ \\
+        $4$B   & $2{,}056$ & $\phantom{0}0.7\%$ & $\phantom{0}3.7\%$ & $95.5\%$ & $35.2\%$ \\
+        $9$B   & $2{,}136$ & $\phantom{0}0.2\%$ & $\phantom{0}1.8\%$ & $98.0\%$ & $30.5\%$ \\
+        \bottomrule
+    \end{tabular}%
+    }
+    \caption{NCQ candidate-match audit on the convergence-regime snapshots (three NCQ-instance dumps per scale recorded near the end of training, $7{,}720$ rollouts in total). \emph{match-neg} is the fraction whose normalized $\backslash$boxed answer matches one of the listed wrong-rollout candidates in the prompt (the failure mode that NCQ trains the student to avoid); \emph{match-pos} is the fraction whose answer matches the rewritten teacher's boxed answer (\texttt{teacher\_pos\_compressed}), which is \emph{not} included in the NCQ prompt at all and therefore represents the student arriving at the correct boxed string independently. \emph{Other} covers everything else (different surface text; correct or incorrect under the judge). The NCQ accuracy column is the judge-side accuracy on the same rollouts. The scale-dependent collapse of match-neg ($82.7\%$ at $0.8$B $\to$ $0.2\%$ at $9$B) is consistent with the student learning to discriminate against its own listed wrong answers as scale grows; the audit cannot separate this from elimination on MCQ-style answer spaces (see Sec.~\ref{sec:appendix:bcq_audit} caveats).}
+    \label{tab:appendix:ncq_audit}
+\end{table*}

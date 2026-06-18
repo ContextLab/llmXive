@@ -1,0 +1,74 @@
+\begin{figure*}[!p]
+\centering
+\scriptsize
+
+\begin{questionbox}
+\textbf{Original question} (a $4$B student gets $0$/$8$ plain rollouts correct; $\bar{r}_x\!=\!0$, triggering both the BCQ and the NCQ branch in Algorithm~\ref{alg:zppo})\textbf{.}
+
+\smallskip
+\begin{center}
+\includegraphics[width=0.42\linewidth, height=2.6cm, keepaspectratio]{figures/qualitative_images/books_0.png}
+\end{center}
+
+\smallskip
+\texttt{How many books are standing upright on the bookshelf next to the floor lamp on the right?}
+
+\smallskip
+\textbf{Reference answer:} \texttt{4} \quad (\textbf{Student's plain rollouts:} all eight answer \texttt{3}, undercounting one spine in the alternating sequence.)
+\end{questionbox}
+
+\vspace{1pt}\noindent\textbf{(a) BCQ reformulated prompt.} The teacher's correct trace and one of the student's wrong traces are teacher-compressed under a shared prompt and token cap, randomly shuffled, and inserted into a binary-discrimination template. The student then rolls out $G_{\rm S}\!=\!8$ times on the new prompt; one correct rollout is shown below.
+
+\begin{negcandidatebox}
+\textbf{Candidate~A} (anonymized; \emph{here, the student-derived wrong trace -- not labelled as such to the student}):
+
+\smallskip
+\texttt{The bookshelf next to the floor lamp on the right contains a section with thin vertical items resembling book spines. Counting the distinct upright spines reveals three books standing upright. ---\textbf{omitted}--- $\backslash$boxed\{3\}}
+\end{negcandidatebox}
+
+\begin{prompttemplatefig}
+\textbf{Candidate~B} (anonymized; \emph{here, the teacher-derived correct trace -- not labelled as such to the student}):
+
+\smallskip
+\texttt{The bookshelf is located to the right of the floor lamp. On the shelf below the one with white spheres, books stand upright. Counting the distinct vertical spines from left to right -- White, Dark, White, Dark -- indicates four books. The other shelves contain decorative objects, not upright books. ---\textbf{omitted}--- $\backslash$boxed\{4\}}
+\end{prompttemplatefig}
+
+\begin{prompttemplatefig}
+\textbf{Student's BCQ rollout} (one of $G_{\rm S}\!=\!8$; this one is judged correct):
+
+\smallskip
+\texttt{<think> Anonymized side by side, Candidate~A reports three spines without further structure, while Candidate~B commits to an explicit colour sequence (White, Dark, White, Dark). The four-element alternation is a structural commitment: if only three spines existed, the sequence would not balance. I commit to Candidate~B because its reasoning survives this internal consistency check, not because of any label. ---\textbf{omitted}--- Answer: 4. </think>}
+
+\smallskip
+\texttt{$\backslash$boxed\{4\}} \quad \textcolor{posgain}{\checkmark}
+\end{prompttemplatefig}
+
+\vspace{1pt}\noindent\textbf{(b) NCQ reformulated prompt.} \emph{All} of the student's wrong rollouts on this question are collected, teacher-compressed under the same shared prompt and token cap, and concatenated with their parsed final answers. The teacher's correct trace is \emph{not} inserted. The student then rolls out $G_{\rm S}\!=\!8$ times on the new prompt; one correct rollout is shown below.
+
+\begin{negcandidatebox}
+\textbf{Listed wrong candidates} (all eight of the student's previous attempts on this question, each teacher-rewritten; only two are shown; remaining six follow the same pattern):
+
+\smallskip
+\texttt{<candidate> The bookshelf is on the right, next to the floor lamp. On a middle shelf, a row of thin vertical items appears to be books. Counting the distinct spines reveals three items. ---\textbf{omitted}--- $\backslash$boxed\{3\} </candidate>}
+
+\smallskip
+\texttt{<candidate> Visual analysis of the bookshelf next to the right floor lamp identifies a section of slim, vertical book spines. A careful count of distinct vertical edges yields a total of three upright volumes. ---\textbf{omitted}--- $\backslash$boxed\{3\} </candidate>}
+
+\smallskip
+\textbf{Parsed final answers from the listed candidates:} \texttt{[3, 3, 3, 3, 3, 3, 3, 3]} \\
+\textbf{Instruction to the student:} the answer is \emph{not} one of the listed values.
+\end{negcandidatebox}
+
+\begin{prompttemplatefig}
+\textbf{Student's NCQ rollout} (one of $G_{\rm S}\!=\!8$; this one is judged correct):
+
+\smallskip
+\texttt{<think> All eight listed candidates report 3 with the same ``row of three'' justification, and none mentions a colour or position pattern. The consensus failure mode is therefore collapsing two adjacent spines into a single one, consistent with the absence of any colour-by-colour decomposition in the listed traces. Correcting this off-by-one error yields 4 -- arrived at by naming the failure mode, not by exclusion from a closed answer set. ---\textbf{omitted}--- Answer: 4. </think>}
+
+\smallskip
+\texttt{$\backslash$boxed\{4\}} \quad \textcolor{posgain}{\checkmark}
+\end{prompttemplatefig}
+
+\caption{\textbf{Visual counting, $4$B student.} Worked BCQ/NCQ example on a hard ZPPO-$77$K free-form counting question that the $4$B student fails on every plain rollout ($\bar{r}_x\!=\!0$). \textbf{(a)~BCQ} contrasts the under-counting trace against one that reads the alternating colour pattern; \textbf{(b)~NCQ} excludes the teacher trace and tells the student that the consensus answer (3) is wrong. Both branches recover the correct count of 4.}
+\label{fig:appendix:bcq_ncq_books}
+\end{figure*}

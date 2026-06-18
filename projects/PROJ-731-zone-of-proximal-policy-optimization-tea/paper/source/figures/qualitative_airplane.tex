@@ -1,0 +1,74 @@
+\begin{figure*}[!p]
+\centering
+\scriptsize
+
+\begin{questionbox}
+\textbf{Original question} (a $9$B student gets $0$/$8$ plain rollouts correct; $\bar{r}_x\!=\!0$, triggering both the BCQ and the NCQ branch in Algorithm~\ref{alg:zppo})\textbf{.}
+
+\smallskip
+\begin{center}
+\includegraphics[width=0.30\linewidth, height=2.6cm, keepaspectratio]{figures/qualitative_images/airplane_0.png}
+\end{center}
+
+\smallskip
+\texttt{The graph shows the relationship between the distance an airplane has covered (y-axis, in miles) and the amount of time it has been flying (x-axis, in hours). What is the speed of the airplane in miles per hour?}
+
+\smallskip
+\textbf{Reference answer:} \texttt{500} \quad (\textbf{Student's plain rollouts:} all eight answer \texttt{400}, misreading the line at $x\!=\!1$ as $y\!=\!400$ rather than $y\!=\!500$.)
+\end{questionbox}
+
+\vspace{1pt}\noindent\textbf{(a) BCQ reformulated prompt.} The teacher's correct trace and one of the student's wrong traces are teacher-compressed under a shared prompt and token cap, randomly shuffled, and inserted into a binary-discrimination template. The student then rolls out $G_{\rm S}\!=\!8$ times on the new prompt; one correct rollout is shown below.
+
+\begin{negcandidatebox}
+\textbf{Candidate~A} (anonymized; \emph{here, the student-derived wrong trace -- not labelled as such to the student}):
+
+\smallskip
+\texttt{The speed equals the slope of the distance-time line. Identifying clear grid points, the line passes through $(0,0)$ and $(4, 1600)$. Dividing $1600$ by $4$ gives a constant speed of $400$ mph, consistent with $(1, 400)$. ---\textbf{omitted}--- $\backslash$boxed\{400\}}
+\end{negcandidatebox}
+
+\begin{prompttemplatefig}
+\textbf{Candidate~B} (anonymized; \emph{here, the teacher-derived correct trace -- not labelled as such to the student}):
+
+\smallskip
+\texttt{The speed corresponds to the slope of the line on the distance-time graph. Clear points on the line are $(0,0)$ and $(2, 1000)$. The speed is $(1000-0)/(2-0) = 500$ mph, consistent with $(1, 500)$ and the endpoint near $(4, 2000)$. ---\textbf{omitted}--- $\backslash$boxed\{500\}}
+\end{prompttemplatefig}
+
+\begin{prompttemplatefig}
+\textbf{Student's BCQ rollout} (one of $G_{\rm S}\!=\!8$; this one is judged correct):
+
+\smallskip
+\texttt{<think> Both candidates assert specific grid readings, so the choice cannot be made by length or order. Candidate~A's endpoint $(4, 1600)$ would leave the line two labelled rows below the top of the $y$-axis. Candidate~B's chain $(2, 1000)$ and $(4, 2000)$ lies on exact labelled intersections, with $(4, 2000)$ coinciding with the arrowhead's terminating position. Only Candidate~B's chain is consistent on falsifiability grounds. ---\textbf{omitted}--- Answer: 500. </think>}
+
+\smallskip
+\texttt{$\backslash$boxed\{500\}} \quad \textcolor{posgain}{\checkmark}
+\end{prompttemplatefig}
+
+\vspace{1pt}\noindent\textbf{(b) NCQ reformulated prompt.} \emph{All} of the student's wrong rollouts on this question are collected, teacher-compressed under the same shared prompt and token cap, and concatenated with their parsed final answers. The teacher's correct trace is \emph{not} inserted. The student then rolls out $G_{\rm S}\!=\!8$ times on the new prompt; one correct rollout is shown below.
+
+\begin{negcandidatebox}
+\textbf{Listed wrong candidates} (all eight of the student's previous attempts on this question, each teacher-rewritten; only two are shown; remaining six follow the same pattern):
+
+\smallskip
+\texttt{<candidate> The speed is the slope of the line. Identifying points $(0, 0)$ and $(2, 800)$, the slope is $800/2 = 400$ mph, also consistent with $(4, 1600)$ and $(1, 400)$. ---\textbf{omitted}--- $\backslash$boxed\{400\} </candidate>}
+
+\smallskip
+\texttt{<candidate> The line is linear through the origin. At $1$ hour the distance reads $400$ miles, and at $4$ hours the distance reads $1600$ miles. Dividing gives a rate of $400$ miles per hour. ---\textbf{omitted}--- $\backslash$boxed\{400\} </candidate>}
+
+\smallskip
+\textbf{Parsed final answers from the listed candidates:} \texttt{[400, 400, 400, 400, 400, 400, 400, 400]} \\
+\textbf{Instruction to the student:} the answer is \emph{not} one of the listed values.
+\end{negcandidatebox}
+
+\begin{prompttemplatefig}
+\textbf{Student's NCQ rollout} (one of $G_{\rm S}\!=\!8$; this one is judged correct):
+
+\smallskip
+\texttt{<think> All listed candidates commit to slope $400$ via $(1, 400)$, $(2, 800)$, $(4, 1600)$. The answer is open-ended numeric, so elimination from a closed set is unavailable -- I have to re-derive. Re-anchoring on two exact-intersection points -- $(2, 1000)$ and the arrowhead terminating near $(4, 2000)$ -- gives slope $500$. The consensus failed by snapping the unlabelled $y\!=\!500$ at $x\!=\!1$ down to the labelled $400$-row. ---\textbf{omitted}--- Answer: 500. </think>}
+
+\smallskip
+\texttt{$\backslash$boxed\{500\}} \quad \textcolor{posgain}{\checkmark}
+\end{prompttemplatefig}
+
+\caption{\textbf{Chart-reading, $9$B student.} Worked BCQ/NCQ example on an open-ended numeric ZPPO-$77$K question that the $9$B student plain-fails ($\bar{r}_x\!=\!0$) by down-snapping the unlabelled $y\!=\!500$ at $x\!=\!1$ to the labelled $400$-row. \textbf{(a)~BCQ}: contrasts that $400$-row chain against one anchored on exact-intersection grid points and the arrowhead's terminating position. \textbf{(b)~NCQ}: with the teacher trace excluded, the student re-derives $500$ by positional grounding -- elimination is unavailable on an open-ended numeric answer space.}
+\label{fig:appendix:bcq_ncq_airplane}
+\end{figure*}

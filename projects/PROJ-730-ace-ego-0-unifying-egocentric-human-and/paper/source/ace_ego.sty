@@ -1,0 +1,201 @@
+% ace_ego.sty - ACE-Ego arXiv/PR style (standalone, replaces corl_2026.sty)
+% Inspired by FAIR/Meta pre-print style, adapted for ACE Robotics.
+%
+% Usage in main.tex:
+%   \documentclass{article}
+%   \usepackage{ace_ego}          % without logo
+%   \usepackage[logo]{ace_ego}    % with ACE logo in title box
+%
+% This package provides the same \author{}, \begin{abstract}...\end{abstract}
+% interface as corl_2026.sty, so switching between them requires only changing
+% the \usepackage line.
+
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{ace_ego}[2026/05/17 ACE-Ego arXiv/PR style]
+
+% ---------- Options ----------
+\newif\if@acelogo\@acelogofalse
+\DeclareOption{logo}{\@acelogotrue}
+
+\newif\if@natbib\@natbibtrue
+\DeclareOption{nonatbib}{\@natbibfalse}
+
+\ProcessOptions\relax
+
+% ---------- Layout ----------
+\RequirePackage[table]{xcolor}
+\RequirePackage[top=2.25cm, bottom=2.5cm, left=2.5cm, right=2.5cm]{geometry}
+\RequirePackage[expansion=false]{microtype}
+\RequirePackage{placeins}
+\RequirePackage{hyphenat}
+\RequirePackage{setspace}
+\RequirePackage{parskip}
+\RequirePackage[english]{babel}
+\RequirePackage{ragged2e}
+\RequirePackage{etoolbox}
+
+% ---------- Graphics ----------
+\RequirePackage{graphicx}
+\RequirePackage{subcaption}
+
+% ---------- Tables ----------
+\RequirePackage{booktabs}
+\RequirePackage{multirow}
+
+% ---------- Colors (ACE blue-purple theme) ----------
+\RequirePackage[most]{tcolorbox}
+\definecolor{acecolor}{HTML}{6366F1}
+\definecolor{acefg}{HTML}{1C2B33}
+\definecolor{acebg}{HTML}{F0EEFF}
+
+% ---------- Hyperref ----------
+\RequirePackage{hyperref}
+\hypersetup{
+  colorlinks,
+  linkcolor=acecolor,
+  citecolor=acecolor,
+  urlcolor=acecolor
+}
+
+% ---------- References ----------
+\if@natbib
+  \RequirePackage[square,numbers]{natbib}
+  \bibliographystyle{corlabbrvnat}
+  \def\bibfont{\small}
+\fi
+
+% ---------- Fonts ----------
+\renewcommand{\rmdefault}{ptm}
+\renewcommand*\ttdefault{cmvtt}
+\RequirePackage[T1]{fontenc}
+
+% Optimistic font disabled (T1-WGL4.enc not available on this system)
+% \DeclareFontFamily{T1}{optimistic}{}
+% \DeclareFontShape{T1}{optimistic}{m}{n}{<-> s * [0.88] optimistic}{}
+% \pdfmapline{+optimistic < Optimistic.ttf <T1-WGL4.enc}
+% \renewcommand{\sfdefault}{optimistic}
+
+% ---------- Section and caption format ----------
+\RequirePackage{titlesec}
+\titleformat*{\paragraph}{\itshape}
+\titleformat*{\section}{\Large\sffamily\bfseries\color{acecolor}}
+\titleformat*{\subsection}{\large\sffamily\bfseries\color{acecolor}}
+\titleformat*{\subsubsection}{\normalsize\sffamily\bfseries\color{acecolor}}
+
+\RequirePackage{caption}
+\DeclareCaptionLabelSeparator{custom}{}
+\DeclareCaptionFormat{custom}{{\sffamily\textbf{#1 #2}} #3}
+\captionsetup{singlelinecheck=false,format=custom,labelsep=custom,font=small,labelfont=bf}
+\captionsetup[sub]{singlelinecheck=true,format=custom,labelsep=custom,font=small}
+
+% ---------- List spacing ----------
+\RequirePackage{enumitem}
+\setlist[itemize]{noitemsep}
+\setlist[enumerate]{noitemsep}
+
+% ---------- Keywords ----------
+\providecommand{\keywords}[1]{%
+  \par\vskip 0.5ex
+  \noindent{\sffamily\bfseries Keywords:} #1\par
+}
+
+% ---------- Metadata (date, website, etc.) ----------
+\newcommand\@ace@metadatalist{}
+\newcommand\metadata[2][]{%
+  \g@addto@macro\@ace@metadatalist{\par{\small {\sffamily\bfseries #1:} #2}}%
+}
+\renewcommand\date[1]{\metadata[Date]{#1}}
+\newcommand\correspondence[1]{\metadata[Correspondence]{#1}}
+
+% ---------- Title box (tcolorbox, FAIR-style) ----------
+% Define \And and \AND for author separation (compatible with corl_2026 interface)
+\providecommand{\And}{}
+\renewcommand{\And}{\hspace{1em}}
+\providecommand{\AND}{}
+\renewcommand{\AND}{\\}
+
+% \maketitle just sets a flag; actual rendering happens after \end{abstract}
+\newif\if@acemaketitle\@acemaketitlefalse
+\renewcommand{\maketitle}{\@acemaketitletrue}
+
+\newcommand{\ace@render@titlebox}{%
+  \begingroup
+  \tcbset{enhanced,frame hidden}
+  \tcbset{left=0.5cm, right=0.5cm, top=1.8cm, bottom=0.8cm}
+  \tcbset{arc=8pt}
+  \tcbset{colback=acebg}
+  \tcbset{before skip=0pt}
+  \tcbset{grow to left by=1.5pt, grow to right by=1.5pt}
+  % \if@acelogo
+  %   \tcbset{overlay={\node[
+  %     anchor=north west,
+  %     at=(frame.north west),
+  %     xshift=0.1cm,
+  %     yshift=-0.1cm] {\includegraphics[height=1.2cm]{images/ACE_Logo.png}};}}
+  % \fi
+  \if@acelogo
+    \tcbset{overlay={
+      \node[
+        anchor=north west,
+        at=(frame.north west),
+        xshift=0.1cm,
+        yshift=-0.1cm] {\includegraphics[height=1.2cm]{images/ACE_Logo.png}};
+
+      % \node[
+      %   anchor=north east,
+      %   at=(frame.north east),
+      %   xshift=-0.1cm,
+      %   yshift=-0.1cm] {\includegraphics[height=1.2cm]{images/cuhk_logo.png}};
+    }}
+  \fi
+  \begin{tcolorbox}
+    \setlength{\parindent}{0cm}
+    \setlength{\parskip}{0.3cm}
+    \justifying
+    {
+      \setstretch{1.5}
+      {\Large\sffamily\bfseries \@title\par}
+    }
+    \vskip 0.3cm
+    {%
+      \sffamily\bfseries
+      \begin{tabular}[t]{@{}l@{}}
+        \@author
+      \end{tabular}\par
+    }
+    \vskip 0.2cm
+    {\color{acefg}\@aceabstract\par}
+    \vskip 0.4cm
+    {%
+      \setlength{\parskip}{0cm}%
+      \@ace@metadatalist\par
+    }
+  \end{tcolorbox}
+  \tcbset{reset}
+  \FloatBarrier
+  \endgroup
+  \vskip 0.4cm
+}
+
+% ---------- Abstract (environment interface, same as corl_2026) ----------
+% Captures content, then renders the full title box
+\RequirePackage{environ}
+\RenewEnviron{abstract}{%
+  \global\long\def\@aceabstract{\BODY}%
+  \if@acemaketitle
+    \ace@render@titlebox
+  \fi
+}
+
+% ---------- DOI helper ----------
+\providecommand{\doi}[1]{%
+  \begingroup
+    \urlstyle{rm}%
+    \href{http://dx.doi.org/#1}{doi:\nolinkurl{#1}}%
+  \endgroup
+}
+
+% ---------- Acknowledgments ----------
+\newcommand{\acknowledgments}[1]{\section*{Acknowledgments} #1}
+
+\endinput

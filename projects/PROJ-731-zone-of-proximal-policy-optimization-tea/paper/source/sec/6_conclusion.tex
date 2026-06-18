@@ -1,0 +1,5 @@
+\section{Conclusion}
+\label{sec:conclusion}
+
+Distillation directly imitates teacher logits and teacher prefix-injection RL splices teacher tokens into the policy gradient, breaking the on-policy assumption and weakening generalization at small student scales. ZPPO answers our research question by keeping the teacher only inside the prompt, so the student's gradient stays on its own rollouts while still benefiting from teacher knowledge. The flip side is a structural ceiling: questions on which both teacher and student fail admit no BCQ candidate and leave only NCQ, whose contribution alone is limited -- the \emph{zone} collapses to the NCQ-only regime. Extending the student's \emph{zone} beyond what the current teacher covers is, in our view, an important open problem this work leaves behind.
+

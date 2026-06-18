@@ -1,0 +1,22 @@
+\begin{table*}[!htbp]
+    \centering
+    \resizebox{0.8\linewidth}{!}{%
+    \renewcommand{\arraystretch}{1.05}
+    \begin{tabular}{lcccccccc}
+        \toprule
+        & \multicolumn{2}{c}{$0.8$B} & \multicolumn{2}{c}{$2$B} & \multicolumn{2}{c}{$4$B} & \multicolumn{2}{c}{$9$B} \\
+        \cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}\cmidrule(lr){8-9}
+        Method & Time (h) & FLOPs & Time (h) & FLOPs & Time (h) & FLOPs & Time (h) & FLOPs \\
+        \midrule
+        Off-Distill & $85$ & $4.7\!\cdot\!10^{20}$ & $91$ & $5.2\!\cdot\!10^{20}$ & $95$ & $5.9\!\cdot\!10^{20}$ & $104$ & $8.0\!\cdot\!10^{20}$ \\
+        Off-Distill$^{\dagger}$ & $88$ & $5.1\!\cdot\!10^{20}$ & $96$ & $5.7\!\cdot\!10^{20}$ & $100$ & $6.8\!\cdot\!10^{20}$ & $108$ & $9.2\!\cdot\!10^{20}$ \\
+        On-Distill & $75$ & $6.8\!\cdot\!10^{20}$ & $78$ & $7.4\!\cdot\!10^{20}$ & $82$ & $9.2\!\cdot\!10^{20}$ & $88$ & $1.4\!\cdot\!10^{21}$ \\
+        On-Distill$^{\dagger}$ & $78$ & $8.0\!\cdot\!10^{20}$ & $82$ & $9.2\!\cdot\!10^{20}$ & $83$ & $1.2\!\cdot\!10^{21}$ & $90$ & $1.7\!\cdot\!10^{21}$ \\
+        GRPO & $61$ & $2.3\!\cdot\!10^{20}$ & $69$ & $5.6\!\cdot\!10^{20}$ & $75$ & $1.1\!\cdot\!10^{21}$ & $90$ & $2.5\!\cdot\!10^{21}$ \\
+        GRPO$^{\dagger}$ & $61$ & $2.8\!\cdot\!10^{20}$ & $69$ & $6.8\!\cdot\!10^{20}$ & $76$ & $1.4\!\cdot\!10^{21}$ & $93$ & $3.1\!\cdot\!10^{21}$ \\
+        \rowcolor{colorful}\textbf{ZPPO} & $\mathbf{68}$ & $\mathbf{4.9\!\cdot\!10^{20}}$ & $\mathbf{79}$ & $\mathbf{9.8\!\cdot\!10^{20}}$ & $\mathbf{92}$ & $\mathbf{1.8\!\cdot\!10^{21}}$ & $\mathbf{110}$ & $\mathbf{3.9\!\cdot\!10^{21}}$ \\
+        \bottomrule
+    \end{tabular}}
+    \caption{Per-run training cost for the headline methods of the main paper. \emph{Time (h)} is measured wall-clock on the shared cluster ($64\!\times\!$H100-$80$\,GB), averaged across the per-scale runs to the nearest hour; \emph{FLOPs} follow the standard token-level $6N$/$2N$ convention. The protocol $\{G_{\rm S},G_{\rm T},I,\rho_{\rm aug},\rho_{\rm replay}\}\!=\!\{8,4,4,0.25,0.25\}$ runs over the ZPPO-$77$K corpus. Compute-counting conventions, per-method derivations, and the wall-clock decomposition are described in Appendix~\ref{sec:appendix:hyperparameters:compute}. Hint, Prefix, and the $+$BCQ/$+$NCQ/$+$Both component-isolation rows of Tab.~\ref{tab:hintprefix}--Tab.~\ref{tab:ablation} are not listed individually: their per-step rollout/gradient budgets match GRPO$^{\dagger}$ up to the small $\rho_{\rm aug}\!=\!0.25$ augmentation branch, so their wall-clock and FLOPs fall within the GRPO$^{\dagger}$--ZPPO range at every scale. $^{\dagger}$ denotes augmentation with the prompt replay buffer.}
+    \label{tab:appendix:compute}
+\end{table*}

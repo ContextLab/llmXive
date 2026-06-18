@@ -1,0 +1,113 @@
+\section{Experiments}
+\label{sec:experiments}
+
+\subsection{Setup}
+\label{sec:experiments:setup}
+
+\paragraph{Students and teacher.}
+We instantiate ZPPO on Qwen3.5~\citep{qwen3.5} at four student scales ($0.8$B, $2$B, $4$B, $9$B) with a $27$B teacher, post-training each student as a VLM on the ZPPO-$77$K multimodal RL dataset (Appendix~\ref{sec:appendix:dataset}).
+
+\paragraph{Training pipeline.}
+ZPPO follows GRPO~\citep{shao2024deepseekmath} with three DAPO ingredients~\citep{yu2025dapo}: clip-higher, token-level policy gradient loss, and removal of the KL penalty against a reference policy. We also use $I\!=\!4$ iterations per step (vs.\ the standard $I\!=\!16$) and batch-level advantage normalization~\citep{hu2025reinforce++} with zero-advantage groups excluded from the batch statistics.
+
+\input{tables/table3}
+
+\paragraph{Baselines.}
+We compare ZPPO against four families from Sec.~\ref{sec:related}.
+\textbf{(i) \emph{Off-policy distillation}} (Algorithm~\ref{alg:offpolicy}): imitate fresh teacher rollouts drawn online and filtered by correctness on every step.
+\textbf{(ii) \emph{On-policy distillation}} (Algorithm~\ref{alg:onpolicy}): the student samples its own response, the teacher re-scores it for target logits, and the student imitates them.
+\textbf{(iii) \emph{GRPO}} (Algorithm~\ref{alg:grpo}): ZPPO's pipeline without BCQ, NCQ, and the replay buffer.
+\textbf{(iv) \emph{GRPO$^{\dagger}$}}: ZPPO's pipeline without BCQ, NCQ (${\dagger}$ marks prompt replay buffer). Details in Appendix~\ref{sec:appendix:baselines}.
+
+\subsection{Main results}
+\label{sec:experiments:main}
+
+Tab.~\ref{tab:main} ($16$ VLM benchmarks) and Tab.~\ref{tab:generalization} ($10$ LLM and $5$ Video benchmarks) report the headline comparison; $4$B/$9$B blocks are in Tab.~\ref{tab:main_4b9b} and Tab.~\ref{tab:generalization_4b9b}. Benchmark details are in Appendix~\ref{sec:appendix:benchmarks}.
+
+\textbf{(i)~Distillation \emph{hurts generalization beyond the training corpus}.} The best distillation variant stays within $\sim$$1$~pp of the original on VLM, while Off- and On-Policy distillation \emph{lose} accuracy on Video and \emph{degrade} the LLM--Video average at every scale (Tab.~\ref{tab:generalization}, Tab.~\ref{tab:generalization_4b9b}), sharpest at $0.8$B.
+
+\textbf{(ii)~Replay alone is insufficient.} Adding the buffer to either distillation or GRPO yields only marginal Avg gains in Tab.~\ref{tab:main} ($+0.5$/$+0.4$/$+1.6$~pp at $0.8$B for Off-Distill, On-Distill, GRPO): re-exposure without a new learning signal does not recover the hard question loss.
+
+\textbf{(iii)~ZPPO improves the macro average at every scale and benchmark family.} The Avg $\Delta$ row is positive across all blocks of Tab.~\ref{tab:main} and Tab.~\ref{tab:generalization}, with the largest gains where the small-student gap is widest. The buffer-isolated ZPPO$-$GRPO$^{\dagger}$ macro-average gain is robust to benchmark resampling, as quantified by the cluster bootstrap of Appendix~\ref{sec:appendix:stat_reliability} (Tab.~\ref{tab:appendix:ci_main}); this CI measures benchmark-selection robustness, not per-example or run-to-run uncertainty. Crucially, ZPPO \emph{improves} generalization where distillation degrades it.
+
+\subsection{Inside the Zone: Admission to Graduation}
+\label{sec:experiments:zone}
+
+Fig.~\ref{fig:zone} reports cumulative graduations at $2$B by entry rollout accuracy, and Fig.~\ref{fig:system} reports batch composition and graduation across all four scales.
+
+\textbf{(i)~BCQ and NCQ provide a usable learning signal on the hardest questions} (Fig.~\ref{fig:zone}). On entries admitted at $0\%$ rollout accuracy -- where ordinary RL has zero gradient signal -- ZPPO graduates $28\%$ ($432$/$1568$) vs.\ GRPO$^{\dagger}$'s $4\%$ ($73$/$2035$); on the next-hardest, $54\%$ vs.\ $14\%$. The student absorbs the reformulated signals over training.
+
+\textbf{(ii)~Batch and graduation dynamics with scale} (Fig.~\ref{fig:system}). Fig.~\ref{fig:system}a shows \emph{pre-cap} BCQ/NCQ eligibility (Algorithm~\ref{alg:zppo}). BCQ requires the teacher to succeed where the student fails; as students scale up, the remaining hard questions are increasingly ones the teacher also fails on, so BCQ candidates dry up (Fig.~\ref{fig:system}a), thinning the recovery signal. In the replay buffer, small scales mostly evict before graduating, large scales mostly graduate before eviction (Fig.~\ref{fig:system}b). ZPPO's gain is steepest where the zone of proximal development is widest. At $0.8$B and $2$B, hard questions persist long enough for BCQ and NCQ to revisit them repeatedly, compounding into the largest accumulated improvements; at $4$B and $9$B the same questions either graduate or rotate out before the reformulations can stack.
+
+\begin{figure*}[t!]
+    \vspace{-3mm}
+    \centering
+    \includegraphics[width=\linewidth]{figures/figure5.pdf}
+    \vspace{-5mm}
+    \caption{RL recipe ablation at 2B on the 10 LLM (a, d), 16 VLM (b, e), and 5 Video (c, f) benchmarks. \textbf{(Top, a--c)}~Iterations per step $I\!\in\!\{1,4,8,16\}$. \textbf{(Bottom, d--f)}~Batch-level advantage normalization: \emph{No norm}, \emph{Norm w/o Zero} (ZPPO default), and \emph{Norm w/ Zero}. Dashed gray line marks original 2B.}
+    \label{fig:recipe}
+    % \vspace{-5mm}
+\end{figure*}
+
+\subsection{Component ablation}
+\label{sec:experiments:ablation}
+
+Tab.~\ref{tab:ablation} isolates each ZPPO component on the $16$ VLM benchmarks ($4$B and $9$B in Tab.~\ref{tab:ablation_4b9b}). Starting from GRPO, we incrementally add the buffer (${\dagger}$), both reformulations together (\emph{Both}\,=\,BCQ\,$+$\,NCQ), and each reformulation paired with the buffer.
+
+\textbf{(i)~Each isolated component is modest.} Replay alone (GRPO$^{\dagger}$) and reformulation alone (GRPO\,$+$\,Both) move only a small margin over GRPO at every scale -- useful, but not sufficient. 
+
+\textbf{(ii)~Replay $\times$ reformulation is super-additive.} Pairing BCQ \emph{or} NCQ with the buffer compounds far beyond the sum of isolated effects, because the buffer keeps re-exposing each hard question to a fresh candidate set per visit.
+
+\textbf{(iii)~The full recipe is strongest at every scale.} ZPPO ties or achieves the column max on every benchmark of Tab.~\ref{tab:ablation} and Tab.~\ref{tab:ablation_4b9b}. Within the recipe, BCQ's contribution shrinks with scale and NCQ's grows -- mirroring Fig.~\ref{fig:system}a -- so weaker students lean on the teacher candidate while stronger students lean on collective failure analysis. The same pattern holds for generalization (Appendix~\ref{sec:appendix:ablation_gen}, Tab.~\ref{tab:ablation_gen}).
+
+\subsection{Additional RL recipe choices}
+\label{sec:experiments:recipe}
+
+Beyond BCQ, NCQ, and the buffer, two seemingly minor recipe choices materially shape small-student RL. We isolate them at $2$B across all three benchmark groups in Fig.~\ref{fig:recipe}. \textbf{(i)~Iterations per step trade off-policy drift against rollout cost; $I\!=\!4$ is the sweet spot.} Larger $I$ grows in-step drift: each minibatch pushes the gradient further from the current policy. GRPO's default $I\!=\!16$~\citep{shao2024deepseekmath,yu2025dapo} runs $4\times$ as many updates as $I\!=\!4$ but yields only a marginal gain over the original $2$B base (Fig.~\ref{fig:recipe}a--c); $I\!=\!1$ removes drift but undertrains at matched step count. $I\!=\!4$ pays a small drift cost but performs four updates per step -- the trade that peaks on all three (Fig.~\ref{fig:recipe}a--c). \textbf{(ii)~Excluding zero-advantage groups from batch normalization (Norm w/o Zero) is critical.} \emph{Norm w/o Zero} (ZPPO default) consistently beats \emph{No norm}, while \emph{Norm w/ Zero} clearly degrades below both (Fig.~\ref{fig:recipe}d--f). Both `Norm' variants share REINFORCE++ two-step form~\citep{hu2025reinforce++}; they differ only in whether zero-advantage groups are used (Appendix~\ref{sec:appendix:algorithm}, Eqs.~\ref{eq:adv-step1}--\ref{eq:adv-step2}). Trivial groups (all-correct/all-wrong) carry no learning signal, but their zero advantage values shrink the batch standard deviation that normalizes every other advantage, causing inflated advantages.
+
+\begin{figure}[t!]
+    \vspace{-3mm}
+    \centering
+    \includegraphics[width=0.4\linewidth]{figures/figure_teacher_scale.pdf}
+    \vspace{-3mm}
+    \caption{All-averaged gain $\Delta$ (pp) across teacher size}
+    \label{fig:teacher_scale}
+    % \vspace{-5mm}
+\end{figure}
+
+\subsection{Discussion and Analysis}
+\label{sec:experiments:discussion}
+
+\textbf{(i) Teacher size matters:} A larger teacher widens ZPPO's gain (Fig.~\ref{fig:teacher_scale}); shrinking the teacher to $4$B/$9$B collapses the gain toward the GRPO$^{\dagger}\!+\!$NCQ level, since BCQ requires the teacher to succeed where the student fails, and that pool of teacher-correct rollouts dries up as the teacher gets smaller. The drop is steepest at $0.8$B, where ZPPO's gain is most BCQ-dominated (Sec.~\ref{sec:experiments:ablation}).
+
+\textbf{(ii) Hint, Prefix vs.\ BCQ:} We compare BCQ against two prompt-side teacher-guidance families: \emph{Hint} appends an answer-free hint to the prompt; and \emph{Prefix} forces a teacher response prefix into the student and lets the student generate the rest (Appendix~\ref{sec:appendix:hintprefix}). Tab.~\ref{tab:hintprefix} shows that Hint (Algorithm~\ref{alg:hint}) helps VLM but transfers less to the LLM/Video evaluation suite, since teacher hints act as a directional shortcut without \emph{why} the direction is correct; Prefix (Algorithm~\ref{alg:prefix}) transfers even less because the teacher prefix is off-policy, so drift accumulates over training. BCQ alone beats both because the student is trained to select between two anonymized candidates while reasoning, whereas Hint conditions the prompt on a labeled teacher-derived hint and Prefix routes a teacher-generated prefix into the response itself; full ZPPO opens the widest gap across all.
+
+\textbf{(iii) Further evidence:} buffer dynamics (App.~\ref{sec:appendix:zone}), ZPPO vs.\ GRPO$^{\dagger}$ dynamics (App.~\ref{sec:appendix:dynamics_2b}), multi-metric dynamics across scales (App.~\ref{sec:appendix:dynamics_scale}), the component ablation on the LLM/Video benchmarks (App.~\ref{sec:appendix:ablation_gen}), Hint/Prefix setup (App.~\ref{sec:appendix:hintprefix}), cluster-bootstrap CIs (App.~\ref{sec:appendix:stat_reliability}), BCQ and NCQ dynamics (App.~\ref{sec:appendix:bcq_audit}), teacher capability (App.~\ref{sec:appendix:teacher_capability}), and compute cost (Tab.~\ref{tab:appendix:compute}) are deferred to the appendix.
+
+\begin{table}[t!]
+    \centering
+    \resizebox{0.5\linewidth}{!}{
+    \renewcommand{\tabcolsep}{3mm}
+    \renewcommand{\arraystretch}{1.05}
+    \begin{tabular}{lcccccc}
+        \toprule
+                                      & \multicolumn{3}{c}{Qwen3.5-0.8B}                                  & \multicolumn{3}{c}{Qwen3.5-2B}      \\
+        \cmidrule(lr){2-4}\cmidrule(lr){5-7}
+        Method                        & LLM               & VLM               & Video             & LLM           & VLM           & Video         \\
+        \midrule
+        Base                          & $25.2$            & $41.0$            & $48.3$            & $45.3$        & $56.8$        & $60.6$        \\
+        \cdashline{1-7}\noalign{\vskip 0.5ex}
+        $+$GRPO$^{\dagger}$           & $28.7$            & $45.4$            & $50.5$            & $47.3$        & $59.2$        & $61.9$        \\
+        $+$GRPO$^{\dagger}$$+$Hint    & $28.8$ & $47.2$ & $50.0$ & $47.6$        & $60.4$        & $61.6$        \\
+        $+$GRPO$^{\dagger}$$+$Prefix  & $27.1$ & $45.5$ & $49.1$ & $46.3$        & $59.5$        & $61.0$        \\
+        $+$GRPO$^{\dagger}$$+$BCQ     & $31.5$ & $48.6$ & $52.0$ & $49.1$        & $60.8$        & $62.6$        \\
+        \rowcolor{colorful}
+        $+$ZPPO                       & $\mathbf{33.1}$   & $\mathbf{50.3}$   & $\mathbf{52.8}$   & $\mathbf{50.4}$ & $\mathbf{62.0}$ & $\mathbf{63.2}$ \\
+        \bottomrule
+    \end{tabular}
+    }
+    \vspace{-3mm}
+    \caption{Comparison with Hint and Prefix methods}
+    \label{tab:hintprefix}
+    % \vspace{-5mm}
+\end{table}

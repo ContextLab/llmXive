@@ -1,0 +1,30 @@
+\begin{table*}[!htbp]
+    \centering
+    \resizebox{\linewidth}{!}{%
+    \renewcommand{\arraystretch}{1.10}
+    \begin{tabular}{llcccc}
+        \toprule
+        Scale & Family & ZPPO $-$ Off-Distill$^{\dagger}$ & ZPPO $-$ On-Distill$^{\dagger}$ & ZPPO $-$ GRPO$^{\dagger}$ & ZPPO $-$ Best non-ZPPO \\
+         &  & $\Delta$ [95\% CI] (Win) & $\Delta$ [95\% CI] (Win) & $\Delta$ [95\% CI] (Win) & $\Delta$ [95\% CI] (Win) \\
+        \midrule
+        0.8B & VLM & +8.78 [+6.87, +10.61] (16/16) & +7.93 [+6.18, +9.63] (16/16) & +4.79 [+3.45, +6.12] (16/16) & +4.79 [+3.45, +6.12] (16/16) \\
+        0.8B & LLM & +10.56 [+5.87, +16.47] (9/10) & +9.88 [+5.30, +15.87] (9/10) & +4.44 [+2.02, +7.77] (8/10) & +4.44 [+2.02, +7.77] (8/10) \\
+        0.8B & Video & +7.86 [+6.80, +9.44] (5/5) & +7.04 [+5.62, +8.96] (5/5) & +2.36 [+1.54, +3.30] (5/5) & +2.36 [+1.54, +3.30] (5/5) \\
+        \cdashline{1-6}\noalign{\vskip 0.4ex}
+        2B & VLM & +4.72 [+3.69, +5.83] (16/16) & +4.02 [+3.03, +5.09] (16/16) & +2.76 [+1.89, +3.74] (16/16) & +2.76 [+1.89, +3.74] (16/16) \\
+        2B & LLM & +7.27 [+4.40, +10.85] (9/10) & +6.63 [+4.24, +9.82] (10/10) & +3.02 [+1.36, +5.19] (9/10) & +3.02 [+1.36, +5.19] (9/10) \\
+        2B & Video & +4.62 [+3.34, +6.18] (5/5) & +4.06 [+2.92, +5.42] (5/5) & +1.32 [+0.96, +1.84] (5/5) & +1.32 [+0.96, +1.84] (5/5) \\
+        \cdashline{1-6}\noalign{\vskip 0.4ex}
+        4B & VLM & +3.61 [+2.60, +4.84] (16/16) & +3.10 [+2.00, +4.45] (16/16) & +2.24 [+1.41, +3.19] (16/16) & +2.24 [+1.41, +3.19] (16/16) \\
+        4B & LLM & +4.79 [+2.86, +7.11] (10/10) & +4.32 [+2.28, +6.74] (10/10) & +2.78 [+1.52, +4.23] (10/10) & +2.78 [+1.52, +4.23] (10/10) \\
+        4B & Video & +2.08 [+1.70, +2.44] (5/5) & +1.48 [+1.16, +1.78] (5/5) & +0.90 [+0.48, +1.32] (5/5) & +0.28 [-0.24, +0.90] (3/5) \\
+        \cdashline{1-6}\noalign{\vskip 0.4ex}
+        9B & VLM & +2.50 [+1.90, +3.18] (16/16) & +2.01 [+1.39, +2.77] (16/16) & +1.54 [+0.92, +2.29] (16/16) & +1.54 [+0.92, +2.29] (16/16) \\
+        9B & LLM & +4.06 [+2.16, +6.25] (10/10) & +3.63 [+1.65, +5.91] (10/10) & +2.61 [+1.36, +3.99] (10/10) & +2.61 [+1.36, +3.99] (10/10) \\
+        9B & Video & +1.62 [+1.38, +1.86] (5/5) & +1.14 [+0.86, +1.32] (5/5) & +0.78 [+0.30, +1.26] (5/5) & +0.40 [-0.02, +0.86] (4/5) \\
+        \bottomrule
+    \end{tabular}%
+    }
+    \caption{Cluster bootstrap $95\%$ CI on the paired ZPPO\,$-$\,baseline macro-average delta (pp) for every \emph{main-result} comparison (Tabs.~\ref{tab:main}, \ref{tab:main_4b9b}, \ref{tab:generalization}, \ref{tab:generalization_4b9b}). Within each (scale, family) block we draw $10{,}000$ benchmark resamples (with replacement); a \emph{single shared resample is reused across all columns in each iteration} (fixed seed), so identical comparisons yield identical intervals. Intervals are $95\%$ percentile CIs and the reported $\Delta$ is the full-sample macro-average. \emph{Win} is the number of benchmarks (out of the block size) on which ZPPO $>$ baseline. \emph{Best non-ZPPO} is the strongest non-ZPPO row in the corresponding main table (selected on the full sample, so it equals the GRPO$^{\dagger}$ column except on $4$B/$9$B Video, where the untrained Base is the strongest non-ZPPO); it matches the $\Delta$ row of the main tables.}
+    \label{tab:appendix:ci_main}
+\end{table*}
