@@ -84,3 +84,6 @@ ready:
 - project_id: PROJ-633-mobilegym-a-verifiable-and-highly-parall
   revision_spec_path: specs/auto-revisions/PROJ-633-mobilegym-a-verifiable-and-highly-parall/round-2
   queued_at: '2026-06-18T10:04:51.501800+00:00'
+- project_id: PROJ-614-enhancing-train-free-infinite-frame-gene
+  revision_spec_path: specs/auto-revisions/PROJ-614-enhancing-train-free-infinite-frame-gene/round-2
+  queued_at: '2026-06-18T13:10:24.148448+00:00'
