@@ -1,12 +1,7 @@
 last_used: freeman-dyson
-last_used_at: '2026-06-18T00:41:18.403604+00:00'
-last_outcome: abstained
+last_used_at: '2026-06-18T01:51:47.909118+00:00'
+last_outcome: librarian_held
 history:
-- slug: alan-turing
-  started_at: '2026-06-06T21:24:05.616321+00:00'
-  ended_at: '2026-06-06T21:51:32.720915+00:00'
-  outcome: triage_rejected_advanced_as_abstain
-  action: comment
 - slug: albert-einstein
   started_at: '2026-06-06T21:51:32.720915+00:00'
   ended_at: '2026-06-06T22:23:53.339088+00:00'
@@ -1124,3 +1119,10 @@ history:
   ended_at: '2026-06-18T00:41:18.403604+00:00'
   outcome: abstained
   action: abstain
+- slug: geoffrey-west
+  started_at: '2026-06-18T00:41:18.403604+00:00'
+  ended_at: '2026-06-18T01:51:47.909118+00:00'
+  outcome: librarian_held
+  action: comment
+  committed_paths:
+  - projects/PROJ-727-assessing-energy-consumption-of-llm-infe/reviews/research/_held/geoffrey-west-simulated__2026-06-18__research.md
