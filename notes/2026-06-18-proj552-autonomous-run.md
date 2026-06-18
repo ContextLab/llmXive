@@ -100,3 +100,24 @@ Research-review stage (this session's second half):
   the fixed agents; it does not fabricate project content.
 - Commit cadence: PRE_COMMIT_ALLOW_NO_CONFIG=1; commit → pull --rebase --autostash
   → push → verify HEAD==origin/main. Co-Authored-By: Claude Opus 4.8 (1M context).
+
+## ADDENDUM — reviewer non-determinism (key finding)
+
+Across three full re-review runs the panel held at ~2 accept / 5 minor_revision,
+but WHICH reviewers accepted changed run-to-run (e.g. code_quality_research and
+implementation_completeness each flipped between accept and minor_revision on
+different runs with identical artifacts). The specialist reviewers are
+**stochastic** (temperature > 0): each accepts with probability p < 1. With a
+UNANIMOUS-accept gate over 7 reviewers, P(all accept in one round) ≈ p^7 — tiny
+even at p≈0.5. So calibration alone cannot reach research_accepted; the pipeline's
+intended convergence mechanism (revision → re-review until each reviewer reliably
+accepts) is REQUIRED — which means the **research-revision implementer must work**
+(currently paper-centric; see blocker #1). Note some concerns are subjective
+(creativity "add more novelty") and may not be resolvable by code edits at all —
+a genuine pipeline design question for the next session, possibly needing
+per-reviewer accept-stability handling or a quorum rule, not just an implementer fix.
+
+Net for the session: research_review went from STRUCTURALLY IMPOSSIBLE (0 accepts
+ever, no accept criteria, reviewers blind to most of the project) to FUNCTIONING
+(fact-based lenses reliably accept; remaining gap is the revision-convergence
+machinery for the subjective lenses).

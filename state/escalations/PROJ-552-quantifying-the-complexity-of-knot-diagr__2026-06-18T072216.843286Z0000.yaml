@@ -1,0 +1,17 @@
+project_id: PROJ-552-quantifying-the-complexity-of-knot-diagr
+stage: research_review
+loop: implementer-zero-rounds
+bound: 3
+rounds_used: 3
+attempts:
+- round: '3'
+  summary: zero-success revision round
+  outcome: 'tifying-the-complexity-of-knot-diagr/paper/source/main.tex
+
+    file-not-found: /Users/jmanning/llmXive/projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/paper/source/main.tex
+
+    file-not-found: /Users/jmanning/llmXive/projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/paper/source/main.tex'
+recommended_action: Triage the unclassifiable implementer failure, then `llmxive project
+  unblock-agent`.
+timestamp: '2026-06-18T07:22:16.843286+00:00'
+digest_id: null

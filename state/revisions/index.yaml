@@ -66,3 +66,18 @@ ready:
 - project_id: PROJ-697-redesign-mixture-of-experts-routers-with
   revision_spec_path: specs/auto-revisions/PROJ-697-redesign-mixture-of-experts-routers-with/round-1
   queued_at: '2026-06-18T04:40:21.510451+00:00'
+- project_id: PROJ-552-quantifying-the-complexity-of-knot-diagr
+  revision_spec_path: specs/auto-revisions/PROJ-552-quantifying-the-complexity-of-knot-diagr/round-1
+  queued_at: '2026-06-18T07:02:53.474695+00:00'
+- project_id: PROJ-552-quantifying-the-complexity-of-knot-diagr
+  revision_spec_path: specs/auto-revisions/PROJ-552-quantifying-the-complexity-of-knot-diagr/round-2
+  queued_at: '2026-06-18T07:09:58.642186+00:00'
+- project_id: PROJ-552-quantifying-the-complexity-of-knot-diagr
+  revision_spec_path: specs/auto-revisions/PROJ-552-quantifying-the-complexity-of-knot-diagr/round-3
+  queued_at: '2026-06-18T07:16:06.756818+00:00'
+- project_id: PROJ-552-quantifying-the-complexity-of-knot-diagr
+  revision_spec_path: specs/auto-revisions/PROJ-552-quantifying-the-complexity-of-knot-diagr/round-1
+  queued_at: '2026-06-18T07:48:34.272643+00:00'
+- project_id: PROJ-552-quantifying-the-complexity-of-knot-diagr
+  revision_spec_path: specs/auto-revisions/PROJ-552-quantifying-the-complexity-of-knot-diagr/round-1
+  queued_at: '2026-06-18T07:59:18.534920+00:00'
