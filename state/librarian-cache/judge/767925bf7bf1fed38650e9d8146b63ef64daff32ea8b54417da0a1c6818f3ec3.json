@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2012.04946",
+  "judged_at": "2026-06-18T13:28:32Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "mellum2 technical report linguistics",
+  "rationale": "The paper discusses multidimensional scaling for semantic mapping in linguistics and does not pertain to the “Mellum2 Technical Report” or its specific content, making it unrelated to the user’s query.",
+  "relevant": false
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2011.06127",
+  "judged_at": "2026-06-18T13:30:20Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "detecting distribution shift in public health surveillance data via kernel two‑sample tests statistics",
+  "rationale": "The paper develops and evaluates generalized kernel two‑sample tests, directly addressing the same statistical mechanism (kernel two‑sample testing for detecting distribution differences) that the user’s question concerns, even though it applies the method to other domains. This qualifies under inclusion criterion (a) same‑mechanism evidence (and also (d) as a methodological reference).",
+  "relevant": true
+}

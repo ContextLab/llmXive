@@ -1,0 +1,684 @@
+{
+  "fetched_at": "2026-06-18T13:28:34Z",
+  "field": "linguistics",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "linguistics",
+      "idea_body_excerpt": "Mellum2 Technical Report",
+      "target_n": 5
+    },
+    "duration_seconds": 55.783,
+    "ended_at": "2026-06-18T13:28:34Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "Mellum2 corpus linguistics"
+        ],
+        [
+          2,
+          "Mellum2 language documentation"
+        ],
+        [
+          3,
+          "Mellum2 phonetic dataset"
+        ],
+        [
+          4,
+          "Mellum2 linguistic annotation"
+        ],
+        [
+          5,
+          "Mellum2 language resource"
+        ],
+        [
+          6,
+          "Mellum2 speech corpus"
+        ],
+        [
+          7,
+          "Technical report on language data"
+        ],
+        [
+          8,
+          "Linguistic technical report series"
+        ],
+        [
+          9,
+          "Language resource technical report"
+        ],
+        [
+          10,
+          "Corpus‑based linguistic study Mellum2"
+        ],
+        [
+          11,
+          "Mellum2 morphological analysis"
+        ],
+        [
+          12,
+          "Mellum2 syntactic description"
+        ],
+        [
+          13,
+          "Language documentation technical report"
+        ],
+        [
+          14,
+          "Linguistic fieldwork report Mellum2"
+        ],
+        [
+          15,
+          "Mellum2 language description"
+        ],
+        [
+          16,
+          "Technical report linguistics dataset"
+        ],
+        [
+          17,
+          "Language data technical report"
+        ],
+        [
+          18,
+          "Mellum2 linguistic field notes"
+        ],
+        [
+          19,
+          "Language resource description report"
+        ],
+        [
+          20,
+          "Mellum2 linguistic metadata"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Mellum2 Technical Report linguistics": 0,
+        "Mellum2 corpus linguistics": 5
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "Mellum2 corpus",
+      "Mellum language documentation",
+      "Mellum2 morphological annotation",
+      "Mellum2 parsing accuracy",
+      "Mellum2 grammaticalization study"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "1203.5066"
+      ]
+    },
+    "per_query_hit_count": {
+      "Mellum language documentation": 3,
+      "Mellum2 Technical Report linguistics": 3,
+      "Mellum2 corpus": 3,
+      "Mellum2 grammaticalization study": 3,
+      "Mellum2 morphological annotation": 3,
+      "Mellum2 parsing accuracy": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": true,
+      "rejected_count": 8,
+      "rejections": [
+        {
+          "primary_pointer": "1906.06643",
+          "rationale": "The candidate paper studies CSMA network throughput in wireless communications, which is unrelated to the linguistics-focused “Mellum2 Technical Report” question; it shares no relevant construct, domain, or variables.",
+          "title": "Throughput Analysis of CSMA: Technical Report"
+        },
+        {
+          "primary_pointer": "2004.05930",
+          "rationale": "The candidate paper concerns deep neural network quantization and deployment frameworks, which is unrelated to the user's query about a \"Mellum2 Technical Report\" in linguistics; it shares no domain, variables, or mechanism with the requested linguistic topic.",
+          "title": "Technical Report: NEMO DNN Quantization for Deployment Model"
+        },
+        {
+          "primary_pointer": "2403.17618",
+          "rationale": "The paper concerns incorporating political blogs into a political science information service and does not address linguistics, the Mellum2 technical report, or any related linguistic mechanism or dataset, thus it falls outside the user's domain.",
+          "title": "Technical Report: Incorporating Blogs in Pollux"
+        },
+        {
+          "primary_pointer": "1203.5066",
+          "rationale": "The candidate paper studies temporal signals in the TimeBank corpus and does not relate to the “Mellum2 Technical Report” or its linguistic content, thus it lacks any relevant mechanism, variable, or domain connection.",
+          "title": "A Corpus-based Study of Temporal Signals"
+        },
+        {
+          "primary_pointer": "2606.14257",
+          "rationale": "The paper discusses linguistics olympiad problems as a corpus, which is unrelated to the specific “Mellum2 Technical Report” the user is seeking; it does not address the same construct, variables, or domain.",
+          "title": "The Linguistics Olympiads: Towards a New Corpus for Linguistics Research?"
+        },
+        {
+          "primary_pointer": "2505.22774",
+          "rationale": "The paper studies syntactic variation using treebanks and does not relate to the “Mellum2 Technical Report” or its linguistic content; it shares no mechanism, variables, or domain with the user’s specific query.",
+          "title": "Counting trees: A treebank-driven exploration of syntactic variation in speech and writing across languages"
+        },
+        {
+          "primary_pointer": "2012.04946",
+          "rationale": "The paper discusses multidimensional scaling for semantic mapping in linguistics and does not pertain to the “Mellum2 Technical Report” or its specific content, making it unrelated to the user’s query.",
+          "title": "Generating semantic maps through multidimensional scaling: linguistic applications and theory"
+        },
+        {
+          "primary_pointer": "1602.00245",
+          "rationale": "The candidate paper reviews Bayesian statistical methods for linguistic research and does not address the specific “Mellum2 Technical Report” or its content, making it unrelated to the user’s query.",
+          "title": "Statistical methods for linguistic research: Foundational Ideas - Part II"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-18T13:27:38Z",
+    "term_input": {
+      "normalized": "mellum2 technical report linguistics",
+      "raw": "Mellum2 Technical Report linguistics"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Automatic temporal ordering of events described in discourse has been of great interest in recent years. Event orderings are conveyed in text via va rious linguistic mechanisms including the use of expressions such as \"before\", \"after\" or \"during\" that explicitly assert a temporal relation -- temporal signals. In this paper, we investigate the role of temporal signals in temporal relation extraction and provide a quantitative analysis of these expres sions in the TimeBank annotated corpus.",
+          "claimed_authors": [
+            "Leon Derczynski",
+            "Robert Gaizauskas"
+          ],
+          "claimed_title": "A Corpus-based Study of Temporal Signals",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1203.5066"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Mellum2 Technical Report linguistics', candidate_title='A Corpus-based Study of Temporal Signals')",
+        "failed_at": "2026-06-18T13:28:11Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper introduces a new Romanian speech corpus from the ROBIN project, called ROBIN Technical Acquisition Speech Corpus (ROBINTASC). Its main purpose was to improve the behaviour of a conversational agent, allowing human-machine interaction in the context of purchasing technical equipment. The paper contains a detailed description of the acquisition process, corpus statistics as well as an evaluation of the corpus influence on a low-latency ASR system as well as a dialogue component.",
+          "claimed_authors": [
+            "Vasile Păiş",
+            "Radu Ion",
+            "Andrei-Marius Avram",
+            "Elena Irimia",
+            "Verginica Barbu Mititelu",
+            "Maria Mitrofan"
+          ],
+          "claimed_title": "Human-Machine Interaction Speech Corpus from the ROBIN project",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2111.11170"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Mellum2 Technical Report linguistics', candidate_title='Human-Machine Interaction Speech Corpus from the ROBIN project')",
+        "failed_at": "2026-06-18T13:28:11Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Witnesses of medieval literary texts, preserved in manuscript, are layered objects , being almost exclusively copies of copies. This results in multiple and hard to distinguish linguistic strata -- the author's scripta interacting with the scriptae of the various scribes -- in a context where literary written language is already a dialectal hybrid. Moreover, no single linguistic phenomenon allows to distinguish between different scriptae, and only the combination of multiple characteristics is likely to be significant [9] -- but which ones? The most common approach is to search for these features in a set of previously selected texts, that are supposed to be representative of a given scripta. This can induce a circularity, in which texts are used to select features that in turn characterise them as belonging to a linguistic area. To counter this issue, this paper offers an unsupervised and corpus-based approach, in which clustering methods are applied to an Old French corpus to identify main divisions and groups. Ultimately, scriptometric profiles are built for each of them.",
+          "claimed_authors": [
+            "Jean-Baptiste Camps"
+          ],
+          "claimed_title": "Manuscripts in Time and Space: Experiments in Scriptometrics on an Old French Corpus",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1802.01429"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Mellum2 Technical Report linguistics', candidate_title='Manuscripts in Time and Space: Experiments in Scriptometrics on an Old French Corpus')",
+        "failed_at": "2026-06-18T13:28:11Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We introduce the Mandarin-English Language Interview (MELI) Corpus, an open-source resource of 29.8 hours of speech from 51 Mandarin-English bilingual speakers. MELI combines matched sessions in Mandarin and English with two speaking styles: read sentences and spontaneous interviews about language varieties, standardness, and learning experiences. Audio was recorded at 44.1 kHz (16-bit, stereo). Interviews were fully transcribed, force-aligned at word and phone levels, and anonymized. Descriptively, the Mandarin component totals ~14.7 hours (mean duration 17.3 minutes) and the English component ~15.1 hours (mean duration 17.8 minutes). We report token/type statistics for each language and document code-switching patterns (frequent in Mandarin sessions; more limited in English sessions). The corpus design supports within-/cross-speaker, within/cross-language acoustic comparison and links acoustics to speakers' stated language attitudes, enabling both quantitative and qualitative analyses. The MELI Corpus will be released with transcriptions, alignments, metadata, scans of labelled maps and documentation under a CC BY-NC 4.0 license.",
+          "claimed_authors": [
+            "Suyuan Liu",
+            "Molly Babel"
+          ],
+          "claimed_title": "Introducing MELI: the Mandarin-English Language Interview Corpus",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.27043"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Mellum2 Technical Report linguistics', candidate_title='Introducing MELI: the Mandarin-English Language Interview Corpus')",
+        "failed_at": "2026-06-18T13:28:11Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The process of documenting and describing the world's languages is undergoing radical transformation with the rapid uptake of new digital technologies for capture, storage, annotation and dissemination. However, uncritical adoption of new tools and technologies is leading to resources that are difficult to reuse and which are less portable than the conventional printed resources they replace. We begin by reviewing current uses of software tools and digital technologies for language documentation and description. This sheds light on how digital language documentation and description are created and managed, leading to an analysis of seven portability problems under the following headings: content, format, discovery, access, citation, preservation and rights. After characterizing each problem we provide a series of value statements, and this provides the framework for a broad range of best practice recommendations.",
+          "claimed_authors": [
+            "Steven Bird",
+            "Gary Simons"
+          ],
+          "claimed_title": "Seven Dimensions of Portability for Language Documentation and Description",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2002,
+          "primary_pointer": "cs/0204020"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Mellum2 Technical Report linguistics', candidate_title='Seven Dimensions of Portability for Language Documentation and Description')",
+        "failed_at": "2026-06-18T13:28:11Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large language models accumulate vast knowledge during pre-training, yet the dynamics governing this acquisition remain poorly understood. This work investigates the learning dynamics of language models on a synthetic factual recall task, uncovering three key findings: First, language models learn in three phases, exhibiting a performance plateau before acquiring precise factual knowledge. Mechanistically, this plateau coincides with the formation of attention-based circuits that support recall. Second, the training data distribution significantly impacts learning dynamics, as imbalanced distributions lead to shorter plateaus. Finally, hallucinations emerge simultaneously with knowledge, and integrating new knowledge into the model through fine-tuning is challenging, as it quickly corrupts its existing parametric memories. Our results emphasize the importance of data distribution in knowledge acquisition and suggest novel data scheduling strategies to accelerate neural network training.",
+          "claimed_authors": [
+            "Nicolas Zucchet",
+            "Jörg Bornschein",
+            "Stephanie Chan",
+            "Andrew Lampinen",
+            "Razvan Pascanu",
+            "Soham De"
+          ],
+          "claimed_title": "How do language models learn facts? Dynamics, curricula and hallucinations",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2503.21676"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Mellum2 Technical Report linguistics', candidate_title='How do language models learn facts? Dynamics, curricula and hallucinations')",
+        "failed_at": "2026-06-18T13:28:11Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This article describes an exclusively resource-based method of morphological annotation of written Korean text. Korean is an agglutinative language. Our annotator is designed to process text before the operation of a syntactic parser. In its present state, it annotates one-stem words only. The output is a graph of morphemes annotated with accurate linguistic information. The granularity of the tagset is 3 to 5 times higher than usual tagsets. A comparison with a reference annotated corpus showed that it achieves 89% recall without any corpus training. The language resources used by the system are lexicons of stems, transducers of suffixes and transducers of generation of allomorphs. All can be easily updated, which allows users to control the evolution of the performances of the system. It has been claimed that morphological annotation of Korean text could only be performed by a morphological analysis module accessing a lexicon of morphemes. We show that it can also be performed directly with a lexicon of words and without applying morphological rules at annotation time, which speeds up annotation to 1,210 word/s. The lexicon of words is obtained from the maintainable language resources through a fully automated compilation process.",
+          "claimed_authors": [
+            "Ivan Berlocher",
+            "Hyun-Gue Huh",
+            "Eric Laporte",
+            "Jee-Sun Nam"
+          ],
+          "claimed_title": "Morphological annotation of Korean with Directly Maintainable Resources",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2007,
+          "primary_pointer": "0711.3412"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Mellum2 Technical Report linguistics', candidate_title='Morphological annotation of Korean with Directly Maintainable Resources')",
+        "failed_at": "2026-06-18T13:28:11Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We describe a resource-based method of morphological annotation of written Korean text. Korean is an agglutinative language. The output of our system is a graph of morphemes annotated with accurate linguistic information. The language resources used by the system can be easily updated, which allows us-ers to control the evolution of the per-formances of the system. We show that morphological annotation of Korean text can be performed directly with a lexicon of words and without morpho-logical rules.",
+          "claimed_authors": [
+            "Hyun-Gue Huh",
+            "Eric Laporte"
+          ],
+          "claimed_title": "A resource-based Korean morphological annotation system",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2007,
+          "primary_pointer": "0711.3453"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Mellum2 Technical Report linguistics', candidate_title='A resource-based Korean morphological annotation system')",
+        "failed_at": "2026-06-18T13:28:11Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The advancement in healthcare has shifted focus toward patient-centric approaches, particularly in self-care and patient education, facilitated by access to Electronic Health Records (EHR). However, medical jargon in EHRs poses significant challenges in patient comprehension. To address this, we introduce a new task of automatically generating lay definitions, aiming to simplify complex medical terms into patient-friendly lay language. We first created the README dataset, an extensive collection of over 50,000 unique (medical term, lay definition) pairs and 300,000 mentions, each offering context-aware lay definitions manually annotated by domain experts. We have also engineered a data-centric Human-AI pipeline that synergizes data filtering, augmentation, and selection to improve data quality. We then used README as the training data for models and leveraged a Retrieval-Augmented Generation method to reduce hallucinations and improve the quality of model outputs. Our extensive automatic and human evaluations demonstrate that open-source mobile-friendly models, when fine-tuned with high-quality data, are capable of matching or even surpassing the performance of state-of-the-art closed-source large language models like ChatGPT. This research represents a significant stride in closing the knowledge gap in patient education and advancing patient-centric healthcare solutions.",
+          "claimed_authors": [
+            "Zonghai Yao",
+            "Nandyala Siddharth Kantu",
+            "Guanghao Wei",
+            "Hieu Tran",
+            "Zhangqi Duan",
+            "Sunjae Kwon",
+            "Zhichao Yang",
+            "README annotation team",
+            "Hong Yu"
+          ],
+          "claimed_title": "README: Bridging Medical Jargon and Lay Understanding for Patient Education through Data-Centric NLP",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2312.15561"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Mellum2 Technical Report linguistics', candidate_title='README: Bridging Medical Jargon and Lay Understanding for Patient Education through Data-Centric NLP')",
+        "failed_at": "2026-06-18T13:28:11Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We investigate the problem of parsing conversational data of morphologically-rich languages such as Hindi where argument scrambling occurs frequently. We evaluate a state-of-the-art non-linear transition-based parsing system on a new dataset containing 506 dependency trees for sentences from Bollywood (Hindi) movie scripts and Twitter posts of Hindi monolingual speakers. We show that a dependency parser trained on a newswire treebank is strongly biased towards the canonical structures and degrades when applied to conversational data. Inspired by Transformational Generative Grammar, we mitigate the sampling bias by generating all theoretically possible alternative word orders of a clause from the existing (kernel) structures in the treebank. Training our parser on canonical and transformed structures improves performance on conversational data by around 9% LAS over the baseline newswire parser.",
+          "claimed_authors": [
+            "Riyaz Ahmad Bhat",
+            "Irshad Ahmad Bhat",
+            "Dipti Misra Sharma"
+          ],
+          "claimed_title": "Leveraging Newswire Treebanks for Parsing Conversational Data with Argument Scrambling",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1902.05085"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Mellum2 Technical Report linguistics', candidate_title='Leveraging Newswire Treebanks for Parsing Conversational Data with Argument Scrambling')",
+        "failed_at": "2026-06-18T13:28:11Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "PEGs were formalized by Ford in 2004, and have several pragmatic operators (such as ordered choice and unlimited lookahead) for better expressing modern programming language syntax. Since these operators are not explicitly defined in the classic formal language theory, it is significant and still challenging to argue PEGs' expressiveness in the context of formal language theory.Since PEGs are relatively new, there are several unsolved problems.One of the problems is revealing a subclass of PEGs that is equivalent to DFAs. This allows application of some techniques from the theory of regular grammar to PEGs. In this paper, we define Linear PEGs (LPEGs), a subclass of PEGs that is equivalent to DFAs. Surprisingly, LPEGs are formalized by only excluding some patterns of recursive nonterminal in PEGs, and include the full set of ordered choice, unlimited lookahead, and greedy repetition, which are characteristic of PEGs. Although the conversion judgement of parsing expressions into DFAs is undecidable in general, the formalism of LPEGs allows for a syntactical judgement of parsing expressions.",
+          "claimed_authors": [
+            "Nariyoshi Chida",
+            "Kimio Kuramitsu"
+          ],
+          "claimed_title": "Linear Parsing Expression Grammars",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1707.01814"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Mellum2 Technical Report linguistics', candidate_title='Linear Parsing Expression Grammars')",
+        "failed_at": "2026-06-18T13:28:11Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Many successful approaches to semantic parsing build on top of the syntactic analysis of text, and make use of distributional representations or statistical models to match parses to ontology-specific queries. This paper presents a novel deep learning architecture which provides a semantic parsing system through the union of two neural models of language semantics. It allows for the generation of ontology-specific queries from natural language statements and questions without the need for parsing, which makes it especially suitable to grammatically malformed or syntactically atypical text, such as tweets, as well as permitting the development of semantic parsers for resource-poor languages.",
+          "claimed_authors": [
+            "Edward Grefenstette",
+            "Phil Blunsom",
+            "Nando de Freitas",
+            "Karl Moritz Hermann"
+          ],
+          "claimed_title": "A Deep Architecture for Semantic Parsing",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1404.7296"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Mellum2 Technical Report linguistics', candidate_title='A Deep Architecture for Semantic Parsing')",
+        "failed_at": "2026-06-18T13:28:11Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Data from high-energy physics (HEP) experiments are collected with significant financial and human effort and are mostly unique. At the same time, HEP has no coherent strategy for data preservation and re-use. An inter-experimental Study Group on HEP data preservation and long-term analysis was convened at the end of 2008 and held two workshops, at DESY (January 2009) and SLAC (May 2009). This document is an intermediate report to the International Committee for Future Accelerators (ICFA) of the reflections of this Study Group.",
+          "claimed_authors": [
+            " Dphep Study Group"
+          ],
+          "claimed_title": "Data Preservation in High Energy Physics",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2009,
+          "primary_pointer": "0912.0255"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Mellum2 Technical Report linguistics', candidate_title='Data Preservation in High Energy Physics')",
+        "failed_at": "2026-06-18T13:28:11Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We test the hypothesis that the degree of grammaticalization of German prepositions correlates with their corpus-based contextual dispersion measured by word entropy. We find that there is indeed a moderate correlation for entropy, but a stronger correlation for frequency and number of context types.",
+          "claimed_authors": [
+            "Dominik Schlechtweg",
+            "Sabine Schulte im Walde"
+          ],
+          "claimed_title": "Distribution-based Prediction of the Degree of Grammaticalization for German Prepositions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1804.06719"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Mellum2 Technical Report linguistics', candidate_title='Distribution-based Prediction of the Degree of Grammaticalization for German Prepositions')",
+        "failed_at": "2026-06-18T13:28:11Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "SPICA (Space Infrared Telescope for Cosmology and Astrophysics) is a JAXA led observatory that will operate in the mid and far infrared wavelength range (5-210 micron) with unprecedented sensitivity, thanks to the 3.5 m (current baseline) cold telescope (< 6 K) and advanced instruments. SPICA will carry a mid infrared camera, mid infrared spectrometers and a mid infrared coronagraph (built by JAXA institutes), a far infrared imaging spectrometer (SAFARI, provided by a European/Canadian consortium), and a far infrared/sub-millimetre spectrometer (proposed by U.S.). The contribution from ESA consists of the telescope assembly, a collaboration in the ground segment and the interface management to JAXA of the European instrument SAFARI. The SPICA observatory will be open to the worldwide community and will provide unique and ground-breaking answers to fundamental questions in planetary formation and formation and evolution of galaxies through cosmic history. The target launch year of SPICA is 2018. SPICA was selected in October 2007 as a candidate M-class mission for the ESA Cosmic Vision 2015-2025 Plan, with the character of \"mission of opportunity\". This report presents the science case of SPICA, describes the mission and summarises the outcome of the ESA Assessment Study.",
+          "claimed_authors": [
+            " SPICA Study Team Collaboration"
+          ],
+          "claimed_title": "SPICA Assessment Study Report for ESA Cosmic Vision 2015-2025 Plan",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1001.0709"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Mellum2 Technical Report linguistics', candidate_title='SPICA Assessment Study Report for ESA Cosmic Vision 2015-2025 Plan')",
+        "failed_at": "2026-06-18T13:28:11Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Xinghua Sun",
+            "Lin Dai"
+          ],
+          "title": "Throughput Analysis of CSMA: Technical Report",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2019
+        },
+        "primary_pointer": "1906.06643",
+        "summary": "In this technical report, the throughput performance of CSMA networks with two representative receiver structures, i.e., the collision model and the capture model, is characterized and optimized. The analysis is further applied to an IEEE 802.11 network, which is a representative wireless network that adopts the CSMA mechanism, where the optimal initial backoff window sizes of nodes to achieve the maximum network throughput are derived and verified against simulation results.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1906.06643",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-18T13:28:10Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Francesco Conti"
+          ],
+          "title": "Technical Report: NEMO DNN Quantization for Deployment Model",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2020
+        },
+        "primary_pointer": "2004.05930",
+        "summary": "This technical report aims at defining a formal framework for Deep Neural Network (DNN) layer-wise quantization, focusing in particular on the problems related to the final deployment. It also acts as a documentation for the NEMO (NEural Minimization for pytOrch) framework. It describes the four DNN representations used in NEMO (FullPrecision, FakeQuantized, QuantizedDeployable and IntegerDeployable), focusing in particular on a formal definition of the latter two. An important feature of this model, and in particular the IntegerDeployable representation, is that it enables DNN inference using purely integers - without resorting to real-valued numbers in any part of the computation and without relying on an explicit fixed-point numerical representation.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2004.05930",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-18T13:28:10Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Tobias Holtdirk",
+            "Nina Smirnova"
+          ],
+          "title": "Technical Report: Incorporating Blogs in Pollux",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2403.17618",
+        "summary": "This technical report describes the incorporation of political blogs into Pollux, the Specialised Information Service (FID) for Political Science in Germany. Considering the widespread use of political blogs in political science research, we decided to include them in the Pollux search system to enhance the available information infrastructure. We describe the crawling and analyzing of the blogs and the pipeline that integrates them into the Pollux system. To demonstrate the content of the incorporated blogs, we also provide a visualization of the topics covered by the blog posts during the first three months following integration.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2403.17618",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-18T13:28:11Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Leon Derczynski",
+            "Robert Gaizauskas"
+          ],
+          "title": "A Corpus-based Study of Temporal Signals",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2012
+        },
+        "primary_pointer": "1203.5066",
+        "summary": "Automatic temporal ordering of events described in discourse has been of great interest in recent years. Event orderings are conveyed in text via va rious linguistic mechanisms including the use of expressions such as \"before\", \"after\" or \"during\" that explicitly assert a temporal relation -- temporal signals. In this paper, we investigate the role of temporal signals in temporal relation extraction and provide a quantitative analysis of these expres sions in the TimeBank annotated corpus.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1203.5066",
+          "http_status": 200,
+          "pdf_sample_score": 0.1196,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-18T13:28:14Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Vlad A. Neacsu"
+          ],
+          "title": "The Linguistics Olympiads: Towards a New Corpus for Linguistics Research?",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2606.14257",
+        "summary": "Linguistics olympiad problems (LOPs) are a category of self-sufficient puzzles consisting of a scaled-down corpus representative of certain linguistic phenomena, from which the solver must deduce a primitive set of rules of the language and then translate a new set of elements. The linguistics olympiads (LOs) have become a worldwide phenomenon with 43 different territories taking part in the International Linguistics Olympiad (IOL) 2025. While the typology and solving strategies of LOPs have been analysed, their scientific facet and connections to academic linguistics have yet to be explored. LOPs are directly connected to many linguistic fields, e.g., linguistic typology, linguistic relativity, and linguistics fieldwork. Recently, LOPs have become a research focus as benchmarks for large language models, thus highlighting their usefulness in computational linguistics. Nevertheless, they have not yet been integrated into mainstream linguistics research. This paper attempts to open new directions of including this particular type of puzzle in academic research by offering a structured evaluation of LOPs as linguistic data sources and proposes criteria for their responsible use in academic research. Starting from a set of over 1800 LOPs, this study critically examines the potential of LOPs as a novel corpus for linguistics research by discussing their strengths and limitations as tools, as well as the areas of linguistics into which these problems could fit. This work forms the foundation for a broader initiative aimed at bridging the gap between LOs and academic linguistics, by establishing a robust theoretical framework for LOPs.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2606.14257",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-18T13:28:15Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Kaja Dobrovoljc"
+          ],
+          "title": "Counting trees: A treebank-driven exploration of syntactic variation in speech and writing across languages",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2505.22774",
+        "summary": "This paper presents a novel treebank-driven approach to comparing syntactic structures in speech and writing using dependency-parsed corpora. Adopting a fully inductive, bottom-up method, we define syntactic structures as delexicalized dependency (sub)trees and extract them from spoken and written Universal Dependencies (UD) treebanks in two syntactically distinct languages, English and Slovenian. For each corpus, we analyze the size, diversity, and distribution of syntactic inventories, their overlap across modalities, and the structures most characteristic of speech. Results show that, across both languages, spoken corpora contain fewer and less diverse syntactic structures than their written counterparts, with consistent cross-linguistic preferences for certain structural types across modalities. Strikingly, the overlap between spoken and written syntactic inventories is very limited: most structures attested in speech do not occur in writing, pointing to modality-specific preferences in syntactic organization that reflect the distinct demands of real-time interaction and elaborated writing. This contrast is further supported by a keyness analysis of the most frequent speech-specific structures, which highlights patterns associated with interactivity, context-grounding, and economy of expression. We argue that this scalable, language-independent framework offers a useful general method for systematically studying syntactic variation across corpora, laying the groundwork for more comprehensive data-driven theories of grammar in use.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2505.22774",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-18T13:28:15Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Martijn van der Klis",
+            "Jos Tellings"
+          ],
+          "title": "Generating semantic maps through multidimensional scaling: linguistic applications and theory",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2020
+        },
+        "primary_pointer": "2012.04946",
+        "summary": "This paper reports on the state-of-the-art in application of multidimensional scaling (MDS) techniques to create semantic maps in linguistic research. MDS refers to a statistical technique that represents objects (lexical items, linguistic contexts, languages, etc.) as points in a space so that close similarity between the objects corresponds to close distances between the corresponding points in the representation. We focus on the use of MDS in combination with parallel corpus data as used in research on cross-linguistic variation.\n  We first introduce the mathematical foundations of MDS and then give an exhaustive overview of past research that employs MDS techniques in combination with parallel corpus data. We propose a set of terminology to succinctly describe the key parameters of a particular MDS application. We then show that this computational methodology is theory-neutral, i.e. it can be employed to answer research questions in a variety of linguistic theoretical frameworks. Finally, we show how this leads to two lines of future developments for MDS research in linguistics.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2012.04946",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-18T13:28:15Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Bruno Nicenboim",
+            "Shravan Vasishth"
+          ],
+          "title": "Statistical methods for linguistic research: Foundational Ideas - Part II",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2016
+        },
+        "primary_pointer": "1602.00245",
+        "summary": "We provide an introductory review of Bayesian data analytical methods, with a focus on applications for linguistics, psychology, psycholinguistics, and cognitive science. The empirically oriented researcher will benefit from making Bayesian methods part of their statistical toolkit due to the many advantages of this framework, among them easier interpretation of results relative to research hypotheses, and flexible model specification. We present an informal introduction to the foundational ideas behind Bayesian data analysis, using, as an example, a linear mixed models analysis of data from a typical psycholinguistics experiment. We discuss hypothesis testing using the Bayes factor, and model selection using cross-validation. We close with some examples illustrating the flexibility of model specification in the Bayesian framework. Suggestions for further reading are also provided.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1602.00245",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-18T13:28:16Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "mellum2 technical report linguistics",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

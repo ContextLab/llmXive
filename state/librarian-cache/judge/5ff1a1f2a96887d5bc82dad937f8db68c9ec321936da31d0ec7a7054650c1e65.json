@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2004.05930",
+  "judged_at": "2026-06-18T13:28:21Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "mellum2 technical report linguistics",
+  "rationale": "The candidate paper concerns deep neural network quantization and deployment frameworks, which is unrelated to the user's query about a \"Mellum2 Technical Report\" in linguistics; it shares no domain, variables, or mechanism with the requested linguistic topic.",
+  "relevant": false
+}

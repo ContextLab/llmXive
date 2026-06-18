@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2506.03898",
+  "judged_at": "2026-06-18T13:30:11Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "detecting distribution shift in public health surveillance data via kernel two‑sample tests statistics",
+  "rationale": "The paper develops and analyzes kernel two‑sample (and conditional two‑sample) tests, providing theoretical foundations and practical algorithms for detecting differences between distributions. This matches the core mechanism (kernel two‑sample testing for distribution shift) of the user's question, qualifying under inclusion criterion (a) – same‑mechanism evidence, and also serves as a foundational methodological reference (d).",
+  "relevant": true
+}

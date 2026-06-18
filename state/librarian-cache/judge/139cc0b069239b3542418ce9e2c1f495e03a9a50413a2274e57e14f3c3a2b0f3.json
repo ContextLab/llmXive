@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2505.22774",
+  "judged_at": "2026-06-18T13:28:29Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "mellum2 technical report linguistics",
+  "rationale": "The paper studies syntactic variation using treebanks and does not relate to the “Mellum2 Technical Report” or its linguistic content; it shares no mechanism, variables, or domain with the user’s specific query.",
+  "relevant": false
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2108.00165",
+  "judged_at": "2026-06-18T13:30:09Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "detecting distribution shift in public health surveillance data via kernel two‑sample tests statistics",
+  "rationale": "The paper studies Wasserstein‑distance based two‑sample tests on torus‑valued data from structural biology, not kernel two‑sample tests nor public‑health surveillance data; it does not share the specific methodological or domain focus of the user's question.",
+  "relevant": false
+}

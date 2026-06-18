@@ -167,6 +167,10 @@
     "classified_at": "2026-06-04T03:31:19Z",
     "verdict": false
   },
+  "PROJ-647-mellum2-technical-report::1.6.0": {
+    "classified_at": "2026-06-18T13:28:10Z",
+    "verdict": false
+  },
   "PROJ-659-trust-region-on-policy-distillation::1.6.0": {
     "classified_at": "2026-06-16T08:22:20Z",
     "verdict": false

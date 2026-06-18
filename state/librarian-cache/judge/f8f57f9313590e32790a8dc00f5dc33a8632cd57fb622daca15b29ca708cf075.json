@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2510.11853",
+  "judged_at": "2026-06-18T13:30:33Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "detecting distribution shift in public health surveillance data via kernel two‑sample tests statistics",
+  "rationale": "The paper introduces a novel kernel two‑sample test (martingale MMD) that directly pertains to the statistical mechanism (kernel two‑sample testing) the user intends to use for detecting distribution shift, satisfying inclusion criterion (a) same‑mechanism evidence and (d) foundational methodology.",
+  "relevant": true
+}

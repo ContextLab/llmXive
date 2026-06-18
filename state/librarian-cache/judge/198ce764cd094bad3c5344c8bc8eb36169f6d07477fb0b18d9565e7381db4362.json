@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1405.2294",
+  "judged_at": "2026-06-18T13:30:25Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "detecting distribution shift in public health surveillance data via kernel two‑sample tests statistics",
+  "rationale": "The paper studies detection of distribution shifts (anomalous sequences) using maximum mean discrepancy, a kernel two‑sample test, which matches the methodological mechanism the user seeks (category a). Although it does not focus on public‑health surveillance data, it provides a canonical non‑parametric approach to shift detection that would be cited in a review of kernel‑based two‑sample tests.",
+  "relevant": true
+}

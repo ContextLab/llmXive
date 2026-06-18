@@ -1,0 +1,702 @@
+{
+  "fetched_at": "2026-06-18T13:30:33Z",
+  "field": "statistics",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "statistics",
+      "idea_body_excerpt": "Detecting Distribution Shift in Public Health Surveillance Data via Kernel Two‑Sample Tests",
+      "target_n": 5
+    },
+    "duration_seconds": 110.309,
+    "ended_at": "2026-06-18T13:30:33Z",
+    "expansion": null,
+    "extracted_queries": [
+      "concept drift kernel MMD",
+      "syndromic surveillance dataset shift",
+      "energy distance two-sample test",
+      "ROC AUC shift detection",
+      "characteristic kernel embedding theory"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": false,
+      "verdict": null
+    },
+    "outcome": "success",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "1405.2294"
+      ]
+    },
+    "per_query_hit_count": {
+      "Detecting Distribution Shift in Public Health Surveillance Data via Kernel Two‑Sample Tests statistics": 3,
+      "ROC AUC shift detection": 3,
+      "characteristic kernel embedding theory": 3,
+      "concept drift kernel MMD": 3,
+      "energy distance two-sample test": 3,
+      "syndromic surveillance dataset shift": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 1,
+      "rejections": [
+        {
+          "primary_pointer": "2108.00165",
+          "rationale": "The paper studies Wasserstein‑distance based two‑sample tests on torus‑valued data from structural biology, not kernel two‑sample tests nor public‑health surveillance data; it does not share the specific methodological or domain focus of the user's question.",
+          "title": "Two-sample goodness-of-fit tests on the flat torus based on Wasserstein distance and their relevance to structural biology"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-18T13:28:43Z",
+    "term_input": {
+      "normalized": "detecting distribution shift in public health surveillance data via kernel two‑sample tests statistics",
+      "raw": "Detecting Distribution Shift in Public Health Surveillance Data via Kernel Two‑Sample Tests statistics"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Background: Social media public health campaigns have the advantage of tailored messaging at low cost and large reach, but little is known about what would determine their feasibility as tools for inducing attitude and behavior change.\n  Objective: The aim of this study was to test the feasibility of designing, implementing, and evaluating a social media-enabled intervention for skin cancer prevention.\n  Conclusions: Social media-disseminated public health messages reached more than 23% of the Northern Ireland population. A Web-based survey suggested that the campaign might have contributed to improved knowledge and attitudes toward skin cancer among the target population. Findings suggested that shocking and humorous messages generated greatest impressions and engagement, but information-based messages were likely to be shared most. The extent of behavioral change as a result of the campaign remains to be explored, however, the change of attitudes and knowledge is promising. Social media is an inexpensive, effective method for delivering public health messages. However, existing and traditional process evaluation methods may not be suitable for social media.",
+          "claimed_authors": [
+            "Aisling Gough",
+            "Ruth F Hunter",
+            "Oluwaseun Ajao",
+            "Anna Jurek",
+            "Gary McKeown",
+            "Jun Hong",
+            "Eimear Barrett",
+            "Marbeth Ferguson",
+            "Gerry McElwee",
+            "Miriam McCarthy",
+            "Frank Kee"
+          ],
+          "claimed_title": "Tweet for Behavior Change: Using Social Media for the Dissemination of Public Health Messages",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1703.08813"
+        },
+        "details": "query-relevance 0.154 < 0.3 (query='Detecting Distribution Shift in Public Health Surveillance Data via Kernel Two‑S', candidate_title='Tweet for Behavior Change: Using Social Media for the Dissemination of Public Health Messages')",
+        "failed_at": "2026-06-18T13:30:02Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed optimization in the presence of Byzantine adversaries, where both data and computation are distributed among $m$ worker machines, $t$ of which may be corrupt. The compromised nodes may collaboratively and arbitrarily deviate from their pre-specified programs, and a designated (master) node iteratively computes the model/parameter vector for generalized linear models. In this work, we primarily focus on two iterative algorithms: Proximal Gradient Descent (PGD) and Coordinate Descent (CD). Gradient descent (GD) is a special case of these algorithms. PGD is typically used in the data-parallel setting, where data is partitioned across different samples, whereas, CD is used in the model-parallelism setting, where data is partitioned across the parameter space.\n  In this paper, we propose a method based on data encoding and error correction over real numbers to combat adversarial attacks. We can tolerate up to $t\\leq \\lfloor\\frac{m-1}{2}\\rfloor$ corrupt worker nodes, which is information-theoretically optimal. We give deterministic guarantees, and our method does not assume any probability distribution on the data. We develop a {\\em sparse} encoding scheme which enables computationally efficient data encoding and decoding. We demonstrate a trade-off between the corruption threshold and the resource requirements (storage, computational, and communication complexity). As an example, for $t\\leq\\frac{m}{3}$, our scheme incurs only a {\\em constant} overhead on these resources, over that required by the plain distributed PGD/CD algorithms which provide no adversarial protection. To the best of our knowledge, ours is the first paper that makes CD secure against adversarial attacks.\n  Our encoding scheme extends efficiently to the data streaming model and for stochastic gradient descent (SGD). We also give experimental results to show the efficacy of our proposed schemes.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Linqi Song",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Data Encoding for Byzantine-Resilient Distributed Optimization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1907.02664"
+        },
+        "details": "query-relevance 0.231 < 0.3 (query='Detecting Distribution Shift in Public Health Surveillance Data via Kernel Two‑S', candidate_title='Data Encoding for Byzantine-Resilient Distributed Optimization')",
+        "failed_at": "2026-06-18T13:30:02Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Face Recognition (FR) has been the interest to several researchers over the past few decades due to its passive nature of biometric authentication. Despite high accuracy achieved by face recognition algorithms under controlled conditions, achieving the same performance for face images obtained in surveillance scenarios, is a major hurdle. Some attempts have been made to super-resolve the low-resolution face images and improve the contrast, without considerable degree of success. The proposed technique in this paper tries to cope with the very low resolution and low contrast face images obtained from surveillance cameras, for FR under surveillance conditions. For Support Vector Machine classification, the selection of appropriate kernel has been a widely discussed issue in the research community. In this paper, we propose a novel kernel selection technique termed as MFKL (Multi-Feature Kernel Learning) to obtain the best feature-kernel pairing. Our proposed technique employs a effective kernel selection by Multiple Kernel Learning (MKL) method, to choose the optimal kernel to be used along with unsupervised domain adaptation method in the Reproducing Kernel Hilbert Space (RKHS), for a solution to the problem. Rigorous experimentation has been performed on three real-world surveillance face datasets : FR\\_SURV, SCface and ChokePoint. Results have been shown using Rank-1 Recognition Accuracy, ROC and CMC measures. Our proposed method outperforms all other recent state-of-the-art techniques by a considerable margin.",
+          "claimed_authors": [
+            "Samik Banerjee",
+            "Sukhendu Das"
+          ],
+          "claimed_title": "Kernel Selection using Multiple Kernel Learning and Domain Adaptation in Reproducing Kernel Hilbert Space, for Face Recognition under Surveillance Scenario",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1610.00660"
+        },
+        "details": "query-relevance 0.154 < 0.3 (query='Detecting Distribution Shift in Public Health Surveillance Data via Kernel Two‑S', candidate_title='Kernel Selection using Multiple Kernel Learning and Domain Adaptation in Reproducing Kernel Hilbert Space, for Face Recognition under Surveillance Scenario')",
+        "failed_at": "2026-06-18T13:30:02Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A fundamental issue for statistical classification models in a streaming environment is that the joint distribution between predictor and response variables changes over time (a phenomenon also known as concept drifts), such that their classification performance deteriorates dramatically. In this paper, we first present a hierarchical hypothesis testing (HHT) framework that can detect and also adapt to various concept drift types (e.g., recurrent or irregular, gradual or abrupt), even in the presence of imbalanced data labels. A novel concept drift detector, namely Hierarchical Linear Four Rates (HLFR), is implemented under the HHT framework thereafter. By substituting a widely-acknowledged retraining scheme with an adaptive training strategy, we further demonstrate that the concept drift adaptation capability of HLFR can be significantly boosted. The theoretical analysis on the Type-I and Type-II errors of HLFR is also performed. Experiments on both simulated and real-world datasets illustrate that our methods outperform state-of-the-art methods in terms of detection precision, detection delay as well as the adaptability across different concept drift types.",
+          "claimed_authors": [
+            "Shujian Yu",
+            "Zubin Abraham",
+            "Heng Wang",
+            "Mohak Shah",
+            "Yantao Wei",
+            "José C. Príncipe"
+          ],
+          "claimed_title": "Concept Drift Detection and Adaptation with Hierarchical Hypothesis Testing",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1707.07821"
+        },
+        "details": "query-relevance 0.154 < 0.3 (query='Detecting Distribution Shift in Public Health Surveillance Data via Kernel Two‑S', candidate_title='Concept Drift Detection and Adaptation with Hierarchical Hypothesis Testing')",
+        "failed_at": "2026-06-18T13:30:02Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In recent years, with the increasing popularity of \"Smart Technology\", the number of Internet of Things (IoT) devices and systems have surged significantly. Various IoT services and functionalities are based on the analytics of IoT streaming data. However, IoT data analytics faces concept drift challenges due to the dynamic nature of IoT systems and the ever-changing patterns of IoT data streams. In this article, we propose an adaptive IoT streaming data analytics framework for anomaly detection use cases based on optimized LightGBM and concept drift adaptation. A novel drift adaptation method named Optimized Adaptive and Sliding Windowing (OASW) is proposed to adapt to the pattern changes of online IoT data streams. Experiments on two public datasets show the high accuracy and efficiency of our proposed adaptive LightGBM model compared against other state-of-the-art approaches. The proposed adaptive LightGBM model can perform continuous learning and drift adaptation on IoT data streams without human intervention.",
+          "claimed_authors": [
+            "Li Yang",
+            "Abdallah Shami"
+          ],
+          "claimed_title": "A Lightweight Concept Drift Detection and Adaptation Framework for IoT Data Streams",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2104.10529"
+        },
+        "details": "query-relevance 0.231 < 0.3 (query='Detecting Distribution Shift in Public Health Surveillance Data via Kernel Two‑S', candidate_title='A Lightweight Concept Drift Detection and Adaptation Framework for IoT Data Streams')",
+        "failed_at": "2026-06-18T13:30:02Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We propose a principled method for gradient-based regularization of the critic of GAN-like models trained by adversarially optimizing the kernel of a Maximum Mean Discrepancy (MMD). We show that controlling the gradient of the critic is vital to having a sensible loss function, and devise a method to enforce exact, analytical gradient constraints at no additional cost compared to existing approximate techniques based on additive regularizers. The new loss function is provably continuous, and experiments show that it stabilizes and accelerates training, giving image generation models that outperform state-of-the art methods on $160 \\times 160$ CelebA and $64 \\times 64$ unconditional ImageNet.",
+          "claimed_authors": [
+            "Michael Arbel",
+            "Danica J. Sutherland",
+            "Mikołaj Bińkowski",
+            "Arthur Gretton"
+          ],
+          "claimed_title": "On gradient regularizers for MMD GANs",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1805.11565"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='Detecting Distribution Shift in Public Health Surveillance Data via Kernel Two‑S', candidate_title='On gradient regularizers for MMD GANs')",
+        "failed_at": "2026-06-18T13:30:02Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The RSNA Abdominal Traumatic Injury CT (RATIC) dataset is the largest publicly available collection of adult abdominal CT studies annotated for traumatic injuries. This dataset includes 4,274 studies from 23 institutions across 14 countries. The dataset is freely available for non-commercial use via Kaggle at https://www.kaggle.com/competitions/rsna-2023-abdominal-trauma-detection. Created for the RSNA 2023 Abdominal Trauma Detection competition, the dataset encourages the development of advanced machine learning models for detecting abdominal injuries on CT scans. The dataset encompasses detection and classification of traumatic injuries across multiple organs, including the liver, spleen, kidneys, bowel, and mesentery. Annotations were created by expert radiologists from the American Society of Emergency Radiology (ASER) and Society of Abdominal Radiology (SAR). The dataset is annotated at multiple levels, including the presence of injuries in three solid organs with injury grading, image-level annotations for active extravasations and bowel injury, and voxelwise segmentations of each of the potentially injured organs. With the release of this dataset, we hope to facilitate research and development in machine learning and abdominal trauma that can lead to improved patient care and outcomes.",
+          "claimed_authors": [
+            "Jeffrey D. Rudie",
+            "Hui-Ming Lin",
+            "Robyn L. Ball",
+            "Sabeena Jalal",
+            "Luciano M. Prevedello",
+            "Savvas Nicolaou",
+            "Brett S. Marinelli",
+            "Adam E. Flanders",
+            "Kirti Magudia",
+            "George Shih",
+            "Melissa A. Davis",
+            "John Mongan",
+            "Peter D. Chang",
+            "Ferco H. Berger",
+            "Sebastiaan Hermans",
+            "Meng Law",
+            "Tyler Richards",
+            "Jan-Peter Grunz",
+            "Andreas Steven Kunz",
+            "Shobhit Mathur",
+            "Sandro Galea-Soler",
+            "Andrew D. Chung",
+            "Saif Afat",
+            "Chin-Chi Kuo",
+            "Layal Aweidah",
+            "Ana Villanueva Campos",
+            "Arjuna Somasundaram",
+            "Felipe Antonio Sanchez Tijmes",
+            "Attaporn Jantarangkoon",
+            "Leonardo Kayat Bittencourt",
+            "Michael Brassil",
+            "Ayoub El Hajjami",
+            "Hakan Dogan",
+            "Muris Becircic",
+            "Agrahara G. Bharatkumar",
+            "Eduardo Moreno Júdice de Mattos Farina",
+            "Dataset Curator Group",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Errol Colak"
+          ],
+          "claimed_title": "The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.19595"
+        },
+        "details": "query-relevance 0.154 < 0.3 (query='Detecting Distribution Shift in Public Health Surveillance Data via Kernel Two‑S', candidate_title='The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset')",
+        "failed_at": "2026-06-18T13:30:02Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Radiological Society of North America (RSNA) Lumbar Degenerative Imaging Spine Classification (LumbarDISC) dataset is the largest publicly available dataset of adult MRI lumbar spine examinations annotated for degenerative changes. The dataset includes 2,697 patients with a total of 8,593 image series from 8 institutions across 6 countries and 5 continents. The dataset is available for free for non-commercial use via Kaggle and RSNA Medical Imaging Resource of AI (MIRA). The dataset was created for the RSNA 2024 Lumbar Spine Degenerative Classification competition where competitors developed deep learning models to grade degenerative changes in the lumbar spine. The degree of spinal canal, subarticular recess, and neural foraminal stenosis was graded at each intervertebral disc level in the lumbar spine. The images were annotated by expert volunteer neuroradiologists and musculoskeletal radiologists from the RSNA, American Society of Neuroradiology, and the American Society of Spine Radiology. This dataset aims to facilitate research and development in machine learning and lumbar spine imaging to lead to improved patient care and clinical efficiency.",
+          "claimed_authors": [
+            "Tyler J. Richards",
+            "Adam E. Flanders",
+            "Errol Colak",
+            "Luciano M. Prevedello",
+            "Robyn L. Ball",
+            "Felipe Kitamura",
+            "John Mongan",
+            "Maryam Vazirabad",
+            "Hui-Ming Lin",
+            "Anne Kendell",
+            "Thanat Kanthawang",
+            "Salita Angkurawaranon",
+            "Emre Altinmakas",
+            "Hakan Dogan",
+            "Paulo Eduardo de Aguiar Kuriki",
+            "Arjuna Somasundaram",
+            "Christopher Ruston",
+            "Deniz Bulja",
+            "Naida Spahovic",
+            "Jennifer Sommer",
+            "Sirui Jiang",
+            "Eduardo Moreno Judice de Mattos Farina",
+            "Eduardo Caminha Nunes",
+            "Michael Brassil",
+            "Megan McNamara",
+            "Johanna Ortiz",
+            "Jacob Peoples",
+            "Vinson L. Uytana",
+            "Anthony Kam",
+            "Venkata N. S. Dola",
+            "Daniel Murphy",
+            "David Vu",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Competition Data Notebook Group",
+            "Jason F. Talbott"
+          ],
+          "claimed_title": "The RSNA Lumbar Degenerative Imaging Spine Classification (LumbarDISC) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.09162"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='Detecting Distribution Shift in Public Health Surveillance Data via Kernel Two‑S', candidate_title='The RSNA Lumbar Degenerative Imaging Spine Classification (LumbarDISC) Dataset')",
+        "failed_at": "2026-06-18T13:30:02Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Infectious disease surveillance is of great importance for the prevention of major outbreaks. Syndromic surveillance aims at developing algorithms which can detect outbreaks as early as possible by monitoring data sources which allow to capture the occurrences of a certain disease. Recent research mainly focuses on the surveillance of specific, known diseases, putting the focus on the definition of the disease pattern under surveillance. Until now, only little effort has been devoted to what we call non-specific syndromic surveillance, i.e., the use of all available data for detecting any kind of outbreaks, including infectious diseases which are unknown beforehand. In this work, we revisit published approaches for non-specific syndromic surveillance and present a set of simple statistical modeling techniques which can serve as benchmarks for more elaborate machine learning approaches. Our experimental comparison on established synthetic data and real data in which we injected synthetic outbreaks shows that these benchmarks already achieve very competitive results and often outperform more elaborate algorithms.",
+          "claimed_authors": [
+            "Moritz Kulessa",
+            "Eneldo Loza Mencía",
+            "Johannes Fürnkranz"
+          ],
+          "claimed_title": "Revisiting Non-Specific Syndromic Surveillance",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2101.12246"
+        },
+        "details": "query-relevance 0.231 < 0.3 (query='Detecting Distribution Shift in Public Health Surveillance Data via Kernel Two‑S', candidate_title='Revisiting Non-Specific Syndromic Surveillance')",
+        "failed_at": "2026-06-18T13:30:02Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We describe the Dark Energy Survey (DES), a proposed optical-near infrared survey of 5000 sq. deg of the South Galactic Cap to ~24th magnitude in SDSS griz, that would use a new 3 sq. deg CCD camera to be mounted on the Blanco 4-m telescope at Cerro Telolo Inter-American Observatory (CTIO). The survey data will allow us to measure the dark energy and dark matter densities and the dark energy equation of state through four independent methods: galaxy clusters, weak gravitational lensing tomography, galaxy angular clustering, and supernova distances. These methods are doubly complementary: they constrain different combinations of cosmological model parameters and are subject to different systematic errors. By deriving the four sets of measurements from the same data set with a common analysis framework, we will obtain important cross checks of the systematic errors and thereby make a substantial and robust advance in the precision of dark energy measurements.",
+          "claimed_authors": [
+            " The Dark Energy Survey Collaboration"
+          ],
+          "claimed_title": "The Dark Energy Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2005,
+          "primary_pointer": "astro-ph/0510346"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='Detecting Distribution Shift in Public Health Surveillance Data via Kernel Two‑S', candidate_title='The Dark Energy Survey')",
+        "failed_at": "2026-06-18T13:30:02Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='Detecting Distribution Shift in Public Health Surveillance Data via Kernel Two‑S', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-06-18T13:30:02Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Assessment of risk prediction models has primarily utilized measures of discrimination, the ROC curve AUC and C-statistic. These derive from the risk distributions of patients and nonpatients, which in turn are derived from a population risk distribution. As greater dispersion of the population risk distribution produces greater separation of patient and nonpatient risks (discrimination), its parameters can be used as alternatives to the ROC curve AUC and C-statistic. Here continuous probability distributions are employed to develop insight into the relationship between their parameters and the ROC curve AUC and C-statistic derived from them.\n  The ROC curve AUC and C-statistic are shown to have a straight-line relationship with the SD for uniform, half-sine, and symmetric triangular probability distributions, with slight differences in the slope: AUC approx 1/2+0.28 SD/(mean(1-mean)). This also characterizes the beta distribution over the same range of SD's. But at larger beta distribution SD's the plot of AUC versus SD deviates downward from this straight-line relationship, approaching the ROC curve AUC and SD of a perfect model (AUC=1, SD= $\\sqrt{\\rm mean(1-mean)}$).\n  A simpler and more intuitive discrimination metric is the coefficient of discrimination, the difference between the mean risk in patients and nonpatients. This is SD2/(mean(1-mean)), which is also the same for any distribution. Since estimating parameters or metrics discards information, the population risk distribution should always be presented. As the ROC curve AUC and C-statistic are functions of this distribution's parameters, the parameters represent simpler, intuitive alternatives to these discrimination metrics. Among discrimination metrics, the coefficient of discrimination provides a simple, intuitive alternative to the ROC curve AUC and C-statistic.",
+          "claimed_authors": [
+            "Ralph H. Stern"
+          ],
+          "claimed_title": "Alternatives to the ROC Curve AUC and C-statistic for Risk Prediction Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2311.08559"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='Detecting Distribution Shift in Public Health Surveillance Data via Kernel Two‑S', candidate_title='Alternatives to the ROC Curve AUC and C-statistic for Risk Prediction Models')",
+        "failed_at": "2026-06-18T13:30:03Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In analysis of binary outcomes, the receiver operator characteristic (ROC) curve is heavily used to show the performance of a model or algorithm. The ROC curve is informative about the performance over a series of thresholds and can be summarized by the area under the curve (AUC), a single number. When a predictor is categorical, the ROC curve has one less than number of categories as potential thresholds; when the predictor is binary there is only one threshold. As the AUC may be used in decision-making processes on determining the best model, it important to discuss how it agrees with the intuition from the ROC curve. We discuss how the interpolation of the curve between thresholds with binary predictors can largely change the AUC. Overall, we show using a linear interpolation from the ROC curve with binary predictors corresponds to the estimated AUC, which is most commonly done in software, which we believe can lead to misleading results. We compare R, Python, Stata, and SAS software implementations. We recommend using reporting the interpolation used and discuss the merit of using the step function interpolator, also referred to as the \"pessimistic\" approach by Fawcett (2006).",
+          "claimed_authors": [
+            "John Muschelli"
+          ],
+          "claimed_title": "ROC and AUC with a Binary Predictor: a Potentially Misleading Metric",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1903.04881"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Detecting Distribution Shift in Public Health Surveillance Data via Kernel Two‑S', candidate_title='ROC and AUC with a Binary Predictor: a Potentially Misleading Metric')",
+        "failed_at": "2026-06-18T13:30:03Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Area Under the Receiver Operating Characteristic Curve (AUC-ROC) is a popular evaluation metric for binary classifiers. In this paper, we discuss techniques to segment the AUC-ROC along human-interpretable dimensions. AUC-ROC is not an additive/linear function over the data samples, therefore such segmenting the overall AUC-ROC is different from tabulating the AUC-ROC of data segments. To segment the overall AUC-ROC, we must first solve an \\emph{attribution} problem to identify credit for individual examples.\n  We observe that AUC-ROC, though non-linear over examples, is linear over \\emph{pairs} of examples. This observation leads to a simple, efficient attribution technique for examples (example attributions), and for pairs of examples (pair attributions). We automatically slice these attributions using decision trees by making the tree predict the attributions; we use the notion of honest estimates along with a t-test to mitigate false discovery.\n  Our experiments with the method show that an inferior model can outperform a superior model (trained to optimize a different training objective) on the inferior model's own training objective, a manifestation of Goodhart's Law. In contrast, AUC attributions enable a reasonable comparison. Example attributions can be used to slice this comparison. Pair attributions are used to categorize pairs of items -- one positively labeled and one negatively -- that the model has trouble separating. These categories identify the decision boundary of the classifier and the headroom to improve AUC.",
+          "claimed_authors": [
+            "Arya Tafvizi",
+            "Besim Avci",
+            "Mukund Sundararajan"
+          ],
+          "claimed_title": "Attributing AUC-ROC to Analyze Binary Classifier Performance",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2205.11781"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='Detecting Distribution Shift in Public Health Surveillance Data via Kernel Two‑S', candidate_title='Attributing AUC-ROC to Analyze Binary Classifier Performance')",
+        "failed_at": "2026-06-18T13:30:03Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In recent years, there have been significant efforts on mitigating unethical demographic biases in machine learning methods. However, very little is done for kernel methods. In this paper, we propose a new fair kernel regression method via fair feature embedding (FKR-F$^2$E) in kernel space. Motivated by prior works on feature selection in kernel space and feature processing for fair machine learning, we propose to learn fair feature embedding functions that minimize demographic discrepancy of feature distributions in kernel space. Compared to the state-of-the-art fair kernel regression method and several baseline methods, we show FKR-F$^2$E achieves significantly lower prediction disparity across three real-world data sets.",
+          "claimed_authors": [
+            "Austin Okray",
+            "Hui Hu",
+            "Chao Lan"
+          ],
+          "claimed_title": "Fair Kernel Regression via Fair Feature Embedding in Kernel Space",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1907.02242"
+        },
+        "details": "query-relevance 0.231 < 0.3 (query='Detecting Distribution Shift in Public Health Surveillance Data via Kernel Two‑S', candidate_title='Fair Kernel Regression via Fair Feature Embedding in Kernel Space')",
+        "failed_at": "2026-06-18T13:30:03Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The functional Schrodinger picture formulation of quantum field theory and the variational Gaussian approximation method based on the formulation are briefly reviewed. After presenting recent attempts to improve the variational approximation, we introduce a new systematic method based on the background field method, which enables one to compute the order-by-order correction terms to the Gaussian approximation of the effective action.",
+          "claimed_authors": [
+            "Jae Hyung Yee"
+          ],
+          "claimed_title": "Variational Approach to Quantum Field Theory: Gaussian Approximation and the Perturbative Expansion around It",
+          "claimed_venue": "arXiv",
+          "claimed_year": 1997,
+          "primary_pointer": "hep-th/9707234"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Detecting Distribution Shift in Public Health Surveillance Data via Kernel Two‑S', candidate_title='Variational Approach to Quantum Field Theory: Gaussian Approximation and the Perturbative Expansion around It')",
+        "failed_at": "2026-06-18T13:30:03Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Jupiter-Saturn 2:5 near-commensurability is analyzed in a fully analytic Hamiltonian planetary theory. Computations for the Sun-Jupiter-Saturn system, extending to the third order of the masses and to the 8th degree in the eccentricities and inclinations, reveal an unexpectedly sensitive dependence of the solution on initial data and its likely nonconvergence. The source of the sensitivity and apparent lack of convergence is this near-commensurability, the so-called great inequality. This indicates that simple averaging, still common in current semi-analytic planetary theories, may not be an adequate technique to obtain information on the long-term dynamics of the Solar System.\n  Preliminary results suggest that these difficulties can be overcome by using resonant normal forms.",
+          "claimed_authors": [
+            "F. Varadi",
+            "M. Ghil",
+            "W. M. Kaula",
+            " Keywords",
+            " :",
+            "Hamiltonian systems",
+            "planetary motion",
+            "perturbation theory",
+            " resonances"
+          ],
+          "claimed_title": "The Great Inequality In A Hamiltonian Planetary Theory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 1993,
+          "primary_pointer": "chao-dyn/9311011"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='Detecting Distribution Shift in Public Health Surveillance Data via Kernel Two‑S', candidate_title='The Great Inequality In A Hamiltonian Planetary Theory')",
+        "failed_at": "2026-06-18T13:30:03Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Pierre-François Massiani",
+            "Christian Fiedler",
+            "Lukas Haverbeck",
+            "Friedrich Solowjow",
+            "Sebastian Trimpe"
+          ],
+          "title": "Kernel conditional tests from learning-theoretic bounds",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2506.03898",
+        "summary": "We propose a framework for hypothesis testing on conditional probability distributions, which we then use to construct statistical tests of functionals of conditional distributions. These tests identify the inputs where the functionals differ with high probability, and include tests of conditional moments or two-sample tests. Our key idea is to transform confidence bounds of a learning method into a test of conditional expectations. We instantiate this principle for kernel ridge regression (KRR) with subgaussian noise. An intermediate data embedding then enables more general tests -- including conditional two-sample tests -- via kernel mean embeddings of distributions. To have guarantees in this setting, we generalize existing pointwise-in-time or time-uniform confidence bounds for KRR to previously-inaccessible yet essential cases such as infinite-dimensional outputs with non-trace-class kernels. These bounds also circumvent the need for independent data, allowing for instance online sampling. To make our tests readily applicable in practice, we introduce bootstrapping schemes leveraging the parametric form of testing thresholds identified in theory to avoid tuning inaccessible parameters. We illustrate the tests on examples, including one in process monitoring and comparison of dynamical systems. Overall, our results establish a comprehensive foundation for conditional testing on functionals, from theoretical guarantees to an algorithmic implementation, and advance the state of the art on confidence bounds for vector-valued least squares estimation.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "theoremsearch",
+          "final_url": "https://arxiv.org/abs/2506.03898",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4615,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-18T13:30:03Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Xing Liu",
+            "François-Xavier Briol"
+          ],
+          "title": "On the Robustness of Kernel Goodness-of-Fit Tests",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2408.05854",
+        "summary": "Goodness-of-fit testing is often criticized for its lack of practical relevance: since ``all models are wrong'', the null hypothesis that the data conform to our model is ultimately always rejected as the sample size grows. Despite this, probabilistic models are still used extensively, raising the more pertinent question of whether the model is \\emph{good enough} for the task at hand. This question can be formalized as a robust goodness-of-fit testing problem by asking whether the data were generated from a distribution that is a mild perturbation of the model. In this paper, we show that existing kernel goodness-of-fit tests are not robust under common notions of robustness including both qualitative and quantitative robustness. We further show that robustification techniques using tilted kernels, while effective in the parameter estimation literature, are not sufficient to ensure both types of robustness in the testing setting. To address this, we propose the first robust kernel goodness-of-fit test, which resolves this open problem by using kernel Stein discrepancy (KSD) balls. This framework encompasses many well-known perturbation models, such as Huber's contamination and density-band models.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "theoremsearch",
+          "final_url": "https://arxiv.org/abs/2408.05854",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3846,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-18T13:30:03Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Shengyu Zhu",
+            "Biao Chen",
+            "Pengfei Yang",
+            "Zhitang Chen"
+          ],
+          "title": "Universal Hypothesis Testing with Kernels: Asymptotically Optimal Tests for Goodness of Fit",
+          "venue": "arXiv",
+          "year": 2018
+        },
+        "primary_pointer": "1802.07581",
+        "summary": "We characterize the asymptotic performance of nonparametric goodness of fit testing. The exponential decay rate of the type-II error probability is used as the asymptotic performance metric, and a test is optimal if it achieves the maximum rate subject to a constant level constraint on the type-I error probability. We show that two classes of Maximum Mean Discrepancy (MMD) based tests attain this optimality on $\\mathbb R^d$, while the quadratic-time Kernel Stein Discrepancy (KSD) based tests achieve the maximum exponential decay rate under a relaxed level constraint. Under the same performance metric, we proceed to show that the quadratic-time MMD based two-sample tests are also optimal for general two-sample problems, provided that kernels are bounded continuous and characteristic. Key to our approach are Sanov's theorem from large deviation theory and the weak metrizable properties of the MMD and KSD.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "theoremsearch",
+          "final_url": "https://arxiv.org/abs/1802.07581",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3077,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-18T13:30:03Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Hoseung Song",
+            "Hao Chen"
+          ],
+          "title": "Generalized Kernel Two-Sample Tests",
+          "venue": "arXiv",
+          "year": 2020
+        },
+        "primary_pointer": "2011.06127",
+        "summary": "Kernel two-sample tests have been widely used for multivariate data to test equality of distributions. However, existing tests based on mapping distributions into a reproducing kernel Hilbert space mainly target specific alternatives and do not work well for some scenarios when the dimension of the data is moderate to high due to the curse of dimensionality. We propose a new test statistic that makes use of a common pattern under moderate and high dimensions and achieves substantial power improvements over existing kernel two-sample tests for a wide range of alternatives. We also propose alternative testing procedures that maintain high power with low computational cost, offering easy off-the-shelf tools for large datasets. The new approaches are compared to other state-of-the-art tests under various settings and show good performance. We showcase the new approaches through two applications: The comparison of musks and non-musks using the shape of molecules, and the comparison of taxi trips starting from John F. Kennedy airport in consecutive months. All proposed methods are implemented in an R package kerTests.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "theoremsearch",
+          "final_url": "https://arxiv.org/abs/2011.06127",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3846,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-18T13:30:03Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Minh Tang",
+            "Avanti Athreya",
+            "Daniel L. Sussman",
+            "Vince Lyzinski",
+            "Carey E. Priebe"
+          ],
+          "title": "A nonparametric two-sample hypothesis testing problem for random dot product graphs",
+          "venue": "arXiv",
+          "year": 2014
+        },
+        "primary_pointer": "1409.2344",
+        "summary": "We consider the problem of testing whether two finite-dimensional random dot product graphs have generating latent positions that are independently drawn from the same distribution, or distributions that are related via scaling or projection. We propose a test statistic that is a kernel-based function of the adjacency spectral embedding for each graph. We obtain a limiting distribution for our test statistic under the null and we show that our test procedure is consistent across a broad range of alternatives.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "theoremsearch",
+          "final_url": "https://arxiv.org/abs/1409.2344",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3846,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-18T13:30:03Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Shaofeng Zou",
+            "Yingbin Liang",
+            "H. Vincent Poor",
+            "Xinghua Shi"
+          ],
+          "title": "Nonparametric Detection of Anomalous Data Streams",
+          "venue": "arXiv",
+          "year": 2014
+        },
+        "primary_pointer": "1405.2294",
+        "summary": "A nonparametric anomalous hypothesis testing problem is investigated, in which there are totally n sequences with s anomalous sequences to be detected. Each typical sequence contains m independent and identically distributed (i.i.d.) samples drawn from a distribution p, whereas each anomalous sequence contains m i.i.d. samples drawn from a distribution q that is distinct from p. The distributions p and q are assumed to be unknown in advance. Distribution-free tests are constructed using maximum mean discrepancy as the metric, which is based on mean embeddings of distributions into a reproducing kernel Hilbert space. The probability of error is bounded as a function of the sample size m, the number s of anomalous sequences and the number n of sequences. It is then shown that with s known, the constructed test is exponentially consistent if m is greater than a constant factor of log n, for any p and q, whereas with s unknown, m should has an order strictly greater than log n. Furthermore, it is shown that no test can be consistent for arbitrary p and q if m is less than a constant factor of log n, thus the order-level optimality of the proposed test is established. Numerical results are provided to demonstrate that our tests outperform (or perform as well as) the tests based on other competitive approaches under various cases.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "theoremsearch",
+          "final_url": "https://arxiv.org/abs/1405.2294",
+          "http_status": 200,
+          "pdf_sample_score": 0.3084,
+          "query_relevance_score": 0.3846,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-18T13:30:03Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Shengyu Zhu",
+            "Biao Chen",
+            "Zhitang Chen"
+          ],
+          "title": "Exponentially Consistent Kernel Two-Sample Tests",
+          "venue": "arXiv",
+          "year": 2018
+        },
+        "primary_pointer": "1802.08407",
+        "summary": "Given two sets of independent samples from unknown distributions $P$ and $Q$, a two-sample test decides whether to reject the null hypothesis that $P=Q$. Recent attention has focused on kernel two-sample tests as the test statistics are easy to compute, converge fast, and have low bias with their finite sample estimates. However, there still lacks an exact characterization on the asymptotic performance of such tests, and in particular, the rate at which the type-II error probability decays to zero in the large sample limit. In this work, we establish that a class of kernel two-sample tests are exponentially consistent with Polish, locally compact Hausdorff sample space, e.g., $\\mathbb R^d$. The obtained exponential decay rate is further shown to be optimal among all two-sample tests satisfying the level constraint, and is independent of particular kernels provided that they are bounded continuous and characteristic. Our results gain new insights into related issues such as fair alternative for testing and kernel selection strategy. Finally, as an application, we show that a kernel based test achieves the optimal detection for off-line change detection in the nonparametric setting.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "theoremsearch",
+          "final_url": "https://arxiv.org/abs/1802.08407",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3846,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-18T13:30:03Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Hanjia Gao",
+            "Xiaofeng Shao"
+          ],
+          "title": "Two Sample Testing in High Dimension via Maximum Mean Discrepancy",
+          "venue": "arXiv",
+          "year": 2021
+        },
+        "primary_pointer": "2109.14913",
+        "summary": "Maximum Mean Discrepancy (MMD) has been widely used in the areas of machine learning and statistics to quantify the distance between two distributions in the $p$-dimensional Euclidean space. The asymptotic property of the sample MMD has been well studied when the dimension $p$ is fixed using the theory of U-statistic. As motivated by the frequent use of MMD test for data of moderate/high dimension, we propose to investigate the behavior of the sample MMD in a high-dimensional environment and develop a new studentized test statistic. Specifically, we obtain the central limit theorems for the studentized sample MMD as both the dimension $p$ and sample sizes $n,m$ diverge to infinity. Our results hold for a wide range of kernels, including popular Gaussian and Laplacian kernels, and also cover energy distance as a special case. We also derive the explicit rate of convergence under mild assumptions and our results suggest that the accuracy of normal approximation can improve with dimensionality. Additionally, we provide a general theory on the power analysis under the alternative hypothesis and show that our proposed test can detect difference between two distributions in the moderately high dimensional regime. Numerical simulations demonstrate the effectiveness of our proposed test statistic and normal approximation.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "theoremsearch",
+          "final_url": "https://arxiv.org/abs/2109.14913",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3846,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-18T13:30:03Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Anirban Chatterjee",
+            "Aaditya Ramdas"
+          ],
+          "title": "A Martingale Kernel Two-Sample Test",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2510.11853",
+        "summary": "The Maximum Mean Discrepancy (MMD) is a widely used multivariate distance metric for two-sample testing. The standard MMD test statistic has an intractable null distribution typically requiring costly resampling or permutation approaches for calibration. In this work we leverage a martingale interpretation of the estimated squared MMD to propose martingale MMD (mMMD), a quadratic-time statistic which has a limiting standard Gaussian distribution under the null. Moreover we show that the test is consistent against any fixed alternative and for large sample sizes, mMMD offers substantial computational savings over the standard MMD test, with only a minor loss in power.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "theoremsearch",
+          "final_url": "https://arxiv.org/abs/2510.11853",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3077,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-18T13:30:04Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "detecting distribution shift in public health surveillance data via kernel two‑sample tests statistics",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

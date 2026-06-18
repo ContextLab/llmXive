@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2408.05854",
+  "judged_at": "2026-06-18T13:30:15Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "detecting distribution shift in public health surveillance data via kernel two‑sample tests statistics",
+  "rationale": "The paper investigates kernel‑based hypothesis testing for distributional differences (goodness‑of‑fit tests), which shares the same underlying mechanism as kernel two‑sample tests used to detect distribution shift. This qualifies as same‑mechanism evidence (criterion a) and is a relevant methodological reference for the user’s question.",
+  "relevant": true
+}

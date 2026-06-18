@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2403.17618",
+  "judged_at": "2026-06-18T13:28:22Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "mellum2 technical report linguistics",
+  "rationale": "The paper concerns incorporating political blogs into a political science information service and does not address linguistics, the Mellum2 technical report, or any related linguistic mechanism or dataset, thus it falls outside the user's domain.",
+  "relevant": false
+}

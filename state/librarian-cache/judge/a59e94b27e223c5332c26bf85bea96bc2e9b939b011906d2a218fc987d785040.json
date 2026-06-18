@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1203.5066",
+  "judged_at": "2026-06-18T13:28:24Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "mellum2 technical report linguistics",
+  "rationale": "The candidate paper studies temporal signals in the TimeBank corpus and does not relate to the “Mellum2 Technical Report” or its linguistic content, thus it lacks any relevant mechanism, variable, or domain connection.",
+  "relevant": false
+}

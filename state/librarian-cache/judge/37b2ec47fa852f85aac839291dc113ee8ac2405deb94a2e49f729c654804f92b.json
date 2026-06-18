@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2606.14257",
+  "judged_at": "2026-06-18T13:28:25Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "mellum2 technical report linguistics",
+  "rationale": "The paper discusses linguistics olympiad problems as a corpus, which is unrelated to the specific “Mellum2 Technical Report” the user is seeking; it does not address the same construct, variables, or domain.",
+  "relevant": false
+}

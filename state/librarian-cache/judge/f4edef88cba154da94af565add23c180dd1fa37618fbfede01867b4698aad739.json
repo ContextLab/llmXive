@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1906.06643",
+  "judged_at": "2026-06-18T13:28:18Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "mellum2 technical report linguistics",
+  "rationale": "The candidate paper studies CSMA network throughput in wireless communications, which is unrelated to the linguistics-focused “Mellum2 Technical Report” question; it shares no relevant construct, domain, or variables.",
+  "relevant": false
+}

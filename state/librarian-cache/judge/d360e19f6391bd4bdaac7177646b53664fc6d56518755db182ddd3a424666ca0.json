@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1802.07581",
+  "judged_at": "2026-06-18T13:30:18Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "detecting distribution shift in public health surveillance data via kernel two‑sample tests statistics",
+  "rationale": "The paper studies kernel‑based two‑sample (MMD) tests and their optimality for detecting distribution differences, which matches the mechanism (kernel two‑sample statistics) of the user's question, serving as a foundational methodological reference even though it does not focus on public‑health data. This satisfies acceptance criterion (a) and (d).",
+  "relevant": true
+}

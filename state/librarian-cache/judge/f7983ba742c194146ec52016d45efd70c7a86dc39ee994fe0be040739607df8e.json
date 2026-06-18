@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2109.14913",
+  "judged_at": "2026-06-18T13:30:30Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "detecting distribution shift in public health surveillance data via kernel two‑sample tests statistics",
+  "rationale": "The paper develops and analyzes kernel two‑sample tests (Maximum Mean Discrepancy), which is the exact statistical mechanism the user’s question concerns for detecting distribution shift, satisfying criterion (a) and also serving as a foundational methodology reference (d) even though it does not focus on public‑health data specifically.",
+  "relevant": true
+}
