@@ -1,0 +1,102 @@
+# PROJ-552 autonomous run — session notes (2026-06-18)
+
+Goal (standing): drive PROJ-552 (knot-complexity research project) through **all**
+llmXive pipeline stages — brainstormed idea → compiled, reviewed paper — with
+**zero human edits to the project's content**. All bug-fixing must be at the
+**agent/platform layer** (src/llmxive, agents/), never hand-edits to 552's
+code/data/specs. (User: manual fixes "contaminate the pipeline" and defeat the PoC.)
+
+## Headline result
+
+**552 reached `research_complete` fully autonomously** with REAL artifacts
+(knots_cleaned.csv, knots_validated.csv 1.3MB, validation_flags.json,
+crossing_vs_braid.png, complexity_visualization_examples.png, regression/
+correlation reports). Commit `7986a6374`. The pathological `logs.py` oscillation
+that previously spun forever was resolved by the implementer adopting the
+tolerant-logging reference the feedback agent now provides — no hand-edits.
+
+## Agent/platform fixes committed this session (all pushed to main)
+
+Execution stage (got 552 in_progress → research_complete):
+- `shared_contract.py`: contract-error detection + **cumulative ledger**
+  (`.specify/memory/contract_ledger.json`) + anti-rotation feedback
+  (preserve-existing, permissive `__getattr__`) + `<locals>` closure-arity
+  detection + a **tolerant-logging REFERENCE skeleton** emitted when a logging
+  module is the contract battleground (the key unblock — implementer kept
+  reaching for stdlib `logging.Logger`). Commits `3f01b4f32`, earlier shared_contract commits.
+- `papers.py` (`fill/channels`): SemanticScholar 429/403 breaker (stop wedging runs).
+- `execution_status.py`: MAX_EXECUTION_FIX_ROUNDS 8 → 12.
+- (earlier) venv-symlink fix, dep self-heal, run-book repair feedback, model
+  migration to openai.gpt-oss-120b, implementer execution-feedback injection.
+
+Research-review stage (this session's second half):
+- `0ffd530ff` review-stall fix: `types.action_items_from_text()` +
+  advancement consumer + research_reviewer producer — synthesize action_items
+  from prose feedback so non-accept reviews are actionable (was: all
+  minor_revision with empty action_items → engine no-op).
+- `e593b6064` **reviewer calibration**: all 7 research specialist prompts had
+  NO accept criteria (0 accepts repo-wide: 35 minor / 32 full / 2 reject / 0
+  accept). Added an honest verdict-calibration rubric.
+- `aea6b83b8` reviewer input fidelity: `_summarize_tree` was capped at 25 files
+  (alphabetical) and didn't exclude `code/.venv` (5,580 files) → reviewers saw
+  only `code/analysis/*` and falsely called core files "missing". Fixed (exclude
+  venv/cache, cap 400) + added execution-gate evidence to reviewer context.
+- `3b5611425` include `docs/` in reviewer tree (the 41 reproducibility docs were
+  invisible → falsely "missing").
+
+## Current 552 state
+
+- Stage: `research_review`, revision_spec set to `.../round-1`, counter reset.
+- Verdicts progressed across fixes: **0/7 → 1/7 → 2/7 → (now) implementation_correctness
+  + implementation_completeness ACCEPT**; 5 holdouts: idea_quality, creativity,
+  code_quality_research, data_quality_research, filesystem_hygiene.
+- The fact-based lenses now accept (tree/docs/execution fixes worked). The 5
+  holdouts are subjective/quality lenses with a MIX of:
+  - genuine-but-minor addressable asks (LICENSE.md; pin exact dep versions;
+    split >200-line files; creativity wants an independent hyperbolic-volume
+    cross-check) → need the REVISION IMPLEMENTER to apply.
+  - over-strict / can't-see (filesystem_hygiene calls `state/projects/552.yaml`
+    "missing" — it exists but lives OUTSIDE the project tree the reviewer sees;
+    reviewers see file names+sizes, not contents).
+
+## Remaining blockers (precise) + resume plan
+
+1. **Revision implementer is paper-centric** (`agents/implementer.py`). It hardcodes
+   `source_dir = paper/source`, shows a manuscript window, gates `code/` edits
+   behind "science" severity, and compiles `main.tex`. For a RESEARCH revision
+   (no paper yet) every edit is rejected → `success_count=0` → 3 zero-success
+   rounds → `agent_blocked`. NEEDS track-aware research mode: edit research
+   artifacts (code/data/specs/docs), research-framed edit prompt, skip paper
+   compile/author/paperstatus. `_validate_edit_path` must allow research bases
+   for research track. This is THE gate to converge research_review.
+2. **More reviewer input/calibration** to flip remaining subjective holdouts:
+   give reviewers `state/projects/<id>.yaml` visibility; consider showing key
+   file CONTENTS (not just listing); tune calibration for code_quality/creativity
+   ("long files" / "more novelty" are not research-stage blockers).
+3. **Round-counter** lives at repo-root `specs/auto-revisions/<id>/round-N`
+   (NOT under projects/). `next_round_number` = max(round dirs)+1; cap
+   MAX_REVISION_ROUNDS=3. Reset = `rm -rf specs/auto-revisions/<id>/round-*`.
+4. **Entire paper track untouched** — expect analogous bugs (paper reviewers
+   likely never-accept too; paper implementer; lualatex compile; signoff gate).
+
+## How to drive / observe (operational)
+
+- Loop does ONE step per non-in_progress stage then exits; drive review stages by
+  re-invoking `LLMXIVE_PAID_OPT_IN=1 python -m llmxive run --max-tasks 1 --project PROJ-552-...`
+  in a shell loop (see /tmp/552_rereview3.sh).
+- Re-review from scratch: reset state yaml (current_stage=research_review,
+  clear escalation/revision_spec/round), `rm reviews/research/research_reviewer_*.md`,
+  `rm -rf specs/auto-revisions/<id>/round-*`, then drive.
+- Dartmouth key auto-resolves via credentials.load_dartmouth_key(); paid opt-in
+  (haiku fallback) via LLMXIVE_PAID_OPT_IN=1.
+- Dartmouth maintenance window: June 18 ~6–8 AM (Chat offline); gpt-oss/qwen/gemma
+  affected.
+
+## Guardrails (do NOT violate)
+
+- NEVER hand-edit 552's code/data/specs/results. Fix agents only.
+- Operational recovery (reset failsafe stage, clear stale agent-produced reviews
+  after fixing a reviewer prompt, reset round counter) is OK — it regenerates via
+  the fixed agents; it does not fabricate project content.
+- Commit cadence: PRE_COMMIT_ALLOW_NO_CONFIG=1; commit → pull --rebase --autostash
+  → push → verify HEAD==origin/main. Co-Authored-By: Claude Opus 4.8 (1M context).

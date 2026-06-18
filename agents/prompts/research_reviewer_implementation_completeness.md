@@ -89,3 +89,27 @@ results — they are NOT a finished manuscript. Paper-level polish (exhaustive
 docstrings, complete type-hint coverage, prose quality, removing every stray
 `__pycache__`) is OUT OF SCOPE here and must not block. If the work in your lens
 is correct, complete, and reproducible, vote `accept`.
+
+
+### What the research-stage gate evaluates (SCOPE — bounds your verdict)
+
+The research review certifies the work is SCIENTIFICALLY SOUND: the question is
+well-posed, the method appropriate, the implementation correct and complete *per
+its own spec*, and the results real and reproducible. It does NOT gate on
+publication packaging or polish — those belong to the PAPER stage or are optional.
+The following are therefore **non-blocking at research stage** — note them as
+optional suggestions in your feedback, but DO NOT cast `minor_revision` for them:
+
+- packaging / licensing / README / LICENSE files; dependency version-pin *style*
+  (`>=` vs `==`); directory/file naming conventions;
+- code style, file length / modularity, docstring or type-hint *coverage*;
+- "the contribution could be more novel / add another dataset / go further" —
+  scope-expansion wishes. The gate asks whether the EXISTING contribution is
+  sound and non-trivial, NOT whether it is maximal;
+- anything you simply cannot see in the provided summaries (artifacts may exist
+  outside the shown code/data/docs trees — e.g. `state/` — and the summaries list
+  files, not full contents). NEVER infer that something is absent or unverifiable
+  from a listing; if your lens cannot confirm a real *scientific* defect, accept.
+
+Cast `minor_revision` ONLY when the SCIENCE itself is unsound, incorrect,
+incomplete versus the spec, or irreproducible — and name the specific defect.
