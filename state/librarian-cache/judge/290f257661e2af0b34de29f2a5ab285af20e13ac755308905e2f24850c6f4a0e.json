@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2501.05032",
+  "judged_at": "2026-06-18T23:02:06Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "measuring epistemic resilience of llms under misleading medical context linguistics",
+  "rationale": "The paper focuses on enhancing human-like qualities of LLMs (e.g., conversational coherence, emotional intelligence) and does not address epistemic resilience, robustness to misleading medical information, or any measurement related to that construct, so it fails all inclusion criteria (a‑f).",
+  "relevant": false
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2408.16440",
+  "judged_at": "2026-06-18T23:01:59Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "measuring epistemic resilience of llms under misleading medical context linguistics",
+  "rationale": "The paper studies translation performance of instruction‑tuned LLMs in the medical domain, which does not measure epistemic resilience or the effect of misleading medical context; it addresses a different dependent variable (translation quality) and lacks the relevant mechanism, so it does not meet any inclusion criteria (a‑f).",
+  "relevant": false
+}

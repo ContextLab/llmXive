@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2606.12291",
+  "judged_at": "2026-06-18T23:01:53Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "measuring epistemic resilience of llms under misleading medical context linguistics",
+  "rationale": "The paper studies the same construct—epistemic resilience of large language models when faced with misleading medical context—using the same domain and methodology, thus satisfying criterion (a) same‑mechanism evidence (and also (b) measuring the dependent variable of interest).",
+  "relevant": true
+}

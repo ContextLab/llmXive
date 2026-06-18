@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2307.04910",
+  "judged_at": "2026-06-18T23:02:09Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "measuring epistemic resilience of llms under misleading medical context linguistics",
+  "rationale": "The paper introduces the EvalPrompt methodology that empirically evaluates LLM correctness, clarity, and robustness (i.e., epistemic resilience) on medical prompts, including manipulations like sentence dropout that simulate misleading or incomplete context. This provides a baseline measurement of the same dependent variable (resilience/robustness) in the medical domain, satisfying acceptance criterion (b) (independent/dependent variable on the same domain) and (d) (foundational methodology).",
+  "relevant": true
+}

@@ -255,6 +255,10 @@
     "classified_at": "2026-06-17T17:23:26Z",
     "verdict": false
   },
+  "PROJ-704-measuring-epistemic-resilience-of-llms-u::1.6.0": {
+    "classified_at": "2026-06-18T23:01:36Z",
+    "verdict": false
+  },
   "PROJ-707-appo-agentic-procedural-policy-optimizat::1.6.0": {
     "classified_at": "2026-06-17T21:43:06Z",
     "verdict": false

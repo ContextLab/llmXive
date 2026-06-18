@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2405.19266",
+  "judged_at": "2026-06-18T23:02:01Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "measuring epistemic resilience of llms under misleading medical context linguistics",
+  "rationale": "The paper focuses on constructing and evaluating a Chinese pediatric medical LLM (PediatricsGPT) and does not investigate how LLMs handle misleading medical contexts or measure epistemic resilience, nor does it provide a baseline, methodology, or related population for that specific construct. Hence it does not meet any inclusion criteria (a‑f).",
+  "relevant": false
+}

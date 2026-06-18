@@ -1,0 +1,359 @@
+{
+  "fetched_at": "2026-06-18T23:02:10Z",
+  "field": "linguistics",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "linguistics",
+      "idea_body_excerpt": "Measuring Epistemic Resilience of LLMs Under Misleading Medical Context",
+      "target_n": 5
+    },
+    "duration_seconds": 336.744,
+    "ended_at": "2026-06-18T23:02:10Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "epistemic robustness of large language models in medical misinformation"
+        ],
+        [
+          2,
+          "factual consistency of LLMs with deceptive health narratives"
+        ],
+        [
+          3,
+          "knowledge reliability of transformer models under false clinical contexts"
+        ],
+        [
+          4,
+          "resilience of generative AI to misleading medical prompts"
+        ],
+        [
+          5,
+          "assessing belief stability of LLMs with fabricated health scenarios"
+        ],
+        [
+          6,
+          "robustness testing of language models against health misinformation"
+        ],
+        [
+          7,
+          "epistemic modality analysis of AI‑generated medical discourse"
+        ],
+        [
+          8,
+          "evaluating epistemic stance of large language models in healthcare dialogue"
+        ],
+        [
+          9,
+          "measuring factual stability of LLMs under spurious medical input"
+        ],
+        [
+          10,
+          "epistemic durability of transformer‑based models in deceptive health information"
+        ],
+        [
+          11,
+          "linguistic assessment of AI resilience to false clinical content"
+        ],
+        [
+          12,
+          "truth preservation evaluation for LLMs faced with misleading medical text"
+        ],
+        [
+          13,
+          "probing knowledge collapse in language models with deceptive health prompts"
+        ],
+        [
+          14,
+          "stability of epistemic judgments in LLMs confronted with medical misinformation"
+        ],
+        [
+          15,
+          "epistemic trustworthiness of large language models in healthcare conversations"
+        ],
+        [
+          16,
+          "detecting impact of medical misinformation on language model knowledge"
+        ],
+        [
+          17,
+          "evaluating factual degradation of AI under fabricated health narratives"
+        ],
+        [
+          18,
+          "measuring consistency of LLM responses to deceptive clinical scenarios"
+        ],
+        [
+          19,
+          "resistance of generative language models to false medical claims in discourse"
+        ],
+        [
+          20,
+          "assessing AI’s epistemic resilience to misleading health information"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Measuring Epistemic Resilience of LLMs Under Misleading Medical Context linguistics": 0,
+        "epistemic robustness of large language models in medical misinformation": 5
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "Measuring Epistemic Resilience LLMs Under linguistics",
+      "Under Misleading Medical Context linguistics",
+      "Measuring Resilience Under Medical linguistics"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2601.21742"
+      ]
+    },
+    "per_query_hit_count": {
+      "Measuring Epistemic Resilience LLMs Under linguistics": 2,
+      "Measuring Epistemic Resilience of LLMs Under Misleading Medical Context linguistics": 3,
+      "Measuring Resilience Under Medical linguistics": 1,
+      "Under Misleading Medical Context linguistics": 0
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 4,
+      "rejections": [
+        {
+          "primary_pointer": "2408.16440",
+          "rationale": "The paper studies translation performance of instruction‑tuned LLMs in the medical domain, which does not measure epistemic resilience or the effect of misleading medical context; it addresses a different dependent variable (translation quality) and lacks the relevant mechanism, so it does not meet any inclusion criteria (a‑f).",
+          "title": "Instruction-tuned Large Language Models for Machine Translation in the Medical Domain"
+        },
+        {
+          "primary_pointer": "2405.19266",
+          "rationale": "The paper focuses on constructing and evaluating a Chinese pediatric medical LLM (PediatricsGPT) and does not investigate how LLMs handle misleading medical contexts or measure epistemic resilience, nor does it provide a baseline, methodology, or related population for that specific construct. Hence it does not meet any inclusion criteria (a‑f).",
+          "title": "PediatricsGPT: Large Language Models as Chinese Medical Assistants for Pediatric Applications"
+        },
+        {
+          "primary_pointer": "2312.12006",
+          "rationale": "The paper evaluates ChatGPT’s general medical QA performance in Arabic but does not study how the model resists or recovers from misleading medical context, nor does it measure “epistemic resilience.” It therefore lacks the required mechanism, variable, or baseline relevant to the user’s question.",
+          "title": "Can ChatGPT be Your Personal Medical Assistant?"
+        },
+        {
+          "primary_pointer": "2501.05032",
+          "rationale": "The paper focuses on enhancing human-like qualities of LLMs (e.g., conversational coherence, emotional intelligence) and does not address epistemic resilience, robustness to misleading medical information, or any measurement related to that construct, so it fails all inclusion criteria (a‑f).",
+          "title": "Enhancing Human-Like Responses in Large Language Models"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-18T22:56:33Z",
+    "term_input": {
+      "normalized": "measuring epistemic resilience of llms under misleading medical context linguistics",
+      "raw": "Measuring Epistemic Resilience of LLMs Under Misleading Medical Context linguistics"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Interpretation of natural language is inherently context-sensitive. Most words in natural language are ambiguous and their meanings are heavily dependent on the linguistic context in which they are used. The study of lexical semantics can not be separated from the notion of context. This paper takes a contextual approach to lexical semantics and studies the linguistic context of lexical atoms, or \"sticky\" phrases such as \"hot dog\". Since such lexical atoms may occur frequently in unrestricted natural language text, recognizing them is crucial for understanding naturally-occurring text. The paper proposes several heuristic approaches to exploiting the linguistic context to identify lexical atoms from arbitrary natural language text.",
+          "claimed_authors": [
+            "Chengxiang Zhai"
+          ],
+          "claimed_title": "Exploiting Context to Identify Lexical Atoms -- A Statistical View of Linguistic Context",
+          "claimed_venue": "arXiv",
+          "claimed_year": 1997,
+          "primary_pointer": "cmp-lg/9701001"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Measuring Epistemic Resilience of LLMs Under Misleading Medical Context linguist', candidate_title='Exploiting Context to Identify Lexical Atoms -- A Statistical View of Linguistic Context')",
+        "failed_at": "2026-06-18T23:01:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We provide an introductory review of Bayesian data analytical methods, with a focus on applications for linguistics, psychology, psycholinguistics, and cognitive science. The empirically oriented researcher will benefit from making Bayesian methods part of their statistical toolkit due to the many advantages of this framework, among them easier interpretation of results relative to research hypotheses, and flexible model specification. We present an informal introduction to the foundational ideas behind Bayesian data analysis, using, as an example, a linear mixed models analysis of data from a typical psycholinguistics experiment. We discuss hypothesis testing using the Bayes factor, and model selection using cross-validation. We close with some examples illustrating the flexibility of model specification in the Bayesian framework. Suggestions for further reading are also provided.",
+          "claimed_authors": [
+            "Bruno Nicenboim",
+            "Shravan Vasishth"
+          ],
+          "claimed_title": "Statistical methods for linguistic research: Foundational Ideas - Part II",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1602.00245"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Measuring Epistemic Resilience of LLMs Under Misleading Medical Context linguist', candidate_title='Statistical methods for linguistic research: Foundational Ideas - Part II')",
+        "failed_at": "2026-06-18T23:01:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Networks are at the core of modeling many engineering contexts, mainly in the case of infrastructures and communication systems. The resilience of a network, which is the property of the system capable of absorbing external shocks, is then of paramount relevance in the applications. This paper deals with this topic by advancing a theoretical proposal for measuring the resilience of a network. The proposal is based on the study of the shocks propagation along the patterns of connections among nodes. The theoretical model is tested on the real-world instances of two important airport systems in the US air traffic network; Illinois (including the hub of Chicago) and New York states (with JFK airport).",
+          "claimed_authors": [
+            "Roy Cerqueti",
+            "Giovanna Ferraro",
+            "Antonio Iovanella"
+          ],
+          "claimed_title": "Measuring network resilience through connection patterns",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1808.07731"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Measuring Epistemic Resilience of LLMs Under Misleading Medical Context linguist', candidate_title='Measuring network resilience through connection patterns')",
+        "failed_at": "2026-06-18T23:01:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Artificial intelligence (AI) models trained using medical images for clinical tasks often exhibit bias in the form of disparities in performance between subgroups. Since not all sources of biases in real-world medical imaging data are easily identifiable, it is challenging to comprehensively assess how those biases are encoded in models, and how capable bias mitigation methods are at ameliorating performance disparities. In this article, we introduce a novel analysis framework for systematically and objectively investigating the impact of biases in medical images on AI models. We developed and tested this framework for conducting controlled in silico trials to assess bias in medical imaging AI using a tool for generating synthetic magnetic resonance images with known disease effects and sources of bias. The feasibility is showcased by using three counterfactual bias scenarios to measure the impact of simulated bias effects on a convolutional neural network (CNN) classifier and the efficacy of three bias mitigation strategies. The analysis revealed that the simulated biases resulted in expected subgroup performance disparities when the CNN was trained on the synthetic datasets. Moreover, reweighing was identified as the most successful bias mitigation strategy for this setup, and we demonstrated how explainable AI methods can aid in investigating the manifestation of bias in the model using this framework. Developing fair AI models is a considerable challenge given that many and often unknown sources of biases can be present in medical imaging datasets. In this work, we present a novel methodology to objectively study the impact of biases and mitigation strategies on deep learning pipelines, which can support the development of clinical AI that is robust and responsible.",
+          "claimed_authors": [
+            "Emma A. M. Stanley",
+            "Raissa Souza",
+            "Anthony Winder",
+            "Vedant Gulve",
+            "Kimberly Amador",
+            "Matthias Wilms",
+            "Nils D. Forkert"
+          ],
+          "claimed_title": "Towards objective and systematic evaluation of bias in artificial intelligence for medical imaging",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2311.02115"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Measuring Epistemic Resilience of LLMs Under Misleading Medical Context linguist', candidate_title='Towards objective and systematic evaluation of bias in artificial intelligence for medical imaging')",
+        "failed_at": "2026-06-18T23:01:36Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Hongjian Zhou",
+            "Xinyu Zou",
+            "Jinge Wu",
+            "Sean Wu",
+            "Junchi Yu",
+            "Bradley Max Segal",
+            "Tobias Erich Niebuhr",
+            "Sara Amro",
+            "Michael Petrus",
+            "Sheikh Momin",
+            "Alexandra M. Cardoso Pinto",
+            "Rachel Niesen",
+            "Laura Sophie Wegner",
+            "Dhruv Darji",
+            "Jung Moses Koo",
+            "Joshua Fieggen",
+            "Kapil Narain",
+            "Mingde Zeng",
+            "Lei Clifton",
+            "Linda Shapiro",
+            "Fenglin Liu",
+            "David A. Clifton"
+          ],
+          "title": "Measuring Epistemic Resilience of LLMs Under Misleading Medical Context",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2606.12291",
+        "summary": "Large language models (LLMs) now reach expert-level scores on medical licensing exams, encouraging the assumption that high scores imply safe medical judgment while patients increasingly use them for health advice. We show this assumption is fragile: when misleading context is injected into questions that LLMs originally answer correctly, they abandon the correct answer. We call the ability to maintain correct judgment under adversarial context epistemic resilience, and introduce MedMisBench to measure it. MedMisBench contains 10,932 medical question items and 48,889 misleading context-option pairs spanning medical reasoning, agentic capability, and patient-journey evaluation. Across 11 model configurations, mean accuracy falls from 71.1% on original questions to 38.0% under focused misleading context, with 51.5% attack success. The most damaging injections are formal, rule-like fabrications: authority-framed falsehoods reach 69.5% attack success and exception-poisoning claims reach 64.1%. A 14-member clinical panel from 7 countries identified serious potential harm in 38.2% of reviewed cases. MedMisBench exposes a structural blind spot in LLM evaluation in medical settings: existing benchmarks measure what models know, but not whether they preserve correct medical judgment under misleading context.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2606.12291",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.875,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-18T23:01:36Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Ruiwen Zhou",
+            "Maojia Song",
+            "Xiaobao Wu",
+            "Sitao Cheng",
+            "Xunjian Yin",
+            "Yuxi Xie",
+            "Zhuoqun Hao",
+            "Wenyue Hua",
+            "Liangming Pan",
+            "Soujanya Poria",
+            "Min-Yen Kan"
+          ],
+          "title": "Epistemic Context Learning: Building Trust the Right Way in LLM-Based Multi-Agent Systems",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2601.21742",
+        "summary": "Individual agents in multi-agent (MA) systems often lack robustness, tending to blindly conform to misleading peers. We show this weakness stems from both sycophancy and inadequate ability to evaluate peer reliability. To address this, we first formalize the learning problem of history-aware reference, introducing the historical interactions of peers as additional input, so that agents can estimate peer reliability and learn from trustworthy peers when uncertain. This shifts the task from evaluating peer reasoning quality to estimating peer reliability based on interaction history. We then develop Epistemic Context Learning (ECL): a reasoning framework that conditions predictions on explicitly-built peer profiles from history. We further optimize ECL by reinforcement learning using auxiliary rewards. Our experiments reveal that our ECL enables small models like Qwen 3-4B to outperform a history-agnostic baseline 8x its size (Qwen 3-30B) by accurately identifying reliable peers. ECL also boosts frontier models to near-perfect (100%) performance. We show that ECL generalizes well to various MA configurations and we find that trust is modeled well by LLMs, revealing a strong correlation in trust modeling accuracy and final answer quality.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2601.21742",
+          "http_status": 200,
+          "pdf_sample_score": 0.235,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-18T23:01:36Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Troy Zada",
+            "Natalie Tam",
+            "Francois Barnard",
+            "Marlize Van Sittert",
+            "Venkat Bhat",
+            "Sirisha Rambhatla"
+          ],
+          "title": "Medical Misinformation in AI-Assisted Self-Diagnosis: Development of a Method (EvalPrompt) for Analyzing Large Language Models",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2307.04910",
+        "summary": "Rapid integration of large language models (LLMs) in health care is sparking global discussion about their potential to revolutionize health care quality and accessibility. At a time when improving health care quality and access remains a critical concern for countries worldwide, the ability of these models to pass medical examinations is often cited as a reason to use them for medical training and diagnosis. However, the impact of their inevitable use as a self-diagnostic tool and their role in spreading healthcare misinformation has not been evaluated. This study aims to assess the effectiveness of LLMs, particularly ChatGPT, from the perspective of an individual self-diagnosing to better understand the clarity, correctness, and robustness of the models. We propose the comprehensive testing methodology evaluation of LLM prompts (EvalPrompt). This evaluation methodology uses multiple-choice medical licensing examination questions to evaluate LLM responses. We use open-ended questions to mimic real-world self-diagnosis use cases, and perform sentence dropout to mimic realistic self-diagnosis with missing information. Human evaluators then assess the responses returned by ChatGPT for both experiments for clarity, correctness, and robustness. The results highlight the modest capabilities of LLMs, as their responses are often unclear and inaccurate. As a result, medical advice by LLMs should be cautiously approached. However, evidence suggests that LLMs are steadily improving and could potentially play a role in healthcare systems in the future. To address the issue of medical misinformation, there is a pressing need for the development of a comprehensive self-diagnosis dataset. This dataset could enhance the reliability of LLMs in medical applications by featuring more realistic prompt styles with minimal information across a broader range of medical fields.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2307.04910",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8571,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-18T23:01:50Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "measuring epistemic resilience of llms under misleading medical context linguistics",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

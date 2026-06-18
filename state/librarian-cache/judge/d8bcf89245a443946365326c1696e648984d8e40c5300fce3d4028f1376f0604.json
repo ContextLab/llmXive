@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2601.21742",
+  "judged_at": "2026-06-18T23:01:56Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "measuring epistemic resilience of llms under misleading medical context linguistics",
+  "rationale": "The paper studies epistemic resilience (resistance to misleading peers/sycophancy) and trust modeling in LLMs, which aligns with the same underlying mechanism of measuring how LLMs handle misleading information (category (a) same‑mechanism evidence, also fitting the cross‑vocabulary cluster of “sycophancy/trust”). Although the domain is multi‑agent systems rather than medical contexts, it provides relevant foundational work on assessing and improving LLM epistemic robustness.",
+  "relevant": true
+}

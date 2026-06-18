@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2312.12006",
+  "judged_at": "2026-06-18T23:02:04Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "measuring epistemic resilience of llms under misleading medical context linguistics",
+  "rationale": "The paper evaluates ChatGPT’s general medical QA performance in Arabic but does not study how the model resists or recovers from misleading medical context, nor does it measure “epistemic resilience.” It therefore lacks the required mechanism, variable, or baseline relevant to the user’s question.",
+  "relevant": false
+}
