@@ -67,3 +67,26 @@ def test_third_party_symbol_is_out_of_scope(tmp_path: Path) -> None:
     # read_csv is pandas, not defined in code/ -> not a shared-contract issue.
     failures = ["q.py -> rc=1\n    TypeError: read_csv() got an unexpected keyword argument 'foo'"]
     assert find_contract_issues(p, failures) == []
+
+
+def test_missing_method_feedback_is_cumulative_not_rotating(tmp_path: Path) -> None:
+    """The anti-rotation guidance: missing-method errors on a class must tell the
+    implementer to ADD (not replace) and tolerate ALL method names at once.
+
+    Pins the bug observed on PROJ-552: round 1 added ``.log`` but dropped the
+    class's pre-existing ``.info``/``.debug``; round 2 then failed on those. The
+    feedback must (a) group both method names under the one owning class, (b) warn
+    against deleting existing definitions, and (c) offer a permissive fallback.
+    """
+    p = _proj(tmp_path)
+    failures = [
+        "a.py -> rc=1\n    AttributeError: 'Logger' object has no attribute 'info'",
+        "b.py -> rc=1\n    AttributeError: 'Logger' object has no attribute 'debug'",
+    ]
+    fb = render_contract_feedback(find_contract_issues(p, failures))
+    # cumulative / preserve-existing instruction
+    assert "ADD, do not REPLACE" in fb
+    assert "__getattr__" in fb  # the permissive-fallback escape hatch
+    # both method names appear grouped under the single owning class
+    assert "`info`" in fb and "`debug`" in fb
+    assert fb.count("class `Logger`") == 1  # one cumulative block, not one-per-method

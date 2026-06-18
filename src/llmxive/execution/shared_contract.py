@@ -142,17 +142,73 @@ def render_contract_feedback(issues: list[ContractIssue]) -> str:
         "passed, and NEVER raise on an unexpected call shape. For an auxiliary "
         "utility (e.g. logging), doing nothing on an unrecognized shape is fine. "
         "Do NOT edit the call sites — edit only the defining module.",
+        "",
+        "**CRITICAL — ADD, do not REPLACE.** Edit the defining module *in place*: "
+        "ADD the missing methods/parameters and PRESERVE every function, method, "
+        "and attribute that already exists. Do NOT rewrite the file from scratch "
+        "and do NOT delete a definition to make room for another. Each round that "
+        "deletes a previously-working symbol just moves the failure to that symbol "
+        "next round — an infinite loop. The fix is cumulative: the module must "
+        "satisfy ALL callers from ALL rounds simultaneously.",
     ]
+
+    # Group method/attribute issues by their owning class so the implementer gets
+    # one cumulative instruction per class (not one-method-at-a-time, which is
+    # exactly what makes the failure rotate ``.log`` -> ``.info`` -> ``.debug``).
+    by_class: dict[str, list[ContractIssue]] = {}
+    funcs: list[ContractIssue] = []
     for i in issues:
-        title = f"{i.owner}.{i.symbol}" if i.owner else i.symbol
+        if i.owner:
+            by_class.setdefault(i.owner, []).append(i)
+        else:
+            funcs.append(i)
+
+    for i in funcs:
         lines += [
             "",
-            f"### `{title}` — defined in `{i.defining_file}`; "
+            f"### `{i.symbol}` — defined in `{i.defining_file}`; "
             f"called {len(i.call_sites)} way(s):",
             "",
         ]
         lines += [f"- {s}" for s in i.call_sites]
-        lines += ["", f"Rewrite `{i.defining_file}` so `{title}` works with ALL of the above."]
+        lines += ["", f"Make `{i.symbol}` in `{i.defining_file}` accept ALL of the above."]
+
+    for owner, owner_issues in by_class.items():
+        defining = owner_issues[0].defining_file
+        method_names = sorted({iss.symbol for iss in owner_issues})
+        lines += [
+            "",
+            f"### class `{owner}` (in `{defining}`) — accessed via method/attribute "
+            f"names this round: {', '.join('`' + m + '`' for m in method_names)}",
+            "",
+            f"`{owner}` is used like a logger: different scripts call DIFFERENT "
+            "method names on it, and the set grows every round. Adding only the "
+            "name(s) above will fail next round on the NEXT name. Make the class "
+            "tolerant of ANY method name **without removing the ones it already "
+            "has**, by either:",
+            f"  1. defining the full method set explicitly (keep existing methods "
+            f"like the ones already in `{defining}` AND add the missing ones), or",
+            "  2. adding a permissive fallback so unknown attributes resolve to a "
+            "no-op callable, e.g.:",
+            "",
+            "     ```python",
+            "     def __getattr__(self, name):",
+            "         # any logger-style call (.info/.debug/.warning/.error/...) "
+            "becomes a tolerant no-op",
+            "         def _noop(*args, **kwargs):",
+            "             return None",
+            "         return _noop",
+            "     ```",
+            "",
+            f"Whichever you choose, every call site of `{owner}` across the "
+            "codebase must stop raising `AttributeError`/`TypeError`.",
+        ]
+        for iss in owner_issues:
+            lines += [
+                "",
+                f"`{owner}.{iss.symbol}` call sites ({len(iss.call_sites)}):",
+            ]
+            lines += [f"- {s}" for s in iss.call_sites]
     return "\n".join(lines)
 
 
