@@ -205,6 +205,63 @@ def _extract_added_lines(diff: str) -> str | None:
     return ("\n".join(out) + "\n") if out else None
 
 
+def _diff_hunks_to_replacements(diff: str) -> list[tuple[str, str]]:
+    """Convert a unified diff's hunks into (search, replace) pairs.
+
+    Per hunk: context (` `) + removed (`-`) lines form the SEARCH; context (` `)
+    + added (`+`) lines form the REPLACE. Used to re-apply an LLM diff flexibly
+    when ``git apply`` rejects it over slightly-wrong context/line numbers.
+    """
+    pairs: list[tuple[str, str]] = []
+    search: list[str] = []
+    replace: list[str] = []
+    in_hunk = False
+
+    def _flush() -> None:
+        nonlocal search, replace
+        if search or replace:
+            pairs.append(("\n".join(search), "\n".join(replace)))
+        search, replace = [], []
+
+    for line in diff.splitlines():
+        if line.startswith("@@"):
+            _flush()
+            in_hunk = True
+            continue
+        if line.startswith(("---", "+++")) or line.startswith("\\"):
+            continue
+        if not in_hunk:
+            continue
+        if line.startswith("+"):
+            replace.append(line[1:])
+        elif line.startswith("-"):
+            search.append(line[1:])
+        elif line.startswith(" "):
+            search.append(line[1:])
+            replace.append(line[1:])
+        else:  # some models omit the leading space on context lines
+            search.append(line)
+            replace.append(line)
+    _flush()
+    return pairs
+
+
+def _apply_diff_flexibly(text: str, diff: str) -> str | None:
+    """Apply a unified diff via whitespace-tolerant hunk matching (fallback for
+    when ``git apply`` rejects the diff). Returns the new text if ≥1 hunk applied
+    and the content changed; else None."""
+    new_text = text
+    applied = False
+    for search, replace in _diff_hunks_to_replacements(diff):
+        if not search.strip() or search == replace:
+            continue
+        out, _ = _flexible_replace(new_text, search, replace)
+        if out is not None:
+            new_text = out
+            applied = True
+    return new_text if (applied and new_text != text) else None
+
+
 def apply_unified_diff(file_path: Path, diff: str) -> EditResult:
     """Apply a unified diff via `git apply`. Pre-flight `git apply
     --check`; if check fails, return applied=False (skipped). Otherwise
@@ -271,6 +328,18 @@ def apply_unified_diff(file_path: Path, diff: str) -> EditResult:
         cwd=apply_cwd,
     )
     if proc.returncode != 0:
+        # git apply rejected the diff — LLM diffs very often carry slightly-wrong
+        # context/line numbers. Fall back to whitespace-tolerant hunk application
+        # (treat each hunk as a flexible search/replace) before giving up.
+        fb = _apply_diff_flexibly(before_bytes.decode("utf-8", errors="replace"), diff)
+        if fb is not None:
+            file_path.write_text(fb, encoding="utf-8")
+            after_bytes = file_path.read_bytes()
+            return EditResult(
+                True, [str(file_path)],
+                {str(file_path): _sha256(before_bytes)},
+                {str(file_path): _sha256(after_bytes)},
+            )
         return EditResult(
             False, [], {}, {},
             f"git apply --check failed: {proc.stderr.strip() or proc.stdout.strip()}",

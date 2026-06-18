@@ -294,3 +294,28 @@ def test_resolve_edit_target_fixes_wrong_filename(tmp_path: Path) -> None:
     assert _resolve_edit_target(real, project_id="PROJ-1", repo_root=tmp_path, track="research") == real
     ghost = proj / "code" / "does_not_exist_anywhere.py"
     assert _resolve_edit_target(ghost, project_id="PROJ-1", repo_root=tmp_path, track="research") == ghost
+
+
+def test_apply_unified_diff_flexible_fallback_on_bad_context(tmp_path: Path) -> None:
+    """LLM diffs often carry wrong @@ line numbers / context that `git apply`
+    rejects. The flexible fallback re-applies each hunk as a tolerant
+    search/replace; a genuinely non-matching hunk still fails."""
+    import subprocess
+
+    from llmxive.agents.implementer import apply_unified_diff, _diff_hunks_to_replacements
+
+    subprocess.run(["git", "init", "-q"], cwd=tmp_path, check=False)
+    f = tmp_path / "code" / "f.txt"
+    f.parent.mkdir(parents=True)
+    f.write_text("a\nb\nc\nd\ne\n", encoding="utf-8")
+    bad = "--- a/code/f.txt\n+++ b/code/f.txt\n@@ -10,3 +10,3 @@\n b\n-c\n+C\n d\n"
+    assert _diff_hunks_to_replacements(bad) == [("b\nc\nd", "b\nC\nd")]
+    res = apply_unified_diff(f, bad)
+    assert res.applied and f.read_text() == "a\nb\nC\nd\ne\n"
+
+    g = tmp_path / "code" / "g.txt"
+    g.write_text("nothing relevant here\n", encoding="utf-8")
+    res2 = apply_unified_diff(
+        g, "--- a/code/g.txt\n+++ b/code/g.txt\n@@ -1,2 +1,2 @@\n totally\n-absent\n+X\n"
+    )
+    assert not res2.applied
