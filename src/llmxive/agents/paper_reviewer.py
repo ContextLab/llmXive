@@ -407,6 +407,10 @@ def _summarize_pdf(pdf_dir: Path) -> str:
 class PaperReviewerAgent(Agent):
     """Casts a single paper-quality vote on a project's compiled paper."""
 
+    #: Deterministic verdicts (Constitution VI reliability): same artifact ->
+    #: same verdict, so the unanimous-accept gate stops flapping run-to-run.
+    chat_temperature = 0.0
+
     def __init__(self, registry_entry: AgentRegistryEntry) -> None:
         super().__init__(registry_entry)
 

@@ -89,6 +89,13 @@ class AgentContext:
 class Agent(abc.ABC):
     """Base class for non-Spec-Kit-driving specialist agents."""
 
+    #: Sampling temperature for this agent's chat calls. ``None`` = backend
+    #: default (sampling on). Reviewer subclasses pin this to ``0.0`` so a
+    #: GATING verdict is DETERMINISTIC — the same artifact yields the same
+    #: verdict every time (reproducible, auditable; not a lower bar). Generative
+    #: agents (implementer/tasker) leave it None to keep useful sampling.
+    chat_temperature: float | None = None
+
     def __init__(self, registry_entry: AgentRegistryEntry) -> None:
         self.entry = registry_entry
 
@@ -133,6 +140,7 @@ class Agent(abc.ABC):
                     default_backend=self.entry.default_backend.value,
                     fallback_backends=[b.value for b in self.entry.fallback_backends],
                     model=self.entry.default_model,
+                    temperature=self.chat_temperature,
                 )
                 captured_messages = attempt_messages
                 captured_response = response

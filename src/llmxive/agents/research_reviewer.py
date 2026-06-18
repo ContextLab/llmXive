@@ -126,6 +126,10 @@ def _read_optional(path: Path) -> str:
 class ResearchReviewerAgent(Agent):
     """Casts a single research-quality vote on a project's tasks.md."""
 
+    #: Deterministic verdicts (Constitution VI reliability): same artifact ->
+    #: same verdict, so the unanimous-accept gate stops flapping run-to-run.
+    chat_temperature = 0.0
+
     def __init__(self, registry_entry: AgentRegistryEntry) -> None:
         super().__init__(registry_entry)
 
