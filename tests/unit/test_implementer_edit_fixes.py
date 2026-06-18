@@ -110,6 +110,52 @@ def test_validate_edit_path_research_track_allows_all_research_bases(tmp_path: P
         ) is None, bad
 
 
+def test_validate_edit_path_research_allows_project_root_excludes_specify(tmp_path: Path) -> None:
+    """Research revisions may create top-level project files (README/LICENSE) the
+    reviewers ask for, but must NEVER touch .specify/ state internals."""
+    proj = tmp_path / "projects" / "PROJ-9-z"
+    (proj / ".specify" / "memory").mkdir(parents=True)
+    (proj / "docs").mkdir()
+    assert _validate_edit_path("README.md", project_id="PROJ-9-z", severity="writing",
+                               repo_root=tmp_path, track="research") is not None
+    assert _validate_edit_path("LICENSE.md", project_id="PROJ-9-z", severity="writing",
+                               repo_root=tmp_path, track="research") is not None
+    assert _validate_edit_path(".specify/memory/x.yaml", project_id="PROJ-9-z",
+                               severity="writing", repo_root=tmp_path, track="research") is None
+
+
+def test_apply_unified_diff_creates_new_file(tmp_path: Path) -> None:
+    """Research reviewers frequently ask for a doc that doesn't exist yet; the
+    LLM emits a /dev/null diff. Pins PROJ-552's 12 file-not-found failures."""
+    from llmxive.agents.implementer import apply_unified_diff
+
+    target = tmp_path / "docs" / "reproducibility" / "licenses.md"
+    diff = (
+        "--- /dev/null\n+++ b/docs/reproducibility/licenses.md\n"
+        "@@ -0,0 +1,2 @@\n+# Data licenses\n+Knot Atlas: CC-BY.\n"
+    )
+    res = apply_unified_diff(target, diff)
+    assert res.applied and target.is_file()
+    assert "Data licenses" in target.read_text() and "CC-BY" in target.read_text()
+
+
+def test_apply_unified_diff_existing_relative_path_and_scope(tmp_path: Path) -> None:
+    """Existing-file diffs name the target with a PROJECT-relative path; the
+    apply cwd must resolve it. An unrelated declared file is rejected."""
+    import subprocess
+
+    from llmxive.agents.implementer import apply_unified_diff
+
+    subprocess.run(["git", "init", "-q"], cwd=tmp_path, check=False)
+    ex = tmp_path / "code" / "a.py"
+    ex.parent.mkdir(parents=True)
+    ex.write_text("x = 1\n", encoding="utf-8")
+    ok = apply_unified_diff(ex, "--- a/code/a.py\n+++ b/code/a.py\n@@ -1 +1 @@\n-x = 1\n+x = 2\n")
+    assert ok.applied and ex.read_text().strip() == "x = 2"
+    bad = apply_unified_diff(ex, "--- a/code/a.py\n+++ b/code/OTHER.py\n@@ -1 +1 @@\n-x\n+y\n")
+    assert not bad.applied
+
+
 def test_research_target_window_finds_named_file_else_directive(tmp_path: Path) -> None:
     from llmxive.agents.implementer import _research_target_window
 

@@ -144,6 +144,21 @@ def apply_search_and_replace(
     )
 
 
+def _extract_added_lines(diff: str) -> str | None:
+    """Reconstruct a NEW file's contents from a unified diff's added (`+`) lines.
+
+    Used for new-file creation: the `+++ ` header is excluded, every other
+    ``+``-prefixed line contributes its content. Returns None if the diff adds
+    nothing (then it is not a creatable diff).
+    """
+    out = [
+        ln[1:]
+        for ln in diff.splitlines()
+        if ln.startswith("+") and not ln.startswith("+++")
+    ]
+    return ("\n".join(out) + "\n") if out else None
+
+
 def apply_unified_diff(file_path: Path, diff: str) -> EditResult:
     """Apply a unified diff via `git apply`. Pre-flight `git apply
     --check`; if check fails, return applied=False (skipped). Otherwise
@@ -152,26 +167,59 @@ def apply_unified_diff(file_path: Path, diff: str) -> EditResult:
     The diff is fed via stdin to `git apply`. We don't allow it to
     touch any file other than `file_path` — any path in the diff that
     isn't `file_path` causes a rejection (defensive scope check).
+
+    A diff against a NON-existent target is treated as new-file creation
+    (research reviewers frequently ask for a doc that does not exist yet): the
+    file is written from the diff's added lines. git-apply's own new-file path
+    is cwd/format-fragile, so we reconstruct directly — ``_snapshot``/``_restore``
+    already roll a created file back by unlinking it.
     """
-    if not file_path.is_file():
-        return EditResult(False, [], {}, {}, f"file-not-found: {file_path}")
     # Defensive: ensure the diff's --- / +++ headers point to this file only.
+    # Diffs name the target with a PROJECT/REPO-relative path while `target` is
+    # absolute, so compare by path-component-aligned suffix (not equality) — a
+    # declared path must be the tail of the absolute target, or its bare name.
     declared = set(re.findall(r"^(?:---|\+\+\+)\s+(?:a/|b/)?(\S+)", diff, re.M))
     declared.discard("/dev/null")
     rel = file_path.as_posix()
-    if declared and not all(d in {rel, file_path.name} for d in declared):
+    if declared and not all(
+        rel == d or rel.endswith("/" + d) or d == file_path.name for d in declared
+    ):
         return EditResult(
             False, [], {}, {},
             f"diff references unexpected files: {sorted(declared)}",
         )
+    if not file_path.is_file():
+        added = _extract_added_lines(diff)
+        if added is None:
+            return EditResult(False, [], {}, {}, f"file-not-found: {file_path}")
+        file_path.parent.mkdir(parents=True, exist_ok=True)
+        file_path.write_text(added, encoding="utf-8")
+        after_bytes = file_path.read_bytes()
+        return EditResult(
+            True, [str(file_path)],
+            {str(file_path): _sha256(b"")},
+            {str(file_path): _sha256(after_bytes)},
+        )
     before_bytes = file_path.read_bytes()
+    # `git apply` resolves the diff's (relative) paths against its cwd. Derive
+    # the cwd so the declared path resolves to THIS file: strip the matched
+    # declared suffix off the absolute target (e.g. target=/r/proj/code/a.py,
+    # declared "code/a.py" -> cwd=/r/proj). Falls back to the file's parent for
+    # bare-filename diffs.
+    matched = next((d for d in declared if rel == d or rel.endswith("/" + d)), None)
+    if matched and rel.endswith("/" + matched):
+        apply_cwd = rel[: -(len(matched) + 1)] or "/"
+    elif file_path.parent.is_dir():
+        apply_cwd = str(file_path.parent)
+    else:
+        apply_cwd = None
     # `git apply --check` validates without applying.
     proc = subprocess.run(
         ["git", "apply", "--check", "-"],
         input=diff,
         capture_output=True,
         text=True,
-        cwd=file_path.parent if file_path.parent.is_dir() else None,
+        cwd=apply_cwd,
     )
     if proc.returncode != 0:
         return EditResult(
@@ -183,7 +231,7 @@ def apply_unified_diff(file_path: Path, diff: str) -> EditResult:
         input=diff,
         capture_output=True,
         text=True,
-        cwd=file_path.parent if file_path.parent.is_dir() else None,
+        cwd=apply_cwd,
     )
     if proc2.returncode != 0:
         # Restore — `git apply` is supposed to be atomic but be defensive.
@@ -309,12 +357,21 @@ def _validate_edit_path(
         research_bases = [
             (proj / sub).resolve() for sub in ("code", "data", "specs", "docs")
         ]
+        proj_root = proj.resolve()
+        specify_dir = (proj / ".specify").resolve()  # state internals — never edit
         for abs_path in candidates:
             try:
                 abs_path.relative_to(repo_root.resolve())
             except ValueError:
                 continue  # outside repo
-            if any(str(abs_path).startswith(str(base)) for base in research_bases):
+            s = str(abs_path)
+            if s.startswith(str(specify_dir)):
+                continue
+            if any(s.startswith(str(base)) for base in research_bases):
+                return abs_path
+            # Top-level project files (README.md, LICENSE.md, CONTRIBUTING.md …)
+            # directly under the project root are legitimate research artifacts.
+            if abs_path.parent == proj_root:
                 return abs_path
         return None
 
