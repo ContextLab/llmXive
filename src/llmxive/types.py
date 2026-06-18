@@ -323,6 +323,54 @@ _VERDICT_SEVERITY: dict[str, Literal["writing", "science", "fatal"]] = {
 }
 _BODY_ITEM_RE = re.compile(r"^\s*(?:\d+[.)]|[-*•])\s+(.+)$")
 
+# A synthesized action item must describe a NEEDED CHANGE. Reviewer prose
+# interleaves real concerns with section headers ("Provenance & Licensing") and
+# positive observations ("All code lives under code/…", "checksums are present"),
+# and turning those into tasks manufactures bogus, unsatisfiable revisions. Keep
+# only chunks carrying a clear deficiency/imperative cue — a genuine BLOCKING
+# concern almost always has one. (Stems match inflections; cues chosen to avoid
+# positive homographs like "documented"/"provided"/"included".)
+_ACTIONABLE_CUE = re.compile(
+    r"\b(add\b|fix|relocat|implement|remov|delet|replac|consolidat|refactor|"
+    r"renam|split|prun|miss|absent|lack|should|must|need|fails?\b|incorrect|"
+    r"inconsisten|deferred|todo|unclear|ambiguous|insufficient|inadequate|broken|"
+    r"invalid|redundan|duplicat|outdated|stale|move\b|requires?\b|choos|deprecat|"
+    r"risk|reorganiz|standardiz|exceed|hardcod|"
+    r"not\s+(?:\w+ed|present|listed|included|available|specified|consistent|valid)|"
+    r"no\s+\w+\s+(?:is|are))",
+    re.I,
+)
+
+# Clearly-positive / satisfied observations (kept OUT of action items unless they
+# ALSO carry a concern cue). Deliberately narrow to avoid eating real concerns.
+_POSITIVE_OBS = re.compile(
+    r"\b(?:is|are|were|been)\s+(?:present|provided|implemented|generated|verified|"
+    r"specified|satisfied|correct|consistent|adequate|sufficient|complete|"
+    r"in\s+place|clearly\s+\w+|properly\s+\w+|correctly\s+\w+|well[\s-]\w+)\b"
+    r"|\b(?:lives?|located|placed|resides?)\s+(?:under|in|within)\b"
+    r"|\bfollows?\s+(?:the\s+)?[\w-]+\s+(?:convention|standard|layout|format)"
+    r"|\bclearly\s+stated\b|\bare\s+documented\b|\bis\s+documented\b",
+    re.I,
+)
+
+
+def _is_actionable_concern(text: str) -> bool:
+    """True when a prose chunk plausibly states a needed change.
+
+    Conservative by design — dropping a REAL concern blocks convergence, whereas
+    keeping a borderline one merely gets harmlessly skipped at apply time. So we
+    drop only the clearly non-actionable: section headers/fragments (too short)
+    and purely positive observations that carry no deficiency/imperative cue.
+    """
+    t = " ".join(text.split())
+    if _ACTIONABLE_CUE.search(t):
+        return True  # explicit concern/imperative — keep at ANY length ("Add tests.")
+    if len(t) < 30:
+        return False  # short AND no cue -> section header / label fragment
+    if _POSITIVE_OBS.search(t):
+        return False  # purely positive observation
+    return True  # default KEEP (under-filter, never over-filter)
+
 
 def action_items_from_text(
     text: str,
@@ -360,12 +408,23 @@ def action_items_from_text(
     if not chunks:  # no list structure — fall back to the whole body as one item
         chunks = [" ".join(text.split())]
 
+    cleaned_chunks = [
+        c for c in (
+            " ".join(ch.replace("**", "").replace("`", "").split())[:500].strip()
+            for ch in chunks
+        )
+        if len(c) >= 8
+    ]
+    actionable = [c for c in cleaned_chunks if _is_actionable_concern(c)]
+    # Anti-stall guarantee: a NON-accept verdict must yield >=1 action item, else
+    # the convergence engine no-ops (the original bug). If the actionability
+    # filter removed everything, fall back to the single most substantial chunk.
+    if not actionable and verdict != "accept" and cleaned_chunks:
+        actionable = [max(cleaned_chunks, key=len)]
+
     items: list[ActionItem] = []
     seen: set[str] = set()
-    for chunk in chunks:
-        cleaned = " ".join(chunk.replace("**", "").replace("`", "").split())[:500].strip()
-        if len(cleaned) < 8:  # skip trivial fragments
-            continue
+    for cleaned in actionable:
         item = ActionItem.from_text(cleaned, severity)
         if item.id in seen:
             continue

@@ -51,17 +51,31 @@ def _rec(name: str, verdict: str, *, hash_: str = _HASH_A, when: datetime = _NOW
 # --- Prose-to-action-item synthesis (anti-stall) -----------------------------
 
 
-def test_action_items_from_text_structures_and_degrades() -> None:
-    """The shared helper: numbered/bulleted prose -> one item each; unstructured
-    prose -> a single item; empty -> nothing; severity follows the verdict."""
+def test_action_items_from_text_structures_filters_and_degrades() -> None:
+    """The shared helper: numbered/bulleted ACTIONABLE prose -> one item each;
+    severity follows the verdict; empty -> nothing. Non-actionable prose (section
+    headers, positive observations) is dropped, but a non-accept verdict always
+    yields >=1 item (anti-stall) by falling back to the most substantial chunk."""
     from llmxive.types import action_items_from_text
 
     items = action_items_from_text(
-        "1. First concern here.\n2. Second concern here.", verdict="minor_revision"
+        "1. Add a LICENSE.md citing each external data source.\n"
+        "2. Fix the VIF calculation to handle perfectly collinear predictors.",
+        verdict="minor_revision",
     )
     assert len(items) == 2 and all(i.severity == "writing" for i in items)
+
+    # Section headers + positive observations are NOT actionable; with a
+    # non-accept verdict the anti-stall fallback still yields exactly one item.
+    noise = action_items_from_text(
+        "1. Provenance & Licensing\n"
+        "2. All source code lives under code/ and is clearly stated.",
+        verdict="minor_revision",
+    )
+    assert len(noise) == 1  # fallback to the longest chunk, not zero
+
     one = action_items_from_text(
-        "Just a paragraph of feedback with no list structure at all.",
+        "The repository is missing an end-to-end integration test for the pipeline.",
         verdict="major_revision",
     )
     assert len(one) == 1 and one[0].severity == "science"
