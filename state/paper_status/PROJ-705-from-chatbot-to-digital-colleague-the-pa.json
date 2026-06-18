@@ -2,7 +2,7 @@
   "pdf": "/home/runner/work/llmXive/llmXive/projects/PROJ-705-from-chatbot-to-digital-colleague-the-pa/paper/pdf/2606.14502.pdf",
   "audit": null,
   "repair_rounds": 0,
-  "llmxive_compile_attempts": 2,
+  "llmxive_compile_attempts": 3,
   "status": "fallback_original",
   "failure": {
     "stage": "compile",
@@ -10,5 +10,5 @@
     "log_excerpt": "lualatex failed:\n\nLaTeX Warning: There were undefined references.\n\n! You can't use `\\end' in internal vertical mode.\n\\enddocument ...cument/end}\\deadcycles \\z@ \\@@end \n                                                  \nl.1762 \\end{document}\n                   \n\n! LaTeX Error: \\begin{minipage} on input line 219 ended by \\end{document}.\n\nSee the LaTeX manual or LaTeX Companion for explanation.\nType  H <return>  for immediate help.\n ...                                              \n                                                  \nl.1762 \\end{document}\n                   \n)\n! Emergency stop.\n<*> ...colleague-the-pa/paper/source/main-llmxive.tex\n                                                  \n 4426077 words of node memory still in use:\n   12423 hlist, 27 vlist, 130 rule, 62 mark, 32869 disc, 1441 local_par, 2 dir,\n 897 math, 84635 glue, 33674 kern, 13198 penalty, 3553 margin_kern, 419777 glyp\nh, 28622 attribute, 88 glue_spec, 28622 attribute_list, 2 temp, 105 write, 1872\n pdf_literal, 1546 pdf_start_link, 1546 pdf_end_link, 1182 pdf_dest, 1546 pdf_a\nction, 5926 pdf_colorstack, 2 pdf_setmatrix, 2 pdf_save, 2 pdf_restore nodes\n   avail lists: 1:7,2:11,3:1,4:4,5:33,8:116,9:3,10:32\n!  ==> Fatal error occurred, no output PDF file produced!\nTranscript written on main-llmxive.log."
   },
   "paper_id": "PROJ-705-from-chatbot-to-digital-colleague-the-pa",
-  "updated_at": "2026-06-17T11:38:58.979663+00:00"
+  "updated_at": "2026-06-18T12:17:26.793272+00:00"
 }
