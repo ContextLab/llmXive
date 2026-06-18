@@ -440,6 +440,40 @@ def _validate_edit_path(
     return None
 
 
+def _resolve_edit_target(
+    target: Path, *, project_id: str, repo_root: Path, track: str
+) -> Path:
+    """Resolve a MODIFY edit's declared path to the REAL file when the declared
+    one doesn't exist (16.4% of failures: the LLM hardcodes venue-template names
+    like ``neurips_2026.tex``/``acl_latex.tex`` or a guessed path instead of the
+    project's actual source file). If the declared file exists, returns it
+    unchanged. Callers must NOT use this for new-file (/dev/null) diffs.
+    """
+    if target.is_file():
+        return target
+    proj = repo_root / "projects" / project_id
+    # A wrong .tex name -> the project's actual primary manuscript.
+    if target.suffix == ".tex":
+        src = proj / "paper" / "source"
+        if src.is_dir():
+            cand = src / _find_primary_tex(src)
+            if cand.is_file():
+                return cand
+    # Otherwise: a UNIQUE same-basename file within the track's allowed bases.
+    if track == "research":
+        bases = [proj / s for s in ("code", "data", "specs", "docs")]
+    else:
+        bases = [proj / "paper" / "source", proj / "code", proj / "data"]
+    hits: list[Path] = []
+    for base in bases:
+        if base.is_dir():
+            hits += [
+                p for p in base.rglob(target.name)
+                if p.is_file() and "/.venv/" not in str(p)
+            ]
+    return hits[0] if len(hits) == 1 else target
+
+
 # --- Implementer agent class -----------------------------------------------
 
 class LLMXiveImplementer(Agent):
@@ -984,6 +1018,16 @@ class LLMXiveImplementer(Agent):
                 model_response_excerpt=response_text[:500],
                 duration_s=time.monotonic() - t_started,
                 error_reason=f"edit targets disallowed path: {edit.get('file')!r} (severity={severity})",
+            )
+
+        # Resolve a wrong/guessed filename to the REAL file for MODIFY edits
+        # (the LLM often targets a venue-template name like neurips_2026.tex).
+        # New-file (/dev/null) diffs are intentionally NOT resolved.
+        diff_str = str(edit.get("diff", "")) if edit.get("kind") == "unified_diff" else ""
+        is_new_file = bool(re.search(r"^---\s+(?:a/|b/)?/?dev/null", diff_str, re.M))
+        if not is_new_file:
+            target = _resolve_edit_target(
+                target, project_id=project_id, repo_root=repo_root, track=track,
             )
 
         # Snapshot all paper-source files (any one might be touched) +

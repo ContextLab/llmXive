@@ -263,3 +263,34 @@ def test_apply_search_and_replace_uses_flexible_matching(tmp_path: Path) -> None
     f.write_text("class C:\n        value =  1\n", encoding="utf-8")  # odd indent + double space
     res = apply_search_and_replace(f, "value = 1", "value = 2")
     assert res.applied and "value = 2" in f.read_text()
+
+
+def test_resolve_edit_target_fixes_wrong_filename(tmp_path: Path) -> None:
+    """16.4% of failures: the LLM targets a venue-template name / wrong path.
+    A MODIFY edit's nonexistent .tex resolves to the real primary manuscript;
+    a wrong-dir code path resolves to the unique same-basename file."""
+    from llmxive.agents.implementer import _resolve_edit_target
+
+    proj = tmp_path / "projects" / "PROJ-1"
+    src = proj / "paper" / "source"
+    src.mkdir(parents=True)
+    (src / "main-llmxive.tex").write_text(
+        "\\documentclass{article}\\begin{document}\\end{document}", encoding="utf-8"
+    )
+    wrong_tex = src / "neurips_2026.tex"  # doesn't exist
+    assert _resolve_edit_target(
+        wrong_tex, project_id="PROJ-1", repo_root=tmp_path, track="paper"
+    ).name == "main-llmxive.tex"
+
+    (proj / "code" / "analysis").mkdir(parents=True)
+    real = proj / "code" / "analysis" / "regression.py"
+    real.write_text("x = 1\n", encoding="utf-8")
+    assert _resolve_edit_target(
+        proj / "code" / "regression.py", project_id="PROJ-1", repo_root=tmp_path,
+        track="research",
+    ) == real
+
+    # An existing file is returned unchanged; an unresolvable name stays put.
+    assert _resolve_edit_target(real, project_id="PROJ-1", repo_root=tmp_path, track="research") == real
+    ghost = proj / "code" / "does_not_exist_anywhere.py"
+    assert _resolve_edit_target(ghost, project_id="PROJ-1", repo_root=tmp_path, track="research") == ghost
