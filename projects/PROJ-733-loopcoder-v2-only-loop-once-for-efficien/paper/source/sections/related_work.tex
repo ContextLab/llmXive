@@ -1,0 +1,180 @@
+\section{Related Work}
+\label{sec:related}
+% ================================================================
+
+\subsection{Foundations of Looped Transformers}
+\label{sec:related-foundations}
+
+The Universal Transformer (UT) \citep{dehghani2018universal} serves as the
+canonical starting point for looped LLM research.
+UT shares a single transformer block across depth and augments it with
+per-position adaptive computation time (ACT), a dynamic halting mechanism
+that allows individual tokens to exit the loop at different depths.
+Under certain conditions UT is provably Turing-complete, a theoretical
+property not generally attributable to fixed-depth transformers.
+The programmable-computer interpretation of looped transformers was made
+precise by \citet{giannou2023looped}, who demonstrated that a constant number
+of encoder layers in a loop suffices to emulate a general-purpose
+instruction-set computer, including in-context learning via
+back-propagation.
+\citet{yang2023looped} further established that looped transformers match
+standard transformers on in-context learning benchmarks while using fewer than
+10\% of the parameters, affirming their practical viability.
+
+\subsection{Test-Time Compute Scaling via Depth Recurrence}
+\label{sec:related-scaling}
+
+A central motivation for recent work on looped LLMs is \emph{test-time compute
+scaling}: rather than generating additional tokens (as in chain-of-thought
+reasoning), a model can be run for more loops on harder inputs, performing
+implicit multi-step reasoning in latent space.
+\citet{geiping2025scaling} demonstrated this at scale with Huginn-3.5B, a
+depth-recurrent transformer pretrained on 800B tokens that improves on
+reasoning benchmarks by applying up to 50 loops at inference, achieving an
+effective compute budget equivalent to a 50B-parameter model.
+Notably, this approach requires no specialized training data and can operate
+within smaller context windows than chain-of-thought methods. This latent reasoning paradigm, however, imposes a direct cost:
+each additional loop constitutes a full forward pass through the shared
+block, multiplying sequential inference latency by loopcount.
+More critically, standard KV-cache implementations store keys and values
+per layer \emph{per loop}, causing memory to grow as $O(loopcount \cdot L)$
+for a block of $L$ layers, a factor of loopcount overhead relative to the
+single-pass footprint.
+With too many loopcount, this overhead renders many architectures
+impractical for on-device or memory-constrained deployment.
+\citep{vendrell2026memoryefficient}.
+
+\subsection{Memory and Latency Reduction Techniques}
+\label{sec:related-efficiency}
+
+% Several lines of work attempt to recover the performance benefits of deep
+% looping without paying the full latency and memory price.
+
+% \paragraph{KV-cache sharing.}
+% \citet{vendrell2026memoryefficient} introduced MELT (Memory-Efficient Looped
+% Transformer), which maintains a \emph{single} KV cache per layer shared across
+% all loops, updated via a learnable gating mechanism.
+% MELT decouples reasoning depth from memory consumption, achieving constant
+% memory in loopcount while preserving most of the performance of the
+% full-cache looped model.
+
+% \paragraph{Parallel looping.}
+% \citet{wu2025parallel} identified the sequential dependency
+% between loops, wherein loop $r$ must complete before loop $r+1$ can
+% begin, as the primary source of latency scaling.
+% Their Parallel Loop Transformer (PLT) breaks this dependency via
+% Cross-Loop Parallelism (CLP): different loop iterations are
+% interleaved across token positions within a single forward pass, so that
+% loops for different tokens execute in parallel rather than sequentially.
+% PLT pairs CLP with a Gated Sliding-Window Attention (G-SWA) that combines
+% a shared global KV cache (from the first loop) with local context, keeping
+% memory constant.
+% The result is near-standard inference latency and memory footprint while
+% delivering the accuracy of a deeply looped model.
+
+% \paragraph{Linear-time attention variants.}
+% \citet{deng2026lt2} proposed LT2, which replaces the quadratic softmax
+% attention in looped transformers with linear or sparse attention alternatives.
+% Because looping uniquely synergizes with linear attention (enabling iterative
+% memory refinement that a single-pass linear model cannot perform), LT2
+% achieves the accuracy of standard looped transformers at fully linear-time
+% inference cost.
+
+Several works aim to retain the benefits of deep looping while reducing its inference cost. MELT decouples recurrence depth from memory by maintaining a single shared KV cache per layer across loops, updated through a learnable gating mechanism \citep{vendrell2026memoryefficient}. PLT instead targets latency by breaking sequential inter-loop dependencies with Cross-Loop Parallelism (CLP), and combines this with Gated Sliding-Window Attention (G-SWA) over shared global KV states and local current-loop context to keep memory nearly constant \citep{wu2025parallel}. LT2 further reduces the cost of looped inference by replacing quadratic softmax attention with linear or sparse attention variants, leveraging recurrence for iterative memory refinement \citep{deng2026lt2}. These methods improve the efficiency of looped computation, while our work focuses on the complementary question of how such efficiency mechanisms, especially PLT's CLP offset, affect the usefulness of additional loops.
+
+\subsection{Architectural Variants}
+\label{sec:related-variants}
+
+Beyond efficiency-oriented designs, another line of work explores richer looped architectures. Some methods relax strict weight sharing by adding lightweight loop-specific adaptation, such as depth-wise LoRA adapters for converting pretrained LLMs into recursive transformers \citep{bae2024relaxed}. Others restructure the recurrent computation itself, including Hyperloop Transformers with begin-middle-end partitioning and hyper-connections for inter-loop mixing \citep{zeitoun2026hyperloop}, CART with a context-anchored recurrent core that cross-attends to frozen precomputed context tensors \citep{capps2026cart}, and HRM-LM with fast and slow modules operating at different loop timescales \citep{han2026hierarchical}. Additional variants increase capacity or stability through mixture-of-experts feedforward layers \citep{csords2024moeut}, fixed-point refinement with attractor modules \citep{feinashley2026solve}, or post-training conversion of standard LLMs into looped encoder-reasoner-decoder architectures \citep{park2026loopus}. These works broaden the design space of looped Transformers, whereas our focus is complementary: we study how loop count affects the behavior of an efficient PLT architecture and why its performance saturates.
+
+% Beyond efficiency, a second line of work explores structurally richer loop
+% mechanisms.
+
+% \paragraph{Layer-wise adaptation.}
+% \citet{bae2024relaxed} showed that existing pretrained LLMs can be converted
+% into recursive transformers (Recursive/Relaxed Recursive Transformer) by
+% tying all layers to a single shared block and fine-tuning with depth-wise
+% LoRA adapters.
+% The LoRA modules add a small number of loop-specific parameters, relaxing the
+% strict weight-tying constraint while preserving compactness.
+
+% \paragraph{Structured partitioning.}
+% \citet{zeitoun2026hyperloop} organized the looped transformer into three
+% functional blocks (begin, middle (looped), and end), augmenting the middle
+% block with \emph{hyper-connections} that expand the residual stream into a
+% matrix-valued form.
+% Applied after each loop, hyper-connections introduce minimal additional
+% parameters while enabling richer inter-loop information mixing.
+% \citet{capps2026cart} proposed CART, which computes keys and values once in a
+% multi-layer prelude and routes the recurrent core to cross-attend to those
+% frozen context tensors, decoupling context encoding from iterative
+% refinement.
+
+% \paragraph{Hierarchical two-speed looping.}
+% \citet{han2026hierarchical} introduced HRM-LM, which pairs a fast module
+% (applied at every loop) with a slow module (applied every $T$ loops), creating
+% a two-timescale hierarchy.
+% The fast module handles local refinement; the slow module performs global
+% compression.
+% An ablation against a parameter-matched Universal Transformer reveals a sharp
+% empirical gap in favor of hierarchical structure.
+
+% \paragraph{Mixture of Experts.}
+% \citet{csords2024moeut} addressed a fundamental tension in weight-tied models:
+% shared layers reduce parameter count, which degrades performance on
+% parametric-knowledge tasks.
+% MoEUT resolves this by combining shared-layer transformer blocks with
+% mixture-of-experts feedforward layers, recovering effective parameter capacity
+% without abandoning weight sharing.
+
+% \paragraph{Attractor / fixed-point models.}
+% \citet{feinashley2026solve} proposed Attractor Models, in which a backbone
+% generates an initial output embedding and an attractor module refines it by
+% solving for a fixed point via implicit differentiation.
+% Because gradients are computed through the fixed-point equation rather than
+% through unrolled iterations, training memory is constant in effective depth.
+% A notable emergent behavior is \emph{equilibrium internalization}: over
+% training, the model's initial output embedding converges toward the attractor,
+% allowing the solver to be removed at inference with little performance loss.
+
+% \paragraph{Post-training loop conversion.}
+% \citet{park2026loopus} introduced LoopUS, which converts a standard pretrained
+% LLM into a looped architecture via a post-training procedure that decomposes
+% the model into encoder, looped reasoning block, and decoder, stabilized by
+% an input-dependent selective gate and random deep supervision.
+
+\subsection{Scaling Laws and Representation Dynamics}
+\label{sec:related-dynamics}
+
+% \citet{schwethelm2026how} derived iso-depth scaling laws from 116 pretraining
+% runs, fitting a joint scaling law and recovering a
+% \emph{recurrence-equivalence exponent} $\phi = 0.46$: looping a block $r$
+% times is worth $r^{0.46}$ unique parameters in validation loss, far below
+% the $r^1$ that full equivalence would imply.
+% This quantifies the diminishing returns of increasing loopcount alone.
+
+% \citet{pappone2025twoscale} studied the geometry of recurrent iterates in
+% Huginn-3.5B and identified a two-scale picture: updates within a loop are
+% small-scale refinements, while updates across blocks (groups of loops) exhibit
+% larger drift.
+% Loop steps become smaller and increasingly orthogonal as training progresses,
+% suggesting convergent fine-structure refinement rather than directional
+% reasoning.
+
+% \citet{yang2026stabilizing} diagnosed a stability--effectiveness trade-off in
+% existing architectures: task performance peaks at a certain loop depth and
+% subsequently collapses with further recurrence.
+% Their STARS framework mitigates this collapse by constraining latent states
+% to approach asymptotically stable fixed points via Jacobian spectral radius
+% regularization combined with random loop-count sampling during training.
+
+% On the interpretability side, \citet{chen2026loop} empirically examined
+% whether increasing loop depth narrows the gap between internal representations
+% and natural-language outputs, finding that while the gap does narrow, this
+% effect is partly attributable to degradation of internal knowledge within the
+% representations rather than genuine refinement.
+% \citet{lu2025latent} probed Huginn-3.5B for latent chain-of-thought structure using Logit Lens and Coda Lens, finding limited evidence of interpretable
+% step-by-step computation across loops and only marginal gains from increased
+% recurrence depth relative to explicit chain-of-thought prompting.
+
+Recent work has begun to study how looped models scale and how their internal representations evolve with recurrence depth. Scaling-law analyses show that increasing loop count yields diminishing returns: \citet{schwethelm2026how} estimate that looping a block $r$ times is worth only $r^{0.46}$ unique parameters in validation loss, far below full equivalence to adding new layers. Complementary studies examine recurrent representation dynamics, finding that loop updates can become smaller, more orthogonal, or structured across multiple timescales \citep{pappone2025twoscale}. Other work highlights stability as a central limitation: \citet{yang2026stabilizing} show that performance can peak at an intermediate loop depth and then collapse, and propose fixed-point regularization to stabilize recurrent computation. On the interpretability side, prior analyses probe whether deeper recurrence corresponds to meaningful latent reasoning or natural-language-like intermediate computation, often finding mixed evidence and signs of representational degradation \citep{chen2026loop,lu2025latent}. Our work is closest in spirit to these representation-dynamics studies, but focuses specifically on PLT: we analyze how its efficiency mechanism changes the gain--cost profile across loops and why saturation occurs at a low loop count.

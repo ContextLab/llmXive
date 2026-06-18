@@ -1,16 +1,16 @@
 samples:
-- at: '2026-06-17T12:32:50.678426+00:00'
-  backlog: 172
 - at: '2026-06-17T14:20:54.010161+00:00'
   backlog: 173
 - at: '2026-06-18T11:25:18.255283+00:00'
   backlog: 177
-last_decision:
-  requested: 4
-  allowed: 3
+- at: '2026-06-18T13:11:46.736672+00:00'
   backlog: 177
-  growth: 5
+last_decision:
+  requested: 1
+  allowed: 1
+  backlog: 177
+  growth: 4
   window_hours: 24.0
   kind: human
-  reason: backlog grew by 5 over 24h (drain < intake); allowance damped to 75%
-  decided_at: '2026-06-18T11:25:18.255283+00:00'
+  reason: backlog grew by 4 over 24h (drain < intake); allowance damped to 80%
+  decided_at: '2026-06-18T13:11:46.736672+00:00'

@@ -1,0 +1,370 @@
+
+\documentclass[11pt, a4paper, logo, copyright, nonumbering]{map}
+
+
+\newcommand{\hmmax}{0}
+\newcommand{\bmmax}{0}
+
+\input{resources/packages}
+
+\definecolor{hidden-draw}{RGB}{20,68,106}
+\definecolor{hidden-pink}{RGB}{255,245,247}
+\usepackage[edges]{forest}
+
+
+\usepackage{natbib}
+\usepackage{CJKutf8}
+\usepackage{xargs}
+\usepackage{todonotes}
+\usepackage{multirow}
+\usepackage{cleveref}
+\usepackage{dsfont}
+\usepackage{subcaption}
+\usepackage{url}
+\usepackage{svg}
+\usepackage{fontawesome}
+\usepackage{xcolor}
+\usepackage{float}
+
+\usepackage[utf8]{inputenc}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{xcolor,colortbl}  % 引入xcolor包
+\definecolor{boxcolor}{HTML}{d92523} % 框的颜色 #dea3a2
+\definecolor{bulbcolor}{HTML}{e3b87f} % 灯泡的颜色 #e3b87f
+\usepackage{url}
+\usepackage{ragged2e}   % provides \RaggedRight for tabularx columns
+\usepackage{makecell} 
+% Robust check/cross macros (safe in captions)
+\DeclareRobustCommand{\cmark}{\textcolor{green!60!black}{\ding{51}}} % ✓
+\DeclareRobustCommand{\xmark}{\textcolor{red!70!black}{\ding{55}}}   % ✗
+\providecommand{\algorithmautorefname}{Algorithm}
+
+\usepackage{hyperref}       % hyperlinks
+\usepackage{url}            % simple URL typesetting
+\usepackage{booktabs}       % professional-quality tables
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{microtype}      % microtypography
+\usepackage{xcolor}         % colors
+\usepackage{graphicx}
+%\usepackage{fontawesome5}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{pbox}
+\usepackage{tabularx}
+\usepackage{multirow}
+\usepackage{wrapfig}
+\usepackage{pifont}
+\newcommand{\Checkmark}{\ding{51}} % Check mark
+\newcommand{\XSolidBrush}{\ding{55}} % Cross mark
+\usepackage{algorithm}
+\usepackage{lipsum}
+\usepackage{subcaption}
+\usepackage{enumitem}
+\usepackage{tikz}
+\usepackage{xstring}
+\usepackage{bm}
+\usepackage{color-edits}
+\usepackage{float}
+\usepackage{parskip} %去掉 paragraph indent
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\hidden}{\mathbf{h}}
+\newcommand{\block}{f_\theta}
+\newcommand{\loopcount}{R}
+\newcommand{\nparams}{N}
+
+\newcommand{\fix}{\marginpar{FIX}}
+\newcommand{\new}{\marginpar{NEW}}
+
+\usepackage{threeparttable} % Required for table notes
+%\usepackage{fontawesome5} % 推荐：如果您想使用矢量图标（如小脑、书本等）
+\newcommand{\TinyEquation}{\fontsize{6.5pt}{\baselineskip}\selectfont}
+\newcommand{\SmallEquation}{\fontsize{7.0pt}{\baselineskip}\selectfont}
+\newcommand{\MiddleEquation}{\fontsize{12.0pt}{\baselineskip}\selectfont}
+\newcommand{\BigEquation}{\fontsize{9.5pt}{\baselineskip}\selectfont}
+\newcommand{\modelname}{LoopCoder-v2} 
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+\algnewcommand\algorithmicinput{\textbf{Input:}}
+\algnewcommand\algorithmicoutput{\textbf{Output:}}
+\algnewcommand\Input{\item[\algorithmicinput]}
+\algnewcommand\Output{\item[\algorithmicoutput]}
+% \usepackage[table]{xcolor} % 必须加上 [table] 选项以支持单元格颜色
+% \usepackage{booktabs}
+% \usepackage{booktabs}
+% \usepackage[table]{xcolor}
+% \usepackage{geometry}
+% \geometry{a4paper, margin=1in}
+
+\definecolor{rliableolive}{HTML}{BBCC33}
+\definecolor{rliableblue}{HTML}{77AADD}
+\definecolor{rliablered}{HTML}{f63c44}
+
+\usepackage[most,skins,theorems]{tcolorbox}
+\tcbuselibrary{skins,breakable,fitting,hooks}  % 添加此行
+\tcbset{
+  aibox/.style={
+    width=\linewidth,
+    top=7pt,
+    bottom=2pt,
+    colback=rliablered!18!white,
+    colframe=black,
+    colbacktitle=black,
+    enhanced,
+    center,
+    attach boxed title to top left={yshift=-0.1in,xshift=0.15in},
+    boxed title style={boxrule=0pt,colframe=white,},
+  }
+}
+\newtcolorbox{AIbox}[2][]{aibox,title=#2,#1}
+
+
+\addauthor[Zhejian]{zzj}{blue}
+
+
+\newcommand{\similarity}[1]{\text{sim}\left(#1\right)}
+\newcommand{\fe}[1]{\phi\left(#1\right)}
+\newcommand{\mcell}[1]{\makecell[c]{#1}}
+
+% \title{A Comprehensive Code Survey: From Code Foundation Model to General Code Agents}
+% \title{A Comprehensive Code Survey: From Code Foundation Model to General Code Agents}
+
+% \newcommand{\fix}{\marginpar{\textcolor{red}{FIX}}}
+% \newcommand{\new}{\marginpar{\textcolor{blue}{NEW}}}
+
+\hypersetup{
+    colorlinks=true,            %链接颜色
+    linkcolor=blue,             %内部链接
+    filecolor=magenta,          %本地文档
+    urlcolor=cyan,              %网址链接
+    citecolor=purple,             % 引用颜色
+    pdftitle={Overleaf Example},
+    pdfpagemode=FullScreen,
+}
+ 
+
+\renewcommand{\today}{}
+\newcommandx{\info}[2][1=]{\todo[linecolor=red,backgroundcolor=red!25,bordercolor=red,#1]{#2}}
+
+% \title{\vspace{-0.2in}
+% \centering \fontsize{15pt}{16pt}\selectfont LoopCoder: Scaling Coder via Looped Language Models
+% \vspace{-0.2in}
+% }
+\title{
+\centering{\modelname{}: Only Loop Once for Efficient Test-Time Computation Scaling}
+}
+
+
+
+% \author{
+% \centering
+% \textbf{Jian Yang}\textsuperscript{1} 
+% \textbf{Shawn Guo}\textsuperscript{2}
+% \textbf{Wei Zhang}\textsuperscript{2}
+% \textbf{Tianyu Zheng}\textsuperscript{2}
+% \textbf{Yaxin Du}\textsuperscript{2}
+% \textbf{Haau-Sing Li}\textsuperscript{2}
+% \textbf{Jiajun Wu}\textsuperscript{2} 
+% \textbf{Yue Song}\textsuperscript{2}
+% \textbf{Yan Xing}\textsuperscript{2}
+% \textbf{Qingsong Cai}\textsuperscript{2}
+% \textbf{Zelong Huang}\textsuperscript{2}
+% \textbf{Xianglong Liu}\textsuperscript{2$\dagger$}
+% \textbf{Wayne Xin Zhao}\textsuperscript{4$\dagger$}
+% \textbf{Chuan Hao}\textsuperscript{2}
+% \textbf{Ran Tao}\textsuperscript{2}
+% \textbf{Mingjie Tang}\textsuperscript{2}
+% \textbf{Weifeng Lv}\textsuperscript{2}
+% \textbf{Ming Zhou}\textsuperscript{3$\dagger$} 
+% \textbf{Bryan Dai}\textsuperscript{2$\dagger$*} \\
+% \textsuperscript{1}Beihang University
+% \textsuperscript{2}IQuest Research
+% \textsuperscript{3}Langboat
+% \textsuperscript{4}Renming University of China \\
+% \textsuperscript{$\dagger$}Corresponding Authors. 
+% \textsuperscript{*}Project Leader. 
+% \\ \texttt{\{jiayang\}@buaa.edu.cn}
+% }
+
+\author{
+\centering
+\textbf{Jian Yang}\textsuperscript{1} 
+\textbf{Shawn Guo}\textsuperscript{2}
+\textbf{Wei Zhang}\textsuperscript{2}
+\textbf{Tianyu Zheng}\textsuperscript{2}
+\textbf{Yaxin Du}\textsuperscript{2}
+\textbf{Haau-Sing Li}\textsuperscript{2}
+\textbf{Jiajun Wu}\textsuperscript{2} 
+\textbf{Yue Song}\textsuperscript{2}
+\textbf{Yan Xing}\textsuperscript{2}
+\textbf{Qingsong Cai}\textsuperscript{2}
+\textbf{Zelong Huang}\textsuperscript{2}
+\textbf{Chuan Hao}\textsuperscript{2}
+\textbf{Ran Tao}\textsuperscript{2}
+\textbf{Xianglong Liu}\textsuperscript{1}
+\textbf{Wayne Xin Zhao}\textsuperscript{4}
+\textbf{Mingjie Tang}\textsuperscript{2}
+\textbf{Weifeng Lv}\textsuperscript{1}
+\textbf{Ming Zhou}\textsuperscript{3} 
+\textbf{Bryan Dai}\textsuperscript{2} \\
+\textsuperscript{1}Beihang University
+\textsuperscript{2}IQuest Research
+\textsuperscript{3}Langboat
+\textsuperscript{4}Renming University of China \\
+% \textsuperscript{$\dagger$}Corresponding Authors. 
+% \textsuperscript{*}Project Leader. 
+\texttt{\{jiayang\}@buaa.edu.cn}
+
+{
+\includegraphics[height=1em]{logo/hf-logo.pdf}\;
+HuggingFace: \url{https://huggingface.co/Multilingual-Multimodal-NLP/LoopCoder-V2}
+}\\
+\vspace{-20pt}
+}
+
+\let\oldthefootnote\thefootnote
+
+\input{sections/abstract}
+\begin{document}
+\maketitle
+
+\input{sections/introduction}
+\input{sections/taxonomy_of_loop_strategies}
+\input{sections/experimental}
+\input{sections/interpretability_analysis}
+\input{sections/optimize_loop_strategy}
+\input{sections/related_work}
+
+
+
+
+\input{sections/conclusion}
+
+\clearpage
+
+\bibliography{ref}
+
+
+\appendix
+
+\section{Forward-Pass Pseudocode}
+\label{app:pseudocode}
+% ================================================================
+
+\autoref{alg:plt-unified} gives the PLT forward pass ($w = 64$
+throughout).
+
+\begin{algorithm}[H]
+\caption{PLT Forward Pass ($w=64$)}
+\label{alg:plt-unified}
+\begin{algorithmic}[1]
+\Input tokens $x$, loop count $\loopcount$
+\Output logits $y$
+\State $\hidden^{(0)} \leftarrow \mathrm{Embed}(x)$
+\For{$r = 1$ \textbf{to} $\loopcount$}
+  \If{$r = 1$}
+    \State $\hidden^{(1)} \leftarrow \block\!\left(\hidden^{(0)}\right)$
+      \Comment{standard full-context attention}
+    \State $K_{\text{share}}, V_{\text{share}} \leftarrow \mathrm{KV}\!\left(\hidden^{(1)}\right)$
+      \Comment{loop-1 KV cache, shared with all subsequent loops}
+  \Else
+    \State $B^{(r)} \leftarrow \mathrm{Embed}(x) + \mathrm{shift}\!\left(\hidden^{(r-1)}\right)$
+      \Comment{CLP: right-shift by 1 position}
+    \State $y_{\text{global}} \leftarrow \mathrm{Attn}\!\left(Q(B^{(r)}),\, K_{\text{share}},\, V_{\text{share}}\right)$
+    \State $y_{\text{local}} \leftarrow \mathrm{SWAttn}\!\left(Q(B^{(r)}),\, K(B^{(r)}),\, V(B^{(r)}),\, 64\right)$
+    \State $g^{(r)} =
+\sigma\!\left(f_{\mathrm{gate}}(\mathrm{RMSNorm}(B^{(r)}))\right).$
+      \Comment{G-SWA fusion (\autoref{eq:gswa})}
+    \State $\hidden^{(r)} \leftarrow \mathrm{FFN}\!\left(\tilde{y}\right)$
+  \EndIf
+\EndFor
+\State $y \leftarrow \mathrm{Head}\!\left(\hidden^{(\loopcount)}\right)$
+\end{algorithmic}
+\end{algorithm}
+
+% ================================================================
+\section{Model Architecture Configurations}
+\label{app:model-config}
+% ================================================================
+
+\begin{table}[H]
+\centering
+\caption{Base model configuration used across all experiments.}
+\label{tab:model-config}
+\begin{tabular}{ll}
+\toprule
+\textbf{Hyperparameter} & \textbf{Value} \\
+\midrule
+Layers $L$                        & 14 \\
+Hidden size $d$                   & 5120 \\
+Attention heads $H$               & 40 \\
+KV groups (GQA)                   & 8 \\
+Head dimension                    & 128 \\
+FFN intermediate size             & 27{,}648 \\
+Activation                        & SwiGLU \\
+Normalization                     & RMSNorm ($\epsilon = 10^{-5}$) \\
+Position embedding                & RoPE (base $5\times10^{5}$) \\
+Attention                         & Flash Attention, no dropout \\
+QK LayerNorm                      & no \\
+Bias in linear layers             & no \\
+Precision                         & bf16 \\
+Vocabulary size                   & 76{,}800 \\
+Total parameters                  & $\approx$7B \\
+Training tokens                   & 18T \\
+Window size $w$                   & 64 (fixed) \\
+CLP offset                        & enabled \\
+Loop counts $\loopcount$ analyzed & 1, 2, 3, 4 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\noindent
+The per-loop interpretability analysis (\autoref{sec:analysis}) is
+conducted across all loop counts, $\loopcount \in \{1, 2, 3, 4\}$.
+
+% ================================================================
+
+
+\section{Pretraining Code-Data Composition}
+\label{app:code-mix}
+% ================================================================
+
+The pretraining corpus is balanced at a 1:1 text-to-code token ratio
+(\autoref{sec:exp-train}). \autoref{tab:code-mix} breaks down the code half by
+programming language: the ten largest languages by token share, with the
+remaining 93 languages aggregated into ``Others''. Shares are computed over
+code tokens only.
+
+\begin{table}[h]
+\centering
+\caption{Composition of the code portion of the 18T-token pretraining mixture,
+as token share of all code tokens. Top-10 languages shown individually; the
+remaining 93 languages are grouped.}
+\label{tab:code-mix}
+\begin{tabular}{lr}
+\toprule
+\textbf{Language} & \textbf{Token share (\%)} \\
+\midrule
+Java                & 10.3 \\
+Python              & 10.1 \\
+JavaScript          & 9.4 \\
+Markdown            & 8.7 \\
+TypeScript          & 8.3 \\
+C                   & 5.2 \\
+C\texttt{++}        & 5.0 \\
+PHP                 & 4.7 \\
+C\#                 & 4.0 \\
+HTML                & 3.7 \\
+\midrule
+Others (93 languages) & 30.5 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\end{document}
+

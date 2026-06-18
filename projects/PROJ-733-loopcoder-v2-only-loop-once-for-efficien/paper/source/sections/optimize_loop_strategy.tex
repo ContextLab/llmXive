@@ -1,0 +1,45 @@
+\section{Discussion}
+\label{sec:optimize_loop_strategy}
+% ================================================================
+
+The per-loop analysis in \autoref{sec:analysis} reveals a consistent
+pattern: loop contributions are not uniform, and the interaction between
+representational gains and the cost imposed by the CLP offset shifts across
+loop index in a way that explains the non-monotonic performance curve.
+
+\paragraph{Loop 2 is the principal site of productive refinement.}
+The second loop is the primary site of productive refinement: among the
+refinement loops it introduces the most coherent hidden-state update, the
+highest inter-loop attention divergence, and the greatest output-distribution
+shift, and it is where effective rank peaks.
+The first loop establishes the global KV cache used by all subsequent loops,
+so the quality of the loop-1 representations sets a ceiling on the
+information available to every later loop via the frozen global attention
+branch.
+The second loop then refines these representations using both fresh local
+context and the global cache, producing the largest net improvement.
+
+\paragraph{Beyond loop 2: diminishing gains against a fixed cost.}
+Beyond loop 2, the model faces compounding constraints.
+The effective rank declines from its loop-2 peak (representations become less
+diverse), so the shared block operates on a progressively lower-dimensional
+input, reducing the capacity for new computation. Meanwhile, the hidden-state
+update becomes oscillatory rather than convergent.
+At the same time, the intrinsic offset cost $\Omega^{(r)}$ remains roughly
+constant across loops: the CLP shift injects a comparable positional mismatch
+at every boundary.
+Because per-loop gains shrink rapidly while this offset cost stays fixed, the
+mismatch claims an ever-larger share of each loop's net effect, so that beyond
+the second loop the cost increasingly outweighs the benefit.
+
+\paragraph{Practical guidelines for loop-count selection.}
+These findings suggest several practical guidelines.
+The performance-saturation point identified in the analysis corresponds to
+a natural operating threshold for PLT deployment: $\loopcount = 2$ captures the
+dominant refinement step while incurring only a single additional forward pass.
+For finer-grained loop-count selection, the effective-rank trajectory is a
+lightweight per-model diagnostic that requires no exhaustive sweep: if effective
+rank is still rising at the candidate loop (representational diversity is not
+yet saturated), an additional loop may yield genuine refinement, whereas a rank
+that has begun to fall signals the onset of narrowing, after which further loops
+mostly add the fixed CLP offset cost without compensating gain.

@@ -1,0 +1,361 @@
+\section{Analyzing Parallel Loop Transformers}
+\label{sec:experiments}
+% ================================================================
+
+We analyze PLT's loop-count behavior at two complementary resolutions.
+We first take a \emph{macroscopic} view : under a
+strictly matched protocol we vary the loop count and measure its effect on
+downstream performance, establishing \emph{that} the loop count matters and
+\emph{where} the best operating point lies.
+We then take a \emph{microscopic} view: a battery
+of per-loop diagnostic lenses that open up the model's internal computation and
+explain \emph{why} the macroscopic curve takes the shape it does.
+The first view tells us \emph{what} happens as loops accumulate. The second
+tells us \emph{what each loop is actually doing} to produce that outcome.
+
+\subsection{Macroscopic View: The Loop-Count Effect}
+\label{sec:exp-macro}
+
+We begin by isolating the effect of the loop count itself.
+Holding the architecture, data, and tuning fixed and varying only
+$\loopcount$, we ask how downstream task performance responds as we spend more
+latent loops at inference, the macroscopic phenomenon that the microscopic
+analysis in \autoref{sec:exp-micro} is designed to explain.
+
+\paragraph{Model Configuration.}
+\label{sec:exp-arch}
+
+All analyses are conducted on a 7B-parameter dense transformer
+equipped with the PLT mechanism, G-SWA with window size $w = 64$ and
+first-loop KV sharing, applied uniformly across all loops.
+Full architecture configurations are documented in
+\autoref{app:model-config}.
+
+\paragraph{Training Protocol.}
+\label{sec:exp-train}
+
+Models are trained on an internal deduplicated mixture of text and code
+data, totaling 18T tokens balanced at a 1:1 text-to-code token ratio. The
+code half spans over 100 programming languages, whose detailed composition is
+reported in \autoref{tab:code-mix}.
+Training and inference loop counts are matched throughout: a model
+trained at $\loopcount = r$ is evaluated at $\loopcount = r$.
+We use the Adam optimizer with $\beta_1 = 0.9$, $\beta_2 = 0.95$,
+$\epsilon = 10^{-15}$, weight decay $0.1$, and gradient clipping at
+norm $1.0$.
+The learning rate is $\eta = 4 \times 10^{-4}$ with a cosine decay
+schedule and a linear warmup over the first 5\% of training steps.
+All runs use bf16 mixed precision with gradient checkpointing.
+In total, training \modelname{} of different loops in this work consumed a total of 1M GPU hours.
+
+
+\paragraph{Training Infrastructure.}
+\label{sec:exp-infra}
+We train PLT on a customized Megatron-LM stack with native support for
+weight-tied loop unrolling.
+The $\loopcount$ loops over the $L$-layer shared block are expanded into
+$\loopcount\cdot L$ scheduled layers, but only the first loop instantiates
+parameters; subsequent loops execute against references to the same modules, so
+the parameter count, optimizer state, and checkpoint footprint remain those of a
+single $L$-layer block regardless of $\loopcount$.
+To keep weight sharing communication-free under pipeline parallelism, the
+virtual-pipeline layout co-locates all $\loopcount$ instances of a given layer on
+the same pipeline stage.
+The first loop performs standard full attention and caches its keys and values;
+each later loop issues two Transformer-Engine attention calls per layer, a
+width-$w$ sliding-window attention over the current loop's keys and values and a
+full attention over the frozen first-loop cache, combined by a per-head gate
+(\autoref{eq:gswa}) that is zero-initialized to an even local/global blend.
+Because the cross-loop offset reuses the first-loop cache and token embeddings,
+these tensors are detached and their gradients accumulated through a custom
+backward hook, preserving correct autograd under (virtual) pipeline scheduling.
+
+\paragraph{Evaluation Protocol.}
+\label{sec:exp-eval}
+
+The four models are instruction-tuned with an identical supervised
+fine-tuning recipe on 6M instruction-tuning examples and evaluated at their
+matched training/inference loop
+count, the baseline at $\loopcount = 1$ and the three PLT models at
+$\loopcount = 2$, $\loopcount = 3$, and $\loopcount = 4$.
+We assess each model on a broad external benchmark suite spanning code
+generation, multilingual code, code reasoning, data-science and SQL, agentic
+software engineering, and general tool use, using each benchmark's standard
+protocol and metric.
+We report the final supervised fine-tuning checkpoint for every model. Results,
+together with comparisons to a range of open and proprietary models, are given
+in \autoref{sec:exp-results}.
+
+\subsection{Microscopic View: Per-Loop Diagnostic Lenses}
+\label{sec:exp-micro}
+The macroscopic view establishes that the loop count is decisive but is
+silent on why: downstream accuracy is a single scalar that cannot explain
+what happens inside the model.
+To open up the computation, we dive into the model's internals and ask what
+each loop contributes, and how the CLP offset modulates that
+contribution.
+Rather than relying on a single probe, we triangulate with three complementary
+lenses, each interrogating a different stage of the forward pass.
+A mechanism is credited only when the lenses agree.
+Hidden-state dynamics examines the
+representation \emph{as it is refined}, attention heat-map evolution examines
+\emph{how information is routed}, and output-distribution shift examines the
+\emph{prediction the refinement produces}.
+Alongside the gain side captured by these lenses, we instrument the cost side
+with an intrinsic offset cost that quantifies the CLP-induced positional
+mismatch directly from the model's own states.
+% \autoref{tab:micro-lenses} summarizes the four diagnostic methods.
+
+% \begin{table}[t]
+% \centering
+% \caption{The four microscopic diagnostic methods. The first three lenses probe
+% the \emph{gain} of an extra loop at successive stages of the forward pass; the
+% fourth quantifies its \emph{cost}. \textbf{Healthy trend} ($\uparrow$/$\downarrow$
+% = larger/smaller is better) is the per-loop behavior that signals productive
+% computation.}
+% \label{tab:micro-lenses}
+% \small
+% \renewcommand{\arraystretch}{1.2}
+% \begin{tabularx}{\textwidth}{@{}l >{\RaggedRight\arraybackslash}X c@{}}
+% \toprule
+% \textbf{Method} & \textbf{What it measures} & \textbf{Healthy trend} \\
+% \midrule
+% Hidden-state dynamics & Loop refinement consistency. & $\uparrow$ \\
+% Attention evolution & How much each loop re-routes information across diverse heads. & $\uparrow$ \\
+% Output-distribution shift & How much each loop improves the predicted next token. & $\uparrow$ \\
+% Intrinsic offset cost & The positional tax the CLP shift imposes each loop. & $\downarrow$ \\
+% \bottomrule
+% \end{tabularx}
+% \end{table}
+
+\subsubsection{Per-Loop Hidden-State Dynamics}
+\label{sec:analysis-dynamics}
+
+We track four statistics at each loop step $r$ to characterize the nature
+and magnitude of the representational update.
+
+\paragraph{Step size and angular change.}
+The step size $\delta^{(r)} = \left\|\hidden^{(r)} - \hidden^{(r-1)}\right\|_2$ measures the magnitude of the hidden-state update at loop $r$, where
+$\|\cdot\|_2$ denotes the Euclidean ($L_2$) norm used throughout.
+The angular change is denoted as:
+\begin{equation}
+  \cos\theta^{(r)} = \frac{
+    \left\langle \hidden^{(r)} - \hidden^{(r-1)},\;
+                  \hidden^{(r-1)} - \hidden^{(r-2)} \right\rangle
+  }{\left\|\hidden^{(r)} - \hidden^{(r-1)}\right\|_2
+    \left\|\hidden^{(r-1)} - \hidden^{(r-2)}\right\|_2}
+  \label{eq:angular}
+\end{equation} where $\cos\theta^{(r)}$ is the update-direction alignment between two successive updates: $\cos\theta^{(r)}\!\approx\!1$ means consecutive loops keep refining in the same direction, $\cos\theta^{(r)}\!\approx\!0$ means orthogonal updates, and $\cos\theta^{(r)}\!<\!0$ signals direction reversal, i.e.\ oscillatory rather than convergent refinement \citep{pappone2025twoscale}.
+
+\paragraph{Effective rank and fixed-point gap.}
+The effective rank
+\begin{equation}
+  \mathrm{erank}(\hidden^{(r)}) =
+  \exp\!\left(-\sum_i \bar\sigma_i \log \bar\sigma_i\right),
+  \label{eq:erank}
+\end{equation}
+where $\bar\sigma_i$ are the normalized singular values of the $S \times d$
+hidden-state matrix (computed on RMSNorm-normalized states so the measure is
+scale-free), measures the geometric diversity of token representations at
+loop $r$.
+Representational diversity rises sharply from the embedding through the early
+loops and \emph{peaks at loop~2}. A subsequent decline indicates that later
+loops begin to narrow the representational subspace rather than enrich it,
+eroding the model's capacity to maintain token-specific information
+\citep{chen2026loop}.
+The fixed-point gap directly measures how far the current state deviates from a fixed point of the shared block, providing a scalar summary of residual refinement capacity as below:
+\begin{equation}
+  \Delta_{\text{FP}}^{(r)} =
+  \left\|\hidden^{(r)} - \block\!\left(\hidden^{(r)}\right)\right\|_2.
+  \label{eq:fpgap}
+\end{equation}
+
+\paragraph{Intrinsic offset cost.}
+Under the CLP mechanism, the input to loop $r \geq 2$ is
+$B^{(r)} = \mathrm{Embed}(x) + \mathrm{shift}(\hidden^{(r-1)})$
+(\autoref{eq:clp}), so token $i$ receives the loop-$(r{-}1)$ hidden state
+of its neighbor $i{-}1$ rather than its own.
+The degree to which this substitution distorts the input signal depends
+directly on how dissimilar adjacent token representations are at that
+loop boundary.
+We therefore define the \emph{intrinsic offset cost} at loop $r$ as the mean
+Euclidean distance between the representations of adjacent tokens at the
+previous loop. This per-loop scalar $\Omega^{(r)}$ is computable directly from the neighboring hidden states of the LLM.
+\begin{MiddleEquation}
+\begin{equation}
+  \Omega^{(r)} =
+  \frac{1}{S}\sum_{i} \left\|\hidden^{(r-1)}_i - \hidden^{(r-1)}_{i-1}\right\|_2
+  \label{eq:offset-cost}
+\end{equation}
+\end{MiddleEquation}where $S$ is the sequence length and a small $\Omega^{(r)}$
+signals that representations have begun to homogenize, rendering the
+shift nearly lossless.
+Empirically $\Omega^{(r)}$ is \emph{nearly constant} across loops: adjacent
+token representations remain comparably heterogeneous at every loop boundary,
+so the CLP shift imposes a roughly fixed positional tax at each iteration.
+Because the \emph{benefit} of an additional loop diminishes rapidly with depth
+, this fixed cost
+constitutes an ever-larger share of each loop's net effect, so that beyond a
+small number of loops the offset penalty increasingly outweighs the shrinking
+gain.
+This interplay between a fixed offset cost and a diminishing loop gain is the
+central mechanism examined in \autoref{sec:analysis-synthesis}.
+% \autoref{fig:offset-cost} makes this interplay explicit: it contrasts the fixed
+% offset cost $\Omega^{(r)}$ with the per-loop refinement gain $\Delta p^{(r)}$,
+% showing that the gain collapses after loop~2 while $\Omega^{(r)}$ holds nearly
+% constant, so the offset tax per unit of refinement grows with each added loop.
+
+\subsubsection{Attention Heat-Map Evolution Across Loops}
+\label{sec:analysis-attn}
+
+Attention patterns record how the model distributes information across token positions at each loop, and their evolution reveals whether successive loops specialize, engaging distinct subsets of token relationships, or degenerate into attentional redundancy.
+
+\paragraph{Per-loop attention statistics.}
+We track two scalar statistics per loop.
+The attention entropy for head $h$ at query position $q$,
+\begin{equation}
+  \mathcal{H}^{(r,h)}_q = -\sum_{k=1}^S
+    A^{(r,h)}_{qk} \log A^{(r,h)}_{qk},
+  \label{eq:attn-entropy}
+\end{equation}
+where quantifies whether a head is globally diffuse or locally focused at loop $r$.
+The inter-loop KL divergence
+\begin{equation}
+  D_{\text{KL}}^{(r)} = \frac{1}{HS}\sum_{h,q}
+    \mathrm{KL}\!\left(A^{(r,h)}_q \;\|\; A^{(r-1,h)}_q\right)
+  \label{eq:attn-div}
+\end{equation}
+which measures how much the attention distribution changes between consecutive loops.
+A rapid decay of $D_{\text{KL}}^{(r)}$ toward zero indicates that
+information routing has effectively frozen, and subsequent loops add no new
+attention-level computation regardless of their hidden-state updates
+\citep{lu2025latent}.
+
+\paragraph{Attention-head diversity.}
+To measure whether the attention heads remain specialized or collapse toward
+redundant routing, we compute, at each loop, the \emph{effective rank} of the
+$H$ per-head attention distributions at each query position, the entropy of
+the normalized singular-value spectrum of the $H\times S$ matrix of head
+attention vectors, together with the mean pairwise cosine similarity between
+heads. A falling effective rank, equivalently a rising head similarity, signals
+that the heads increasingly route information in the same way: the
+attention-level analogue of the hidden-state effective-rank narrowing.
+% Across the test dataset, mean off-diagonal head similarity rises
+% $0.57\!\to\!0.67\!\to\!0.71$ and the attention-head effective rank falls
+% $11.9\!\to\!10.8\!\to\!9.5$ from loop~1 to~3 in \autoref{fig:attn-heatmaps}).
+% The loop-$2\!\to\!3$ narrowing is a structurally clean comparison,both loops
+% use the identical G-SWA form and holds at $11/14$ layers, concentrated in the
+% core middle layers. This routing-level narrowing parallels the hidden-state
+% effective-rank decline and accompanies the loop-3 performance degradation.
+
+\paragraph{Local vs.\ global attention in G-SWA.}
+In PLT, each non-first attention of loop is a gated mixture of a local
+sliding-window component (over current-loop KV) and a global component
+(over the frozen loop-1 KV cache) in \autoref{eq:gswa}.
+We separately track the mean gate value $\bar{g}^{(r)}$ across heads and
+positions. Under our convention (\autoref{eq:gswa}) $\bar{g}^{(r)}$ is the
+weight placed on the \emph{global} branch (the frozen loop-1 KV cache), so
+$\bar{g}^{(r)}\!\to\!1$ indicates near-total reliance on the loop-1 global
+representation and $\bar{g}^{(r)}\!\to\!0$ indicates reliance on fresh local
+context.
+A gate that stays well above $0.5$ and changes little across loops indicates
+that later loops keep drawing on the same frozen global cache rather than
+constructing qualitatively new context.
+% \autoref{fig:attn-heatmaps} visualizes the resulting collapse of
+% attention-head diversity across loops, and \autoref{fig:attn-stats} reports
+% the corresponding aggregate per-loop statistics across the evaluation set.
+
+\subsubsection{Output-Distribution Shift Across Loops}
+\label{sec:analysis-output}
+
+Applying the output head to intermediate hidden state $\hidden^{(r)}$ yields
+a token-probability distribution
+$p^{(r)} = \mathrm{Softmax}(\mathrm{Head}(\hidden^{(r)}))$.
+Tracking $p^{(r)}$ across loops reveals whether the model progressively
+refines a coarse initial prediction or whether its output distribution
+oscillates or stagnates \citep{chen2026loop}.
+
+\paragraph{Per-loop output-shift metrics.}
+We employ three measures.
+The Logit Lens rank \citep{lu2025latent}, the rank of the ground-truth
+next token under $p^{(r)}$, indicates whether loop $r$ moves the model
+closer to the correct prediction. A monotonically decreasing rank over $r$
+constitutes the cleanest signature of iterative refinement.
+The inter-loop KL divergence of output distributions,
+\begin{equation}
+  \Delta p^{(r)} = \mathrm{KL}\!\left(p^{(r)} \;\|\; p^{(r-1)}\right),
+  \label{eq:output-shift}
+\end{equation}
+which measures the prediction change at each loop step.
+The output entropy $\mathcal{H}(p^{(r)})$ tracks the confidence with which
+the model commits to a prediction as loops accumulate.
+% \autoref{fig:output-shift} reports all three measures as a function of
+% loop index.
+
+\paragraph{Where refinement concentrates.}
+Beyond aggregate trends, we ask how the post-context refinement ($r \geq 2$) is
+divided among the refinement loops, measuring each loop's share under three
+independent lenses: the magnitude of its output shift $\Delta p^{(r)}$, the
+amount of attention re-routing it performs $D_{\mathrm{KL}}^{(r)}$, and the
+fraction of tokens for which it is the peak-contribution loop
+$r^* = \arg\max_r \Delta p^{(r)}$.
+The first loop, which maps embeddings to contextual states, dominates the
+unconditioned distribution and is excluded so as to isolate refinement.
+% In the four-loop model (\autoref{fig:peak-loop}), the refinement does not spread
+% evenly across the extra loops: the \emph{middle} extra loop (loop~3) carries the
+% smallest share on every lens ($28\%$, $25\%$, and $13\%$), behaving as a
+% near-dead pass-through.
+% Genuine refinement instead concentrates at loop~2,which also peaks in
+% attention re-routing and effective rank while the comparatively large
+% loop-4 share on the output-side lenses reflects final readout rather than
+% representational enrichment, as the effective rank is lowest at loop~4
+% (\autoref{fig:dynamics}c).
+% The second loop therefore remains the principal site of productive refinement,
+% and stacking further loops adds a near-inert pass and a readout step rather than
+% new representational gain.
+
+\definecolor{tablegray}{gray}{0.92}
+\begin{table}[t]
+\centering
+\caption{Comparison on code-generation and agentic / tool-use benchmarks.
+Best per column in \textbf{bold}; our 7B models shaded. A single extra loop
+($\loopcount{=}2$) is competitive with much larger systems, especially on
+agentic tasks, while a second extra loop ($\loopcount{=}3$) regresses.
+Avg. is the mean over available benchmarks (entries marked -- are excluded). HE+: HumanEval+;
+MultiPL-E: multilingual avg.; BCB: BigCodeBench-Full;
+LCB: LiveCodeBench; SWE: SWE-bench Verified; SWE-M: SWE-bench Multilingual;
+TB-v1/v2: Terminal-Bench; M2W: Mind2Web; BFCL: tool use (v3).}
+\label{tab:main-comparison}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{l ccccccccccc}
+\toprule
+\textbf{Model} & HE+ & MultiPL-E & BCB & LCB & SWE & SWE-M & TB-v1 & TB-v2 & M2W & BFCL & Avg. \\
+\midrule
+\multicolumn{12}{l}{\textit{Small Open models, $\leq$\,32B}} \\
+DeepSeek-Coder-V2-Lite-Instruct & 75.6 & 71.5 & 37.8 & 19.4 & 0.0 & 0.0 & 5.0 & 0.0 & 26.7 & -- & 26.2 \\
+Qwen2.5-Coder-7B-Instruct       & 81.7 & 75.4 & 37.8 & 18.9 & 0.0 & 0.0 & 6.3 & 0.0 & 38.4 & 54.2 & 31.3 \\
+Seed-Coder-8B-Instruct          & 75.6 & 75.1 & 44.6 & 22.3 & 0.0 & 0.0 & 7.5 & 2.5 & 38.2 & -- & 29.5 \\
+Qwen2.5-Coder-14B-Instruct      & 59.8 & 78.8 & 47.0 & 24.6 & 0.0 & 0.0 & 8.8 & 0.0 & 42.7 & 59.9 & 32.2 \\
+Qwen2.5-Coder-32B-Instruct      & 86.6 & 79.6 & 48.0 & 27.4 & 0.0 & 0.0 & 5.0 & 4.5 & 32.5 & 62.3 & 34.6 \\
+\midrule
+\multicolumn{12}{l}{\textit{Large open models}} \\
+Qwen3-235B-A22B-Instruct-2507   & 91.5 & 87.9 & 47.4 & 51.8 & 45.2 & -- & 15.0 & 13.5 & 49.0 & 71.2 & 52.5 \\
+Kimi-Dev-72B                    & 86.0 & 80.3 & 45.4 & 40.0 & 60.4 & -- & -- & 2.3 & -- & 55.5 & 52.8 \\
+Kimi-K2-Instruct-0905           & 89.6 & 85.7 & 49.8 & 53.7 & 69.2 & 33.5 & 44.5 & 27.8 & 53.4 & 70.3 & 57.8 \\
+Qwen3-Coder-480B-A35B-Instruct  & 92.7 & 87.4 & 49.4 & 53.9 & 67.0 & 32.7 & 37.5 & 23.6 & 54.0 & 68.7 & 56.7 \\
+DeepSeek-V3.2                   & 88.4 & 85.8 & 48.1 & 83.3 & 73.1 & 37.4 & 23.8 & 46.4 & 47.2 & 68.8 & 60.2 \\
+GLM-4.7                         & 79.9 & 69.0 & 45.7 & 84.9 & 73.8 & -- & 36.3 & 41.0 & 53.7 & 64.8 & 61.0 \\
+\midrule
+\multicolumn{12}{l}{\textit{Proprietary models}} \\
+GPT-5.1                         & 90.0 & 86.2 & 46.8 & 87.0 & 76.3 & -- & 35.0 & 47.6 & 55.1 & 64.4 & 65.4 \\
+Claude-Opus-4.5                 & 93.3 & 91.0 & \textbf{53.3} & 87.1 & \textbf{80.9} & \textbf{50.0} & \textbf{47.5} & \textbf{59.3} & 57.9 & \textbf{78.9} & \textbf{69.9} \\
+Gemini-3-Pro                    & \textbf{94.5} & \textbf{91.2} & 47.1 & \textbf{91.7} & 76.2 & 42.7 & 46.3 & 54.2 & \textbf{60.3} & 78.2 & 68.2 \\
+\midrule
+\multicolumn{12}{l}{\textit{Ours (7B)}} \\
+\rowcolor{tablegray} Baseline ($\loopcount{=}1$)        & 81.1 & 69.5 & 40.1 & 27.4 & 43.0 & 14.0 & 26.3 & 11.2 & 35.3 & 32.2 & 38.0 \\
+\rowcolor{tablegray} \modelname{} ($\loopcount{=}2$)    & \textbf{84.1} & \textbf{73.9} & \textbf{46.1} & \textbf{35.4} & \textbf{64.4} & \textbf{31.0} & \textbf{34.2} & \textbf{21.0} & \textbf{34.5} & \textbf{40.1} & \textbf{46.5} \\
+\rowcolor{tablegray} \modelname{} ($\loopcount{=}3$)    & 75.0 & 69.8 & 43.3 & 28.6 & 27.6 & 11.0 & 30.0 & 12.2 & 35.1 & 36.3 & 36.9 \\
+\rowcolor{tablegray} \modelname{} ($\loopcount{=}4$)    & 76.8 & 67.3 & 40.8 & 24.5 & 22.4 & 9.3 & 26.3 & 9.0 & 41.4 & 39.5 & 34.3 \\
+\bottomrule
+\end{tabular}}
+\end{table}

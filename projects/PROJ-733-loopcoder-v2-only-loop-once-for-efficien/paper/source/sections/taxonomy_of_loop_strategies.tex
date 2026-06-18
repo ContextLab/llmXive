@@ -1,0 +1,141 @@
+\section{Preliminaries and Problem Formulation}
+\label{sec:plt}
+% ================================================================
+This section formalizes the loop-count selection problem studied in this paper. We first review standard looped Transformers, where additional loops increase latent computational depth but also incur sequential inference cost. We then introduce the parallel loop Transformer (PLT), which reduces this cost through parallel loop execution and shared-KV attention, while changing the information flow across loop iterations. Finally, we compare the two settings and formulate PLT loop-count selection as a gain--cost trade-off: each additional loop may provide useful representational refinement, but in PLT it also introduces an offset-induced positional mismatch.
+
+% \input{graph/fig_loop_vs_plt}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.99\linewidth]{images/loop2.pdf}
+\caption{Overview of PLT loop-count selection. Left: standard sequential looping
+increases latency and KV-cache memory with the loop count, whereas PLT uses a
+cross-loop position offset and shared-KV G-SWA to keep both costs nearly
+constant. Middle: each added loop trades marginal refinement gain against the
+CLP-induced offset mismatch. The gain peaks early and then shrinks while the
+offset cost remains roughly stable, making $r=2$ the preferred operating point.
+Right: per-loop diagnostics explain this choice. Loop~2 shows coherent
+hidden-state movement, changed attention routing, increased representation
+diversity, and broad token-level refinement, while loop~3 is more redundant and
+less productive.}
+\label{fig:main}
+\end{figure}
+
+
+\subsection{Looped Transformers}
+\label{sec:looped}
+A looped Transformer replaces a deep stack of distinct layers with a single
+shared block $\block$ of $L$ layers applied repeatedly
+\citep{dehghani2018universal,giannou2023looped}.
+Given input tokens $x$, it unrolls the recurrence
+\begin{equation*}
+  \hidden^{(0)} = \mathrm{Embed}(x),
+  \qquad
+  \hidden^{(r)} = \block\!\left(\hidden^{(r-1)}\right),\;\; r = 1,\dots,\loopcount,
+  \qquad
+  logits = \mathrm{Head}\!\left(\hidden^{(\loopcount)}\right),
+  \label{eq:loop-rec}
+\end{equation*}
+where $\hidden^{(r)}$ is the $r$-th hidden state, $\loopcount$ the loop counts.
+Reusing the same parameters at every iteration makes the effective depth
+$\loopcount\cdot L$ grow with $\loopcount$ while the parameter count $\nparams$
+stays fixed, so a looped model attains deep computation on a small parameter
+budget, rivaling much larger non-looped models on depth-sensitive tasks
+\citep{yang2023looped}.
+
+This depth, however, comes at an inference cost that scales with $\loopcount$
+(\autoref{tab:loop-vs-plt}).
+The recurrence is strictly \emph{sequential}: $\hidden^{(r)}$ cannot be computed
+before $\hidden^{(r-1)}$, so $\loopcount$ loops require $\loopcount$ successive
+passes through $\block$ and multiply wall-clock latency by $\loopcount$.
+The memory cost grows just as steeply: a standard implementation caches the keys
+and values of every layer \emph{at every loop}, so the KV-cache footprint reaches
+$O(\loopcount \cdot L \cdot S \cdot d)$ for sequence length $S$ and width $d$, a
+factor of $\loopcount$ over a single pass \citep{vendrell2026memoryefficient}.
+Both latency and memory thus grow with every added loop, making deeply looped
+inference impractical in latency- or memory-constrained deployment.
+
+\subsection{Parallel Loop Transformer}
+\label{sec:plt-arch}
+The parallel loop Transformer (PLT) \citep{wu2025parallel} is a representative design that reduces these two costs. PLT introduces two independent mechanisms: a shared first-loop KV cache accessed through gated sliding-window attention, which bounds memory, and a cross-loop position offset,
+which removes the sequential dependency between loops.
+
+\paragraph{Efficient Representation Enhancement (KV sharing + G-SWA).}
+The KV cache from the first loop,
+$K_{\text{share}}, V_{\text{share}} = \mathrm{KV}(\hidden^{(1)})$,
+is shared with all subsequent loops to keep total KV-cache memory at
+$O(L \cdot S \cdot d)$ regardless of $\loopcount$.
+In non-first loops, each attention layer performs a gated fusion of two
+attention outputs:
+\begin{equation}
+  \tilde{y}^{(r)} = g \odot y_{\text{global}}^{(r)}
+                   + (1 - g) \odot y_{\text{local}}^{(r)},
+  \quad g = \sigma\!\left(f_{\text{gate}}(\mathrm{RMSNorm}(\hidden))\right),
+  \label{eq:gswa}
+\end{equation}
+where $y_{\text{global}}^{(r)}$ is full-context attention on the frozen
+$K_{\text{share}}, V_{\text{share}}$ from loop 1, and $y_{\text{local}}^{(r)}$
+is sliding-window attention of width $w = 64$ over the current loop's KV. The gate $f_{\text{gate}}$ is a head-wise linear layer applied to the
+RMSNorm-normalized layer input, producing one scalar per head.
+\paragraph{Cross-Loop Parallelism (CLP offset).}
+Before each loop $r \geq 2$, the previous loop's hidden states are
+right-shifted by one token position and added back to the input:
+\begin{equation}
+  B^{(r)} = \mathrm{Embed}(x) + \mathrm{shift}\!\left(\hidden^{(r-1)}\right),
+  \qquad
+  \hidden^{(r)} = \block\!\left(B^{(r)}\right),
+  \label{eq:clp}
+\end{equation}
+where $\mathrm{Embed}(x)$ is the token-embedding sequence of input $x$,
+$\hidden^{(r-1)}$ the loop-$(r-1)$ hidden states, and $\mathrm{shift}$ the
+one-position right shift $\mathrm{shift}(\hidden^{(r-1)})_i=\hidden^{(r-1)}_{i-1}$
+($\hidden^{(r-1)}_{0}=\mathbf{0}$). The sum $B^{(r)}$ is the input to loop $r$,
+which the shared block $\block$ maps to $\hidden^{(r)}$.
+This removes the direct positional dependency between states at the same
+index across consecutive loops, so the $r$-th loop of token $x_i$ can be
+computed concurrently with the $(r+1)$-th loop of token $x_{i-1}$ within a
+single forward pass, yielding near-single-pass wall-clock latency.
+
+\paragraph{Information-flow consequence of the offset.}
+Token $x_i$ at loop $r \geq 2$ receives as input a mixture of its own
+embedding and the loop-$(r-1)$ hidden state of token $x_{i-1}$ rather
+than its own.
+The offset therefore induces a per-token positional mismatch: the state
+available to token $x_i$ at loop $r$ reflects the context seen by
+$x_{i-1}$, not $x_i$ itself.
+This positional mismatch is the core information constraint that PLT introduces.
+
+\subsection{Loop-Count Selection as a Gain--Cost Trade-off}
+\label{sec:gaincost}
+
+\autoref{tab:loop-vs-plt} contrasts the two settings: PLT removes the sequential
+dependency and freezes the first-loop KV cache, so neither latency nor memory
+scales with $\loopcount$.
+These savings make additional loops affordable at inference, and we adopt PLT as
+the experimental framework for the remainder of this paper.
+
+\begin{table}[t]
+\centering
+\caption{Sequential looping versus PLT, where $C_{\text{block}}$ is the cost of
+one pass through the shared block. PLT keeps both latency and memory independent
+of the loop count $\loopcount$.}
+\label{tab:loop-vs-plt}
+\begin{tabular}{lll}
+\toprule
+ & \textbf{Sequential loop} & \textbf{PLT} \\
+\midrule
+Execution        & sequential                        & parallel, single pass \\
+Latency          & $O(\loopcount\,C_{\text{block}})$  & $\approx C_{\text{block}}$ \\
+KV-cache         & $O(\loopcount L S d)$              & $O(L S d)$ \\
+Inter-loop input & $\hidden^{(r-1)}$                  & $\mathrm{Embed}(x) + \mathrm{shift}(\hidden^{(r-1)})$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+However, this efficiency is not free: the CLP offset 
+makes every added loop couple a representational \emph{gain},further latent
+refinement with a positional-mismatch \emph{cost} that standard looping never
+incurs.
+How these opposing forces balance sets the loop count at which PLT performs
+best, the gain--cost trade-off that the rest of the paper quantifies through a
+per-loop interpretability analysis (\autoref{sec:analysis}).

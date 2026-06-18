@@ -1,0 +1,59 @@
+\section{Introduction}
+Looped large language models (LLM)~\cite{yang2025codesurvey,wu2025parallel} have emerged as a promising way to scale the effective computational depth of language models without proportionally increasing their parameter count. Instead of stacking many distinct layers, a looped large language model (LLM) repeatedly applies a shared Transformer block, allowing the same parameters to perform multiple rounds of latent-space computation \citep{dehghani2018universal,giannou2023looped,yang2023looped}. This design is especially attractive for test-time compute scaling, enabling additional internal refinement without generating auxiliary reasoning tokens \citep{geiping2025scaling}. Recent work has shown that such recurrent-depth LLMs can approach deeper non-looped Transformers and improve reasoning performance as more inference-time computation is used \citep{geiping2025scaling,yang2026stabilizing,schwethelm2026how}.
+
+Despite this promise, standard sequential looping is difficult to deploy efficiently: each additional loop requires another pass through the shared block and introduces loop-specific KV-cache states, causing both latency and memory to grow with the loop count \citep{vendrell2026memoryefficient}. The Parallel Loop Transformer (PLT) \citep{wu2025parallel} mitigates this bottleneck with two complementary mechanisms: cross-loop position offsets (CLP), which break sequential inter-loop dependencies and enable parallel loop execution, and shared-KV gated sliding-window attention (G-SWA), which keeps the cache footprint nearly constant across loop counts. Yet reducing the cost of looping does not by itself determine the best operating point. In PLT, the loop count becomes a deployment-time design choice: too few loops may underuse the model's refinement capacity, while too many loops may introduce redundant or harmful computation. Exhaustively training and evaluating every candidate loop count is expensive and offers little insight into why a particular setting succeeds or fails. This motivates a more diagnostic question: \emph{can we identify the saturation point of PLT by examining what each loop contributes internally?}
+
+
+To investigate this question, we view PLT's loop-count behavior through a gain--cost lens (\autoref{fig:main}). On the gain side, an additional loop is useful only if it performs meaningful refinement: coherently updating hidden states, changing information routing, and shifting the model's output distribution. We therefore track hidden-state dynamics, attention evolution, and output-distribution shift across loops. On the cost side, CLP enables parallelism by replacing direct same-token recurrence with an offset dependence on neighboring states, which can introduce a positional mismatch at each loop boundary. We quantify this mismatch from the model's hidden states and relate it to the marginal gain of each loop. All comparisons are conducted under matched training, instruction-tuning, and evaluation settings, ensuring that the resulting loop-wise differences reflect the effect of loop count rather than changes in protocol.
+
+% While PLT is favorable for its parallel execution, it sacrifices the compute one passes to the looping block. An obvious research question what would be the optimal balance between parallel and iterative computation of passing loops.
+% % Yet PLT's parallel execution is not without consequence.
+% % We consistently observe across tasks that PLT's performance peaks at a
+% % notably low loop count and subsequently degrades, this non-monotonic pattern
+% % whose saturation point appears to be reached earlier than the representational
+% % capacity of the shared block alone would predict, and whose mechanistic
+% % origin lies in the efficiency mechanisms that make PLT attractive.
+% This observation raises two questions that, to our knowledge, have not
+% been addressed.
+
+% \begin{itemize}
+%   \item \textbf{Non-monotonic performance.}
+%     Why does PLT's performance saturate and reverse at a low loop count,
+%     and what distinguishes early loops from later ones at the level of
+%     internal representations?
+%     What mechanism causes additional loops to eventually hurt rather than help?
+%   \item \textbf{The offset as an information constraint.}
+%     PLT's CLP offset is by construction a lossy transformation: each
+%     token at loop $r \geq 2$ receives the hidden state of its
+%     \emph{preceding neighbor} rather than its own state from the previous
+%     loop, breaking the direct self-context chain.
+%     The representational consequence of this substitution,how much
+%     information each token loses, whether this loss is uniform across
+%     loops, and how it interacts with the per-loop contribution
+%     profile---has not been characterized.
+% \end{itemize}
+
+% In this work, we investigate both questions through a per-loop interpretability
+% study grounded in three complementary analytical lenses:
+% hidden-state dynamics, attention heat-map evolution, and
+% output-distribution shift.
+% Using PLT as the experimental framework with $\loopcount \in \{1, 2, 3\}$,
+% we quantify the per-loop representational contribution and the intrinsic
+% cost imposed by the CLP offset.
+% Concretely, we make the following contributions:
+
+We instantiate this study on \modelname{}, a 7B PLT coder trained from scratch on 18T tokens of mixed text and code data, followed by instruction tuning. Comparing matched loop-count variants with (\loopcount $\in \{1,2,3,4\}$), we observe a strongly non-monotonic trend: the two-loop model improves broadly over the non-looped baseline, including a gain on SWE-bench Verified from 43.0\% to 64.4\%, while the three-loop model regresses on many tasks, dropping to 27.6\% on SWE-bench Verified. This pattern indicates that additional PLT loops can become harmful, motivating our loop-wise analysis of marginal refinement gain and CLP-induced offset cost.
+
+Our contributions are as follows:
+
+\begin{enumerate}
+\item \textbf{A gain--cost view of PLT loop-count selection.}
+We formulate PLT loop-count selection as a trade-off between the marginal refinement gained from additional loops and the structural cost introduced by CLP at loop boundaries.
+
+\item \textbf{A loop-wise diagnosis of PLT saturation.}
+We analyze hidden-state dynamics, attention evolution, and output-distribution shift across loops, and define an intrinsic offset cost $\Omega^{(r)}$ to quantify CLP-induced positional mismatch. Our analysis shows that the second loop provides the main productive refinement, while later loops yield diminishing and increasingly oscillatory updates.
+
+\item \textbf{A large-scale empirical study with a 7B PLT coder.}
+We train \modelname{} from scratch with different loop counts on 18T tokens of mixed text and code data and compare loop-count variants under matched training, instruction-tuning, and evaluation settings. The two-loop model improves broadly across code generation, code reasoning, agentic software engineering, and tool-use benchmarks, while additional looping often regresses.
+\end{enumerate}
+

@@ -1,0 +1,89 @@
+\usepackage{CJKutf8}
+% 允许使用 \newcommandx
+\usepackage{xargs}  
+% 用于创建 todo notes
+\usepackage{todonotes}
+\usepackage{amsmath}
+\usepackage{dsfont}
+
+% % using itemize
+% \usepackage{enumerate}
+
+\usepackage{longtable}
+
+\usepackage{svg}
+\usepackage{fontawesome}
+\usepackage{array}
+\usepackage{tabularx}
+% Standard package includes
+\usepackage{latexsym}
+\usepackage{graphicx}
+\usepackage[utf8]{inputenc} % allow utf-8 input
+\usepackage[utf8]{inputenc} % allow utf-8 input
+\usepackage{amssymb} % for math symbols like \geq
+% \usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+\usepackage{url}            % simple URL typesetting
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{microtype}      % microtypography
+\usepackage{xspace}
+
+% This assumes your files are encoded as UTF8
+\usepackage{listings}
+\usepackage{makecell}
+\usepackage{inconsolata}
+\usepackage{multicol}
+\usepackage{amstext}
+% \usepackage{tcolorbox}
+
+\definecolor{darkblue}{RGB}{84, 112, 198}
+
+% \tcbset{
+%   aibox/.style={
+%     width=\linewidth,
+%     top=8pt,
+%     bottom=4pt,
+%     colback=blue!6!white,        % 主框背景色（浅蓝）
+%     colframe=white,              % 主框边框颜色
+%     colbacktitle=darkblue,           % 标题背景色（蓝色）
+%     fonttitle=\bfseries\color{white},  % 标题字体：加粗、白色
+%     enhanced,
+%     center,
+%     attach boxed title to top left={yshift=-0.1in,xshift=0.15in},
+%     boxed title style={
+%       boxrule=0pt,               % 标题框无边框
+%       colframe=white,            % 标题边框颜色（通常不可见）
+%       colback=blue,              % 标题背景色（蓝色）
+%     },
+%   }
+% }
+% \newtcolorbox{AIbox}[2][]{aibox,title=#2,#1}
+
+\definecolor{lightblue}{rgb}{0.85, 0.95, 1.0}    % 浅蓝
+\definecolor{lightgreen}{rgb}{0.90, 1.0, 0.90}    % 浅绿
+\definecolor{lightorange}{rgb}{1.0, 0.95, 0.85}   % 浅橙
+\definecolor{lightpurple}{rgb}{0.95, 0.90, 1.0}   % 浅紫
+\definecolor{lightgray}{rgb}{0.97, 0.97, 0.97}    % 浅灰
+
+\usepackage{tikz}
+\usetikzlibrary{calc}
+\definecolor{battery-empty}{rgb}{0.9, 0.9, 0.9}
+% 定义电池条命令：\difficultybar{1-5}
+\newcommand{\difficultybar}[1]{%
+  \begin{tikzpicture}[baseline, scale=0.5, every node/.style={scale=0.8}]
+    \foreach \i in {1,2,3,4,5} {
+      \ifnum\i>#1
+        \draw[fill=battery-empty] (\i*0.5-0.5, 0) rectangle (\i*0.5, 0.25);
+      \else
+        \pgfmathsetmacro{\colorlevel}{80 - 12*(\i)} % i=1→54, i=2→48, i=3→42, i=4→36, i=5→30
+        \edef\x{\noexpand\draw[fill=blue!\colorlevel!white, opacity=0.9] (\i*0.5-0.5, 0) rectangle (\i*0.5, 0.25);}
+        \x
+        \draw[blue!50!black] (\i*0.5-0.5, 0) rectangle (\i*0.5, 0.25);
+      \fi
+    }
+    \fill[battery-empty!70] (2.5, 0.08) rectangle (2.6, 0.17);
+    \draw[battery-empty!70!black] (2.5, 0.08) rectangle (2.6, 0.17);
+  \end{tikzpicture}%
+}
+% 可选：稍微压缩行间距（让表格更紧凑）
+\renewcommand{\arraystretch}{0.96}

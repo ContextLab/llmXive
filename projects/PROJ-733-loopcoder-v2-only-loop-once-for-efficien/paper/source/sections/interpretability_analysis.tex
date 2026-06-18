@@ -1,0 +1,221 @@
+\section{Per-Loop Interpretability Analysis}
+\label{sec:analysis}
+% ================================================================
+
+\subsection{Main Results}
+\label{sec:exp-results}
+
+\autoref{tab:main-comparison} compares our models with a range of open and
+proprietary systems on a representative benchmark subset.
+Two observations stand out.
+First, performance is strongly \emph{non-monotonic} in the loop count: a single
+additional loop ($\loopcount = 2$) improves markedly over the non-looped
+baseline, whereas a second extra loop ($\loopcount = 3$) regresses, often below
+the baseline.
+Second, this single extra loop makes our 7B model strikingly competitive with
+far larger systems, most notably on SWE-bench Verified, where it reaches
+$64.4\%$, surpassing 30B--72B open models and approaching 480B-scale ones.
+The same configuration also attains $33.4\%$ on the agentic SWE-bench-CC,
+confirming that the loop-2 gains carry over to held-out agentic settings.
+The non-monotonic curve, peaking after one additional loop, is the phenomenon
+whose representational origin the rest of the paper investigates.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\linewidth]{graph/fig_dynamics.pdf}
+\caption{Step size $\delta^{(r)}$ (top-left), angular change $\cos\theta^{(r)}$
+(top-right), scale-free effective rank $\mathrm{erank}(\hidden^{(r)})$
+(bottom-left), and fixed-point gap $\Delta_{\text{FP}}^{(r)}$ (bottom-right)
+as a function of loop index $r$. Lines: PLT$_2$/PLT$_3$/PLT$_4$
+(trained $\loopcount{=}2,3,4$); the baseline ($\loopcount{=}1$) is shown
+where defined. Shaded bands are 95\% CIs over 500 samples (often narrower than
+the markers); the dotted line in (c) marks the embedding. Effective rank peaks
+at loop~2 and declines for every deeper loop; successive updates are oscillatory
+($\cos\theta^{(r)}<0$) through the refinement loops, and the step size shrinks to
+a mid-depth minimum before rebounding at the final (output) loop.}
+\label{fig:dynamics}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.66\linewidth]{graph/fig_offset_cost.pdf}
+\caption{The gain--cost scissors (PLT$_4$). The per-loop refinement gain
+$\Delta p^{(r)}$ (output-distribution KL; left axis, log) collapses after loop~2
+and never recovers, whereas the intrinsic CLP offset cost $\Omega^{(r)}$
+(\autoref{eq:offset-cost}; right axis) stays high and roughly fixed. At every
+extra loop the offset cost exceeds the per-loop gain by $30$--$45\times$, so the
+fixed offset tax dominates the shrinking refinement beyond loop~2. 500 samples;
+shaded bands are 95\% CIs.}
+\label{fig:offset-cost}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{graph/fig_attn_heatmaps.pdf}
+\caption{Head$\times$head cosine similarity of the per-head attention
+distributions at loops $r=1,2,3$ (PLT$_3$, 500 held-out samples; self-similarity
+on the diagonal masked). Brighter cells indicate more redundant heads;
+$\overline{\mathrm{sim}}$ is the mean off-diagonal similarity. Heads grow
+progressively more redundant across loops.}
+\label{fig:attn-heatmaps}
+\end{figure}
+
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{graph/fig_attn_stats.pdf}
+\caption{Mean attention entropy $\mathcal{H}^{(r)}$ (left),
+inter-loop KL divergence $D_{\text{KL}}^{(r)}$ (middle),
+and mean G-SWA gate $\bar{g}^{(r)}$ (right; the weight on the global loop-1
+branch) as a function of loop index $r$ (PLT$_2$/PLT$_3$/PLT$_4$). The inter-loop
+KL drops sharply after loop~2 and stays low, indicating that attention routing
+largely freezes once the second loop completes; the gate stays well above
+$0.5$ at every loop.}
+\label{fig:attn-stats}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{graph/fig_output_shift.pdf}
+\caption{Logit-lens ground-truth token rank (left), inter-loop output
+KL divergence $\Delta p^{(r)}$ (middle, log scale), and output entropy
+$\mathcal{H}(p^{(r)})$ (right) as a function of loop index $r$
+(PLT$_2$/PLT$_3$/PLT$_4$).
+Predictions sharpen monotonically with depth, but the \emph{per-loop} change
+$\Delta p^{(r)}$ collapses after loop~2 (the small uptick at the final loop is
+output readout rather than new refinement), marking the onset of diminishing
+returns.}
+\label{fig:output-shift}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.92\linewidth]{graph/fig_peak_loop.pdf}
+\caption{How post-context refinement is distributed across the extra loops of
+PLT$_4$. Each bar splits the refinement carried by the refinement loops
+($r \geq 2$) into its loop-2, loop-3, and loop-4 shares, under three independent
+lenses: the output shift $\Delta p^{(r)}$, the inter-loop attention re-routing
+$D_{\mathrm{KL}}^{(r)}$, and the per-token peak-contribution loop
+$r^* = \arg\max_r \Delta p^{(r)}$. The middle extra loop (loop~3, grey) carries
+the \emph{smallest} share on every lens: genuine refinement concentrates at
+loop~2,where attention re-routing and effective rank also peak,while loop~4's
+large output-side share is final readout rather than representational
+enrichment (its effective rank is the lowest; \autoref{fig:dynamics}c).
+(Loop~1 builds context and is excluded to isolate refinement.)}
+\label{fig:peak-loop}
+\end{figure}
+
+\subsection{Synthesis: Loop Contribution vs.\ Offset Cost}
+\label{sec:analysis-synthesis}
+
+We report per-loop hidden dynamics as mentioned in \autoref{sec:analysis-dynamics} with \autoref{fig:dynamics}  and \autoref{fig:offset-cost}. We then visualize attention-head evolution as mentioned in \autoref{sec:analysis-attn} with
+\autoref{fig:attn-heatmaps} and \autoref{fig:attn-stats}. Finally, we show output distribution shift as mentioned in \autoref{sec:analysis-output} with \autoref{fig:output-shift} and \autoref{fig:peak-loop}.
+
+\paragraph{Loop 2 is the principal site of productive refinement.}
+The first loop performs the largest transformation, mapping embeddings to
+contextual states, but among the \emph{refinement} loops the second loop
+carries the most meaningful change: it produces the largest inter-loop attention
+divergence $D_{\text{KL}}^{(2)}$ and the largest per-loop output shift
+$\Delta p^{(2)}$, and it is where effective rank peaks.
+Representational diversity is thus maximized at loop~2, and every deeper
+refinement loop only narrows it.
+
+\paragraph{Beyond loop 2: diminishing and non-productive returns.}
+Past the second loop the marginal contribution of each iteration collapses:
+$\Delta p^{(r)}$ and $D_{\text{KL}}^{(r)}$ drop sharply, and the effective rank
+\emph{declines} from its loop-2 peak, signalling that further loops narrow the
+representational subspace rather than enrich it.
+The attention heads echo this at the routing level: their diversity falls and
+they grow increasingly redundant from loop to loop
+(\autoref{fig:attn-heatmaps}).
+The hidden-state updates beyond loop~2 are either near-inert or
+\emph{oscillatory}: successive update directions reverse ($\cos\theta^{(r)}<0$),
+so the extra computation reflects non-convergent movement or final readout
+rather than genuine refinement.
+In the four-loop model this is starkest at the middle extra loop, which acts as
+a near-dead pass-through, while the final loop merely re-reads the prediction
+(\autoref{fig:peak-loop}).
+
+\paragraph{The CLP offset is a fixed per-loop tax.}
+The intrinsic offset cost $\Omega^{(r)}$ (\autoref{eq:offset-cost}) is
+approximately constant across loops: the CLP shift injects a comparable
+positional mismatch at every loop boundary.
+Because the benefit of each additional loop diminishes rapidly, this fixed cost
+claims a growing share of the net effect, so that beyond the second loop the
+offset penalty increasingly dominates the shrinking gain.
+Together with the post-peak narrowing of effective rank, this offers a
+mechanistic account of why performance peaks at $\loopcount=2$ and degrades
+with further loops.
+
+\begin{table}[h]
+\centering
+\caption{Per-loop behavioral signatures in the four-loop model (PLT$_4$),
+averaged over 500 held-out samples: per-token step size $\delta^{(r)}$,
+output-distribution shift $\Delta p^{(r)}$, effective rank, and update
+alignment $\cos\theta^{(r)}$ at each refinement loop. \underline{Underline}
+marks the largest value in each column.}
+\label{tab:behavior-summary}
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Loop} & $\delta^{(r)}$ & $\Delta p^{(r)}$ & \textbf{Eff.\ rank} & $\cos\theta^{(r)}$ \\
+\midrule
+$r=2$ & $\underline{846}$            & $\underline{1.75}$  & $\underline{174.6}$ & $\underline{-0.72}$ \\
+$r=3$ & $464$            & $1.32$              & $172.5$             & $-0.46$ \\
+$r=4$ & $1014$ & $1.58$            & $158.2$             & $0.04$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Explicit and Latent Chains of Thought are Complementary}
+\label{sec:analysis-cot}
+
+The looped computation analyzed above can be read as a form of \emph{latent}
+chain-of-thought: the model performs iterative refinement in representation
+space across loops without emitting any intermediate tokens
+\citep{geiping2025scaling,lu2025latent}.
+A reasoning (``thinking'') model, by contrast, externalizes an \emph{explicit}
+chain-of-thought as output tokens.
+Because a single additional loop ($\loopcount = 2$) is the optimal operating
+point (\autoref{sec:exp-results}), we ask whether these two reasoning
+channels, namely explicit token-level CoT and latent loop-level refinement,
+are redundant or complementary.
+We compare, at this same $\loopcount = 2$ configuration, the instruction-tuned
+model (latent loop only) against its thinking counterpart, a variant fine-tuned
+to emit an explicit reasoning trace (explicit CoT atop the latent loop), on
+reasoning-intensive benchmarks.
+
+\begin{table}[h]
+\centering
+\caption{Instruction-tuned vs.\ thinking model at the optimal single extra loop
+($\loopcount = 2$).}
+\label{tab:cot-synergy}
+\begin{tabular}{lccccc}
+\toprule
+\textbf{Model ($\loopcount = 2$)} & LCB & CRUX & MultiPL-E & FullStackBench & BCB-Hard \\
+\midrule
+Instruct (latent loop only)        & 35.4 & 86.9 & 73.9 & 47.2 & 23.7 \\
+Thinking (explicit CoT $+$ loop)   & \textbf{62.3} & \textbf{93.5} & \textbf{77.8} & \textbf{49.9} & \textbf{26.4} \\
+\midrule
+$\Delta$                           & $+26.9$ & $+6.6$ & $+3.9$ & $+2.7$ & $+2.7$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\autoref{tab:cot-synergy} shows that on reasoning-heavy tasks the thinking
+variant improves over the instruction-tuned variant by a wide margin, most
+strikingly on LiveCodeBench ($+26.9$ points), far exceeding the gain
+attributable to either ingredient in isolation: explicit CoT alone does not
+improve the non-looped model on these tasks, and the loop alone yields only
+single-digit gains for the instruction-tuned model.
+The combination is therefore \emph{super-additive}: the joint gain exceeds the
+sum of the gains contributed by explicit reasoning and latent recurrence
+separately.
+We attribute this to the two mechanisms operating at different granularities:
+the explicit CoT decomposes a problem into intermediate textual steps, while the
+latent loop refines the representation that underlies each step, so that
+chaining looped refinements through an explicit reasoning trace compounds their
+individual contributions.
+Latent depth recurrence and explicit reasoning thus appear to be complementary
+axes of test-time computation rather than substitutes, and their interaction is
+strongest precisely at the single-extra-loop operating point identified by our
+per-loop analysis.
