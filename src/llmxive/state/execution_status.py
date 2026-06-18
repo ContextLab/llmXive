@@ -23,7 +23,10 @@ from llmxive.config import repo_root as _repo_root
 
 #: After this many execution-fix rounds without a clean run, the project
 #: escalates honestly (HUMAN_INPUT_NEEDED) instead of looping forever.
-MAX_EXECUTION_FIX_ROUNDS = 8
+#: The cumulative contract ledger (shared_contract.accumulate_contract_issues)
+#: prevents true fix-one-break-another thrash, so each extra round is a real
+#: convergence opportunity rather than a wasted spin — hence a generous cap.
+MAX_EXECUTION_FIX_ROUNDS = 12
 
 
 def _dir(repo_root: Path | None = None) -> Path:

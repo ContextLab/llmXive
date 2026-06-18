@@ -13,6 +13,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from llmxive.execution.shared_contract import (
+    _TOLERANT_LOGGING_SKELETON,
     accumulate_contract_issues,
     defining_files,
     find_contract_issues,
@@ -134,3 +135,37 @@ def test_ledger_accumulates_contracts_across_rounds(tmp_path: Path) -> None:
     assert ("log_it", None) in syms  # carried forward despite not failing this round
     assert ("debug", "Logger") in syms  # plus the new one
     assert (mem / "contract_ledger.json").exists()
+
+
+def test_logging_battleground_offers_tolerant_reference_skeleton(tmp_path: Path) -> None:
+    """When the contract battleground is a logging module, the feedback hands the
+    implementer a complete, self-contained, tolerant reference. Pins PROJ-552's
+    endless logs.py thrash (the implementer kept reaching for stdlib logging)."""
+    p = _proj(tmp_path)  # _proj's defining file is code/util/logs.py (stem contains 'log')
+    fb = render_contract_feedback(
+        find_contract_issues(
+            p, ["a.py\n    TypeError: log_it() takes no arguments"]
+        )
+    )
+    assert "KNOWN-GOOD REFERENCE" in fb
+    assert "Do NOT reach for the stdlib `logging` module" in fb
+    assert "ReproducibilityLogger" in fb and "def log_operation" in fb
+
+
+def test_tolerant_logging_skeleton_executes_and_absorbs_every_call_shape() -> None:
+    """The shipped skeleton must be valid, importable Python that never raises on
+    the call shapes seen on PROJ-552 — else it would be useless advice."""
+    ns: dict = {}
+    exec(compile(_TOLERANT_LOGGING_SKELETON, "skeleton", "exec"), ns)
+    get_logger, log_operation = ns["get_logger"], ns["log_operation"]
+    assert get_logger() is get_logger("name")  # singleton, tolerant of a name arg
+    assert get_logger().log("test", "verification").to_json()  # 2 positional, returns LogEntry
+    get_logger().info("x"); get_logger().debug("y", k=1)  # __getattr__ no-ops
+    assert log_operation(operation="o", input_file="f").to_json()  # kw direct call
+    assert log_operation("o").to_json()  # positional direct call
+
+    @log_operation
+    def double(n):  # decorator use
+        return n * 2
+
+    assert double(21) == 42
