@@ -689,6 +689,52 @@ def _force_blocker_rereview(project_id: str, *, track: str, repo: Path) -> int:
     )
 
 
+def _rerun_analysis_after_code_revision(project_id: str, *, repo: Path) -> bool:
+    """After a research revision edits analysis CODE, RE-RUN the project's
+    run-book so the change actually EXECUTES.
+
+    This closes the revision-loop gap: the initial implementation runs through
+    the IN_PROGRESS execute-and-gate loop, but the post-review revision loop
+    only edited files — a revision that ADDS a computation never ran, so the
+    value was never produced and the re-review kept seeing it missing. Now a
+    code-touching revision re-runs the analysis, which:
+
+      * regenerates real artifacts/values (so compute-and-fill + the re-review
+        see the post-revision results), and
+      * records any run error to ``execution_status`` so the
+        implementation-correctness/completeness reviewers (which surface
+        ``execution_evidence``) flag it → the next revision round fixes it
+        (self-correcting, bounded by the per-step revision cap).
+
+    Bounded timeouts keep a revision tick affordable. Returns ``ok``.
+    """
+    from llmxive.execution.analysis_runner import run_analysis
+    from llmxive.state import execution_status
+
+    project_dir = repo / "projects" / project_id
+    try:
+        res = run_analysis(
+            project_dir, per_cmd_timeout_s=600, overall_deadline_s=3600.0,
+        )
+    except Exception as exc:  # never let a re-run crash the revision tick
+        logger.warning("post-revision analysis re-run errored for %s: %s", project_id, exc)
+        return False
+    failures = [
+        f"{r.command} -> rc={r.returncode}"
+        + (f"\n    {r.tail.strip()[-400:]}" if not r.ok and r.tail else "")
+        for r in res.commands if not r.ok
+    ]
+    execution_status.record(
+        project_id, ok=res.ok, reason=res.reason,
+        artifacts=res.artifacts_produced, failures=failures, repo_root=repo,
+    )
+    logger.info(
+        "post-revision analysis re-run for %s: ok=%s artifacts=%d",
+        project_id, res.ok, len(res.artifacts_produced),
+    )
+    return res.ok
+
+
 def _parse_llm_edit(response_text: str) -> dict[str, object] | None:
     """Parse an LLM response into a structured edit dict. Returns None if no valid
     JSON-edit block (one with a recognized ``kind``) is found."""
@@ -1193,6 +1239,26 @@ class LLMXiveImplementer(Agent):
                 # the fixed concern is never re-judged and the panel loops to
                 # the round cap. Only when edits actually landed.
                 if success_count > 0:
+                    # If this research round edited analysis CODE, RE-RUN the
+                    # run-book so the change actually EXECUTES (produces real
+                    # values/artifacts for compute-and-fill + the re-review) and
+                    # any run error is recorded for the reviewers + next round.
+                    # This is the "write AND run" step for the revision loop —
+                    # the initial implementation already runs via the IN_PROGRESS
+                    # execute-and-gate loop; a revision that only edited files
+                    # would otherwise never execute its new computation.
+                    if track == "research" and any(
+                        "/code/" in f
+                        for e in log_entries
+                        for f in (e.files_modified or [])
+                    ):
+                        ran_ok = _rerun_analysis_after_code_revision(
+                            project.id, repo=repo,
+                        )
+                        logger.info(
+                            "%s: post-revision analysis re-run ok=%s",
+                            project.id, ran_ok,
+                        )
                     cleared = _force_blocker_rereview(
                         project.id, track=track, repo=repo,
                     )

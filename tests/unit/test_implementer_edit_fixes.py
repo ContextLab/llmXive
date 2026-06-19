@@ -520,3 +520,20 @@ def test_compute_and_fill_context_and_trace_guard(tmp_path: Path) -> None:
     assert _untraceable_result_numbers(
         "count: TBD", "count: 342", traceable={"12967"}, allow={""}
     ) == {"342"}  # reviewer example, untraceable -> flagged
+
+
+def test_rerun_analysis_after_code_revision_records_and_never_crashes(tmp_path: Path) -> None:
+    """A research revision that edits analysis CODE must RE-RUN the run-book so
+    the change executes (the revision loop's 'write AND run' step). The helper
+    runs the analysis, records execution_status (so reviewers + the next round
+    see the result), and never crashes the tick — even with no run-book."""
+    from llmxive.agents.implementer import _rerun_analysis_after_code_revision
+    from llmxive.state import execution_status
+
+    proj = "PROJ-905-rerun"
+    (tmp_path / "projects" / proj / "code").mkdir(parents=True)  # no quickstart.md
+    ok = _rerun_analysis_after_code_revision(proj, repo=tmp_path)
+    rec = execution_status.load(proj, repo_root=tmp_path)
+    assert ok is False                       # nothing to run -> not ok
+    assert rec is not None and rec["ok"] is False
+    assert "quickstart" in rec["reason"]     # the run error is RECORDED for review
