@@ -1,12 +1,7 @@
 last_used: albert-einstein
-last_used_at: '2026-06-19T21:57:09.602184+00:00'
-last_outcome: committed
+last_used_at: '2026-06-19T22:21:02.734995+00:00'
+last_outcome: librarian_held
 history:
-- slug: stephen-wolfram
-  started_at: '2026-06-07T22:24:53.573899+00:00'
-  ended_at: '2026-06-07T22:52:36.910794+00:00'
-  outcome: triage_rejected_advanced_as_abstain
-  action: comment
 - slug: ada-lovelace
   started_at: '2026-06-07T22:52:36.910794+00:00'
   ended_at: '2026-06-07T23:26:47.174626+00:00'
@@ -1119,3 +1114,10 @@ history:
   action: propose_arxiv
   committed_paths:
   - state/personality-submissions/20260619T215709Z__albert-einstein.yaml
+- slug: dan-rockmore
+  started_at: '2026-06-19T21:57:09.602184+00:00'
+  ended_at: '2026-06-19T22:21:02.734995+00:00'
+  outcome: librarian_held
+  action: comment
+  committed_paths:
+  - projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/reviews/research/_held/dan-rockmore-simulated__2026-06-19__research.md
