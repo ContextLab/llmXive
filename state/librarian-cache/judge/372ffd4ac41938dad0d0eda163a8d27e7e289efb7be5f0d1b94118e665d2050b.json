@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2307.02446",
+  "judged_at": "2026-06-19T18:39:27Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "evaluating the effectiveness of llms for identifying security vulnerabilities in open-source code computer science",
+  "rationale": "The paper provides an empirical baseline for detecting security vulnerabilities in source code using a static analysis tool and machine‑learning methods, which is relevant to the dependent variable (vulnerability identification) in the same domain and can serve as a baseline against which LLM‑based approaches are evaluated (criterion c).",
+  "relevant": true
+}

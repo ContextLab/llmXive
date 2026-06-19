@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2102.06829",
+  "judged_at": "2026-06-19T18:39:45Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "evaluating the effectiveness of llms for identifying security vulnerabilities in open-source code computer science",
+  "rationale": "The paper evaluates Android static analysis tools via mutation testing and does not involve large language models, open‑source code, or the effectiveness of LLMs for vulnerability detection, so it does not meet any inclusion criteria (a‑f).",
+  "relevant": false
+}

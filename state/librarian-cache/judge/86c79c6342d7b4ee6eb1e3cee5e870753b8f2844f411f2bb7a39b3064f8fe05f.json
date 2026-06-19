@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1508.04627",
+  "judged_at": "2026-06-19T18:39:32Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "evaluating the effectiveness of llms for identifying security vulnerabilities in open-source code computer science",
+  "rationale": "The paper evaluates a static‑analysis framework’s ability to discover security bugs in large open‑source C/C++ codebases, thereby measuring the dependent variable “identifying security vulnerabilities” on the same domain (open‑source code) that the user’s question concerns (category (b)).",
+  "relevant": true
+}

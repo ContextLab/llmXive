@@ -1,0 +1,607 @@
+{
+  "fetched_at": "2026-06-19T18:39:45Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "Evaluating the Effectiveness of LLMs for Identifying Security Vulnerabilities in Open-Source Code",
+      "target_n": 5
+    },
+    "duration_seconds": 57.97,
+    "ended_at": "2026-06-19T18:39:45Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "large language model based static code analysis for security"
+        ],
+        [
+          2,
+          "AI-driven vulnerability detection in open‑source software"
+        ],
+        [
+          3,
+          "transformer models for automated security bug finding"
+        ],
+        [
+          4,
+          "machine learning methods for software security flaw identification"
+        ],
+        [
+          5,
+          "deep learning code auditing for security vulnerabilities"
+        ],
+        [
+          6,
+          "GPT‑style code review for exploit detection"
+        ],
+        [
+          7,
+          "neural code models applied to security vulnerability classification"
+        ],
+        [
+          8,
+          "language model assisted security code scanning"
+        ],
+        [
+          9,
+          "benchmark of LLMs for software security testing"
+        ],
+        [
+          10,
+          "prompt engineering for automated vulnerability discovery"
+        ],
+        [
+          11,
+          "AI‑powered static analysis tools for open‑source repositories"
+        ],
+        [
+          12,
+          "semantic code analysis with transformers for security assessment"
+        ],
+        [
+          13,
+          "large language model accuracy in identifying security bugs"
+        ],
+        [
+          14,
+          "automated security triage using generative AI on codebases"
+        ],
+        [
+          15,
+          "neural representation learning for software security analysis"
+        ],
+        [
+          16,
+          "AI‑enhanced code review pipelines for vulnerability mitigation"
+        ],
+        [
+          17,
+          "large‑scale evaluation of LLMs in security code inspection"
+        ],
+        [
+          18,
+          "deep neural networks for detection of insecure coding patterns"
+        ],
+        [
+          19,
+          "generative models for security flaw prioritization in open‑source projects"
+        ],
+        [
+          20,
+          "comparative study of machine‑learning vs. traditional static analysis for vulnerability detection"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Evaluating the Effectiveness of LLMs for Identifying Security Vulnerabilities in Open-Source Code computer science": 0,
+        "large language model based static code analysis for security": 5
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "code flaw detection",
+      "GitHub CVE dataset",
+      "static analysis vulnerability",
+      "precision recall vulnerability detection",
+      "training data leakage security"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2606.11672"
+      ]
+    },
+    "per_query_hit_count": {
+      "Evaluating the Effectiveness of LLMs for Identifying Security Vulnerabilities in Open-Source Code computer science": 3,
+      "GitHub CVE dataset": 3,
+      "code flaw detection": 3,
+      "precision recall vulnerability detection": 2,
+      "static analysis vulnerability": 3,
+      "training data leakage security": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 4,
+      "rejections": [
+        {
+          "primary_pointer": "2306.08568",
+          "rationale": "The paper evaluates a code LLM on general code generation benchmarks and does not study its ability to detect security vulnerabilities in open‑source code, nor does it provide a baseline or methodology for that specific task. Hence it lacks relevance to the user's research question.",
+          "title": "WizardCoder: Empowering Code Large Language Models with Evol-Instruct"
+        },
+        {
+          "primary_pointer": "2506.11022",
+          "rationale": "The paper studies how iterative LLM‑generated code becomes less secure, focusing on vulnerability introduction rather than on LLMs’ ability to **identify** vulnerabilities in existing open‑source code, so it does not address the independent or dependent variables central to the user’s question.",
+          "title": "Security Degradation in Iterative AI Code Generation -- A Systematic Analysis of the Paradox"
+        },
+        {
+          "primary_pointer": "2306.14027",
+          "rationale": "The paper studies LLMs for generating hardware security assertions in SystemVerilog, a different domain and task than using LLMs to identify security vulnerabilities in open‑source software code, so it does not meet any inclusion criteria (a‑f).",
+          "title": "(Security) Assertions by Large Language Models"
+        },
+        {
+          "primary_pointer": "2102.06829",
+          "rationale": "The paper evaluates Android static analysis tools via mutation testing and does not involve large language models, open‑source code, or the effectiveness of LLMs for vulnerability detection, so it does not meet any inclusion criteria (a‑f).",
+          "title": "Systematic Mutation-based Evaluation of the Soundness of Security-focused Android Static Analysis Techniques"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-19T18:38:47Z",
+    "term_input": {
+      "normalized": "evaluating the effectiveness of llms for identifying security vulnerabilities in open-source code computer science",
+      "raw": "Evaluating the Effectiveness of LLMs for Identifying Security Vulnerabilities in Open-Source Code computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Secure sum computation of private data inputs is an important component of Secure Multi party Computation (SMC).In this paper we provide a protocol to compute the sum of individual data inputs with zero probability of data leakage. In our proposed protocol we break input of each party into number of segments and change the arrangement of the parties such that in each round of the computation the neighbors are changed. In this protocol it becomes impossible for semi honest parties to know the private data of some other party.",
+          "claimed_authors": [
+            "Rashid Sheikh",
+            "Beerendra Kumar",
+            "Durgesh Kumar Mishra"
+          ],
+          "claimed_title": "Changing Neighbors k Secure Sum Protocol for Secure Multi Party Computation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2409"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Effectiveness of LLMs for Identifying Security Vulnerabilities in', candidate_title='Changing Neighbors k Secure Sum Protocol for Secure Multi Party Computation')",
+        "failed_at": "2026-06-19T18:39:16Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Security of any software can be enhanced manifolds if multiple factors for authorization and authentication are used .The main aim of this work was to design and implement an Academy Automation Software for IPS Academy which uses OpenID and Windows CardSpace as Authentication Techniques in addition to Role Based Authentication (RBA) System to ensure that only authentic users can access the predefined roles as per their Authorization level. The Automation covers different computing hardware and software that can be used to digitally create, manipulate, collect, store, and relay Academy information needed for accomplishing basic Operation like admissions and registration, student and faculty interaction, online library, medical and business development. Raw data storage, electronic transfer, and the management of electronic business information comprise the basic activities of the Academy automation system. Further Transport Layer Security (TLS) protocol has been implemented to provide security and data integrity for communications over networks. TLS encrypts the segments of network connections at the Transport",
+          "claimed_authors": [
+            "Dharmendra Choukse",
+            "Umesh Kumar Singh",
+            "Deepak Sukheja",
+            "Rekha Shahapurkar"
+          ],
+          "claimed_title": "Implementing New-age Authentication Techniques using OpenID for Security Automation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1003.1462"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Evaluating the Effectiveness of LLMs for Identifying Security Vulnerabilities in', candidate_title='Implementing New-age Authentication Techniques using OpenID for Security Automation')",
+        "failed_at": "2026-06-19T18:39:16Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Secure Multi-Party Computation (SMC) allows parties with similar background to compute results upon their private data, minimizing the threat of disclosure. The exponential increase in sensitive data that needs to be passed upon networked computers and the stupendous growth of internet has precipitated vast opportunities for cooperative computation, where parties come together to facilitate computations and draw out conclusions that are mutually beneficial; at the same time aspiring to keep their private data secure. These computations are generally required to be done between competitors, who are obviously weary of each-others intentions. SMC caters not only to the needs of such parties but also provides plausible solutions to individual organizations for problems like privacy-preserving database query, privacy-preserving scientific computations, privacy-preserving intrusion detection and privacy-preserving data mining. This paper is an extension to a previously proposed protocol Encrytpo_Random, which presented a plain sailing yet effective approach to SMC and also put forward an aptly crafted architecture, whereby such an efficient protocol, involving the parties that have come forward for joint-computations and the third party who undertakes such computations, can be developed. Through this extended work an attempt has been made to further strengthen the existing protocol thus paving the way for a more secure multi-party computational process.",
+          "claimed_authors": [
+            "Dr. Durgesh Kumar Mishra",
+            "Neha Koria",
+            "Nikhil Kapoor",
+            "Ravish Bahety"
+          ],
+          "claimed_title": "A Secure Multi-Party Computation Protocol for Malicious Computation Prevention for preserving privacy during Data Mining",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2009,
+          "primary_pointer": "0908.0994"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Effectiveness of LLMs for Identifying Security Vulnerabilities in', candidate_title='A Secure Multi-Party Computation Protocol for Malicious Computation Prevention for preserving privacy during Data Mining')",
+        "failed_at": "2026-06-19T18:39:16Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Botnets, which consist of thousands of compromised machines, can cause significant threats to other systems by launching Distributed Denial of Service (SSoS) attacks, keylogging, and backdoors. In response to these threats, new effective techniques are needed to detect the presence of botnets. In this paper, we have used an interception technique to monitor Windows Application Programming Interface (API) functions calls made by communication applications and store these calls with their arguments in log files. Our algorithm detects botnets based on monitoring abnormal activity by correlating the changes in log file sizes from different hosts.",
+          "claimed_authors": [
+            "Yousof Al-Hammadi",
+            "Uwe Aickelin"
+          ],
+          "claimed_title": "Detecting Botnets Through Log Correlation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1001.2665"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Effectiveness of LLMs for Identifying Security Vulnerabilities in', candidate_title='Detecting Botnets Through Log Correlation')",
+        "failed_at": "2026-06-19T18:39:16Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We explore the use of multiple deep learning models for detecting flaws in software programs. Current, standard approaches for flaw detection rely on a single representation of a software program (e.g., source code or a program binary). We illustrate that, by using techniques from multimodal deep learning, we can simultaneously leverage multiple representations of software programs to improve flaw detection over single representation analyses. Specifically, we adapt three deep learning models from the multimodal learning literature for use in flaw detection and demonstrate how these models outperform traditional deep learning models. We present results on detecting software flaws using the Juliet Test Suite and Linux Kernel.",
+          "claimed_authors": [
+            "Scott Heidbrink",
+            "Kathryn N. Rodhouse",
+            "Daniel M. Dunlavy"
+          ],
+          "claimed_title": "Multimodal Deep Learning for Flaw Detection in Software Programs",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2009.04549"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Evaluating the Effectiveness of LLMs for Identifying Security Vulnerabilities in', candidate_title='Multimodal Deep Learning for Flaw Detection in Software Programs')",
+        "failed_at": "2026-06-19T18:39:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The RSNA Abdominal Traumatic Injury CT (RATIC) dataset is the largest publicly available collection of adult abdominal CT studies annotated for traumatic injuries. This dataset includes 4,274 studies from 23 institutions across 14 countries. The dataset is freely available for non-commercial use via Kaggle at https://www.kaggle.com/competitions/rsna-2023-abdominal-trauma-detection. Created for the RSNA 2023 Abdominal Trauma Detection competition, the dataset encourages the development of advanced machine learning models for detecting abdominal injuries on CT scans. The dataset encompasses detection and classification of traumatic injuries across multiple organs, including the liver, spleen, kidneys, bowel, and mesentery. Annotations were created by expert radiologists from the American Society of Emergency Radiology (ASER) and Society of Abdominal Radiology (SAR). The dataset is annotated at multiple levels, including the presence of injuries in three solid organs with injury grading, image-level annotations for active extravasations and bowel injury, and voxelwise segmentations of each of the potentially injured organs. With the release of this dataset, we hope to facilitate research and development in machine learning and abdominal trauma that can lead to improved patient care and outcomes.",
+          "claimed_authors": [
+            "Jeffrey D. Rudie",
+            "Hui-Ming Lin",
+            "Robyn L. Ball",
+            "Sabeena Jalal",
+            "Luciano M. Prevedello",
+            "Savvas Nicolaou",
+            "Brett S. Marinelli",
+            "Adam E. Flanders",
+            "Kirti Magudia",
+            "George Shih",
+            "Melissa A. Davis",
+            "John Mongan",
+            "Peter D. Chang",
+            "Ferco H. Berger",
+            "Sebastiaan Hermans",
+            "Meng Law",
+            "Tyler Richards",
+            "Jan-Peter Grunz",
+            "Andreas Steven Kunz",
+            "Shobhit Mathur",
+            "Sandro Galea-Soler",
+            "Andrew D. Chung",
+            "Saif Afat",
+            "Chin-Chi Kuo",
+            "Layal Aweidah",
+            "Ana Villanueva Campos",
+            "Arjuna Somasundaram",
+            "Felipe Antonio Sanchez Tijmes",
+            "Attaporn Jantarangkoon",
+            "Leonardo Kayat Bittencourt",
+            "Michael Brassil",
+            "Ayoub El Hajjami",
+            "Hakan Dogan",
+            "Muris Becircic",
+            "Agrahara G. Bharatkumar",
+            "Eduardo Moreno Júdice de Mattos Farina",
+            "Dataset Curator Group",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Errol Colak"
+          ],
+          "claimed_title": "The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.19595"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Effectiveness of LLMs for Identifying Security Vulnerabilities in', candidate_title='The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset')",
+        "failed_at": "2026-06-19T18:39:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Radiological Society of North America (RSNA) Lumbar Degenerative Imaging Spine Classification (LumbarDISC) dataset is the largest publicly available dataset of adult MRI lumbar spine examinations annotated for degenerative changes. The dataset includes 2,697 patients with a total of 8,593 image series from 8 institutions across 6 countries and 5 continents. The dataset is available for free for non-commercial use via Kaggle and RSNA Medical Imaging Resource of AI (MIRA). The dataset was created for the RSNA 2024 Lumbar Spine Degenerative Classification competition where competitors developed deep learning models to grade degenerative changes in the lumbar spine. The degree of spinal canal, subarticular recess, and neural foraminal stenosis was graded at each intervertebral disc level in the lumbar spine. The images were annotated by expert volunteer neuroradiologists and musculoskeletal radiologists from the RSNA, American Society of Neuroradiology, and the American Society of Spine Radiology. This dataset aims to facilitate research and development in machine learning and lumbar spine imaging to lead to improved patient care and clinical efficiency.",
+          "claimed_authors": [
+            "Tyler J. Richards",
+            "Adam E. Flanders",
+            "Errol Colak",
+            "Luciano M. Prevedello",
+            "Robyn L. Ball",
+            "Felipe Kitamura",
+            "John Mongan",
+            "Maryam Vazirabad",
+            "Hui-Ming Lin",
+            "Anne Kendell",
+            "Thanat Kanthawang",
+            "Salita Angkurawaranon",
+            "Emre Altinmakas",
+            "Hakan Dogan",
+            "Paulo Eduardo de Aguiar Kuriki",
+            "Arjuna Somasundaram",
+            "Christopher Ruston",
+            "Deniz Bulja",
+            "Naida Spahovic",
+            "Jennifer Sommer",
+            "Sirui Jiang",
+            "Eduardo Moreno Judice de Mattos Farina",
+            "Eduardo Caminha Nunes",
+            "Michael Brassil",
+            "Megan McNamara",
+            "Johanna Ortiz",
+            "Jacob Peoples",
+            "Vinson L. Uytana",
+            "Anthony Kam",
+            "Venkata N. S. Dola",
+            "Daniel Murphy",
+            "David Vu",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Competition Data Notebook Group",
+            "Jason F. Talbott"
+          ],
+          "claimed_title": "The RSNA Lumbar Degenerative Imaging Spine Classification (LumbarDISC) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.09162"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Effectiveness of LLMs for Identifying Security Vulnerabilities in', candidate_title='The RSNA Lumbar Degenerative Imaging Spine Classification (LumbarDISC) Dataset')",
+        "failed_at": "2026-06-19T18:39:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In recent years, a proliferation of cyber-security threats and diversity has been on the rise culminating in an increase in their reporting and analysis. To counter that, many non-profit organizations have emerged in this domain, such as MITRE and OSWAP, which have been actively tracking vulnerabilities, and publishing defense recommendations in standardized formats. As producing data in such formats manually is very time-consuming, there have been some proposals to automate the process. Unfortunately, a major obstacle to adopting supervised machine learning for this problem has been the lack of publicly available specialized datasets. Here, we aim to bridge this gap. In particular, we focus on mapping CVE records into MITRE CWE Weaknesses, and we release to the research community a manually annotated dataset of 4,012 records for this task. With a human-in-the-loop framework in mind, we approach the problem as a ranking task and aim to incorporate reinforced learning to make use of the human feedback in future work. Our experimental results using fine-tuned deep learning models, namely Sentence-BERT and rankT5, show sizable performance gains over BM25, BERT, and RoBERTa, which demonstrates the need for an architecture capable of good semantic understanding for this task.",
+          "claimed_authors": [
+            "Ashraf Haddad",
+            "Najwa Aaraj",
+            "Preslav Nakov",
+            "Septimiu Fabian Mare"
+          ],
+          "claimed_title": "Automated Mapping of CVE Vulnerability Records to MITRE CWE Weaknesses",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2304.11130"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Evaluating the Effectiveness of LLMs for Identifying Security Vulnerabilities in', candidate_title='Automated Mapping of CVE Vulnerability Records to MITRE CWE Weaknesses')",
+        "failed_at": "2026-06-19T18:39:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A common problem in risk analysis is to characterize the overall security of a system of valuable assets (e.g., government buildings or communication hubs), and to suggest measures to mitigate any hazards or security threats. Currently, analysts typically rely on a combination of indices, such as resilience, robustness, redundancy, security, and vulnerability. However, these indices are not by themselves sufficient as a guide to action; for example, while it is possible to develop policies to decrease vulnerability, such policies may not always be cost-effective. Motivated by this gap, we propose a new index, defensibility. A system is considered defensible to the extent that a modest investment can significantly reduce the damage from an attack or disruption. To compare systems whose performance is not readily commensurable (e.g., the electrical grid vs. the water-distribution network, both of which are critical, but which provide distinct types of services), we defined defensibility as a dimensionless index. After defining defensibility quantitatively, we illustrate how the defensibility of a system depends on factors such as the defender and attacker asset valuations, the nature of the threat (whether intelligent and adaptive, or random), and the levels of attack and defense strengths and provide analytical results that support the observations arising from the above illustrations. Overall, we argue that the defensibility of a system is an important dimension to consider when evaluating potential defensive investments, and that it can be applied in a variety of different contexts.",
+          "claimed_authors": [
+            "Vicki Bier",
+            "Alexander Gutfraind"
+          ],
+          "claimed_title": "Risk analysis beyond vulnerability and resilience - characterizing the defensibility of critical systems",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1901.07313"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Evaluating the Effectiveness of LLMs for Identifying Security Vulnerabilities in', candidate_title='Risk analysis beyond vulnerability and resilience - characterizing the defensibility of critical systems')",
+        "failed_at": "2026-06-19T18:39:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The use of container technology has skyrocketed during the last few years, with Docker as the leading container platform. Docker's online repository for publicly available container images, called Docker Hub, hosts over 3.5 million images at the time of writing, making it the world's largest community of container images. We perform an extensive vulnerability analysis of 2500 Docker images. It is of particular interest to perform this type of analysis because the vulnerability landscape is a rapidly changing category, the vulnerability scanners are constantly developed and updated, new vulnerabilities are discovered, and the volume of images on Docker Hub is increasing every day. Our main findings reveal that (1) the number of newly introduced vulnerabilities on Docker Hub is rapidly increasing; (2) certified images are the most vulnerable; (3) official images are the least vulnerable; (4) there is no correlation between the number of vulnerabilities and image features (i.e., number of pulls, number of stars, and days since the last update); (5) the most severe vulnerabilities originate from two of the most popular scripting languages, JavaScript and Python; and (6) Python 2.x packages and jackson-databind packages contain the highest number of severe vulnerabilities. We perceive our study as the most extensive vulnerability analysis published in the open literature in the last couple of years.",
+          "claimed_authors": [
+            "Katrine Wist",
+            "Malene Helsem",
+            "Danilo Gligoroski"
+          ],
+          "claimed_title": "Vulnerability Analysis of 2500 Docker Hub Images",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2006.02932"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Evaluating the Effectiveness of LLMs for Identifying Security Vulnerabilities in', candidate_title='Vulnerability Analysis of 2500 Docker Hub Images')",
+        "failed_at": "2026-06-19T18:39:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Graphs data is crucial for many applications, and much of it exists in the relations described in textual format. As a result, being able to accurately recall and encode a graph described in earlier text is a basic yet pivotal ability that LLMs need to demonstrate if they are to perform reasoning tasks that involve graph-structured information. Human performance at graph recall has been studied by cognitive scientists for decades, and has been found to often exhibit certain structural patterns of bias that align with human handling of social relationships. To date, however, we know little about how LLMs behave in analogous graph recall tasks: do their recalled graphs also exhibit certain biased patterns, and if so, how do they compare with humans and affect other graph reasoning tasks? In this work, we perform the first systematical study of graph recall by LLMs, investigating the accuracy and biased microstructures (local structural patterns) in their recall. We find that LLMs not only underperform often in graph recall, but also tend to favor more triangles and alternating 2-paths. Moreover, we find that more advanced LLMs have a striking dependence on the domain that a real-world graph comes from -- by yielding the best recall accuracy when the graph is narrated in a language style consistent with its original domain.",
+          "claimed_authors": [
+            "Yanbang Wang",
+            "Hejie Cui",
+            "Jon Kleinberg"
+          ],
+          "claimed_title": "Microstructures and Accuracy of Graph Recall by Large Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2402.11821"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Evaluating the Effectiveness of LLMs for Identifying Security Vulnerabilities in', candidate_title='Microstructures and Accuracy of Graph Recall by Large Language Models')",
+        "failed_at": "2026-06-19T18:39:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Reentrancy is one of the most notorious vulnerabilities in smart contracts, resulting in significant digital asset losses. However, many previous works indicate that current Reentrancy detection tools suffer from high false positive rates. Even worse, recent years have witnessed the emergence of new Reentrancy attack patterns fueled by intricate and diverse vulnerability exploit mechanisms. Unfortunately, current tools face a significant limitation in their capacity to adapt and detect these evolving Reentrancy patterns. Consequently, ensuring precise and highly extensible Reentrancy vulnerability detection remains critical challenges for existing tools. To address this issue, we propose a tool named ReEP, designed to reduce the false positives for Reentrancy vulnerability detection. Additionally, ReEP can integrate multiple tools, expanding its capacity for vulnerability detection. It evaluates results from existing tools to verify vulnerability likelihood and reduce false positives. ReEP also offers excellent extensibility, enabling the integration of different detection tools to enhance precision and cover different vulnerability attack patterns. We perform ReEP to eight existing state-of-the-art Reentrancy detection tools. The average precision of these eight tools increased from the original 0.5% to 73% without sacrificing recall. Furthermore, ReEP exhibits robust extensibility. By integrating multiple tools, the precision further improved to a maximum of 83.6%. These results demonstrate that ReEP effectively unites the strengths of existing works, enhances the precision of Reentrancy vulnerability detection tools.",
+          "claimed_authors": [
+            "Zexu Wang",
+            "Jiachi Chen",
+            "Zibin Zheng",
+            "Peilin Zheng",
+            "Yu Zhang",
+            "Weizhe Zhang"
+          ],
+          "claimed_title": "Unity is Strength: Enhancing Precision in Reentrancy Vulnerability Detection of Smart Contract Analysis Tools",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2402.09094"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Evaluating the Effectiveness of LLMs for Identifying Security Vulnerabilities in', candidate_title='Unity is Strength: Enhancing Precision in Reentrancy Vulnerability Detection of Smart Contract Analysis Tools')",
+        "failed_at": "2026-06-19T18:39:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed optimization in the presence of Byzantine adversaries, where both data and computation are distributed among $m$ worker machines, $t$ of which may be corrupt. The compromised nodes may collaboratively and arbitrarily deviate from their pre-specified programs, and a designated (master) node iteratively computes the model/parameter vector for generalized linear models. In this work, we primarily focus on two iterative algorithms: Proximal Gradient Descent (PGD) and Coordinate Descent (CD). Gradient descent (GD) is a special case of these algorithms. PGD is typically used in the data-parallel setting, where data is partitioned across different samples, whereas, CD is used in the model-parallelism setting, where data is partitioned across the parameter space.\n  In this paper, we propose a method based on data encoding and error correction over real numbers to combat adversarial attacks. We can tolerate up to $t\\leq \\lfloor\\frac{m-1}{2}\\rfloor$ corrupt worker nodes, which is information-theoretically optimal. We give deterministic guarantees, and our method does not assume any probability distribution on the data. We develop a {\\em sparse} encoding scheme which enables computationally efficient data encoding and decoding. We demonstrate a trade-off between the corruption threshold and the resource requirements (storage, computational, and communication complexity). As an example, for $t\\leq\\frac{m}{3}$, our scheme incurs only a {\\em constant} overhead on these resources, over that required by the plain distributed PGD/CD algorithms which provide no adversarial protection. To the best of our knowledge, ours is the first paper that makes CD secure against adversarial attacks.\n  Our encoding scheme extends efficiently to the data streaming model and for stochastic gradient descent (SGD). We also give experimental results to show the efficacy of our proposed schemes.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Linqi Song",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Data Encoding for Byzantine-Resilient Distributed Optimization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1907.02664"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Effectiveness of LLMs for Identifying Security Vulnerabilities in', candidate_title='Data Encoding for Byzantine-Resilient Distributed Optimization')",
+        "failed_at": "2026-06-19T18:39:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed stochastic gradient descent (SGD) in the master-worker architecture under Byzantine attacks. We consider the heterogeneous data model, where different workers may have different local datasets, and we do not make any probabilistic assumptions on data generation. At the core of our algorithm, we use the polynomial-time outlier-filtering procedure for robust mean estimation proposed by Steinhardt et al. (ITCS 2018) to filter-out corrupt gradients. In order to be able to apply their filtering procedure in our {\\em heterogeneous} data setting where workers compute {\\em stochastic} gradients, we derive a new matrix concentration result, which may be of independent interest.\n  We provide convergence analyses for smooth strongly-convex and non-convex objectives. We derive our results under the bounded variance assumption on local stochastic gradients and a {\\em deterministic} condition on datasets, namely, gradient dissimilarity; and for both these quantities, we provide concrete bounds in the statistical heterogeneous data model. We give a trade-off between the mini-batch size for stochastic gradients and the approximation error. Our algorithm can tolerate up to $\\frac{1}{4}$ fraction Byzantine workers. It can find approximate optimal parameters in the strongly-convex setting exponentially fast and reach to an approximate stationary point in the non-convex setting with a linear speed, thus, matching the convergence rates of vanilla SGD in the Byzantine-free setting.\n  We also propose and analyze a Byzantine-resilient SGD algorithm with gradient compression, where workers send $k$ random coordinates of their gradients. Under mild conditions, we show a $\\frac{d}{k}$-factor saving in communication bits as well as decoding complexity over our compression-free algorithm without affecting its convergence rate (order-wise) and the approximation error.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2005.07866"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Effectiveness of LLMs for Identifying Security Vulnerabilities in', candidate_title='Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data')",
+        "failed_at": "2026-06-19T18:39:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In secure multiparty computation (MPC), mutually distrusting users collaborate to compute a function of their private data without revealing any additional information about their data to other users. While it is known that information theoretically secure MPC is possible among $n$ users (connected by secure and noiseless links and have access to private randomness) against the collusion of less than $n/2$ users in the honest-but-curious model, relatively less is known about the communication and randomness complexity of secure computation.\n  In this work, we employ information theoretic techniques to obtain lower bounds on the amount of communication and randomness required for secure MPC. We restrict ourselves to a concrete interactive setting involving 3 users under which all functions are securely computable against corruption of a single user in the honest-but-curious model. We derive lower bounds for both the perfect security case (i.e., zero-error and no leakage of information) and asymptotic security (where the probability of error and information leakage vanish as block-length goes to $\\infty$).\n  Our techniques include the use of a data processing inequality for residual information (i.e., the gap between mutual information and Gács-Körner common information), a new information inequality for 3-user protocols, and the idea of distribution switching. Our lower bounds are shown to be tight for various functions of interest. In particular, we show concrete functions which have \"communication-ideal\" protocols, i.e., which achieve the minimum communication simultaneously on all links in the network, and also use minimum amount of randomness. Also, we obtain the first explicit example of a function that incurs a higher communication cost than the input length in the secure computation model of \"Feige, Kilian, and Naor [STOC, 1994]\", who had shown that such functions exist.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Vinod M. Prabhakaran",
+            "Manoj M. Prabhakaran"
+          ],
+          "claimed_title": "Communication and Randomness Lower Bounds for Secure Computation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2015,
+          "primary_pointer": "1512.07735"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Evaluating the Effectiveness of LLMs for Identifying Security Vulnerabilities in', candidate_title='Communication and Randomness Lower Bounds for Secure Computation')",
+        "failed_at": "2026-06-19T18:39:17Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Alifia Puspaningrum",
+            "Muhammad Anis Al Hilmi",
+            " Darsih",
+            "Muhamad Mustamiin",
+            "Maulana Ilham Ginanjar"
+          ],
+          "title": "Vulnerable Source Code Detection using SonarCloud Code Analysis",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2307.02446",
+        "summary": "In Software Development Life Cycle (SDLC), security vulnerabilities are one of the points introduced during the construction stage. Failure to detect software defects earlier after releasing the product to the market causes higher repair costs for the company. So, it decreases the company's reputation, violates user privacy, and causes an unrepairable issue for the application. The introduction of vulnerability detection enables reducing the number of false alerts to focus the limited testing efforts on potentially vulnerable files. UMKM Masa Kini (UMI) is a Point of Sales application to sell any Micro, Small, and Medium Enterprises Product (UMKM). Therefore, in the current work, we analyze the suitability of these metrics to create Machine Learning based software vulnerability detectors for UMI applications. Code is generated using a commercial tool, SonarCloud. Experimental result shows that there are 3,285 vulnerable rules detected.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2307.02446",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-19T18:39:16Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Bhargava Shastry",
+            "Fabian Yamaguchi",
+            "Konrad Rieck",
+            "Jean-Pierre Seifert"
+          ],
+          "title": "Towards Vulnerability Discovery Using Staged Program Analysis",
+          "venue": "arXiv",
+          "year": 2015
+        },
+        "primary_pointer": "1508.04627",
+        "summary": "Eliminating vulnerabilities from low-level code is vital for securing software. Static analysis is a promising approach for discovering vulnerabilities since it can provide developers early feedback on the code they write. But, it presents multiple challenges not the least of which is understanding what makes a bug exploitable and conveying this information to the developer. In this paper, we present the design and implementation of a practical vulnerability assessment framework, called Melange. Melange performs data and control flow analysis to diagnose potential security bugs, and outputs well-formatted bug reports that help developers understand and fix security bugs. Based on the intuition that real-world vulnerabilities manifest themselves across multiple parts of a program, Melange performs both local and global analyses. To scale up to large programs, global analysis is demand-driven. Our prototype detects multiple vulnerability classes in C and C++ code including type confusion, and garbage memory reads. We have evaluated Melange extensively. Our case studies show that Melange scales up to large codebases such as Chromium, is easy-to-use, and most importantly, capable of discovering vulnerabilities in real-world code. Our findings indicate that static analysis is a viable reinforcement to the software testing tool set.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1508.04627",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-19T18:39:17Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Derek Yohn",
+            "Luke Flancher",
+            "Mirajul Islam",
+            "Khaled Slhoub"
+          ],
+          "title": "Can Open-Source LLM Agents Replace Static Application Security Testing Tools? An Empirical Assessment",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2606.11672",
+        "summary": "This paper explores the value of agentic AI tools for cybersecurity purposes. We evaluate the efficacy of a general-purpose GenAI Large Language Model- (GenAI-) based agent when powered by three different Ollama-hosted general-purpose open source models. We assess each agent's performance using precision, recall, false positive count, and a calculated composite score based upon the interplay of the captured metrics, against the baseline performance of an existing, vetted Static Application Security Testing (SAST) tool, Bandit. Our findings refute the notion that a modern open-source GenAI LLM-based agent is currently suitable for the specialized task of SAST scanning under realistic conditions.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2606.11672",
+          "http_status": 200,
+          "pdf_sample_score": 0.1595,
+          "query_relevance_score": 0.8571,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-19T18:39:21Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "evaluating the effectiveness of llms for identifying security vulnerabilities in open-source code computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

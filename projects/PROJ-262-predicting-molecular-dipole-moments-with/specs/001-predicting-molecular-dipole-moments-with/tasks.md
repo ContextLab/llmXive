@@ -30,7 +30,7 @@ description: "Task list template for feature implementation"
 
 - [X] T001 Create project structure per implementation plan in `projects/001-predicting-molecular-dipole-moments/`
 - [X] T002 Initialize Python 3.11 project with requirements.txt in `projects/001-predicting-molecular-dipole-moments/code/requirements.txt`
-- [ ] T003 [P] Configure linting and formatting tools (black, flake8, isort) in `.pre-commit-config.yaml`
+- [X] T003 [P] Configure linting and formatting tools (black, flake8, isort) in `.pre-commit-config.yaml`
 
 ---
 
@@ -53,7 +53,7 @@ description: "Task list template for feature implementation"
 
 ## Phase 3: User Story 1 - Dataset Preparation and Baseline Feature Extraction (Priority: P1) 🎯 MVP
 
-**Goal**: Download QM9 dataset, filter to 10k random subset, extract 3D coordinates and 2D descriptors for baseline comparison
+**Goal**: Download QM9 dataset, filter to 10k random subset [UNRESOLVED-CLAIM: c_de9b44f3 — status=not_enough_info], extract 3D coordinates and 2D descriptors for baseline comparison
 
 **Independent Test**: Verify data files exist, subset size equals 10k, and both 3D and 2D feature matrices are generated with no missing values
 

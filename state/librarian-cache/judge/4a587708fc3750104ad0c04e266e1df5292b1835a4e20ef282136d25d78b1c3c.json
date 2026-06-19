@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2606.11672",
+  "judged_at": "2026-06-19T18:39:33Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "evaluating the effectiveness of llms for identifying security vulnerabilities in open-source code computer science",
+  "rationale": "The paper empirically evaluates open‑source LLM agents for detecting security vulnerabilities in code, measuring precision, recall, and false‑positive rates against a traditional SAST tool—directly addressing the same mechanism and effectiveness variables as the user's question (acceptance category a/b).",
+  "relevant": true
+}

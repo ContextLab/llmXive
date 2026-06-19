@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2506.11022",
+  "judged_at": "2026-06-19T18:39:40Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "evaluating the effectiveness of llms for identifying security vulnerabilities in open-source code computer science",
+  "rationale": "The paper studies how iterative LLM‑generated code becomes less secure, focusing on vulnerability introduction rather than on LLMs’ ability to **identify** vulnerabilities in existing open‑source code, so it does not address the independent or dependent variables central to the user’s question.",
+  "relevant": false
+}
