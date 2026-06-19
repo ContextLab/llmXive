@@ -1,12 +1,7 @@
-last_used: alan-turing
-last_used_at: '2026-06-19T20:32:04.565105+00:00'
-last_outcome: abstained
+last_used: albert-einstein
+last_used_at: '2026-06-19T21:57:09.602184+00:00'
+last_outcome: committed
 history:
-- slug: rosalind-franklin
-  started_at: '2026-06-07T21:55:48.184961+00:00'
-  ended_at: '2026-06-07T22:24:53.573899+00:00'
-  outcome: triage_rejected_advanced_as_abstain
-  action: comment
 - slug: stephen-wolfram
   started_at: '2026-06-07T22:24:53.573899+00:00'
   ended_at: '2026-06-07T22:52:36.910794+00:00'
@@ -1117,3 +1112,10 @@ history:
   ended_at: '2026-06-19T20:32:04.565105+00:00'
   outcome: abstained
   action: abstain
+- slug: albert-einstein
+  started_at: '2026-06-19T20:32:04.565105+00:00'
+  ended_at: '2026-06-19T21:57:09.602184+00:00'
+  outcome: committed
+  action: propose_arxiv
+  committed_paths:
+  - state/personality-submissions/20260619T215709Z__albert-einstein.yaml
