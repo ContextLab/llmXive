@@ -467,6 +467,67 @@ _JSON_BLOCK_RE = re.compile(
 #: redundant documents" that pure content edits cannot satisfy.
 _EDIT_KINDS = {"search_and_replace", "unified_diff", "move_file", "delete_file"}
 
+# Map an action item's INTENT to the edit KIND that satisfies it. The dominant
+# failure mode is the implementer answering EVERY concern with an additive
+# new-file edit — so "consolidate the three manifests" or "remove the redundant
+# doc" spawns a fourth file and the hygiene/consolidation concern never resolves.
+# A deterministic hint (the LLM still produces the actual edit and may override)
+# steers it to delete_file / move_file when the concern's verbs call for it.
+_OP_PRUNE_RE = re.compile(
+    r"\b(consolidat|deduplicat|de-duplicat|redundan|duplicat|remove\b|removal\b|"
+    r"delete\b|prune|drop\s+the|collapse\s+(?:the|these|into)|"
+    r"merge\s+(?:the\s+|these\s+)?\w+\s+(?:into|files|docs|manifests)|"
+    r"single\s+(?:authoritative|source|manifest))",
+    re.I,
+)
+_OP_RELOCATE_RE = re.compile(
+    r"\b(relocat|misplac|rename\b|move\s+(?:the\s+)?\S|"
+    r"wrong\s+(?:location|place|director|folder)|"
+    r"belongs?\s+(?:under|in|elsewhere)|"
+    r"should\s+(?:be\s+)?(?:under|in|moved|relocated))",
+    re.I,
+)
+_OP_CREATE_RE = re.compile(
+    r"\b(missing\b|absent\b|add\s+a\b|create\s+a\b|provide\s+a\b|introduce\s+a\b|"
+    r"there\s+is\s+no\b|no\s+\w+\s+file)",
+    re.I,
+)
+
+_OP_HINTS: dict[str, str] = {
+    "prune": (
+        "**Operation hint:** this concern asks you to CONSOLIDATE / REMOVE a "
+        "redundant or duplicate artifact. The correct edit is almost certainly "
+        "`delete_file` (or `move_file` to merge) targeting the specific file(s) "
+        "the concern names — do NOT create a new file or add another document. "
+        "Override only if the concern truly requires a different operation."
+    ),
+    "relocate": (
+        "**Operation hint:** this concern asks you to RELOCATE a misplaced file. "
+        "The correct edit is `move_file` (current path → correct path) — do NOT "
+        "duplicate the content into a new file."
+    ),
+    "create": (
+        "**Operation hint:** this concern names content that is genuinely MISSING. "
+        "Prefer modifying / completing an EXISTING file if a suitable one exists "
+        "(many 'missing' items are really thin placeholders to fill in); create a "
+        "new file (unified_diff against /dev/null) only if none does."
+    ),
+}
+
+
+def _classify_edit_operation(text: str) -> str | None:
+    """Best-effort intent → edit-kind hint key: 'prune' | 'relocate' | 'create'
+    | None (modify/default). Prune outranks create (a 'consolidate' concern names
+    files to remove, not add); relocate outranks create likewise."""
+    t = " ".join((text or "").split())
+    if _OP_PRUNE_RE.search(t):
+        return "prune"
+    if _OP_RELOCATE_RE.search(t):
+        return "relocate"
+    if _OP_CREATE_RE.search(t):
+        return "create"
+    return None
+
 
 def _parse_llm_edit(response_text: str) -> dict[str, object] | None:
     """Parse an LLM response into a structured edit dict. Returns None if no valid
@@ -1039,6 +1100,11 @@ class LLMXiveImplementer(Agent):
         _it = action_item.get("text") or task.get("text") or task.get("title") or ""
         item_text: str = str(_it) if _it else ""
 
+        # Steer edit-kind selection from the concern's intent (consolidate/remove
+        # → delete_file; relocate → move_file; missing → fill/create) so the
+        # implementer stops answering every concern with an additive new file.
+        operation_hint = _OP_HINTS.get(_classify_edit_operation(item_text) or "", "")
+
         # Build the LLM prompt (track-aware).
         system_prompt = load_prompt("agents/prompts/implementer.md", repo_root=repo_root)
         if track == "research":
@@ -1057,6 +1123,7 @@ class LLMXiveImplementer(Agent):
                     "task_id": task_id,
                     "severity": severity,
                     "action_item_text": item_text,
+                    "operation_hint": operation_hint,
                     "file_tree": _summarize_tree(pdir),
                     "target_window": _research_target_window(pdir, item_text),
                 },
@@ -1083,6 +1150,7 @@ class LLMXiveImplementer(Agent):
                     "task_id": task_id,
                     "severity": severity,
                     "action_item_text": item_text,
+                    "operation_hint": operation_hint,
                     "manuscript_window": manuscript_window,
                     "science_note": str(science_note) if science_note else "",
                     # The ACTUAL primary manuscript file — arXiv-intake papers

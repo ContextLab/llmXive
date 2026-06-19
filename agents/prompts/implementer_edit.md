@@ -12,6 +12,8 @@
 - **Severity**: `{{severity}}`
 - **Text**: {{action_item_text}}
 
+{{operation_hint}}
+
 ## Current manuscript (windowed)
 
 The relevant section of `paper/source/{{primary_tex}}` (and any other relevant files) is included below. Target THIS file in your edit's `file` field (e.g. `paper/source/{{primary_tex}}`). Lines are numbered to help you locate the edit target.

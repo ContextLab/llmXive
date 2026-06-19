@@ -82,6 +82,59 @@ def test_action_items_from_text_structures_filters_and_degrades() -> None:
     assert action_items_from_text("", verdict="reject") == []
 
 
+def test_action_items_prefer_reviewer_required_changes_section() -> None:
+    """When a review body distills its blockers into an explicit 'Required
+    Changes' / 'must be addressed' section (commonly a markdown table), the
+    extractor must lift THAT curated list verbatim — including table action
+    cells — instead of shredding the whole prose body into headers + positive
+    observations. Pins PROJ-552 data_quality: 15 noisy items -> 4 real blockers."""
+    from llmxive.types import action_items_from_text
+
+    body = (
+        "**Data-Quality Assessment**\n\n"
+        "1. **Provenance & Licensing**\n"
+        "   - Licensing for the source code (MIT) is clearly stated.\n"  # positive obs
+        "   - Recommendation (non-blocking): consolidate provenance docs.\n"  # non-blocking
+        "2. **Version Control & Checksums**\n"
+        "   - Blocking defect: three parallel manifests create divergence risk.\n"
+        "\n"
+        "### Summary of Required Changes (must be addressed before acceptance)\n\n"
+        "| Area | Required Action |\n"
+        "|------|-----------------|\n"
+        "| **Checksum Manifest** | Retain one authoritative `checksums.json`, "
+        "remove `checksums.csv` and `checksums.sha256`. |\n"
+        "| **Duplicate-Record Check** | Implement a duplicate-ID scan in "
+        "`code/data/validator.py` and record the result. |\n"
+        "| **Sample-Size Docs** | Populate `validation_scope.md` with counts "
+        "per crossing number. |\n"
+    )
+    items = action_items_from_text(body, verdict="minor_revision")
+    texts = [i.text for i in items]
+    # Exactly the 3 curated table rows — NOT the prose headers / positive obs.
+    assert len(items) == 3, texts
+    assert all("Provenance & Licensing" != t for t in texts)  # heading dropped
+    assert all("clearly stated" not in t for t in texts)       # positive obs dropped
+    assert any("checksums.json" in t for t in texts)           # table action cell kept
+    assert any("validator.py" in t for t in texts)
+    assert any(t.startswith("Checksum Manifest:") for t in texts)  # area-prefixed
+
+
+def test_action_items_drop_explicitly_nonblocking_lines() -> None:
+    """An item the reviewer tags '(non-blocking)' / 'optional' is, by definition,
+    not withholding accept — it must never become a capped revision task. (The
+    unanimous gate is untouched: these were never blocking.)"""
+    from llmxive.types import action_items_from_text
+
+    items = action_items_from_text(
+        "1. Fix the off-by-one in code/data/loader.py boundary check.\n"
+        "2. Optional: rename helpers for readability.\n"
+        "3. Recommendation (non-blocking): add more inline comments.\n",
+        verdict="minor_revision",
+    )
+    texts = " || ".join(i.text for i in items)
+    assert len(items) == 1 and "off-by-one" in texts, texts
+
+
 def test_consolidate_synthesizes_from_prose_when_structured_items_empty() -> None:
     """A non-accept review with EMPTY action_items but prose feedback must still
     contribute concrete items, else the convergence engine no-ops forever at

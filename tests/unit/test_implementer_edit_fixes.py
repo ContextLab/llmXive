@@ -32,6 +32,7 @@ def test_edit_prompt_renders_with_no_unfilled_placeholders() -> None:
         "task_id": "001",
         "severity": "writing",
         "action_item_text": "Fix the typo in section 2.",
+        "operation_hint": "",
         "manuscript_window": "1: \\section{Intro}",
         "science_note": "",
         "primary_tex": "main-llmxive.tex",
@@ -46,6 +47,9 @@ def test_edit_prompt_renders_with_no_unfilled_placeholders() -> None:
         assert "{{" + key + "}}" not in rendered
         if val:
             assert val in rendered, f"value for {key} missing from the prompt"
+    # No placeholder of ANY name may survive unrendered (e.g. a newly-added
+    # {{operation_hint}} the caller forgot to supply).
+    assert "{{" not in rendered
     # Defect #10: the manuscript file must be the project's REAL primary
     # tex, never a hard-coded main.tex.
     assert "paper/source/main-llmxive.tex" in rendered
@@ -393,3 +397,20 @@ def test_system_prompt_documents_all_four_edit_kinds() -> None:
     sys = render_prompt("agents/prompts/implementer.md", {}, repo_root=REAL_REPO)
     for kind in ("search_and_replace", "unified_diff", "move_file", "delete_file"):
         assert kind in sys, kind
+
+
+def test_classify_edit_operation_steers_kind_from_intent() -> None:
+    """The concern's verbs pick the edit KIND so the implementer stops answering
+    consolidate/relocate concerns with an additive new file. Conservative: only
+    clear prune/relocate/missing intents steer; 'fix X' / 'complete existing X'
+    stay None (modify/default)."""
+    from llmxive.agents.implementer import _classify_edit_operation as clf
+
+    assert clf("Retain one authoritative checksums.json, remove checksums.csv and .sha256.") == "prune"
+    assert clf("Consolidate the three checksum manifests into one.") == "prune"
+    assert clf("Move plan.md and tasks.md into specs/001-knot/.") == "relocate"
+    assert clf("logs/ is misplaced; it belongs under docs/reproducibility/.") == "relocate"
+    assert clf("Add a LICENSE.md citing each external data source.") == "create"
+    # Modify/default — must NOT be steered toward create/prune/relocate:
+    assert clf("Fix the off-by-one in code/data/loader.py.") is None
+    assert clf("Complete hyperbolic_volume_validation.md with the measured coverage %.") is None

@@ -353,16 +353,116 @@ _POSITIVE_OBS = re.compile(
     re.I,
 )
 
+# Explicitly NON-blocking phrasing. A reviewer who tags an item "(non-blocking)",
+# "optional", or "nice-to-have" is, by definition, NOT withholding accept over it
+# — turning such lines into revision tasks burns capped implementer rounds on
+# work that never moves the verdict. (The unanimous gate is unaffected: these
+# items were never blocking.)
+_NONBLOCKING_RE = re.compile(
+    r"non[\s‐-―-]?blocking|\boptional\b|\bnice[\s-]to[\s-]have\b"
+    r"|\bcould\s+be\b|\bwould\s+(?:be\s+\w+|improve|help|simplify|reduce)\b",
+    re.I,
+)
+
+# A reviewer's own distilled blocking list — a "Required Changes" / "must be
+# addressed" section (often a markdown table). When present it is crisp,
+# complete, and curated, so it is FAR better to extract action items from it than
+# to shred the entire prose body (which mixes in section headers + positive
+# observations). Heading may be a markdown header (`### …`) or bold prose
+# (`**…**`); optional leading "Summary of".
+_REQUIRED_SECTION_RE = re.compile(
+    r"^\s{0,3}(?:#{1,6}\s*)?(?:\*\*\s*)?"
+    r"(?:summary\s+of\s+)?"
+    r"(?:required\s+changes|required\s+actions|changes?\s+required|"
+    r"actions?\s+required|required\s+revisions|"
+    r"must\s+be\s+(?:addressed|fixed|resolved)|"
+    r"blocking\s+(?:issues|defects|changes|items|fixes))\b",
+    re.I,
+)
+_MD_TABLE_SEP_RE = re.compile(r"^\s*\|?[\s:|+-]+\|[\s:|+-]*$")  # |---|---| row
+_MD_HEADING_RE = re.compile(r"^\s{0,3}#{1,6}\s+\S")
+_BOLD_HEADING_RE = re.compile(r"^\s{0,3}\*\*[^*]+\*\*[:.]?\s*$")
+_TABLE_HEADER_CELL_RE = re.compile(
+    r"\b(area|required\s+action|item|change|description|fix|defect|issue|topic|category)\b",
+    re.I,
+)
+
+
+def _extract_required_changes(text: str) -> list[str]:
+    """Return the action lines of an explicit 'Required Changes' / 'must be
+    addressed' section if the body has one, else ``[]``.
+
+    Handles bullets, numbered items, AND markdown-table rows (the table's action
+    cell, prefixed by its area cell for context). The reviewer curated this list,
+    so it is the highest-fidelity source of revision tasks — preferred over
+    shredding the whole prose body. Invents nothing: every string is verbatim
+    section text.
+    """
+    lines = text.splitlines()
+    start: int | None = None
+    for i, line in enumerate(lines):
+        if _REQUIRED_SECTION_RE.match(line):
+            start = i + 1
+            break
+    if start is None:
+        return []
+    # Section runs until the next heading (markdown `##` or bold-prose) or EOF.
+    section: list[str] = []
+    for line in lines[start:]:
+        if _MD_HEADING_RE.match(line) or _BOLD_HEADING_RE.match(line):
+            break
+        section.append(line)
+
+    items: list[str] = []
+    header_skipped = False
+    for line in section:
+        s = line.strip()
+        if not s:
+            continue
+        if s.startswith("|") and s.count("|") >= 2:  # markdown table row
+            if _MD_TABLE_SEP_RE.match(s):
+                continue
+            cells = [c.strip().strip("*").strip() for c in s.strip("|").split("|")]
+            cells = [c for c in cells if c]
+            if not cells:
+                continue
+            # Skip the single header row ("Area | Required Action").
+            if (
+                not header_skipped
+                and len(cells) <= 3
+                and all(len(c) < 40 for c in cells)
+                and _TABLE_HEADER_CELL_RE.search(" ".join(cells))
+            ):
+                header_skipped = True
+                continue
+            action = cells[-1]
+            if len(cells) >= 2 and len(cells[0]) < 60:
+                action = f"{cells[0]}: {action}"  # area prefix for context
+            items.append(action)
+            continue
+        m = _BODY_ITEM_RE.match(line)  # bullet / numbered item
+        if m:
+            items.append(m.group(1).strip())
+
+    cleaned = [
+        " ".join(it.replace("**", "").replace("`", "").split())[:500].strip()
+        for it in items
+    ]
+    return [c for c in cleaned if len(c) >= 8]
+
 
 def _is_actionable_concern(text: str) -> bool:
     """True when a prose chunk plausibly states a needed change.
 
     Conservative by design — dropping a REAL concern blocks convergence, whereas
     keeping a borderline one merely gets harmlessly skipped at apply time. So we
-    drop only the clearly non-actionable: section headers/fragments (too short)
-    and purely positive observations that carry no deficiency/imperative cue.
+    drop only the clearly non-actionable: explicitly non-blocking items, section
+    headers/fragments (too short), and purely positive observations that carry no
+    deficiency/imperative cue.
     """
     t = " ".join(text.split())
+    if _NONBLOCKING_RE.search(t):
+        return False  # explicitly non-blocking / optional — never a revision task
     if _ACTIONABLE_CUE.search(t):
         return True  # explicit concern/imperative — keep at ANY length ("Add tests.")
     if len(t) < 30:
@@ -393,34 +493,46 @@ def action_items_from_text(
     if not text:
         return []
     severity = _VERDICT_SEVERITY.get(verdict, "science")
-    chunks: list[str] = []
-    cur: str | None = None
-    for line in text.splitlines():
-        m = _BODY_ITEM_RE.match(line)
-        if m:
-            if cur:
-                chunks.append(cur)
-            cur = m.group(1).strip()
-        elif cur is not None and line.strip():
-            cur += " " + line.strip()
-    if cur:
-        chunks.append(cur)
-    if not chunks:  # no list structure — fall back to the whole body as one item
-        chunks = [" ".join(text.split())]
 
-    cleaned_chunks = [
-        c for c in (
-            " ".join(ch.replace("**", "").replace("`", "").split())[:500].strip()
-            for ch in chunks
-        )
-        if len(c) >= 8
-    ]
-    actionable = [c for c in cleaned_chunks if _is_actionable_concern(c)]
-    # Anti-stall guarantee: a NON-accept verdict must yield >=1 action item, else
-    # the convergence engine no-ops (the original bug). If the actionability
-    # filter removed everything, fall back to the single most substantial chunk.
-    if not actionable and verdict != "accept" and cleaned_chunks:
-        actionable = [max(cleaned_chunks, key=len)]
+    # PRIMARY: a reviewer that distilled its blocking findings into an explicit
+    # "Required Changes" / "must be addressed" section (often a table) handed us
+    # the authoritative, crisp task list — use it verbatim rather than shredding
+    # the whole prose body (which interleaves headers + positive observations).
+    required = _extract_required_changes(text)
+    if required:
+        actionable = [c for c in required if not _NONBLOCKING_RE.search(c)] or required
+    else:
+        # FALLBACK: structure the prose body — one item per top-level
+        # numbered/bulleted finding; the whole body as a single item when
+        # unstructured — then drop the clearly non-actionable.
+        chunks: list[str] = []
+        cur: str | None = None
+        for line in text.splitlines():
+            m = _BODY_ITEM_RE.match(line)
+            if m:
+                if cur:
+                    chunks.append(cur)
+                cur = m.group(1).strip()
+            elif cur is not None and line.strip():
+                cur += " " + line.strip()
+        if cur:
+            chunks.append(cur)
+        if not chunks:  # no list structure — fall back to the whole body
+            chunks = [" ".join(text.split())]
+
+        cleaned_chunks = [
+            c for c in (
+                " ".join(ch.replace("**", "").replace("`", "").split())[:500].strip()
+                for ch in chunks
+            )
+            if len(c) >= 8
+        ]
+        actionable = [c for c in cleaned_chunks if _is_actionable_concern(c)]
+        # Anti-stall guarantee: a NON-accept verdict must yield >=1 action item,
+        # else the convergence engine no-ops (the original bug). If the filter
+        # removed everything, fall back to the single most substantial chunk.
+        if not actionable and verdict != "accept" and cleaned_chunks:
+            actionable = [max(cleaned_chunks, key=len)]
 
     items: list[ActionItem] = []
     seen: set[str] = set()

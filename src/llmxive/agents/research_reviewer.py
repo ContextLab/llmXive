@@ -92,13 +92,26 @@ def _summarize_tree(root: Path, *, max_files: int = 400) -> str:
     return "\n".join(lines) if lines else "(empty)"
 
 
-def _doc_contents(project_dir: Path, *, max_total: int = 18000, max_per_file: int = 900) -> str:
-    """Concatenate the CONTENT of small documentation/reproducibility files so a
+def _doc_contents(
+    project_dir: Path,
+    *,
+    prioritize_text: str = "",
+    max_total: int = 48000,
+    max_per_file: int = 2400,
+) -> str:
+    """Concatenate the CONTENT of documentation/reproducibility files so a
     reviewer can VERIFY them, not merely see that they exist. Listings alone made
     data_quality / filesystem reviewers withhold accept ('content not shown —
-    cannot verify the license/provenance doc'). Scoped to the small markdown
-    artifacts reviewers actually judge (docs/reproducibility/*.md + top-level
-    README/LICENSE), capped so the prompt stays bounded."""
+    cannot verify the license/provenance doc').
+
+    Projects can accumulate 100+ reproducibility docs (redundant narratives,
+    addenda) — far more than any fixed prompt budget can hold. With a naive
+    alphabetical scan the budget is exhausted by early/verbose files and the
+    concise, SPEC-MANDATED artifacts the review actually turns on (counts tables,
+    validation status) are silently omitted, so the reviewer falsely infers them
+    absent. Order candidates by (referenced-in-spec/tasks first, then SMALLEST
+    first) so the substantive concise docs are shown IN FULL and only long
+    redundant narratives are truncated/omitted when the bounded budget is hit."""
     cands: list[Path] = []
     rdir = project_dir / "docs" / "reproducibility"
     if rdir.is_dir():
@@ -107,8 +120,33 @@ def _doc_contents(project_dir: Path, *, max_total: int = 18000, max_per_file: in
         p = project_dir / name
         if p.is_file():
             cands.append(p)
+
+    ref = prioritize_text.lower()
+    # One-hop expansion: a spec/tasks-referenced doc usually points to a sibling
+    # for detail (e.g. validation_scope.md → "counts are in dataset_counts.md").
+    # Fold those directly-named docs' bodies into the priority corpus so the
+    # pointed-TO artifact is prioritized too — not just the pointer. (A few small
+    # re-reads; the main loop reads them again below.)
+    for p in cands:
+        if p.name.lower() in ref or p.stem.lower() in ref:
+            try:
+                ref += "\n" + p.read_text(encoding="utf-8", errors="replace").lower()
+            except OSError:
+                pass
+
+    def _priority(p: Path) -> tuple[int, int]:
+        try:
+            size = p.stat().st_size
+        except OSError:
+            size = 1 << 30
+        named = p.name.lower() in ref or p.stem.lower() in ref
+        return (0 if named else 1, size)  # referenced first, then smallest-first
+
+    cands.sort(key=_priority)
+
     out: list[str] = []
     total = 0
+    omitted = 0
     for p in cands:
         try:
             txt = p.read_text(encoding="utf-8", errors="replace")
@@ -119,10 +157,17 @@ def _doc_contents(project_dir: Path, *, max_total: int = 18000, max_per_file: in
             "\n…(truncated)" if len(txt) > max_per_file else ""
         )
         if total + len(block) > max_total:
-            out.append("…(remaining doc files omitted for length)")
-            break
+            omitted += 1
+            continue  # keep scanning — a later, smaller doc may still fit
         out.append(block)
         total += len(block)
+    if omitted:
+        out.append(
+            f"…({omitted} additional long/low-priority doc file(s) omitted for "
+            "length — do NOT infer their content is absent; only raise a Required "
+            "Change if a SPECIFIC claim genuinely cannot be verified from what is "
+            "shown)"
+        )
     return "\n\n".join(out) if out else "(no documentation files found)"
 
 
@@ -194,7 +239,11 @@ class ResearchReviewerAgent(Agent):
         # docs/ holds the reproducibility documentation (FR-007 etc.). Omitting it
         # made implementation reviewers falsely report those docs "missing".
         docs_summary = _summarize_tree(project_dir / "docs")
-        doc_contents = _doc_contents(project_dir)
+        # Show the docs the spec/tasks reference first (then smallest-first) so a
+        # 100+-doc project can't bury the concise spec-mandated artifacts.
+        doc_contents = _doc_contents(
+            project_dir, prioritize_text=f"{spec_text}\n{tasks_text}"
+        )
         results_summary = _read_optional(project_dir / "results.md")
         execution_evidence = _execution_evidence(ctx.project_id, repo)
 
@@ -254,6 +303,24 @@ class ResearchReviewerAgent(Agent):
                     + "\n\n"
                     + system
                 )
+
+        # Every NON-accept research review must end with a parseable,
+        # blocking-only "## Required Changes" section — one bullet per defect,
+        # each naming the exact file + the exact change. This makes the verdict
+        # SPECIFIC and hands the action-item extractor a curated task list
+        # instead of forcing it to shred the whole prose body (which mixes in
+        # section headers + positive observations). Injected here (not duplicated
+        # into all ~7 specialist prompts) so the requirement has one source.
+        rc_path = (
+            repo / "agents" / "prompts" / "_shared"
+            / "required_changes_block_research.md"
+        )
+        try:
+            rc_block = rc_path.read_text(encoding="utf-8")
+        except OSError:
+            rc_block = ""
+        if rc_block:
+            system = system + "\n\n" + rc_block
 
         user = (
             f"# project_id\n{ctx.project_id}\n\n"

@@ -76,3 +76,34 @@ def test_doc_contents_surfaces_file_bodies_for_verification(tmp_path: Path) -> N
     assert "CC-BY-4.0" in out               # license CONTENT, not just the name
     assert "data_license.md" in out
     assert "Reproduce via quickstart" in out  # top-level README content
+
+
+def test_doc_contents_prioritizes_referenced_and_small_over_redundant_bulk(
+    tmp_path: Path,
+) -> None:
+    """A project can accumulate 100+ reproducibility docs that blow any prompt
+    budget. The concise, spec-mandated artifacts (and a doc they point to) must
+    still be shown IN FULL; only long redundant narratives get omitted. Pins the
+    PROJ-552 input-coverage bug where alphabetical truncation hid validation_scope
+    / sample_size / dataset_counts so data_quality falsely inferred 'not shown'."""
+    from llmxive.agents.research_reviewer import _doc_contents
+
+    rdir = tmp_path / "docs" / "reproducibility"
+    rdir.mkdir(parents=True)
+    # 60 redundant verbose narratives (large) — the proliferation that buries docs.
+    for i in range(60):
+        (rdir / f"narrative_addendum_{i:02d}.md").write_text("padding. " * 600, "utf-8")
+    # The concise spec-mandated artifact, and the sibling it points to for detail.
+    (rdir / "validation_scope.md").write_text(
+        "Counts per crossing number are in dataset_counts.md.\nCOUNTS_POINTER\n", "utf-8"
+    )
+    (rdir / "dataset_counts.md").write_text("Crossing 10: 1234 knots.\nCOUNTS_TABLE\n", "utf-8")
+
+    # spec/tasks reference validation_scope.md by name -> one-hop pulls in
+    # dataset_counts.md even though spec/tasks never name it directly.
+    out = _doc_contents(
+        tmp_path, prioritize_text="see docs/reproducibility/validation_scope.md", max_total=12000
+    )
+    assert "COUNTS_POINTER" in out   # directly spec-referenced doc shown in full
+    assert "COUNTS_TABLE" in out     # its one-hop sibling prioritized & shown
+    assert "additional" in out and "omitted" in out  # bulk narratives dropped, flagged
