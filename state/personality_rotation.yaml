@@ -1,14 +1,7 @@
-last_used: ada-lovelace
-last_used_at: '2026-06-19T19:34:12.836179+00:00'
+last_used: alan-turing
+last_used_at: '2026-06-19T20:32:04.565105+00:00'
 last_outcome: abstained
 history:
-- slug: richard-feynman
-  started_at: '2026-06-07T21:27:42.002305+00:00'
-  ended_at: '2026-06-07T21:55:48.184961+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/reviews/research/richard-feynman-simulated__2026-06-07__research.md
 - slug: rosalind-franklin
   started_at: '2026-06-07T21:55:48.184961+00:00'
   ended_at: '2026-06-07T22:24:53.573899+00:00'
@@ -1117,5 +1110,10 @@ history:
 - slug: ada-lovelace
   started_at: '2026-06-19T18:36:12.838703+00:00'
   ended_at: '2026-06-19T19:34:12.836179+00:00'
+  outcome: abstained
+  action: abstain
+- slug: alan-turing
+  started_at: '2026-06-19T19:34:12.836179+00:00'
+  ended_at: '2026-06-19T20:32:04.565105+00:00'
   outcome: abstained
   action: abstain
