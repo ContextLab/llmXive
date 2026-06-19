@@ -247,14 +247,28 @@ class ResearchReviewerAgent(Agent):
         results_summary = _read_optional(project_dir / "results.md")
         execution_evidence = _execution_evidence(ctx.project_id, repo)
 
-        # Prior research-stage reviews (if any).
+        # Prior research-stage reviews (if any). Split the GATING specialist
+        # panel (research_reviewer_*) from ADVISORY input (human reviewers +
+        # simulated-personality commenters). Advisory comments do NOT directly
+        # generate revision tasks (advancement._consolidate_action_items filters
+        # them out) — instead they are surfaced HERE so each gating reviewer can
+        # weigh them and fold any genuine in-lens point into its own review.
         prior = reviews_store.list_for(ctx.project_id, stage="research", repo_root=repo)
+        gating_prior = [r for r in prior if r.reviewer_name.startswith("research_reviewer_")]
+        advisory = [r for r in prior if not r.reviewer_name.startswith("research_reviewer_")]
         prior_block = (
             "\n\n".join(
                 f"- {r.reviewer_name} ({r.reviewer_kind.value}): {r.verdict} — {r.feedback[:120]}"
-                for r in prior
+                for r in gating_prior
             )
-            or "(no prior reviews)"
+            or "(no prior specialist reviews)"
+        )
+        advisory_block = (
+            "\n\n".join(
+                f"### {r.reviewer_name} ({r.reviewer_kind.value})\n{(r.feedback or '').strip()[:1200]}"
+                for r in advisory
+            )
+            or "(no advisory comments submitted)"
         )
 
         # Use the registry entry's prompt_path so specialist reviewers
@@ -333,8 +347,17 @@ class ResearchReviewerAgent(Agent):
             f"# documentation contents (verify these — do not assume from the listing)\n\n{doc_contents}\n\n"
             f"# execution evidence\n\n{execution_evidence}\n\n"
             f"# results summary\n\n{results_summary}\n\n"
-            f"# prior reviews\n\n{prior_block}\n\n"
-            "# Task\n\nReturn the review record per the contract."
+            f"# prior specialist reviews (the gating panel)\n\n{prior_block}\n\n"
+            f"# advisory comments (human + simulated-personality — ADVISORY input)\n\n"
+            f"{advisory_block}\n\n"
+            "# Task\n\n"
+            "1. Review the project in YOUR lens and reach a verdict.\n"
+            "2. Then CONSIDER the advisory comments above. They are NOT binding and "
+            "do NOT, by themselves, block the project — but if any raises a genuine, "
+            "in-lens concern you agree with, fold it into your review and action "
+            "items so it carries real weight; ignore the rest (out-of-lens, "
+            "stylistic, or unfounded points).\n"
+            "3. Return the review record per the contract, revised as you see fit."
         )
         return [
             ChatMessage(role="system", content=system),

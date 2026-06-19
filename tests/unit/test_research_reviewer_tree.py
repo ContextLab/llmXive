@@ -107,3 +107,62 @@ def test_doc_contents_prioritizes_referenced_and_small_over_redundant_bulk(
     assert "COUNTS_POINTER" in out   # directly spec-referenced doc shown in full
     assert "COUNTS_TABLE" in out     # its one-hop sibling prioritized & shown
     assert "additional" in out and "omitted" in out  # bulk narratives dropped, flagged
+
+
+def test_advisory_comments_surfaced_as_context_not_gating(tmp_path: Path, monkeypatch) -> None:
+    """Human + simulated-personality reviews must reach the gating reviewer as
+    ADVISORY context (review -> consider comments -> revise), separate from the
+    gating panel — they inform the review without being a panel verdict. Pins
+    the user-requested handling: advisory comments influence the evaluation,
+    they are not discarded (fix #2) nor are they a gating vote."""
+    import shutil
+    import yaml
+    from llmxive.agents.research_reviewer import ResearchReviewerAgent
+    from llmxive.agents.base import AgentContext
+    from llmxive.config import repo_root as _rr
+
+    # Self-contained repo: copy the real prompt tree so render_prompt resolves
+    # under tmp_path (build_messages uses ONE repo root for project + prompts).
+    shutil.copytree(_rr() / "agents", tmp_path / "agents")
+
+    proj = "PROJ-902-advisory"
+    base = tmp_path / "projects" / proj
+    (base / "specs" / "001-x").mkdir(parents=True)
+    (base / "specs" / "001-x" / "spec.md").write_text("# Spec\nq", encoding="utf-8")
+    (base / "specs" / "001-x" / "tasks.md").write_text("- [x] T001 do it", encoding="utf-8")
+    (base / "code").mkdir(); (base / "data").mkdir(); (base / "docs").mkdir()
+    rdir = base / "reviews" / "research"
+    rdir.mkdir(parents=True)
+    rec = {
+        "reviewer_name": "marie-curie-simulated", "reviewer_kind": "human",
+        "artifact_path": f"projects/{proj}/specs/001-x/tasks.md", "artifact_hash": "a" * 64,
+        "score": 0.0, "verdict": "minor_revision", "reviewed_at": "2026-06-19T00:00:00Z",
+        "prompt_version": "1.0.0", "model_name": "m", "backend": "dartmouth",
+    }
+    (rdir / "marie-curie-simulated__2026-06-19__research.md").write_text(
+        "---\n" + yaml.safe_dump(rec) + "---\n\nEstablish the PRECISION of braid-index measurements.\n",
+        encoding="utf-8",
+    )
+
+    monkeypatch.setattr(
+        "llmxive.agents.research_reviewer._repo_root", lambda: tmp_path
+    )
+    from dataclasses import dataclass
+
+    @dataclass
+    class _E:
+        name: str = "research_reviewer_data_quality_research"
+        prompt_path: str = "agents/prompts/research_reviewer_data_quality_research.md"
+        prompt_version: str = "1.0.0"
+
+    agent = object.__new__(ResearchReviewerAgent)
+    agent.entry = _E()
+    user = agent.build_messages(
+        AgentContext(project_id=proj, run_id="x", task_id="x", inputs=[])
+    )[-1].content
+    assert "# advisory comments" in user
+    assert "PRECISION of braid-index" in user        # surfaced to the reviewer
+    assert "CONSIDER the advisory" in user            # review -> consider -> revise
+    # advisory must NOT be presented as a gating-panel verdict
+    panel = user.split("# advisory comments")[0]
+    assert "marie-curie" not in panel

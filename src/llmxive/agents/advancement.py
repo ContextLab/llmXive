@@ -336,14 +336,27 @@ def verdict_coverage(
 
 
 def _consolidate_action_items(
-    records: list[ReviewRecord], *, live_hash: str | None = None,
+    records: list[ReviewRecord],
+    *,
+    required: set[str] | None = None,
+    live_hash: str | None = None,
 ) -> list[object]:
-    """Deduplicate action items by id across all per-specialist
-    most-recent non-accept reviews. Preserves first-seen order.
+    """Deduplicate action items by id across the per-specialist most-recent
+    non-accept reviews. Preserves first-seen order.
+
+    When ``required`` is given (the gating specialist panel), ONLY those
+    reviewers' concerns drive the revision. Human and simulated-personality
+    reviews are ADVISORY by constitution (advisory inputs via stage-aware
+    triage, never blocking) — consolidating their prose into the revision spec
+    sends the implementer to "fix" narrative commentary, proliferating files and
+    burning capped revision rounds that should target the real specialist
+    defects. They never gate advancement, so they must never gate revision.
     """
     latest = _most_recent_per_specialist(records, live_hash=live_hash)
     seen: dict[str, object] = {}
-    for rec in latest.values():
+    for name, rec in latest.items():
+        if required and name not in required:
+            continue  # advisory (human / personality) reviewer — not a blocker
         if rec.verdict == "accept":
             continue
         items = rec.action_items
@@ -571,7 +584,7 @@ def evaluate(project: Project, *, repo_root: Path | None = None) -> Project:
         # auto-revisions dir for the implementer to pick up. The PROJECT
         # STAYS at RESEARCH_REVIEW; the implementer transitions it back
         # out after applying the revision.
-        consolidated = _consolidate_action_items(records)
+        consolidated = _consolidate_action_items(records, required=required)
         if consolidated:
             if _revision_rounds_exhausted(project.id, repo_root=repo_root):
                 logger.warning(
@@ -708,7 +721,7 @@ def evaluate(project: Project, *, repo_root: Path | None = None) -> Project:
             try:
                 append_rejection_rationale(
                     project.id,
-                    _consolidate_action_items(records, live_hash=live_hash),
+                    _consolidate_action_items(records, required=required, live_hash=live_hash),
                     repo_root=repo_root,
                 )
             except Exception:
@@ -736,13 +749,13 @@ def evaluate(project: Project, *, repo_root: Path | None = None) -> Project:
                     record_round(
                         project.id,
                         verdict_class=max_sev,
-                        action_items=_consolidate_action_items(records, live_hash=live_hash),
+                        action_items=_consolidate_action_items(records, required=required, live_hash=live_hash),
                         repo_root=repo_root,
                     )
                 except Exception:
                     pass
 
-            consolidated = _consolidate_action_items(records, live_hash=live_hash)
+            consolidated = _consolidate_action_items(records, required=required, live_hash=live_hash)
             if not consolidated:
                 # Nothing actionable yet — stay at PAPER_REVIEW for more
                 # reviews to arrive.

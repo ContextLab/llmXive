@@ -176,6 +176,32 @@ def test_consolidate_synthesizes_from_prose_when_structured_items_empty() -> Non
     assert [i.text for i in only] == ["explicit concern X."]
 
 
+def test_consolidate_excludes_advisory_personality_reviews_when_required_given() -> None:
+    """Human + simulated-personality reviews are ADVISORY (Constitution): they
+    must NOT directly become blocking revision tasks. When the gating panel
+    (``required``) is supplied, _consolidate_action_items keeps only the gating
+    specialists' concerns. (Advisory comments still reach the reviewers as
+    context via research_reviewer.build_messages — they influence the review,
+    not the revision spec directly.)"""
+    specialist = _rec(
+        "research_reviewer_data_quality_research", "minor_revision",
+        items=[ActionItem.from_text("Delete data/checksums.csv; keep checksums.json.", "writing")],
+    )
+    persona = _rec(
+        "marie-curie-simulated", "minor_revision",
+        items=[ActionItem.from_text("When we measured radium salts, precision mattered.", "writing")],
+    )
+    required = {"research_reviewer_data_quality_research", "research_reviewer_idea_quality"}
+    # Without required (legacy): personality prose leaks into revision tasks.
+    leaky = _consolidate_action_items([specialist, persona])
+    assert any("radium" in i.text for i in leaky)
+    # With the gating panel: only the specialist concern drives the revision.
+    filtered = _consolidate_action_items([specialist, persona], required=required)
+    texts = [i.text for i in filtered]
+    assert any("checksums.csv" in t for t in texts)
+    assert not any("radium" in t for t in texts)
+
+
 # --- Most-recent-per-specialist gate -----------------------------------------
 
 
