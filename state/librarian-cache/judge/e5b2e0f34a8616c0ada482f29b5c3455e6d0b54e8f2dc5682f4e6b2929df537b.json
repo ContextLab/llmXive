@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2510.27194",
+  "judged_at": "2026-06-19T13:49:26Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "skillsvote: lifecycle governance of agent skills from collection, recommendation to evolution linguistics",
+  "rationale": "The paper focuses on system‑of‑systems product lifecycle management, MBSE, and digital twins, which are unrelated to the governance, collection, recommendation, and linguistic evolution of AI agent skills described in the user's question. It does not address the same constructs, variables, or domain.",
+  "relevant": false
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2605.03353",
+  "judged_at": "2026-06-19T13:49:35Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "skillsvote: lifecycle governance of agent skills from collection, recommendation to evolution linguistics",
+  "rationale": "The paper focuses on portable and secure compilation of LLM agent skills, addressing portability and security rather than the lifecycle governance, collection, recommendation, or evolution of agent skills described in the user's question. It does not measure or discuss the relevant governance mechanisms or variables, so it falls outside the required domain.",
+  "relevant": false
+}

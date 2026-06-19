@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1405.2619",
+  "judged_at": "2026-06-19T13:50:43Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting the impact of strain rate on the yield strength of metals materials science",
+  "rationale": "The paper investigates how yield stress (yield strength) varies with strain rate (and temperature) in a material system, directly measuring the same dependent variable (yield strength) and independent variable (strain rate) of interest, satisfying criterion (b) (independent‑or‑dependent variable on the same domain).",
+  "relevant": true
+}

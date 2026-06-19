@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2605.27955",
+  "judged_at": "2026-06-19T13:49:32Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "skillsvote: lifecycle governance of agent skills from collection, recommendation to evolution linguistics",
+  "rationale": "The paper introduces a foundational method (Skill-as-Pseudocode) for converting and structuring LLM agent skill libraries, which directly pertains to the representation and management of agent skills—a core component of the “collection” stage in the lifecycle governance of agent skills described in the user’s question. This qualifies under acceptance criterion (d) as a canonical methodological reference for skill handling in LLM agents.",
+  "relevant": true
+}

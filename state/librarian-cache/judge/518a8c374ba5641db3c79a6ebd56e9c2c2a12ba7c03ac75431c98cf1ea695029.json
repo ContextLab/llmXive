@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2602.12430",
+  "judged_at": "2026-06-19T13:49:18Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "skillsvote: lifecycle governance of agent skills from collection, recommendation to evolution linguistics",
+  "rationale": "The paper surveys agent skills for LLMs and explicitly proposes a “Skill Trust and Lifecycle Governance Framework,” directly addressing the mechanisms of skill collection, recommendation, and evolution—matching the user’s focus on lifecycle governance (category a) and providing a foundational reference for this domain.",
+  "relevant": true
+}

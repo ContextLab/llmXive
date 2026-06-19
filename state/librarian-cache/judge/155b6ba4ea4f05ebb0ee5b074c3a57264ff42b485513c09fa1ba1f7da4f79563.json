@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2605.10923",
+  "judged_at": "2026-06-19T13:49:29Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "skillsvote: lifecycle governance of agent skills from collection, recommendation to evolution linguistics",
+  "rationale": "The paper studies dynamic skill lifecycle management—retaining, retiring, and expanding external skills for agents—which directly matches the user’s focus on “lifecycle governance of agent skills” (acceptance category (a): same‑mechanism evidence).",
+  "relevant": true
+}

@@ -1,0 +1,621 @@
+{
+  "fetched_at": "2026-06-19T13:50:44Z",
+  "field": "materials science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "materials science",
+      "idea_body_excerpt": "Predicting the Impact of Strain Rate on the Yield Strength of Metals",
+      "target_n": 5
+    },
+    "duration_seconds": 55.138,
+    "ended_at": "2026-06-19T13:50:44Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "strain‑rate sensitivity of metal yield stress"
+        ],
+        [
+          2,
+          "rate‑dependent plasticity models for alloys"
+        ],
+        [
+          3,
+          "dynamic yield strength prediction of metals"
+        ],
+        [
+          4,
+          "Johnson‑Cook constitutive model parameters for yield strength"
+        ],
+        [
+          5,
+          "high‑strain‑rate deformation of metallic materials"
+        ],
+        [
+          6,
+          "viscoplastic behavior of metals under rapid loading"
+        ],
+        [
+          7,
+          "shock compression yield strength of steels and aluminum"
+        ],
+        [
+          8,
+          "microstructural evolution effects on strain‑rate hardening"
+        ],
+        [
+          9,
+          "temperature‑strain‑rate coupled yield strength models"
+        ],
+        [
+          10,
+          "machine‑learning prediction of strain‑rate dependent yield stress"
+        ],
+        [
+          11,
+          "empirical correlations for strain‑rate hardening in metals"
+        ],
+        [
+          12,
+          "high‑speed tensile testing of metallic specimens"
+        ],
+        [
+          13,
+          "rate‑sensitive flow stress constitutive equations"
+        ],
+        [
+          14,
+          "dynamic mechanical analysis of metal plasticity"
+        ],
+        [
+          15,
+          "strain‑rate dependent yield criteria for structural metals"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Predicting the Impact of Strain Rate on the Yield Strength of Metals materials science": 0,
+        "strain‑rate sensitivity of metal yield stress": 5
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "strain-rate sensitivity yield stress",
+      "high strain-rate testing steel",
+      "Johnson-Cook constitutive model",
+      "dynamic yield stress measurement",
+      "dislocation dynamics strain rate"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2409.04697"
+      ]
+    },
+    "per_query_hit_count": {
+      "Johnson-Cook constitutive model": 3,
+      "Predicting the Impact of Strain Rate on the Yield Strength of Metals materials science": 3,
+      "dislocation dynamics strain rate": 3,
+      "dynamic yield stress measurement": 1,
+      "high strain-rate testing steel": 3,
+      "strain-rate sensitivity yield stress": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 3,
+      "rejections": [
+        {
+          "primary_pointer": "1505.07591",
+          "rationale": "The paper investigates strain‑rate dependent yielding in magnetorheological fluids, not in bulk metallic materials; thus it does not address the strain‑rate–yield‑strength relationship for metals and falls outside the relevant domain.",
+          "title": "Dynamic and rate-dependent yielding behavior of Co0.9Ni0.1 nanocluster based magnetorheological fluids"
+        },
+        {
+          "primary_pointer": "2107.07580",
+          "rationale": "The paper studies bubble stability in yield‑stress fluids, focusing on surface tension and buoyancy, which is unrelated to the strain‑rate dependence of yield strength in metallic materials; it does not address the same mechanism, variables, or domain required for the user's question.",
+          "title": "Flow onset for a single bubble in yield-stress fluids"
+        },
+        {
+          "primary_pointer": "2004.02950",
+          "rationale": "The paper studies yield‑stress fluids and sliding flow phenomena, not the strain‑rate dependence of yield strength in metallic solids; it does not address the same material system or the specific variable (strain rate) of interest. Hence it falls outside the relevant domain.",
+          "title": "Complex sliding flows of yield-stress fluids"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-19T13:49:49Z",
+    "term_input": {
+      "normalized": "predicting the impact of strain rate on the yield strength of metals materials science",
+      "raw": "Predicting the Impact of Strain Rate on the Yield Strength of Metals materials science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Phosphorus (P) is considered to be one of the key elements for life, making it an important element to look for in the abundance analysis of spectra of stellar systems. Yet, there exists only a handful of spectroscopic studies to estimate the P abundances and investigate its trend across a range of metallicities. We have observed full HK band spectra at a spectral resolving power of R=45,000 with IGRINS instrument. Abundances are determined using SME in combination with 1D MARCS stellar atmosphere models. The investigated sample of stars have reliable stellar parameters estimated using optical FIES spectra (GILD; Jönsson et al. in prep.). In order to determine the P abundances from the 16482.92 Angstrom P line, we take special care of the CO($ν=7-4$) blend. We determine the C, N, O abundances from atomic carbon and a range of non-blended molecular lines (CO, CN, OH) which are aplenty in the H band region of K giant stars, assuring an appropriate modelling of the blending CO($ν=7-4$) line. We present [P/Fe] vs [Fe/H] trend for 38 K giant stars in the metallicity range of -1.2 dex $<$ [Fe/H] $<$ 0.4 dex. We find that our trend matches well with the compiled literature sample of prominently dwarf stars and limited number of giant stars. Our trend is found to be higher by $\\sim$ 0.05 - 0.1 dex compared to the theoretical chemical evolution trend in Cescutti et al. 2012 resulting from core collapse supernova (type II) of massive stars with the P yields from Kobayashi et al. (2006) arbitrarily increased by a factor of 2.75. Thus the enhancement factor might need to be $\\sim$ 0.05 - 0.1 dex higher to match our trend. We also find an empirically determined primary behaviour for phosphorus. Furthermore, the phosphorus abundance is found to be elevated by $\\sim$ 0.6 - 0.9 dex in two metal poor s-enriched stars compared to the theoretical chemical evolution trend.",
+          "claimed_authors": [
+            "G. Nandakumar",
+            "N. Ryde",
+            "M. Montelius",
+            "B. Thorsbro",
+            "H. Jönsson",
+            "G. Mace",
+            "Lund Observatory",
+            "Department of Astronomy",
+            "Theoretical Physics",
+            "Lund University",
+            "Box 43",
+            "SE-221 00 Lund",
+            " Sweden",
+            "Kapteyn Astronomical Institute",
+            "University of Groningen",
+            "Landleven 12",
+            "NL-9747 AD Groningen",
+            "the Netherlands",
+            "Department of Astronomy",
+            "School of Science",
+            "The University of Tokyo",
+            "7-3-1 Hongo",
+            " Bunkyo-ku",
+            "Tokyo 113-0033",
+            " Japan",
+            "Materials Science",
+            "Applied Mathematics",
+            "Malmö University",
+            "SE-205 06 Malmö",
+            " Sweden",
+            "Department of Astronomy",
+            "McDonald Observatory",
+            "The University of Texas",
+            " Austin",
+            "TX 78712",
+            " USA"
+          ],
+          "claimed_title": "The Galactic Chemical Evolution of phosphorus observed with IGRINS",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2210.04940"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Impact of Strain Rate on the Yield Strength of Metals materials s', candidate_title='The Galactic Chemical Evolution of phosphorus observed with IGRINS')",
+        "failed_at": "2026-06-19T13:50:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In the rapidly expanding field of two-dimensional materials, magnetic monolayers show great promise for the future applications in nanoelectronics, data storage, and sensing. The research in intrinsically magnetic two-dimensional materials mainly focuses on synthetic iodide and telluride based compounds, which inherently suffer from the lack of ambient stability. So far, naturally occurring layered magnetic materials have been vastly overlooked. These minerals offer a unique opportunity to explore air-stable complex layered systems with high concentration of local moment bearing ions. We demonstrate magnetic ordering in iron-rich two-dimensional phyllosilicates, focusing on mineral species of minnesotaite, annite, and biotite. These are naturally occurring van der Waals magnetic materials which integrate local moment baring ions of iron via magnesium/aluminium substitution in their octahedral sites. Due to self-inherent capping by silicate/aluminate tetrahedral groups, ultra-thin layers are air-stable. Chemical characterization, quantitative elemental analysis, and iron oxidation states were determined via Raman spectroscopy, wavelength disperse X-ray spectroscopy, X-ray absorption spectroscopy, and X-ray photoelectron spectroscopy. Superconducting quantum interference device magnetometry measurements were performed to examine the magnetic ordering. These layered materials exhibit paramagnetic or superparamagnetic characteristics at room temperature. At low temperature ferrimagnetic or antiferromagnetic ordering occurs, with the critical ordering temperature of 38.7 K for minnesotaite, 36.1 K for annite, and 4.9 K for biotite. In-field magnetic force microscopy on iron bearing phyllosilicates confirmed the paramagnetic response at room temperature, present down to monolayers.",
+          "claimed_authors": [
+            "Muhammad Zubair Khan",
+            "Oleg E. Peil",
+            "Apoorva Sharma",
+            "Oleksandr Selyshchev",
+            "Sergio Valencia",
+            "Florian Kronast",
+            "Maik Zimmermann",
+            "Muhammad Awais Aslam",
+            "Johann G. Raith",
+            "Christian Teichert",
+            "Dietrich R. T. Zahn",
+            "Georgeta Salvan",
+            "Aleksandar Matković",
+            "Chair of Physics",
+            "Department Physics",
+            " Mechanics",
+            "Electrical engineering",
+            "Montanuniversität Leoben",
+            " 8700",
+            " Leoben",
+            " Austria.",
+            "Materials Center Leoben Forschung GmbH",
+            " 8700",
+            " Leoben",
+            " Austria.",
+            "Semiconductor Physics",
+            "Chemnitz University of Technology",
+            " D-09107",
+            " Chemnitz",
+            " Germany.",
+            "Department of Spin",
+            "Topology in Quantum Materials",
+            "Helmholtz-Zentrum Berlin",
+            "Albert-Einstein-Str. 15",
+            " D-12489",
+            " Berlin",
+            " Germany.",
+            "Chair of Resource Mineralogy",
+            "Montanuniversität Leoben",
+            " 8700",
+            " Leoben",
+            " Austria.",
+            "Centre for Materials",
+            " Architecture",
+            "Integration of Nanomembranes",
+            "Chemnitz University of Technology",
+            " 09126",
+            " Chemnitz",
+            " Germany"
+          ],
+          "claimed_title": "Probing magnetic ordering in air stable iron-rich van der Waals minerals",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2304.06533"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting the Impact of Strain Rate on the Yield Strength of Metals materials s', candidate_title='Probing magnetic ordering in air stable iron-rich van der Waals minerals')",
+        "failed_at": "2026-06-19T13:50:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "On 2017 August 17 a binary neutron star coalescence candidate (later designated GW170817) with merger time 12:41:04 UTC was observed through gravitational waves by the Advanced LIGO and Advanced Virgo detectors. The Fermi Gamma-ray Burst Monitor independently detected a gamma-ray burst (GRB 170817A) with a time delay of $\\sim$1.7 s with respect to the merger time. From the gravitational-wave signal, the source was initially localized to a sky region of 31 deg$^2$ at a luminosity distance of $40^{+8}_{-8}$ Mpc and with component masses consistent with neutron stars. The component masses were later measured to be in the range 0.86 to 2.26 Msun. An extensive observing campaign was launched across the electromagnetic spectrum leading to the discovery of a bright optical transient (SSS17a, now with the IAU identification of AT 2017gfo) in NGC 4993 (at $\\sim$40 Mpc) less than 11 hours after the merger by the One-Meter, Two Hemisphere (1M2H) team using the 1 m Swope Telescope. The optical transient was independently detected by multiple teams within an hour. Subsequent observations targeted the object and its environment. Early ultraviolet observations revealed a blue transient that faded within 48 hours. Optical and infrared observations showed a redward evolution over $\\sim$10 days. Following early non-detections, X-ray and radio emission were discovered at the transient's position $\\sim$9 and $\\sim$16 days, respectively, after the merger. Both the X-ray and radio emission likely arise from a physical process that is distinct from the one that generates the UV/optical/near-infrared emission. No ultra-high-energy gamma-rays and no neutrino candidates consistent with the source were found in follow-up searches. (Abridged)",
+          "claimed_authors": [
+            " LIGO Scientific Collaboration",
+            " Virgo Collaboration",
+            "Fermi GBM",
+            " INTEGRAL",
+            "IceCube Collaboration",
+            "AstroSat Cadmium Zinc Telluride Imager Team",
+            "IPN Collaboration",
+            "The Insight-Hxmt Collaboration",
+            "ANTARES Collaboration",
+            "The Swift Collaboration",
+            "AGILE Team",
+            "The 1M2H Team",
+            "The Dark Energy Camera GW-EM Collaboration",
+            "the DES Collaboration",
+            "The DLT40 Collaboration",
+            " GRAWITA",
+            " :",
+            "GRAvitational Wave Inaf TeAm",
+            "The Fermi Large Area Telescope Collaboration",
+            " ATCA",
+            " :",
+            "Australia Telescope Compact Array",
+            " ASKAP",
+            " :",
+            "Australian SKA Pathfinder",
+            "Las Cumbres Observatory Group",
+            " OzGrav",
+            " DWF",
+            " AST3",
+            "CAASTRO Collaborations",
+            "The VINROUGE Collaboration",
+            "MASTER Collaboration",
+            " J-GEM",
+            " GROWTH",
+            " JAGWAR",
+            "Caltech- NRAO",
+            " TTU-NRAO",
+            "NuSTAR Collaborations",
+            " Pan-STARRS",
+            "The MAXI Team",
+            "TZAC Consortium",
+            "KU Collaboration",
+            "Nordic Optical Telescope",
+            " ePESSTO",
+            " GROND",
+            "Texas Tech University",
+            "SALT Group",
+            " TOROS",
+            " :",
+            "Transient Robotic Observatory of the South Collaboration",
+            "The BOOTES Collaboration",
+            " MWA",
+            " :",
+            "Murchison Widefield Array",
+            "The CALET Collaboration",
+            "IKI-GW Follow-up Collaboration",
+            "H. E. S. S. Collaboration",
+            "LOFAR Collaboration",
+            " LWA",
+            " :",
+            "Long Wavelength Array",
+            "HAWC Collaboration",
+            "The Pierre Auger Collaboration",
+            "ALMA Collaboration",
+            "Euro VLBI Team",
+            "Pi of the Sky Collaboration",
+            "The Chandra Team at McGill University",
+            " DFN",
+            " :",
+            "Desert Fireball Network",
+            " ATLAS",
+            "High Time Resolution Universe Survey",
+            " RIMAS",
+            " RATIR",
+            "SKA South Africa/MeerKAT"
+          ],
+          "claimed_title": "Multi-messenger Observations of a Binary Neutron Star Merger",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1710.05833"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Impact of Strain Rate on the Yield Strength of Metals materials s', candidate_title='Multi-messenger Observations of a Binary Neutron Star Merger')",
+        "failed_at": "2026-06-19T13:50:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We use computational methods to determine the minimal yield-stress required in order to hold static a buoyant bubble in a yield-stress liquid. The static limit is governed by the bubble shape, the dimensionless surface tension ($γ$) and the ratio of the yield-stress to the buoyancy stress ($Y$). For a given geometry, bubbles are static for $Y > Y_c$, which we determine for a range of shapes. Given that surface tension is negligible, long prolate bubbles require larger yield-stress to hold static compared to oblate bubbles. Non-zero $γ$ increases $Y_c$ and for large $γ$ the yield-capillary number ($Y/γ$) determines the static boundary. In this limit, although bubble shape is important, bubble orientation is not. 2D planar and axisymmetric bubbles are studied.",
+          "claimed_authors": [
+            "Ali Pourzahedi",
+            "Emad Chaparian",
+            "Ali Roustaei",
+            "Ian A. Frigaard"
+          ],
+          "claimed_title": "Flow onset for a single bubble in yield-stress fluids",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2107.07580"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting the Impact of Strain Rate on the Yield Strength of Metals materials s', candidate_title='Flow onset for a single bubble in yield-stress fluids')",
+        "failed_at": "2026-06-19T13:50:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A theoretical and numerical study of complex sliding flows of yield-stress fluids is presented. Yield-stress fluids are known to slide over solid surfaces if the tangential stress exceeds the {\\it sliding yield stress}. The sliding may occur due to various microscopic phenomena such as the formation of a infinitesimal lubrication layer of the solvent and/or elastic deformation of the suspended soft particles in the vicinity of the solid surfaces. This leads to a `stick-slip' law which complicates the modelling and analysis of the hydrodynamic characteristics of the yield-stress fluid flow. In the present study, we formulate the problem of sliding flow beyond one-dimensional rheometric flows. Then, a numerical scheme based on the augmented Lagrangian method is presented to attack these kind of problems. Theoretical tools are developed for analysing the flow/no-flow limit. The whole framework is benchmarked in planar Poiseuille flow and validated against analytical solutions. Then two more complex physical problems are investigated: slippery particle sedimentation and pressure-driven sliding flow in porous media. The {\\it yield limit} is addressed in detail for both flow cases. In the particle sedimentation problem, method of characteristics---slipline method---in the presence of slip is revisited from the perfectly-plastic mechanics and used as a helpful tool in addressing the yield limit. Finally, flows through model and randomized porous media are studied. The randomized configuration is chosen to capture more sophisticated aspects of the yield-stress fluid flows in porous media at the yield limit---channelization.",
+          "claimed_authors": [
+            "Emad Chaparian",
+            "Outi Tammisola"
+          ],
+          "claimed_title": "Complex sliding flows of yield-stress fluids",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2004.02950"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting the Impact of Strain Rate on the Yield Strength of Metals materials s', candidate_title='Complex sliding flows of yield-stress fluids')",
+        "failed_at": "2026-06-19T13:50:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Deep Learning (DL) has revolutionized the capabilities of vision-based systems (VBS) in critical applications such as autonomous driving, robotic surgery, critical infrastructure surveillance, air and maritime traffic control, etc. By analyzing images, voice, videos, or any type of complex signals, DL has considerably increased the situation awareness of these systems. At the same time, while relying more and more on trained DL models, the reliability and robustness of VBS have been challenged and it has become crucial to test thoroughly these models to assess their capabilities and potential errors. To discover faults in DL models, existing software testing methods have been adapted and refined accordingly. In this article, we provide an overview of these software testing methods, namely differential, metamorphic, mutation, and combinatorial testing, as well as adversarial perturbation testing and review some challenges in their deployment for boosting perception systems used in VBS. We also provide a first experimental comparative study on a classical benchmark used in VBS and discuss its results.",
+          "claimed_authors": [
+            "Mohit Kumar Ahuja",
+            "Arnaud Gotlieb",
+            "Helge Spieker"
+          ],
+          "claimed_title": "Testing Deep Learning Models: A First Comparative Study of Multiple Testing Techniques",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2202.12139"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Impact of Strain Rate on the Yield Strength of Metals materials s', candidate_title='Testing Deep Learning Models: A First Comparative Study of Multiple Testing Techniques')",
+        "failed_at": "2026-06-19T13:50:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Traditional member-based two-step design approaches included in current structural codes for steel structures, as well as more recent system-based direct-design alternatives, require building rigorous structural reliability frameworks for the calibration of partial coefficients (resistance factors) to achieve specified target reliability requirements. Key design parameters affecting the strength of structures and their random variations are generally modelled by nominal or characteristic values in design standards, which are combined with partial coefficients that need to be calibrated from measurements on real samples. While the statistical characterization of material and geometric properties of structural steels has been consolidated over the last decades, information about the characterization of structural stainless steels is virtually non-existent due to the limited pool of available data. Thus, this paper presents the basic ingredient for developing reliability frameworks for stainless steel structures and components by statistically characterizing the main random parameters affecting their strength through a comprehensive database collected from the literature. Based on the collected data, appropriate probabilistic models are proposed for geometric properties, material properties, imperfections and residual stresses of different stainless steel alloys and cross-section or product types. The data is equally applicable to member-based reliability analyses as described in existing codes and system-based analyses targeted at the direct-design of stainless steel structures by advanced analysis.",
+          "claimed_authors": [
+            "Itsaso Arrayago",
+            "Kim J. R. Rasmussen",
+            "Esther Real"
+          ],
+          "claimed_title": "Statistical analysis of the material, geometrical and imperfection characteristics of structural stainless steels and members",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2010.14777"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting the Impact of Strain Rate on the Yield Strength of Metals materials s', candidate_title='Statistical analysis of the material, geometrical and imperfection characteristics of structural stainless steels and members')",
+        "failed_at": "2026-06-19T13:50:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Test case prioritisation (TCP) is a critical task in regression testing to ensure quality as software evolves. Machine learning has become a common way to achieve it. In particular, learning-to-rank (LTR) algorithms provide an effective method of ordering and prioritising test cases. However, their use poses a challenge in terms of explainability, both globally at the model level and locally for particular results. Here, we present and discuss scenarios that require different explanations and how the particularities of TCP (multiple builds over time, test case and test suite variations, etc.) could influence them. We include a preliminary experiment to analyse the similarity of explanations, showing that they do not only vary depending on test case-specific predictions, but also on the relative ranks.",
+          "claimed_authors": [
+            "Aurora Ramírez",
+            "Mario Berrios",
+            "José Raúl Romero",
+            "Robert Feldt"
+          ],
+          "claimed_title": "Towards Explainable Test Case Prioritisation with Learning-to-Rank Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.13786"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Impact of Strain Rate on the Yield Strength of Metals materials s', candidate_title='Towards Explainable Test Case Prioritisation with Learning-to-Rank Models')",
+        "failed_at": "2026-06-19T13:50:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Constitutive equations have to be in agreement with the energy- and entropy- balances. For achieving that, the procedure of thermodynamical verification is introduced: Because heat flux and entropy flux as well as the time differentials of internal energy and entropy are not independent of each other, energy- and entropy-balances are connected with each other by so-called internal settings laying down the theoretical frame of the applied material description which is characterized by additional constitutive settings.",
+          "claimed_authors": [
+            "Wolfgang Muschik"
+          ],
+          "claimed_title": "Constitutive Settings with regard to Energy- and Entropy-Balances in Non-Equilibrium Thermodynamics: the Thermodynamical Verification",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.06131"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Impact of Strain Rate on the Yield Strength of Metals materials s', candidate_title='Constitutive Settings with regard to Energy- and Entropy-Balances in Non-Equilibrium Thermodynamics: the Thermodynamical Verification')",
+        "failed_at": "2026-06-19T13:50:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The present documents deals with the material characterization of the free cutting steel 50SiB8 for numerical simulations. Quasi-static tensile tests as well as Split Hopkinson Tension Bar (SHTB) tests at various strain rates and temperatures are used to deduce the parameters for a Johnson-Cook flow stress model. These parameters are then verified against the SHTB-experiments within a finite element model (FEM) of the SHTB-test within ABAQUS.",
+          "claimed_authors": [
+            "Hagen Klippel",
+            "Marcel Gerstgrasser",
+            "Darko Smolenicki",
+            "Ezio Cadoni",
+            "Hans Roelofs",
+            "Konrad Wegener"
+          ],
+          "claimed_title": "Johnson Cook Flow Stress Parameter for Free Cutting Steel 50SiB8",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2007.14087"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting the Impact of Strain Rate on the Yield Strength of Metals materials s', candidate_title='Johnson Cook Flow Stress Parameter for Free Cutting Steel 50SiB8')",
+        "failed_at": "2026-06-19T13:50:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Constitutive equations are derived for a 1-D micropolar Timoshenko beam made of a web-core lattice material. First, a web-core unit cell is modeled by discrete classical constituents, i.e., the Euler-Bernoulli beam finite elements (FE). A discrete-to-continuum transformation is applied to the microscale unit cell and its strain energy density is expressed in terms of the macroscale 1-D beam kinematics. Then the constitutive equations for the micropolar web-core beam are derived assuming strain energy equivalence between the microscale unit cell and the macroscale beam. A micropolar beam FE model for static and dynamic problems is developed using a general solution of the beam equilibrium equations. A localization method for the calculation of periodic classical beam responses from micropolar results is given. The 1-D beam model is used in linear bending and vibration problems of 2-D web-core sandwich panels that have flexible joints. Localized 1-D results are shown to be in good agreement with experimental and 2-D FE beam frame results.",
+          "claimed_authors": [
+            "Anssi T. Karttunen",
+            "JN Reddy",
+            "Jani Romanoff"
+          ],
+          "claimed_title": "Two-scale constitutive modeling of a lattice core sandwich beam",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1810.06385"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting the Impact of Strain Rate on the Yield Strength of Metals materials s', candidate_title='Two-scale constitutive modeling of a lattice core sandwich beam')",
+        "failed_at": "2026-06-19T13:50:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper, we present a continuum model for the dynamics of low angle grain boundaries in two dimensions based on the motion of constituent dislocations of the grain boundaries. The continuum model consists of an equation for the motion of grain boundaries (i.e., motion of the constituent dislocations in the grain boundary normal direction) and equations for the dislocation structure evolution on the grain boundaries. This model is derived from the discrete dislocation dynamics model. The long-range elastic interaction between dislocations is included in the continuum model, which ensures that the dislocation structure on a grain boundary is consistent with the Frank's formula. These evolution of the grain boundary and its dislocation structure are able to describe both normal motion and tangential translation of the grain boundary and grain rotation due to both coupling and sliding. Since the continuum model is based upon dislocation structure, it naturally accounts for the grain boundary shape change during the motion and rotation of the grain boundary by motion and reaction of the constituent dislocations. Using the derived continuum grain boundary dynamics model, simulations are performed for the dynamics of circular and non-circular two dimensional grain boundaries, and the results are validated by discrete dislocation dynamics simulations.",
+          "claimed_authors": [
+            "Luchan Zhang",
+            "Yang Xiang"
+          ],
+          "claimed_title": "Motion of grain boundaries incorporating dislocation structure",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1710.01856"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Impact of Strain Rate on the Yield Strength of Metals materials s', candidate_title='Motion of grain boundaries incorporating dislocation structure')",
+        "failed_at": "2026-06-19T13:50:21Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study strain-controlled plastic deformation of crystalline solids via two-dimensional discrete dislocation dynamics simulations. To this end, we characterize the average stress-strain curves as well as the statistical properties of strain bursts and the related stress drops as a function of the imposed strain rate and the stiffness of the specimen-machine system. The dislocation system exhibits strain rate sensitivity such that a larger imposed strain rate results in a higher average stress at a given strain. In the limit of small strain rate and driving spring stiffness, the sizes and durations of the dislocation avalanches are power-law distributed up to a cutoff scale, and exhibit temporally asymmetric average shapes. We discuss the dependence of the results on the driving parameters, and compare our results to those from previous simulations where quasistatic stress-controlled loading was used.",
+          "claimed_authors": [
+            "David Kurunczi-Papp",
+            "Lasse Laurson"
+          ],
+          "claimed_title": "Dislocation avalanches from strain-controlled loading: A discrete dislocation dynamics study",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2108.02978"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Predicting the Impact of Strain Rate on the Yield Strength of Metals materials s', candidate_title='Dislocation avalanches from strain-controlled loading: A discrete dislocation dynamics study')",
+        "failed_at": "2026-06-19T13:50:21Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Xianglin Huang",
+            "Q. M. Li"
+          ],
+          "title": "Determination of dynamic flow stress equation based on discrete experimental data: Part 1 Methodology and the dependence of dynamic flow stress on strain-rate",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2409.04697",
+        "summary": "In this study, a framework to determine the dynamic flow stress equation of materials based on discrete data of varied (or instantaneous) strain-rate from split Hopkinson pressure bar (SHPB) experiments is proposed. The conventional constant strain-rate requirement in SHPB test is purposely relaxed to generate rich dynamic flow stress data which are widely and diversely distributed in plastic strain and strain-rate space. Two groups of independent SHPB tests, i.e. Group A (without shaper) and Group B (with shaper) were conducted on the C54400 phosphor-bronze copper alloy at room temperature, obtaining flow stress data (FSD) (two-dimensional (2D) matrix). Data qualification criteria were proposed to screen the FSD, with which qualified FSD were obtained. The qualified FSD of Group A were coarsely filled with missing data and were reconstructed by the Artificial Neural Network (ANN). As a result, finely-filled FSD of Group A were obtained, which were carefully evaluated by the qualified FSD of Group B. The evaluation proves the effectiveness of ANN in FSD prediction. Next, the finely-filled FSD from Group A were decomposed by Singular Value Decomposition (SVD) method. Discrete and analytical flow stress equation f(strain, strain-rate)_ana were obtained from the SVD results. Finally, flow stress equation (f(strain, strain-rate)_MJC) based on conventional method were established. Five uncertainties inherent in the conventional method in the determination of the flow stress equation were identified. The comparison between f(strain, strain-rate)_ana and f(strain, strain-rate)_MJC demonstrated the effectiveness and reliability of the flow stress equation obtained from the proposed method.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2409.04697",
+          "http_status": 200,
+          "pdf_sample_score": 0.3394,
+          "query_relevance_score": 0.4286,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-19T13:50:19Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Haidong Fan",
+            "Jaafar A. El-Awady",
+            "Qingyuan Wang",
+            "Dierk Raabe",
+            "Michael Zaiser"
+          ],
+          "title": "Strain rate dependency of dislocation plasticity",
+          "venue": "arXiv",
+          "year": 2020
+        },
+        "primary_pointer": "2003.09560",
+        "summary": "Dislocation slip is a general deformation mode and governs the strength of metals. Via discrete dislocation dynamics and molecular dynamics simulations, we investigate the strain rate and dislocation density dependence of the strength of bulk copper single crystals using 192 simulations spanning over 10 orders of magnitude in strain rate and 9 orders of magnitude in dislocation density. Based on these large set of simulations and theoretical analysis, a new analytical relationship between material strength, dislocation density, strain rate and dislocation mobility is proposed, which is in excellent agreement with the current simulations as well as with experimental data. The results show that the material strength is a non-monotonic function of dislocation density and displays two universal regimes (first decreasing, then increasing) as the dislocation density increases. The first regime is a result of strain rate hardening, while the second regime is dominated by the classical Taylor forest hardening. Accordingly, the strength displays universally, as a function of strain rate, a rate-independent regime at low strain rates (governed by forest hardening) followed by a rate hardening regime at high strain rates (governed by strain rate hardening). All the results can be captured by a single scaling function. Finally, the fluctuations of dislocation flow are analyzed in terms of the strain rate dependent distribution of dislocation segment velocities. It is found that the fluctuations are governed by another universal scaling function and diverge in the rate independent limit, indicating a critical behavior. The current analysis provides a comprehensive understanding on how collective dislocation motions are governed by the competition between the internal elastic interactions of dislocations, and the stress required to drive dislocation fluxes at a given externally imposed strain rate.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2003.09560",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5714,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-19T13:50:21Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Penghui Cao",
+            "Xi Lin",
+            "Harold S. Park"
+          ],
+          "title": "Strain-rate and temperature dependence of yield stress of amorphous solids via self-learning metabasin escape algorithm",
+          "venue": "arXiv",
+          "year": 2014
+        },
+        "primary_pointer": "1405.2619",
+        "summary": "A general self-learning metabasin escape (SLME) algorithm~\\citep{caoPRE2012} is coupled in this work with continuous shear deformations to probe the yield stress as a function of strain rate and temperature for a binary Lennard-Jones (LJ) amorphous solid. The approach is shown to match the results of classical molecular dynamics (MD) at high strain rates where the MD results are valid, but, importantly, is able to access experimental strain rates that are about ten orders of magnitude slower than MD. In doing so, we find in agreement with previous experimental studies that a substantial decrease in yield stress is observed with decreasing strain rate. At room temperature and laboratory strain rates, the activation volume associated with yield is found to contain about 10 LJ particles, while the yield stress is as sensitive to a $1.5\\%T_{\\rm g}$ increase in temperature as it is to a one order of magnitude decrease in strain rate. Moreover, our SLME results suggest the SLME and extrapolated results from MD simulations follow distinctly different energetic pathways during the applied shear deformation at low temperatures and experimental strain rates, which implies that extrapolation of the governing deformation mechanisms from MD strain rates to experimental may not be valid.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1405.2619",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-19T13:50:25Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "predicting the impact of strain rate on the yield strength of metals materials science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

@@ -1,0 +1,623 @@
+{
+  "fetched_at": "2026-06-19T13:49:36Z",
+  "field": "linguistics",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "linguistics",
+      "idea_body_excerpt": "SkillsVote: Lifecycle Governance of Agent Skills from Collection, Recommendation to Evolution",
+      "target_n": 5
+    },
+    "duration_seconds": 62.544,
+    "ended_at": "2026-06-19T13:49:36Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "agent skill lifecycle management"
+        ],
+        [
+          2,
+          "skill governance frameworks for conversational agents"
+        ],
+        [
+          3,
+          "skill acquisition and evolution in language models"
+        ],
+        [
+          4,
+          "automated skill collection and recommendation systems"
+        ],
+        [
+          5,
+          "competency ontology evolution for NLP agents"
+        ],
+        [
+          6,
+          "skill taxonomy curation and maintenance"
+        ],
+        [
+          7,
+          "adaptive skill recommendation for dialogue systems"
+        ],
+        [
+          8,
+          "skill mining and recommendation in conversational AI"
+        ],
+        [
+          9,
+          "evolution of agent competencies in linguistics"
+        ],
+        [
+          10,
+          "skill selection and recommendation mechanisms for chatbots"
+        ],
+        [
+          11,
+          "dynamic skill management in language agents"
+        ],
+        [
+          12,
+          "skill evolution modeling for virtual assistants"
+        ],
+        [
+          13,
+          "governance of agent competencies in NLP"
+        ],
+        [
+          14,
+          "skill ontology development and lifecycle"
+        ],
+        [
+          15,
+          "automated skill evaluation and adaptation"
+        ],
+        [
+          16,
+          "competency recommendation pipelines for conversational agents"
+        ],
+        [
+          17,
+          "skill evolution and maintenance in AI-driven linguistics tools"
+        ],
+        [
+          18,
+          "lifecycle governance of dialog system skills"
+        ],
+        [
+          19,
+          "skill collection, ranking, and evolution in language agents"
+        ],
+        [
+          20,
+          "agent skill recommendation and continuous improvement."
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "SkillsVote: Lifecycle Governance of Agent Skills from Collection, Recommendation to Evolution linguistics": 0,
+        "agent skill lifecycle management": 5
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "capability orchestration",
+      "conversational agents",
+      "intent ranking",
+      "task success rate",
+      "reinforcement learning policy adaptation"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2605.19362"
+      ]
+    },
+    "per_query_hit_count": {
+      "SkillsVote: Lifecycle Governance of Agent Skills from Collection, Recommendation to Evolution linguistics": 3,
+      "capability orchestration": 3,
+      "conversational agents": 3,
+      "intent ranking": 3,
+      "reinforcement learning policy adaptation": 3,
+      "task success rate": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 2,
+      "rejections": [
+        {
+          "primary_pointer": "2510.27194",
+          "rationale": "The paper focuses on system‑of‑systems product lifecycle management, MBSE, and digital twins, which are unrelated to the governance, collection, recommendation, and linguistic evolution of AI agent skills described in the user's question. It does not address the same constructs, variables, or domain.",
+          "title": "From product to system network challenges in system of systems lifecycle management"
+        },
+        {
+          "primary_pointer": "2605.03353",
+          "rationale": "The paper focuses on portable and secure compilation of LLM agent skills, addressing portability and security rather than the lifecycle governance, collection, recommendation, or evolution of agent skills described in the user's question. It does not measure or discuss the relevant governance mechanisms or variables, so it falls outside the required domain.",
+          "title": "SkCC: Portable and Secure Skill Compilation for Cross-Framework LLM Agents"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-19T13:48:33Z",
+    "term_input": {
+      "normalized": "skillsvote: lifecycle governance of agent skills from collection, recommendation to evolution linguistics",
+      "raw": "SkillsVote: Lifecycle Governance of Agent Skills from Collection, Recommendation to Evolution linguistics"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Containerisation demonstrates its efficiency in application deployment in cloud computing. Containers can encapsulate complex programs with their dependencies in isolated environments, hence are being adopted in HPC clusters. HPC workload managers lack micro-services support and deeply integrated container management, as opposed to container orchestrators (e.g. Kubernetes). We introduce Torque-Operator (a plugin) which serves as a bridge between HPC workload managers and container Orchestrators.",
+          "claimed_authors": [
+            "Naweiluo Zhou",
+            "Yiannis Georgiou",
+            "Li Zhong",
+            "Huan Zhou",
+            "Marcin Pospieszny"
+          ],
+          "claimed_title": "Container Orchestration on HPC Systems",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2012.08866"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='SkillsVote: Lifecycle Governance of Agent Skills from Collection, Recommendation', candidate_title='Container Orchestration on HPC Systems')",
+        "failed_at": "2026-06-19T13:49:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Middleboxes or network appliances like firewalls, proxies and WAN optimizers have become an integral part of today's ISP and enterprise networks. Middlebox functionalities are usually deployed on expensive and proprietary hardware that require trained personnel for deployment and maintenance. Middleboxes contribute significantly to a network's capital and operational costs. In addition, organizations often require their traffic to pass through a specific sequence of middleboxes for compliance with security and performance policies. This makes the middlebox deployment and maintenance tasks even more complicated. Network Function Virtualization (NFV) is an emerging and promising technology that is envisioned to overcome these challenges. It proposes to move packet processing from dedicated hardware middleboxes to software running on commodity servers. In NFV terminology, software middleboxes are referred to as Virtualized Network Functions (VNFs). It is a challenging problem to determine the required number and placement of VNFs that optimizes network operational costs and utilization, without violating service level agreements. We call this the VNF Orchestration Problem (VNF-OP) and provide an Integer Linear Programming (ILP) formulation with implementation in CPLEX. We also provide a dynamic programming based heuristic to solve larger instances of VNF-OP. Trace driven simulations on real-world network topologies demonstrate that the heuristic can provide solutions that are within 1.3 times of the optimal solution. Our experiments suggest that a VNF based approach can provide more than 4x reduction in the operational cost of a network.",
+          "claimed_authors": [
+            "Md. Faizul Bari",
+            "Shihabur Rahman Chowdhury",
+            "Reaz Ahmed",
+            "Raouf Boutaba"
+          ],
+          "claimed_title": "On Orchestrating Virtual Network Functions in NFV",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2015,
+          "primary_pointer": "1503.06377"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='SkillsVote: Lifecycle Governance of Agent Skills from Collection, Recommendation', candidate_title='On Orchestrating Virtual Network Functions in NFV')",
+        "failed_at": "2026-06-19T13:49:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Normalised citation counts are routinely used to assess the average impact of research groups or nations. There is controversy over whether confidence intervals for them are theoretically valid or practically useful. In response, this article introduces the concept of a group's underlying research capability to produce impactful research. It then investigates whether confidence intervals could delimit the underlying capability of a group in practice. From 123120 confidence interval comparisons for the average citation impact of the national outputs of ten countries within 36 individual large monodisciplinary journals, moderately fewer than 95% of subsequent indicator values fall within 95% confidence intervals from prior years, with the percentage declining over time. This is consistent with confidence intervals effectively delimiting the research capability of a group, although it does not prove that this is the cause of the results. The results are unaffected by whether internationally collaborative articles are included.",
+          "claimed_authors": [
+            "Mike Thelwall"
+          ],
+          "claimed_title": "Confidence intervals for normalised citation counts: Can they delimit underlying research capability?",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1710.08708"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='SkillsVote: Lifecycle Governance of Agent Skills from Collection, Recommendation', candidate_title='Confidence intervals for normalised citation counts: Can they delimit underlying research capability?')",
+        "failed_at": "2026-06-19T13:49:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Advances in machine intelligence have enabled conversational interfaces that have the potential to radically change the way humans interact with machines. However, even with the progress in the abilities of these agents, there remain critical gaps in their capacity for natural interactions. One limitation is that the agents are often monotonic in behavior and do not adapt to their partner. We built two end-to-end conversational agents: a voice-based agent that can engage in naturalistic, multi-turn dialogue and align with the interlocutor's conversational style, and a 2nd, expressive, embodied conversational agent (ECA) that can recognize human behavior during open-ended conversations and automatically align its responses to the visual and conversational style of the other party. The embodied conversational agent leverages multimodal inputs to produce rich and perceptually valid vocal and facial responses (e.g., lip syncing and expressions) during the conversation. Based on empirical results from a set of user studies, we highlight several significant challenges in building such systems and provide design guidelines for multi-turn dialogue interactions using style adaptation for future research.",
+          "claimed_authors": [
+            "Deepali Aneja",
+            "Rens Hoegen",
+            "Daniel McDuff",
+            "Mary Czerwinski"
+          ],
+          "claimed_title": "Designing Style Matching Conversational Agents",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1910.07514"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='SkillsVote: Lifecycle Governance of Agent Skills from Collection, Recommendation', candidate_title='Designing Style Matching Conversational Agents')",
+        "failed_at": "2026-06-19T13:49:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Conversational agents have been showing lots of opportunities in healthcare by taking over a lot of tasks that used to be done by a human. One of the major functions of conversational healthcare agent is intervening users' daily behaviors. In this case, forming an intimate and trustful relationship with users is one of the major issues. Factors affecting human-agent relationship should be deeply explored to improve long-term acceptance of healthcare agent. Even though a bunch of ideas and researches have been suggested to increase the acceptance of conversational agents in healthcare, challenges still remain. From the preliminary work we conducted, we suggest an idea of applying the personas of users' family members and the doctor who are in the relationship with users in the real world as a solution for forming the rigid relationship between humans and the chatbot.",
+          "claimed_authors": [
+            "Youjin Hwang",
+            "Donghoon Shin",
+            "Sion Baek",
+            "Bongwon Suh",
+            "Joonhwan Lee"
+          ],
+          "claimed_title": "Applying the Persona of User's Family Member and the Doctor to the Conversational Agents for Healthcare",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2109.01729"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='SkillsVote: Lifecycle Governance of Agent Skills from Collection, Recommendation', candidate_title=\"Applying the Persona of User's Family Member and the Doctor to the Conversational Agents for Healthcare\")",
+        "failed_at": "2026-06-19T13:49:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Conversational agents are becoming increasingly popular for supporting and facilitating learning. Conventional pedagogical agents are designed to play the role of human teachers by giving instructions to the students. In this paper, we investigate the use of conversational agents to support the 'learning-by-teaching' paradigm where the agent receives instructions from students. In particular, we introduce Curiosity Notebook: an educational application that harvests conversational interventions to facilitate students' learning. Recognizing such interventions can not only help in engaging students within learning interactions, but also provide a deeper insight into the intricacies involved in designing conversational agents for educational purposes.",
+          "claimed_authors": [
+            "Nalin Chhibber",
+            "Edith Law"
+          ],
+          "claimed_title": "Using Conversational Agents To Support Learning By Teaching",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1909.13443"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='SkillsVote: Lifecycle Governance of Agent Skills from Collection, Recommendation', candidate_title='Using Conversational Agents To Support Learning By Teaching')",
+        "failed_at": "2026-06-19T13:49:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In e-commerce, a user tends to search for the desired product by issuing a query to the search engine and examining the retrieved results. If the search engine was successful in correctly understanding the user's query, it will return results that correspond to the products whose attributes match the terms in the query that are representative of the query's product intent. However, the search engine may fail to retrieve results that satisfy the query's product intent and thus degrading user experience due to different issues in query processing: (i) when multiple terms are present in a query it may fail to determine the relevant terms that are representative of the query's product intent, and (ii) it may suffer from vocabulary gap between the terms in the query and the product's description, i.e., terms used in the query are semantically similar but different from the terms in the product description. Hence, identifying the terms that describe the query's product intent and predicting additional terms that describe the query's product intent better than the existing query terms to the search engine is an essential task in e-commerce search. In this paper, we leverage the historical query reformulation logs of a major e-commerce retailer to develop distant-supervised approaches to solve both these problems. Our approaches exploit the fact that the significance of a term is dependent upon the context (other terms in the neighborhood) in which it is used in order to learn the importance of the term towards the query's product intent. We show that identifying and emphasizing the terms that define the query's product intent leads to a 3% improvement in ranking. Moreover, for the tasks of identifying the important terms in a query and for predicting the additional terms that represent product intent, experiments illustrate that our approaches outperform the non-contextual baselines.",
+          "claimed_authors": [
+            "Saurav Manchanda",
+            "Mohit Sharma",
+            "George Karypis"
+          ],
+          "claimed_title": "Intent term selection and refinement in e-commerce queries",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1908.08564"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='SkillsVote: Lifecycle Governance of Agent Skills from Collection, Recommendation', candidate_title='Intent term selection and refinement in e-commerce queries')",
+        "failed_at": "2026-06-19T13:49:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Letter of intent describing SiD (Silicon Detector) for consideration by the International Linear Collider IDAG panel. This detector concept is founded on the use of silicon detectors for vertexing, tracking, and electromagnetic calorimetry. The detector has been cost-optimized as a general-purpose detector for a 500 GeV electron-positron linear collider.",
+          "claimed_authors": [
+            "H. Aihara",
+            "P. Burrows",
+            "M. Oreglia"
+          ],
+          "claimed_title": "SiD Letter of Intent",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2009,
+          "primary_pointer": "0911.0006"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='SkillsVote: Lifecycle Governance of Agent Skills from Collection, Recommendation', candidate_title='SiD Letter of Intent')",
+        "failed_at": "2026-06-19T13:49:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Purpose: This paper discusses ranking factors suitable for library materials and shows that ranking in general is a complex process and that ranking for library materials requires a variety of techniques. Design/methodology/approach: The relevant literature is reviewed to provide a systematic overview of suitable ranking factors. The discussion is based on an overview of ranking factors used in Web search engines. Findings: While there are a wide variety of ranking factors applicable to library materials, todays library systems use only some of them. When designing a ranking component for the library catalogue, an individual weighting of applicable factors is necessary. Research limitations/applications: While this article discusses different factors, no particular ranking formula is given. However, this article presents the argument that such a formula must always be individual to a certain use case. Practical implications: The factors presented can be considered when designing a ranking component for a librarys search system or when discussing such a project with an ILS vendor. Originality/value: This paper is original in that it is the first to systematically discuss ranking of library materials based on the main factors used by Web search engines.",
+          "claimed_authors": [
+            "Dirk Lewandowski"
+          ],
+          "claimed_title": "Ranking library materials",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2015,
+          "primary_pointer": "1511.05806"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='SkillsVote: Lifecycle Governance of Agent Skills from Collection, Recommendation', candidate_title='Ranking library materials')",
+        "failed_at": "2026-06-19T13:49:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We describe the ADAPT system for the 2020 IWPT Shared Task on parsing enhanced Universal Dependencies in 17 languages. We implement a pipeline approach using UDPipe and UDPipe-future to provide initial levels of annotation. The enhanced dependency graph is either produced by a graph-based semantic dependency parser or is built from the basic tree using a small set of heuristics. Our results show that, for the majority of languages, a semantic dependency parser can be successfully applied to the task of parsing enhanced dependencies.\n  Unfortunately, we did not ensure a connected graph as part of our pipeline approach and our competition submission relied on a last-minute fix to pass the validation script which harmed our official evaluation scores significantly. Our submission ranked eighth in the official evaluation with a macro-averaged coarse ELAS F1 of 67.23 and a treebank average of 67.49. We later implemented our own graph-connecting fix which resulted in a score of 79.53 (language average) or 79.76 (treebank average), which would have placed fourth in the competition evaluation.",
+          "claimed_authors": [
+            "James Barry",
+            "Joachim Wagner",
+            "Jennifer Foster"
+          ],
+          "claimed_title": "The ADAPT Enhanced Dependency Parser at the IWPT 2020 Shared Task",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2009.01712"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='SkillsVote: Lifecycle Governance of Agent Skills from Collection, Recommendation', candidate_title='The ADAPT Enhanced Dependency Parser at the IWPT 2020 Shared Task')",
+        "failed_at": "2026-06-19T13:49:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Since it takes time and effort to put a new product or service on the market, one would like to predict whether it will be a success. In general this is not possible, but it is possible to follow best practices in order to maximise the chance of success. A smart contract is intended to encode business logic and is therefore at the heart of every new business on the Ethereum blockchain. We have investigated how to measure the success of smart contracts, and whether successful smart contracts have characteristics that less successful smart contracts lack. The appearance of a smart contract on a listing website such as Etherscan or StateoftheDapps is such a characteristic. In this paper, we present a three-pronged analysis of the relative success of listed smart contracts. First, we have used statistical analysis on the publicly visible transaction history of the Ethereum blockchain to determine that listed contracts are significantly more successful than their unlisted counterparts. Next, we have conducted a survey among more than 200 developers via an anonymous online survey about their experience with the listing process. A significant majority of respondents do not believe that listing a contract itself contributes to its success, but they believe that the extra attention that is typically paid in tandem with the listing process does contribute. Finally, based on the respondents' answers, we have drafted 10 recommendations for developers and validated them by submitting them to an international panel of experts.",
+          "claimed_authors": [
+            "Pieter Hartel",
+            "Ivan Homoliak",
+            "Daniël Reijsbergen"
+          ],
+          "claimed_title": "An Empirical Study into the Success of Listed Smart Contracts in Ethereum",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1908.11597"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='SkillsVote: Lifecycle Governance of Agent Skills from Collection, Recommendation', candidate_title='An Empirical Study into the Success of Listed Smart Contracts in Ethereum')",
+        "failed_at": "2026-06-19T13:49:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper describes MagicPai's system for SemEval 2021 Task 7, HaHackathon: Detecting and Rating Humor and Offense. This task aims to detect whether the text is humorous and how humorous it is. There are four subtasks in the competition. In this paper, we mainly present our solution, a multi-task learning model based on adversarial examples, for task 1a and 1b. More specifically, we first vectorize the cleaned dataset and add the perturbation to obtain more robust embedding representations. We then correct the loss via the confidence level. Finally, we perform interactive joint learning on multiple tasks to capture the relationship between whether the text is humorous and how humorous it is. The final result shows the effectiveness of our system.",
+          "claimed_authors": [
+            "Jian Ma",
+            "Shuyi Xie",
+            "Haiqin Yang",
+            "Lianxin Jiang",
+            "Mengyuan Zhou",
+            "Xiaoyi Ruan",
+            "Yang Mo"
+          ],
+          "claimed_title": "MagicPai at SemEval-2021 Task 7: Method for Detecting and Rating Humor Based on Multi-Task Adversarial Training",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2104.10336"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='SkillsVote: Lifecycle Governance of Agent Skills from Collection, Recommendation', candidate_title='MagicPai at SemEval-2021 Task 7: Method for Detecting and Rating Humor Based on Multi-Task Adversarial Training')",
+        "failed_at": "2026-06-19T13:49:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Optimistic value estimates provide one mechanism for directed exploration in reinforcement learning (RL). The agent acts greedily with respect to an estimate of the value plus what can be seen as a value bonus. The value bonus can be learned by estimating a value function on reward bonuses, propagating local uncertainties around rewards. However, this approach only increases the value bonus for an action retroactively, after seeing a higher reward bonus from that state and action. Such an approach does not encourage the agent to visit a state and action for the first time. In this work, we introduce an algorithm for exploration called Value Bonuses with Ensemble errors (VBE), that maintains an ensemble of random action-value functions (RQFs). VBE uses the errors in the estimation of these RQFs to design value bonuses that provide first-visit optimism and deep exploration. The key idea is to design the rewards for these RQFs in such a way that the value bonus can decrease to zero. We show that VBE outperforms Bootstrap DQN and two reward bonus approaches (RND and ACB) on several classic environments used to test exploration and provide demonstrative experiments that it can scale easily to more complex environments like Atari.",
+          "claimed_authors": [
+            "Abdul Wahab",
+            "Raksha Kumaraswamy",
+            "Martha White"
+          ],
+          "claimed_title": "Value Bonuses using Ensemble Errors for Exploration in Reinforcement Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2602.12375"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='SkillsVote: Lifecycle Governance of Agent Skills from Collection, Recommendation', candidate_title='Value Bonuses using Ensemble Errors for Exploration in Reinforcement Learning')",
+        "failed_at": "2026-06-19T13:49:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Many currently deployed Reinforcement Learning agents work in an environment shared with humans, be them co-workers, users or clients. It is desirable that these agents adjust to people's preferences, learn faster thanks to their help, and act safely around them. We argue that most current approaches that learn from human feedback are unsafe: rewarding or punishing the agent a-posteriori cannot immediately prevent it from wrong-doing. In this paper, we extend Policy Gradient to make it robust to external directives, that would otherwise break the fundamentally on-policy nature of Policy Gradient. Our technique, Directed Policy Gradient (DPG), allows a teacher or backup policy to override the agent before it acts undesirably, while allowing the agent to leverage human advice or directives to learn faster. Our experiments demonstrate that DPG makes the agent learn much faster than reward-based approaches, while requiring an order of magnitude less advice.",
+          "claimed_authors": [
+            "Hélène Plisnier",
+            "Denis Steckelmacher",
+            "Tim Brys",
+            "Diederik M. Roijers",
+            "Ann Nowé"
+          ],
+          "claimed_title": "Directed Policy Gradient for Safe Reinforcement Learning with Human Advice",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1808.04096"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='SkillsVote: Lifecycle Governance of Agent Skills from Collection, Recommendation', candidate_title='Directed Policy Gradient for Safe Reinforcement Learning with Human Advice')",
+        "failed_at": "2026-06-19T13:49:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Reinforcement learning (RL) allows to solve complex tasks such as Go often with a stronger performance than humans. However, the learned behaviors are usually fixed to specific tasks and unable to adapt to different contexts. Here we consider the case of adapting RL agents to different time restrictions, such as finishing a task with a given time limit that might change from one task execution to the next. We define such problems as Time Adaptive Markov Decision Processes and introduce two model-free, value-based algorithms: the Independent Gamma-Ensemble and the n-Step Ensemble. In difference to classical approaches, they allow a zero-shot adaptation between different time restrictions. The proposed approaches represent general mechanisms to handle time adaptive tasks making them compatible with many existing RL methods, algorithms, and scenarios.",
+          "claimed_authors": [
+            "Chris Reinke"
+          ],
+          "claimed_title": "Time Adaptive Reinforcement Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2004.08600"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='SkillsVote: Lifecycle Governance of Agent Skills from Collection, Recommendation', candidate_title='Time Adaptive Reinforcement Learning')",
+        "failed_at": "2026-06-19T13:49:05Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Hongyi Liu",
+            "Haoyan Yang",
+            "Tao Jiang",
+            "Bo Tang",
+            "Feiyu Xiong",
+            "Yuyu Luo",
+            "Zhiyu Li"
+          ],
+          "title": "SkillsVote: Lifecycle Governance of Agent Skills from Collection, Recommendation to Evolution",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2605.18401",
+        "summary": "Long-horizon LLM agents generate traces that could become reusable experience, but raw trajectories are noisy, local, and hard to govern. Agent Skills offer a structured artifact for combining procedural guidance, executable resources, and applicability boundaries. Yet open skill ecosystems contain redundant, uneven, environment-sensitive artifacts, and indiscriminate updates can pollute future context. We present SkillsVote, a lifecycle-governance framework for Agent Skills across collection, recommendation, attribution, and evolution. SkillsVote profiles a million-scale open source corpus for environment requirements, quality, and verifiability, and synthesizes tasks for verifiable skills. Before execution, it performs agentic library search over structured skill folders to expose instructional context. After execution, it decomposes trajectories into skill-linked subtasks, attributes outcomes to skill-guided execution, agent exploration, environment, and result signals, and admits only successful reusable discoveries to evidence-gated updates. Experiments on Terminal-Bench 2.0 and SWE-Bench Pro show that SkillsVote improves agent performance on challenging agentic coding benchmarks. The gains arise from two complementary pathways: online evolution over task streams at test time and offline transfer via frozen libraries built from either historical trajectories or curated open source skills.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2605.18401",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8889,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-19T13:49:03Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Renjun Xu",
+            "Yang Yan"
+          ],
+          "title": "Agent Skills for Large Language Models: Architecture, Acquisition, Security, and the Path Forward",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2602.12430",
+        "summary": "The transition from monolithic language models to modular, skill-equipped agents marks a defining shift in how large language models (LLMs) are deployed in practice. Rather than encoding all procedural knowledge within model weights, agent skills -- composable packages of instructions, code, and resources that agents load on demand -- enable dynamic capability extension without retraining. It is formalized in a paradigm of progressive disclosure, portable skill definitions, and integration with the Model Context Protocol (MCP). This survey provides a comprehensive treatment of the agent skills landscape, as it has rapidly evolved during the last few months. We organize the field along four axes: (i) architectural foundations, examining the SKILL$.$md specification, progressive context loading, and the complementary roles of skills and MCP; (ii) skill acquisition, covering reinforcement learning with skill libraries, autonomous skill discovery (SEAgent), and compositional skill synthesis; (iii) deployment at scale, including the computer-use agent (CUA) stack, GUI grounding advances, and benchmark progress on OSWorld and SWE-bench; and (iv) security, where recent empirical analyses reveal that 26.1% of community-contributed skills contain vulnerabilities, motivating our proposed Skill Trust and Lifecycle Governance Framework -- a four-tier, gate-based permission model that maps skill provenance to graduated deployment capabilities. We identify seven open challenges -- from cross-platform skill portability to capability-based permission models -- and propose a research agenda for realizing trustworthy, self-improving skill ecosystems. Unlike prior surveys that broadly cover LLM agents or tool use, this work focuses specifically on the emerging skill abstraction layer and its implications for the next generation of agentic systems. Project repo: https://github.com/scienceaix/agentskills",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2602.12430",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4444,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-19T13:49:04Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Huichi Zhou",
+            "Siyuan Guo",
+            "Anjie Liu",
+            "Zhongwei Yu",
+            "Ziqin Gong",
+            "Bowen Zhao",
+            "Zhixun Chen",
+            "Menglong Zhang",
+            "Yihang Chen",
+            "Jinsong Li",
+            "Runyu Yang",
+            "Qiangbin Liu",
+            "Xinlei Yu",
+            "Jianmin Zhou",
+            "Na Wang",
+            "Chunyang Sun",
+            "Jun Wang"
+          ],
+          "title": "Memento-Skills: Let Agents Design Agents",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2603.18743",
+        "summary": "We introduce \\emph{Memento-Skills}, a generalist, continually-learnable LLM agent system that functions as an \\emph{agent-designing agent}: it autonomously constructs, adapts, and improves task-specific agents through experience. The system is built on a memory-based reinforcement learning framework with \\emph{stateful prompts}, where reusable skills (stored as structured markdown files) serve as persistent, evolving memory. These skills encode both behaviour and context, enabling the agent to carry forward knowledge across interactions.\n  Starting from simple elementary skills (like Web search and terminal operations), the agent continually improves via the \\emph{Read--Write Reflective Learning} mechanism introduced in \\emph{Memento~2}~\\cite{wang2025memento2}. In the \\emph{read} phase, a behaviour-trainable skill router selects the most relevant skill conditioned on the current stateful prompt; in the \\emph{write} phase, the agent updates and expands its skill library based on new experience. This closed-loop design enables \\emph{continual learning without updating LLM parameters}, as all adaptation is realised through the evolution of externalised skills and prompts.\n  Unlike prior approaches that rely on human-designed agents, Memento-Skills enables a generalist agent to \\emph{design agents end-to-end} for new tasks. Through iterative skill generation and refinement, the system progressively improves its own capabilities. Experiments on the \\emph{General AI Assistants} benchmark and \\emph{Humanity's Last Exam} demonstrate sustained gains, achieving 26.2\\% and 116.2\\% relative improvements in overall accuracy, respectively. Code is available at https://github.com/Memento-Teams/Memento-Skills.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2603.18743",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-19T13:49:04Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Zikai Alex Wen"
+          ],
+          "title": "Toward User Comprehension Supports for LLM Agent Skill Specifications",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2605.19362",
+        "summary": "Users often interpret and select agent skills through their SKILL markdown specifications. To protect users, existing audits mainly focus on malicious or unsafe skills. We study the complementary question of whether specifications help users form bounded expectations about what a skill consumes, produces, and covers. Across 878 cybersecurity skills, we used rule-based coding to measure textual cues for four comprehension anchors, namely operational basis, output contract, boundary disclosure, and example capability demonstration. Cues for operational basis were common, but only 19.0% of specifications exhibited cues for an example task, sample, or expected outcome, and only 2.3% exhibited cues for all four anchors. We further examined a small DNS/C2 telemetry subset (n$=$6) to illustrate why missing examples may matter. Examples appeared to make first local checks easier to construct, while no-example skills typically required helper code inspection to recover command arguments or output fields. We argue that agent-skill evaluation should treat specifications as user-facing capability disclosures, not merely as containers for executable instructions.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2605.19362",
+          "http_status": 200,
+          "pdf_sample_score": 0.2505,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-19T13:49:11Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Junhao Shen",
+            "Teng Zhang",
+            "Xiaoyan Zhao",
+            "Hong Cheng"
+          ],
+          "title": "Dynamic Skill Lifecycle Management for Agentic Reinforcement Learning",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2605.10923",
+        "summary": "Large language model agents increasingly rely on external skills to solve complex tasks, where skills act as modular units that extend their capabilities beyond what parametric memory alone supports. Existing methods assume external skills either accumulate as persistent guidance or internalized into the policy, eventually leading to zero-skill inference. We argue this assumption is overly restrictive, since with limited parametric capacity and uneven marginal contribution across skills, the optimal active skill set is non-monotonic, task- and stage-dependent. In this work, we propose SLIM, a framework of dynamic Skill LIfecycle Management for agentic reinforcement learning (RL), which treats the active external skill set as a dynamic optimization variable jointly updated with policy learning. Specifically, SLIM estimates each active skill's marginal external contribution through leave-one-skill-out validation, then applies three lifecycle operations: retaining high-value skills, retiring skills whose contribution becomes negligible after sufficient exposure, and expanding the skill bank when persistent failures reveal missing capability coverage. Experiments show that SLIM outperforms the best baselines by an average of 7.1% points across ALFWorld and SearchQA. Results further indicate that policy learning and external skill retention are not mutually exclusive: some skills are absorbed into the policy, while others continue to provide external value, supporting SLIM as a more general paradigm for skill-based agentic RL.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2605.10923",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.75,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-19T13:49:12Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Xinze Li",
+            "Yuhang Zang",
+            "Yixin Cao",
+            "Aixin Sun"
+          ],
+          "title": "Skill-as-Pseudocode: Refactoring Skill Libraries to Pseudocode for LLM Agents",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2605.27955",
+        "summary": "Markdown skill libraries for LLM agents ship as free-form prose, forcing the agent to re-derive both the input schema and the concrete invocation syntax on every retrieval. We observe that this often produces a \"confused -> re-retrieve -> still confused\" loop in which the agent issues a partially-correct action, receives uninformative environment feedback, and re-retrieves the same prose. We propose Skill-as-Pseudocode (SaP), an automatic conversion of markdown skill libraries into typed pseudocode with deterministic quality control. For each cluster of similar procedural passages drawn from one or more skills, SaP extracts a typed contract and filters it through a four-check deterministic verifier (coverage, binding, replacement, risk). Promoted contracts are inlined into a rewritten skill skeleton together with restored concrete action templates, giving the agent two complementary signals: a typed signature for what the skill does and a concrete template for how to invoke it. On the 134-game ALFWorld unseen split with gpt-4o-mini, pooled across three seeds, SaP wins 82/402 paired games versus 47/402 for the Graph-of-Skills (GoS) baseline (pooled McNemar p = 8.2e-5), at -22.8 +/- 6.4% input tokens and -14.5 +/- 4.1% LLM calls per game.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2605.27955",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-19T13:49:13Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "skillsvote: lifecycle governance of agent skills from collection, recommendation to evolution linguistics",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

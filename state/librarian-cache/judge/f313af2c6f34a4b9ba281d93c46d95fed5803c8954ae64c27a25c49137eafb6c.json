@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2004.02950",
+  "judged_at": "2026-06-19T13:50:41Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting the impact of strain rate on the yield strength of metals materials science",
+  "rationale": "The paper studies yield‑stress fluids and sliding flow phenomena, not the strain‑rate dependence of yield strength in metallic solids; it does not address the same material system or the specific variable (strain rate) of interest. Hence it falls outside the relevant domain.",
+  "relevant": false
+}

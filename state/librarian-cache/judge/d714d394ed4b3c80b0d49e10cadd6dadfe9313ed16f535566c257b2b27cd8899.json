@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2107.07580",
+  "judged_at": "2026-06-19T13:50:39Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting the impact of strain rate on the yield strength of metals materials science",
+  "rationale": "The paper studies bubble stability in yield‑stress fluids, focusing on surface tension and buoyancy, which is unrelated to the strain‑rate dependence of yield strength in metallic materials; it does not address the same mechanism, variables, or domain required for the user's question.",
+  "relevant": false
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1505.07591",
+  "judged_at": "2026-06-19T13:50:34Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting the impact of strain rate on the yield strength of metals materials science",
+  "rationale": "The paper investigates strain‑rate dependent yielding in magnetorheological fluids, not in bulk metallic materials; thus it does not address the strain‑rate–yield‑strength relationship for metals and falls outside the relevant domain.",
+  "relevant": false
+}

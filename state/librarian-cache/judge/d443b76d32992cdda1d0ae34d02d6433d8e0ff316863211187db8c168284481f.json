@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2003.09560",
+  "judged_at": "2026-06-19T13:50:36Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting the impact of strain rate on the yield strength of metals materials science",
+  "rationale": "The paper studies how strain rate influences material strength (yield strength) in metals, providing analytical relationships and simulation data—directly addressing the same mechanism (strain‑rate effect on yield strength) required for the literature review (category a).",
+  "relevant": true
+}

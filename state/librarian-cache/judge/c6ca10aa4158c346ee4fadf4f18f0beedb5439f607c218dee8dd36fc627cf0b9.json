@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2605.19362",
+  "judged_at": "2026-06-19T13:49:24Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "skillsvote: lifecycle governance of agent skills from collection, recommendation to evolution linguistics",
+  "rationale": "The paper investigates LLM agent skill specifications—a core artifact in the lifecycle governance of agent skills—by measuring textual cues that affect user comprehension, directly relating to the mechanisms (specification quality, disclosure) relevant to collection, recommendation, and evolution of skills. This matches acceptance criterion (a) (same‑mechanism evidence) and (b) (measuring a key variable in the domain of agent skill governance).",
+  "relevant": true
+}

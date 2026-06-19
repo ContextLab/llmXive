@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2603.18743",
+  "judged_at": "2026-06-19T13:49:21Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "skillsvote: lifecycle governance of agent skills from collection, recommendation to evolution linguistics",
+  "rationale": "The paper studies the same mechanism of skill lifecycle governance—covering skill collection, recommendation (via a skill router), and continual evolution of externalized skills—making it a relevant prior work for the “SkillsVote” research question (acceptance category a).",
+  "relevant": true
+}
