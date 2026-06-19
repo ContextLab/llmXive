@@ -1,12 +1,7 @@
-last_used: dan-rockmore
-last_used_at: '2026-06-18T23:09:24.533637+00:00'
-last_outcome: triage_rejected_advanced_as_abstain
+last_used: daniel-kahneman
+last_used_at: '2026-06-19T00:04:58.386417+00:00'
+last_outcome: abstained
 history:
-- slug: albert-einstein
-  started_at: '2026-06-07T13:34:26.257108+00:00'
-  ended_at: '2026-06-07T14:37:56.816099+00:00'
-  outcome: triage_rejected_advanced_as_abstain
-  action: comment
 - slug: dan-rockmore
   started_at: '2026-06-07T14:37:56.816099+00:00'
   ended_at: '2026-06-07T15:32:36.303512+00:00'
@@ -1121,3 +1116,8 @@ history:
   ended_at: '2026-06-18T23:09:24.533637+00:00'
   outcome: triage_rejected_advanced_as_abstain
   action: comment
+- slug: daniel-kahneman
+  started_at: '2026-06-18T23:09:24.533637+00:00'
+  ended_at: '2026-06-19T00:04:58.386417+00:00'
+  outcome: abstained
+  action: abstain
