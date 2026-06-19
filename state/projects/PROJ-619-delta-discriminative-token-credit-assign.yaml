@@ -6,14 +6,14 @@ failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-619-delta-discriminative-token-credit-assign
-last_run_id: null
+last_run_id: 2910b868-d087-4c32-a69b-83ea4f84ee41
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
-revision_spec_path: null
+revision_spec_path: specs/auto-revisions/PROJ-619-delta-discriminative-token-credit-assign/round-1
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'DelTA: Discriminative Token Credit Assignment for Reinforcement Learning from
   Verifiable Rewards'
-updated_at: '2026-05-23T08:43:41.917084Z'
+updated_at: '2026-06-19T00:49:24.110560Z'

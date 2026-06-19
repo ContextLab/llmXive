@@ -108,3 +108,6 @@ ready:
 - project_id: PROJ-703-evoarena-tracking-memory-evolution-for-r
   revision_spec_path: specs/auto-revisions/PROJ-703-evoarena-tracking-memory-evolution-for-r/round-1
   queued_at: '2026-06-18T18:55:06.881978+00:00'
+- project_id: PROJ-619-delta-discriminative-token-credit-assign
+  revision_spec_path: specs/auto-revisions/PROJ-619-delta-discriminative-token-credit-assign/round-1
+  queued_at: '2026-06-19T00:49:24.095044+00:00'
