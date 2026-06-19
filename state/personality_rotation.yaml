@@ -1,12 +1,7 @@
-last_used: john-von-neumann
-last_used_at: '2026-06-19T11:03:36.826560+00:00'
+last_used: linus-pauling
+last_used_at: '2026-06-19T12:47:24.497269+00:00'
 last_outcome: committed
 history:
-- slug: eric-kandel
-  started_at: '2026-06-07T17:58:29.007119+00:00'
-  ended_at: '2026-06-07T18:27:44.509129+00:00'
-  outcome: triage_rejected_advanced_as_abstain
-  action: comment
 - slug: freeman-dyson
   started_at: '2026-06-07T18:27:44.509129+00:00'
   ended_at: '2026-06-07T18:58:57.832042+00:00'
@@ -1121,3 +1116,10 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-701-minimax-sparse-attention/paper/reviews/john-von-neumann-simulated__2026-06-19__paper.md
+- slug: linus-pauling
+  started_at: '2026-06-19T11:03:36.826560+00:00'
+  ended_at: '2026-06-19T12:47:24.497269+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/reviews/research/linus-pauling-simulated__2026-06-19__research.md
