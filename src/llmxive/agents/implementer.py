@@ -514,6 +514,130 @@ _OP_HINTS: dict[str, str] = {
     ),
 }
 
+# --- Compute-and-fill: ground "fill in the computed value" tasks in REAL data --
+# Research reviewers routinely block on reproducibility docs that still carry
+# placeholders requiring analysis-computed numbers ("fill in the actual counts /
+# coverage % / VIF"). A text-editing implementer cannot invent those without
+# hallucinating (forbidden — empirical values MUST trace to harness output). So
+# for such a task we surface the project's REAL execution artifacts (the
+# harness-recorded outputs) as a value source, and GUARD that any result-like
+# number the edit introduces actually appears in them.
+
+_COMPUTE_CUE = re.compile(
+    r"\bfill(?:\s+in|\s+out)?\b|\bpopulate\b|\bplaceholder|\bTBD\b|\bnan\b"
+    # "<exact|actual|real|computed|concrete|true> ... <count|number|value|…>"
+    r"|\b(?:exact|actual|real|computed|concrete|true)\s+(?:\w+[\s‑-]+){0,3}"
+    r"(?:count|number|value|figure|percentage|vif|coverage|total|statistic)"
+    # "<insert|report|state|record|provide|specify> the <exact|actual|total|number|count>"
+    r"|\b(?:insert|report|state|record|provide|specify|compute)\s+(?:the\s+)?"
+    r"(?:exact|actual|total|real|number|count|computed)"
+    r"|\bnumber\s+of\b|\btotal\s+(?:number|count|excluded|records|rows|knots|of)\b"
+    r"|\bcomputed\b|coverage\s*%|\bcounts?\s+(?:per|of|per‑crossing|per-crossing)\b"
+    r"|replace\s+.*\b(?:nan|tbd|placeholder)",
+    re.I,
+)
+# A "result-like" literal: a decimal, or an integer of 3+ digits (thousands-
+# separated allowed). Small integers (0,1,2,5,10,90) are too ambiguous to gate —
+# they appear as percentages/thresholds in prose and would false-positive.
+_RESULT_NUM_RE = re.compile(r"\b\d{1,3}(?:,\d{3})+\b|\b\d+\.\d+\b|\b\d{3,}\b")
+
+
+def _is_compute_required(text: str) -> bool:
+    """True when an action item asks to fill/replace a value that must be
+    COMPUTED from the analysis (not authored as prose)."""
+    return bool(_COMPUTE_CUE.search(text or ""))
+
+
+def _result_numbers(text: str) -> set[str]:
+    """Normalized result-like numeric tokens in ``text`` (commas stripped)."""
+    return {m.group(0).replace(",", "") for m in _RESULT_NUM_RE.finditer(text or "")}
+
+
+def _computation_context(
+    project_dir: Path, *, project_id: str, repo: Path, max_chars: int = 6000,
+) -> tuple[str, set[str]]:
+    """Summarize the project's REAL execution artifacts into a compact block of
+    computed values, plus the set of result-like numeric tokens that literally
+    appear in them (the traceability whitelist). Returns ``("", set())`` when no
+    artifacts are recorded (the implementer then can't fill computed values —
+    and the guard rejects any it tries to invent)."""
+    from llmxive.state import execution_status
+
+    rec = execution_status.load(project_id, repo_root=repo) or {}
+    artifacts = rec.get("artifacts") or []
+    blocks: list[str] = []
+    traceable: set[str] = set()
+    for rel in artifacts:
+        p = (project_dir / rel)
+        if not p.is_file():
+            continue
+        suf = p.suffix.lower()
+        try:
+            if suf in (".png", ".jpg", ".jpeg", ".pdf", ".svg"):
+                blocks.append(f"- `{rel}`: figure artifact")
+            elif suf == ".csv":
+                import csv
+
+                with p.open(encoding="utf-8", errors="replace", newline="") as f:
+                    reader = csv.reader(f)
+                    rows = []
+                    for i, row in enumerate(reader):
+                        rows.append(row)
+                        if i >= 50000:  # bound huge artifacts
+                            break
+                if not rows:
+                    continue
+                header = rows[0]
+                ndata = max(0, len(rows) - 1)
+                blocks.append(
+                    f"- `{rel}`: {ndata} data rows; columns: "
+                    f"{', '.join(header[:24])}"
+                )
+                traceable.add(str(ndata))
+                # Per-column non-empty count (enables real coverage/null stats).
+                for ci, col in enumerate(header[:24]):
+                    nonempty = sum(
+                        1 for r in rows[1:] if ci < len(r) and r[ci].strip() not in ("", "nan", "NaN", "NA")
+                    )
+                    if nonempty != ndata:
+                        blocks.append(f"    - column `{col}`: {nonempty}/{ndata} non-empty")
+                    traceable.add(str(nonempty))
+            elif suf == ".json":
+                import json as _json
+
+                d = _json.loads(p.read_text(encoding="utf-8", errors="replace"))
+                if isinstance(d, list):
+                    blocks.append(f"- `{rel}`: JSON array of {len(d)} items")
+                    traceable.add(str(len(d)))
+                elif isinstance(d, dict):
+                    blocks.append(f"- `{rel}`: JSON object; keys: {', '.join(list(d)[:24])}")
+                    for k, v in list(d.items())[:40]:
+                        if isinstance(v, bool):
+                            continue
+                        if isinstance(v, (int, float)):
+                            blocks.append(f"    - {k} = {v}")
+                            traceable.add(str(v))
+            else:
+                continue
+        except Exception:
+            continue
+    text = "\n".join(blocks)
+    if len(text) > max_chars:
+        text = text[:max_chars] + "\n…(truncated)"
+    return text, traceable
+
+
+def _untraceable_result_numbers(
+    before: str, after: str, *, traceable: set[str], allow: set[str],
+) -> set[str]:
+    """Result-like numbers the edit INTRODUCED that trace to NEITHER the real
+    artifacts (``traceable``) NOR text the implementer was legitimately given
+    (``allow`` — the action item + the pre-edit file). A non-empty result means
+    the edit fabricated a statistic and must be rolled back."""
+    introduced = _result_numbers(after) - _result_numbers(before)
+    ok = traceable | allow
+    return {n for n in introduced if n not in ok}
+
 
 def _classify_edit_operation(text: str) -> str | None:
     """Best-effort intent → edit-kind hint key: 'prune' | 'relocate' | 'create'
@@ -1165,6 +1289,28 @@ class LLMXiveImplementer(Agent):
             from llmxive.agents.research_reviewer import _summarize_tree
 
             pdir = project_dir if project_dir is not None else source_dir.parent.parent
+            # Compute-and-fill: when the concern needs an analysis-computed value,
+            # surface the project's REAL execution-artifact values so the
+            # implementer fills from DATA, never invention. comp_traceable is the
+            # whitelist the post-apply guard checks introduced numbers against.
+            comp_traceable: set[str] = set()
+            computation_context = ""
+            if _is_compute_required(item_text):
+                comp_ctx, comp_traceable = _computation_context(
+                    pdir, project_id=project_id, repo=repo_root,
+                )
+                if comp_ctx:
+                    computation_context = (
+                        "## Real computed values (from the analysis artifacts) — "
+                        "fill ONLY from these\n\n"
+                        f"{comp_ctx}\n\n"
+                        "These are the project's actual harness-produced outputs. "
+                        "Use them to replace placeholders / TBDs with REAL numbers. "
+                        "Do NOT write any figure that is not present above (or "
+                        "already in the target file): if a value the concern asks "
+                        "for is not available here, leave the placeholder and note "
+                        "it is pending the analysis — NEVER invent a number.\n"
+                    )
             edit_prompt = render_prompt(
                 "agents/prompts/implementer_edit_research.md",
                 {
@@ -1175,6 +1321,7 @@ class LLMXiveImplementer(Agent):
                     "severity": severity,
                     "action_item_text": item_text,
                     "operation_hint": operation_hint,
+                    "computation_context": computation_context,
                     "file_tree": _summarize_tree(pdir),
                     "target_window": _research_target_window(pdir, item_text),
                 },
@@ -1343,6 +1490,52 @@ class LLMXiveImplementer(Agent):
         # ROLL BACK on a syntax error, so a revision can never degrade the
         # analysis into an un-importable state.
         if track == "research":
+            # Compute-and-fill guard: a "fill the computed value" edit may ONLY
+            # introduce result-like numbers that trace to the real analysis
+            # artifacts (or text the implementer was legitimately given). A
+            # fabricated statistic (hallucinated VIF/coverage/count) is rolled
+            # back — empirical values MUST trace to harness output, never the LLM.
+            if _is_compute_required(item_text):
+                before_map = {
+                    str(p.resolve()): b.decode("utf-8", "replace")
+                    for p, b in snap.items()
+                }
+                # NOTE: action-item numbers are deliberately NOT whitelisted — a
+                # reviewer may cite an ILLUSTRATIVE example ("e.g., 342") that is
+                # not a real computed value; copying it would launder a fabricated
+                # figure. A real value is in ``comp_traceable`` (the artifacts);
+                # anything else must come from the file's prior content.
+                untraceable: set[str] = set()
+                for fp in result.files_modified:
+                    ap = Path(fp)
+                    before = before_map.get(str(ap.resolve()), "")
+                    try:
+                        after = ap.read_text(encoding="utf-8", errors="replace")
+                    except OSError:
+                        continue
+                    untraceable |= _untraceable_result_numbers(
+                        before, after,
+                        traceable=comp_traceable,
+                        allow=_result_numbers(before),
+                    )
+                if untraceable:
+                    _restore(snap)
+                    return ImplementerLogEntry(
+                        task_id=task_id,
+                        status="skipped",
+                        action_item_severity=cast(Literal["writing", "science"], severity) if severity in {"writing", "science"} else None,
+                        action_item_text=item_text,
+                        edit_kind=edit["kind"],
+                        files_modified=result.files_modified,
+                        model_response_excerpt=response_text[:500],
+                        duration_s=time.monotonic() - t_started,
+                        error_reason=(
+                            "compute-and-fill guard: edit introduced result-like "
+                            f"number(s) that trace to no analysis artifact: "
+                            f"{sorted(untraceable)} — refusing to write invented "
+                            "empirical values (rolled back)"
+                        ),
+                    )
             syn_err = _verify_changed_python(result.files_modified)
             if syn_err is not None:
                 _restore(snap)

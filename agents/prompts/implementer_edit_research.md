@@ -18,6 +18,8 @@ you edit the project's own research artifacts: source code under `code/`, specs 
 
 {{operation_hint}}
 
+{{computation_context}}
+
 ## Authored project files (your editable surface)
 
 You may edit any file under `code/`, `specs/`, `docs/`, `data/`, or `tests/` (give the path

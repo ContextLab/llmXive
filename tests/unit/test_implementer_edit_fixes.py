@@ -460,3 +460,63 @@ def test_force_blocker_rereview_clears_only_non_accept(tmp_path: Path) -> None:
     assert len(remaining) == 6  # the 6 accepts are untouched
     # Idempotent once everything accepts: nothing left to clear.
     assert _force_blocker_rereview(proj, track="research", repo=tmp_path) == 0
+
+
+def test_compute_and_fill_context_and_trace_guard(tmp_path: Path) -> None:
+    """Compute-and-fill: (1) detect 'fill the computed value' tasks; (2) summarize
+    the project's REAL execution artifacts into computed values + a traceability
+    whitelist; (3) guard rejects any result-like number the edit introduces that
+    traces to no artifact (no hallucinated empirical values)."""
+    import json
+    from llmxive.agents.implementer import (
+        _is_compute_required, _computation_context, _untraceable_result_numbers,
+    )
+    from llmxive.state import execution_status
+
+    # detection — including phrasings a live run exposed ("insert/report/state
+    # the exact/total count") that an earlier narrower cue missed.
+    assert _is_compute_required("Fill in the actual per-crossing counts")
+    assert _is_compute_required("Populate multicollinearity.md with real VIF values")
+    assert _is_compute_required("Replace TBD placeholders with computed coverage %")
+    assert _is_compute_required("Insert the exact excluded-knot count (e.g., 342)")
+    assert _is_compute_required("report the number of excluded knots")
+    assert _is_compute_required("state the total excluded knots")
+    assert not _is_compute_required("Fix the typo in the abstract")
+    assert not _is_compute_required("Rename the helper for clarity")
+
+    proj = "PROJ-903-compute"
+    pdir = tmp_path / "projects" / proj
+    (pdir / "data" / "processed").mkdir(parents=True)
+    # a real CSV artifact: 3 data rows, a partially-populated column
+    (pdir / "data" / "processed" / "knots.csv").write_text(
+        "name,volume,braid_index\nk1,2.5,3\nk2,3.1,\nk3,4.0,5\n", encoding="utf-8"
+    )
+    (pdir / "data" / "outliers.json").write_text(json.dumps([1, 2, 3, 4, 5]), encoding="utf-8")
+    execution_status.record(
+        proj, ok=True, reason="ok",
+        artifacts=["data/processed/knots.csv", "data/outliers.json"],
+        failures=[], repo_root=tmp_path,
+    )
+
+    ctx, traceable = _computation_context(pdir, project_id=proj, repo=tmp_path)
+    assert "3 data rows" in ctx                       # real row count
+    assert "2/3 non-empty" in ctx                     # braid_index real coverage
+    assert "JSON array of 5 items" in ctx             # real array length
+    assert "3" in traceable and "5" in traceable and "2" in traceable
+
+    # guard: a real count passes; a fabricated statistic is flagged
+    before = "Coverage is TBD; VIF is TBD."
+    ok = "The dataset has 5 outliers across 3 rows."   # both trace to artifacts
+    assert _untraceable_result_numbers(before, ok, traceable=traceable, allow=set()) == set()
+    bad = "The VIF is 4.73 and coverage is 87.6%."     # invented
+    assert _untraceable_result_numbers(before, bad, traceable=traceable, allow=set()) == {"4.73", "87.6"}
+    # numbers already in the file are allowed (not "introduced"); a reviewer's
+    # illustrative example number (NOT in artifacts, NOT in the file) must still
+    # be flagged — the guard is fed allow=_result_numbers(before) only, never the
+    # action item, so a fabricated "e.g., 342" can never be laundered into a doc.
+    assert _untraceable_result_numbers(
+        "old value 999.9", "old value 999.9 plus 4.73", traceable=set(), allow={"999.9"}
+    ) == {"4.73"}
+    assert _untraceable_result_numbers(
+        "count: TBD", "count: 342", traceable={"12967"}, allow={""}
+    ) == {"342"}  # reviewer example, untraceable -> flagged
