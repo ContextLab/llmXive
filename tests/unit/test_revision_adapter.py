@@ -56,6 +56,49 @@ def _make_kickback(concerns: list[Concern], *, worst: Severity = Severity.WRITIN
     )
 
 
+def test_research_stage_project_gets_research_kind_not_paper(tmp_path: Path) -> None:
+    """A RESEARCH-stage project's kickback must produce a research_* kind and a
+    research-centric plan (edit code/specs/docs/data), NOT paper_writing + "edit
+    the manuscript LaTeX" — that project has no manuscript. The kind is inferred
+    from the project's current_stage; absent project state it defaults to paper
+    (backward compatible)."""
+    import datetime
+    from llmxive.state import project as project_store
+    from llmxive.types import Project, Stage
+
+    pid = "PROJ-700-research-conv"
+    now = datetime.datetime(2026, 6, 19, tzinfo=datetime.timezone.utc)
+    project_store.save(
+        Project(
+            id=pid, title="research conv test", field="math",
+            current_stage=Stage.RESEARCH_REVIEW, created_at=now, updated_at=now,
+            artifact_hashes={},
+        ),
+        repo_root=tmp_path,
+    )
+    kb = KickbackRecord(
+        from_stage="research_review", to_stage="brainstormed",
+        worst_severity=Severity.WRITING,
+        unresolved_concerns=[_make_concern(
+            artifact=f"projects/{pid}/docs/reproducibility/data_quality_report.md",
+            reviewer="research_reviewer_data_quality_research",
+            text="Replace PLACEHOLDER values in data_quality_report.md.",
+        )],
+        artifact_links=[f"projects/{pid}/specs/"],
+        reason="research non-convergence",
+    )
+    spec_dir = kickback_to_revision_spec(kb, project_id=pid, repo_root=tmp_path)
+    result = yaml.safe_load((spec_dir / "result.yaml").read_text())
+    plan = (spec_dir / "plan.md").read_text()
+    spec = (spec_dir / "spec.md").read_text()
+
+    assert result["revision_kind"] == "research_writing"
+    assert "**Kind**: research_writing" in plan
+    assert "manuscript LaTeX" not in plan          # NOT paper-centric
+    assert "docs/" in plan and "py_compile" in plan  # research-centric
+    assert "research_review" in spec and "Research Revision" in spec
+
+
 class TestRevisionAdapterDirectoryContract:
     """The directory written must contain spec.md, plan.md, tasks.md,
     analyze-report.md, result.yaml AND state/revisions/index.yaml

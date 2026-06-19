@@ -81,6 +81,27 @@ def _legacy_severity(s: Severity) -> str:
     return _ENGINE_TO_LEGACY_SEVERITY.get(s, "writing")
 
 
+def _is_research_kind(kind: str) -> bool:
+    return kind.startswith("research")
+
+
+def _project_track(project_id: str, repo: Path) -> str:
+    """``"research"`` or ``"paper"`` for the project's current stage. Robust to
+    non-review/unknown stages and load errors — defaults to ``"paper"`` (the
+    prior behavior) so a resolution failure never regresses paper projects."""
+    try:
+        from llmxive.state import project as project_store
+
+        sv = project_store.load(project_id, repo_root=repo).current_stage.value
+        if "research" in sv:
+            return "research"
+        if "paper" in sv:
+            return "paper"
+    except Exception:
+        pass
+    return "paper"
+
+
 # --- deterministic render helpers (lifted from revision_planner) -------
 
 def _seed_specify_input(concerns: Iterable[Concern]) -> str:
@@ -107,11 +128,13 @@ def _render_spec(
     concerns: list[Concern], kind: str, project_id: str, round_num: int,
 ) -> str:
     """Generate a minimal but valid spec.md for the revision."""
-    title = (
-        "Paper Writing Revision" if kind == "paper_writing"
-        else ("Paper Science Revision" if kind == "paper_science"
-              else "Auto Revision")
-    )
+    title = {
+        "paper_writing": "Paper Writing Revision",
+        "paper_science": "Paper Science Revision",
+        "research_writing": "Research Revision (writing)",
+        "research_science": "Research Revision (science)",
+    }.get(kind, "Auto Revision")
+    review_stage = "research_review" if _is_research_kind(kind) else "paper_review"
     return f"""# Revision Specification: {title} — {project_id} round {round_num}
 
 **Generated**: {datetime.now(UTC).isoformat()}
@@ -126,7 +149,7 @@ def _render_spec(
 ## Success Criterion
 
 After the implementer applies this revision, the project returns to
-``paper_review`` and the per-specialist re-review protocol confirms
+``{review_stage}`` and the per-specialist re-review protocol confirms
 each of the {len(concerns)} action item(s) above as ADEQUATELY ADDRESSED.
 
 ## Out of scope
@@ -145,6 +168,37 @@ def _render_plan(concerns: list[Concern], kind: str) -> str:
     science_count = sum(
         1 for c in concerns if _legacy_severity(c.severity) == "science"
     )
+    if _is_research_kind(kind):
+        approach = (
+            "For each `writing`-severity action item: edit the project's research\n"
+            "artifacts (reproducibility docs under `docs/`, specs under `specs/`,\n"
+            "data descriptors under `data/`) to address the concern.\n\n"
+            "For each `science`-severity action item: modify the analysis code\n"
+            "under `code/` (and `tests/`), re-run it, and record the corrected\n"
+            "results in the relevant `docs/` / `data/` artifact."
+        )
+        constraints = (
+            "- All citations / external references remain verified.\n"
+            "- Changed Python must import and `py_compile` cleanly after the edit.\n"
+            "- The action items list is the authoritative scope — do NOT pull in\n"
+            "  refactors / cleanups beyond what each item demands."
+        )
+    else:
+        approach = (
+            "For each `writing`-severity action item: edit the manuscript LaTeX\n"
+            "source (under `paper/source/`) to address the concern. Re-compile\n"
+            "after each batch of edits.\n\n"
+            "For each `science`-severity action item: assess whether the underlying\n"
+            "research artifact (data, analysis, experiments) requires modification.\n"
+            "If yes: edit code under the project's research spec; re-run; integrate\n"
+            "results into the manuscript."
+        )
+        constraints = (
+            "- All citations remain verified.\n"
+            "- LaTeX must compile cleanly after the revision (proofreader flags empty).\n"
+            "- The action items list is the authoritative scope — do NOT pull in\n"
+            "  refactors / cleanups beyond what each item demands."
+        )
     return f"""# Implementation Plan
 
 **Kind**: {kind}
@@ -152,21 +206,11 @@ def _render_plan(concerns: list[Concern], kind: str) -> str:
 
 ## Approach
 
-For each `writing`-severity action item: edit the manuscript LaTeX source
-(under `paper/source/`) to address the concern. Re-compile after each
-batch of edits.
-
-For each `science`-severity action item: assess whether the underlying
-research artifact (data, analysis, experiments) requires modification.
-If yes: edit code under the project's research spec; re-run; integrate
-results into the manuscript.
+{approach}
 
 ## Constraints
 
-- All citations remain verified.
-- LaTeX must compile cleanly after the revision (proofreader flags empty).
-- The action items list is the authoritative scope — do NOT pull in
-  refactors / cleanups beyond what each item demands.
+{constraints}
 """
 
 
@@ -291,13 +335,19 @@ def kickback_to_revision_spec(
     if round_num is None:
         round_num = next_round_number(repo, project_id)
     if revision_kind is None:
-        revision_kind = (
-            "paper_science"
-            if kickback.worst_severity in {
-                Severity.METHODOLOGY, Severity.SCIENCE, Severity.FATAL,
-            }
-            else "paper_writing"
-        )
+        # Track-aware: a RESEARCH-stage project has no manuscript, so its
+        # revision edits the research artifacts (code/specs/docs/data), NOT a
+        # paper. Emitting a paper_* kind + "edit the manuscript LaTeX" plan for a
+        # research project is wrong/misleading (the implementer ignores the kind
+        # — it derives track from current_stage — but the spec artifact must be
+        # correct for any future kind-driven consumer and for human readers).
+        sci = kickback.worst_severity in {
+            Severity.METHODOLOGY, Severity.SCIENCE, Severity.FATAL,
+        }
+        if _project_track(project_id, repo) == "research":
+            revision_kind = "research_science" if sci else "research_writing"
+        else:
+            revision_kind = "paper_science" if sci else "paper_writing"
 
     spec_dir = (
         repo / "specs" / "auto-revisions" / project_id / f"round-{round_num}"
