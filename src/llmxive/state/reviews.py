@@ -110,6 +110,42 @@ def list_for(
     return [read(p) for p in sorted(review_dir.glob("*.md"))]
 
 
+def delete_for_specialists(
+    project_id: str,
+    specialist_names: set[str],
+    *,
+    stage: str,
+    repo_root: Path | None = None,
+) -> int:
+    """Remove all review records authored by ``specialist_names`` for a stage.
+
+    Used after a successful revision round to force re-review of the blocking
+    specialists: research-review staleness is keyed on the feature ``tasks.md``
+    hash, but a research revision edits code/data/docs — NOT ``tasks.md`` — so a
+    blocker's verdict can never go stale on its own, and the panel would loop to
+    ``MAX_REVISION_ROUNDS`` without the fixed concern ever being re-judged.
+    Deleting the record makes the coverage gate see the specialist as *missing*
+    → it is re-dispatched → it re-reviews the revised artifacts. The deleted
+    record remains in git history (audit trail); the re-review writes a fresh,
+    current record. Returns the number of files removed.
+    """
+    repo = repo_root or _repo_root()
+    sub = "reviews/research" if stage == "research" else "paper/reviews"
+    review_dir = repo / "projects" / project_id / sub
+    if not review_dir.is_dir():
+        return 0
+    removed = 0
+    for p in sorted(review_dir.glob("*.md")):
+        try:
+            rec = read(p)
+        except Exception:
+            continue
+        if rec.reviewer_name in specialist_names:
+            p.unlink(missing_ok=True)
+            removed += 1
+    return removed
+
+
 def prior_reviews_for_specialist(
     project_id: str,
     specialist_name: str,

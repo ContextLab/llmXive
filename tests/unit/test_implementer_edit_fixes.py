@@ -414,3 +414,49 @@ def test_classify_edit_operation_steers_kind_from_intent() -> None:
     # Modify/default — must NOT be steered toward create/prune/relocate:
     assert clf("Fix the off-by-one in code/data/loader.py.") is None
     assert clf("Complete hyperbolic_volume_validation.md with the measured coverage %.") is None
+
+
+def test_force_blocker_rereview_clears_only_non_accept(tmp_path: Path) -> None:
+    """After a successful revision round, only the NON-ACCEPT specialists' review
+    records are cleared so coverage re-dispatches exactly those blockers — the
+    missing link in research convergence (staleness is keyed on tasks.md, which a
+    research revision never touches, so a blocker would otherwise never be
+    re-judged and the panel loops to the round cap). Accepts are preserved."""
+    import yaml
+    from llmxive.agents.implementer import _force_blocker_rereview
+
+    proj = "PROJ-901-converge"
+    d = tmp_path / "projects" / proj / "reviews" / "research"
+    d.mkdir(parents=True)
+
+    def _write(name: str, verdict: str) -> None:
+        rec = {
+            "reviewer_name": name, "reviewer_kind": "llm",
+            "artifact_path": f"projects/{proj}/specs/x/tasks.md",
+            "artifact_hash": "a" * 64,
+            "score": 0.5 if verdict == "accept" else 0.0, "verdict": verdict,
+            "reviewed_at": "2026-06-18T00:00:00Z", "prompt_version": "1.0.0",
+            "model_name": "m", "backend": "dartmouth",
+        }
+        (d / f"{name}__2026-06-18__research.md").write_text(
+            "---\n" + yaml.safe_dump(rec) + "---\n\nbody\n", encoding="utf-8"
+        )
+
+    accepts = [
+        "research_reviewer_idea_quality", "research_reviewer_creativity",
+        "research_reviewer_code_quality_research",
+        "research_reviewer_implementation_correctness",
+        "research_reviewer_implementation_completeness",
+        "research_reviewer_filesystem_hygiene",
+    ]
+    for n in accepts:
+        _write(n, "accept")
+    _write("research_reviewer_data_quality_research", "minor_revision")
+
+    cleared = _force_blocker_rereview(proj, track="research", repo=tmp_path)
+    remaining = sorted(p.name for p in d.glob("*.md"))
+    assert cleared == 1
+    assert not any("data_quality" in n for n in remaining)
+    assert len(remaining) == 6  # the 6 accepts are untouched
+    # Idempotent once everything accepts: nothing left to clear.
+    assert _force_blocker_rereview(proj, track="research", repo=tmp_path) == 0

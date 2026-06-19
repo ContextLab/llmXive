@@ -529,6 +529,42 @@ def _classify_edit_operation(text: str) -> str | None:
     return None
 
 
+def _force_blocker_rereview(project_id: str, *, track: str, repo: Path) -> int:
+    """After a successful revision round, clear the review records of every
+    specialist whose MOST-RECENT verdict is not ``accept``, so the coverage gate
+    re-dispatches exactly those blockers to re-judge the revised artifacts.
+
+    This is the missing link in research-stage convergence: review staleness is
+    keyed on the feature ``tasks.md`` hash, but a research revision edits
+    code/data/docs (never ``tasks.md``), so a blocking verdict can never go stale
+    on its own — the fixed concern is never re-reviewed and the panel loops to
+    ``MAX_REVISION_ROUNDS`` without ever converging. Accepts are LEFT in place
+    (the research gate accepts on >=1 accept ever; the paper gate on most-recent
+    accept), so we never re-roll a reviewer that already passed. Returns the
+    number of records cleared.
+    """
+    from llmxive.state import reviews as reviews_store
+
+    stage = "research" if track == "research" else "paper"
+    records = reviews_store.list_for(project_id, stage=stage, repo_root=repo)
+    if not records:
+        return 0
+    latest: dict[str, object] = {}
+    for r in records:
+        cur = latest.get(r.reviewer_name)
+        if cur is None or r.reviewed_at > cur.reviewed_at:  # type: ignore[attr-defined]
+            latest[r.reviewer_name] = r
+    blockers = {
+        name for name, rec in latest.items()
+        if rec.verdict != "accept"  # type: ignore[attr-defined]
+    }
+    if not blockers:
+        return 0
+    return reviews_store.delete_for_specialists(
+        project_id, blockers, stage=stage, repo_root=repo,
+    )
+
+
 def _parse_llm_edit(response_text: str) -> dict[str, object] | None:
     """Parse an LLM response into a structured edit dict. Returns None if no valid
     JSON-edit block (one with a recognized ``kind``) is found."""
@@ -1027,6 +1063,21 @@ class LLMXiveImplementer(Agent):
                     )
             else:
                 next_stage = source_review_stage
+                # Force re-review of the blockers this round just addressed.
+                # Research staleness is keyed on tasks.md (untouched by a
+                # research revision), so without clearing the non-accept records
+                # the fixed concern is never re-judged and the panel loops to
+                # the round cap. Only when edits actually landed.
+                if success_count > 0:
+                    cleared = _force_blocker_rereview(
+                        project.id, track=track, repo=repo,
+                    )
+                    if cleared:
+                        logger.info(
+                            "%s: cleared %d non-accept review(s) to force "
+                            "re-review after a successful revision round",
+                            project.id, cleared,
+                        )
                 project_state.update(
                     project.id,
                     {
