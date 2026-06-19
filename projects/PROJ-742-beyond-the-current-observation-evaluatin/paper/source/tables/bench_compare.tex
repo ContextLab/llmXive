@@ -1,0 +1,38 @@
+\begin{table}[tbp]
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.05}
+% (1 image = 256 tokens)
+\adjustbox{max width=\textwidth}{%
+\begin{tabular}{l l c c c c c c r r}
+\toprule
+\textbf{Benchmark} & \textbf{Domain} & \textbf{Eval} & \textbf{MM} & \textbf{Closed-loop} & \textbf{NM-Focus} & \textbf{Multi-pl.} & \textbf{Scal.-Diff.} & \textbf{Max Ctx} & \textbf{Max \#Img} \\
+\midrule
+\multicolumn{10}{l}{\emph{(i) Fully-visible game benchmarks}} \\
+GameBench~\citep{costarelli2024gamebench}   & 9 strategic board / card games                  & Agent & \pmark & \cmark & \xmark & \cmark & \xmark & $6^\dagger$  & 1 \\
+GTBench~\citep{duan2024gtbench}             & 10 game-theory games                            & Agent & \xmark & \cmark & \xmark & \cmark & \xmark & $8^\dagger$  & 0 \\
+\midrule
+\multicolumn{10}{l}{\emph{(ii) Agent / multi-environment suites with hidden information (bundled with other skills)}} \\
+AgentBench~\citep{liu2023agentbench}        & Multi-task agent suite (8 envs)                 & Agent & \xmark & \cmark & \xmark & \xmark & \xmark & $12^\dagger$ & 0 \\
+SmartPlay~\citep{wu2024smartplay}           & 6 text games (RPS, Bandit, Hanoi, \ldots)       & Agent & \xmark & \cmark & \xmark & \xmark & \cmark & $6^\dagger$  & 0 \\
+AvalonBench~\citep{light2023avalonbench}    & Social deduction (hidden roles)                 & Agent & \xmark & \cmark & \xmark & \cmark & \xmark & $3.5^\dagger$ & 0 \\
+BALROG~\citep{paglieri2024balrog}           & 6 RL game envs (incl.\ POMDPs: NetHack, \ldots) & Base  & \cmark & \cmark & \xmark & \xmark & \pmark & $16^\dagger$ & 1 \\
+LMGame-Bench~\citep{hu2025lmgamebench}      & 6 video games + scaffolds                       & Both  & \cmark & \cmark & \xmark & \xmark & \xmark & 20           & 1 \\
+GameWorld~\citep{ouyang2026gameworld}       & 34 browser games, 170 tasks                     & Agent & \cmark & \cmark & \xmark & \xmark & \pmark & $8^\dagger$  & 3 \\
+MACHIAVELLI~\citep{pan2023machiavelli}      & 134 text-adventure games                        & Base  & \xmark & \cmark & \xmark & \xmark & \xmark & $2^\dagger$  & 0 \\
+clembench~\citep{chalamalasetti2023clembench} & Dialogue games                                & Base  & \xmark & \cmark & \xmark & \cmark & \cmark & $6^\dagger$  & 0 \\
+TextArena~\citep{guertler2025textarena}     & 100+ text games (TrueSkill rating)              & Base  & \xmark & \cmark & \xmark & \cmark & \pmark & $32^\dagger$ & 0 \\
+\midrule
+\multicolumn{10}{l}{\emph{(iii) Long-context \& memory benchmarks (game-based)}} \\
+EMemBench~\citep{li2026emembench}           & Text + visual games (episodic-memory QA)        & Both  & \cmark & \xmark & \xmark & \xmark & \xmark & $20^\dagger$ & 4 \\
+\midrule
+\rowcolor{gray!12}
+\textbf{\benchname{} (ours)} & \textbf{Non-Markov games (2D card + 3D maze)} & \textbf{Base} & \cmark & \cmark & \cmark & \cmark & \cmark & \textbf{128} & \textbf{350} \\
+\bottomrule
+\end{tabular}%
+}
+% \caption{\benchname{} vs.\ prior LLM/VLM game and memory benchmarks. Rows are grouped into fully visible games, broader agent/game suites, and game-based memory benchmarks; Max Ctx is reported in K tokens and one image is counted as 256 tokens.}
+\caption{\benchname{} vs.\ prior benchmarks, grouped as in §\ref{sec:introduction}: (i) fully-visible games, (ii) agent suites that mix hidden information with other skills, (iii) game-based memory benchmarks. \textbf{Eval}: raw model (\emph{Base}) vs.\ wrapped harness (\emph{Agent}). \textbf{MM}: multimodal observations. \textbf{Closed-loop}: per-step action vs.\ post-hoc QA. \textbf{NM-Focus}: non-Markov recall as the central axis. \textbf{Multi-pl.}: duel or multi-agent protocol. \textbf{Scal.-Diff.}: controllable difficulty knobs. \textbf{Max Ctx} and \textbf{Max \#Img}: max per-prompt tokens and images. $\sim$ = partial; $^\dagger$ = estimated from code.}
+\label{tab:bench_compare}
+\end{table}

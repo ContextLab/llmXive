@@ -1,0 +1,31 @@
+\begin{minipage}[t]{0.48\textwidth}
+\centering
+\renewcommand{\arraystretch}{1.15}
+\setlength\tabcolsep{4pt}
+\small
+\adjustbox{max width=\linewidth}{%
+\begin{tabular}{l|cc|cc}
+\toprule
+\multirow{2}{*}{\textbf{Model Name}}
+& \multicolumn{2}{c|}{\textbf{Matching Pairs}}
+& \multicolumn{2}{c}{\textbf{3D Maze}} \\
+& \textbf{Score\%}\,$\uparrow$ & \textbf{Resp./Score}\,$\downarrow$
+& \textbf{SR\%}\,$\uparrow$ & \textbf{GS\%}\,$\uparrow$ \\
+\midrule
+\modelname{\qwenicon}{Qwen3.5-9B}
+& \matchbar{matchpurple}{0.0}{100.0} & --
+& 0.0 & \matchbar{matchpurple}{1.5}{100.0} \\
+\hspace*{0.06cm}\textit{with}~\texttt{opt32k}
+& \matchbar{matchpurple}{14.6}{100.0} & \matchbar{matchamber}{14.7}{130.0}
+& 0.0 & \matchbar{matchpurple}{5.0}{100.0} \\
+\hspace*{0.06cm}\textit{with}~\texttt{rmix32k}
+& \textbf{\matchbar{matchpurple}{29.5}{100.0}} & \textbf{\matchbar{matchamber}{6.8}{130.0}}
+& \textbf{10.0} & \textbf{\matchbar{matchpurple}{16.3}{100.0}} \\
+\bottomrule
+\end{tabular}
+}
+\caption{\textbf{Held-out scale evaluation of fine-tuned Qwen3.5-9B.} Evaluation sizes are strictly larger than the training data pool.}
+\label{tab:sft-match-maze}
+\end{minipage}
+% ($8{\times}10$, $10{\times}10$ for Matching Pairs; $11{\times}11$, $13{\times}13$ for 3D Maze)
+% ($2{\times}4$ to $8{\times}8$, and $5{\times}5$ to $9{\times}9$ respectively)

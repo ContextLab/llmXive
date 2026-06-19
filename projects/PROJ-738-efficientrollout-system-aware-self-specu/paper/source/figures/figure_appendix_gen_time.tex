@@ -1,0 +1,30 @@
+\begin{figure}[t]
+    \centering
+
+    \begin{subfigure}[t]{0.32\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/appendix_gen_time_qwen7b.pdf}
+        \caption{Qwen2.5-7B}
+        \label{fig:app_qwen7b_gen_time}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.32\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/appendix_gen_time_qwen14b.pdf}
+        \caption{Qwen2.5-14B}
+        \label{fig:app_qwen14b_gen_time}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.32\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/appendix_gen_time_llama8b.pdf}
+        \caption{Llama3.1-8B}
+        \label{fig:app_llama8b_gen_time}
+    \end{subfigure}
+
+    \caption{
+    Rollout-generation time over training steps (smoothed).
+    \methodtitle{} consistently reduces rollout time, whereas other SD baselines provide limited gains or can be slower than \nosd{}.
+    }
+    \label{fig:app_gen_time_breakdown}
+\end{figure}

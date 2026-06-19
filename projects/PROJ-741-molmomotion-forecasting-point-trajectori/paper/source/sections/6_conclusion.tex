@@ -1,0 +1,15 @@
+\section{Limitations} 
+\modelname requires multiple forward passes to predict dense point tracks on an object,  since pretraining uses only 8 query points per example due to Molmo2 context length limit in stage 2 training. This sparse point setting is not sufficient to densely represent object geometry, limiting the model's understanding of fine-grained structure and complex deformable motion. In addition, more downstream evaluations are needed to fully establish the effectiveness of this motion pretraining task, such as closed-loop real-world robot experiments. 
+
+
+
+
+\section{Conclusions}
+We introduce \modelname, a language-guided motion predictor that forecasts future trajectories of object-attached points in a 3D world frame. We built MolmoMotion-1M for pretraining and \benchmarkname{} for 3D motion evaluation. Experiments show that \modelname significantly outperforms prior motion prediction methods and transfers to robot manipulation and video generation.
+
+
+
+
+\section*{Acknowledgements}
+
+This work would not be possible without the support of our colleagues at Ai2. We thank David Albright, Kristin Cha,  Byron Bischoff, David Everhart, Jon Borchardt, Kyle Wiggers, Will Smith, Peter Clark, Dieter Fox, and Noah Smith for their important work for the \modelname public release. We thank Ropedia for providing access to the Xperience dataset used in this work, and granting permission the release of MolmoMotion under the Apache License 2.0. Chenhao Zheng is partially funded through an Apple grant. We thank Oncel Tuzel, Pavan Kumar, and Rick Chang for the helpful discussion and support on this project.

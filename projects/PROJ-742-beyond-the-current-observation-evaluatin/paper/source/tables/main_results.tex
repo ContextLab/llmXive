@@ -1,0 +1,48 @@
+\begingroup
+\renewcommand{\arraystretch}{1.35}
+\setlength\extrarowheight{1.4pt}
+\renewcommand{\matchcellbar}[3]{%
+  \begin{tikzpicture}[baseline=0.45ex, x=1cm, y=1cm]
+    \def\barmax{1.30}
+    \pgfmathsetmacro{\barwidth}{min(max(#2/#3,0),1)*\barmax}
+    \fill[#1!14, rounded corners=1pt] (0,0) rectangle (\barmax,0.38);
+    \shade[left color=#1!62, right color=#1!24, rounded corners=1pt]
+      (0,0) rectangle ({\barwidth},0.38);
+    \node at ({\barmax/2},0.19) {\fontsize{8.5}{9.5}\selectfont #2};
+  \end{tikzpicture}%
+}
+\begin{table}[tbp]
+\setlength\tabcolsep{2.4pt}
+\centering
+\small
+\adjustbox{max width=\textwidth}{%
+\begin{tabular}{>{\raggedright\arraybackslash}m{3.05cm}|>{\centering\arraybackslash}m{0.90cm}>{\centering\arraybackslash}m{0.90cm}>{\centering\arraybackslash}m{1.75cm}>{\centering\arraybackslash}m{1.45cm}|>{\centering\arraybackslash}m{0.95cm}>{\centering\arraybackslash}m{1.60cm}>{\centering\arraybackslash}m{1.45cm}>{\centering\arraybackslash}m{1.45cm}>{\centering\arraybackslash}m{1.45cm}}
+\toprule
+\multirow{2}{*}{\textbf{Model Name}}
+& \multicolumn{4}{c|}{\textbf{Matching Pairs $10{\times}10$}}
+& \multicolumn{5}{c}{\textbf{3D Maze $13{\times}13$}} \\
+& \textbf{PF\%}\,$\downarrow$ & \textbf{IA\%}\,$\downarrow$ & \textbf{Resp./Score}\,$\downarrow$ & \textbf{Score\%}\,$\uparrow$
+& \textbf{SR\%}\,$\uparrow$ & \textbf{Explore\%}\,$\uparrow$ & \textbf{Walls}\,$\downarrow$ & \textbf{Eff.\%}\,$\uparrow$ & \textbf{GS\%}\,$\uparrow$ \\
+\midrule
+\modelname{\openaiicon}{GPT-5.4}
+& \textbf{0.0} & 4.3 & \textbf{\matchcellbar{matchamber}{8.01}{45.0}} & \textbf{\matchcellbar{matchpurple}{62.3}{100.0}}
+& 20.0 & \matchcellbar{matchgray}{32.3}{100.0} & \matchcellbar{matchgray}{3.2}{35.0} & \textbf{\matchcellbar{matchpurple}{75.7}{100.0}} & \matchcellbar{matchpurple}{30.5}{100.0} \\
+\modelname{\geminiicon}{Gemini-3.1-Pro}
+& 0.4 & 2.5 & \matchcellbar{matchamber}{10.00}{45.0} & \matchcellbar{matchpurple}{50.0}{100.0}
+& \textbf{50.0} & \matchcellbar{matchgray}{36.4}{100.0} & \textbf{\matchcellbar{matchgray}{0.1}{35.0}} & \matchcellbar{matchpurple}{62.5}{100.0} & \textbf{\matchcellbar{matchpurple}{49.7}{100.0}} \\
+\modelname{\seedicon}{Seed-2.0-Lite}
+& 1.2 & 4.3 & \matchcellbar{matchamber}{11.57}{45.0} & \matchcellbar{matchpurple}{43.2}{100.0}
+& 20.0 & \matchcellbar{matchgray}{19.4}{100.0} & \matchcellbar{matchgray}{16.6}{35.0} & \matchcellbar{matchpurple}{38.9}{100.0} & \matchcellbar{matchpurple}{21.7}{100.0} \\
+\modelname{\kimiicon}{Kimi-K2.5}
+& 1.8 & 2.8 & \matchcellbar{matchamber}{13.16}{45.0} & \matchcellbar{matchpurple}{38.0}{100.0}
+& 10.0 & \matchcellbar{matchgray}{17.9}{100.0} & \matchcellbar{matchgray}{7.1}{35.0} & \matchcellbar{matchpurple}{61.1}{100.0} & \matchcellbar{matchpurple}{16.1}{100.0} \\
+\modelname{\qwenicon}{Qwen3.5-397B}
+& \textbf{0.0} & 3.0 & \matchcellbar{matchamber}{19.74}{45.0} & \matchcellbar{matchpurple}{25.3}{100.0}
+& 0.0 & \matchcellbar{matchgray}{21.0}{100.0} & \matchcellbar{matchgray}{9.9}{35.0} & \matchcellbar{matchpurple}{0.0}{100.0} & \matchcellbar{matchpurple}{10.5}{100.0} \\
+\bottomrule
+\end{tabular}
+}
+\caption{\textbf{Main results on the two environments (single-player setting)}. We focus on two metrics: \emph{Score}, the fraction of matched pairs on Matching Pairs, and \emph{GS}, the aggregate 3D Maze score combining success rate, efficiency, and exploration. The remaining columns support analysis: \emph{PF}/\emph{IA} means parse-failure and invalid-action rates;  \emph{Resp./Score} reports responses per matched pair; \emph{SR}, \emph{Explore}, \emph{Walls}, and \emph{Eff} refers to success rate, exploration coverage, wall collisions, and path efficiency.}
+\label{tab:main_results}
+\end{table}
+\endgroup

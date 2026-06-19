@@ -1,0 +1,81 @@
+{
+   "sources" : [
+      {
+         "usage" : "toplevel",
+         "filename" : "main.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "ai2style/manrope.sty"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "ai2style/manrope/Manrope-Bold.ttf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "ai2style/manrope/Manrope-BoldItalic.ttf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "ai2style/manrope/Manrope-Italic.ttf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "ai2style/manrope/Manrope-Regular.ttf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "ai2style/manrope/a_ibzqqg.enc"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "fancyhdr.sty"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "manropebold.tfm"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "manropebolditalic--base.tfm"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "manropebolditalic.tfm"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "manropebolditalic.vf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "manropeitalic--base.tfm"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "manropeitalic.tfm"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "manropeitalic.vf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "manroperegular.tfm"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "natbib.sty"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "t1manrope.fd"
+      }
+   ],
+   "spec_version" : 1,
+   "texlive_version" : "2025",
+   "process" : {
+      "compiler" : "pdflatex"
+   }
+}

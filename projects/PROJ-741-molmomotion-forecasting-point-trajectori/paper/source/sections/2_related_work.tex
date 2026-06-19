@@ -1,0 +1,20 @@
+\section{Related work}
+\label{sec:related_work}
+
+
+\noindent\textbf{Motion prediction models.}
+Motion prediction models differ mainly in the representation they forecast. Pixel-space methods cast prediction as conditional video generation, from latent-action world models~\cite{micheli2023iris, hu2023gaia1} to recent large-scale video generators~\cite{bruce2024genie, nvidia2025cosmos, wan22}; these models are general but spend substantial capacity rendering appearance, lighting, and camera motion. Latent prediction methods forecast learned feature states~\cite{zhou2025dinowm, assran2025vjepa2}, avoiding pixels but producing encoder-tied representations that are difficult to use as physical quantities. Recent point-trajectory forecasting methods predict category-agnostic motion directly~\cite{track2act, thakkar2026forecastingmotion}, but operate in 2D image space, where object motion is entangled with camera motion and viewpoint change. 3D forecasting methods predict physically grounded states such as human motion~\cite{mao2020learningtrajectorydependencieshuman}, rigid-object pose~\cite{Yoshida_2025_CVPR, soraki2026objectforesightpredictingfuture3d}, or scene-level 3D motion~\cite{pointworld}, but are often tied to specific object categories or domains. We predict object-attached 3D point trajectories in world coordinates, yielding a category-agnostic and physically grounded representation.
+
+
+\noindent\textbf{3D point tracking.}
+Our data annotation pipeline builds on recent advances in 3D point tracking from monocular video. 2D point trackers estimate temporally persistent pixel locations for queried points~\cite{doersch2022tapvid, doersch2023tapir}, with recent models improving long-range tracking~\cite{doersch2024bootstap}, occlusion reasoning~\cite{cotracker3}, and dense correspondence over entire videos~\cite{alltracker}. 
+Recent monocular reconstruction methods lift image observations into 3D by estimating camera motion and per-frame depth, enabling pixel tracks to be lifted to 3D ~\cite{vipe, megasam}. 
+There are also direct 3D point trackers that track points in 3D space~\cite{spatialtrackerv2, feng2025st4rtrack, zhang2025efficientlyreconstructingdynamicscenes}. 
+Together, these methods have made it increasingly feasible to recover 3D motion from ordinary RGB videos, though the focus is on tracking observed frames rather than forecasting future motion.
+
+
+
+\noindent\textbf{Human-to-robot transfer.}
+Prior work transfers non-robot video to robot control through different abstractions. Some methods re-target human hands, endpoints, or skill trajectories as planning scaffolds~\cite{bahl2023affordances, vidbot,fang2026molmoact2, traj2action, bharadhwaj2024gen2act, li2025h2r}. Others train generalist vision-language-action policies on cross-embodiment robot data~\cite{bousmalis2023robocat, padalkar2024openx, octo2024, openvla, pi0}, sometimes with human video, but still predict embodiment-specific actions. Closest to ours are methods that learn motion priors or controls from unlabeled video through latent actions or inverse dynamics~\cite{bahl2023swim, dexwm, latentactionwild, lapa, egovla}. In contrast, we use 3D world-frame object point trajectories as the pretraining target itself, yielding a motion prior that is both embodiment-agnostic and directly usable for downstream robot learning.
+
+

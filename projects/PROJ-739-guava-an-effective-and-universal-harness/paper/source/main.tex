@@ -1,0 +1,144 @@
+\documentclass[]{fairmeta}
+
+\input{math_commands.tex}
+
+\usepackage{subcaption}
+\usepackage{wrapfig}
+\usepackage[most]{tcolorbox}
+\usepackage[most]{tcolorbox}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{wrapfig}
+
+
+\definecolor{softgreen}{RGB}{110, 160, 120}
+\usepackage{svg}
+\usepackage[most]{tcolorbox}
+
+\newtcolorbox{takeawaybox_basemodel}[1]{
+    colback=orange!5!white,
+    colframe=black,
+    arc=5pt,
+    outer arc=5pt,
+    boxrule=0.8pt,
+    left=5pt,
+    right=5pt,
+    top=4pt,
+    bottom=4pt,
+    fontupper=\small,
+    enhanced,
+    before upper={\textbf{#1 }} 
+}
+
+\newtcolorbox{promptbox}[1][]{
+    colback=gray!5,
+    colframe=gray!50,
+    fonttitle=\bfseries\small,
+    title=#1,
+    breakable,
+    left=4pt, right=4pt, top=4pt, bottom=4pt,
+    fontupper=\small\ttfamily,
+}
+
+\usepackage{caption}
+\usepackage{wrapfig}
+\usepackage{booktabs}
+\definecolor{earlyblue}{HTML}{88A2F1}
+\definecolor{midgrey}{HTML}{fadcb4}
+\definecolor{latered}{HTML}{EE9C88}
+\definecolor{highlightgreen}{HTML}{80c66d}
+\definecolor{highlightpurple}{HTML}{9b6d97}
+\def\thickhline{\noalign{\hrule height.8pt}}
+\usepackage{arydshln}
+\usepackage{xstring}
+\newcommand{\deltaval}[1]{%
+  \IfBeginWith{#1}{+}{%
+    {\textcolor{highlightgreen}{\textit{(#1)}}}%
+  }{%
+    \IfBeginWith{#1}{-}{%
+      {\textcolor{highlightpurple}{\textit{(#1)}}}%
+    }{%
+      {\textit{(#1)}}%
+    }%
+  }%
+}
+\usepackage{pifont}
+\usepackage{epigraph}
+\usepackage{hyperref}
+
+\newcommand{\promptplaceholder}[1]{\texttt{\{#1\}}}
+\usepackage[export]{adjustbox}
+
+\newcommand{\defref}[1]{Definition~\ref{#1}}
+\newcommand{\tabref}[1]{Table~\ref{#1}}
+\renewcommand{\figref}[1]{Fig.~\ref{#1}}
+\newcommand{\eqnref}[1]{\text{Eq.}~(\ref{#1})}
+\renewcommand{\secref}[1]{\S\ref{#1}}
+\newcommand{\appref}[1]{Appendix~\ref{#1}}
+
+\newcommand{\Xirui}[1]{\textcolor{orange}{\textbf{[Xirui: #1]}}}
+
+\newcommand{\benchmarkmini}{\text{Auto-ClawEval-Mini}\xspace}
+\newcommand{\ours}{\text{ClawEnvKit}\xspace}
+\newcommand{\benchmark}{\text{Auto-ClawEval}\xspace}
+
+\newcommand{\Ming}[1]{\textcolor{violet}{\textbf{[Ming: #1]}}}
+
+\title{Guava: An Effective and Universal Harness for Embodied Manipulation}
+% auto, env, eval, claw
+
+\author[1,*]{Haowen Liu}
+\author[1,*]{Xirui Li}
+\author[2]{Shaoxiong Yao}
+% \author[2]{Wei-Lin Chiang}
+\author[3]{Peng Shi}
+\author[4]{Tianyi Zhou}
+\author[1]{Jia-Bin Huang}
+\author[1]{Furong Huang}
+\author[5,6]{Jiayuan Mao}
+
+\renewcommand\affiliation[2][]{%
+  \addtolist[#1]{#2}{\affiliationlist}{\affiliationformat}{\\}%
+}
+
+\affiliation[1]{University of Maryland College Park}
+\affiliation[2]{University of Illinois Urbana-Champaign}
+\affiliation[3]{University of Waterloo}
+\affiliation[4]{Mohamed bin Zayed University of Artificial Intelligence}
+\affiliation[5]{University of Pennsylvania}
+\affiliation[6]{Amazon FAR}
+
+\contribution[*]{Co-first Author}
+
+\abstract{
+\input{sec/00_abstract}   
+}
+
+\date{\today}
+\authoremails{\email{hwl@umd.edu}, \email{xiruili@umd.edu}}
+
+\metadata[Project Page]{\url{https://guava-harness.github.io}\\}
+
+\begin{document}
+
+\maketitle
+
+\input{sec/01_introduction}
+\input{sec/02_related_work}
+\input{sec/03_method}
+\input{sec/04_results}
+\input{sec/05_conclusion}
+
+\clearpage
+\newpage
+\bibliographystyle{assets/plainnat}
+\bibliography{main}
+
+\clearpage
+\tableofcontents
+\newpage
+\beginappendix
+
+\input{sec/06_appendix}
+
+\end{document}

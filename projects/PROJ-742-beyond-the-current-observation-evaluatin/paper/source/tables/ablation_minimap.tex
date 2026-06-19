@@ -1,0 +1,53 @@
+\renewcommand{\arraystretch}{1.1}
+\begin{table}[tbp]
+\setlength\tabcolsep{3.0pt}
+\centering
+\scriptsize
+\adjustbox{max width=\textwidth}{%
+\begin{tabular}{lccc ccc ccc ccc ccc ccc}
+\toprule
+\textbf{Model Name}
+ & \multicolumn{3}{c}{\textbf{$5{\times}5$}}
+ & \multicolumn{3}{c}{\textbf{$7{\times}7$}}
+ & \multicolumn{3}{c}{\textbf{$9{\times}9$}}
+ & \multicolumn{3}{c}{\textbf{$11{\times}11$}}
+ & \multicolumn{3}{c}{\textbf{$13{\times}13$}}
+ & \multicolumn{3}{c}{\textbf{$15{\times}15$}} \\
+\cmidrule(lr){2-4} \cmidrule(lr){5-7} \cmidrule(lr){8-10} \cmidrule(lr){11-13} \cmidrule(lr){14-16} \cmidrule(lr){17-19}
+& Eff.\% & Explore\% & GS\%
+& Eff.\% & Explore\% & GS\%
+& Eff.\% & Explore\% & GS\%
+& Eff.\% & Explore\% & GS\%
+& Eff.\% & Explore\% & GS\%
+& Eff.\% & Explore\% & GS\% \\
+\midrule
+\modelname{\seedicon}{Seed-2.0-Lite} & 36.9 & 46.0 & 59.4
+& 31.6 & 40.0 & 29.2
+& 39.0 & 26.0 & 35.6
+& 0.0 & 16.0 & 8.0
+& 0.0 & 16.0 & 8.0
+& 0.0 & 10.0 & 5.0 \\
+\modelname{\kimiicon}{Kimi-K2.5} & 61.8 & 43.0 & 69.0
+& 41.5 & 36.0 & 39.1
+& 41.2 & 32.0 & 37.8
+& 36.5 & 26.0 & 35.1
+& 0.0 & 19.0 & 9.5
+& 0.0 & 14.0 & 7.0 \\
+\modelname{\qwenicon}{Qwen3.5-397B} & 58.8 & 44.0 & 79.4
+& 33.5 & 46.0 & 58.0
+& 54.7 & 31.0 & 40.2
+& 34.4 & 28.0 & 45.9
+& 33.6 & 23.0 & 22.6
+& 0.0 & 13.0 & 6.5 \\
+\modelname{\seedicon}{Seed-2.0-Pro} & 56.6 & 48.0 & 78.3
+& 69.9 & 43.0 & 59.6
+& 70.6 & 34.0 & 58.0
+& 63.0 & 30.0 & 54.9
+& 75.9 & 20.0 & 25.6
+& 51.1 & 22.0 & 36.8 \\
+\bottomrule
+\end{tabular}
+}
+\caption{\textbf{Maze-size sweep with minimap.} Eff.\%, Explore\%, and GS\% are defined in Tab.~\ref{tab:main_results}; GS\% (aggregate) is rightmost in each size block.}
+\label{tab:ablation_minimap}
+\end{table}

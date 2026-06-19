@@ -1,0 +1,282 @@
+\appendix
+
+\section{Dataset for Fine-tuning \texttt{Guava-Agent-4B}}
+We construct the dataset by deploying our harness framework with GPT-5.4~\cite{openai2026gpt54} in RoboSuite~\citep{robosuite2020}. The tool interface exposes environment observations, action execution, and episode-level feedback through a standardized API, enabling the model to interact closed-looped in simulation.
+
+\subsection{Construction of Trajectories}
+
+Starting from a collection of task prompts, GPT-5.4 is allowed to execute actions within RoboSuite and generate complete trajectories consisting of observations, tool calls, model reasoning traces, and environment interactions by the system prompt provided in Prompt~\ref{prompt:robot_system}. This process yields an initial pool of candidate trajectories spanning diverse manipulation tasks. We randomize parameters such as pose, lighting, camera views to improve diversity and generalization. 
+
+\begin{promptbox}[System Prompt for Data Generation]
+\label{prompt:robot_system}
+You are an intelligent robot arm controller. You will be shown an image of the scene and given a task to complete using the available tools.
+
+\medskip
+\noindent\textbf{Interaction Loop}
+
+In every response, think step-by-step inside \texttt{<think></think>} tags first, then call exactly one tool. When the task is fully complete or irrecoverable, output your thinking and end with \texttt{Task complete} or \texttt{Task failed}.
+
+\medskip
+\noindent\textbf{Reasoning Guidelines}
+
+Inside \texttt{<think>}, analyze current scene state - including object and gripper poses, progress of task - what has been done and what remains, result of last action - was it a success, failure, or unexpected outcome, and propose the best next action based on your reasoning...
+
+\medskip
+\noindent\textbf{Tool Calling}
+
+\begin{verbatim}
+<tool_call>{"name": "tool_name", "arguments": {"param": value}}</tool_call>
+\end{verbatim}
+
+\medskip
+\noindent\textbf{Gripper State}
+
+The gripper's current position \texttt{[x,y,z]}, rotation \texttt{[roll,pitch,yaw]}, and gripper opening \texttt{\%} are provided at every turn. Use these values directly in your reasoning when necessary.
+
+\medskip
+\noindent\textbf{Tool Definition}
+
+...
+
+
+\end{promptbox}
+
+
+\subsection{Data Processing}
+To improve dataset quality, we perform several stages of filtering and curation. First, trajectories are automatically categorized according to their execution outcomes, and we only retain episodes where tasks are completed successfully. Second, we filter out trajectories involving errors such as invalid tool parameters and bad simulation initialization. Third, we conduct manual inspection on a subset of trajectories to identify and remove low-quality samples exhibiting unrelated conversational behavior, excessive self-reflection, off-task dialogue, or other artifacts that do not contribute to task completion.
+
+To reduce dataset bias, we additionally de-duplicate highly similar trajectories and remove repeated interaction patterns arising from near-identical task prompts or execution histories. This curation process helps prevent over-representation of specific task instances and encourages greater behavioral diversity within the dataset.
+
+\subsection{Recovery Behavior Generation}
+
+From the success trajectories, we also generate recovery data by manually adding error perturbations by sampling from a set of predefined common set of errors, including missed grasp, object dropping during transport, wrong alignment. We then continue the interactive data generation procedure starting from the perturbed state. We also additionally generate trajectories starting from a randomly sampled state in the original trajectory to reduce overfitting to starting condition. Only valid counterfactuals are added, e.g., a pushing task will never encounter a missing grasp. We apply the same data processing pipeline to the recovery data, filtering out unsuccessful and low-quality rollouts. 
+
+\subsection{Summary}
+After filtering, \texttt{Guava-Agent-4B}'s fine-tuning dataset contains 1,934 trajectories corresponding to 237 unique task prompts. Among them, 1,191 trajectories (62\%) are successful executions, while 743 trajectories (38\%) correspond to recovery trajectories. 
+
+\section{Tools}
+
+These tools constitute the complete action space available to the language model.
+
+\begin{itemize}
+\item \textbf{\texttt{grasp(object)}}: Grasps the specified object \texttt{object}. The implementation first segments the target object from RGB-D observations using SAM3~\citep{carion2025sam} and estimates a grasp pose. The API supports any learned 6-DoF grasp planner, or a simple baseline PCA-based top-down grasp for flexibility. The robot then approaches the grasp pose, closes the gripper, and returns either \texttt{grasped} when the gripper cannot fully close or \texttt{closed} if the gripper closes completely.
+
+\item \textbf{\texttt{align(object, position, clearance)}}: 
+Moves the gripper to a specified relative position around the target object. 
+The parameter \texttt{position} $\in$ \{\texttt{top}, \texttt{left}, \texttt{right}, \texttt{front}, \texttt{back}\} defines the approach direction, while \texttt{clearance} $\in$ \{\texttt{small}, \texttt{medium}, \texttt{large}\} controls the standoff distance which can be mapped to user-defined values. 
+This design keeps VLM reasoning simple while grounding execution in 3D geometry.
+To compute the clearance distance, we use object geometry estimated from the segmented point cloud.
+
+\item \textbf{\texttt{get\_position(object)}}: Returns the estimated 3D position of \texttt{object\_name} in the robot base frame. The position is computed as the centroid of the segmented object point cloud after outlier removal.
+
+\item \textbf{\texttt{get\_position\_and\_size(object)}}: Returns both the estimated object position and axis-aligned bounding-box dimensions, enabling the agent to reason about object size and spatial constraints.
+
+\item \textbf{\texttt{move(position)}}: Moves the robot end-effector to the Cartesian position \texttt{position=[x,y,z]} via a position-based controller.
+
+\item \textbf{\texttt{rotate(angle\_deg, axis)}}: Rotates the gripper in place by \texttt{angle\_deg} degrees about the specified body-frame axis \texttt{axis} $\in$ \{\texttt{x}, \texttt{y}, \texttt{z}\}.
+
+\item \textbf{\texttt{close\_gripper()}}: Closes the gripper.
+
+\item \textbf{\texttt{release()}}: Opens the gripper to release a grasped object. The gripper optionally performs a short retraction motion to avoid post-release collisions.
+
+\item \textbf{\texttt{home\_pose()}}: Moves the robot to a predefined home configuration and serves as a recovery action when the current pose is unsuitable for further manipulation.
+
+\end{itemize}
+
+\paragraph{High-Level vs.\ Low-Level Tool Definitions}
+
+To further understand the impact of tool abstraction on agent performance, we compare our semantic action space against a low-level geometric action interface. In this alternative setup, the agent is provided with only four primitive tools:
+
+\begin{itemize}
+    \item \texttt{move(x, y, z, roll, pitch, yaw, width)}: a fused low-level control primitive that moves the end effector to an absolute Cartesian pose and gripper opening. In this case, the agent must explicitly reason about object poses, grasp configurations, end-effector orientations, and manipulation trajectories.
+    
+    \item \texttt{get\_position(object)}: unchanged.
+    
+    \item \texttt{get\_position\_and\_size(object)}: unchanged.
+    
+    \item \texttt{home\_pose()}: unchanged.
+\end{itemize}
+
+Compared to our semantic action space, this formulation requires the VLM agent to directly perform low-level geometric and physical reasoning. The model must determine precise grasp poses, end-effector orientations, object clearances, and motion sequences before issuing manipulation commands. In contrast, our semantic action space abstracts these details behind task-oriented manipulation skills, allowing motion planning and execution to be handled by lower-level controllers.
+
+As shown in Figure~\ref{fig:harness}, the low-level tool interface consistently results in worse performance than the high-level, semantic action interface. This observation supports the design principle discussed in Section~\ref{sec:method}: that semantic-level action spaces reduce the low-level geometric and physical reasoning burden placed on the VLM and enables the VLM to focus on semantic task decomposition and decision making. Our results therefore provide empirical evidence that appropriately designed semantic tool abstractions are a key ingredient for effective embodied agent performance.
+
+
+\section{Training Details}
+\subsection{Hyperparameters}
+The SFT stage uses a learning rate of $1\times10^{-5}$, an effective batch size of 32, and 3 epochs; the GRPO stage uses a learning rate of $5\times10^{-6}$, an effective batch size of 12, and 3 epochs.
+For GRPO, we sample $K=4$ rollouts per prompt and optimize with a KL penalty of $\beta=0.04$. 
+All training is conducted on 8 NVIDIA H100 80GB GPUs using \texttt{bfloat16} precision, \texttt{FlashAttention-2}, and \texttt{DeepSpeed ZeRO-3}. We utilize \texttt{ms-swift}~\citep{msswift2025} as our training pipeline.
+
+\subsection{RL Training}
+
+Unlike the standard post-training recipe~\citep{zhou2025r1zerosahamomentvisual, shao2024deepseekmathpushinglimitsmathematical} that applies reinforcement learning across the entire supervised fine-tuning dataset, we perform GRPO exclusively on the two most challenging long-horizon manipulation tasks. These tasks require substantially more multi-step reasoning, error recovery, and action planning than the remaining tasks, making them the primary bottleneck for overall policy performance.
+
+Our decision is motivated by both computational efficiency and training effectiveness. Long-horizon embodied reasoning introduces significantly higher reinforcement learning costs than conventional language-only RL settings, as each rollout requires repeated multimodal inference together with environment interaction. Consequently, the cost of collecting on-policy trajectories grows rapidly with episode length. Applying RL to the full task suite would therefore require substantially more training resources while providing diminishing returns on simpler tasks that are already well learned during supervised fine-tuning.
+
+Instead, we adopt a targeted RL strategy that focuses optimization on the most difficult long-horizon scenarios. This design allows the policy to improve sequential planning, recovery from intermediate failures, and long-range task completion while remaining computationally tractable under our training budget. Empirically, we find that concentrating RL updates on these challenging tasks yields more favorable performance gains than uniformly allocating reinforcement learning compute across all tasks.
+
+\section{Additional Results}
+
+\paragraph{Guava Harness on Additional Models.}
+We further tested several other frontier and open-source models with Guava's harness framework in simulation as shown in Table~\ref{tab:sim_baseline_suppl}. Our framework proves to work well consistently for frontier models like \texttt{Gemini-3.1-Pro}~\citep{fu2026capxframeworkbenchmarkingimproving} and \texttt{Claude-Sonnet-4.6}~\citep{qwen2026qwen35}, while \texttt{Qwen3.5-2B}~\citep{openai2026gpt54}, due to its small size, has poor performance due to poor instruction following and tool calling ability, as it frequently hallucinates wrong reasoning and invalid tool calls.
+
+\begin{table*}[t!]
+    \centering
+    \small
+    \caption{
+    \textbf{Results of Guava harness with additional base models.}
+    Values are success rates (\%) evaluated over 15 episodes. 
+    Best results are marked \textbf{bold}. 
+    }
+    \label{tab:sim_baseline_suppl}
+    \resizebox{\textwidth}{!}{
+        \begin{tabular}{l!{\vrule}ccc}
+            \thickhline
+            \toprule
+            & \multicolumn{3}{c}{\textbf{Success Rate (\%)}} \\
+            
+            \textbf{Task Name}
+            & \texttt{Gemini-3.1-Pro}~\citep{fu2026capxframeworkbenchmarkingimproving}
+            & \texttt{Claude-Sonnet-4.6}~\citep{qwen2026qwen35}
+            & \texttt{Qwen3.5-2B}~\citep{openai2026gpt54}
+            % & \texttt{\textbf{Guava-Agent-4B}}
+            % & \textbf{Best}
+            \\
+
+            \midrule
+            \multicolumn{4}{c}{
+                \textcolor{gray}{\textit{ID}}
+            } \\
+            \rowcolor{gray!11}
+            place can in box      & 100.0 & 100.0 & 0.0 \\
+            arrange by size       & 100.0 & \textbf{100.0} & 0.0 \\
+            \rowcolor{gray!11}
+            remove cube from tray & \textbf{100.0} & 100.0 & 0.0 \\
+            push basket           & \textbf{66.7} & \textbf{66.7}  & 0.0 \\
+            \rowcolor{gray!11}
+            close drawer          & 80.0 & 73.3 & 0.0 \\
+
+            \midrule
+            \multicolumn{4}{c}{
+                \textcolor{gray}{\textit{OOD Object}}
+            } \\
+            \rowcolor{gray!11}
+            pick up carrot      & \textbf{100.0} & \textbf{100.0} & 26.7 \\
+            tomato near potato  & \textbf{100.0} & \textbf{100.0} & 0.0 \\
+            \rowcolor{gray!11}
+            lemon in bin        & \textbf{100.0} & \textbf{100.0} & 0.0 \\
+            push pot            & 60.0 & 60.0 & 0.0 \\
+
+            \midrule
+            \multicolumn{4}{c}{
+                \textcolor{gray}{\textit{OOD Prompt}}
+            } \\
+            \rowcolor{gray!11}
+            stack cube reverse order          & 100.0 & 86.7 & 6.7 \\
+            arrange by size reverse direction & 86.7 & 100.0 & 0.0 \\
+
+            \midrule
+            \multicolumn{4}{c}{
+                \textcolor{gray}{\textit{OOD Long Horizon}}
+            } \\
+            \rowcolor{gray!11}
+            separate food and utensils      & \textbf{100.0} & 86.7 & 0.0 \\
+            set table                       & 73.3 & 73.3 & 0.0 \\
+            \rowcolor{gray!11}
+            shell game                      & \textbf{93.3} & 86.7 & 0.0 \\
+            place all red objects in basket & 86.7 & \textbf{100.0} & 0.0 \\
+
+            \midrule
+            \rowcolor{gray!11}
+            \textbf{Overall}
+            & \textbf{89.8}
+            & 88.9
+            & 2.2
+            \\
+
+            \bottomrule
+            \thickhline
+        \end{tabular}
+    }
+    \vspace{-2.5mm}
+\end{table*}
+
+\paragraph{Efficiency.} Compared to Guava's harness framework with GPT-5.4~\citep{openai2026gpt54}, \texttt{Guava-Agent-4B} use less tokens as shown in Figure~\ref{fig:efficiency}.
+
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=1.0\linewidth]{images/gpt_vs_hf_efficiency.pdf}
+\caption{
+\textbf{\texttt{Guava-Agent-4B} is more token efficient than GPT-5.4~\citep{openai2026gpt54}.}
+}
+\vspace{-2.5mm}
+\label{fig:efficiency}
+\end{figure}
+
+
+\section{Additional Discussions}
+
+\paragraph{Spatial Understanding in VLMs.}
+As shown in Table~\ref{tab:sim_baseline}, tasks requiring precise spatial reasoning, such as pushing and object arrangement, consistently exhibit the lowest success rates across all models in both simulation and the real world. This reveals a key limitation of current VLMs in their spatial reasoning abilities, consistent with prior observations~\citep{chen2024cvpr} that VLMs often struggle with spatial understanding. For pushing or arrange by order, the model need to understand important spatial concepts such as direction, orientation and relative positions from the image. For example, to perform a push, the model needs to infer the pre-contact gripper pose, the target end position of object, and also the direction and magnitude of the push. We find that instead of inferring these spatial information from the image, the model often relies only on the world coordinates of the robot end effector and the objects given to the VLM as textual inputs. The VLM model utilizes a reasoning shortcut to naively associate directions with certain coordinates based on heuristics, e.g., left/right is equivalent to negative/positive x-axis without utilizing the image observation. This leads to common failure modes and remains a major bottleneck to the use of VLM in embodied tasks. 
+
+\paragraph{Awareness of Execution State.}
+In read world experiments, we found out that when execution is interrupted and later resumed using the same instruction, the agent can infer which subtasks have already been completed and adapt its actions accordingly. For example, if an object is already grasped, the agent proceeds directly to the next step instead of attempting to grasp it again, indicating an internal representation of task progress rather than simple prompt imitation. This can be seen in Figure~\ref{fig:state_aware}, where the agent directly insert the peg into the holder without generating a grasp action to pick up the peg first.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.95\linewidth,trim={0cm 0cm 0cm 0cm},clip]{images/state_aware.pdf}
+\caption{
+\textbf{State awareness.}
+Our model enables awareness of task progress such that it does not repeat action that has already been completed.
+}
+\vspace{-2.5mm}
+\label{fig:state_aware}
+\end{figure}
+
+
+\paragraph{Sim2Real for Embodied Agent.} 
+One important feature of our method is its ability to transfer from simulation to the real world. 
+Unlike robotics RL or IL policies, which are often sensitive to visual sim-to-real gaps, our agentic formulation separates high-level semantic planning from low-level perception and control. 
+This abstraction allows the system to leverage the general visual understanding capability of pretrained VLMs and generalize to new scenes without task-specific robot data.
+
+We also find that simulation is not always an easier evaluation setting than the real world. 
+In particular, imperfect contact dynamics in simulation may introduce failure modes that do not directly reflect real-world performance. 
+This suggests that real-world evaluation remains essential for assessing embodied agentic systems. Future work should further study how to evaluate such systems accurately and efficiently across both simulation and real-world settings.
+
+\section{Examples}
+
+We present example reasoning and tool calling trajectories generated by our method for some tasks in Figure~\ref{fig:long_horizon},\ref{fig:recovery_example} and \ref{fig:spatial_example}. 
+These examples illustrate our method’s ability to perform long-horizon planning, recover from execution failures, and reason about spatial relationships in the scene.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth,trim={1.0cm 1.3cm 1.0cm 0.5cm},clip]{images/long_horizon.pdf}
+\caption{
+Example task requiring the robot to pick up and place multiple objects in the scene.
+}
+% \vspace{-2.5mm}
+\label{fig:long_horizon}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth,trim={1.0cm 7.5cm 1.0cm 0.5cm},clip]{images/recovery_example.pdf}
+\caption{
+Our system detects grasping failures and retries execution to successfully complete the task.
+}
+% \vspace{-2.5mm}
+\label{fig:recovery_example}
+\end{figure}
+
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth,trim={1.0cm 13.5cm 1.0cm 0.5cm},clip]{images/push_example.pdf}
+\caption{
+Example pushing task where understanding of spatial relationships and push in the right direction is required.
+}
+% \vspace{-2.5mm}
+\label{fig:spatial_example}
+\end{figure}

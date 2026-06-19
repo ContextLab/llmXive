@@ -1,0 +1,193 @@
+\begin{table}[t]
+\centering
+\scriptsize
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.05}
+\caption{
+Timing decomposition for \learned{}.
+$\TargetTime$ is the single-token target forward time, $\DraftTime$ is the one-token drafter forward time, and $\VerifyTime$ is the target verification time for $\gamma+1$ tokens.
+}
+\label{tab:eagle3_timing_decomp}
+\vspace{1mm}
+\resizebox{0.65\linewidth}{!}{%
+\begin{tabular}{lccccc}
+\toprule
+\textbf{Model}
+&
+$\TargetTime$ \textbf{(ms)}
+&
+$\DraftTime$ \textbf{(ms)}
+&
+$\VerifyTime$ \textbf{(ms)}
+&
+$\mathbf{\DraftTime/\TargetTime}$
+&
+$\mathbf{\VerifyTime/\TargetTime}$ \\
+\midrule
+Qwen2.5-7B
+&
+10.45
+&
+0.82
+&
+14.27
+&
+0.078
+&
+1.37 \\
+Llama3.1-8B
+&
+13.66
+&
+0.85
+&
+19.75
+&
+0.062
+&
+1.45 \\
+Qwen2.5-14B
+&
+20.31
+&
+0.91
+&
+28.50
+&
+0.045
+&
+1.40 \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+
+\begin{table}[t]
+\centering
+\scriptsize
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.05}
+\caption{
+Depth-dependent block efficiency for EAGLE3-based \learned{} before online adaptation.
+Llama3.1-8B-Instruct already drops close to one after 512 generated tokens, while the Qwen models degrade more gradually.
+}
+\label{tab:eagle3_depth_tau_step1}
+\vspace{1mm}
+\resizebox{0.55\linewidth}{!}{%
+\begin{tabular}{lccccc}
+\toprule
+\textbf{Model}
+&
+\textbf{0--512}
+&
+\textbf{512--1k}
+&
+\textbf{1k--2k}
+&
+\textbf{2k--4k}
+&
+\textbf{4k--8k} \\
+\midrule
+Qwen2.5-7B
+&
+1.939
+&
+1.895
+&
+1.723
+&
+1.526
+&
+1.195 \\
+Llama3.1-8B
+&
+\textbf{2.252}
+&
+\textbf{1.418}
+&
+\textbf{1.100}
+&
+\textbf{1.037}
+&
+\textbf{1.056} \\
+Qwen2.5-14B
+&
+2.045
+&
+2.037
+&
+2.029
+&
+2.237
+&
+1.866 \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+
+\begin{table}[!t]
+\centering
+\scriptsize
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.05}
+\caption{
+Depth-dependent block efficiency for EAGLE3-based \learned{} over the first five RL steps.
+Llama3.1-8B-Instruct exhibits a sharp drop after 512 generated tokens, whereas the Qwen models maintain or recover block efficiency at deeper positions.
+}
+\label{tab:eagle3_depth_mal}
+\vspace{1mm}
+\resizebox{0.55\linewidth}{!}{%
+\begin{tabular}{lccccc}
+\toprule
+\textbf{Model}
+&
+\textbf{0--512}
+&
+\textbf{512--1k}
+&
+\textbf{1k--2k}
+&
+\textbf{2k--4k}
+&
+\textbf{4k--8k} \\
+\midrule
+Qwen2.5-7B
+&
+1.970
+&
+1.921
+&
+1.790
+&
+1.716
+&
+1.604 \\
+Llama3.1-8B
+&
+\textbf{2.288}
+&
+\textbf{1.557}
+&
+\textbf{1.252}
+&
+\textbf{1.190}
+&
+\textbf{1.294} \\
+Qwen2.5-14B
+&
+2.070
+&
+2.061
+&
+2.103
+&
+2.390
+&
+2.573 \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}

@@ -1,0 +1,22 @@
+\begin{minipage}[t]{0.49\textwidth}
+\centering
+\renewcommand{\arraystretch}{1.08}
+\setlength\tabcolsep{4.2pt}
+\footnotesize
+\adjustbox{max width=\linewidth}{%
+\begin{tabular}{lccccc}
+\toprule
+\textbf{Maze} & \textbf{Cells} & \textbf{GS\% $\uparrow$} & \textbf{Eff.\% $\uparrow$} & \textbf{Explore\% $\uparrow$} \\
+\midrule
+$5{\times}5$   & 25  & \matchcellbar{matchpurple}{62.6}{100.0} & 46.1 & \matchcellbar{matchgray}{42}{100} \\
+$7{\times}7$   & 49  & \matchcellbar{matchpurple}{66.7}{100.0} & 55.4 & \matchcellbar{matchgray}{45}{100} \\
+$9{\times}9$   & 81  & \matchcellbar{matchpurple}{23.8}{100.0} & 21.9 & \matchcellbar{matchgray}{29}{100} \\
+$11{\times}11$ & 121 & \matchcellbar{matchpurple}{21.8}{100.0} & 37.7 & \matchcellbar{matchgray}{20}{100} \\
+$13{\times}13$ & 169 & \matchcellbar{matchpurple}{22.3}{100.0} & 51.2 & \matchcellbar{matchgray}{18}{100} \\
+$15{\times}15$ & 225 & \matchcellbar{matchpurple}{19.7}{100.0} & 36.6 & \matchcellbar{matchgray}{15}{100} \\
+\bottomrule
+\end{tabular}
+}
+\caption{\textbf{Ablation on 3D Maze size.} Results are for Qwen3.5-397B in the no-minimap setting, averaged over five seeds. Cells is the maze grid size. GS\%, Eff.\%, and Explore\% are defined in Tab.~\ref{tab:main_results}.}
+\label{tab:rq1_board_size_maze}
+\end{minipage}

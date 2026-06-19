@@ -1,0 +1,58 @@
+\begin{table}[t]
+\centering
+\small
+\setlength{\tabcolsep}{5.0pt}
+\renewcommand{\arraystretch}{1.10}
+\caption{
+Active-window analysis of \history{} after rollout history becomes available.
+Statistics are reported from the second epoch onward.
+}
+\vspace{1mm}
+\label{tab:history_based_slow}
+\resizebox{0.85\linewidth}{!}{%
+\begin{tabular}{lccccc}
+\toprule
+\textbf{Model}
+&
+\textbf{Resp. Len.}
+&
+\textbf{Reused Prefix}
+&
+\textbf{Reuse Rate}
+&
+\textbf{Verify Overhead}
+&
+\textbf{Gen. Time $\Delta$} \\
+&
+\textbf{(tokens)}
+&
+\textbf{(tokens)}
+&
+\textbf{(\%)}
+&
+\textbf{(s/step)}
+&
+\textbf{(s vs. No-SD)} \\
+\midrule
+Qwen2.5-7B
+& 661.4
+& 28.9
+& 4.4
+& 10.7
+& +12.8 \\
+Qwen2.5-14B
+& 622.9
+& 42.3
+& 6.8
+& 19.5
+& +5.8 \\
+Llama3.1-8B
+& 646.2
+& 324.6
+& 50.2
+& 15.9
+& +11.1 \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}

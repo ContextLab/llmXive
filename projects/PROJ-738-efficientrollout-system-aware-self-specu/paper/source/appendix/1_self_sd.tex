@@ -1,0 +1,142 @@
+\section{System Rationale for Weight-Quantized Self-Drafting in RL Rollouts}
+\label{app:why_quantized_sd}
+
+\begin{table*}[t]
+\centering
+\small
+\setlength{\tabcolsep}{8pt}
+\renewcommand{\arraystretch}{1.12}
+\caption{
+Simulation-based single-token decode-time breakdown for Qwen2.5-7B, Qwen2.5-14B, Llama3.1-8B-Instruct at different sequence lengths and batch sizes representing RL rollout tail regimes.
+Results assume a single A100-80GiB SXM GPU, FP16 inference, no tensor parallelism, and full attention.
+Bold entries indicate weight-loading costs targeted by quantization; sparse attention targets the attention term.
+}
+\label{tab:decode_breakdown_qwen_llama}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{ccccccc}
+\toprule
+\textbf{Model}
+& \textbf{(Seq, Batch)}
+& \textbf{FFN}
+& \textbf{QKVO Proj}
+& \textbf{Attn ($QK \cdot V$)}
+& \textbf{LM Head}
+& \textbf{Nonlinear} \\
+\midrule
+\multirow{4}{*}{Qwen2.5-7B}
+& (2k, 8) & \textbf{75.2\%} & \textbf{10.9\%} & 6.2\% & 7.2\% & 0.5\% \\
+& (2k, 4) & \textbf{77.8\%} & \textbf{11.2\%} & 3.2\% & 7.4\% & 0.3\% \\
+& (4k, 2) & \textbf{77.9\%} & \textbf{11.2\%} & 3.2\% & 7.4\% & 0.2\% \\
+& (8k, 1) & \textbf{78.0\%} & \textbf{11.2\%} & 3.2\% & 7.5\% & 0.1\% \\
+\midrule
+
+\multirow{4}{*}{Qwen2.5-14B}
+& (2k, 8) & \textbf{65.0\%} & \textbf{19.3\%} & 10.3\% & 5.0\% & 0.4\% \\
+& (2k, 4) & \textbf{68.7\%} & \textbf{20.4\%} & 5.4\% & 5.2\% & 0.2\% \\
+& (4k, 2) & \textbf{68.8\%} & \textbf{20.4\%} & 5.4\% & 5.3\% & 0.1\% \\
+& (8k, 1) & \textbf{68.8\%} & \textbf{20.4\%} & 5.4\% & 5.3\% & 0.1\% \\
+\midrule
+\multirow{4}{*}{Llama3.1-8B}
+& (2k, 8) & \textbf{65.4\%} & \textbf{15.6\%} & 12.4\% & 6.1\% & 0.5\% \\
+& (2k, 4) & \textbf{69.9\%} & \textbf{16.7\%} & 6.7\% & 6.5\% & 0.3\% \\
+& (4k, 2) & \textbf{70.0\%} & \textbf{16.7\%} & 6.7\% & 6.5\% & 0.2\% \\
+& (8k, 1) & \textbf{70.0\%} & \textbf{16.7\%} & 6.7\% & 6.5\% & 0.1\% \\
+\bottomrule
+\end{tabular}%
+}
+\end{table*}
+
+\subsection{Detailed Decode-Time Decomposition in Rollout-Tail Regimes}
+\label{app:decode_breakdown_more}
+
+We follow the roofline-based simulation methodology of prior work~\cite{kim2025beyond} and decompose the single-token decode cost for representative rollout-tail regimes, where each component latency is estimated as the maximum of its compute time and memory-transfer time.
+\Cref{tab:decode_breakdown_qwen_llama} reports the resulting breakdown for Qwen2.5-7B/14B~\cite{Yang2024Qwen25TR} and Llama3.1-8B-Instruct~\cite{grattafiori2024llama}.
+
+The same qualitative trend holds across the evaluated models.
+In shrinking-batch rollout regimes, FFN and QKVO projection together dominate the decode cost, while attention contributes only a relatively small fraction.
+These additional results further support the design choice of quantization-based self-SD, which directly reduces the dominant linear component, rather than sparse-attention drafting, which mainly targets the much smaller attention component.
+We do not consider KV-cache quantization in this work, although it could become useful in much longer rollout settings, e.g., beyond 64k tokens, where attention cost may again become significant.
+
+\subsection{Practical Trade-offs between Quantized and Sparse-Attention Self-Drafting}
+\label{app:practical_quantized_vs_sparse}
+
+From a practical systems perspective, sparse-attention drafting interacts poorly with the serving engine.
+To achieve high acceptance, sparse-attention self-SD typically requires token-wise sparsity patterns that are updated dynamically at each draft step~\cite{tang2024quest,yue2026specattn}.
+However, such fine-grained sparsity is difficult to realize efficiently in vLLM, whose memory management is page-granular rather than token-granular~\cite{kwon2023efficient}.
+If we instead use vLLM-friendly sparse patterns, such as page-level sparsity or sliding-window attention, acceptance drops noticeably.
+We implemented a sparse-attention self-SD method following prior work~\cite{yue2026specattn}.
+Under sparsity budgets that are cheap enough to yield speedup in practice, e.g., retaining 256 tokens, the resulting drafter remains relatively weak: with $\gamma=5$, block efficiency $\tau$ typically stays around 3--4.
+In contrast, a 4-bit weight-quantized drafter works well in our regime.
+Even with the simplest asymmetric RTN (round-to-nearest) quantization, we achieve block efficiency $\tau=5.2$ at $\gamma=5$.
+This design also naturally synergizes with vLLM through optimized W4A16 Marlin kernels~\cite{frantar2025marlin}.
+Taken together, these observations make quantized self-SD the most effective and practical self-drafting strategy for RL rollout acceleration in our setting.
+
+
+
+\subsection{W4 versus W8: Latency--Acceptance Trade-off}
+\label{app:w4_vs_w8}
+
+\begin{table}[t]
+\centering
+\small
+\setlength{\tabcolsep}{6pt}
+\renewcommand{\arraystretch}{1.10}
+\caption{
+W4--W8 latency--acceptance trade-off.
+We report $\widehat{\DraftTime}/\widehat{\TargetTime}$ predicted by our roofline model under memory-bound, zero-overhead assumptions, and block efficiency $\tau$ for $\gamma \in \{3,5,7\}$ measured on Qwen2.5-7B-Instruct at batch size 1 and sequence length 2k.
+}
+\label{tab:w4_vs_w8}
+\vspace{1mm}
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Drafter}
+&
+\makecell{\textbf{Idealized}\\$\widehat{\DraftTime}/\widehat{\TargetTime}$}
+&
+\makecell{\boldmath$\tau$\\\textbf{($\gamma=3$)}}
+&
+\makecell{\boldmath$\tau$\\\textbf{($\gamma=5$)}}
+&
+\makecell{\boldmath$\tau$\\\textbf{($\gamma=7$)}} \\
+\midrule
+RTN W8 & 0.573 & 3.94 & 5.87 & 7.79 \\
+RTN W4 & 0.360 & 3.59 & 5.18 & 6.70 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\Cref{tab:w4_vs_w8} compares W4 and W8 RTN quantized drafters.
+As expected, W8 provides higher drafting quality and achieves larger block efficiency across draft lengths.
+However, W4 remains reasonably accurate while making the draft path substantially cheaper: in the idealized memory-bound model, W4 reduces the draft-to-target latency ratio to 0.360, compared with 0.573 for W8.
+This difference is important because SD speedup depends not only on accepted length, but also on whether the drafter is cheap enough to amortize target verification overhead.
+
+W8 also introduces a larger memory footprint in the rollout engine.
+For example, its drafter weights require roughly twice the memory of W4, reaching about 16.3\,GiB for the Qwen2.5-14B drafter.
+This additional memory pressure is undesirable during RL rollouts, where persistent training weights, rollout weights, and vLLM KV-cache memory already compete for GPU capacity.
+Moreover, although W8 improves block efficiency, its draft path is not sufficiently cheaper than target AR decoding to reliably translate the higher acceptance into end-to-end speedup when considering realistic overheads.
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/appendix_quant_mal.pdf}
+    \caption{
+    Block efficiency $\tau$ over the first 50 training steps on Qwen2.5-7B with W4-RTN and W4-AWQ drafters.
+    }
+    \label{fig:appendix_quant_mal}
+\end{figure}
+
+\subsection{Choosing RTN for Step-Wise Drafter Refresh}
+\label{app:awq_quantization}
+
+We also experimented with an activation-aware quantization (AWQ) pipeline~\cite{lin2024awq} for constructing the W4 drafter. We collect hidden-state statistics from the previous training step and use them to perform AWQ quantization, with the goal of improving drafter quality over naive round-to-nearest (RTN) quantization.
+\Cref{fig:appendix_quant_mal} compares the block efficiency $\tau$ achieved by W4-RTN and W4-AWQ on Qwen2.5-7B over the first 50 training steps.
+W4-AWQ provides a small advantage during the first few steps, but the gap quickly disappears as the RTN drafter quality improves and saturates.
+This suggests that, for Qwen2.5-7B, simple RTN quantization is already sufficient for maintaining a high-quality self-drafter during RL training.
+
+The main drawback of AWQ-style quantization is its additional overhead.
+Unlike RTN, activation-aware methods require collecting calibration data and running a more expensive quantization procedure before each drafter refresh.
+Since \methodtitle{} refreshes the drafter every training step, this overhead can become a significant burden unless the quantization pipeline is heavily optimized.
+Nevertheless, less lossy quantization may be useful for models whose RTN-quantized drafter has low initial acceptance.
+We leave more advanced step-wise quantization schemes as future work.
+
+We also do not use bitsandbytes (BNB) 4-bit quantization~\cite{dettmers2023qlora}.
+Although BNB-style 4-bit quantization can provide more calibrated low-bit weights, its execution path is not as well optimized for production-grade vLLM rollout inference as the AWQ-compatible W4A16 Marlin kernels used in our implementation.

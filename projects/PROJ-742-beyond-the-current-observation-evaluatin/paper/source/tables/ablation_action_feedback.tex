@@ -1,0 +1,73 @@
+% \renewcommand{\arraystretch}{1.12}
+% \begin{table}[tbp]
+% \setlength\tabcolsep{3.0pt}
+% \centering
+% \scriptsize
+% \begin{tabular}{ll|cc|cc|c}
+% \toprule
+% \multirow{2}{*}{\textbf{Think}} & \multirow{2}{*}{\textbf{Board}}
+% & \multicolumn{2}{c|}{\textbf{w/ Action}}
+% & \multicolumn{2}{c|}{\textbf{w/o Action}}
+% & \multirow{2}{*}{$\boldsymbol{\Delta}$\textbf{pp}} \\
+% & & \textbf{Score} & \textbf{Score\%}
+% & \textbf{Score} & \textbf{Score\%} & \\
+% \midrule
+% \multirow{2}{*}{Low}
+% & $8{\times}10$  & 27.8/40 & \matchcellbar{matchpurple}{69.6}{100.0}
+%                   & 6.0/40  & \matchcellbar{matchgray}{15.0}{100.0}
+%                   & $-$54.6 \\
+% & $10{\times}10$ & 31.2/50 & \matchcellbar{matchpurple}{62.3}{100.0}
+%                   & 7.7/50  & \matchcellbar{matchgray}{15.3}{100.0}
+%                   & $-$47.0 \\
+% \midrule
+% \multirow{1}{*}{Medium}
+% & $8{\times}10$  & 37.7/40 & \matchcellbar{matchpurple}{94.2}{100.0}
+%                   & 23.0/40 & \matchcellbar{matchgray}{57.5}{100.0}
+%                   & $-$36.7 \\
+% \bottomrule
+% \end{tabular}
+% \vspace{-1mm}
+% \caption{\textbf{Effect of removing action feedback on GPT-5.4 in
+% single-player Matching Pairs (image-noise).}
+% ``w/ Action'' provides the environment's match/mismatch response after
+% each flip pair; ``w/o Action'' withholds it, so the model must infer
+% outcomes from board-state images alone.
+% Low-think results average 6 seeds (w/ Action) and 3 seeds (w/o Action);
+% medium-think results average 3 seeds each.
+% $\Delta$pp is the absolute change in Score\%.}
+% \label{tab:ablation_action_feedback}
+% \end{table}
+
+
+\begin{minipage}[t]{0.5\textwidth}
+\centering
+\renewcommand{\arraystretch}{1.12}
+\setlength\tabcolsep{4pt}
+\small
+\adjustbox{max width=\linewidth}{%
+\begin{tabular}{l|ccc|ccc}
+\toprule
+\multirow{2}{*}{\textbf{Board}}
+& \multicolumn{3}{c|}{\modelname{\openaiicon}{GPT-5.4}}
+& \multicolumn{3}{c}{\modelname{\qwenicon}{Qwen3.5-397B}} \\
+& \textbf{w/\,Act.} & \textbf{w/o\,Act.} & $\boldsymbol{\Delta}_{\text{rel}}$\,(\%)
+& \textbf{w/\,Act.} & \textbf{w/o\,Act.} & $\boldsymbol{\Delta}_{\text{rel}}$\,(\%) \\
+\midrule
+$8{\times}10$  & \matchcellbar{matchpurple}{69.6}{100.0}
+               & \matchcellbar{matchgray}{15.0}{100.0}
+               & $-$78.4
+               & \matchcellbar{matchpurple}{29.4}{100.0}
+               & \matchcellbar{matchgray}{9.0}{100.0}
+               & $-$69.4 \\
+$10{\times}10$ & \matchcellbar{matchpurple}{62.3}{100.0}
+               & \matchcellbar{matchgray}{15.3}{100.0}
+               & $-$75.4
+               & \matchcellbar{matchpurple}{25.3}{100.0}
+               & \matchcellbar{matchgray}{6.3}{100.0}
+               & $-$75.1 \\
+\bottomrule
+\end{tabular}%
+}
+\caption{\textbf{Effect of removing the model's action history in Matching Pairs.} ``w/\,Act.'' keeps the action trace in context; ``w/o\,Act.'' keeps only the board images.}
+\label{tab:ablation_action_feedback}
+\end{minipage}

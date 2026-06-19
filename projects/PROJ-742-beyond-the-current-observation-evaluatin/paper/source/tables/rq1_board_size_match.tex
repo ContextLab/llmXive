@@ -1,0 +1,26 @@
+\begin{minipage}[t]{0.49\textwidth}
+\centering
+\renewcommand{\arraystretch}{1.08}
+\setlength\tabcolsep{4pt}
+\footnotesize
+\adjustbox{max width=\linewidth}{%
+\begin{tabular}{lccc}
+\toprule
+\textbf{Board} & \textbf{Pairs} & \textbf{Score\% $\uparrow$} & \textbf{Resp./Score $\downarrow$} \\
+\midrule
+$4{\times}4$ & 8 & \matchcellbar{matchpurple}{90.6}{100.0} & \matchcellbar{matchamber}{4.59}{40.0} \\
+$4{\times}6$ & 12 & \matchcellbar{matchpurple}{56.2}{100.0} & \matchcellbar{matchamber}{8.89}{40.0} \\
+$6{\times}6$ & 18 & \matchcellbar{matchpurple}{33.3}{100.0} & \matchcellbar{matchamber}{15.00}{40.0} \\
+$6{\times}8$ & 24 & \matchcellbar{matchpurple}{32.3}{100.0} & \matchcellbar{matchamber}{15.48}{40.0} \\
+$8{\times}8$ & 32 & \matchcellbar{matchpurple}{32.8}{100.0} & \matchcellbar{matchamber}{15.24}{40.0} \\
+$8{\times}10$ & 40 & \matchcellbar{matchpurple}{23.8}{100.0} & \matchcellbar{matchamber}{21.05}{40.0} \\
+$10{\times}10$ & 50 & \matchcellbar{matchpurple}{12.5}{100.0} & \matchcellbar{matchamber}{40.00}{40.0} \\
+$10{\times}12$ & 60 & \matchcellbar{matchpurple}{12.1}{100.0} & \matchcellbar{matchamber}{41.38}{40.0} \\
+$12{\times}12$ & 72 & \matchcellbar{matchpurple}{0.7}{100.0} & \matchcellbar{matchamber}{720.00}{40.0} \\
+$12{\times}14$ & 84 & \matchcellbar{matchpurple}{3.6}{100.0} & \matchcellbar{matchamber}{140.00}{40.0} \\
+\bottomrule
+\end{tabular}
+}
+\caption{\textbf{Ablation on Matching Pairs board size.} Results are for Qwen3.5-397B in single-player action-feedback image mode with the \texttt{textures} theme and \texttt{max\_resp\_per\_pair=5}, averaged over four seeds. Resp./Score reports the response cost per matched pair.}
+\label{tab:rq1_board_size_match}
+\end{minipage}

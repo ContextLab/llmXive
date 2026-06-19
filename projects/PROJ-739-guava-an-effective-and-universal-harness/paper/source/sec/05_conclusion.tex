@@ -1,0 +1,10 @@
+\section{Conclusion}
+\label{sec:conclusion}
+
+We present \textbf{Guava}, a harness framework for embodied manipulation that identifies three key ingredients for effective embodied agents: iterative reasoning, semantic action abstractions, and multimodal observations. Using fewer than 2K simulation trajectories, we transfer embodied capabilities into a 4B open-source model that achieves strong generalization, robust recovery, and competitive real-world performance. These results suggest that effective harnesses can act as transferable interfaces for embodied manipulation, enabling compact open-source models to acquire strong embodied capabilities with minimal training data.
+
+\paragraph{Limitations.} 
+Our method has several limitations. It cannot handle dexterous manipulation due to current choices of action primitives. 
+Our system cannot directly correct tool-level errors, such as invalid grasp proposals or incorrect SAM3 segmentations. However, it can detect such failures and attempt recovery through multiple retries or alternative actions.
+The current setup also assumes a single-view image from a fixed camera, which can be limiting due to occlusion or perspective effects; future work may explore a multi-view setup with dynamic views, e.g., an additional wrist camera. 
+We also plan to scale our current setup to a larger dataset, a larger model size, and a broader toolset to handle more diverse tasks and achieve better performance.

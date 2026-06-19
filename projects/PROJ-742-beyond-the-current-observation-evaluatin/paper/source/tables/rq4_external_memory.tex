@@ -1,0 +1,24 @@
+\renewcommand{\arraystretch}{1.15}
+\begin{table}[tbp]
+\setlength\tabcolsep{4.0pt}
+\centering
+\scriptsize
+\begin{tabular}{l|ccc|ccc}
+\toprule
+\multirow{2}{*}{\textbf{Model Name}}
+ & \multicolumn{3}{c|}{\textbf{Matching Pairs ($8{\times}10$)}}
+ & \multicolumn{3}{c}{\textbf{3D Maze ($9{\times}9$)}} \\
+ & \textbf{Baseline}\,$\uparrow$ & \textbf{+Memory Map}\,$\uparrow$ & \textbf{MemGap}\,$\downarrow$
+ & \textbf{Baseline}\,$\uparrow$ & \textbf{+Minimap}\,$\uparrow$ & \textbf{MemGap}\,$\downarrow$ \\
+\midrule
+\modelname{\qwenicon}{Qwen3.5-397B}
+ & \matchcellbar{matchpurple}{38.3}{100.0} & \matchcellbar{matchpurple}{78.7}{100.0} & \textbf{51.3}
+ & \matchcellbar{matchpurple}{23.8}{100.0} & \matchcellbar{matchpurple}{40.2}{100.0} & \textbf{40.8} \\
+\modelname{\kimiicon}{Kimi-K2.5}
+ & \matchcellbar{matchpurple}{43.3}{100.0} & \matchcellbar{matchpurple}{80.3}{100.0} & 46.1
+ & \matchcellbar{matchpurple}{24.6}{100.0} & \matchcellbar{matchpurple}{35.6}{100.0} & 30.9 \\
+\bottomrule
+\end{tabular}
+\caption{\textbf{External-memory intervention on both environments.} Matching Pairs reports Score\%, 3D Maze reports GS\% (both higher is better). Matching Pairs baseline numbers are ported from the Image-Noise rows of Tab.~\ref{tab:rq2_modality}; 3D Maze baseline is the no-minimap setting. \textit{+Memory Map}: an environment-provided table of all previously revealed (position, identity) pairs. \textit{+Minimap}: an environment-provided top-down map of visited cells. \textit{MemGap}: $1 - S/S^*$ with $S$ = Baseline and $S^* =$ intervention score (Eq.~\ref{eq:memorygap}); values near $1$ localize the bottleneck to belief-state tracking.}
+\label{tab:rq4_external_memory}
+\end{table}

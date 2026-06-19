@@ -1,0 +1,204 @@
+\section{Data}
+
+
+
+\subsection{Data Collection}
+
+
+High-quality data constitutes the cornerstone for world models to comprehend physical laws and synthesize high-fidelity scenes. This chapter elaborates on the hierarchical data collection framework we constructed for the Kairos world model, encompassing two primary sources: open-source public datasets and in-house proprietary data. We also introduce the standardized shot segmentation pipeline as the final stage of data collection. Through our multi-dimensional, multi-modal data acquisition strategy, we ensure the comprehensiveness, representativeness, and domain coverage of training data, laying a robust foundation for the model to learn complex physical world dynamics.
+
+We adopt a hybrid data collection strategy that combines open-source data as the foundational backbone with in-house data for targeted supplementation. Open-source data provides large-scale, diverse basic visual samples, while self-developed proprietary data specifically fills the gaps in open-source data in specific domains. The entire data collection process consists of three core phases: integration of open-source datasets, compliant acquisition of public internet data, and first-person (ego-centric) human manipulation data collection, which ultimately form standardized training samples through unified shot segmentation.
+Public sources include general datasets (e.g., Koala-36M \cite{wang2025koala36m}, Openhumanvid \cite{li2025openhumanvid}, VidGen \cite{tan2024vidgen1m}) and specialized corpora for robotics (e.g., AgiBotWorld-Beta \cite{AgiBotWorldContributors2025AgiBotWC}, Droid \cite{khazatsky2024droid}).
+To break through the limitations of open-source data, we have built a large-scale in-house proprietary data system, which mainly consists of two parts: internet-crawled data and real-world collected data.
+The vast majority of proprietary data is collected from the Internet through a hierarchical taxonomy with tens of millions of leaf nodes. This taxonomy covers four core domains: human, robot,  general scenes, and physical phenomena. Each domain is further subdivided into hundreds of secondary categories and thousands of tertiary categories, ensuring fine-grained coverage and diversity of data. 
+We obtained a massive corpus of video data from publicly available Internet sources, and performed standardized preprocessing tailored to the characteristics of video content across different platforms. During the data cleaning phase, we systematically filtered out corrupted videos, duplicate videos, and invalid clips shorter than 5 seconds, ultimately accumulating several millions of hours of valid raw video data.
+To address the critical shortage of fine-grained robotic manipulation scenario data in existing open-source and publicly available Internet datasets, we additionally collected a large volume of high-precision human manipulation data from a first-person (ego-centric) perspective.
+
+
+As the final step of the data collection process, we perform unified shot segmentation on all raw videos to split long videos into short shot segments suitable for model training. We employ PySceneDetect with multiple scene detectors, achieving over 95\% segmentation precision and 80\% recall. Raw videos are split into independent segments based on detected boundaries. To balance spatiotemporal integrity and training efficiency, we adopt the following strategies:
+\begin{itemize}
+\item Keep segments between 5--40 seconds.
+\item Further split long shots ($>40$ seconds) into 20-second clips.
+\item Discard segments shorter than 5 seconds to avoid fragmented information interfering with model learning.
+\end{itemize}
+
+Through the complete data collection and shot segmentation process described above, we have finally obtained hundreds of millions of standardized video clips, forming the basic data pool for training the Kairos world model. This data pool not only has a massive scale but also reaches industry-leading levels in domain distribution, scene diversity, and data quality, providing strong data support for the model to learn complex physical world laws and generate high-fidelity dynamic scenes.
+
+
+
+
+
+
+
+\subsection{Data Curation}\label{sec:data_filtering}
+
+The primary objective of data filtering is to curate high-quality, low-noise, and semantically diverse training samples from preprocessed clips. By employing a hierarchical filtering strategy, we progressively enhance data purity, thereby supplying optimized data for distinct training phases. Figure \ref{filter pipeline} illustrates our progressive quality filtering pipeline.
+\begin{figure}[h]
+\centering
+\includegraphics[width=1.0\textwidth]{figures/filter.png}
+\caption{
+    \centering
+Data Filtering Pipeline
+}
+\label{filter pipeline}
+\end{figure}
+
+\textbf{Aesthetic Score.} Aesthetic quality serves as a critical indicator of visual richness and content diversity. Videos characterized by low aesthetic scores often exhibit simplistic compositions and limited color palettes, which may hinder the model's ability to learn complex visual patterns. To assess this attribute, we employ an aesthetic predictor built upon a CLIP backbone with an MLP head. Samples falling below a predefined threshold are subsequently filtered out to maintain high visual standards.
+
+\textbf{Motion Score.} Videos characterized by static content or minimal motion lack sufficient temporal dynamics, whereas those exhibiting rapid flickering suffer from poor temporal consistency; both categories are detrimental to effective model training. To quantify temporal quality, we employ RAFT \cite{teed2020raft} to compute optical flow fields between consecutive frames. The magnitude of the flow vector at each pixel serves as a proxy for motion intensity. By aggregating these metrics across all frame pairs, we derive a global motion score for each video. Consequently, we filter out samples with excessively high or low scores, retaining only those that balance rich temporal information with strong consistency.
+
+\textbf{AIGC Score.} The proliferation of AI-synthesized videos online presents a significant challenge due to their highly variable quality; incorporating low-quality synthetic data can introduce substantial noise during training. To mitigate this, we train a discriminator based on the ViT-Large architecture using a proprietary synthetic video dataset. Videos exceeding a predefined threshold are subsequently excluded from the training set.
+
+\textbf{NSFW Score.} Pornographic and violent videos severely mislead model training and may appear in crawled Internet data. We use the open-source Falconsai model \cite{Falconsai2023nsfw} to filter such content. 
+
+\textbf{Blurriness Score.} We use the Laplacian operator to assess sharpness. A higher Laplacian score indicates richer edges and details, corresponding to a clearer image.
+
+\textbf{Human Motion Score.} Human video generation constitutes a pivotal application of world models. However, a predominance of static human data within the training set can impede the model's ability to synthesize videos with diverse human dynamics. To address this, we employ YOLOX \cite{ge2021yolox} for human detection and ByteTrack \cite{zhang2021bytetrack} for trajectory tracking. Subsequently, we calculate the normalized pixel velocity for each individual to derive a motion score, which serves as a metric for data selection.
+
+\textbf{OCR Score.} The ability to generate generic text is a key metric for assessing video generation models. Since text generation tasks can hinder model convergence during initial training, we exclude videos containing excessive text in the early phases. Our methodology utilizes DBNet \cite{liao2019real} for text detection and region area calculation. We design an OCR scoring mechanism related to the proportion of text regions in the whole frame: the smaller the area occupied by text, the higher the OCR score; when no text exists in the video frame, the OCR score is 1.
+
+
+\textbf{Data Deduplication.} Internet videos contain large amounts of near-duplicate redundant data, which contributes nothing to model training. We use CLIP to extract video embeddings offline . To support large-scale deduplication, we build an embedding pool. For each new clip, we compute pairwise similarity with historical clips in the pool; if similarity exceeds a threshold, only the higher-resolution version is retained.
+
+
+\begin{figure}
+    \centering
+    \vspace{-\topskip}
+    \begin{subfigure}[b]{0.95\linewidth}
+        \centering
+        \includegraphics[width=0.85\linewidth]{figures/data_sample.png} 
+        \caption{ Representative examples from our dataset}  
+        \label{fig:data_distribute1}          
+    \end{subfigure}
+    \vspace{0.1cm} 
+    \begin{subfigure}[b]{0.95\linewidth}
+        \centering
+        \includegraphics[width=0.85\linewidth]{figures/data_distribution.png}  
+        \caption{Distribution of the data}  
+        \label{fig:data_distribute2}          
+    \end{subfigure}
+    \vspace{0.1cm} 
+    \begin{subfigure}[b]{0.95\linewidth}
+        \includegraphics[width=0.45\linewidth]{figures/wordcloud_verb.png} 
+        \hfill 
+        \includegraphics[width=0.45\linewidth]{figures/wordcloud_noun.png} 
+        \caption{Diversity of robotic interactive actions and manipulable objects}  
+        \label{fig:data_distribute3}          
+    \end{subfigure}
+    \caption{Data Statistics and Examples}
+    \label{fig:data_distribute}
+    
+\end{figure}
+
+\subsection{Tagging and Captioning}
+
+
+
+\definecolor{lightgray}{rgb}{0.95,0.95,0.95}
+
+% 定义「垂直居中+左对齐」列类型（解决间距不均+溢出）
+\newcolumntype{M}[1]{>{\raggedright\arraybackslash}m{#1}}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}m{\dimexpr\textwidth-5.5cm-6\tabcolsep\relax}}
+
+% 表2：Video Domain（灰白相间 + 垂直居中 + 无溢出）
+\begin{table}[t]
+\centering
+\caption{Video Domain Tags}
+\label{tab:video_domain}
+\footnotesize % 与数据集表格字体一致
+\renewcommand{\arraystretch}{1.3} % 统一行高
+\begin{tabular}{M{2cm} M{3.5cm} Y}
+\toprule
+\textbf{Tag} & \textbf{Sub-tags} & \textbf{Brief Description} \\
+\midrule
+Human & scenes/actions/occupation/\allowbreak gender/age/context/\allowbreak face blur/body motion & Human behavior videos for learning human behavior patterns \\
+\rowcolor{lightgray}
+
+Robot & scenes/actions & Robot interaction/task execution videos for learning robot-environment interaction mechanisms \\
+
+Physics & principles & Videos of physical laws/natural phenomena for physical rule modeling \\
+\rowcolor{lightgray}
+General & content type/scene/animal & General-scene videos ensuring complete coverage of the tagging system \\
+
+
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+
+
+
+
+\subsubsection{Tagging}
+Video data tagging refers to the process of adding structured and semantic annotations to raw videos. As a core component of video data processing for world models, it is particularly suitable for massive video data collected from the Internet.
+On the one hand, video data obtained from the Internet has a wide range of sources, scattered distribution, and strong heterogeneity, which makes efficient management difficult. Tagging video data enables the structured organization of massive unordered data. It not only facilitates the balance of data sources during model training and effectively alleviates data bias caused by the uneven distribution of data sources, but also allows fast and accurate retrieval of specific data as needed, greatly improving the efficiency of data filtering and utilization in the training process.
+On the other hand, video tags can provide explicit and fine-grained semantic prior information for subsequent text annotation tasks. Integrating tag-based semantic constraints into the text annotation pipeline reduces the ambiguity of text annotations and enhances the alignment between generated annotations and video content, thereby significantly improving the accuracy and reliability of text annotations and laying a solid foundation for the effective learning of world models.
+
+
+To achieve the aforementioned objectives of video data tagging, we propose a comprehensive tagging system. It consists of two core categories of tags: video attribute tags and video domain tags, which jointly enable efficient processing of video data and lay a solid foundation for effective learning in world models.
+
+\textbf{Attribute Tags.} Video attribute tags are used to record the global characteristics of video content, covering intrinsic information irrelevant to semantic interpretation. The video attribute classification system we designed includes camera motion detection, static video detection, and others.Camera motion detection determines whether camera movements such as translation, rotation, and shaking exist throughout the video. Static video detection judges whether a large number of static frames are present in the video. All attributes adopt binary (true/false) values.
+
+
+
+\textbf{Domain Tags.} Video Domain Tags are developed to categorize video data into semantically distinct domains based on their visual content and scenario characteristics. The domains we define include Human, Robot, Physics, General, and Unsafe, where each video is assigned to exactly one domain to ensure unambiguous data partitioning.Such a structured domain classification not only allows us to conveniently filter out undesired or low-quality samples but also enables accurate and flexible control over the ratio of different data sources during world model training.In addition, we design a set of specialized sub-tags for each top-level domain.These fine-grained sub-tags support efficient and targeted retrieval of required video data, which greatly improves the efficiency of data selection and dataset construction. Table \ref{tab:video_domain} shows the typical video domain tags, their corresponding sub-tag systems, and brief descriptions. Figure \ref{fig:data_distribute} (b) illustrates the distribution of sub-tags across each domain.
+
+
+
+To accomplish the tag annotation task for large-scale video data, we adopt an end-to-end automatic annotation pipeline based on the Qwen3-VL-8B \cite{qwen3technicalreport} model. The specific implementation process is as follows: First, original videos are uniformly sampled at fixed time steps. On the premise of balancing the representativeness of frame sampling and annotation efficiency, we ensure that the extracted frames can effectively reflect the overall content characteristics of the videos. Subsequently, preset structured tag rules, annotation paradigms, and semantic constraints are integrated into prompt design, and the model is guided to efficiently complete tag inference and recognition of video frames through precise prompt engineering. Finally, the model's inference results are stored in a structured JSON format, which not only facilitates batch parsing and efficient retrieval of subsequent data but also enables rapid association between tag information and video meta-information, providing convenience for the standardized management of large-scale video data. This automatic annotation scheme not only significantly improves the annotation efficiency of large-scale video data, effectively reducing the cost and error of manual annotation but also ensures the consistency and accuracy of tag annotation across the entire dataset. Furthermore, its output of a unified structured representation can effectively support data filtering, proportioning, and sampling needs, facilitating the optimization of data proportioning and laying a solid data foundation for world models to learn reliable visual-semantic correspondences and enhance training performance.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=1.0\textwidth]{figures/DC_caption.png}
+\caption{
+\textbf{Divide-and-Conquer caption}. The content in the green box above is the caption directly generated by VLM, while the content in the blue box below is generated with reference to tags. In comparison, the caption below contains more detailed information and has a more complete expression.
+}
+\label{DC_caption}
+\end{figure}
+
+\subsubsection{Captioning}
+
+For the caption generation task, we propose a dedicated generation method based on the Qwen3-VL-8B model \cite{qwen3technicalreport}, which requires the generated captions to comprehensively cover five core dimensions: (1) core subjects (humans, animals, objects); (2) subject actions; (3) surrounding environment and background details; (4) lighting and atmosphere; (5) camera motion. Example outputs of this baseline method are presented on the left side of Figure \ref{DC_caption}.
+To address hallucination issues and enhance the detail richness of captions, we further propose a Divide-and-Conquer (DC) caption generation strategy: instead of generating captions directly, this strategy produces captions by combining the structured tag information generated in the preceding stage with the inherent visual information of the video itself. It is verified that this strategy can significantly improve caption quality, and the output comparison between the original method and the DC caption strategy is displayed in the lower part of Figure \ref{DC_caption}.
+
+
+
+
+
+
+
+
+In addition, to further elevate caption quality, we design a multi-model ensemble annotation pipeline. Specifically, we first leverage multiple medium-parameter multimodal models (including Qwen3-VL-8B \cite{qwen3technicalreport}, InternVL3.5-8B \cite{wang2025internvl35}, Mimo-7B \cite{xiaomi2025mimo}, MiniCPM V4.5 \cite{yu2025minicpmv45}, etc.) to independently generate initial video descriptions. Then, we adopt the large-parameter model Qwen3-VL-8B \cite{qwen3technicalreport} as the core fuser: by referencing the consensus content from the outputs of medium-parameter models, it supplements finer and more complete details with its strong multimodal understanding capability. Due to the high time cost of this pipeline, we only apply it to high-quality continuous training data to balance efficiency and data quality.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=1.0\textwidth]{figures/COT.png}
+\caption{
+\textbf{Enhanced Text with Chain of Thought}.The left part of the figure shows examples of our physics-centric captions. These captions not only describe physical phenomena but also explain the underlying physical principles behind them. The right part presents long-term task captions, which not only describe the scenes, subjects, and tasks in the video, but also explicitly decompose tasks into concrete steps to enhance the model’s long-term task planning capability. 
+}
+\label{cot}
+\end{figure}
+
+\subsubsection{Enhanced Text with Chain of Thought}
+
+\textbf{Physics-centric.}
+The core of world models lies in learning and reproducing the operational logic of the real world, where physical laws serve as the key element to achieve this goal and represent the fundamental characteristic that distinguishes world models from ordinary generative models—namely, their "world cognition capability." To fully exploit the core value of physical principles and ensure the physical realism of world models, we construct specialized text datasets that explicitly reinforce physical laws from the data source.
+Specifically, for data tagged as "physics", we explicitly strengthen the expression of physical laws within their captions. Our physics-centric caption data not only describes the surface phenomena observed in videos but also explains the underlying physical principles embedded in these phenomena, including dynamic behavioral constraints such as object motion trajectories, collision interactions, gravitational effects, and frictional forces. Through this approach, we ensure that the content generated by the model conforms to real-world physical constraints, thereby enhancing physical realism.
+The left part of Figure \ref{cot} presents a typical example of Physics-centric captions.
+
+\textbf{Long-horizon Tasks.}
+Causality and long-horizon sequence consistency constitute another core element that distinguishes world models from ordinary generative models. To ensure the logical consistency and rationality of long-horizon task execution, we focus on strengthening chain-of-thought construction and task decomposition capabilities, creating datasets that target long-horizon sequence scenarios.
+For selected human manipulation and robot interaction data, we construct a long-horizon task-oriented annotation framework by clearly decomposing task steps and delineating the causal logical chains between events. Specifically, we decompose complex task captions into multiple executable sub-steps, explicitly defining the dependencies and causal relationships between each step, enabling the model to understand and reproduce task execution logic over extended temporal sequences. This design effectively ensures the logical coherence of the model when handling long-horizon sequence scenarios.
+The right part of Figure \ref{cot} illustrates a typical example of task decomposition in Long-horizon tasks data.
+
+
+
+
+
+
+
+\subsection{Data Engineering Infrastructure} 
+\input{sec/data_engineering_infrastructure}
+
+

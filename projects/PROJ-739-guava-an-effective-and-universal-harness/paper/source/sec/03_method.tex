@@ -1,0 +1,145 @@
+\section{Gauva: Harnessing VLM for Embodied Manipulation}
+\label{sec:method}
+
+Effective manipulation harnesses should provide robustness, grounded decision making, and recovery from execution failures under stochastic interaction with the physical world. In this paper, we start with evaluating different design choices through controlled ablations on six long-horizon manipulation tasks in Robosuite~\citep{robosuite2020} based on frontier models.
+
+\subsection{Designing Effective Harness}
+\label{sec:harness}
+
+\begin{table}[t]
+\centering
+\small
+\caption{\textbf{List of embodied tools in Guava.} 
+Each tool has clear semantic meaning, some taking in semantic only input while others allow fine-grained actions via numerical parameters. 
+}
+\label{tab:tools}
+\resizebox{0.9\linewidth}{!}{
+\begin{tabular}{p{6cm} p{9cm}}
+\thickhline
+\toprule
+\textbf{Tool} & \textbf{Functionality} \\
+\midrule
+
+\rowcolor{gray!10}
+\texttt{grasp(object)} &
+Pick up an object using perception-guided grasping.
+\\
+
+\texttt{align(object,direction,clearance)} &
+Align the gripper to specified direction around a target object at clearance distance.
+\\
+
+\rowcolor{gray!10}
+\texttt{get\_position(object)} &
+Query the 3D position of an object.
+\\
+
+\texttt{get\_position\_size(object)} &
+Query both object position and bounding box size.
+\\
+
+\rowcolor{gray!10}
+\texttt{move(x,y,z)} &
+Move the end effector to a target position.
+\\
+
+\texttt{rotate(angle, axis)} &
+Rotate the gripper by angle around axis.
+\\
+
+\rowcolor{gray!10}
+\texttt{close\_gripper()} &
+Close the gripper.
+\\
+
+\texttt{release()} &
+Open gripper fully.
+\\
+
+\rowcolor{gray!10}
+\texttt{home\_pose()} &
+Return the robot to home configuration.
+\\
+
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+Robot manipulation requires continual grounding under stochastic execution: grasps may fail, objects can shift unexpectedly, and the environment often deviates from the model's initial prediction.
+We find that effective and robust harnesses share three key properties. First, \textbf{iterative workflows} such as ReAct~\citep{yao2023reactsynergizingreasoningacting} substantially improve robustness over single-turn planning by enabling the model to re-plan after execution failures and incorporate updated observations throughout task execution. Rather than predicting an entire trajectory from a single observation, the VLM operates in a closed-loop reasoning process that supports recovery from grasp failures and state deviations.
+Second, \textbf{semantic-level action spaces} reduce the low-level geometric and physical reasoning burden~\citep{tong2024cambrian1fullyopenvisioncentric, guan2024hallusionbenchadvanceddiagnosticsuite} placed on the VLM. Instead of directly producing joint-space controls, the model issues task and object-oriented manipulation skills while motion planning is delegated to lower-level controllers. The abstraction allows the VLM to focus on semantic task decomposition rather than execution feasibility.
+We provide the full list of available tools in Table~\ref{tab:tools} and additional implementation details in Supplementary. 
+These tools define actions with clear semantic meanings, with a combination of highly abstracted tools e.g., \texttt{grasp()} and lower level tools e.g., \texttt{move()} to cover for fine-grained actions when necessary.
+Third, \textbf{multimodal observations} provide complementary information for embodied reasoning. Visual observations capture spatial relationships and object configurations, while textual state representations provide compact symbolic descriptions of robot states and task progress. Combining both modalities improves grounding and reduces ambiguity during sequential decision making.
+Together, these design choices transform manipulation from an open-loop prediction problem into a grounded closed-loop interaction process, significantly improving the reliability of frontier VLMs in embodied environments.
+Figure~\ref{fig:harness} validates our design choices by demonstrating the performance of \texttt{GPT-5.4}~\citep{openai2026gpt54} under different harness configurations across six long-horizon tasks implemented in Robosuite~\citep{robosuite2020} where \textbf{multimodal} setting in an \textbf{iterative} workflow demonstrate a consistent higher performance across tasks.
+
+\begin{figure*}[t]
+    \centering
+
+    \begin{subfigure}[t]{0.31\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{images/harness_ablation_strategy.pdf}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.31\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{images/harness_ablation_toolset.pdf}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.31\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{images/harness_ablation_modality.pdf}
+    \end{subfigure}
+
+    \caption{
+    \textbf{Impact of harness design on embodied manipulation.}
+    We evaluate alternative workflow strategies (\textbf{left}), action-space abstractions (\textbf{middle}), and observation modalities (\textbf{right}).
+    The semantic action space achieves higher performance than a low-level interface requiring explicit geometric reasoning over object poses, grasp configurations, and motion trajectories, demonstrating the benefit of semantic tool abstractions for embodied agents. The results further indicate that iterative agent workflows and multimodal observations are both essential for achieving strong performance and robust failure recovery in manipulation tasks.
+    }
+    \label{fig:harness}
+\end{figure*}
+
+
+
+\subsection{Learning Efficient and Generalizable Agentic Embodied Reasoning}
+\label{sec:training}
+
+While Guava enables strong manipulation performance with frontier VLMs, directly deploying such models remains prohibitively expensive due to the latency and cost of repeated multimodal API calls during closed-loop execution. 
+We therefore ask whether the embodied capabilities enabled by Guava can be distilled into a compact open-source model. To answer this question, we develop a data-efficient training pipeline that transfers embodied tool-use behaviors from frontier VLMs using fewer than 2K trajectories collected entirely in simulation.
+
+\vspace{-2mm}
+\paragraph{Guava as a data engine.}
+A key challenge in transferring embodied capabilities to compact models is obtaining diverse and high-quality demonstrations. 
+To this end, we develop a data generation engine that collects interaction trajectories from frontier VLMs operating under the Guava harness (Figure~\ref{fig:data}). 
+The generated data covers a broad range of manipulation skills and embodied reasoning behaviors, including grasping, pushing, spatial reasoning, and task planning.
+In particular, we find that explicitly incorporating recovery trajectories demonstrate how to recover from execution failures can significantly improve robustness. Concretely, we augment successful demonstrations with recovery trajectories generated from perturbed execution states, exposing the model to failures and off-trajectory scenarios during training.
+After data cleaning and balancing, the resulting dataset provides diverse supervision for learning generalizable embodied policies. Remarkably, fewer than 2K trajectories collected entirely in simulation are sufficient to transfer embodied capabilities from frontier VLMs to a compact 4B model.
+
+\vspace{-2mm}
+\paragraph{Training pipeline.}
+\label{sec}
+We post-train the model with a two-stage pipeline. First, we perform supervised fine-tuning (SFT) on trajectories collected by the embodied data engine, including both successful and recovery trajectories. This enables the policy to learn manipulation skills as well as corrective behaviors for execution failures. We then apply Group Relative Policy Optimization (GRPO) with a sparse task-success reward, following recent RL post-training approaches for reasoning models~\citep{shao2024deepseekmathpushinglimitsmathematical, zhou2025r1zerosahamomentvisual}. RL training is applied to more challenging long-horizon tasks that require iterative planning, tool use, and adaptation to execution errors. See Supplementary for more details. 
+
+\begin{figure*}[t]
+    \centering
+
+    \begin{subfigure}[t]{0.67\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{images/data_engine.pdf}
+        \caption{Data generation pipeline.}
+        \label{fig:data_a}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.30\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{images/task_types.pdf}
+        \caption{Training data distribution.}
+        \label{fig:data_b}
+    \end{subfigure}
+
+\caption{\textbf{Data generation engine for policy distillation. }(\textbf{Left}) Frontier VLMs interact with simulation environments through the Guava harness to generate diverse interaction trajectories, where scene randomization and targeted perturbations produce both successful and recovery trajectories. (\textbf{Right}) Distribution of task categories in collected dataset. }
+    \label{fig:data}
+\vspace{-4mm}
+\end{figure*}

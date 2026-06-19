@@ -1,0 +1,1482 @@
+\section{Theoretical Analysis}
+\label{sec:theory}
+The proposed world model is grounded in a unified understanding-generation-prediction substrate and a hybrid temporal backbone. To formally analyze its long-horizon consistency, this section investigates future targets requiring extended world-state information, such as object permanence, delayed physical effects, and multi-stage task variables. We address two central questions: when is a bounded recent window fundamentally insufficient, and under what conditions can a hybrid multi-scale memory recover near-Bayes-optimal prediction?
+
+Our theoretical contribution is twofold. First, we establish an information-theoretic necessity result: whenever the Bayes-optimal predictor of a long-horizon target relies on history outside a finite recent window, any window-restricted predictor incurs a strictly positive, irreducible excess risk. This proves the fundamental necessity of a persistent latent state. Second, we establish the approximate sufficiency of a hybrid multi-scale temporal memory. We prove that if the Bayes predictor factorizes into a shared predictive state alongside short-range, mid-range, and contractive global-memory branches, the resulting predictor yields an explicit excess-risk bound controlled by branch-wise approximation errors and a geometrically discounted global-memory perturbation term.
+
+This formal analysis perfectly mirrors the model's architectural design. The necessity result explains the inevitable degradation of purely local temporal mechanisms in tasks involving delayed effects or multi-stage structures. Conversely, the sufficiency result mathematically validates the proposed hybrid design: short- and mid-range pathways efficiently capture localized and intermediate motion, while the persistent global memory propagates supra-window context with controlled drift. Together, these theorems provide a rigorous mathematical justification for the architectural logic underlying the model's long-horizon capabilities.
+
+
+\subsection{Problem Setup and Theoretical Scope}
+\label{subsec:theory_setup}
+
+
+
+\paragraph{\textbf{Standing probabilistic setup.}}
+Let $(\Omega,\cF,\Prob)$ be a probability space.
+We model the world as a discrete-time partially observed controlled process
+\[
+\{(X_t,O_t,A_t)\}_{t\ge 0},
+\]
+where
+\[
+X_t \in \mathcal X,
+\qquad
+O_t \in \mathcal O,
+\qquad
+A_t \in \mathcal A.
+\]
+Here, $X_t$ denotes the latent world state, $O_t$ denotes the observable input available to the model, and $A_t$ denotes the control or action signal that can influence future evolution. Fix a time index $t\ge 0$, a prediction horizon $\tau \ge 1$, and a window length $w\ge 0$. Let $Y_t^{(\tau)} \in L^2(\Omega,\cF,\Prob)$
+be any square-integrable future target, and write
+\[
+Y := Y_t^{(\tau)}.
+\]
+Throughout, $Y$ may represent a future latent-frame coordinate, an object-permanence indicator, a delayed physical-effect event, a task-progress variable, or any other long-horizon functional of the future world state. All scalar statements below extend coordinatewise to vector-valued targets. For any square-integrable scalar-, vector-, or matrix-valued random variable $Z$, define
+\[
+\norm{Z}_{L^2} := \bigl(\E[\norm{Z}^2]\bigr)^{1/2},
+\]
+where $\norm{\cdot}$ denotes the absolute value, the Euclidean norm, or the Frobenius norm according to context.
+
+\begin{definition}[History and recent window]
+\label{def:history_window}
+The complete history up to time $t$ is defined as
+\begin{equation}
+H_t := (O_0,\dots,O_t,\; A_0,\dots,A_{t-1}),
+\label{eq:history_def}
+\end{equation}
+generating the associated $\sigma$-field $\cH_t := \sigma(H_t)$. For a  window length $w \ge 0$, the recent $w$-step window is given by
+\begin{equation}
+W_t^{(w)}
+:=
+\bigl(
+O_{(t-w+1)\vee 0},\dots,O_t,\;
+A_{(t-w+1)\vee 0},\dots,A_{t-1}
+\bigr),
+\label{eq:window_def}
+\end{equation}
+with its corresponding $\sigma$-field denoted by $\cW_t^{(w)} := \sigma(W_t^{(w)})$. By construction, it naturally follows that
+\begin{equation}
+\cW_t^{(w)} \subseteq \cH_t.
+\label{eq:window_subset_history}
+\end{equation}
+\end{definition}
+
+
+\begin{definition}[Predictors and optimal risks]
+\label{def:predictors_and_risks}
+For any sub-$\sigma$-field $\mathcal G \subseteq \cF$, define
+\[
+L^2(\mathcal G)
+:=
+\bigl\{
+Z \in L^2(\Omega,\cF,\Prob) : Z \text{ is } \mathcal G\text{-measurable}
+\bigr\}.
+\]
+For any $Z \in L^2(\Omega,\cF,\Prob)$, define the squared prediction risk
+\begin{equation}
+\mathcal R_t(Z) := \E[(Y-Z)^2].
+\label{eq:general_risk_def}
+\end{equation}
+The optimal full-history risk is
+\begin{equation}
+R_{\mathrm{full}}^\star
+:=
+\inf_{Z \in L^2(\cH_t)} \mathcal R_t(Z),
+\label{eq:Rfull_def}
+\end{equation}
+and the optimal recent-window risk is
+\begin{equation}
+R_{w}^\star
+:=
+\inf_{Z \in L^2(\cW_t^{(w)})} \mathcal R_t(Z).
+\label{eq:Rw_def}
+\end{equation}
+\end{definition}
+
+\begin{definition}[Persistent latent state]
+\label{def:persistent_latent_state}
+A recursively updated internal state $M_t \in \R^d$ is called a persistent latent state if there exist measurable update maps $\Phi_t$ such that
+\begin{equation}
+M_t = \Phi_t(M_{t-1}, Z_t),
+\qquad
+Z_t := (O_t,A_{t-1}),
+\qquad t\ge 1,
+\label{eq:persistent_state_update}
+\end{equation}
+with $M_0$ given.
+Thus the model compresses historical information into a state that is propagated through time, rather than recomputing prediction from scratch from a bounded local context at every step.
+\end{definition}
+
+\begin{definition}[Exact sufficient state]
+\label{def:exact_sufficient_state}
+A recursively updated state $S_t^\star \in \R^d$ is called an exact sufficient state for the target $Y$ if:
+\begin{enumerate}
+    \item $S_t^\star$ is $\cH_t$-measurable;
+    \item there exist measurable maps $T_t$ such that
+    \begin{equation}
+    S_t^\star = T_t(S_{t-1}^\star, Z_t),
+    \qquad
+    Z_t := (O_t,A_{t-1});
+    \label{eq:exact_state_update}
+    \end{equation}
+    \item there exists a measurable decoder $g_t:\R^d\to\R$ such that
+    \begin{equation}
+    \E[Y\mid \cH_t] = g_t(S_t^\star)
+    \qquad \text{a.s.}
+    \label{eq:exact_sufficient_state}
+    \end{equation}
+\end{enumerate}
+In other words, $S_t^\star$ retains exactly the historical information that is relevant for predicting $Y$.
+\end{definition}
+
+\begin{remark}[Scope of the two results]
+\label{rem:scope_of_two_results}
+The subsequent necessity theorem relies solely on the filtration generated by the process history. It imposes no architectural assumptions and does not require the existence of an exact sufficient state. Furthermore, the ensuing sufficiency theorem introduces an architecture-motivated factorization of this state into four components: a shared predictive representation, a short-range state, a mid-range state, and a global recurrent memory. This conceptualization serves as the theoretical counterpart to our unified understanding--generation--prediction substrate, alongside its local, dilated, and global temporal pathways.
+\end{remark}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\begin{lemma}[Conditional expectation is the $L^2$-optimal predictor]
+\label{lem:l2_projection}
+Let $\mathcal G \subseteq \cF$ be any sub-$\sigma$-field and let $Y\in L^2(\Omega,\cF,\Prob)$.
+Define $\eta_{\mathcal G} := \E[Y\mid \mathcal G].$ Then $\eta_{\mathcal G}$ is the unique minimizer of squared risk over $L^2(\mathcal G)$, i.e.,
+\begin{equation}
+\inf_{Z \in L^2(\mathcal G)} \E[(Y-Z)^2]
+=
+\E[(Y-\eta_{\mathcal G})^2].
+\label{eq:l2_projection_statement}
+\end{equation}
+Moreover, for every $Z\in L^2(\mathcal G)$,
+\begin{equation}
+\E[(Y-Z)^2]
+=
+\E[(Y-\eta_{\mathcal G})^2]
++
+\E[(\eta_{\mathcal G}-Z)^2].
+\label{eq:pythagorean_identity}
+\end{equation}
+\end{lemma}
+
+\begin{proof}[Proof of Lemma \ref{lem:l2_projection}]
+Fix any $Z\in L^2(\mathcal G)$ and write
+\[
+\eta := \eta_{\mathcal G} = \E[Y\mid \mathcal G].
+\]
+Then
+\[
+Y-Z = (Y-\eta) + (\eta-Z).
+\]
+Squaring both sides and taking expectations gives
+\begin{align}
+\E[(Y-Z)^2]
+&=
+\E[(Y-\eta)^2]
++
+\E[(\eta-Z)^2]
++
+2\E[(Y-\eta)(\eta-Z)].
+\label{eq:l2_projection_expand}
+\end{align}
+Since $\eta-Z$ is $\mathcal G$-measurable,
+\begin{align}
+\E[(Y-\eta)(\eta-Z)]
+&=
+\E\Bigl[
+\E[(Y-\eta)(\eta-Z)\mid \mathcal G]
+\Bigr]
+\nonumber\\
+&=
+\E\Bigl[
+(\eta-Z)\,\E[Y-\eta\mid \mathcal G]
+\Bigr]
+=
+0,
+\end{align}
+because $\E[Y-\eta\mid \mathcal G]=\E[Y\mid \mathcal G]-\eta=0$.
+Substituting back into Eq. (\ref{eq:l2_projection_expand}) proves Eq. (\ref{eq:pythagorean_identity}), and Eq. (\ref{eq:l2_projection_statement}) follows immediately.
+Uniqueness holds because equality requires $\E[(\eta-Z)^2]=0$, i.e., $Z=\eta$ almost surely.
+\end{proof}
+
+
+
+
+
+
+
+
+
+
+
+
+
+\subsection{Necessity of Persistent Latent States}
+\label{subsec:necessity_persistent_state}
+
+This subsection formalizes the obstruction faced by purely local temporal models.  In long-horizon prediction, two historical trajectories might share identical recent observations and actions yet differ in earlier latent events that dictate the future. Such events include instances where an object remains present despite temporary occlusion, the prior triggering of a delayed physical effect, or the completion of a specific stage in a task involving multiple steps. Consequently, predictors relying solely on recent windows are not merely more difficult to train but are fundamentally insufficient from a statistical perspective.
+
+\begin{theorem}[Supra-window dependence implies the necessity of persistent state]
+\label{thm:necessity_persistent_state}
+Fix $t\ge 0$, $\tau\ge 1$, and $w\ge 0$, and define
+\begin{equation}
+m_t := \E[Y\mid \cH_t],
+\qquad
+m_t^{(w)} := \E[Y\mid \cW_t^{(w)}].
+\label{eq:m_and_mw_def}
+\end{equation}
+Then the following statements hold.
+\begin{enumerate}
+    \item[\textup{(i)}] The optimal full-history and recent-window risks are
+    \begin{equation}
+    R_{\mathrm{full}}^\star
+    =
+    \E[(Y-m_t)^2]
+    =
+    \E[\Var(Y\mid \cH_t)],
+    \label{eq:Rfull_formula}
+    \end{equation}
+    \begin{equation}
+    R_{w}^\star
+    =
+    \E[(Y-m_t^{(w)})^2]
+    =
+    \E[\Var(Y\mid \cW_t^{(w)})].
+    \label{eq:Rw_formula}
+    \end{equation}
+
+    \item[\textup{(ii)}] The excess risk incurred by restricting prediction to the recent window satisfies the exact identity
+    \begin{equation}
+    R_{w}^\star - R_{\mathrm{full}}^\star
+    =
+    \E[(m_t-m_t^{(w)})^2]
+    =
+    \E\!\bigl[\Var(m_t\mid \cW_t^{(w)})\bigr].
+    \label{eq:risk_gap_exact_identity}
+    \end{equation}
+
+    \item[\textup{(iii)}] Consequently,
+    \begin{equation}
+    R_{w}^\star > R_{\mathrm{full}}^\star
+    \quad\Longleftrightarrow\quad
+    m_t \text{ is not } \cW_t^{(w)}\text{-measurable}.
+    \label{eq:iff_nonmeasurable}
+    \end{equation}
+\end{enumerate}
+Specifically, if the Bayes predictor cannot be fully recovered from the most recent $w$ steps, every window-restricted predictor inherently incurs a strictly positive, irreducible excess risk. Consequently, any Bayes-optimal recursive architecture must retain supra-window information, and implementing such retention via recursive state propagation necessitates a persistent latent state.
+\end{theorem}
+
+\begin{proof}[Proof of Theorem \ref{thm:necessity_persistent_state}]
+Part \textup{(i)} follows directly from Lemma~\ref{lem:l2_projection} with $\mathcal G=\cH_t$ and $\mathcal G=\cW_t^{(w)}$, respectively. Indeed,
+\[
+R_{\mathrm{full}}^\star = \E[(Y-m_t)^2],
+\qquad
+R_w^\star = \E[(Y-m_t^{(w)})^2],
+\]
+and these equalities are equivalent to Eq. (\ref{eq:Rfull_formula}) and Eq. (\ref{eq:Rw_formula}) by the definition of conditional variance.
+
+For part \textup{(ii)}, start from the decomposition
+\begin{equation}
+Y - m_t^{(w)}
+=
+(Y-m_t) + (m_t-m_t^{(w)}).
+\label{eq:risk_gap_decomposition}
+\end{equation}
+After squaring and taking expectations,
+\begin{align}
+\E[(Y-m_t^{(w)})^2]
+&=
+\E[(Y-m_t)^2]
++
+\E[(m_t-m_t^{(w)})^2]
++
+2\E[(Y-m_t)(m_t-m_t^{(w)})].
+\label{eq:risk_gap_expand}
+\end{align}
+Because both $m_t$ and $m_t^{(w)}$ are $\cH_t$-measurable, so is $m_t-m_t^{(w)}$. Hence
+\begin{align}
+\E[(Y-m_t)(m_t-m_t^{(w)})]
+&=
+\E\Bigl[
+\E[(Y-m_t)(m_t-m_t^{(w)})\mid \cH_t]
+\Bigr]
+\nonumber\\
+&=
+\E\Bigl[
+(m_t-m_t^{(w)})\,\E[Y-m_t\mid \cH_t]
+\Bigr]
+=
+0.
+\end{align}
+Therefore,
+\begin{equation}
+R_w^\star - R_{\mathrm{full}}^\star
+=
+\E[(m_t-m_t^{(w)})^2].
+\label{eq:risk_gap_first_expression}
+\end{equation}
+
+To derive the second expression in Eq. (\ref{eq:risk_gap_exact_identity}), note that by the tower property,
+\begin{equation}
+m_t^{(w)} = \E[m_t\mid \cW_t^{(w)}].
+\label{eq:mw_as_condexp_of_m}
+\end{equation}
+Thus
+\[
+m_t - m_t^{(w)}
+=
+m_t - \E[m_t\mid \cW_t^{(w)}],
+\]
+and applying the conditional-variance identity to the random variable $m_t$ conditioned on $\cW_t^{(w)}$ gives
+\begin{equation}
+\E[(m_t-m_t^{(w)})^2]
+=
+\E\!\bigl[\Var(m_t\mid \cW_t^{(w)})\bigr].
+\label{eq:conditional_variance_of_mt}
+\end{equation}
+Combining Eq. (\ref{eq:risk_gap_first_expression}) and Eq. (\ref{eq:conditional_variance_of_mt}) proves part \textup{(ii)}.
+
+For part \textup{(iii)}, Eq. (\ref{eq:risk_gap_first_expression}) implies
+\[
+R_w^\star = R_{\mathrm{full}}^\star
+\quad\Longleftrightarrow\quad
+\E[(m_t-m_t^{(w)})^2]=0
+\quad\Longleftrightarrow\quad
+m_t = m_t^{(w)} \ \text{a.s.}
+\]
+Using Eq. (\ref{eq:mw_as_condexp_of_m}), this is equivalent to
+\[
+m_t = \E[m_t\mid \cW_t^{(w)}] \ \text{a.s.}
+\]
+A square-integrable random variable equals its conditional expectation with respect to a $\sigma$-field if and only if it is measurable with respect to that $\sigma$-field. Hence
+\[
+R_w^\star = R_{\mathrm{full}}^\star
+\quad\Longleftrightarrow\quad
+m_t \text{ is } \cW_t^{(w)}\text{-measurable},
+\]
+and Eq. (\ref{eq:iff_nonmeasurable}) follows by negation.
+\end{proof}
+
+
+
+
+
+
+
+
+
+
+\begin{corollary}[Explicit lower bound under an atomic recent-window mismatch]
+\label{cor:atomic_window_lower_bound}
+Suppose there is a window value $s$ for which the event $E := \{W_t^{(w)} = s\}$ occurs with positive probability, $\Prob(E)>0$. Furthermore, suppose there exist disjoint events $E_1, E_2 \in \cH_t$ that partition $E$ into $E_1 \cup E_2 = E$, along with distinct constants $\mu_1, \mu_2 \in \R$, such that $m_t = \mu_1$ almost surely on $E_1$ and $m_t = \mu_2$ almost surely on $E_2$. If we define the conditional probability $\alpha := \Prob(E_1 \mid E) \in (0,1)$, then the excess risk is bounded below by
+\begin{equation}
+R_w^\star - R_{\mathrm{full}}^\star \ge \Prob(E)\alpha(1-\alpha)(\mu_1-\mu_2)^2.
+\label{eq:explicit_lower_bound}
+\end{equation}
+\end{corollary}
+
+
+
+
+
+\begin{proof}[Proof of Corollary \ref{cor:atomic_window_lower_bound}]
+By Theorem~\ref{thm:necessity_persistent_state},
+\begin{equation}
+R_w^\star - R_{\mathrm{full}}^\star
+=
+\E\!\bigl[\Var(m_t\mid \cW_t^{(w)})\bigr].
+\label{eq:corollary_start}
+\end{equation}
+Since conditional variance is nonnegative almost surely, we may restrict the expectation to the event $E$ and obtain
+\begin{equation}
+R_w^\star - R_{\mathrm{full}}^\star
+\ge
+\E\!\bigl[\Var(m_t\mid \cW_t^{(w)})\,\mathbbm{1}_E\bigr].
+\label{eq:corollary_restrict_E}
+\end{equation}
+
+Now $E=\{W_t^{(w)}=s\}\in \cW_t^{(w)}$ and, by assumption, it is an atom of the $\sigma$-field $\cW_t^{(w)}$.
+Hence every $\cW_t^{(w)}$-measurable random variable is almost surely constant on $E$.
+In particular, there exists a constant $c\in\R$ such that
+\[
+\Var(m_t\mid \cW_t^{(w)}) = c
+\qquad \text{a.s. on } E.
+\]
+Moreover, because $W_t^{(w)}=s$ almost surely on $E$, conditioning on $\cW_t^{(w)}$ and restricting to $E$ is equivalent to conditioning on the event $E$ itself. Thus
+\[
+c = \Var(m_t\mid E),
+\]
+and therefore
+\begin{equation}
+\E\!\bigl[\Var(m_t\mid \cW_t^{(w)})\,\mathbbm{1}_E\bigr]
+=
+\Prob(E)\,\Var(m_t\mid E).
+\label{eq:variance_on_atom}
+\end{equation}
+
+Next, since $E_1$ and $E_2$ form a partition of $E$, and
+\[
+m_t=\mu_1 \quad \text{a.s. on } E_1,
+\qquad
+m_t=\mu_2 \quad \text{a.s. on } E_2,
+\]
+it follows that under the conditional law given $E$, the random variable $m_t$ takes the value $\mu_1$ with probability
+\[
+\Prob(E_1\mid E)=\alpha,
+\]
+and the value $\mu_2$ with probability
+\[
+\Prob(E_2\mid E)=1-\alpha.
+\]
+Hence
+\[
+\E[m_t\mid E] = \alpha \mu_1 + (1-\alpha)\mu_2,
+\]
+and
+\[
+\E[m_t^2\mid E] = \alpha \mu_1^2 + (1-\alpha)\mu_2^2.
+\]
+Therefore
+\begin{align}
+\Var(m_t\mid E)
+&=
+\E[m_t^2\mid E] - \bigl(\E[m_t\mid E]\bigr)^2
+\nonumber\\
+&=
+\alpha\mu_1^2 + (1-\alpha)\mu_2^2
+-
+\bigl(\alpha \mu_1 + (1-\alpha)\mu_2\bigr)^2
+\nonumber\\
+&=
+\alpha(1-\alpha)(\mu_1-\mu_2)^2.
+\label{eq:binary_variance_formula}
+\end{align}
+Combining Eq. (\ref{eq:corollary_restrict_E}), Eq. (\ref{eq:variance_on_atom}), and Eq. (\ref{eq:binary_variance_formula}) yields
+\[
+R_w^\star - R_{\mathrm{full}}^\star
+\ge
+\Prob(E)\,\alpha(1-\alpha)(\mu_1-\mu_2)^2,
+\]
+which is exactly Eq. (\ref{eq:explicit_lower_bound}).
+\end{proof}
+
+
+
+
+
+
+
+
+
+
+
+\begin{remark}[Information-theoretic interpretation]
+\label{rem:information_theoretic_meaning}
+Theorem~\ref{thm:necessity_persistent_state} yields the exact identity
+\begin{equation}
+R_w^\star - R_{\mathrm{full}}^\star
+=
+\norm{
+\E[Y\mid \cH_t] - \E[Y\mid \cW_t^{(w)}]
+}_{L^2}^2.
+\label{eq:information_theoretic_identity}
+\end{equation}
+Thus, the necessity claim is quantitative rather than merely qualitative: whenever the full-history Bayes predictor depends on information outside the recent window, every bounded-window predictor incurs an exactly measurable irreducible excess risk. In long-horizon world modeling, this formalizes the intuition that purely local temporal context is insufficient whenever future consistency depends on persistent world state beyond the visible short-range past.
+\end{remark}
+
+\begin{remark}[Architectural interpretation]
+\label{rem:architectural_interpretation}
+Theorem~\ref{thm:necessity_persistent_state} is a statement about information rather than about a particular neural implementation. What it proves is that supra-window information must be preserved if one seeks Bayes-optimal long-horizon prediction. In a recursive predictor, the natural implementation of such preservation is a propagated latent memory in the sense of Definition~\ref{def:persistent_latent_state}. This is the theoretical reason why a long-horizon world model requires a dedicated persistent memory pathway rather than only local attention.
+\end{remark}
+
+\begin{remark}[Connection to long-horizon evaluation]
+\label{rem:connection_to_experiments}
+To connect the theorem with practical scenarios, let $Y$ denote a future target directly relevant to long-horizon world-model evaluation. This target could be a future latent-frame coordinate, an object-identity consistency variable, a collision outcome, or a task-progress indicator situated several seconds ahead. Consequently, the gap presented in Eq. (\ref{eq:risk_gap_exact_identity}) provides a formal expression for the identical difficulty probed by our long-horizon evaluations. Specifically, whenever the historical cause governing the future target remains unrecoverable from the recent local window alone, any purely local temporal model inevitably incurs a nonzero prediction gap regardless of its optimization quality.
+\end{remark}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\subsection{Approximate Sufficiency of a Hybrid Multi-Scale Temporal Memory}
+\label{subsec:kairos_sufficiency}
+
+The necessity result explains why some persistent state is unavoidable, but it does not yet explain why the particular temporal factorization used in the architecture is adequate. We now show that a hybrid multi-scale temporal memory is approximately sufficient whenever the Bayes predictor admits the corresponding decomposition and the global recurrent memory evolves stably. The result formalizes the complementary roles of a shared predictive representation, a short-range local branch, a mid-range branch, and a global memory branch.
+
+\begin{definition}[Exact hybrid multi-scale predictive decomposition]
+\label{def:exact_hybrid_decomp}
+We say that the Bayes predictor admits an exact hybrid multi-scale predictive decomposition if there exist square-integrable, $\cH_t$-measurable random variables
+\[
+U_t^\star \in \R^{d_U},
+\qquad
+C_t^\star \in \R^{d_C},
+\qquad
+D_t^\star \in \R^{d_D},
+\qquad
+G_t^\star \in \R^{d_v \times d_k},
+\]
+together with a measurable decoder
+\[
+h_t:\R^{d_U}\times\R^{d_C}\times\R^{d_D}\times\R^{d_v\times d_k}\to\R,
+\]
+such that
+\begin{equation}
+\mu_t^\star := \E[Y\mid \cH_t] = h_t(U_t^\star,C_t^\star,D_t^\star,G_t^\star)
+\qquad \text{a.s.}
+\label{eq:exact_decomposition}
+\end{equation}
+The four components are interpreted as follows:
+\begin{itemize}
+    \item $U_t^\star$: a shared physical predictive state;
+    \item $C_t^\star$: a short-range local state;
+    \item $D_t^\star$: a mid-range dilated state;
+    \item $G_t^\star$: a global recurrent causal memory.
+\end{itemize}
+\end{definition}
+
+
+\begin{remark}[Architecture correspondence]
+\label{rem:architecture_correspondence}
+Although stated abstractly, Definition~\ref{def:exact_hybrid_decomp} is specifically designed to parallel our concrete temporal factorization. Within the implemented architecture, $C_t^\star$ and $D_t^\star$ map to the short- and mid-range temporal pathways instantiated by SWA and DSWA. Furthermore, $G_t^\star$ represents the global gated memory pathway instantiated by GLA. Finally, the variable $U_t^\star$ embodies the shared predictive substrate that is continuously reused across understanding, generation, and prediction tasks.
+\end{remark}
+
+
+
+
+\begin{definition}[Hybrid multi-scale predictor and gated global-memory update]
+\label{def:hybrid_predictor}
+A hybrid multi-scale predictor is of the form
+\begin{equation}
+\hat\mu_t = h_t(\hat U_t,\hat C_t,\hat D_t,\hat G_t),
+\label{eq:learned_predictor}
+\end{equation}
+where $\hat U_t,\hat C_t,\hat D_t,\hat G_t$ are square-integrable, $\cH_t$-measurable estimators of $U_t^\star,C_t^\star,D_t^\star,G_t^\star$, respectively. The global-memory branch is modeled by a gated delta update. Given a decay gate $\alpha \in (0, 1)$, a writing strength $\beta \in (0, 1)$, a current value $v \in \mathbb{R}^{d_v}$, and a key $k \in \mathbb{R}^{d_k}$, we define the update map for a state $S \in \mathbb{R}^{d_v \times d_k}$ as follows:
+\begin{equation}
+F(S;\alpha,\beta,v,k)
+:=
+\alpha S + \beta (v-Sk)k^\top,
+\qquad
+S\in\R^{d_v\times d_k}.
+\label{eq:F_map}
+\end{equation}
+Then the exact and learned global memories satisfy
+\begin{equation}
+G_t^\star = F(G_{t-1}^\star;\alpha_t^\star,\beta_t^\star,v_t^\star,k_t^\star),
+\label{eq:exact_G_update}
+\end{equation}
+\begin{equation}
+\hat G_t = F(\hat G_{t-1};\hat\alpha_t,\hat\beta_t,\hat v_t,\hat k_t).
+\label{eq:learned_G_update}
+\end{equation}
+\end{definition}
+
+
+
+
+
+\begin{definition}[Non-global branch approximation quality]
+\label{def:branch_errors}
+For the hybrid predictor in Definition~\ref{def:hybrid_predictor}, define the non-global branch
+approximation errors at time $t$ by
+\begin{equation}
+\varepsilon_t^U := \|\hat U_t-U_t^\star\|_{L^2},\qquad
+\varepsilon_t^{\mathrm{SWA}} := \|\hat C_t-C_t^\star\|_{L^2},\qquad
+\varepsilon_t^{\mathrm{DSWA}} := \|\hat D_t-D_t^\star\|_{L^2}.
+\label{eq:branch_error_defs}
+\end{equation}
+Here, $\varepsilon_t^U$ measures the approximation quality of the shared predictive substrate,
+$\varepsilon_t^{\mathrm{SWA}}$ measures the short-range branch error, and
+$\varepsilon_t^{\mathrm{DSWA}}$ measures the mid-range branch error.
+\end{definition}
+
+
+
+
+
+\begin{definition}[One-step gate approximation errors]
+\label{ass:gla_errors}
+Define
+\begin{equation}
+\varepsilon_t^\alpha := \norm{\hat\alpha_t-\alpha_t^\star}_{L^2},
+\qquad
+\varepsilon_t^\beta := \norm{\hat\beta_t-\beta_t^\star}_{L^2},
+\label{eq:gate_errors}
+\end{equation}
+\begin{equation}
+\varepsilon_t^v := \norm{\hat v_t-v_t^\star}_{L^2},
+\qquad
+\varepsilon_t^k := \norm{\hat k_t-k_t^\star}_{L^2}.
+\label{eq:feature_errors}
+\end{equation}
+Also define the initial global-memory discrepancy
+\begin{equation}
+e_0 := \norm{\hat G_0-G_0^\star}_{L^2}.
+\label{eq:initial_memory_error}
+\end{equation}
+\end{definition}
+
+For convenience, define the Bayes risk
+\begin{equation}
+\mathcal R_t^\star := \mathcal R_t(\mu_t^\star) = \E[(Y-\mu_t^\star)^2].
+\label{eq:bayes_risk}
+\end{equation}
+
+
+
+
+
+
+
+
+
+\begin{lemma}[Bayes excess identity]
+\label{lem:bayes_excess_identity}
+For any square-integrable, $\cH_t$-measurable predictor $\hat\mu_t$,
+\begin{equation}
+\mathcal R_t(\hat\mu_t)-\mathcal R_t^\star
+=
+\|\hat\mu_t-\mu_t^\star\|_{L^2}^2.
+\label{eq:bayes_excess_identity}
+\end{equation}
+\end{lemma}
+
+\begin{proof}[Proof of Lemma \ref{lem:bayes_excess_identity}]
+Recall that
+\[
+\mathcal R_t(\hat\mu_t)=\E\bigl[(Y-\hat\mu_t)^2\bigr],
+\qquad
+\mathcal R_t^\star=\E\bigl[(Y-\mu_t^\star)^2\bigr],
+\]
+where $\mu_t^\star=\E[Y\mid \cH_t]$ is the Bayes predictor. Hence,
+\begin{align}
+\mathcal R_t(\hat\mu_t)-\mathcal R_t^\star
+&=
+\E\bigl[(Y-\hat\mu_t)^2-(Y-\mu_t^\star)^2\bigr].
+\label{eq:bayes_excess_start}
+\end{align}
+Expanding the difference of squares gives
+\begin{align}
+(Y-\hat\mu_t)^2-(Y-\mu_t^\star)^2
+&=
+\bigl((Y-\mu_t^\star)+(\mu_t^\star-\hat\mu_t)\bigr)^2-(Y-\mu_t^\star)^2
+\nonumber\\
+&=
+(\mu_t^\star-\hat\mu_t)^2
++
+2(Y-\mu_t^\star)(\mu_t^\star-\hat\mu_t).
+\label{eq:bayes_excess_expand}
+\end{align}
+Substituting Eq. (\ref{eq:bayes_excess_expand}) into Eq. (\ref{eq:bayes_excess_start}), we obtain
+\begin{align}
+\mathcal R_t(\hat\mu_t)-\mathcal R_t^\star
+&=
+\E\bigl[(\mu_t^\star-\hat\mu_t)^2\bigr]
++
+2\,\E\bigl[(Y-\mu_t^\star)(\mu_t^\star-\hat\mu_t)\bigr].
+\label{eq:bayes_excess_cross}
+\end{align}
+It therefore remains to show that the cross term vanishes.
+
+Since both $\hat\mu_t$ and $\mu_t^\star$ are $\cH_t$-measurable, the difference
+$\mu_t^\star-\hat\mu_t$ is also $\cH_t$-measurable and square-integrable. By the tower property,
+\begin{align}
+\E\bigl[(Y-\mu_t^\star)(\mu_t^\star-\hat\mu_t)\bigr]
+&=
+\E\!\left[
+\E\bigl[(Y-\mu_t^\star)(\mu_t^\star-\hat\mu_t)\mid \cH_t\bigr]
+\right]
+\nonumber\\
+&=
+\E\!\left[
+(\mu_t^\star-\hat\mu_t)\,\E[Y-\mu_t^\star\mid \cH_t]
+\right].
+\label{eq:cross_term_conditional}
+\end{align}
+Because $\mu_t^\star=\E[Y\mid \cH_t]$, we have
+\[
+\E[Y-\mu_t^\star\mid \cH_t]
+=
+\E[Y\mid \cH_t]-\mu_t^\star
+=
+0.
+\]
+Thus the right-hand side of Eq. (\ref{eq:cross_term_conditional}) is zero, and therefore
+\[
+\E\bigl[(Y-\mu_t^\star)(\mu_t^\star-\hat\mu_t)\bigr]=0.
+\]
+Returning to Eq. (\ref{eq:bayes_excess_cross}), we conclude that
+\begin{align}
+\mathcal R_t(\hat\mu_t)-\mathcal R_t^\star
+&=
+\E\bigl[(\mu_t^\star-\hat\mu_t)^2\bigr]
+=
+\|\hat\mu_t-\mu_t^\star\|_{L^2}^2,
+\end{align}
+which proves Eq. (\ref{eq:bayes_excess_identity}).
+\end{proof}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\begin{lemma}[Contraction of the exact gated delta update]
+\label{lem:gla_contraction}
+Fix $(\alpha,\beta,v,k)$ and define $F$ by Eq. (\ref{eq:F_map}). Let $\rho:=\alpha + \beta \norm{k}_2^2$.  Suppose $ \norm{k}_2^2 < 1-\alpha$. Therefore, given $\alpha, \beta \in (0, 1)$, the update is strictly contractive with a factor $\rho < 1$, satisfying for all $S, T \in \mathbb{R}^{d_v \times d_k}$:
+\begin{equation}
+\norm{F(S;\alpha,\beta,v,k)-F(T;\alpha,\beta,v,k)}_F
+\le
+\rho \norm{S-T}_F.
+\label{eq:gla_contraction_result}
+\end{equation}
+\end{lemma}
+
+
+
+\begin{proof}[Proof of Lemma \ref{lem:gla_contraction}]
+We prove that the gated delta update is contractive with respect to its memory-state argument.
+Fix two memory states $S,T \in \mathbb R^{d_v\times d_k}$ and let
+\[
+\Delta := S-T.
+\]
+Since the value term $v$ appears identically in both updates, it cancels when taking the difference.
+Indeed, by the definition of $F$ in Eq. (\ref{eq:F_map}),
+\begin{align}
+F(S;\alpha,\beta,v,k)-F(T;\alpha,\beta,v,k)
+&=
+\alpha S + \beta (v-Sk)k^\top
+-\alpha T - \beta (v-Tk)k^\top
+\nonumber\\
+&=
+\alpha(S-T)+\beta\bigl[(v-Sk)-(v-Tk)\bigr]k^\top
+\nonumber\\
+&=
+\alpha\Delta-\beta\Delta kk^\top.
+\label{eq:gla_diff_expand}
+\end{align}
+Thus, the difference between the two updated memory states depends only on the previous discrepancy
+$\Delta$ and on the rank-one correction induced by the key $k$.
+
+We now bound the Frobenius norm of the right-hand side. By the triangle inequality,
+\begin{equation}
+\|F(S;\alpha,\beta,v,k)-F(T;\alpha,\beta,v,k)\|_F
+\le
+\alpha\|\Delta\|_F+\beta\|\Delta kk^\top\|_F.
+\label{eq:gla_triangle}
+\end{equation}
+It remains to control the second term. Observe first that
+\[
+\Delta kk^\top = (\Delta k)k^\top.
+\]
+This is a rank-one matrix. For any vectors $a$ and $b$, the Frobenius norm of the outer product
+factorizes as
+\[
+\|ab^\top\|_F = \|a\|_2\,\|b\|_2.
+\]
+Applying this identity with $a=\Delta k$ and $b=k$ yields
+\begin{equation}
+\|\Delta kk^\top\|_F
+=
+\|(\Delta k)k^\top\|_F
+=
+\|\Delta k\|_2\,\|k\|_2.
+\label{eq:rankone_identity}
+\end{equation}
+Next, using the standard operator-norm inequality together with
+$\|\Delta\|_2 \le \|\Delta\|_F$, we obtain
+\begin{equation}
+\|\Delta k\|_2
+\le
+\|\Delta\|_2\,\|k\|_2
+\le
+\|\Delta\|_F\,\|k\|_2.
+\label{eq:operator_bound}
+\end{equation}
+Combining Eq. (\ref{eq:rankone_identity}) and Eq. (\ref{eq:operator_bound}), we conclude that
+\begin{equation}
+\|\Delta kk^\top\|_F
+\le
+\|\Delta\|_F\,\|k\|_2^2.
+\label{eq:delta_kk_bound}
+\end{equation}
+Substituting Eq. (\ref{eq:delta_kk_bound}) into Eq. (\ref{eq:gla_triangle}) gives
+\begin{align}
+\|F(S;\alpha,\beta,v,k)-F(T;\alpha,\beta,v,k)\|_F
+&\le
+\alpha\|\Delta\|_F+\beta\|\Delta\|_F\|k\|_2^2
+\nonumber\\
+&=
+\bigl(\alpha+\beta\|k\|_2^2\bigr)\|\Delta\|_F.
+\end{align}
+Then we obtain
+\begin{align}
+\|F(S;\alpha,\beta,v,k)-F(T;\alpha,\beta,v,k)\|_F
+&\le
+\rho\|\Delta\|_F
+=
+\rho\|S-T\|_F.
+\end{align}
+This proves Eq. (\ref{eq:gla_contraction_result}).
+\end{proof}
+
+
+
+
+
+
+
+
+
+
+
+\begin{lemma}[One-step perturbation bound for the global-memory update]
+\label{lem:gla_perturbation}
+Fix $t \ge 1$ and define the one-step update discrepancies by
+\begin{equation}
+\varepsilon_t^\alpha := \|\hat\alpha_t-\alpha_t^\star\|_{L^2},\qquad
+\varepsilon_t^\beta := \|\hat\beta_t-\beta_t^\star\|_{L^2},\qquad
+\varepsilon_t^v := \|\hat v_t-v_t^\star\|_{L^2},\qquad
+\varepsilon_t^k := \|\hat k_t-k_t^\star\|_{L^2}.
+\label{eq:one_step_error_defs}
+\end{equation}
+For notational convenience, let $B_G,B_k,B_v>0$ denote envelope constants satisfying
+$\|\hat G_{t-1}\|_F \le B_G$,
+$\|\hat k_t\|_2,\|k_t^\star\|_2 \le B_k$, and
+$\|\hat v_t\|_2,\|v_t^\star\|_2 \le B_v$
+almost surely. Define
+\begin{equation}
+\xi_t
+:=
+B_G\,\varepsilon_t^\alpha
++
+B_k(B_v+B_GB_k)\,\varepsilon_t^\beta
++
+B_k\,\varepsilon_t^v
++
+(B_v+2B_GB_k)\,\varepsilon_t^k.
+\label{eq:xi_def}
+\end{equation}
+Then
+\begin{equation}
+\Bigl\|
+F(\hat G_{t-1};\hat\alpha_t,\hat\beta_t,\hat v_t,\hat k_t)
+-
+F(\hat G_{t-1};\alpha_t^\star,\beta_t^\star,v_t^\star,k_t^\star)
+\Bigr\|_{L^2}
+\le
+\xi_t.
+\label{eq:one_step_perturbation}
+\end{equation}
+\end{lemma}
+
+
+
+
+
+
+\begin{proof}[Proof of Lemma \ref{lem:gla_perturbation}]
+For notational brevity, write
+\[
+\hat G := \hat G_{t-1},
+\quad
+\hat\alpha := \hat\alpha_t,\quad \alpha^\star := \alpha_t^\star,
+\quad
+\hat\beta := \hat\beta_t,\quad \beta^\star := \beta_t^\star,
+\quad
+\hat v := \hat v_t,\quad v^\star := v_t^\star,
+\quad
+\hat k := \hat k_t,\quad k^\star := k_t^\star.
+\]
+By the definition of $F$,
+\begin{align}
+F(\hat G;\hat\alpha,\hat\beta,\hat v,\hat k)
+-
+F(\hat G;\alpha^\star,\beta^\star,v^\star,k^\star)
+&=
+(\hat\alpha-\alpha^\star)\hat G
++
+(\hat\beta-\beta^\star)(\hat v-\hat G\hat k)\hat k^\top
+\nonumber\\
+&\qquad
++
+\beta^\star\Bigl[(\hat v-\hat G\hat k)\hat k^\top - (v^\star-\hat Gk^\star)(k^\star)^\top\Bigr].
+\label{eq:lem3_decomposition}
+\end{align}
+Hence
+\begin{equation}
+\norm{
+F(\hat G;\hat\alpha,\hat\beta,\hat v,\hat k)
+-
+F(\hat G;\alpha^\star,\beta^\star,v^\star,k^\star)
+}_F
+\le
+T_1 + T_2 + T_3,
+\label{eq:T123}
+\end{equation}
+where
+\[
+T_1 := \abs{\hat\alpha-\alpha^\star}\,\norm{\hat G}_F,
+\qquad
+T_2 := \abs{\hat\beta-\beta^\star}\,\norm{(\hat v-\hat G\hat k)\hat k^\top}_F,
+\]
+and
+\[
+T_3 := \beta^\star \norm{(\hat v-\hat G\hat k)\hat k^\top-(v^\star-\hat Gk^\star)(k^\star)^\top}_F.
+\]
+Then we obtain:
+\begin{equation}
+T_1 \le B_G \abs{\hat\alpha-\alpha^\star}.
+\label{eq:T1_bound}
+\end{equation}
+Using the fact that $\norm{ab^\top}_F = \norm{a}_2\norm{b}_2$, we obtain
+\begin{align}
+T_2
+&=
+\abs{\hat\beta-\beta^\star}\,
+\norm{\hat v-\hat G\hat k}_2 \,
+\norm{\hat k}_2
+\nonumber\\
+&\le
+\abs{\hat\beta-\beta^\star}\,
+(B_v+B_GB_k)\,B_k.
+\label{eq:T2_bound}
+\end{align}
+For $T_3$, since $\beta^\star\in(0,1)$, it suffices to bound the norm inside. First,
+\begin{align}
+(\hat v-\hat G\hat k)\hat k^\top-(v^\star-\hat Gk^\star)(k^\star)^\top
+&=
+(\hat v-v^\star)\hat k^\top
++
+v^\star(\hat k-k^\star)^\top
+\nonumber\\
+&\qquad
+-
+\hat G(\hat k\hat k^\top-k^\star (k^\star)^\top).
+\label{eq:T3_expand}
+\end{align}
+Therefore,
+\begin{align}
+T_3
+&\le
+\norm{(\hat v-v^\star)\hat k^\top}_F
++
+\norm{v^\star(\hat k-k^\star)^\top}_F
++
+\norm{\hat G(\hat k\hat k^\top-k^\star (k^\star)^\top)}_F
+\nonumber\\
+&\le
+B_k\norm{\hat v-v^\star}_2
++
+B_v\norm{\hat k-k^\star}_2
++
+\norm{\hat G}_F \norm{\hat k\hat k^\top-k^\star (k^\star)^\top}_F.
+\label{eq:T3_three_terms}
+\end{align}
+Now write
+\[
+\hat k\hat k^\top-k^\star (k^\star)^\top
+=
+\hat k(\hat k-k^\star)^\top
++
+(\hat k-k^\star)(k^\star)^\top.
+\]
+Hence
+\begin{equation}
+\norm{\hat k\hat k^\top-k^\star (k^\star)^\top}_F
+\le
+2B_k \norm{\hat k-k^\star}_2,
+\label{eq:kk_bound}
+\end{equation}
+and therefore, 
+\begin{equation}
+T_3
+\le
+B_k \norm{\hat v-v^\star}_2
++
+(B_v+2B_GB_k)\norm{\hat k-k^\star}_2.
+\label{eq:T3_bound}
+\end{equation}
+Combining Eq. (\ref{eq:T1_bound}), Eq. (\ref{eq:T2_bound}), and Eq. (\ref{eq:T3_bound}), then taking the $L^2$ norm and applying Minkowski's inequality, yields
+\begin{align}
+&\norm{
+F(\hat G_{t-1};\hat\alpha_t,\hat\beta_t,\hat v_t,\hat k_t)
+-
+F(\hat G_{t-1};\alpha_t^\star,\beta_t^\star,v_t^\star,k_t^\star)
+}_{L^2}
+\nonumber\\
+&\qquad\le
+B_G\,\varepsilon_t^\alpha
++
+B_k(B_v+B_GB_k)\,\varepsilon_t^\beta
++
+B_k\,\varepsilon_t^v
++
+(B_v+2B_GB_k)\,\varepsilon_t^k
+=
+\xi_t,
+\end{align}
+which proves Eq. (\ref{eq:one_step_perturbation}).
+\end{proof}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\begin{theorem}[Approximate sufficiency of a hybrid multi-scale temporal memory]
+\label{thm:kairos_sufficiency}
+Suppose that the Bayes predictor admits the decomposition in Definition~\ref{def:exact_hybrid_decomp}, the decoder $h_t$ is coordinate-wise Lipschitz with constants $L_U$, $L_C$, $L_D$, and $L_G$, and the conditions in Lemma~\ref{lem:gla_contraction} hold. Define
+\begin{equation}
+e_t := \|\hat G_t-G_t^\star\|_{L^2}, \qquad
+\varepsilon_t := \max\!\bigl\{\varepsilon_t^U,\varepsilon_t^{\mathrm{SWA}},\varepsilon_t^{\mathrm{DSWA}}\bigr\},
+\qquad
+L := L_U+L_C+L_D .
+\label{eq:et_eps_def}
+\end{equation}
+Then, for every $t\ge 0$, the following hold:
+\begin{enumerate}
+    \item[\textup{(i)}] \textbf{Global-memory error bound.}
+   The global-memory branch satisfies
+\begin{equation}
+    e_t \le \rho^t e_0 + \frac{1-\rho^t}{1-\rho}\, \sup_{1\le i\le t}\xi_i,
+    \label{eq:main_memory_bound}
+\end{equation}
+with $\xi_i$ defined in Eq. (\ref{eq:xi_def}), and $\rho<1$. 
+In particular, define $\bar\xi :=  \sup_{i\ge 1}\xi_i$,  we have
+\begin{equation}
+    e_t \le \frac{\bar\xi}{1-\rho} \quad \text{as } t \to \infty.
+    \label{eq:main_memory_limsup}
+\end{equation}
+
+   \item[\textup{(ii)}] \textbf{Long-horizon excess-risk bound.}
+    Define $\varepsilon := \limsup_{t\to\infty} \varepsilon_t$. Then, the hybrid predictor asymptotically satisfies
+    \begin{equation}
+    \mathcal R_t(\hat\mu_t)-\mathcal R_t^\star 
+    \le
+    \left(
+    L \varepsilon
+    +
+    \frac{L_G \bar\xi}{1-\rho}
+    \right)^2 \quad \text{as } t \to \infty.
+    \label{eq:main_risk_bound_infty}
+    \end{equation}
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}[Proof of Theorem \ref{thm:kairos_sufficiency}]
+We prove parts \textup{(i)} and \textup{(ii)} in sequence.
+
+\paragraph{Part \textup{(i)}: global-memory error bound.}
+Recall from Definition~\ref{def:hybrid_predictor} that the exact and learned global-memory states satisfy
+\[
+G_t^\star
+=
+F(G_{t-1}^\star;\alpha_t^\star,\beta_t^\star,v_t^\star,k_t^\star),
+\qquad
+\hat G_t
+=
+F(\hat G_{t-1};\hat\alpha_t,\hat\beta_t,\hat v_t,\hat k_t).
+\]
+Therefore, by the definition of $e_t$,
+\begin{align}
+e_t
+&=
+\|\hat G_t-G_t^\star\|_{L^2}
+\nonumber\\
+&=
+\Bigl\|
+F(\hat G_{t-1};\hat\alpha_t,\hat\beta_t,\hat v_t,\hat k_t)
+-
+F(G_{t-1}^\star;\alpha_t^\star,\beta_t^\star,v_t^\star,k_t^\star)
+\Bigr\|_{L^2}.
+\label{eq:proof_part1_start_refined}
+\end{align}
+
+To separate the perturbation of the current update from the propagation of the previous memory error, we add and subtract the intermediate term
+\[
+F(\hat G_{t-1};\alpha_t^\star,\beta_t^\star,v_t^\star,k_t^\star)
+\]
+inside the norm. By the triangle inequality,
+\begin{align}
+e_t
+&\le
+\Bigl\|
+F(\hat G_{t-1};\hat\alpha_t,\hat\beta_t,\hat v_t,\hat k_t)
+-
+F(\hat G_{t-1};\alpha_t^\star,\beta_t^\star,v_t^\star,k_t^\star)
+\Bigr\|_{L^2}
+\nonumber\\
+&\qquad
++
+\Bigl\|
+F(\hat G_{t-1};\alpha_t^\star,\beta_t^\star,v_t^\star,k_t^\star)
+-
+F(G_{t-1}^\star;\alpha_t^\star,\beta_t^\star,v_t^\star,k_t^\star)
+\Bigr\|_{L^2}.
+\label{eq:add_subtract_global_refined}
+\end{align}
+
+We now bound the two terms on the right-hand side separately.
+
+For the first term, Lemma~\ref{lem:gla_perturbation} gives the one-step perturbation bound
+\begin{equation}
+\Bigl\|
+F(\hat G_{t-1};\hat\alpha_t,\hat\beta_t,\hat v_t,\hat k_t)
+-
+F(\hat G_{t-1};\alpha_t^\star,\beta_t^\star,v_t^\star,k_t^\star)
+\Bigr\|_{L^2}
+\le
+\xi_t.
+\label{eq:first_term_bound_refined}
+\end{equation}
+
+
+For the second term, applying the contraction property from Lemma~\ref{lem:gla_contraction} guarantees that
+\begin{equation}
+\Bigl\|
+F(\hat G_{t-1};\alpha_t^\star,\beta_t^\star,v_t^\star,k_t^\star)
+-
+F(G_{t-1}^\star;\alpha_t^\star,\beta_t^\star,v_t^\star,k_t^\star)
+\Bigr\|_{L^2}
+\le
+\rho_{t} \|\hat G_{t-1}-G_{t-1}^\star\|_{L^2}
+=
+\rho_{t} e_{t-1},
+\label{eq:second_term_bound_refined}
+\end{equation}
+where the contraction factor satisfies $\rho_t < 1$ for all $t \ge 1$. We then suppose that $\rho := \sup_{t \ge 1} \rho_t < 1$.
+
+
+
+
+
+
+Substituting Eq. (\ref{eq:first_term_bound_refined}) and Eq. (\ref{eq:second_term_bound_refined}) into Eq. (\ref{eq:add_subtract_global_refined}), we obtain the one-step recursion
+\begin{equation}
+e_t \le \xi_t + \rho e_{t-1}.
+\label{eq:one_step_et_recursion_refined}
+\end{equation}
+
+We next unroll this recursion. Repeated application of Eq. (\ref{eq:one_step_et_recursion_refined}) yields
+\begin{align}
+e_t
+&\le
+\xi_t + \rho e_{t-1}
+\nonumber\\
+&\le
+\xi_t + \rho \xi_{t-1} + \rho^2 e_{t-2}
+\nonumber\\
+&\le \cdots \le
+\rho^t e_0 + \sum_{i=1}^{t}\rho^{\,t-i}\xi_i.
+\label{eq:unrolled_global_recursion}
+\end{align}
+Since $\xi_i \le \sup_{1\le j\le t}\xi_j$ for every $1\le i\le t$, we further obtain
+\begin{align}
+e_t
+&\le
+\rho^t e_0 + \Bigl(\sup_{1\le j\le t}\xi_j\Bigr)\sum_{i=1}^{t}\rho^{\,t-i}
+\nonumber\\
+&=
+\rho^t e_0 + \Bigl(\sup_{1\le j\le t}\xi_j\Bigr)\sum_{m=0}^{t-1}\rho^m
+\nonumber\\
+&=
+\rho^t e_0 + \frac{1-\rho^t}{1-\rho}\,\sup_{1\le i\le t}\xi_i,
+\label{eq:closed_form_et_bound}
+\end{align}
+which proves Eq. (\ref{eq:main_memory_bound}). Now let
+\[
+\bar\xi := \sup_{i\ge 1}\xi_i.
+\]
+Then Eq. (\ref{eq:closed_form_et_bound}) implies
+\begin{equation}
+e_t
+\le
+\rho^t e_0 + \frac{1-\rho^t}{1-\rho}\,\bar\xi.
+\label{eq:closed_form_et_bound_uniform}
+\end{equation}
+Since $\rho<1$, we have $\rho^t\to 0$ and $(1-\rho^t)/(1-\rho)\to 1/(1-\rho)$ as $t\to\infty$. Hence
+\begin{equation}
+e_t \le \frac{\bar\xi}{1-\rho}
+\qquad \text{as } t\to\infty,
+\label{eq:et_asymptotic_refined}
+\end{equation}
+which proves the asymptotic statement in part \textup{(i)}.
+
+\paragraph{Part \textup{(ii)}: long-horizon excess-risk bound.}
+By Definition~\ref{def:exact_hybrid_decomp}, the Bayes predictor has the form
+\[
+\mu_t^\star = h_t(U_t^\star,C_t^\star,D_t^\star,G_t^\star),
+\]
+whereas the learned predictor is given by
+\[
+\hat\mu_t = h_t(\hat U_t,\hat C_t,\hat D_t,\hat G_t).
+\]
+Since $h_t$ is coordinate-wise Lipschitz, we have the pointwise estimate
+\begin{align}
+|\hat\mu_t-\mu_t^\star|
+&\le
+L_U\|\hat U_t-U_t^\star\|
++
+L_C\|\hat C_t-C_t^\star\|
++
+L_D\|\hat D_t-D_t^\star\|
++
+L_G\|\hat G_t-G_t^\star\|_F.
+\label{eq:pointwise_decoder_bound_refined}
+\end{align}
+Taking $L^2$ norms on both sides and applying Minkowski's inequality yields
+\begin{align}
+\|\hat\mu_t-\mu_t^\star\|_{L^2}
+&\le
+L_U\|\hat U_t-U_t^\star\|_{L^2}
++
+L_C\|\hat C_t-C_t^\star\|_{L^2}
++
+L_D\|\hat D_t-D_t^\star\|_{L^2}
++
+L_G\|\hat G_t-G_t^\star\|_{L^2}
+\nonumber\\
+&=
+L_U\varepsilon_t^U
++
+L_C\varepsilon_t^{\mathrm{SWA}}
++
+L_D\varepsilon_t^{\mathrm{DSWA}}
++
+L_G e_t.
+\label{eq:predictor_error_before_grouping_refined}
+\end{align}
+
+By the definitions
+\[
+\varepsilon_t
+=
+\max\!\bigl\{\varepsilon_t^U,\varepsilon_t^{\mathrm{SWA}},\varepsilon_t^{\mathrm{DSWA}}\bigr\},
+\qquad
+L:=L_U+L_C+L_D,
+\]
+the first three terms can be grouped as
+\begin{align}
+L_U\varepsilon_t^U
++
+L_C\varepsilon_t^{\mathrm{SWA}}
++
+L_D\varepsilon_t^{\mathrm{DSWA}}
+&\le
+(L_U+L_C+L_D)\varepsilon_t
+=
+L\,\varepsilon_t.
+\label{eq:group_non_global_terms}
+\end{align}
+Substituting Eq. (\ref{eq:group_non_global_terms}) into Eq. (\ref{eq:predictor_error_before_grouping_refined}), we obtain
+\begin{equation}
+\|\hat\mu_t-\mu_t^\star\|_{L^2}
+\le
+L\,\varepsilon_t + L_G e_t.
+\label{eq:predictor_error_grouped_refined}
+\end{equation}
+
+Using the asymptotic estimate from part \textup{(i)}, we further obtain
+\begin{equation}
+\|\hat\mu_t-\mu_t^\star\|_{L^2}
+\le
+L\,\varepsilon_t + \frac{L_G\bar\xi}{1-\rho}
+\qquad \text{as } t\to\infty.
+\label{eq:predictor_error_asymptotic_refined}
+\end{equation}
+
+
+Finally, Lemma~\ref{lem:bayes_excess_identity} gives
+\[
+\mathcal R_t(\hat\mu_t)-\mathcal R_t^\star
+=
+\|\hat\mu_t-\mu_t^\star\|_{L^2}^2.
+\]
+Substituting Eq. (\ref{eq:predictor_error_asymptotic_refined}) into this identity yields
+\begin{equation}
+\mathcal R_t(\hat\mu_t)-\mathcal R_t^\star
+\le
+\left(
+L\varepsilon+\frac{L_G\bar\xi}{1-\rho}
+\right)^2
+\qquad \text{as } t\to\infty,
+\label{eq:final_risk_bound_refined}
+\end{equation}
+which proves Eq. (\ref{eq:main_risk_bound_infty}).
+\end{proof}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\begin{corollary}[Exact sufficiency in the realizable case]
+\label{cor:exact_sufficiency}
+Suppose that the hypotheses of Theorem~\ref{thm:kairos_sufficiency} hold. Assume further that the learned hybrid state exactly recovers the Bayes decomposition at every time step, in the sense that $\varepsilon_t^U
+=
+\varepsilon_t^{\mathrm{SWA}}
+=
+\varepsilon_t^{\mathrm{DSWA}}
+=
+0$, $\varepsilon_t^\alpha
+=
+\varepsilon_t^\beta
+=
+\varepsilon_t^v
+=
+\varepsilon_t^k
+=
+0$
+for all  $t$, and that the initial global-memory state is exactly aligned, $e_0 = 0$.
+Then, for every $t$,
+\begin{equation}
+\hat G_t = G_t^\star
+\qquad\text{and}\qquad
+\hat\mu_t = \mu_t^\star
+\qquad \text{a.s.}
+\label{eq:exact_sufficiency_predictor}
+\end{equation}
+Consequently,
+\begin{equation}
+\mathcal R_t(\hat\mu_t)=\mathcal R_t^\star.
+\label{eq:exact_sufficiency_risk}
+\end{equation}
+\end{corollary}
+
+
+
+
+
+
+
+\begin{proof}[Proof of Corollary \ref{cor:exact_sufficiency}]
+Under conditions in  Corollary \ref{cor:exact_sufficiency}, the quantity $\xi_t$ in Eq. (\ref{eq:xi_def}) satisfies $\xi_t = 0$ for all $t$. Since $e_0=0$, the memory recursion Eq. (\ref{eq:main_memory_bound}) gives $e_t=0$ for all $t$. Substituting these equalities into Eq. (\ref{eq:closed_form_et_bound}) and Eq. (\ref{eq:predictor_error_grouped_refined}) yields
+\[
+\norm{\hat\mu_t-\mu_t^\star}_{L^2} = 0,
+\]
+By Lemma~\ref{lem:bayes_excess_identity}, this is equivalent to
+\[
+\mathcal R_t(\hat\mu_t)-\mathcal R_t^\star = 0.
+\]
+which implies $\hat\mu_t=\mu_t^\star$ almost surely. This proves both Eq. (\ref{eq:exact_sufficiency_predictor}) and Eq. (\ref{eq:exact_sufficiency_risk}).
+\end{proof}
+
+
+\begin{remark}[Interpretation of the bound]
+\label{rem:interpretation}
+Theorem~\ref{thm:kairos_sufficiency} shows that the long-horizon prediction error is controlled by two quantities. The first is the aggregated non-global approximation term $L\varepsilon$, which summarizes the quality of the shared, short-range, and mid-range branches. The second is the global-memory term, whose asymptotic contribution is bounded by $L_G\bar\xi/(1-\rho)$, where $\bar\xi$ measures the worst-case one-step perturbation and $\rho<1$ ensures geometric damping of memory drift. In this sense, a hybrid multi-scale temporal memory is approximately sufficient: once the Bayes predictor factorizes across the four architectural roles, the remaining long-horizon degradation is fully accounted for by branchwise approximation quality together with a contractively controlled accumulation of global-memory perturbations.
+\end{remark}
+
+
+
+
+\begin{remark}[Why the global-memory branch is nontrivial]
+\label{rem:gla_nontrivial}
+Only the global branch can accumulate error across time. The contraction factor $\rho<1$ turns this accumulation into a geometrically discounted sum, preventing uncontrolled long-horizon drift. Without such a property, even small one-step errors in the global memory could grow super-linearly and destroy long-horizon consistency.
+\end{remark}
+
+\begin{remark}[Architectural and experimental relevance]
+\label{rem:scope}
+Theorem~\ref{thm:kairos_sufficiency} establishes architectural sufficiency rather than providing a performance guarantee for any specific model checkpoint. It serves to elucidate why the multi-scale temporal factorization is a principled design for long-horizon world modeling. In the concrete architecture, the short- and mid-range approximation terms reflect the representation quality of the SWA and DSWA pathways, whereas the discounted memory term characterizes the stability of the GLA pathway. This theoretical mechanism strongly complements the empirical long-horizon results presented in this work.
+\end{remark}
+
+
+\begin{remark}[Necessity--sufficiency template]
+\label{rem:necessity_sufficiency_pair}
+Taken together, Theorem~\ref{thm:necessity_persistent_state} and Theorem~\ref{thm:kairos_sufficiency} provide a compact necessity--sufficiency template for long-horizon world modeling: persistent memory is necessary whenever the Bayes predictor is not recent-window measurable, and a hybrid multi-scale temporal memory is approximately sufficient whenever the Bayes predictor admits the corresponding factorization and the global memory evolves contractively.
+\end{remark}

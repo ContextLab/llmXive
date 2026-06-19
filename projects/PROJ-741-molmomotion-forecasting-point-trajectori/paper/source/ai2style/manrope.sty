@@ -1,0 +1,34 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{ai2style/manrope}[Provides the manrope font]
+
+% Write the fd file
+\begin{filecontents}{t1manrope.fd}
+\ProvidesFile{t1manrope.fd}[Font definitions for T1/manrope.]
+
+\DeclareFontFamily{T1}{manrope}{}
+
+% Regular and Bold upright
+\DeclareFontShape{T1}{manrope}{m}{n}{<-> manroperegular}{}
+\DeclareFontShape{T1}{manrope}{b}{n}{<-> manropebold}{}
+
+% Italic shapes now map to real italic TTFs
+\DeclareFontShape{T1}{manrope}{m}{it}{<-> manropeitalic}{}
+\DeclareFontShape{T1}{manrope}{b}{it}{<-> manropebolditalic}{}
+
+% Small caps (still aliased)
+\DeclareFontShape{T1}{manrope}{m}{sc}{<-> ssub * manrope/m/n}{}
+\DeclareFontShape{T1}{manrope}{b}{sc}{<-> ssub * manrope/b/n}{}
+
+% Slanted shares shapes with italic
+\DeclareFontShape{T1}{manrope}{m}{sl}{<-> manropeitalic}{}
+\DeclareFontShape{T1}{manrope}{b}{sl}{<-> manropebolditalic}{}
+
+\end{filecontents}
+
+% Font map lines
+\pdfmapline{+manroperegular < ai2style/manrope/Manrope-Regular.ttf <T1-WGL4.enc}
+\pdfmapline{+manropebold < ai2style/manrope/Manrope-Bold.ttf <T1-WGL4.enc}
+\pdfmapline{+manropeitalic--base Manrope-RegularItalic "AutoEnc_ibzqqgesnfzipcad6a5yl46gig ReEncodeFont" <[ai2style/manrope/a_ibzqqg.enc <ai2style/manrope/Manrope-Italic.ttf}
+\pdfmapline{+manropebolditalic--base Manrope-BoldItalic "AutoEnc_ibzqqgesnfzipcad6a5yl46gig ReEncodeFont" <[ai2style/manrope/a_ibzqqg.enc <ai2style/manrope/Manrope-BoldItalic.ttf}
+
+\endinput

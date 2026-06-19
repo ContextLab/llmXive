@@ -1,0 +1,25 @@
+\renewcommand{\arraystretch}{1.1}
+\begin{table}[tbp]
+\setlength\tabcolsep{4.0pt}
+\centering
+\scriptsize
+\adjustbox{max width=\textwidth}{%
+\begin{tabular}{lccc cccc}
+\toprule
+\textbf{Model Name}
+ & \multicolumn{3}{c}{\textbf{Standard}}
+ & \multicolumn{4}{c}{\textbf{Ask-Output}} \\
+\cmidrule(lr){2-4} \cmidrule(lr){5-8}
+& Eff.\% & Explore\% & GS\%
+& Eff.\% & Explore\% & Traj-Match\% & GS\% \\
+\midrule
+\modelname{\kimiicon}{Kimi-K2.5}    & 62.5 & 23.0 & 39.4 & 100.0 & 28.0 & 68.2 & 31.2 \\
+\modelname{\qwenicon}{Qwen3.5-397B} & 21.9 & 29.0 & 23.8 & 100.0 & 19.0 & 82.7 & 27.6 \\
+\modelname{\seedicon}{Seed-2.0-Lite} & 26.2 & 30.0 & 24.6 & 49.9 & 35.0 & 66.3 & 63.5 \\
+\modelname{\seedicon}{Seed-2.0-Pro}  & 60.2 & 32.0 & 54.5 & 67.2 & 31.0 & 87.2 & 56.4 \\
+\bottomrule
+\end{tabular}
+}
+\caption{\textbf{Ask-output ablation on $9{\times}9$ mazes.} The ask-output setting explicitly asks the model to emit its internal wall map at every step; Traj-Match measures trajectory-map agreement.}
+\label{tab:ablation_askmap}
+\end{table}

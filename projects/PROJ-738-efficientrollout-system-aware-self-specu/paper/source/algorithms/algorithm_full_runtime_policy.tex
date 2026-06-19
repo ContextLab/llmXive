@@ -1,0 +1,69 @@
+\begin{algorithm}[t]
+\caption{\methodtitle{} Pipeline}
+\label{alg:full-pipeline}
+{\textbf{Parameter}:} draft-length set $\Gamma=[\gamma_{\mathrm{low}},\dots,\gamma_{\mathrm{high}}]$, toggle margin $\ToggleMargin$, block-efficiency thresholds $\alpha_{\mathrm{up}},\alpha_{\mathrm{down}}$, patience $P$\\
+{\textbf{Input}:} target model, rollout states with runtime batch size $B$, and sequence length $S$.
+\begin{algorithmic}[1]
+\State Initialize $\gamma_1 \gets \gamma_{\mathrm{low}}$ and $\mal_0 \gets \gamma_{\mathrm{low}}$
+\For{training timestep $t=1,2,\dots$}
+    \State Refresh the drafter by quantizing the current target model
+    \State Initialize $\SDOn \gets \textbf{false}$
+    \While{rollout not finished}
+        \If{$\SDOn=\textbf{false}$ and $\SDToggle(B,S,\mal_{t-1},\gamma_t)=0$}
+            \State Decode autoregressively
+        \ElsIf{$\SDOn=\textbf{false}$ and $\SDToggle(B,S,\mal_{t-1},\gamma_t)=1$}
+            \State $\SDOn \gets \textbf{true}$
+        \Else
+            \State Decode with SD using draft length $\gamma_t$
+        \EndIf
+    \EndWhile
+    \State Measure step-level block efficiency $\mal_t$
+    \State $\gamma_{t+1} \gets
+    \begin{cases}
+    \mathrm{next}_{\Gamma}(\gamma_t),
+    & \min\limits_{t' \in [t-P+1,t]} \mal_{t'} \ge 1+\gamma_t\alpha_{\mathrm{up}},\ \gamma_t<\gamma_{\mathrm{high}}, \\
+    \mathrm{prev}_{\Gamma}(\gamma_t),
+    & \max\limits_{t' \in [t-P+1,t]} \mal_{t'} \le 1+\gamma_t\alpha_{\mathrm{down}},\ \gamma_t>\gamma_{\mathrm{low}}, \\
+    \gamma_t,
+    & \text{otherwise.}
+    \end{cases}$
+    \State Run standard post-rollout optimization
+\EndFor
+\end{algorithmic}
+\end{algorithm}
+
+% \begin{algorithm}[t]
+% \caption{\methodtitle{} Runtime Policy}
+% \label{alg:full-pipeline}
+% {\textbf{Parameter}:} initial draft length $\gamma_0$, draft-length set $\Gamma=[\gamma_{\mathrm{low}},\dots,\gamma_{\mathrm{high}}]$, toggle margin $\epsilon$, block-efficiency thresholds $\alpha_{\mathrm{up}},\alpha_{\mathrm{down}}$, patience $P$\\
+% {\textbf{Input}:} target model, rollout states with runtime batch size $B$, and sequence length $S$.
+% \begin{algorithmic}[1]
+% \State Initialize $\gamma \gets \gamma_0$ and $\mal_{\mathrm{prev}} \gets \gamma_0$
+% \For{training timestep $t$}
+%     \State Refresh the drafter by quantizing the current target model
+%     \State Initialize $\SDOn \gets \textbf{false}$
+%     \While{rollout not finished}\mj{express prev using t}
+%         \If{$\SDOn=\textbf{false}$ and $\SDToggle(B,S,\mal_{\mathrm{prev}},\gamma)=0$}
+%             \State Decode autoregressively
+%         \ElsIf{$\SDOn=\textbf{false}$ and $\SDToggle(B,S,\mal_{\mathrm{prev}},\gamma)=1$}
+%             \State $\SDOn \gets \textbf{true}$
+%         \Else
+%             \State Decode with SD using draft length $\gamma$
+%         \EndIf
+%     \EndWhile
+%     \State Measure step-level block efficiency $\mal$
+%     \State Update $\gamma \gets
+%     \begin{cases}
+%     \mathrm{next}_{\Gamma}(\gamma),
+%     & \min\limits_{t' \in [t-P+1,t]} \mal_{t'} \ge 1+\gamma\alpha_{\mathrm{up}},\ \gamma<\gamma_{\mathrm{high}}, \\
+%     \mathrm{prev}_{\Gamma}(\gamma),
+%     & \max\limits_{t' \in [t-P+1,t]} \mal_{t'} \le 1+\gamma\alpha_{\mathrm{down}},\ \gamma>\gamma_{\mathrm{low}}, \\
+%     \gamma,
+%     & \text{otherwise.}
+%     \end{cases}$
+%     \State $\mal_{\mathrm{prev}} \gets \mal$
+%     \State Run standard post-rollout optimization
+% \EndFor
+% \end{algorithmic}
+% \end{algorithm}
+

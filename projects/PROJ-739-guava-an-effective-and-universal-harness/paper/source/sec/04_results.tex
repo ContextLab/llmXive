@@ -1,0 +1,189 @@
+\section{Experiments}
+
+To investigate whether Guava can act as a general interface for embodied manipulation, we distill embodied tool-use behaviors into a 4B-parameter VLM using fewer than 2K trajectories collected entirely in simulation, resulting in \texttt{\textbf{Guava-Agent-4B}}. We evaluate the resulting agent in both simulation and real-world environments to assess its ability to generalize across tasks, recover from failures, and transfer embodied capabilities from frontier models to compact open-source models.
+
+\vspace{-2mm}
+\subsection{Setup}
+We instantiate Guava with a 4B-parameter VLM, \texttt{Qwen3.5-4B}~\citep{qwen2026qwen35}, and train it using the two-stage optimization pipeline while freezing the vision encoder and aligner. All training is conducted on 8 NVIDIA H100 80GB GPUs using \texttt{bfloat16} precision. See Supplementary for detailed hyperparameters and implementation details.
+Our model is evaluated in both simulation and the real world. For simulation, we use Robosuite~\citep{robosuite2020}; for real-world experiments, we deploy on a Franka Research 3 robot arm~\citep{franka_research_3} with a calibrated Intel RealSense D435 RGB-D camera.
+The evaluation suite covers diverse object geometries, spatial arrangements, and manipulation strategies, including non-prehensile and long-horizon tasks.
+We divide the tasks into four categories: In-distribution (ID) tasks, which share task types with training but differ in scene configurations; Out-of-distribution (OOD) object tasks, which involve unseen objects or object names; OOD prompt tasks, which require following novel language instructions or task specifications; and OOD long-horizon tasks, which require composing multiple manipulation skills over extended interaction sequences.
+We report task success rate as the primary evaluation metric. A trial is considered successful if the agent completes the prompt-specified task within the execution horizon. 
+We compare against three representative baselines. \texttt{Qwen3.5-4B} evaluates the base foundation model operating under the Guava harness without embodied post-training. \texttt{GPT-5.4} serves as a strong proprietary VLM baseline equipped with the same observation space, tool set, and agent harness. Finally, \texttt{CaP-Agent0} is a concurrent harness-based manipulation agent that performs one-shot code generation and execution. All methods are evaluated in the same environments. To ensure a fair comparison, all agentic methods are provided with the same observation inputs and tool APIs whenever possible; \texttt{CaP-Agent0} uses its native execution interface.
+
+
+
+\begin{table*}[t!]
+    \centering
+    \small
+    \caption{
+    \textbf{Quantitative comparison on simulation tasks.}
+    Values are success rates (\%) evaluated over 15 episodes. 
+    Best results are marked \textbf{bold}. 
+    }
+    \label{tab:sim_baseline}
+    \resizebox{\textwidth}{!}{
+        \begin{tabular}{l!{\vrule}cccc!{\vrule}c}
+            \thickhline
+            \toprule
+
+            &
+            \multicolumn{4}{c!{\vrule}}{\textbf{Success Rate (\%)}} &
+            \\
+            
+            \textbf{Task Name}
+            & \texttt{CaP-Agent0}~\citep{fu2026capxframeworkbenchmarkingimproving}
+            & \texttt{Qwen3.5-4B}~\citep{qwen2026qwen35}
+            & \texttt{GPT-5.4}~\citep{openai2026gpt54}
+            & \texttt{\textbf{Guava-Agent-4B}}
+            & \textbf{Best}
+            \\
+
+            \midrule
+            \multicolumn{6}{c}{
+                \textcolor{gray}{\textit{ID}}
+            } \\
+            \rowcolor{gray!11}
+            place can in box      & 86.7 & 20.0 & \textbf{100.0} & \textbf{100.0} & 100.0 \\
+            arrange by size       & 46.7 & 0.0  & 40.0 & \textbf{66.7} & 66.7 \\
+            \rowcolor{gray!11}
+            remove cube from tray & 73.3 & 40.0 & 86.7 & \textbf{100.0} & 100.0 \\
+            push basket           & 20.0 & 0.0  & 26.7 & \textbf{60.0} & 60.0 \\
+            \rowcolor{gray!11}
+            close drawer          & 67.7 & 20.0 & 53.3 & \textbf{86.7} & 86.7 \\
+
+            \midrule
+            \multicolumn{6}{c}{
+                \textcolor{gray}{\textit{OOD Object}}
+            } \\
+            \rowcolor{gray!11}
+            pick up carrot      & \textbf{100.0} & 66.7 & \textbf{100.0} & \textbf{100.0} & 100.0 \\
+            tomato near potato  & \textbf{86.7} & 40.0 & \textbf{86.7} & \textbf{86.7} & 86.7 \\
+            \rowcolor{gray!11}
+            lemon in bin        & \textbf{100.0} & 20.0 & \textbf{100.0} & \textbf{100.0} & 100.0 \\
+            push pot            & 20.0 & 33.3 & 26.7 & \textbf{73.3} & 73.3 \\
+
+            \midrule
+            \multicolumn{6}{c}{
+                \textcolor{gray}{\textit{OOD Prompt}}
+            } \\
+            \rowcolor{gray!11}
+            stack cube reverse order          & 60.0 & 20.0 & \textbf{100.0} & \textbf{100.0} & 100.0 \\
+            arrange by size reverse direction & 46.7 & 13.3 & 26.7 & \textbf{66.7} & 66.7 \\
+
+            \midrule
+            \multicolumn{6}{c}{
+                \textcolor{gray}{\textit{OOD Long Horizon}}
+            } \\
+            \rowcolor{gray!11}
+            separate food and utensils      & 86.7 & 0.0 & 86.7 & \textbf{93.3} & 93.3 \\
+            set table                       & \textbf{93.3} & 20.0 & \textbf{93.3} & \textbf{93.3} & 93.3 \\
+            \rowcolor{gray!11}
+            shell game                      & 0.0 & \textbf{53.3} & 46.7 & 6.7 & 53.3 \\
+            place all red objects in basket & 53.3 & 0.0 & \textbf{80.0} & 0.0 & 80.0 \\
+
+            \midrule
+            \rowcolor{gray!11}
+            \textbf{Overall}
+            & 62.7
+            & 23.1
+            & 70.2
+            & \textbf{75.6}
+            & 75.6 \\
+
+            \bottomrule
+            \thickhline
+        \end{tabular}
+    }
+\end{table*}
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=0.9\linewidth]{images/real_world_comparison.pdf}
+    \caption{\textbf{Real-world performance.} \texttt{Guava-Agent-4B} achieves comparable performance to SOTA proprietary model in zero-shot real world setting. Success rates are evaluated over 10 episodes.}
+    \label{fig:real_world_performance}
+\end{figure}
+
+\subsection{Small VLM Achieves High Performance with Guava}
+
+Our experiments demonstrate that Guava can effectively transfer embodied manipulation capabilities to compact open-source models. 
+Using fewer than 2K simulation trajectories, \texttt{Guava-Agent-4B} achieves performance comparable to frontier proprietary systems in both simulation and real-world environments. Key findings are summarized below.
+
+\vspace{-2mm}
+
+\paragraph{Finding 1: \texttt{Guava-Agent-4B} achieves the strongest overall performance across ID and OOD tasks.}
+As shown in Table~\ref{tab:sim_baseline}, \texttt{Guava-Agent-4B} achieves the highest overall success rate of 75.6\%, outperforming \texttt{GPT-5.4} (70.2\%) and \texttt{CaP-Agent0} (62.7\%). 
+On ID tasks, it consistently achieves the best performance, including 100\% on \textit{place can in box} and \textit{remove cube from tray}. 
+The model also generalizes well to unseen objects and prompts, achieving 100\% on \textit{pick up carrot}, \textit{lemon in bin}, and \textit{stack cube reverse order}, while improving \textit{push pot} from 26.7\% (\texttt{GPT-5.4}) to 73.3\%. 
+On long-horizon tasks, it achieves 93.3\% on both \textit{separate food and utensils} and \textit{set table}. Failures are primarily concentrated on particularly challenging tasks such as \textit{shell game} (6.7\%) and \textit{place all red objects in basket} (0.0\%).
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.9\linewidth]{images/realworld_qualitative.pdf}
+\caption{
+\textbf{Example real-world rollouts.}
+Our model identifies the task-relevant objects and selects appropriate manipulation tools across diverse tasks and configurations.
+}
+\vspace{-2.5mm}
+\label{fig:real_qual}
+\end{figure}
+
+\vspace{-2mm}
+
+\paragraph{Finding 2: \texttt{Guava-Agent-4B} transfers effectively from simulation to the real world.}
+
+As shown in Figure~\ref{fig:real_world_performance}, \texttt{Guava-Agent-4B} achieves the highest overall success rates on both ID (86\%) and OOD (92\%) real-world tasks, outperforming other baselines. On ID tasks, our method achieves perfect success on \textit{pick up orange}, \textit{place can in box}, and \textit{remove cube from tray}, while substantially improving performance on the more challenging \textit{push basket} task (60\% vs. 40\% for \texttt{GPT-5.4}). 
+On OOD tasks, \texttt{Guava-Agent-4B} maintains strong performance, achieving 100\% success on \textit{move object away} and 90\% on \textit{set table}. These results demonstrate that embodied tool-use policies learned from fewer than 2K simulation trajectories can transfer effectively to real-world manipulation without additional real-world fine-tuning.
+
+
+\begin{wrapfigure}{r}{0.4\textwidth}
+  \vspace{-8pt}  % optional, trim space above
+  \centering
+  \includegraphics[width=0.38\textwidth]{images/sft_vs_rl.pdf}
+  \vspace{-8pt}
+  \caption{RL improves performance significantly for long-horizon tasks.}
+  \label{fig:sft_vs_rl}
+\end{wrapfigure}
+
+\paragraph{Finding 3: RL post-training substantially improves long-horizon reasoning and recovery behaviors.} Figure~\ref{fig:sft_vs_rl} compares the SFT and RL versions of \texttt{Guava-Agent-4B} on two challenging long-horizon tasks. While the SFT policy struggles on both \textit{shell game} 6.7\%) and \textit{place all red objects in basket} (0.0\%), RL post-training improves performance to 60.0\% and 93.3\%, respectively. 
+These tasks require the agent to execute extended action sequences, recover from intermediate failures, and reason over task progress. The large gains suggest that training on challenging long-horizon tasks with sparse success rewards effectively strengthens recovery behaviors and enables the policy to better handle off-trajectory states.
+
+\vspace{-2mm}
+
+\paragraph{Finding 4: Closed-loop execution is critical for long-horizon manipulation.}
+Compared with one-shot planning approaches such as \texttt{CaP-Agent0}, \texttt{Guava-Agent-4B} continuously interleaves observation, reasoning, and action execution on all trajectories. This enables the agent to detect failures, revise plans, and recover from execution errors, resulting in substantially stronger performance on long-horizon tasks.
+We provide some reasoning examples in Figure~\ref{fig:reasoning_trace}.
+
+\vspace{-2mm}
+
+\paragraph{Finding 5: \texttt{Guava-Agent-4B} exhibits recovery behaviors beyond those seen during training.}
+As shown in Figure~\ref{fig:recovery}, we observe successful recovery from previously unseen execution failures, including real-world control issues caused by joint limits and unreachable poses. The agent often generates plausible corrective actions, such as replanning target poses or returning to a home configuration before retrying, suggesting that recovery emerges from reasoning over execution feedback rather than memorizing predefined correction patterns.
+
+
+% Fig 5
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.9\linewidth]{images/reasoning.pdf}
+\caption{
+\textbf{Example reasoning \& tool-call trajectory.}
+At each step, the agent produces grounded reasoning trace to call appropriate embodied tools.
+}
+\vspace{-4mm}
+\label{fig:reasoning_trace}
+\end{figure}
+
+
+\begin{figure}[t]
+    \centering
+    % \vspace{-0.2in}
+    \includegraphics[width=0.9\linewidth]{images/recovery.pdf}
+    \vspace{-0.2em}
+    \caption{
+    \textbf{Example recovery actions under execution failures.}
+    During real-world execution, our model can identify errors, reason about their causes, and call appropriate recovery actions.
+    }
+    \vspace{-4mm}
+    \label{fig:recovery}
+    % \vspace{-0.2in}
+\end{figure}
+

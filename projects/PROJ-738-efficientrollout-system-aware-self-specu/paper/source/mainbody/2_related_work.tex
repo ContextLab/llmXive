@@ -1,0 +1,38 @@
+\section{Related Work}
+\label{sec:related-work}
+
+\subsection{Reinforcement Learning for LLMs}
+
+Frontier LLMs post-trained with RL have achieved state-of-the-art reasoning and agentic capabilities~\citep{guo2025deepseek,yang2025qwen3,team2025kimi,zeng2025glm}, enabled by advances in policy optimization~\citep{schulman2017proximal,shao2024deepseekmath,yu2025dapo,chen2025minimax}.
+In particular, RL with verifiable rewards (RLVR) has become a dominant paradigm for reasoning-heavy domains such as math and coding, where supervision can be obtained from rule-based checkers or unit tests rather than learned reward models~\citep{wen2025reinforcement,guo2025deepseek}.
+In on-policy RL, the policy being optimized is the same policy used for rollout, which avoids degradation from policy staleness and improves training stability and model quality~\citep{kumar2025llm,fu2025areal}.
+However, rollout generation is often the main \bottleneck{} because RL tends to induce longer outputs~\citep{chen2024not,liu2025understanding}, amplifying the cost of sequential, memory-bandwidth-bound AR decoding that can leave compute underutilized~\citep{gholami2024ai}.
+By contrast, other stages of the RL loop, including log-probability computation and policy updates, are more parallelizable.
+
+\subsection{Speculative Decoding for LLM Inference}
+
+SD accelerates target LLM decoding through a sequential drafting and parallel verification scheme~\citep{leviathan2023fast,chen2023accelerating}.
+This draft-and-verify structure preserves the target-model distribution through rejection sampling while exploiting underutilized compute in memory-bound decoding regimes.
+However, in compute-bound regimes, SD can be slower than standard AR decoding because parallel verification has little underutilized compute to exploit~\citep{sadhukhan2024magicdec}.
+SD methods differ mainly in how they construct the drafter~\citep{xia2024unlocking}.
+Canonical SD uses an independent smaller drafter model to approximate the target model~\citep{leviathan2023fast,chen2023accelerating}.
+To make drafting much cheaper, \nonparametric{} methods generate drafts from text using n-gram, prefix-tree, or suffix-tree matching~\citep{he2024rest,ou2024lossless,stewart2024n}.
+\Learned{} methods attach lightweight modules to the target model for efficient token prediction, such as FFN heads or one-layer drafters~\citep{li2024eagle,cai2024medusa}.
+Self-speculative decoding (self-SD) instead derives the drafter directly from the target model via layer skipping~\citep{zhang2024draft}, sparse attention~\citep{yue2026specattn}, or quantization~\citep{tiwari2025quantspec}.
+
+\subsection{Speculative Decoding for Rollout in Reinforcement Learning}
+
+\input{tables/related_works_categories}
+
+Several prior works use SD to accelerate rollout, a major RL \bottleneck{}.
+\Cref{tab:rl_sd_taxonomy} summarizes the main drafting methods for RL-specific SD:
+\textbf{(1) \History{}} methods adapt \nonparametric{} by reusing rollouts from previous epochs as draft proposals, e.g., via prefix- or suffix-based matching~\citep{liu2025spec,he2025history,shao2025beat}.
+They are easy to deploy and require no parameterized drafter, but often yield short accepted drafts because past trajectories sparsely cover future rollouts. They also require a warm-up period to collect rollout history and may rely on acceptance-boosting heuristics such as reduced temperatures or lossy lenience settings.
+\textbf{(2) \Learned{}} methods adapt auxiliary-drafter approaches from fixed-model SD, often using EAGLE-style drafters~\citep{li2024eagle,li2025eagle}, and aim to match the drafter to long-reasoning rollout distributions~\citep{zhang2025fastgrpo,chen2025respec,hu2026taming,iso2026accelerating}.
+However, such drafters are not generally available as public checkpoints, so obtaining them often requires dedicated drafter pretraining or several warm-up epochs before achieving effective speedup~\citep{zhang2025fastgrpo}.
+Tracking the evolving RL policy also requires online adaptation, adding system complexity and management overhead~\citep{hu2026taming}.
+\textbf{(3) \TargetInduced{}} methods correspond to self-SD methods that derive the drafter solely from the current target model.
+Our work instantiates this category with \textbf{\methodtitle{}}, which uses a weight-quantized copy of the target model as the drafter, staying synchronized with the evolving policy without separate online adaptation while maintaining high block efficiency.
+We focus on lossless on-policy RL acceleration and therefore exclude rollout-efficiency techniques that change the rollout distribution or termination process, such as lower-precision rollout inference~\citep{li2026qurl}, proxy rollout models~\citep{chen2026jackpot}, and early rollout termination~\citep{zhang2026sortedrl,zhou2025april}.
+
+% \textbf{(2) \Learned{}} methods, often inspired by~\citet{li2024eagle}, \mj{try to integrate the well known methods for fixed-llm acceleration ... however... long reasoning rollout ... not publicized (opensourced) in general... in this regard ... llm sd does not transfer ... }can achieve higher block efficiency in RL rollouts when their drafters are sufficiently adapted to long-reasoning rollout distributions~\citep{zhang2025fastgrpo,chen2025respec,hu2026taming,iso2026accelerating}.

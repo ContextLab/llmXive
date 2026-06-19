@@ -1,0 +1,30 @@
+\begin{figure}[t]
+    \centering
+
+    \begin{subfigure}[t]{0.32\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/appendix_nemorl_gen_time_h100_qwen3_8b.pdf}
+        \caption{Qwen3-8B}
+        \label{fig:appendix_qwen8b_eagle3_gentime}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.32\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/appendix_nemorl_gen_time_h100_qwen7b.pdf}
+        \caption{Qwen2.5-7B}
+        \label{fig:appendix_qwen7b_eagle3_gentime}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.32\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/appendix_nemorl_gen_time_h100_llama8b.pdf}
+        \caption{Llama3.1-8B}
+        \label{fig:appendix_llama8b_eagle3_gentime}
+    \end{subfigure}
+
+    \caption{
+    Rollout-generation time of EAGLE3 in the NeMo RL stack.
+    Among the evaluated EAGLE3 drafters, only Qwen3-8B with the RedHatAI thinking drafter reduces rollout-generation time, while the other configurations are slower than No-SD due to insufficient block efficiency.
+    }
+    \label{fig:app_eagle3_dapo_gentime}
+\end{figure}

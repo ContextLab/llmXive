@@ -1,0 +1,19 @@
+\begin{abstract}
+
+% Deploying multimodal foundation models as closed-loop policies increasingly requires acting on what was observed earlier, not just what is visible now. Yet existing benchmarks either expose the full state, bundle hidden information with unrelated agent skills, or probe recall only after the trajectory ends. We introduce \benchname{}~(\textbf{Reconstructive Non-Markov Games}), a benchmark that isolates one ability at the base-model level: reconstructing a no-longer-visible observation and acting on it, turn after turn, in closed loop. \benchname{} pairs two complementary games: \textbf{Matching Pairs} (briefly revealed cards must be recalled by location) and \textbf{3D Maze} (egocentric views must be assembled into a map) under a unified harness with three controlled difficulty axes (grid size, visual pattern, text vs.\ image), a head-to-head \textbf{duel} protocol that removes instance variance, and a \textbf{Memory Gap} metric that separates forgetting from poor action choice. Hardest configurations reach ${\sim}$128K tokens and 350 image inputs per episode. Across frontier MLLMs no system is close to saturation.
+% % : GPT-5.4 reaches 69.5\% on $8{\times}10$ Matching Pairs and drops to 62.3\% at $10{\times}10$.
+% Memory Gap attributes most remaining error to forgetting earlier observations rather than to poor decision making. Fine-tuning Qwen3.5-9B on optimal-policy rollouts and filtered model demonstrations improves \benchname{} and transfers to existing benchmarks without regressing on general multimodal capability.
+
+Deploying multimodal foundation models as closed-loop policies increasingly requires conditioning actions on observations that are no longer visible. 
+However, existing benchmarks either expose the full state, conflate hidden-state reconstruction with other agent skills, or test recall only after an episode has ended. 
+We introduce \textbf{\benchname{}}~(\textbf{Reconstructive Non-Markov Games}), 
+a benchmark suite designed to isolate a base model’s ability to reconstruct past observations and act on them during multi-step interaction. 
+\benchname{} includes two complementary games: \textbf{Matching Pairs}, where card identities briefly revealed at specific locations must later be recalled, 
+and \textbf{3D Maze}, where egocentric views must be integrated into a spatial map. 
+Both games are evaluated under a unified harness with three controlled difficulty axes: grid size, visual pattern, and observation modality. 
+The benchmark further introduces a head-to-head \textbf{duel} protocol to control for instance-level variance and a \textbf{Memory Gap} metric that disentangles forgetting from poor action selection. 
+The hardest configurations require contexts of roughly 128K tokens and 350 image inputs per episode, and remain far from saturated by frontier MLLMs. 
+Memory Gap analysis shows that most residual errors stem from forgetting earlier observations rather than from suboptimal decision making. 
+Finally, fine-tuning Qwen3.5-9B on optimal-policy rollouts and filtered model demonstrations improves performance on \benchname{} and transfers to existing benchmarks without degrading general multimodal capability.
+
+\end{abstract}

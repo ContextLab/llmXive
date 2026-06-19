@@ -1,0 +1,29 @@
+\renewcommand{\arraystretch}{1.1}
+\begin{table}[tbp]
+\setlength\tabcolsep{3.2pt}
+\centering
+\scriptsize
+\adjustbox{max width=\textwidth}{%
+\begin{tabular}{lccc ccc ccc ccc}
+\toprule
+\textbf{Model Name}
+ & \multicolumn{3}{c}{\textbf{Full History}}
+ & \multicolumn{3}{c}{\textbf{Window = 3}}
+ & \multicolumn{3}{c}{\textbf{Window = 5}}
+ & \multicolumn{3}{c}{\textbf{Window = 10}} \\
+\cmidrule(lr){2-4} \cmidrule(lr){5-7} \cmidrule(lr){8-10} \cmidrule(lr){11-13}
+& Eff.\% & Explore\% & GS\%
+& Eff.\% & Explore\% & GS\%
+& Eff.\% & Explore\% & GS\%
+& Eff.\% & Explore\% & GS\% \\
+\midrule
+\modelname{\kimiicon}{Kimi-K2.5}    & 62.5 & 23.0 & 39.4 & 66.1 & 26.0 & 41.0 & 93.3 & 28.0 & 30.5 & 100.0 & 25.0 & 30.0 \\
+\modelname{\qwenicon}{Qwen3.5-397B} & 21.9 & 29.0 & 23.8 & 56.3 & 30.0 & 40.3 & 26.6 & 31.0 & 34.6 & 58.9 & 33.0 & 41.7 \\
+\modelname{\seedicon}{Seed-2.0-Lite} & 26.2 & 30.0 & 24.6 & 82.4 & 34.0 & 31.8 & 25.8 & 33.0 & 35.1 & 73.7 & 23.0 & 26.6 \\
+\modelname{\seedicon}{Seed-2.0-Pro}  & 60.2 & 32.0 & 54.5 & 42.6 & 21.0 & 34.8 & 64.5 & 30.0 & 41.9 & 64.6 & 31.0 & 42.2 \\
+\bottomrule
+\end{tabular}
+}
+\caption{\textbf{History-window ablation on $9{\times}9$ mazes without minimap.} Full history is compared against windows retaining only the most recent 3, 5, or 10 turns.}
+\label{tab:ablation_markov}
+\end{table}

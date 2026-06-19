@@ -1,0 +1,22 @@
+\renewcommand{\arraystretch}{1.08}
+\begin{table}[tbp]
+\setlength\tabcolsep{4.0pt}
+\centering
+\scriptsize
+\adjustbox{max width=0.72\textwidth}{%
+\begin{tabular}{l|cccc|c|c}
+\toprule
+\textbf{Model Name}
+& \textbf{Elo} & \textbf{W} & \textbf{T} & \textbf{L}
+& \textbf{Score\%}
+& \textbf{Rank} \\
+\midrule
+\modelname{\qwenicon}{Qwen3.5-397B} & \textbf{1070} & 16 & 1 & 7  & \matchcellbar{matchpurple}{58.2}{100.0} & \textbf{1} \\
+\modelname{\kimiicon}{Kimi-K2.5}    & 1035          & 14 & 2 & 8  & \matchcellbar{matchpurple}{56.0}{100.0} & 2 \\
+\modelname{\seedicon}{Seed-2.0-Lite} & 895          & 4  & 1 & 19 & \matchcellbar{matchpurple}{33.1}{100.0} & 3 \\
+\bottomrule
+\end{tabular}
+}
+\caption{\textbf{Rank list for two-player Matching Pairs duels in text mode.} Results aggregate completed pairwise matchups across both player orders, $8{\times}8$ and $8{\times}10$ boards, and three seeds (24 games per model). Metrics follow Tab.~\ref{tab:match_dual_image_poker_rank}.}
+\label{tab:match_dual_text_rank}
+\end{table}

@@ -1,0 +1,305 @@
+
+\section{Native Pretraining Paradigm for Physical AI}
+
+In contrast to conventional paradigms that treat physical alignment as a downstream fine-tuning afterthought, Kairos champions a native pre-training paradigm for Physical AI, where general physical laws and embodied grounding are natively injected into the foundational world model from the very inception of scaling. However, building such a native world-action foundational infrastructure faces a fundamental tension between data scale and grounding density: low-level, high-fidelity robot trajectories are inherently scarce, whereas web-scale, non-embodied internet videos offer abundance but lack actionable dynamics. To reconcile this multi-modality, multi-scale data heterogeneity, Kairos introduces a Cross-Embodiment Data Curriculum (CEDC). Instead of mixed, unstructured data dumping, CEDC strategically orchestrates the pre-training trajectory through a progressive data pyramid. This curriculum systematically guides the model’s developmental pathway—transitioning from open-world passive observation to task-structured human imitation, and ultimately to action-grounded physical embodiment. In the following subsections, we detail the architectural stages of this progressive alignment.
+
+
+\subsection{Native Pretraining with Cross-Embodiment Data Curriculum}\label{subsection:curriculum}
+
+The acquisition of world knowledge is fundamentally bottlenecked by the fragmented nature of heterogeneous experience sources. While open-world videos provide broad physical regularities, they often lack action grounding; conversely, robot data is action-rich but remains narrow and difficult to scale. Instead of pursuing a flat data scaling strategy that simply pools these mismatched sources, Kairos implements a Cross-Embodiment Data Curriculum (CEDC) to systematically evolve from passive physical understanding to active embodied control.
+
+
+\textbf{Phase \uppercase\expandafter{\romannumeral 1}: Physical Knowledge.} 
+The base of the pyramid focuses on Observation, leveraging massive million-hours open-world video datasets to internalize broad physical and environmental regularities. This foundational phase is characterized by its hundreds of millions of video clips, absorbing an expansive breadth of visual experience to ensure the model encounters the full spectrum of natural physical phenomena. By processing this high-density observational data, the model develops the statistical robustness necessary to handle diverse real-world scenarios, effectively constructing a comprehensive "physical common sense" before moving to task-specific learning. At this stage, the model functions as a "spectator" learning the implicit laws of the universe: gravity, mass conservation, and fluid dynamics. To move beyond mere pixel-level synthesis, Kairos integrates causal Chain-of-Thought (CoT) reasoning to formalize these physical principles within its latent space. By grounding dynamics in physical logic, this phase establishes the foundational "worldness" and transforms raw visual experience into a robust substrate of universal regularities.
+
+
+
+
+\textbf{Phase \uppercase\expandafter{\romannumeral 2}: Human-centric Behavior.}
+The curriculum then transitions to Imitation, where the model internalizes the "behavioral experience" encoded in human-centric datasets over 100,000 hours. This represents a shift from understanding what happens to understanding how tasks are organized through human intent. The significance of this phase lies in its ability to extract high-level behavioral abstractions and task logic from human demonstrations. Rather than learning isolated motions, the model learns the causal consequences of structured intervention—how specific sequences of actions lead to predictable changes in the world state. This process bridges the gap between passive observation and active participation, populating the model’s internal world with a library of purposeful interaction patterns.
+
+
+
+
+\textbf{Phase \uppercase\expandafter{\romannumeral 3}: Robotic Action.}
+The apex of the curriculum is Embodiment, which resolves the representational mismatch between broad human behavior and specific robot actuation. By anchoring previous physical and behavioral priors into robot-specific interaction data (e.g., AgiBotWorld-Beta  \cite{AgiBotWorldContributors2025AgiBotWC}, Droid \cite{khazatsky2024droid}), Kairos achieves perception-action grounding. In this final phase, the model learns the mechanical constraints and sensorimotor coupling of the embodied agent. The world model is no longer a spectator; it becomes an operational substrate that can predict how the future unfolds as a direct consequence of the agent's own actions. 
+
+By organizing data as a developmental pathway—moving from observing the world, to imitating behavior, and finally to enacting control—Kairos ensures that world knowledge is accumulated into a unified, actionable representation that is architecturally ready for real-world deployment. This progression is not merely an engineering choice but a prerequisite for self-evolution learning, as it establishes the closed-loop observation–action–feedback pathways necessary for continual adaptation in real environments.
+
+
+
+
+
+
+
+\begin{figure}
+    \centering
+    \includegraphics[width=1\linewidth]{figures/data_pyramid.pdf}
+    \caption{Cross-Embodiment Data Curriculum for Native Pretraining.}
+    \label{fig:placeholder}
+\end{figure}
+
+\textbf{Multi-Stage Native Pre-training Pipeline.}
+To operationalize the Cross-Embodiment Data Curriculum (CEDC) within our Mixture-of-Transformers (MoT) architecture, the native pre-training pipeline is systematically structured into three progressive stages, each dominated by its corresponding data layer. This multi-stage optimization decouples the acquisition of passive world knowledge from active policy execution, ensuring both scaling efficiency and control fidelity.
+
+Specifically, Stage I (Physical Pretraining) and Stage II (Human-Centric Embodied Pretraining) focus exclusively on optimizing the VideoDiT component. In these initial phases, the model internalizes open-world physical dynamics and high-level task taxonomies through dense video forecasting tokens, optimizing the unified spatial-temporal representation without action-space interference. Transitioning to Stage III (Joint World-Action Training), the training emphasis shifts toward the joint optimization of the ActionDiT component alongside the pre-trained VideoDiT. By injecting low-level robotic trajectories and tactile/proprioceptive states, Stage III achieves the definitive cross-modality alignment where visual forecasting natively translates into closed-loop physical execution. 
+
+
+
+
+
+\textbf{Training Objective.} 
+We adopt Flow Matching as the primary training objective for Kairos, following recent flow-matching generative modeling work in both images and videos~\cite{lipman2023flowmatching,rectifiedflow,sd3,hunyuanvideo,opensora2,wan2025}.
+At a high level, flow matching learns a continuous-time conditional velocity field that transports samples from a simple prior distribution (Gaussian noise) to the data distribution in latent space.
+This formulation provides a clean continuous-time view of generation and is naturally compatible with ODE-based sampling. To align with the latent notation used in Sec.~2, let $\bm{z}_0 \in \mathbb{R}^{C \times F \times H \times W}$ denote a clean latent video sample produced by the video VAE encoder, and let $\bm{c}$ denote the conditioning inputs (e.g., text, image, or other multimodal conditions).
+We sample Gaussian noise $\bm{\epsilon} \sim \mathcal{N}(\bm{0}, I)$ with the same shape as $\bm{z}_0$, and define a continuous interpolation variable $\sigma \in (0,1)$.
+Following the rectified-flow style linear interpolation parameterization~\cite{rectifiedflow,sd3}, the intermediate latent is constructed as
+\begin{equation}
+\bm{z}_{\sigma} = (1-\sigma)\bm{z}_0 + \sigma \bm{\epsilon} .
+\label{eq:fm_interpolation}
+\end{equation}
+
+Under this parameterization, the ground-truth velocity along the path is constant:
+\begin{equation}
+\bm{u}_{\sigma} \;=\; \frac{d \bm{z}_{\sigma}}{d \sigma} \;=\; \bm{\epsilon} - \bm{z}_0 .
+\label{eq:fm_velocity_target}
+\end{equation}
+
+Kairos trains the Diffusion Transformer, as a conditional velocity predictor $\mathcal{V}_{\theta}(\bm{z}_{\sigma}, \sigma, \bm{c})$, to regress this target.
+The flow matching (FM) training loss is the mean squared error (MSE) between the predicted velocity and the ground-truth velocity:
+\begin{equation}
+\mathcal{L}_{\mathrm{FM}}(\theta)
+=
+\mathbb{E}_{\bm{z}_0,\bm{\epsilon},\sigma,\bm{c}}
+\left[
+\left\|
+\mathcal{V}_{\theta}(\bm{z}_{\sigma}, \sigma, \bm{c}) - \bm{u}_{\sigma}
+\right\|_2^2
+\right].
+\label{eq:fm_loss}
+\end{equation}
+
+This objective is shared across different conditioning modes, allowing a unified latent video generation model while varying only the conditioning inputs.
+
+
+In the following, we delineate the explicit training formulations, objectives, and hyperparameter schedules for each developmental stage.
+
+
+
+
+
+
+
+
+\begin{figure}[t]
+    \centering    \captionsetup{justification=raggedright,singlelinecheck=false}
+    \includegraphics[width=0.6\linewidth]{figures/kairos_shift_curves_v1.pdf}
+    \caption{\textbf{Shape-aware exponential timestep shifting curves in Kairos across training stages.}
+    This figure shows the $\sigma$-domain remapping of the Kairos scheduler for three representative training stages, which will be introduced in the following sections. As the resolution becomes higher and the video becomes longer, the effective shift strength $s$ increases, resulting in a stronger upward remapping of the timestep schedule.}
+    \label{fig:kairos-shift-curves-stages}
+\end{figure}
+
+
+
+
+
+\subsection{Stage \uppercase\expandafter{\romannumeral 1}: Physical Pretraining}
+\label{subsec:physical_pretraining}
+As the foundation of our curriculum, Stage I focuses on injecting fundamental physical priors into the VideoDiT backbone. This is achieved through two core strategies:
+\begin{itemize}
+    \item Web-Scale Physical Prior Injection: The model leverages massive, unconditioned internet videos to internalize general spatial-temporal dynamics—such as gravity, object permanence, and collision mechanics—purely from passive observation.
+    
+    \item Progressive Training Strategy: To optimize the efficiency of training from scratch, we employ a progressive training protocol. The model advances from lower visual resolutions and shorter sequence lengths to high-fidelity, long-horizon video continuation forecasting, significantly accelerating scaling dynamics.
+\end{itemize}
+
+
+
+
+
+This workflow is structured into three key phases: initial image-based pre-training, image-video mixed training, and continuous pre-training, as shown in Tab~\ref{tab:pretraining_setting}. 
+
+
+\begin{table}[t]
+\centering
+\small
+\caption{Stages of progressive physical pretraining}
+\label{tab:pretraining_setting}
+\begin{threeparttable}
+\begin{tabular}{C{4cm} | C{5cm} |C{2cm}| C{2cm}}
+\hline 
+Task \tnote{1} & Stage & Resolution \tnote{2} & Max Frames \tnote{3} \\ 
+\hline
+T2I/N2I	& Image Pretraining	& 256P	& 1  \\
+\hline
+T2V/TI2V/I2V/N2V	&  Pretraining & 256P	& 81  \\
+T2V/TI2V/I2V/N2V	&  Pretraining	& 480P	& 81   \\
+T2V/TI2V/I2V/N2V	&  Pretraining & 720P	& 81 \\
+\hline
+T2V/TI2V/I2V/N2V	& CT	& 720P	& 241   \\
+\hline
+T2V/TI2V/I2V/N2V	& Domain-specific SFT \& Merging	& 720P	& 241  \\
+\hline
+T2V/TI2V/I2V/N2V	& RL &	720P&	241  \\
+\hline
+\end{tabular}
+\begin{tablenotes}
+\footnotesize
+\item[1] We define the following task abbreviations: T2I (Text-to-Image), T2V (Text-to-Video), TI2V (Text-Image-to-Video), and I2V (Image-to-Video). Additionally, N2I and N2V denote unconditional image and video generation, respectively. Notably, T2I and N2I are treated as special cases of their video counterparts (T2V and N2V) when the video frame count equal to 1. 
+\item[2] Our preprocessing pipeline resizes images and video frames based on their shorter dimension. Importantly, both the long and short sides are constrained to be multiples of 32. Thus, for the 720p configuration, we adopt a shorter-side resolution of 704 pixels.
+\item[3] During training, we utilize samples with variable temporal lengths, ranging from a single frame (e.g., for T2I tasks) to the maximum frame count.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+\begin{itemize}
+\item \textbf {Image Pretraining.} 
+Initial T2I pre-training establishes robust spatial-semantic priors, allowing the model to focus exclusively on temporal consistency and motion dynamics in subsequent stages. 
+To optimize computational efficiency, this foundational phase is conducted at a reduced resolution of 256p, facilitating rapid convergence of core visual features. 
+
+
+\item \textbf{Image-video Mixed Pretraining.}
+In this stage, we initiate video training using a progressive resolution strategy, scaling from 256p to 720p to optimize computational efficiency. To maintain spatial fidelity, we incorporate a small fraction of image data (at a 10\% sampling ratio) into the pipeline. By jointly training on both static images and video sequences, the model effectively bridges the gap between spatial structures and motion dynamics, fostering temporal coherence while preventing the catastrophic forgetting of high-quality spatial details.
+
+\item \textbf {Continual Pretraining.} Finally, the model undergoes continued pre-training on a meticulously curated, high-quality dataset to refine its aesthetic appeal and capture more nuanced, long-range temporal dependencies for superior video generation. A key advancement in this phase was extending the maximum temporal length of training sequences from 81 to 241 frames, enabling the model to directly synthesize high-fidelity videos of up to 15 seconds.
+\end{itemize}
+
+\textbf{Timestep Scheduler Distribution Shift.}
+However, a practical challenge in physical multi-stage pretraining is that the effective timestep distribution induced by a fixed scheduler changes with latent spatiotemporal shape (e.g., frame count and resolution), which can degrade robustness and quality when the same model is used across configurations.
+To address this issue, Kairos applies a shape-aware timestep distribution shift~\cite{sd3,hunyuanvideo,opensora2,wan2025} to the scheduler-defined $\sigma$ sequence, as visualized in Figure~\ref{fig:kairos-shift-curves-stages}.
+
+Formally, let $\{\sigma_i^{(0)}\}_{i=1}^{N}$ denote a base schedule before shifting, where $\sigma_i^{(0)} \in (0,1)$ is monotonically ordered.
+In the default setting, we apply an \emph{exponential shift} to each base timestep:
+\begin{equation}
+\tilde{\sigma}_i
+=
+\frac{s\,\sigma_i^{(0)}}{1 + (s-1)\sigma_i^{(0)}},
+\label{eq:kairos_exp_shift_rational}
+\end{equation}
+where $s$ is a factor to control the shift strength.
+An equivalent form is a translation in logit space, \textit{i.e.},
+\begin{equation}
+\tilde{\sigma}_i
+=
+\mathrm{sigmoid}\!\left(\mathrm{logit}\!\left(\sigma_i^{(0)}\right)+\log s\right),
+\label{eq:kairos_exp_shift_logit}
+\end{equation}
+which makes the monotonicity of the transformation explicit and preserves the boundary behavior of the schedule.
+
+For a better and more adaptive support of varying video lengths and resolutions in a unified model, we design a dynamic selecting rule of shift strength $s$ based on the latent shape. Reviewing that $F$ and $L=H\times W$ defined previously are the number of frames after video encoding and the number of tokens per frame, respectively, we set $s$ shape-dependently, \textit{i.e.},
+\begin{equation}
+    s = \exp(f(L))\sqrt{F},
+\end{equation}
+where $f(L) = mL + b$ linearly maps $L \in [L_{\min}, L_{\max}]$ to a predefined range $[r_{\min}, r_{\max}]$, with
+\begin{equation}
+m = \frac{r_{\max}-r_{\min}}{L_{\max}-L_{\min}}.
+\qquad
+b = r_{\min} - mL_{\min},
+\label{eq:kairos_mu_coeffs}
+\end{equation}
+
+
+This design increases the effective shift for larger latent spatial token counts and longer videos, thereby reallocating scheduler steps toward trajectory regions that are more sensitive to prediction error. Throughout the pre-training phase, we consistently employ the AdamW~\citep{loshchilov2019decoupledweightdecayregularization} optimizer with phase-specific hyperparameter configurations. Specifically, the learning rate is set to 5e-5 for image pre-training, and then progressively decayed to 4e-5, 3e-5, 2e-5, and 1e-5 across the successive image-video mixed pre-training (256p, 480p, 720p) and continuous pre-training stages. Weight decay is configured at 1e-3 only during the image and 256p mixed pre-training stages, while being deactivated (set to 0) for all subsequent high-resolution and continuous training phases.
+
+
+In addition, we also implement delicate finetuning techniques to further boost the performance of physical alignment, which consists of three phases: domain-specific supervised fine-tuning (SFT), model merging, and reinforcement learning.
+
+\begin{itemize}
+\item \textbf {Domain-specific SFT and Model Merging.} Specifically, we partition high-quality datasets into different domains, and models corresponding to each domain are trained independently. To fully leverage the domain-specific strengths of individual models, we employed a model merging strategy to integrate their features after completing domain-specific supervised fine-tuning~\citep{tang2025fusionbench}~\citep{yang2026ModelMergingSurvey}. We explored and applied multiple merging approaches, including Model Soup~\citep{wortsman2022modelsoupsaveragingweights}, CART~\citep{choi2024revisiting}, TIES~\citep{yadav2023tiesmergingresolvinginterferencemerging}, DARE~\citep{yu2024languagemodelssupermario}, and WUDI-Merging~\citep{cheng2025startedinterferenceendit}. By analyzing the performance of models obtained from different merging strategies on carefully constructed evaluation subsets, we identified a model that achieves the most balanced performance across all domains. 
+
+
+\item \textbf {Reinforcement Learning.}
+Finally, we applied Direct Preference Optimization (DPO) ~\citep{wallace2023diffusion,rafailov2024directpreferenceoptimizationlanguage,liu2025videodpo} to align the model’s outputs with human preferences and physical standards. The DPO preference pairs were constructed by generating video candidates from multiple generative models conditioned on identical prompts. We then identified the highest and lowest performing samples to form the (chosen, reject) pairs. This curated dataset was subsequently utilized to fine-tune the model following the DPO objective.
+
+\end{itemize}
+
+For this stage, the AdamW optimizer is retained, with learning rates tailored to 1e-5 for Supervised Fine-Tuning (SFT) and 1e-6 for Reinforcement Learning (RL). To maintain training stability, weight decay is uniformly set to 0 throughout the entire process.
+
+
+\subsection{Stage \uppercase\expandafter{\romannumeral 2}: Embodied Pretraining with Human-centric Data}
+
+Building upon the general physical priors established in Stage I, Stage II advances the Cross-Embodiment Data Curriculum into the layer of "Human-Centric Behavior Alignment." This phase bridges the gap between passive observation and active robotic execution through two primary paradigms:
+
+\begin{itemize}
+    \item Task-Structured Semantic Injection: By leveraging large-scale, human-centric behavioral datasets (e.g., intentional actions, tool manipulation, and everyday chores), the model transitions from unconditioned video generation to task-structured video forecasting, internalizing high-level behavioral semantics and task taxonomies.
+
+\item VideoDiT Optimization for Behavioral Causality: The training execution remains focused exclusively on the VideoDiT component. By predicting intentional human movements and scene state transitions, VideoDiT learns to construct a robust causal representation of goal-directed actions and their environmental consequences, without yet binding to a specific robotic action space.
+\end{itemize}
+
+Specifically, we leverage the both the human demonstrations and robot interaction data to fulfill the human-centric pretraining. Human demonstrations consist of human behavior data captured from both first-person and third-person perspectives, facilitating the model's learning of complex human operational workflows and behavioral paradigms; robot interaction data enable the model to learn visual variations across different robot embodiments, thereby directly enhancing video generation quality in embodied scenarios. Crucially, the textual guidance in this stage progressively evolves from granular, detail-oriented annotations to abstract, instruction-style commands, thereby systematically strengthening the model's capacity for complex instruction-following and multi-task intent understanding.
+
+
+The training protocol is divided into four progressive stages, each with distinct focus to gradually enhance the model’s adaptability to the embodied domain and its instruction-following capability:
+
+\begin{itemize}
+    \item \textbf{Human-centric Pretraining.} We train on a mixed dataset dominated by human-centric data using variable-length clips from 3 to 15 seconds. The wide range of clip lengths, together with detailed and diverse captions, helps the model acquire rich task-structured semantic priors from human behavior and build foundational embodied capabilities for the following stage.
+
+    \item \textbf{Robot-Centric Training.} We continue training on a high-quality, robot-only subset filtered from our existing robot data, consisting of 5--10s clips with stronger task completion. During training, we continuously increase the chance of sampling instruction-style captions to strengthen instruction following capability of our model.
+
+    \item \textbf{Target-Embodiment Fine-Tuning.} We fine-tune the model solely on data from the target embodiments to adapt it to the downstream robotic platforms. For embodiments with multiple cameras, we additionally train multi-view video generation to jointly model the synchronized observations across viewpoints. In this stage, we use only instruction-style captions, and all clips are uniformly sampled to 81 frames.
+
+   \item \textbf{RL Refinement.} As in Stage~\ref{subsec:physical_pretraining} (Physical Pretraining), we use DPO as the last stage to refine our model. The difference is that we now judge the candidates not only by human preference and physical plausibility, but also by how well they follow the instruction.
+
+\end{itemize}
+
+
+
+Throughout the entire training process, the AdamW optimizer is uniformly adopted, with the weight decay consistently set to 0 to preserve the general capabilities acquired in the previous training stage. The learning rate is dynamically adjusted across different training stages. Stage 1 employs a learning rate of 1e-5; the learning rate is reduced to 5e-6 in Stage 2; and it is further decreased to 1e-6 in the Fine-Tuning/DPO Stage, which ensures the stability and convergence of the model training process.
+
+\begin{figure}[!t]
+    \centering
+    \includegraphics[width=\linewidth]{figures/kairos_2_compress.jpg}
+    \caption{Samples generated by Kairos. Kairos exhibits robust cross-embodiment generalization, seamlessly adapting to diverse robotic forms—including single-arm, dual-arm, dexterous hands and humanoids.}
+    \label{fig:samples wall}
+\end{figure}
+
+Figure \ref{fig:samples wall} illustrates several samples generated by the Kairos model. We can see Kairos exhibits robust cross-embodiment generalization, seamlessly adapting to diverse robotic forms—including single-arm, dual-arm, dexterous hands and humanoids. This architecture enables a "unified brain for multi-embodiment and multi-tasking," facilitating the highly efficient sharing and transfer of world knowledge across different physical configurations. 
+
+
+
+\subsection{Stage \uppercase\expandafter{\romannumeral 3}: Joint World-Action Training}
+
+Following the successful injection of foundational physical priors and human-centric behavioral semantics in the preceding stages, Stage III shifts the focus toward explicit robotic action grounding. While Stages I and II equipped the VideoDiT backbone with a robust causal understanding of the physical world, the foundational model remains detached from direct physical execution. To operationalize this transition, Stage III focuses entirely on training the ActionDiT component to unify perception and actuation into a true, native World-Action Model.
+
+
+
+ 
+
+
+
+\textbf {Video/Action DiT Joint Training.} While a frozen VideoDiT retains macro-level physical aesthetics and coarse task semantics from internet pre-training, it remains inherently blind to the microscopic, high-frequency spatial-temporal nuances critical for precise physical control—such as millimeter-level contact dynamics, singular slipping boundaries, and instantaneous force-torque reactions. By co-optimizing the multi-stage Mixture-of-Transformers (MoT) stack \citep{yuan2026fastwam}, the low-level action trajectories propagated through ActionDiT forces the VideoDiT parameters to shift from passive visual synthesis to active, action-conditioned prediction. Consequently, joint training eliminates representation misalignment between simulation and execution, preventing the catastrophic drift common in decoupled architectures and cementing a truly cohesive world-action representation.
+
+
+
+During training, video frame sequences and action chunk sequences are strictly aligned in the temporal dimension, ensuring that both branches observe corresponding segments of the same trajectory. Both the VideoDiT and the ActionDiT are trained using flow matching objectives. The overall training loss is defined as
+\begin{equation}
+    \mathcal{L} = \mathcal{L}_{video} + \lambda\mathcal{L}_{action},
+\end{equation}
+
+where $\lambda$ controls the balance between action training and video co-training. To improve training efficiency, the ActionDiT is initialized by interpolating the pretrained weights from VideoDiT. Besides, ActionDiT utilizes a fixed timestamp shift during training, unlike the dynamic exponential shift used in VideoDiT that scales with the latent token count. Since VideoDiT models high-dimensional spatio-temporal latents with varying sequence lengths, whereas ActionDiT operates on a low-dimensional and nearly fixed-length action space, where a fixed shift is sufficient for stable optimization.
+
+
+
+
+
+
+
+
+\subsection{Training Infrastructure}
+
+Video generation models implementing spatial-temporal attention with \textbf{Full Attention}, such as Wan2.2~\cite{wan2025}, Hunyuan1.5~\cite{hyworld2025}, and Cosmos 2.5~\cite{nvidia2025worldsimulationvideofoundation}, commonly adopt parallel partitioning strategies including Ulysses~\cite{jacobs2023deepspeedulyssesoptimizationsenabling} and RingAttention~\cite{liu2023ringattentionblockwisetransformers} to decompose attention computation. These approaches reduce training memory footprint and maintain high training efficiency in multi-node and multi-GPU parallel settings.
+
+However, the Kairos architecture exhibits more complex computational dependency characteristics:
+\begin{itemize}
+    \item Linear Attention mechanisms impose stringent sequential dependencies on computation order;
+    \item Dilated local attention does not depend on the complete set of global tokens.
+\end{itemize}
+
+Direct application of standard parallelization strategies such as Context Parallel, Ulysses, or RingAttention to our architecture introduces significant performance degradation due to unnecessary token broadcasting, redundant computation, and substantial communication overhead. To address these challenges, we design a customized \textbf{operator-level parallel partitioning strategy}:
+\begin{itemize}
+    \item \textbf{Operator-level customization}: We apply tailored Tensor Parallel (TP) or Sequence Parallel (SP) configurations based on the dependency structure of each operator, precisely controlling activation scales to reduce per-GPU memory footprint.
+    \item \textbf{Operator fusion and communication optimization}: Strategic operator merging and execution reordering minimize both the frequency and volume of cross-device communication, substantially reducing distributed training overhead.
+    \item \textbf{Adaptive parallelism}: The partitioning strategy dynamically adapts to different attention mechanisms, enabling efficient scaling for both linear and local attention patterns.
+\end{itemize}
+
+This approach enables Kairos to achieve stable and efficient training on 720p, 15-second video sequences, demonstrating practical viability under resource-constrained settings.
+

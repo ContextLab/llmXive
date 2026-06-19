@@ -1,0 +1,57 @@
+\section{Preliminary}
+\label{sec:preliminary}
+
+\subsection{Speedup Factors in Speculative Decoding}
+\label{subsec:sd}
+
+For a given batch size $B$ and sequence length $S$, let $\DraftTimebs$ and $\TargetTimebs$ be the single-token decoding times of the drafter $\Drafter$ and target model $\Target$, respectively.
+When the drafter sequentially speculates $\DraftLength$ tokens, let $\VerifyTimebsg$ denote the parallel verification time by the target model.\footnote{For brevity, we omit $B$, $S$, and $\gamma$ when clear.}
+We define block efficiency $\mal$ as the average number of accepted draft tokens plus one target-sampled token per drafting block~\citep{zhou2024distillspec}.
+Under the i.i.d. acceptance assumption, $\mal$ can be written in terms of a per-token acceptance rate $\alpha$ as
+$\mal=(1-\alpha^{\DraftLength+1})/(1-\alpha)$~\citep{leviathan2023fast,sadhukhan2024magicdec}.
+Given $\mal$, the SD block time and wall-clock speedup are
+\begin{equation}
+\SDBlockTime(B,S,\gamma)
+=
+\gamma \DraftTimebs + \VerifyTimebsg,
+\quad
+\SDSpeedup(B,S,\gamma)
+=
+\mal \frac{\TargetTimebs}
+{\SDBlockTime(B,S,\gamma)}.
+\label{eq:sd_speedup}
+\end{equation}
+Thus, SD acceleration depends on both high $\mal$ and the latency ratios
+$\DraftTime/\TargetTime$ and $\VerifyTime/\TargetTime$ induced by $(B,S)$.
+When decoding becomes compute-bound, often at large $B$, verification has little underutilized compute to exploit.
+This increases $\VerifyTime/\TargetTime$ and can make SD slower than AR decoding, an effect often hidden in common $B=1$ SD benchmarks~\citep{sadhukhan2024magicdec,xia2024unlocking}.
+
+
+\subsection{Roofline Modeling for LLM Decoding Latency}
+\label{subsec:roofline-latency}
+To identify the decoding regime on the actual hardware system, we use roofline modeling, a standard system-aware approach~\citep{williams2009roofline,yuan2024llm}.
+Roofline modeling distinguishes between arithmetic work $\CompFLOPs$, executed with effective compute capacity $\mathrm{F}_{\mathrm{eff}}$, and data movement $\MemBytes$, served by effective memory bandwidth $\EffBandwidth$.
+Assuming computation and memory access can ideally overlap, the workload latency is approximated as
+\begin{equation}
+\RooflineTime
+\approx
+\max\left(
+\frac{\MemBytes}{\EffBandwidth},
+\frac{\CompFLOPs}{\mathrm{F}_{\mathrm{eff}}}
+\right).
+\label{eq:roofline_basic}
+\end{equation}
+
+For LLM decoding, $\MemBytes$ includes weight and KV-cache traffic, while $\CompFLOPs$ includes dense projections such as QKVO, FFN, and LM-head computations, as well as attention operations~\citep{sadhukhan2024magicdec}.
+
+
+\subsection{RL Rollout Latency Bottlenecks from Long-Tail Decoding}
+\label{subsec:rollout_bottleneck}
+
+Rollout is the primary \bottleneck{} in RL post-training for LLMs.
+As shown in \cref{fig:rollout_llama_bottleneck_step}, sequential rollout decoding accounts for nearly 70\% of total latency on average.
+This bottleneck is amplified in RL because post-training workloads increasingly produce long reasoning trajectories, and rollout generation must sample these trajectories token by token under AR decoding~\citep{gholami2024ai}.
+By contrast, policy updates and log-probability computation are more parallelizable, allowing them to better utilize compute capacity.
+Within a rollout, after shorter responses finish and the active batch shrinks, a small number of long responses often determine the makespan (\cref{fig:main_teaser}) while leaving compute underutilized.
+This underutilized compute provides the runtime budget that SD can exploit.
+\Cref{app:long_tail_analysis} provides additional analysis of the long-tail completion behavior of rollout during RL.

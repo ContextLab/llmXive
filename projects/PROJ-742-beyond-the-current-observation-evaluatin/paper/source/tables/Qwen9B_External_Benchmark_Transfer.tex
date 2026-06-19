@@ -1,0 +1,41 @@
+\begingroup
+\renewcommand{\arraystretch}{1.08}
+\setlength\tabcolsep{5pt}
+\captionsetup{hypcap=false}
+\begin{center}
+{%
+\footnotesize
+\adjustbox{max width=\columnwidth}{%
+\begin{tabular}{llrrr}
+\toprule
+\textbf{Benchmark} & \textbf{Metric} & \textbf{Baseline} & \textbf{SFT} & $\boldsymbol{\Delta}$ \\
+\midrule
+\rowcolor{gray!12} \multicolumn{5}{l}{\textit{Memory- and spatial-reasoning benchmarks}} \\
+\texttt{EMeMBench} & Visual DIF\_50 & 49.5 & \textbf{54.7} & \textbf{+5.2} \\
+\texttt{VGRPBench} & Macro Perception Acc & 24.9 & \textbf{29.5} & \textbf{+4.6} \\
+\texttt{MMSIBench\_circular} & Overall & 7.4 & \textbf{9.7} & \textbf{+2.3} \\
+\texttt{ViewSpatialBench} & Overall & 41.9 & \textbf{43.4} & \textbf{+1.5} \\
+\cmidrule(l){1-5}
+\rowcolor{matchpurple!12} \multicolumn{2}{l}{\textit{Group mean}} & 30.9 & \textbf{34.3} & \textbf{+3.4} \\
+\midrule
+\rowcolor{gray!12} \multicolumn{5}{l}{\textit{General multimodal benchmarks}} \\
+\texttt{OCRBench} & Final Score Norm & 85.9 & \textbf{89.2} & \textbf{+3.3} \\
+\texttt{MMBench\_DEV\_EN\_V11} & Overall & 85.8 & \textbf{86.8} & +1.0 \\
+\texttt{NaturalBenchDataset} & Acc & 79.7 & \textbf{80.2} & +0.5 \\
+\texttt{AI2D\_TEST} & Overall & 84.6 & \textbf{85.0} & +0.4 \\
+\texttt{CV-Bench-3D} & Overall & 92.7 & \textbf{93.1} & +0.4 \\
+\texttt{ERQA} & Overall & 40.3 & \textbf{40.5} & +0.2 \\
+\texttt{MMStar} & Overall & \textbf{73.3} & 72.7 & -0.6 \\
+\texttt{RealWorldQA} & Overall & \textbf{76.6} & 75.6 & -1.0 \\
+\cmidrule(l){1-5}
+\rowcolor{matchpurple!12} \multicolumn{2}{l}{\textit{Group mean}} & 77.4 & \textbf{77.9} & \textbf{+0.5} \\
+\bottomrule
+\end{tabular}
+}
+}
+\captionof{table}{\textbf{Results on external benchmarks.}
+Scores for Qwen3.5-9B before (\textbf{Baseline}) and after (\textbf{SFT}) fine-tuning on game environment rollouts.
+Benchmarks are split into a memory/spatial-reasoning group and a general group. $\Delta$ is SFT minus baseline.}
+\label{tab:qwen9b-external-transfer}
+\end{center}
+\endgroup

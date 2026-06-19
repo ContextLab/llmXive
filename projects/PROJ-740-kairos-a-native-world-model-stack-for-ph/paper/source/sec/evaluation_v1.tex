@@ -1,0 +1,585 @@
+
+
+
+\section{Evaluation Results}
+Kairos models demonstrate strong performance across a diverse set of embodied AI and world modeling benchmarks. In the following sections, we evaluate our models from two perspectives: embodied scenarios and general world modeling tasks, highlighting their capabilities in robotic reasoning and policy generation, as well as their competitive performance on broader video generation benchmarks.
+
+\subsection{Embodied World Model Benchmarks}
+To evaluate the capabilities of our embodied foundation model Kairos-4B, we conducted comprehensive evaluations across three benchmark datasets: WorldModelBench \cite{li2025worldmodelbench}, DreamGen Bench \cite{fan2025dreamgen} and PAI-Bench \cite{zhou2025pai}. We systematically assessed its performance across multiple core dimensions, including visual quality, physical plausibility, geometric consistency, text-video alignment, and controllability. We benchmark Kairos-4B against a wide range of mainstream world models spanning different parameter scales. Quantitative results demonstrate that Kairos-4B achieves state-of-the-art performance.
+In addition to quantitative evaluation, we conducted a comprehensive human evaluation. Subjective assessment results show that Kairos-4B outperforms other baseline models in metrics such as video quality, physical plausibility, and task completion rate, further corroborating its superior overall performance.
+The combined results from both quantitative and human evaluations confirm that Kairos-4B can consistently generate high-quality scenes that conform to physical laws and exhibit strong spatial consistency across diverse object layouts and environmental conditions. These findings establish that the embodied video generation capabilities of Kairos-4B have reached the current state-of-the-art level.
+
+
+\subsubsection{Benchmark Results}
+
+\textbf{WorldModelBench-robot.}  
+WorldModelBench \cite{li2025worldmodelbench} is designed to assess the world modeling capability of video generation models, particularly their ability to follow instructions and adhere to real-world physics across diverse domains. It primarily evaluates models along two dimensions: (1) Instruction Following, which measures whether the generated videos accurately follow the given text prompts (and image), and (2) Future Frame Generation, which assesses whether the generated videos represent plausible future states of the world, including adherence to physical laws and common sense reasoning. As these capabilities are essential for embodied reasoning, we conduct our evaluation on the robotics subset of WorldModelBench.
+
+As shown in Table~\ref{tab:worldmodelbench}, Kairos-4B achieves the highest total score of 9.30 on the WorldModelBench robot subset, outperforming all baselines. It obtains the best Instruction Following score (2.36), matching the 16B Cosmos3-Nano, which indicates its strong language grounding capability. In Physics Adherence, Kairos-4B reaches perfect scores in Newtonian mechanics, fluid dynamics, and gravity (1.00 each), achieving a high overall Physics Adherence score of 4.96. Additionally, it demonstrates robust Common Sense reasoning, highlighted by perfect temporal quality (1.00). Overall, these results show that Kairos-4B delivers leading physical modeling and reasoning capabilities while remaining highly parameter-efficient.  Figure~\ref{fig:qualitativ_wmbench} presents qualitative results of selected samples from the WorldModelBench robot subset.
+
+
+\begin{table}[t]
+\centering
+\caption{Evaluation on WorldModelBench Robot Set. For each column, the highest score is \textbf{bolded}. Models marked with * indicate results reproduced by our team.}
+\label{tab:worldmodelbench}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{l c c c c c c c c c c c}
+\toprule
+\multirow{2}{*}{\textbf{Model}} & \multirow{2}{*}{Param} & \textbf{\begin{tabular}[c]{@{}c@{}}Instruction\\ Following\end{tabular}} & \multicolumn{6}{c}{\textbf{Physics Adherence}} & \multicolumn{2}{c}{\textbf{Common Sense}} & \multirow{2}{*}{\textbf{\begin{tabular}[c]{@{}c@{}}Total\\ Score\end{tabular}}} \\
+\cmidrule(lr){3-3} \cmidrule(lr){4-9} \cmidrule(lr){10-11}
+& & Overall & Newton & Deform. & Fluid & Penetr. & Grav. & Overall & Frame & Temp. & \\
+\midrule
+Lingbot*~\cite{lingbot-world} & 28B & 2.14 & \textbf{1.00} & 0.96 & \textbf{1.00} & 0.96 & \textbf{1.00} & 4.92 & \textbf{1.00} & 0.98 & 9.04 \\
+Cosmos3-Nano*~\cite{aditi2026cosmos3omnimodalworld} & 16B & \textbf{2.36} & \textbf{1.00} & \textbf{0.98} & \textbf{1.00} & 0.98 & \textbf{1.00} & 4.96 & 0.98 & 0.96 & 9.26 \\
+Abot-Physworld*~\cite{chen2026abot} & 14B & 2.10 & \textbf{1.00} & 0.92 & \textbf{1.00} & 0.96 & \textbf{1.00} & 4.88 & \textbf{1.00} & 0.98 & 8.96 \\
+Cosmos-Predict2.5*~\cite{nvidia2025worldsimulationvideofoundation} & 14B & 2.14 & \textbf{1.00} & 0.92 & \textbf{1.00} & 0.94 & \textbf{1.00} & 4.86 & \textbf{1.00} & 0.94 & 8.94 \\
+Wan2.2*~\cite{wan2025} & 5B & 2.04 & \textbf{1.00} & 0.78 & \textbf{1.00} & 0.86 & 0.98 & 4.62 & 0.96 & 0.90 & 8.52 \\
+Cosmos-Predict2.5*~\cite{nvidia2025worldsimulationvideofoundation} & 2B & 2.14 & \textbf{1.00} & \textbf{0.98} & \textbf{1.00} & 0.96 & \textbf{1.00} & 4.94 & 0.98 & 0.98 & 9.04 \\
+GigaWorld-0*~\cite{gigaworldteam2025gigaworld0worldmodelsdata} & 2B & 1.50 & \textbf{1.00} & \textbf{0.98} & \textbf{1.00} & \textbf{1.00} & \textbf{1.00} & \textbf{4.98} & 0.98 & \textbf{1.00} & 8.46 \\
+\rowcolor{gray!20}
+\textbf{Kairos} & 4B & \textbf{2.36} & \textbf{1.00} & \textbf{0.98} & \textbf{1.00} & 0.98 & \textbf{1.00} & 4.96 & 0.98 & \textbf{1.00} & \textbf{9.30} \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+\begin{figure}[!t]
+    \centering
+    \includegraphics[width=1\linewidth]{figures/wmbench_compress.png}
+    \caption{Kairos samples on the WordelModelBench robot subset.}
+    \label{fig:qualitativ_wmbench}
+\end{figure}
+
+
+\textbf{DreamGen Bench.} DreamGen Bench~\cite{fan2025dreamgen} is a video generation benchmark specifically designed for robotics, aiming to systematically measure the generalization capability of Video World Models on specific robotic embodiments. The benchmark primarily evaluates two core metrics: Instruction Following, which assesses whether generated videos strictly adhere to given task instructions; and Physics Adherence, which evaluates whether generated videos conform to real-world physical laws.
+DreamGen Bench quantifies the generalization ability of video generation models by testing their performance across three key dimensions: novel object manipulation, novel behavior execution, and novel environment adaptation. Research results indicate that models achieving higher scores on this benchmark also demonstrate better performance in downstream robot policy training when using their generated synthetic data, showing a significant positive correlation between the two.
+
+Table~\ref{tab:dreamgen} presents the evaluation results of Kairos-4B on the DreamGen Bench. Our model ranks first in both Average Physical Adherence (AVG\_PA, 0.538) and the overall Average Score (AVG\_Score, 0.618), while achieving a highly competitive Average Instruction Following (AVG\_IF, 0.698), second only to the 14B Wan2.2 (0.703). The leading AVG\_PA score demonstrates the model's precise physical world modeling, and its strong AVG\_IF reflects reliable instruction-following ability. Despite having only 4B parameters, Kairos-4B attains the best overall performance, outperforming substantially larger competitors, which highlights its strong performance and generalization capability. Figure~\ref{fig:qualitativ_dreamgen} displays selected visualization samples from our DreamGen test set.
+
+\begin{table}[t]
+\centering
+\caption{Evaluation on DreamGen Bench. For each column, the highest score is \textbf{bolded}. Models marked with * indicate results reproduced by our team.}
+\label{tab:dreamgen}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{l c c c c c c c c c | c} 
+\toprule
+\multirow{2}{*}{Method} & \multirow{2}{*}{Param} & \multicolumn{2}{c}{GR1-Object} & \multicolumn{2}{c}{GR1-Behavior} & \multicolumn{2}{c}{GR1-Env} & \multirow{2}{*}{\begin{tabular}[c]{@{}c@{}}AVG\_PA\end{tabular}} & \multirow{2}{*}{\begin{tabular}[c]{@{}c@{}}AVG\_IF\end{tabular}} & \multirow{2}{*}{\begin{tabular}[c]{@{}c@{}}AVG\_Score\end{tabular}} \\
+\cmidrule(lr){3-4} \cmidrule(lr){5-6} \cmidrule(lr){7-8}
+& & Qwen-IF & PA & Qwen-IF & PA & Qwen-IF & PA & & & \\
+\midrule
+Cosmos-Predict2.5*~\cite{nvidia2025worldsimulationvideofoundation} & 14B & 0.260 & 0.515 & 0.553 & 0.418 & 0.621 & 0.553 & 0.495 & 0.478 & 0.487 \\
+Cosmos-Predict2.5*~\cite{nvidia2025worldsimulationvideofoundation} & 2B & \textbf{0.840} & 0.374 & 0.277 & 0.375 & 0.586 & 0.507 & 0.419 & 0.568 & 0.494 \\
+GigaWorld-0~\cite{gigaworldteam2025gigaworld0worldmodelsdata} & 2B & 0.540 & 0.481 & 0.638 & 0.446 & 0.586 & 0.529 & 0.485 & 0.588 & 0.537 \\
+Wan2.2*~\cite{wan2025} & 5B & 0.420 & 0.458 & 0.553 & 0.180 & 0.690 & 0.303 & 0.314 & 0.554 & 0.434 \\
+Wan2.2~\cite{wan2025} & 14B & 0.780 & 0.531 & 0.570 & 0.477 & 0.760 & 0.549 & 0.519 & \textbf{0.703} & 0.611 \\
+Cosmos3-Nano*~\cite{aditi2026cosmos3omnimodalworld} & 16B & 0.460 & 0.509 & 0.468 & 0.455 & \textbf{0.793} & 0.552 & 0.505 & 0.574 & 0.540 \\
+
+ABot-PhysWorld*~\cite{chen2026abot} & 14B & 0.400 & 0.493  & 0.404 & 0.431 & 0.414 & 0.528 & 0.484 & 0.434 & 0.459 \\
+Lingbot*~\cite{lingbot-world} & 28B & 0.400 & \textbf{0.545} & 0.617 & 0.340 & 0.690 & 0.513 & 0.466 & 0.569 & 0.518 \\
+\rowcolor{gray!20}
+\textbf{Kairos} & 4B & 0.660 & 0.544 & \textbf{0.745} & \textbf{0.489} & 0.690 & \textbf{0.581} & \textbf{0.538} & 0.698 & \textbf{0.618} \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+
+
+
+
+\begin{figure}[!t]
+    \centering
+    \includegraphics[width=1\linewidth]{figures/dreamgen_compress.png}
+    \caption{Kairos samples on the DreamGen dataset.}
+    \label{fig:qualitativ_dreamgen}
+\end{figure}
+
+
+\textbf{PAI-Bench-robot.} 
+PAI-Bench \cite{zhou2025pai} is a benchmark designed to evaluate the visual quality and physical plausibility of generated videos in real-world physical AI scenarios. The benchmark reports two primary metrics: Domain Score and Quality Score. The Domain Score evaluates the model’s capability on domain-specific physical AI tasks, while the Quality Score measures the perceptual quality of generated videos. The Quality Score is computed using eight evaluation metrics adapted from VBench  \cite{huang2024vbench}. Meanwhile, the Domain Score is obtained through a VQA-based evaluation protocol spanning seven domains, including av, common, human, industry, misc, physics, and robotics. The final Overall Score is defined as the average of the Domain Score and the Quality Score. To specifically assess the model’s capability in embodied scenarios, we conduct quantitative evaluation on the Robotics subset of PAI-Bench. 
+
+
+Table~\ref{tab:paibench_robot} presents the benchmark results between Kairos-4B and baseline models under the PAIBench TI2V evaluation mode. Among small-scale models ($<$10B), our model achieves the best overall performance, ranking first in both Domain Score (88.59) and Overall Score (82.57). Notably, using only 4B parameters, Kairos-4B matches or surpasses many large-scale ($\geq$10B) baseline models in overall score, outperforming the 16B Cosmos3-Nano and several 14B models such as Cosmos-Predict2.5 and Wan2.1. These results indicate that our model not only generates high-quality videos but also delivers strong physical modeling and instruction-following capability with far fewer parameters.
+Beyond quantitative analysis, qualitative evaluation offers more intuitive insights into the model's generation behavior. Figure~\ref{fig:qualitativ_paibench} showcases the visualization samples from the PAIBench-robot test set, illustrating the model's generation quality across diverse scenarios.
+
+\begin{table}[t]
+\centering
+\caption{Evaluation on PAIbench Robot Set. For each model group, the highest score in each column is \textbf{bolded}. Models marked with * indicate results reproduced by our team.}
+\label{tab:paibench_robot}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{l c c c c c c c c c c c}
+\toprule
+\multirow{2}{*}{Model} & \multirow{2}{*}{Param} & \multicolumn{8}{c}{Quality Score} & \multirow{2}{*}{\begin{tabular}[c]{@{}c@{}}Domain\\ Score\end{tabular}} & \multirow{2}{*}{\begin{tabular}[c]{@{}c@{}}Overall\\ Score\end{tabular}} \\
+\cmidrule(lr){3-10}
+& & i2v-bg & i2v-s & aes & img & bg-con & mot & sub-con & o-con & & \\
+\midrule
+\multicolumn{12}{c}{\textit{Large-scale Models ($\geq$10B)}} \\
+\midrule
+Lingbot*~\cite{lingbot-world} & 28B & 97.7 & \textbf{97.6} & 50.2 & 67.1 & 93.1 & 98.9 & 91.2 & 19.8 & 82.98 & 79.97 \\
+Cosmos3-Nano*~\cite{aditi2026cosmos3omnimodalworld} & 16B & \textbf{98.2} & 95.3 & 48.4 & \textbf{73.0} & 92.1 & \textbf{99.3} & 91.7 & 19.7 & 88.04 & 82.62 \\
+Abot-Physworld~\cite{chen2026abot} & 14B & 97.8 & 95.0 & 46.2 & 69.1 & \textbf{93.7} & 99.2 & \textbf{94.1} & 19.3 & 87.85 & 82.32 \\
+Abot-Physworld + DPO~\cite{chen2026abot} & 14B & 97.7 & 94.8 & 46.7 & 69.2 & \textbf{93.7} & 99.1 & 93.6 & 19.4 & \textbf{93.06} & \textbf{84.91} \\
+Cosmos-Predict2.5*\cite{nvidia2025worldsimulationvideofoundation} & 14B & 94.3 & 92.2 & 48.0 & 72.0 & 93.1 & 99.1 & 91.3 & 19.2 & 82.60 & 79.40 \\
+Wan2.5~\cite{wan25} & / & 94.4 & 94.3 & \textbf{54.8} & 64.6 & 89.9 & 96.2 & 87.8 & 21.9 & 86.44 & 80.96 \\
+Veo 3.1~\cite{veo31} & / & 93.2 & 96.1 & 54.6 & 72.4 & 92.2 & 97.1 & 91.5 & \textbf{22.1} & 83.50 & 80.45 \\
+Wan2.1~\cite{wan2025} & 14B & 97.5 & 94.5 & 47.2 & 71.2 & 93.2 & 99.2 & 91.9 & 19.2 & 83.91 & 80.32 \\
+WoW-wan~\cite{chi2025wowworldomniscientworld} & 14B & 96.1 & 92.9 & 46.6 & 70.3 & 93.0 & 98.6 & 91.5 & 19.4 & 83.01 & 79.53 \\
+Sora v2 Pro~\cite{sora2pro} & / & 95.1 & 92.9 & 53.2 & 69.6 & 92.9 & 97.0 & 91.6 & 22.0 & 76.26 & 76.52 \\
+\midrule
+\multicolumn{12}{c}{\textit{Small-scale Models ($<$10B)}} \\
+\midrule
+Wan2.2*~\cite{wan2025}  & 5B & \textbf{97.8} & \textbf{97.4} & \textbf{49.3} & 70.6 & 92.3 & \textbf{99.1} & 90.8 & \textbf{19.4} & 80.17 & 78.63 \\
+UnifoLM-WMA-0~\cite{unifolm_wma0} & 3B & 96.4 & 94.0 & 45.5 & 65.6 & \textbf{94.2} & 98.8 & \textbf{94.1} & 18.8 & 66.93 & 71.43 \\
+Cosmos-Predict2.5*~\cite{nvidia2025worldsimulationvideofoundation} & 2B & 93.7 & 91.2 & \textbf{49.3} & \textbf{74.1} & 92.0 & \textbf{99.1} & 90.2 & 19.1 & 80.44 & 78.26 \\
+GigaWorld-0~\cite{gigaworldteam2025gigaworld0worldmodelsdata} & 2B & 96.7 & 96.1 & 47.6 & 65.1 & 92.2 & \textbf{99.1} & 91.1 & \textbf{19.4} & 85.83 & 80.87 \\
+\rowcolor{gray!20}
+\textbf{Kairos} & 4B & \textbf{97.8} & 94.8 & 46.8 & 69.0 & 93.2 & \textbf{99.1} & 93.6 & 18.1 & \textbf{88.59} & \textbf{82.57} \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+\begin{figure}[!t]
+    \centering
+    \includegraphics[width=1\linewidth]{figures/paibench_compress.png}
+    \caption{Kairos samples on the Paibench robot dataset.}
+    \label{fig:qualitativ_paibench}
+\end{figure}
+
+
+\textbf{Human Evaluation}
+Video generation involves complex physical causal logic and semantic consistency, and existing objective metrics cannot fully and accurately capture human perceptions of visual quality and semantic coherence. Human evaluation directly assesses a model’s performance in instruction following, adherence to physical laws, and content coherence, effectively compensating for the limitations of automated evaluation. Therefore, introducing human evaluation is a critical step in ensuring that generated outputs align with human preferences and possess practical application value.
+To this end, we recruited 10 volunteers to conduct subjective evaluations on the complete test sets of PAI-Bench, WorldModelBench, and DreamGen for five models: Kairos-4B, Cosmos-Predict2.5 (2B/14B), Wan 2.2-5B, and Lingbot-28B. To ensure fairness, all models were anonymized with random identifiers, and volunteers ranked the outputs without knowing the model identities. The final subjective evaluation results were obtained by averaging the rankings across different volunteers.
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=1\linewidth]{figures/human_evaluation.png}
+    \caption{Human evaluation results.}
+    \label{fig:qualitativ_human_eval}
+\end{figure}
+
+We conducted extensive human evaluations of Kairos-4B across three benchmarks: PAI-Bench, WorldModelBench, and DreamGen. Figure \ref{fig:qualitativ_human_eval} presents the detailed results of the human evaluation. The results are as follows:
+On PAI-Bench robot subset, our model demonstrated exceptional physical understanding capabilities. Facing Cosmos-Predict2.5 14B and Lingbot-28B, which have significantly larger parameter counts, Kairos-4B still achieved win rates of 60.2\% and 49.1\% respectively, successfully achieving the "more with less" effect. Meanwhile, we attained a dominant 74.1\% win rate against Wan 2.2-5B.
+On WorldModelBench robot subset,  the advantage further widened. We achieved a remarkable 86.7\% win rate against Wan 2.2-5B and 74.7\% against Lingbot-28B. Even when compared to Cosmos-Predict2.5-14B, we demonstrated our leading position in world model consistency with a 65.0\% win rate.
+Finally, on the DreamGen benchmark, Kairos-4B delivered the most outstanding performance. We achieved a strong 88.8\% win record against Wan 2.2-5B, and maintained a 47.6\% win rate against Cosmos-Predict2.5 14B. This fully validates the model's strong competitiveness in generation quality and diversity.
+
+
+
+
+\subsubsection{Ablation Studies}
+
+\textbf{Effect of Human-Centric Data Scaling.} To validate the effectiveness of human-centric data scaling on our embodied world model, we perform ablations on WorldModelBench-Robot, with results summarized in Table~\ref{tab:wm_gen_ablation}. Starting from a baseline trained without scaled-up human-centric data and adopting Qwen2.5-VL-7B-Instruct~\cite{bai2025qwen25vltechnicalreport} as the VLM encoder, we inject large-scale human-centric data into pre-training. This substantially improves instruction following (2.10 $\rightarrow$ 2.33), leading to a clear gain in the overall benchmark score (9.08 $\rightarrow$ 9.25). This improvement reflects a stronger world-modeling capability: it follows instructions more accurately and generates dynamics that are better aligned with real-world interaction. We attribute this to the richer behavioral priors carried by human-centric data, which enhance the world model's generalization across diverse behaviors, resulting in more correct instruction following.
+
+\textbf{Effect of Understanding.} Building on the large-scale human-centric pre-training data, we further upgrade the VLM encoder from Qwen2.5-VL-7B-Instruct to Qwen3.5-2B~\cite{qwen3.5}. Notably, although Qwen3.5-2B has fewer parameters, it exhibits stronger multimodal understanding capability (as shown in Table~\ref{tab:vlm_encoder_compare}). This upgrade yields further gains in both instruction following (2.33 $\rightarrow$ 2.36) and total score (9.25 $\rightarrow$ 9.30). A stronger VLM enables the world model to better interpret and align the language instruction and the visual context of the initial frame, leading to more accurate instruction grounding and higher-quality future predictions.
+
+\begin{table}[t]
+\centering
+\begin{minipage}[t]{0.48\textwidth}
+\centering
+\captionof{table}{Ablation study on human-centric data scaling and VLM selection}
+\label{tab:wm_gen_ablation}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{cc cc}
+\toprule
+\textbf{\begin{tabular}[c]{@{}c@{}}Human-Centric\\ Scaling\end{tabular}} & \textbf{\begin{tabular}[c]{@{}c@{}}Stronger VLM\\ Encoder\end{tabular}} & \textbf{\begin{tabular}[c]{@{}c@{}}Instruction\\ Following $\uparrow$\end{tabular}} & \textbf{\begin{tabular}[c]{@{}c@{}}Total\\ Score $\uparrow$\end{tabular}} \\
+\midrule
+            &            & 2.10 & 9.08 \\
+\checkmark  &            & 2.33 & 9.25 \\
+\checkmark  & \checkmark & 2.36 & 9.30 \\
+\bottomrule
+\end{tabular}%
+}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.48\textwidth}
+\centering
+\captionof{table}{Vision-language capability comparison referred from~\cite{bai2025qwen25vltechnicalreport}~\cite{qwen35hf2025}.}
+\label{tab:vlm_encoder_compare}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{l c c}
+\toprule
+\multirow{1}{*}{\textbf{Benchmark}} & \textbf{Qwen2.5-VL-7B} & \textbf{Qwen3.5-2B} \\
+\midrule
+MMMU~\cite{mmmu}            & 58.6 & 64.2\,/\,64.2 \\
+MMMU-Pro~\cite{mmupro}        & 38.3 & 50.3\,/\,47.7 \\
+MathVista\textsubscript{mini}~\cite{mathvista} & 68.2 & 76.7\,/\,73.9 \\
+RealWorldQA~\cite{realworldqa}     & 68.5 & 74.5\,/\,71.2 \\
+MMStar~\cite{mmstar}          & 63.9 & 71.7\,/\,68.0 \\
+\bottomrule
+\end{tabular}%
+}
+\end{minipage}
+\end{table}
+
+
+\subsection{World Action Model Benchmarks}
+We finetuned our WAM model and evaluated it in three main-stream benchmarks: LIBERO, LIBERO-Plus, and RoboTwin 2.0. Results show that our WAM model achieved highly competitive performance with only minimal downstream finetuning.
+
+\subsubsection{Benchmark Results}
+
+\textbf{RoboTwin-2.0.} 
+RoboTwin 2.0 \citep{chen2025robotwin} is a challenging benchmark for bimanual robotic manipulation, comprising over 50 tasks that require precise coordination between two robotic arms. To comprehensively evaluate our method, we compare against two representative paradigms for embodied control.
+The first category consists of Vision-Language-Action (VLA) models, including $\pi_0$, X-VLA, $\pi_{0.5}$, StarVLA, Abot-M0, LingBot-VLA and G0.5. These methods typically learn a direct mapping from visual observations and language instructions to robot actions. The second category comprises World-Action-Model (WAM) approaches, including JEPA-VLA, GigaWorld-Policy, Motus, LingBot-VA, Fast-WAM, Being-H0.7, AIM, SANTS, and MotuBrain. Unlike VLA-based methods, WAM approaches explicitly model both environment dynamics and action evolution, enabling joint prediction of future states and executable actions for long-horizon reasoning and planning.
+As shown in Tab.~\ref{RoboTwin_Eval_results}, Kairos achieves strong and consistent performance across the RoboTwin 2.0 benchmark, outperforming the majority of existing baselines and achieving the second-highest average success rate among all evaluated methods. These results demonstrate that jointly modeling world dynamics and action evolution can substantially improve planning and execution capabilities for complex bimanual manipulation tasks.
+
+\begin{table}[htbp]
+  \centering
+  \small
+  \caption{Results on RoboTwin 2.0 benchmark.}
+ \label{RoboTwin_Eval_results}
+  \begin{tabular}{l c c | c} 
+    \toprule
+    \textbf{Model} & \textbf{Clean} & \textbf{Randomized} & \textbf{Average} \\ 
+\midrule
+\midrule
+\textbf{\# VLA}& & \\
+$\pi$0 \citep{black2026pi0visionlanguageactionflowmodel} & 65.9 & 58.4 &62.2 \\
+X-VLA \citep{zheng2025xvlasoftpromptedtransformerscalable} &72.9 &72.8 &72.9 \\
+$\pi$0.5 \citep{intelligence2025pi05visionlanguageactionmodelopenworld} & 82.7 & 76.8 &79.8 \\
+starVLA  \citep{community2026starvla} & 88.2 & 88.3 & 88.3 \\
+ABot-M0 \citep{yang2026abot}  & 81.2 &80.4 & 80.8 \\
+LingBot-VLA  \citep{wu2026pragmatic} &86.5& 85.3 & 85.9\\
+G0.5 \citep{galaxea2026g05} & 93.7 & 92.8 & 93.2 \\
+\midrule
+\midrule
+\textbf{\# WAM}& & \\
+JEPA-VLA \citep{miao2026jepavlavideopredictiveembedding} & 73.5 & - & -  \\
+GigaWorld-Policy \citep{ye2026gigaworld}& 86.0 & 85.0 & 85.5 \\
+Motus \citep{bi2025motusunifiedlatentaction} & 88.7 & 87.0 & 87.8 \\
+LingBot-VA \cite{lingbot-va2026} & 92.9 & 91.6 & 92.2 \\
+Fast-WAM \citep{yuan2026fastwam} & 91.9 & 91.8 & 91.8 \\
+Being-H0.7 \citep{beingbeyond2026beingh07} & 90.2 & 89.6 & 89.8 \\
+AIM \citep{fan2026aimintentawareunifiedworld}& 94.0 & 92.1 & 93.1\\
+SANTS \citep{sun2026santsstateadaptiveschedulerworld}& 94.6 & 94.2 & 94.4 \\
+MotuBrain \citep{motubrainteam2026motubrainadvancedworldaction} & 95.8 & \textbf{96.1} & 96.0  \\
+\midrule
+\midrule
+\rowcolor{gray!20} Kairos & \textbf{96.9}  & 95.2 & \textbf{96.1} \\
+\bottomrule 
+  \end{tabular}
+\end{table}
+
+
+
+\textbf{LIBERO-Plus.} 
+LIBERO-Plus \citep{fei25libero-plus} is an extended version of LIBERO. Compared with the original benchmark, LIBERO-Plus places substantially stronger emphasis on scene-level generalization, robustness to visual distribution shift, compositional manipulation reasoning, and long-horizon policy stability. As shown in  Tab. \ref{tab:libero_plus_eval_results}, Our WAM achieves state-of-the-art performance after fine-tuning on LIBERO-Plus. The results indicate that the model generalizes effectively to perturbed evaluation settings and exhibits strong robustness across diverse environmental variations. 
+\begin{table}[t]
+\centering
+    \caption{Results on LIBERO-plus benchmark.}
+\label{tab:libero_plus_eval_results}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{llllllll|l}
+\toprule
+
+\textbf{Method}&       \textbf{Camera}&\textbf{Robot}&\textbf{Language}&\textbf{Light}&\textbf{Background}&\textbf{Noise}&\textbf{Layout}&\textbf{Average}\\
+\midrule
+\midrule
+\textbf{\# VLA}&       &&&&&&&\\
+ ACoT-VLA \citep{zhong2026acotvlaactionchainofthoughtvisionlanguageaction}&       \textbf{96.6}&70.4&79.7&95.1&\textbf{97.1}&95.9&85.0&88.0\\
+ $\pi_0$ \citep{black2026pi0visionlanguageactionflowmodel}&       61.0&40.8&63.5&89.3&84.1&80.1&76.4&69.4\\
+ $\pi_{0.5}$ \citep{intelligence2025pi05visionlanguageactionmodelopenworld}&       75.8&\textbf{79.4}&83.3&95.5&95.0&89.6&\textbf{87.0}&85.7\\
+ Being-H0.5 \citep{beingbeyond2026beingh05}&       -&-&-&-&-&-&-&83.1\\
+ MINT-4B \citep{huang2026mimicintentjusttrajectories}&       -&-&-&-&-&-&-&84.1\\
+ VLANeXt \citep{wu2026vlanextrecipesbuildingstrong}& 90.4& 65.7& 81.8& 95.9& 82.5& 94.1& 80.8 &83.9\\
+  ProGAL-VLA \citep{darabi2026progalvlagroundedalignmentprospective}& 93.2& 71.5& 93.6& 86.8& 92.3&  74.8& 86.7&85.5\\
+ RoVLA \citep{luo2026rovlamulticonsistencyconstraintsrobust}& \textbf{96.6}& 32.0& 91.5& 95.9& 96.1& 95.1& 74.1&82.0\\
+ OpenVLA-OFT \citep{kim2025finetuningvisionlanguageactionmodelsoptimizing}&  92.8&  30.3& 85.8 & 94.9 & 93.9 & 89.3 & 77.6&79.6\\
+ Gr00t-N1.6 \citep{nvidia2025gr00tn1openfoundation}& 92.6& 33.5& 80.1& 93.6& 95.4& 93.6& 75.0 &79.4\\
+ ABot-M0 \citep{yang2026abotm0vlafoundationmodel}& 60.4& 67.9& 86.4 & 96.2 & 91.6& 86.4& 82.6&80.5\\
+ \midrule
+ \midrule
+ \textbf{\# WAM}&       &&&&&&&\\
+ Being-H0.7 \citep{beingbeyond2026beingh07}&       -&-&-&-&-&-&-&84.8\\
+ \midrule
+ \midrule
+\rowcolor{gray!20} Kairos&       95.5&72.6&86.8&\textbf{97.7}&95.8&\textbf{96.8}&81.5&89.0\\
+\rowcolor{gray!20} Kairos-joint&       95.9&74.6&\textbf{95.3}&97.1&\textbf{97.1}&95.4&83.8&\textbf{90.8}\\
+\bottomrule
+\end{tabular}
+%
+}
+\end{table}
+
+\subsubsection{Ablation Studies} 
+
+\textbf{Effect of Embodied Human-centric Pretraining.} To investigate the impact of embodied human-centric pretraining, we compare Kairos with VideoDiT pretrained either with or without large-scale human-centric data, while keeping all other settings unchanged. As results shown in Table~\ref{tab:human_pretraining}, incorporating human-centric data leads to a significant gain in LIBERO-Plus benchmark, which suggests the effectiveness of native human-centric pretraining. Kairos can effectively leverage transferable action-relevant knowledge learned from human-centric data to improve performance on unseen tasks. More broadly, these findings highlight the potential of large-scale human-centric data as a scalable supervision source complementary to robot trajectories, offering a promising path toward reducing real-robot data requirements and enabling more general-purpose world action models.
+
+
+\textbf{Effect of Joint Training of Generation and Prediction.} Building upon the human-centric pretrained WAM, we further investigate the impact of Generation-Prediction joint training on action prediction. Specifically, an ablated WAM variant optimizing only the ActionDiT is constructed, with results shown in Table~\ref{tab:joint_training}. Training only the ActionDiT leads to a consistent performance degradation across LIBERO-Plus benchmarks. We attribute this degradation to the loss of world-modeling supervision provided by the generation objective. By jointly optimizing generation and prediction, VideoDiT learns control-relevant interaction dynamics and produces more informative visual representations, resulting in stronger conditioning signals and improved action prediction performance.
+
+\textbf{Effect of Joint Denoising of Generation and Prediction.} 
+Rather than omitting video generation during inference, we explore a variant of Kairos, denoted as Kairos-joint (see Table \ref{tab:libero_plus_eval_results}). In this configuration, future video tokens and action tokens are jointly denoised, allowing action prediction to actively attend to video generation at inference time. Experimental results demonstrate that this explicit future imagination further elevates performance from 89.0 to 90.8. This improvement highlights the distinct advantages of the joint attention mechanism in coupling generation and prediction.
+
+
+
+\begin{table*}[t]
+\centering
+
+% ================= Left Table =================
+\begin{minipage}[t]{0.48\textwidth}
+\vspace{0pt}
+\centering
+\caption{Effect of embodied human-centric pretraining}
+\label{tab:human_pretraining}
+
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+
+\begin{tabular}{lcc}
+\toprule
+\textbf{Model} &
+\textbf{Avg.} &
+\textbf{Gain} \\
+\midrule
+w/o human-centric data & 83.0 & -- \\
+w/ human-centric data & \textbf{89.0} & +6.0 \\
+\bottomrule
+\end{tabular}
+
+\end{minipage}
+\hfill
+% ================= Right Table =================
+\begin{minipage}[t]{0.48\textwidth}
+\vspace{0pt}
+\centering
+\caption{Effect of Joint Training of Generation and Prediction}
+\label{tab:joint_training}
+
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+
+\begin{tabular}{lcc}
+\toprule
+\textbf{Model} & \textbf{Avg.} & \textbf{Gain} \\
+\midrule
+Action Prediction Only & 65.8 & -- \\
+Video Generation \& Action Prediction & \textbf{89.0} & +23.2 \\
+\bottomrule
+\end{tabular}
+
+\end{minipage}
+
+\end{table*}
+
+
+
+\subsection{General World Model Benchmarks}
+Beyond the strong embodied capabilities of our model, we further evaluate its world modeling and physical reasoning abilities on general video generation benchmarks. In addition to the previously introduced PAI-Bench and WorldModelBench, we also include VideoPhy~\cite{bansal2024videophy}, a benchmark designed to evaluate the physical validity and semantic consistency of generated videos, with a particular focus on realistic entity interactions and motion dynamics. To examine temporal reasoning and consistency, we further conduct evaluations under a long-term (15-second) generation setting, enabling assessment across different temporal scales. For the evaluation, we select Cosmos-predict2.5-2B/14B~\cite{nvidia2025worldsimulationvideofoundation}, and Wan2.2-5B~\cite{wan2025} as representative baseline models.
+
+\begin{figure}[!t]
+    \centering
+    \includegraphics[width=1\linewidth]{figures/merged_frames_8v.png}
+    \caption{Kairos samples on the PAI-Bench dataset.}
+    \label{fig:qualitativ}
+\end{figure}
+
+
+
+\textbf{PAI-Bench.} Following the same evaluation protocol as in the embodied setting, we extend the evaluation to the full set of PAI-Bench domains, including av, physics, and other real-world scenarios. In the TI2V setting, we compare our method with aforementioned open-source models.
+Quantitative results are summarized in Table~\ref{tab:paibench}. The results show that our model achieves the best performance across multiple sub-domains. In particular, the highest scores on background consistency and i2v-background indicate that Kairos maintains strong stability in background scenes during video generation.Moreover, the consistently strong performance across multiple domains, including robotics, further demonstrates the robustness of Kairos in diverse real-world scenarios.
+
+\begin{table}[h]
+\centering
+\caption{Evaluation on PAI-bench. For each column, the highest score is \textbf{bolded}. }
+\label{tab:paibench}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{l c cccccccc cccccc c}
+\toprule
+\multirow{2}{*}{Model} & \multirow{2}{*}{Param} 
+& \multicolumn{8}{c}{Quality Score} 
+& \multicolumn{6}{c}{Domain Score} 
+& \multirow{2}{*}{\begin{tabular}[c]{@{}c@{}}Overall\\Score\end{tabular}} \\
+
+\cmidrule(lr){3-10} \cmidrule(lr){11-16}
+
+& & i2v-bg & i2v-s & aes & img & bg-con & mot & sub-con & o-con 
+& av & cs & ro & in & hu & ph & \\
+
+\midrule
+
+Cosmos-Predict2.5 & 2B 
+& 97.4 & 96.6 & 52.4& \textbf{70.8} & 94.2 & \textbf{99.1} & 92.5 & 20.1 
+& 66.1 & 94.1 & 80.8 & 87.8 & 81.4 & \textbf{93.9} & \textbf{81.0} \\
+
+Cosmos-Predict2.5 & 14B 
+& \textbf{97.9} & \textbf{97.2} & \textbf{52.5} & 70.0 & \textbf{94.8} & \textbf{99.1} & \textbf{93.4} & 20.1 
+& \textbf{67.8} & 94.2 & 79.9 & 87.7 & 80.0 & 93.5 & \textbf{81.0} \\
+
+
+Wan2.2 & 5B 
+& 96.7 & 95.9 & 51.9 & 69.9 & 93.7 & 98.8 & 91.8 & 20.3
+& 65.2 & 93.1 & 79.3 & \textbf{88.4} & 83.0 & 91.5 & 80.4  \\
+\rowcolor{gray!20}
+Kairos & 4B 
+& \textbf{97.9} & 96.5 & 51.9 & 68.8 & 94.5 & 98.7 & 92.0 & \textbf{21.3} 
+& 64.4 & \textbf{94.3} & \textbf{84.0} & 84.5 & \textbf{84.1} & 92.8 & 80.8 \\
+
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+
+
+
+
+While quantitative metrics provide an objective measure of model performance, qualitative evaluation is also important for a comprehensive assessment. Objective scores may not always fully capture the perceptual quality of generated videos, and qualitative analysis can help complement these metrics by providing a more direct examination of visual fidelity, prompt alignment, and temporal consistency.For qualitative evaluation, we select representative high-quality video samples generated by Kairos from each sub-domain of Paibench, as shown in Fig.~\ref{fig:qualitativ}, covering diverse scenarios such as autonomous driving, industrial manufacturing, indoor human activities, and robotic environments.The results show that Kairos is capable of generating realistic and high-quality videos across different domains. The generated videos demonstrate strong prompt adherence and accurate first-frame conditioning, while maintaining good physical consistency throughout the video sequence.
+
+
+
+\textbf{WorldModelBench.}  Following the same benchmark introduced in the embodied evaluation, we further evaluate Kairos on the full WorldModelBench dataset. In the embodied evaluation we focus on the TI2V setting, as embodied scenarios are more sensitive to the initial state of the robot or manipulator. Here we follow the official evaluation protocol and conduct experiments under both TI2V and T2V settings.
+
+
+\begin{table}[h]
+\centering
+\caption{Evaluation on WorldModelBench. For each column, the highest score is \textbf{bolded}.}
+\label{tab:worldmodelbench-Ti2V}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{l c c c c c c c c c c c}
+\toprule
+\multirow{2}{*}{\textbf{Model}} & \multirow{2}{*}{\textbf{Mode}} & \multirow{2}{*}{\textbf{Param}} & \multirow{2}{*}{\textbf{Instruction}} & \multicolumn{5}{c}{\textbf{Physics Adherence}} & \multicolumn{2}{c}{\textbf{Common Sense}} & \multirow{2}{*}{\textbf{\begin{tabular}[c]{@{}c@{}}Total\\ Score\end{tabular}}} \\
+ \cmidrule(lr){5-9} \cmidrule(lr){10-11}
+& & & & Newton & Deform. & Fluid & Penetr. & Grav. & Frame & Temporal & \\
+\midrule
+Cosmos-Predict2.5 & TI2V & 2B & 2.37 & \textbf{1.00} & 0.8 & \textbf{0.99} & 0.85 & \textbf{1.00}  & 0.87 & 0.82 & 8.71 \\
+Cosmos-Predict2.5 & TI2V & 14B & \textbf{2.45} & \textbf{1.00} & 0.84 & \textbf{0.99} & 0.88 & \textbf{1.00}  & \textbf{0.93} & 0.87 & \textbf{8.95} \\
+Wan2.2 & TI2V & 5B & 2.30 & \textbf{1.00} & 0.78 & \textbf{0.99} & 0.82 & 0.99 & 0.87 & 0.79 & 8.53 \\
+\rowcolor{gray!20}
+Kairos & TI2V &  4B & 2.36 & \textbf{1.00} & \textbf{0.85} & \textbf{0.99} & \textbf{0.89} & 0.99 & 0.92 & \textbf{0.89} & 8.89 \\
+\hline
+Cosmos-Predict2.5 & T2V & 2B & 2.30 & \textbf{1.00} & 0.91 & 0.99 & 0.90 & \textbf{1.00}  & \textbf{1.00} & 0.95 & 9.01 \\
+Cosmos-Predict2.5 & T2V & 14B & 2.30 & \textbf{1.00} & \textbf{0.91} & 0.99 & \textbf{0.92} & \textbf{1.00}  & \textbf{1.00} & \textbf{0.97} & \textbf{9.09} \\
+Wan2.2 & T2V &  5B & 2.18 & \textbf{1.00} & 0.87 & \textbf{1.00} & 0.88 & 0.99 & 0.99 & 0.95 & 8.87 \\
+\rowcolor{gray!20}
+Kairos & T2V & 4B & \textbf{2.33} & \textbf{1.00} & 0.83 & \textbf{1.00} & 0.90 & \textbf{1.00} & 0.99 & 0.93 & 8.99 \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+
+Tables~\ref{tab:worldmodelbench-Ti2V} report detailed quantitative comparisons between Kairos and other baseline models on this benchmark. Compared with mainstream open-source models of similar scale, Kairos achieves higher scores under both settings, demonstrating competitive performance even compared with models at the 14B parameter scale despite its compact 4B size. In the TI2V setting, where first-frame conditioning introduces stricter constraints on video generation, Kairos consistently outperforms other models on multiple metrics. These results indicate stronger capability in maintaining object structural consistency, preventing physically implausible interactions, and producing higher-quality videos.
+
+
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=1\linewidth]{figures/merged_frames_4v.png}
+    \caption{Kairos samples(TI2V) on the WorldModelBench dataset.}
+    \label{fig:wmb_ex}
+\end{figure}
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=1\linewidth]{figures/merged_frames_with_prompt.png}
+    \caption{Kairos samples(T2V) on the WorldModelBench dataset.}
+    \label{fig:wmb_ex_prompt}
+\end{figure}
+
+
+We further conduct qualitative analysis of Kairos on WorldModelBench, focusing on its instruction-following capability and physics adherence. As illustrated in Fig.~\ref{fig:wmb_ex}, Kairos successfully accomplishes the specified tasks across a variety of complex scenarios. For example, in scenes such as the rotation of bottled water in a spiral filling machine and a vehicle being lifted by a hydraulic elevator, the model accurately generates dynamic processes that align with the given instructions, demonstrating strong instruction-following ability. Meanwhile, the generated videos also exhibit plausible physical behaviors. For instance, flower petals tremble in response to the motion of a butterfly, and the motion trajectories and accumulation patterns of falling garbage appear physically reasonable. Similar behaviors can also be observed in the T2V setting, as shown in the Fig.~\ref{fig:wmb_ex_prompt}
+
+
+
+
+
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=1.0\textwidth]{figures/videophy.pdf}
+\caption{
+    \centering
+Kairos samples on the VideoPhy dataset.}
+\label{fig:kairos_videophy_benchmark}
+\end{figure}
+
+
+
+\textbf{VideoPHY.} To evaluate the physical reasoning capability of our model, we benchmark it on VideoPhy, which contains 688 human-verified prompts. These prompts describe interactions between entities with different physical properties, including solid–solid, solid–fluid and fluid–fluid. Following the benchmark’s evaluation protocol, we generate videos using 344 test prompts. Each generated video is evaluated using two metrics: Semantic Adherence (SA) and Physical Commonsense (PC). SA measures whether the generated video correctly reflects the entities and actions described in the carefully designed prompts that simulate diverse physical interactions, while PC evaluates whether the generated scene is consistent with real-world physical laws. Both metrics are defined as binary judgments (0/1) and are computed using an auto evaluator VIDEOCON-PHYSICS provided by the benchmark. We report the \textbf{Average Score (SA=1, PC=1)} as the final results. Prompt enhancement can effectively enrich visual details in generated videos, thereby improving overall generation quality. Since the prompts in VideoPhy are relatively short, we apply model-specific prompt enhancement strategies to ensure a fair comparison across different models. Specifically, for Wan2.2-5B, we follow the official recommendation and employ Qwen/Qwen2.5-7B-Instruct for prompt enhancement. For Cosmos-predict2.5-2B/14B, since the prompt enhancement module has been removed in its NVIDIA official implementation, we adopt the same prompt enhancement strategy used for Kairos, namely leveraging Qwen3-8B. To ensure a fair comparison, we report the best performance for each model with or without prompt enhancement.
+
+\begin{table}[h]
+\centering
+\caption{Evaluation on VideoPhy. The highest score is \textbf{bolded}.}
+\label{tab:videophy}
+\resizebox{0.8\textwidth}{!}{
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Model}
+& Cosmos-Predict2.5-2B &Cosmos-Predict2.5-14B
+& Wan2.2-5B
+& Kairos \\
+\midrule
+\textbf{Average Score}
+& 44.64 & 45.16 & 38.85 & \textbf{45.55} \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+
+As shown in Table~\ref{tab:videophy}, our model achieves the highest average score on VideoPhy with 45.55, outperforming Wan2.2-5B and Cosmos-Predict2.5-2B/14B. Remarkably, with only 4B parameters, Kairos outperforms Cosmos-Predict2.5-14B, demonstrating both high parameter efficiency and the ability to generate videos that adhere to real-world physical laws. Figure~\ref{fig:kairos_videophy_benchmark} presents qualitative results of Kairos on VideoPhy, covering a range of scenarios that involve physical interactions. For the prompt “A hand mixer stirs through thick cake batter”, the generated video shows a mixer that continuously rotates within the dense cake batter, creating clearly visible swirling and folding patterns that reflect the behavior of viscous fluids under mechanical agitation. For “Milk colliding with piping hot black coffee”, the poured milk gradually disperses into the coffee, forming a natural mixing process with smooth and coherent fluid dynamics. Our model also captures diverse physical interactions in other scenarios, producing realistic scenes such as rocks breaking under a pickaxe, rainwater flowing through a gutter, and a waterfall cascading over jagged rocks. These examples indicate that Kairos correctly reflects the entities and actions described in the prompts, demonstrating strong semantic adherence while maintaining physically consistent motion patterns and interactions.
+
+\begin{figure}[!tbp]
+\centering
+\includegraphics[width=\textwidth]{figures/paibench_15s.jpeg}
+\caption{Kairos samples on the PAI-Bench-\textbf{15s} dataset.}
+\label{fig:kairos_paibench_long_horizoin_results}
+\end{figure}
+
+\subsection{Long-horizon Generation}
+
+To further evaluate long-horizon video generation, we conduct experiments on PAI-Bench using a 15-second generation setting. PAI-Bench offers a diverse set of real-world scenarios and measures models’ ability to capture realistic physical dynamics while maintaining physically plausible behaviors. The extended 15-second generation setting enables a more comprehensive examination.
+
+
+
+\begin{table}[ht]
+\centering
+\caption{Evaluation on PAI-bench-\textbf{15s}. For each column, the highest score is \textbf{bolded}. }
+\label{tab:paibench-15s}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{l c cccccccc cccccc c}
+\toprule
+\multirow{2}{*}{Model} & \multirow{2}{*}{Param} 
+& \multicolumn{8}{c}{Quality Score} 
+& \multicolumn{6}{c}{Domain Score} 
+& \multirow{2}{*}{\begin{tabular}[c]{@{}c@{}}Overall\\Score\end{tabular}} \\
+
+\cmidrule(lr){3-10} \cmidrule(lr){11-16}
+
+& & i2v-bg & i2v-s & aes & img & bg-con & mot & sub-con & o-con 
+& av & cs & ro & in & hu & ph & \\
+
+\midrule
+
+Cosmos-Predict2.5 & 2B 
+& 93.6 & 92.0 & \textbf{55.0} & \textbf{71.9} & 91.0 & \textbf{99.3} & 87.6 & 20.6 
+& 59.7 & 82.6 & 72.8 & 84.9 & 77.3 & 90.6 & 77.2 \\
+
+Cosmos-Predict2.5 & 14B 
+& 93.7 & 91.8 & 52.9 & 68.4 & 92.4 & 99.2 & 89.0 & 20.4
+& 61.9 & 82.6 & 68.1 & 81.2 & 75.4 & 89.2 & 76.2 \\
+
+Wan2.2 & 5B 
+& \textbf{97.9} & \textbf{97.1} & 51.9 & 67.6 & 91.5 & 99.2 & \textbf{90.7} & 20.7
+& 54.3 & \textbf{90.9} & 70.1 & 84.1 & 79.6 & \textbf{91.4} & 77.8  \\
+\rowcolor{gray!20}
+Kairos & 4B 
+& 97.1 & 95.6 & 51.9 & 68.8 & \textbf{93.4} & 98.5 & 89.8 & \textbf{21.5} 
+& \textbf{66.7} & 89.2 & \textbf{80.4} & \textbf{86.8} & \textbf{83.2} & 90.0 & \textbf{79.9} \\
+
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+
+
+
+Tables~\ref{tab:paibench} and~\ref{tab:paibench-15s} present the quantitative results of PAI-Bench under 5 and 15 second settings. When the generation horizon is extended to 15 seconds, the baseline models exhibit noticeable degradations in both quality metrics and domain-specific metrics. For example, Cosmos-Predict2.5-2B/14B shows clear drops in image-to-video consistency metrics, including i2v-bg (97.4/97.9→93.6/93.7) and i2v-s (96.6/97.2→92.0/91.8), indicating the increasing difficulty in preserving subject and background consistency in longer sequences. In addition, several domain-level scores decrease substantially, such as autonomous driving (66.1/67.8→59.7/61.9), common sense (94.1/94.2→82.6/82.6) and robot (80.8/79.9→72.8/68.1). Wan2.2-5B exhibits similar trends, with noticeable decreases in autonomous driving (65.2→54.3) and robot (79.3→70.1).
+
+Under the 15-second setting, our model achieves the best overall score of 79.9, outperforming Cosmos-Predict2.5-2B/14B (77.2/76.2) and Wan2.2-5B (77.8). In particular, Kairos maintains strong performance in several domain-level metrics, including autonomous driving (66.7), robot (80.4), industry (86.8) and human (83.2), while also preserving high image-to-video consistency with i2v-bg (97.1) and i2v-s (95.6). These results indicate that Kairos effectively preserves scene consistency and physical interactions in long-horizon video generation.
+
+Figure~\ref{fig:kairos_paibench_long_horizoin_results} presents the qualitative results of our model in the long-horizon generation. The visual results show that Kairos maintains consistent object appearance and scene structure over long temporal durations while producing natural and coherent motion. In the example of a dog interacting with floating bubbles, the dog’s head pose and attention gradually change following the bubble's trajectory with smooth transitions. In the forest scene, the morning mist and sunlight evolve smoothly over time. As the sun gets stronger, the mist fades and the trees in the background become more visible. These results indicate that Kairos produces temporally coherent and visually consistent long-horizon videos.
+
+
+
+

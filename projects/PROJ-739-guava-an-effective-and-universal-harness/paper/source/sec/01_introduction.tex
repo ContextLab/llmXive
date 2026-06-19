@@ -1,0 +1,31 @@
+\section{Introduction}
+\label{sec:introduction}
+
+Language models trained on large-scale vision-language data have shown strong potential for building generalizable embodied agents~\citep{driess2023palme,brohan2023rt}. 
+Their semantic understanding~\citep{kojima2023largelanguagemodelszeroshot}, visual grounding~\citep{liu2023visualinstructiontuning}, and visual reasoning abilities~\citep{thawakar-etal-2025-llamav, xu2025llavacotletvisionlanguage, lu2024mathvistaevaluatingmathematicalreasoning} make them feasible backbones for robotic manipulation~\citep{fu2026capxframeworkbenchmarkingimproving}. 
+One line of work addresses this problem by finetuning vision-language models into vision-language-action (VLA) policies that directly generate robot actions from visual observations and language instructions~\citep{li2024vision,black2025pi,pi0.5,lee2025molmoact,hancock2026actions}. 
+However, it usually requires large amounts of robot demonstration data, which is expensive to collect, embodiment-dependent, and difficult to scale to diverse objects, scenes, and long-horizon tasks encountered in the real world.
+
+Recent progress in harness engineering~\citep{openai2026harness} has enabled foundation models to operate in increasingly complex domains, including personalized workflows~\citep{openclaw}, software development~\citep{anthropic_claude_code, openai_codex}, and scientific discovery~\citep{karpathy_autoresearch}. 
+Harnessing models without extensive fine-tuning provides a promising direction for building agentic manipulation systems~\citep{shi2025maestro, fu2026capxframeworkbenchmarkingimproving}.
+Rather than requiring models to internalize all low-level perception, planning, and control capabilities~\citep{sapkota2026visionlanguageactionvlamodelsconcepts}, harness-based systems enable language models to invoke external modules for robot manipulation. 
+This modular design is particularly well-suited for embodied manipulation: specialized low-level tools encapsulate robot skills, while the language model focuses on high-level reasoning, tool selection, and task decomposition.
+Maestro~\citep{shi2025maestro} and concurrent work Cap-X~\citep{fu2026capxframeworkbenchmarkingimproving} represent early efforts in this direction.
+Despite recent progress, it remains unclear what makes an effective harness for embodied manipulation. Existing systems often rely on one-shot code generation, domain-specific pipelines coupled with powerful frontier models, making it difficult to achieve robust long-horizon behavior and failure recovery at low inference latency and cost. We therefore ask a fundamental question: \emph{what are the key ingredients of an effective and general harness for embodied agents?}
+
+To answer this question, we explore the design space of embodied agents and identify three principles that are critical for effective manipulation. First, iterative ReAct~\citep{yao2023reactsynergizingreasoningacting} loops are essential for adapting to execution outcomes and recovering from failures. Second, semantic action abstractions allow language models to focus on task decomposition and planning instead of low-level robot control. Third, rich multimodal observations provide the environmental context necessary for embodied reasoning. Guided by these findings, we develop \textbf{Guava}, a harness framework for embodied tool use that combines ReAct-style interaction, semantic manipulation tools, and multimodal observations into a unified agent architecture.
+
+Building upon Guava, we further investigate whether an effective harness can serve as an universal interface for embodied manipulation across models, enabling even small open-source models to acquire strong embodied capabilities. To answer this question, we develop an end-to-end training pipeline that distills embodied tool-use behaviors into a 4B model using fewer than 2K trajectories collected entirely in simulation. Experimental results show that the resulting model achieves performance comparable to frontier proprietary models across a diverse suite of manipulation tasks, while exhibiting strong generalization to unseen objects, instructions, and long-horizon scenarios. Moreover, the learned model transfers zero-shot from simulation to real-world and demonstrates robust recovery behaviors under execution failures.
+
+Together, these results suggest that a well-designed harness can act as a scalable and model-agnostic interface for embodied manipulation. By combining effective harness design with data-efficient post-training, Guava enables compact open-source models to acquire strong manipulation capabilities, robust failure recovery, and real-world transfer from fewer than 2K simulation trajectories.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.8\linewidth]{images/teaser.pdf}
+\caption{
+\textbf{Guava Overview.}
+Guava defines structured interaction strategies between an embodied agent and its environment, encouraging the embodied reasoning and tool-calling for manipulation. Built on this harness, we train a small agent in simulation that can be directly deployed in the real world across diverse evaluation scenarios. 
+}
+\vspace{-4mm}
+\label{fig:ood}
+\end{figure}

@@ -1,0 +1,133 @@
+\documentclass[table]{ai2style/ai2}
+
+\usepackage{microtype}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{booktabs, tabularx}
+\usepackage{graphicx}
+\usepackage{enumitem}
+\usepackage{listings}
+
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{multirow}
+\usepackage{longtable}
+\usepackage{wrapfig}
+\usepackage{float}
+\usepackage[most]{tcolorbox}
+\usepackage{xspace}
+\usepackage{nicefrac}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{siunitx}
+\usepackage{arydshln}
+\usepackage{soul}
+\usepackage{adjustbox}
+\usepackage{pifont}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{makecell}
+\usepackage{csquotes}
+
+\definecolor{linkcolor}{RGB}{0, 0, 128}
+\hypersetup{
+     colorlinks   = true,
+     citecolor    = linkcolor,
+     linkcolor    = linkcolor,
+     urlcolor     = linkcolor,
+}
+
+\setcitestyle{numbers,square,comma}
+
+\usepackage[dvipsnames,svgnames]{xcolor}
+\newcommand{\cmark}{{\color{ForestGreen}\ding{51}}}
+\newcommand{\xmark}{{\color{red!70!black}\ding{55}}}
+
+\setlist[itemize]{leftmargin=*,itemsep=0em,parsep=0.3em,topsep=0.3em}
+
+\newcommand{\modelname}{MolmoMotion\xspace}
+\newcommand{\benchmarkname}{PointMotionBench\xspace}
+
+\graphicspath{{figures/}{.}}
+
+\newcommand{\allenAiAff}{\raisebox{.28em}{\hspace{.02em}\scalebox{0.7}{\textbf{1}}}}
+\newcommand{\uwAff}{\raisebox{.28em}{\hspace{.02em}\scalebox{0.7}{\textbf{2}}}}
+\newcommand{\uncAff}{\raisebox{.28em}{\hspace{.02em}\scalebox{0.7}{\textbf{3}}}}
+\newcommand{\commaAff}{\raisebox{.28em}{\hspace{.02em}\scalebox{0.7}{\textbf{,}\hspace{0.1em}}}}
+\newcommand{\cofirst}{\raisebox{.28em}{\hspace{.02em}\scalebox{0.7}{\textbf{*}}}}
+\newcommand{\coreContrib}{\raisebox{.28em}{\hspace{.05em}\includegraphics[height=.45em]{logos/core.pdf}}\hspace{0.1em}}
+
+
+\title{MolmoMotion\\[4pt]
+  {\Large Forecasting Point Trajectories in 3D with Language Instruction}}
+
+\authorOne[\allenAiAff\commaAff\uwAff\cofirst]{Jianing Zhang\coreContrib}
+\authorOne[\allenAiAff\commaAff\uwAff\cofirst]{Chenhao Zheng\coreContrib}
+\authorOne[\uwAff]{Yajun Yang\coreContrib}
+
+
+\authorTwo[\allenAiAff]{Max Argus}
+\authorTwo[\allenAiAff\commaAff\uwAff]{Rustin Soraki}
+\authorTwo[\allenAiAff]{Winson Han}
+\authorTwo[\allenAiAff]{Taira Anderson}
+\authorTwo[\uwAff]{Chun-Liang Li}
+\authorTwo[\allenAiAff\commaAff\uwAff]{Shuo Liu}
+\authorTwo[\allenAiAff\commaAff\uwAff]{Jiafei Duan}
+
+\authorThree[\allenAiAff\commaAff\uwAff\commaAff\uncAff]{Zhongzheng Ren\coreContrib}
+\authorThree[\allenAiAff\commaAff\uwAff]{Jieyu Zhang\coreContrib}
+\authorThree[\allenAiAff\commaAff\uwAff]{Ranjay Krishna\coreContrib}
+
+\affiliation[\allenAiAff]{Allen Institute for AI}
+\affiliation[\uwAff]{University of Washington}
+\affiliation[\uncAff]{UNC-Chapel Hill}
+
+\newcommand{\huggingface}{\raisebox{-1.5pt}{\includegraphics[height=1.05em]{logos/hf.pdf}}\xspace}
+\newcommand{\hfdataset}{\raisebox{-1.5pt}{\includegraphics[height=1.05em]{logos/db.pdf}}\xspace}
+\newcommand{\github}{\raisebox{-1.5pt}{\includegraphics[height=1.05em]{logos/github.pdf}}\xspace}
+
+
+\contribution[]{\raisebox{.1em}{\scalebox{0.8}{\textbf{*}}}\,Equal contribution.\quad
+\raisebox{-.1em}{\includegraphics[height=.6em]{logos/core.pdf}}\,Core contributors.}
+
+\abstract{\input{sections/0_abstract}}
+
+
+
+\metadata[\quad\huggingface Models:]{
+\href{https://huggingface.co/collections/allenai/molmomotion}{\texttt{\modelname}}}
+
+\metadata[\vspace{.5em}\quad\hfdataset Data:]{
+    \href{https://huggingface.co/datasets/allenai/molmo-motion-1m}{\texttt{MolmoMotion-1M}} \quad \href{https://huggingface.co/datasets/allenai/PointMotionBench}{\texttt{\benchmarkname}} 
+}
+
+\metadata[\vspace{.5em}\quad\github Code:]{
+    \href{https://github.com/allenai/molmo-motion}{\texttt{https://github.com/allenai/molmo-motion}} \quad
+}
+
+
+\metadata[\vspace{.5em}\quad\raisebox{-1.5pt}{\includegraphics[height=1.05em]{logos/ai2.pdf}}\xspace Websites:]{\href{https://molmomotion.github.io/}{\texttt{Technical-Website}} \quad \href{https://allenai.org/blog/molmo-motion}{\texttt{Blog}}}
+
+
+
+\begin{document}
+
+\maketitle
+
+\input{sections/1_introduction}
+\input{sections/3_method}
+\input{sections/4_experiment}
+\input{sections/2_related_work}
+\input{sections/6_conclusion}
+
+\clearpage
+\bibliographystyle{abbrvnat}
+\bibliography{references}
+
+\clearpage
+\appendix
+\section*{Appendix}
+\input{sections/5_appendix}
+
+\end{document}

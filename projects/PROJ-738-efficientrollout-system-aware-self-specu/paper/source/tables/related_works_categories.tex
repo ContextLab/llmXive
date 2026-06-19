@@ -1,0 +1,68 @@
+\begin{table}[t]
+\centering
+\small
+\setlength{\tabcolsep}{6pt}
+\renewcommand{\arraystretch}{1.18}
+\caption{
+Comparison of drafter categories for SD in RL rollouts.
+We compare methods along three dimensions: whether they use parameterized drafters, avoid continuous online adaptation, and can accelerate from the first epoch without category-specific warm-up, such as rollout-history collection or drafter pretraining.
+}
+\label{tab:rl_sd_taxonomy}
+\vspace{1mm}
+\resizebox{1\linewidth}{!}{%
+\begin{tabular}{
+p{3.2cm}
+!{\color{gray!45}\vrule width 0.4pt}
+c
+c
+c
+!{\color{gray!45}\vrule width 0.4pt}
+>{\raggedright\arraybackslash}p{3.2cm}
+}
+\toprule
+\textbf{Drafter category}
+&
+\textbf{Parameterized}
+&
+\textbf{Online-adaptation free}
+&
+\textbf{Warm-up free}
+&
+\textbf{Examples} \\
+\midrule
+
+\textbf{(1) History-based}
+&
+No
+&
+Yes
+&
+No
+&
+{\footnotesize \citep{liu2025spec,shao2025beat,he2025history}} \\[2pt]
+
+\textbf{(2) Learned auxiliary}
+&
+Yes
+&
+No
+&
+Conditional
+&
+{\footnotesize \citep{zhang2025fastgrpo,hu2026taming,chen2025respec,iso2026accelerating}} \\[2pt]
+
+\rowcolor{gray!10}
+\textbf{(3) Target-induced}
+&
+\textbf{Yes}
+&
+\textbf{Yes}
+&
+\textbf{Yes}
+&
+{\footnotesize \bfseries \methodtitle{} (ours)} \\
+
+\bottomrule
+\end{tabular}%
+}
+\end{table}

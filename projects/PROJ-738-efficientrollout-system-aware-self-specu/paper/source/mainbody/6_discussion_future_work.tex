@@ -1,0 +1,12 @@
+\section{Discussion and Future Directions}
+\label{sec:discussion_future}
+
+We present \methodtitle{}, a system-aware self-SD framework for RL rollouts, designed around evolving policies, shrinking-batch dynamics, and rollout-tail latency.
+By combining a target-induced quantized drafter, dynamic SD toggling, and adaptive draft budgets, \methodtitle{} reduces rollout and end-to-end latency without separate drafter pretraining, warm-up, online adaptation, or invasive RL pipeline changes.
+
+\paragraph{Future directions.}
+
+Several directions remain for improving and extending system-aware self-SD for RL rollouts.
+First, we focus on chain verification because it is practical under dynamic batch sizes~\citep{liu2025speculative}; tree verification is orthogonal and could be incorporated into our framework~\citep{li2024eagle,li2025eagle}.
+Second, naive RTN may not yield strong early-stage drafters for all model families, motivating less lossy quantization methods that improve drafter quality without introducing excessive per-step overhead.
+Finally, when KV-cache loading dominates in long-context or dense-attention regimes~\citep{cordonnier2020multi}, sparse-attention drafting may further reduce quantized self-SD cost.

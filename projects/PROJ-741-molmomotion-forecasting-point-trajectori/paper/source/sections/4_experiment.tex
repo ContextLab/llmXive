@@ -1,0 +1,156 @@
+
+\section{Experiments}
+\label{sec:experiments}
+
+This section evaluates \modelname on 3D point trajectory prediction (Sec.~\ref{subsec:motion_prediction}) and on two downstream transfer tasks: robotic planning (Sec.~\ref{subsec:robotics}) and trajectory-guided video generation (Sec.~\ref{subsec:video_gen}). Model ablations are presented in Appendix~\ref{appsec:ablations}.
+
+
+
+\subsection{3D point motion forecasting}
+\label{subsec:motion_prediction}
+We first evaluate \modelname and existing motion prediction methods on the 3D point trajectory prediction task in \benchmarkname{}. 
+
+
+\begin{table*}[t]
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.12}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}ll cc ccc ccc ccc@{}}
+\multirow{2}{*}{\textbf{Paradigm}} & \multirow{2}{*}{\textbf{Model}} &
+\multicolumn{2}{c}{\textbf{Inputs}} &
+\multicolumn{3}{c}{\textbf{HOT3D~\cite{hot3d}}} & \multicolumn{3}{c}{\textbf{WorldTrack~\cite{feng2025st4rtrack}}} & \multicolumn{3}{c}{\textbf{DAVIS~\cite{davis}}} \\
+\cmidrule(lr){3-4} \cmidrule(lr){5-7} \cmidrule(lr){8-10} \cmidrule(lr){11-13}
+& & Frames & Text & ADE$\downarrow$ & FDE$\downarrow$ & PWT$\uparrow$
+& ADE$\downarrow$ & FDE$\downarrow$ & PWT$\uparrow$
+& ADE$\downarrow$ & FDE$\downarrow$ & PWT$\uparrow$ \\
+\midrule
+\multirow{2}{*}{\shortstack{Non- \\ parametric}}
+& Static          & 1 & \xmark & $0.180$ & $0.316$ & $0.293$ & $0.167$ & $0.317$ & $0.390$ & $2.281$ & $4.360$ & $0.085$ \\
+& Extrapolate     & 3 & \xmark & $0.159$ & $0.309$ & $0.351$ & $0.184$ & $0.432$ & $0.436$ & $2.683$ & $5.741$ & $0.104$ \\
+\midrule
+\multirow{2}{*}{Pixel-space}
+& Wan2.2-5B~~\cite{wan22}       & 1 & \cmark & $0.200$ & $0.308$ & $0.253$ & $0.852$ & $1.046$ & $0.090$ & $3.074$ & $5.192$ & $0.051$ \\
+& Cosmos Predict~\cite{nvidia2025cosmos}  & 5 & \cmark & $0.225$ & $0.294$ & $0.199$ & $0.831$ & $0.988$ & $0.072$ & $4.191$ & $6.368$ & $0.033$ \\
+\midrule
+\multirow{3}{*}{3D model}
+& ObjectForesight~\cite{soraki2026objectforesightpredictingfuture3d} & 3 & \xmark & $\underline{0.129}$ & $\underline{0.192}$ & $0.353$ & -- & -- & -- & -- & -- & -- \\
+& EgoScaler~\cite{Yoshida_2025_CVPR}       & 1 & \cmark & $0.170$ & $\mathbf{0.179}$ & $0.218$ & -- & -- & -- & -- & -- & -- \\
+& Robot4DGen~\cite{liu2025geometryaware4dvideo}      & 3 & \xmark & $0.212$ & $0.271$ & $0.112$ & $0.548$ & $0.704$ & $0.121$ & $2.120$ & $3.382$ & $0.081$ \\
+\midrule
+2D track
+& Track2Act~\cite{track2act}       & 1 & \xmark & $0.294$ & $0.413$ & $0.202$ & $1.230$ & $1.567$ & $0.053$ & $4.853$ & $8.110$ & $0.018$ \\
+\midrule
+\multirow{4}{*}{\shortstack{\textbf{3D track} \\ \textbf{(Ours)}}}
+& \textbf{\modelname-FM} & 1 & \cmark & $0.183$ & $0.311$ & $0.286$ & $0.165$ & $0.305$ & $0.401$ & $1.380$ & $2.205$ & $\underline{0.165}$ \\
+& \textbf{\modelname-FM} & 3 & \cmark & $0.135$ & $0.255$ & $\underline{0.382}$ & $0.158$ & $0.295$ & $\underline{0.438}$ & $1.480$ & $2.520$ & $0.130$ \\
+& \textbf{\modelname-AR} & 1 & \cmark & $0.157$ & $0.290$ & $0.303$ & $\underline{0.148}$ & $\underline{0.269}$ & $0.424$ & $\mathbf{1.146}$ & $\mathbf{1.843}$ & $\mathbf{0.199}$ \\
+& \textbf{\modelname-AR} & 3 & \cmark & $\mathbf{0.109}$ & $0.217$ & $\mathbf{0.444}$ & $\mathbf{0.143}$ & $\mathbf{0.261}$ & $\mathbf{0.445}$ & $\underline{1.227}$ & $\underline{2.108}$ & $0.153$ \\
+\end{tabular}%
+}
+\caption{\textbf{3D point trajectory prediction on \benchmarkname{}.}
+We report 3D ADE, FDE, and average PWT in meters. Input columns indicate the number of past observations consumed and whether the model accepts a natural-language action description. \textit{\modelname-AR} denotes our autoregressive variant, while \textit{\modelname-FM} denotes the flow-matching variant. 
+}
+\label{tab:motion_prediction}
+\end{table*}
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\linewidth]{figures/task1.pdf}
+  \caption{\textbf{Qualitative \modelname prediction.} \modelname predicts accurate motion trajectories on diverse motion patterns with different action instructions.
+  }
+  \label{fig:task1_prediction}
+\end{figure}
+
+\noindent\textbf{\modelname implementation.}
+\modelname uses the pretrained 4B Molmo2~\cite{clark2026molmo2} as its VLM backbone. Training proceeds in two stages. In the first stage, we randomly sample a start timestamp $t_0$ from each video clip and sample $N=8$ query points from one object. The model is supervised to predict $T=8$ future timestamps at $15$ fps, giving $64$ future 3D point targets per example. 
+We train with history length $H = 3$ in the first stage, providing a short visual history before $t_0$. This stage runs for $40$K steps. In the second stage, we continue training for $10$K steps while increasing the prediction horizon to $T=32$. In this stage we train two varients of models, with $H = 3$ and $H = 1$ respectively, to support both short visual history and single frame history settings.
+
+
+
+\noindent \textbf{Baselines.} 
+Baselines fall into four families. \textbf{Non-parametric baselines} include \textit{Static}, which keeps each point fixed at its initial 3D position, and \textit{Extrapolate}, which estimates a constant velocity from the history frames and linearly extrapolates into the future. \textbf{Pixel-space methods} first generate future RGB video and then recover query-point trajectories using the 3D tracking pipeline from Sec.~\ref{subsec:motion_annotation}; we compare against Wan2.2-I2V-5B~\cite{wan22} and Cosmos-Predict-2.5~\cite{nvidia2025cosmos}. \textbf{Parametric 3D prediction methods} predict an intermediate 3D representation; we include methods whose output can be converted to 3D point motion. ObjectForesight~\cite{soraki2026objectforesightpredictingfuture3d} and EgoScaler~\cite{Yoshida_2025_CVPR} forecast future 6-DoF object poses under a rigid-object assumption, and we use their predicted pose sequence to transform all query points. Robot4DGen predicts future scene flow~\cite{liu2025geometryaware4dvideo}, from which we extract query point trajectories. \textbf{2D point-track methods} predict future image-plane trajectories; we evaluate Track2Act by lifting its predicted 2D tracks to 3D using ground-truth depth~\cite{track2act}. Note that PointWorld~\cite{pointworld} and MotionForcast~\cite{thakkar2026forecastingmotion} are also closely related works, but their models have not yet been released.
+
+
+
+\noindent \textbf{Evaluation setting and metrics.}
+We evaluate all methods in \benchmarkname{}. Each method predicts future motion for up to $2$ seconds at $15$ fps; if the ground truth clip has a shorter valid future horizon, we evaluate only on the available frames. Since baselines vary in the number of input frames $H$ and whether they accept text condition, we follow each baseline's native setting where applicable. 
+Following prior work~\cite{thakkar2026forecastingmotion}, we use best-of-$5$ evaluation for each sample.
+We follow the point-track forecasting metrics used in~\cite{thakkar2026forecastingmotion}, adapted from 2D pixel distance to 3D metric distance. In our setting, one unit corresponds to one meter in 3D world coordinates. $\mathrm{ADE}$ measures the mean displacement error across all visible query points and predicted timesteps, while $\mathrm{FDE}$ measures the final-timestep displacement error. $\mathrm{PWT}$ is the average fraction of predicted points within $\{0.01,0.02,0.05,0.10,0.20\}$ meters of the ground truth. 
+
+
+\noindent\textbf{Results.} 
+Tab.~\ref{tab:motion_prediction} shows the quantitative results. Note that ObjectForesight~\cite{soraki2026objectforesightpredictingfuture3d} and EgoScaler~\cite{Yoshida_2025_CVPR} are evaluated only on the HOT3D subset because they require object mesh inputs, which are available only for HOT3D. \modelname outperforms prior methods by a large margin in almost all subsets of \benchmarkname{}, with the autoregressive variant achieving the strongest overall performance.
+The autoregressive model performs better than the flow-matching model under deterministic trajectory metrics, likely because conditioning on the previously generated coordinate sequence encourages temporally smooth predictions. Using three RGB observation frames generally improves over the single-frame setting, as additional history provides velocity cues for future motion. A notable finding is that simple non-parametric baselines are competitive with, or stronger than, several learned baselines, including pixel-space video prediction methods, suggesting that visually plausible RGB futures do not necessarily recover accurate metric point motion. 
+We also show qualitative examples in Fig.~\ref{fig:task1_prediction}, where \modelname accurately predicts 3D motion trajectories across diverse motion patterns and language instructions.
+
+\subsection{\modelname transfers effectively to robotics planning}
+\label{subsec:robotics}
+\begin{figure}[t]
+  \centering
+  \begin{subfigure}[b]{0.59\textwidth}
+    \includegraphics[width=\linewidth]{figures/robot_pickplace_transfer_preview_v8.pdf}
+    \caption{Pick-and-place task on the MolmoSpaces benchmark.}
+    \label{fig:robot_pickplace}
+  \end{subfigure}\hfill
+  \begin{subfigure}[b]{0.40\textwidth}
+    \includegraphics[width=\linewidth]{figures/robot_droid_transfer_preview_v8.pdf}
+    \caption{Trajectory finetuning on DROID.}
+    \label{fig:robot_droid}
+  \end{subfigure}
+  \caption{\textbf{\modelname transfers effectively to robotics planning.} (a) Task success rate on the MolmoSpaces Franka Pick-and-place benchmark over robot-finetuning steps (left) and the final step per split breakdown (right) across SS (seen scene, seen object), SU (seen scene, unseen object), US (unseen scene, seen object), and All. (b) Test L2 error of predicted 3D trajectories on held-out DROID clips. In both settings, initializing from \modelname substantially outperforms the baseline.
+  }
+  \label{fig:robot_transfer}
+\end{figure}
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.97\linewidth]{figures/task2.pdf}
+  \caption{\textbf{\modelname trajectory prediction on real-world scenarios.} Predicted future 3D object trajectories on a held-out scenario after finetuning \modelname on DROID videos. \modelname can plan accurate object trajectories for various robotic manipulation tasks.}
+  \label{fig:droid_prediction}
+\end{figure}
+
+The representation learned by \modelname is well-suited for robotics planning. The intuition is that object motion in 3D is more transferable than embodiment-specific actions. A human hand and a robot gripper execute differently, but successful manipulation often produces similar object trajectories in 3D space.
+
+We use the pick-and-place task as a controlled transfer setting, focusing on the post-grasp stage where the policy must lift, transport and place the object at the correct target.
+ We train two MolmoBot policies~\cite{deshpande2026molmobot} with the same flow-matching action head and 20K released episodes, differing only in backbone initialization: Molmo2 pretrained weights vs. \modelname-AR. During evaluation, the original MolmoBot policy performs grasping, after which control is handed to our trained policy. On FrankaPickandPlaceDroidMiniBench in MolmoSpaces~\cite{molmospaces}, we report closed-loop success across seen/unseen scene and object splits. As shown in Fig.~\ref{fig:robot_transfer}a, \modelname initialization substantially improves training efficiency and final performance: success reaches 51\% at 10K steps vs. 19\% for Molmo2, and final average success increases from 56.0\% to 76.3\%. The smaller drop in unseen-object and unseen-scene splits further suggests \modelname improves downstream generalization.
+
+ We further evaluate whether the \modelname can be adapted to real-world robot scenarios. We finetune \modelname on DROID single-camera videos~\cite{droid} using the same 3D object point trajectory prediction task. Fig.~\ref{fig:droid_prediction} shows qualitative examples of object trajectory planned by \modelname across different scenes, objects, and tasks in DROID held out videos. We also  compare against training the same architecture with Molmo2 initialization. As shown in Fig. \ref{fig:robot_transfer}b, \modelname starts with substantially lower trajectory error and reaches the best performance much quicker. This suggests that the motion prior learned by \modelname can be efficiently adapted to real-world robot data. We leave closed-loop real-robot evaluation to future work.
+
+
+
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=1\linewidth]{figures/qualitative_examples.pdf}
+    \caption{\textbf{Qualitative Video Generation Comparison.} \modelname-guided videos exhibit more physically plausible object motion and follow the prompted action more faithfully.}
+    \label{fig:video_gen}
+\end{figure}
+
+
+
+\begin{table}[t]
+  \centering
+  \small
+  \setlength{\tabcolsep}{6pt}
+  \begin{tabular}{lccccc}
+    Method & Tem-Con & Subj-Cons & M-Smooth & Dyn-Deg & Bg-Cons \\
+    \midrule
+    CogVideoX-5B~\cite{yang2025cogvideoxtexttovideodiffusionmodels}                 & $0.964$ & $0.939$ & $\underline{0.988}$ & $0.861$ & $0.941$ \\
+    Wan-14B~\cite{wan22}                      & $\underline{0.965}$ & $\underline{0.940}$ & $0.983$ & $\mathbf{0.908}$ & $\underline{0.947}$ \\
+    \textsc{DaS~\cite{gu2025diffusionasshader}}\,+\,MolmoMotion & $\mathbf{0.968}$ & $\mathbf{0.950}$ & $\mathbf{0.990}$ & $\underline{0.876}$ & $\mathbf{0.948}$ \\
+  \end{tabular}
+  \vspace{1mm}
+\caption{\textbf{Video generation quality on \benchmarkname{} videos.} We report metrics in VBench~\cite{huang2023vbench} that evaluates motion: temporal consistency, subject consistency, motion smoothness, dynamic degree, and background consistency.
+  }
+  \label{tab:vid_gen_comparison}
+\end{table}
+
+\subsection{\modelname provides controllable motion for video generation}
+\label{subsec:video_gen}
+
+
+
+A natural question is whether the 3D point trajectories predicted by \modelname can serve as an explicit motion-control signal for downstream video generation. Given an input image and action description, we first obtain query points on the manipulated object and estimate their initial 3D positions using the pipeline in Sec.~\ref{subsec:motion_annotation}. \modelname then predicts their future 3D trajectories, which we use to guide DaS~\cite{gu2025diffusionasshader}, a 3D point-trajectory-guided image-to-video model built on CogVideoX-5B~\cite{yang2025cogvideoxtexttovideodiffusionmodels}. We compare against caption-conditioned image-to-video generators without explicit motion guidance, including DaS's base model CogVideoX-5B and the larger Wan2.2-I2V-A14B~\cite{wan22}. As shown in Tab.~\ref{tab:vid_gen_comparison}, DaS+\modelname improves over CogVideoX-5B on all metrics and outperforms Wan2.2-I2V-A14B on four out of five metrics. Qualitatively (Fig.~\ref{fig:video_gen}), it produces more physically plausible object motion, especially for fine-grained manipulation. It also follows the prompted action more faithfully. These results suggest that \modelname predicts 3D trajectories that can serve as an effective control interface for downstream video generation.
+
+

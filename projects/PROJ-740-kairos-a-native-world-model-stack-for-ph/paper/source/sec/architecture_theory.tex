@@ -1,0 +1,81 @@
+
+\subsection{Theoretical Analysis of Hybrid Multi-Scale Temporal Memory}
+
+
+
+The proposed world model is grounded in a unified understanding-generation-prediction substrate and a hybrid temporal backbone. To formally justify our architectural design, we address two central questions regarding long-horizon consistency, such as object permanence and delayed physical effects: \textit{When is a bounded recent attention window fundamentally insufficient?} and \textit{Under what conditions can a hybrid multi-scale memory recover near-optimal prediction?} In this section, we present the core theorems that motivate the necessity and sufficiency of our hybrid multi-scale temporal memory mechanism. For complete statements of the definitions, lemmas, theorems, and proofs, please refer to Section~\ref{sec:theory} in the Appendix.
+
+\textbf{Problem Setup.} 
+We model the world as a partially observed controlled process. Let $Y$ be a square-integrable future target we want to predict, such as the spatial location of an entity in the distant future. Let $\mathcal{H}_t$ denote the complete historical context up to time $t$, and let $\mathcal{W}_t^{(w)}$ denote the recent $w$-step sliding window context. For any square-integrable predictor $Z$, we define the squared prediction risk as $\mathcal{R}_t(Z) = \mathbb{E}[(Y-Z)^2]$. We denote the optimal full-history risk as $R_{\mathrm{full}}^\star = \inf_{Z \in L^2(\mathcal{H}_t)} \mathcal{R}_t(Z)$. Here $L^2(\mathcal{H}_t)$ formally denotes the mathematical space of all square-integrable predictors that depend solely on the full history $\mathcal{H}_t$, making $R_{\mathrm{full}}^\star$ represent the theoretical minimum error when given access to the entire past. Correspondingly, we denote the optimal recent-window risk as $R_{w}^\star = \inf_{Z \in L^2(\mathcal{W}_t^{(w)})} \mathcal{R}_t(Z)$ which bounds the performance of any model restricted to a local temporal context.
+
+
+
+\textbf{The Necessity of Persistent Latent States.}
+Purely local temporal models, such as standard sliding-window attention, struggle with long-horizon prediction because they lose track of events that fall outside their context window. We formalize this limitation mathematically.
+
+\begin{theorem}[Supra-window dependence implies the necessity of persistent state]
+\label{thm:necessity}
+Let $m_t = \mathbb{E}[Y\mid \mathcal{H}_t]$ and $m_t^{(w)} = \mathbb{E}[Y\mid \mathcal{W}_t^{(w)}]$. The excess risk incurred by restricting prediction to the recent window satisfies the exact identity
+\begin{equation}
+R_{w}^\star - R_{\mathrm{full}}^\star = \mathbb{E}\bigl[(m_t - m_t^{(w)})^2\bigr] = \mathbb{E}\bigl[\mathrm{Var}(m_t\mid \mathcal{W}_t^{(w)})\bigr].
+\end{equation}
+Consequently, we establish the following formal equivalence:
+\begin{equation}
+R_{w}^\star > R_{\mathrm{full}}^\star
+\quad\Longleftrightarrow\quad
+m_t \text{ is not } \mathcal{W}_t^{(w)}\text{-measurable}.
+\label{eq:iff_nonmeasurable}
+\end{equation}
+In other words, the excess risk is strictly positive if and only if the optimal full-history predictor $m_t$ is not perfectly recoverable from the recent window $\mathcal{W}_t^{(w)}$.
+\end{theorem}
+
+
+\begin{remark}[Local Smoothness Is Insufficient for Long-Horizon Consistency]
+\normalfont Purely local temporal attention is mathematically insufficient for long-horizon generation. Short video continuation can often rely successfully on local visual smoothness. However, many current systems that perform well on short-horizon appearance transitions inevitably degrade as the generation duration grows because local continuation heuristics do not guarantee global state consistency. For instance, if an object is temporarily occluded and reappears later, a model looking only at the recent $w$ frames cannot recover the object's identity. Theorem \ref{thm:necessity} provides the theoretical explanation for this exact degradation phenomenon. It formally proves that such failure is an unavoidable structural limitation rather than merely a parameter capacity issue. To avoid a strictly positive and irreducible error, the model must inherently maintain a persistent latent state that carries historical context forward across the entire generative horizon.
+\end{remark}
+
+
+\begin{corollary}[Explicit lower bound under recent-window mismatch]
+\label{cor:lower_bound}
+Let $E$ denote a specific recent-window observation event with positive probability, $\mathbb{P}(E)>0$. If a past event that heavily influences the future target $Y$ remains unobservable within $E$, resulting in distinct true future expectations $\mu_1$ and $\mu_2$ with conditional probabilities $\alpha$ and $1-\alpha$, the excess risk is bounded below by the expression
+\begin{equation}
+R_{w}^\star - R_{\mathrm{full}}^\star \ge \mathbb{P}(E)\alpha(1-\alpha)(\mu_1-\mu_2)^2.
+\end{equation}
+\end{corollary}
+
+
+\begin{remark}[Interpretation of the Lower Bound]
+\normalfont This corollary provides a quantitative characterization of the failure mode inherent to purely local attention. Once an influential past event falls outside the current context window, the model can no longer condition on the true historical cause and is instead forced to average over multiple plausible futures. In other words, it must hypothesize which hidden past has occurred, such as the identity or state of a temporarily occluded object that will become relevant later. The resulting prediction error is therefore strictly bounded from below by the conditional variance induced by these unresolved possibilities. This perfectly explains why local temporal smoothness may remain visually plausible over short horizons yet inevitably breaks down over extended periods. When future consistency depends on information no longer visible within the recent window, no local continuation rule can exactly recover the lost state. Crucially, this lower bound is information-theoretic rather than optimization-related. It arises not from insufficient model capacity or inadequate training, but from the fundamental absence of relevant information within the accessible context. Consequently, simply scaling model parameters or training compute cannot eliminate this performance gap. Resolving this issue strictly requires an architectural mechanism that explicitly preserves supra-window information across time.
+\end{remark}
+
+\textbf{The Sufficiency of Hybrid Multi-Scale Memory.}
+While Theorem \ref{thm:necessity} explains why some persistent state is unavoidable, we now show why our specific temporal factorization into local, dilated, and global components is theoretically adequate. Suppose the true Bayes predictor $\mu_t^\star$ factorizes into a shared predictive state $U_t^\star$, a short-range local state $C_t^\star$ corresponding to SWA, a mid-range dilated state $D_t^\star$ corresponding to DSWA, and a global recurrent causal memory $G_t^\star$ corresponding to GLA.
+
+\begin{theorem}[Approximate sufficiency of a hybrid multi-scale temporal memory]
+\label{thm:sufficiency}
+Assume the learned hybrid predictor approximates these components with maximum error $\varepsilon$, and the global memory branch utilizes a gated delta update that is contractive with factor $\rho < 1$. Let $\bar{\xi}$ represent the maximum one-step perturbation error in the global memory update. Then, the hybrid predictor asymptotically satisfies the long-horizon excess-risk bound:
+\begin{equation}
+\mathcal{R}_t(\hat{\mu}_t) - \mathcal{R}_t^\star \le \left( L\varepsilon + \frac{L_G \bar{\xi}}{1-\rho} \right)^2 \quad \text{as } t \to \infty,
+\end{equation}
+where $L$ and $L_G$ are Lipschitz constants of the underlying decoder.
+\end{theorem}
+
+\begin{remark}[Why Hybrid Multi-Scale Memory Is Sufficient]
+\normalfont Theorem~\ref{thm:sufficiency} explains why our specific hybrid design is theoretically well-founded. While Theorem~\ref{thm:necessity} establishes that persistent memory is unavoidable for supra-window dependencies, Theorem~\ref{thm:sufficiency} proves that factorizing this memory into short-range (\textsc{SWA}), mid-range (\textsc{DSWA}), and gated global (\textsc{GLA}) branches is mathematically sufficient. Crucially, by proving that the gated delta update is contractive, we guarantee that the global-memory error does not accumulate arbitrarily. Instead, it strictly satisfies the bound:
+\[
+e_t \le \rho^t e_0 + \frac{1-\rho^t}{1-\rho}\, \sup_{1\le i\le t}\xi_i,
+\]
+yielding the asymptotic limit: $e_t \le \bar\xi/(1-\rho)$ as  $t\to\infty.$ This geometric damping ensures that one-step perturbations are strictly bounded rather than amplified over time. Consequently, the long-horizon excess risk is controlled by only two factors: the approximation quality of the local pathways and the asymptotic perturbation limit of the global memory.
+
+Architecturally, the local and mid-range branches efficiently capture localized appearance changes and intermediate temporal structures, while \textsc{GLA} selectively propagates the persistent causal state. Because this propagation is bounded against uncontrolled drift, \textsc{GLA} functions as a stable information bottleneck. It preserves essential long-range context without accumulating compounding errors, effectively enabling consistent generation over extended horizons.
+\end{remark}
+
+\begin{corollary}[Exact sufficiency in the realizable case]
+\label{cor:exact_sufficiency}
+If the learned hybrid state exactly recovers the Bayes decomposition at every time step, where $\varepsilon=0$ and $\bar{\xi}=0$, then the learned predictor strictly matches the optimal predictor such that $\hat{\mu}_t = \mu_t^\star$, and the associated risk becomes $\mathcal{R}_t(\hat{\mu}_t) = \mathcal{R}_t^\star$.
+\end{corollary}
+
+\begin{remark}[Interpretation of Exact Sufficiency]
+\normalfont If the network perfectly learns the underlying temporal dynamics, it recovers the theoretical optimal performance. This provides the foundational justification for separating local attention from global causal memory in our proposed architecture. It is not just computationally efficient due to linear complexity but also theoretically sound for optimal long-horizon world simulation.
+\end{remark}
+

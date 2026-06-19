@@ -1,0 +1,30 @@
+\begin{figure}[t]
+    \centering
+
+    \begin{subfigure}[t]{0.32\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/appendix_fidelity_reward_qwen7b.pdf}
+        \caption{Qwen2.5-7B}
+        \label{fig:appendix_qwen7b_reward}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.32\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/appendix_fidelity_reward_qwen14b.pdf}
+        \caption{Qwen2.5-14B}
+        \label{fig:appendix_qwen14b_reward}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.32\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/appendix_fidelity_reward_llama8b.pdf}
+        \caption{Llama3.1-8B}
+        \label{fig:appendix_llama8b_reward}
+    \end{subfigure}
+
+    \caption{
+    Average training reward over RL steps for three evaluated models.
+    Across all evaluated models, \methodtitle{} closely follows the No-SD reward trajectory, suggesting that rollout acceleration preserves the main training dynamics.
+    }
+    \label{fig:app_fidelity_reward}
+\end{figure}

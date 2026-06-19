@@ -1,0 +1,24 @@
+\section{Related Work}
+\label{sec:realted_word}
+\vspace{-2mm}
+\paragraph{Foundation Models for Robotic Manipulation.}
+Large vision-language and vision-language-action models have recently become a central paradigm for building generalizable robotic manipulation systems. 
+One line of work turns multimodal foundation models into robot policies by adding action-generation modules and training on large-scale robot trajectories, often using diffusion or flow-matching objectives for continuous action prediction~\citep{li2024vision,kim2024openvla,pi0.5}. 
+These models acquire broad manipulation skills, but their adaptation often depends on substantial robot data, and their internal action representations make explicit constraint checking and plan repair difficult. 
+Another line of work uses VLMs as high-level reasoning modules and grounds their outputs through structured spatial representations, such as affordance map and keypoints relations~\citep{huang2023voxposer,fangandliu2024moka,huang2024rekep,yuan2024robopoint}. 
+These methods improve spatial grounding and compositionality, but often rely on carefully designed perception-action interfaces or hand-specified planning primitives.
+
+Recent work further explores explicit action reasoning before execution. MolmoAct and MolmoAct2 reason about actions through interpretable spatial or language-conditioned representations~\citep{lee2025molmoact,fang2026molmoact2actionreasoningmodels}, while ThinkAct compresses embodied reasoning into a visual plan latent that conditions a downstream action model~\citep{huang2026thinkact}. Hierarchical methods such as HAMSTER~\citep{li2025hamster} separate high-level reasoning from low-level control policies. 
+These approaches improve the reasoning ability of robot policies, but the execution still typically depends on learned action heads. 
+This makes it difficult to explicitly inspect a plan and iteratively repair it according to the task specification.
+
+\vspace{-2mm}
+\paragraph{Harnessing Agents for Robotic Manipulation.}
+Pioneering works such as Code-as-Policies~\citep{liang2022codeap} and ProgPrompt~\citep{singh2023progprompt} show that language models can compose perception outputs, control primitives, and task-specific APIs into executable policies or situated task plans. 
+These harnessing frameworks inherit the modularity of classical robotic systems: perception, planning, and control can be represented as callable tools, while the language model composes them into task-specific behavior. 
+Recent work has extended this paradigm to multimodal and multi-agent settings. 
+RoboCodeX~\citep{mu2024robocodex} translates high-level instructions and scene understanding into executable robotic programs through multimodal code generation, while RoCo and related works~\citep{mandi2024roco,chen2025emos} integrate generated code with multi-robot coordination and motion planning. 
+Recent work Maestro~\citep{shi2025maestro} and concurrent work Cap-X~\citep{fu2026capxframeworkbenchmarkingimproving} further scale this paradigm by enabling robots to call diverse perception and control tools through writing programs.
+However, most existing harness frameworks rely on one-shot program generation and execution, providing limited opportunities for agents to react to execution outcomes or recover from failures.
+In contrast, we study how harness design can enable effective embodied manipulation through a ReAct-style workflow~\citep{yao2023reactsynergizingreasoningacting} that continuously interleaves perception, reasoning, and action execution. 
+We further investigate whether such a harness can act as a general interface for transferring embodied capabilities to small open models.

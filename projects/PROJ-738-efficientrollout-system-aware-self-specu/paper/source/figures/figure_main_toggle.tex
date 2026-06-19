@@ -1,0 +1,25 @@
+\begin{figure*}[t]
+    \centering
+
+    \begin{minipage}[t]{0.54\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/main_sd_pair.pdf}
+        \caption{
+        \textbf{Validation of the roofline-based toggle boundary.}
+        Colors show the predicted speedup over the batch-size and sequence-length plane, and markers indicate whether measured SD is beneficial or harmful at the corresponding coordinates.
+        }
+        \label{fig:toggle_boundary}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[t]{0.42\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/main_toggle_vs_alwayson.pdf}
+        \caption{
+        \textbf{Effect of regime-aware SD toggling.}
+        Average rollout time over the first 50 training steps, showing that toggling avoids harmful early-regime speculation across all evaluated models.
+        }
+        \label{fig:toggle_vs_alwayson}
+    \end{minipage}
+
+    \vspace{-0.5em}
+\end{figure*}

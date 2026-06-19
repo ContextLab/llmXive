@@ -1,0 +1,74 @@
+\renewcommand{\arraystretch}{1.08}
+\begin{table}[tbp]
+\centering
+\scriptsize
+
+\begin{minipage}[c]{0.42\textwidth}
+\centering
+\setlength\tabcolsep{3.5pt}
+\begin{tabular}{llc}
+\toprule
+\textbf{Model Name} & \textbf{Theme} & \textbf{Score\%}\,$\uparrow$ \\
+\midrule
+\multirow{6}{*}{\modelname{\qwenicon}{Qwen3.5-397B}}
+ & ASCII           & \textbf{\matchcellbar{matchpurple}{75.8}{100.0}} \\
+ & Abstract        & \matchcellbar{matchpurple}{56.7}{100.0} \\
+ & Similar-Colors  & \matchcellbar{matchpurple}{54.2}{100.0} \\
+ & Textures        & \matchcellbar{matchpurple}{44.2}{100.0} \\
+ & Noise           & \matchcellbar{matchpurple}{38.3}{100.0} \\
+ & Poker           & \matchcellbar{matchpurple}{20.0}{100.0} \\
+\midrule
+\multirow{6}{*}{\modelname{\kimiicon}{Kimi-K2.5}}
+ & ASCII           & \textbf{\matchcellbar{matchpurple}{72.5}{100.0}} \\
+ & Similar-Colors  & \matchcellbar{matchpurple}{70.8}{100.0} \\
+ & Textures        & \matchcellbar{matchpurple}{50.8}{100.0} \\
+ & Noise           & \matchcellbar{matchpurple}{43.3}{100.0} \\
+ & Abstract        & \matchcellbar{matchpurple}{41.4}{100.0} \\
+ & Poker           & \matchcellbar{matchpurple}{30.1}{100.0} \\
+\bottomrule
+\end{tabular}
+\end{minipage}%
+\hfill
+\begin{minipage}[c]{0.56\textwidth}
+\centering
+\setlength\tabcolsep{3.0pt}
+\adjustbox{max width=\linewidth}{%
+\begin{tabular}{lc cccc cccc}
+\toprule
+\textbf{Model Name} & \textbf{Size}
+ & \multicolumn{4}{c}{\textbf{Baseline}}
+ & \multicolumn{4}{c}{\textbf{Color Tag}} \\
+\cmidrule(lr){3-6} \cmidrule(lr){7-10}
+& & SR & Eff.\% & Explore\% & GS\%
+& SR & Eff.\% & Explore\% & GS\% \\
+\midrule
+\multirow{3}{*}{\modelname{\kimiicon}{Kimi-K2.5}}
+& $7{\times}7$
+& 1/5 & 66.7 & 44.0 & \matchcellbar{matchpurple}{34.3}{100.0}
+& \textbf{4/5} & 39.9 & 47.0 & \textbf{\matchcellbar{matchpurple}{60.7}{100.0}} \\
+& $9{\times}9$
+& \textbf{2/5} & 62.5 & 24.0 & \textbf{\matchcellbar{matchpurple}{39.7}{100.0}}
+& 1/5 & 100.0 & 19.0 & \matchcellbar{matchpurple}{27.6}{100.0} \\
+& $11{\times}11$
+& 2/5 & 68.1 & 25.0 & \textbf{\matchcellbar{matchpurple}{41.1}{100.0}}
+& 2/5 & 33.5 & 24.0 & \matchcellbar{matchpurple}{33.9}{100.0} \\
+\midrule
+\multirow{3}{*}{\modelname{\qwenicon}{Qwen3.5-397B}}
+& $7{\times}7$
+& 4/5 & 55.4 & 47.0 & \textbf{\matchcellbar{matchpurple}{66.9}{100.0}}
+& 4/5 & 30.0 & 51.0 & \matchcellbar{matchpurple}{57.1}{100.0} \\
+& $9{\times}9$
+& 1/5 & 21.9 & 29.0 & \matchcellbar{matchpurple}{23.8}{100.0}
+& \textbf{2/5} & 84.3 & 24.0 & \textbf{\matchcellbar{matchpurple}{44.1}{100.0}} \\
+& $11{\times}11$
+& 1/5 & 37.7 & 20.0 & \matchcellbar{matchpurple}{21.8}{100.0}
+& \textbf{2/5} & 32.2 & 27.0 & \textbf{\matchcellbar{matchpurple}{34.5}{100.0}} \\
+\bottomrule
+\end{tabular}
+}
+\end{minipage}
+
+\caption{\textbf{Visual-pattern ablation.} \textit{Left}: Matching Pairs theme sweep (with action feedback), varying card-identifier distinctiveness while keeping rules fixed. \textit{Right}: 3D Maze baseline (uniform walls) vs.\ Color Tag (wall segments painted with distinct colors as visual landmarks). Identifier distinctiveness strongly affects Matching Pairs, while wall color tags do not consistently help 3D Maze.}
+\label{tab:rq3_visual_pattern}
+\end{table}
+% on $8{\times}10$

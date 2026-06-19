@@ -1,0 +1,153 @@
+\input{figures/figure_appendix_quality}
+\input{figures/figure_appendix_valscore}
+
+\section{Additional Evaluation Results}
+
+\subsection{Per-Step Rollout Generation Time}
+\label{app:gen_time_over_time}
+
+\Cref{fig:app_gen_time_breakdown} shows rollout-generation time over training steps across models and SD baselines for RL rollouts.
+\methodtitle{} achieves the lowest generation time throughout training on Qwen2.5-7B and Llama3.1-8B, and for most Qwen2.5-14B steps.
+The small late-stage slowdown on Qwen2.5-14B coincides with longer sampled responses under \methodtitle{}, whose maximum response length reaches about 4,108 tokens, compared with 3,383 for \learned{} and 2,916 for \history{}.
+We view this fluctuation as response-length stochasticity rather than a systematic toggle-policy failure.
+
+\Alwayssd{} can improve over \nosd{} on Qwen2.5-7B and Llama3.1-8B, but can become slower when SD is enabled throughout rollout, especially on Qwen2.5-14B where the larger quantized drafter increases drafting cost.
+\Learned{} achieves reasonable rollout speedup on Qwen2.5-14B because its auxiliary drafter combines low proposal cost with moderate block efficiency, as shown in~\cref{tab:eagle3_timing_decomp}.
+These per-step trends are consistent with the aggregate timing results in~\cref{tab:e2e_speedup}.
+
+
+\subsection{Training Dynamics and Quality Preservation}
+\label{app:quality-preservation}
+
+\Cref{fig:app_fidelity_reward,fig:app_fidelity_valscore} report training reward and validation accuracy trajectories over RL training.
+Across Qwen2.5-7B, Qwen2.5-14B, and Llama3.1-8B-Instruct, \methodtitle{} closely follows the \nosd{} baseline in both metrics.
+These results support that the rollout speedups do not materially alter training dynamics or degrade downstream model quality in our evaluated settings.
+
+\input{figures/figure_appendix_adaptive_gamma}
+
+\subsection{Adaptive Draft-Length Schedules Across Models}
+\label{app:adaptive_gamma_schedule}
+
+\Cref{fig:app_gamma_elevation} shows the $\gamma$ schedule selected by the adaptive controller across models.
+Qwen2.5-7B increases from $5 \rightarrow 7 \rightarrow 9 \rightarrow 11$ as its \MAL{} repeatedly approaches the effective ceiling of the current draft length.
+Before each elevation, its \MAL{} reaches $5.73$, $7.60$, and $9.48$, and after increasing $\gamma$ the \MAL{} further rises to $7.37$, $9.35$, and $11.25$, respectively.
+Qwen2.5-14B follows the same pattern but later in training, increasing from $5 \rightarrow 7 \rightarrow 9$ when its \MAL{} reaches $5.73$ and $7.61$.
+In contrast, Llama3.1-8B-Instruct stays at $\gamma=5$: although its \MAL{} improves from $5.07$ to around $5.5$, it never crosses the elevation threshold.
+No downward adjustment is triggered in these runs.
+
+\input{tables/rollout_history_breakdown}
+
+\subsection{Why History-Based Drafting Does Not Accelerate}
+\label{app:why-history-slow}
+
+\Cref{tab:history_based_slow} analyzes the rollout-history-based baseline after rollout history becomes available, \textit{i.e.}, from the second epoch onward.
+This isolates the active window where history-based drafting can actually be applied.
+Unlike fixed-$\gamma$ chain drafting, the \history{} method reuses variable-length prefixes from previous rollouts, so block efficiency $\mal$ and effective acceptance rate $\alpha$ are not directly comparable.
+We therefore analyze prefix reuse, verification overhead, and rollout-generation time in this window.
+Even in this favorable window, the method does not reduce rollout-generation time.
+
+The main reason is that history reuse does not provide enough accepted tokens to amortize verification cost.
+For Qwen2.5-7B, the Spec-RL implementation reuses only 30 tokens on average out of a 660-token response, corresponding to a 4.5\% reuse rate.
+For Llama3.1-8B-Instruct, the reused prefix is longer, but verification is also more expensive, adding 15.9\,s of overhead per active step.
+As a result, even after excluding the first epoch and using the original lossy lenience factor to increase acceptance, rollout-history-based drafting increases rollout generation time by 19.4\% on Qwen2.5-7B and 8.8\% on Llama3.1-8B-Instruct.
+These results show that the history-based approach is limited not only by its cold start, but also by low effective reuse relative to verification cost.
+
+\input{figures/figure_appendix_eagle3_mal}
+\input{tables/eagle3_analysis}
+
+\subsection{Why Learned Auxiliary Drafting Remains Challenging}
+\label{app:why-learned-auxiliary-challenging}
+
+\paragraph{Block efficiency of \learned{}.}
+
+EAGLE3-style auxiliary drafters typically require pretraining and online adaptation to match the target model and rollout data distribution~\citep{zhang2025fastgrpo, hu2026taming, iso2026accelerating}.
+In our setting, a randomly initialized drafter yields \MAL{} close to 1.0, meaning that it rarely predicts even the first token correctly.
+As shown in \cref{fig:app_eagle3_mal}, starting from a generally pretrained drafter improves early-stage behavior, but the initial \MAL{} remains limited: with a ShareGPT-pretrained drafter evaluated on SimpleRL-math rollouts, \MAL{} starts around 1.4--2.0.
+A drafter pretrained directly on the target RL post-training distribution would likely provide higher initial \MAL{}~\citep{iso2026accelerating}; however, such in-distribution drafter pretraining is not always available in practice, so we use a drafter pretrained on general chat/text data~\citep{li2025eagle}.
+
+\paragraph{Limited acceleration in Qwen-7B/14B.}
+
+For the Qwen2.5-series models, learned auxiliary drafting provides limited generation-time acceleration mainly because its \MAL{} remains insufficient for our RL rollout workload.
+Under high-temperature sampling ($T=1.0$) and long reasoning generation, the pretrained drafters do not provide sufficient proposal quality for our math RL rollout distribution.
+In addition, system-aware activation remains important: as indicated by the gap between \alwayssd{} and \methodtitle{}, enabling SD during early large-batch phases can reduce or eliminate its benefit.
+Higher \MAL{} may be achievable with in-distribution drafter initialization or more aggressive online adaptation, such as training the auxiliary drafter for multiple steps per RL iteration or running adaptation asynchronously.
+However, these choices introduce additional drafter-training, scheduling, and configuration search burden; we further analyze the workload-matching requirement in~\cref{app:workload-matched-auxiliary-drafters}.
+
+\paragraph{Unexpected slowdown on Llama3.1-8B.}
+
+\citet{li2025eagle} report strong inference speedups for EAGLE3 in standard serving settings across Qwen and Llama models.
+However, these results are not directly comparable to our RL rollout setting, which combines vLLM execution, high-temperature sampling ($T=1.0$), hard reasoning prompts, and long response budgets.
+To diagnose the Llama3.1-8B-Instruct slowdown, we run short cold-start profiling experiments for the first five RL steps under the same rollout setting as in \cref{sec:eval-setting}, using vLLM EAGLE3 timing (\texttt{VLLM\_SD\_TIMING=1}), position-binned \MAL{} logging, and a custom proposal timer.
+
+\Cref{tab:eagle3_timing_decomp} shows that the slowdown is not primarily due to drafter cost: the one-token drafter time $\DraftTime$ is similar across models, around 0.8--0.9\,ms.
+Llama3.1-8B-Instruct has the largest verification-to-target ratio ($\VerifyTime/\TargetTime=1.45$), but this is only modestly higher than the Qwen models.
+Thus, timing overhead alone does not explain the much larger slowdown.
+
+The larger difference appears in depth-dependent block efficiency.
+As shown in~\cref{tab:eagle3_depth_tau_step1}, before online adaptation, Llama3.1-8B-Instruct already shows block efficiency close to one after 512 generated tokens, indicating weak long-depth proposal quality from the pretrained drafter.
+After the first five online-adaptation steps, this weakness persists: Llama3.1-8B-Instruct remains near 1.2--1.3 in the 1k--8k bins, whereas the Qwen models quickly recover block efficiency relative to their pre-adaptation values, especially at deeper positions (\cref{tab:eagle3_depth_tau_step1,tab:eagle3_depth_mal}).
+This is precisely the regime that matters for rollout latency.
+Long-tail responses dominate the rollout makespan, and the Llama drafter pays draft and verification overhead while most proposals are rejected, making the long tail even more expensive.
+% The stronger depth robustness of the Qwen models is also consistent with prior reports of their instruction-following, mathematical reasoning, and self-reflection capabilities~\citep{zeng2025simplerl}.
+This suggests a model- and workload-dependent failure mode of learned auxiliary drafting rather than a stable speedup across RL rollouts.
+
+\input{figures/figure_appendix_eagle3_dapo_mal_combined}
+\input{figures/figure_appendix_eagle3_dapo_gentime}
+
+
+\subsection{Auxiliary Drafters Aligned with RL Rollout Distributions Are Difficult to Obtain}
+\label{app:workload-matched-auxiliary-drafters}
+
+\paragraph{NeMo-RL-native validation setup.}
+
+To check whether the moderate \MAL{} of \learned{} stems from our veRL~\citep{sheng2025hybridflow}-based implementation or from the drafter itself, we additionally evaluate EAGLE3 drafters in NVIDIA's native NeMo RL SD stack~\citep{iso2026accelerating}.
+This stack uses Megatron~\citep{shoeybi2019megatron}-based online drafter training with vLLM rollout serving, and we leave the core RL, SD, and reward paths unchanged.
+We train on the DAPO-Math-17K dataset~\citep{yu2025dapo} using one node with 8 H100-SXM GPUs, $\DraftLength=3$ with chain drafting and verification, 30 RL steps, a maximum generation length of 8k, temperature $T=1.0$, and a global batch size of 1k rollouts.
+For comparison, we also measure the \MAL{} of quantized self-drafters under the same DAPO-Math experimental setting in our self-SD stack.
+
+\paragraph{Evaluated learned auxiliary drafters.}
+
+For Qwen3-8B, we evaluate three public EAGLE3 drafters: RedHatAI's thinking drafter~\citep{redhatai2025qwen3eagle3thinking}, RedHatAI's non-thinking drafter~\citep{redhatai2025qwen3eagle3nothink}, and AngelSlim's drafter~\citep{angelslim2025qwen3eagle3}.
+For Qwen2.5-7B and Qwen2.5-14B, we did not find compatible public EAGLE3 checkpoints, so we use our ShareGPT-pretrained drafters introduced in~\cref{app:learned_auxiliary_drafting}.
+For Llama3.1-8B-Instruct, we evaluate both the RedHatAI public drafter~\citep{redhatai2025llama31eagle3} and the official checkpoint from the EAGLE3 authors released by yuhuili~\citep{yuhuili2024llama31eagle3}.
+We also evaluate the public Qwen2.5-7B EAGLE-style drafter~\citep{mithanlab2026qwen25eagle} released with FastRL~\citep{hu2026taming} as an RL-targeted auxiliary-drafter checkpoint.
+The checkpoint is reported to be trained on the OpenThoughts2-1M dataset~\citep{openthoughts2026openthoughts2}, a synthetic reasoning dataset spanning math, science, code, and puzzles.
+Because this checkpoint is not directly compatible with NeMo RL's EAGLE3-specific online update path, we use it as a fixed drafter over the 30 RL steps without online adaptation.
+
+
+\paragraph{Block efficiency gap.}
+
+\Cref{fig:app_eagle3_dapo_mal} shows that evaluated learned auxiliary drafters achieve substantially lower block efficiency than target-induced quantized drafters.
+Across the first 30 RL steps, quantized self-drafters stay near $\mal{}=3.6$--$3.9$ under $\DraftLength=3$, close to the ceiling of 4.
+By contrast, EAGLE3 drafters remain mostly in the $\mal{}=1.2$--$2.4$ range, with the best public configuration, Qwen3-8B with the RedHatAI thinking drafter, reaching roughly $\mal{}=2.2$--$2.4$.
+The FastRL Qwen2.5-7B EAGLE-style drafter reaches higher \MAL{} ($\mal{}=2.2$--$2.6$) than our ShareGPT-pretrained EAGLE3 drafter, but this is still insufficient for consistent rollout-generation speedup.
+Within our 30-step window, online adaptation yields only modest \MAL{} improvement from the evaluated initializations.
+These results suggest that the limitation is not the EAGLE/EAGLE3 architecture itself, but the availability of an auxiliary drafter sufficiently aligned with long, high-temperature RL rollout distributions and effective from the beginning of RL training.
+
+
+\paragraph{Generation-time consequence.}
+
+\Cref{fig:app_eagle3_dapo_gentime} shows the practical consequence of low block efficiency within the NeMo RL stack.
+All timing curves compare \learned{} against the corresponding NeMo RL No-SD baseline.
+Among the evaluated EAGLE3 drafters, Qwen3-8B with the RedHatAI thinking drafter is the only configuration that consistently reduces rollout-generation time, improving it by about 7.7\%.
+The Qwen2.5-7B EAGLE-style FastRL drafter becomes consistently beneficial only late in training, reducing rollout-generation time by 17.6\% over steps 22--30.
+The other configurations are slower than No-SD for much of training because their \MAL{} is too low to amortize draft, verification, and online-update overhead.
+This confirms that learned auxiliary drafting can reduce rollout-generation time when the drafter reaches sufficiently high \MAL{}.
+
+
+\paragraph{Output length and training distribution.}
+
+One possible explanation is an output-sequence-length mismatch between drafter training and rollout inference.
+However, when we run ablation probes with shorter output caps (e.g., 1k, 2k, and 4k), most public checkpoints or drafters pretrained on general chat/text data remain weak even under shorter caps, and several configurations are roughly length-flat.
+This suggests that output length alone does not explain their low block efficiency.
+A more central factor appears to be the drafter-training distribution: public drafters and our Qwen2.5 drafters are trained on general chat/text corpora such as ShareGPT or UltraChat, rather than target-generated rollouts from the RL workload.
+\citet{hu2026taming} train their drafter on OpenThoughts2-1M~\citep{openthoughts2026openthoughts2}, a synthetic reasoning dataset closer to long reasoning workloads than general chat corpora.
+More generally, reaching the high-\MAL{} regime reported by~\citet{iso2026accelerating} may require a more specialized auxiliary-drafter training pipeline, such as collecting target-generated long rollouts from the RL workload and then training the auxiliary drafter on the resulting data.
+
+
+\paragraph{Takeaway.}
+
+Our results show that reaching this regime depends on a well-aligned auxiliary drafter, which is not generally available from public checkpoints or generic drafter-training recipes.
+Obtaining such a drafter can require a separate pipeline for target-generated long-rollout collection, offline auxiliary-drafter training, and possibly more aggressive online adaptation.
+This raises the barrier to using \learned{} as a drop-in rollout accelerator.
+Target-induced self-drafting provides a simpler point in this trade-off: it requires no external drafter checkpoint or offline auxiliary-drafter pretraining, yet achieves high \MAL{} from the beginning of RL training and translates it into practical rollout speedup.

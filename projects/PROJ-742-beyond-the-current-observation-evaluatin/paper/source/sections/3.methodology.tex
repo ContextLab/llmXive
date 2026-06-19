@@ -1,0 +1,95 @@
+\section{Benchmark Design}
+\label{sec:benchmark_design}
+
+\subsection{Problem Formulation}
+\label{sec:problem_formulation}
+
+We model each benchmark instance as a \emph{Partially Observable Markov Decision Process (POMDP)} $(\mathcal{S}, \mathcal{O}, \mathcal{A}, T, Z, R)$~\citep{kaelbling1998planning}. Here, $\mathcal{S}$, $\mathcal{O}$, and $\mathcal{A}$ denote the state, observation, and action spaces. The transition function $T$ specifies how the state changes after an action, the observation function $Z$ specifies what the agent can observe from the current state, and $R$ gives the reward. At step $t$, the agent receives the current observation $o_t$ and the in-context episode history $h_t=(o_1,a_1,\ldots,o_{t-1},a_{t-1},o_t)$, then selects action $a_t$. We evaluate models as \emph{history-based policies} $\pi(a_t \mid h_t)$ that directly use the raw in-context history, with no external belief module by default.
+
+The POMDP framework covers both fully observed games (when $Z$ preserves all task-relevant state) and partially observed ones where history matters. A game is \emph{Markov} when the current observation suffices for optimal play: $\pi^*(a_t\mid o_t)=\pi^*(a_t\mid h_t)$ , $\forall h_t$. Fully observed board games such as chess and Go, when encoded with all rule-relevant variables, are typical examples. A game is \emph{non-Markov} when the current observation alone  is not sufficient to determine the optimal action. Equivalently, two different histories can lead to the same current observation but require different actions. Let $\mathcal{A}^*(h_t)$ denote the set of optimal actions under history $h_t$. Then a non-Markov game satisfies:
+\vspace{-5pt}
+\begin{equation}
+\label{eq:non_markov}
+\begin{split}
+% \exists\, h_t, \tilde{h}_t : & \;\; Z(s_t) = Z(\tilde{s}_t), \\
+% & \;\; \pi^*(a_t \mid h_t) \neq \pi^*(a_t \mid \tilde{h}_t).
+\exists\, h_t, \tilde{h}_t \quad \text{s.t.} \quad
+& Z(s_t) = Z(\tilde{s}_t), \\
+& \mathcal{A}^*(h_t) \neq \mathcal{A}^*(\tilde{h}_t).
+\end{split}
+\end{equation}
+\vspace{-1em}
+
+To act well in such games, the agent must build a \emph{internal belief state} $b_t=f(h_t)$ from its interaction history. This state is an internal summary of the hidden, task-relevant information that is no longer directly visible. If the internal belief state is accurate, the agent can act as if the relevant state were observable. If it is inaccurate or incomplete, the agent may revisit known states, repeat ineffective actions, ignore useful past observations, and make locally plausible but globally wrong decisions.
+
+Our benchmark is designed to test this ability: whether a model can maintain an accurate internal belief state within its in-context episode history and use that belief to choose the next action. We refer to this ability as \emph{in-context state tracking for action}.
+
+\subsection{Why These Environments}
+\label{sec:why_environments}
+
+\begin{figure}[tbp]
+\centering
+\includegraphics[width=\textwidth]{figures/fig2_TwoGames-05261053.pdf}
+\caption{\textbf{Two complementary environments for in-context state tracking.}
+Matching Pairs tests static identity-location memory, while 3D Maze tests dynamic map construction from egocentric observations. Both use simple rules, scalable grids, and controllable visual settings to isolate belief-state tracking from other sources of difficulty.}
+\label{fig:two_env}
+\end{figure}
+
+We choose Matching Pairs and 3D Maze because they are simple but diagnostic POMDP instances: the optimal action depends on information that appeared earlier in the episode but is no longer visible, so the model must reconstruct a belief state from its in-context history. The two games stress different hidden states (Fig.~\ref{fig:two_env}). Matching Pairs focuses on \emph{static, discrete, factual} state: card identities and positions are fixed, but each card is only briefly revealed, so the agent must remember which identity appeared at which location. 3D Maze focuses on \emph{dynamic, spatial, structural} state: position, orientation, visited cells, and local topology must be updated incrementally from egocentric views.
+
+The two environments span three observation modalities (text, 2D image, and 3D rendering). The rules are simple, so failures reflect belief-state tracking rather than rule misunderstanding. Difficulty scales with grid size, increasing the hidden-state load without changing the task definition. Full trajectory logs expose fine-grained diagnostics (repeated flips, revisited cells, wall collisions), and targeted interventions (oracle state injection, scratchpads, minimap) can selectively remove the memory requirement to localize the bottleneck.
+Both environments test a \emph{remember-to-act} ability: the model must use reconstructed belief state for immediate action, not merely recall information after the episode ends (\emph{remember-to-answer}).
+
+\subsection{Environment Construction}
+\label{sec:environment_construction}
+
+\paragraph{Matching Pairs.}
+A rectangular grid of size $R{\times}C$ is populated with $\frac{R \times C}{2}$ card pairs, each sharing a visual identity, all initially face-down. At each turn, the agent flips two cards. Matched cards are removed, while unmatched cards are turned back over. The game ends when all pairs are matched or a fixed response budget is exhausted. The hidden state is the set of previously revealed but currently hidden identity-location bindings. An optimal agent should use these bindings to find known pairs and avoid redundant re-flips.
+
+We systematically vary \textbf{board size} (configurable to arbitrary $R{\times}C$), \textbf{observation modality} (image with controlled token count vs.\ text), \textbf{visual pattern} (e.g., ASCII glyphs, poker suits, textures, noise patterns, \ldots), \textbf{action feedback} (explicit flip result vs.\ no feedback), \textbf{CoT prompting} (allowed vs.\ direct action only), and \textbf{response budget} to isolate the contribution of each factor.
+
+% We systematically vary \textbf{board size} ($4{\times}4$ to $12{\times}14$), \textbf{observation modality} (image with controlled token count vs.\ text), \textbf{visual pattern} (poker suits, emojis, textures, photographs, noises), \textbf{action feedback} (explicit flip result vs.\ no feedback), \textbf{CoT prompting} (allowed vs.\ direct action only), and \textbf{response budget} to isolate the contribution of each factor.
+
+% We vary board size from $4{\times}4$ to $10{\times}10$, observation modality between image and text, visual pattern among poker suits, emojis, textures, and photographs, action feedback with or without explicit flip results, CoT prompting with either reasoning allowed or direct action only, and the response budget. These factors let us scale memory load and test whether performance changes with modality, feedback, prompting, or visual appearance.
+
+\paragraph{3D Maze.}
+The agent navigates from the top-left start to the bottom-right goal in a procedurally generated grid maze. It default receives only an egocentric first-person rendering and the dialogue history, with no top-down map. The hidden state consists of the maze topology, visited cells, current position, and facing direction, all must be maintained incrementally from local views. The action space is \texttt{move\_forward}, \texttt{turn\_left} and \texttt{turn\_right}. 
+
+Mazes are generated with a loop rate of $0.15$ (the fraction of extra openings added to the spanning tree), which introduces cycles that make simple wall-following less reliable. Each configuration is evaluated over five seeds with a step budget of $\max(80,\;4{\times}L^*)$, where $L^*$ is the shortest-path length. We vary \textbf{maze size} ($5{\times}5$ to $15{\times}15$), \textbf{minimap availability} (converting the task to approximately Markov), \textbf{ask-output prompting} (externalizing the spatial belief), and \textbf{history window} (3/5/10 turns vs.\ full history). These settings let us test how spatial belief tracking changes with scale, external memory, explicit belief reporting, and context length.
+
+\subsection{Duel Protocol for Matching Pairs}
+\label{sec:duel_protocol}
+
+% The duel protocol places two models on the same board under identical rules as a relative evaluation of memory-for-action under shared hidden state. Players alternate turns; each player observes the opponent's revealed cards (gaining additional identity--location information) but not the opponent's reasoning. A successful match grants another turn; a non-match passes the turn to the opponent. The player who completes more pairs wins.
+
+% Duel mode offers three advantages over single-agent evaluation. First, it controls for board randomness by placing both models on the same instance. Second, it tests whether a model can exploit information revealed by the opponent's flips---a second channel of hidden-state input that rewards attentive belief tracking. Third, it enables ranking by relative robustness rather than absolute scores on fixed configurations. Because the response budget and information exposure are shared, duel results are not directly equivalent to single-player completion; we therefore analyze first-mover effects separately and treat duel rankings as a complementary robustness check.
+
+We introduce a duel protocol for Matching Pairs to compare models under the same hidden-state structure. Two models play on the same board with identical rules and take turns to flip cards. Each player observes the cards revealed by both itself and its opponent, but does not observe the opponent's reasoning. A successful match grants an extra turn, while a non-match passes the turn to the opponent. The player that removes more pairs wins.
+
+Duel mode offers three advantages over single-agent evaluation. First, it controls for board randomness because both models face the same card layout. Second, it tests whether a model can use information revealed by the opponent's flips as part of its own belief state. Third, it gives a robustness ranking that complements single-agent scores. To control for first-mover bias, each pair of competitors plays the same board twice with swapped turn order. The aggregated duel result is used as a complementary robustness check for belief-state tracking under shared observations.
+
+\subsection{Evaluation Metrics}
+\label{sec:metrics}
+
+
+Each environment has its own primary completion metric, supplemented by trajectory-level diagnostics that capture how failures occur. 
+For Matching Pairs, we report \textbf{Score\%}, the fraction of pairs matched in each game, and \textbf{Resp./Score}, the average number of responses needed per matched pair, where lower is better. Parse failures and invalid actions are reported as additional diagnostics.
+For 3D Maze, we report \textbf{Success Rate (SR)}, the fraction of episodes that reach the goal within the budget, and \textbf{Efficiency}, defined as $L^*/L_{\text{actual}}$ over successful episodes, where $L^*$ is the shortest-path length and $L_{\text{actual}}$ is the executed path length. We also report \textbf{Explore}, the ratio of visited cells, and \textbf{Walls}, the number of wall collisions. The primary scalar metric is \textbf{Game Score (GS)}:
+\begin{equation}
+\label{eq:game_score}
+\text{GS} = \frac{\text{SR} + \text{SR}{\times}\text{Eff} + (1{-}\text{SR}){\times}\text{Explore}}{2},
+\end{equation}
+GS rewards successful completion, gives an efficiency bonus for successful episodes, and assigns partial credit for exploration when the agent fails to reach the goal. Its value lies in $[0,1]$.
+
+% which rewards completion with a base score, adds an efficiency bonus on success, and grants partial credit for exploration on failure (range $[0,1]$).
+
+% Both environments share a unified failure signature, \emph{acting on states the agent should already know}, which we track as a cross-environment diagnostic of degraded belief-state maintenance.
+
+\paragraph{Memory Gap.}
+To separate belief-state tracking from action selection, we define an \emph{oracle} condition that provides the true hidden state $s_t$ into the prompt at each step. Let $S(m)$ and $S^*(m)$ denote the score of model $m$ under the normal and oracle conditions, respectively. Depending on the setting, $S$ can be SR, Score\%, or Efficiency. The Memory Gap is defined as
+\begin{equation}
+\label{eq:memorygap}
+\text{MemoryGap}(m) = \left(1 - \frac{S(m)}{S^*(m)}\right) \times 100\,\%.
+\end{equation}
+A large Memory Gap points to internal belief state reconstruction as the main bottleneck, while a small gap suggests errors in action selection, rule understanding, or perception.
+% A value near 100\% localizes the bottleneck to belief-state tracking; a value near 0 points to decision selection or rule understanding instead.

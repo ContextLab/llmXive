@@ -1,0 +1,21 @@
+\section{Training with Non-Markov Trajectories}
+\label{sec:training_strategy}
+
+Because \benchname{} is driven by two simulators rather than a fixed test set, we can roll out fresh trajectories with known optimal actions and use them as supervision. This section asks whether SFT on such rollouts teaches a smaller MLLM to act on prior observations, and is organized as: a data recipe (Sec.~\ref{sec:training_strategy}), generalization to held-out board and maze sizes (Tab.~\ref{tab:sft-match-maze}), and transfer to external memory and spatial benchmarks (Tab.~\ref{tab:qwen9b-external-transfer}).
+
+\noindent \textbf{Setup.}
+We fine-tune Qwen3.5-9B with supervised fine-tuning on action tokens, masking the loss over observation tokens.
+% full hyperparameters (optimizer, learning rate, epochs, context length, and seed count) are listed in Appendix.~\ref{sec:appendix_sft}.
+Training trajectories are drawn from Matching Pairs boards of size $2{\times}4$ to $8{\times}8$ and 3D mazes of size $5{\times}5$ to $9{\times}9$, while all evaluation episodes use strictly larger sizes and disjoint seeds, so \textbf{no} training instance recurs at test time.
+
+\noindent \textbf{Data construction.}
+The \emph{optimal} pool is rule-based: a hand-coded oracle solves each instance in closed form, so trajectories are generated without any model, the pool scales with the number of sampled episodes, and we use 32K. The \emph{rollout} pool is harvested by running larger MLLMs (Qwen3.5-397B, Kimi-K2.5) on \benchname{} episodes and keeping only trajectories that solve the task. The correctness filter discards most rollouts, and we cap this pool at 6K. Because 6K alone is insufficient for standalone SFT in our setting, we use the rollout pool as an augmentation rather than a replacement: we compare \texttt{opt32k} (32K optimal) against \texttt{rmix32k} (26K optimal plus the 6K rollouts) at a fixed budget of 32K trajectories, so any gap isolates what the rollout component adds over an equivalently sized optimal-only baseline.
+
+\paragraph{Held-out scale generalization.}
+Tab.~\ref{tab:sft-match-maze} reports Qwen3.5-9B on board and maze sizes strictly larger than the training pool. The optimal pool alone (\texttt{opt32k}) lifts Matching Pairs from 0.0 to 14.6 and 3D Maze from 1.5 to 5.0, indicating that the supervision transfers to unseen sizes. Adding 6K rollouts (\texttt{rmix32k}) further raises Score\% to 29.5, halves response cost per matched pair, and yields the only non-zero maze SR. A plausible explanation is that the oracle pool, being mistake-free, lacks recovery states that an imperfect policy must reach; the rollout pool supplies such states.
+% We do not isolate this mechanism here and report it as a consistent pattern rather than a causal claim.
+
+\input{tables/Qwen9B_External_Benchmark_Transfer}
+
+\paragraph{External-benchmark transfer.}
+We evaluate the same fine-tuned Qwen3.5-9B on an external suite split into a \emph{targeted} group of memory and spatial-reasoning benchmarks and a \emph{general} group covering broader multimodal abilities (Tab.~\ref{tab:qwen9b-external-transfer}). All four targeted benchmarks improve, with a group-mean gain of $+3.4$ and the largest deltas on EMeMBench ($+5.2$). On the general group the mean shifts by $+0.5$. The pattern is consistent with fine-tuning lifting the targeted capabilities without large regressions on general multimodal performance.

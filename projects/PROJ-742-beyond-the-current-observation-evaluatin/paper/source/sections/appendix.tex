@@ -1,0 +1,178 @@
+% \section{Technical Appendices and Supplementary Material}
+% \label{sec:appendix}
+\clearpage
+
+\section{More Related Work}
+\noindent\textbf{Memory Benchmarks.} Memory benchmarks target the ability to retain, update, and organize information across conversations or sessions. LoCoMo and LongMemEval evaluate long-term conversational memory through question answering over dialogue histories \citep{maharana2024locomo,wu2024longmemeval}. MemoryBench, MemBench, and MemoryAgentBench examine memory systems under continual feedback or multi-turn information accumulation \citep{ai2025memorybench,tan2025membench,hu2025memoryagentbench}. StructMemEval studies whether agents can organize memories into useful structures \citep{shutova2026structmemeval}. EMemBench is especially close in spirit: it constructs trajectory-grounded questions from text and visual game interactions to evaluate episodic memory in VLM agents \citep{li2026emembench}. We share this focus on episodic and interaction-derived memory but shift the evaluation target from answering retrospective questions to choosing prospective actions. An agent may recall a past observation in isolation yet still fail to integrate it into the latent state needed for the next move.
+
+\noindent\textbf{Multimodal Understanding and Vision-Language Models.}
+Our benchmark requires models to ground visual observations across multiple turns, a capability rooted in the rapid progress of vision-language modeling. Early few-shot multimodal learners such as Flamingo~\citep{alayrac2022flamingo} demonstrated that large-scale pre-training can bridge vision and language, and visual instruction tuning~\citep{liu2023llava} further scaled this paradigm to open-ended multimodal conversations. Recent vision-language systems have extended to richer interaction settings including free-form text-image composition, long-context streaming, and scientific reasoning~\citep{wxl_dong2024internlmxcomposer2,wxl_zhang2024omnilive,wxl_zou2026interns1pro}. On the video side, chat-centric and long-context video understanding has advanced rapidly~\citep{li2023videochat,wxl_chen2024sharegpt4video,wu2024longvideobench,fang2024mmbench, chen2025iwr}, with parallel progress on complex video object segmentation~\citep{zhang2026sec} and on probing fine-grained spatio-temporal perception~\citep{liu2026starbench}, and temporal positional encoding designs have been shown to be critical for reasoning over video frames~\citep{wxl_wei2025videorope}. Multi-turn, multi-image dialog understanding---the setting closest to our sequential observation regime---has been studied in several recent benchmarks and preference-tuning datasets~\citep{wxl_liu2024mmdu,ma2024mmlongbench,liu2025miadpo}, and fine-grained visual grounding has been pushed toward open-ended referring segmentation~\citep{zhang2026setcon} and pixel-level chart parsing~\citep{li2026visualselfrefine}.
+
+\noindent\textbf{Reasoning, Planning, and Agent Evaluation.}
+Chain-of-thought (CoT) prompting~\citep{wei2022chain,kojima2022large} has become the standard approach for eliciting multi-step reasoning in LLMs. More recent work pushes reasoning into latent or non-autoregressive spaces~\citep{nye2021show,wxl_wei2026simcot,wxl_dai2026endocot,nie2025llada,li2025beyond}, stabilizing implicit reasoning through step-level supervision or extending it to diffusion language models with variable-length denoising on structured generation tasks. A complementary line elicits \emph{visual} reasoning by ``thinking with images'' and exploiting vision--language synergy~\citep{hu2024visualsketchpad,zhang2026etchr,zhang2025thinkvisually}. On the tool-augmented side, language models have been shown to learn tool invocation autonomously~\citep{schick2023toolformer,wxl_zhang2023toolmath}, and external computation can compensate for internal reasoning limitations---a theme echoed by our external-memory interventions. For agent evaluation, the synergy between reasoning and acting~\citep{yao2023react} has motivated a growing suite of benchmarks spanning web navigation~\citep{zhou2024webarena,deng2024mind2web}, general LLM-as-agent tasks~\citep{liu2023agentbench}, computer-use environments~\citep{xie2024osworld}, and real-world long-horizon agent evaluation~\citep{wxl_ding2026wildclawbench}, with agents that self-evolve by learning from their own interaction experience~\citep{sun2025seagent}. Closely related, optimization-oriented benchmarks evaluate LLM agents over large search spaces and verifiable synthetic problems~\citep{li2025optbench,li2025npengine}, providing controllable difficulty in a different domain from our games.
+
+\noindent\textbf{Evaluation, Alignment, and Reward Modeling of MLLMs.}
+The rapid progress of multimodal models has been accompanied by a growing evaluation and alignment ecosystem~\citep{zhang2025lmmsurvey}. Open-source toolkits and broad benchmarks standardize large-scale evaluation across models and tasks~\citep{duan2024vlmevalkit,yue2024mmmu}, while dedicated benchmarks probe specific capabilities such as multimodal instruction following~\citep{zhou2023ifeval,ding2025mmifengine} and human-preference alignment~\citep{zhao2025omnialignv}. Building on reinforcement learning from human feedback and preference optimization~\citep{ouyang2022instructgpt,rafailov2023dpo} and, more recently, reinforcement learning with verifiable rewards~\citep{deepseekai2025r1}, a parallel line develops multimodal reward models and RL recipes to strengthen reasoning and alignment~\citep{yu2024rlhfv,zang2025xcomposerreward,ding2026armthinker,liu2025spark,liu2026visualerm,zhao2026trustcritic,liu2025visualrft}; verifiable rewards have further been applied to spatial understanding and dense captioning~\citep{chen2024spatialvlm,yang2026caprl,liu2026spatialssrl}. Our study is complementary: rather than measuring instruction following, preference alignment, or static capability, we isolate whether a model can maintain and act on hidden state across a long interactive history, and our fine-tuning study connects to this line by supervising on simulator rollouts with verifiable outcomes.
+
+\section{More Analysis} \label{sec:appendix_ablation}
+
+\noindent\textbf{Scale-sweep raw data for Fig.~\ref{fig:rq1_scale_sweep}.}
+Tabs.~\ref{tab:rq1_board_size_match} and~\ref{tab:rq1_board_size_maze} report the per-size numbers underlying the scale-sweep plots in the main text. On Matching Pairs, Score\% declines from 90.6\% ($4{\times}4$) to 0.7\% ($12{\times}12$), while response cost per matched pair rises from 4.59 to 720. On 3D Maze, Game Score peaks at $7{\times}7$ (66.7\%) and drops from $9{\times}9$ onward, paralleled by declining Explore\%.
+
+
+
+\noindent\textbf{External-memory intervention raw data for Fig.~\ref{fig:rq4_external_memory}.}
+Tab.~\ref{tab:rq4_external_memory} provides the exact baseline and intervention scores behind the bar chart in the main text. On Matching Pairs ($8{\times}10$), the memory map roughly doubles Score\% for both Qwen3.5-397B (38.3\,$\to$\,78.7) and Kimi-K2.5 (43.3\,$\to$\,80.3). On 3D Maze ($9{\times}9$), the minimap yields smaller gains (Qwen: 23.8\,$\to$\,40.2; Kimi: 24.6\,$\to$\,35.6), consistent with additional bottlenecks beyond memory access.
+
+\noindent\textbf{Oracle interface contents and MemGap reading guide.}
+The Matching Pairs memory map lists, at each step, the (identity, position) pairs that have already been revealed in the current episode; positions not yet flipped are omitted. The 3D Maze minimap encodes the set of visited cells, the agent's current cell and orientation, and the wall segments observed from those cells; unvisited cells, unseen walls, and the goal location are not included. The minimap therefore reduces but does not eliminate non-Markov structure, since the agent must still plan exploration of the unobserved region. We report MemGap (Eq.~\ref{eq:memorygap}) only when the oracle score $S^*(m)$ is non-trivially above the baseline, and read its values as practical contributions of externalized state under our specific interface rather than exact decompositions of failure modes.
+
+\input{tables/rq4_external_memory}
+
+\begin{table}[tbp]
+\centering
+\input{tables/rq1_board_size_match}\hfill
+\input{tables/rq1_board_size_maze}
+\end{table}
+
+% \subsubsection{Matching Pairs Ablations}
+% \label{sec:appendix_matching_ablations}
+
+\noindent\textbf{Text observations dominate image observations in within-model duels, except for Seed.}
+Tab.~\ref{tab:match_dual_text_vs_image_ablation} pits a text-observation player against an image-observation player from the same model family on $8{\times}8$ and $8{\times}10$ boards, with both player orders merged over three seeds. The text side wins 100\% of games for Kimi-K2.5 and Qwen3.5-397B with gaps of +22.7 to +35.7 pairs, while Seed-2.0 is the exception: the image player wins on $8{\times}8$ ($-$3.3) and the text player wins only narrowly on $8{\times}10$ (+1.8). One possible explanation is that Seed-2.0's vision encoder retains card identities more faithfully than those of Kimi and Qwen, reducing the modality gap that other models suffer from. This suggests that the text--image performance gap is not an inherent property of the task but depends on how well each model's visual pipeline preserves identity information across turns. Tab.~\ref{tab:match_dual_text_rank} aggregates the text-observation duels into the same ranking format as the main image-mode duel table for cross-modality comparison.
+
+\input{tables/match_8_ablation_dual_text_vs_image}
+\input{tables/match_6_dual_text_rank}
+
+% \subsubsection{RQ3: Visual Pattern}
+% \label{sec:diag_visual_pattern}
+
+\input{tables/rq3_visual_pattern_combined}
+
+\noindent\textbf{Visual identifier distinctiveness strongly affects Matching Pairs, but wall color tags do not consistently help 3D Maze.} We test whether failures arise only from long-horizon memory or also from unstable visual identity binding. Matching Pairs ($8{\times}10$) varies card-pattern distinctiveness across six themes; 3D Maze compares uniform walls against color-tagged walls. Tab.~\ref{tab:rq3_visual_pattern} reports both. On Matching Pairs, Qwen3.5-397B drops from 75.8\% (ASCII) to 20.0\% (Poker), and Kimi-K2.5 from 72.5\% to 30.1\%, showing that less distinctive identifiers compound the memory load. On 3D Maze the color-tag intervention is mixed: Kimi-K2.5 improves at $7{\times}7$ (1/5\,$\to$\,4/5) but degrades at $9{\times}9$ (2/5\,$\to$\,1/5), and Qwen3.5-397B gains modestly at $9{\times}9$ and $11{\times}11$. Hidden-state tracking is therefore coupled with perceptual binding for card identification, while wall-level visual landmarks alone fail to stabilize spatial belief updates. The asymmetry between the two environments is informative: in Matching Pairs, each card identity must be discriminated from dozens of visually similar alternatives, so pattern distinctiveness directly affects recognition accuracy. In 3D Maze, wall colors provide only coarse spatial cues that do not resolve the core difficulty of maintaining a global position estimate from local egocentric views. This distinction suggests that visual interventions are most effective when they target the specific perceptual bottleneck of the task.
+
+% Table already in main text (Tab.~\ref{tab:rq3_visual_pattern}); not repeated here.
+
+% With Medium think Analysis
+% \paragraph{Action feedback.}
+% Tab.~\ref{tab:ablation_action_feedback} isolates the contribution of
+% environment action feedback---the explicit match/mismatch signal returned
+% after each flip pair---by comparing the standard single-player setting
+% (\emph{w/ Action}) with a variant that withholds this signal
+% (\emph{w/o Action}), forcing the model to infer flip outcomes solely from
+% subsequent board-state images.
+
+% Removing action feedback causes a dramatic performance collapse across all
+% tested conditions. Under the low-think budget, GPT-5.4 drops from 69.6\%
+% to 15.0\% on $8{\times}10$ ($-$54.6\,pp) and from 62.3\% to 15.3\% on
+% $10{\times}10$ ($-$47.0\,pp), falling to near-chance levels. With a
+% medium-think budget the model is substantially more resilient---94.2\%
+% $\to$ 57.5\% on $8{\times}10$ ($-$36.7\,pp)---but still loses over a
+% third of its matching accuracy. These results demonstrate that (i)~action
+% feedback is a critical information channel: without it, the model largely
+% fails to maintain an accurate belief state over the board, and
+% (ii)~increased reasoning budget can partially compensate for the missing
+% signal, suggesting that the model can, in principle, extract match
+% outcomes from visual differences between consecutive frames, but does so
+% far less reliably than when the outcome is stated explicitly.
+
+% Action-feedback ablation promoted to main text (Sec.~\ref{sec:additional_ablations}).
+
+% \subsubsection{3D Maze Ablations}
+
+\noindent\textbf{The minimap helps mostly at intermediate and large scales, and its effect is model-dependent.}
+Tab.~\ref{tab:ablation_minimap} reports the minimap condition across $5{\times}5$ to $15{\times}15$ mazes with exploration and collision statistics. Seed-2.0-Pro benefits the most, reaching 3/5 success at both $9{\times}9$ and $11{\times}11$ and recovering 2/5 at $15{\times}15$. At $13{\times}13$, Qwen3.5-397B and Seed-2.0-Pro each complete one minimap run, while Seed-2.0-Lite and Kimi-K2.5 fail on all seeds. The Walls column reveals a second pattern: Kimi-K2.5 keeps collisions low even when it fails, showing that safer local control does not guarantee global completion. This dissociation between local safety and global success highlights two distinct failure modes in 3D Maze: models can fail either because they misread the immediate 3D scene (leading to wall collisions) or because they lose track of the global spatial layout (leading to loops and revisits). Kimi-K2.5 predominantly exhibits the latter failure, maintaining accurate local perception while lacking a coherent spatial map.
+
+\input{tables/ablation_minimap}
+
+\noindent\textbf{Ask-output prompting helps Seed-2.0-Lite substantially but does not improve overall completion for Kimi or Qwen.}\label{sec:appendix_askmap}
+% Tab.~\ref{tab:ablation_askmap} reports results when the agent is prompted to explicitly output its internal spatial map at each step. Seed-2.0-Lite rises from 1/5 to 4/5, while Kimi-K2.5 and Qwen3.5-397B show no gain in completion. Their successful ask-output runs are near-optimal (Eff = 1.000) when they work, but occur no more frequently than in the standard setting. Seed-2.0-Pro maintains 3/5 success in both conditions with slightly higher efficiency under ask-output. The Traj-Match column reveals that map-output quality varies widely: Seed-2.0-Pro reaches 87.2\% and Qwen3.5-397B achieves 82.7\%, while Seed-2.0-Lite and Kimi-K2.5 score lower (66.3\% and 68.2\%). Explicit map externalization thus benefits models that can maintain accurate spatial representations. The gap between Traj-Match accuracy and task completion suggests that merely producing a map is not enough: the model must also use that map to plan. A model with high Traj-Match but low success rate accurately records where it has been yet fails to translate that record into effective route planning, pointing to a decision-selection bottleneck rather than a memory bottleneck.
+Tab.~\ref{tab:ablation_askmap} reports results when the agent is prompted to explicitly output its internal spatial map at each step. Seed-2.0-Lite rises from 1/5 to 4/5, while Kimi-K2.5 and Qwen3.5-397B show no gain in completion. Their successful ask-output runs are near-optimal (Eff = 1.000) when they work, but occur no more frequently than in the standard setting. Seed-2.0-Pro maintains 3/5 success in both conditions with slightly higher efficiency under ask-output. The Traj-Match column reveals that map-output quality varies widely: Seed-2.0-Pro reaches 87.2\% and Qwen3.5-397B achieves 82.7\%, while Seed-2.0-Lite and Kimi-K2.5 score lower (66.3\% and 68.2\%). Explicit map externalization thus benefits models that can maintain accurate spatial representations. The gap between Traj-Match accuracy and task completion suggests that merely producing a map is not enough: the model must also use that map to plan. A model with high Traj-Match but low success rate accurately records where it has been yet fails to translate that record into effective route planning, consistent with a decision-selection contribution in addition to memory access.
+\input{tables/ablation_askmap}
+
+\noindent\textbf{Limiting context does not affect all models equally, and more history does not uniformly help.}\label{sec:appendix_markov}
+% Tab.~\ref{tab:ablation_markov} compares the standard full-history setting with history windows of 3, 5, and 10 turns on the extended $9{\times}9$ experiment. Seed-2.0-Pro achieves its best success (3/5) under full history and drops to 2/5 across all three windows, consistent with exploiting long-range dependencies. Qwen3.5-397B shows the opposite trend: only 1/5 with full history but 2/5 under all windowed conditions. Very long dialogue history may impair its decisions through attention dilution or accumulated misinformation. Kimi-K2.5 shows a milder version of this pattern (2/5 under full history, dropping to 1/5 at windows of 5 and 10), and Seed-2.0-Lite remains unstable across all conditions (1--2/5). The history--performance relationship is model-dependent: some models benefit from richer context while others are hindered by it. Belief-state tracking failures stem not only from insufficient memory but also from misusing the memory that is available. This finding has practical implications: simply extending a model's context window may not improve performance if the model already struggles to extract useful signals from the history it already has. Future work on improving in-context state tracking should therefore address not only memory capacity but also the ability to selectively attend to and integrate task-relevant information from long interaction histories.
+Tab.~\ref{tab:ablation_markov} compares the standard full-history setting with history windows of 3, 5, and 10 turns on the extended $9{\times}9$ experiment. Seed-2.0-Pro achieves its best success (3/5) under full history and drops to 2/5 across all three windows, consistent with exploiting long-range dependencies. Qwen3.5-397B shows the opposite trend: only 1/5 with full history but 2/5 under all windowed conditions. Very long dialogue history may impair its decisions through attention dilution or accumulated misinformation. Kimi-K2.5 shows a milder version of this pattern (2/5 under full history, dropping to 1/5 at windows of 5 and 10), and Seed-2.0-Lite remains unstable across all conditions (1--2/5). The history--performance relationship is model-dependent: some models benefit from richer context while others are hindered by it.
+
+\input{tables/ablation_markov}
+
+% \noindent\textbf{A higher thinking budget consistently improves GPT-5.4 across both environments.}\label{sec:appendix_think_budget}
+% Tab.~\ref{tab:appendix_thinking_budget} reports GPT-5.4's performance under low-think and medium-think settings, with the token limit fixed at 32,768. On Matching Pairs, medium-think clearly outperforms low-think. The score increases from 69.6\% to 94.2\% on noise $8{\times}10$ and from 62.3\% to 87.3\% on noise $10{\times}10$. The same trend appears in 3D Maze. The success rate rises from 60.0\% to 80.0\% on $11{\times}11$ and from 20.0\% to 40.0\% on $13{\times}13$. Exploration coverage also improves on $11{\times}11$, increasing from 33.6\% to 37.9\%, while remaining similar on $13{\times}13$. These results show that additional thinking budget helps GPT-5.4 maintain and use hidden state more effectively, especially when the environment requires longer internal belief state reconstruction and multi-step reasoning.
+
+% \input{tables/appendix_thinking_budget}
+
+\section{Visualization Cases}
+
+The following trajectory visualizations illustrate three common failure modes observed across our experiments: (i) \emph{spatial drift}, where the model's stated position gradually diverges from its actual location; (ii) \emph{local oscillation}, where the model revisits the same small region without making global progress; and (iii) \emph{reasoning--action mismatch}, where the model's verbal reasoning is spatially coherent but its chosen action contradicts its own stated plan. Each figure contrasts a successful and a failed run on the same maze to highlight where the reasoning diverges.
+
+\begin{figure}[tbp]
+\centering
+\includegraphics[width=\textwidth]{figures/ab_minimap.pdf}
+\caption{Success rate with minimap across maze sizes, corresponding to Tab.~\ref{tab:ablation_minimap}.}
+\label{fig:ab_minimap}
+\end{figure}
+
+\noindent\textbf{Successful runs maintain spatially grounded reasoning; failed runs drift into confusion despite the minimap.}\label{sec:appendix_viz_minimap}
+% Fig.~\ref{fig:ab_minimap} contrasts two 3D Maze trajectories under the minimap condition. Seed-2.0 reaches the goal in 53 steps (optimal 25, Eff 0.47); its reasoning anchors each move to explicit coordinates and headings (``at $(3,6)$ facing South'', ``straight corridor to $(10,10)$''), so the trajectory (green) advances steadily toward the goal. Kimi-K2.5 exhausts the 236-step budget on the same map without reaching the goal (Eff 0.00). Its reasoning still cites the minimap but loses spatial closure (``hit a wall, the explored area has expanded significantly, but still can't find a way'') and oscillates around the lower-right region (red trajectory). Providing an external minimap does not by itself fix hidden-state tracking: the model must still translate the minimap into a consistent position belief. Failures appear as repeated wall collisions and incoherent direction choices rather than as missing information. This case demonstrates that the minimap's value depends on the model's ability to ground its position within the provided map. When this grounding fails, the minimap becomes decorative: the model cites it in its reasoning but cannot use it to correct accumulated spatial errors.
+Fig.~\ref{fig:ab_minimap} contrasts two 3D Maze trajectories under the minimap condition. Seed-2.0 reaches the goal in 53 steps (optimal 25, Eff 0.47); its reasoning anchors each move to explicit coordinates and headings (``at $(3,6)$ facing South'', ``straight corridor to $(10,10)$''), so the trajectory (green) advances steadily toward the goal. Kimi-K2.5 exhausts the 236-step budget on the same map without reaching the goal. Its reasoning still cites the minimap but loses spatial closure (``hit a wall, the explored area has expanded significantly, but still can't find a way'') and oscillates around the lower-right region (red trajectory). Providing an external minimap does not by itself fix hidden-state tracking: the model must still translate the minimap into a consistent position belief. Failures appear as repeated wall collisions and incoherent direction choices rather than as missing information. This case demonstrates that the minimap's value depends on the model's ability to ground its position within the provided map. When this grounding fails, the minimap becomes decorative: the model cites it in its reasoning but cannot use it to correct accumulated spatial errors.
+
+\begin{figure}[tbp]
+\centering
+\includegraphics[width=\textwidth]{figures/ab_vanilla.pdf}
+\caption{\textbf{Baseline 3D Maze trajectories (no minimap, uniform walls).} Seed-2.0 (left, blue) reaches the goal in 28 steps (optimal 24, Eff 0.86) with spatially grounded reasoning. Kimi-K2.5 (right, red) exhausts the 96-step budget, revisiting cells and oscillating despite recognizing dead ends.}
+\label{fig:ab_vanilla}
+\end{figure}
+
+\noindent\textbf{Without any external aid, strong spatial grounding separates success from failure.}
+Fig.~\ref{fig:ab_vanilla} shows a $7{\times}7$ baseline run (no minimap, uniform walls). Seed-2.0 maintains coordinate-level awareness throughout (``moving South increases my y-coordinate, bringing me closer to the goal'') and reaches the goal near-optimally. Kimi-K2.5 correctly identifies dead ends (``I need a completely different approach, I've been going in circles'') but lacks the spatial map to act on this realization, resulting in repeated revisits. The contrast reveals that recognizing failure is not the bottleneck: Kimi-K2.5 diagnoses the problem in natural language but cannot translate that diagnosis into a corrective spatial plan. Without a persistent internal map, each ``different approach'' amounts to a random direction change rather than a systematic exploration strategy.
+
+\begin{figure}[tbp]
+\centering
+\includegraphics[width=\textwidth]{figures/ab_pattern.pdf}
+\caption{\textbf{Color Tag vs.\ Baseline on 3D Maze.} Left (blue): color-tagged walls help Seed-2.0 navigate a $7{\times}7$ maze in 53 steps (Eff 0.47). Right (red): the same model fails under uniform walls, exhausting the 100-step budget with repeated oscillations.}
+\label{fig:ab_pattern}
+\end{figure}
+
+\noindent\textbf{Color-tagged walls can help spatial disambiguation but do not eliminate failures.}
+Fig.~\ref{fig:ab_pattern} compares trajectories on the same $7{\times}7$ maze under two visual conditions. With color tags, Seed-2.0 anchors its reasoning to wall colors and junction landmarks, reaching the goal in 53 steps. Under uniform walls, the same model loses spatial orientation after step 26 and oscillates in the upper-right region until timeout. The color tags provide perceptual anchors that stabilize position tracking, but as shown in Tab.~\ref{tab:rq3_visual_pattern}, this advantage does not generalize across all models or maze sizes. Across the three visualization cases, a consistent pattern emerges: successful models maintain an explicit, coordinate-level spatial representation that they update after each action, while failed models rely on qualitative spatial language (``keep going'', ``try a different direction'') that does not accumulate into a coherent map. The key differentiator is not whether the model can perceive the current view, but whether it can integrate that view with its history to form a stable belief about global position.
+
+
+\section{Matching Pairs Case Studies}
+
+\begin{figure}[tbp]
+\centering
+\includegraphics[width=\textwidth]{figures/case_single_player_v2.pdf}
+\caption{\textbf{Single-player Matching Pairs trajectory.} GPT-5.4 and Gemini-3.1-Pro are evaluated on the same $10{\times}10$ noise board with seed 0. The curve reports cumulative matched pairs over 120 rounds, and the snapshots show board states at selected rounds.}
+\label{fig:case_single_player_matching}
+\end{figure}
+
+\paragraph{Single-player trajectory.}
+% Fig.~\ref{fig:case_single_player_matching} compares GPT-5.4 and Gemini-3.1-Pro on the same $10{\times}10$ noise board. GPT-5.4 finishes with 31 of 50 pairs, while Gemini-3.1-Pro reaches 16 of 50. Beyond the final score, the trajectory reveals a clear difference in how observations are converted into matches. Gemini-3.1-Pro shows several plateau phases, where continued flip does not lead to score. This indicates a weaker ability to maintain and reuse card-location bindings after they disappear from the current observation. GPT-5.4 instead shows a sharp improvement between rounds 80 and 100. This late jump suggests that earlier observations have been integrated into a more useful belief state, which then supports a concentrated phase of successful matching. The snapshots are consistent with this pattern, as GPT-5.4 clears a larger region of the board by round 100 while Gemini-3.1-Pro leaves more cells unresolved. This case highlights that the benchmark tests not only visual observation but also whether the model can transform past observations into a stable hidden-state estimate for later action.
+Fig.~\ref{fig:case_single_player_matching} compares GPT-5.4 and Gemini-3.1-Pro on the same $10{\times}10$ noise board. GPT-5.4 finishes with 31 of 50 pairs, while Gemini-3.1-Pro reaches 16 of 50. Beyond the final score, the trajectory reveals a clear difference in how observations are converted into matches. Gemini-3.1-Pro shows several plateau phases, where continued flips do not lead to a score. This indicates a weaker ability to maintain and reuse card-location bindings after they disappear from the current observation. GPT-5.4 instead shows a sharp improvement between rounds 80 and 100. This late jump suggests that earlier observations have been integrated into a more useful belief state, which then supports a concentrated phase of successful matching. The snapshots are consistent with this pattern, as GPT-5.4 clears a larger region of the board by round 100 while Gemini-3.1-Pro leaves more cells unresolved. This case highlights that the benchmark tests not only visual observation but also whether the model can transform past observations into a stable hidden-state estimate for later action.
+
+\begin{figure}[tbp]
+\centering
+\includegraphics[width=\textwidth]{figures/case_dual_gemini_vs_gpt.pdf}
+\caption{\textbf{Duel Matching Pairs trajectory.} Gemini-3.1-Pro and GPT-5.4 are compared on the same $8{\times}10$ texture board with seed 0 under both player orders. The two panels test whether the outcome is mainly caused by first-move advantage.}
+\label{fig:case_dual_matching}
+\end{figure}
+
+\paragraph{Duel trajectory.}
+Fig.~\ref{fig:case_dual_matching} compares the two models on the same $8{\times}10$ texture board under both player orders. When Gemini-3.1-Pro moves first, it finishes with 15 pairs, while GPT-5.4 reaches 9. When GPT-5.4 moves first, Gemini-3.1-Pro still finishes with 18 pairs, while GPT-5.4 reaches 6. This suggests that the duel result is not mainly driven by first-move advantage. Gemini-3.1-Pro gains more matches in the late game and appears to use earlier observations more effectively. The duel setting therefore provides a stricter test of internal belief state reconstruction, because each model must remember both its own observations and the cards revealed by the opponent.
+
+\section{Potential Risks}
+The main risk of this work is possible over-interpretation of benchmark results as a complete measure of model intelligence or real-world reliability. To reduce this risk, we report the task settings, evaluation metrics, and limitations of our benchmark, and we frame the results as evidence about hidden-state tracking under controlled conditions. The benchmark is intended for research evaluation and diagnostic analysis, rather than for direct deployment decisions in safety-critical applications.
+
+\section{SFT Training Details}\label{sec:appendix_sft}
+
+All Qwen3.5-9B fine-tuning runs in §\ref{sec:training_strategy} use the same recipe; only the training data composition changes across the \texttt{opt32k} and \texttt{rmix32k} configurations.
+
+\noindent\textbf{Finetuning scope.} We perform full fine-tuning of the language model with the vision tower and multimodal projector frozen, using the \texttt{qwen3\_5\_nothink} chat template.
+
+\noindent\textbf{Optimization.} AdamW with learning rate $1\mathrm{e}{-5}$, cosine schedule, warmup ratio $0.1$, 1 epoch, and an effective batch size of 128 (per-device batch size 1 with gradient accumulation 16 across 8 GPUs).
+
+\noindent\textbf{Sequence and visual budget.} Cutoff length 28{,}160 tokens for \texttt{opt32k} and 29{,}000 tokens for \texttt{rmix32k}; per-image maximum 65{,}536 pixels with patch cropping enabled.
+
+\noindent\textbf{Data composition.} \texttt{opt32k} mixes 16k Matching Pairs and 16k 3D Maze optimal-policy rollouts ($\sim$32k records total); \texttt{rmix32k} replaces each 16k optimal block with a 16k rollout-plus-optimal mixture from the same environment. The two datasets are concatenated with the \texttt{concat} mix strategy.
+
+\noindent\textbf{Reproducibility.} Random seed and other unspecified hyperparameters follow LLaMA-Factory defaults. Each configuration is trained with a single seed; downstream evaluation aggregates over 5 environment seeds per configuration (see §\ref{sec:metrics}).

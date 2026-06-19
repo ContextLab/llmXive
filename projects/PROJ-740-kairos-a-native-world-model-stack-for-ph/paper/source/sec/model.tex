@@ -1,0 +1,238 @@
+\section{Model}
+
+
+\subsection{Native Architecture with Unified Understanding, Generation and Prediction}
+
+The core architecture of Kairos (Fig.~\ref{fig:kairos_3_0_framework}) represents a departure from modular platform-level integration toward a natively unified world-model stack. Rather than interconnecting disparate components, Kairos employs a single endogenous backbone that integrates understanding, generation, and prediction within a unified architecture. This design ensures that semantic intelligence, visual synthesis, and physical anticipation are maintained as a shared world state, stabilized by a hybrid temporal memory mechanism designed for long-horizon coherence. The architecture primarily comprises three pivotal and deeply interactive modules—World Understanding, World Generation, and World Prediction—which operate in concert to form a highly integrated and fully functional intelligent framework.
+
+
+
+
+
+\textbf{World Understanding.}
+As the foundational layer, the Understanding component is responsible for extracting deep representations from diverse heterogeneous sources, spanning from physical law descriptors to multi-modal sensor streams. We leverage a robust Vision-Language Model (VLM) as our Understanding module, which meticulously transforms these raw, heterogeneous inputs into high-level semantic representations, thereby enabling a profound comprehension of the world. This profound understanding model establishes a solid foundation for subsequent generation and prediction tasks. In this study, we utilize Qwen series \cite{qwen2.5-VL,qwen3.5} as our foundational VLM. While we anticipate that specialized variants tailored for embodied intelligence, such as ACE-Brain-0 \cite{gong2026acebrain0spatialintelligenceshared}, may offer further performance gains, we defer the exploration of such domain-specific models to future work.
+
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=1.0\linewidth]
+{figures/kairos_arch1.jpg}
+\caption{
+    \centering
+Model Architecture of Kairos.}
+\label{fig:kairos_archi}
+\end{figure}
+
+
+
+
+\textbf{World Generation.} 
+The World Generation component plays a central creative role within the Kairos system, responsible for dynamically generating new data or scenarios based on the system's profound understanding and external directives. Its inputs primarily stem from the semantic understanding outputs of the World Understanding module, seamlessly integrated with real-time interactive instructions from users or external systems (e.g., camera control, natural language commands, keyboard/mouse operations, or trajectory directives). Leveraging these diverse inputs, Kairos's generation component efficiently produces high-fidelity outcomes—including photorealistic environments. Crucially, Kairos emphasizes deployment as a core modeling principle, rather than merely an added platform value. Therefore, the generative architecture is co-designed with hardware constraints: we utilize hybrid linear attention to ensure that generation is not an offline showcase but a real-time capability. This enables active intervention and creation in both virtual and physical worlds. 
+
+
+As illustrated in Fig.~\ref{fig:kairos_archi}, Kairos follows a standard conditional diffusion formulation, where the denoising network is parameterized by a Diffusion Transformer (DiT) backbone and is conditioned on multimodal inputs such as text or images through cross-attention. The overall framework consists of three main components: (1) a high-compression video VAE that maps raw videos into a compact latent space, (2) a multimodal conditioning encoder that produces semantic embeddings, and (3) a temporally scalable DiT backbone that performs diffusion modeling in the latent space.
+
+
+
+
+Kairos supports multi-modal conditioning to enable flexible video generation scenarios, including text-to-video (T2V), image-to-video (I2V), and text-image-to-video (TI2V). Text inputs are embedded using a VLM-based text encoder, producing semantically rich token representations. For image-conditioned generation, visual features are extracted and aligned into the same embedding space. All conditioning embeddings are projected to the DiT hidden dimension and injected into the backbone through cross-attention layers. This design allows the diffusion model to leverage high-level semantic guidance while retaining the expressive capacity of the latent diffusion framework. The modular embedding interface also facilitates future extensions to additional modalities, such as audio or proprioceptive signals.
+
+Besides, the hallmark of Kairos is its explicit architectural mechanism for state maintenance, which moves beyond simple next-frame prediction. We decompose the temporal structure into a hierarchical hierarchy: Sliding Window Attention (SWA) for local dynamics, Dilated SWA (DSWA) for medium-range interactions, and Gated Linear Attention (GLA) for global causal memory. Specifically, the GLA mechanism, with its gated delta updates, serves as a persistent memory that tracks the world state over long horizons. In this way, Kairos explicitly models long-horizon world-state maintenance, not solely world generation plus reasoning. See details in Section \ref{sec:attention}.
+
+
+\textbf{World Prediction.}
+As a core component of Kairos, the World Prediction module aims to jointly model environmental dynamics and robot action generation within a unified generative framework. Unlike conventional world models that primarily simulate future observations, Kairos treats robot actions as an intrinsic part of future world evolution. This design enables the learned representations to be directly mapped to executable motor behaviors, bridging high-level semantic understanding and low-level embodied control.
+
+To achieve this, we formulate World Prediction as a unified World-Action Model (WAM) based on a Mixture-of-Transformer (MoT) architecture. The framework consists of two components: a Video DiT and an Action DiT. The Video DiT models future visual tokens and is initialized from the pretrained Kairos-World-Generation model, inheriting rich spatiotemporal priors and strong visual generation capabilities. The Action DiT predicts future action tokens and follows the same architectural design as the Video DiT while adopting a substantially reduced model scale (approximately one-fifth of the Video DiT) to improve inference efficiency.
+
+To jointly model visual dynamics and robot actions, the input sequence is organized into three token groups:
+\begin{itemize}
+\item History Video Tokens, representing historical visual observations;
+\item Future Video Tokens, representing future visual states;
+\item Future Action Tokens, representing future robot actions.
+\end{itemize}
+
+Inspired by the mixed-attention strategy proposed in~\cite{yuan2026fastwam}, we adopt a unified attention masking mechanism for joint video-action modeling. Specifically, history video tokens are restricted to attend only to other historical video tokens, preventing information leakage from future states and preserving stable representations of past observations. Both future video tokens and future action tokens are allowed to attend to all historical video tokens, enabling future prediction to be conditioned on the complete observed visual context.
+
+Building upon this masking formulation, we further design an asymmetric interaction scheme for future tokens. Future video tokens employ sparse spatiotemporal attention to efficiently capture local visual dynamics while maintaining computational scalability. In contrast, future action tokens utilize full attention, allowing them to aggregate information globally across the entire action sequence and thereby facilitating coherent long-horizon planning. Notably, both branches share the same historical visual context, while the action branch does not rely on future video tokens. Consequently, action prediction can be performed independently without explicitly generating future visual observations, enabling efficient action-only inference at deployment time.
+
+
+Under this unified masking strategy, the model is jointly optimized for video generation and action generation during training. The video objective encourages learning of environmental dynamics and future state evolution, while the action objective promotes the acquisition of executable control policies. Through joint optimization, the model gradually learns a shared world-action representation that implicitly aligns environmental transitions with robot decision-making.
+
+During inference, the framework supports an efficient action-only prediction mode. Specifically, the future video generation branch can be disabled, and only future action tokens are generated. Since action tokens are significantly fewer than video tokens, this strategy substantially reduces both attention and diffusion computation costs while retaining the benefits of the jointly learned world dynamics. As a result, Kairos enables efficient and scalable robot action generation without explicitly synthesizing future visual observations.
+The World Prediction module provides a practical and scalable solution for unified world-action modeling, combining strong environment understanding, executable action generation, and efficient deployment within a single generative architecture.
+
+
+Overall, Kairos demonstrates a stronger unification at the native world-state modeling level: it more clearly and comprehensively addresses how to learn about the world, how to continuously maintain its state, and how to operate efficiently under the complex constraints of the real world.
+
+
+
+
+\subsection{Efficient Diffusion Transformer with Hybrid Linear Attention}\label{sec:attention}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=1.0\textwidth]{figures/architecture_kairos.pdf}
+\caption{
+    \centering
+DiT block architecture of the proposed hybrid linear attention.
+}
+\label{fig:kairos_dit}
+\end{figure}
+
+
+Diffusion Transformers (DiT) have emerged as a powerful backbone for image and video diffusion models, as well as action prediction. However, standard DiT architectures rely on full Softmax self-attention, whose quadratic complexity in the sequence length makes them prohibitively expensive for long video generation. In the context of world modeling, where videos can span several seconds with high spatial resolution, the token count grows rapidly with both frame number and spatial dimensions, resulting in severe computational and memory bottlenecks.
+
+In this work, we highlight three core requirements for a modern world model:
+
+\begin{itemize}
+    \item \textbf{Efficiency.} The model must scale gracefully to long video sequences and high resolutions, ideally with linear or near-linear complexity in the temporal dimension.
+    \item \textbf{Long-Horizon Modeling.} The architecture should support information propagation across long temporal horizons to capture object permanence, delayed effects, and multi-stage physical interactions.
+    \item \textbf{Expandability.} The design should be modular and extensible, allowing the integration of additional modalities, longer durations, and higher resolutions without architectural redesign.
+\end{itemize}
+
+To satisfy these requirements, Kairos introduces a \emph{LinearDiT} backbone with a hybrid attention design, as illustrated in Fig.~\ref{fig:kairos_dit}. Instead of relying solely on full Softmax attention, the backbone interleaves multiple attention mechanisms with complementary inductive biases. The model is organized into $M$ groups of hybrid blocks, where each group contains local, dilated, and global attention components. This design enables efficient local motion modeling, mid-range temporal interaction, and global causal reasoning within a unified architecture.
+
+
+\subsubsection{Long-term: Gated Linear Attention}
+
+To enable global temporal reasoning with linear complexity, Kairos employs \emph{Gated Linear Attention} (GLA) as the primary mechanism for long-range information propagation. Concretely, GLA is implemented using GatedDeltaNet \citep{yanggated}, a gated linear attention variant closely related to structured state space models (SSMs). Unlike Softmax attention, whose complexity scales quadratically with sequence length, GLA scales linearly and thus remains efficient even for long video sequences.
+
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.5\textwidth]{figures/GDN.pdf}
+\caption{
+    \centering
+Architecture of the gated linear attention module GDN.
+}
+\label{fig:gdn_arch}
+\end{figure}
+
+As illustrated in Fig.~\ref{fig:gdn_arch}, the core of the GDN lies in the \textbf{Delta Update Rule}, which addresses the ``key collision'' problem found in vanilla linear transformers. Instead of purely additive updates, GDN learns to remove outdated or less important key-value associations to make room for new information.
+
+The computation at each time step  is defined as follows:
+
+\begin{enumerate}
+\item \textbf{Feature Extraction:} The query , key , and value  are projected from the input . Simultaneously, a soft ``writing strength''  is computed via a sigmoid gate:
+\begin{equation}
+\mathbf{q}_t = \mathbf{W}_Q \mathbf{x}_t, \quad \mathbf{k}_t = \mathbf{W}_K \mathbf{x}_t, \quad \mathbf{v}_t = \mathbf{W}_V \mathbf{x}_t, \quad \beta_t = \sigma(\mathbf{W}_\beta \mathbf{x}_t)
+\end{equation}
+
+\item \textbf{Memory Retrieval and Interpolation:} The model retrieves the old value $\mathbf{v}_t^{\text{old}}$ using the current key and interpolates it with the current value to generate $\mathbf{v}_t^{\text{new}}$:
+\begin{equation}
+    \mathbf{v}_t^{\text{old}} = \mathbf{S}_{t-1} \mathbf{k}_t, \quad \mathbf{v}_t^{\text{new}} = \beta_t \mathbf{v}_t + (1 - \beta_t) \mathbf{v}_t^{\text{old}}
+\end{equation}
+
+where $\mathbf{S}_t \in \mathbb{R}^{d_v \times d_k}$ denotes a learnable associative memory that stores key–value correlations over time.
+
+\item \textbf{Delta State Update:} The state matrix $\mathbf{S}_t$ is updated by removing the old association and writing the new one, a process equivalent to a single step of SGD on an online regression loss:
+\begin{equation}
+    \mathbf{S}_t = \mathbf{S}_{t-1} - \underbrace{\mathbf{v}_t^{\text{old}} \mathbf{k}_t^\top}_{\text{remove}} + \underbrace{\mathbf{v}_t^{\text{new}} \mathbf{k}_t^\top}_{\text{write}}
+\end{equation}
+
+This update can be interpreted as an online delta-rule update that approximates one step of gradient descent on $\|\mathbf{v}_t - \mathbf{S}\mathbf{k}_t\|^2$.
+
+\paragraph{Gated Delta Update.}
+While the above delta rule corrects key–value associations locally, it does not explicitly control global forgetting of past information. To improve memory management, a gating mechanism is introduced to adaptively modulate the contribution of the previous state.
+
+Specifically, a decay gate $\alpha_t \in (0,1)$ is computed as:
+\begin{equation}
+\alpha_t = \sigma(\mathbf{W}_\alpha \mathbf{x}_t)
+\end{equation}
+
+The state update is then modified as:
+\begin{equation}
+\mathbf{S}_t =
+\alpha_t \mathbf{S}_{t-1}
+- \mathbf{v}_t^{\text{old}} \mathbf{k}_t^\top
++ \mathbf{v}_t^{\text{new}} \mathbf{k}_t^\top
+\end{equation}
+
+Equivalently, this can be written as:
+\begin{equation}
+\mathbf{S}_t =
+\alpha_t \mathbf{S}_{t-1}
++ \beta_t (\mathbf{v}_t - \mathbf{v}_t^{\text{old}}) \mathbf{k}_t^\top
+\end{equation}
+
+Here, $\alpha_t$ acts as a forget gate that globally scales the previous memory state, enabling the model to discard outdated information more efficiently. Combined with the local delta correction term, this gated update provides both precise associative correction and adaptive long-term memory control.
+
+\item \textbf{Output Generation:} The final output is retrieved from the updated memory: $\mathbf{o}_t = \mathbf{S}_t \mathbf{q}_t$.
+
+
+\end{enumerate}
+
+The role of GLA in Kairos is to propagate global state information across the entire temporal extent of the video. This global pathway is critical for modeling temporal causality, object permanence, and delayed physical effects. By using gating mechanisms, GLA selectively controls information flow, allowing the model to retain long-term memory while preventing uncontrolled accumulation of noise. As a result, the model can maintain coherent global dynamics over hundreds of frames.
+
+Importantly, GLA serves as the \emph{only} global attention mechanism in the backbone. All other self-attention layers are restricted to local temporal neighborhoods. This architectural choice enforces a clear separation of responsibilities: local attention handles fine-grained motion and interactions, while GLA is responsible for global temporal consistency and causal structure.
+
+
+\subsubsection{ Short(Mid)-term: (Dilated) Sliding Window Attention}
+
+\textbf{Sliding Window Attention (SWA).} While global temporal modeling is handled by GLA, spatial and short-range temporal interactions are modeled using \emph{Sliding Window Attention} (SWA). Each SWA block restricts attention to a fixed temporal window of size proportional to the number of spatial tokens per frame, enabling efficient modeling of local motion patterns and short-term dynamics.
+
+
+For a sequence of hidden states $\mathbf{x} \in \mathbb{R}^{B \times (F \cdot L) \times D}$, 
+where $F$ and $L$ are the number of frames and the number of tokens per frame in the latent, respectively;
+the SWA computes attention within a local neighborhood. Specifically, 
+for a query token at index $i$, the attention is restricted to keys and values 
+within a window $W$:
+
+\begin{equation}
+\mathrm{SWA}(\mathbf{Q}, \mathbf{K}, \mathbf{V})_i
+=
+\sum_{j \in [i - \frac{w}{2},\, i + \frac{w}{2}]}
+\mathrm{Softmax}\!\left(\frac{\mathbf{Q}_i \mathbf{K}_j^{T}}{\sqrt{d}}\right)\mathbf{V}_j .
+\end{equation}
+
+In our implementation, the window size $w$ is defined as $L \times \text{window\_size}$, 
+effectively covering a fixed number of adjacent frames to capture short-range 
+spatial-temporal correlations.
+
+
+
+\textbf{Dilated Sliding Window Attention (DSWA).} To extend the temporal receptive field without incurring quadratic cost, Kairos further incorporates \emph{Dilated Sliding Window Attention} (DSWA). DSWA uses the same window size as SWA but introduces a dilation factor along the temporal dimension. This allows the model to capture mid-range temporal dependencies (e.g., on the order of one second) while preserving linear complexity. By interleaving SWA and DSWA blocks, the backbone progressively aggregates information across increasing temporal scales.
+
+
+The DSWA operation can be formulated as:
+\begin{equation}
+\mathrm{DSWA}(\mathbf{Q}, \mathbf{K}, \mathbf{V})
+=
+\mathrm{SWA}\!\left(
+\mathrm{rearrange}(\mathbf{Q}),
+\mathrm{rearrange}(\mathbf{K}),
+\mathrm{rearrange}(\mathbf{V})
+\right).
+\end{equation}
+
+Specifically, the input is reshaped from $(B, F\!\cdot\!L, D)$ to 
+$(B\!\cdot\!d, \tfrac{F}{d}\!\cdot\!L, D)$, where attention is performed 
+within the reorganized sequence. This design enables the model to capture 
+mid-range temporal dependencies (e.g., on the order of one second) while 
+maintaining linear complexity with respect to the total sequence length. 
+By interleaving SWA $(d = 1)$ and DSWA $(d \in \{6, 12\})$ blocks, 
+the backbone progressively aggregates information across increasing temporal scales.
+ 
+
+All sliding-window attention blocks employ RoPE-based relative positional encoding to encode local temporal and spatial relationships. This ensures that local geometry and motion are accurately modeled within each attention window, while global positional reasoning is delegated to the linear attention pathway.
+
+
+Expandability through Modular Hybrid Attention. The architectural decoupling in Kairos provides a robust foundation for multi-dimensional expansion:
+
+\begin{itemize}
+
+\item \textbf{Interactive World Modeling:} The Gated Linear Attention (GLA) state matrix $\mathbf{S}_t$ acts as a compressed latent memory. By injecting action-conditioned tokens (e.g., from robotic commands or game inputs) directly into the GLA gating mechanism or the latent state update, Kairos can be seamlessly transformed into an interactive world model. The linear recurrent nature allows for zero-latency inference in closed-loop control.
+
+\item \textbf{Infinite Horizon Generation:} Unlike Softmax-based models constrained by a fixed context window, the SWA and DSWA components maintain a constant memory footprint per step, while the GLA compresses historical context. This enables the model to generate videos of arbitrary length through recurrent state passing, effectively mitigating the "out-of-memory" issues typical of long-video diffusion.
+
+\item \textbf{Cross-Modal Integration:} The modular block design allows for the easy integration of additional modalities (e.g., audio, depth, or semantic maps). These can be treated as additional streams in the hybrid blocks, where local spatial-temporal features are fused via SWA, and global cross-modal alignment is maintained by the GLA pathway.
+
+\end{itemize}
+
+
+\input{sec/architecture_theory}
+
+
+
+

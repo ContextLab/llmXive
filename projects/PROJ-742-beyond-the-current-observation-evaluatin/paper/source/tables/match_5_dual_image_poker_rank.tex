@@ -1,0 +1,26 @@
+\renewcommand{\arraystretch}{1.08}
+\begin{table}[tbp]
+\setlength\tabcolsep{5pt}
+\centering
+\small
+\adjustbox{max width=\columnwidth}{%
+\begin{tabular}{l|cccc|c|c}
+\toprule
+\textbf{Model Name}
+& \textbf{Win\%} & \textbf{W} & \textbf{T} & \textbf{L}
+& \textbf{Score\%}
+& \textbf{ELO} \\
+\midrule
+\modelname{\geminiicon}{Gemini-3.1-Pro} & 100.0 & 16 & 0 & 0 & \matchcellbar{matchpurple}{36.5}{100.0} & 1803 \\
+\modelname{\openaiicon}{GPT-5.4}        & 50.0  & 7  & 2 & 7 & \matchcellbar{matchpurple}{25.3}{100.0} & 1492 \\
+\modelname{\qwenicon}{Qwen3.5-397B}     & 46.7  & 7  & 1 & 8 & \matchcellbar{matchpurple}{18.0}{100.0} & 1476 \\
+\modelname{\kimiicon}{Kimi-K2.5}        & 37.5  & 5  & 2 & 9 & \matchcellbar{matchpurple}{18.0}{100.0} & 1423 \\
+\modelname{\seedicon}{Seed-2.0-Lite}    & 15.6  & 2  & 1 & 13 & \matchcellbar{matchpurple}{12.3}{100.0} & 1306 \\
+\bottomrule
+\end{tabular}
+}
+\caption{\textbf{Main results on Matching Pairs (duel setting)}.
+Each model plays 16 games against the other four, aggregating both player orders over two board seeds.
+}
+\label{tab:match_dual_image_poker_rank}
+\end{table}

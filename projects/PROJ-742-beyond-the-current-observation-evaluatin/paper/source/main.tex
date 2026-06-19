@@ -1,0 +1,174 @@
+\documentclass[]{template}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Packages and macros required by the paper content.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\usepackage{latexsym}
+\usepackage{nicefrac}
+\usepackage{multirow}
+\usepackage{tikz}
+\usepackage{xspace}
+\usepackage{float}
+\usepackage{subcaption}
+\usepackage{wrapfig}
+\usepackage{bm}
+\usepackage{mathtools}
+\usepackage{ragged2e}
+\usepackage{adjustbox}
+
+\newcolumntype{L}{>{\RaggedRight\hangafter=1\hangindent=0em}X}
+
+\setboolean{logo}{true}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=compassblue,
+  citecolor=compassblue,
+  urlcolor=compassblue,
+}
+
+\usepackage[capitalize,noabbrev]{cleveref}
+\crefname{section}{§}{§§}
+\Crefname{section}{§}{§§}
+
+% Benchmark name macro.
+\newcommand{\benchname}{\textsc{RNG-Bench}\xspace}
+
+% Checkmark / cross marks used in comparison tables.
+\newcommand{\cmark}{\textcolor{green!55!black}{\ding{51}}}
+\newcommand{\xmark}{\textcolor{red!70!black}{\ding{55}}}
+\newcommand{\pmark}{\textcolor{orange!80!black}{$\boldsymbol{\sim}$}}
+
+% Keep float-only pages compact.
+\makeatletter
+\setlength{\@fptop}{0pt}
+\setlength{\@fpsep}{8pt plus 2pt minus 2pt}
+\setlength{\@fpbot}{0pt plus 1fil}
+\setlength{\@dblfptop}{0pt}
+\setlength{\@dblfpsep}{8pt plus 2pt minus 2pt}
+\setlength{\@dblfpbot}{0pt plus 1fil}
+\makeatother
+
+% Relax float placement so the many large single-column floats settle near
+% their references instead of accumulating and flushing at \clearpage.
+\setcounter{topnumber}{3}
+\setcounter{bottomnumber}{2}
+\setcounter{totalnumber}{4}
+\renewcommand{\topfraction}{0.92}
+\renewcommand{\bottomfraction}{0.75}
+\renewcommand{\textfraction}{0.07}
+\renewcommand{\floatpagefraction}{0.78}
+
+% Last-resort line-breaking slack so long math/citation runs do not push text
+% past the right margin (avoids overfull \hbox spilling into the margin).
+\setlength{\emergencystretch}{3em}
+
+% Custom TikZ commands for compact model-summary tables.
+\definecolor{matchpurple}{HTML}{8B7CF6}
+\definecolor{matchamber}{HTML}{F59E0B}
+\definecolor{matchgray}{HTML}{B8B8B8}
+\newcommand{\modelname}[2]{#1\hspace{0.45em}#2}
+\newcommand{\matchbar}[3]{%
+  \begin{tikzpicture}[baseline=0.45ex, x=1cm, y=1cm]
+    \def\barmax{1.05}
+    \pgfmathsetmacro{\barwidth}{min(max(#2/#3,0),1)*\barmax}
+    \fill[#1!14, rounded corners=1pt] (0,0) rectangle (\barmax,0.28);
+    \shade[left color=#1!60, right color=#1!18, rounded corners=1pt]
+      (0,0) rectangle ({\barwidth},0.28);
+    \node at ({\barmax/2},0.14) {\fontsize{6.5}{7.5}\selectfont #2};
+  \end{tikzpicture}%
+}
+\newcommand{\matchcellbar}[3]{%
+  \begin{tikzpicture}[baseline=0.45ex, x=1cm, y=1cm]
+    \def\barmax{1.05}
+    \pgfmathsetmacro{\barwidth}{min(max(#2/#3,0),1)*\barmax}
+    \fill[#1!14, rounded corners=1pt] (0,0) rectangle (\barmax,0.28);
+    \shade[left color=#1!62, right color=#1!24, rounded corners=1pt]
+      (0,0) rectangle ({\barwidth},0.28);
+    \node at ({\barmax/2},0.14) {\fontsize{6.5}{7.5}\selectfont #2};
+  \end{tikzpicture}%
+}
+\newcommand{\modelbadge}[2]{%
+  \tikz[baseline=-0.5ex]\node[
+    rounded corners=1.2pt,
+    inner xsep=1.6pt,
+    inner ysep=0.7pt,
+    draw=#1!65,
+    fill=#1!14,
+    text=#1!60!black,
+    font=\fontsize{5.5}{6.5}\selectfont\bfseries
+  ]{#2};%
+}
+\newcommand{\modelicon}[1]{%
+  \makebox[0.42cm][c]{\raisebox{-0.22\height}{\includegraphics[width=0.30cm]{#1}}}%
+}
+\newcommand{\modelpairicon}[2]{%
+  \makebox[0.92cm][c]{#1\hspace{0.06cm}#2}%
+}
+\newcommand{\openaiicon}{\modelicon{figures/logo/openai.png}}
+\newcommand{\geminiicon}{\modelicon{figures/logo/gemini.png}}
+\newcommand{\qwenicon}{\modelicon{figures/logo/qwen.png}}
+\newcommand{\seedicon}{\modelicon{figures/logo/bytedance.png}}
+\newcommand{\kimiicon}{\modelicon{figures/logo/kimi.png}}
+\newcommand{\trainicon}{\modelbadge{matchpurple}{FT}}
+
+\renewcommand{\paragraph}[1]{\vspace{1mm}\noindent\textbf{#1}}
+
+\newcommand\blfootnote[1]{%
+  \begingroup
+  \renewcommand\thefootnote{}\footnote{#1}%
+  \addtocounter{footnote}{-1}%
+  \endgroup
+}
+
+\title{Beyond the Current Observation: Evaluating Multimodal Large Language Models in Controllable Non-Markov Games}
+
+\author[1,2,3]{Shengyuan Ding\textsuperscript{*}}
+\author[1]{Xilin Wei\textsuperscript{*}}
+\author[4]{Xinyu Fang\textsuperscript{*}}
+\author[5]{Haodong Duan\textsuperscript{\textdagger}}
+\author[3,5]{\protect\\ Dahua Lin}
+\author[2]{Jiaqi Wang\textsuperscript{\textdagger}}
+\author[3]{Yuhang Zang\textsuperscript{\textdagger}}
+
+\affil[1]{Fudan University}
+\affil[2]{Shanghai Innovation Institute}
+\affil[3]{Shanghai Artificial Intelligence Laboratory}
+% Force a line break before affiliation 4 so Zhejiang and CUHK sit on the second line.
+\makeatletter\renewcommand\AB@affilsep{,\protect\\\protect\Affilfont}\makeatother
+\affil[4]{Zhejiang University}
+\affil[5]{The Chinese University of Hong Kong}
+
+\input{sections/0.abstract}
+
+\begin{document}
+
+\maketitle
+\blfootnote{\textsuperscript{*}Equal contribution. \textsuperscript{\textdagger}Corresponding authors.}
+
+\input{sections/1.introduction}
+\input{sections/2.related}
+\input{sections/3.methodology}
+\input{sections/4.experiment}
+\input{sections/5.training_strategy}
+\input{sections/6.conclusion}
+
+\section*{Limitations}
+\benchname{} focuses on two environments (Matching Pairs and 3D Maze) chosen for their controllable hidden state; broader coverage of game genres, model families, and visual styles is left to future work. In the image settings, hidden-state tracking is observed through the model's perceptual interface, and the Memory Gap metric is intended as a practical diagnostic under our oracle interface rather than a standalone causal decomposition. Our fine-tuning study is a feasibility demonstration on a single base model family.
+
+\section*{Ethics Statement}
+This work studies hidden-state tracking in controlled game environments. All visual observations are synthetically generated by our code. We do not collect human-subject data or include any personal or sensitive information, and the generated images do not depict real people or real-world copyrighted content.
+
+\bibliographystyle{plainnat}
+\bibliography{refs}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\clearpage
+\appendix
+\input{sections/appendix}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\end{document}

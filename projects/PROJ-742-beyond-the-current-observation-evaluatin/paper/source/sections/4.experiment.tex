@@ -1,0 +1,97 @@
+\section{Experiments}
+\label{sec:experiments}
+\input{tables/main_results}
+\input{tables/match_5_dual_image_poker_rank}
+
+All models are evaluated under a unified harness built on top of VLMEvalKit~\citep{duan2024vlmevalkit}, ensuring identical prompts, parsing, and metric computation across models. We first report main results, followed by diagnostic analyses (hidden-state scale, external memory, observation modality, and action-feedback text) to pinpoint where belief-state tracking degrades. Additional analyses appear in the appendix.
+
+\subsection{Main Results}
+\label{sec:main_results}
+
+\noindent\textbf{Single-player setting.} Tab.~\ref{tab:main_results} reports the main results on both environments. Matching Pairs uses a $10{\times}10$ board (50 pairs) with image observations and the \texttt{noise} card theme. GPT-5.4 leads at 62.3\% with the lowest response cost per matched pair (8.01). Gemini-3.1-Pro follows at 50.0\%, and Qwen3.5-397B reaches 25.3\%. Parse failures (PF\%) and invalid actions (IA\%) stay below 5\% across models, so the gaps are not explained by output-format compliance.
+
+The ranking changes on 3D Maze. We evaluate on $13{\times}13$ mazes with no minimap and a mean optimal path length of 60.0 steps. Gemini-3.1-Pro obtains the highest success rate (50.0\%) and game score (49.7\%), whereas GPT-5.4 reaches 20.0\% SR and 30.5\% GS despite leading on Matching Pairs. Seed-2.0-Lite matches GPT-5.4's SR but trails in GS, while Kimi-K2.5 and Qwen3.5-397B remain lower. This suggests that the two tasks stress different forms of hidden-state tracking: identity retention and pairwise retrieval in Matching Pairs, versus spatial belief updating and route planning in 3D Maze.
+
+
+% \subsection{Duel Mode Results}
+% \label{sec:duel}
+
+\noindent\textbf{Duel setting.} The duel mode is a complementary evaluation for Matching Pairs: two models alternate turns on the same board, and each player's flips expose card identities the opponent can exploit. Unlike the single-player setting, this tests whether a model can track both its own flips and the cards revealed by another model.
+% This isolates whether a model can track \emph{another agent's} history alongside its own, a capability the single-agent setting cannot probe.
+
+% on $8{\times}10$ poker-pattern boards
+Tab.~\ref{tab:match_dual_image_poker_rank} reports head-to-head results across five models. Gemini-3.1-Pro wins all 16 games and tops the Elo ranking. GPT-5.4 and Qwen3.5-397B post similar win rates (50\% and 47\%), but GPT-5.4 averages more matched pairs per game (10.1 vs.\ 7.2) and a slightly higher Elo. Kimi-K2.5~\citep{team2026kimi} wins 38\% of games, while Seed-2.0-Lite~\citep{seed2_lite} wins 16\%.
+%
+% The duel ranking partially differs from the single-player order: GPT-5.4 ranks first in single-player but second in duels, while Gemini rises from second to first. Poker-pattern cards with semantic labels replace noise patterns in the duel, which may favor Gemini's encoding strategy. Combined with the second-mover information advantage, this drives Gemini's average score to 14.6 matched pairs per game versus GPT-5.4's 10.1.
+The duel ranking partially differs from the single-player order. GPT-5.4 drops from first to second and Gemini-3.1-Pro rises from second to first. Because Win rate (\%) in Tab.~\ref{tab:match_dual_image_poker_rank} aggregates over swapped player orders, the shift is unlikely to be a first- or second-mover bias. Instead, Gemini appears better at using card identities revealed by the opponent and converting them into consecutive matching turns. This strategic advantage helps explain its top duel performance and suggests stronger perception and retention of image-based information over long interaction histories.
+
+
+% TODO: Insert duel-only ablations here (text vs.\ image modality, pattern, first/second-mover advantage).
+
+\subsection{Diagnostic Analysis}
+\label{sec:diagnostic_analysis}
+
+% Planned role: organize analysis by research question. Each subsection should
+% state the question, controlled variables, result, and interpretation.
+
+% \subsubsection{RQ1: Hidden-State Scale}
+% \label{sec:diag_scale}
+
+% Does performance degrade when the task rules stay fixed but the hidden state grows? In Matching Pairs, scale varies with board size; in 3D Maze, it varies with maze size and path complexity. Degradation under scale would point to unstable belief-state maintenance rather than misunderstanding of the rules. Fig.~\ref{fig:rq1_scale_sweep} plots both sweeps: Matching Pairs from $4{\times}4$ to $12{\times}14$ on Qwen3.5-397B, and 3D Maze from $5{\times}5$ to $15{\times}15$.
+
+\noindent\textbf{Performance drops sharply as the hidden state grows.} We test whether performance degrades as the hidden state grows while task rules stay fixed. In Matching Pairs, the hidden state scales with board size since the model must retain more card identities and locations; in 3D Maze, it scales with maze size and path complexity, requiring a larger spatial belief state over a longer action history. Fig.~\ref{fig:rq1_scale_sweep} shows a clear scale effect for Qwen3.5-397B in both environments: Matching Pairs Score\% drops from 90.6\% on $4{\times}4$ to 0.7\% on $12{\times}12$, while 3D Maze Game Score peaks at $7{\times}7$ and then declines from $9{\times}9$ onward, reaching 0.197 at $15{\times}15$. The parallel drop in Explore\% indicates that larger mazes degrade not only task success but also state-space coverage. The model can follow the rules at small scale, but its belief-state maintenance becomes unreliable as the latent state grows.
+
+\begin{figure}[tbp]
+\centering
+\begin{minipage}[t]{0.49\textwidth}
+\centering
+\includegraphics[width=\linewidth]{figures/rq1_scale_sweep.pdf}
+\caption{\textbf{Hidden-state scale sweep.} \textit{Left}: Matching Pairs Score\% from $4{\times}4$ to $12{\times}14$. \textit{Right}: 3D Maze Game Score and Explore\% from $5{\times}5$ to $15{\times}15$. Performance \textbf{drops sharply} in both environments as the hidden state grows, pointing to belief-state maintenance rather than rule comprehension as the bottleneck.}
+\label{fig:rq1_scale_sweep}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}
+\centering
+\includegraphics[width=\linewidth]{figures/rq4_external_memory.pdf}
+\caption{\textbf{External-memory intervention.} Matching Pairs and 3D Maze with and without a memory map or minimap. Red arrows show MemGap in Eq.~\ref{eq:memorygap}. External memory doubles Matching Pairs but recovers a smaller share on 3D Maze, indicating spatial navigation couples hidden-state tracking with action planning.}
+\label{fig:rq4_external_memory}
+\end{minipage}
+\end{figure}
+\input{tables/rq2_modality}
+
+% \subsubsection{RQ4: External Scratchpad and Memory Map}
+% \label{sec:diag_external_memory}
+
+% ($8{\times}10$)
+% ($9{\times}9$)
+\noindent\textbf{External memory recovers most of the gap on Matching Pairs but only part of it on 3D Maze.}
+We test whether providing explicit external memory repairs hidden-state tracking. In Matching Pairs the intervention is a memory map of known cards; in 3D Maze it is a minimap with the visited-state summary. Fig.~\ref{fig:rq4_external_memory} reports both, annotated with our MemGap metric (Eq.~\ref{eq:memorygap}), which quantifies the residual deficit after external memory is supplied. On Matching Pairs, Qwen3.5-397B and Kimi-K2.5 roughly double their Score\% with the memory map, yielding MemGap values of 51.3 and 46.1. On 3D Maze the minimap closes a smaller share of the gap (MemGap 40.8 and 30.9). Kimi-K2.5's MemGap is uniformly lower than Qwen3.5-397B's, indicating that external memory helps Kimi-K2.5 less relative to its baseline. These results localize the Matching Pairs bottleneck primarily to hidden-state maintenance, while pointing to additional limitations beyond memory access in 3D Maze.
+
+% \subsubsection{RQ2: Modality}
+% \label{sec:diag_modality}
+
+% ($8{\times}10$)
+% ($9{\times}9$)
+\noindent\textbf{Visual observations, not just memory length, drive the bottleneck.}
+We disentangle visual perception from history-to-state tracking by varying the observation modality while holding the hidden state fixed. Matching Pairs compares symbolic text, ASCII-style image cards, and noise-pattern image cards; 3D Maze compares text-symbolic, 2D local patches, and 3D first-person views. Tab.~\ref{tab:rq2_modality} reports both environments side by side. Both Qwen3.5-397B and Kimi-K2.5 solve Matching Pairs perfectly under text but fall to 38.3\% and 43.3\% under noise-pattern images. The 3D Maze shows the same ordering, with text-symbolic Game Scores far above the 2D patch and 3D scene settings. That text-only configurations remain strong while image settings collapse indicates that visual recognition, not history length alone, limits hidden-state tracking in these models. Per-pair duel results on Matching Pairs are reported in Appendix.~\ref{sec:appendix_ablation}
+
+% Detailed Matching Pairs text--image duel results appear in App.~\ref{sec:appendix_matching_ablations}; the main text focuses the modality analysis on the cross-modal trend rather than listing every pairwise duel.
+
+% \noindent\textbf{Visual-pattern distinctiveness affects Matching Pairs but not 3D Maze.}
+% Do failures arise only from long-horizon memory, or also from unstable visual identity binding? In Matching Pairs we vary card-pattern distinctiveness; in 3D Maze we compare uniform walls against color-tagged walls. Tab.~\ref{tab:rq3_visual_pattern} reports both environments side by side. A strong pattern effect would indicate that hidden-state tracking is coupled with perceptual binding.
+
+% \subsection{Additional Ablations}
+% \label{sec:additional_ablations}
+
+% Beyond the main diagnostic factors, we conduct setting-specific ablations to isolate prompt and feedback effects. Matching Pairs ablations cover action visibility, no-action feedback, and CoT prompting variants; 3D Maze ablations cover minimap, ask-output, and Markovian-control settings. Full results appear in App.~\ref{sec:appendix_ablation}; these ablations check robustness but do not replace the main conclusion that performance is limited by unreliable hidden-state tracking under long interaction histories.
+
+\noindent\textbf{Removing the action-feedback text collapses Matching Pairs to near-chance.}\label{sec:diag_action_feedback}
+We test whether the model's own action history is necessary when the rendered board already carries every visual change. Tab.~\ref{tab:ablation_action_feedback} strips the model's previous actions from the conversation history on Matching Pairs (image-noise), keeping only the sequence of board images; the model must re-infer which cells it flipped from the visual diff between consecutive boards. The effect is consistent across a leading closed-source and a leading open-source model: GPT-5.4's Score\% falls by roughly 75\% on both $8{\times}10$ and $10{\times}10$ (69.6$\to$15.0, 62.3$\to$15.3), and Qwen3.5-397B falls by about 70--75\% from a lower base. Parse failures and invalid actions remain at zero, so the collapse is not an output-format issue. Board images are in principle sufficient to recover each flip, yet neither model can close the loop from observation to belief update without an explicit textual record of its own actions. The action trace functions as a load-bearing channel for belief-state tracking rather than redundant decoration.
+
+\begin{table}[tbp]
+\centering
+\input{tables/ablation_action_feedback}\hfill
+\input{tables/SFT_Match_Maze}
+\end{table}
+
+\noindent\textbf{More Analysis.} Additional ablations covering text-vs.-image duel observations, visual-pattern distinctiveness, the 3D Maze minimap, ask-output map externalization, and bounded-history (Markov-control) settings, together with trajectory visualizations, appear in Appendix~\ref{sec:appendix_ablation}.
+% They check robustness but do not change the main conclusion that performance is limited by unreliable hidden-state tracking under long interaction histories.

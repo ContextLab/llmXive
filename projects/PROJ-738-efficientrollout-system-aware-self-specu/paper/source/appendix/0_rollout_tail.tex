@@ -1,0 +1,50 @@
+\section{Extended Analysis of Shrinking-Batch Dynamics}
+\label{app:long_tail_analysis}
+
+\begin{figure}[t]
+    \centering
+
+    \begin{subfigure}[t]{0.32\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/appendix_rollout_llama_completion.pdf}
+        \caption{}
+        \label{fig:rollout_llama_bottleneck_completion}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.32\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/appendix_rollout_qwen_step_time.pdf}
+        \caption{}
+        \label{fig:rollout_qwen_bottleneck_step}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.32\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/appendix_rollout_qwen_completion.pdf}
+        \caption{}
+        \label{fig:rollout_qwen_bottleneck_completion}
+    \end{subfigure}
+    \caption{
+    Extended rollout-tail analysis.
+    (a) Cumulative request-completion curve for Llama3.1-8B-Instruct at the first step of the second epoch; the corresponding step-time decomposition is shown in \cref{fig:rollout_llama_bottleneck_step}.
+    (b) Step-time decomposition over the first 20 training steps for Qwen2.5-7B.
+    (c) Cumulative request-completion curve for Qwen2.5-7B at the first step of the second epoch.
+    }
+    \label{fig:rollout_bottleneck_appendix}
+\end{figure}
+
+\Cref{fig:rollout_bottleneck_appendix} provides additional evidence that rollout generation remains the dominant bottleneck and exhibits a long-tail completion pattern across models.
+For Qwen2.5-7B, \cref{fig:rollout_qwen_bottleneck_step} shows the step-time decomposition over the first 20 training steps.
+Although the total step time is shorter than that of Llama3.1-8B-Instruct, rollout is still the largest component.
+Across the first 20 steps, rollout accounts for 58.0--71.4\% of the measured four-phase step time, with a mean of 64.3\%.
+This confirms that rollout generation is the primary systems bottleneck for Qwen2.5-7B as well.
+
+The completion curves show why rollout dominates wall-clock time.
+For Llama3.1-8B-Instruct, \cref{fig:rollout_llama_bottleneck_completion} shows a pronounced long tail at the first step of the second epoch.
+Roughly 50\% of requests finish within 10\,s, 90\% within 16\,s, and 99\% within 30\,s, but the final request completes only after about 123\,s.
+Thus, a small number of long generations determine the rollout makespan.
+Qwen2.5-7B exhibits the same mechanism, although with a milder tail.
+As shown in \cref{fig:rollout_qwen_bottleneck_completion}, about 50\% of requests finish within 13\,s, 90\% within 22\,s, and 99\% within 30\,s, while the total rollout makespan is about 88\,s.
+Compared with Llama3.1-8B-Instruct, the Qwen tail is shorter, but the final few requests still dominate the end of rollout generation.
+Once most requests have completed, the active batch size sharply decreases, leaving a shrinking-batch tail where direct acceleration of the remaining decode steps is most valuable.
+

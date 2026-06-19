@@ -1,0 +1,512 @@
+\begin{thebibliography}{100}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Ai et~al.(2025)Ai, Tang, Wang, Long, Su, and Liu]{ai2025memorybench}
+Qingyao Ai, Yichen Tang, Changyue Wang, Jianming Long, Weihang Su, and Yiqun Liu.
+\newblock Memorybench: A benchmark for memory and continual learning in llm systems.
+\newblock \emph{arXiv preprint arXiv:2510.17281}, 2025.
+
+\bibitem[Alayrac et~al.(2022)Alayrac, Donahue, Luc, Miech, Barr, Hasson, Lenc, Mensch, Millican, Reynolds, et~al.]{alayrac2022flamingo}
+Jean-Baptiste Alayrac, Jeff Donahue, Pauline Luc, Antoine Miech, Iain Barr, Yana Hasson, Karel Lenc, Arthur Mensch, Katherine Millican, Malcolm Reynolds, et~al.
+\newblock Flamingo: a visual language model for few-shot learning.
+\newblock \emph{Advances in Neural Information Processing Systems}, 35:\penalty0 23716--23736, 2022.
+
+\bibitem[An et~al.(2024)An, Gong, Zhong, Zhao, Li, Zhang, Kong, and Qiu]{an2024leval}
+Chenxin An, Shansan Gong, Ming Zhong, Xingjian Zhao, Mukai Li, Jun Zhang, Lingpeng Kong, and Xipeng Qiu.
+\newblock L-eval: Instituting standardized evaluation for long context language models.
+\newblock In \emph{Proceedings of the 62nd Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers)}, pages 14388--14411, 2024.
+
+\bibitem[Bai et~al.(2024)Bai, Lv, Zhang, Lyu, Tang, Huang, Du, Liu, Zeng, Hou, Dong, Tang, and Li]{bai2023longbench}
+Yushi Bai, Xin Lv, Jiajie Zhang, Hongchang Lyu, Jiankai Tang, Zhidian Huang, Zhengxiao Du, Xiao Liu, Aohan Zeng, Lei Hou, Yuxiao Dong, Jie Tang, and Juanzi Li.
+\newblock Longbench: A bilingual, multitask benchmark for long context understanding.
+\newblock In \emph{Proceedings of the 62nd Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers)}, pages 3119--3137, 2024.
+
+\bibitem[Bai et~al.(2025)Bai, Tu, Zhang, Peng, Wang, Lv, Cao, Xu, Hou, Dong, Tang, and Li]{bai2025longbenchv2}
+Yushi Bai, Shangqing Tu, Jiajie Zhang, Hao Peng, Xiaozhi Wang, Xin Lv, Shulin Cao, Jiazheng Xu, Lei Hou, Yuxiao Dong, Jie Tang, and Juanzi Li.
+\newblock Longbench v2: Towards deeper understanding and reasoning on realistic long-context multitasks.
+\newblock In \emph{Proceedings of the 63rd Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers)}, pages 3509--3532, 2025.
+
+\bibitem[Bajaj et~al.(2016)Bajaj, Campos, Craswell, Deng, Gao, Liu, Majumder, McNamara, Mitra, Nguyen, et~al.]{nguyen2016msmarco}
+Payal Bajaj, Daniel Campos, Nick Craswell, Li~Deng, Jianfeng Gao, Xiaodong Liu, Rangan Majumder, Andrew McNamara, Bhaskar Mitra, Tri Nguyen, et~al.
+\newblock Ms marco: A human generated machine reading comprehension dataset.
+\newblock \emph{arXiv preprint arXiv:1611.09268}, 2016.
+
+\bibitem[{ByteDance Seed}(2026)]{seed2_lite}
+{ByteDance Seed}.
+\newblock {Seed-2.0-Lite-260428}: Omni-modal understanding across video, image, audio, and text, April 2026.
+\newblock URL \url{https://seed.bytedance.com/en/seed2}.
+
+\bibitem[Chalamalasetti et~al.(2023)Chalamalasetti, G{\"o}tze, Hakimov, Madureira, Sadler, and Schlangen]{chalamalasetti2023clembench}
+Kranti Chalamalasetti, Jana G{\"o}tze, Sherzod Hakimov, Brielen Madureira, Philipp Sadler, and David Schlangen.
+\newblock clembench: Using game play to evaluate chat-optimized language models as conversational agents.
+\newblock In \emph{Proceedings of the 2023 conference on empirical methods in natural language processing}, pages 11174--11219, 2023.
+
+\bibitem[Chen et~al.(2024{\natexlab{a}})Chen, Xu, Kirmani, Ichter, Sadigh, Guibas, and Xia]{chen2024spatialvlm}
+Boyuan Chen, Zhuo Xu, Sean Kirmani, Brian Ichter, Dorsa Sadigh, Leonidas Guibas, and Fei Xia.
+\newblock {SpatialVLM}: Endowing vision-language models with spatial reasoning capabilities.
+\newblock In \emph{Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)}, 2024{\natexlab{a}}.
+
+\bibitem[Chen et~al.(2024{\natexlab{b}})Chen, Wei, Li, Dong, Zhang, Zang, Chen, Duan, Lin, Tang, Yuan, Qiao, Lin, Zhao, and Wang]{wxl_chen2024sharegpt4video}
+Lin Chen, Xilin Wei, Jinsong Li, Xiaoyi Dong, Pan Zhang, Yuhang Zang, Zehui Chen, Haodong Duan, Bin Lin, Zhenyu Tang, Li~Yuan, Yu~Qiao, Dahua Lin, Feng Zhao, and Jiaqi Wang.
+\newblock {ShareGPT4Video}: Improving video understanding and generation with better captions.
+\newblock \emph{Advances in Neural Information Processing Systems}, 37:\penalty0 19472--19495, 2024{\natexlab{b}}.
+
+\bibitem[Chen et~al.(2025)Chen, Liu, Shen, Li, Huang, Fang, Zheng, Huang, Yang, Fu, et~al.]{chen2025iwr}
+Yang Chen, Minghao Liu, Yufan Shen, Yunwen Li, Tianyuan Huang, Xinyu Fang, Tianyu Zheng, Wenxuan Huang, Cheng Yang, Daocheng Fu, et~al.
+\newblock Iwr-bench: Can lvlms reconstruct interactive webpage from a user interaction video?
+\newblock \emph{arXiv preprint arXiv:2509.24709}, 2025.
+
+\bibitem[Costarelli et~al.(2024)Costarelli, Allen, Hauksson, Sodunke, Hariharan, Cheng, Li, and Yadav]{costarelli2024gamebench}
+Anthony Costarelli, Mat Allen, Roman Hauksson, Grace Sodunke, Suhas Hariharan, Carlson Cheng, Wenjie Li, and Arjun Yadav.
+\newblock Gamebench: Evaluating strategic reasoning abilities of llm agents.
+\newblock \emph{arXiv preprint arXiv:2406.06613}, 2024.
+
+\bibitem[Dai et~al.(2026)Dai, Zhou, Xing, Bu, Wei, Liu, Zhang, Chen, and Zang]{wxl_dai2026endocot}
+Xuanlang Dai, Yujie Zhou, Long Xing, Jiazi Bu, Xilin Wei, Yuhong Liu, Beichen Zhang, Kai Chen, and Yuhang Zang.
+\newblock {EndoCoT}: Scaling endogenous chain-of-thought reasoning in diffusion models.
+\newblock \emph{arXiv preprint arXiv:2603.12252}, 2026.
+
+\bibitem[Deng et~al.(2023)Deng, Gu, Zheng, Chen, Stevens, Wang, Sun, and Su]{deng2024mind2web}
+Xiang Deng, Yu~Gu, Boyuan Zheng, Shijie Chen, Samuel Stevens, Boshi Wang, Huan Sun, and Yu~Su.
+\newblock Mind2web: Towards a generalist agent for the web.
+\newblock \emph{Advances in Neural Information Processing Systems}, 36, 2023.
+
+\bibitem[Ding et~al.(2025)Ding, Wu, Zhao, Zang, Duan, Dong, Zhang, Cao, Lin, and Wang]{ding2025mmifengine}
+Shengyuan Ding, Shenxi Wu, Xiangyu Zhao, Yuhang Zang, Haodong Duan, Xiaoyi Dong, Pan Zhang, Yuhang Cao, Dahua Lin, and Jiaqi Wang.
+\newblock {MM-IFEngine}: Towards multimodal instruction following.
+\newblock In \emph{Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV)}, 2025.
+
+\bibitem[Ding et~al.(2026{\natexlab{a}})Ding, Fang, Liu, Zang, Cao, Zhao, Duan, Dong, Liang, et~al.]{ding2026armthinker}
+Shengyuan Ding, Xinyu Fang, Ziyu Liu, Yuhang Zang, Yuhang Cao, Xiangyu Zhao, Haodong Duan, Xiaoyi Dong, Jiaqi Liang, et~al.
+\newblock {ARM-Thinker}: Reinforcing multimodal generative reward models with agentic tool use and visual reasoning.
+\newblock In \emph{Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)}, 2026{\natexlab{a}}.
+
+\bibitem[Ding et~al.(2026{\natexlab{b}})Ding, Dai, Xing, Ding, Liu, JingYi, Yang, Zhang, Wei, Fang, et~al.]{wxl_ding2026wildclawbench}
+Shuangrui Ding, Xuanlang Dai, Long Xing, Shengyuan Ding, Ziyu Liu, Yang JingYi, Penghui Yang, Zhixiong Zhang, Xilin Wei, Xinyu Fang, et~al.
+\newblock {WildClawBench}: A benchmark for real-world, long-horizon agent evaluation.
+\newblock \emph{arXiv preprint arXiv:2605.10912}, 2026{\natexlab{b}}.
+
+\bibitem[Dong et~al.(2024)Dong, Zhang, Zang, Cao, Wang, Ouyang, Wei, Zhang, Duan, Cao, Zhang, Li, Yan, Gao, Zhang, Li, Li, Chen, He, Zhang, Qiao, Lin, and Wang]{wxl_dong2024internlmxcomposer2}
+Xiaoyi Dong, Pan Zhang, Yuhang Zang, Yuhang Cao, Bin Wang, Linke Ouyang, Xilin Wei, Songyang Zhang, Haodong Duan, Maosong Cao, Wenwei Zhang, Yining Li, Hang Yan, Yang Gao, Xinyue Zhang, Wei Li, Jingwen Li, Kai Chen, Conghui He, Xingcheng Zhang, Yu~Qiao, Dahua Lin, and Jiaqi Wang.
+\newblock {InternLM-XComposer2}: Mastering free-form text-image composition and comprehension in vision-language large model.
+\newblock \emph{arXiv preprint arXiv:2401.16420}, 2024.
+
+\bibitem[Duan et~al.(2024{\natexlab{a}})Duan, Fang, Yang, Zhao, Qiao, Li, Agarwal, Chen, Chen, Liu, Ma, Sun, Zhang, Lu, Wong, Wang, Zhou, Li, Fu, Cui, Chen, Song, Mao, Ding, Liang, Zhang, Dong, Zang, Zhang, Wang, Lin, and Chen]{duan2024vlmevalkit}
+Haodong Duan, Xinyu Fang, Junming Yang, Xiangyu Zhao, Yuxuan Qiao, Mo~Li, Amit Agarwal, Zhe Chen, Lin Chen, Yuan Liu, Yubo Ma, Hailong Sun, Yifan Zhang, Shiyin Lu, Tack~Hwa Wong, Weiyun Wang, Peiheng Zhou, Xiaozhe Li, Chaoyou Fu, Junbo Cui, Jixuan Chen, Enxin Song, Song Mao, Shengyuan Ding, Tianhao Liang, Zicheng Zhang, Xiaoyi Dong, Yuhang Zang, Pan Zhang, Jiaqi Wang, Dahua Lin, and Kai Chen.
+\newblock {VLMEvalKit}: An open-source toolkit for evaluating large multi-modality models.
+\newblock In \emph{Proceedings of the 32nd ACM International Conference on Multimedia}, pages 11198--11201, 2024{\natexlab{a}}.
+
+\bibitem[Duan et~al.(2024{\natexlab{b}})Duan, Zhang, Diffenderfer, Kailkhura, Sun, Stengel-Eskin, Bansal, Chen, and Xu]{duan2024gtbench}
+Jinhao Duan, Renming Zhang, James Diffenderfer, Bhavya Kailkhura, Lichao Sun, Elias Stengel-Eskin, Mohit Bansal, Tianlong Chen, and Kaidi Xu.
+\newblock {GTBench}: Uncovering the strategic reasoning limitations of {LLMs} via game-theoretic evaluations.
+\newblock \emph{arXiv preprint arXiv:2402.12348}, 2024{\natexlab{b}}.
+
+\bibitem[Fang et~al.(2024)Fang, Mao, Duan, Zhao, Li, Lin, and Chen]{fang2024mmbench}
+Xinyu Fang, Kangrui Mao, Haodong Duan, Xiangyu Zhao, Yining Li, Dahua Lin, and Kai Chen.
+\newblock Mmbench-video: A long-form multi-shot benchmark for holistic video understanding.
+\newblock \emph{Advances in Neural Information Processing Systems}, 37:\penalty0 89098--89124, 2024.
+
+\bibitem[Fang et~al.(2025)Fang, Chen, Lan, Ma, Ding, Liang, Zhao, Wen, Zhang, Zhang, Duan, Chen, and Lin]{creation_2025_ICCV}
+Xinyu Fang, Zhijian Chen, Kai Lan, Lixin Ma, Shengyuan Ding, Yingji Liang, Xiangyu Zhao, Farong Wen, Zicheng Zhang, Guofeng Zhang, Haodong Duan, Kai Chen, and Dahua Lin.
+\newblock Creation-mmbench: Assessing context-aware creative intelligence in mllms.
+\newblock In \emph{Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV)}, pages 447--456, October 2025.
+
+\bibitem[{Google DeepMind}(2026)]{gemini3.1pro}
+{Google DeepMind}.
+\newblock {Gemini 3.1 Pro} model card, February 2026.
+\newblock URL \url{https://deepmind.google/models/model-cards/gemini-3-1-pro/}.
+
+\bibitem[Guertler et~al.(2025)Guertler, Cheng, Yu, Liu, Choshen, and Tan]{guertler2025textarena}
+Leon Guertler, Bobby Cheng, Simon Yu, Bo~Liu, Leshem Choshen, and Cheston Tan.
+\newblock {TextArena}.
+\newblock \emph{arXiv preprint arXiv:2504.11442}, 2025.
+
+\bibitem[Guo et~al.(2025)Guo, Yang, Zhang, et~al.]{deepseekai2025r1}
+Daya Guo, Dejian Yang, Haowei Zhang, et~al.
+\newblock {DeepSeek-R1}: Incentivizing reasoning capability in {LLMs} via reinforcement learning.
+\newblock \emph{arXiv preprint arXiv:2501.12948}, 2025.
+
+\bibitem[Hsieh et~al.(2024)Hsieh, Sun, Kriman, Acharya, Rekesh, Jia, Zhang, and Ginsburg]{hsieh2024ruler}
+Cheng-Ping Hsieh, Simeng Sun, Samuel Kriman, Shantanu Acharya, Dima Rekesh, Fei Jia, Yang Zhang, and Boris Ginsburg.
+\newblock Ruler: What's the real context size of your long-context language models?
+\newblock \emph{arXiv preprint arXiv:2404.06654}, 2024.
+
+\bibitem[Hu et~al.(2025{\natexlab{a}})Hu, Huo, Zhang, Yu, Xing, Stoica, Rosing, Jin, and Zhang]{hu2025lmgamebench}
+Lanxiang Hu, Mingjia Huo, Yuxuan Zhang, Haoyang Yu, Eric~P Xing, Ion Stoica, Tajana Rosing, Haojian Jin, and Hao Zhang.
+\newblock lmgame-bench: How good are llms at playing games?
+\newblock \emph{arXiv preprint arXiv:2505.15146}, 2025{\natexlab{a}}.
+
+\bibitem[Hu et~al.(2025{\natexlab{b}})Hu, Wang, and McAuley]{hu2025memoryagentbench}
+Yuanzhe Hu, Yu~Wang, and Julian McAuley.
+\newblock Evaluating memory in llm agents via incremental multi-turn interactions.
+\newblock \emph{arXiv preprint arXiv:2507.05257}, 2025{\natexlab{b}}.
+
+\bibitem[Hu et~al.(2024)Hu, Shi, Fu, Roth, Ostendorf, Zettlemoyer, Smith, and Krishna]{hu2024visualsketchpad}
+Yushi Hu, Weijia Shi, Xingyu Fu, Dan Roth, Mari Ostendorf, Luke Zettlemoyer, Noah~A. Smith, and Ranjay Krishna.
+\newblock Visual sketchpad: Sketching as a visual chain of thought for multimodal language models.
+\newblock In \emph{Advances in Neural Information Processing Systems (NeurIPS)}, 2024.
+
+\bibitem[Joshi et~al.(2017)Joshi, Choi, Weld, and Zettlemoyer]{joshi2017triviaqa}
+Mandar Joshi, Eunsol Choi, Daniel Weld, and Luke Zettlemoyer.
+\newblock Triviaqa: A large scale distantly supervised challenge dataset for reading comprehension.
+\newblock In \emph{Proceedings of the 55th Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers)}, pages 1601--1611, 2017.
+
+\bibitem[Kaelbling et~al.(1998)Kaelbling, Littman, and Cassandra]{kaelbling1998planning}
+Leslie~Pack Kaelbling, Michael~L. Littman, and Anthony~R. Cassandra.
+\newblock Planning and acting in partially observable stochastic domains.
+\newblock \emph{Artificial Intelligence}, 101\penalty0 (1--2):\penalty0 99--134, 1998.
+
+\bibitem[Kojima et~al.(2022)Kojima, Gu, Reid, Matsuo, and Iwasawa]{kojima2022large}
+Takeshi Kojima, Shixiang~Shane Gu, Machel Reid, Yutaka Matsuo, and Yusuke Iwasawa.
+\newblock Large language models are zero-shot reasoners.
+\newblock In \emph{Advances in Neural Information Processing Systems}, volume~35, pages 22199--22213, 2022.
+
+\bibitem[Kwan et~al.(2024)Kwan, Zeng, Wang, Sun, Li, Jiang, Shang, Liu, and Wong]{kwan2024m4le}
+Wai-Chung Kwan, Xingshan Zeng, Yufei Wang, Yusen Sun, Liangyou Li, Yuxin Jiang, Lifeng Shang, Qun Liu, and Kam-Fai Wong.
+\newblock M4le: A multi-ability multi-range multi-task multi-domain long-context evaluation benchmark for large language models.
+\newblock In \emph{Proceedings of the 62nd Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers)}, pages 15568--15592, 2024.
+
+\bibitem[Kwiatkowski et~al.(2019)Kwiatkowski, Palomaki, Redfield, Collins, Parikh, Alberti, Epstein, Polosukhin, Kelcey, Devlin, Lee, Toutanova, Jones, Chang, Dai, Uszkoreit, Le, and Petrov]{kwiatkowski2019naturalquestions}
+Tom Kwiatkowski, Jennimaria Palomaki, Olivia Redfield, Michael Collins, Ankur Parikh, Chris Alberti, Danielle Epstein, Illia Polosukhin, Matthew Kelcey, Jacob Devlin, Kenton Lee, Kristina~N. Toutanova, Llion Jones, Ming-Wei Chang, Andrew Dai, Jakob Uszkoreit, Quoc Le, and Slav Petrov.
+\newblock Natural questions: A benchmark for question answering research.
+\newblock \emph{Transactions of the Association for Computational Linguistics}, 7:\penalty0 453--466, 2019.
+
+\bibitem[Li et~al.(2025{\natexlab{a}})Li, Dong, Zang, Cao, Wang, and Lin]{li2025beyond}
+Jinsong Li, Xiaoyi Dong, Yuhang Zang, Yuhang Cao, Jiaqi Wang, and Dahua Lin.
+\newblock Beyond fixed: Training-free variable-length denoising for diffusion large language models.
+\newblock \emph{arXiv preprint arXiv:2508.00819}, 2025{\natexlab{a}}.
+
+\bibitem[Li et~al.(2026{\natexlab{a}})Li, Dong, Zang, Cao, Wang, and Lin]{li2026visualselfrefine}
+Jinsong Li, Xiaoyi Dong, Yuhang Zang, Yuhang Cao, Jiaqi Wang, and Dahua Lin.
+\newblock Visual self-refine: A pixel-guided paradigm for accurate chart parsing.
+\newblock \emph{arXiv preprint arXiv:2602.16455}, 2026{\natexlab{a}}.
+
+\bibitem[Li et~al.(2023)Li, He, Wang, Li, Wang, Luo, Wang, Wang, and Qiao]{li2023videochat}
+KunChang Li, Yinan He, Yi~Wang, Yizhuo Li, Wenhai Wang, Ping Luo, Yali Wang, Limin Wang, and Yu~Qiao.
+\newblock {VideoChat}: Chat-centric video understanding.
+\newblock \emph{arXiv preprint arXiv:2305.06355}, 2023.
+
+\bibitem[Li et~al.(2025{\natexlab{b}})Li, Chen, Fang, Ding, Duan, Liu, and Chen]{li2025optbench}
+Xiaozhe Li, Jixuan Chen, Xinyu Fang, Shengyuan Ding, Haodong Duan, Qingwen Liu, and Kai Chen.
+\newblock {OPT-Bench}: Evaluating {LLM} agent on large-scale search spaces optimization problems.
+\newblock \emph{arXiv preprint arXiv:2506.10764}, 2025{\natexlab{b}}.
+
+\bibitem[Li et~al.(2025{\natexlab{c}})Li, Fang, Ding, Li, Duan, Liu, and Chen]{li2025npengine}
+Xiaozhe Li, Xinyu Fang, Shengyuan Ding, Linyang Li, Haodong Duan, Qingwen Liu, and Kai Chen.
+\newblock {NP-Engine}: Empowering optimization reasoning in large language models with verifiable synthetic {NP} problems.
+\newblock \emph{arXiv preprint arXiv:2510.16476}, 2025{\natexlab{c}}.
+
+\bibitem[Li et~al.(2026{\natexlab{b}})Li, Zhu, Liu, Ma, Zang, Cao, and Sun]{li2026emembench}
+Xinze Li, Ziyue Zhu, Siyuan Liu, Yubo Ma, Yuhang Zang, Yixin Cao, and Aixin Sun.
+\newblock Emembench: Interactive benchmarking of episodic memory for vlm agents.
+\newblock \emph{arXiv preprint arXiv:2601.16690}, 2026{\natexlab{b}}.
+
+\bibitem[Light et~al.(2023)Light, Cai, Shen, and Hu]{light2023avalonbench}
+Jonathan Light, Min Cai, Sheng Shen, and Ziniu Hu.
+\newblock {AvalonBench}: Evaluating {LLMs} playing the game of {Avalon}.
+\newblock \emph{arXiv preprint arXiv:2310.05036}, 2023.
+
+\bibitem[Liu et~al.(2023)Liu, Li, Wu, and Lee]{liu2023llava}
+Haotian Liu, Chunyuan Li, Qingyang Wu, and Yong~Jae Lee.
+\newblock Visual instruction tuning.
+\newblock In \emph{Advances in Neural Information Processing Systems}, volume~36, 2023.
+
+\bibitem[Liu et~al.(2024{\natexlab{a}})Liu, Lin, Hewitt, Paranjape, Bevilacqua, Petroni, and Liang]{liu2024lostmiddle}
+Nelson~F. Liu, Kevin Lin, John Hewitt, Ashwin Paranjape, Michele Bevilacqua, Fabio Petroni, and Percy Liang.
+\newblock Lost in the middle: How language models use long contexts.
+\newblock \emph{Transactions of the Association for Computational Linguistics}, 12:\penalty0 157--173, 2024{\natexlab{a}}.
+
+\bibitem[Liu et~al.(2024{\natexlab{b}})Liu, Yu, Zhang, Xu, Lei, Lai, Gu, Ding, Men, Yang, Zhang, Deng, Zeng, Du, Zhang, Shen, Zhang, Su, Sun, Huang, Dong, and Tang]{liu2023agentbench}
+Xiao Liu, Hao Yu, Hanchen Zhang, Yifan Xu, Xuanyu Lei, Hanyu Lai, Yu~Gu, Hangliang Ding, Kaiwen Men, Kejuan Yang, Shudan Zhang, Xiang Deng, Aohan Zeng, Zhengxiao Du, Chenhui Zhang, Sheng Shen, Tianjun Zhang, Yu~Su, Huan Sun, Minlie Huang, Yuxiao Dong, and Jie Tang.
+\newblock Agentbench: Evaluating llms as agents.
+\newblock In \emph{International Conference on Learning Representations}, 2024{\natexlab{b}}.
+
+\bibitem[Liu et~al.(2026{\natexlab{a}})Liu, Zhang, Zang, Cao, Xing, Dong, Duan, Lin, and Wang]{liu2026spatialssrl}
+Yuhong Liu, Beichen Zhang, Yuhang Zang, Yuhang Cao, Long Xing, Xiaoyi Dong, Haodong Duan, Dahua Lin, and Jiaqi Wang.
+\newblock {Spatial-SSRL}: Enhancing spatial understanding via self-supervised reinforcement learning.
+\newblock In \emph{Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)}, 2026{\natexlab{a}}.
+
+\bibitem[Liu et~al.(2026{\natexlab{b}})Liu, Niu, Xiao, Zheng, Yuan, Zang, Cao, Dong, Liang, Chen, Sun, Lin, and Wang]{liu2026starbench}
+Zihan Liu, Zhikang Niu, Qiuyang Xiao, Zhisheng Zheng, Ruoqi Yuan, Yuhang Zang, Yuhang Cao, Xiaoyi Dong, Jianze Liang, Xie Chen, Leilei Sun, Dahua Lin, and Jiaqi Wang.
+\newblock {STAR-Bench}: Probing deep spatio-temporal reasoning as audio 4d intelligence.
+\newblock In \emph{International Conference on Learning Representations (ICLR)}, 2026{\natexlab{b}}.
+
+\bibitem[Liu et~al.(2024{\natexlab{c}})Liu, Chu, Zang, Wei, Dong, Zhang, Liang, Xiong, Qiao, Lin, and Wang]{wxl_liu2024mmdu}
+Ziyu Liu, Tao Chu, Yuhang Zang, Xilin Wei, Xiaoyi Dong, Pan Zhang, Zijian Liang, Yuanjun Xiong, Yu~Qiao, Dahua Lin, and Jiaqi Wang.
+\newblock {MMDU}: A multi-turn multi-image dialog understanding benchmark and instruction-tuning dataset for {LVLMs}.
+\newblock \emph{Advances in Neural Information Processing Systems}, 37:\penalty0 8698--8733, 2024{\natexlab{c}}.
+
+\bibitem[Liu et~al.(2025{\natexlab{a}})Liu, Sun, Zang, Dong, Cao, Duan, Lin, and Wang]{liu2025visualrft}
+Ziyu Liu, Zeyi Sun, Yuhang Zang, Xiaoyi Dong, Yuhang Cao, Haodong Duan, Dahua Lin, and Jiaqi Wang.
+\newblock {Visual-RFT}: Visual reinforcement fine-tuning.
+\newblock In \emph{Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV)}, pages 2034--2044, 2025{\natexlab{a}}.
+
+\bibitem[Liu et~al.(2025{\natexlab{b}})Liu, Zang, Ding, Cao, Dong, Duan, Lin, and Wang]{liu2025spark}
+Ziyu Liu, Yuhang Zang, Shengyuan Ding, Yuhang Cao, Xiaoyi Dong, Haodong Duan, Dahua Lin, and Jiaqi Wang.
+\newblock {SPARK}: Synergistic policy and reward co-evolving framework.
+\newblock \emph{arXiv preprint arXiv:2509.22624}, 2025{\natexlab{b}}.
+
+\bibitem[Liu et~al.(2025{\natexlab{c}})Liu, Zang, Dong, Zhang, Cao, Duan, He, Xiong, Lin, and Wang]{liu2025miadpo}
+Ziyu Liu, Yuhang Zang, Xiaoyi Dong, Pan Zhang, Yuhang Cao, Haodong Duan, Conghui He, Yuanjun Xiong, Dahua Lin, and Jiaqi Wang.
+\newblock {MIA-DPO}: Multi-image augmented direct preference optimization for large vision-language models.
+\newblock In \emph{International Conference on Learning Representations (ICLR)}, 2025{\natexlab{c}}.
+
+\bibitem[Liu et~al.(2026{\natexlab{c}})Liu, Ding, Fang, Dai, Yang, Liang, Wang, Chen, Lin, and Zang]{liu2026visualerm}
+Ziyu Liu, Shengyuan Ding, Xinyu Fang, Xuanlang Dai, Penghui Yang, Jianze Liang, Jiaqi Wang, Kai Chen, Dahua Lin, and Yuhang Zang.
+\newblock {Visual-ERM}: Reward modeling for visual equivalence.
+\newblock \emph{arXiv preprint arXiv:2603.13224}, 2026{\natexlab{c}}.
+
+\bibitem[Ma et~al.(2024)Ma, Zang, Chen, Chen, Jiao, Li, Lu, Liu, Ma, Dong, et~al.]{ma2024mmlongbench}
+Yubo Ma, Yuhang Zang, Liangyu Chen, Meiqi Chen, Yizhu Jiao, Xinze Li, Xinyuan Lu, Ziyu Liu, Yan Ma, Xiaoyi Dong, et~al.
+\newblock Mmlongbench-doc: Benchmarking long-context document understanding with visualizations.
+\newblock \emph{Advances in Neural Information Processing Systems}, 37:\penalty0 95963--96010, 2024.
+
+\bibitem[Maharana et~al.(2024)Maharana, Lee, Tulyakov, Bansal, Barbieri, and Fang]{maharana2024locomo}
+Adyasha Maharana, Dong-Ho Lee, Sergey Tulyakov, Mohit Bansal, Francesco Barbieri, and Yuwei Fang.
+\newblock Evaluating very long-term conversational memory of llm agents.
+\newblock In \emph{Proceedings of the 62nd Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers)}, pages 13851--13870, 2024.
+
+\bibitem[Modarressi et~al.(2025)Modarressi, Deilamsalehy, Dernoncourt, Bui, Rossi, Yoon, and Sch{\"u}tze]{modarressi2025nolima}
+Ali Modarressi, Hanieh Deilamsalehy, Franck Dernoncourt, Trung Bui, Ryan~A. Rossi, Seunghyun Yoon, and Hinrich Sch{\"u}tze.
+\newblock Nolima: Long-context evaluation beyond literal matching.
+\newblock In \emph{International Conference on Machine Learning}, 2025.
+
+\bibitem[Nie et~al.(2025)Nie, Zhu, You, et~al.]{nie2025llada}
+Shen Nie, Fengqi Zhu, Zebin You, et~al.
+\newblock Large language diffusion models.
+\newblock \emph{arXiv preprint arXiv:2502.09992}, 2025.
+
+\bibitem[Nye et~al.(2021)Nye, Andreassen, Gur-Ari, Michalewski, Austin, Bieber, Dohan, Lewkowycz, Bosma, Luan, Sutton, and Odena]{nye2021show}
+Maxwell Nye, Anders~Johan Andreassen, Guy Gur-Ari, Henryk Michalewski, Jacob Austin, David Bieber, David Dohan, Aitor Lewkowycz, Maarten Bosma, David Luan, Charles Sutton, and Augustus Odena.
+\newblock Show your work: Scratchpads for intermediate computation with language models.
+\newblock \emph{arXiv preprint arXiv:2112.00114}, 2021.
+
+\bibitem[{OpenAI}(2026)]{gpt5.4}
+{OpenAI}.
+\newblock Introducing gpt-5.4, March 2026.
+\newblock URL \url{https://openai.com/index/introducing-gpt-5-4/}.
+
+\bibitem[Ouyang et~al.(2022)Ouyang, Wu, Jiang, Almeida, Wainwright, Mishkin, Zhang, Agarwal, Slama, Ray, et~al.]{ouyang2022instructgpt}
+Long Ouyang, Jeffrey Wu, Xu~Jiang, Diogo Almeida, Carroll Wainwright, Pamela Mishkin, Chong Zhang, Sandhini Agarwal, Katarina Slama, Alex Ray, et~al.
+\newblock Training language models to follow instructions with human feedback.
+\newblock In \emph{Advances in Neural Information Processing Systems (NeurIPS)}, 2022.
+
+\bibitem[Ouyang et~al.(2026)Ouyang, Hu, Lin, Ng, and Shou]{ouyang2026gameworld}
+Mingyu Ouyang, Siyuan Hu, Kevin~Qinghong Lin, Hwee~Tou Ng, and Mike~Zheng Shou.
+\newblock Gameworld: Towards standardized and verifiable evaluation of multimodal game agents.
+\newblock \emph{arXiv preprint arXiv:2604.07429}, 2026.
+
+\bibitem[Paglieri et~al.(2024)Paglieri, Cupial, Coward, Piterbarg, Wolczyk, Khan, Pignatelli, Kucinski, Pinto, Fergus, Foerster, Parker-Holder, and Rocktaschel]{paglieri2024balrog}
+Davide Paglieri, Bartlomiej Cupial, Samuel Coward, Ulyana Piterbarg, Maciej Wolczyk, Akbir Khan, Eduardo Pignatelli, Lukasz Kucinski, Lerrel Pinto, Rob Fergus, Jakob~Nicolaus Foerster, Jack Parker-Holder, and Tim Rocktaschel.
+\newblock Balrog: Benchmarking agentic llm and vlm reasoning on games.
+\newblock \emph{arXiv preprint arXiv:2411.13543}, 2024.
+
+\bibitem[Pan et~al.(2023)Pan, Chan, Zou, Li, Basart, Woodside, Ng, Zhang, Emmons, and Hendrycks]{pan2023machiavelli}
+Alexander Pan, Jun~Shern Chan, Andy Zou, Nathaniel Li, Steven Basart, Thomas Woodside, Jonathan Ng, Hanlin Zhang, Scott Emmons, and Dan Hendrycks.
+\newblock Do the rewards justify the means? {Measuring} trade-offs between rewards and ethical behavior in the {MACHIAVELLI} benchmark.
+\newblock In \emph{International Conference on Machine Learning}, 2023.
+
+\bibitem[Petroni et~al.(2021)Petroni, Piktus, Fan, Lewis, Yazdani, De~Cao, Thorne, Jernite, Karpukhin, Maillard, Plachouras, Rockt{\"a}schel, and Riedel]{petroni2021kilt}
+Fabio Petroni, Aleksandra Piktus, Angela Fan, Patrick Lewis, Majid Yazdani, Nicola De~Cao, James Thorne, Yacine Jernite, Vladimir Karpukhin, Jean Maillard, Vassilis Plachouras, Tim Rockt{\"a}schel, and Sebastian Riedel.
+\newblock Kilt: a benchmark for knowledge intensive language tasks.
+\newblock In \emph{Proceedings of the 2021 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies}, pages 2523--2544, 2021.
+
+\bibitem[{Qwen Team}(2026)]{qwen3.5}
+{Qwen Team}.
+\newblock {Qwen3.5}: Towards native multimodal agents, February 2026.
+\newblock URL \url{https://qwen.ai/blog?id=qwen3.5}.
+
+\bibitem[Rafailov et~al.(2023)Rafailov, Sharma, Mitchell, Manning, Ermon, and Finn]{rafailov2023dpo}
+Rafael Rafailov, Archit Sharma, Eric Mitchell, Christopher~D. Manning, Stefano Ermon, and Chelsea Finn.
+\newblock Direct preference optimization: Your language model is secretly a reward model.
+\newblock In \emph{Advances in Neural Information Processing Systems (NeurIPS)}, 2023.
+
+\bibitem[Ren et~al.(2025)Ren, Tertikas, Maiti, Han, Zhang, S{\"u}sstrunk, and Kokkinos]{ren2025vgrp}
+Yufan Ren, Konstantinos Tertikas, Shalini Maiti, Junlin Han, Tong Zhang, Sabine S{\"u}sstrunk, and Filippos Kokkinos.
+\newblock Vgrp-bench: Visual grid reasoning puzzle benchmark for large vision-language models.
+\newblock \emph{arXiv preprint arXiv:2503.23064}, 2025.
+
+\bibitem[Schick et~al.(2023)Schick, Dwivedi-Yu, Dessi, Raileanu, Lomeli, Hambro, Zettlemoyer, Cancedda, and Scialom]{schick2023toolformer}
+Timo Schick, Jane Dwivedi-Yu, Roberto Dessi, Roberta Raileanu, Maria Lomeli, Eric Hambro, Luke Zettlemoyer, Nicola Cancedda, and Thomas Scialom.
+\newblock Toolformer: Language models can teach themselves to use tools.
+\newblock \emph{Advances in Neural Information Processing Systems}, 36, 2023.
+
+\bibitem[Shutova et~al.(2026)Shutova, Olenina, Vinogradov, and Sinitsin]{shutova2026structmemeval}
+Alina Shutova, Alexandra Olenina, Ivan Vinogradov, and Anton Sinitsin.
+\newblock Evaluating memory structure in llm agents.
+\newblock \emph{arXiv preprint arXiv:2602.11243}, 2026.
+
+\bibitem[Silver et~al.(2018)Silver, Hubert, Schrittwieser, Antonoglou, Lai, Guez, Lanctot, Sifre, Kumaran, Graepel, Lillicrap, Simonyan, and Hassabis]{silver2018general}
+David Silver, Thomas Hubert, Julian Schrittwieser, Ioannis Antonoglou, Matthew Lai, Arthur Guez, Marc Lanctot, Laurent Sifre, Dharshan Kumaran, Thore Graepel, Timothy Lillicrap, Karen Simonyan, and Demis Hassabis.
+\newblock A general reinforcement learning algorithm that masters chess, shogi, and {Go} through self-play.
+\newblock \emph{Science}, 362\penalty0 (6419):\penalty0 1140--1144, 2018.
+
+\bibitem[Sun et~al.(2025)Sun, Liu, Zang, Cao, Dong, Wu, Lin, and Wang]{sun2025seagent}
+Zeyi Sun, Ziyu Liu, Yuhang Zang, Yuhang Cao, Xiaoyi Dong, Tong Wu, Dahua Lin, and Jiaqi Wang.
+\newblock {SEAgent}: Self-evolving computer use agent with autonomous learning from experience.
+\newblock \emph{arXiv preprint arXiv:2508.04700}, 2025.
+
+\bibitem[Tan et~al.(2025)Tan, Zhang, Ma, Chen, Dai, and Dong]{tan2025membench}
+Haoran Tan, Zeyu Zhang, Chen Ma, Xu~Chen, Quanyu Dai, and Zhenhua Dong.
+\newblock Membench: Towards more comprehensive evaluation on the memory of llm-based agents.
+\newblock In \emph{Findings of the Association for Computational Linguistics: ACL 2025}, pages 19336--19352, 2025.
+
+\bibitem[Team et~al.(2026)Team, Bai, Bai, Bao, Cai, Cao, Charles, Che, Chen, Chen, Chen, Chen, Chen, Chen, Chen, Chen, Chen, Chen, Chen, Chen, Chen, Chen, Chen, Chen, Chen, Chen, Chen, Chen, Chen, Cheng, Chu, Cui, Deng, Diao, Ding, Dong, Dong, Dong, Dong, Du, Du, Du, Du, Du, Fan, Fang, Feng, Feng, Fu, Fu, Gao, Gao, Ge, Geng, Gong, Gong, Gongque, Gu, Gu, Gu, Guan, Guo, Hao, He, He, He, Hong, Hu, Hu, Hu, Hu, Huang, Huang, Huang, Huang, Jiang, Jiang, Jin, Jing, Lai, Li, Li, Li, Li, Li, Li, Li, Li, Li, Li, Li, Li, Li, Li, Li, Li, Li, Li, Li, Li, Li, Li, Li, Liao, Lin, Lin, Lin, Lin, Liu, Liu, Liu, Liu, Liu, Liu, Liu, Liu, Liu, Liu, Liu, Liu, Liu, Liu, Liu, Liu, Liu, Liu, Lu, Lu, Lu, Luo, Luo, Luo, Ma, Ma, Mao, Mei, Men, Meng, Meng, Miao, Ni, Ouyang, Pan, Pang, Qian, Qin, Qin, Qiu, Qu, Shang, Shao, Shen, Shen, Shi, Shi, Shi, Song, Song, Song, Song, Su, Su, Su, Sui, Sun, Sun, Sun, Sung, Tai, Tang, Tang, Tang, Tang, Tao, Teng, Tian, Tian, Wang, Wang, Wang, Wang, Wang, Wang, Wang, Wang, Wang, Wang, Wang, Wang, Wang,
+  Wang, Wang, Wang, Wang, Wang, Wang, Wang, Wang, Wang, Wang, Wang, Wang, Wang, Wang, Wang, Wang, Wang, Wang, Wang, Wang, Wang, Wang, Wang, Wang, Wang, Wei, Wei, Wen, Wen, Wu, Wu, Wu, Wu, Wu, Wu, Wu, Wu, Wu, Xiao, Xie, Xie, Xie, Xin, Xing, Xu, Xu, Xu, Xu, Xu, Xu, Xu, Xu, Xu, Xu, Xu, Xu, Xu, Xu, Xu, Yan, Yan, Yang, Yang, Yang, Yang, Yang, Yang, Yang, Yang, Yang, Yang, Yang, Yang, Yang, Yang, Yao, Ye, Ye, Ye, Yin, Yu, Yu, Yu, Yu, Yuan, Yuan, Yuan, Yue, Zeng, Zha, Zhan, Zhang, Zhang, Zhang, Zhang, Zhang, Zhang, Zhang, Zhang, Zhang, Zhang, Zhang, Zhang, Zhang, Zhang, Zhang, Zhang, Zhang, Zhang, Zhao, Zhao, Zhao, Zhao, Zhao, Zhao, Zhao, Zheng, Zheng, Zheng, Zheng, Zhong, Zhong, Zhong, Zhou, Zhou, Zhou, Zhou, Zhu, Zhu, Zhu, Zhu, Zhu, Zhuang, Zhuang, Zou, and Zu]{team2026kimi}
+Kimi Team, Tongtong Bai, Yifan Bai, Yiping Bao, S.~H. Cai, Yuan Cao, Y.~Charles, H.~S. Che, Cheng Chen, Guanduo Chen, Huarong Chen, Jia Chen, Jiahao Chen, Jianlong Chen, Jun Chen, Kefan Chen, Liang Chen, Ruijue Chen, Xinhao Chen, Yanru Chen, Yanxu Chen, Yicun Chen, Yimin Chen, Yingjiang Chen, Yuankun Chen, Yujie Chen, Yutian Chen, Zhirong Chen, Ziwei Chen, Dazhi Cheng, Minghan Chu, Jialei Cui, Jiaqi Deng, Muxi Diao, Hao Ding, Mengfan Dong, Mengnan Dong, Yuxin Dong, Yuhao Dong, Angang Du, Chenzhuang Du, Dikang Du, Lingxiao Du, Yulun Du, Yu~Fan, Shengjun Fang, Qiulin Feng, Yichen Feng, Garimugai Fu, Kelin Fu, Hongcheng Gao, Tong Gao, Yuyao Ge, Shangyi Geng, Chengyang Gong, Xiaochen Gong, Zhuoma Gongque, Qizheng Gu, Xinran Gu, Yicheng Gu, Longyu Guan, Yuanying Guo, Xiaoru Hao, Weiran He, Wenyang He, Yunjia He, Chao Hong, Hao Hu, Jiaxi Hu, Yangyang Hu, Zhenxing Hu, Ke~Huang, Ruiyuan Huang, Weixiao Huang, Zhiqi Huang, Tao Jiang, Zhejun Jiang, Xinyi Jin, Yu~Jing, Guokun Lai, Aidi Li, C.~Li, Cheng Li, Fang Li,
+  Guanghe Li, Guanyu Li, Haitao Li, Haoyang Li, Jia Li, Jingwei Li, Junxiong Li, Lincan Li, Mo~Li, Weihong Li, Wentao Li, Xinhang Li, Xinhao Li, Yang Li, Yanhao Li, Yiwei Li, Yuxiao Li, Zhaowei Li, Zheming Li, Weilong Liao, Jiawei Lin, Xiaohan Lin, Zhishan Lin, Zichao Lin, Cheng Liu, Chenyu Liu, Hongzhang Liu, Liang Liu, Shaowei Liu, Shudong Liu, Shuran Liu, Tianwei Liu, Tianyu Liu, Weizhou Liu, Xiangyan Liu, Yangyang Liu, Yanming Liu, Yibo Liu, Yuanxin Liu, Yue Liu, Zhengying Liu, Zhongnuo Liu, Enzhe Lu, Haoyu Lu, Zhiyuan Lu, Junyu Luo, Tongxu Luo, Yashuo Luo, Long Ma, Yingwei Ma, Shaoguang Mao, Yuan Mei, Xin Men, Fanqing Meng, Zhiyong Meng, Yibo Miao, Minqing Ni, Kun Ouyang, Siyuan Pan, Bo~Pang, Yuchao Qian, Ruoyu Qin, Zeyu Qin, Jiezhong Qiu, Bowen Qu, Zeyu Shang, Youbo Shao, Tianxiao Shen, Zhennan Shen, Juanfeng Shi, Lidong Shi, Shengyuan Shi, Feifan Song, Pengwei Song, Tianhui Song, Xiaoxi Song, Hongjin Su, Jianlin Su, Zhaochen Su, Lin Sui, Jinsong Sun, Junyao Sun, Tongyu Sun, Flood Sung, Yunpeng Tai,
+  Chuning Tang, Heyi Tang, Xiaojuan Tang, Zhengyang Tang, Jiawen Tao, Shiyuan Teng, Chaoran Tian, Pengfei Tian, Ao~Wang, Bowen Wang, Chensi Wang, Chuang Wang, Congcong Wang, Dingkun Wang, Dinglu Wang, Dongliang Wang, Feng Wang, Hailong Wang, Haiming Wang, Hengzhi Wang, Huaqing Wang, Hui Wang, Jiahao Wang, Jinhong Wang, Jiuzheng Wang, Kaixin Wang, Linian Wang, Qibin Wang, Shengjie Wang, Shuyi Wang, Si~Wang, Wei Wang, Xiaochen Wang, Xinyuan Wang, Yao Wang, Yejie Wang, Yipu Wang, Yiqin Wang, Yucheng Wang, Yuzhi Wang, Zhaoji Wang, Zhaowei Wang, Zhengtao Wang, Zhexu Wang, Zihan Wang, Zizhe Wang, Chu Wei, Ming Wei, Chuan Wen, Zichen Wen, Chengjie Wu, Haoning Wu, Junyan Wu, Rucong Wu, Wenhao Wu, Yuefeng Wu, Yuhao Wu, Yuxin Wu, Zijian Wu, Chenjun Xiao, Jin Xie, Xiaotong Xie, Yuchong Xie, Yifei Xin, Bowei Xing, Boyu Xu, Jianfan Xu, Jing Xu, Jinjing Xu, L.~H. Xu, Lin Xu, Suting Xu, Weixin Xu, Xinbo Xu, Xinran Xu, Yangchuan Xu, Yichang Xu, Yuemeng Xu, Zelai Xu, Ziyao Xu, Junjie Yan, Yuzi Yan, Guangyao Yang, Hao Yang,
+  Junwei Yang, Kai Yang, Ningyuan Yang, Ruihan Yang, Xiaofei Yang, Xinlong Yang, Ying Yang, Yi~Yang, Yi~Yang, Zhen Yang, Zhilin Yang, Zonghan Yang, Haotian Yao, Dan Ye, Wenjie Ye, Zhuorui Ye, Bohong Yin, Chengzhen Yu, Longhui Yu, Tao Yu, Tianxiang Yu, Enming Yuan, Mengjie Yuan, Xiaokun Yuan, Yang Yue, Weihao Zeng, Dunyuan Zha, Haobing Zhan, Dehao Zhang, Hao Zhang, Jin Zhang, Puqi Zhang, Qiao Zhang, Rui Zhang, Xiaobin Zhang, Y.~Zhang, Yadong Zhang, Yangkun Zhang, Yichi Zhang, Yizhi Zhang, Yongting Zhang, Yu~Zhang, Yushun Zhang, Yutao Zhang, Yutong Zhang, Zheng Zhang, Chenguang Zhao, Feifan Zhao, Jinxiang Zhao, Shuai Zhao, Xiangyu Zhao, Yikai Zhao, Zijia Zhao, Huabin Zheng, Ruihan Zheng, Shaojie Zheng, Tengyang Zheng, Junfeng Zhong, Longguang Zhong, Weiming Zhong, M.~Zhou, Runjie Zhou, Xinyu Zhou, Zaida Zhou, Jinguo Zhu, Liya Zhu, Xinhao Zhu, Yuxuan Zhu, Zhen Zhu, Jingze Zhuang, Weiyu Zhuang, Ying Zou, and Xinxing Zu.
+\newblock Kimi k2.5: Visual agentic intelligence, 2026.
+\newblock URL \url{https://arxiv.org/abs/2602.02276}.
+
+\bibitem[Thakur et~al.(2021)Thakur, Reimers, R{\"u}ckl{\'e}, Srivastava, and Gurevych]{thakur2021beir}
+Nandan Thakur, Nils Reimers, Andreas R{\"u}ckl{\'e}, Abhishek Srivastava, and Iryna Gurevych.
+\newblock Beir: A heterogeneous benchmark for zero-shot evaluation of information retrieval models.
+\newblock In \emph{Proceedings of the Neural Information Processing Systems Track on Datasets and Benchmarks}, 2021.
+
+\bibitem[Wang et~al.(2024)Wang, Duan, Zhang, Lin, and Chen]{wang2024adaleval}
+Chonghua Wang, Haodong Duan, Songyang Zhang, Dahua Lin, and Kai Chen.
+\newblock Ada-leval: Evaluating long-context llms with length-adaptable benchmarks.
+\newblock In \emph{Proceedings of the 2024 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies (Volume 1: Long Papers)}, pages 3712--3724, 2024.
+
+\bibitem[Wang et~al.(2025)Wang, Shi, Tan, Qin, Wang, Zhang, Nambi, Ganu, and Wang]{wang2024mmneedle}
+Hengyi Wang, Haizhou Shi, Shiwei Tan, Weiyi Qin, Wenyuan Wang, Tunyu Zhang, Akshay Nambi, Tanuja Ganu, and Hao Wang.
+\newblock Multimodal needle in a haystack: Benchmarking long-context capability of multimodal large language models.
+\newblock In \emph{Proceedings of the 2025 Conference of the Nations of the Americas Chapter of the Association for Computational Linguistics: Human Language Technologies}, pages 3221--3241, 2025.
+
+\bibitem[Wei et~al.(2022)Wei, Wang, Schuurmans, Bosma, Ichter, Xia, Chi, Le, and Zhou]{wei2022chain}
+Jason Wei, Xuezhi Wang, Dale Schuurmans, Maarten Bosma, Brian Ichter, Fei Xia, Ed~Chi, Quoc Le, and Denny Zhou.
+\newblock Chain-of-thought prompting elicits reasoning in large language models.
+\newblock In \emph{Advances in Neural Information Processing Systems}, volume~35, pages 24824--24837, 2022.
+
+\bibitem[Wei et~al.(2025)Wei, Liu, Zang, Dong, Zhang, Cao, Tong, Duan, Guo, Wang, Qiu, and Lin]{wxl_wei2025videorope}
+Xilin Wei, Xiaoran Liu, Yuhang Zang, Xiaoyi Dong, Pan Zhang, Yuhang Cao, Jian Tong, Haodong Duan, Qipeng Guo, Jiaqi Wang, Xipeng Qiu, and Dahua Lin.
+\newblock {VideoRoPE}: What makes for good video rotary position embedding?
+\newblock In \emph{Proceedings of the 42nd International Conference on Machine Learning}, pages 66118--66136, 2025.
+
+\bibitem[Wei et~al.(2026)Wei, Liu, Zang, Dong, Cao, Wang, Qiu, and Lin]{wxl_wei2026simcot}
+Xilin Wei, Xiaoran Liu, Yuhang Zang, Xiaoyi Dong, Yuhang Cao, Jiaqi Wang, Xipeng Qiu, and Dahua Lin.
+\newblock {SIM-CoT}: Supervised implicit chain-of-thought.
+\newblock In \emph{International Conference on Learning Representations}, 2026.
+
+\bibitem[Wu et~al.(2024{\natexlab{a}})Wu, Wang, Yu, Zhang, Chang, and Yu]{wu2024longmemeval}
+Di~Wu, Hongwei Wang, Wenhao Yu, Yuwei Zhang, Kai-Wei Chang, and Dong Yu.
+\newblock Longmemeval: Benchmarking chat assistants on long-term interactive memory.
+\newblock \emph{arXiv preprint arXiv:2410.10813}, 2024{\natexlab{a}}.
+
+\bibitem[Wu et~al.(2024{\natexlab{b}})Wu, Li, Chen, and Li]{wu2024longvideobench}
+Haoning Wu, Dongxu Li, Bei Chen, and Junnan Li.
+\newblock {LongVideoBench}: A benchmark for long-context interleaved video-language understanding.
+\newblock \emph{Advances in Neural Information Processing Systems}, 37:\penalty0 28828--28857, 2024{\natexlab{b}}.
+
+\bibitem[Wu et~al.(2024{\natexlab{c}})Wu, Tang, Mitchell, and Li]{wu2024smartplay}
+Yue Wu, Xuan Tang, Tom~M. Mitchell, and Yuanzhi Li.
+\newblock {SmartPlay}: A benchmark for {LLMs} as intelligent agents.
+\newblock In \emph{International Conference on Learning Representations}, 2024{\natexlab{c}}.
+
+\bibitem[Xie et~al.(2024)Xie, Zhang, Chen, Li, Zhao, Cao, Hua, Cheng, Shin, Lei, et~al.]{xie2024osworld}
+Tianbao Xie, Danyang Zhang, Jixuan Chen, Xiaochuan Li, Siheng Zhao, Ruisheng Cao, Toh~Jing Hua, Zhoujun Cheng, Dongchan Shin, Fangyu Lei, et~al.
+\newblock {OSWorld}: Benchmarking multimodal agents for open-ended tasks in real computer environments.
+\newblock In \emph{Advances in Neural Information Processing Systems (NeurIPS)}, 2024.
+
+\bibitem[Yang et~al.(2026)Yang, Xing, Dong, Zang, Cao, Wang, Zhou, Bu, Liang, Huang, Wang, Wu, and Lin]{yang2026caprl}
+Penghui Yang, Long Xing, Xiaoyi Dong, Yuhang Zang, Yuhang Cao, Yibin Wang, Yujie Zhou, Jiazi Bu, Jianze Liang, Qidong Huang, Jiaqi Wang, Feng Wu, and Dahua Lin.
+\newblock {CapRL++}: Unified reinforcement learning with verifiable rewards for dense image and video captioning.
+\newblock \emph{arXiv preprint arXiv:2606.09393}, 2026.
+
+\bibitem[Yang et~al.(2018)Yang, Qi, Zhang, Bengio, Cohen, Salakhutdinov, and Manning]{yang2018hotpotqa}
+Zhilin Yang, Peng Qi, Saizheng Zhang, Yoshua Bengio, William~W. Cohen, Ruslan Salakhutdinov, and Christopher~D. Manning.
+\newblock Hotpotqa: A dataset for diverse, explainable multi-hop question answering.
+\newblock In \emph{Proceedings of the 2018 Conference on Empirical Methods in Natural Language Processing}, pages 2369--2380, 2018.
+
+\bibitem[Yao et~al.(2023)Yao, Zhao, Yu, Du, Shafran, Narasimhan, and Cao]{yao2023react}
+Shunyu Yao, Jeffrey Zhao, Dian Yu, Nan Du, Izhak Shafran, Karthik Narasimhan, and Yuan Cao.
+\newblock {ReAct}: Synergizing reasoning and acting in language models.
+\newblock In \emph{International Conference on Learning Representations}, 2023.
+
+\bibitem[Yen et~al.(2025)Yen, Gao, Hou, Ding, Fleischer, Izsak, Wasserblat, and Chen]{yen2025helmet}
+Howard Yen, Tianyu Gao, Minmin Hou, Ke~Ding, Daniel Fleischer, Peter Izsak, Moshe Wasserblat, and Danqi Chen.
+\newblock Helmet: How to evaluate long-context language models effectively and thoroughly.
+\newblock In \emph{International Conference on Learning Representations}, 2025.
+
+\bibitem[Yu et~al.(2024)Yu, Yao, Zhang, et~al.]{yu2024rlhfv}
+Tianyu Yu, Yuan Yao, Haoye Zhang, et~al.
+\newblock {RLHF-V}: Towards trustworthy {MLLMs} via behavior alignment from fine-grained correctional human feedback.
+\newblock In \emph{Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)}, 2024.
+
+\bibitem[Yue et~al.(2024)Yue, Ni, Zhang, Zheng, Liu, Zhang, Stevens, Jiang, Ren, Sun, et~al.]{yue2024mmmu}
+Xiang Yue, Yuansheng Ni, Kai Zhang, Tianyu Zheng, Ruoqi Liu, Ge~Zhang, Samuel Stevens, Dongfu Jiang, Weiming Ren, Yuxuan Sun, et~al.
+\newblock {MMMU}: A massive multi-discipline multimodal understanding and reasoning benchmark for expert {AGI}.
+\newblock In \emph{Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)}, 2024.
+
+\bibitem[Zang et~al.(2025)Zang, Dong, Zhang, Cao, Liu, Ding, Wu, Ma, Duan, Zhang, Chen, Lin, and Wang]{zang2025xcomposerreward}
+Yuhang Zang, Xiaoyi Dong, Pan Zhang, Yuhang Cao, Ziyu Liu, Shengyuan Ding, Shenxi Wu, Yubo Ma, Haodong Duan, Wenwei Zhang, Kai Chen, Dahua Lin, and Jiaqi Wang.
+\newblock {InternLM-XComposer2.5-Reward}: A simple yet effective multi-modal reward model.
+\newblock In \emph{Findings of the Association for Computational Linguistics: ACL 2025}, 2025.
+
+\bibitem[Zhang et~al.(2023)Zhang, Zhou, Wei, Zhao, Sha, Wang, and Wen]{wxl_zhang2023toolmath}
+Beichen Zhang, Kun Zhou, Xilin Wei, Xin Zhao, Jing Sha, Shijin Wang, and Ji-Rong Wen.
+\newblock Evaluating and improving tool-augmented computation-intensive math reasoning.
+\newblock \emph{Advances in Neural Information Processing Systems}, 36:\penalty0 23570--23589, 2023.
+
+\bibitem[Zhang et~al.(2025{\natexlab{a}})Zhang, Zang, Dong, Cao, Duan, Lin, and Wang]{zhang2025thinkvisually}
+Beichen Zhang, Yuhang Zang, Xiaoyi Dong, Yuhang Cao, Haodong Duan, Dahua Lin, and Jiaqi Wang.
+\newblock Think visually, reason textually: Vision-language synergy in {ARC}.
+\newblock \emph{arXiv preprint arXiv:2511.15703}, 2025{\natexlab{a}}.
+
+\bibitem[Zhang et~al.(2026{\natexlab{a}})Zhang, Liu, Li, Zang, Wang, and Lin]{zhang2026etchr}
+Beichen Zhang, Yuhong Liu, Jinsong Li, Yuhang Zang, Jiaqi Wang, and Dahua Lin.
+\newblock {ETCHR}: Editing to clarify and harness reasoning.
+\newblock \emph{arXiv preprint arXiv:2605.23897}, 2026{\natexlab{a}}.
+
+\bibitem[Zhang et~al.(2024)Zhang, Dong, Cao, Zang, Qian, Wei, Chen, Li, Niu, Ding, Guo, Duan, Chen, Lv, Nie, Zhang, Wang, Zhang, Zhang, Ge, Li, Li, Tu, He, Zhang, Chen, Qiao, Lin, and Wang]{wxl_zhang2024omnilive}
+Pan Zhang, Xiaoyi Dong, Yuhang Cao, Yuhang Zang, Rui Qian, Xilin Wei, Lin Chen, Yifei Li, Junbo Niu, Shuangrui Ding, Qipeng Guo, Haodong Duan, Xin Chen, Han Lv, Zheng Nie, Min Zhang, Bin Wang, Wenwei Zhang, Xinyue Zhang, Jiaye Ge, Wei Li, Jingwen Li, Zhongying Tu, Conghui He, Xingcheng Zhang, Kai Chen, Yu~Qiao, Dahua Lin, and Jiaqi Wang.
+\newblock {InternLM-XComposer2.5-OmniLive}: A comprehensive multimodal system for long-term streaming video and audio interactions.
+\newblock \emph{arXiv preprint arXiv:2412.09596}, 2024.
+
+\bibitem[Zhang et~al.(2026{\natexlab{b}})Zhang, Ding, Dong, He, Lin, Tang, Zang, Cao, Lin, and Wang]{zhang2026sec}
+Zhixiong Zhang, Shuangrui Ding, Xiaoyi Dong, Songxin He, Jianfan Lin, Junsong Tang, Yuhang Zang, Yuhang Cao, Dahua Lin, and Jiaqi Wang.
+\newblock {SeC}: Advancing complex video object segmentation via progressive concept construction.
+\newblock In \emph{International Conference on Learning Representations (ICLR)}, 2026{\natexlab{b}}.
+
+\bibitem[Zhang et~al.(2026{\natexlab{c}})Zhang, Li, Ding, Zang, Ding, Xing, Wang, Zhang, and Wang]{zhang2026setcon}
+Zhixiong Zhang, Yizhuo Li, Shuangrui Ding, Yuhang Zang, Shengyuan Ding, Long Xing, Yibin Wang, Qiaosheng Zhang, and Jiaqi Wang.
+\newblock {SetCon}: Towards open-ended referring segmentation via set-level concept prediction.
+\newblock \emph{arXiv preprint arXiv:2605.20110}, 2026{\natexlab{c}}.
+
+\bibitem[Zhang et~al.(2025{\natexlab{b}})Zhang, Wang, Wen, Guo, Zhao, Fang, Ding, Zhou, Zhai, et~al.]{zhang2025lmmsurvey}
+Zicheng Zhang, Junying Wang, Farong Wen, Yijin Guo, Xiangyu Zhao, Xinyu Fang, Shengyuan Ding, Xuemei Zhou, Guangtao Zhai, et~al.
+\newblock Large multimodal models evaluation: A survey.
+\newblock \emph{Science China Information Sciences}, 68\penalty0 (12):\penalty0 221301, 2025{\natexlab{b}}.
+
+\bibitem[Zhao et~al.(2025)Zhao, Ding, Zhang, Huang, Cao, Wang, Wang, Fang, Wang, Zhai, Duan, Yang, and Chen]{zhao2025omnialignv}
+Xiangyu Zhao, Shengyuan Ding, Zicheng Zhang, Haian Huang, Maosong Cao, Weiyun Wang, Jiaqi Wang, Xinyu Fang, Wenhai Wang, Guangtao Zhai, Haodong Duan, Hua Yang, and Kai Chen.
+\newblock {OmniAlign-V}: Towards enhanced alignment of {MLLMs} with human preference.
+\newblock In \emph{Proceedings of the 63rd Annual Meeting of the Association for Computational Linguistics (ACL)}, pages 18490--18515, 2025.
+
+\bibitem[Zhao et~al.(2026)Zhao, Zhang, Lin, Liang, Duan, Ding, Tian, Zang, Yan, and Yang]{zhao2026trustcritic}
+Xiangyu Zhao, Peiyuan Zhang, Junming Lin, Tianhao Liang, Yuchen Duan, Shengyuan Ding, Changyao Tian, Yuhang Zang, Junchi Yan, and Xue Yang.
+\newblock Trust your critic: Robust reward modeling and reinforcement learning for faithful image editing and generation.
+\newblock \emph{arXiv preprint arXiv:2603.12247}, 2026.
+
+\bibitem[Zhou et~al.(2023)Zhou, Lu, Mishra, Brahma, Basu, Luan, Zhou, and Hou]{zhou2023ifeval}
+Jeffrey Zhou, Tianjian Lu, Swaroop Mishra, Siddhartha Brahma, Sujoy Basu, Yi~Luan, Denny Zhou, and Le~Hou.
+\newblock Instruction-following evaluation for large language models.
+\newblock \emph{arXiv preprint arXiv:2311.07911}, 2023.
+
+\bibitem[Zhou et~al.(2024)Zhou, Xu, Zhu, Zhou, Lo, Sridhar, Cheng, Ou, Bisk, Fried, Alon, and Neubig]{zhou2024webarena}
+Shuyan Zhou, Frank~F. Xu, Hao Zhu, Xuhui Zhou, Robert Lo, Abishek Sridhar, Xianyi Cheng, Tianyue Ou, Yonatan Bisk, Daniel Fried, Uri Alon, and Graham Neubig.
+\newblock {WebArena}: A realistic web environment for building autonomous agents.
+\newblock In \emph{International Conference on Learning Representations}, 2024.
+
+\bibitem[Zou et~al.(2026)Zou, Zhu, Zhu, Zhu, Zhou, Zhou, Zhou, Zhou, Zhou, Ding, et~al.]{wxl_zou2026interns1pro}
+Yicheng Zou, Dongsheng Zhu, Lin Zhu, Tong Zhu, Yunhua Zhou, Peiheng Zhou, Xinyu Zhou, Dongzhan Zhou, Zhiwang Zhou, Shengyuan Ding, et~al.
+\newblock {Intern-S1-Pro}: Scientific multimodal foundation model at trillion scale.
+\newblock \emph{arXiv preprint arXiv:2603.25040}, 2026.
+
+\end{thebibliography}

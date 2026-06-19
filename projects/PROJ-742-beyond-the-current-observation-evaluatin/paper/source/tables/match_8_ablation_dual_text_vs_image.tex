@@ -1,0 +1,29 @@
+\renewcommand{\arraystretch}{1.08}
+\begin{table}[tbp]
+\setlength\tabcolsep{3.7pt}
+\centering
+\scriptsize
+\adjustbox{max width=\textwidth}{%
+\begin{tabular}{ll|ccc|ccc|rr}
+\toprule
+\multirow{2}{*}{\textbf{Model Pair}} & \multirow{2}{*}{\textbf{Board}}
+& \multicolumn{3}{c|}{\textbf{Text Player}}
+& \multicolumn{3}{c|}{\textbf{Image Player}}
+& \multicolumn{2}{c}{\textbf{Outcome}} \\
+& & \textbf{Model Name} & \textbf{Score} & \textbf{Win\%}
+& \textbf{Model Name} & \textbf{Score} & \textbf{Win\%}
+& \textbf{Gap} & \textbf{Winner} \\
+\midrule
+\modelname{\kimiicon}{Kimi text vs. image} & $8{\times}8$ & Kimi & 27.8 & 100.0 & Kimi & 2.8 & 0.0 & +25.0 & Text \\
+\modelname{\qwenicon}{Qwen3.5 text vs. image} & $8{\times}8$ & Qwen3.5 & 27.7 & 100.0 & Qwen3.5 & 2.7 & 0.0 & +25.0 & Text \\
+\modelname{\seedicon}{Seed text vs. image} & $8{\times}8$ & Seed & 7.2 & 33.3 & Seed & 10.5 & 66.7 & -3.3 & Image \\
+\midrule
+\modelname{\qwenicon}{Qwen3.5 text vs. image} & $8{\times}10$ & Qwen3.5 & 37.8 & 100.0 & Qwen3.5 & 2.2 & 0.0 & +35.7 & Text \\
+\modelname{\kimiicon}{Kimi text vs. image} & $8{\times}10$ & Kimi & 26.7 & 100.0 & Kimi & 4.0 & 0.0 & +22.7 & Text \\
+\modelname{\seedicon}{Seed text vs. image} & $8{\times}10$ & Seed & 8.0 & 33.3 & Seed & 6.2 & 50.0 & +1.8 & Text \\
+\bottomrule
+\end{tabular}
+}
+\caption{\textbf{Ablation on text versus image observations in two-player Matching Pairs.} Each row compares a text-observation player against an image-observation player under the same model family, merging both player orders over three seeds. Gap is Text score minus Image score. Missing runs are shown as --.}
+\label{tab:match_dual_text_vs_image_ablation}
+\end{table}

@@ -1,0 +1,235 @@
+\documentclass[11pt]{academic_template}
+\usepackage[toc,page,header]{appendix}
+
+\usepackage{marvosym}
+\let\Cross\relax
+\usepackage{bbding}
+
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{graphicx}
+\usepackage{xcolor}    % 表格着色必需依赖
+\usepackage{colortbl}  % 表格行背景色必需依赖
+\usepackage{makecell}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{booktabs}      % 专业表格线
+\usepackage{array}         % 自定义列格式
+\usepackage{colortbl}      % 单元格颜色
+\usepackage{xcolor}        % 颜色支持
+\usepackage{caption}       % 自定义标题样式
+\usepackage{geometry}      % 页面边距调整
+\geometry{margin=1in}
+\usepackage{tabularx,booktabs,colortbl}
+\usepackage{graphicx}
+%\usepackage[demo]{graphicx}
+
+\usepackage{listings}
+\lstset{
+  basicstyle=\ttfamily\small,
+  breaklines=true,
+  columns=fullflexible,
+  keepspaces=true,
+  showstringspaces=false
+}
+
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{booktabs}
+\usepackage{wrapfig}
+\newcommand{\tablestyle}[2]{\setlength{\tabcolsep}{#1}\renewcommand{\arraystretch}{#2}\centering\footnotesize}
+
+\usepackage{colortbl}
+\usepackage{caption}
+\usepackage{subcaption}
+
+\usepackage{amsthm}
+\newtheorem{theorem}{Theorem}
+\newtheorem{assumption}{Assumption}
+\newtheorem{remark}{Remark}
+\newtheorem{definition}{Definition}
+
+ \usepackage{amsmath,amssymb,amsthm,mathtools,bm}
+ \usepackage{bbm}
+%
+
+ \newtheorem{lemma}{Lemma}
+ \newtheorem{corollary}{Corollary}
+ \theoremstyle{definition}
+%
+\newcommand{\E}{\mathbb{E}}
+ \newcommand{\Prob}{\mathbb{P}}
+ \newcommand{\R}{\mathbb{R}}
+ \newcommand{\cF}{\mathcal{F}}
+ \newcommand{\cH}{\mathcal{H}}
+ \newcommand{\cW}{\mathcal{W}}
+ \newcommand{\norm}[1]{\left\lVert #1 \right\rVert}
+  \newcommand{\abs}[1]{\left\lvert #1 \right\rvert}
+ \newcommand{\Var}{\operatorname{Var}}
+
+
+
+
+
+
+\newcommand{\fix}{\marginpar{FIX}}
+\newcommand{\new}{\marginpar{NEW}}
+\def\eg{\emph{e.g.}}
+\def\ie{\emph{i.e.}}
+
+\setlogoheight{8mm}
+\setlogospacing{0mm}
+\setsjtublue
+
+\settitlerulethickness{3pt}
+
+\abstractboxon
+\setabstractframecolor{gray}
+\setabstractbgcolor{gray!10}
+\setlogotolineshift{0mm}
+
+\settoprulethickness{2.5pt}
+\setbottomrulethickness{1.5pt}
+
+\input{math_commands.tex}
+
+\usepackage{dblfloatfix}
+\usepackage{tabularx}
+
+\usepackage{multicol}
+\usepackage{multirow}
+\usepackage[table]{xcolor}
+\usepackage{array}
+
+\newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
+% new column type
+\newcolumntype{M}[1]{>{\centering\arraybackslash}m{#1}}
+% added by finn
+\newcommand{\zliu}[1]{\textcolor{blue}{{[\textbf{zliu}: #1]}}}
+\newcommand{\anke}[1]{\textcolor{red}{{[\textbf{anke}: #1]}}}
+\newcommand{\ygl}[1]{\textcolor{green}{{[\textbf{ygl}: #1]}}}
+\newcommand{\hz}[1]{\textcolor{purple}{{[\textbf{hz}: #1]}}}
+
+\usepackage{natbib}
+\setcitestyle{numbers}
+\setcitestyle{square}
+
+\usepackage{graphicx}
+
+\usepackage{threeparttable}
+
+
+\title{Kairos: A Native World Model Stack for Physical AI}
+
+
+%\author[]{
+%    \makebox[\textwidth][c]{\textbf{Learning, Maintaining, and Running Worlds for Future Self-Evolving Agents}} \\ [0.5cm]
+%    \makebox[\textwidth][c]{Kairos Team}
+%}
+
+
+
+\author[]{\parbox{\textwidth}{\centering\textbf{Learning, Maintaining, and Running Worlds for Future Self-Evolving Agents}\\[0.5cm]Kairos Team}}
+
+
+
+\abstract{
+World models are transitioning from passive visual generators to foundational, operational infrastructure for Physical AI: they must natively acquire world knowledge from heterogeneous experience, maintain persistent states over long horizons, and execute efficiently within real deployment constraints. We introduce Kairos, a native world model stack designed around these requirements. 
+(1) Kairos learns the world by pioneering a \textbf{Native Pre-training Paradigm} governed by a \textbf{Cross-Embodiment Data Curriculum}, which organizes open-world videos, human behavioral data, and robot interactions into a progressive developmental pathway. 
+(2) Kairos maintains the world by unified world understanding, generation, and prediction within a \textbf{Native Unified Architecture} equipped with Hybrid Linear Temporal Attention, where sliding-window attention captures local dynamics, dilated sliding windows capture mid-range dependencies, and gated linear attention maintains persistent global memory. We establish formal theoretical bounds demonstrating that this temporal factorization strictly limits error accumulation, mathematically guaranteeing state propagation across extended horizons. 
+(3) Kairos runs the world by incorporating a \textbf{Deployment-Aware System Co-Design} to support low-latency rollout generation on server and consumer-grade hardware for real-world observation--action--feedback loops. 
+Experiments on embodied world-model, long-horizon, and action-policy benchmarks show that Kairos achieves top level performance while offering a strong efficiency–capability trade-off. Together, these results position Kairos as a cohesive operational foundation for future self-evolving physical intelligence.
+\vspace{10mm}
+}
+
+
+\date{\today}
+\checkdata[Code]{\url{https://github.com/kairos-agi/kairos-sensenova}}
+\checkdata[Hugging Face]{\url{https://huggingface.co/kairos-agi}}
+\checkdata[ModelScope]{\url{https://modelscope.cn/collections/kairos-team/kairos30}}
+
+\begin{document}
+
+\maketitle
+
+
+
+
+
+\newpage
+
+\begin{spacing}{0.9}
+\tableofcontents
+\end{spacing}
+
+\newpage
+
+
+
+
+
+
+\input{sec/introductionv3}
+\input{sec/model}
+
+\input{sec/pretraining_paradigm}
+
+\input{sec/datav2}
+%\input{secv}
+\input{sec/inference}
+\input{sec/evaluation_v1}
+
+\input{sec/related_work}
+
+
+\section{Conclusion and Future Works}
+
+In this paper, we introduced \textbf{Kairos}, a native, deployment-aware world model stack engineered to pioneer a foundational and operational infrastructure for Physical AI. Rejecting the fractured paradigm of downstream policy fine-tuning, Kairos unifies world representation and robotic control into a cohesive, non-disjointed framework. This is achieved by anchoring a multi-layer Cross-Embodiment Data Curriculum (CEDC) for native knowledge injection, constructing a native understanding-generation-prediction Mixture-of-Transformers (MoT) stack backed by Hybrid Linear Temporal Attention to guarantee long-horizon state maintenance, and implementing a deployment-aware system co-design that treats execution efficiency as a first-order modeling condition. Extensive evaluations demonstrate that Kairos delivers unprecedented execution fidelity and linear scalability, establishing new state-of-the-art milestones across rigorous trajectory-driven and embodied benchmarks, including LIBERO-plus and RoboTwin 2.0, while sustaining true real-time, closed-loop inference on consumer-grade edge hardware.
+
+Moving forward, our research within the Kairos ecosystem will aggressively converge toward two transformative frontiers:
+\begin{itemize}
+    \item \textbf{Autonomous Self-Evolution via Recursive Imagination:} We aim to break the constraints of static training by engineering a fully closed-loop self-evolution framework. By empowering Kairos to continuously interact with real-world environments, autonomously evaluate policy execution drift, and refine its internal spatial-temporal physics simulator through recursive multi-stage imagination, the model will transition into a self-improving cognitive agent capable of open-ended physical adaptation.
+    \item \textbf{The Generalist Embodied Substrate:} We will scale Kairos beyond isolated, task-specific environments toward a truly \textit{generalist Physical AI platform}. This frontier entails expanding the unified action space to accommodate highly diverse hardware cross-embodiments—spanning from complex humanoid platforms to dexterous multi-finger manipulation setups. By scaling heterogeneous pre-training across open-world environments, we seek to evolutionize Kairos into a universally deployable foundation capable of zero-shot complex intent recognition and high-success-rate execution across unconstrained physical domains.
+\end{itemize}
+Through these unified vectors, we aim to transform Kairos from a robust predictive baseline into an evolvable operational substrate that continuously learns, adapts, and masters the boundless complexities of the physical world.
+
+
+
+
+\newpage
+\bibliographystyle{unsrt}
+\bibliography{main}
+
+\newpage
+\beginappendix
+\setcounter{section}{0} % 将 section 计数器归
+
+\section{Contributors}
+
+Kairos is contributed to by the following people.
+
+
+\textbf{Project Lead}: \\
+Fei Wang, Shan You, Qiming Zhang
+
+\textbf{Core Contributor}: \\
+Tao Huang, Zuoyi Fu
+
+\textbf{Contributor}: \\
+Zhisheng Zheng, Yunlong Xi, Feng Lv, Xiaoming Wu, Zeyu Liu, Cong Wan, Pu Li, Ruiqing Yang, Xiaoou Li, Wei Wang, Kangkang Zhu, Yuwei Zhang, Shi Fu, Zheng Zhang, Xiaoning Wu, Xuzeng Fan
+
+\textbf{Acknowledgement}: \\
+We would like to thank Anke Tang, Changhui Du, Huiwen Xue, Jiakai Huang, Junxi Jia, Lichen Man, Menglin Geng, Ruixuan Zhang, Shuaiqi Cheng, Shuo Huang, Weijie Sun, Yu Li, Zhongbo Wu, Zihao Gao for their valuable support and contributions to this project, including data preparation, model evaluation, infrastructure support, architecture analysis, and helpful discussions.
+
+
+
+
+\newpage
+\input{sec/appendix_theory}
+
+
+\end{document}

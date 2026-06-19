@@ -1,0 +1,628 @@
+\begin{thebibliography}{78}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Agarwal et~al.(2025)Agarwal, Ali, Bala, Balaji, Barker, Cai,
+  Chattopadhyay, Chen, Cui, Ding, et~al.]{nvidia2025cosmos}
+N.~Agarwal, A.~Ali, M.~Bala, Y.~Balaji, E.~Barker, T.~Cai, P.~Chattopadhyay,
+  Y.~Chen, Y.~Cui, Y.~Ding, et~al.
+\newblock Cosmos world foundation model platform for physical ai.
+\newblock \emph{arXiv preprint arXiv:2501.03575}, 2025.
+
+\bibitem[Assran et~al.(2025)Assran, Bardes, Fan, Garrido, Howes, Komeili,
+  Muckley, Rizvi, Roberts, Sinha, Zholus, Arnaud, Gejji, Martin, Robert~Hogan,
+  Dugas, Bojanowski, Khalidov, Labatut, Massa, Szafraniec, Krishnakumar, Li,
+  Ma, Chandar, Meier, LeCun, Rabbat, and Ballas]{assran2025vjepa2}
+M.~Assran, A.~Bardes, D.~Fan, Q.~Garrido, R.~Howes, M.~Komeili, M.~Muckley,
+  A.~Rizvi, C.~Roberts, K.~Sinha, A.~Zholus, S.~Arnaud, A.~Gejji, A.~Martin,
+  F.~Robert~Hogan, D.~Dugas, P.~Bojanowski, V.~Khalidov, P.~Labatut, F.~Massa,
+  M.~Szafraniec, K.~Krishnakumar, Y.~Li, X.~Ma, S.~Chandar, F.~Meier, Y.~LeCun,
+  M.~Rabbat, and N.~Ballas.
+\newblock V-jepa~2: Self-supervised video models enable understanding,
+  prediction and planning.
+\newblock Technical report, FAIR at Meta, 2025.
+
+\bibitem[Bahl et~al.(2023)Bahl, Mendonca, Chen, Jain, and
+  Pathak]{bahl2023affordances}
+S.~Bahl, R.~Mendonca, L.~Chen, U.~Jain, and D.~Pathak.
+\newblock Affordances from human videos as a versatile representation for
+  robotics.
+\newblock In \emph{Proceedings of the IEEE/CVF Conference on Computer Vision
+  and Pattern Recognition (CVPR)}, 2023.
+
+\bibitem[Bai et~al.(2025)Bai, Chen, Liu, Wang, Ge, Song, Dang, Wang, Wang,
+  Tang, et~al.]{bai2025qwen25vl}
+S.~Bai, K.~Chen, X.~Liu, J.~Wang, W.~Ge, S.~Song, K.~Dang, P.~Wang, S.~Wang,
+  J.~Tang, et~al.
+\newblock Qwen2.5-vl technical report.
+\newblock \emph{arXiv preprint arXiv:2502.13923}, 2025.
+
+\bibitem[Banerjee et~al.(2025)Banerjee, Shkodrani, Moulon, Hampali, Han, Zhang,
+  Zhang, Fountain, Miller, Basol, Newcombe, Wang, Engel, and Hodan]{hot3d}
+P.~Banerjee, S.~Shkodrani, P.~Moulon, S.~Hampali, S.~Han, F.~Zhang, L.~Zhang,
+  J.~Fountain, E.~Miller, S.~Basol, R.~Newcombe, R.~Wang, J.~J. Engel, and
+  T.~Hodan.
+\newblock {HOT3D}: Hand and object tracking in {3D} from egocentric multi-view
+  videos.
+\newblock \emph{CVPR}, 2025.
+
+\bibitem[Bharadhwaj et~al.(2024{\natexlab{a}})Bharadhwaj, Dwibedi, Gupta,
+  Tulsiani, Doersch, Xiao, Shah, Xia, Sadigh, and
+  Kirmani]{bharadhwaj2024gen2act}
+H.~Bharadhwaj, D.~Dwibedi, A.~Gupta, S.~Tulsiani, C.~Doersch, T.~Xiao, D.~Shah,
+  F.~Xia, D.~Sadigh, and S.~Kirmani.
+\newblock Gen2act: Human video generation in novel scenarios enables
+  generalizable robot manipulation.
+\newblock \emph{arXiv preprint arXiv:2409.16283}, 2024{\natexlab{a}}.
+
+\bibitem[Bharadhwaj et~al.(2024{\natexlab{b}})Bharadhwaj, Mottaghi, Gupta, and
+  Tulsiani]{track2act}
+H.~Bharadhwaj, R.~Mottaghi, A.~Gupta, and S.~Tulsiani.
+\newblock Track2act: Predicting point tracks from internet videos enables
+  generalizable robot manipulation.
+\newblock In \emph{European Conference on Computer Vision (ECCV)},
+  2024{\natexlab{b}}.
+
+\bibitem[Bi et~al.(2025)Bi, Wu, Lin, Tan, Su, Su, and
+  Zhu]{bi2025hrdthumanmanipulationenhanced}
+H.~Bi, L.~Wu, T.~Lin, H.~Tan, Z.~Su, H.~Su, and J.~Zhu.
+\newblock H-rdt: Human manipulation enhanced bimanual robotic manipulation,
+  2025.
+\newblock URL \url{https://arxiv.org/abs/2507.23523}.
+
+\bibitem[Black et~al.(2024)Black, Brown, Driess, Esmail, Equi, Finn, Fusai,
+  Groom, Hausman, Ichter, Jakubczak, Jones, Ke, Levine, Li-Bell, Mothukuri,
+  Nair, Pertsch, Shi, Tanner, Vuong, Walling, Wang, and Zhilinsky]{pi0}
+K.~Black, N.~Brown, D.~Driess, A.~Esmail, M.~Equi, C.~Finn, N.~Fusai, L.~Groom,
+  K.~Hausman, B.~Ichter, S.~Jakubczak, T.~Jones, L.~Ke, S.~Levine, A.~Li-Bell,
+  M.~Mothukuri, S.~Nair, K.~Pertsch, L.~X. Shi, J.~Tanner, Q.~Vuong,
+  A.~Walling, H.~Wang, and U.~Zhilinsky.
+\newblock {$\pi_0$}: A vision-language-action flow model for general robot
+  control.
+\newblock \emph{arXiv preprint arXiv:2410.24164}, 2024.
+
+\bibitem[Bousmalis et~al.(2023)Bousmalis, Vezzani, Rao, Devin, Lee, Bauza,
+  Davchev, Zhou, Gupta, Raju, Laurens, Fantacci, Dalibard, Zambelli, Martins,
+  Pevceviciute, Blokzijl, Denil, Batchelor, Lampe, Parisotto, {\.Z}o{\l}na,
+  Reed, Colmenarejo, Scholz, Abdolmaleki, Groth, Regli, Sushkov, Roth{\"o}rl,
+  Chen, Aytar, Barker, Ortiz, Riedmiller, Springenberg, Hadsell, Nori, and
+  Heess]{bousmalis2023robocat}
+K.~Bousmalis, G.~Vezzani, D.~Rao, C.~Devin, A.~X. Lee, M.~Bauza, T.~Davchev,
+  Y.~Zhou, A.~Gupta, A.~Raju, A.~Laurens, C.~Fantacci, V.~Dalibard,
+  M.~Zambelli, M.~Martins, R.~Pevceviciute, M.~Blokzijl, M.~Denil,
+  N.~Batchelor, T.~Lampe, E.~Parisotto, K.~{\.Z}o{\l}na, S.~Reed, S.~G.
+  Colmenarejo, J.~Scholz, A.~Abdolmaleki, O.~Groth, J.-B. Regli, O.~Sushkov,
+  T.~Roth{\"o}rl, J.~E. Chen, Y.~Aytar, D.~Barker, J.~Ortiz, M.~Riedmiller,
+  J.~T. Springenberg, R.~Hadsell, F.~Nori, and N.~Heess.
+\newblock Robocat: A self-improving generalist agent for robotic manipulation.
+\newblock \emph{arXiv preprint arXiv:2306.11706}, 2023.
+
+\bibitem[Bruce et~al.(2024)Bruce, Dennis, Edwards, Parker-Holder, Shi, Hughes,
+  Lai, Mavalankar, Steigerwald, Apps, Aytar, Bechtle, Behbahani, Chan, Heess,
+  Gonzalez, Osindero, Ozair, Reed, Zhang, Zolna, Clune, de~Freitas, Singh, and
+  Rockt{\"a}schel]{bruce2024genie}
+J.~Bruce, M.~Dennis, A.~Edwards, J.~Parker-Holder, Y.~Shi, E.~Hughes, M.~Lai,
+  A.~Mavalankar, R.~Steigerwald, C.~Apps, Y.~Aytar, S.~Bechtle, F.~Behbahani,
+  S.~Chan, N.~Heess, L.~Gonzalez, S.~Osindero, S.~Ozair, S.~Reed, J.~Zhang,
+  K.~Zolna, J.~Clune, N.~de~Freitas, S.~Singh, and T.~Rockt{\"a}schel.
+\newblock Genie: Generative interactive environments.
+\newblock \emph{arXiv preprint arXiv:2402.15391}, 2024.
+
+\bibitem[Carion et~al.(2025)Carion, Gustafson, Hu, Debnath, Hu, Suris, Ryali,
+  Alwala, Khedr, Huang, Lei, Ma, Guo, Kalla, Marks, Greer, Wang, Sun,
+  R{\"a}dle, Afouras, Mavroudi, Xu, Wu, Zhou, Momeni, Hazra, Ding, Vaze,
+  Porcher, Li, Li, Kamath, Cheng, Doll{\'a}r, Ravi, Saenko, Zhang, and
+  Feichtenhofer]{sam3}
+N.~Carion, L.~Gustafson, Y.-T. Hu, S.~Debnath, R.~Hu, D.~Suris, C.~Ryali, K.~V.
+  Alwala, H.~Khedr, A.~Huang, J.~Lei, T.~Ma, B.~Guo, A.~Kalla, M.~Marks,
+  J.~Greer, M.~Wang, P.~Sun, R.~R{\"a}dle, T.~Afouras, E.~Mavroudi, K.~Xu,
+  T.-H. Wu, Y.~Zhou, L.~Momeni, R.~Hazra, S.~Ding, S.~Vaze, F.~Porcher, F.~Li,
+  S.~Li, A.~Kamath, H.~K. Cheng, P.~Doll{\'a}r, N.~Ravi, K.~Saenko, P.~Zhang,
+  and C.~Feichtenhofer.
+\newblock Sam 3: Segment anything with concepts.
+\newblock \emph{arXiv preprint arXiv:2511.16719}, 2025.
+
+\bibitem[Chen et~al.(2025)Chen, Sun, Zhang, Pollefeys, and Leutenegger]{vidbot}
+H.~Chen, B.~Sun, A.~Zhang, M.~Pollefeys, and S.~Leutenegger.
+\newblock Vidbot: Learning generalizable 3d actions from in-the-wild 2d human
+  videos for zero-shot robotic manipulation.
+\newblock In \emph{Proceedings of the Computer Vision and Pattern Recognition
+  Conference}, pages 27661--27672, 2025.
+
+\bibitem[Chen et~al.(2023)Chen, Zhang, Li, Pang, Xia, and
+  Liu]{chen2023humanmac}
+L.-H. Chen, J.~Zhang, Y.~Li, Y.~Pang, X.~Xia, and T.~Liu.
+\newblock Humanmac: Masked motion completion for human motion prediction.
+\newblock In \emph{Proceedings of the IEEE/CVF international conference on
+  computer vision}, pages 9544--9555, 2023.
+
+\bibitem[Chi et~al.(2024)Chi, Xu, Feng, Cousineau, Du, Burchfiel, Tedrake, and
+  Song]{chi2024diffusionpolicyvisuomotorpolicy}
+C.~Chi, Z.~Xu, S.~Feng, E.~Cousineau, Y.~Du, B.~Burchfiel, R.~Tedrake, and
+  S.~Song.
+\newblock Diffusion policy: Visuomotor policy learning via action diffusion,
+  2024.
+\newblock URL \url{https://arxiv.org/abs/2303.04137}.
+
+\bibitem[Clark et~al.(2026{\natexlab{a}})Clark, Yang, Park, Ma, Zhang,
+  Tripathi, Salehi, Lee, Anderson, Han, et~al.]{clark2026molmopoint}
+C.~Clark, Y.~Yang, J.~S. Park, Z.~Ma, J.~Zhang, R.~Tripathi, M.~Salehi, S.~Lee,
+  T.~Anderson, W.~Han, et~al.
+\newblock Molmopoint: Better pointing for vlms with grounding tokens.
+\newblock \emph{arXiv preprint arXiv:2603.28069}, 2026{\natexlab{a}}.
+
+\bibitem[Clark et~al.(2026{\natexlab{b}})Clark, Zhang, Ma, Park, Salehi,
+  Tripathi, Lee, Ren, Kim, Yang, Shao, Yang, Huang, Gao, Anderson, Zhang, Jain,
+  Stoica, Han, Farhadi, and Krishna]{clark2026molmo2}
+C.~Clark, J.~Zhang, Z.~Ma, J.~S. Park, M.~Salehi, R.~Tripathi, S.~Lee, Z.~Ren,
+  C.~D. Kim, Y.~Yang, V.~Shao, Y.~Yang, W.~Huang, Z.~Gao, T.~Anderson,
+  J.~Zhang, J.~Jain, G.~Stoica, W.~Han, A.~Farhadi, and R.~Krishna.
+\newblock Molmo2: Open weights and data for vision-language models with video
+  understanding and grounding.
+\newblock \emph{arXiv preprint arXiv:2601.10611}, 2026{\natexlab{b}}.
+
+\bibitem[Deshpande et~al.(2026)Deshpande, Guru, Hendrix, Jauhri, Eftekhar,
+  Tripathi, Argus, Salvador, Fang, Wallingford, Pumacay, Kim, Pfeifer, Lee,
+  Wolters, Rayyan, Zhang, Duan, Farley, Han, VanderBilt, Fox, Farhadi,
+  Chalvatzaki, Shah, and Krishna]{deshpande2026molmobot}
+A.~Deshpande, M.~Guru, R.~Hendrix, S.~Jauhri, A.~Eftekhar, R.~Tripathi,
+  M.~Argus, J.~Salvador, H.~Fang, M.~Wallingford, W.~Pumacay, Y.~Kim,
+  Q.~Pfeifer, Y.-C. Lee, P.~Wolters, O.~Rayyan, M.~Zhang, J.~Duan, K.~Farley,
+  W.~Han, E.~VanderBilt, D.~Fox, A.~Farhadi, G.~Chalvatzaki, D.~Shah, and
+  R.~Krishna.
+\newblock Molmobot: Large-scale simulation enables zero-shot manipulation.
+\newblock \emph{arXiv preprint arXiv:2603.16861}, 2026.
+
+\bibitem[Dharmarajan et~al.(2025)Dharmarajan, Huang, Wu, Fei-Fei, and
+  Zhang]{dharmarajan2025dream2flow}
+K.~Dharmarajan, W.~Huang, J.~Wu, L.~Fei-Fei, and R.~Zhang.
+\newblock Dream2flow: Bridging video generation and open-world manipulation
+  with 3d object flow.
+\newblock \emph{arXiv preprint arXiv:2512.24766}, 2025.
+
+\bibitem[Doersch et~al.(2022)Doersch, Gupta, Markeeva, Recasens, Smaira, Aytar,
+  Carreira, Zisserman, and Yang]{doersch2022tapvid}
+C.~Doersch, A.~Gupta, L.~Markeeva, A.~Recasens, L.~Smaira, Y.~Aytar,
+  J.~Carreira, A.~Zisserman, and Y.~Yang.
+\newblock Tap-vid: A benchmark for tracking any point in a video.
+\newblock \emph{Advances in Neural Information Processing Systems},
+  35:\penalty0 13610--13626, 2022.
+
+\bibitem[Doersch et~al.(2023)Doersch, Yang, Vecerik, Gokay, Gupta, Aytar,
+  Carreira, and Zisserman]{doersch2023tapir}
+C.~Doersch, Y.~Yang, M.~Vecerik, D.~Gokay, A.~Gupta, Y.~Aytar, J.~Carreira, and
+  A.~Zisserman.
+\newblock Tapir: Tracking any point with per-frame initialization and temporal
+  refinement.
+\newblock \emph{arXiv preprint arXiv:2306.08637}, 2023.
+
+\bibitem[Doersch et~al.(2024)Doersch, Luc, Yang, Gokay, Koppula, Gupta,
+  Heyward, Rocco, Goroshin, Carreira, and Zisserman]{doersch2024bootstap}
+C.~Doersch, P.~Luc, Y.~Yang, D.~Gokay, S.~Koppula, A.~Gupta, J.~Heyward,
+  I.~Rocco, R.~Goroshin, J.~Carreira, and A.~Zisserman.
+\newblock Bootstap: Bootstrapped training for tracking-any-point.
+\newblock \emph{arXiv preprint arXiv:2402.00847}, 2024.
+
+\bibitem[Fang et~al.(2026)Fang, Duan, Clay, Wang, Liu, Huang, Fan, Tsai, Chen,
+  Wang, et~al.]{fang2026molmoact2}
+H.~Fang, J.~Duan, D.~Clay, S.~Wang, S.~Liu, W.~Huang, X.~Fan, W.-C. Tsai,
+  S.~Chen, Y.~R. Wang, et~al.
+\newblock Molmoact2: Action reasoning models for real-world deployment.
+\newblock \emph{arXiv preprint arXiv:2605.02881}, 2026.
+
+\bibitem[Feng et~al.(2025)Feng, Zhang, Wang, Ye, Yu, Black, Darrell, and
+  Kanazawa]{feng2025st4rtrack}
+H.~Feng, J.~Zhang, Q.~Wang, Y.~Ye, P.~Yu, M.~J. Black, T.~Darrell, and
+  A.~Kanazawa.
+\newblock St4rtrack: Simultaneous 4d reconstruction and tracking in the world.
+\newblock \emph{arXiv preprint arXiv:2504.13152}, 2025.
+
+\bibitem[Finn and Levine(2017)]{finn2017deepvisualforesight}
+C.~Finn and S.~Levine.
+\newblock Deep visual foresight for planning robot motion.
+\newblock In \emph{2017 IEEE international conference on robotics and
+  automation (ICRA)}, pages 2786--2793. IEEE, 2017.
+
+\bibitem[Garrido et~al.(2026)Garrido, Nagarajan, Terver, Ballas, LeCun, and
+  Rabbat]{latentactionwild}
+Q.~Garrido, T.~Nagarajan, B.~Terver, N.~Ballas, Y.~LeCun, and M.~Rabbat.
+\newblock Learning latent action world models in the wild.
+\newblock \emph{arXiv preprint arXiv:2601.05230}, 2026.
+
+\bibitem[Gibson(1986)]{gibson2014ecological}
+J.~Gibson.
+\newblock \emph{The Ecological Approach to Visual Perception}.
+\newblock Resources for ecological psychology. Lawrence Erlbaum Associates,
+  1986.
+\newblock ISBN 9780898599596.
+\newblock URL \url{https://books.google.com/books?id=DrhCCWmJpWUC}.
+
+\bibitem[Goswami et~al.(2025)Goswami, Bar, Fan, Yang, Zhou, Krishnamurthy,
+  Rabbat, Khorrami, and LeCun]{dexwm}
+R.~G. Goswami, A.~Bar, D.~Fan, T.-Y. Yang, G.~Zhou, P.~Krishnamurthy,
+  M.~Rabbat, F.~Khorrami, and Y.~LeCun.
+\newblock World models for learning dexterous hand-object interactions from
+  human videos.
+\newblock \emph{arXiv preprint arXiv:2512.13644}, 2025.
+
+\bibitem[Gu et~al.(2025)Gu, Yan, Lu, Li, Dou, Si, Dong, Liu, Lin, Liu, Wang,
+  and Liu]{gu2025diffusionasshader}
+Z.~Gu, R.~Yan, J.~Lu, P.~Li, Z.~Dou, C.~Si, Z.~Dong, Q.~Liu, C.~Lin, Z.~Liu,
+  W.~Wang, and Y.~Liu.
+\newblock Diffusion as shader: 3d-aware video diffusion for versatile video
+  generation control.
+\newblock \emph{arXiv preprint arXiv:2501.03847}, 2025.
+
+\bibitem[Harley et~al.(2025)Harley, You, Sun, Zheng, Raghuraman, Gu, Liang,
+  Chu, Dave, Tokmakov, You, Ambrus, Fragkiadaki, and Guibas]{alltracker}
+A.~W. Harley, Y.~You, X.~Sun, Y.~Zheng, N.~Raghuraman, Y.~Gu, S.~Liang, W.-H.
+  Chu, A.~Dave, P.~Tokmakov, S.~You, R.~Ambrus, K.~Fragkiadaki, and L.~J.
+  Guibas.
+\newblock Alltracker: Efficient dense point tracking at high resolution.
+\newblock \emph{arXiv preprint arXiv:2506.07310}, 2025.
+
+\bibitem[Hoque et~al.(2025)Hoque, Huang, Yoon, Sivapurapu, and Zhang]{egodex}
+R.~Hoque, P.~Huang, D.~J. Yoon, M.~Sivapurapu, and J.~Zhang.
+\newblock Egodex: Learning dexterous manipulation from large-scale egocentric
+  video.
+\newblock \emph{arXiv preprint arXiv:2505.11709}, 2025.
+
+\bibitem[Hu et~al.(2023)Hu, Russell, Yeo, Murez, Fedoseev, Kendall, Shotton,
+  and Corrado]{hu2023gaia1}
+A.~Hu, L.~Russell, H.~Yeo, Z.~Murez, G.~Fedoseev, A.~Kendall, J.~Shotton, and
+  G.~Corrado.
+\newblock Gaia-1: A generative world model for autonomous driving.
+\newblock \emph{arXiv preprint arXiv:2309.17080}, 2023.
+
+\bibitem[Huang et~al.(2025)Huang, Zhou, Rabeti, Korovko, Ling, Ren, Shen, Gao,
+  Slepichev, Lin, Ren, Xie, Biswas, Leal-Taix{\'e}, and Fidler]{vipe}
+J.~Huang, Q.~Zhou, H.~Rabeti, A.~Korovko, H.~Ling, X.~Ren, T.~Shen, J.~Gao,
+  D.~Slepichev, C.-H. Lin, J.~Ren, K.~Xie, J.~Biswas, L.~Leal-Taix{\'e}, and
+  S.~Fidler.
+\newblock Vipe: Video pose engine for 3d geometric perception.
+\newblock \emph{arXiv preprint arXiv:2508.10934}, 2025.
+
+\bibitem[Huang et~al.(2026)Huang, Chao, Mousavian, Liu, Fox, Mo, and
+  Fei-Fei]{pointworld}
+W.~Huang, Y.-W. Chao, A.~Mousavian, M.-Y. Liu, D.~Fox, K.~Mo, and L.~Fei-Fei.
+\newblock Pointworld: Scaling 3d world models for in-the-wild robotic
+  manipulation.
+\newblock \emph{arXiv preprint arXiv:2601.03782}, 2026.
+
+\bibitem[Huang et~al.(2024)Huang, He, Yu, Zhang, Si, Jiang, Zhang, Wu, Jin,
+  Chanpaisit, Wang, Chen, Wang, Lin, Qiao, and Liu]{huang2023vbench}
+Z.~Huang, Y.~He, J.~Yu, F.~Zhang, C.~Si, Y.~Jiang, Y.~Zhang, T.~Wu, Q.~Jin,
+  N.~Chanpaisit, Y.~Wang, X.~Chen, L.~Wang, D.~Lin, Y.~Qiao, and Z.~Liu.
+\newblock {VBench}: Comprehensive benchmark suite for video generative models.
+\newblock In \emph{Proceedings of the IEEE/CVF Conference on Computer Vision
+  and Pattern Recognition}, 2024.
+
+\bibitem[Jin et~al.(2024)Jin, Tucker, Li, Fouhey, Snavely, and
+  Holynski]{stereo4d}
+L.~Jin, R.~Tucker, Z.~Li, D.~Fouhey, N.~Snavely, and A.~Holynski.
+\newblock Stereo4d: Learning how things move in 3d from internet stereo videos.
+\newblock \emph{arXiv preprint arXiv:2412.09621}, 2024.
+
+\bibitem[Karaev et~al.(2024)Karaev, Makarov, Wang, Neverova, Vedaldi, and
+  Rupprecht]{cotracker3}
+N.~Karaev, I.~Makarov, J.~Wang, N.~Neverova, A.~Vedaldi, and C.~Rupprecht.
+\newblock Cotracker3: Simpler and better point tracking by pseudo-labelling
+  real videos.
+\newblock \emph{arXiv preprint arXiv:2410.11831}, 2024.
+
+\bibitem[Khazatsky et~al.(2024)Khazatsky, Pertsch, Nair, Balakrishna, Dasari,
+  Karamcheti, Nasiriany, Kumar, Chen, Ellis, et~al.]{droid}
+A.~Khazatsky, K.~Pertsch, S.~Nair, A.~Balakrishna, S.~Dasari, S.~Karamcheti,
+  S.~Nasiriany, M.~Kumar, L.~Y. Chen, K.~Ellis, et~al.
+\newblock Droid: A large-scale in-the-wild robot manipulation dataset.
+\newblock \emph{arXiv preprint arXiv:2403.12945}, 2024.
+
+\bibitem[Kim et~al.(2024)Kim, Pertsch, Karamcheti, Xiao, Balakrishna, Nair,
+  Rafailov, Foster, Lam, Sanketi, Vuong, Kollar, Burchfiel, Tedrake, Sadigh,
+  Levine, Liang, and Finn]{openvla}
+M.~J. Kim, K.~Pertsch, S.~Karamcheti, T.~Xiao, A.~Balakrishna, S.~Nair,
+  R.~Rafailov, E.~Foster, G.~Lam, P.~Sanketi, Q.~Vuong, T.~Kollar,
+  B.~Burchfiel, R.~Tedrake, D.~Sadigh, S.~Levine, P.~Liang, and C.~Finn.
+\newblock Openvla: An open-source vision-language-action model.
+\newblock \emph{arXiv preprint arXiv:2406.09246}, 2024.
+
+\bibitem[Kim et~al.(2026)Kim, Pumacay, Rayyan, Argus, Han, VanderBilt,
+  Salvador, Deshpande, Hendrix, Jauhri, Liu, Shafiullah, Guru, Eftekhar,
+  Farley, Clay, Duan, Guru, Wolters, Herrasti, Lee, Chalvatzaki, Cui, Farhadi,
+  Fox, and Krishna]{molmospaces}
+Y.~Kim, W.~Pumacay, O.~Rayyan, M.~Argus, W.~Han, E.~VanderBilt, J.~Salvador,
+  A.~Deshpande, R.~Hendrix, S.~Jauhri, S.~Liu, N.~M.~M. Shafiullah, M.~Guru,
+  A.~Eftekhar, K.~Farley, D.~Clay, J.~Duan, A.~Guru, P.~Wolters, A.~Herrasti,
+  Y.-C. Lee, G.~Chalvatzaki, Y.~Cui, A.~Farhadi, D.~Fox, and R.~Krishna.
+\newblock Molmospaces: A large-scale open ecosystem for robot navigation and
+  manipulation.
+\newblock \emph{arXiv preprint arXiv:2602.11337}, 2026.
+
+\bibitem[Koppula et~al.(2024)Koppula, Rocco, Yang, Heyward, Carreira,
+  Zisserman, Brostow, and Doersch]{koppula2024tapvid3d}
+S.~Koppula, I.~Rocco, Y.~Yang, J.~Heyward, J.~Carreira, A.~Zisserman,
+  G.~Brostow, and C.~Doersch.
+\newblock Tapvid-3d: A benchmark for tracking any point in 3d.
+\newblock \emph{Advances in Neural Information Processing Systems},
+  37:\penalty0 82149--82165, 2024.
+
+\bibitem[Leys et~al.(2013)Leys, Ley, Klein, Bernard, and
+  Licata]{leys2013madoutlier}
+C.~Leys, C.~Ley, O.~Klein, P.~Bernard, and L.~Licata.
+\newblock Detecting outliers: Do not use standard deviation around the mean,
+  use absolute deviation around the median.
+\newblock \emph{Journal of Experimental Social Psychology}, 49\penalty0
+  (4):\penalty0 764--766, 2013.
+
+\bibitem[Li et~al.(2025{\natexlab{a}})Li, Lyu, Liu, Hou, Zhang, and
+  Zhang]{li2025h2r}
+G.~Li, Y.~Lyu, Z.~Liu, C.~Hou, J.~Zhang, and S.~Zhang.
+\newblock H2r: A human-to-robot data augmentation for robot pre-training from
+  videos.
+\newblock \emph{arXiv preprint arXiv:2505.11920}, 2025{\natexlab{a}}.
+
+\bibitem[Li et~al.(2018)Li, Wu, Tedrake, Tenenbaum, and
+  Torralba]{li2018particledynamics}
+Y.~Li, J.~Wu, R.~Tedrake, J.~B. Tenenbaum, and A.~Torralba.
+\newblock Learning particle dynamics for manipulating rigid bodies, deformable
+  objects, and fluids.
+\newblock \emph{arXiv preprint arXiv:1810.01566}, 2018.
+
+\bibitem[Li et~al.(2025{\natexlab{b}})Li, Tucker, Cole, Wang, Jin, Ye,
+  Kanazawa, Holynski, and Snavely]{megasam}
+Z.~Li, R.~Tucker, F.~Cole, Q.~Wang, L.~Jin, V.~Ye, A.~Kanazawa, A.~Holynski,
+  and N.~Snavely.
+\newblock Megasam: Accurate, fast and robust structure and motion from casual
+  dynamic videos.
+\newblock In \emph{Proceedings of the IEEE/CVF Conference on Computer Vision
+  and Pattern Recognition}, pages 10486--10496, 2025{\natexlab{b}}.
+
+\bibitem[Lipman et~al.(2022)Lipman, Chen, Ben-Hamu, Nickel, and
+  Le]{lipman2023flowmatching}
+Y.~Lipman, R.~T. Chen, H.~Ben-Hamu, M.~Nickel, and M.~Le.
+\newblock Flow matching for generative modeling.
+\newblock \emph{arXiv preprint arXiv:2210.02747}, 2022.
+
+\bibitem[Liu et~al.(2022)Liu, Liu, Jiang, Lyu, Wan, Shen, Liang, Fu, Wang, and
+  Yi]{liu2022hoi4d}
+Y.~Liu, Y.~Liu, C.~Jiang, K.~Lyu, W.~Wan, H.~Shen, B.~Liang, Z.~Fu, H.~Wang,
+  and L.~Yi.
+\newblock Hoi4d: A 4d egocentric dataset for category-level human-object
+  interaction.
+\newblock In \emph{Proceedings of the IEEE/CVF Conference on Computer Vision
+  and Pattern Recognition (CVPR)}, pages 21013--21022, June 2022.
+
+\bibitem[Liu et~al.(2025)Liu, Li, Cousineau, Feng, Burchfiel, and
+  Song]{liu2025geometryaware4dvideo}
+Z.~Liu, S.~Li, E.~Cousineau, S.~Feng, B.~Burchfiel, and S.~Song.
+\newblock Geometry-aware 4d video generation for robot manipulation.
+\newblock \emph{arXiv preprint arXiv:2507.01099}, 2025.
+
+\bibitem[Lucas and Kanade(1981)]{lucas1981iterative}
+B.~D. Lucas and T.~Kanade.
+\newblock An iterative image registration technique with an application to
+  stereo vision.
+\newblock In \emph{Proceedings of the 7th International Joint Conference on
+  Artificial Intelligence - Volume 2}, IJCAI'81, page 674–679, San Francisco,
+  CA, USA, 1981. Morgan Kaufmann Publishers Inc.
+
+\bibitem[Mao et~al.(2020)Mao, Liu, Salzmann, and
+  Li]{mao2020learningtrajectorydependencieshuman}
+W.~Mao, M.~Liu, M.~Salzmann, and H.~Li.
+\newblock Learning trajectory dependencies for human motion prediction, 2020.
+\newblock URL \url{https://arxiv.org/abs/1908.05436}.
+
+\bibitem[Mendonca et~al.(2023)Mendonca, Bahl, and Pathak]{bahl2023swim}
+R.~Mendonca, S.~Bahl, and D.~Pathak.
+\newblock Structured world models from human videos.
+\newblock \emph{arXiv preprint arXiv:2308.10901}, 2023.
+
+\bibitem[Micheli et~al.(2023)Micheli, Alonso, and Fleuret]{micheli2023iris}
+V.~Micheli, E.~Alonso, and F.~Fleuret.
+\newblock Transformers are sample-efficient world models.
+\newblock In \emph{The Eleventh International Conference on Learning
+  Representations}, 2023.
+\newblock URL \url{https://openreview.net/forum?id=vhFu1Acb0xb}.
+
+\bibitem[{Octo Model Team} et~al.(2024){Octo Model Team}, Ghosh, Walke,
+  Pertsch, Black, Mees, Dasari, Hejna, Xu, Luo, Kreiman, Tan, Chen, Sanketi,
+  Vuong, Xiao, Sadigh, Finn, and Levine]{octo2024}
+{Octo Model Team}, D.~Ghosh, H.~Walke, K.~Pertsch, K.~Black, O.~Mees,
+  S.~Dasari, J.~Hejna, C.~Xu, J.~Luo, T.~Kreiman, Y.~Tan, L.~Y. Chen,
+  P.~Sanketi, Q.~Vuong, T.~Xiao, D.~Sadigh, C.~Finn, and S.~Levine.
+\newblock Octo: An open-source generalist robot policy.
+\newblock In \emph{Proceedings of Robotics: Science and Systems}, Delft,
+  Netherlands, 2024.
+
+\bibitem[O’Neill et~al.(2024)O’Neill, Rehman, Maddukuri, Gupta, Padalkar,
+  Lee, Pooley, Gupta, Mandlekar, Jain, et~al.]{padalkar2024openx}
+A.~O’Neill, A.~Rehman, A.~Maddukuri, A.~Gupta, A.~Padalkar, A.~Lee,
+  A.~Pooley, A.~Gupta, A.~Mandlekar, A.~Jain, et~al.
+\newblock Open x-embodiment: Robotic learning datasets and rt-x models: Open
+  x-embodiment collaboration 0.
+\newblock In \emph{2024 IEEE International Conference on Robotics and
+  Automation (ICRA)}, pages 6892--6903. IEEE, 2024.
+
+\bibitem[Peebles and Xie(2023)]{peebles2023dit}
+W.~Peebles and S.~Xie.
+\newblock Scalable diffusion models with transformers.
+\newblock In \emph{Proceedings of the IEEE/CVF international conference on
+  computer vision}, pages 4195--4205, 2023.
+
+\bibitem[Perrett et~al.(2025)Perrett, Darkhalil, Sinha, Emara, Pollard, Parida,
+  Liu, Gatti, Bansal, Flanagan, et~al.]{hdepic}
+T.~Perrett, A.~Darkhalil, S.~Sinha, O.~Emara, S.~Pollard, K.~K. Parida, K.~Liu,
+  P.~Gatti, S.~Bansal, K.~Flanagan, et~al.
+\newblock Hd-epic: A highly-detailed egocentric video dataset.
+\newblock In \emph{Proceedings of the Computer Vision and Pattern Recognition
+  Conference}, pages 23901--23913, 2025.
+
+\bibitem[Pont-Tuset et~al.(2017)Pont-Tuset, Perazzi, Caelles, Arbel{\'a}ez,
+  Sorkine-Hornung, and Van~Gool]{davis}
+J.~Pont-Tuset, F.~Perazzi, S.~Caelles, P.~Arbel{\'a}ez, A.~Sorkine-Hornung, and
+  L.~Van~Gool.
+\newblock The 2017 davis challenge on video object segmentation.
+\newblock \emph{arXiv preprint arXiv:1704.00675}, 2017.
+
+\bibitem[Ravi et~al.(2024)Ravi, Gabeur, Hu, Hu, Ryali, Ma, Khedr, R{\"a}dle,
+  Rolland, Gustafson, Mintun, Pan, Alwala, Carion, Wu, Girshick, Doll{\'a}r,
+  and Feichtenhofer]{sam2}
+N.~Ravi, V.~Gabeur, Y.-T. Hu, R.~Hu, C.~Ryali, T.~Ma, H.~Khedr, R.~R{\"a}dle,
+  C.~Rolland, L.~Gustafson, E.~Mintun, J.~Pan, K.~V. Alwala, N.~Carion, C.-Y.
+  Wu, R.~Girshick, P.~Doll{\'a}r, and C.~Feichtenhofer.
+\newblock Sam 2: Segment anything in images and videos.
+\newblock \emph{arXiv preprint arXiv:2408.00714}, 2024.
+
+\bibitem[{Ropedia AI}(2026)]{xperience}
+{Ropedia AI}.
+\newblock Xperience-10m: A large-scale egocentric multimodal dataset with
+  structured 3d/4d annotations.
+\newblock \url{https://huggingface.co/datasets/ropedia-ai/xperience-10m}, 2026.
+\newblock Hugging Face dataset.
+
+\bibitem[Sanchez-Gonzalez et~al.(2020)Sanchez-Gonzalez, Godwin, Pfaff, Ying,
+  Leskovec, and Battaglia]{sanchez2020graphnetworksimulators}
+A.~Sanchez-Gonzalez, J.~Godwin, T.~Pfaff, R.~Ying, J.~Leskovec, and
+  P.~Battaglia.
+\newblock Learning to simulate complex physics with graph networks.
+\newblock In \emph{International conference on machine learning}, pages
+  8459--8468. PMLR, 2020.
+
+\bibitem[Soraki et~al.(2026)Soraki, Bharadhwaj, Farhadi, and
+  Mottaghi]{soraki2026objectforesightpredictingfuture3d}
+R.~Soraki, H.~Bharadhwaj, A.~Farhadi, and R.~Mottaghi.
+\newblock Objectforesight: Predicting future 3d object trajectories from human
+  videos.
+\newblock \emph{arXiv preprint arXiv:2601.05237}, 2026.
+
+\bibitem[Su et~al.(2023)Su, Lu, Pan, Murtadha, Wen, and
+  Liu]{su2023roformerenhancedtransformerrotary}
+J.~Su, Y.~Lu, S.~Pan, A.~Murtadha, B.~Wen, and Y.~Liu.
+\newblock Roformer: Enhanced transformer with rotary position embedding, 2023.
+\newblock URL \url{https://arxiv.org/abs/2104.09864}.
+
+\bibitem[Teed and Deng(2020)]{raft}
+Z.~Teed and J.~Deng.
+\newblock Raft: Recurrent all-pairs field transforms for optical flow.
+\newblock In \emph{European conference on computer vision}, pages 402--419.
+  Springer, 2020.
+
+\bibitem[Thakkar et~al.(2026)Thakkar, Ginosar, Walker, Malik, Carreira, and
+  Doersch]{thakkar2026forecastingmotion}
+N.~Thakkar, S.~Ginosar, J.~Walker, J.~Malik, J.~Carreira, and C.~Doersch.
+\newblock Forecasting motion in the wild.
+\newblock \emph{arXiv preprint arXiv:2604.01015}, 2026.
+
+\bibitem[Traag et~al.(2019)Traag, Waltman, and van Eck]{traag2019leiden}
+V.~A. Traag, L.~Waltman, and N.~J. van Eck.
+\newblock From {Louvain} to {Leiden}: guaranteeing well-connected communities.
+\newblock \emph{Scientific Reports}, 9\penalty0 (1):\penalty0 5233, 2019.
+
+\bibitem[Ullman(1979)]{ullman1979interpretation}
+S.~Ullman.
+\newblock \emph{The Interpretation of Visual Motion}.
+\newblock The MIT Press, 03 1979.
+\newblock ISBN 9780262257121.
+\newblock \doi{10.7551/mitpress/3877.001.0001}.
+\newblock URL \url{https://doi.org/10.7551/mitpress/3877.001.0001}.
+
+\bibitem[Wan et~al.(2025)Wan, Wang, Ai, Wen, Mao, Xie, Chen, Yu, Zhao, Yang,
+  et~al.]{wan22}
+T.~Wan, A.~Wang, B.~Ai, B.~Wen, C.~Mao, C.-W. Xie, D.~Chen, F.~Yu, H.~Zhao,
+  J.~Yang, et~al.
+\newblock Wan: Open and advanced large-scale video generative models.
+\newblock \emph{arXiv preprint arXiv:2503.20314}, 2025.
+
+\bibitem[Wen et~al.(2023)Wen, Tremblay, Blukis, Tyree, M{\"u}ller, Evans, Fox,
+  Kautz, and Birchfield]{wen2023bundlesdf}
+B.~Wen, J.~Tremblay, V.~Blukis, S.~Tyree, T.~M{\"u}ller, A.~Evans, D.~Fox,
+  J.~Kautz, and S.~Birchfield.
+\newblock Bundlesdf: Neural 6-dof tracking and 3d reconstruction of unknown
+  objects.
+\newblock In \emph{Proceedings of the IEEE/CVF Conference on Computer Vision
+  and Pattern Recognition}, pages 606--617, 2023.
+
+\bibitem[Xiao et~al.(2025)Xiao, Wang, Xue, Karaev, Makarov, Kang, Zhu, Bao,
+  Shen, and Zhou]{spatialtrackerv2}
+Y.~Xiao, J.~Wang, N.~Xue, N.~Karaev, Y.~Makarov, B.~Kang, X.~Zhu, H.~Bao,
+  Y.~Shen, and X.~Zhou.
+\newblock Spatialtrackerv2: 3d point tracking made easy.
+\newblock In \emph{Proceedings of the IEEE/CVF International Conference on
+  Computer Vision}, 2025.
+\newblock URL \url{https://arxiv.org/abs/2507.12462}.
+
+\bibitem[Yang et~al.(2025{\natexlab{a}})Yang, Li, Yang, Zhang, Hui, Zheng, Yu,
+  Gao, Huang, Lv, et~al.]{yang2025qwen3}
+A.~Yang, A.~Li, B.~Yang, B.~Zhang, B.~Hui, B.~Zheng, B.~Yu, C.~Gao, C.~Huang,
+  C.~Lv, et~al.
+\newblock Qwen3 technical report.
+\newblock \emph{arXiv preprint arXiv:2505.09388}, 2025{\natexlab{a}}.
+
+\bibitem[Yang et~al.(2019)Yang, Fan, and Xu]{ytvis}
+L.~Yang, Y.~Fan, and N.~Xu.
+\newblock Video instance segmentation.
+\newblock In \emph{Proceedings of the IEEE/CVF international conference on
+  computer vision}, pages 5188--5197, 2019.
+
+\bibitem[Yang et~al.(2025{\natexlab{b}})Yang, Yu, Wu, Yan, Li, Cheng, Zou,
+  Fang, Cheng, Qiu, et~al.]{egovla}
+R.~Yang, Q.~Yu, Y.~Wu, R.~Yan, B.~Li, A.-C. Cheng, X.~Zou, Y.~Fang, X.~Cheng,
+  R.-Z. Qiu, et~al.
+\newblock Egovla: Learning vision-language-action models from egocentric human
+  videos.
+\newblock \emph{arXiv preprint arXiv:2507.12440}, 2025{\natexlab{b}}.
+
+\bibitem[Yang et~al.(2024)Yang, Teng, Zheng, Ding, Huang, Xu, Yang, Hong,
+  Zhang, Feng, et~al.]{yang2025cogvideoxtexttovideodiffusionmodels}
+Z.~Yang, J.~Teng, W.~Zheng, M.~Ding, S.~Huang, J.~Xu, Y.~Yang, W.~Hong,
+  X.~Zhang, G.~Feng, et~al.
+\newblock Cogvideox: Text-to-video diffusion models with an expert transformer.
+\newblock \emph{arXiv preprint arXiv:2408.06072}, 2024.
+
+\bibitem[Ye et~al.(2025)Ye, Jang, Jeon, Joo, Yang, Peng, Mandlekar, Tan, Chao,
+  Lin, Liden, Lee, Gao, Zettlemoyer, Fox, and Seo]{lapa}
+S.~Ye, J.~Jang, B.~Jeon, S.~Joo, J.~Yang, B.~Peng, A.~Mandlekar, R.~Tan, Y.-W.
+  Chao, B.~Y. Lin, L.~Liden, K.~Lee, J.~Gao, L.~Zettlemoyer, D.~Fox, and
+  M.~Seo.
+\newblock Latent action pretraining from videos.
+\newblock In \emph{International Conference on Learning Representations
+  (ICLR)}, 2025.
+
+\bibitem[Yoshida et~al.(2025)Yoshida, Kurita, Nishimura, and
+  Mori]{Yoshida_2025_CVPR}
+T.~Yoshida, S.~Kurita, T.~Nishimura, and S.~Mori.
+\newblock Generating 6dof object manipulation trajectories from action
+  description in egocentric vision.
+\newblock In \emph{Proceedings of the Computer Vision and Pattern Recognition
+  Conference}, pages 17370--17382, 2025.
+
+\bibitem[Zhang et~al.(2025)Zhang, Moing, Koppula, Rocco, Momeni, Xie, Sun,
+  Sukthankar, Barral, Hadsell, Ghahramani, Zisserman, Zhang, and
+  Sajjadi]{zhang2025efficientlyreconstructingdynamicscenes}
+C.~Zhang, G.~L. Moing, S.~Koppula, I.~Rocco, L.~Momeni, J.~Xie, S.~Sun,
+  R.~Sukthankar, J.~K. Barral, R.~Hadsell, Z.~Ghahramani, A.~Zisserman,
+  J.~Zhang, and M.~S.~M. Sajjadi.
+\newblock Efficiently reconstructing dynamic scenes one d4rt at a time, 2025.
+\newblock URL \url{https://arxiv.org/abs/2512.08924}.
+
+\bibitem[Zhou et~al.(2025)Zhou, Pan, Lecun, and Pinto]{zhou2025dinowm}
+G.~Zhou, H.~Pan, Y.~Lecun, and L.~Pinto.
+\newblock {DINO}-{WM}: World models on pre-trained visual features enable
+  zero-shot planning.
+\newblock In A.~Singh, M.~Fazel, D.~Hsu, S.~Lacoste-Julien, F.~Berkenkamp,
+  T.~Maharaj, K.~Wagstaff, and J.~Zhu, editors, \emph{Proceedings of the 42nd
+  International Conference on Machine Learning}, volume 267 of
+  \emph{Proceedings of Machine Learning Research}, pages 79115--79135. PMLR,
+  13--19 Jul 2025.
+\newblock URL \url{https://proceedings.mlr.press/v267/zhou25t.html}.
+
+\bibitem[Zhou et~al.(2026)Zhou, Cao, Ma, Fang, and jun Qi]{traj2action}
+H.~Zhou, J.~Cao, L.~Ma, X.~Fang, and G.~jun Qi.
+\newblock Traj2action: A co-denoising framework for trajectory-guided
+  human-to-robot skill transfer, 2026.
+\newblock URL \url{https://arxiv.org/abs/2510.00491}.
+
+\end{thebibliography}

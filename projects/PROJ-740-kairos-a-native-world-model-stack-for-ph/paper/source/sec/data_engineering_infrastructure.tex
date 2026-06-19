@@ -1,0 +1,28 @@
+In the data pre-processing phase, we built an efficient data engineering infrastructure that achieves significant performance improvements for three core operators: Shot Detection, Frame Filtering, and Captioning. Our optimization strategy focuses on three dimensions: computational parallelization, I/O optimization, and task scheduling, as shown in Table \ref{tab:data_engineering}.
+
+\begin{table}[h]
+\centering
+\footnotesize
+\caption{Engineering optimization for Data Infrastructure.}
+\label{tab:data_engineering}
+\begin{tabular}{lcccp{4.5cm}}
+\toprule
+\textbf{Operator} & \textbf{Baseline (hrs)} & \textbf{Optimized (hrs)} & \textbf{Speedup} & \textbf{Key Techniques} \\
+\midrule
+Shot Detection  & 1,169.6 & 8,640.0  & $7.4\times$  & Dist. scheduling, frame skip, load balancing \\
+Frame Filtering & 612.0   & 18,332.7 & $29.9\times$ & FP16, CPU decode, concurrent scheduling \\
+Captioning      & 137.0   & 4,665.9  & $34.0\times$ & CPU decode, pipeline, two-level batching \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+
+\textbf{Shot Detection Operator Optimization.} The shot detection operator segments long videos into semantically coherent clips. We employ a combination of multiple detectors on a single machine with $8\times$4090 GPUs and 180 vCPUs. Key techniques include: distributed scheduling to replace the original pipeline; resolution downscaling and frame skipping to reduce redundant computation; dynamic worker allocation to increase parallelism; and duration-based task partitioning for load balancing. These optimizations improve throughput from 1,169.6 to 8,640.0 hours/day ($7.4\times$), while maintaining a shot detection recall rate of 77.44\%.
+
+\textbf{Frame Filtering Operator Optimization.} The frame filtering operator conducts multi-dimensional quality assessment, including luminance, blur, aesthetics, and pose detection. We improve throughput from 612.0 to 18,332.7 hours/day ($29.9\times$) through: pre/post-processing refactoring to reduce redundancy; adaptive frame sampling; CPU-concurrent decoding to eliminate serial I/O bottlenecks; FP16 mixed precision inference; and automatic resource scheduling with zero-copy video access to achieve computation-I/O overlap.
+
+\textbf{Caption Operator Optimization.} The captioning operator generates textual descriptions for video clips. We improve throughput from 137.0 to 4,665.9 hours/day ($34.0\times$) by reusing CPU-concurrent decoding, adaptively sampling key segments, and decoupling video loading from model inference into a pipeline architecture with a two-level batching mechanism to balance throughput and memory utilization.
+
+
+Overall, our data engineering infrastructure achieves over $30\times$ end-to-end throughput improvement on a single machine with $8\times$4090 GPUs, with key contributions from: (1) \textbf{Computational Parallelization} via distributed scheduling and load-balanced task partitioning; (2) \textbf{I/O Optimization} via CPU-concurrent decoding, zero-copy streaming, and pipeline overlap; and (3) \textbf{Task Scheduling} via two-level batching and dynamic resource allocation across sub-modules.

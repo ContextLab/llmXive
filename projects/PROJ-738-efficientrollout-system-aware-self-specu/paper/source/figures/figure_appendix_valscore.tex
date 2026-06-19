@@ -1,0 +1,30 @@
+\begin{figure}[t]
+    \centering
+
+    \begin{subfigure}[t]{0.32\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/appendix_fidelity_val_acc_qwen7b.pdf}
+        \caption{Qwen2.5-7B}
+        \label{fig:app_qwen7b_valscore}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.32\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/appendix_fidelity_val_acc_qwen14b.pdf}
+        \caption{Qwen2.5-14B}
+        \label{fig:app_qwen14b_valscore}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.32\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/appendix_fidelity_val_acc_llama8b.pdf}
+        \caption{Llama3.1-8B}
+        \label{fig:app_llama8b_valscore}
+    \end{subfigure}
+
+    \caption{
+    Validation accuracy over training steps for the three evaluated models.
+    \methodtitle{} achieves validation trajectories comparable to the \nosd{} baseline, supporting that the acceleration does not degrade downstream model quality in our evaluated settings.
+    }
+    \label{fig:app_fidelity_valscore}
+\end{figure}

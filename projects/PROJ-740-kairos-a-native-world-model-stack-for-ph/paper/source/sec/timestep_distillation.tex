@@ -1,0 +1,125 @@
+\subsubsection{Timestep Distillation}
+
+\begin{figure}[!t] \centering \includegraphics[width=\linewidth]{figures/distill_paibench_robot.jpg} \caption{Performance of Distilled Kairos Robot Model on PAI-Bench Dataset} \label{fig:distill_paibench_robot} \end{figure}
+
+High-resolution embodied world models can generate realistic environment dynamics and agent interactions, but their diffusion-based iterative sampling often requires dozens or even hundreds of denoising steps, creating a major computational bottleneck for real-time deployment. To address this issue, we distill a pretrained 480P Embodied World Model into an efficient 4-step generator. Following Eq.~\ref{eq:fm_interpolation}, noisy samples $\mathbf{z}_{\sigma}$ are constructed by perturbing clean samples $\mathbf{z}_0^{T}$ from the pretrained teacher model. The student model is then trained to approximate the teacher distribution using significantly fewer sampling steps.
+
+\textbf{Distribution Matching Distillation.}
+We adopt Distribution Matching Distillation (DMD)~\cite{yin2024onestepdiffusiondistributionmatching,yin2024improveddistributionmatchingdistillation} to distill the teacher distribution into a compact generator. The student is parameterized as a feed-forward generator
+\begin{equation}
+\mathbf{z}_0^\theta = G_\theta(\boldsymbol{\xi}),
+\end{equation}
+which maps Gaussian noise $\boldsymbol{\xi}$ directly to the data space with only a few sampling steps.
+
+Since the student defines an implicit distribution whose score function is unavailable in closed form, we introduce an auxiliary fake-score network $\phi$. Under the Rectified Flow formulation, $\phi$ learns the velocity field through
+\begin{equation}
+\mathcal{L}_{\text{fake}}
+=
+\mathbb{E}_{\mathbf{z}_0^\theta,\boldsymbol{\epsilon},\sigma}
+\left[
+\left\|
+\mathcal{V}_\phi(\mathbf{z}_\sigma,\sigma)
+-
+(\boldsymbol{\epsilon}-\mathbf{z}_0^\theta)
+\right\|_2^2
+\right].
+\end{equation}
+
+The predicted velocity can be re-parameterized as a reconstruction of the clean sample
+\begin{equation}
+\hat{\mathbf{z}}_0^\theta
+=
+\frac{
+\mathbf{z}_\sigma
+-
+\sigma
+\mathcal{V}_\phi(\mathbf{z}_\sigma,\sigma)
+}
+{\alpha_\sigma},
+\end{equation}
+which yields the corresponding student score
+\begin{equation}
+\mathbf{s}_\phi(\mathbf{z}_\sigma,\sigma)
+=
+-\frac{\mathbf{z}_\sigma-\alpha_\sigma\hat{\mathbf{z}}_0^\theta}{\sigma^2}.
+\end{equation}
+
+This estimated score serves as a surrogate for the student's score field and enables distribution matching against the teacher during distillation. As the supervision signal, we employ the teacher's classifier-free guidance (CFG) score:
+\begin{equation}
+\mathbf{s}_T
+=
+(1+w)\mathbf{s}_T(\mathbf{z}_\sigma,\sigma,\mathbf{c}_{\mathrm{pos}})
+-
+w\mathbf{s}_T(\mathbf{z}_\sigma,\sigma,\mathbf{c}_{\mathrm{neg}}),
+\end{equation}
+where $\mathbf{c}_{\mathrm{pos}}$ and $\mathbf{c}_{\mathrm{neg}}$ denote positive and negative prompt embeddings, respectively. Distilling the CFG-enhanced teacher score enables the student to inherit both the teacher's generation quality and guided sampling behavior. Moreover, the discrepancy between positive and negative conditioning maintains a non-vanishing optimization signal even when the student approaches the unguided teacher distribution, mitigating optimization stagnation.
+
+To align the student distribution $p_\theta$ with the teacher distribution $p_T$, we minimize the forward KL divergence $D_{\mathrm{KL}}(p_\theta \| p_T)$. Since the student distribution is implicit, directly optimizing the KL objective is intractable. Using score-function identities, its gradient can be expressed as
+\begin{equation}
+\nabla_\theta \mathcal{L}_{\mathrm{DMD}}
+=
+\mathbb{E}_{\mathbf{z}_0^\theta,\boldsymbol{\epsilon},\sigma}
+\left[
+\omega(\sigma)
+\left(
+\mathbf{s}_T
+-
+\mathbf{s}_\phi(\mathbf{z}_\sigma,\sigma)
+\right)
+\frac{\partial \mathbf{z}_\sigma}{\partial \mathbf{z}_0^\theta}
+\frac{\partial \mathbf{z}_0^\theta}{\partial \theta}
+\right],
+\end{equation}
+where $\omega(\sigma)$ is a noise-dependent weighting factor. Consequently, the DMD gradient estimator encourages the student score field to match the teacher score field, thereby aligning the student distribution with the teacher distribution.
+
+When applying DMD to embodied world models, we observe several characteristic degradation phenomena. First, prolonged training often leads to \textbf{instability and mode collapse}, producing repetitive or distorted generations. Second, the distilled generator exhibits a \textbf{motion diminution effect}, tending to favor conservative trajectory updates and consequently underestimating agent dynamics. Third, we observe \textbf{visual homogenization}, where scene diversity gradually decreases and backgrounds converge toward simplified textures. These observations suggest that distribution matching alone is insufficient to fully preserve the temporal dynamics and geometric fidelity of the teacher's trajectories, motivating the additional regularization strategies introduced in the following sections.
+
+\textbf{Consistency Distillation.}
+To further stabilize training and preserve the teacher's generation trajectory, we introduce a continuous-time consistency objective based on consistency models (CM)~\cite{song2023consistencymodels,lu2025simplifyingstabilizingscalingcontinuoustime,zheng2026largescalediffusiondistillation}. While DMD aligns the student with the teacher at the distribution level, CM additionally enforces trajectory consistency by encouraging the student prediction at a noisy state to match the teacher prediction at a neighboring point along the teacher ODE trajectory. This regularization improves training stability and helps preserve fine-grained temporal and structural details.
+
+Given a noisy sample $\mathbf{z}_{\sigma_{n+1}}$, we first construct its neighboring state on the teacher ODE trajectory using a single Euler step:
+\begin{equation}
+\hat{\mathbf{z}}_{\sigma_n}
+=
+\mathbf{z}_{\sigma_{n+1}}
++
+(\sigma_n-\sigma_{n+1})
+\mathcal{V}_{\text{tea}}
+(\mathbf{z}_{\sigma_{n+1}},\sigma_{n+1}),
+\end{equation}
+where $\mathcal{V}_{\text{tea}}$ denotes the teacher velocity field.
+
+The consistency objective is then defined as
+\begin{equation}
+\mathcal{L}_{\text{CM}}
+=
+\mathbb{E}_{\mathbf{z}_{\sigma_{n+1}},n}
+\left[
+\lambda(\sigma_n)
+\left\|
+\mathbf{f}_{\theta}
+(\mathbf{z}_{\sigma_{n+1}},\sigma_{n+1})
+-
+\mathbf{f}_{\text{tea}}
+(\hat{\mathbf{z}}_{\sigma_n},\sigma_n)
+\right\|_2^2
+\right],
+\end{equation}
+where $\mathbf{f}_{\theta}$ and $\mathbf{f}_{\text{tea}}$ denote the student and frozen teacher models, respectively. Optimizing $\mathcal{L}_{\text{CM}}$ enables the student to approximate the teacher's multi-step generation trajectory with significantly fewer sampling steps while maintaining high fidelity.
+
+\textbf{Hybrid Objective.}
+Our final training objective integrates the strengths of both distributional alignment and trajectory consistency. Specifically, we jointly optimize the consistency objective and the DMD score-matching objective:
+\begin{equation}
+\mathcal{L}
+=
+\mathcal{L}_{\text{CM}}
++
+\lambda_{\text{score}}
+\mathcal{L}_{\text{DMD}},
+\end{equation}
+where $\lambda_{\text{score}}$ balances the two terms. This hybrid formulation creates a synergistic effect: $\mathcal{L}_{\text{CM}}$ stabilizes the distillation process by anchoring the student to the teacher's trajectory and preserving structural integrity, while $\mathcal{L}_{\text{DMD}}$ leverages CFG-guided teacher supervision to improve generation fidelity and perceptual quality.
+
+\textbf{Qualitative Results on Paibench.}
+Fig.~\ref{fig:distill_paibench_robot} presents qualitative comparisons on the Paibench benchmark under the TI2V setting. Despite requiring only four inference steps, the distilled generator faithfully reproduces the teacher's spatial structure, motion dynamics, and physical interactions. Fine-grained scene details and coherent object trajectories are well preserved, while dynamic agents exhibit stable and realistic motions.
+
+Compared with the original teacher sampling process, the distilled model achieves comparable visual quality and temporal consistency with substantially reduced sampling cost. These results demonstrate that the proposed distillation framework effectively transfers both distributional knowledge and trajectory dynamics from the teacher model, enabling high-fidelity embodied video generation with efficient 4-step inference.
