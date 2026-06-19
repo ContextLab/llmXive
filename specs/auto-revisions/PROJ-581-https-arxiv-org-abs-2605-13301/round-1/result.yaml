@@ -1,0 +1,395 @@
+project_id: PROJ-581-https-arxiv-org-abs-2605-13301
+round: 1
+revision_kind: paper_science
+from_stage: paper_review
+to_stage: clarified
+worst_severity: science
+seed_action_items:
+- id: 7637034d8ff8
+  text: Fix broken citation key 'Math-Verify' in text to match existing bib entry
+    'chen2025xverify' or add correct entry.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-581-https-arxiv-org-abs-2605-13301/paper/source/
+  location: ''
+- id: 986489a3cf94
+  text: Clarify the status of IMO 2025/USAMO 2026 results; future competition data
+    cannot be presented as established fact without verification.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-581-https-arxiv-org-abs-2605-13301/paper/source/
+  location: ''
+- id: 3e02e8d1e14f
+  text: Verify existence and specifications of baseline models (GPT-5.5, Gemini 3.1
+    Pro) cited in Table 2.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-581-https-arxiv-org-abs-2605-13301/paper/source/
+  location: ''
+- id: 771a3c1a892f
+  text: Code artifacts (training scripts, evaluation harness) are not included in
+    the submission package. Reviewer cannot assess modularity, tests, or dependency
+    hygiene.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-581-https-arxiv-org-abs-2605-13301/paper/source/
+  location: ''
+- id: 127db961bf1f
+  text: Appendix provides hyperparameters but lacks implementation details (e.g.,
+    custom RL modifiers, data loader structure) required for reproducibility from
+    scratch.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-581-https-arxiv-org-abs-2605-13301/paper/source/
+  location: ''
+- id: c8f5785a602c
+  text: Explicitly declare licenses for all training data sources (e.g., DeepMath,
+    NaturalReasoning) in a data card appendix to ensure compliance and reproducibility.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-581-https-arxiv-org-abs-2605-13301/paper/source/
+  location: ''
+- id: 667e8b44e469
+  text: Provide version commit hashes or specific release tags for external datasets
+    (e.g., HuggingFace URLs) to prevent reproducibility drift due to dataset updates.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-581-https-arxiv-org-abs-2605-13301/paper/source/
+  location: ''
+- id: 78e138deddfa
+  text: Detail the schema and exact methodology for 'filtering contaminated problems'
+    to verify that test sets (IMO 2025, USAMO 2026) were not included in the 338K
+    SFT trajectories.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-581-https-arxiv-org-abs-2605-13301/paper/source/
+  location: ''
+- id: f71b80352868
+  text: Archive or replace external links (e.g., Evan Chen, AoPS) with persistent
+    identifiers (DOIs or Wayback Machine snapshots) to mitigate link rot risks.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-581-https-arxiv-org-abs-2605-13301/paper/source/
+  location: ''
+- id: 74968d41d28a
+  text: Add alt text (or \alttext) to all six figures for accessibility compliance.
+    Currently none of the \includegraphics commands include accessibility metadata.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-581-https-arxiv-org-abs-2605-13301/paper/source/
+  location: ''
+- id: cf5634a588b4
+  text: Remove negative vertical spacing (\vspace{-70pt}, \vspace{-18pt}) on wrapfigures
+    to prevent print overlap issues. Test at full print scale.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-581-https-arxiv-org-abs-2605-13301/paper/source/
+  location: ''
+- id: 661147ccf7f7
+  text: Resolve duplicate placement of figure/progressive_rigorous_reasoning.pdf (appears
+    in Section 5.5 and Analysis/Discussion). Keep one canonical location.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-581-https-arxiv-org-abs-2605-13301/paper/source/
+  location: ''
+- id: 1ad01344adf1
+  text: "Verify axis labels and legend text are \u22658pt at final print scale. Some\
+    \ captions reference numeric values that should appear directly on figures."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-581-https-arxiv-org-abs-2605-13301/paper/source/
+  location: ''
+- id: 046230990bbf
+  text: Check color palette (iclrdeepblue, ScienceReasoningBg) for colorblind accessibility.
+    Provide grayscale fallback or pattern alternatives.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-581-https-arxiv-org-abs-2605-13301/paper/source/
+  location: ''
+- id: 1659502cb402
+  text: Define all acronyms (SFT, RL, TTS, RLVR, GSPO, PPL) at first use in Abstract
+    or Introduction.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-581-https-arxiv-org-abs-2605-13301/paper/source/
+  location: ''
+- id: 0217a15613b9
+  text: Replace dense jargon (e.g., "post-trained backbone", "trajectory", "rollouts")
+    with plain English equivalents in Methods.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-581-https-arxiv-org-abs-2605-13301/paper/source/
+  location: ''
+- id: d11ed40a4199
+  text: Define niche acronyms (MoE, CoT, KL, API, GPU, LLM, AoPS, STEM, IF) in Related
+    Work or Appendix.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-581-https-arxiv-org-abs-2605-13301/paper/source/
+  location: ''
+- id: 2bcdc46bcef3
+  text: "The manuscript claims \"gold\u2011medal\u2011level\" performance on IMO\u202F\
+    2025 and USAMO\u202F2026 (Table\u202F3) but the reported 35\u2011point scores\
+    \ rely on human\u2011expert evaluation of the test\u2011time scaling (TTS) pipeline\
+    \ (marked with \u2605). This is not the standard competition setting and should\
+    \ be qualified as a post\u2011hoc augmentation rather than intrinsic model capability."
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-581-https-arxiv-org-abs-2605-13301/paper/source/
+  location: ''
+- id: a1bfd7d1f203
+  text: "The abstract and introduction state that a \"simple and unified scaling\"\
+    \ pipeline achieves olympiad\u2011level reasoning, yet the method comprises three\
+    \ distinct stages (SFT, two\u2011stage RL, and TTS) with many hyper\u2011parameters\
+    \ and infrastructure details. The claim of simplicity is therefore overstated\
+    \ and should be revised."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-581-https-arxiv-org-abs-2605-13301/paper/source/
+  location: ''
+- id: 3866515dd7ae
+  text: "Gold\u2011medal performance is reported for IPhO\u202F2024/2025 (Table\u202F\
+    4) without providing a baseline comparison to human competitors or clarifying\
+    \ the scoring rubric. The paper should either supply appropriate baselines or\
+    \ temper the claim of surpassing the gold\u2011medal threshold."
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-581-https-arxiv-org-abs-2605-13301/paper/source/
+  location: ''
+- id: 6dcd4c64793a
+  text: "The statement that the model retains \"strong generalization to scientific\
+    \ domains\" is based solely on the FrontierScience\u2011Olympiad and FrontierScience\u2011\
+    Research benchmarks, which are limited in scope. Additional evidence or a more\
+    \ modest phrasing is needed to avoid overgeneralization."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-581-https-arxiv-org-abs-2605-13301/paper/source/
+  location: ''
+- id: 5cece80abac3
+  text: "Limit the use of the term \"gold\u2011medal\" to contexts where the model\u2019\
+    s performance matches official competition scoring under identical constraints.\
+    \ Otherwise, rephrase to indicate that the model reaches comparable scores when\
+    \ augmented with TTS."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-581-https-arxiv-org-abs-2605-13301/paper/source/
+  location: ''
+- id: c000d926a058
+  text: Add explicit ethics statement regarding IRB approval or informed consent for
+    the three human gold-medal experts used in IMO/USAMO evaluation.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-581-https-arxiv-org-abs-2605-13301/paper/source/
+  location: ''
+- id: f28f296a1e2f
+  text: Include a discussion on dual-use risks and responsible release policies for
+    the SU-01 model, particularly given its generalization to Chemistry and Biology
+    domains.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-581-https-arxiv-org-abs-2605-13301/paper/source/
+  location: ''
+- id: d5fe6eaffeb4
+  text: Report confidence intervals or standard deviations for all benchmark percentages
+    in Table 1 to account for small sample sizes (e.g., AIME problems).
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-581-https-arxiv-org-abs-2605-13301/paper/source/
+  location: ''
+- id: de4fb95a989e
+  text: Clarify TTS usage and inference compute budgets for baseline models (Gemini
+    3.1 Pro, GPT-5.5) to ensure fair comparison against SU-01's TTS results.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-581-https-arxiv-org-abs-2605-13301/paper/source/
+  location: ''
+- id: 0c34a4240dc7
+  text: Report inter-annotator agreement (e.g., Cohen's kappa) for the human expert
+    scoring on IMO 2025 and USAMO 2026 to validate score stability.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-581-https-arxiv-org-abs-2605-13301/paper/source/
+  location: ''
+- id: 609b4fce7a98
+  text: Provide performance variance across multiple random seeds for the RL training
+    stage (200 steps) to demonstrate convergence stability and generalization.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-581-https-arxiv-org-abs-2605-13301/paper/source/
+  location: ''
+- id: 6473a22982d8
+  text: Re-run IMO 2025 and USAMO 2026 evaluations with multiple random seeds to provide
+    confidence intervals for the reported gold-medal scores. Single-instance benchmarks
+    lack statistical power.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-581-https-arxiv-org-abs-2605-13301/paper/source/
+  location: ''
+- id: e3dca5226932
+  text: Report standard deviations or error bars for all benchmark results in Tables
+    1, 2, and 3. Current point estimates do not allow assessment of statistical significance.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-581-https-arxiv-org-abs-2605-13301/paper/source/
+  location: ''
+- id: 2f348e2f3444
+  text: Address multiple-comparisons inflation across the numerous benchmarks. Justify
+    'best/second best' bolding without p-values or correction for multiple testing.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-581-https-arxiv-org-abs-2605-13301/paper/source/
+  location: ''
+- id: 02fb19d5eb51
+  text: Clarify the evaluation metric in Appendix E (worst score vs. mean) and report
+    inter-rater reliability (e.g., Cohen's Kappa) for the human-expert grading.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-581-https-arxiv-org-abs-2605-13301/paper/source/
+  location: ''
+- id: 597dc1e34734
+  text: 'Citation style inconsistent: paper uses \citep{}, \citet{}, and \cite{} interchangeably
+    throughout (e.g., \citep{trinh2024alphageometry} vs \citet{huang2025winning}).
+    Standardize to one format per ICLR style guide.'
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-581-https-arxiv-org-abs-2605-13301/paper/source/
+  location: ''
+- id: 5808793f7fe8
+  text: 'Cross-reference style inconsistent: \cref{}, \ref{}, and ''Figure~\ref{}''
+    used interchangeably. Choose one convention (preferably \cref{} for ICLR) and
+    apply consistently.'
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-581-https-arxiv-org-abs-2605-13301/paper/source/
+  location: ''
+- id: 2fa0a400696e
+  text: 'Figure caption placement inconsistent: \captionof{figure} used in center
+    environment (e000) but \caption{} in figure* environments. Standardize caption
+    commands.'
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-581-https-arxiv-org-abs-2605-13301/paper/source/
+  location: ''
+- id: 84d9824d79b7
+  text: 'Appendix section numbering conflict: \section*{Appendix} (unnumbered) followed
+    by numbered \section{} entries creates TOC confusion. Use consistent numbering
+    scheme.'
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-581-https-arxiv-org-abs-2605-13301/paper/source/
+  location: ''
+- id: faa7bafc4037
+  text: 'Table spacing inconsistency: \vspace{-5 pt}, \vspace{-0.75em}, \vspace{-1.0em}
+    used interchangeably. Standardize spacing units (prefer em).'
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-581-https-arxiv-org-abs-2605-13301/paper/source/
+  location: ''
+- id: c89d2e9dc43b
+  text: 'Model name formatting inconsistent: \textbf{}, \textcolor{iclrdeepblue}{}
+    used inconsistently for model names like SU-01. Apply consistent styling.'
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-581-https-arxiv-org-abs-2605-13301/paper/source/
+  location: ''
+- id: 15ef34dfc8e7
+  text: 'Document structure conflict: \section{Introduction} and \section{Experimental
+    Results} appear multiple times across chunks (e000, e005, e006), causing duplicate
+    headers and TOC errors.'
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-581-https-arxiv-org-abs-2605-13301/paper/source/
+  location: ''
+- id: 7744174f575f
+  text: "Standardize hyphenation for model names and compound adjectives (e.g., 'SU-01'\
+    \ vs 'SU\u201101', 'gold-medal-level' vs 'gold\u2011medal\u2011level'). Ensure\
+    \ consistent use of en-dashes or hyphens throughout."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-581-https-arxiv-org-abs-2605-13301/paper/source/
+  location: ''
+- id: 6c613adc4203
+  text: Unify unit capitalization for tokens (e.g., '160K' vs '160k', '32k' vs '32K').
+    Consistent formatting improves professional appearance.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-581-https-arxiv-org-abs-2605-13301/paper/source/
+  location: ''
+- id: 97a19146f259
+  text: Ensure consistent citation command usage (e.g., '\citep' vs '\citet') across
+    all sections. Currently mixed between chunks.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-581-https-arxiv-org-abs-2605-13301/paper/source/
+  location: ''
+- id: 072e9eca1b2d
+  text: Resolve duplicate or conflicting section content (e.g., Abstract length, SFT
+    data counts '338K' vs '340K'). The paper should present a single, consistent narrative.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-581-https-arxiv-org-abs-2605-13301/paper/source/
+  location: ''
+kickback_reason: 'advancement.evaluate: paper-review non-convergence; routing via
+  engine adapter.'
+kickback_artifact_links:
+- projects/PROJ-581-https-arxiv-org-abs-2605-13301/paper/source/
+stage_results:
+- name: specify
+  status: success
+- name: clarify
+  status: success
+  note: auto-resolved; deterministic adapter needs no clarifications
+- name: plan
+  status: success
+- name: tasks
+  status: success
+  note: 43 tasks emitted (one per concern)
+- name: analyze
+  status: success
+  iterations: 1
+  finding_count: 0
+final_outcome: ready_for_implementation
+produced_at: '2026-06-19T16:06:02.104253+00:00'

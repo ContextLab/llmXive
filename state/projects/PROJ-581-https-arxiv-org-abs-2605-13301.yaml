@@ -6,13 +6,13 @@ failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-581-https-arxiv-org-abs-2605-13301
-last_run_id: null
+last_run_id: 38566b92-bbe7-4195-8c05-618acbe3151d
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
-revision_spec_path: null
+revision_spec_path: specs/auto-revisions/PROJ-581-https-arxiv-org-abs-2605-13301/round-1
 speckit_paper_dir: null
 speckit_research_dir: null
 title: Achieving Gold-Medal-Level Olympiad Reasoning via Simple and Unified Scaling
-updated_at: '2026-05-16T21:50:33.802916Z'
+updated_at: '2026-06-19T16:06:02.136044Z'

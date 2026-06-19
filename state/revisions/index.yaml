@@ -114,3 +114,6 @@ ready:
 - project_id: PROJ-608-autoresearchclaw-self-reinforcing-autono
   revision_spec_path: specs/auto-revisions/PROJ-608-autoresearchclaw-self-reinforcing-autono/round-1
   queued_at: '2026-06-19T06:18:46.954244+00:00'
+- project_id: PROJ-581-https-arxiv-org-abs-2605-13301
+  revision_spec_path: specs/auto-revisions/PROJ-581-https-arxiv-org-abs-2605-13301/round-1
+  queued_at: '2026-06-19T16:06:02.120008+00:00'
