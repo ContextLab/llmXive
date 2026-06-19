@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2401.16548",
+  "judged_at": "2026-06-19T08:13:54Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "transferability of dft‑d3 dispersion to ionic liquids chemistry",
+  "rationale": "The paper studies electronic polarizabilities and refractive indices of ionic liquids, without addressing DFT‑D3 dispersion corrections or their transferability; it does not measure the same mechanism (dispersion) nor any of the independent/dependent variables central to the user's question. Hence it is not relevant for the literature review on DFT‑D3 dispersion in ionic liquids.",
+  "relevant": false
+}

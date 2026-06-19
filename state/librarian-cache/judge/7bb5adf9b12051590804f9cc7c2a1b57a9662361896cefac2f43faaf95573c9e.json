@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1905.11145",
+  "judged_at": "2026-06-19T08:13:47Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "transferability of dft‑d3 dispersion to ionic liquids chemistry",
+  "rationale": "The paper provides a comprehensive, canonical study of ionic liquids across multiple scales, establishing baseline knowledge of IL structures and properties; thus it satisfies criterion (e) as an empirical‑population canonical study relevant to the domain of the user's question about DFT‑D3 dispersion transferability to ionic liquids.",
+  "relevant": true
+}

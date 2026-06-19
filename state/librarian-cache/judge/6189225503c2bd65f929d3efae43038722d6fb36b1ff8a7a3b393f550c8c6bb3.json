@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1208.0924",
+  "judged_at": "2026-06-19T08:11:46Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting personal sleep quality from resting-state fmri connectivity neuroscience",
+  "rationale": "The paper investigates resting‑state fMRI functional connectivity (network centrality, transfer entropy, etc.), which is the same independent variable (rs‑fMRI connectivity) that the user’s question seeks to use for prediction, even though it does not address sleep quality. This satisfies inclusion criterion (b): it measures one of the user’s variables on the relevant domain.",
+  "relevant": true
+}

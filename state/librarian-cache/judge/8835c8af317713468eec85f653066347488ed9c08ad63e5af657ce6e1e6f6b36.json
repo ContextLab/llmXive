@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2008.06415",
+  "judged_at": "2026-06-19T08:12:59Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "assessing uncertainty quantification techniques for materials property predictions materials science",
+  "rationale": "The paper introduces a new graph‑convolutional neural network for predicting material properties and benchmarks its accuracy, but it does not discuss, evaluate, or develop uncertainty quantification methods, which is the core focus of the user's question. Hence it lacks relevance under criteria (a)–(f).",
+  "relevant": false
+}

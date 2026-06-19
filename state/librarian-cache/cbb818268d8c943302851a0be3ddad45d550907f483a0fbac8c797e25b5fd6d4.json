@@ -1,0 +1,655 @@
+{
+  "fetched_at": "2026-06-19T08:12:59Z",
+  "field": "materials science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "materials science",
+      "idea_body_excerpt": "Assessing Uncertainty Quantification Techniques for Materials Property Predictions",
+      "target_n": 5
+    },
+    "duration_seconds": 53.351,
+    "ended_at": "2026-06-19T08:12:59Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "Bayesian neural networks for materials property prediction"
+        ],
+        [
+          2,
+          "Gaussian process regression in materials informatics"
+        ],
+        [
+          3,
+          "Ensemble learning approaches for materials property estimation"
+        ],
+        [
+          4,
+          "Monte Carlo dropout uncertainty in materials modeling"
+        ],
+        [
+          5,
+          "Aleatoric vs. epistemic uncertainty in computational materials science"
+        ],
+        [
+          6,
+          "Probabilistic surrogate models for material design"
+        ],
+        [
+          7,
+          "Calibration and validation of predictive models in materials science"
+        ],
+        [
+          8,
+          "Confidence interval estimation for density functional theory results"
+        ],
+        [
+          9,
+          "Uncertainty propagation in high‑throughput materials screening"
+        ],
+        [
+          10,
+          "Bayesian error estimation for interatomic potentials"
+        ],
+        [
+          11,
+          "Stochastic modeling of thermodynamic property predictions"
+        ],
+        [
+          12,
+          "Reliability analysis of machine‑learned materials descriptors"
+        ],
+        [
+          13,
+          "Probabilistic machine learning frameworks for crystal structure prediction"
+        ],
+        [
+          14,
+          "Quantitative uncertainty quantification in materials databases"
+        ],
+        [
+          15,
+          "Bayesian inference methods for thermodynamic property prediction"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Assessing Uncertainty Quantification Techniques for Materials Property Predictions materials science": 0,
+        "Bayesian neural networks for materials property prediction": 5
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "predictive uncertainty materials",
+      "Materials Project dataset regression",
+      "deep ensemble uncertainty quantification",
+      "calibration error prediction intervals",
+      "Bayesian inference error propagation"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2006.01490"
+      ]
+    },
+    "per_query_hit_count": {
+      "Assessing Uncertainty Quantification Techniques for Materials Property Predictions materials science": 3,
+      "Bayesian inference error propagation": 3,
+      "Materials Project dataset regression": 3,
+      "calibration error prediction intervals": 3,
+      "deep ensemble uncertainty quantification": 3,
+      "predictive uncertainty materials": 1
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 3,
+      "rejections": [
+        {
+          "primary_pointer": "2401.11052",
+          "rationale": "The paper evaluates large language models for extracting material property information from texts, which does not address uncertainty quantification methods or their assessment for materials property predictions, nor does it provide a baseline or methodology related to UQ. Hence it is unrelated to the user's research question.",
+          "title": "Mining experimental data from Materials Science literature with Large Language Models: an evaluation study"
+        },
+        {
+          "primary_pointer": "2307.05639",
+          "rationale": "The paper focuses on Gaussian RBF neural networks for active subspace discovery and feature importance, without addressing uncertainty quantification or materials property prediction, so it does not meet any inclusion criteria (a‑f).",
+          "title": "Learning Active Subspaces and Discovering Important Features with Gaussian Radial Basis Functions Neural Networks"
+        },
+        {
+          "primary_pointer": "2008.06415",
+          "rationale": "The paper introduces a new graph‑convolutional neural network for predicting material properties and benchmarks its accuracy, but it does not discuss, evaluate, or develop uncertainty quantification methods, which is the core focus of the user's question. Hence it lacks relevance under criteria (a)–(f).",
+          "title": "Orbital Graph Convolutional Neural Network for Material Property Prediction"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-19T08:12:06Z",
+    "term_input": {
+      "normalized": "assessing uncertainty quantification techniques for materials property predictions materials science",
+      "raw": "Assessing Uncertainty Quantification Techniques for Materials Property Predictions materials science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Material representations that are compatible with machine learning models play a key role in developing models that exhibit high accuracy for property prediction. Atomic orbital interactions are one of the important factors that govern the properties of crystalline materials, from which the local chemical environments of atoms is inferred. Therefore, to develop robust machine learningmodels for material properties prediction, it is imperative to include features representing such chemical attributes. Here, we propose the Orbital Graph Convolutional Neural Network (OGCNN), a crystal graph convolutional neural network framework that includes atomic orbital interaction features that learns material properties in a robust way. In addition, we embedded an encoder-decoder network into the OGCNN enabling it to learn important features among basic atomic (elemental features), orbital-orbital interactions, and topological features. We examined the performance of this model on a broad range of crystalline material data to predict different properties. We benchmarked the performance of the OGCNN model with that of: 1) the crystal graph convolutional neural network (CGCNN), 2) other state-of-the-art descriptors for material representations including Many-body Tensor Representation (MBTR) and the Smooth Overlap of Atomic Positions (SOAP), and 3) other conventional regression machine learning algorithms where different crystal featurization methods have been used. We find that OGCNN significantly outperforms them. The OGCNN model with high predictive accuracy can be used to discover new materials among the immense phase and compound spaces of materials",
+          "claimed_authors": [
+            "Mohammadreza Karamad",
+            "Rishikesh Magar",
+            "Yuting Shi",
+            "Samira Siahrostami",
+            "Ian D. Gates",
+            "Amir Barati Farimani"
+          ],
+          "claimed_title": "Orbital Graph Convolutional Neural Network for Material Property Prediction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2008.06415"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Assessing Uncertainty Quantification Techniques for Materials Property Predictio', candidate_title='Orbital Graph Convolutional Neural Network for Material Property Prediction')",
+        "failed_at": "2026-06-19T08:12:39Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In the rapidly expanding field of two-dimensional materials, magnetic monolayers show great promise for the future applications in nanoelectronics, data storage, and sensing. The research in intrinsically magnetic two-dimensional materials mainly focuses on synthetic iodide and telluride based compounds, which inherently suffer from the lack of ambient stability. So far, naturally occurring layered magnetic materials have been vastly overlooked. These minerals offer a unique opportunity to explore air-stable complex layered systems with high concentration of local moment bearing ions. We demonstrate magnetic ordering in iron-rich two-dimensional phyllosilicates, focusing on mineral species of minnesotaite, annite, and biotite. These are naturally occurring van der Waals magnetic materials which integrate local moment baring ions of iron via magnesium/aluminium substitution in their octahedral sites. Due to self-inherent capping by silicate/aluminate tetrahedral groups, ultra-thin layers are air-stable. Chemical characterization, quantitative elemental analysis, and iron oxidation states were determined via Raman spectroscopy, wavelength disperse X-ray spectroscopy, X-ray absorption spectroscopy, and X-ray photoelectron spectroscopy. Superconducting quantum interference device magnetometry measurements were performed to examine the magnetic ordering. These layered materials exhibit paramagnetic or superparamagnetic characteristics at room temperature. At low temperature ferrimagnetic or antiferromagnetic ordering occurs, with the critical ordering temperature of 38.7 K for minnesotaite, 36.1 K for annite, and 4.9 K for biotite. In-field magnetic force microscopy on iron bearing phyllosilicates confirmed the paramagnetic response at room temperature, present down to monolayers.",
+          "claimed_authors": [
+            "Muhammad Zubair Khan",
+            "Oleg E. Peil",
+            "Apoorva Sharma",
+            "Oleksandr Selyshchev",
+            "Sergio Valencia",
+            "Florian Kronast",
+            "Maik Zimmermann",
+            "Muhammad Awais Aslam",
+            "Johann G. Raith",
+            "Christian Teichert",
+            "Dietrich R. T. Zahn",
+            "Georgeta Salvan",
+            "Aleksandar Matković",
+            "Chair of Physics",
+            "Department Physics",
+            " Mechanics",
+            "Electrical engineering",
+            "Montanuniversität Leoben",
+            " 8700",
+            " Leoben",
+            " Austria.",
+            "Materials Center Leoben Forschung GmbH",
+            " 8700",
+            " Leoben",
+            " Austria.",
+            "Semiconductor Physics",
+            "Chemnitz University of Technology",
+            " D-09107",
+            " Chemnitz",
+            " Germany.",
+            "Department of Spin",
+            "Topology in Quantum Materials",
+            "Helmholtz-Zentrum Berlin",
+            "Albert-Einstein-Str. 15",
+            " D-12489",
+            " Berlin",
+            " Germany.",
+            "Chair of Resource Mineralogy",
+            "Montanuniversität Leoben",
+            " 8700",
+            " Leoben",
+            " Austria.",
+            "Centre for Materials",
+            " Architecture",
+            "Integration of Nanomembranes",
+            "Chemnitz University of Technology",
+            " 09126",
+            " Chemnitz",
+            " Germany"
+          ],
+          "claimed_title": "Probing magnetic ordering in air stable iron-rich van der Waals minerals",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2304.06533"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Assessing Uncertainty Quantification Techniques for Materials Property Predictio', candidate_title='Probing magnetic ordering in air stable iron-rich van der Waals minerals')",
+        "failed_at": "2026-06-19T08:12:39Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A new multiferroic material, CuBr2, is reported for the first time. CuBr2 has not only a high transition temperature (close to liquid nitrogen temperature) but also low dielectric loss and strong magnetoelectric coupling. These findings reveal the importance of anion effects in the search for the high temperature multiferroics materials among these low-dimensional spin systems.",
+          "claimed_authors": [
+            "L. Zhao",
+            "T. L. Hung",
+            "C. C. Li",
+            "Y. Y. Chen",
+            "M. K. Wu",
+            "R. K. Kremer",
+            "M. G. Banks",
+            "A. Simon",
+            "M. H. Whangbo",
+            "C. Lee",
+            "J. S. Kim",
+            "I. Kim",
+            "K. H. Kim"
+          ],
+          "claimed_title": "CuBr2-A New Multiferroic Material with High Critical Temperature",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1205.5318"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Assessing Uncertainty Quantification Techniques for Materials Property Predictio', candidate_title='CuBr2-A New Multiferroic Material with High Critical Temperature')",
+        "failed_at": "2026-06-19T08:12:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The RSNA Abdominal Traumatic Injury CT (RATIC) dataset is the largest publicly available collection of adult abdominal CT studies annotated for traumatic injuries. This dataset includes 4,274 studies from 23 institutions across 14 countries. The dataset is freely available for non-commercial use via Kaggle at https://www.kaggle.com/competitions/rsna-2023-abdominal-trauma-detection. Created for the RSNA 2023 Abdominal Trauma Detection competition, the dataset encourages the development of advanced machine learning models for detecting abdominal injuries on CT scans. The dataset encompasses detection and classification of traumatic injuries across multiple organs, including the liver, spleen, kidneys, bowel, and mesentery. Annotations were created by expert radiologists from the American Society of Emergency Radiology (ASER) and Society of Abdominal Radiology (SAR). The dataset is annotated at multiple levels, including the presence of injuries in three solid organs with injury grading, image-level annotations for active extravasations and bowel injury, and voxelwise segmentations of each of the potentially injured organs. With the release of this dataset, we hope to facilitate research and development in machine learning and abdominal trauma that can lead to improved patient care and outcomes.",
+          "claimed_authors": [
+            "Jeffrey D. Rudie",
+            "Hui-Ming Lin",
+            "Robyn L. Ball",
+            "Sabeena Jalal",
+            "Luciano M. Prevedello",
+            "Savvas Nicolaou",
+            "Brett S. Marinelli",
+            "Adam E. Flanders",
+            "Kirti Magudia",
+            "George Shih",
+            "Melissa A. Davis",
+            "John Mongan",
+            "Peter D. Chang",
+            "Ferco H. Berger",
+            "Sebastiaan Hermans",
+            "Meng Law",
+            "Tyler Richards",
+            "Jan-Peter Grunz",
+            "Andreas Steven Kunz",
+            "Shobhit Mathur",
+            "Sandro Galea-Soler",
+            "Andrew D. Chung",
+            "Saif Afat",
+            "Chin-Chi Kuo",
+            "Layal Aweidah",
+            "Ana Villanueva Campos",
+            "Arjuna Somasundaram",
+            "Felipe Antonio Sanchez Tijmes",
+            "Attaporn Jantarangkoon",
+            "Leonardo Kayat Bittencourt",
+            "Michael Brassil",
+            "Ayoub El Hajjami",
+            "Hakan Dogan",
+            "Muris Becircic",
+            "Agrahara G. Bharatkumar",
+            "Eduardo Moreno Júdice de Mattos Farina",
+            "Dataset Curator Group",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Errol Colak"
+          ],
+          "claimed_title": "The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.19595"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Assessing Uncertainty Quantification Techniques for Materials Property Predictio', candidate_title='The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset')",
+        "failed_at": "2026-06-19T08:12:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The book consists of a number of short articles that present achievements of the Araucaria members, collaborators, and friends, in various aspects of distance determinations and related topics. It celebrates the 20-year anniversary of the Araucaria Project, acknowledges the people who worked for its success, and popularises our methods and results among broader readership.\n  This book is a part of a project that has received funding from the European Union's Horizon 2020 research and innovation programme under grant agreement No 695099.",
+          "claimed_authors": [
+            "The Araucaria Project",
+            " :",
+            "G. Pietrzyński",
+            "W. Gieren",
+            "P. Karczmarek",
+            "M. Górski",
+            "B. Zgirski",
+            "P. Wielgórski",
+            "L. Breuval",
+            "K. Suchomska",
+            "A. Gallenne",
+            "P. Kervella",
+            "G. Hajdu",
+            "B. Pilecki",
+            "J. Storm",
+            "N. Nardetto",
+            "R. P. Kudritzki",
+            "M. Taormina",
+            "F. Bresolin",
+            "R. Smolec",
+            "W. Narloch",
+            "C. Gałan",
+            "M. Lewis",
+            "R. Chini"
+          ],
+          "claimed_title": "The Araucaria Project: Improving the cosmic distance scale",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2305.17247"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Assessing Uncertainty Quantification Techniques for Materials Property Predictio', candidate_title='The Araucaria Project: Improving the cosmic distance scale')",
+        "failed_at": "2026-06-19T08:12:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Radiological Society of North America (RSNA) Lumbar Degenerative Imaging Spine Classification (LumbarDISC) dataset is the largest publicly available dataset of adult MRI lumbar spine examinations annotated for degenerative changes. The dataset includes 2,697 patients with a total of 8,593 image series from 8 institutions across 6 countries and 5 continents. The dataset is available for free for non-commercial use via Kaggle and RSNA Medical Imaging Resource of AI (MIRA). The dataset was created for the RSNA 2024 Lumbar Spine Degenerative Classification competition where competitors developed deep learning models to grade degenerative changes in the lumbar spine. The degree of spinal canal, subarticular recess, and neural foraminal stenosis was graded at each intervertebral disc level in the lumbar spine. The images were annotated by expert volunteer neuroradiologists and musculoskeletal radiologists from the RSNA, American Society of Neuroradiology, and the American Society of Spine Radiology. This dataset aims to facilitate research and development in machine learning and lumbar spine imaging to lead to improved patient care and clinical efficiency.",
+          "claimed_authors": [
+            "Tyler J. Richards",
+            "Adam E. Flanders",
+            "Errol Colak",
+            "Luciano M. Prevedello",
+            "Robyn L. Ball",
+            "Felipe Kitamura",
+            "John Mongan",
+            "Maryam Vazirabad",
+            "Hui-Ming Lin",
+            "Anne Kendell",
+            "Thanat Kanthawang",
+            "Salita Angkurawaranon",
+            "Emre Altinmakas",
+            "Hakan Dogan",
+            "Paulo Eduardo de Aguiar Kuriki",
+            "Arjuna Somasundaram",
+            "Christopher Ruston",
+            "Deniz Bulja",
+            "Naida Spahovic",
+            "Jennifer Sommer",
+            "Sirui Jiang",
+            "Eduardo Moreno Judice de Mattos Farina",
+            "Eduardo Caminha Nunes",
+            "Michael Brassil",
+            "Megan McNamara",
+            "Johanna Ortiz",
+            "Jacob Peoples",
+            "Vinson L. Uytana",
+            "Anthony Kam",
+            "Venkata N. S. Dola",
+            "Daniel Murphy",
+            "David Vu",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Competition Data Notebook Group",
+            "Jason F. Talbott"
+          ],
+          "claimed_title": "The RSNA Lumbar Degenerative Imaging Spine Classification (LumbarDISC) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.09162"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Assessing Uncertainty Quantification Techniques for Materials Property Predictio', candidate_title='The RSNA Lumbar Degenerative Imaging Spine Classification (LumbarDISC) Dataset')",
+        "failed_at": "2026-06-19T08:12:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Deep ensembles (DE) have emerged as a powerful approach for quantifying predictive uncertainty and distinguishing its aleatoric and epistemic components, thereby enhancing model robustness and reliability. However, their high computational and memory costs during inference pose significant challenges for wide practical deployment. To overcome this issue, we propose credal ensemble distillation (CED), a novel framework that compresses a DE into a single model, CREDIT, for classification tasks. Instead of a single softmax probability distribution, CREDIT predicts class-wise probability intervals that define a credal set, a convex set of probability distributions, for uncertainty quantification. Empirical results on out-of-distribution detection benchmarks demonstrate that CED achieves superior or comparable uncertainty estimation compared to several existing baselines, while substantially reducing inference overhead compared to DE.",
+          "claimed_authors": [
+            "Kaizheng Wang",
+            "Fabio Cuzzolin",
+            "David Moens",
+            "Hans Hallez"
+          ],
+          "claimed_title": "Credal Ensemble Distillation for Uncertainty Quantification",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2511.13766"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Assessing Uncertainty Quantification Techniques for Materials Property Predictio', candidate_title='Credal Ensemble Distillation for Uncertainty Quantification')",
+        "failed_at": "2026-06-19T08:12:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Faithful uncertainty quantification (UQ) is paramount in high stakes climate prediction. Deep ensembles, or ensembles of probabilistic neural networks, are state of the art for UQ in machine learning (ML) and are growing increasingly popular for weather and climate prediction. However, detailed analyses of the mechanisms, strengths, and limitations of ensembles in these complex problem settings are lacking. We take a step towards filling this gap by deploying deep ensembles for predictability analysis of the El-Niño Southern Oscillation (ENSO) in the Community Earth System Model 2 Large Ensemble (CESM2-LE). Principally, we show that epistemic uncertainty, modeled by ensemble disagreement, robustly signals predictive error growth associated with shifts in the distributions of monthly sea-surface temperature (SST), ocean heat content (OHC), and zonal surface wind stress ($τ_x$) anomalies under a climate change scenario. Conversely, we find that aleatoric uncertainty, which remains a popular measure of model confidence, becomes less reliable and behaves counterintuitively under climate-change-induced distributional shift. We highlight that, because ensemble performance improvement relative to the expected single model scales with epistemic uncertainty, ensemble improvement increases with distributional shift from climate change. This work demonstrates the utility of deep ensembles for modeling aleatoric and epistemic uncertainty in ML climate prediction, as well as the growing importance of robustly quantifying these two forms of uncertainty under anthropogenic warming.",
+          "claimed_authors": [
+            "Devin M. McAfee",
+            "Elizabeth A. Barnes"
+          ],
+          "claimed_title": "Am I Confused or Is This Confusing?: Deep Ensembles for ENSO Uncertainty Quantification",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.17153"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Assessing Uncertainty Quantification Techniques for Materials Property Predictio', candidate_title='Am I Confused or Is This Confusing?: Deep Ensembles for ENSO Uncertainty Quantification')",
+        "failed_at": "2026-06-19T08:12:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This work introduces the network uncertainty quantification (NetUQ) method for performing uncertainty propagation in systems composed of interconnected components. The method assumes the existence of a collection of components, each of which is characterized by exogenous-input random variables, endogenous-input random variables, output random variables, and a local uncertainty-propagation operator that computes output random variables from input random variables. The method assembles the full-system network by connecting components, which is achieved simply by associating endogenous-input random variables for each component with output random variables from other components; no other inter-component compatibility conditions are required. The network uncertainty-propagation problem is: Compute output random variables for all components given all exogenous-input random variables. To solve this problem, the method applies classical relaxation methods (i.e., Jacobi and Gauss--Seidel iteration with Anderson acceleration), which require only black-box evaluations of component uncertainty-propagation operators. Compared with other available methods, this approach is applicable to any network topology, promotes component independence by enabling components to employ tailored uncertainty-propagation operators, supports general functional representations of random variables, and requires no offline preprocessing stage. Also, because the method propagates functional representations of random variables throughout the network (and not, e.g., probability density functions), the joint distribution of any set of random variables throughout the network can be estimated a posteriori in a straightforward manner. We perform supporting convergence and error analysis and execute numerical experiments that demonstrate the weak- and strong-scaling performance of the method.",
+          "claimed_authors": [
+            "Kevin Carlberg",
+            "Sofia Guzzetti",
+            "Mohammad Khalil",
+            "Khachik Sargsyan"
+          ],
+          "claimed_title": "The network uncertainty quantification method for propagating uncertainties in component-based systems",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1908.11476"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Assessing Uncertainty Quantification Techniques for Materials Property Predictio', candidate_title='The network uncertainty quantification method for propagating uncertainties in component-based systems')",
+        "failed_at": "2026-06-19T08:12:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Normalised citation counts are routinely used to assess the average impact of research groups or nations. There is controversy over whether confidence intervals for them are theoretically valid or practically useful. In response, this article introduces the concept of a group's underlying research capability to produce impactful research. It then investigates whether confidence intervals could delimit the underlying capability of a group in practice. From 123120 confidence interval comparisons for the average citation impact of the national outputs of ten countries within 36 individual large monodisciplinary journals, moderately fewer than 95% of subsequent indicator values fall within 95% confidence intervals from prior years, with the percentage declining over time. This is consistent with confidence intervals effectively delimiting the research capability of a group, although it does not prove that this is the cause of the results. The results are unaffected by whether internationally collaborative articles are included.",
+          "claimed_authors": [
+            "Mike Thelwall"
+          ],
+          "claimed_title": "Confidence intervals for normalised citation counts: Can they delimit underlying research capability?",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1710.08708"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Assessing Uncertainty Quantification Techniques for Materials Property Predictio', candidate_title='Confidence intervals for normalised citation counts: Can they delimit underlying research capability?')",
+        "failed_at": "2026-06-19T08:12:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent advances in machine learning have significantly improved prediction accuracy in various applications. However, ensuring the calibration of probabilistic predictions remains a significant challenge. Despite efforts to enhance model calibration, the rigorous statistical evaluation of model calibration remains less explored. In this work, we develop confidence intervals the $\\ell_2$ Expected Calibration Error (ECE). We consider top-1-to-$k$ calibration, which includes both the popular notion of confidence calibration as well as full calibration. For a debiased estimator of the ECE, we show asymptotic normality, but with different convergence rates and asymptotic variances for calibrated and miscalibrated models. We develop methods to construct asymptotically valid confidence intervals for the ECE, accounting for this behavior as well as non-negativity. Our theoretical findings are supported through extensive experiments, showing that our methods produce valid confidence intervals with shorter lengths compared to those obtained by resampling-based methods.",
+          "claimed_authors": [
+            "Yan Sun",
+            "Pratik Chaudhari",
+            "Ian J. Barnett",
+            "Edgar Dobriban"
+          ],
+          "claimed_title": "A Confidence Interval for the $\\ell_2$ Expected Calibration Error",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2408.08998"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Assessing Uncertainty Quantification Techniques for Materials Property Predictio', candidate_title='A Confidence Interval for the $\\\\ell_2$ Expected Calibration Error')",
+        "failed_at": "2026-06-19T08:12:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In machine learning, model calibration and predictive inference are essential for producing reliable predictions and quantifying uncertainty to support decision-making. Recognizing the complementary roles of point and interval predictions, we introduce Self-Calibrating Conformal Prediction, a method that combines Venn-Abers calibration and conformal prediction to deliver calibrated point predictions alongside prediction intervals with finite-sample validity conditional on these predictions. To achieve this, we extend the original Venn-Abers procedure from binary classification to regression. Our theoretical framework supports analyzing conformal prediction methods that involve calibrating model predictions and subsequently constructing conditionally valid prediction intervals on the same data, where the conditioning set or conformity scores may depend on the calibrated predictions. Real-data experiments show that our method improves interval efficiency through model calibration and offers a practical alternative to feature-conditional validity.",
+          "claimed_authors": [
+            "Lars van der Laan",
+            "Ahmed M. Alaa"
+          ],
+          "claimed_title": "Self-Calibrating Conformal Prediction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2402.07307"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Assessing Uncertainty Quantification Techniques for Materials Property Predictio', candidate_title='Self-Calibrating Conformal Prediction')",
+        "failed_at": "2026-06-19T08:12:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "It has historically been a challenge to perform Bayesian inference in a design-based survey context. The present paper develops a Bayesian model for sampling inference in the presence of inverse-probability weights. We use a hierarchical approach in which we model the distribution of the weights of the nonsampled units in the population and simultaneously include them as predictors in a nonparametric Gaussian process regression. We use simulation studies to evaluate the performance of our procedure and compare it to the classical design-based estimator. We apply our method to the Fragile Family and Child Wellbeing Study. Our studies find the Bayesian nonparametric finite population estimator to be more robust than the classical design-based estimator without loss in efficiency, which works because we induce regularization for small cells and thus this is a way of automatically smoothing the highly variable weights.",
+          "claimed_authors": [
+            "Yajuan Si",
+            "Natesh S. Pillai",
+            "Andrew Gelman"
+          ],
+          "claimed_title": "Bayesian Nonparametric Weighted Sampling Inference",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1309.1799"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Assessing Uncertainty Quantification Techniques for Materials Property Predictio', candidate_title='Bayesian Nonparametric Weighted Sampling Inference')",
+        "failed_at": "2026-06-19T08:12:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Conditioning is a key feature in probabilistic programming to enable modeling the influence of data (also known as observations) to the probability distribution described by such programs. Determining the posterior distribution is also known as Bayesian inference. This paper equips a quantum while-language with conditioning, defines its denotational and operational semantics over infinite-dimensional Hilbert spaces, and shows their equivalence. We provide sufficient conditions for the existence of weakest (liberal) precondition-transformers and derive inductive characterizations of these transformers. It is shown how w(l)p-transformers can be used to assess the effect of Bayesian inference on (possibly diverging) quantum programs.",
+          "claimed_authors": [
+            "Christina Gehnen",
+            "Dominique Unruh",
+            "Joost-Pieter Katoen"
+          ],
+          "claimed_title": "Bayesian Inference in Quantum Programs",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.20732"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Assessing Uncertainty Quantification Techniques for Materials Property Predictio', candidate_title='Bayesian Inference in Quantum Programs')",
+        "failed_at": "2026-06-19T08:12:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We propose a very fast approximate Markov Chain Monte Carlo (MCMC) sampling framework that is applicable to a large class of sparse Bayesian inference problems, where the computational cost per iteration in several models is of order $O(ns)$, where $n$ is the sample size, and $s$ the underlying sparsity of the model. This cost can be further reduced by data sub-sampling when stochastic gradient Langevin dynamics are employed. The algorithm is an extension of the asynchronous Gibbs sampler of Johnson et al. (2013), but can be viewed from a statistical perspective as a form of Bayesian iterated sure independent screening (Fan et al. (2009)). We show that in high-dimensional linear regression problems, the Markov chain generated by the proposed algorithm admits an invariant distribution that recovers correctly the main signal with high probability under some statistical assumptions. Furthermore we show that its mixing time is at most linear in the number of regressors. We illustrate the algorithm with several models.",
+          "claimed_authors": [
+            "Yves Atchadé",
+            "Liwei Wang"
+          ],
+          "claimed_title": "A fast asynchronous MCMC sampler for sparse Bayesian inference",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2108.06446"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Assessing Uncertainty Quantification Techniques for Materials Property Predictio', candidate_title='A fast asynchronous MCMC sampler for sparse Bayesian inference')",
+        "failed_at": "2026-06-19T08:12:40Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Giorgio Morales",
+            "John W. Sheppard"
+          ],
+          "title": "Dual Accuracy-Quality-Driven Neural Network for Prediction Interval Generation",
+          "venue": "arXiv",
+          "year": 2022
+        },
+        "primary_pointer": "2212.06370",
+        "summary": "Accurate uncertainty quantification is necessary to enhance the reliability of deep learning models in real-world applications. In the case of regression tasks, prediction intervals (PIs) should be provided along with the deterministic predictions of deep learning models. Such PIs are useful or \"high-quality\" as long as they are sufficiently narrow and capture most of the probability density. In this paper, we present a method to learn prediction intervals for regression-based neural networks automatically in addition to the conventional target predictions. In particular, we train two companion neural networks: one that uses one output, the target estimate, and another that uses two outputs, the upper and lower bounds of the corresponding PI. Our main contribution is the design of a novel loss function for the PI-generation network that takes into account the output of the target-estimation network and has two optimization objectives: minimizing the mean prediction interval width and ensuring the PI integrity using constraints that maximize the prediction interval probability coverage implicitly. Furthermore, we introduce a self-adaptive coefficient that balances both objectives within the loss function, which alleviates the task of fine-tuning. Experiments using a synthetic dataset, eight benchmark datasets, and a real-world crop yield prediction dataset showed that our method was able to maintain a nominal probability coverage and produce significantly narrower PIs without detriment to its target estimation accuracy when compared to those PIs generated by three state-of-the-art neural-network-based methods. In other words, our method was shown to produce higher-quality PIs.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2212.06370",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-19T08:12:43Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Sergey Oladyshkin",
+            "Timothy Praditia",
+            "Ilja Kröker",
+            "Farid Mohammadi",
+            "Wolfgang Nowak",
+            "Sebastian Otte"
+          ],
+          "title": "The Deep Arbitrary Polynomial Chaos Neural Network or how Deep Artificial Neural Networks could benefit from Data-Driven Homogeneous Chaos Theory",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2306.14753",
+        "summary": "Artificial Intelligence and Machine learning have been widely used in various fields of mathematical computing, physical modeling, computational science, communication science, and stochastic analysis. Approaches based on Deep Artificial Neural Networks (DANN) are very popular in our days. Depending on the learning task, the exact form of DANNs is determined via their multi-layer architecture, activation functions and the so-called loss function. However, for a majority of deep learning approaches based on DANNs, the kernel structure of neural signal processing remains the same, where the node response is encoded as a linear superposition of neural activity, while the non-linearity is triggered by the activation functions. In the current paper, we suggest to analyze the neural signal processing in DANNs from the point of view of homogeneous chaos theory as known from polynomial chaos expansion (PCE). From the PCE perspective, the (linear) response on each node of a DANN could be seen as a $1^{st}$ degree multi-variate polynomial of single neurons from the previous layer, i.e. linear weighted sum of monomials. From this point of view, the conventional DANN structure relies implicitly (but erroneously) on a Gaussian distribution of neural signals. Additionally, this view revels that by design DANNs do not necessarily fulfill any orthogonality or orthonormality condition for a majority of data-driven applications. Therefore, the prevailing handling of neural signals in DANNs could lead to redundant representation as any neural signal could contain some partial information from other neural signals. To tackle that challenge, we suggest to employ the data-driven generalization of PCE theory known as arbitrary polynomial chaos (aPC) to construct a corresponding multi-variate orthonormal representations on each node of a DANN to obtain Deep arbitrary polynomial chaos neural networks.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2306.14753",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-19T08:12:43Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Tom Charnock",
+            "Laurence Perreault-Levasseur",
+            "François Lanusse"
+          ],
+          "title": "Bayesian Neural Networks",
+          "venue": "arXiv",
+          "year": 2020
+        },
+        "primary_pointer": "2006.01490",
+        "summary": "In recent times, neural networks have become a powerful tool for the analysis of complex and abstract data models. However, their introduction intrinsically increases our uncertainty about which features of the analysis are model-related and which are due to the neural network. This means that predictions by neural networks have biases which cannot be trivially distinguished from being due to the true nature of the creation and observation of data or not. In order to attempt to address such issues we discuss Bayesian neural networks: neural networks where the uncertainty due to the network can be characterised. In particular, we present the Bayesian statistical framework which allows us to categorise uncertainty in terms of the ingrained randomness of observing certain data and the uncertainty from our lack of knowledge about how data can be created and observed. In presenting such techniques we show how errors in prediction by neural networks can be obtained in principle, and provide the two favoured methods for characterising these errors. We will also describe how both of these methods have substantial pitfalls when put into practice, highlighting the need for other statistical techniques to truly be able to do inference when using neural networks.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2006.01490",
+          "http_status": 200,
+          "pdf_sample_score": 0.3302,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-19T08:12:44Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "assessing uncertainty quantification techniques for materials property predictions materials science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

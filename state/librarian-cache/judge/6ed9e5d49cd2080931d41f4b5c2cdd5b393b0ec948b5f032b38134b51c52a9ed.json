@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2006.01490",
+  "judged_at": "2026-06-19T08:12:54Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "assessing uncertainty quantification techniques for materials property predictions materials science",
+  "rationale": "The paper provides a foundational methodological overview of Bayesian neural networks, a key uncertainty quantification technique, making it a canonical reference (criterion d) for any review assessing UQ methods applied to materials property predictions.",
+  "relevant": true
+}

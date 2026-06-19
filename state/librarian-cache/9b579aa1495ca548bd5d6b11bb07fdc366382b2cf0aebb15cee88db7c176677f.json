@@ -1,0 +1,540 @@
+{
+  "fetched_at": "2026-06-19T08:14:02Z",
+  "field": "chemistry",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "chemistry",
+      "idea_body_excerpt": "Transferability of DFT‑D3 Dispersion to Ionic Liquids",
+      "target_n": 5
+    },
+    "duration_seconds": 54.616,
+    "ended_at": "2026-06-19T08:14:02Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "DFT‑D3 dispersion corrections for ionic liquids"
+        ],
+        [
+          2,
+          "Grimme D3 applicability to room‑temperature ionic liquids"
+        ],
+        [
+          3,
+          "Benchmarking DFT‑D3 on ionic liquid thermodynamic properties"
+        ],
+        [
+          4,
+          "Transferability of empirical dispersion models to molten salts"
+        ],
+        [
+          5,
+          "Dispersion‑augmented DFT simulations of imidazolium‑based ionic liquids"
+        ],
+        [
+          6,
+          "Performance of DFT‑D3 in predicting ionic liquid viscosities"
+        ],
+        [
+          7,
+          "Calibration of D3 parameters for task‑specific ionic liquids"
+        ],
+        [
+          8,
+          "Comparison of DFT‑D3 and DFT‑D4 for ionic liquid systems"
+        ],
+        [
+          9,
+          "Van der Waals corrections in ab initio modeling of ionic liquids"
+        ],
+        [
+          10,
+          "Assessing dispersion interactions in ionic liquid molecular dynamics"
+        ],
+        [
+          11,
+          "Quantum chemical studies of ionic liquids with Grimme D3"
+        ],
+        [
+          12,
+          "Transferability of semi‑empirical dispersion to electrolyte solutions"
+        ],
+        [
+          13,
+          "Role of dispersion corrections in ionic liquid phase behavior predictions"
+        ],
+        [
+          14,
+          "DFT‑D3 versus Tkatchenko‑Scheffler dispersion for ionic liquids (broader)"
+        ],
+        [
+          15,
+          "Machine‑learned dispersion potentials applied to ionic liquid simulations"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "DFT‑D3 dispersion corrections for ionic liquids": 5,
+        "Transferability of DFT‑D3 Dispersion to Ionic Liquids chemistry": 0
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "Grimme D3 ionic liquids",
+      "ThermoML ionic liquids dataset",
+      "C6 coefficient transferability",
+      "dispersion energy RMSE ionic liquids",
+      "electrostatic screening dispersion correction"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "1802.10413"
+      ]
+    },
+    "per_query_hit_count": {
+      "C6 coefficient transferability": 3,
+      "Grimme D3 ionic liquids": 1,
+      "ThermoML ionic liquids dataset": 2,
+      "Transferability of DFT‑D3 Dispersion to Ionic Liquids chemistry": 3,
+      "dispersion energy RMSE ionic liquids": 2,
+      "electrostatic screening dispersion correction": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 2,
+      "rejections": [
+        {
+          "primary_pointer": "2401.16548",
+          "rationale": "The paper studies electronic polarizabilities and refractive indices of ionic liquids, without addressing DFT‑D3 dispersion corrections or their transferability; it does not measure the same mechanism (dispersion) nor any of the independent/dependent variables central to the user's question. Hence it is not relevant for the literature review on DFT‑D3 dispersion in ionic liquids.",
+          "title": "Non-additive electronic polarizabilities of ionic liquids: Charge delocalization effects"
+        },
+        {
+          "primary_pointer": "2003.07470",
+          "rationale": "The paper investigates optical material dispersion of imidazolium ionic liquids and a semi‑empirical polarizability model, but it does not address DFT‑D3 dispersion corrections or their transferability to ionic‑liquid chemistry, so it lacks relevance to the user's mechanism or variables.",
+          "title": "An Experimental and Computational Study on Material Dispersion of 1-Alkyl-3-Methylimidazolium Tetrafluoroborate Ionic Liquids"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-19T08:13:07Z",
+    "term_input": {
+      "normalized": "transferability of dft‑d3 dispersion to ionic liquids chemistry",
+      "raw": "Transferability of DFT‑D3 Dispersion to Ionic Liquids chemistry"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A previous study of symmetric collisions of massive nuclei has shown that current models of multi-nucleon transfer (MNT) reactions do not adequately describe the transfer product yields. To gain further insight into this problem, we have measured the yields of MNT products in the interaction of 977 (E/A = 4.79 MeV) and 1143 MeV (E/A = 5.60 MeV) $^{204}$Hg with $^{208}$Pb. We find that the yield of multi-nucleon transfer products are similar in these two reactions and are substantially lower than those observed in the reaction of 1257 MeV (E/A = 6.16 MeV) $^{204}$Hg + $^{198}$Pt. We compare our measurements with the predictions of the GRAZING-F, di-nuclear systems (DNS) and improved quantum molecular dynamics (ImQMD) models. For the observed isotopes of the elements Au, Hg, Tl, Pb and Bi, the measured values of the MNT cross sections are orders of magnitude larger than the predicted values. Furthermore, the various models predict the formation of nuclides near the N=126 shell, which are not observed.",
+          "claimed_authors": [
+            "V. V. Desai",
+            "A. Pica",
+            "W. Loveland",
+            "J. S. Barrett",
+            "Department of Chemistry",
+            "Oregon State University",
+            " Corvallis",
+            "Oregon 97331 USA",
+            "E. A. McCutchan",
+            "National Nuclear Data Center",
+            "Brookhaven National Laboratory",
+            " Upton",
+            "New York 11973",
+            " USA",
+            "S. Zhu",
+            "M. P. Carpenter",
+            "J. P. Greene",
+            "T. Lauritsen",
+            "Physics Division",
+            "Argonne National Laboratory",
+            " Argonne",
+            "Illinois 60439 USA",
+            "R. V. F. Janssens",
+            "Department of Physics",
+            " Astronomy",
+            "University of North Carolina at Chapel Hill",
+            "Chapel Hill",
+            "North Carolina 27599 USA",
+            "Triangle Universities Nuclear Laboratory",
+            "Duke University",
+            " Durham",
+            "North Carolina 27708 USA",
+            "B. M. S. Amro",
+            "Dept. of Physics",
+            "University of Massachusetts Lowell",
+            "Lowell MA 01854 USA",
+            "W. B. Walters",
+            "Dept. of Chemistry",
+            "University of Maryland",
+            "College Park",
+            " MD"
+          ],
+          "claimed_title": "Multi-nucleon transfer in the interaction of 977 MeV and 1143 MeV $^{204}$Hg with $^{208}$Pb",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2007.07837"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Transferability of DFT‑D3 Dispersion to Ionic Liquids chemistry', candidate_title='Multi-nucleon transfer in the interaction of 977 MeV and 1143 MeV $^{204}$Hg with $^{208}$Pb')",
+        "failed_at": "2026-06-19T08:13:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The RSNA Abdominal Traumatic Injury CT (RATIC) dataset is the largest publicly available collection of adult abdominal CT studies annotated for traumatic injuries. This dataset includes 4,274 studies from 23 institutions across 14 countries. The dataset is freely available for non-commercial use via Kaggle at https://www.kaggle.com/competitions/rsna-2023-abdominal-trauma-detection. Created for the RSNA 2023 Abdominal Trauma Detection competition, the dataset encourages the development of advanced machine learning models for detecting abdominal injuries on CT scans. The dataset encompasses detection and classification of traumatic injuries across multiple organs, including the liver, spleen, kidneys, bowel, and mesentery. Annotations were created by expert radiologists from the American Society of Emergency Radiology (ASER) and Society of Abdominal Radiology (SAR). The dataset is annotated at multiple levels, including the presence of injuries in three solid organs with injury grading, image-level annotations for active extravasations and bowel injury, and voxelwise segmentations of each of the potentially injured organs. With the release of this dataset, we hope to facilitate research and development in machine learning and abdominal trauma that can lead to improved patient care and outcomes.",
+          "claimed_authors": [
+            "Jeffrey D. Rudie",
+            "Hui-Ming Lin",
+            "Robyn L. Ball",
+            "Sabeena Jalal",
+            "Luciano M. Prevedello",
+            "Savvas Nicolaou",
+            "Brett S. Marinelli",
+            "Adam E. Flanders",
+            "Kirti Magudia",
+            "George Shih",
+            "Melissa A. Davis",
+            "John Mongan",
+            "Peter D. Chang",
+            "Ferco H. Berger",
+            "Sebastiaan Hermans",
+            "Meng Law",
+            "Tyler Richards",
+            "Jan-Peter Grunz",
+            "Andreas Steven Kunz",
+            "Shobhit Mathur",
+            "Sandro Galea-Soler",
+            "Andrew D. Chung",
+            "Saif Afat",
+            "Chin-Chi Kuo",
+            "Layal Aweidah",
+            "Ana Villanueva Campos",
+            "Arjuna Somasundaram",
+            "Felipe Antonio Sanchez Tijmes",
+            "Attaporn Jantarangkoon",
+            "Leonardo Kayat Bittencourt",
+            "Michael Brassil",
+            "Ayoub El Hajjami",
+            "Hakan Dogan",
+            "Muris Becircic",
+            "Agrahara G. Bharatkumar",
+            "Eduardo Moreno Júdice de Mattos Farina",
+            "Dataset Curator Group",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Errol Colak"
+          ],
+          "claimed_title": "The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.19595"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Transferability of DFT‑D3 Dispersion to Ionic Liquids chemistry', candidate_title='The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset')",
+        "failed_at": "2026-06-19T08:13:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Radiological Society of North America (RSNA) Lumbar Degenerative Imaging Spine Classification (LumbarDISC) dataset is the largest publicly available dataset of adult MRI lumbar spine examinations annotated for degenerative changes. The dataset includes 2,697 patients with a total of 8,593 image series from 8 institutions across 6 countries and 5 continents. The dataset is available for free for non-commercial use via Kaggle and RSNA Medical Imaging Resource of AI (MIRA). The dataset was created for the RSNA 2024 Lumbar Spine Degenerative Classification competition where competitors developed deep learning models to grade degenerative changes in the lumbar spine. The degree of spinal canal, subarticular recess, and neural foraminal stenosis was graded at each intervertebral disc level in the lumbar spine. The images were annotated by expert volunteer neuroradiologists and musculoskeletal radiologists from the RSNA, American Society of Neuroradiology, and the American Society of Spine Radiology. This dataset aims to facilitate research and development in machine learning and lumbar spine imaging to lead to improved patient care and clinical efficiency.",
+          "claimed_authors": [
+            "Tyler J. Richards",
+            "Adam E. Flanders",
+            "Errol Colak",
+            "Luciano M. Prevedello",
+            "Robyn L. Ball",
+            "Felipe Kitamura",
+            "John Mongan",
+            "Maryam Vazirabad",
+            "Hui-Ming Lin",
+            "Anne Kendell",
+            "Thanat Kanthawang",
+            "Salita Angkurawaranon",
+            "Emre Altinmakas",
+            "Hakan Dogan",
+            "Paulo Eduardo de Aguiar Kuriki",
+            "Arjuna Somasundaram",
+            "Christopher Ruston",
+            "Deniz Bulja",
+            "Naida Spahovic",
+            "Jennifer Sommer",
+            "Sirui Jiang",
+            "Eduardo Moreno Judice de Mattos Farina",
+            "Eduardo Caminha Nunes",
+            "Michael Brassil",
+            "Megan McNamara",
+            "Johanna Ortiz",
+            "Jacob Peoples",
+            "Vinson L. Uytana",
+            "Anthony Kam",
+            "Venkata N. S. Dola",
+            "Daniel Murphy",
+            "David Vu",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Competition Data Notebook Group",
+            "Jason F. Talbott"
+          ],
+          "claimed_title": "The RSNA Lumbar Degenerative Imaging Spine Classification (LumbarDISC) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.09162"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Transferability of DFT‑D3 Dispersion to Ionic Liquids chemistry', candidate_title='The RSNA Lumbar Degenerative Imaging Spine Classification (LumbarDISC) Dataset')",
+        "failed_at": "2026-06-19T08:13:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We assess a variant of linear-response range-separated time-dependent density-functional theory (TDDFT), combining a long-range Hartree-Fock (HF) exchange kernel with a short-range adiabatic exchange-correlation kernel in the local-density approximation (LDA) for calculating isotropic C6 dispersion coefficients of homodimers of a number of closed-shell atoms and small molecules. This range-separated TDDFT tends to give underestimated C6 coefficients of small molecules with a mean absolute percentage error of about 5%, a slight improvement over standard TDDFT in the adiabatic LDA which tends to overestimate them with a mean absolute percentage error of 8%, but close to time-dependent Hartree-Fock which has a mean absolute percentage error of about 6%. These results thus show that introduction of long-range HF exchange in TDDFT has a small but beneficial impact on the values of C6 coefficients. It also confirms that the present variant of range-separated TDDFT is a reasonably accurate method even using only a LDA-type density functional and without adding an explicit treatment of long-range correlation.",
+          "claimed_authors": [
+            "Julien Toulouse",
+            "Elisa Rebolini",
+            "Tim Gould",
+            "John F. Dobson",
+            "Prasenjit Seal",
+            "János G. Angyán"
+          ],
+          "claimed_title": "Assessment of range-separated time-dependent density-functional theory for calculating C6 dispersion coefficients",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1305.0107"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Transferability of DFT‑D3 Dispersion to Ionic Liquids chemistry', candidate_title='Assessment of range-separated time-dependent density-functional theory for calculating C6 dispersion coefficients')",
+        "failed_at": "2026-06-19T08:13:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Automatic off-line design is an attractive approach to implementing robot swarms. In this approach, a designer specifies a mission for the swarm, and an optimization process generates suitable control software for the individual robots through computer-based simulations. Most relevant literature has focused on effectively transferring control software from simulation to physical robots. For the first time, we investigate (i) whether control software generated via automatic design is transferable across robot platforms and (ii) whether the design methods that generate such control software are themselves transferable. We experiment with two ground mobile platforms with equivalent capabilities. Our measure of transferability is based on the performance drop observed when control software and/or design methods are ported from one platform to another. Results indicate that while the control software generated via automatic design is transferable in some cases, better performance can be achieved when a transferable method is directly applied to the new platform.",
+          "claimed_authors": [
+            "Miquel Kegeleirs",
+            "David Garzón Ramos",
+            "Lorenzo Garattoni",
+            "Gianpiero Francesca",
+            "Mauro Birattari"
+          ],
+          "claimed_title": "Automatic off-line design of robot swarms: exploring the transferability of control software and design methods across different platforms",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2305.16126"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Transferability of DFT‑D3 Dispersion to Ionic Liquids chemistry', candidate_title='Automatic off-line design of robot swarms: exploring the transferability of control software and design methods across different platforms')",
+        "failed_at": "2026-06-19T08:13:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We give a complete classification of hexagonal tilings and locally C6 graphs, by showing that each of them has a natural embedding in the torus or in the Klein bottle. We also show that locally grid graphs are minors of hexagonal tilings (and by duality of locally C6 graphs) by contraction of a perfect matching and deletion of the resulting parallel edges, in a form suitable for the study of their Tutte uniqueness.",
+          "claimed_authors": [
+            "D. Garijo",
+            "I. Gitler",
+            "A. Marquez",
+            "M. P. Revuelta"
+          ],
+          "claimed_title": "Hexagonal Tilings and Locally C6 Graphs",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2005,
+          "primary_pointer": "math/0512332"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Transferability of DFT‑D3 Dispersion to Ionic Liquids chemistry', candidate_title='Hexagonal Tilings and Locally C6 Graphs')",
+        "failed_at": "2026-06-19T08:13:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We describe the Dark Energy Survey (DES), a proposed optical-near infrared survey of 5000 sq. deg of the South Galactic Cap to ~24th magnitude in SDSS griz, that would use a new 3 sq. deg CCD camera to be mounted on the Blanco 4-m telescope at Cerro Telolo Inter-American Observatory (CTIO). The survey data will allow us to measure the dark energy and dark matter densities and the dark energy equation of state through four independent methods: galaxy clusters, weak gravitational lensing tomography, galaxy angular clustering, and supernova distances. These methods are doubly complementary: they constrain different combinations of cosmological model parameters and are subject to different systematic errors. By deriving the four sets of measurements from the same data set with a common analysis framework, we will obtain important cross checks of the systematic errors and thereby make a substantial and robust advance in the precision of dark energy measurements.",
+          "claimed_authors": [
+            " The Dark Energy Survey Collaboration"
+          ],
+          "claimed_title": "The Dark Energy Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2005,
+          "primary_pointer": "astro-ph/0510346"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Transferability of DFT‑D3 Dispersion to Ionic Liquids chemistry', candidate_title='The Dark Energy Survey')",
+        "failed_at": "2026-06-19T08:13:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Transferability of DFT‑D3 Dispersion to Ionic Liquids chemistry', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-06-19T08:13:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This article reviews the application of fragment descriptors at different stages of virtual screening: filtering, similarity search, and direct activity assessment using QSAR/QSPR models. Several case studies are considered. It is demonstrated that the power of fragment descriptors stems from their universality, very high computational efficiency, simplicity of interpretation and versatility.",
+          "claimed_authors": [
+            "Igor I. Baskin",
+            "Alexandre Varnek"
+          ],
+          "claimed_title": "Fragment Descriptors in Virtual Screening",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1311.3723"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Transferability of DFT‑D3 Dispersion to Ionic Liquids chemistry', candidate_title='Fragment Descriptors in Virtual Screening')",
+        "failed_at": "2026-06-19T08:13:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The physical behaviour of anisotropic charged colloids is determined by their material dielectric anisotropy, affecting colloidal self-assembly, biological function and even out-of-equilibrium behaviour. However, little is known about anisotropic electrostatic screening, which underlies all electrostatic effective interactions in such soft or biological materials. In this work, we demonstrate anisotropic electrostatic screening for charged colloidal particles in a nematic electrolyte. We show that material anisotropy behaves markedly different from particle anisotropy: The electrostatic potential and pair interactions decay with an anisotropic Debye screening length, contrasting the constant screening length for isotropic electrolytes. Charged dumpling-shaped near-spherical colloidal particles in a nematic medium are used as an experimental model system to explore the effects of anisotropic screening, demonstrating competing anisotropic elastic and electrostatic effective pair interactions for colloidal surface charges tunable from neutral to high, yielding particle-separated metastable states. Generally, our work contributes to the understanding of electrostatic screening in nematic anisotropic media.",
+          "claimed_authors": [
+            "Jeffrey C. Everts",
+            "Bohdan Senyuk",
+            "Haridas Mundoor",
+            "Miha Ravnik",
+            "Ivan I. Smalyukh"
+          ],
+          "claimed_title": "Anisotropic electrostatic screening of charged colloids in nematic solvents",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2005.05682"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Transferability of DFT‑D3 Dispersion to Ionic Liquids chemistry', candidate_title='Anisotropic electrostatic screening of charged colloids in nematic solvents')",
+        "failed_at": "2026-06-19T08:13:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In a recent paper on electrostatic shielding, Chapman, Hewett and Trefethen present arguments that the analysis of this effect by Feynman is incorrect. Feynman analyzed shielding by a row of infinitesimally thin wires. They claim that Feynman used the wrong boundary conditions invalidating his analysis. In this paper we emphasize that Feynman's solution is a Green's function through which behavior of the potential due to finite thickness wires of arbitrary cross-section with appropriate boundary condition can be understood. This shows that the main conclusions of Feynman's treatment are indeed correct. Analogy to a parallel plate capacitor with one of the plates replaced by a row of wires provides a more intuitive understanding of Feynman's argument. The case of a finite number of wires arranged in a ring (not treated by Feynman), as a model of Faraday cage, is different. The structure of the solution in radial coordinates already suggests that one should not expect exponential behavior and further analysis confirms this. There appear to be contradictory results in the literature for its screening behavior in the presence of external charges or fields.",
+          "claimed_authors": [
+            "Kris Subbarao",
+            "Sukhbir Mahajan"
+          ],
+          "claimed_title": "Is Feynman's Analysis of Electrostatic Screening Correct?",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1609.05567"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Transferability of DFT‑D3 Dispersion to Ionic Liquids chemistry', candidate_title=\"Is Feynman's Analysis of Electrostatic Screening Correct?\")",
+        "failed_at": "2026-06-19T08:13:38Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yong-Lei Wang",
+            "Sten Sarman",
+            "Mikhail Golets",
+            "Francesca Mocci",
+            "Zhong-Yuan Lu",
+            "Aatto Laaksonen"
+          ],
+          "title": "Multigranular modeling of ionic liquids",
+          "venue": "arXiv",
+          "year": 2019
+        },
+        "primary_pointer": "1905.11145",
+        "summary": "Ionic liquids are a special category of molten salts with melting points near ambient temperatures or by convention below 100 C. Owing to their numerous valuable physicochemical properties as bulk liquids, solvents, at surfaces and in confined environments, ILs have attracted increasing attention in both academic and industrial communities in a variety of application areas involving physics, chemistry, material science and engineering. Due to their nearly limitless number of combinations of cation and anion pairs and mixtures with cosolvents, a molecular level understanding of their hierarchical structures and dynamics, requiring strategies to connect several length and time scales, is of crucial significance for rational design of ILs with desired properties, and thereafter refining their functional performance in applications. As an invaluable compliment to experiments from synthesis to characterization, computational modelling and simulations have significantly increased our understanding on how physicochemical and structural properties of ILs can be controlled by their underlying chemical and molecular structures. In this chapter, we will give examples from our own modelling work based on selected IL systems, with focus on imidazolium based and tetraalkylphosphonium orthoborate ILs, studied at several spatiotemporal scales in different environments and with particular attention to applications of high technological interest.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1905.11145",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-19T08:13:36Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "C. D. Rodriguez-Fernandez L. M. Varela",
+            "C. Schroder",
+            "E. Lopez Lago"
+          ],
+          "title": "Charge delocalization and hyperpolarizability in ionic liquids",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2401.17330",
+        "summary": "In this work the role that charge delocalization plays in the non-linear optical response of ionic liquids is evaluated. The first hyperpolarizability for the non-linear process of second harmonic generation (SHG) and second hyperpolarizability for the non-linear process of electro-optical Kerr-Effect (EOKE) of a large number of ionic liquid forming ions were estimated by means of density functional theory calculations. The results point to that both charge delocalization and molecular geometry are the key features that govern their hyperpolarizabilities. Our findings show that some of the most commonly used anions in ionic liquids are expected to present strong non-linear responses while common cations present a much more limited performance. However, this limitation can be overcome by a proper tailoring of cations to present charge delocalization over large molecular regions. The hypothesis of additivity of hyperpolarizabilities in ionic liquids is tested and exploited to obtain a map of second and third order non-linear susceptibilities of 1496 ion combinations. This map is intended to be a guide for future works on the hyperpolarizability of ILs",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2401.17330",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-19T08:13:37Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Christian Krekeler",
+            "Luigi Delle Site"
+          ],
+          "title": "Towards Open Boundary Molecular Dynamics Simulation of Ionic Liquids",
+          "venue": "arXiv",
+          "year": 2018
+        },
+        "primary_pointer": "1802.10413",
+        "summary": "We extend the use of the adaptive resolution method (AdResS) in its Grand Canonical-like version (GC-AdResS) to the molecular dynamics simulation of 1,3-dimethylimidazolium chloride. We show that the partitioning of the total system in a subsystem of interest with atomistic details and a reservoir of coarse-grained particles leads to satisfactory results. The challenging aspect of this study, compared to previous AdResS simulations, is the presence of charged particles and the necessity of addressing the question about the minimal physical input needed to model the coarse-grained particles in the reservoir. We propose two different approaches and show that in both cases they are sufficient to capture the decisive physical characteristics that allow a valid system-reservoir coupling. The technical satisfactory result paves the way for multiscale analysis of ionic liquids and for truly open boundary molecular simulations.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1802.10413",
+          "http_status": 200,
+          "pdf_sample_score": 0.2029,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-19T08:13:42Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "transferability of dft‑d3 dispersion to ionic liquids chemistry",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

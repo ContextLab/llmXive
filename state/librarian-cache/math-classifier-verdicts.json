@@ -294,5 +294,17 @@
   "PROJ-727-assessing-energy-consumption-of-llm-infe::1.6.0": {
     "classified_at": "2026-06-17T14:21:41Z",
     "verdict": false
+  },
+  "PROJ-735-transferability-of-dft-d3-dispersion-to-::1.6.0": {
+    "classified_at": "2026-06-19T08:13:36Z",
+    "verdict": false
+  },
+  "PROJ-736-predicting-personal-sleep-quality-from-r::1.6.0": {
+    "classified_at": "2026-06-19T08:11:38Z",
+    "verdict": false
+  },
+  "PROJ-737-assessing-uncertainty-quantification-tec::1.6.0": {
+    "classified_at": "2026-06-19T08:12:39Z",
+    "verdict": false
   }
 }

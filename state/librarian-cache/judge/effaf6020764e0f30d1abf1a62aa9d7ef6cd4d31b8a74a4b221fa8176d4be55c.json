@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2212.06370",
+  "judged_at": "2026-06-19T08:12:49Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "assessing uncertainty quantification techniques for materials property predictions materials science",
+  "rationale": "The paper introduces a neural‑network‑based prediction‑interval method for regression, directly addressing the same uncertainty‑quantification mechanism (prediction intervals) that the user’s question concerns, even though the experiments are on non‑materials datasets. This qualifies under criterion (a) – same‑mechanism evidence.",
+  "relevant": true
+}

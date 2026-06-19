@@ -1,0 +1,385 @@
+{
+  "fetched_at": "2026-06-19T08:11:56Z",
+  "field": "neuroscience",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "neuroscience",
+      "idea_body_excerpt": "Predicting Personal Sleep Quality from Resting-State fMRI Connectivity",
+      "target_n": 5
+    },
+    "duration_seconds": 48.947,
+    "ended_at": "2026-06-19T08:11:56Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "resting‑state functional connectivity biomarkers of sleep quality"
+        ],
+        [
+          2,
+          "rs‑fMRI connectivity patterns predicting sleep efficiency"
+        ],
+        [
+          3,
+          "machine‑learning models of sleep quality using intrinsic brain networks"
+        ],
+        [
+          4,
+          "functional connectome‑based prediction of subjective sleep quality"
+        ],
+        [
+          5,
+          "graph‑theoretic metrics of rs‑fMRI for sleep disturbance classification"
+        ],
+        [
+          6,
+          "deep‑learning approaches to estimate sleep quality from resting‑state data"
+        ],
+        [
+          7,
+          "intrinsic network alterations associated with poor sleep quality"
+        ],
+        [
+          8,
+          "predictive modeling of sleep health using resting‑state BOLD connectivity"
+        ],
+        [
+          9,
+          "resting‑state network signatures of insomnia severity"
+        ],
+        [
+          10,
+          "connectome‑based predictive modeling of individual sleep quality"
+        ],
+        [
+          11,
+          "functional connectivity correlates of sleep architecture"
+        ],
+        [
+          12,
+          "multimodal imaging predictors of sleep quality incorporating rs‑fMRI"
+        ],
+        [
+          13,
+          "resting‑state functional connectivity as a biomarker for sleep disorders"
+        ],
+        [
+          14,
+          "individualized sleep quality assessment via rs‑fMRI connectivity profiles"
+        ],
+        [
+          15,
+          "resting‑state brain network features for classification of sleep quality levels"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Predicting Personal Sleep Quality from Resting-State fMRI Connectivity neuroscience": 0,
+        "resting‑state functional connectivity biomarkers of sleep quality": 3
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "intrinsic functional connectivity sleep",
+      "Pittsburgh Sleep Quality Index rs-fMRI",
+      "connectome-based predictive modeling sleep",
+      "cross-validated prediction accuracy rs-fMRI",
+      "sleep homeostasis functional connectivity"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "1202.4751"
+      ]
+    },
+    "per_query_hit_count": {
+      "Pittsburgh Sleep Quality Index rs-fMRI": 0,
+      "Predicting Personal Sleep Quality from Resting-State fMRI Connectivity neuroscience": 3,
+      "connectome-based predictive modeling sleep": 0,
+      "cross-validated prediction accuracy rs-fMRI": 3,
+      "intrinsic functional connectivity sleep": 2,
+      "sleep homeostasis functional connectivity": 1
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 0,
+      "rejections": []
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-19T08:11:07Z",
+    "term_input": {
+      "normalized": "predicting personal sleep quality from resting-state fmri connectivity neuroscience",
+      "raw": "Predicting Personal Sleep Quality from Resting-State fMRI Connectivity neuroscience"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Study Objectives: Fetal sleep is a vital yet underexplored aspect of prenatal neurodevelopment. Its cyclic organization reflects the maturation of central neural circuits, and disturbances in these patterns may offer some of the earliest detectable signs of neurological compromise. This is the first review to integrate more than seven decades of research into a unified, cross-species synthesis of fetal sleep. We examine: (i) Physiology and Ontogeny-comparing human fetuses with animal models; and (ii) Methodological Evolution-transitioning from invasive neurophysiology to non-invasive monitoring and deep learning frameworks.\n  Methods: A structured narrative synthesis was guided by a systematic literature search across four databases (PubMed, Scopus, IEEE Xplore, and Google Scholar). From 2,925 identified records, 171 studies involving fetal sleep-related physiology, sleep-state classification, or signal-based monitoring were included in this review.\n  Results: Across the 171 studies, fetal sleep states become clearly observable as the brain matures. In fetal sheep and baboons, organized cycling between active and quiet sleep emerges at approximately 80%-90% gestation. In humans, this differentiation occurs later, around 95% gestation, with full maturation reached near term. Despite extensive animal research, no unified, clinically validated framework exists for defining fetal sleep states, limiting translation into routine obstetric practice.\n  Conclusions: By integrating evidence across species, methodologies, and clinical contexts, this review provides the scientific foundation for developing objective, multimodal, and non-invasive fetal sleep monitoring technologies-tools that may ultimately support earlier detection of neurological compromise and guide timely prenatal intervention.",
+          "claimed_authors": [
+            "Weitao Tang",
+            "Johann Vargas-Calixto",
+            "Nasim Katebi",
+            "Robert Galinsky",
+            "Gari D. Clifford",
+            "Faezeh Marzbanrad"
+          ],
+          "claimed_title": "Fetal Sleep: A Cross-Species Review of Physiology, Measurement, and Classification",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.21828"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Predicting Personal Sleep Quality from Resting-State fMRI Connectivity neuroscie', candidate_title='Fetal Sleep: A Cross-Species Review of Physiology, Measurement, and Classification')",
+        "failed_at": "2026-06-19T08:11:39Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Despite being crucial to health and quality of life, sleep -- especially pediatric sleep -- is not yet well understood. This is exacerbated by lack of access to sufficient pediatric sleep data with clinical annotation. In order to accelerate research on pediatric sleep and its connection to health, we create the Nationwide Children's Hospital (NCH) Sleep DataBank and publish it at Physionet and the National Sleep Research Resource (NSRR), which is a large sleep data common with physiological data, clinical data, and tools for analyses. The NCH Sleep DataBank consists of 3,984 polysomnography studies and over 5.6 million clinical observations on 3,673 unique patients between 2017 and 2019 at NCH. The novelties of this dataset include: 1) large-scale sleep dataset suitable for discovering new insights via data mining, 2) explicit focus on pediatric patients, 3) gathered in a real-world clinical setting, and 4) the accompanying rich set of clinical data. The NCH Sleep DataBank is a valuable resource for advancing automatic sleep scoring and real-time sleep disorder prediction, among many other potential scientific discoveries.",
+          "claimed_authors": [
+            "Harlin Lee",
+            "Boyue Li",
+            "Shelly DeForte",
+            "Mark Splaingard",
+            "Yungui Huang",
+            "Yuejie Chi",
+            "Simon Lin Linwood"
+          ],
+          "claimed_title": "A Large Collection of Real-world Pediatric Sleep Studies",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2102.13284"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Predicting Personal Sleep Quality from Resting-State fMRI Connectivity neuroscie', candidate_title='A Large Collection of Real-world Pediatric Sleep Studies')",
+        "failed_at": "2026-06-19T08:11:39Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Study Objective: Sleep is reflected not only in the electroencephalogram but also in heart rhythms and breathing patterns. Therefore, we hypothesize that it is possible to accurately stage sleep based on the electrocardiogram (ECG) and respiratory signals. Methods: Using a dataset including 8,682 polysomnographs, we develop deep neural networks to stage sleep from ECG and respiratory signals. Five deep neural networks consisting of convolutional networks and long short-term memory networks are trained to stage sleep using heart and breathing, including the timing of R peaks from ECG, abdominal and chest respiratory effort, and the combinations of these signals. Results: ECG in combination with the abdominal respiratory effort achieve the best performance for staging all five sleep stages with a Cohen's kappa of 0.600 (95% confidence interval 0.599 -- 0.602); and 0.762 (0.760 -- 0.763) for discriminating awake vs. rapid eye movement vs. non-rapid eye movement sleep. The performance is better for young participants and for those with a low apnea-hypopnea index, while it is robust for commonly used outpatient medications. Conclusions: Our results validate that ECG and respiratory effort provide substantial information about sleep stages in a large population. It opens new possibilities in sleep research and applications where electroencephalography is not readily available or may be infeasible, such as in critically ill patients.",
+          "claimed_authors": [
+            "Haoqi Sun",
+            "Wolfgang Ganglberger",
+            "Ezhil Panneerselvam",
+            "Michael J. Leone",
+            "Syed A. Quadri",
+            "Balaji Goparaju",
+            "Ryan A. Tesh",
+            "Oluwaseun Akeju",
+            "Robert J. Thomas",
+            "M. Brandon Westover"
+          ],
+          "claimed_title": "Sleep Staging from Electrocardiography and Respiration with Deep Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1908.11463"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting Personal Sleep Quality from Resting-State fMRI Connectivity neuroscie', candidate_title='Sleep Staging from Electrocardiography and Respiration with Deep Learning')",
+        "failed_at": "2026-06-19T08:11:39Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Hall and Robinson (2009) proposed and analyzed the use of bagged cross-validation to choose the bandwidth of a kernel density estimator. They established that bagging greatly reduces the noise inherent in ordinary cross-validation, and hence leads to a more efficient bandwidth selector. The asymptotic theory of Hall and Robinson (2009) assumes that $N$, the number of bagged subsamples, is $\\infty$. We expand upon their theoretical results by allowing $N$ to be finite, as it is in practice. Our results indicate an important difference in the rate of convergence of the bagged cross-validation bandwidth for the cases $N=\\infty$ and $N<\\infty$. Simulations quantify the improvement in statistical efficiency and computational speed that can result from using bagged cross-validation as opposed to a binned implementation of ordinary cross-validation. The performance of thebagged bandwidth is also illustrated on a real, very large, data set. Finally, a byproduct of our study is the correction of errors appearing in the Hall and Robinson (2009) expression for the asymptotic mean squared error of the bagging selector.",
+          "claimed_authors": [
+            "Daniel Barreiro-Ures",
+            "Ricardo Cao",
+            "Mario Francisco Fernández",
+            "Jeffrey D. Hart"
+          ],
+          "claimed_title": "Bagging cross-validated bandwidths with application to Big Data",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2401.17987"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Personal Sleep Quality from Resting-State fMRI Connectivity neuroscie', candidate_title='Bagging cross-validated bandwidths with application to Big Data')",
+        "failed_at": "2026-06-19T08:11:39Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The gut microbiota has emerged as a fundamental regulator of sleep physiology, influencing neural, endocrine, and immune pathways through the gut-microbiota-brain axis (GMBA). This bidirectional communication system modulates neurotransmitter production, circadian rhythms, and metabolic homeostasis, while disruptions in microbial composition have been linked to sleep disorders, neuroinflammation, and systemic immune dysfunction. Recent findings suggest that gut dysbiosis contributes to sleep disturbances by altering serotonin, GABA, and short-chain fatty acid (SCFA) metabolism, with implications for neurodegenerative diseases, metabolic syndromes, and mood disorders. Additionally, the gut microbiota interacts with the endocrine and immune systems, shaping inflammatory responses and stress adaptation mechanisms. This review explores the intricate connections between sleep and the gut microbiota, integrating emerging research on microbiota-targeted therapies, such as probiotics, fecal microbiota transplantation (FMT), and chrononutrition, as potential interventions to restore sleep homeostasis and improve health outcomes",
+          "claimed_authors": [
+            "Enso Onill Torres Alegre"
+          ],
+          "claimed_title": "Microbes in the Moonlight: How the Gut Microbiota Influences Sleep",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2511.02766"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting Personal Sleep Quality from Resting-State fMRI Connectivity neuroscie', candidate_title='Microbes in the Moonlight: How the Gut Microbiota Influences Sleep')",
+        "failed_at": "2026-06-19T08:11:40Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Wonsang You",
+            "Jörg Stadler"
+          ],
+          "title": "Fractal-driven distortion of resting state functional networks in fMRI: a simulation study",
+          "venue": "arXiv",
+          "year": 2012
+        },
+        "primary_pointer": "1208.0924",
+        "summary": "Fractals are self-similar and scale-invariant patterns found ubiquitously in nature. A lot of evidences implying fractal properties such as 1/f power spectrums have been also observed in resting state fMRI time series. To explain the fractal behavior in rs-fMRI, we have proposed the fractal-based model of resting state hemodynamic response function (rs-HRF) whose properties can be summarized by a fractal exponent. Here we show, through a simulation studies, that the fractal behavior of cerebral hemodynamics may cause significant distortion of network properties between neuronal activities and BOLD signals. We simulated neuronal population activities based on the stochastic neural field model from the Macaque brain network, and then obtained their corresponding BOLD signals by convolving them with the rs-HRF filter. The precision of centrality estimated in each node was deteriorated overall in three networks based on transfer entropy, mutual information, and Pearson correlation; particularly the distortion of transfer entropy was more sensitive to the standard deviation of fractal exponents. A node with high centrality was resilient to desynchronized fractal dynamics over all frequencies while a node with small centrality exhibited huge distortion of both wavelet correlation and centrality over low frequencies. This theoretical expectation indicates that the difference of fractal exponents between brain regions leads to discrepancy of statistical network properties, especially at nodes with small centrality, between neuronal activities and BOLD signals, and that the traditional definitions of resting state functional connectivity may not effectively reflect the dynamics of spontaneous neuronal activities.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1208.0924",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-19T08:11:38Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Wonsang You",
+            "Joerg Stadler"
+          ],
+          "title": "Fractal-based Correlation Analysis for Resting State Functional Connectivity of the Rat Brain in Functional MRI",
+          "venue": "arXiv",
+          "year": 2012
+        },
+        "primary_pointer": "1202.4751",
+        "summary": "The most studies on functional connectivity have been done by analyzing the brain's hemodynamic response to a stimulation. On the other hand, the low-frequency spontaneous fluctuations in the blood oxygen level dependent (BOLD) signals of functional MRI have been observed in the resting state. However, the BOLD signals in resting state are significantly corrupted by huge noises arising from cardiac pulsation, respiration, subject motion, scanner, and so forth. Especially, the noise compounds are stronger in the rat brain than in the human brain. To overcome such an artifact, we assumed that fractal behavior in BOLD signals reflects low frequency neural activity, and applied the theorem such that the wavelet correlation spectrum between long memory processes is scale-invariant over low frequency scales. Here, we report an experiment that shows special correlation patterns not only in correlation of scaling coefficients in very low-frequency band (less than 0.0078Hz) but also in asymptotic wavelet correlation. In addition, we show the distribution of the Hurst exponents in the rat brain.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1202.4751",
+          "http_status": 200,
+          "pdf_sample_score": 0.3941,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-19T08:11:39Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Xiatian Zhang",
+            "Sisi Zheng",
+            "Hubert P. H. Shum",
+            "Haozheng Zhang",
+            "Nan Song",
+            "Mingkang Song",
+            "Hongxiao Jia"
+          ],
+          "title": "Correlation-Distance Graph Learning for Treatment Response Prediction from rs-fMRI",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2311.10463",
+        "summary": "Resting-state fMRI (rs-fMRI) functional connectivity (FC) analysis provides valuable insights into the relationships between different brain regions and their potential implications for neurological or psychiatric disorders. However, specific design efforts to predict treatment response from rs-fMRI remain limited due to difficulties in understanding the current brain state and the underlying mechanisms driving the observed patterns, which limited the clinical application of rs-fMRI. To overcome that, we propose a graph learning framework that captures comprehensive features by integrating both correlation and distance-based similarity measures under a contrastive loss. This approach results in a more expressive framework that captures brain dynamic features at different scales and enables more accurate prediction of treatment response. Our experiments on the chronic pain and depersonalization disorder datasets demonstrate that our proposed method outperforms current methods in different scenarios. To the best of our knowledge, we are the first to explore the integration of distance-based and correlation-based neural similarity into graph learning for treatment response prediction.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2311.10463",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-19T08:11:39Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Anand A. Joshi",
+            "Soyoung Choi",
+            "Haleh Akrami",
+            "Richard M. Leahy"
+          ],
+          "title": "fMRI-Kernel Regression: A Kernel-based Method for Pointwise Statistical Analysis of rs-fMRI for Population Studies",
+          "venue": "arXiv",
+          "year": 2020
+        },
+        "primary_pointer": "2012.06972",
+        "summary": "Due to the spontaneous nature of resting-state fMRI (rs-fMRI) signals, cross-subject comparison and therefore, group studies of rs-fMRI are challenging. Most existing group comparison methods use features extracted from the fMRI time series, such as connectivity features, independent component analysis (ICA), and functional connectivity density (FCD) methods. However, in group studies, especially in the case of spectrum disorders, distances to a single atlas or a representative subject do not fully reflect the differences between subjects that may lie on a multi-dimensional spectrum. Moreover, there may not exist an individual subject or even an average atlas in such cases that is representative of all subjects. Here we describe an approach that measures pairwise distances between the synchronized rs-fMRI signals of pairs of subjects instead of to a single reference point. We also present a method for fMRI data comparison that leverages this generated pairwise feature to establish a radial basis function kernel matrix. This kernel matrix is used in turn to perform kernel regression of rs-fMRI to a clinical variable such as a cognitive or neurophysiological performance score of interest. This method opens a new pointwise analysis paradigm for fMRI data. We demonstrate the application of this method by performing a pointwise analysis on the cortical surface using rs-fMRI data to identify cortical regions associated with variability in ADHD index. While pointwise analysis methods are common in anatomical studies such as cortical thickness analysis and voxel- and tensor-based morphometry and its variants, such a method is lacking for rs-fMRI and could improve the utility of rs-fMRI for group studies. The method presented in this paper is aimed at filling this gap.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2012.06972",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-19T08:11:39Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Takashi Yamada",
+            "Ryu-ichiro Hashimoto",
+            "Noriaki Yahata",
+            "Naho Ichikawa",
+            "Yujiro Yoshihara",
+            "Yasumasa Okamoto",
+            "Nobumasa Kato",
+            "Hidehiko Takahashi",
+            "Mitsuo Kawato"
+          ],
+          "title": "Resting-state functional connectivity-based biomarkers and functional MRI-based neurofeedback for psychiatric disorders: a challenge for developing theranostic biomarkers",
+          "venue": "arXiv",
+          "year": 2017
+        },
+        "primary_pointer": "1704.01350",
+        "summary": "Psychiatric research has been hampered by an explanatory gap between psychiatric symptoms and their neural underpinnings, which has resulted in poor treatment outcomes. This situation has prompted us to shift from symptom-based diagnosis to data-driven diagnosis, aiming to redefine psychiatric disorders as disorders of neural circuitry. Promising candidates for data-driven diagnosis include resting-state functional connectivity MRI (rs-fcMRI)-based biomarkers. Although biomarkers have been developed with the aim of diagnosing patients and predicting the efficacy of therapy, the focus has shifted to the identification of biomarkers that represent therapeutic targets, which would allow for more personalized treatment approaches. This type of biomarker (i.e., theranostic biomarker) is expected to elucidate the disease mechanism of psychiatric conditions and to offer an individualized neural circuit-based therapeutic target based on the neural cause of a condition. To this end, researchers have developed rs-fcMRI-based biomarkers and investigated a causal relationship between potential biomarkers and disease-specific behavior using functional MRI (fMRI)-based neurofeedback on functional connectivity. In this review, we introduce recent approach for creating a theranostic biomarker, which consists mainly of two parts: (i) developing an rs-fcMRI-based biomarker that can predict diagnosis and/or symptoms with high accuracy, and (ii) the introduction of a proof-of-concept study investigating the relationship between normalizing the biomarker and symptom changes using fMRI-based neurofeedback. In parallel with the introduction of recent studies, we review rs-fcMRI-based biomarker and fMRI-based neurofeedback, focusing on the technological improvements and limitations associated with clinical use.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1704.01350",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.7143,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-19T08:11:43Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "predicting personal sleep quality from resting-state fmri connectivity neuroscience",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

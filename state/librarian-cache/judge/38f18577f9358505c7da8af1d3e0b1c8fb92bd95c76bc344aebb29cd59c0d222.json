@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2401.11052",
+  "judged_at": "2026-06-19T08:12:46Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "assessing uncertainty quantification techniques for materials property predictions materials science",
+  "rationale": "The paper evaluates large language models for extracting material property information from texts, which does not address uncertainty quantification methods or their assessment for materials property predictions, nor does it provide a baseline or methodology related to UQ. Hence it is unrelated to the user's research question.",
+  "relevant": false
+}

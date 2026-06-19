@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2003.07470",
+  "judged_at": "2026-06-19T08:13:57Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "transferability of dft‑d3 dispersion to ionic liquids chemistry",
+  "rationale": "The paper investigates optical material dispersion of imidazolium ionic liquids and a semi‑empirical polarizability model, but it does not address DFT‑D3 dispersion corrections or their transferability to ionic‑liquid chemistry, so it lacks relevance to the user's mechanism or variables.",
+  "relevant": false
+}

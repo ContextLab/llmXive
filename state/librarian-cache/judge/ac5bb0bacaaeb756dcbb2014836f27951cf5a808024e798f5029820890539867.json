@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2306.14753",
+  "judged_at": "2026-06-19T08:12:52Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "assessing uncertainty quantification techniques for materials property predictions materials science",
+  "rationale": "The paper introduces arbitrary polynomial chaos (aPC) as a UQ method for deep neural networks, providing a foundational methodology for uncertainty quantification (category (d)). Although it does not focus on materials property predictions, the technique is directly relevant to the class of UQ approaches the user’s review will need to cover.",
+  "relevant": true
+}

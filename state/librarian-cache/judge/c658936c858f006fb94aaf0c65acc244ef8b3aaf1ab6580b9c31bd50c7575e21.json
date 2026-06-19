@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2311.10463",
+  "judged_at": "2026-06-19T08:11:51Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting personal sleep quality from resting-state fmri connectivity neuroscience",
+  "rationale": "The paper studies rs‑fMRI functional connectivity (the same independent variable) and uses it to predict a personal health outcome (treatment response), which is analogous to predicting sleep quality. It therefore provides a relevant methodological baseline for rs‑fMRI‑based outcome prediction (category (b) and (d)).",
+  "relevant": true
+}

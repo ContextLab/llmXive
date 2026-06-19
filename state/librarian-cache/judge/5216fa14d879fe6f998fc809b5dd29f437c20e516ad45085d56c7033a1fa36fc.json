@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2401.17330",
+  "judged_at": "2026-06-19T08:13:51Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "transferability of dft‑d3 dispersion to ionic liquids chemistry",
+  "rationale": "The paper investigates ionic liquids—a core empirical population of the question—providing a canonical study of their properties (hyperpolarizability) using DFT calculations, which satisfies inclusion criterion (e) (empirical‑population canonical study).",
+  "relevant": true
+}

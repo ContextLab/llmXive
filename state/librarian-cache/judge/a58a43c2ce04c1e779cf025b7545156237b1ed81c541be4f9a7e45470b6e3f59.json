@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1704.01350",
+  "judged_at": "2026-06-19T08:11:56Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting personal sleep quality from resting-state fmri connectivity neuroscience",
+  "rationale": "The paper investigates resting‑state functional connectivity as a biomarker that predicts individual‑level outcomes (psychiatric symptoms/diagnosis), thus providing same‑mechanism evidence (category a) and measuring the key independent variable (rs‑fMRI connectivity) relevant to predicting personal sleep quality.",
+  "relevant": true
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2012.06972",
+  "judged_at": "2026-06-19T08:11:53Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting personal sleep quality from resting-state fmri connectivity neuroscience",
+  "rationale": "The paper presents a kernel‑regression framework that uses resting‑state fMRI connectivity to predict individual clinical scores, providing a methodological precedent for linking rs‑fMRI features to personal outcomes (category a) and serving as a canonical reference for predictive modeling of rs‑fMRI data (category d).",
+  "relevant": true
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1202.4751",
+  "judged_at": "2026-06-19T08:11:49Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting personal sleep quality from resting-state fmri connectivity neuroscience",
+  "rationale": "The paper presents a methodological approach for quantifying resting‑state functional connectivity (fractal‑based wavelet correlation) in rs‑fMRI data, thereby measuring one of the key independent variables (connectivity) in the same domain (brain imaging) that the user’s question relies on, even though it uses rats and does not address sleep quality. This fits acceptance criterion (b) (independent variable on the same domain) and also serves as a methodological reference (d).",
+  "relevant": true
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2307.05639",
+  "judged_at": "2026-06-19T08:12:56Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "assessing uncertainty quantification techniques for materials property predictions materials science",
+  "rationale": "The paper focuses on Gaussian RBF neural networks for active subspace discovery and feature importance, without addressing uncertainty quantification or materials property prediction, so it does not meet any inclusion criteria (a‑f).",
+  "relevant": false
+}
