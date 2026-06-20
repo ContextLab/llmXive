@@ -1,0 +1,65 @@
+\begin{table}[tb]
+\caption{
+\textbf{Quantitative comparison with SOTA academic and industrial methods on Places2 (Test/Large/Small/256, natural scene).} 
+“$\dag$”: results reported in original papers \cite{xu2025pixelhacker, li2022mat, Sargsyan2023migan, zhuang2023powerpaint}.
+“Indu.” denotes industrial.
+Benchmark details in Sec.~\ref{subsubsec:compare_details}.
+}
+\vspace{-0.5em}
+\centering
+\resizebox{1.0\linewidth}{!}{
+% \begin{tabular}{c|l|cc|cc|cc|cc|cc}
+\begin{tabular}{ >{\hspace{2pt}}c<{\hspace{2pt}}|l|cc|cc|cc|cc|cc}
+\toprule
+\multicolumn{2}{c|}{\multirow{2}{*}{\textbf{Method}}} 
+& \multicolumn{2}{c|}{\textbf{Places2 (Test)}}  
+& \multicolumn{2}{c|}{\textbf{Places2 (Large)}} 
+& \multicolumn{2}{c|}{\textbf{Places2 (Small)}}
+& \multicolumn{2}{c|}{\textbf{Places2 (256)}} 
+& \textbf{Param.} & \textbf{Latency}  \\
+\multicolumn{2}{c|}{}
+&       $\mathbf{FID}\downarrow$    &     $\mathbf{LPIPS}\downarrow$  
+&       $\mathbf{FID}\downarrow$    &     $\mathbf{LPIPS}\downarrow$  
+&       $\mathbf{FID}\downarrow$    &     $\mathbf{LPIPS}\downarrow$  
+&       $\mathbf{FID}\downarrow$    &     $\mathbf{LPIPS}\downarrow$ 
+& $\mathbf{(\times 10^9)}\downarrow$ & $\mathbf{(ms/step)}\downarrow$ \\
+\midrule
+% \midrule
+\rowcolor{TabGray} \multicolumn{12}{c}{ \textit{Non-Diffusion-based Methods} }  \\
+\midrule
+\multirow{9}{*}{\rotatebox{90}{\scriptsize\textbf{Academic}}} 
+&LaMa \cite{suvorov2021lama}      & 21.07\dg\more{122} & 0.213\dg\more{3} &-&-&-&-& 22.00\dg\more{56} & 0.378\dg\less{20} &-&- \\
+&MI-GAN \cite{Sargsyan2023migan}  & 14.36\dg\more{51} & 0.239\dg\more{15} &-&-&-&-& 11.83\dg\less{16} & 0.394\dg\less{16} &-&- \\
+&MADF \cite{zhu2021MADF}          & - & - &  7.53\dg\more{220}  & 0.181\dg\more{5} & 2.24\dg\more{143} & 0.095\dg\more{4} &-&-&-&- \\
+&AOT-GAN \cite{zeng2023AOTGAN}    & - & - & 10.64\dg\more{353}  & 0.195\dg\more{13} & 3.19\dg\more{247} & 0.101\dg\more{11} &-&-&-&- \\
+&HiFill \cite{yi2020hifill}       & - & - & 28.92\dg\more{1131} & 0.284\dg\more{64} & 7.94\dg\more{763} & 0.148\dg\more{63} & 81.27\dg\more{475} & 0.488\dg\more{4} &-&- \\
+&DeepFillv2 \cite{yu2019deepfillv2} & - & - & 9.27\dg\more{294} & 0.213\dg\more{23} & 3.02\dg\more{228} & 0.113\dg\more{24} &-&-&-&- \\
+&EdgeConnect \cite{naz2019EC}       & - & - &12.66\dg\more{439} & 0.275\dg\more{59} & 4.03\dg\more{338} & 0.114\dg\more{25} &-&-&-&- \\
+&MAT \cite{li2022mat}               & 9.27\dg\less{2} & 0.211\dg\more{2} & 2.90\dg\more{23} & 0.189\dg\more{9} & 1.07\dg\more{16} & 0.099\dg\more{9} & 14.38\dg\more{2} & 0.394\dg\less{16} &-&-\\
+&Latent-C.I. \cite{Chen2024LCI}     & 23.14\more{144} & 0.288\more{39} & 5.08\more{116} & 0.210\more{21} & 1.59\more{73} & 0.108\more{19} & 30.72\more{117} & 0.478\more{2} & 1.686\more{646} & - \\
+\midrule
+% \midrule
+\rowcolor{TabGray} \multicolumn{12}{c}{ \textit{Diffusion-based Methods} } \\
+\midrule
+\multirow{7}{*}{\rotatebox{90}{\scriptsize\textbf{Academic}}}
+& LDM  \cite{Rombach2022LDM}               & 21.42\dg\more{126}& 0.232\dg\more{12} & - & - & - & - &13.40\dg\less{5} & 0.385\dg\less{18} & 0.387\dg\more{71} & - \\
+& SD \cite{Rombach2022LDM}                 & 19.73\dg\more{108}& 0.232\dg\more{12} &-&-&-&-&-&-& 0.860\more{281} & 57.07\more{119} \\
+& PowerPaint \cite{zhuang2023powerpaint}   & 17.91\dg\more{89}& 0.223\dg\more{8}  &-&-&-&-&-&-& 0.860\more{281} & 56.58\more{118} \\
+& HD-Painter \cite{manukyan2023hdpainter}  & 23.53\more{148}  & 0.322\more{56} & 8.07\more{243} & 0.293\more{69} & 4.49\more{388} & 0.203\more{123} & 37.10\more{163} & 0.527\more{12} & 0.860\more{281} & 58.61\more{125} \\
+& DDNM  \cite{wang2022ddnm}                & 29.62\more{212} & 0.727\more{251} & 9.18\more{291} & 0.846\more{389} & 5.43\more{490} & 0.839\more{822} & 39.13\more{177} & 0.810\more{72} & 0.553\more{145} & 195.50\more{652} \\
+& RoRem \cite{Li2025RoRem}                 & 24.17\more{155} & 0.297\more{43} & 5.88\more{150} & 0.251\more{45} & 1.78\more{93} & 0.133\more{46} & 28.63\more{103} & 0.468\less{0} & 2.567\more{1036} & 113.66\more{337} \\
+& PixelHacker \cite{xu2025pixelhacker}      &  8.59\dg\less{9} & 0.203\dg\less{2} & 2.05\dg\less{13} & 0.169\dg\less{2} & 0.82\dg\less{11} & 0.088\dg\less{3}  & 9.25\dg\less{35} & 0.367\dg\less{22} & 0.862\more{281} & 46.89\more{80}  \\
+\midrule
+\multirow{2}{*}{\rotatebox{90}{\scriptsize\textbf{Indu.}}}
+& SD3.5 Large-Inp. \cite{esser2024SD3}      & 37.33\more{294} & 0.237\more{14} & 10.94\more{366} & 0.202\more{17} & 3.02\more{228} & 0.105\more{15}  & 74.29\more{426} & 0.595\more{27} &  8.057\more{3465} & 151.02\more{481} \\
+& FLUX.1-Fill-Dev \cite{flux2024}           &  8.02\less{15} & 0.279\more{35} & 1.86\less{21} & 0.179\more{3} & 0.94\more{2} & 0.099\more{9}  & 10.44\less{26} & 0.391\less{17} &  11.902\more{5166} & 161.01\more{519} \\
+\midrule
+\midrule
+\rowcolor{AblationGreen} & {Moebius}     & 9.48 & 0.207 & 2.35 & 0.173 & 0.92 & 0.091 & 14.13 & 0.470 & 0.226 & 26.01 \\
+\bottomrule
+\end{tabular}
+}
+\label{tab:total_natural}
+\vspace{-1.5em}
+\end{table}
+

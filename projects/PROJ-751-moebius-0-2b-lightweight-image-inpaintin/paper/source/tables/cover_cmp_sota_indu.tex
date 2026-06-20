@@ -1,0 +1,39 @@
+\begin{table}[t]
+\centering
+\caption{\textbf{Breaking the impossible triangle of low-parameters, fast inference, and high generation quality.} Moebius achieves the lowest latency, FLOPs, and parameters, with remarkable generation quality. Note that industrial models require more steps (50/28 vs 20; default setting), making Moebius \textbf{15$\times$ faster} in total inference.}
+\label{tab:cover}
+\vspace{-0.8em}
+\resizebox{1.0\linewidth}{!}{
+\begin{tabular}{l|cc|cc|cc|ccccc}
+\toprule
+\multirow{2}{*}{\textbf{Model}}
+& \multicolumn{2}{c|}{\textbf{Places2 (Small)}}  
+& \multicolumn{2}{c|}{\textbf{CelebA-HQ (512)}} 
+& \multicolumn{2}{c|}{\textbf{FFHQ (256)}}
+% & \textbf{Params (B)} $\downarrow$ 
+& \textbf{Param.} 
+& \multirow{2}{*}{\textbf{TFLOPs} $\downarrow$} 
+% & \textbf{Latency (ms/step)}
+& \textbf{Latency}
+& \multirow{2}{*}{\textbf{Steps}}
+% & \textbf{Total Time (s)} $\downarrow$ \\
+& \textbf{Total} \\
+&       $\mathbf{FID}\downarrow$    &     $\mathbf{LPIPS}\downarrow$  
+&       $\mathbf{FID}\downarrow$    &     $\mathbf{LPIPS}\downarrow$  
+&       $\mathbf{FID}\downarrow$    &     $\mathbf{LPIPS}\downarrow$  
+& $\mathbf{(\times 10^9)}\downarrow$ 
+& 
+& $\mathbf{(ms/step)}\downarrow$
+& 
+& \textbf{Time(s)} $\downarrow$\\
+\midrule
+\rowcolor{AblationGreen}\textbf{Moebius} & 0.92 & 0.091 & 5.39 & 0.122 & 8.15 & 0.231 & 0.226 & 0.154 & 26.01 & 20 & 0.52 \\
+\textbf{PixelHacker \cite{xu2025pixelhacker}} & 0.82\less{11} & 0.088\less{3} & 4.75\less{12} & 0.115\less{6} & 6.35\less{22} & 0.229\less{1} & 0.862\more{281}  & 0.338\more{119}  & 46.89\more{80}   & 20   & 0.94\more{81} \\
+\textbf{SD3.5 Large-Inp. \cite{esser2024SD3}} & 3.02\more{228} & 0.105\more{15} & 11.80\more{119} & 0.134\more{10} & 109.42\more{1243} & 0.402\more{74} & 8.057\more{3465} & 8.657\more{5521} & 151.02\more{481} & 28\more{40}  & 4.23\more{713} \\
+\textbf{FLUX.1-Fill-Dev \cite{flux2024}} & 0.94\more{2} & 0.099\more{9} & 10.13\more{88} & 0.141\more{16} & 11.19\more{37} & 0.268\more{16} & 11.902\more{5166}& 9.927\more{6346} & 161.01\more{519} & 50\more{150} & 8.05\more{1448} \\
+\bottomrule
+\end{tabular}
+}
+% \vspace{-1.3em}
+\vspace{-1.6em}
+\end{table}

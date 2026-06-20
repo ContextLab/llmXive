@@ -1,0 +1,18 @@
+\begin{figure}[h]
+\centering
+\vspace{-2em}
+    \includegraphics[width=1.01\linewidth]{figs/rats_teaser.pdf}
+    \vspace{-0.75em}
+    \caption{
+\textbf{\textsc{RATs} enables Playful Agentic Robot Learning.}
+Prior to receiving extrinsic reward signals, play-based Robotics Agent Teams autonomously propose intrinsic goals, practice them through Code-as-Policy execution, and distill successful behaviors into a reusable code skill library. At test time, the learned skills are retrieved and reused to solve future tasks.
+}
+    \label{fig:teaser}
+    \vspace{0.75em}
+\end{figure}
+
+\begin{abstract}
+Current agentic robot systems can write executable Code-as-Policy programs, observe feedback, and revise behavior across multiple attempts, but they remain largely task-driven: reusable skills are acquired only after explicit instructions. We study \emph{Playful Agentic Robot Learning}, where an embodied coding agent uses self-directed play as a continual skill-learning stage before downstream tasks arrive. We introduce \textsc{RATs}, \underline{R}obotics \underline{A}gent \underline{T}eam\underline{s} designed for play-time skill acquisition. During play, \textsc{RATs} proposes novel yet learnable exploratory tasks, plans and executes robot-code policies, verifies intermediate progress, diagnoses failures, retries with dense, step-level feedback, and distills successful executions into a persistent code skill library. 
+At test time, the agent reuses relevant skills from this frozen library to help solve new tasks.
+Experiments in LIBERO-PRO and MolmoSpaces show that play-learned skills improve held-out downstream tasks over no play and random-play baselines, with a 20.6 and 17.0 percentage-point gains over CaP-Agent0 on LIBERO-PRO and MolmoSpaces, respectively. Moreover, the learned skills can be plugged into other inference-time Code-as-Policy agents by simply retrieving them into the context, improving RoboSuite and real-world transfer by 8.9 and 8.8 points, respectively, without finetuning the underlying model.
+\end{abstract}

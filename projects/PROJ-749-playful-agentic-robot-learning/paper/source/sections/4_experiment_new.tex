@@ -1,0 +1,290 @@
+\providecommand{\liberoTableWidth}{0.6\linewidth}
+\providecommand{\molmoTableWidth}{0.65\linewidth}
+\providecommand{\robosuiteTableWidth}{0.9\linewidth}
+\providecommand{\ablationTableWidth}{0.75\linewidth}
+\section{Experimental Results}
+\label{sec:result}
+We evaluate whether skills learned through autonomous play improve Code-as-Policy agents at test time. 
+We report in-domain generalization on LIBERO-PRO and MolmoSpaces (Sec.~\ref{subsec:in-domain-molmo}), cross-environment transfer to RoboSuite~\cite{robosuite2020} (Sec.~\ref{subsec:cross-env-transfer}), ablations isolating the effect of curiosity-driven play (Sec.~\ref{subsec:ablation}), and preliminary real-world transfer (Sec.~\ref{subsec:real-world}).
+\begin{table}[t]
+    \centering
+    \small
+    \setlength{\tabcolsep}{4pt}
+    \caption{\textbf{LIBERO-PRO in-domain evaluation.} ``Pos.'' corresponds to the
+    initial-position swap split, and ``Task'' corresponds to the task
+    perturbation split. ``Avg.'' is averaged over all six splits.}
+    \label{tab:libero-pro-main}
+    \resizebox{\liberoTableWidth}{!}{%
+    \begin{tabular}{lccccccc}
+        \toprule
+        Method
+        & \multicolumn{2}{c}{Object}
+        & \multicolumn{2}{c}{Goal}
+        & \multicolumn{2}{c}{Spatial}
+        & Avg. \\
+        \cmidrule(lr){2-3}
+        \cmidrule(lr){4-5}
+        \cmidrule(lr){6-7}
+        & Pos. & Task
+        & Pos. & Task
+        & Pos. & Task
+        & \\
+        \midrule
+        OpenVLA
+            & 0.0 & 0.0
+            & 0.0 & 0.0
+            & 0.0 & 0.0
+            & 0.0 \\
+        $\pi_0$
+            & 0.0 & 0.0
+            & 0.0 & 0.0
+            & 0.0 & 0.0
+            & 0.0 \\
+        $\pi_{0.5}$
+            & 17.0 & 1.0
+            & 38.0 & 0.0
+            & 20.0 & 1.0
+            & 12.8 \\
+        \midrule
+        \textsc{CaP-Agent0}
+            & 27.0 & 31.0
+            & 29.0 & 16.0
+            & 13.0 & 23.0
+            & 23.2 \\
+        \textsc{RATs (Ours)}
+            & \textbf{61.0} & \textbf{63.0}
+            & \textbf{43.0} & \textbf{36.0}
+            & \textbf{29.0} & \textbf{31.0}
+            & \textbf{43.8} \\
+        \bottomrule
+    \end{tabular}
+    }
+    \vspace{-0.5em}
+\end{table}
+
+\begin{table}[t]
+    \centering
+    \small
+    \setlength{\tabcolsep}{7pt}
+    \caption{\textbf{MolmoSpaces in-domain evaluation.} Each category has 10
+    tasks, with 10 trials per task.}
+    \label{tab:molmospace-main}
+    \resizebox{\molmoTableWidth}{!}{%
+    \begin{tabular}{lccccc}
+        \toprule
+        Method
+        & Open
+        & Close
+        & Pick
+        & Pick-and-Place
+        & Avg. \\
+        \midrule
+        \textsc{CaP-Agent0}
+            & 14.0 & 36.0 & 23.0 & 11.0 & 21.0  \\
+        \textsc{RATs (Ours)}
+            & \textbf{20.0} & \textbf{73.0} & \textbf{37.0} & \textbf{22.0} & \textbf{38.0} \\
+        \bottomrule
+    \end{tabular}
+    
+    }
+    \vspace{-1.em}
+\end{table}
+
+\begin{figure}[t]
+    \vspace{-2.5em}
+    \includegraphics[width=0.95\linewidth]{figs/figure_rats_sim.pdf}
+    \vspace{-0.75em}
+\caption{
+\textbf{Qualitative comparisons in simulation.}
+}
+    \label{fig:f3}
+    \vspace{-0.75em}
+\end{figure}
+\begin{figure}[t]
+    \includegraphics[width=0.98\linewidth]{figs/rats_real.pdf}
+    \vspace{-0.5em}
+\caption{
+\textbf{Qualitative results of sim-to-real transfer.}
+}
+    \label{fig:real}
+    \vspace{-1em}
+\end{figure}
+\subsection{Experiment Details}
+\label{subsec:exp-details}
+\textbf{Benchmarks.} We use three manipulation suites. \emph{LIBERO-PRO}~\cite{liu2023libero,liberopro}
+tests Object, Goal, and Spatial generalization tasks. 
+It perturbs each task along three axes (object, goal, spatial), each
+with an initial-position swap (``Pos.'') and a task perturbation (``Task'').
+\emph{MolmoSpaces}~\cite{kim2026molmospaces} tests Open, Close, Pick, and Pick \& Place tasks.
+It scores success from grounded scene state and natural-language criteria, complementing the predicate-based tasks of LIBERO-PRO. 
+Both LIBERO-PRO and MolmoSpaces serve as play environments and in-domain evaluation benchmarks; we describe both benchmarks in detail in Appendix~\ref{sec:appendix_evaluation_benchmarks}.
+\emph{RoboSuite} is a separate simulator, held out from play, used only for
+cross-environment transfer.
+
+\textbf{Methods.} We compare against VLA policies, OpenVLA~\cite{openvla},
+$\pi_0$~\citep{black2025pi0}, and
+$\pi_{0.5}$~\citep{physicalintelligence2025pi05}, and against
+\emph{CaP-Agent0}~\cite{fu2026capx}, the Code-as-Policy agent run with only the primitive library $\mathcal{L}_0$ (the ``No Play'' condition). For \textsc{RATs}, we play on LIBERO-PRO and MolmoSpaces environment for 50 iterations each with \texttt{gemini-3.1pro-preview}. See Appendix~\ref{sec:appendix_agent_team} for more details.
+
+\textbf{Metric and Evaluation Modes.} We report task success rate and evaluate the
+learned library in two modes: a \emph{plug-in} mode that retrieves skills into CaP-Agent0's context, and a \emph{full-system} mode (\textsc{RATs} Exec.) that runs the complete task execution system.
+
+\subsection{In-Domain Evaluation}
+\label{subsec:in-domain-molmo}
+
+On LIBERO-PRO, we evaluate on 60 held-out tasks under 10 initializations each, for a total of 600 trials.
+Table~\ref{tab:libero-pro-main} shows \textsc{RATs} raises average success from 23.2\% (CaP-Agent0) to 43.8\% (+20.6 pp) and outperforms all VLA baselines, the best of which ($\pi_{0.5}$) reaches 12.8\%. Gains are largest on the object splits
+(61.0\% and 63.0\%) but also appear on the goal and spatial splits, indicating
+that the play-learned skills generalize beyond the tasks practiced during play.
+For MolmoSpaces, we sample 10 tasks from each of four task categories (opening, closing, picking, pick and place) and run 10 trials each, for a total of 400 trials.
+Table~\ref{tab:molmospace-main} shows \textsc{RATs} improves average success from 21.0\% to 38.0\% and improves significantly on all categories. Refer to Fig.~\ref{fig:f3} for the qualitative results.
+
+
+\subsection{Cross-Environment Transfer}
+\label{subsec:cross-env-transfer}
+We test whether skills learned in one simulation environment transfer to another. Specifically, we plug the skill library learned from LIBERO-PRO play into CaP-Agent0 and evaluate it on RoboSuite, which is never seen during play.
+We use five randomizations $\times$ 10 trials
+(50 trials) per task.
+Table~\ref{tab:robosuite-transfer} shows that transferred skills raise average success from 40.3\% to 49.1\% (+8.9 pp), with broad gains on cube lifting (+16.0 pp) and two-arm lifting (+24.0 pp). Notably, this largest gain is \textit{cross-embodiment}: although the skills are practiced on the single-arm LIBERO-PRO robot, they still transfer to this two-arm collaborative task.
+
+
+
+\begin{table}[t]
+    \centering
+    \small
+    \vspace{-2em}
+    \setlength{\tabcolsep}{7pt}
+    \caption{\textbf{Cross-environment transfer on RoboSuite and preliminary real-world evaluation.}
+    Skills are learned by \textsc{RATs} during LIBERO-PRO play and reused with the CaP-Agent0 system. Each RoboSuite task has 50 trials,
+    and each real-world task has 40 trials.}
+    \label{tab:robosuite-transfer}
+    \resizebox{\robosuiteTableWidth}{!}{%
+    {\renewcommand{\arraystretch}{1.05}
+    \begin{tabular}{lccc}
+        \toprule
+        Task
+        & \textsc{CaP-Agent0}
+        & \textsc{CaP-Agent0 + \textsc{RATs} Skills (LIBERO-PRO)}
+        & $\Delta$ \\
+        \midrule
+        Cube lifting
+            & 34/50 (68.0\%)
+            & \textbf{42/50 (84.0\%)}
+            & +16.0 pp \\
+        Cube restacking
+            & 17/50 (34.0\%)
+            & \textbf{23/50 (46.0\%)}
+            & +12.0 pp \\
+        Cube stacking
+            & 23/50 (46.0\%)
+            & \textbf{30/50 (60.0\%)}
+            & +14.0 pp \\
+        Nut assembly
+            & 0/50 (0.0\%)
+            & 0/50 (0.0\%)
+            & 0.0 pp \\
+        Spill wiping
+            & 50/50 (100.0\%)
+            & 50/50 (100.0\%)
+            & 0.0 pp \\
+        Two-arm handover
+            & \textbf{12/50 (24.0\%)}
+            & 10/50 (20.0\%)
+            & -4.0 pp \\
+        Two-arm lifting
+            & 5/50 (10.0\%)
+            & \textbf{17/50 (34.0\%)}
+            & +24.0 pp \\
+        \midrule
+        \textbf{Average (RoboSuite)}
+            & 141/350 (40.3\%)
+            & \textbf{172/350 (49.1\%)}
+            & +8.9 pp \\
+        \midrule
+        Pick up red cube
+            & 14/40 (35.0\%)
+            & \textbf{17/40 (42.5\%)}
+            & +7.5 pp \\
+        Place cube in bowl
+            & 10/40 (25.0\%)
+            & \textbf{14/40 (35.0\%)}
+            & +10.0 pp \\
+        \midrule
+        \textbf{Average (Real World)}
+            & 24/80 (30.0\%)
+            & \textbf{31/80 (38.8\%)}
+            & +8.8 pp \\
+        \bottomrule
+    \end{tabular}
+    }
+    \vspace{-2em}
+    }
+\end{table}
+
+
+\subsection{Ablating Play Strategy and Test-Time Execution}
+\label{subsec:ablation}
+To understand the performance gains, we ablate our system on LIBERO-PRO along two dimensions:
+(1) Play Strategy: We compare \emph{No Play} (primitives only), \emph{Random Play} (50 iterations of randomly sampled tasks), and \emph{Curious Play} (50 iterations of play using our task proposer).
+(2) Test-Time System: We evaluate the learned library using either a standard \emph{CaP-Agent0} baseline or our full \textsc{RATs} system.
+Table~\ref{tab:libero-ablation} shows two findings:
+First, curiosity is essential for effective play: under CaP-Agent0, \emph{Random Play} provides little gain over \emph{No Play} (23.2\% $\to$ 24.7\%), while \emph{Curious Play} improves performance to 32.3\%.
+Second, play and test-time execution are complementary: improving only execution raises performance from 23.2\% to 36.3\%, while improving only play raises it to 32.3\%; combining both yields the best, 44.3\%. See Appendix~\ref{sec:appendix_play_process} for more play details. We report additional ablations on MolmoSpaces and a token-cost analysis in Appendix~\ref{sec:appendix_additional_studies}.
+
+
+\begin{table}[t]
+    \centering
+    \scriptsize
+    \setlength{\tabcolsep}{3.5pt}
+    {\renewcommand{\arraystretch}{0.95}
+    \caption{\textbf{LIBERO-PRO ablation over play strategy and test-time system.} All
+    play-based variants use 50 play iterations. All play-time skills are learned by our proposed \textsc{RATs} system. For the \textsc{RATs} Exec. test-time system, we use 5 trials per task rather than 10.}
+    \label{tab:libero-ablation}
+    \resizebox{\ablationTableWidth}{!}{%
+    \begin{tabular}{llccccccc}
+        \toprule
+        \multirow{2}{*}{Test-Time System}
+        & \multirow{2}{*}{Play-Time Skills}
+        & \multicolumn{2}{c}{Object}
+        & \multicolumn{2}{c}{Goal}
+        & \multicolumn{2}{c}{Spatial}
+        & Avg. \\
+        \cmidrule(lr){3-4}
+        \cmidrule(lr){5-6}
+        \cmidrule(lr){7-8}
+        & & Pos. & Task & Pos. & Task & Pos. & Task & \\
+        \midrule
+        \multirow{3}{*}{\textsc{CaP-Agent0}}
+            & No Play
+            & 27.0 & 31.0 & 29.0 & 16.0 & 13.0 & 23.0 & 23.2 \\
+        & Random Play
+            & 20.0 & 28.0 & 32.0 & 16.0 & 20.0 & 32.0 & 24.7 \\
+        & Curious Play
+            & 51.0 & 47.0 & 34.0 & 20.0 & 19.0 & 23.0 & 32.3 \\
+        \midrule
+        \multirow{3}{*}{\textsc{RATs Exec.}}
+            & No Play
+            & 54.0 & 58.0 & 32.0 & 24.0 & 20.0 & \textbf{30.0} & 36.3 \\
+        & Random Play
+            & 54.0 & 46.0 & 34.0 & 44.0 & 24.0 & 28.0 & 38.3 \\
+        & Curious Play
+            & \textbf{60.0} & \textbf{60.0}
+            & \textbf{48.0} & \textbf{38.0}
+            & \textbf{30.0} & \textbf{30.0}
+            & \textbf{44.3} \\
+        \bottomrule
+    \end{tabular}
+    }
+    }
+    \vspace{-1.5em}
+\end{table}
+
+
+
+
+
+\subsection{Sim-to-Real Evaluation}
+\label{subsec:real-world}
+
+Finally, we evaluate whether the skill library acquired during simulated play can be reused on a physical robot. We export the skill library learned after 50 iterations of play in LIBERO-PRO and deploy it directly, without real-world play or finetuning. Given real-world manipulation instructions such as cube picking and placing, the system retrieves relevant skills from the library and executes policies through the robot's control APIs. As in Table~\ref{tab:robosuite-transfer} (bottom), adding \textsc{RATs}-learned skills improves over the \textsc{CaP-Agent0} baseline by 8.8 percentage points on this real-world task set. These results suggest that play-learned code skills can be reused on real hardware for simple manipulation tasks. We show demonstrations in Figure~\ref{fig:real}, with additional details in Appendix~\ref{sec:appendix_additional_realworld}.
+

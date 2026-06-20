@@ -1,0 +1,52 @@
+\section{Introduction}
+\label{sec:intro}
+Spatial intelligence, the ability to understand geometric relations among objects and their 3D environments, is essential for vision-language models (VLMs) to operate in the physical world and represents a key step toward artificial general intelligence (AGI), where models are expected to perceive, reason, and make decisions in 3D space as humans do. 
+% 
+Such capability is crucial for real-world applications, including embodied robotics \citep{driess2023palme,brohan2023rt2}, AR/VR perception \citep{newcombe2011kinectfusion}, and autonomous driving \citep{geiger2012kitti,caesar2020nuscenes}. 
+% 
+However, unlike human perception, which naturally integrates visual cues into coherent 3D understanding, current VLMs are primarily trained on passive 2D visual-text corpora, with limited explicit 3D supervision or embodied experience \citep{radford2021clip,alayrac2022flamingo,liu2023llava}.
+% 
+This creates a fundamental semantic-to-geometric gap: while VLMs excel at probabilistic and qualitative semantic inference, their reasoning is often mediated by lossy semantic representations that fail to faithfully capture high-fidelity geometry, leaving them susceptible to textual patterns and semantic priors rather than grounded 3D geometric evidence \citep{gca,testset_stress}.
+
+
+Recent advances in agentic VLMs substantially push the boundary of spatial understanding by augmenting VLMs with external tools, executable programs, and explicit geometric structure. 
+% 
+For example, VADAR \citep{vadar} dynamically constructs a Python API and synthesizes programs for 3D spatial reasoning; SpaceTools \citep{spacetools} trains VLMs to coordinate multiple vision and robotic tools through interactive reinforcement learning. %. %, and GCA \citep{gca} constrains the reasoning process with formal reference-frame and objective constraints before performing deterministic geometric computation.
+% 
+However, despite their strong performance, these methods still largely focus on static images or isolated visual observations, which remains far from the goal of real-world spatial intelligence: \textit{the real 3D world is hidden, evolving, and continuously projected into streams of 2D observations}. 
+% 
+Reasoning from isolated 2D views alone makes it fundamentally challenging to maintain persistent object states, integrate evidence across viewpoints and time, and build a coherent understanding of the underlying 3D scene.
+
+To move beyond static and stateless spatial reasoning, we introduce \textbf{\textsc{S-Agent}}, a \textbf{S}patial tool-use agentic paradigm for understanding and reasoning over continuous multi-view images and videos. 
+% 
+Our key motivation is that the missing ingredient for video-based spatial intelligence is not merely stronger 2D/3D visual recognition, but a reasoning mechanism that can accumulate spatial evidence along both spatial and temporal dimensions. 
+% 
+Specifically, in continuous multi-view and video settings, each frame is only a partial and transient observation of the scene, while the key to spatial intelligence is to connect these observations into a spatially structured and temporally persistent understanding of the underlying 3D world.
+% 
+Rather than asking VLMs to implicitly internalize this entire process, our \textsc{S-Agent} casts the VLM as a semantic planner that decides what evidence is needed, while spatial tools/experts and temporal memory provide continuous and explicit 3D awareness of the specific scene, ranging from low-level 2D/3D evidence (e.g., object grounding, depth information) to high-level spatial knowledge (e.g., orientations, relationships).
+% 
+This separation enables the agent to reason from accumulated evidence instead of isolated visual impressions, extending existing spatial agent methods toward stateful, temporally grounded understanding of evolving scenes.
+% 
+% Unlike prior spatial agents that solve each query from isolated observations, \textsc{S-Agent} maintains an evolving scene state and reasons over accumulated evidence across both viewpoints and time.
+
+Motivated by this perspective, \textsc{S-Agent} is designed as a VLM-orchestrated spatio-temporal reasoning framework: it progressively aggregates spatial evidence from fragmented 2D observations into structured 3D scene knowledge, while persistently accumulating temporal evidence across frames and reasoning iterations. 
+% 
+(1) For the \textit{spatial dimension}, \textsc{S-Agent} follows a hierarchical understanding process. 
+At the first level, \textbf{2D perception tools} ground objects and regions in individual frames, establishing object-centric visual facts for subsequent reasoning. 
+At the second level, \textbf{multi-view 3D tools} enrich these grounded entities with geometric cues (e.g., depth, 3D coordinates, and camera poses), allowing evidence from different viewpoints to be integrated beyond the original image plane. 
+At the third level, \textbf{specialized spatial experts} aggregate these geometric signals into higher-level spatial knowledge (e.g., object counts, physical measurements, orientations, and relative positions). 
+% 
+(2) For the \textit{temporal dimension}, \textsc{S-Agent} maintains memory over the evolving reasoning process: \textbf{Scene Memory} tracks grounded entities across frames to preserve object identity and suppress duplicate evidence, while \textbf{Agent Memory} stores accumulated tool observations and intermediate reasoning traces for iterative refinement. 
+In this way, \textsc{S-Agent} turns video spatial reasoning from disconnected frame-level prediction into evidence accumulation over an evolving 3D scene.
+
+
+Comprehensive experiments on multi-image benchmarks (MMSI-Bench~\citep{mmsi_bench} and ViewSpatial-Bench~\citep{viewspatial_bench}) and video spatial reasoning benchmarks (ReVSI~\citep{revsi} and VSI-SUPER~\citep{cambrian_s}) validate the robustness and generalizability of our approach.
+% 
+(1) \textbf{Zero-shot setting}. We directly instantiate \textsc{S-Agent} with both open-source models (e.g., Qwen3) and closed-source APIs (e.g., Gemini and GPT) in a training-free manner. 
+Simply and directly applying the \textsc{S-Agent} framework consistently improves the spatial reasoning ability of these VLMs, improving over GPT-5.4 by 4.5\% on MMSI-Bench. 
+% 
+(2) \textbf{Training setting}. Beyond inference-time improvement, we further construct a spatial-instruction dataset \textsc{S-300K} from zero-shot \textsc{S-Agent} trajectories on the SenseNova-SI-800K \citep{sensenova_si} training set (which is fully disjoint from all evaluation benchmarks) and use it to perform supervised fine-tuning on Qwen3-VL-8B, resulting in \textsc{S-Agent-8B}. 
+% 
+Compared with direct Qwen3-VL-8B inference, \textsc{S-Agent-8B} achieves a 10.5\% improvement on MMSI-Bench, improving accuracy from 31.1\% to 41.6\%, and performs comparably to advanced closed-source models such as GPT-5.4 and Gemini 3 Pro across multiple benchmarks. 
+% 
+These results show that \textsc{S-Agent} is not only an effective training-free inference framework, but also a scalable paradigm for building compact spatially capable agents.

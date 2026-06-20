@@ -1,0 +1,194 @@
+\section{Method}
+\label{sec:method}
+
+% \subsection{Overview}
+% \label{sec:method:overview}
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=0.95\linewidth]{figures/framework_sagent.pdf}
+    \caption{The pipeline of \textsc{S-Agent}. Instead of answering from an isolated visual impression, \textsc{S-Agent} uses a VLM as a semantic planner, spatial tools and experts as scene-specific evidence providers, and memory as the carrier of persistent 3D state across views, frames, and reasoning steps.}
+    \label{fig:framework}
+    \vspace{-2mm}
+\end{figure}
+
+% We introduce \textbf{\textsc{S-Agent}}, an agentic VLM framework that treats multi-view and video spatial understanding as \textit{continuous and stateful evidence accumulation}. 
+% 
+This section details the design of \textsc{S-Agent}. 
+% 
+We first formulate spatial reasoning as iterative updates to a scene state and an agent state in Section~\ref{sec:method:framework}. 
+% 
+We then describe how \textsc{S-Agent} acquires hierarchical spatial evidence in Section~\ref{sec:method:spatial}, maintains temporal memory for stateful reasoning in Section~\ref{sec:method:memory}, and uses \textsc{S-Agent} trajectories to train compact agents in Section~\ref{sec:method:training}.
+
+\subsection{S-Agent Framework}
+\label{sec:method:framework}
+
+We consider spatial reasoning problems defined by a question $q$ and a sequence or set of visual observations $\mathcal{F}$. 
+The input can be a video (e.g., the scene and camera may evolve over time) or a multi-view image set (e.g., different images capture the same scene from different viewpoints). 
+The goal of \textsc{S-Agent} is to produce an answer $a$ that depends on the underlying 3D scene state rather than on a single 2D projection.
+To this end, \textsc{S-Agent} performs inference as an iterative evidence-seeking process, progressively acquiring and reusing scene-specific spatial evidence, as illustrated in Figure~\ref{fig:framework}.
+
+At reasoning step $t$, \textsc{S-Agent} maintains two memory states. The first is a \emph{scene memory state} $\mathcal{S}_t$ for grounded spatial evidence, which stores grounded entities and their accumulated spatial attributes. The second is an \emph{agent memory state} $\mathcal{H}_t$ for reasoning history, which records previous tool calls, observations, and reasoning decisions. 
+A tool-calling VLM planner $\pi_{\theta}$ maps the question $q$, input observations $\mathcal{F}$, and current memory states ($\mathcal{S}_t$, $\mathcal{H}_t$) to an evidence request $r_t$:
+\[
+    r_t = \pi_{\theta}(q, \mathcal{F}, \mathcal{S}_t, \mathcal{H}_t).
+\]
+A spatial tool or expert executes $r_t$ and returns an observation $o_t$, which is used to update both memory states:
+\[
+    (\mathcal{S}_{t+1}, \mathcal{H}_{t+1}) =
+    \mathrm{Update}(\mathcal{S}_t, \mathcal{H}_t, r_t, o_t).
+\]
+The agent terminates when the accumulated evidence is sufficient to answer $q$. This formulation separates \emph{semantic planning} from \emph{spatial evidence acquisition}: the VLM decides what to measure or compare, while tools and memory provide scene-specific spatio-temporal evidence for the final reasoning.
+Unlike fixed pipelines or standard tool-use agents that treat each tool call as an isolated action, \textsc{S-Agent} conditions each evidence request on both the question and the evolving memory state. 
+As a result, perception and geometric computation are invoked on demand, and their outputs remain reusable across later reasoning steps. 
+The following sections describe the two core mechanisms of this framework: hierarchical spatial evidence acquisition (Section~\ref{sec:method:spatial}) and temporal memory for stateful reasoning (Section~\ref{sec:method:memory}).
+
+\subsubsection{Hierarchical Spatial Evidence}
+\label{sec:method:spatial}
+
+\textsc{S-Agent} acquires spatial evidence through a three-level hierarchy that transforms raw 2D observations into explicit, scene-specific spatial knowledge. 
+% 
+This hierarchy reflects the varying levels of evidence required by spatial tasks: some questions can be answered from localized image-level cues, while others require lifting those cues into 3D geometry or aggregating them through specialized spatial experts. 
+% 
+This staged design keeps the VLM focused on semantic planning, while delegating scene-specific perception and spatial computation (e.g., visual localization, geometric recovery, and metric or relational computation) to tools whose outputs can also be stored and reused in memory.
+
+% 
+We denote the three tool levels as $\mathcal{T}^{(1)}$, $\mathcal{T}^{(2)}$, and $\mathcal{T}^{(3)}$, corresponding to 2D visual evidence acquisition, 2D-to-3D geometric lifting, and spatial knowledge aggregation, respectively. 
+Given an evidence request $r_t$, \textsc{S-Agent} selects a tool or expert $T^{(k)} \in \mathcal{T}^{(k)}$ and produces an observation
+\[
+    o_t = T^{(k)}(r_t, \mathcal{F}, \mathcal{S}_t), \quad k \in \{1,2,3\}.
+\]
+Depending on the selected level, $o_t$ may contain localized image-level cues, lifted 3D geometry, or high-level spatial knowledge.
+
+
+\textbf{Level 1: 2D Visual Evidence Acquisition} (Figure~\ref{fig:framework}(a-c)).
+The first level identifies what visual evidence should be extracted from the raw 2D observations before higher-level spatial reasoning. 
+Since videos or multi-view images contain many redundant, partial, or irrelevant views, \textsc{S-Agent} first gathers query-relevant image-level cues, such as selecting informative frames, grounding referred entities with VLMs, and localizing candidate regions with open-vocabulary detectors. 
+% and estimating image-level depth cues. 
+These image-level cues can directly support simple queries, while also serving as observations for subsequent 3D lifting and spatial reasoning.
+% These outputs $o_t$ can directly support simple queries, while also being stored in scene memory $\mathcal{S}_t$ as localized visual evidence with supporting frames and confidence, serving as observation-level anchors for subsequent 3D lifting and spatial reasoning.
+
+\textbf{Level 2: 2D-to-3D Geometric Lifting} (Figure~\ref{fig:framework}(d-e)). 
+The second level lifts image-level evidence into a 3D-aware representation of the scene. 
+Given the cues collected at Level 1, \textsc{S-Agent} invokes multi-view geometric tools to recover scene-level 3D information, such as depth structure, metric coordinates, camera poses, and bird's-eye-view or novel-view evidence.
+% 
+This geometric lifting allows the agent to reason beyond the original image plane: fragmented 2D observations can be compared in a shared spatial context, apparent 2D size can be disambiguated from physical scale, and spatial relations can be evaluated with respect to camera motion or alternative viewpoints.
+
+\textbf{Level 3: Spatial Knowledge Aggregation} (Figure~\ref{fig:framework}(f-j)).
+The third level abstracts the 2D and 3D cues collected in the previous stages into high-level, scene-specific spatial knowledge. 
+To this end, \textsc{S-Agent} uses a set of specialized spatial experts, each responsible for a particular class of spatial queries, including counting, relative direction, object orientation, and physical size/distance. 
+These experts aggregate the relevant evidence and return structured observations that can be directly consumed by the VLM planner for final reasoning. 
+This design turns fragmented perceptual and geometric cues into explicit scene-level spatial knowledge, reducing the need for the VLM to perform unreliable metric or relational reasoning in free-form text.
+
+Details of the tools and experts used in Levels 1-3 are provided in Appendix~\ref{app:tools}.
+
+
+\subsubsection{Temporal Memory for Stateful Reasoning}
+\label{sec:method:memory}
+To support stateful reasoning over continuous observations, \textsc{S-Agent} maintains two complementary memories: \textit{Scene Memory} for reusable scene evidence and \textit{Agent Memory} for the reasoning process. 
+Each tool or expert observation from Section~\ref{sec:method:spatial} updates both memories in different ways: its scene-relevant content is consolidated into Scene Memory, while the request, returned observation, and reasoning context are recorded in Agent Memory. 
+This separation allows the VLM planner to reason over accumulated spatial knowledge while keeping track of what has been tried, what remains uncertain, and what evidence should be requested next.
+
+Formally, after executing request $r_t$ and receiving observation $o_t$, each tool observation is decomposed into reusable scene evidence $e_t$ and process context $c_t$. 
+The two memories are then updated with different operations:
+\vspace{-2mm}
+\[
+    \mathcal{S}_{t+1} = \operatorname{Merge}(\mathcal{S}_t, e_t),
+    \qquad
+    \mathcal{H}_{t+1} = \operatorname{Append}(\mathcal{H}_t, c_t).
+\]
+Scene Memory merges $e_t$ into the current scene state, either by updating an existing entry or creating a new one, while Agent Memory appends $c_t$ to the reasoning trajectory.
+
+
+
+\textbf{Scene Memory} (Figure~\ref{fig:framework}(l-o)).
+Scene Memory turns 2D/3D cues into a persistent, scene-level understanding. 
+In multi-view images or videos, the same object may appear across different frames, viewpoints, scales, and referring expressions. Without a persistent memory, reasoning over these cues independently would lead to duplicated evidence and unstable object identity.
+% 
+Scene Memory therefore consolidates scene-relevant tool/expert observations into an evolving, entity-centric memory, binding repeated observations to persistent scene entities and accumulating their visual and geometric evidence over time. 
+It is not a dense reconstruction of the full environment, but a question-conditioned spatial memory that preserves the evidence needed for the current query.
+
+Concretely, Scene Memory stores two types of reusable content: grounded entities and derived spatial facts.
+For entities, the memory stores their textual aliases, supporting frames, localized visual evidence, and accumulated geometric attributes. 
+For derived facts, it stores spatial relations or measurements computed by higher-level experts, together with the evidence from which they are derived.
+% 
+When a new observation arrives, \textsc{S-Agent} either links it to an existing scene memory entry or creates a new one, allowing later reasoning steps to reuse previously grounded evidence or facts instead of re-processing each frame from scratch.
+
+
+\textbf{Agent Memory} (Figure~\ref{fig:framework}(p-s)).
+Agent Memory preserves the reasoning process that leads to the evolving scene understanding. 
+In iterative tool-use reasoning, the agent should remember not only what has been observed, but also what has already been tried, which evidence was requested, which tools succeeded or failed, and why the planner decided to continue.
+% 
+Without such process memory, the planner may repeatedly issue redundant tool calls, overlook unresolved uncertainties, or contradict its earlier observations.
+% 
+Agent Memory therefore records the reasoning trajectory across iterations, providing the planner with a compact context for deciding the next evidence request.
+
+Specifically, Agent Memory stores the planner's intermediate thoughts, issued tool calls, returned observations, failure messages, and intermediate conclusions.
+% 
+Unlike Scene Memory, which consolidates reusable scene evidence, Agent Memory keeps the procedural context around how that evidence was obtained and used. 
+% 
+When the planner receives a new memory summary, it can identify missing evidence, revisit uncertain observations, or refine its strategy based on previous tool feedback.
+
+% \begin{figure}[t]
+%     \centering
+%     \includegraphics[width=0.9\linewidth]{figures/combined_horizontal_figures.png}
+%     \caption{S-300K Data composition and tool invocation statistics.}
+%     \vspace{-3mm}
+%     \label{fig:s300k}
+% \end{figure}
+% \vspace{-2mm}
+
+% \vspace{-4mm}
+\subsection{Training-Time Distillation}
+\label{sec:method:training}
+Beyond inference-time reasoning, \textsc{S-Agent} can also serve as a teacher for training compact spatial agents. 
+We construct training data from SenseNova-SI-800K \citep{sensenova_si} by selecting samples that are both challenging for a weaker student model and likely to require tool use. 
+
+\textbf{Data generation.}
+We estimate sample difficulty from multiple rollouts of Qwen3-VL-8B and prioritize questions on which the student is uncertain or unstable, rather than questions it already solves reliably. 
+% 
+We further favor spatial questions that are likely to benefit from tool use, such as metric measurement, counting, relative position, camera/viewpoint reasoning, and grounding-dependent queries. 
+% 
+A frozen teacher \textsc{S-Agent}, instantiated with GPT-5.4, is then used to generate complete trajectories, including planner prompts and responses, tool calls, tool observations, intermediate artifacts, memory states, final answers, and evaluation results.
+
+\begin{wrapfigure}{r}{0.75\textwidth}
+    \centering
+    \vspace{-0.8em}
+    \includegraphics[width=0.73\textwidth]{figures/distribution.pdf}
+    \vspace{-0.2in}
+    \caption{Data composition and tool invocation statistics of \textbf{S-300K}.}
+    \vspace{-0.1in}
+    \label{fig:s300k}
+\end{wrapfigure}
+
+\textbf{Data filtering.}
+We then apply quality filtering when exporting trajectories for supervised fine-tuning. 
+All generated trajectories are first preserved in full as raw agent traces for analysis and possible re-export, regardless of whether the final answer is correct or whether some tool calls fail. 
+For SFT data, we retain only trajectories with valid executions and correct final answers under answer-type-specific criteria. 
+Multiple-choice questions require the predicted option in the final answer to match the ground-truth option, numeric questions are filtered by mean relative accuracy, and text questions are filtered by normalized answer matching. 
+Importantly, tool usage itself is not used as a hard filtering criterion: the goal is to keep high-quality agent behavior while allowing the planner to decide when tool calls are necessary.
+The filtering ratio distribution is shown in Figure~\ref{fig:s300k}(a). 
+
+
+\textbf{Data decomposition.}
+Each retained trajectory is finally decomposed into multiple forms of supervision rather than being used only as a final-answer example.
+% 
+We construct final-answer trajectories to teach end-to-end spatial reasoning, turn-level trajectories to teach iterative tool-use decisions under partial reasoning context, and expert/tool trajectories to improve spatial tool-use policy and expert-level reasoning.
+% 
+This decomposition converts a single teacher-agent rollout into multi-granularity training signals, enabling the student model to learn not only the final answer distribution, but also how to request evidence, interpret tool observations, and accumulate spatial knowledge across reasoning steps. 
+
+After this process, we obtain the \textsc{S-300K} dataset for supervised fine-tuning. 
+We fine-tune Qwen3-VL-8B on \textsc{S-300K} to obtain our compact spatial agent, \textsc{S-Agent-8B}. 
+The detailed data distribution of \textsc{S-300K} is shown in Figure~\ref{fig:s300k}(b).
+Further details are provided in Appendix~\ref{app:training_data}.
+
+% We train \textsc{S-Agent-8B} on the resulting \textsc{S-300K} dataset with supervised fine-tuning; Dataset construction and training details are provided in Sec.~\ref{sec:experiments:setup} and Appendix~\ref{app:training_data}.
+
+
+
+% \subsection{Instantiating S-Agent}
+% \label{sec:method:instantiation}
+
+% The framework is agnostic to the exact choice of planner and tools. In our experiments, we instantiate the planner with tool-calling VLMs or LLMs, use keyframe selection for long videos following the spirit of temporal search methods such as T$^\star$~\citep{tstar}, and equip the tool layer with 2D grounding, depth and 3D estimation, measurement, counting, relative-position, and orientation experts. The same reasoning interface is used for both multi-image benchmarks such as MMSI-Bench~\citep{mmsi_bench} and long-video benchmarks such as VSI-Bench~\citep{vsi_bench}.
+
+% Importantly, the method does not rely on a single monolithic spatial model or a precomputed dense reconstruction for every scene. Perception is invoked on demand, conditioned on the question and the current memory state. This question-conditioned design lets the agent spend computation only on evidence that is relevant to the current query, while still maintaining enough persistent state to reason beyond isolated 2D impressions.

@@ -1,0 +1,160 @@
+\PassOptionsToPackage{most,breakable}{tcolorbox}
+\PassOptionsToPackage{dvipsnames,table}{xcolor}
+\PassOptionsToPackage{numbers, compress}{natbib}
+\documentclass[11pt]{article}
+
+\usepackage[final]{ropedia}
+
+\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+\usepackage[utf8]{inputenc} % allow utf-8 input
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}       % professional-quality tables
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{mathpazo}
+\usepackage[xcharter,bigdelims,vvarbb]{newtxmath}
+\usepackage[scaled]{helvet}
+\usepackage[scaled=1.1]{zlmtt}
+\usepackage{latexsym}
+\usepackage{pifont}
+\usepackage{placeins}
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{microtype}      % microtypography
+\usepackage{multirow}       % for table formatting
+\usepackage{tabularx}
+\usepackage{subcaption}
+\usepackage{arydshln}
+\usepackage{adjustbox}
+\usepackage{makecell}
+\usepackage{enumitem}
+\usepackage{rotating}
+\usepackage{titletoc}
+\usepackage{comment}
+\usepackage{graphicx}       % for \resizebox in wide tables
+\usepackage{algorithm}      % algorithm float for method section
+\usepackage{algorithmic}    % algorithmic body for method section
+\usepackage{tikz}           % system architecture figure
+\usepackage{wrapfig}
+\usepackage{needspace}
+\usepackage{siunitx}
+\sisetup{separate-uncertainty=true}
+\usepackage{dblfloatfix}
+\usepackage{cuted}
+\usepackage{capt-of}
+\usepackage{xspace}
+\setlist[itemize]{leftmargin=2em}
+
+\usetikzlibrary{positioning, arrows.meta, shapes.geometric, fit, calc, backgrounds}
+
+% --- Top-1/2/3 highlighting and improvement-delta macros for results tables ---
+\definecolor{top1color}{HTML}{B19CD9} % deepest lavender (1st)
+\definecolor{top2color}{HTML}{D4C5E8} % medium lavender (2nd)
+\definecolor{top3color}{HTML}{E8DEEF} % light lavender (3rd)
+\definecolor{deltapos}{HTML}{1B7A3E}  % green for positive delta
+\definecolor{deltaneg}{HTML}{B23A48}  % red for negative delta
+\newcommand{\cone}[1]{\cellcolor{top1color}\textbf{#1}}
+\newcommand{\ctwo}[1]{\cellcolor{top2color}#1}
+\newcommand{\cthree}[1]{\cellcolor{top3color}#1}
+\newcommand{\dpos}[1]{{\tiny\textcolor{deltapos}{\,(+#1)}}}
+\newcommand{\dneg}[1]{{\tiny\textcolor{deltaneg}{\,(--#1)}}}
+
+\firstpagelogos{}{logo/ntu_logo.jpg}{}
+\setlength\titlebox{5.2cm}
+
+\newcommand{\SAgentTitleLogo}{\includegraphics[height=30pt]{logo/s-agent-wordmark-title.png}\\[-0.07in]}
+\title{\SAgentTitleLogo} 
+\subtitle{Spatial Tool-Use Elicits Reasoning for\\ Spatial Intelligence}
+
+\newcommand{\coremark}{\ensuremath{^{*}}}
+\newcommand{\leadmark}{\ensuremath{^{\ddagger}}}
+\newcommand{\corrmark}{\ensuremath{^{\dagger}}}
+
+\newcommand{\authorfootnotes}{%
+  \begingroup
+  \renewcommand{\thefootnote}{}%
+  \footnotetext{$*$ Equal contributors. $\dagger$ Corresponding author.}%
+  \endgroup
+  \addtocounter{footnote}{-1}%
+}
+
+
+
+% The \author macro works with any number of authors. There are two commands
+% used to separate the names and addresses of multiple authors: \And and \AND.
+%
+% Using \And between authors leaves it to LaTeX to determine where to break the
+% lines. Using \AND forces a line break at that point. So, if LaTeX puts 3 of 4
+% authors names on the first line, and the last on the second line, try using
+% \AND instead of \And before the third author name.
+
+\author{
+  \AuthorName{Yalun Dai}{1\coremark}\quad
+  \RopediaAuthorName{Hao Li}{1 ,4\coremark}\quad
+  \AuthorName{Shulin Tian}{1}\quad
+  \AuthorName{Runmao Yao}{1}\quad
+  \AuthorName{Yuhao Dong}{1}\\[0.55ex]
+  \RopediaAuthorName{Fangzhou Hong}{1}\quad
+  \RopediaAuthorName{Zhaoxi Chen}{1}\quad
+  \AuthorName{Fangfu Liu}{2}\quad
+  \AuthorName{Baoliang Tian}{3}\quad
+  \AuthorName{Dingwen Zhang}{4}\\[0.55ex]
+  \AuthorName{Tao Wang}{3\corrmark}\quad
+  \AuthorName{Kim-Hui Yap}{1\corrmark}\quad
+  \RopediaAuthorName{Ziwei Liu}{1}\\[1.0ex]
+  {\normalfont\footnotesize
+  \mbox{\textsuperscript{1}NTU}\quad
+  \mbox{\textsuperscript{2}THU}\quad
+  \mbox{\textsuperscript{3}ByteDance}\quad
+  \mbox{\textsuperscript{4}NWPU}\quad
+  \mbox{\textsuperscript{\ropediamark}Ropedia}\quad
+  \paperresourceicon{\resourceprojecticon}{Project Page}{https://Ropedia.github.io/S-Agent}{Ropedia/S-Agent}}
+}
+
+
+
+\begin{document}
+
+\maketitle
+\authorfootnotes
+
+{\centering
+% \vspace{-5pt}
+\includegraphics[width=0.95\textwidth]{figures/teaser_sagent.pdf}
+\par
+\begin{minipage}{\textwidth}
+\footnotesize
+\refstepcounter{figure}\label{fig:teaser}
+Figure 1: \textbf{Overview of S-Agent.} S-Agent is the spatial tool-use agentic paradigm designed for continuous multi-view image and video reasoning, which formulates spatial reasoning as an active process of spatio-temporal evidence accumulation. It contains a VLM semantic planner with a hierarchy of spatial tools to ground, lift, and aggregate geometric cues, alongside a dual-memory system to maintain the evolving scene and reasoning history. Extensive experiments show that our paradigm consistently enhances zero-shot VLMs and distills a compact agent (S-Agent-8B) that rivals advanced closed-source models.
+\end{minipage}
+\par}
+
+\vspace{3mm}
+\input{sections/0_abstract}
+
+\input{sections/1_introduction}
+
+% \input{sections/2_related_work}
+
+\input{sections/3_method}
+
+\input{sections/4_experiments}
+
+\input{sections/5_conclusion}
+
+% \input{sections/6_acknowledgments}
+
+% \bibliographystyle{plainnat}
+% \bibliography{references}
+
+\newpage
+{
+\small
+\bibliography{references}
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\appendix
+
+\input{sections/7_appendix}
+
+\end{document}

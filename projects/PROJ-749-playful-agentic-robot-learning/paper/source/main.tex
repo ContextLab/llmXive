@@ -1,0 +1,112 @@
+\documentclass{article}
+
+\usepackage[preprint]{corl_2026} %
+\usepackage[T1]{fontenc} %
+\usepackage{graphicx}
+\usepackage{etoc}
+\usepackage{seqsplit}
+
+\newcommand{\skill}[1]{\texttt{\seqsplit{#1}}}
+\usepackage{tabularx}
+\usepackage[utf8]{inputenc}
+\usepackage{newunicodechar}
+\newunicodechar{↔}{\leftrightarrow}
+\newcommand{\jl}[1]{\textcolor{blue}{[JL] #1}}
+\newcommand{\jg}[1]{\textcolor{red}{(jiaxin: #1)}}
+\newcommand{\jz}[1]{\textcolor{green}{(junyi: #1)}}
+\newcommand{\td}[1]{\textcolor{blue}{[TD: #1]}}
+
+\newcommand{\jltext}[1]{{\color{blue}#1}}
+
+\title{Playful Agentic Robot Learning}
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd{\@maketitle}{\@title\par}{\@title\par\vskip 12pt}%
+  {}{\typeout{!! WARNING: title-author spacing patch FAILED}}
+\makeatother
+\newcommand\blfootnote[1]{%
+  \begingroup
+  \renewcommand\thefootnote{}\footnote{#1}%
+  \addtocounter{footnote}{-1}%
+  \endgroup
+}
+\usepackage{booktabs}
+\usepackage{algorithm}      %
+\usepackage{algpseudocode}  %
+\usepackage{amsmath}        %
+\usepackage{amssymb}        %
+\usepackage{multirow}
+\usepackage{enumitem}
+\author{
+  \parbox{\textwidth}{\centering %
+  \makebox[\textwidth][c]{Junyi Zhang$^{1,*,\dagger}$, Jiaxin Ge$^{1,*,\dagger}$, Hanjun Yoo$^{1,\dagger}$, Letian Fu$^{1,\ddagger}$, Zihan Yang$^{2,\ddagger}$, Yaowei Liu$^{2,\ddagger}$, Raj Saravanan$^{1,\ddagger}$} \\[4pt]
+  \makebox[\textwidth][c]{Shaofeng Yin$^{2}$, Justin Yu$^{1}$, Dantong Niu$^{1}$, Zirui Wang$^{1}$, Roei Herzig$^{1}$, Ken Goldberg$^{1}$, Yutong Bai$^{1}$} \\[4pt]
+  \makebox[\textwidth][c]{David M.~Chan$^{1}$, Ion Stoica$^{1}$, Angjoo Kanazawa$^{1}$, Jiahui Lei$^{1,\S}$, Haiwen Feng$^{1,2,\S}$, Trevor Darrell$^{1}$} \\
+  \vspace{1.em}
+  $^{1}$University of California, Berkeley \quad $^{2}$Impossible Research \\[7pt]
+  {\url{https://Playful-RATs.github.io}}
+  }
+}
+\usepackage{listings}
+
+\definecolor{cvprblue}{rgb}{0.21,0.49,0.74} %
+\hypersetup{
+  colorlinks=true,
+  citecolor=cvprblue,
+  linkcolor=cvprblue,
+  urlcolor=cvprblue,
+}
+
+\begin{document}
+\maketitle
+\blfootnote{ $^{*}$\,project leads, ordered by coin flip; \quad $^{\dagger,\ddagger,\S}$\,equal contribution}
+\etocdepthtag.toc{mtchapter}
+
+\input{sections/abstracts/1_abstract}
+\keywords{Learning through Play, Agentic Robotics, Continual Skill Learning} 
+
+
+\input{sections/1_introduction}
+\input{sections/2_related_work}	
+\input{sections/method/3_method_1}
+\input{sections/4_experiment_new}	
+\input{sections/5_conclusion}
+\section*{Limitations}
+While \textsc{RATs} is an initial step toward playful agentic robot learning, its evaluation remains primarily simulation-based, requiring larger-scale physical deployment to validate robust sim-to-real transfer. Moreover, play-time skill acquisition is constrained by the diversity of available simulation environments, limiting the range of objects, dynamics, and affordances the agent can practice. Additionally, improper skill reuse can hurt performance when retrieved skills do not fit the downstream task, showing the need for better retrieval and context-aware selection. Finally, \textsc{RATs} increases inference costs, relies heavily on VLM verification, and remains bounded by primitive-level control APIs, which limits dexterous manipulation and motivates lighter feedback mechanisms and richer low-level controllers for real-world scaling.
+
+
+
+\section*{Acknowledgments}
+We thank Baifeng Shi, XuDong Wang, and Jianyuan Wang for helpful feedback. We thank Simeon Adebola for the help during the real-world evaluation. The UC Berkeley authors acknowledge support from the BAIR Commons Humanoid Intelligence Center.
+
+
+\bibliography{example}  %
+\clearpage
+\appendix
+
+\etocdepthtag.toc{mtappendix}
+\etocsettagdepth{mtchapter}{none}    
+\etocsettagdepth{mtappendix}{subsection} 
+
+\clearpage
+
+\section*{Appendix}
+
+\begingroup
+  \parskip0pt
+  \etocsettocstyle{\section*{Table of Contents}}{} 
+  \tableofcontents
+\endgroup
+
+\clearpage
+
+\input{sections/supp/1_details_of_team}
+\input{sections/supp/2_additional_result}
+\input{sections/supp/3_play_detail}
+\input{sections/supp/4_evaluation_benchmark}
+\input{sections/supp/5_additional_ablation}
+\input{sections/supp/6_skills}
+\input{sections/supp/7_prompts}
+
+
+\end{document}

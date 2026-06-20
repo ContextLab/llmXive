@@ -1,0 +1,88 @@
+\section{Details about the Evaluation Benchmark}
+\label{sec:appendix_evaluation_benchmarks}
+
+During evaluation, the play-time skill library is frozen and the system solves
+externally specified tasks. This section records the benchmark composition and
+replay protocol for the two simulated evaluation domains.
+
+\subsection{MolmoSpaces Evaluation Benchmark}
+\label{sec:appendix_molmospaces_benchmark}
+
+For MolmoSpaces, we evaluate on a compact held-out subset of the
+benchmark. The subset contains
+40 test-split episodes: ten each for opening, closing, picking, and
+pick-and-place. It was constructed by randomly selecting ten
+episodes per task type. It covers four components of the upstream
+benchmark, namely Open-v1, Close-v1, Pick-v2-classic, and PnP-v2.
+
+\begin{table}[t]
+\centering
+\caption{
+\textbf{MolmoSpaces held-out core evaluation subset.}
+The main benchmark sweep repeats each selected task ten times.
+}
+\label{tab:molmospaces_eval_benchmark}
+\begin{tabular}{llrr}
+\toprule
+\textbf{Task type} & \textbf{Scene dataset} & \textbf{Tasks} & \textbf{Main rollouts} \\
+\midrule
+Open & iTHOR & 10 & 100 \\
+Close & iTHOR & 10 & 100 \\
+Pick & ProcTHOR-Objaverse & 10 & 100 \\
+pick-and-place & ProcTHOR-Objaverse & 10 & 100 \\
+\midrule
+Total & -- & 40 & 400 \\
+\bottomrule
+\end{tabular}
+
+\end{table}
+
+The selected episodes span 37 houses. Each episode's JSON stores the scene
+dataset and house index, the Franka initialization, object poses, task state,
+natural-language referral expressions, and camera specification. Success is evaluated by the simulator task's \texttt{judge\_success()} predicate: articulated tasks check the requested
+joint state, pick tasks, check the object target state, and pick-and-place tasks
+check placement support on the receptacle.
+
+The benchmark definition is independent of the number of repeated trials. The
+main sweep uses ten trials per task, for $40 \times 10 = 400$ rollouts.
+
+\subsection{LIBERO-PRO Evaluation Benchmark}
+\label{sec:appendix_libero_pro_benchmark}
+
+For LIBERO-PRO, we evaluate the object, goal, and spatial
+categories under two perturbation types. The \emph{Pos} setting corresponds to
+the \texttt{swap} suite, which perturbs object positions. The \emph{Task}
+setting corresponds to the \texttt{task} suite, which perturbs the task
+specification. Each suite contains ten language-conditioned manipulation
+tasks.
+
+\begin{table}[t]
+\centering
+\caption{
+\textbf{LIBERO-PRO evaluation.}
+Reported comparisons use ten initial-state trials per task.
+}
+\label{tab:libero_pro_eval_benchmark}
+\begin{tabular}{llrr}
+\toprule
+\textbf{Setting} & \textbf{LIBERO-PRO suite} & \textbf{Tasks} & \textbf{Reported rollouts} \\
+\midrule
+Object Pos & \texttt{libero\_object\_swap} & 10 & 100 \\
+Object Task & \texttt{libero\_object\_task} & 10 & 100 \\
+Goal Pos & \texttt{libero\_goal\_swap} & 10 & 100 \\
+Goal Task & \texttt{libero\_goal\_task} & 10 & 100 \\
+Spatial Pos & \texttt{libero\_spatial\_swap} & 10 & 100 \\
+Spatial Task & \texttt{libero\_spatial\_task} & 10 & 100 \\
+\midrule
+Total & -- & 60 & 600 \\
+\bottomrule
+\end{tabular}
+
+\end{table}
+
+LIBERO-PRO provides 50 initial states for each task. A complete sweep over all
+available states therefore contains $6 \times 10 \times 50 = 3{,}000$
+rollouts. For the reported comparisons, we cap evaluation at ten
+initial-state trials per task, yielding $6 \times 10 \times 10 = 600$ rollouts
+for each evaluated setup. The baseline and learned-library conditions use the
+same task and trial budget.

@@ -1,0 +1,45 @@
+\begin{table}[!ht]
+\caption{
+\textbf{Ablation of CFG scales.}
+To validate the optimal CFG configuration on natural (Places2) and portrait (CelebA-HQ) scenes, we conducted extensive ablation studies on Places2 (Test) and CelebA-HQ (512) benchmarks. 
+Results indicate that the optimal CFG scales for natural and portrait scenes are 2.5 and 2.0 (highlighted in \textbf{\textcolor{AblationGreenWord}{green}}), which serve as our default settings.
+}
+\vspace{-0.5em}
+\centering
+\resizebox{1.0\linewidth}{!}{
+    % \begin{tabular}{l|cccccccc}
+    \begin{tabular}{
+        c|>{\hspace{1pt}}c<{\hspace{1pt}}>{\hspace{1pt}}c<{\hspace{1pt}}>{\hspace{1pt}}>{\columncolor{AblationGreen}}c<{\hspace{1pt}}>{\hspace{1pt}}c<{\hspace{1pt}}>{\hspace{1pt}}c<{\hspace{1pt}}>{\hspace{1pt}}c<{\hspace{1pt}}>{\hspace{1pt}}c<{\hspace{1pt}}
+        ||
+        c|>{\hspace{1pt}}c<{\hspace{1pt}}>{\hspace{1pt}}c<{\hspace{1pt}}>{\hspace{1pt}}>{\columncolor{AblationGreen}}c<{\hspace{1pt}}>{\hspace{1pt}}c<{\hspace{1pt}}>{\hspace{1pt}}c<{\hspace{1pt}}>{\hspace{1pt}}c<{\hspace{1pt}}>{\hspace{1pt}}c<{\hspace{1pt}}
+        }
+    \toprule
+        $\textbf{\textit{Scale}}$ & & & & & & & & $\textbf{\textit{Scale}}$ & & & & & & & \\
+        $\textbf{\textit{(Nature)}}$  
+            & \multirow{-2}{*}{1.5}  
+            & \multirow{-2}{*}{2.0} 
+            & \multirow{-2}{*}{2.5}
+            & \multirow{-2}{*}{3.0} 
+            & \multirow{-2}{*}{3.5} 
+            & \multirow{-2}{*}{4.0} 
+            & \multirow{-2}{*}{4.5}
+        & $\textbf{\textit{(Portrait)}}$  
+            & \multirow{-2}{*}{1.0}  
+            & \multirow{-2}{*}{1.5} 
+            & \multirow{-2}{*}{2.0}
+            & \multirow{-2}{*}{2.5} 
+            & \multirow{-2}{*}{3.0} 
+            & \multirow{-2}{*}{3.5} 
+            & \multirow{-2}{*}{4.0}   \\
+    \midrule
+        $\mathbf{FID}\downarrow$ & 10.14 & 9.65 & 9.48 & 9.51 & 9.73 & 10.09 & 10.37 
+        & $\mathbf{FID}\downarrow$  & 5.54 & 5.42 & 5.39 & 5.49 & 5.61 & 5.74 & 5.91 \\
+        $\mathbf{LPIPS}\downarrow$ & 0.209 & 0.208 & 0.207 & 0.208 & 0.209 & 0.210 & 0.212 
+        & $\mathbf{LPIPS}\downarrow$  & 0.126 & 0.123 & 0.122 & 0.122 & 0.123 & 0.124 & 0.126 \\
+    \bottomrule
+    \end{tabular}
+}
+\label{tab: abla_CFG}
+\vspace{-1.5em}
+\end{table}
+

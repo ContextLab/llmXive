@@ -1,0 +1,29 @@
+
+
+
+
+\section{Introduction}
+\label{sec:introduction}
+
+Recent foundation models have made robot learning increasingly \emph{agentic}: language and multimodal models can generate plans, call perception and control tools, write executable Code-as-Policy programs, observe feedback, and revise behavior over multiple attempts \citep{liang2023code, singh2023progprompt, vemprala2024chatgpt}. Such agents offer a modular and inspectable alternative to end-to-end vision-language-action policies \citep{zitkovich2023rt2, black2025pi0, physicalintelligence2025pi05}, and recent frameworks such as CaP-X~\citep{fu2026capx} show that embodied coding agents can benefit from multi-turn execution feedback, visual differencing, and automatic skill synthesis. 
+However, most current agentic robot systems remain largely \emph{task-driven}: they learn only after receiving external instructions. Even when successful executions are stored as reusable skills, continual learning remains reactive rather than proactive.
+
+Natural intelligence suggests a different model. Children acquire reusable skills through play before explicit goals are given, discovering controllable effects and practicing near the boundary of their competence \citep{piaget1952origins, gopnik2020childhood, smith2005developmental}. This idea has long motivated developmental robotics and intrinsic motivation, where agents favor experiences that are novel yet learnable \citep{schmidhuber1991curious, oudeyer2007intrinsic, baranes2013active, forestier2016modular}. We argue that these classical ideas are newly powerful in the era of Code-as-Policy agents: unlike earlier systems that explored fixed sensorimotor, goal, or feature spaces \citep{oudeyer2007intrinsic, baranes2013active, pathak2017curiosity, houthooft2016vime}, coding agents can express exploratory goals in language, execute them as programs, inspect outcomes, and save successful behaviors as callable code. This makes play a practical mechanism for acquiring reusable robot skills before downstream tasks are specified.
+
+In this paper, we study \emph{Playful Agentic Robot Learning}: how an agentic robot system can use self-directed play as a continual skill-learning stage before deployment to downstream tasks. 
+We introduce \textsc{RATs}, Robotics Agent Teams designed to realize this setting. \textsc{RATs} treats play not merely as open-ended exploration, but as an explicit skill-acquisition process. 
+In each environment, the agent team proposes exploratory tasks, plans, and executes Code-as-Policy programs, verifies progress, diagnoses failures, retries with feedback, and distills successful executions into a persistent code skill library. 
+The learned library is then reused at inference time to solve novel tasks. In this way, \textsc{RATs} asks not only how a robot should solve a task once it is given, but what skills the robot should practice and accumulate before being asked.
+
+A central design goal of \textsc{RATs} is to make play informative enough for continual skill learning. A single task-level success or failure signal is often too sparse to explain what the robot has learned, which substep failed, or what reusable behavior should be saved. 
+\textsc{RATs} therefore uses a structured agent team with planning, per-step verification, multi-attempt retry, failure diagnosis, and memory update. These components provide dense feedback over intermediate subgoals and execution attempts, allowing the system to preserve working parts of a policy, localize missing capabilities, and convert successful behaviors into reusable skills. Task proposal uses a simple novelty--learnability rule, encouraging the agent to practice interactions that expand the current skill library while remaining physically achievable \citep{oudeyer2007intrinsic, baranes2013active}.
+
+We evaluate \textsc{RATs} in simulated play environments, including LIBERO-PRO and MolmoSpaces, and test whether skills acquired during play improve held-out downstream benchmark tasks. On LIBERO-PRO, \textsc{RATs} improves average success by 20.6 percentage points over CaP-Agent0; on MolmoSpaces, it improves average success by 17.0 points. The learned skills also transfer across environments: LIBERO-PRO skills plugged into CaP-Agent0 improve RoboSuite success by 8.9 points. These results suggest that play-learned code skills provide a practical, plug-and-play skill-library mechanism for improving agentic robot systems without finetuning the underlying model.
+
+In summary, we formulate \emph{Playful Agentic Robot Learning}, where embodied coding agents acquire reusable skills through self-directed play before downstream tasks are given. We design \textsc{RATs}, Robotics Agent Teams for play-time continual skill learning, with planning, per-step verification, retry, diagnosis, and memory mechanisms that provide dense feedback for learning reusable skills from autonomous interaction. We show that the resulting skill library improves downstream performance both within the full \textsc{RATs} system and as a plug-and-play addition to other inference-time Code-as-Policy methods.
+
+
+
+
+
+

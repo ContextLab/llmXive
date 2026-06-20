@@ -1,0 +1,130 @@
+\section{Robotics Agent Teams for Playful Agentic Robot Learning}
+\label{sec:method}
+
+\begin{algorithm}[t]
+\caption{\textsc{RATs} at Play}
+\label{alg:rats}
+\begin{algorithmic}[1]
+\Require Training Env $\mathcal{E}_{train}$; Test Env $\mathcal{E}_{test}$; Iterations $N$
+\Ensure Final Evaluation Score $S_{learned}$, Learned Skill Library $\mathcal{L}$, Initial primitive library $\mathcal{L}_0$
+\State $\mathcal{L} \gets \mathcal{L}_0$, $\mathcal{M} \gets \emptyset$
+    \Comment{Initialize skill library with primitives and empty memory}
+
+\Statex \hspace{1.2em}\textit{// Phase 1: Play-Time Skill Acquisition}
+\For{$t = 1 \dots N$} 
+    \State $\tau_t \gets \textsc{ProposeTask}(\mathcal{E}_{train},\, \mathcal{L},\, \mathcal{M})$ 
+        \Comment{\textbf{Step 1: Propose task}}
+    \State $\text{success}_t,\, \pi_t \gets \textsc{RunTask}(\tau_t,\, \mathcal{L})$ 
+        \Comment{\textbf{Step 2: Agent system runs task}}
+    \State $\mathcal{L},\, \mathcal{M} \gets \textsc{UpdateMemory}(\text{success}_t,\, \pi_t,\, \mathcal{L},\, \mathcal{M})$ 
+        \Comment{\textbf{Step 3: Update skill \& memory}}
+\EndFor
+
+\Statex \hspace{1.2em}\textit{// Phase 2: Evaluation with Learned Skill Library (via} \textsc{RATs} \textit{Exec. or plug-in CaP-Agent0)}
+\State $S_{learned} \gets \textsc{Evaluate}(\mathcal{E}_{test},\, \textsc{Agent}(\mathcal{L}))$ 
+    \Comment{\textbf{Step 4: Use learned skills on test set}}
+\State \Return $S_{learned},\, \mathcal{L}$
+\end{algorithmic}
+\end{algorithm}
+
+\subsection{Problem Setup and Overview}
+\label{sec:setup}
+
+\textsc{RATs} is a multi-agent Code-as-Policy system that enables \textit{Playful Agentic Robot Learning}, \textit{i.e.}, optimizing and accumulating reusable skills through interactions with the environment, driven by intrinsic reward signals.
+\textbf{Code-as-Policy Formulation}: In a standard Code-as-Policy (CaP) framework, an agent is provided with an environment context $c$, some existing primitive functions $f$, and a language instruction $l$. The agent then synthesizes an executable program $\pi$ (\textit{e.g.}, Python code) conditioned on $(c, f, l)$ that can be executed to accomplish the task. 
+\textbf{Play-Time Formulation}:
+We study a play-time setting in which the above external task instruction $l$ is removed. Instead, the agent autonomously proposes and practices self-generated tasks $\tau_t$ in a play environment $\mathcal{E}_{\text{play}}$, with the goal of acquiring skills that improve later downstream task solving.
+
+\textbf{Method Overview}: During play-time, \textsc{RATs} maintains a skill library $\mathcal{L}$ and a failure memory $\mathcal{M}$. The skill library is defined as
+$\mathcal{L} = \mathcal{L}_0 \cup \mathcal{L}_{\text{learned}}$, where $\mathcal{L}_0 \equiv f$ contains the initial primitives and $\mathcal{L}_{\text{learned}}$ stores code skills extracted from successful play executions. The failure memory $\mathcal{M}$ stores compact lessons from failed attempts, such as missing preconditions or corrections useful for retry.
+After $N$ play iterations, the learned library $\mathcal{L}$ is reused at test time. The objective is to obtain a library that improves performance on unseen test tasks over using the initial primitives $\mathcal{L}_0$ alone.
+Algorithm~\ref{alg:rats} describes the full loop of \textsc{RATs} at Play.
+Concretely, \textsc{RATs} is organized as three collaborating teams: a \textbf{Task Proposer} team that selects which play tasks to practice (Sec.~\ref{sec:proposer}), an \textbf{Execution} team that writes, runs, verifies, and diagnoses robot-control code (Sec.~\ref{sec:execution_framework}), and a \textbf{Memory-Management} team that distills outcomes into the skill library and failure memory (Sec.~\ref{sec:updates}).
+
+
+
+
+
+
+
+
+\subsection{Task Proposer Team}
+\label{sec:proposer}
+To accumulate skills without external rewards, the agent must be driven by intrinsic motivation.
+Inspired by developmental psychology, where young children discover robust physical capabilities through unstructured, self-directed play~\cite{oudeyer2007intrinsic}, we formalize ``play" as a bottom-up task-generation process.
+Rather than optimizing for externally provided goals, the agent proposes tasks based on direct observations of the scene structure and objects, while drawing on a record of its own prior attempts.
+To enable such exploration, the agent's task selection is guided by an intrinsic curiosity reward that favors tasks that are novel yet not too difficult. We design a two-stage task-proposal method to operationalize this principle.
+
+\textbf{Candidate Task Generation.} 
+At iteration $t$, we condition the proposer LLM on the current scene context $c_t$, the current learned skill library $\mathcal{L}$, and failure memory $\mathcal{M}$. 
+We explicitly prompt the LLM to be exploratory about the environment.
+Guided by this playful prior, the LLM generates a candidate pool $\mathcal{T}_t$ of task descriptions.
+
+\textbf{Goldilocks-Driven Task Selection.} 
+To select the task $\tau_t$ from the candidate pool $\mathcal{T}_t$, we employ the ``Goldilocks'' principle to target the task that is neither too easy nor too difficult~\cite{baranes2013active, kidd2012goldilocks}. Formally, we evaluate each candidate $\tau$ by maximizing an analytical score: 
+$\tau_t = \arg\max_{\tau \in \mathcal{T}_t} \left[ \mathcal{N}(\tau) \cdot \mathcal{F}(\tau) \right]
+$
+This objective balances exploration and learnability through two components:
+
+(1) \textbf{Object-Skill Novelty $\mathcal{N}(\tau)$:} Defined as $\frac{1}{|O(\tau) \times S(\tau)|} \sum_{(o,s)} \frac{1}{\sqrt{N(o,s) + 1}}$, where $O(\tau)$ and $S(\tau)$ are the objects and required skills, and $N(o,s)$ is their historical attempt count. This term encourages exploration by favoring rarely-tried combinations.  \\(2) \textbf{Competence Frontier $\mathcal{F}(\tau)$:} Formulated as $4\,\bar{r}(\tau)\,\bigl(1-\bar{r}(\tau)\bigr)$, where $\bar{r}(\tau) = \frac{1}{|S(\tau)|}\sum_{s} \hat{r}(s)$ is the average Wilson-bounded empirical success rate $\hat{r}(s)$ of the required skills $s$. This filter peaks at the learnability sweet spot ($\bar{r} \approx 0.5$), encouraging semi-familiar tasks over trivial ($\bar{r} \to 1$) or impossible ($\bar{r} \to 0$) ones.
+Once a task is selected, an \textit{Environment Creator} agent builds the corresponding play environment for LIBERO-PRO.
+    
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=\linewidth]{figs/f2.pdf}
+    \vspace{-1.5em}
+\caption{
+\textbf{\textsc{RATs} at play.}
+\textsc{RATs} proposes self-directed play tasks, solves them with a Code-as-Policy agent team, and uses verification and diagnosis feedback to retry failed attempts. Successful behaviors are distilled into a reusable skill library, which is later retrieved at test time for target tasks.
+}
+    \label{fig:f2}
+    \vspace{-1em}
+\end{figure}
+
+
+\subsection{Execution Team}
+\label{sec:execution_framework}
+
+Once a task $\tau_t$ is proposed, \textsc{RATs} executes it through a Code-as-Policy agent team, as shown in Fig.~\ref{fig:f2}. The team is organized into three roles. 
+\textbf{Planning Agent.} Given the environment, task description, failure memory, and available skills, the planner produces an ordered plan and annotates each step with relevant retrieved skills. 
+\textbf{Execution Agents.} The \textit{Policy Writer} converts the plan into executable robot-control code, which is then run in the environment. When a failure diagnosis identifies a persistent local bottleneck, such as a difficult grasp or articulation, a \textit{SubAgent} can practice the sub-action in isolation and return a reusable helper routine. 
+\textbf{Verification Agents.} The verification agents provide feedback at multiple levels: the \textit{Planner Verifier} checks whether the plan is physically grounded in the scene, the \textit{Quality Checker} screens generated code for invalid or unsafe patterns, the \textit{Goal Verifier} evaluates final task success, the \textit{Per-Step Verifier} produces step-level verdicts, and the \textit{Failure Diagnoser} summarizes the failure mode and suggests corrections for retry.
+
+\textbf{Agent Team Orchestration.}
+\textsc{RATs} couples these roles into a Write-Execute-Verify-Diagnose loop. The planner first generates a plan, which is checked and refined if it is inconsistent with the initial scene. The team then enters an inner loop with a retry budget. At each attempt, the Policy Writer generates code, the approved code is executed, and the Goal and Per-Step Verifiers evaluate the outcome. If the task succeeds, the loop stops. Otherwise, the Failure Diagnoser returns feedback that guides the next attempt. This feedback allows the system to preserve working substeps, revise faulty code or plans, and spawn a SubAgent when a missing capability should be practiced separately.
+
+
+
+
+
+
+
+
+
+
+
+\subsection{Memory-Management Team}
+\label{sec:updates}
+
+\textsc{RATs} maintains two persistent stores: the skill library $\mathcal{L}$ and the failure memory $\mathcal{M}$. They are updated after each play attempt and periodically curated to keep retrieval useful.
+
+\textbf{Immediate Post-Episode Updates.}
+After each task attempt, \textsc{RATs} updates both stores according to the outcome.
+On success, the system extracts self-contained, semantically meaningful functions from the successful code, writes docstrings, and inserts them into $\mathcal{L}$ as \emph{experimental} skills.
+On failure, it records the failed episode in $\mathcal{M}$ and distills it into a compact lesson, such as a missing precondition or a correction useful for future retries.
+Regardless of success, \textsc{RATs} tracks how reliably each invoked skill works over time. Newly added skills start as \emph{experimental}; skills that repeatedly succeed are promoted to \emph{verified} and prioritized in retrieval, while skills that repeatedly fail are marked as \emph{deprecated} and hidden from future planning.
+
+\textbf{Periodic Memory Curation and Skill Proposal.}
+Because both stores grow over time, \textsc{RATs} runs maintenance every $K$ iterations (default $K{=}5$). The \textit{Memory Curator} merges or rewrites near-duplicate skills and removes redundant lessons. When recent failures reveal repeated missing capabilities, the \textit{Skill Proposer} drafts candidate helper functions from existing primitives. These proposed helpers enter $\mathcal{L}$ as \emph{experimental} skills and earn reliability through later use.
+
+
+
+
+\subsection{Evaluation With the Learned Skill Library}
+\label{sec:test_time}
+After the play-time skill development, the system switches to solving externally provided tasks. During the test-time phase, all intrinsic exploration and memory-update mechanisms (\textit{i.e.}, the Task Proposer and Memory Curator) are disabled.
+Instead, the system uses its existing knowledge base to solve the tasks. The learned skill library $\mathcal{L}$ can be used in two ways:
+(1) \textbf{Plug-and-Play Execution:} To demonstrate the standalone value of the skills acquired during play-time, the frozen library $\mathcal{L}$ can be plugged directly into a standard single-agent Code-as-Policy baseline (\textit{e.g.}, CaP-Agent0).
+(2) \textbf{\textsc{RATs} Execution:} The Execution Team is deployed to solve the task with the skill library from play-time. The Planner now draws on the learned skills, allowing the team to bypass low-level physical bottlenecks and compose robust plans for complex tasks.
+
+

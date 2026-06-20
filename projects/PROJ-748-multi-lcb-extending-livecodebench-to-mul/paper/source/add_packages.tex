@@ -1,0 +1,152 @@
+\usepackage{xcolor}
+\usepackage{soul}
+\usepackage[
+    colorlinks=true,
+    linkcolor=blue!50!black,   % section, figure, etc. links
+    citecolor=blue!50!black, % citations (dark blue)
+    urlcolor=blue!50!black,   % URLs
+    pdfborder={0 0 0},   % no boxes
+    pdfhighlight=/N 
+]{hyperref}
+\usepackage{etoc}
+%\usepackage[english,russian]{babel}
+%\usepackage{hyperref}
+
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{tcolorbox}
+\tcbuselibrary{listings,skins}
+
+\lstset{
+    language=Python,
+    keywordstyle=\color{magenta},
+    identifierstyle=\color{blue},
+    commentstyle=\color{gray},
+    stringstyle=\color{orange},
+    basicstyle=\ttfamily,
+}
+
+\usepackage{makecell}
+\usepackage{url}
+\usepackage{booktabs} 
+\usepackage{adjustbox}
+\usepackage{siunitx}  % for alignment and ± symbol
+\usepackage[table]{xcolor} % for shading
+\usepackage{caption}
+\usepackage{wrapfig}
+
+%\usepackage[colorinlistoftodos,textsize=scriptsize]{todonotes}
+%\newcommand{\rewrite}[1]{\todo[color=yellow!50!black,bordercolor=blue!50!black,inline]{{Rewrite: \emph{#1}}}}
+%newcommand{\redo}[1]{\todo[color=red!50!black,bordercolor=yellow!50!black]{{REDO!!!\emph{#1}}}}
+
+
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,matrix,positioning,fit,calc,backgrounds,shadows.blur}
+
+% ---- Colors & styles ----
+\definecolor{deepblue}{HTML}{143A66}
+\definecolor{softblue}{HTML}{E9F2FB}
+\definecolor{deeporange}{HTML}{D86832}
+\definecolor{softorange}{HTML}{FCE8DA}
+
+\definecolor{deepgreen}{HTML}{3B7E3B}
+\definecolor{softgreen}{HTML}{E4F3E4}
+\definecolor{chipbg}{HTML}{EEF3F7}
+\definecolor{deepgrey}{HTML}{4A4A4A}
+\definecolor{softgrey}{HTML}{F0F0F0}
+\definecolor{softgrey2}{HTML}{FAFAFA}
+\sethlcolor{softgreen}
+%\definecolor{codeblue}{RGB}{33,74,135}
+%\definecolor{codegreen}{RGB}{0,128,0}
+%\definecolor{codered}{RGB}{180,0,0}
+%\definecolor{codepurple}{HTML}{990099}%{RGB}{153,0,153}
+%\definecolor{codenavy}{RGB}{0,0,128}
+
+\definecolor{codeblue}{rgb}{0.26,0.44,0.77}
+%\definecolor{codeblue}{RGB}{33,74,135}
+\definecolor{codepurple}{rgb}{0.58,0.0,0.83}
+\definecolor{codegreen}{rgb}{0.0,0.6,0.0}
+\definecolor{codeorange}{rgb}{1.0,0.49,0.0}
+
+\definecolor{mcBlue}{HTML}{2F6FB5}
+\definecolor{mcOrange}{HTML}{E07A2E}
+\definecolor{mcGreen}{HTML}{34A853}
+\definecolor{mcGreenFill}{HTML}{E8F5E9}
+\definecolor{mcBg}{HTML}{F6F8FA}
+
+\tikzset{
+  box/.style={
+    draw=deepblue, rounded corners=6pt, line width=0.9pt,
+    fill=white, inner sep=6pt
+  },
+    box2/.style={
+    draw=deeporange, rounded corners=6pt, line width=0.9pt,
+    fill=white, inner sep=6pt
+  },
+  titlebar/.style={
+    fill=deepblue, text=white, font=\bfseries, rounded corners=4pt,
+    inner xsep=6pt, inner ysep=3pt
+  },
+    titlebar1/.style={
+    fill=deepgrey, text=white, font=\bfseries, rounded corners=4pt,
+    inner xsep=6pt, inner ysep=3pt
+  },
+    titlebar2/.style={
+    fill=deeporange, text=white, font=\bfseries, rounded corners=4pt,
+    inner xsep=6pt, inner ysep=3pt
+  },
+    titlebar3/.style={
+    fill=deepgreen, text=white, font=\bfseries, rounded corners=4pt,
+    inner xsep=6pt, inner ysep=3pt
+  },
+  subbox/.style={
+    draw=deepblue!70, rounded corners=6pt, line width=0.7pt,
+    fill=softblue, inner sep=6pt
+  },
+subboxBig/.style={
+    draw=deepgrey!70, rounded corners=6pt, line width=0.7pt,
+    fill=softgrey2, inner sep=6pt
+  },
+subbox1/.style={
+    draw=deepgrey!70, rounded corners=6pt, line width=0.7pt,
+    fill=softgrey, inner sep=6pt
+  },
+  subbox2/.style={
+    draw=deeporange!70, rounded corners=6pt, line width=0.7pt,
+    fill=softorange, inner sep=6pt
+  },
+    subbox3/.style={
+    draw=deepgreen!70, rounded corners=6pt, line width=0.7pt,
+    fill=softgreen, inner sep=6pt
+  },
+  arrow/.style={-Latex, line width=1pt, draw=deepblue},
+  chip/.style={
+    draw=deepblue!60, fill=chipbg, rounded corners=8pt,
+    inner xsep=6pt, inner ysep=3pt, font=\scriptsize\ttfamily},
+  arrow/.style = {->, line width=0.5pt, draw=deepgrey, >=stealth}
+}
+%
+
+
+\lstdefinestyle{pyStyle}{
+  language=Python,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{codeblue}\bfseries,
+  stringstyle=\color{codegreen},
+  commentstyle=\color{gray},
+  identifierstyle=\color{black},
+  emph={Counter,values,items, return},
+  emphstyle=\color{codepurple},
+  showstringspaces=false,
+  breaklines=true,
+  tabsize=1,
+ % make 'return' special purple:
+morekeywords=[2]{return},
+ keywordstyle=[2]\color{codepurple}\bfseries,
+% function name (identifier right after 'def'):
+moredelim=**[is][\color{codegreen}]{@}{@},
+% function arguments (inside parentheses):
+moredelim=**[is][\color{codeorange}]{|}{|},
+}
+
+

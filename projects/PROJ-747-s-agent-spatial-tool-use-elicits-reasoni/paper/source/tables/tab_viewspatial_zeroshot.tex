@@ -1,0 +1,89 @@
+\begin{table*}[t]
+    \centering
+    \scriptsize
+    \setlength{\tabcolsep}{3pt}
+    % \resizebox{\textwidth}{!}{%
+    \caption{Results on ViewSpatial-Bench~\cite{viewspatial_bench}. We report the official five question types: camera-perspective object view orientation (C-OVO), camera-perspective relative direction (C-RD), person-perspective object view orientation (P-OVO), person-perspective relative direction (P-RD), and person-perspective scene-simulation relative direction (P-SSRD).} 
+    % Top-1/2/3 results are highlighted in \colorbox{top1color}{\textbf{deep}}, \colorbox{top2color}{medium}, and \colorbox{top3color}{light} lavender.}
+    \label{tab:viewspatial_zeroshot}
+    \begin{tabular}{lcc|ccc|c}
+        \toprule
+        \multirow{2}{*}{\textbf{Model}} & \multicolumn{2}{c}{\textbf{Camera Perspective}} & \multicolumn{3}{c}{\textbf{Person Perspective}} & \multirow{2}{*}{\textbf{Avg.}} \\
+        \cmidrule(lr){2-3} \cmidrule(lr){4-6}
+        & \textbf{C-OVO} & \textbf{C-RD} & \textbf{P-OVO} & \textbf{P-RD} & \textbf{P-SSRD} & \\
+        \midrule
+        \multicolumn{7}{l}{\textit{Proprietary Models}} \\
+        Gemini 3 Pro & 31.6 & \ctwo{61.9} & 41.1 & \ctwo{74.4} & 38.9 & 50.4 \\
+        Gemini 2.5 Pro & 33.0 & 59.1 & 51.0 & 45.8 & 32.6 & 46.1 \\
+        GPT-5.4 & 27.9 & 60.2 & 41.0 & 48.5 & 40.1 & 45.6 \\
+        Grok-4 & 23.9 & 57.1 & 47.6 & 51.7 & 24.9 & 43.2 \\
+        \midrule
+        \multicolumn{7}{l}{\textit{Open-weight General Models}} \\
+        Seed 1.6 & 26.9 & 55.8 & 54.8 & 48.5 & 26.6 & 43.9 \\
+        Qwen3-VL-8B-Instruct & 29.7 & 54.2 & 47.3 & 40.3 & 31.1 & 42.2 \\
+        BAGEL-7B-MoT & \ctwo{38.7} & 48.3 & 47.0 & 42.5 & 26.5 & 41.3 \\
+        InternVL3\_5-8B & 24.7 & 49.8 & 50.3 & 34.6 & 32.9 & 40.0 \\
+        \midrule
+        \multicolumn{7}{l}{\textit{Open-weight Spatial Models}} \\
+        Cambrian-S-7B & 22.7 & 50.4 & 45.0 & 38.8 & 41.9 & 41.3 \\
+        % SN-SI-1.3-IVL3-8B & 38.7 & \cone{74.6} & 53.9 & 54.6 & \cone{72.2} & \cone{61.3} \\
+        % SN-SI-1.2-IVL3-8B & 34.7 & \ctwo{74.4} & 50.9 & 48.6 & \ctwo{70.2} & \cthree{58.8} \\
+        % SN-SI-1.1-IVL3-8B & \ctwo{43.2} & \cthree{66.3} & 38.4 & 43.1 & \cthree{70.0} & 54.7 \\
+        % SN-SI-1.1-IVL3-2B & 19.5 & 65.7 & \ctwo{70.2} & 39.4 & 55.9 & 52.7 \\
+        VST-3B-SFT & \cthree{35.4} & 46.9 & \cone{70.3} & \cthree{52.6} & \ctwo{62.8} & \ctwo{52.9} \\
+        VST-7B-SFT & 29.6 & 52.7 & 51.9 & 50.7 & \cone{64.5} & 50.5 \\
+        SN-SI-1.1-Qwen2.5VL-7B & 26.7 & 47.9 & \cthree{57.1} & 43.2 & 49.7 & 45.5 \\
+        SN-SI-1.1-Qwen3VL-8B & 22.0 & \cthree{60.3} & \ctwo{67.8} & 41.5 & 55.6 & \cthree{51.2} \\
+        \midrule
+        \textbf{Ours (\textsc{S-Agent})} & \cone{55.5}\dpos{27.6} & \cone{62.5}\dpos{2.3} & 42.2\dpos{1.2} & \cone{81.1}\dpos{32.6} & \cthree{60.6}\dpos{20.5} & \cone{60.0}\dpos{14.4} \\
+        \bottomrule
+    \end{tabular}%
+    % }
+    \vspace{-2mm}
+\end{table*}
+
+
+
+% \begin{table*}[t]
+%     \centering
+%     \small
+%     \setlength{\tabcolsep}{4pt}
+%     \resizebox{\textwidth}{!}{%
+%     \begin{tabular}{lcc|ccc|c}
+%         \toprule
+%         \multirow{2}{*}{\textbf{Model}} & \multicolumn{2}{c}{\textbf{Camera Perspective}} & \multicolumn{3}{c}{\textbf{Person Perspective}} & \multirow{2}{*}{\textbf{Avg.}} \\
+%         \cmidrule(lr){2-3} \cmidrule(lr){4-6}
+%         & \textbf{C-OVO} & \textbf{C-RD} & \textbf{P-OVO} & \textbf{P-RD} & \textbf{P-SSRD} & \\
+%         \midrule
+%         \multicolumn{7}{l}{\textit{Proprietary Models}} \\
+%         Gemini 3 Pro & 31.6 & 61.9 & 41.1 & \cthree{74.4} & 38.9 & 50.4 \\
+%         Gemini 2.5 Pro & 33.0 & 59.1 & 51.0 & 45.8 & 32.6 & 46.1 \\
+%         GPT-5 & 27.9 & 60.2 & 41.0 & 48.5 & 40.1 & 45.6 \\
+%         Grok 4 & 23.9 & 57.1 & 47.6 & 51.7 & 24.9 & 43.2 \\
+%         \midrule
+%         \multicolumn{7}{l}{\textit{Open-weight General Models}} \\
+%         Seed 1.6 & 26.9 & 55.8 & 54.8 & 48.5 & 26.6 & 43.9 \\
+%         Qwen3-VL-8B-Instruct & 29.7 & 54.2 & 47.3 & 40.3 & 31.1 & 42.2 \\
+%         BAGEL-7B-MoT & 38.7 & 48.3 & 47.0 & 42.5 & 26.5 & 41.3 \\
+%         InternVL3\_5-8B & 24.7 & 49.8 & 50.3 & 34.6 & 32.9 & 40.0 \\
+%         \midrule
+%         \multicolumn{7}{l}{\textit{Open-weight Spatial Models}} \\
+%         Cambrian-S-7B & 22.7 & 50.4 & 45.0 & 38.8 & 41.9 & 41.3 \\
+%         % SN-SI-1.3-IVL3-8B & 38.7 & \cone{74.6} & 53.9 & 54.6 & \cone{72.2} & \cone{61.3} \\
+%         % SN-SI-1.2-IVL3-8B & 34.7 & \ctwo{74.4} & 50.9 & 48.6 & \ctwo{70.2} & \cthree{58.8} \\
+%         % SN-SI-1.1-IVL3-8B & \ctwo{43.2} & \cthree{66.3} & 38.4 & 43.1 & \cthree{70.0} & 54.7 \\
+%         VST-3B-SFT & 35.4 & 46.9 & \cone{70.3} & 52.6 & 62.8 & 52.9 \\
+%         % SN-SI-1.1-IVL3-2B & 19.5 & 65.7 & \ctwo{70.2} & 39.4 & 55.9 & 52.7 \\
+%         VST-7B-SFT & 29.6 & 52.7 & 51.9 & 50.7 & 64.5 & 50.5 \\
+%         SN-SI-1.1-Qwen3VL-8B & 22.0 & 60.3 & \cthree{67.8} & 41.5 & 55.6 & 51.2 \\
+%         SN-SI-1.1-Qwen2.5VL-7B & 26.7 & 47.9 & 57.1 & 43.2 & 49.7 & 45.5 \\
+%         \midrule
+%         \textbf{Ours (S-Agent)} w/ GPT-5.4 & \cthree{41.4} & 58.9 & 43.0 & \ctwo{74.5} & 58.3 & 55.2 \\
+%         \textbf{Ours (S-Agent)} w/ Gemini 3 Pro & \cone{55.5}\dpos{23.9} & 62.5\dpos{0.6} & 42.2\dpos{1.1} & \cone{81.1}\dpos{6.7} & 60.6\dpos{21.7} & \ctwo{60.0}\dpos{9.6} \\
+%         \bottomrule
+%     \end{tabular}%
+%     }
+%     \vspace{2mm}
+%     \caption{Detailed comparison on the ViewSpatial-Bench~\cite{viewspatial_bench} leaderboard. We adopt the official five qtypes: Camera-Perspective Object View Orientation (\textbf{C-OVO}), Camera-Perspective Relative Direction (\textbf{C-RD}), Person-Perspective Object View Orientation (\textbf{P-OVO}), Person-Perspective Relative Direction (\textbf{P-RD}), and Person-Perspective Scene Simulation Relative Direction (\textbf{P-SSRD}). For brevity, we abbreviate \textit{SenseNova-SI} as \textit{SN-SI} and \textit{InternVL3} as \textit{IVL3}. The top-1 / top-2 / top-3 results in each column are highlighted with \colorbox{top1color}{\textbf{deep}}, \colorbox{top2color}{medium}, and \colorbox{top3color}{light} lavender, respectively. Our \textbf{S-Agent} is evaluated zero-shot with two proprietary backbone VLMs (GPT-5.4 and Gemini 3 Pro). Subscripts \textcolor{deltapos}{(+$\Delta$)} on the Gemini 3 Pro variant indicate the absolute improvement over the Gemini 3 Pro base VLM. Our agent achieves the best results on \textbf{C-OVO} and \textbf{P-RD}, and reaches 59.98\% overall, surpassing all proprietary and open-weight general baselines and trailing only the in-domain trained SenseNova-SI-1.3-IVL3-8B.}
+%     \label{tab:viewspatial_zeroshot}
+% \end{table*}

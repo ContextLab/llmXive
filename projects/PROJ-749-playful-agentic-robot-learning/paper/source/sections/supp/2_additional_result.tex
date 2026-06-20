@@ -1,0 +1,75 @@
+
+\section{Additional Real-World Experimental Results}
+\label{sec:appendix_additional_realworld}
+
+\subsection{Additional Quantitative Results for Real-World Experiments}
+
+We further evaluate whether skills learned from MolmoSpaces play can transfer to additional
+real-world manipulation tasks. We add two real-world tasks that require object rearrangement and
+articulated-object interaction. In \textit{Swap Cubes}, the robot must pick up the cube on the
+platform, move it off the platform, and exchange it with the cube initially placed below the platform.
+In \textit{Close Drawer}, the robot must close an initially open drawer. For both tasks, we compare
+the standard \textsc{CaP-Agent0} system against \textsc{CaP-Agent0} augmented with skills learned
+by \textsc{RATs} during MolmoSpaces play.
+
+Table~\ref{tab:additional-real-world} shows that adding MolmoSpaces play-learned skills improves
+performance on both tasks. On \textit{Swap Cubes}, the standard \textsc{CaP-Agent0} baseline fails
+to solve the task, while the skill-augmented agent succeeds in 7 out of 30 trials. On
+\textit{Close Drawer}, the success rate improves from 2/30 to 8/30. Averaged over the two tasks,
+MolmoSpaces skills improve real-world success from 3.3\% to 25.0\%, corresponding to a
++21.7 percentage-point gain. These results suggest that play-learned skills from MolmoSpaces can
+provide useful reusable behaviors for real-world manipulation beyond the original benchmark tasks.
+
+\begin{table}[ht]
+    \centering
+    \setlength{\tabcolsep}{13pt}
+    \caption{\textbf{Additional real-world evaluation with MolmoSpaces skills.}
+    Skills are learned by \textsc{RATs} during MolmoSpaces play and reused with the
+    \textsc{CaP-Agent0} system. }
+    \label{tab:additional-real-world}
+    \resizebox{\robosuiteTableWidth}{!}{%
+    \begin{tabular}{lccc}
+        \toprule
+        Task
+        & \textsc{CaP-Agent0}
+        & \textsc{CaP-Agent0} + \textsc{RATs} Skills (MolmoSpaces)
+        & $\Delta$ \\
+        \midrule
+        Swap Cubes
+            & 0/30 (0.0\%)
+            & \textbf{7/30 (23.3\%)}
+            & +23.3 pp \\
+        Close Drawer
+            & 2/30 (6.7\%)
+            & \textbf{8/30 (26.7\%)}
+            & +20.0 pp \\
+        \midrule
+        \textbf{Average (Real World)}
+            & 2/60 (3.3\%)
+            & \textbf{15/60 (25.0\%)}
+            & +21.7 pp \\
+        \bottomrule
+    \end{tabular}
+    \vspace{-2em}
+    }
+\end{table}
+
+
+
+\subsection{Additional Qualitative Results}
+\label{sec:appendix_additional_qualitative}
+
+We also provide additional qualitative examples of successful real-world executions using
+\textsc{CaP-Agent0} augmented with \textsc{RATs} skills learned from MolmoSpaces play. As shown
+in Figure~\ref{fig:real}, the skill-augmented agent successfully solves
+the newly added \textit{Swap Cubes} and \textit{Close Drawer} tasks, as well as an \textit{Open Drawer}
+task. Specifically, in \textit{Swap Cubes}, the robot exchanges a cube on the platform with a cube 
+below the platform; in \textit{Close Drawer}, the robot closes an initially open drawer; and in 
+\textit{Open Drawer}, the robot opens a closed drawer. These examples illustrate that the MolmoSpaces 
+skill library can support both object rearrangement and articulated-object manipulation in the real world. 
+We include video results of these real-world rollouts, along with additional simulation rollouts, 
+on the project webpage.
+
+
+
+

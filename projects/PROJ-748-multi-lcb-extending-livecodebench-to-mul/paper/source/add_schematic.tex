@@ -1,0 +1,335 @@
+
+
+
+
+
+\newcommand{\figscale}{0.6}
+\newcommand{\WLeft}{0.3\textwidth}
+\newcommand{\WMid}{0.4\textwidth}
+\newcommand{\WRight}{0.3\textwidth}
+\newcommand{\Hbox}{4.8cm}
+
+
+
+
+
+\begin{figure*}[t]
+\centering
+\begin{tikzpicture}[scale=\figscale, font=\tiny]
+
+% ========== LEFT: ==========
+
+\node[subboxBig, minimum width=13.8cm, minimum height=\Hbox] (main) {};
+
+% ========== LCB: ==========
+
+\node[subbox1,  align=center, minimum width=3.0cm, minimum height=2.2cm] at ($(main.west)+(3.1, -0.7cm)$) 
+  { 
+     \begin{minipage}{0.18\linewidth}
+      \vspace{1pt}
+      LiveCodeBench \\
+      Problem sample:
+      \vspace{2pt}\hrule\vspace{4pt}
+            \textbf{Question} \\ 
+            - Natural language  description \\
+            - Test cases examples\\
+            \textbf{Tests}
+    \end{minipage}
+  };  
+
+  \node[subbox1, align=center, minimum width=3.0cm, minimum height=2.2cm] at ($(main.west)+(3.2, -0.6cm)$) 
+  { 
+     \begin{minipage}{0.18\linewidth}
+      \vspace{1pt}
+      LiveCodeBench \\
+      Problem sample:
+      \vspace{2pt}\hrule\vspace{4pt}
+            \textbf{Question} \\ 
+            - Natural language  description \\
+            - Test cases examples\\
+            \textbf{Tests}
+    \end{minipage}
+  };
+
+\node[subbox1, align=center, minimum width=3.0cm, minimum height=2.2cm] at ($(main.west)+(3.3, -0.5cm)$) (lcb) 
+  { 
+     \begin{minipage}{0.18\linewidth}
+      \vspace{1pt}
+      LiveCodeBench \\
+      Problem sample:
+      \vspace{2pt}\hrule\vspace{4pt}
+            \textbf{Question} \\ 
+            - Natural language  description \\
+            - Test cases examples\\
+            \textbf{Tests}
+    \end{minipage}
+  };
+
+\node[titlebar1, anchor=north west, font=\tiny] at ($(lcb.north)+(-0.8,0.25cm)$) {LCB / LCB PRO};
+
+
+
+
+%\node[subbox2, minimum width=3.0cm, minimum height=1.7cm, align=left] at ($(prompt_templ.east)+(2.8, 0.0cm)$) (prompts) {};
+
+%\node[titlebar2, anchor=north west, font=\small] at ($(prompts.north)+(0.2,0.45cm)$) {Prompts};
+
+% ========== PROMPTS: ==========
+
+\node[box, anchor=north west, minimum width=3.0cm, minimum height=1.7cm, align=left, scale=0.8] (prompt1) at ($(lcb.east)+(1.0cm, 3.8cm)$)
+{
+   \begin{minipage}{0.18\linewidth}
+      \vspace{4pt}
+Natural language description \\
+%Instruction:\\
+\texttt{""" C++} \\
+\texttt{\# YOUR CODE HERE} \\
+\texttt{"""}\\
+Test cases examples
+    \end{minipage}
+};
+
+\node[box, anchor=north west, minimum width=3.0cm, minimum height=1.7cm, align=left, scale=0.8] (prompt2)  at ($(lcb.east)+(1.1cm,3.9cm)$)
+{
+   \begin{minipage}{0.18\linewidth}
+      \vspace{4pt}
+Natural language description \\
+%Instruction:\\
+\texttt{""" C++} \\
+\texttt{\# YOUR CODE HERE} \\
+\texttt{"""}\\
+Test cases examples
+    \end{minipage}
+};
+
+\node[box, anchor=north west, minimum width=3.0cm, minimum height=1.7cm, align=left, scale=0.8] (prompt3) at ($(lcb.east)+(1.2cm,4.0cm)$)
+{
+   \begin{minipage}{0.18\linewidth}
+      \vspace{4pt}
+Natural language description \\
+%Instruction:\\
+\texttt{""" C++} \\
+\texttt{\# YOUR CODE HERE} \\
+\texttt{"""}\\
+Test cases examples
+    \end{minipage}
+};
+
+\node[titlebar, anchor=north west, font=\tiny] at ($(prompt3.north)+(-0.2,0.25cm)$) {Prompts};
+
+\draw[arrow] (lcb.east) ++(0, 0.4) --  ++(0.5,0) |- node[pos=0.2, above, xshift=3pt, rotate=90]{Question}(prompt1.west);
+
+%\draw[arrow] (lcb.east) -- (prompt_templ.west);
+
+% ========== MODEL: ==========
+
+
+\node[subbox3, minimum width=3.0cm, minimum height=1.7cm, align=left, scale=0.8] at ($(prompt3.east)+(3.0cm, -0.2cm)$) (llm1) {
+     \begin{minipage}{0.16\linewidth}
+     \centering
+      Code generation:
+      \vspace{2pt}\hrule\vspace{2pt}
+            \textbf{STDIN/STDOUT}\\
+            format
+    \end{minipage}
+};
+
+\node[subbox3, minimum width=3.0cm, minimum height=1.7cm, align=left, scale=0.8] at ($(prompt3.east)+(3.1cm, -0.1cm)$) (llm2) {
+     \begin{minipage}{0.16\linewidth}
+     \centering
+      Code generation:
+      \vspace{2pt}\hrule\vspace{2pt}
+            \textbf{STDIN/STDOUT}\\
+            format
+    \end{minipage}
+};
+
+
+
+\node[subbox3,  minimum width=3.0cm, minimum height=1.7cm, align=left, scale=0.8] at ($(prompt3.east)+(3.2cm, 0.0cm)$) (llm) {
+     \begin{minipage}{0.16\linewidth}
+     \centering
+      Code generation:
+      \vspace{2pt}\hrule\vspace{2pt}
+            \textbf{STDIN/STDOUT}\\
+            format
+    \end{minipage}
+};
+
+\node[titlebar3, anchor=north west, font=\tiny] at ($(llm.north)+(0.5,0.15cm)$) {LLM};
+
+%\draw[arrow] (prompt3.east) -- ++(0.5,0) |- (llm.west);
+
+\draw[arrow] (prompt1.east) ++(0.2,0) --  (llm1.west);
+
+% ========== ATCODER, CF TESTS: ==========
+%\node[subbox, anchor=north west, minimum width=3.0cm, minimum height=0.6cm] (ac)  at ($(lcb.east)+(2.2cm,0.6cm)$)  { 
+%   \begin{minipage}{0.30\linewidth}
+%      \centering
+%      \textbf{AtCoder, Codeforces} Problems Tests 
+%    \end{minipage}
+%  };
+
+  %\node[titlebar, anchor=north west] at ($(ac.north)+(-0.5,0.18cm)$) {\textbf{AtCoder}};
+    \node[rounded corners, inner sep=0pt, scale=0.3]  at ($(lcb.east)+(9.5, 0.7cm)$) (imgbox) 
+    {\includegraphics[width=2cm]{figs/logo_atcoder.png}}; 
+
+        \node[rounded corners, inner sep=0pt, scale=0.3]  at ($(lcb.east)+(8.5,0.7cm)$) (imgbox) 
+    {\includegraphics[width=2cm]{figs/logo_cf.png}};
+
+
+
+%\draw[arrow] (lcb.east) -- ++(0.5,0) |- (ac.west);
+
+
+% ==== LEETCODE TEST CONVERTER: ========
+
+\node[subbox2, minimum width=5.5cm, minimum height=1.6cm] (test_converter)
+  at ($(lcb.east)+(5.8cm,-1.8cm)$)
+{
+ \begin{minipage}{0.30\linewidth}
+       \centering
+      \textbf{LeetCode} Problems Tests Converter
+      \vspace{4pt}\hrule\vspace{14pt}
+ $\Longrightarrow$ 
+ \vspace{8pt}
+    \end{minipage}
+};
+
+\draw[arrow] (lcb.east) -- ++(0.5,0) |- node[pos=0.25, above, xshift=2pt, rotate=90]{Tests} (test_converter.west);
+
+\node[box2, anchor=north west, minimum width=1.0cm, minimum height=1.2cm, align=left, scale=0.7] at ($(test_converter.west)+(1.8cm, 0.3cm)$)
+{
+   \begin{minipage}{0.08\linewidth}
+\texttt{ }\\
+\texttt{[[1,2,3],}\\
+\texttt{[4,5,6]]}
+    \end{minipage}
+};
+
+\node[box2, anchor=north west, minimum width=1.0cm, minimum height=1.2cm, align=left, scale=0.7] at ($(test_converter.west)+(5.4cm, 0.3cm)$)
+{
+   \begin{minipage}{0.08\linewidth}
+      \texttt{2}\\
+      \texttt{1 2 3}\\
+      \texttt{4 5 6}
+    \end{minipage}
+};
+
+  %\node[titlebar, anchor=north west] at ($(lc.north)+(-0.5,0.18cm)$) {\textbf{LeetCode}};
+  \node[rounded corners, inner sep=0pt, scale=0.3]  at ($(test_converter.north)+(3.4,-0.05cm)$) (imgbox) 
+    {\includegraphics[width=2cm]{figs/logo_leetcode.png}}; 
+
+
+
+%\draw[arrow] (unified.east) -- ++(0.7,0) |- (pr.west);
+
+% ========== CHECKER / EXECUTION ==========
+
+\node[subbox1, align=center, minimum width=3.0cm, minimum height=2.3cm] (checker) at ($(llm.east)+(3.6cm, -2.7cm)$)
+  {
+ % \textbf{Execution Checker}\\runs solutions \\ in 9 languages
+  };
+  \node[titlebar1, anchor=north west, font=\tiny] at ($(checker.north)+(0.1,0.25cm)$) {Execution};
+
+
+\draw[arrow] (llm.east) -- ++(0.5,0) |- (checker.west);
+
+\draw[arrow] (lcb.east) ++(0, 0.2) -- node[pos=0.5, above]{\textbf{AtCoder, Codeforces} Problems Tests } ++(10.2,0) |- ([shift={(0,-5pt)}]checker.west) ;
+
+%\draw[arrow] (ac.east) -- ++(0.5,0) |- (checker.west);
+\draw[arrow] (test_converter.east) -- ++(0.5,0) |- ([shift={(0,-10pt)}]checker.west);
+
+\node[
+  draw=white,
+  double=deepblue,
+  double distance=1.5pt,
+  fill=deepblue,
+  text=white,
+  rounded corners=2pt,
+  inner sep=6pt,
+  minimum width=2.6cm,
+  minimum height=1.0cm,
+  scale=0.5 
+] at ($(checker.north)+(-0.4,-2.4cm)$) (console1)
+{\parbox[b][1.0cm][b]{3.0cm}{\ttfamily\small $>$ python main.p}};
+
+  \node[rounded corners, inner sep=0pt, scale=0.3]  at ($(console1.east)+(0.1,-0.45cm)$) (imgbox) 
+{\includegraphics[width=1.6cm]{figs/logo_python.png}}; 
+
+\node[
+  draw=white,
+  double=deepblue,
+  double distance=1.5pt,
+  fill=deepblue,
+  text=white,
+  rounded corners=2pt,
+  inner sep=6pt,
+  minimum width=2.6cm,
+  minimum height=1.0cm,
+  scale=0.5 
+] at ($(checker.north)+(-0.1,-1.85cm)$) (console2)
+{\parbox[b][1.0cm][b]{3.0cm}{\ttfamily\small  $>$ rustc main.rs}};
+
+  \node[rounded corners, inner sep=0pt, scale=0.3]  at ($(console2.east)+(0.1,-0.45cm)$) (imgbox) 
+{\includegraphics[width=1.6cm]{figs/logo_rust.png}}; 
+
+\node[
+  draw=white,
+  double=deepblue,
+  double distance=1.5pt,
+  fill=deepblue,
+  text=white,
+  rounded corners=2pt,
+  inner sep=6pt,
+  minimum width=2.6cm,
+  minimum height=0.7cm,
+  scale=0.5
+] at ($(checker.north)+(0.2,-1.3cm)$) (console3)
+{\parbox[b][1.0cm][b]{3.0cm}{\ttfamily\small $>$ g++ main.cpp}};
+
+  \node[rounded corners, inner sep=0pt, scale=0.3]  at ($(console3.east)+(0.1,-0.45cm)$) (imgbox) 
+    {\includegraphics[width=1.6cm]{figs/logo_c++.png}}; 
+
+%\node[console, align=center, minimum width=3.6cm, minimum height=1.1cm] at ($(checker.north)+(0.3,-1.0cm)$)  (console2){$>$ python main.py\\};   
+
+% language chips
+%\matrix[matrix of nodes, nodes={chip}, column sep=3pt, row sep=3pt,  anchor=north, inner sep=0pt] (chips) at ($(checker.north)+(-4.6,-1.4cm)$){  Python & C++ & Java \\  JavaScript & Go & PHP \\  Ruby & Rust & TypeScript \\};
+
+%\draw[arrow] (pr.south) -- (checker.north);
+
+% collected tests box
+%\node[box, left=1.0cm of checker.west, align=center, minimum width=3.3cm] (tests)  {\textbf{Collected Tests}\\(input/output cases)};
+
+
+%\draw[arrow] (ac.east) -- ++(0.7,0) |- (unified.west);
+
+% test flow into checker
+%\draw[arrow] (tests.east) -- (checker.west);
+
+% ========== RESULT METRIC ==========
+
+\node[subbox3, below=0.2cm of checker, align=center, minimum width=3.0cm] (metric)
+  {\textbf{Pass@1}};
+
+\draw[arrow] (checker.south) --(metric.north);
+
+
+% label: compare with answers
+%\node[align=center] at ($(tests.south)!0.5!(checker.south)+(0,-0.35)$) {\footnotesize compare outputs with answers};
+
+% ========== LEGEND FOR FLOWS (optional numbers) ==========
+%\node[circle, draw=deepblue, very thick, minimum size=12pt, inner sep=0pt, fill=white] (n1) at ($(conv)!0.52!(lc)$) {\footnotesize 1};
+%\node[circle, draw=deepblue, very thick, minimum size=12pt, inner sep=0pt, fill=white] (n2) at ($(pr)!0.45!(checker)$) {\footnotesize 2};
+
+\end{tikzpicture}
+\caption{\textbf{Multi-LCB overview.}  
+%Left: Conversion pipeline from Functional to unified \texttt{STDIN/STDOUT} format.  
+%Right: Multi programming languages prompting and execution.  
+%Each LCB problem is transformed into a standardized \texttt{STDIN/STDOUT} version, wrapped in programming language specific prompts, compiled or interpreted in the target language, and scored by Pass@1.
+Top: LCB natural-language problem descriptions are wrapped into prompts specifying the target programming language and passed to the LLM for \texttt{STDIN/STDOUT} code generation.  
+AtCoder and Codeforces problem tests are passed directly to the execution stage. 
+Bottom: LeetCode problem tests are transformed through a dedicated test converter to produce equivalent \texttt{STDIN/STDOUT} inputs. 
+The generated code is compiled or executed in the target programming language and evaluated using Pass@1.}
+\label{fig:multi-lcb-overview}
+\end{figure*}

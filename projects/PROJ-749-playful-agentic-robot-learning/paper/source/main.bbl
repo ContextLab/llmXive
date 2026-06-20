@@ -1,0 +1,328 @@
+\begin{thebibliography}{61}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Liang et~al.(2023)Liang, Huang, Xia, Xu, Hausman, Ichter, Florence, and Zeng]{liang2023code}
+J.~Liang, W.~Huang, F.~Xia, P.~Xu, K.~Hausman, B.~Ichter, P.~Florence, and A.~Zeng.
+\newblock Code as policies: Language model programs for embodied control.
+\newblock In \emph{2023 IEEE International Conference on Robotics and Automation (ICRA)}, pages 9493--9500. IEEE, 2023.
+
+\bibitem[Singh et~al.(2023)Singh, Blukis, Mousavian, Goyal, Xu, Tremblay, Fox, Thomason, and Garg]{singh2023progprompt}
+I.~Singh, V.~Blukis, A.~Mousavian, A.~Goyal, D.~Xu, J.~Tremblay, D.~Fox, J.~Thomason, and A.~Garg.
+\newblock {ProgPrompt}: Generating situated robot task plans using large language models.
+\newblock In \emph{2023 IEEE International Conference on Robotics and Automation (ICRA)}, pages 11523--11530. IEEE, 2023.
+
+\bibitem[Vemprala et~al.(2024)Vemprala, Bonatti, Bucker, and Kapoor]{vemprala2024chatgpt}
+S.~Vemprala, R.~Bonatti, A.~Bucker, and A.~Kapoor.
+\newblock {ChatGPT} for robotics: Design principles and model abilities.
+\newblock \emph{IEEE Access}, 12:\penalty0 55682--55696, 2024.
+
+\bibitem[Zitkovich et~al.(2023)Zitkovich, Yu, Xu, Xu, Xiao, Xia, Wu, Wohlhart, Welker, Wahid, Vuong, Vanhoucke, Tran, Soricut, Singh, Singh, Sermanet, Sanketi, Salazar, Ryoo, Reymann, Rao, Pertsch, Mordatch, Michalewski, Lu, Levine, Lee, Lee, Leal, Kuang, Kalashnikov, Julian, Joshi, Irpan, Ichter, Hsu, Herzog, Hausman, Gopalakrishnan, Fu, Florence, Finn, Dubey, Driess, Ding, Choromanski, Chen, Chebotar, Carbajal, Brown, Brohan, Arenas, and Han]{zitkovich2023rt2}
+B.~Zitkovich, T.~Yu, S.~Xu, P.~Xu, T.~Xiao, F.~Xia, J.~Wu, P.~Wohlhart, S.~Welker, A.~Wahid, Q.~Vuong, V.~Vanhoucke, H.~Tran, R.~Soricut, A.~Singh, J.~Singh, P.~Sermanet, P.~R. Sanketi, G.~Salazar, M.~S. Ryoo, K.~Reymann, K.~Rao, K.~Pertsch, I.~Mordatch, H.~Michalewski, Y.~Lu, S.~Levine, L.~Lee, T.-W.~E. Lee, I.~Leal, Y.~Kuang, D.~Kalashnikov, R.~Julian, N.~J. Joshi, A.~Irpan, B.~Ichter, J.~Hsu, A.~Herzog, K.~Hausman, K.~Gopalakrishnan, C.~Fu, P.~Florence, C.~Finn, K.~A. Dubey, D.~Driess, T.~Ding, K.~M. Choromanski, X.~Chen, Y.~Chebotar, J.~Carbajal, N.~Brown, A.~Brohan, M.~G. Arenas, and K.~Han.
+\newblock {RT-2}: Vision-language-action models transfer web knowledge to robotic control.
+\newblock In \emph{Proceedings of The 7th Conference on Robot Learning}, volume 229 of \emph{Proceedings of Machine Learning Research}, pages 2165--2183. PMLR, 2023.
+\newblock URL \url{https://proceedings.mlr.press/v229/zitkovich23a.html}.
+
+\bibitem[Black et~al.(2025)Black, Brown, Driess, Esmail, Equi, Finn, Fusai, Groom, Hausman, Ichter, Jakubczak, Jones, Ke, Levine, Li-Bell, Mothukuri, Nair, Pertsch, Shi, Smith, Tanner, Vuong, Walling, Wang, and Zhilinsky]{black2025pi0}
+K.~Black, N.~Brown, D.~Driess, A.~Esmail, M.~R. Equi, C.~Finn, N.~Fusai, L.~Groom, K.~Hausman, B.~Ichter, S.~Jakubczak, T.~Jones, L.~Ke, S.~Levine, A.~Li-Bell, M.~Mothukuri, S.~Nair, K.~Pertsch, L.~X. Shi, L.~Smith, J.~Tanner, Q.~Vuong, A.~Walling, H.~Wang, and U.~Zhilinsky.
+\newblock {$\pi_0$}: A vision-language-action flow model for general robot control.
+\newblock In \emph{Proceedings of Robotics: Science and Systems (RSS)}, Los Angeles, CA, USA, 2025.
+
+\bibitem[{Physical Intelligence} et~al.(2025){Physical Intelligence}, Black, Brown, Darpinian, Dhabalia, Driess, Esmail, Equi, Finn, Fusai, Galliker, Ghosh, Groom, Hausman, Ichter, Jakubczak, Jones, Ke, LeBlanc, Levine, Li-Bell, Mothukuri, Nair, Pertsch, Ren, Shi, Smith, Springenberg, Stachowicz, Tanner, Vuong, Walke, Walling, Wang, Yu, and Zhilinsky]{physicalintelligence2025pi05}
+{Physical Intelligence}, K.~Black, N.~Brown, J.~Darpinian, K.~Dhabalia, D.~Driess, A.~Esmail, M.~R. Equi, C.~Finn, N.~Fusai, M.~Y. Galliker, D.~Ghosh, L.~Groom, K.~Hausman, B.~Ichter, S.~Jakubczak, T.~Jones, L.~Ke, D.~LeBlanc, S.~Levine, A.~Li-Bell, M.~Mothukuri, S.~Nair, K.~Pertsch, A.~Z. Ren, L.~X. Shi, L.~Smith, J.~T. Springenberg, K.~Stachowicz, J.~Tanner, Q.~Vuong, H.~Walke, A.~Walling, H.~Wang, L.~Yu, and U.~Zhilinsky.
+\newblock {$\pi_{0.5}$}: A vision-language-action model with open-world generalization.
+\newblock In \emph{Proceedings of the 9th Conference on Robot Learning (CoRL)}, Proceedings of Machine Learning Research. PMLR, 2025.
+
+\bibitem[Fu et~al.(2026)Fu, Yu, El-Refai, Kou, Xue, Huang, Xiao, Wang, Li, Shi, Wu, Sastry, Zhu, Goldberg, and Fan]{fu2026capx}
+M.~Fu, J.~Yu, K.~El-Refai, E.~Kou, H.~Xue, H.~Huang, W.~Xiao, G.~Wang, F.-F. Li, G.~Shi, J.~Wu, S.~Sastry, Y.~Zhu, K.~Goldberg, and L.~Fan.
+\newblock {CaP-X}: A framework for benchmarking and improving coding agents for robot manipulation.
+\newblock \emph{arXiv preprint arXiv:2603.22435}, 2026.
+
+\bibitem[Piaget(1952)]{piaget1952origins}
+J.~Piaget.
+\newblock \emph{The Origins of Intelligence in Children}.
+\newblock International Universities Press, New York, 1952.
+
+\bibitem[Gopnik(2020)]{gopnik2020childhood}
+A.~Gopnik.
+\newblock Childhood as a solution to explore-exploit tensions.
+\newblock \emph{Philosophical Transactions of the Royal Society B: Biological Sciences}, 375\penalty0 (1803):\penalty0 20190502, 2020.
+\newblock \doi{10.1098/rstb.2019.0502}.
+
+\bibitem[Smith and Gasser(2005)]{smith2005developmental}
+L.~B. Smith and M.~Gasser.
+\newblock The development of embodied cognition: Six lessons from babies.
+\newblock \emph{Artificial Life}, 11\penalty0 (1-2):\penalty0 13--29, 2005.
+\newblock \doi{10.1162/1064546053278973}.
+
+\bibitem[Schmidhuber(1991)]{schmidhuber1991curious}
+J.~Schmidhuber.
+\newblock Curious model-building control systems.
+\newblock In \emph{Proceedings of the International Joint Conference on Neural Networks (IJCNN)}, volume~2, pages 1458--1463, Singapore, 1991. IEEE.
+
+\bibitem[Oudeyer et~al.(2007)Oudeyer, Kaplan, and Hafner]{oudeyer2007intrinsic}
+P.-Y. Oudeyer, F.~Kaplan, and V.~V. Hafner.
+\newblock Intrinsic motivation systems for autonomous mental development.
+\newblock \emph{IEEE Transactions on Evolutionary Computation}, 11\penalty0 (2):\penalty0 265--286, 2007.
+\newblock \doi{10.1109/TEVC.2006.890271}.
+
+\bibitem[Baranes and Oudeyer(2013)]{baranes2013active}
+A.~Baranes and P.-Y. Oudeyer.
+\newblock Active learning of inverse models with intrinsically motivated goal exploration in robots.
+\newblock \emph{Robotics and Autonomous Systems}, 61\penalty0 (1):\penalty0 49--73, 2013.
+
+\bibitem[Forestier and Oudeyer(2016)]{forestier2016modular}
+S.~Forestier and P.-Y. Oudeyer.
+\newblock Modular active curiosity-driven discovery of tool use.
+\newblock In \emph{2016 IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS)}, pages 3965--3972, Daejeon, Korea, 2016. IEEE.
+
+\bibitem[Pathak et~al.(2017)Pathak, Agrawal, Efros, and Darrell]{pathak2017curiosity}
+D.~Pathak, P.~Agrawal, A.~A. Efros, and T.~Darrell.
+\newblock Curiosity-driven exploration by self-supervised prediction.
+\newblock In \emph{Proceedings of the 34th International Conference on Machine Learning (ICML)}, volume~70 of \emph{Proceedings of Machine Learning Research}, pages 2778--2787, 2017.
+
+\bibitem[Houthooft et~al.(2016)Houthooft, Chen, Duan, Schulman, De~Turck, and Abbeel]{houthooft2016vime}
+R.~Houthooft, X.~Chen, Y.~Duan, J.~Schulman, F.~De~Turck, and P.~Abbeel.
+\newblock {VIME}: Variational information maximizing exploration.
+\newblock In \emph{Advances in Neural Information Processing Systems 29 (NeurIPS)}, 2016.
+
+\bibitem[Vygotsky(1978)]{vygotsky1978mind}
+L.~S. Vygotsky.
+\newblock \emph{Mind in Society: The Development of Higher Psychological Processes}.
+\newblock Harvard University Press, Cambridge, MA, 1978.
+\newblock Edited by Michael Cole, Vera John-Steiner, Sylvia Scribner, and Ellen Souberman.
+
+\bibitem[Pellegrini(2009)]{pellegrini2009role}
+A.~D. Pellegrini.
+\newblock \emph{The Role of Play in Human Development}.
+\newblock Oxford University Press, Oxford, UK, 2009.
+\newblock ISBN 9780195367324.
+
+\bibitem[Schmidhuber(2010)]{schmidhuber2010formal}
+J.~Schmidhuber.
+\newblock Formal theory of creativity, fun, and intrinsic motivation (1990--2010).
+\newblock \emph{IEEE Transactions on Autonomous Mental Development}, 2\penalty0 (3):\penalty0 230--247, 2010.
+
+\bibitem[Kaplan and Oudeyer(2007)]{kaplan2007intrinsic}
+F.~Kaplan and P.-Y. Oudeyer.
+\newblock In search of the neural circuits of intrinsic motivation.
+\newblock \emph{Frontiers in Neuroscience}, 1\penalty0 (1):\penalty0 225--236, 2007.
+\newblock \doi{10.3389/neuro.01.1.1.017.2007}.
+
+\bibitem[Kidd et~al.(2012)Kidd, Piantadosi, and Aslin]{kidd2012goldilocks}
+C.~Kidd, S.~T. Piantadosi, and R.~N. Aslin.
+\newblock The goldilocks effect: Human infants allocate attention to visual sequences that are neither too simple nor too complex.
+\newblock \emph{PLOS ONE}, 7\penalty0 (5):\penalty0 e36399, 2012.
+\newblock \doi{10.1371/journal.pone.0036399}.
+
+\bibitem[Rolf et~al.(2010)Rolf, Steil, and Gienger]{rolf2010goal}
+M.~Rolf, J.~J. Steil, and M.~Gienger.
+\newblock Goal babbling permits direct learning of inverse kinematics.
+\newblock \emph{IEEE Transactions on Autonomous Mental Development}, 2\penalty0 (3):\penalty0 216--229, 2010.
+\newblock \doi{10.1109/TAMD.2010.2062511}.
+
+\bibitem[Forestier et~al.(2022)Forestier, Portelas, Mollard, and Oudeyer]{forestier2017intrinsically}
+S.~Forestier, R.~Portelas, Y.~Mollard, and P.-Y. Oudeyer.
+\newblock Intrinsically motivated goal exploration processes with automatic curriculum learning.
+\newblock \emph{Journal of Machine Learning Research}, 23\penalty0 (152):\penalty0 1--41, 2022.
+
+\bibitem[Lynch et~al.(2020)Lynch, Khansari, Xiao, Kumar, Tompson, Levine, and Sermanet]{lynch2020learning}
+C.~Lynch, M.~Khansari, T.~Xiao, V.~Kumar, J.~Tompson, S.~Levine, and P.~Sermanet.
+\newblock Learning latent plans from play.
+\newblock In L.~P. Kaelbling, D.~Kragic, and K.~Sugiura, editors, \emph{Proceedings of the Conference on Robot Learning}, volume 100 of \emph{Proceedings of Machine Learning Research}, pages 1113--1132. PMLR, 30 Oct--01 Nov 2020.
+\newblock URL \url{https://proceedings.mlr.press/v100/lynch20a.html}.
+
+\bibitem[Wang et~al.(2023)Wang, Fan, Sun, Zhang, Fei-Fei, Xu, Zhu, and Anandkumar]{wang2023mimicplay}
+C.~Wang, L.~Fan, J.~Sun, R.~Zhang, L.~Fei-Fei, D.~Xu, Y.~Zhu, and A.~Anandkumar.
+\newblock Mimicplay: Long-horizon imitation learning by watching human play.
+\newblock In J.~Tan, M.~Toussaint, and K.~Darvish, editors, \emph{Proceedings of The 7th Conference on Robot Learning}, volume 229 of \emph{Proceedings of Machine Learning Research}, pages 201--221. PMLR, 06--09 Nov 2023.
+\newblock URL \url{https://proceedings.mlr.press/v229/wang23a.html}.
+
+\bibitem[Colas et~al.(2020)Colas, Karch, Lair, Dussoux, Moulin-Frier, Dominey, and Oudeyer]{colas2020language}
+C.~Colas, T.~Karch, N.~Lair, J.-M. Dussoux, C.~Moulin-Frier, P.~F. Dominey, and P.-Y. Oudeyer.
+\newblock Language as a cognitive tool to imagine goals in curiosity-driven exploration.
+\newblock In \emph{Advances in Neural Information Processing Systems 33 (NeurIPS)}, 2020.
+
+\bibitem[Thrun and Mitchell(1995)]{thrun1995lifelong}
+S.~Thrun and T.~M. Mitchell.
+\newblock Lifelong robot learning.
+\newblock \emph{Robotics and Autonomous Systems}, 15\penalty0 (1--2):\penalty0 25--46, 1995.
+
+\bibitem[Parisi et~al.(2019)Parisi, Kemker, Part, Kanan, and Wermter]{parisi2019continual}
+G.~I. Parisi, R.~Kemker, J.~L. Part, C.~Kanan, and S.~Wermter.
+\newblock Continual lifelong learning with neural networks: A review.
+\newblock \emph{Neural Networks}, 113:\penalty0 54--71, 2019.
+\newblock \doi{10.1016/j.neunet.2019.01.012}.
+
+\bibitem[Lesort et~al.(2020)Lesort, Lomonaco, Stoian, Maltoni, Filliat, and D{\'i}az-Rodr{\'i}guez]{lesort2020continual}
+T.~Lesort, V.~Lomonaco, A.~Stoian, D.~Maltoni, D.~Filliat, and N.~D{\'i}az-Rodr{\'i}guez.
+\newblock Continual learning for robotics: Definition, framework, learning strategies, opportunities and challenges.
+\newblock \emph{Information Fusion}, 58:\penalty0 52--68, 2020.
+
+\bibitem[Sutton et~al.(1999)Sutton, Precup, and Singh]{sutton1999between}
+R.~S. Sutton, D.~Precup, and S.~Singh.
+\newblock Between {MDPs} and semi-{MDPs}: A framework for temporal abstraction in reinforcement learning.
+\newblock \emph{Artificial Intelligence}, 112\penalty0 (1--2):\penalty0 181--211, 1999.
+
+\bibitem[Konidaris et~al.(2012)Konidaris, Kuindersma, Grupen, and Barto]{konidaris2012robot}
+G.~Konidaris, S.~Kuindersma, R.~Grupen, and A.~Barto.
+\newblock Robot learning from demonstration by constructing skill trees.
+\newblock \emph{The International Journal of Robotics Research}, 31\penalty0 (3):\penalty0 360--375, 2012.
+
+\bibitem[Kroemer et~al.(2021)Kroemer, Niekum, and Konidaris]{kroemer2021review}
+O.~Kroemer, S.~Niekum, and G.~Konidaris.
+\newblock A review of robot learning for manipulation: Challenges, representations, and algorithms.
+\newblock \emph{Journal of Machine Learning Research}, 22\penalty0 (30):\penalty0 1--82, 2021.
+
+\bibitem[Pertsch et~al.(2020)Pertsch, Lee, and Lim]{pertsch2020long}
+K.~Pertsch, Y.~Lee, and J.~J. Lim.
+\newblock Accelerating reinforcement learning with learned skill priors.
+\newblock In \emph{Proceedings of the 4th Conference on Robot Learning (CoRL)}, volume 155 of \emph{Proceedings of Machine Learning Research}, pages 188--204, 2020.
+
+\bibitem[Lynch and Sermanet(2021)]{lynch2021language}
+C.~Lynch and P.~Sermanet.
+\newblock Language conditioned imitation learning over unstructured data.
+\newblock In \emph{Proceedings of Robotics: Science and Systems (RSS)}, 2021.
+\newblock \doi{10.15607/RSS.2021.XVII.047}.
+
+\bibitem[Wan et~al.(2024)Wan, Zhu, Shah, and Zhu]{wan2024lotuscontinualimitationlearning}
+W.~Wan, Y.~Zhu, R.~Shah, and Y.~Zhu.
+\newblock Lotus: Continual imitation learning for robot manipulation through unsupervised skill discovery, 2024.
+\newblock URL \url{https://arxiv.org/abs/2311.02058}.
+
+\bibitem[Ma et~al.(2024)Ma, Liang, Wang, Wang, Zhu, Fan, Bastani, and Jayaraman]{ma2024dreureka}
+Y.~J. Ma, W.~Liang, H.-J. Wang, S.~Wang, Y.~Zhu, L.~Fan, O.~Bastani, and D.~Jayaraman.
+\newblock {DrEureka}: Language model guided sim-to-real transfer.
+\newblock In \emph{Robotics: Science and Systems (RSS)}, 2024.
+\newblock URL \url{https://arxiv.org/abs/2406.01967}.
+
+\bibitem[Bengio et~al.(2009)Bengio, Louradour, Collobert, and Weston]{bengio2009curriculum}
+Y.~Bengio, J.~Louradour, R.~Collobert, and J.~Weston.
+\newblock Curriculum learning.
+\newblock In \emph{Proceedings of the 26th Annual International Conference on Machine Learning (ICML)}, pages 41--48. ACM, 2009.
+
+\bibitem[Narvekar et~al.(2020)Narvekar, Peng, Leonetti, Sinapov, Taylor, and Stone]{narvekar2020curriculum}
+S.~Narvekar, B.~Peng, M.~Leonetti, J.~Sinapov, M.~E. Taylor, and P.~Stone.
+\newblock Curriculum learning for reinforcement learning domains: A framework and survey.
+\newblock \emph{Journal of Machine Learning Research}, 21\penalty0 (181):\penalty0 1--50, 2020.
+
+\bibitem[Florensa et~al.(2018)Florensa, Held, Geng, and Abbeel]{florensa2018automatic}
+C.~Florensa, D.~Held, X.~Geng, and P.~Abbeel.
+\newblock Automatic goal generation for reinforcement learning agents.
+\newblock In \emph{Proceedings of the 35th International Conference on Machine Learning (ICML)}, volume~80 of \emph{Proceedings of Machine Learning Research}, pages 1515--1528, 2018.
+
+\bibitem[Nair et~al.(2018)Nair, Pong, Dalal, Bahl, Lin, and Levine]{nair2018visual}
+A.~Nair, V.~Pong, M.~Dalal, S.~Bahl, S.~Lin, and S.~Levine.
+\newblock Visual reinforcement learning with imagined goals.
+\newblock In \emph{Advances in Neural Information Processing Systems 31 (NeurIPS)}, 2018.
+
+\bibitem[Pong et~al.(2020)Pong, Dalal, Lin, Nair, Bahl, and Levine]{pong2020skewfit}
+V.~H. Pong, M.~Dalal, S.~Lin, A.~Nair, S.~Bahl, and S.~Levine.
+\newblock {Skew-Fit}: State-covering self-supervised reinforcement learning.
+\newblock In \emph{Proceedings of the 37th International Conference on Machine Learning (ICML)}, volume 119 of \emph{Proceedings of Machine Learning Research}, pages 7783--7792, 2020.
+
+\bibitem[Seita et~al.(2019)Seita, Chan, Rao, Tang, Zhao, and Canny]{seita2019zpd}
+D.~Seita, D.~Chan, R.~Rao, C.~Tang, M.~Zhao, and J.~Canny.
+\newblock {ZPD} teaching strategies for deep reinforcement learning from demonstrations.
+\newblock In \emph{Deep Reinforcement Learning Workshop at NeurIPS}, 2019.
+
+\bibitem[Mu et~al.(2024)Mu, Chen, Zhang, Chen, Yu, Ge, Chen, Liang, Hu, Tao, Sun, Yu, Yang, Shao, Wang, Dai, Qiao, Ding, and Luo]{mu2024robocodexmultimodalcodegeneration}
+Y.~Mu, J.~Chen, Q.~Zhang, S.~Chen, Q.~Yu, C.~Ge, R.~Chen, Z.~Liang, M.~Hu, C.~Tao, P.~Sun, H.~Yu, C.~Yang, W.~Shao, W.~Wang, J.~Dai, Y.~Qiao, M.~Ding, and P.~Luo.
+\newblock Robocodex: Multimodal code generation for robotic behavior synthesis, 2024.
+\newblock URL \url{https://arxiv.org/abs/2402.16117}.
+
+\bibitem[Team et~al.(2025)Team, Abdolmaleki, Abeyruwan, Ainslie, Alayrac, Arenas, Balakrishna, Batchelor, Bewley, Bingham, et~al.]{geminirobotics1d52025}
+G.~R. Team, A.~Abdolmaleki, S.~Abeyruwan, J.~Ainslie, J.-B. Alayrac, M.~G. Arenas, A.~Balakrishna, N.~Batchelor, A.~Bewley, J.~Bingham, et~al.
+\newblock Gemini robotics 1.5: Pushing the frontier of generalist robots with advanced embodied reasoning, thinking, and motion transfer.
+\newblock \emph{arXiv preprint arXiv:2510.03342}, 2025.
+
+\bibitem[Shi et~al.(2025)Shi, Yang, Chao, Wan, Shao, Lei, Qian, Le, Chaudhari, Daniilidis, et~al.]{shi2025maestro}
+J.~Shi, R.~Yang, K.~Chao, B.~S. Wan, Y.~S. Shao, J.~Lei, J.~Qian, L.~Le, P.~Chaudhari, K.~Daniilidis, et~al.
+\newblock Maestro: Orchestrating robotics modules with vision-language models for zero-shot generalist robots.
+\newblock In \emph{NeurIPS 2025 Workshop on Space in Vision, Language, and Embodied AI}, 2025.
+
+\bibitem[Ahn et~al.(2022)Ahn, Brohan, Brown, Chebotar, Cortes, David, Finn, Fu, Gopalakrishnan, Hausman, Herzog, Ho, Hsu, Ibarz, Ichter, Irpan, Jang, Ruano, Jeffrey, Jesmonth, Joshi, Julian, Kalashnikov, Kuang, Lee, Levine, Lu, Luu, Parada, Pastor, Quiambao, Rao, Rettinghouse, Reyes, Sermanet, Sievers, Tan, Toshev, Vanhoucke, Xia, Xiao, Xu, Xu, Yan, and Zeng]{ahn2022saycan}
+M.~Ahn, A.~Brohan, N.~Brown, Y.~Chebotar, O.~Cortes, B.~David, C.~Finn, C.~Fu, K.~Gopalakrishnan, K.~Hausman, A.~Herzog, D.~Ho, J.~Hsu, J.~Ibarz, B.~Ichter, A.~Irpan, E.~Jang, R.~J. Ruano, K.~Jeffrey, S.~Jesmonth, N.~Joshi, R.~Julian, D.~Kalashnikov, Y.~Kuang, K.-H. Lee, S.~Levine, Y.~Lu, L.~Luu, C.~Parada, P.~Pastor, J.~Quiambao, K.~Rao, J.~Rettinghouse, D.~Reyes, P.~Sermanet, N.~Sievers, C.~Tan, A.~Toshev, V.~Vanhoucke, F.~Xia, T.~Xiao, P.~Xu, S.~Xu, M.~Yan, and A.~Zeng.
+\newblock Do as {I} can, not as {I} say: Grounding language in robotic affordances.
+\newblock In \emph{Proceedings of the 6th Conference on Robot Learning (CoRL)}, volume 205 of \emph{Proceedings of Machine Learning Research}, pages 287--318, 2022.
+
+\bibitem[Driess et~al.(2023)Driess, Xia, Sajjadi, Lynch, Chowdhery, Ichter, Wahid, Tompson, Vuong, Yu, Huang, Chebotar, Sermanet, Duckworth, Levine, Vanhoucke, Hausman, Toussaint, Greff, Zeng, Mordatch, and Florence]{driess2023palme}
+D.~Driess, F.~Xia, M.~S.~M. Sajjadi, C.~Lynch, A.~Chowdhery, B.~Ichter, A.~Wahid, J.~Tompson, Q.~Vuong, T.~Yu, W.~Huang, Y.~Chebotar, P.~Sermanet, D.~Duckworth, S.~Levine, V.~Vanhoucke, K.~Hausman, M.~Toussaint, K.~Greff, A.~Zeng, I.~Mordatch, and P.~Florence.
+\newblock {PaLM-E}: An embodied multimodal language model.
+\newblock In \emph{Proceedings of the 40th International Conference on Machine Learning (ICML)}, volume 202 of \emph{Proceedings of Machine Learning Research}, pages 8469--8488, 2023.
+
+\bibitem[Huang et~al.(2023)Huang, Wang, Zhang, Li, Wu, and Fei-Fei]{huang2023voxposer}
+W.~Huang, C.~Wang, R.~Zhang, Y.~Li, J.~Wu, and L.~Fei-Fei.
+\newblock {VoxPoser}: Composable {3D} value maps for robotic manipulation with language models.
+\newblock In \emph{Proceedings of the 7th Conference on Robot Learning (CoRL)}, volume 229 of \emph{Proceedings of Machine Learning Research}, 2023.
+
+\bibitem[Zeng et~al.(2023)Zeng, Attarian, Ichter, Choromanski, Wong, Welker, Tombari, Purohit, Ryoo, Sindhwani, Lee, Vanhoucke, and Florence]{zeng2023socratic}
+A.~Zeng, M.~Attarian, B.~Ichter, K.~Choromanski, A.~Wong, S.~Welker, F.~Tombari, A.~Purohit, M.~Ryoo, V.~Sindhwani, J.~Lee, V.~Vanhoucke, and P.~Florence.
+\newblock Socratic models: Composing zero-shot multimodal reasoning with language.
+\newblock In \emph{The Eleventh International Conference on Learning Representations (ICLR)}, 2023.
+
+\bibitem[Mu et~al.(2023)Mu, Zhang, Hu, Wang, Ding, Jin, Wang, Dai, Qiao, and Luo]{mu2023embodied}
+Y.~Mu, Q.~Zhang, M.~Hu, W.~Wang, M.~Ding, J.~Jin, B.~Wang, J.~Dai, Y.~Qiao, and P.~Luo.
+\newblock {EmbodiedGPT}: Vision-language pre-training via embodied chain of thought.
+\newblock In \emph{Advances in Neural Information Processing Systems 36 (NeurIPS)}, pages 25081--25094, 2023.
+
+\bibitem[Yao et~al.(2023)Yao, Zhao, Yu, Du, Shafran, Narasimhan, and Cao]{yao2023react}
+S.~Yao, J.~Zhao, D.~Yu, N.~Du, I.~Shafran, K.~Narasimhan, and Y.~Cao.
+\newblock {ReAct}: Synergizing reasoning and acting in language models.
+\newblock In \emph{International Conference on Learning Representations}, 2023.
+\newblock URL \url{https://openreview.net/forum?id=WE_vluYUL-X}.
+
+\bibitem[Shinn et~al.(2023)Shinn, Cassano, Berman, Gopinath, Narasimhan, and Yao]{shinn2023reflexion}
+N.~Shinn, F.~Cassano, E.~Berman, A.~Gopinath, K.~Narasimhan, and S.~Yao.
+\newblock Reflexion: Language agents with verbal reinforcement learning.
+\newblock In \emph{Advances in Neural Information Processing Systems 36 (NeurIPS)}, 2023.
+
+\bibitem[Madaan et~al.(2023)Madaan, Tandon, Gupta, Hallinan, Gao, Wiegreffe, Alon, Dziri, Prabhumoye, Yang, Gupta, Majumder, Hermann, Welleck, Yazdanbakhsh, and Clark]{madaan2023selfrefine}
+A.~Madaan, N.~Tandon, P.~Gupta, S.~Hallinan, L.~Gao, S.~Wiegreffe, U.~Alon, N.~Dziri, S.~Prabhumoye, Y.~Yang, S.~Gupta, B.~P. Majumder, K.~Hermann, S.~Welleck, A.~Yazdanbakhsh, and P.~Clark.
+\newblock Self-refine: Iterative refinement with self-feedback.
+\newblock In \emph{Advances in Neural Information Processing Systems 36 (NeurIPS)}, 2023.
+
+\bibitem[Chen et~al.(2024)Chen, Lin, Sch{\"a}rli, and Zhou]{chen2024selfdebug}
+X.~Chen, M.~Lin, N.~Sch{\"a}rli, and D.~Zhou.
+\newblock Teaching large language models to self-debug.
+\newblock In \emph{The Twelfth International Conference on Learning Representations (ICLR)}, 2024.
+
+\bibitem[Wang et~al.(2024)Wang, Xie, Jiang, Mandlekar, Xiao, Zhu, Fan, and Anandkumar]{wang2023voyager}
+G.~Wang, Y.~Xie, Y.~Jiang, A.~Mandlekar, C.~Xiao, Y.~Zhu, L.~Fan, and A.~Anandkumar.
+\newblock Voyager: An open-ended embodied agent with large language models.
+\newblock \emph{Transactions on Machine Learning Research (TMLR)}, 2024.
+
+\bibitem[Lin et~al.(2025)Lin, Snell, Wang, Packer, Wooders, Stoica, and Gonzalez]{lin2025sleeptime}
+K.~Lin, C.~Snell, Y.~Wang, C.~Packer, S.~Wooders, I.~Stoica, and J.~E. Gonzalez.
+\newblock Sleep-time compute: Beyond inference scaling at test-time.
+\newblock \emph{arXiv preprint arXiv:2504.13171}, 2025.
+
+\bibitem[Zhu et~al.(2020)Zhu, Wong, Mandlekar, Mart\'{i}n-Mart\'{i}n, Joshi, Lin, Nasiriany, and Zhu]{robosuite2020}
+Y.~Zhu, J.~Wong, A.~Mandlekar, R.~Mart\'{i}n-Mart\'{i}n, A.~Joshi, K.~Lin, S.~Nasiriany, and Y.~Zhu.
+\newblock robosuite: A modular simulation framework and benchmark for robot learning.
+\newblock In \emph{arXiv preprint arXiv:2009.12293}, 2020.
+
+\bibitem[Liu et~al.(2023)Liu, Zhu, Gao, Feng, Liu, Zhu, and Stone]{liu2023libero}
+B.~Liu, Y.~Zhu, C.~Gao, Y.~Feng, Q.~Liu, Y.~Zhu, and P.~Stone.
+\newblock Libero: Benchmarking knowledge transfer for lifelong robot learning.
+\newblock \emph{Advances in Neural Information Processing Systems}, 36:\penalty0 44776--44791, 2023.
+
+\bibitem[Zhou et~al.(2025)Zhou, Xu, Tie, Chen, Zhang, Chu, Zhou, and Sun]{liberopro}
+X.~Zhou, Y.~Xu, G.~Tie, Y.~Chen, G.~Zhang, D.~Chu, P.~Zhou, and L.~Sun.
+\newblock Libero-pro: Towards robust and fair evaluation of vision-language-action models beyond memorization.
+\newblock \emph{arXiv preprint arXiv:2510.03827}, 2025.
+
+\bibitem[Kim et~al.(2026)Kim, Pumacay, Rayyan, Argus, Han, VanderBilt, Salvador, Deshpande, Hendrix, Jauhri, et~al.]{kim2026molmospaces}
+Y.~Kim, W.~Pumacay, O.~Rayyan, M.~Argus, W.~Han, E.~VanderBilt, J.~Salvador, A.~Deshpande, R.~Hendrix, S.~Jauhri, et~al.
+\newblock Molmospaces: A large-scale open ecosystem for robot navigation and manipulation.
+\newblock \emph{arXiv preprint arXiv:2602.11337}, 2026.
+
+\bibitem[Kim et~al.(2024)Kim, Pertsch, Karamcheti, Xiao, Balakrishna, Nair, Rafailov, Foster, Sanketi, Vuong, et~al.]{openvla}
+M.~J. Kim, K.~Pertsch, S.~Karamcheti, T.~Xiao, A.~Balakrishna, S.~Nair, R.~Rafailov, E.~P. Foster, P.~R. Sanketi, Q.~Vuong, et~al.
+\newblock Openvla: An open-source vision-language-action model.
+\newblock In \emph{Conference on Robot Learning}, 2024.
+
+\end{thebibliography}

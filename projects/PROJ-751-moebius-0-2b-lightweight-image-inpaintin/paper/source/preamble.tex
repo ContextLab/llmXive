@@ -1,0 +1,98 @@
+%% This file contains a number of tweaks that are typically applied to the main document.
+%% They are not enabled by default, but can be enabled by uncommenting the relevant lines.
+
+%%
+%% Inline annotations; for predefined colors, refer to "dvipsnames" in the xcolor package:
+%% https://tinyurl.com/overleaf-colors
+%%
+\newcommand{\red}[1]{{\color{red}#1}}
+\newcommand{\todo}[1]{{\color{red}#1}}
+\newcommand{\TODO}[1]{\textbf{\color{red}[TODO: #1]}}
+
+\newcommand{\blue}[1]{{\color{blue}#1}}
+\newcommand{\green}[1]{{\color{green}#1}}
+
+% ------------- our ------------
+\usepackage{multirow}
+\usepackage{bm}
+\usepackage{wrapfig}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{mathrsfs}
+\usepackage{makecell}
+\usepackage{colortbl}
+\usepackage{pifont} % for \ding{} 
+
+\usepackage{array}
+
+\definecolor{GrassGreen}{RGB}{146,208,80}
+\definecolor{SkyBlue}{RGB}{4,175,252}
+\definecolor{FluoGreen}{RGB}{24,229,25}
+\definecolor{Fig1aGreen}{RGB}{106, 234, 102}
+\definecolor{Fig1aBlue}{RGB}{0, 176, 240}
+\definecolor{EncoderBlue}{RGB}{166, 203, 220}
+\definecolor{DecoderGreen}{RGB}{131, 186, 158}
+\definecolor{Pending}{RGB}{255, 0, 0}
+\definecolor{red}{RGB}{255, 0, 0}
+\definecolor{green}{RGB}{0, 255, 0}
+\definecolor{blue}{RGB}{0, 0, 255}
+\definecolor{AblationRed}{RGB}{251, 221, 238}
+\definecolor{AblationRedWord}{RGB}{231, 146, 238}
+\definecolor{AblationGreen}{RGB}{193, 220, 206}
+\definecolor{AblationGreenWord}{RGB}{160, 191, 118}
+\definecolor{AblationOrangeWord}{RGB}{254, 123, 0}
+\definecolor{red2}{RGB}{225, 0, 0}
+\definecolor{blue3}{RGB}{0, 0, 150}
+\definecolor{green3}{RGB}{0, 180, 0}
+\definecolor{myblue}{rgb}{0.0, 0.3, 0.6}
+\newcommand{\R}[1]{\noindent\textbf{\textcolor{red2}{#1:}}} 
+\newcommand{\Q}[1]{\textbf{\textcolor{blue3}{#1:}}}
+\newcommand{\QandA}[1]{\noindent\textbf{\textcolor{green3}{#1}}}
+\newcommand{\U}[1]{\noindent\textbf{\textcolor{green3}{#1:}}}
+\newcommand{\NoveltyChain}[1]{\textbf{\textcolor{AblationOrangeWord}{[#1]:}}}
+\newcommand{\NoveltyChainNoColon}[1]{\textbf{\textcolor{AblationOrangeWord}{[#1]}}}
+\newcommand{\CircledNumber}[1]{\normalsize{\textcircled{\small{#1}}}}
+\newcommand{\CircledNumberX}[1]{\normalsize{\textcircled{\scriptsize{#1}}}}
+% \newcommand{\CircledNumber}[1]{\normalsize{\textcircled{\fontsize{6pt}{7pt}\selectfont {#1}}}}
+% \newcommand{\CircledNumber}[1]{\large{\textcircled{\small{#1}}}}
+% \newcommand{\CircledNumber}[1]{\textcircled{\small{#1}}}
+
+\definecolor{TabGray}{RGB}{232, 232, 232}
+
+
+\usepackage{silence}
+\WarningFilter*{latex}{Text page \thepage\space contains only floats}
+
+
+\definecolor{darkpastelgreen}{rgb}{0.01, 0.75, 0.24}
+\definecolor{darkpink}{rgb}{0.91, 0.33, 0.5}
+\newcommand{\more}[1]{$\textcolor{darkpink}{\scriptstyle \blacktriangle#1\%}$}
+\newcommand{\less}[1]{$\textcolor{darkpastelgreen}{\scriptstyle \blacktriangledown#1\%}$}
+
+\newcommand{\bs}[1]{\boldsymbol{#1}}
+\newcommand{\cm}{\checkmark}
+\newcommand{\dg}{$^\dag$}
+\newcommand{\vpara}[1]{\vspace{-0.5em}\paragraph{#1}\vspace{-0.5em}}
+\newcommand{\textib}[1]{\textbf{\textit{#1}}}
+
+
+
+\usepackage[table]{xcolor}
+\usepackage{pgf}
+\newcommand{\colorednumber}[1]{%
+    \pgfmathsetmacro{\myratio}{(#1-226)/300*100}%
+    \pgfmathsetmacro{\safecl}{max(0, min(100, \myratio))}%
+    \edef\temp{\noexpand\cellcolor{red!\safecl!green}}\temp
+    \pgfmathparse{#1 > 450 ? "white" : "black"}%
+    \color{\pgfmathresult}#1%
+}
+
+\newcommand{\colorednumberflops}[1]{%
+    \pgfmathsetmacro{\myratio}{(#1-154)/(319-154)*100}%
+    \pgfmathsetmacro{\safecl}{max(0, min(100, \myratio))}%
+    \edef\temp{\noexpand\cellcolor{red!\safecl!green}}\temp
+    \pgfmathparse{#1 > 277 ? "white" : "black"}%
+    \color{\pgfmathresult}#1%
+}
+
+\usepackage{capt-of}

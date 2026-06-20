@@ -1,0 +1,156 @@
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+\section{Additional Studies}
+\label{sec:appendix_additional_studies}
+
+\subsection{Ablation Results on MolmoSpaces}
+
+We further ablate the effect of play-learned skills and the test-time execution system on
+MolmoSpaces. This setting complements the LIBERO-PRO ablation in the main paper by evaluating
+whether the same play-time skill acquisition mechanism remains useful in a scene-grounded
+benchmark with open, close, pick, and pick-and-place task categories. As in the main ablation, all
+play-based variants use 50 play iterations, and all play-time skills are learned by our proposed
+\textsc{RATs} system.
+
+Table~\ref{tab:molmospaces-ablation} shows that play-learned skills improve performance even when
+they are only plugged into the standard \textsc{CaP-Agent0} test-time agent. Under \textsc{CaP-Agent0},
+Curious Play increases the average success rate from 21.0\% to 25.8\%, with the largest gain on
+closing tasks. When the same learned skills are used by the full \textsc{RATs} execution system,
+performance improves more substantially, from 32.8\% without play to 38.0\% with Curious Play.
+These results suggest that play-time skill learning and the structured \textsc{RATs} test-time
+execution system provide complementary benefits: the learned skill library alone can improve a
+standard Code-as-Policy agent, while the full execution system is better able to retrieve, verify, and
+compose those skills for downstream tasks.
+
+\begin{table}[t]
+    \centering
+    \setlength{\tabcolsep}{3.5pt}
+    \caption{\textbf{MolmoSpaces ablation over play strategy and test-time system.} All
+    play-based variants use 50 play iterations. All play-time skills are learned by our proposed \textsc{RATs} system.}
+    \label{tab:molmospaces-ablation}
+    \resizebox{\ablationTableWidth}{!}{%
+    \begin{tabular}{llccccc}
+        \toprule
+        Test-Time System
+        & Play-Time Skills
+        & Open
+        & Close
+        & Pick
+        & pick-and-place
+        & Avg. \\
+        \midrule
+        \multirow{2}{*}{\textsc{CaP-Agent0}}
+            & No Play
+             & 14.0 & 36.0 & 23.0 & 11.0 & 21.0 \\
+            & Curious Play
+             & 17.0 & 62.0 & 14.0 & 10.0 & 25.8 \\
+        \midrule
+        \multirow{2}{*}{\textsc{RATs Exec.}}
+            & No Play
+             & 11.0 & 65.0 & \textbf{45.0} & 10.0 & 32.8 \\
+            & Curious Play
+             & \textbf{20.0} & \textbf{73.0} & 37.0 & \textbf{22.0} & \textbf{38.0} \\
+        \bottomrule
+    \end{tabular}
+    }
+\end{table}
+
+
+\subsection{Token Cost Analysis}
+\label{sec:token_cost_analysis}
+
+Because \textsc{RATs} relies heavily on Large Language Models (LLMs) for task proposal, planning,
+code generation, and failure diagnosis, we provide a detailed analysis of the token consumption
+during both the autonomous play phase and the test-time evaluation phase. All LLM calls documented
+in this section utilized \texttt{gpt-5.5}.
+
+\textbf{Play-Time Token Consumption.} We analyzed a play-mode run in the
+\texttt{libero\_spatial} environment. Over the play iterations, where each iteration is budgeted with
+a maximum of five attempts, token consumption is heavily skewed toward failed iterations that
+exhaust the retry budget. A component-wise breakdown in Table~\ref{tab:play_time_tokens} shows
+that the Write-Execute-Verify-Diagnose loop is the primary cost driver. This indicates that while
+intrinsic task proposal is relatively token-efficient, extracting diagnostics and revising policies from
+repeated physical failures remains the dominant computational expense during play.
+
+\begin{table}[htbp]
+    \centering
+    \caption{\textbf{Play-time token consumption by each agent component (10 iterations).}}
+    \label{tab:play_time_tokens}
+    \begin{tabular}{lrr}
+        \toprule
+        \textbf{Agent Role} & \textbf{Total Tokens} & \textbf{Share (\%)} \\
+        \midrule
+        Failure Diagnoser & 2,071,881 & 40.5\% \\
+        Policy Writer & 1,472,949 & 28.8\% \\
+        Failure Memory Distillation & 993,770 & 19.4\% \\
+        Verifier & 194,318 & 3.8\% \\
+        Memory Curator & 111,563 & 2.2\% \\
+        Task Proposer & 98,505 & 1.9\% \\
+        Planner & 78,359 & 1.5\% \\
+        Environment Creator & 31,616 & 0.6\% \\
+        Skill Library (Duplicate Check) & 31,377 & 0.6\% \\
+        Skill Proposer & 30,969 & 0.6\% \\
+        Feedback Generator & 5,875 & 0.1\% \\
+        \midrule
+        \textbf{Total} & \textbf{5,121,182} & \textbf{100.0\%} \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\textbf{Compute-Matched Test-Time Comparison.} To ensure a fair comparison, we account for the
+upfront token cost incurred by \textsc{RATs} during autonomous play. A full 50-iteration play phase
+consumes approximately 30M tokens. We amortize this play-time cost across the 60 held-out tasks in
+LIBERO-PRO.
+
+The baseline \textsc{CaP-Agent0} consumes approximately 1.6M tokens per task under a standard
+10-turn retry budget. Adding the amortized play-time token cost of \textsc{RATs} to this baseline
+grants \textsc{CaP-Agent0} a larger test-time compute budget, allowing it to run for roughly 15 turns
+per task. We therefore evaluate a compute-matched baseline, \textsc{CaP-Agent0} with a 15-turn
+budget, and compare it against the standard 10-turn \textsc{CaP-Agent0} agent augmented with the
+skill library learned by \textsc{RATs} through Curious Play. This comparison isolates whether the
+same additional token budget is more useful when spent reactively on extra test-time retries or
+proactively on play-time skill acquisition.
+
+\begin{table}[htbp]
+    \centering
+    \caption{\textbf{Compute-matched performance comparison on LIBERO-PRO.} The
+    \textsc{CaP-Agent0} (15 turns) baseline is granted additional retry budget at test time to match
+    the amortized token cost that \textsc{RATs} spent during play-time. The \textsc{CaP-Agent0} +
+    \textsc{RATs} Skills row uses the standard 10-turn \textsc{CaP-Agent0} test-time system, with
+    skills learned from 50 iterations of Curious Play.}
+    \label{tab:compute_matched_comparison}
+    \resizebox{\textwidth}{!}{%
+    \begin{tabular}{lccccccr}
+        \toprule
+        \multirow{2}{*}{\textbf{Method}} & \multicolumn{2}{c}{\textbf{Object}} & \multicolumn{2}{c}{\textbf{Goal}} & \multicolumn{2}{c}{\textbf{Spatial}} & \multirow{2}{*}{\textbf{Avg.}} \\
+        \cmidrule(lr){2-3} \cmidrule(lr){4-5} \cmidrule(lr){6-7}
+        & Pos. & Task & Pos. & Task & Pos. & Task & \\
+        \midrule
+        \textsc{CaP-Agent0} (10 turns) & 27.0 & 31.0 & 29.0 & 16.0 & 13.0 & 23.0 & 23.2 \\
+        \textsc{CaP-Agent0} (15 turns, compute-matched) & 28.0 & 32.0 & 30.0 & \textbf{24.0} & \textbf{22.0} & 20.0 & 26.0 \\
+        \textsc{CaP-Agent0} (10 turns) + \textsc{RATs} Skills from Play
+        & \textbf{51.0} & \textbf{47.0} & \textbf{34.0} & 20.0 & 19.0 & \textbf{23.0} & \textbf{32.3} \\
+        \bottomrule
+    \end{tabular}%
+    }
+\end{table}
+
+As shown in Table~\ref{tab:compute_matched_comparison}, simply allocating more test-time compute
+to the baseline yields only modest improvements, increasing average success from 23.2\% to 26.0\%.
+In contrast, spending the comparable compute budget proactively during play-time and then reusing
+the learned skills with the same 10-turn \textsc{CaP-Agent0} test-time system improves average
+success to 32.3\%. This result indicates that the gain does not come merely from giving the agent
+more inference-time retries. Instead, play-time computation is more effective when it is distilled into
+a reusable skill library that can be retrieved and composed for held-out tasks.

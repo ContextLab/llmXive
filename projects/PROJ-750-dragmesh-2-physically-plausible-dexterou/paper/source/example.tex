@@ -1,0 +1,493 @@
+\documentclass{article}
+
+\usepackage[preprint]{corl_2026} %
+
+
+\usepackage[T1]{fontenc}
+\usepackage{amsmath, amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{colortbl}
+\usepackage{makecell} 
+\usepackage{enumitem}
+\usepackage{wrapfig}
+\usepackage[linesnumbered,ruled,vlined]{algorithm2e}
+
+\title{DragMesh-2: Physically Plausible Dexterous Hand-Object Interaction with Articulated Objects} 
+
+
+
+
+\author{
+Tianshan Zhang$^{*}$\quad
+Yijia Duan$^{*}$\quad
+Yanjun Li$^{*}$\quad
+Zeyu Zhang$^{*\dag}$\quad
+Hao Tang$^{\ddag}$
+\\
+[0.3em]
+School of Computer Science, Peking University\\
+[0.1em]
+\footnotesize $^*$Equal contribution.
+$^\dag$Project lead.
+$^\ddag$Corresponding author: bjdxtanghao@gmail.com.
+}
+
+
+
+\begin{document}
+\maketitle
+
+
+\begin{abstract}
+Dexterous interaction with articulated objects is important for household, assistive, and humanoid manipulation, where multi-finger hands can provide compliant contact patterns beyond parallel-jaw grasping. However, articulated-object manipulation differs from static-object manipulation: the target part cannot be directly actuated, and its motion must emerge through sustained physical hand--handle contact. This makes the transition from object-centric articulated generation to hand-driven dexterous hand--object interaction non-trivial, since geometric trajectory replay or open-loop execution does not model the contact dynamics required to move the articulated part. Moreover, policies trained only for task completion under fixed dynamics can overfit nominal contact loads, especially without tactile or force feedback, and may degrade when the contact load changes. To address these challenges, we present DragMesh-2, a contact-driven framework for dexterous interaction with articulated objects that extends articulated interaction from object-centric generation to hand-driven dexterous hand--object interaction, where articulated motion must arise through physical contact. We further propose PICA, a physically informed contact-aware training mechanism that injects physical signals into policy learning without tactile or force feedback, improving robustness and task success under changing contact loads. Finally, we conduct systematic evaluation across multiple damping conditions and articulated-object categories to study robustness under contact-load variation, and provide a pure-geometry dexterous interaction resource to support future loco-manipulation and humanoid hand--object interaction research. Across seven GAPartNet objects, DragMesh-2 achieves stronger robustness under contact-load variation than the compared methods while maintaining high task success across damping conditions.
+Code: \url{https://github.com/AIGeeksGroup/DragMesh-2}.
+Website: \url{https://aigeeksgroup.github.io/DragMesh-2}. 
+\end{abstract}
+
+\keywords{Dexterous Manipulation, Articulated Object Manipulation, Hand-Object Interaction}
+
+
+\section{Introduction}
+
+Dexterous hand interaction with articulated objects~\cite{okami2024,bao2023dexart,jing2025humanoidgen,lu2025h,lee2025stageact,wang2026paws} is a central problem in robot manipulation and is important in household robotics, assistive systems, and humanoid manipulation settings. Compared with parallel-jaw grippers, dexterous hands provide more compliant multi-finger contact patterns~\cite{liu2023dexrepnet,xu2026contact,dexvla2025}. In recent years, understanding and interacting with articulated objects~\cite{gao2025partrm,liu2025building,le2025articulate,wu2026dipo,wang2025adamanip,wu2022vatmart,Wang2025articubot,zhao2025tac} has become an important research topic in robotics and 3D intelligence. Existing work has mainly focused on articulated structure modeling, motion constraint reasoning, and articulated motion generation. Our previous work, DragMesh~1~\cite{zhang2025dragmesh}, showed that explicit articulation priors can convert user interaction into articulated motion that follows kinematic constraints, enabling object-centric articulated interaction.
+
+However, unlike static objects, articulated objects cannot be directly controlled. Their motion must emerge through sustained hand--object contact, making the transition from object-centric generation to realistic hand--object interaction (HOI) non-trivial. Naive strategies based on geometric trajectory replay, open-loop execution, or direct state control often fail to capture contact dynamics. More importantly, existing reinforcement learning methods are typically trained under fixed dynamics and optimize task completion as the sole objective. Without tactile or force feedback, policies tend to overfit nominal dynamics and rely on dynamics shortcuts rather than learning stable contact behaviors. As a result, a policy that succeeds under nominal damping often degrades rapidly when contact loads change, such as under increased damping. In other words, success under nominal dynamics does not necessarily imply stable contact behavior.
+
+To address these challenges, we propose DragMesh-2, a contact-driven framework for dexterous interaction with articulated objects. DragMesh-2 formulates articulated-object manipulation as a problem that must be completed through real hand--handle interaction: articulated parts cannot be directly controlled, and their motion can only arise through physical interaction between the dexterous hand and the articulated structure. Building on this framework, we further introduce PICA (Physically Informed Contact-Aware) training to improve robustness under changing contact loads without requiring additional force sensing. PICA explicitly injects physically informed signals into policy learning through contact-aware constraints and dynamics randomization, mitigating action saturation, contact detachment, and overfitting to a single dynamics condition. We further combine PICA with temporal contact-response modeling to improve policy representations of changing interaction states. In summary, the main contributions of this work include:
+
+\begin{itemize}[leftmargin=1.2em]
+
+\item We introduce DragMesh-2, a contact-driven framework that extends DragMesh-style articulated interaction from object-centric motion generation to dexterous hand--object interaction. In DragMesh-2, the policy controls only the hand, the target joint has no action channel, and articulated motion must emerge through sustained physical hand--handle contact.
+
+\item  We propose PICA, a physically informed contact-aware training mechanism that injects observable physical signals into policy learning, including contact maintenance, detachment risk, action-boundary regularization, damping variation, and temporal contact response. PICA shifts learning from task-progress-only optimization toward contact-conditioned interaction, improving robustness under contact-load changes without tactile or force feedback.
+
+\item We construct a systematic evaluation protocol across multiple damping conditions and articulated-object categories, together with a pure-geometry dexterous interaction dataset. The protocol evaluates not only task success but also contact-aware diagnostics such as action saturation and detachment, while the generated trajectories provide geometry-guided grasp initialization, task-scale normalization, and tracking references for reproducible contact-driven interaction.
+    
+\end{itemize}
+
+
+\section{Related Work}
+
+\textbf{Articulated Object Understanding and Manipulation.}
+Articulated objects are common in human environments, but their constrained part motions make perception and manipulation more challenging than rigid-object interaction. Existing studies address articulated object understanding through part-level perception, pose estimation, and shape representation~\cite{geng2023gapartnet,li2020category,mu2021sdf,zhang2026dicart}, joint parameter prediction~\cite{wang2019shape2motion,jain2021screwnet,jiang2022ditto}, and interactive simulation platforms~\cite{makoviychuk2021isaac,xiang2020sapien}. For manipulation, prior methods either infer articulation models for downstream planning~\cite{buchanan2026online} or learn actionable representations and policies from observations~\cite{mo2021where2act,xu2022umpnet,eisner2022flowbot3d}. These efforts, however, mainly target object- or scene-level manipulation with mobile manipulators, grippers, or simplified end-effectors, rather than multi-finger contact-rich interaction with articulated parts. Dexterous interaction with articulated objects remains less explored, as it requires physically compatible coordination between multi-finger contacts and moving object parts.
+
+\textbf{Dexterous Hand-Object Manipulation.}
+Classical dexterous manipulation methods modeled multi-finger coordination through contact mechanics, grasp stability, and force closure~\cite{bicchi1995closure,okamura2000overview}. Although theoretically grounded, they require accurate geometry and contact models, which restricts their applicability to diverse objects and uncertain dynamics. Reinforcement learning reduces reliance on explicit modeling by learning high-DoF control policies directly from interaction, and has achieved strong performance on rigid-object in-hand manipulation~\cite{andrychowicz2020learning,rajeswaran2018learning,chen2021system}. Since such policies often require costly exploration, imitation learning and teleoperation-based methods introduce demonstrations and hand-object datasets as behavioral priors~\cite{qin2022dexmv,yang2022oakink,qin2023anyteleop,liu2022hoi4d}. More recent work extends these efforts from rigid-object settings to articulated-object settings, introducing dexterous manipulation benchmarks and hand-object interaction datasets~\cite{bao2023dexart,fan2023arctic}. However, many of these learning pipelines are still primarily evaluated by task progress or success, whereas physically compatible interaction also requires stable contacts, limited interpenetration, and coordinated motion between fingers and articulated parts.
+
+\textbf{Physics-Grounded Manipulation Learning.}
+Vision-based teleoperation has enabled dexterous manipulation from visual observations~\cite{handa2020dexpilot,qin2022onehand}, while domain-randomized policy learning has demonstrated autonomous dexterous control without tactile sensing~\cite{andrychowicz2020learning}. In these approaches, contact and dynamics variations are handled through data diversity or domain randomization, without explicitly representing physical variation as a deploy-time adaptation variable. Sim-to-real adaptation methods instead condition policies on dynamics parameters or latent environment factors inferred from recent interaction history during deployment~\cite{yu2017preparing,kumar2021rma}. Such factors are typically low-dimensional and global, making them less suited for capturing the local, state-dependent responses that vary with handle geometry, finger configuration, contact state, and part motion. This motivates PICA to use short-horizon interaction history as a task-level signal for contact-rich articulated manipulation.
+
+Reliable execution of such policies further demands regularized action generation, since saturated joint commands can break contact and destabilize articulated motion. Reward penalties couple action regularization with the task reward and require manual weight tuning. Constrained reinforcement learning~\cite{achiam2017constrained,tessler2019reward} formalizes the separation between task objectives and control constraints through Constrained MDPs and Lagrangian optimization. Motivated by this formulation, PICA introduces separate action-bound and contact-preserving regularization terms alongside the task reward.
+
+
+
+
+
+
+\section{Method}
+\label{sec:method_main}
+
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{fig/image.png}
+\caption{Architecture of DragMesh-2.}
+\label{fig:framework_overview}
+\end{figure*}
+
+\subsection{Contact-Driven Task Formulation}
+\label{sec:task_formulation}
+
+DragMesh-2 defines a contact-driven pulling task for a 51-DoF
+SMPL-X hand, including 6 virtual wrist DoFs and 45 finger joints.
+The policy controls only the hand. The object joint has no action
+channel, so the target part can move only through hand--handle
+contact. For each GAPartNet object, the target joint is selected as
+the object DoF with the largest motion range in a geometry-guided
+reference trajectory. The success threshold is set by the relative
+motion range of that trajectory,
+\begin{equation}
+q_{\mathrm{done}} = q_{\min}^{\mathrm{traj}}
++ \rho\,(q_{\max}^{\mathrm{traj}}-q_{\min}^{\mathrm{traj}}),
+\label{eq:done_main}
+\end{equation}
+and task progress is normalized by the same object-specific range,
+\begin{equation}
+p_t = \max\!\left(0,\,
+\frac{q_t^o-q_{\mathrm{start}}}{q_{\mathrm{goal}}-q_{\mathrm{start}}}
+\right).
+\label{eq:progress_main}
+\end{equation}
+This definition makes drawers, sliders, and doors comparable without
+using a fixed absolute joint displacement.
+
+The observation contains hand joint positions and velocities, handle
+pose, relative palm--handle geometry, target-joint state, and
+task-scale features derived from progress and remaining distance to
+the success threshold. It does not include RGB, depth, point clouds,
+force, or tactile signals. The action is a 51-dimensional increment
+to the hand PD target, clipped to the joint limits before execution.
+The reference trajectory is used only to initialize the expert grasp,
+define the target motion scale, and provide a non-learned tracking
+baseline; it is not replayed as an object-control command and does
+not provide expert action labels.
+
+
+\subsection{Physically Informed Contact-Aware Learning}
+\label{sec:pica}
+
+The reference policy instantiates the PICA signal mechanism with PPO~\cite{schulman2017proximal},
+not as a new RL algorithm, but as a controlled policy for the
+benchmark. A history token combines the current PD tracking error
+and previous action,
+\begin{equation}
+h_t=[e_t,a_{t-1}],\quad e_t=q_t^{\mathrm{PD}}-q_t^h,
+\label{eq:token_main}
+\end{equation}
+and a GLA encoder\cite{yang2024gated} maps the recent token block to a contact-history
+feature. A causal-window auxiliary head predicts observable contact
+responses from this feature:
+\begin{equation}
+y_t = \left[
+q_t^o-q_{t-K}^o,\;
+\max_{\tau\in[t-K,t]}d_\tau,\;
+\mathbb{1}\!\left(\max_{\tau\in[t-K,t]}d_\tau>d_{\mathrm{detach}}\right),\;
+\max_{\tau\in[t-K,t]}\lVert e_\tau\rVert_2
+\right].
+\label{eq:aux_main}
+\end{equation}
+
+
+
+
+The four targets describe recent object response, maximum
+palm--handle distance, detachment risk, and tracking stress. PICA
+incorporates these physical signals in both the environment and policy
+levels. At the environment level, the reward augments task progress
+with contact maintenance, action regularization, detachment handling,
+and successful termination:
+\begin{equation}
+r_t =
+r_{\mathrm{task}}
++ r_{\mathrm{dist}}
++ r_{\mathrm{act}}
++ r_{\mathrm{time}}
++ r_{\mathrm{detach}}
++ r_{\mathrm{success}}
++ r_{\mathrm{bound}}
++ r_{\mathrm{contact}} .
+\label{eq:pica_reward_main}
+\end{equation}
+Here $r_{\mathrm{dist}}$, $r_{\mathrm{bound}}$, and
+$r_{\mathrm{contact}}$ encourage contact maintenance and suppress
+unsafe separation or saturated control, while the detachment term is
+triggered only after the hand has entered and then leaves the effective
+contact range.
+
+At the policy level, PICA constrains the temporal representation
+through contact-response prediction:
+\begin{equation}
+\mathcal{L} =
+\mathcal{L}_{\mathrm{PPO}}
++ c_v \mathcal{L}_V
++ c_b \mathcal{L}_{\mathrm{bounds}}
++ w_{\mathrm{aux}} \mathcal{L}_{\mathrm{aux}} .
+\label{eq:pica_objective_main}
+\end{equation}
+The auxiliary loss updates the temporal encoder to predict recent
+object response, maximum palm--handle distance, detachment risk, and
+tracking stress. Thus, PICA augments PPO with observable physical
+proxies that bias policy learning away from nominal-success shortcuts
+and toward contact-conditioned interaction. Full coefficient values,
+network settings, and inference parameters are provided in
+Appendix~\ref{sec:framework}.
+
+
+
+
+Evaluation reports task success and progress together with physical
+diagnostics. \texttt{clip099} is the fraction of rollout steps whose
+maximum action magnitude exceeds $0.99$, and
+\texttt{detach\_proxy} is the detachment-failure rate. For damping
+set $\mathcal{B}=\{\times1,\times2,\times4\}$ and execution mode
+$m\in\{\mathrm{det},\mathrm{stoch}\}$, robustness is summarized as
+\begin{equation}
+\bar S_m=\frac{1}{|\mathcal{B}|}\sum_{b\in\mathcal{B}}S_{b,m},
+\quad
+S^{\mathrm{worst}}_m=\min_{b\in\mathcal{B}}S_{b,m}.
+\label{eq:robust_main}
+\end{equation}
+The disaggregated per-damping success values remain important
+because averages can hide failure under strong damping.
+
+
+\subsection{Dataset}
+\label{sec:dataset}
+
+The reference contact trajectories are drawn from a dataset that we
+generate heuristically, without any learning, directly from GAPartNet
+geometry. For each articulated object, a geometry-guided procedure
+reads the part, handle, and joint-mobility annotations together with a
+SMPL-X hand model, and emits a phased interaction
+trajectory---approach, grasp, drag, and release---whose wrist and
+finger motion is geometrically consistent with the target joint (full
+procedure in Appendix~\ref{sec:trajgen}, Algorithm~\ref{alg:trajectory_generation}).
+Each trajectory is stored as a JSON file of per-frame wrist poses and
+finger configurations, so the dataset is independent of any policy or
+physics backend and can be regenerated for any GAPartNet object that
+carries the required annotations.
+
+The dataset contains $277$ trajectories over $7$ GAPartNet categories
+(Table~\ref{tab:dataset}). Its distribution follows that of GAPartNet
+and is dominated by StorageFurniture, the largest articulated-object
+category. Within DragMesh-2 the dataset plays three roles: it
+initializes the expert grasp state and target motion scale for the
+contact-driven reinforcement-learning task, it defines the non-learned
+trajectory-tracking baseline, and we release it as a pure-geometry
+interaction resource for future contact-rich and whole-body
+loco-manipulation research.
+
+
+
+
+\begin{wraptable}[12]{R}{0.38\textwidth}
+    \vspace{-1.0em}
+    \centering
+    \caption{Heuristic trajectory dataset.}
+    \label{tab:dataset}
+    \small
+    \setlength{\tabcolsep}{4pt}
+    \begin{tabular}{lc}
+        \toprule
+        Category & \#\,Traj. \\
+        \midrule
+        StorageFurniture & 256 \\
+        TrashCan         & 7 \\
+        Dishwasher       & 5 \\
+        Refrigerator     & 4 \\
+        Oven             & 3 \\
+        Microwave        & 1 \\
+        TableObject           & 1 \\
+        \midrule
+        Total            & 277 \\
+        \bottomrule
+    \end{tabular}
+    \vspace{-1.0em}
+\end{wraptable}
+
+
+
+
+
+\section{Experiments}
+\label{sec:result}
+\label{sec:exp_main}
+
+We evaluate on a benchmark of 7 GAPartNet objects spanning three categories (Dishwasher, StorageFurniture, Microwave) and two joint types (5 revolute doors and 2 prismatic drawers). All episodes start from the expert grasp state, and the target part can be opened only through hand--handle contact (Figure~\ref{fig:qual}); the reference contact trajectories that provide this initialization come from our heuristically generated dataset (Section~\ref{sec:dataset}, Contribution~3). Each (method, object, damping, mode) cell uses 20 episodes. Deterministic execution uses the Gaussian mean, while stochastic execution samples from the learned policy. The damping multipliers $\times1$, $\times2$, and $\times4$ measure nominal performance, mild contact-load shift, and strong out-of-distribution (OOD) contact-load shift, respectively.
+
+We compare against a trajectory-tracking replay reference, a GT-part-pose parallel-jaw primitive, and four learned baselines: state-only PPO, flat-history PPO, GRU-PPO, and Transformer-PPO. We further ablate the two physical-structure components of PICA by removing either the physical signals or the GLA temporal encoder. Beyond task success, the contact-aware protocol logs the action-saturation ratio and detachment-failure rate (Appendix~\ref{sec:protocol}); these diagnostics, training hyperparameters, and the full baseline taxonomy are reported in Appendix~\ref{sec:exp}.
+
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{fig/fig_main_grouped.pdf}
+\caption{Success rate across damping multipliers ($\times 1$, $\times 2$, $\times 4$) under deterministic (A) and stochastic (B) execution, averaged over 7 GAPartNet objects (20 episodes each). We compare a non-learned GT-part-pose parallel-jaw primitive with seven learned methods, including recurrent (GRU-PPO) and Transformer baselines; the primitive is deterministic, so its value is identical across execution modes. Adding physical signals and the GLA encoder yields consistent gains, and PICA attains the highest mean success in all six mode$\times$damping settings and retains the highest absolute success under strong damping ($0.56$ deterministic at $\times4$, versus $0.27$ for state-only PPO and $0.09$ for Transformer-PPO).}
+\label{fig:main_grouped}
+\end{figure*}
+
+
+
+
+
+\begin{table*}[t]
+\centering
+\caption{Per-object success on 7 GAPartNet objects across damping multipliers ($\times1$ nominal, $\times2$ mild, $\times4$ OOD). Each cell is deterministic\,/\,stochastic success (mean over 20 episodes). Trajectory tracking is an open-loop replay reference (deterministic) and the parallel-jaw primitive is deterministic, so both have no stochastic value. The best learned-policy deterministic Avg per damping is in bold.}
+\label{tab:main_comparison}
+\setlength{\tabcolsep}{4pt}\footnotesize
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{llcccccccc}
+\toprule
+\multicolumn{2}{l}{} & \multicolumn{8}{c}{Per-object success (deterministic\,/\,stochastic)} \\
+\cmidrule(lr){3-10}
+Method & Damp & \shortstack{12583\\{\scriptsize Dishwasher}\\{\scriptsize door}} & \shortstack{45261\\{\scriptsize StorageFurn.}\\{\scriptsize drawer}} & \shortstack{45661\\{\scriptsize StorageFurn.}\\{\scriptsize door}} & \shortstack{45936\\{\scriptsize StorageFurn.}\\{\scriptsize door}} & \shortstack{46440\\{\scriptsize StorageFurn.}\\{\scriptsize drawer}} & \shortstack{48513\\{\scriptsize StorageFurn.}\\{\scriptsize door}} & \shortstack{7310\\{\scriptsize Microwave}\\{\scriptsize door}} & Avg \\
+\midrule
+\multirow{3}{*}{Traj.\ tracking} & $\times1$ & 1.00 & 1.00 & 1.00 & 1.00 & 1.00 & 1.00 & 1.00 & 1.00 \\
+ & $\times2$ & 1.00 & 1.00 & 1.00 & 0.00 & 1.00 & 1.00 & 0.00 & 0.71 \\
+ & $\times4$ & 1.00 & 1.00 & 1.00 & 0.00 & 1.00 & 1.00 & 0.00 & 0.71 \\
+\midrule
+\multirow{3}{*}{Parallel-Jaw} & $\times1$ & 1.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.14 \\
+ & $\times2$ & 1.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.14 \\
+ & $\times4$ & 1.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.14 \\
+\midrule
+\multirow{3}{*}{State-only PPO} & $\times1$ & 1.00/0.95 & 0.10/0.20 & 0.00/0.00 & 1.00/0.20 & 0.95/0.90 & 1.00/0.85 & 0.00/0.00 & 0.58/0.44 \\
+ & $\times2$ & 0.95/0.50 & 0.10/0.10 & 0.00/0.00 & 0.05/0.10 & 1.00/0.95 & 0.95/0.80 & 0.00/0.00 & 0.44/0.35 \\
+ & $\times4$ & 0.00/0.05 & 0.10/0.10 & 0.00/0.00 & 0.00/0.00 & 0.85/0.85 & 0.95/0.80 & 0.00/0.00 & 0.27/0.26 \\
+\midrule
+\multirow{3}{*}{Flat-history PPO} & $\times1$ & 0.10/0.10 & 1.00/0.90 & 0.05/0.45 & 0.25/0.25 & 0.65/0.20 & 0.00/0.05 & 0.95/0.45 & 0.43/0.34 \\
+ & $\times2$ & 0.00/0.00 & 1.00/0.70 & 0.40/0.35 & 0.00/0.00 & 0.65/0.05 & 0.00/0.20 & 0.45/0.05 & 0.36/0.19 \\
+ & $\times4$ & 0.00/0.00 & 1.00/0.80 & 0.50/0.30 & 0.00/0.00 & 0.75/0.20 & 0.00/0.20 & 0.00/0.00 & 0.32/0.21 \\
+\midrule
+\multirow{3}{*}{GRU-PPO} & $\times1$ & 0.60/0.15 & 0.20/0.10 & 1.00/0.90 & 0.00/0.00 & 1.00/1.00 & 0.50/0.75 & 0.30/0.15 & 0.51/0.44 \\
+ & $\times2$ & 0.00/0.00 & 0.00/0.05 & 1.00/0.95 & 0.00/0.00 & 1.00/0.85 & 0.00/0.00 & 0.30/0.05 & 0.33/0.27 \\
+ & $\times4$ & 0.00/0.00 & 0.00/0.05 & 1.00/1.00 & 0.00/0.00 & 1.00/0.90 & 0.00/0.00 & 0.10/0.00 & 0.30/0.28 \\
+\midrule
+\multirow{3}{*}{Transformer-PPO} & $\times1$ & 1.00/0.65 & 0.00/0.00 & 0.00/0.00 & 0.00/0.00 & 0.45/0.20 & 0.85/0.70 & 0.15/0.20 & 0.35/0.25 \\
+ & $\times2$ & 0.90/0.25 & 0.00/0.05 & 0.00/0.00 & 0.00/0.00 & 0.40/0.25 & 0.15/0.10 & 0.15/0.15 & 0.23/0.11 \\
+ & $\times4$ & 0.00/0.00 & 0.00/0.00 & 0.00/0.00 & 0.00/0.00 & 0.60/0.25 & 0.00/0.00 & 0.00/0.00 & 0.09/0.04 \\
+\midrule
+\multirow{3}{*}{PICA (Ours)} & $\times1$ & 1.00/1.00 & 1.00/1.00 & 0.85/0.90 & 0.90/0.55 & 1.00/0.75 & 0.95/0.85 & 0.55/0.70 & \textbf{0.89}/0.82 \\
+ & $\times2$ & 1.00/0.95 & 0.90/0.90 & 0.80/0.70 & 0.65/0.45 & 1.00/0.70 & 0.70/0.80 & 0.55/0.55 & \textbf{0.80}/0.72 \\
+ & $\times4$ & 0.95/0.95 & 1.00/0.95 & 0.60/0.65 & 0.25/0.00 & 0.85/0.15 & 0.10/0.30 & 0.15/0.00 & \textbf{0.56}/0.43 \\
+\bottomrule
+\end{tabular}}
+\end{table*}
+
+
+
+
+
+
+
+\paragraph{Main comparison.}
+
+Figure~\ref{fig:main_grouped} and Table~\ref{tab:main_comparison} report the main comparison, and four findings stand out. First, the trajectory-tracking reference reaches $1.00$ deterministic success at $\times1$ on all seven objects, confirming the reference trajectory genuinely drives the target part through contact rather than replaying object states, but its average drops to $0.71$ at $\times2$ and $\times4$ as two objects (45936 and 7310) lose contact once damping rises---open-loop replay alone is not OOD-robust. Second, the GT-part-pose parallel-jaw primitive succeeds on only one object ($0.14$ mean) and is damping-invariant, showing that a geometric primitive cannot substitute for closed-loop dexterous contact control even when the part pose is known. Third, among learned policies PICA attains the best mean in every damping/mode column: deterministic success goes from $0.89$ at $\times1$ to $0.56$ at $\times4$, versus $0.27$ for state-only PPO, $0.32$ for flat-history PPO, $0.30$ for a GRU policy, and $0.09$ for a Transformer policy over the same observation. Fourth, adding richer temporal encoders alone does not close the gap: GRU and Transformer baselines, like the GLA-only ablation (Table~\ref{tab:ablation}, $0.36$ at $\times4$), all lag PICA by at least $0.13$ at $\times4$; the win is therefore the combination of physical signals with temporal contact-response modeling, not the temporal encoder by itself. The per-object numbers also reveal substantial heterogeneity---no single method dominates every instance---which we revisit as a limitation.
+
+
+
+\begin{table*}[t]
+\centering
+\caption{Per-object ablation of the two physical-structure components across damping multipliers. Each cell is deterministic\,/\,stochastic success. \emph{w/o PICA} keeps the GLA temporal encoder but drops the physical signals; \emph{w/o GLA} keeps the physical signals with a flat-history encoder. The best deterministic Avg per damping is in bold.}
+\label{tab:ablation}
+\setlength{\tabcolsep}{4pt}\footnotesize
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{llcccccccc}
+\toprule
+\multicolumn{2}{l}{} & \multicolumn{8}{c}{Per-object success (deterministic\,/\,stochastic)} \\
+\cmidrule(lr){3-10}
+Method & Damp & \shortstack{12583\\{\scriptsize Dishwasher}\\{\scriptsize door}} & \shortstack{45261\\{\scriptsize StorageFurn.}\\{\scriptsize drawer}} & \shortstack{45661\\{\scriptsize StorageFurn.}\\{\scriptsize door}} & \shortstack{45936\\{\scriptsize StorageFurn.}\\{\scriptsize door}} & \shortstack{46440\\{\scriptsize StorageFurn.}\\{\scriptsize drawer}} & \shortstack{48513\\{\scriptsize StorageFurn.}\\{\scriptsize door}} & \shortstack{7310\\{\scriptsize Microwave}\\{\scriptsize door}} & Avg \\
+\midrule
+\multirow{3}{*}{w/o PICA (GLA only)} & $\times1$ & 1.00/1.00 & 1.00/1.00 & 0.00/0.40 & 0.35/0.50 & 0.85/0.40 & 0.45/0.70 & 0.90/0.75 & 0.65/0.68 \\
+ & $\times2$ & 1.00/1.00 & 1.00/1.00 & 0.05/0.35 & 0.25/0.30 & 0.45/0.40 & 0.40/0.70 & 0.80/0.70 & 0.56/0.64 \\
+ & $\times4$ & 0.95/0.75 & 1.00/0.90 & 0.00/0.20 & 0.05/0.05 & 0.00/0.05 & 0.10/0.30 & 0.45/0.20 & 0.36/0.35 \\
+\midrule
+\multirow{3}{*}{w/o GLA (PICA only)} & $\times1$ & 1.00/1.00 & 0.95/0.85 & 0.00/0.00 & 1.00/0.95 & 1.00/1.00 & 0.45/0.65 & 0.85/0.95 & 0.75/0.77 \\
+ & $\times2$ & 1.00/0.85 & 0.85/0.85 & 0.00/0.00 & 1.00/0.70 & 1.00/1.00 & 0.50/0.35 & 0.65/0.25 & 0.71/0.57 \\
+ & $\times4$ & 0.05/0.00 & 0.90/0.95 & 0.00/0.00 & 0.80/0.40 & 1.00/1.00 & 0.25/0.15 & 0.00/0.00 & 0.43/0.36 \\
+\midrule
+\multirow{3}{*}{PICA (Ours)} & $\times1$ & 1.00/1.00 & 1.00/1.00 & 0.85/0.90 & 0.90/0.55 & 1.00/0.75 & 0.95/0.85 & 0.55/0.70 & \textbf{0.89}/0.82 \\
+ & $\times2$ & 1.00/0.95 & 0.90/0.90 & 0.80/0.70 & 0.65/0.45 & 1.00/0.70 & 0.70/0.80 & 0.55/0.55 & \textbf{0.80}/0.72 \\
+ & $\times4$ & 0.95/0.95 & 1.00/0.95 & 0.60/0.65 & 0.25/0.00 & 0.85/0.15 & 0.10/0.30 & 0.15/0.00 & \textbf{0.56}/0.43 \\
+\bottomrule
+\end{tabular}}
+\end{table*}
+
+
+
+\paragraph{Ablation.}
+Table~\ref{tab:ablation} isolates the two physical-structure
+components of PICA. Using only the GLA temporal encoder (without the
+physical signals) reaches $0.65$ deterministic success at $\times1$
+and $0.36$ at $\times4$; using only the physical signals (with a
+flat-history encoder) reaches $0.75$ and $0.43$; combining the two
+reaches $0.89$ and $0.56$. The full model exceeds either component by
+at least $0.13$ at $\times4$, and the components help along different
+axes---the physical signals contribute more under nominal damping
+while the temporal encoder helps more under stochastic
+mid-damping---so they are complementary rather than redundant.
+
+\paragraph{Nominal success masks saturation collapse.}
+To show that nominal success alone is misleading, we vary only the
+training length of the base policy on a single object, before any
+contact-stabilization fine-tuning (Table~\ref{tab:trainlen}).
+Deterministic nominal ($\times1$) success \emph{rises} from $0.90$ to
+$1.00$ as training extends from $150$ to $500$ epochs, yet
+strong-damping ($\times4$) success \emph{collapses} from $0.55$ to
+$0.10$ while the action-saturation proxy \texttt{clip099} climbs toward
+$1.0$. Longer training therefore buys nominal success by driving the
+policy into a saturated, low-robustness regime---directly motivating a
+protocol that reports OOD damping and saturation alongside success, and
+checkpoint selection by OOD robustness rather than by training reward.
+
+
+\begin{wraptable}[9]{R}{0.46\textwidth}
+    \vspace{-1.0em}
+    \centering
+    \caption{Training-length study of the base policy.}
+    \label{tab:trainlen}
+    \footnotesize
+    \setlength{\tabcolsep}{3pt}
+    \begin{tabular}{lccc}
+        \toprule
+        Base & Succ. $\times1$ & Succ. $\times4$ & \texttt{clip099} $\times4$ \\
+        \midrule
+        150 ep & 0.90 & \textbf{0.55} & 0.90 \\
+        200 ep & 0.90 & 0.50 & 0.97 \\
+        300 ep & 1.00 & 0.10 & 0.99 \\
+        500 ep & 1.00 & 0.10 & 0.99 \\
+        \bottomrule
+    \end{tabular}
+    \vspace{-1.0em}
+\end{wraptable}
+
+
+\paragraph{Additional studies.}
+Appendix~\ref{sec:exp} reports further studies. Extended fine-tuning and damping-range expansion do not yield stable additional OOD gains, indicating that robustness under strong contact load requires richer contact interfaces rather than longer optimization. We also report rollout-level diagnostics and the contact-aware saturation and detachment metrics that motivate the protocol.
+
+\begin{figure}[t]
+\centering
+\setlength{\tabcolsep}{1.5pt}
+\renewcommand{\arraystretch}{0.4}
+\begin{tabular}{@{}c ccc@{}}
+ & \footnotesize Approach & \footnotesize Grasp & \footnotesize Open \\
+\rotatebox[origin=c]{90}{\footnotesize Hardware} &
+\includegraphics[width=0.30\linewidth]{fig/attach.png} &
+\includegraphics[width=0.30\linewidth]{fig/grasp.png} &
+\includegraphics[width=0.30\linewidth]{fig/open.png} \\
+\rotatebox[origin=c]{90}{\footnotesize Simulation} &
+\includegraphics[width=0.30\linewidth]{fig/qual_41529_1.png} &
+\includegraphics[width=0.30\linewidth]{fig/qual_41529_2.png} &
+\includegraphics[width=0.30\linewidth]{fig/qual_41529_3.png} \\
+\end{tabular}
+\caption{Qualitative illustration of contact-driven articulated interaction.
+Top: a hardware feasibility example showing approach, grasp, and opening through hand--handle contact.
+Bottom: a simulated rollout of the reference policy on a StorageFurniture instance from the dataset.
+The hardware example is included only as a qualitative illustration; all quantitative evaluations are conducted in simulation.}
+\label{fig:qual}
+\end{figure}
+
+
+
+
+
+\section{Limitations and Future Work}
+
+
+DragMesh-2 still has clear limitations, which also point to concrete next steps. First, even with the PICA signals, the learned policy relies on a position-increment action interface and tends toward action saturation under strong contact load: success drops
+from $0.89$ at $\times1$ to $0.56$ at $\times4$, and per-object results remain heterogeneous, so no single policy dominates every instance. Because the observation channel provides no force or tactile feedback, contact state can only be inferred indirectly from kinematic error, which appears insufficient for stable light pulling
+at high damping. A natural next step is therefore to enrich the contact interface, including wrist force or torque outputs and contact-force or tactile feedback, so that the policy can regulate grip force directly rather than push to the actuator boundary.
+
+Second, our task isolates contact-driven pulling from an expert grasp state and controls a floating dexterous hand. The reference contact
+trajectories, however, are full hand--object motion clips that are geometrically consistent with the target joint dynamics, so they extend naturally beyond the hand alone. A promising direction is to couple this upper-body contact interaction with whole-body control, using the dataset as a motion-scale prior for humanoid loco-manipulation, where balance and locomotion must be coordinated with the same physically plausible contact behavior studied here.
+
+
+
+
+\section{Conclusion}
+\label{sec:conclusion}
+
+We presented DragMesh-2, a contact-driven framework for dexterous hand--articulated-object interaction, where the target part moves only through physical hand--handle contact. Extending DragMesh~1 from object-centric articulated interaction to hand-driven physical interaction, DragMesh-2 shows that nominal task success does not guarantee stable contact behavior, since policies trained only for task progress can degrade sharply under contact-load shifts. PICA improves robustness by adding physically informed training signals, dynamics randomization, and temporal contact-response modeling without force or tactile feedback. Across seven GAPartNet objects under nominal, moderate, and out-of-distribution damping, DragMesh-2 achieves stronger robustness than competing methods, and we release a pure-geometry interaction dataset for future whole-body loco-manipulation and humanoid HOI.
+
+
+\clearpage
+\acknowledgments{If a paper is accepted, the final camera-ready version will (and probably should) include acknowledgments. All acknowledgments go at the end of the paper, including thanks to reviewers who gave useful comments, to colleagues who contributed to the ideas, and to funding agencies and corporate sponsors that provided financial support.}
+
+
+\bibliography{example}  %
+
+
+\clearpage
+\input{appendix}
+
+\end{document}

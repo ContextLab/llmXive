@@ -1,0 +1,171 @@
+\section*{Appendix}
+
+\input{sections/2_related_work}
+
+\section{Details of Tools and Experts}
+\label{app:tools}
+
+\paragraph{Level 1 tools.}
+Level 1 contains tools for extracting query-relevant evidence from raw 2D observations. 
+The \texttt{detect\_objects\_tool} performs open-vocabulary 2D object detection using GroundingDINO. 
+Given an image path and a text prompt, it returns bounding boxes, confidence scores, predicted labels, textual location descriptions, and a visualization with detected boxes. 
+This tool converts entities mentioned in the question into localized 2D regions, which serve as the basis for later measurement, counting, and relative-position reasoning.
+
+The \texttt{vlm\_ground\_objects} tool performs multi-frame or multi-image grounding for target entities. 
+It uses a two-stage procedure: first, a VLM performs a visibility vote over candidate frames to determine where the target is visible; second, \texttt{detect\_objects\_tool} is applied to the selected best frame to obtain the final bounding box. 
+The tool returns the best supporting frame, bounding box, VLM confidence, detector confidence, and visualization for each target. 
+This is useful when the target may appear across multiple views or when the referring expression is too complex for direct single-frame detection.
+
+The \texttt{depth\_estimation\_tool} provides lightweight image-level depth cues. 
+Given a single image and optional query points, it returns a depth-map visualization and depth estimates at the specified locations. 
+We use this tool to support simple depth, occlusion, and front/back reasoning at the image level. 
+It should be distinguished from Level 2 geometric lifting, as it provides local image-level depth evidence rather than a full 3D scene representation.
+
+For videos, \textsc{S-Agent} further uses frame or keyframe selection tools, such as \texttt{TStarKeyframeSearchTool}, to identify informative frames before applying the above image-level tools. 
+This reduces redundant visual input and allows the agent to focus subsequent grounding and perception on frames that are most relevant to the current question.
+
+\paragraph{Level 2 tools.}
+Level 2 contains tools for lifting localized 2D evidence into metric 3D geometry. 
+The main tool in our current implementation is \texttt{metric\_depth3d\_tool}, which is built on Depth-Anything-3. 
+Given multiple images and query points or boxes, it estimates metric depth, 3D coordinates, camera poses, and depth visualizations. 
+This tool provides the shared 3D geometric substrate used by downstream spatial experts, especially the Metric Measurement Expert and Relative Position Expert. 
+In our implementation, \texttt{metric\_depth3d\_tool} is the core Level-2 module for stable 2D-to-3D lifting.
+
+\paragraph{Level 3 experts.}
+Level 3 consists of five specialized spatial experts: the Metric Measurement Expert, Counting Expert, Visual Orientation Expert, Relative Position Expert, and Object-Centric View Expert. 
+Each expert integrates the 2D evidence from Level 1 and, when needed, the lifted 3D evidence from Level 2 to produce structured, scene-specific spatial knowledge for the planner.
+
+\begin{itemize}
+\item  \textbf{Metric measurement expert} serves as a geometry-grounded measurement specialist that estimates explicit spatial quantities (e.g., camera-to-object distance, object-to-object distance, and physical object size). 
+% 
+Given target entities specified by the planner, it first reuses or obtains Level-1 evidence as normalized object boxes, and then queries the Level-2 geometric module to recover metric 3D points inside these regions.
+The expert deterministically maps the request to a measurement route, such as \textit{closest-point distance}, \textit{center-to-center distance}, or \textit{longest object dimension}, samples representative points from the grounded boxes, and computes the final value from their recovered 3D coordinates.
+It returns a structured observation containing the \texttt{measurement type, numerical value, unit, confidence, and supporting regions}.
+
+\item \textbf{Counting expert} serves as a detection-grounded aggregation specialist that answers object-counting queries, including single-object counts and condition-aware counts over multiple frames.
+%
+Given target entities or counting constraints specified by the planner, it first reuses or obtains Level-1 evidence by localizing candidate objects with open-vocabulary detection.
+The expert then normalizes the detected boxes across frames, removes duplicated detections with non-maximum suppression, and aggregates the remaining candidates according to the \textit{question-specific counting} target.
+% 
+For \textit{relational or attribute-conditioned counting}, it further uses the available visual or geometric evidence to filter candidates before computing the final count.
+It returns a structured observation containing the \texttt{counted target, numerical count, aggregation mode, confidence, and supporting detections}.
+
+\item \textbf{Visual orientation expert} serves as an appearance-grounded orientation specialist that answers questions about the intrinsic facing direction or pose of an object.
+%
+Given the target object and the original question specified by the planner, it collects the relevant Level-1 visual evidence, such as frames where the object is visible and localized object regions when available.
+The expert then examines orientation cues including object front/back surfaces, handles, screens, openings, symmetry, and surrounding reference context, and maps the observed pose to the candidate directions or options in the question.
+Unlike geometric relation experts that compare object positions in 3D space, this expert focuses on the object's own visual orientation.
+It returns a structured observation containing the \texttt{predicted orientation, confidence, and supporting visual evidence}.
+
+\item \textbf{Relative position expert} serves as a 3D relation specialist that answers directional queries between entities, such as left/right, front/back, and cardinal directions.
+%
+Given the target and reference entities specified by the planner, it first reuses or obtains Level-1 evidence as grounded object boxes, and then queries the Level-2 geometric module to lift these regions into a shared 3D coordinate system.
+The expert deterministically maps the question to a relation route, such as \textit{object-to-object direction, egocentric left/right, viewpoint-conditioned direction, or cardinal-anchor reasoning}.
+It then compares the recovered 3D positions under the corresponding reference frame, optionally using camera poses or known direction anchors to calibrate the axes.
+It returns a structured observation containing the predicted \texttt{relation or option, confidence, route type, and supporting geometric evidence}.
+
+\item \textbf{Object-centric view expert} serves as a view-aware specialist for questions where the input images are organized around different views of the same target object.
+%
+Given the target object, labelled viewpoints, and question context specified by the planner, it reuses Level-1 visual evidence from the corresponding object-centric frames and identifies how surrounding objects appear under the specified viewpoint.
+The expert maps the labelled views, such as front, back, left, and right, to the spatial frame required by the question, and then determines the queried relation from this object-centered coordinate system.
+It returns a structured observation containing the \texttt{predicted view-conditioned relation, confidence, and supporting frames}.
+\end{itemize}
+
+
+\section{Details of \textsc{S-300K}}
+\label{app:training_data}
+
+We construct \textsc{S-300K} from SenseNova-SI-800K~\citep{sensenova_si}, which is fully disjoint from all evaluation benchmarks used in this work. 
+The construction pipeline consists of three stages: trajectory generation, trajectory filtering, and trajectory decomposition.
+
+\paragraph{Trajectory generation.}
+We follow Section~\ref{sec:method:training} and sample 100K questions from SenseNova-SI-800K and run zero-shot \textsc{S-Agent} with GPT-5.4 as the planner to generate tool-use reasoning trajectories. 
+Each trajectory contains the original question, the visual inputs, intermediate planner responses, issued tool calls, returned tool observations, and the final answer produced by the agent.
+
+\paragraph{Trajectory filtering.}
+We keep only trajectories whose final answers are valid and correct under the corresponding answer type. 
+Specifically, we discard a trajectory if its execution status is marked as failed, if any unrecovered error occurs, or if no final answer is produced. 
+For multiple-choice questions, we extract the prediction only from the final \texttt{<answer>...</answer>} field and require the predicted option letter to exactly match the ground-truth option letter. 
+For example, if the ground truth is ``B. Northwest'', the trajectory is retained only when the final answer predicts option \texttt{B}. 
+For numeric questions, we parse floating-point values from both the prediction and the ground truth, and compute mean relative accuracy (MRA) with a default threshold of 0.6; the trajectory is retained only if $\mathrm{MRA} \geq 0.6$. 
+For free-form text questions, we normalize both the prediction and the ground truth by lowercasing, stripping punctuation and extra whitespace, and then require either exact string match or that the ground-truth answer appears as a substring of the predicted phrase. 
+In short, our SFT data includes only trajectories whose final answers pass answer-type-specific quality checks. 
+We do not use whether a trajectory calls tools as a hard filtering criterion.
+
+\paragraph{Trajectory decomposition.}
+After filtering, we decompose each retained trajectory into three complementary supervision formats. 
+First, we construct \emph{final-answer trajectories}, where each original question corresponds to one full trajectory ending in the final answer; these samples train the model to imitate complete \textsc{S-Agent} reasoning. 
+Second, we construct \emph{turn-level trajectories}, where each VLM planner call is converted into an independent training sample. 
+This reduces excessively long contexts, especially for trajectories involving many images or long tool histories, and exposes the model to intermediate planning decisions. 
+Third, we construct \emph{expert trajectories}, where individual expert or tool calls are converted into specialized sub-samples, such as calls to the metric measurement expert, counting expert, and relative-position expert. 
+A sub-sample is included only when its input is complete, its tool response is available, and the corresponding result can be verified.
+
+\paragraph{Dataset statistics.}
+After trajectory generation, filtering, and decomposition, the initial 100K sampled questions yield 292,391 supervised fine-tuning samples. 
+We denote the resulting dataset as \textsc{S-300K}. 
+Table~\ref{tab:s300k_statistics} summarizes the data statistics. 
+Starting from 100,000 raw agent traces, 51,596 trajectories pass the quality filtering stage. 
+We keep one final-answer trajectory for each filtered trace, resulting in 51,596 final-answer samples. 
+Trajectory decomposition further produces 154,590 turn-level planner samples and 86,205 nontrivial tool/expert samples. 
+Together, these three categories form \textsc{S-300K}, containing 292,391 supervised fine-tuning samples. 
+% In addition, we construct 51,600 cleaned detector auxiliary trajectories, which are reported separately and not counted in the \textsc{S-300K} total.
+
+\begin{table}[h]
+\centering
+\small
+\begin{tabular}{lc}
+\toprule
+\textbf{Data Type} & \textbf{Number of Samples} \\
+\midrule
+Quality-filtered trajectories & 51,596 \\
+\midrule
+Final-answer trajectories & 51,596 \\
+Turn-level trajectories & 154,590 \\
+Nontrivial tool/expert trajectories & 86,205 \\
+\midrule
+Total SFT samples in \textsc{S-300K} & 292,391 \\
+\bottomrule
+\end{tabular}
+\vspace{0.2cm}
+\caption{Statistics of \textsc{S-300K}. The main training set consists of final-answer, turn-level, and nontrivial tool/expert trajectories.}
+\label{tab:s300k_statistics}
+\end{table}
+
+
+
+\section{More Experiments}
+\label{app:more_experiments}
+% \subsubsection{Zero-shot Experiments}
+% \label{app:zero-shot_exp}
+
+% VSR
+\paragraph{Results on VSR.}
+Table~\ref{tab:vsi_super} shows that \textsc{S-Agent} substantially outperforms existing methods on the VSR subset, achieving particularly large gains in long-video settings. 
+For example, under the 240-minute setting, \textsc{S-Agent} surpasses the strongest Cambrian-S-7B-LFP baseline by 37.2 percentage points, which we attribute to the introduction and strong performance of our frame-selection tool. 
+On VSC, \textsc{S-Agent} does not outperform Cambrian-S-7B-LFP, but it still performs better than the non-LFP baselines on average.
+However, since the reliability of VSI-SUPER as an indicator of genuine spatial perception has been questioned in recent work~\citep{udandarao2025solving}, we avoid over-interpreting this result and include it mainly as a reference.
+
+\input{tables/tab_vsr_vsc}
+
+\section{Additional Qualitative Visualizations}
+\label{app:additional_qualitative}
+
+Figures~\ref{fig:additional_vis_2} and~\ref{fig:additional_vis_3} provide additional qualitative examples beyond those in the main paper. These cases further illustrate how \textsc{S-Agent} adapts its tool-use trajectory to different spatial questions, including counting, multi-step reasoning, relative position, and route planning. Across these examples, the agent first selects or grounds task-relevant evidence, then applies metric or spatial experts to convert visual observations into explicit intermediate evidence before producing the final answer.
+
+\begin{figure}[p]
+    \centering
+    \includegraphics[width=\linewidth]{figures/additional_vis_2.pdf}
+    \vspace{-2mm}
+    \caption{Additional qualitative examples of \textsc{S-Agent} in the appendix.}
+    \label{fig:additional_vis_2}
+    \vspace{-2mm}
+\end{figure}
+
+\begin{figure}[p]
+    \centering
+    \includegraphics[width=\linewidth]{figures/additional_vis_3.pdf}
+    \vspace{-2mm}
+    \caption{More qualitative examples showing evidence-driven spatial reasoning by \textsc{S-Agent}.}
+    \label{fig:additional_vis_3}
+    \vspace{-2mm}
+\end{figure}

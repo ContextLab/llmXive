@@ -1,0 +1,60 @@
+% \begin{table}[tb]
+\begin{wraptable}{R}{0.5\textwidth}
+\vspace{-3.5em}
+\caption{
+\textbf{Quantitative comparison with SOTA academic and industrial methods on CelebA-HQ and FFHQ (portrait scene).}
+“$\dag$”: reported in original papers \cite{xu2025pixelhacker, li2022mat, Sargsyan2023migan, zhuang2023powerpaint}.
+“Indu.” denotes industrial.
+Benchmark details in Sec.~\ref{subsubsec:compare_details}.
+}
+\vspace{1em}
+\centering
+\resizebox{1.0\linewidth}{!}{
+\begin{tabular}{>{\hspace{2pt}}c<{\hspace{2pt}}|l|cc|cc}
+\toprule
+\multicolumn{2}{c|}{\multirow{2}{*}{\textbf{Method}}}
+& \multicolumn{2}{c|}{\textbf{CelebA-HQ (512)}} 
+& \multicolumn{2}{c }{\textbf{FFHQ (256)}} \\
+\multicolumn{2}{c|}{}
+&  $\mathbf{FID}\downarrow$ & $\mathbf{LPIPS}\downarrow$  
+&  $\mathbf{FID}\downarrow$ & $\mathbf{LPIPS}\downarrow$ \\
+\midrule
+% \midrule
+\rowcolor{TabGray} \multicolumn{6}{c}{ \textit{Non-Diffusion-based Methods} }  \\
+\midrule
+\multirow{10}{*}{\rotatebox{90}{\scriptsize\textbf{Academic}}}
+&CoModGAN \cite{zhao2021comodgan}   &  5.65\dg\more{5}   & 0.140\dg\more{15} &    -               &   -   \\
+&LaMa \cite{suvorov2021lama}        &  8.15\dg\more{51}  & 0.143\dg\more{17} & 32.45\dg\more{298} & 0.294\dg\more{27} \\
+&ICT  \cite{wan2021ICT}             & 12.84\dg\more{138} & 0.195\dg\more{60} &    -               &   -   \\
+&MADF \cite{zhu2021MADF}            &  6.83\dg\more{27}  & 0.130\dg\more{7}  &    -               &   -   \\
+&AOT-GAN \cite{zeng2023AOTGAN}      & 10.82\dg\more{101} & 0.145\dg\more{19} &    -               &   -   \\
+&DeepFillv2 \cite{yu2019deepfillv2} & 24.42\dg\more{353} & 0.221\dg\more{81} &    -               &   -   \\
+&EdgeConnect \cite{naz2019EC}       & 39.99\dg\more{642} & 0.208\dg\more{70} &    -               &   -   \\
+&MI-GAN \cite{Sargsyan2023migan}    &      -             &     -             & 27.65\dg\more{239} & 0.358\dg\more{55} \\
+&MAT \cite{li2022mat}               &  4.86\dg\less{10}  & 0.125\dg\more{2}  &  9.04\more{11}  & 0.232\more{0} \\
+&Latent-C.I. \cite{Chen2024LCI}     &  7.62\more{41}     & 0.153\more{25}    & 19.24\more{136}    & 0.278\more{20}  \\
+\midrule
+% \midrule
+\rowcolor{TabGray} \multicolumn{6}{c}{ \textit{Diffusion-based Methods} } \\
+\midrule
+\multirow{6}{*}{\rotatebox{90}{\scriptsize\textbf{Academic}}}
+&SD \cite{Rombach2022LDM}                & 11.18\more{107} & 0.155\more{27} & 40.24\dg\more{394} & 0.359\dg\more{55}  \\
+&PowerPaint \cite{zhuang2023powerpaint}  & 13.43\more{149} & 0.176\more{44} & 38.25\dg\more{369} & 0.409\dg\more{77}  \\
+&HD-Painter \cite{manukyan2023hdpainter} & 20.31\more{277}& 0.221\more{81}  & 84.42\more{936} & 0.389\more{68}  \\
+&DDNM \cite{wang2022ddnm}                & 14.60\more{171}& 0.680\more{457} & 32.12\more{294} & 0.574\more{148} \\
+&RoRem \cite{Li2025RoRem}                & 14.53\more{170}& 0.220\more{80}  & 67.83\more{732} & 0.440\more{90}  \\
+&PixelHacker \cite{xu2025pixelhacker}    &  4.75\dg\less{12} & 0.115\dg\less{6} &  6.35\dg\less{22}  & 0.229\dg\less{1} \\
+\midrule
+\multirow{2}{*}{\rotatebox{90}{\scriptsize\textbf{Indu.}}}
+&  SD3.5 Large-Inp. \cite{esser2024SD3} & 11.80\more{119}& 0.134\more{10} &109.42\more{1243} & 0.402\more{74} \\
+&  FLUX.1-Fill-Dev \cite{flux2024}      & 10.13\more{88} & 0.141\more{16} & 11.19\more{37}   & 0.268\more{16} \\
+\midrule
+\midrule
+\rowcolor{AblationGreen} & Moebius &  5.39       & 0.122        &  8.15 & 0.231 \\
+\bottomrule
+\end{tabular}
+}
+\label{tab:total_portrait}
+\vspace{-2em}
+\end{wraptable}
+% \end{table}

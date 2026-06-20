@@ -1,0 +1,163 @@
+\section{Languages errors type}
+
+Figures \ref{fig:err_deepseek-coder-33b-instruct}, \ref{fig:err_DeepSeek-R1-0528_cot}, \ref{fig:err_Devstral-Small-2505}, \ref{fig:err_OlympicCoder-7B_cot}, \ref{fig:err_OlympicCoder-32B_cot}, \ref{fig:err_OpenCodeReasoning-Nemotron-1.1-32B_cot}, \ref{fig:err_OpenReasoning-Nemotron-32B_cot}, \ref{fig:err_Qwen2.5-Coder-14B-Instruct}, \ref{fig:err_Qwen2.5-Coder-32B-Instruct}, \ref{fig:err_Qwen3-8B_cot}, 
+\ref{fig:err_Qwen3-14B_cot},  
+\ref{fig:err_Qwen3-30B-A3B_cot}, 
+\ref{fig:err_Qwen3-30B-A3B-Instruct-2507}, \ref{fig:err_Qwen3-235B-A22B-Thinking-2507_cot}, \ref{fig:err_Qwen3-Coder-30B-A3B-Instruct}  and \ref{fig:err_Seed-Coder-8B-Instruct} illustrate 
+detailed error breakdowns across different programming languages and models.
+Several consistent patterns emerge:
+\begin{enumerate}
+    \item Wrong-answer (WA) errors dominate across almost all languages and models. For every model, WA is the largest source of failure in both Python and non-Python languages, indicating that the primary bottleneck remains algorithmic correctness rather than compilation or parsing.
+\item Compiled languages show substantially more compiler- and type-related errors. Languages such as C++, Java, Rust, and Go exhibit significantly higher rates of compilation errors (e.g., missing imports, type mismatches, incorrect signatures) compared to Python.
+This pattern is consistent across all models and reflects the challenge of generating syntactically valid and type-correct code when strict compilation pipelines are enforced.
+\item Runtime exceptions increase in languages that require explicit input parsing. In languages like Java, C\#, and Go, runtime errors (e.g., NullPointerException, IndexError, ValueError) are far more frequent than in Python. This supports the hypothesis that the STDIN/STDOUT format, while uniform across languages, exposes weaknesses in model robustness to input handling and data conversion.
+\item Timeout and resource-related failures appear more often in slower languages and for reasoning-tuned models.
+Java, Rust, and Go show noticeably more TimeoutExpired cases, likely because models occasionally generate inefficient implementations. Reasoning-heavy models (e.g., R1-0528, Nemotron-32B) are more prone to long-running solutions when they attempt more complex multi-step logic.
+\item Empty-code and trivial-syntax errors are rare but nonzero. These errors appear mostly in smaller models (e.g., 7B-14B) and are nearly absent for 30B+ models.
+This indicates that larger models rarely fail at the initial code-structuring stage, with most errors occurring deeper in the execution pipeline.
+\item  Cross-model consistency in error profiles. Despite architectural and training differences, the overall error distributions are remarkably stable across models, demonstrating that: Python remains the least error-prone language, Compiled languages introduce predictable error modes, and Languages with verbose input/output handling (Java, C\#, Go) amplify runtime failures.
+
+\item Error distributions reinforce the observed performance gaps. The breakdowns offer a mechanistic explanation for the Pass@1 disparities reported in the main results. For example, models underperforming in Rust and C++ do so not because they fail to produce solutions, but because syntactic and type-level correctness is significantly harder to achieve in those languages.
+\end{enumerate} 
+
+\begin{figure}[htbp]
+\centering
+\begin{minipage}{0.48\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figs/by_task_type/deepseek-coder-33b-instruct.png}
+    \caption{deepseek-coder-33b-instruct}
+    \label{fig:err_deepseek-coder-33b-instruct}
+\end{minipage}
+\hspace{0.02\textwidth}
+\begin{minipage}{0.48\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figs/by_task_type/DeepSeek-R1-0528_cot.png}
+    \caption{DeepSeek-R1-0528*}
+    \label{fig:err_DeepSeek-R1-0528_cot}
+\end{minipage}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\begin{minipage}{0.48\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figs/by_task_type/Devstral-Small-2505.png}
+    \caption{Devstral-Small-2505}
+    \label{fig:err_Devstral-Small-2505}
+\end{minipage}
+\hspace{0.02\textwidth}
+\begin{minipage}{0.48\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figs/by_task_type/OlympicCoder-7B_cot.png}
+    \caption{OlympicCoder-7B*}
+    \label{fig:err_OlympicCoder-7B_cot}
+\end{minipage}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\begin{minipage}{0.48\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figs/by_task_type/OlympicCoder-32B_cot.png}
+    \caption{OlympicCoder-32B*}
+    \label{fig:err_OlympicCoder-32B_cot}
+\end{minipage}
+\hspace{0.02\textwidth}
+\begin{minipage}{0.48\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figs/by_task_type/OpenCodeReasoning-Nemotron-1.1-32B_cot.png}
+    \caption{OpenCodeReasoning-Nemotron-1.1-32B*}
+    \label{fig:err_OpenCodeReasoning-Nemotron-1.1-32B_cot}
+\end{minipage}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\begin{minipage}{0.48\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figs/by_task_type/OpenReasoning-Nemotron-32B_cot.png}
+    \caption{OpenReasoning-Nemotron-32B*}
+    \label{fig:err_OpenReasoning-Nemotron-32B_cot}
+\end{minipage}
+\hspace{0.02\textwidth}
+\begin{minipage}{0.48\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figs/by_task_type/Qwen2.5-Coder-14B-Instruct.png}
+    \caption{Qwen2.5-Coder-14B-Instruct}
+    \label{fig:err_Qwen2.5-Coder-14B-Instruct}
+\end{minipage}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\begin{minipage}{0.48\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figs/by_task_type/Qwen2.5-Coder-32B-Instruct.png}
+    \caption{Qwen2.5-Coder-32B-Instruct}
+    \label{fig:err_Qwen2.5-Coder-32B-Instruct}
+\end{minipage}
+\hspace{0.02\textwidth}
+\begin{minipage}{0.48\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figs/by_task_type/Qwen3-8B_cot.png}
+    \caption{Qwen3-8B*}
+    \label{fig:err_Qwen3-8B_cot}
+\end{minipage}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\begin{minipage}{0.48\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figs/by_task_type/Qwen3-14B_cot.png}
+    \caption{Qwen3-14B*}
+    \label{fig:err_Qwen3-14B_cot}
+\end{minipage}
+\hspace{0.02\textwidth}
+\begin{minipage}{0.48\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figs/by_task_type/Qwen3-30B-A3B_cot.png}
+    \caption{Qwen3-30B-A3B*}
+    \label{fig:err_Qwen3-30B-A3B_cot}
+\end{minipage}
+\end{figure}
+
+
+
+\begin{figure}[htbp]
+\centering
+\begin{minipage}{0.48\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figs/by_task_type/Qwen3-30B-A3B-Instruct-2507.png}
+    \caption{Qwen3-30B-A3B-Instruct-2507}
+    \label{fig:err_Qwen3-30B-A3B-Instruct-2507}
+\end{minipage}
+\hspace{0.02\textwidth}
+\begin{minipage}{0.48\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figs/by_task_type/Qwen3-235B-A22B-Thinking-2507_cot.png}
+    \caption{Qwen3-235B-A22B-Thinking-2507*}
+    \label{fig:err_Qwen3-235B-A22B-Thinking-2507_cot}
+\end{minipage}
+\end{figure}
+
+
+
+\begin{figure}[htbp]
+\centering
+\begin{minipage}{0.48\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figs/by_task_type/Qwen3-Coder-30B-A3B-Instruct.png}
+    \caption{Qwen3-Coder-30B-A3B-Instruct}
+    \label{fig:err_Qwen3-Coder-30B-A3B-Instruct}
+\end{minipage}
+\hspace{0.02\textwidth}
+\begin{minipage}{0.48\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figs/by_task_type/Seed-Coder-8B-Instruct.png}
+    \caption{Seed-Coder-8B-Instruct}
+    \label{fig:err_Seed-Coder-8B-Instruct}
+\end{minipage}
+\end{figure}
+
+\clearpage

@@ -1,0 +1,311 @@
+\section{Details about Play Process}
+\label{sec:appendix_play_process}
+
+\subsection{Play-Time Objectives and Knowledge Accumulation}
+\label{sec:appendix_play_accumulation}
+
+We further analyze the objectives proposed during play and the
+knowledge accumulated from solving them. Below we analyze a 50-iteration play
+run in MolmoSpaces.
+
+\textbf{Distribution of proposed objectives.}
+Figure~\ref{fig:play_objective_distribution} summarizes the run.
+One iteration did not contain a saved proposal artifact due to an error, so the distribution
+is computed from the remaining 49 records. The proposer covers seven
+interaction families and more than 30 object categories, including articulated
+furniture, doors, tools, shoes, kitchen objects, and small tabletop objects.
+The dominant objectives are \emph{pull} and \emph{lift}, while the remaining
+objectives include opening and closing articulations, pushing objects away,
+placing objects on surfaces, and picking objects. This diversity is useful
+because it exposes the robot to related but non-identical physical problems:
+for example, pulling a drawer handle, dragging a flat tag, and sliding a shoe
+all require horizontal motion but differ in perception, grasping, and contact
+geometry.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{figs/appendix/play_objective_distribution.pdf}
+\vspace{-1.5em}
+\caption{
+\textbf{Distribution of play objectives.}
+Counts are computed from the 49 saved proposal records available for the
+50-iteration run.
+}
+\label{fig:play_objective_distribution}
+\vspace{-1em}
+\end{figure}
+
+\textbf{Skill and memory growth.}
+Play produces two complementary forms
+of persistent knowledge. The 50-iteration play run saved its skill library and 
+failure memory snapshots every 10 iterations. Figure~\ref{fig:play_knowledge_growth} reports the
+saved 10-iteration snapshots. The learned library grows from 6 helpers at
+iteration 10 to 27 helpers at iteration 50. Over the same period, failure
+memory grows from 14 raw episodes and 8 distilled lessons to 70 episodes and
+121 lessons. The three reliability tiers evolve as well: helpers can remain
+\emph{experimental}, become \emph{verified} through successful reuse, or be
+marked \emph{deprecated} after repeated failures. Thus, play does not merely
+append code. It accumulates reusable capabilities while retaining negative
+evidence and filtering helpers that do not generalize.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{figs/appendix/play_knowledge_growth.pdf}
+\vspace{-1.5em}
+\caption{
+\textbf{Skill library and failure memory growth during
+MolmoSpaces play.}
+Reports learned skills, verified/experimental/deprecated skill
+counts, raw failure episodes, and distilled lessons.
+}
+\label{fig:play_knowledge_growth}
+\vspace{-1em}
+\end{figure}
+
+\textbf{Practicing novel yet learnable objectives.}
+The proposed objectives are neither a fixed benchmark curriculum nor arbitrary
+novelty maximization. At iteration 25, the robot
+is asked to slide a black shoe toward itself. This is a new object-skill
+combination with novelty score $1.0$ and frontier score $0.6756$. The task
+reuses perception and pull helpers learned in earlier iterations, succeeds
+after two attempts, and yields a new helper,
+\texttt{slide\_grasped\_object\_and\_release}. Five iterations later, the
+system reuses this shoe-derived helper to slide a Bluetooth speaker. This
+example illustrates the intended behavior: the robot practices a
+new objective that is challenging enough to add a capability but close enough
+to its current library to remain solvable.
+
+
+The same pattern appears elsewhere in the run. At iteration 28, a successful
+black-metal-rail push yields a helper that is reused for a one-attempt push of
+a handheld tool at iteration 35. A drawer-handle helper learned at iteration
+43 is reused for a one-attempt drawer pull at iteration 46.
+
+\textbf{Learning from unsuccessful play.}
+Failed trajectories also contribute useful supervision. For example, failing to
+open a sidetable drawer at iteration 2 produces experimental helpers for
+axis-aligned pull-direction estimation and grasp selection. A failed tissue-box
+lift at iteration 15 proposes a helper that adjusts a grasp toward the object
+centroid. Later failures on a flat knife and an oven drawer propose helpers
+for top-down object-aligned grasps and approach-axis filtering, respectively.
+These examples illustrate the role of the failure memory and Skill Proposer
+described in Sec.~\ref{sec:appendix_skill_memory}: the robot converts recurring
+physical bottlenecks into explicit hypotheses for future practice rather than
+discarding failed interaction traces.
+
+\subsection{Learned-Skill Usage in MolmoSpaces Evaluation}
+\label{sec:appendix_molmospaces_skill_usage}
+
+We next analyze how skills learned from play are reused during evaluation. The test-time execution path
+exposes learned non-primitive skills to the policy model and records the
+skills that are actually invoked at runtime.
+
+Across 400 evaluation trials, 391 trials invoke at least one learned skill.
+The frozen library contains 27 learned skills, of which 14 are invoked during
+evaluation, for a total of 5,169 learned-skill calls. Table~\ref{tab:eval_task_skill_usage}
+reports performance and skill-call volume by task type. Learned skills are
+used in nearly every evaluation trial, but their composition differs by task.
+Opening tasks make the heaviest use of the library, averaging $19.0$ helper
+calls per trial across 11 distinct learned skills. Pick tasks use a narrower
+set of four learned skills, dominated by object localization and top-down grasping.
+Pick-and-place tasks require a broader compositional chain and average $14.5$
+helper calls per trial.
+
+
+
+
+
+\begin{table*}[t]
+\noindent
+\caption{
+\textbf{Learned-skill usage by MolmoSpaces evaluation task type.}
+The library is learned in MolmoSpaces play and reused in MolmoSpaces
+evaluation. Counts in parentheses report runtime invocations of the most-used
+learned skills for each task type.
+}
+\label{tab:eval_task_skill_usage}
+\vspace{1.5em}
+\begin{minipage}{0.9\textwidth}
+
+\small
+\setlength{\tabcolsep}{2pt}
+\renewcommand{\arraystretch}{1.15}
+
+\begin{tabularx}{\textwidth}{lrrrrr X}
+\toprule
+\textbf{Task type} & \textbf{Trials} & \textbf{Success} & \textbf{Skill calls} & \textbf{Unique} & \textbf{Calls/trial} & \textbf{Most-used learned skills} \\
+\midrule
+Open & 100 & 20\% & 1,900 & 11 & 19.0 &
+\texttt{get\_axis\_aligned\_pull\_direction} (614);
+\texttt{localize\_and\_verify\_object\_point\_cloud} (429);
+\texttt{localize\_object\_with\_molmo\_sam3} (254) \\
+
+Close & 100 & 73\% & 866 & 6 & 8.7 &
+\texttt{localize\_object\_with\_molmo\_sam3} (269);
+\texttt{get\_axis\_aligned\_pull\_direction} (185);\newline
+\texttt{push\_object\_closed} (178); \\
+
+Pick & 100 & 37\% & 950 & 4 & 9.5 &
+\texttt{localize\_and\_verify\_object\_point\_cloud} (705);
+\texttt{execute\_top\_down\_grasp\_and\_lift} (139);
+\texttt{get\_highest\_scoring\_grasp} (97) \\
+
+Pick \& Place & 100 & 22\% & 1,453 & 8 & 14.5 &
+\texttt{localize\_and\_verify\_object\_point\_cloud} (649);
+\texttt{localize\_object\_with\_molmo\_sam3} (401);
+\texttt{execute\_top\_down\_grasp\_and\_lift} (233) \\
+\midrule
+Total & 400 & 38\% & 5,169 & 14 & 12.9 & -- \\
+\bottomrule
+\end{tabularx}
+\end{minipage}
+\end{table*}
+
+
+
+\textbf{Proportions of learned skills.}
+Figure~\ref{fig:eval_skill_categories} groups runtime calls by helper category.
+Object-localization helpers are the most frequently reused component, with
+2,806 invocations. The single most-used helper is
+\texttt{localize\_and\_verify\_object\_point\_cloud}, with 1,873 calls.
+However, the learned library is not limited to perception. Opening tasks
+compose localization with direction estimation and grasp planning:
+direction-and-geometry helpers account for $32.3\%$ of open-task calls, and
+grasp-planning helpers account for $19.5\%$. Closing tasks use
+localization together with push helpers, with push/slide/place helpers
+accounting for $21.6\%$ of close-task calls. Pick and pick-and-place tasks are
+more perception-heavy: localization accounts for $75.2\%$ and $72.3\%$ of
+their calls, respectively. Pick-and-place tasks additionally chain grasp
+execution, target localization, and the translation-and-release helper.
+The category breakdown makes task-dependent compositions explicit.
+
+\begin{figure*}[t]
+\includegraphics[width=0.9\textwidth]{figs/appendix/eval_skill_category_heatmap.pdf}
+\caption{
+\textbf{Proportion of learned skill calls during MolmoSpaces evaluation.}
+Each cell reports the runtime invocation count and the share of learned-skill
+calls within that task type. Each column aggregates 100 evaluation trials.
+}
+\label{fig:eval_skill_categories}
+\vspace{-1em}
+\end{figure*}
+
+\textbf{Examples of skill usage.}
+Figure~\ref{fig:eval_skill_transfer_lineages} traces an evaluation success
+back to representative play-time artifacts and the frozen skill library.
+The robot opens a cabinet using two learned skills at test time.
+The helper \texttt{get\_axis\_aligned\_pull\_direction} is called to
+estimate an outward pull vector aligned with the cabinet geometry.
+\texttt{select\_grasp\_for\_pulling} is called to select a grasp whose
+approach direction is compatible with the intended pull. In the successful
+final attempt, these learned components are composed into a single policy step
+that localizes the cabinet handle, plans the grasp, grasps the handle, and
+pulls the cabinet open.
+These helpers were generated by Skill Proposer after a failed play iteration, while
+trying to pull a handle on a sidetable. After failing, Skill Proposer reviews the failure
+and proposes two reusable helpers, \texttt{get\_axis\_aligned\_pull\_direction} and
+\texttt{select\_grasp\_for\_pulling}. These helpers are then reused during a later
+play iteration, where the robot tries to pull a drawer handle towards it. This time,
+it succeeds by using the learned skills, and therefore increasing the success rate of
+those two learned skills. Finally, those two skills are selected and
+used during evaluation, leading to a successful attempt.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{figs/appendix/skill_transfer.pdf}
+\vspace{-1em}
+\caption{
+\textbf{Play-to-evaluation transfer lineage for a successful MolmoSpaces
+evaluation trial.}
+Play-time tasks lead to learned skills stored in the frozen skill library and then
+to their compositional use in evaluation.
+}
+\label{fig:eval_skill_transfer_lineages}
+\end{figure*}
+
+\subsection{Qualitative Comparison with Direct Code Synthesis}
+\label{sec:appendix_capx_comparison}
+
+Figure~\ref{fig:capx_code_comparison} compares archived videos and code for the same
+iTHOR drawer-opening objective. With the learned library, the robot approaches
+the handle and leaves the drawer open. The direct-synthesis run without our learned
+library does not complete the articulation.
+Direct synthesis must repeatedly reconstruct grasp selection, approach geometry, and pull direction from low-level operations. The learned-library path instead composes reusable
+localization, pull-grasp planning, and handle-motion helpers.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{figs/appendix/code_comparison.pdf}
+\vspace{-1em}
+\caption{
+\textbf{Direct code synthesis versus synthesis with learned skills.}
+The condensed source-backed excerpts explain why learned skills reduce
+brittle low-level reasoning.
+}
+\label{fig:capx_code_comparison}
+\vspace{-1em}
+\end{figure*}
+
+Below, we show more examples comparing direct code synthesis using \textsc{CaP-Agent0} against code synthesis using our learned skills. Figure~\ref{fig:more_capx_code_comparison} compares direct code synthesis against
+synthesis with learned skills on three matched MolmoSpaces objectives:
+\emph{Pick up the vintage yellow track shoe},
+\emph{close the table}, and
+\emph{Pick up the spanner and place it in or on the white bowl blue}.
+For each objective, the direct-synthesis run fails while the \textsc{RATs} run succeeds.
+The comparison shows the same qualitative pattern across task families. Direct
+synthesis repeatedly reconstructs task state from low-level operations:
+querying Molmo points, segmenting masks with SAM, converting masks to point
+clouds, selecting or repairing grasp transforms, decomposing them into
+\texttt{pos} and \texttt{quat}, and then hand-writing waypoint chains. In the
+shoe-picking example, \textsc{CaP-Agent0} recomputes the shoe mask, full scene point cloud,
+grasp transform, fallback yaw, and lift waypoint inline. \textsc{RATs} instead composes
+\texttt{localize\_and\_verify\_object\_point\_cloud} with
+\texttt{execute\_top\_down\_grasp\_and\_lift}.
+
+The closing and pick-and-place examples highlight the same distinction at
+different temporal scales. For closing the table, the failed direct-synthesis
+code remains at the level of ad hoc affordance probes for handles, leaves, and
+drawers, whereas \textsc{RATs} invokes the learned
+\texttt{push\_object\_closed} helper. For pick-and-place, \textsc{CaP-Agent0} manually builds
+the spanner and bowl masks, recomputes point clouds, plans a grasp, computes a
+bowl centroid, and writes the release trajectory. \textsc{RATs} composes verified object
+localization, \texttt{execute\_top\_down\_grasp\_and\_lift}, target
+localization, and \texttt{translate\_grasped\_object\_and\_release}. These
+examples illustrate why the learned library improves reliability: successful
+interaction routines become named, reusable control abstractions instead of
+being rediscovered from pixels and geometry in every episode.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{figs/appendix/capx_rats_comp.pdf}
+\vspace{-1em}
+\caption{
+\textbf{More qualitative comparisons between direct code synthesis and \textsc{RATs} with
+learned skills.}
+Across shoe picking, table closing, and pick-and-place tasks, the \textsc{CaP-Agent0}
+direct-synthesis policies fail while the \textsc{RATs} policies succeed. \textsc{CaP-Agent0} 
+recomputes perception, geometry, \texttt{pos}/\texttt{quat}, and waypoint logic
+inline; \textsc{RATs} calls learned skills for verified localization, grasping,
+closing, transport, and release.
+}
+\label{fig:more_capx_code_comparison}
+\end{figure*}
+
+\subsection{Usage of LIBERO-Derived Skills in RoboSuite Evaluation}
+\label{sec:appendix_robosuite_skill_usage}
+
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=\textwidth]{figs/appendix/code_comparison_images_only_two_arm_lift.pdf}
+  \caption{
+  \textbf{LIBERO-to-RoboSuite skill transfer in two-arm lifting.}
+  For the same RoboSuite \texttt{two\_arm\_lift} evaluation seed, direct code
+  synthesis fails while RATS succeeds by reusing skills selected from a
+  LIBERO-derived library.
+  }
+  \label{fig:libero_robosuite_code_comparison}
+  \end{figure*}
+  
+Figure~\ref{fig:libero_robosuite_code_comparison} compares archived videos and generated code for the same RoboSuite \texttt{two\_arm\_lift} objective. The direct-synthesis run without the learned library samples Contact-GraspNet candidates for each handle and scores them using axis and direction heuristics. Although the generated policy reaches the lift stage, it does not complete the task.
+
+With RATS, the policy writer selects relevant skills from a frozen library learned from LIBERO play-time tasks. These skills are not invoked as explicit API calls in the final RoboSuite policy. Instead, they are reused implicitly: the generated code follows the same structure of localizing task-relevant parts, computing 3D handle and object centers, constructing a side-pinch grasp frame from handle-to body geometry, and executing a coordinated close-and-lift motion. This illustrates cross-environment transfer from LIBERO skills to a RoboSuite evaluation task.

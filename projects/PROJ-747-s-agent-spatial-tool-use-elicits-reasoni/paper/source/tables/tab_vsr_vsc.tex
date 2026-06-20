@@ -1,0 +1,24 @@
+\begin{table}[t]
+    \centering
+    \small
+    \setlength{\tabcolsep}{8pt}
+    \caption{Comparison with existing long-video methods on VSI-SUPER. We report results on VSR and VSC under different video durations.}
+    \label{tab:vsi_super}
+    \begin{tabular}{l|ccccc|cccc}
+        \toprule
+        \multirow{2}{*}{\textbf{Eval Setups}} 
+        & \multicolumn{5}{c|}{\textbf{VSR (Duration in Mins.)}} 
+        & \multicolumn{4}{c}{\textbf{VSC (Duration in Mins.)}} \\
+        \cmidrule(lr){2-6} \cmidrule(lr){7-10}
+        & \textbf{10} & \textbf{30} & \textbf{60} & \textbf{120} & \textbf{240}
+        & \textbf{10} & \textbf{30} & \textbf{60} & \textbf{120} \\
+        \midrule
+        MovieChat      & 18.3 & 21.7 & 16.7 & 26.7 & 25.6 & 0.0  & 0.0  & 0.0  & 0.0  \\
+        Flash-VStream  & 28.3 & 33.3 & 23.3 & 28.3 & 31.7 & 0.0  & 0.0  & 0.0  & 0.0  \\
+        Cambrian-S-7B  & 38.3 & 35.0 & 6.0 & 0.0 & 0.0 & 0.0  & 0.0  & 0.0  & 0.0 \\
+        Cambrian-S-7B-LFP  & 45.0 & 41.7 & 40.0 & 40.0 & 40.0 & \textbf{40.6} & \textbf{42.0} & \textbf{35.0} & \textbf{34.0} \\
+        \midrule
+        \textbf{S-Agent (Ours)}  & \textbf{75.0} & \textbf{55.0} & \textbf{63.3} & \textbf{66.1} & \textbf{77.2} & 10.6 & 4.2 & 0.0 & 0.0 \\
+        \bottomrule
+    \end{tabular}
+\end{table}

@@ -1,0 +1,47 @@
+\begin{table*}[t]
+    \centering
+    \small
+    \setlength{\tabcolsep}{3pt}
+    \caption{
+    Detailed MMSI-Bench results. We follow the taxonomy of~\citep{mmsi_bench} and group dimensions into Positional Relationship, Geometric Attribute, Motion Perception, and Multi-step Reasoning (MSR). C/O/R denote camera/object/region in positional-relation subcategories. \textit{SenseNova} is abbreviated as \textit{SN}. Top-1/2/3 results are highlighted in \colorbox{top1color}{\textbf{deep}}, \colorbox{top2color}{medium}, and \colorbox{top3color}{light} lavender.}
+    \resizebox{\textwidth}{!}{%
+    \begin{tabular}{lcccccc|cc|cc|c|c}
+        \toprule
+        \multirow{2}{*}{\textbf{Model}} & \multicolumn{6}{c}{\textbf{Positional Relationship}} & \multicolumn{2}{c}{\textbf{Geometric Attr.}} & \multicolumn{2}{c}{\textbf{Motion Perception}} & \multirow{2}{*}{\textbf{MSR}} & \multirow{2}{*}{\textbf{Avg.}} \\
+        \cmidrule(lr){2-7} \cmidrule(lr){8-9} \cmidrule(lr){10-11}
+        & \textbf{C-C} & \textbf{O-O} & \textbf{R-R} & \textbf{C-O} & \textbf{O-R} & \textbf{C-R} & \textbf{Meas.} & \textbf{Appr.} & \textbf{Cam.} & \textbf{Obj.} & & \\
+        \midrule
+        \multicolumn{13}{l}{\textit{Proprietary Models}} \\
+        Gemini 3 Pro & \ctwo{47.3} & \cone{48.9} & \cone{42.0} & 43.0 & 37.6 & \cthree{60.2} & \cone{64.1} & \cthree{39.4} & \ctwo{41.9} & \ctwo{47.4} & 37.9 & \ctwo{45.2} \\
+        Gemini 2.5 Pro & 38.7 & 34.0 & \ctwo{40.7} & 44.2 & 38.8 & 41.0 & \ctwo{62.5} & 30.3 & 39.2 & 25.0 & 33.3 & 38.0 \\
+        GPT-5.4 & 41.9 & 33.0 & 35.8 & 49.8 & \cthree{42.4} & \cone{68.7} & 54.7 & 37.4 & 28.3 & 40.8 & 36.4 & \cthree{41.9} \\
+        Grok 4 & 36.6 & 35.1 & \cthree{39.5} & 34.9 & \cone{45.9} & 50.6 & 21.9 & 22.7 & \cthree{40.5} & \cthree{43.4} & \cthree{38.4} & 37.8 \\
+        \midrule
+        \multicolumn{13}{l}{\textit{Open-weight General Models}} \\
+        Seed 1.6 & 36.6 & 36.2 & 32.1 & 32.6 & \cthree{42.4} & 46.9 & 48.4 & 33.0 & 31.1 & 42.1 & \ctwo{40.4} & 38.5 \\
+        InternVL3\_5-8B             & 29.0 & 26.6 & 29.6 & 24.4 & 31.8 & 25.3 & 29.7 & 25.8 & 14.9 & 34.2 & 36.4 & 29.0 \\
+        SN-U1-8B-MoT & \cthree{46.2} & \cthree{41.5} & 29.6 & \ctwo{58.1} & 38.8 & \ctwo{63.9} & 43.8 & 21.2 & 25.7 & 31.6 & 26.8 & 38.0 \\
+        Qwen3-VL-8B-Instruct & 28.0 & 37.2 & 32.1 & 31.4 & 35.3 & 38.5 & 37.5 & 15.2 & 27.0 & 28.9 & 29.8 & 31.1 \\
+        Qwen3-VL-8B-Thinking & 31.2 & 26.6 & 32.1 & 29.1 & 32.9 & 30.1 & 50.0 & 16.7 & 17.6 & 23.7 & 27.3 & 28.6 \\
+        Qwen3.5-9B & 34.4 & 36.2 & 34.6 & 39.5 & 38.8 & 54.2 & 56.3 & 28.8 & 36.5 & 26.3 & 28.8 & 36.5 \\
+        Qwen3-VL-30B-A3B-Thinking & 23.7 & 31.9 & 35.8 & 31.4 & 36.5 & 22.9 & 40.6 & 19.7 & 18.9 & 27.6 & 31.3 & 29.4 \\
+        \midrule
+        \multicolumn{13}{l}{\textit{Open-weight Spatial Models}} \\
+        % SN-SI-1.1-IVL3-8B & \ctwo{50.5} & \cthree{47.9} & \cone{42.0} & 62.8 & \ctwo{44.7} & \cone{69.9} & 40.6 & \ctwo{40.9} & 32.4 & 32.9 & 27.8 & \cthree{43.3} \\
+        % SN-SI-1.2-IVL3-8B & \cthree{49.5} & \cone{50.0} & \ctwo{40.7} & \ctwo{68.6} & \ctwo{44.7} & \ctwo{68.7} & 39.1 & 31.8 & \ctwo{41.9} & 26.3 & 24.8 & 42.6 \\
+        % SN-SI-1.3-IVL3-8B & 43.0 & \cone{50.0} & \ctwo{40.7} & \cone{74.4} & \ctwo{44.7} & \cthree{65.1} & 42.2 & 25.8 & 35.1 & 30.3 & 28.3 & 42.5 \\
+        % SN-SI-1.1-Qwen3VL-8B & 44.1 & 38.3 & 33.3 & \cthree{65.1} & 38.8 & 59.0 & 48.4 & 24.2 & 29.7 & 34.2 & 22.2 & 38.1 \\
+        % SN-SI-1.1-IVL3-2B & 39.8 & 45.7 & 33.3 & 46.5 & 30.6 & 39.8 & 31.3 & 30.3 & 29.7 & 32.9 & 24.8 & 34.2 \\
+        % SN-SI-1.1-Qwen2.5VL-7B & \cone{51.6} & 29.8 & 32.1 & 50.0 & 29.4 & 42.2 & 37.5 & 28.8 & 23.0 & 34.2 & 18.7 & 32.8 \\
+        SN-SI-1.1-Qwen2.5VL-7B & \cone{51.6} & 29.8 & 32.1 & \cthree{50.0} & 29.4 & 42.2 & 37.5 & 28.8 & 23.0 & 34.2 & 18.7 & 32.8 \\
+        SN-SI-1.1-Qwen3VL-8B & 44.1 & 38.3 & 33.3 & \cone{65.1} & 38.8 & 59.0 & 48.4 & 24.2 & 29.7 & 34.2 & 22.2 & 38.1 \\
+        VST-7B-SFT & 39.8 & 36.2 & 35.8 & 37.2 & 29.4 & 33.7 & 29.7 & \cone{47.0} & 36.5 & 35.5 & 18.2 & 32.5 \\
+        \midrule
+        \textbf{Ours (S-Agent)} & \cthree{46.2}\dpos{17.2} & \ctwo{43.6}\dpos{17.0} & 37.0\dpos{7.4} & 43.0\dpos{18.6} & \ctwo{43.5}\dpos{11.7} & \ctwo{63.9}\dpos{38.6} & \cthree{57.8}\dpos{28.1} & \ctwo{40.9}\dpos{15.1} & \cone{46.0}\dpos{31.1} & \cone{48.7}\dpos{14.5} & \cone{44.4}\dpos{8.0} & \cone{46.4}\dpos{17.4} \\
+        \bottomrule
+    \end{tabular}%
+    }
+    \vspace{2mm}
+    % Subscripts \textcolor{deltapos}{(+$\Delta$)} on \textbf{Ours (S-Agent)} indicate the absolute improvement over the InternVL3\_5-8B base VLM. Our agent achieves the highest overall accuracy (46.40\%, micro-averaged over 1000 questions), outperforming recent proprietary, open-weight general, and open-weight spatial reasoning models.}
+    \label{tab:mmsi_bench_zeroshot}
+\end{table*}

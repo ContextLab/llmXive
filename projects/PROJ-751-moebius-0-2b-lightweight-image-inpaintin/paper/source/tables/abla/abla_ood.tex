@@ -1,0 +1,41 @@
+\begin{table}[htbp]
+% \vspace{-0.8em}
+\caption{
+\textbf{OOD evaluation for verifying generalization \& zero-shot capability.} 
+We sampled 10k images from LVIS\cite{gupta2019lvis} as OOD natural dataset and 3k images from the wiki subset of DeepFakeFace\cite{song2023deepfakeface} as OOD portrait dataset. Mask settings follow the evaluation protocol of Places2 (Test)/CelebA-HQ (512) in main paper. All academic methods, including Moebius, are evaluated using available Places2/CelebA-HQ weights.
+The strong results demonstrate Moebius' excellent generalizability.
+}
+\centering
+\resizebox{1.0\linewidth}{!}{
+    % \begin{tabular}{>{\hspace{-3pt}}c<{\hspace{-3pt}}|l|cc|cc}
+    % \begin{tabular}{>{\hspace{2pt}}c<{\hspace{2pt}}|l|cc|cc}
+    % \begin{tabular}{>{\hspace{2pt}}c<{\hspace{2pt}}|l|c|c|c|c}
+    \begin{tabular}{>{\hspace{2pt}}c<{\hspace{2pt}}|l|*{2}{w{c}{1.8cm}}|*{2}{w{c}{2.5cm}}}
+\toprule
+    \multicolumn{2}{c|}{\multirow{2}{*}{\textbf{Method}}}
+    & \multicolumn{2}{c|}{\textbf{OOD Natural (LVIS)}}
+    & \multicolumn{2}{c }{\textbf{OOD Portrait (DeepFakeFace)}}\\
+    \multicolumn{2}{c|}{}
+    &  $\mathbf{FID}\downarrow$ & $\mathbf{LPIPS}\downarrow$
+    &  $\mathbf{FID}\downarrow$ & $\mathbf{LPIPS}\downarrow$ \\
+    \midrule
+% \multirow{4}{*}{\rotatebox{90}{{\hspace{-3pt}}\scriptsize\textbf{Academic}}}
+\multirow{4}{*}{\rotatebox{90}{\scriptsize\textbf{Academic}}}
+& MAT\cite{li2022mat} & 18.08\more{2} & 0.312\more{1} & 25.60\more{67} & 0.203\more{17} \\
+& MI-GAN\cite{Sargsyan2023migan} & 25.88\more{45} & 0.347\more{12} & - & - \\
+& Latent-C.I.\cite{Chen2024LCI} & 31.94\more{79} & 0.399\more{29} & 43.07\more{181} & 0.327\more{89} \\
+& PixelHacker\cite{xu2025pixelhacker} & 13.84\less{22} & 0.305\less{1} & 15.50\more{1} & 0.172\less{1} \\
+    \midrule
+% \multirow{2}{*}{\rotatebox{90}{{\hspace{-3pt}}\scriptsize\textbf{Indu.}}}
+\multirow{2}{*}{\rotatebox{90}{\scriptsize\textbf{Indu.}}}
+& SD3.5 Large-Inp.\cite{esser2024SD3} & 114.21\more{541} & 0.601\more{94} & 81.91\more{435} & 0.372\more{115} \\
+& FLUX.1-Fill-dev\cite{flux2024}  & 14.52\less{18}   & 0.339\more{10} & 12.24\less{20} & 0.174\more{1} \\
+    \midrule
+\rowcolor{AblationGreen} & Moebius & 17.81 & 0.309 & 15.32 & 0.173 \\
+\bottomrule
+    \end{tabular}
+}
+\label{tab:abla_ood}
+% \vspace{-1.0em}
+\end{table}
+% \vspace{-1.0em}

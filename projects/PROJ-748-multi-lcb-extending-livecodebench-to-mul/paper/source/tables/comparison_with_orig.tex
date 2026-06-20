@@ -1,0 +1,72 @@
+\begin{table*}[hbt]
+\centering
+\small
+\caption{Comparison of reasoning/code models on Python across benchmark versions (v4--v6). 
+Original leaderboard values (ORIG, \%) are contrasted with our reproduced scores (OUR, \%). 
+Difference is computed as $\Delta = \text{OUR} - \text{ORIG}$.}
+\label{tab:model-comparison}
+\resizebox{0.8\textwidth}{!}{%
+\begin{tabular}{lccccc}
+\toprule
+\rowcolor{gray!30}
+\textbf{Model} & \textbf{Benchmark} 
+& \textbf{ORIG (\%)} & \textbf{OUR (\%)} & \textbf{$\Delta$ (\%)} & \textbf{Source}\\
+\rowcolor{gray!30}
+&\textbf{version (range)} &&&&\\
+\midrule
+\rowcolor{gray!10}
+Qwen3-235B-A22B-Thinking-2507 & v6 [2502--2505] & 74.1 & 74.0 & -0.1 & \href{https://huggingface.co/Qwen/Qwen3-235B-A22B-Thinking-2507}{Hugging Face}\\
+
+DeepSeek R1 0528 & v6 [2502--2505] & 68.7 & 66.3 & -2.4 & \href{https://livecodebench.github.io/leaderboard.html}{LCB leaderboard} \\
+
+\rowcolor{gray!10}
+Qwen3-30B-A3B-Thinking-2507 & v6 [2502--2505] & 66.0 & 64.0 & -2.0 & \href{https://huggingface.co/Qwen/Qwen3-30B-A3B-Thinking-2507}{Hugging Face} \\
+
+
+OpenReasoning-Nemotron-32B & v6 [2502--2505] & 65.6 & 64.4 & -1.2& \href{https://livecodebench.github.io/leaderboard.html}{LCB leaderboard} \\
+
+\rowcolor{gray!10}
+OpenCodeReasoning-Nemotron-1.1-32B & v6 [2502--2505] & 61.4 & 56.0 & -5.4& \href{https://livecodebench.github.io/leaderboard.html}{LCB leaderboard} \\
+
+Qwen3-30B-A3B* & v6 [2502--2505] & 57.4 & 55.0 & -2.4 & \href{https://huggingface.co/Qwen/Qwen3-30B-A3B-Thinking-2507}{Hugging Face}\\
+
+
+
+
+\rowcolor{gray!10}
+Qwen3-235B-A22B & v6 [2502--2505] & 55.7 & 58.9 & 3.2& \href{https://livecodebench.github.io/leaderboard.html}{LCB~leaderboard} \\
+
+Qwen3-235B-A22B-Instruct-2507 & v6 [2502--2505] & 51.8 & 43.8 & -8.0 & \href{https://https://huggingface.co/Qwen/Qwen3-235B-A22B-Instruct-2507}{Hugging Face}\\
+
+
+
+\midrule
+
+\rowcolor{gray!10}
+Qwen3-32B* & v5 [2410--2502] & 65.7 & 64.3 & -1.4 & \href{https://arxiv.org/pdf/2505.09388}{Qwen3 Tech report} \\
+
+Qwen3-14B* & v5 [2410--2502] & 63.5 & 56.7 & -6.8 & \href{https://arxiv.org/pdf/2505.09388}{Qwen3 Tech report}  \\
+
+
+\rowcolor{gray!10}
+Qwen3-30B-A3B* & v5 [2410--2502] & 62.6 & 61.0 & -1.6 & \href{https://arxiv.org/pdf/2505.09388}{Qwen3 Tech report} \\
+
+Qwen3-8B* & v5 [2410--2502] & 57.5 & 49.1 & -8.6 & \href{https://arxiv.org/pdf/2505.09388}{Qwen3 Tech report}\\
+\rowcolor{gray!10}
+Seed-Coder-8B-Instruct & v5 [2410--2502] & 24.7 & 19.8 & -4.9 & \href{https://huggingface.co/ByteDance-Seed/Seed-Coder-8B-Instruct}{Hugging Face} \\
+\midrule
+\rowcolor{gray!10}
+OpenCodeReasoning-Nemotron-1.1-32B & v4--v5 [2408--2502] & 69.9 & 65.3 & -4.6 & \href{https://huggingface.co/nvidia/OpenCodeReasoning-Nemotron-1.1-32B}{Hugging Face}\\
+
+OlympicCoder-32B & v4--v5 [2408--2502] & 54.5 & 52.3 & -2.2 & \href{https://huggingface.co/open-r1/OlympicCoder-32B}{Hugging Face} \\
+
+\rowcolor{gray!10}
+OlympicCoder-7B & v4--v5 [2408--2502] & 40.7 & 35.6 & -5.1 & \href{https://huggingface.co/open-r1/OlympicCoder-32B}{Hugging Face} \\
+
+Qwen2.5-Coder-32B-Instruct & v4--v5 [2408--2502] & 28.3 & 27.6 & -0.7  & \href{https://huggingface.co/open-r1/OlympicCoder-32B}{Hugging Face} \\
+%OpenReasoning-Nemotron-32B & v6 [2408--2505] & 70.2 & 69.60 & -0.60 \\
+
+\bottomrule
+\end{tabular}
+}
+\end{table*}

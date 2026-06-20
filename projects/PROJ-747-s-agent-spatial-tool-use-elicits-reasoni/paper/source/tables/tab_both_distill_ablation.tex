@@ -1,0 +1,68 @@
+\vspace{-2mm}
+\begin{table*}[t]
+\centering
+\small
+\begin{minipage}[t]{0.50\textwidth}
+\centering
+\setlength{\tabcolsep}{3pt}
+\caption{Trajectory distillation results across three main spatial reasoning benchmarks.} %All scores are accuracy (\%).}
+\vspace{0.15cm}
+\label{tab:trajectory_distillation}
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{lccc}
+    \toprule
+    \textbf{Model} & \textbf{MMSI} & \textbf{ViewSpatial} & \textbf{ReVSI} \\
+    \midrule
+    \multicolumn{4}{l}{\textit{Proprietary VLMs}} \\
+    Gemini 3 Pro & 45.2 & 50.4 & 60.9  \\
+    GPT-5.4 & 41.9 & 45.6 & -  \\
+    \midrule
+    \multicolumn{4}{l}{\textit{Open-weight Models}} \\
+    Qwen3-VL-8B-Instruct & 31.1 & 42.2 & 49.1  \\
+    \textsc{S-Agent} (Qwen3-VL-8B) & 30.7 & 44.1 & 49.5   \\
+    \textbf{\textsc{S-Agent-8B}} & \textbf{41.6} & \textbf{46.8} & \textbf{52.8}  \\
+    \bottomrule
+\end{tabular}%
+}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.45\textwidth}
+\centering
+\setlength{\tabcolsep}{4pt}
+\caption{Ablation on ViewSpatial with \textsc{S-Agent} using GPT-5.4 as the planner.}
+\label{tab:ablation_config}
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{lccccc|c}
+\toprule
+\multirow{2}{*}{\textsc{S-Agent}}
+& \multicolumn{3}{c}{\textbf{Evidence}}
+& \multicolumn{2}{c|}{\textbf{Memory}}
+& \multirow{2}{*}{Avg.} \\
+\cmidrule(lr){2-4} \cmidrule(lr){5-6}
+& L1 & L2 & L3 & Scene & Agent & \\
+\midrule
+\multicolumn{7}{l}{\textit{Spatial evidence ablation}} \\
+VLM-only
+&  &  &  &  &  & 45.6 \\
++ Level-1 2D evidence
+& \checkmark &  &  &  &  & 49.0 \\
++ Level-2 3D evidence
+& \checkmark & \checkmark &  &  &  & 49.8 \\
++ Level-3 3D experts
+& \checkmark & \checkmark & \checkmark &  &  & 56.7 \\
+\midrule
+\multicolumn{7}{l}{\textit{Memory ablation}} \\
+Spatial only
+& \checkmark & \checkmark & \checkmark &  &  & 56.7 \\
++ Scene memory
+& \checkmark & \checkmark & \checkmark & \checkmark &  & 58.2 \\
++ Agent memory
+& \checkmark & \checkmark & \checkmark &  & \checkmark & 57.6 \\
+Full \textsc{S-Agent}
+& \checkmark & \checkmark & \checkmark & \checkmark & \checkmark & \textbf{60.0} \\
+\bottomrule
+\end{tabular}%
+}
+\end{minipage}
+\vspace{-3mm}
+\end{table*}

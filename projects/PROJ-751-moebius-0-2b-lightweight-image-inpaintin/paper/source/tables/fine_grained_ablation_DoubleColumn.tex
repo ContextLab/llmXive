@@ -1,0 +1,42 @@
+\begin{table*}[t]
+% \begin{wraptable}{R}{0.46\textwidth}
+\centering
+\caption{\textbf{Empirical Analysis of Representation Bottleneck and Architectural Synergy.} Proving the necessity of our knowledge distillation and the synergy of components. Models are evaluated on the Places2 (Test) benchmark using the 18K training checkpoint (evaluation details in Sec.~\ref{subsubsec:compare_details}). CA: standard cross-attention. L$\lambda$/I$\lambda$: Our Local/Interactive-$\lambda$ modules (details in Sec.~\ref{sec:lambda_modules}). KD: \ding{55} = standard prediction loss; \ding{51} = our knowledge distillation, which further verifies its validity in Tab.~\ref{tab: abla_distill}.
+}
+\label{tab:rebuttal_ablation}
+\vspace{-0.5em}
+\resizebox{0.73\linewidth}{!}{
+\setlength{\tabcolsep}{6pt}
+\begin{tabular}{c| >{\columncolor{TabGray}} c |c|cc| c c}
+\toprule
+\textbf{Exp} & \textbf{Arch} & \textbf{KD} & \textbf{FID} $\downarrow$ & \textbf{LPIPS} $\downarrow$ & \textbf{Param} $\downarrow$ & \textbf{GFLOPs} $\downarrow$ \\
+\midrule
+{\CircledNumber{1}} & GLA-CA-FFN, Conv & \ding{55} & 32.75 & 0.298 & \colorednumber{526}M & \colorednumberflops{314.30} \\
+\midrule
+{\CircledNumber{2}} & \textcolor{AblationOrangeWord}{L$\lambda$}-CA-FFN, Conv & \ding{55} & 37.65 & 0.325 & \colorednumber{496}M & \colorednumberflops{318.90} \\
+{\CircledNumber{3}} & GLA-\textcolor{AblationOrangeWord}{I$\lambda$}-FFN, Conv & \ding{55} & 36.91 & 0.312 & \colorednumber{514}M & \colorednumberflops{307.91} \\
+{\CircledNumber{4}} & GLA-CA-\textcolor{AblationOrangeWord}{MixFFN}, Conv & \ding{55} & 35.24 & 0.301 & \colorednumber{478}M & \colorednumberflops{286.51} \\
+{\CircledNumber{5}} & GLA-CA-FFN, \textcolor{AblationOrangeWord}{DWConv} & \ding{55} & 43.58 & 0.341 & \colorednumber{315}M & \colorednumberflops{183.59} \\
+\midrule
+\midrule
+{\CircledNumber{6}} & \textcolor{AblationOrangeWord}{L$\lambda$-I$\lambda$}-FFN, Conv & \ding{55} & 33.21 & 0.286 & \colorednumber{485}M & \colorednumberflops{312.50} \\
+{\CircledNumber{7}} & \textcolor{AblationOrangeWord}{L$\lambda$-I$\lambda$}-FFN, Conv & \textcolor{AblationOrangeWord}{\ding{51}} & 24.73 & 0.257 & \colorednumber{485}M & \colorednumberflops{312.50} \\
+\midrule
+{\CircledNumber{8}} & \textcolor{AblationOrangeWord}{L$\lambda$-I$\lambda$}-FFN, \textcolor{AblationOrangeWord}{DWConv} & \textcolor{AblationOrangeWord}{\ding{51}} & 25.86 & 0.262 & \colorednumber{274}M & \colorednumberflops{181.79} \\
+{\CircledNumber{\textbf{9}}} & \textbf{\textcolor{AblationOrangeWord}{L$\lambda$-I$\lambda$-MixFFN, DWConv}} & \textbf{\textcolor{AblationOrangeWord}{\ding{51}}} & \textbf{26.43} & \textbf{0.258} & \textbf{\colorednumber{226}M} & \textbf{\colorednumberflops{154.00}} \\
+\midrule
+{\CircledNumberX{10}} & \textcolor{AblationOrangeWord}{L$\lambda$-I$\lambda$-MixFFN, DWConv} & \ding{55} & 33.42 & 0.312 & \colorednumber{226}M & \colorednumberflops{154.00} \\
+\midrule
+\midrule
+{\CircledNumberX{11}} & GLA-CA-FFN, Conv & \textcolor{AblationOrangeWord}{\ding{51}} & 26.81 & 0.262 & \colorednumber{526}M & \colorednumberflops{314.30} \\
+{\CircledNumberX{12}} & \textcolor{AblationOrangeWord}{L$\lambda$}-CA-FFN, Conv & \textcolor{AblationOrangeWord}{\ding{51}} & 28.94 & 0.283 & \colorednumber{496}M & \colorednumberflops{318.90}  \\
+{\CircledNumberX{13}} & GLA-\textcolor{AblationOrangeWord}{I$\lambda$}-FFN, Conv & \textcolor{AblationOrangeWord}{\ding{51}} & 26.46 & 0.265 & \colorednumber{514}M & \colorednumberflops{307.91} \\
+{\CircledNumberX{14}} & GLA-CA-\textcolor{AblationOrangeWord}{MixFFN}, Conv & \textcolor{AblationOrangeWord}{\ding{51}} & 27.35 & 0.251 & \colorednumber{478}M & \colorednumberflops{286.51} \\
+{\CircledNumberX{15}} & GLA-CA-FFN, \textcolor{AblationOrangeWord}{DWConv} & \textcolor{AblationOrangeWord}{\ding{51}} & 29.41 & 0.285 & \colorednumber{315}M & \colorednumberflops{183.59} \\
+\bottomrule
+\end{tabular}
+}
+% \vspace{-3em}
+\vspace{-2.0em}
+\end{table*}
+% \end{wraptable}

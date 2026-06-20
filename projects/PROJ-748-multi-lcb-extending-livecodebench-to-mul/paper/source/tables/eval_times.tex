@@ -1,0 +1,35 @@
+\begin{table}[hbt]
+\centering
+\caption{Evaluation times (compilation + execution on tests + matching) across programming languages. Runs were executed in parallel on 90 CPUs over 1050 tasks (v1--v6). Averages and standard deviations are computed across the measured models.}
+\label{tab:eval-times}
+\resizebox{0.7\textwidth}{!}{
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Language} & \textbf{Avg. Time (mm:ss)} & \textbf{Std. Dev. (mm:ss)} & \textbf{Avg. Time (s)} & \textbf{Std. Dev. (s)} \\
+\midrule
+\rowcolor{gray!10}
+C\# & 9:10 & 3:08 & 550.15 & 188.83 \\
+C\texttt{++} & 10:25 & 2:54 & 625.72 & 174.17 \\
+\rowcolor{gray!10}
+Go & 12:36 & 2:36 & 756.13 & 156.71 \\
+Java & 10:44 & 2:55 & 644.07 & 175.96 \\
+\rowcolor{gray!10}
+JavaScript & 3:44 & 1:05 & 224.73 & 65.14 \\
+Kotlin & 3:14 & 1:46 & 194.87 & 106.23 \\
+\rowcolor{gray!10}
+PHP & 3:29 & 0:49 & 209.82 & 49.78 \\
+Python & 11:38 & 2:56 & 698.71 & 176.07 \\
+\rowcolor{gray!10}
+Ruby & 17:37 & 3:27 & 1057.42 & 207.45 \\
+Rust & 7:41 & 3:50 & 461.04 & 230.24 \\
+\rowcolor{gray!10}
+Scala & 7:25 & 1:16 & 445.24 & 76.41 \\
+TypeScript & 8:17 & 0:55 & 497.59 & 55.37 \\
+\midrule
+\rowcolor{gray!20}
+\textbf{Average} & 8:50 & 4:12 & 530.46 & 252.51 \\
+\textbf{Total (sum)} & 106:05 & --- & 6365.48 & --- \\
+\bottomrule
+\end{tabular}
+}
+\end{table}

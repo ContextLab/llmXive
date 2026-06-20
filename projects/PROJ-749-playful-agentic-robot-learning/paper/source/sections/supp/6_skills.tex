@@ -1,0 +1,437 @@
+\definecolor{RATSCodeBg}{rgb}{0.9686,0.9804,0.9922}
+\definecolor{RATSCodeKeyword}{rgb}{0.0667,0.0941,0.2667}
+\definecolor{RATSCodeString}{rgb}{0.2941,0.3373,0.5804}
+\definecolor{RATSCodeComment}{rgb}{0.4471,0.5333,0.6824}
+\definecolor{RATSCodeRule}{rgb}{0.9176,0.8784,0.8118}
+\lstdefinestyle{ratsappendixpython}{
+  language=Python,
+  basicstyle=\ttfamily\scriptsize,
+  keywordstyle=\color{RATSCodeKeyword}\bfseries,
+  stringstyle=\color{RATSCodeString},
+  commentstyle=\color{RATSCodeComment}\itshape,
+  numberstyle=\tiny\color{RATSCodeComment},
+  backgroundcolor=\color{RATSCodeBg},
+  rulecolor=\color{RATSCodeRule},
+  frame=single,
+  framerule=0.25pt,
+  numbers=left,
+  numbersep=4pt,
+  columns=fullflexible,
+  keepspaces=true,
+  showstringspaces=false,
+  breaklines=true,
+  breakatwhitespace=false,
+  tabsize=4
+}
+
+\subsection{MolmoSpaces Learned Skills}
+\label{sec:appendix_molmospaces_learned_helper_code}
+
+The following syntax-highlighted code block records three representative learned
+skills from the MolmoSpaces skill library.
+
+\begin{lstlisting}[style=ratsappendixpython]
+# MolmoSpaces representative learned-skill snippets
+# Selected skills: 3 of 27
+
+#===================================================================================================
+# Skill 1/3: get_axis_aligned_pull_direction
+# Interface: def get_axis_aligned_pull_direction(target_pos: np.ndarray) -> np.ndarray:
+# Documentation string: Computes the axis-aligned pull direction (e.g., [1, 0, 0] or [0, -1, 0])
+#                       pointing from the target position towards the robot base, useful for
+#                       determining which way a drawer or cabinet door opens.
+# Tier: verified; uses: 30; successes: 10
+#===================================================================================================
+def get_axis_aligned_pull_direction(target_pos: np.ndarray) -> np.ndarray:
+    import numpy as np
+    obs = get_observation()
+    robot_pos = obs["robot_base_pose"][:3]
+    direction = robot_pos - target_pos
+    direction[2] = 0
+    axis_idx = np.argmax(np.abs(direction))
+    pull_dir = np.zeros(3)
+    pull_dir[axis_idx] = np.sign(direction[axis_idx]) if direction[axis_idx] != 0 else 1.0
+    return pull_dir
+
+#===================================================================================================
+# Skill 2/3: push_object_closed
+# Interface: def push_object_closed(object_name: str, push_distance: float = 0.15,
+#            approach_distance: float = 0.15) -> bool:
+# Documentation string: Localizes an open object (like a drawer or door), determines its outward
+#                       pull direction, and pushes it inward to close it.
+# Tier: experimental; uses: 2; successes: 2
+#===================================================================================================
+def push_object_closed(object_name: str, push_distance: float = 0.15, approach_distance: float = 0.15) -> bool:
+    pos = localize_object_with_molmo_sam3(object_name)
+    if pos is None:
+        return False
+    pull_dir = get_axis_aligned_pull_direction(pos)
+    if pull_dir is None:
+        return False
+    close_gripper()
+    return push_surface_inward(pos, pull_dir, push_distance=push_distance, approach_distance=approach_distance)
+
+#===================================================================================================
+# Skill 3/3: plan_top_down_grasp_at_wrist
+# Interface: def plan_top_down_grasp_at_wrist(object_name: str, target_world_pos: np.ndarray,
+#            hover_height: float = 0.15) -> np.ndarray:
+# Documentation string: Moves the wrist camera to hover over a target position, uses Molmo and SAM3
+#                       to segment the object, and plans a top-down grasp from the resulting point
+#                       clouds.
+# Tier: deprecated; uses: 26; successes: 6
+#===================================================================================================
+def plan_top_down_grasp_at_wrist(object_name: str, target_world_pos: np.ndarray, hover_height: float = 0.15) -> np.ndarray:
+    wrist_obs = inspect_at_wrist(target_world_pos, hover_height=hover_height)
+    if not wrist_obs["ok"]:
+        return None
+
+    w_rgb = wrist_obs["wrist"]["rgb"]
+    w_depth = wrist_obs["wrist"]["depth"]
+    w_K = wrist_obs["wrist"]["intrinsics"]
+    w_T = wrist_obs["wrist"]["pose_mat"]
+
+    pt_w = point_prompt_molmo(w_rgb, object_name)
+    u_w, v_w = pt_w.get(object_name, (None, None))
+    if u_w is None:
+        return None
+
+    w_masks = segment_sam3_point_prompt(w_rgb, (u_w, v_w))
+    if len(w_masks) == 0:
+        return None
+
+    w_valid_mask = w_masks[0]["mask"]
+    pc_segment = mask_to_world_points(w_valid_mask, w_depth, w_K, w_T)
+    
+    full_mask = (w_depth > 0) & (w_depth < 2.0)
+    pc_full = mask_to_world_points(full_mask, w_depth, w_K, w_T)
+
+    if len(pc_segment) == 0 or len(pc_full) == 0:
+        return None
+
+    pc_full = subsample_point_cloud(pc_full, 10000)
+    pc_segment = subsample_point_cloud(pc_segment, 5000)
+
+    grasps, scores = plan_grasp_from_point_clouds(pc_full, pc_segment, object_name)
+    if len(grasps) == 0:
+        return None
+
+    best_grasp, best_score = select_top_down_grasp(grasps, scores)
+    return best_grasp
+\end{lstlisting}
+
+\subsection{LIBERO Learned Skills}
+\label{sec:appendix_libero_learned_helper_code}
+
+The following syntax-highlighted code block records three representative learned
+skills from the LIBERO skill library.
+
+\begin{lstlisting}[style=ratsappendixpython]
+# LIBERO representative learned-skill snippets
+# Selected skills: 3 of 47
+
+#===================================================================================================
+# Skill 1/3: localize_object_with_pose_aliases_and_segmentation_fallback
+# Interface: def localize_object_with_pose_aliases_and_segmentation_fallback(object_names,
+#            segmentation_query, use_multiview=True):
+# Documentation string: Localizes a target object by trying one or more pose-query names, then falls
+#                       back to language segmentation and an oriented bounding box center if pose
+#                       queries fail.
+# Tier: verified; uses: 18; successes: 16
+#===================================================================================================
+def localize_object_with_pose_aliases_and_segmentation_fallback(object_names, segmentation_query, use_multiview=True):
+    position = None
+    quaternion = None
+    method = None
+    point_count = None
+    obb = None
+
+    for object_name in object_names:
+        if position is None:
+            position, quaternion = get_object_pose(object_name, use_multiview=use_multiview)
+            method = "object_pose_" + object_name
+
+    if position is None:
+        seg = get_object_3d_points_and_masks_from_language(segmentation_query, use_multiview=use_multiview)
+        points = seg.get("points_3d")
+        if points is not None and len(points) > 0:
+            point_count = len(points)
+            obb = get_oriented_bounding_box_from_3d_points(points)
+            position = obb["center"]
+            quaternion = None
+            method = "segmentation_obb_" + segmentation_query
+
+    return {
+        "position": position,
+        "quaternion": quaternion,
+        "method": method,
+        "point_count": point_count,
+        "obb": obb
+    }
+
+#===================================================================================================
+# Skill 2/3: pick_flat_object_with_obb_top_down_retries
+# Interface: def pick_flat_object_with_obb_top_down_retries(target_prompt, verification_names,
+#            approach_height=0.10, lift_height=0.05, top_clearance_attempts=(-0.02, -0.025),
+#            xy_offset_attempts=((-0.015, -0.015), (-0.02, 0.0)), use_multiview=True,
+#            min_lift_delta=0.015):
+# Documentation string: Segments a flat object, computes an oriented-bounding-box top-down grasp
+#                       pose, tries configurable top-clearance and XY-offset corrections, lifts, and
+#                       verifies that the object rose.
+# Tier: experimental; uses: 1; successes: 1
+#===================================================================================================
+def pick_flat_object_with_obb_top_down_retries(target_prompt, verification_names, approach_height=0.10, lift_height=0.05, top_clearance_attempts=(-0.02, -0.025), xy_offset_attempts=((-0.015, -0.015), (-0.02, 0.0)), use_multiview=True, min_lift_delta=0.015):
+    attempt_records = []
+    last_grasp_position = None
+    last_grasp_quaternion = None
+    last_lift_position = None
+    last_obb = None
+    last_segmentation = None
+
+    num_attempts = min(len(top_clearance_attempts), len(xy_offset_attempts))
+    for attempt_index in range(num_attempts):
+        open_gripper()
+
+        segmentation = get_object_3d_points_and_masks_from_language(target_prompt, use_multiview=use_multiview)
+        points = segmentation.get("points_3d", None)
+        if points is None or len(points) == 0:
+            attempt_records.append({
+                "attempt_index": attempt_index,
+                "top_clearance": top_clearance_attempts[attempt_index],
+                "xy_offset": xy_offset_attempts[attempt_index],
+                "grasp_position": None,
+                "grasp_quaternion_wxyz": None,
+                "lift_position": None,
+                "verified_position": None,
+                "verified_lifted": False,
+            })
+            continue
+
+        obb = get_oriented_bounding_box_from_3d_points(points)
+        center = obb.get("center", None)
+        extent = obb.get("extent", None)
+        if center is None:
+            attempt_records.append({
+                "attempt_index": attempt_index,
+                "top_clearance": top_clearance_attempts[attempt_index],
+                "xy_offset": xy_offset_attempts[attempt_index],
+                "grasp_position": None,
+                "grasp_quaternion_wxyz": None,
+                "lift_position": None,
+                "verified_position": None,
+                "verified_lifted": False,
+            })
+            continue
+
+        grasp_position = center.copy()
+        if extent is not None and len(extent) >= 3:
+            grasp_position[2] = center[2] + float(extent[2]) * 0.5 + float(top_clearance_attempts[attempt_index])
+        else:
+            grasp_position[2] = center[2] + float(top_clearance_attempts[attempt_index])
+
+        dx, dy = xy_offset_attempts[attempt_index]
+        grasp_position[0] = grasp_position[0] + float(dx)
+        grasp_position[1] = grasp_position[1] + float(dy)
+
+        grasp_quaternion = (0.0, 0.0, 1.0, 0.0)
+        if extent is not None and len(extent) >= 2 and float(extent[0]) > float(extent[1]):
+            grasp_quaternion = (0.0, -0.70710678, 0.70710678, 0.0)
+
+        goto_pose(grasp_position, grasp_quaternion, z_approach=approach_height)
+        close_gripper()
+
+        lift_position = grasp_position.copy()
+        lift_position[2] = lift_position[2] + float(lift_height)
+        goto_pose(lift_position, grasp_quaternion)
+
+        verified_position = None
+        verified_quaternion = None
+        for verification_name in verification_names:
+            verified_position, verified_quaternion = get_object_pose(verification_name, use_multiview=use_multiview)
+            if verified_position is not None:
+                break
+
+        verified_lifted = False
+        if verified_position is not None:
+            verified_lifted = float(verified_position[2]) >= float(grasp_position[2]) + float(min_lift_delta)
+
+        last_grasp_position = grasp_position
+        last_grasp_quaternion = grasp_quaternion
+        last_lift_position = lift_position
+        last_obb = obb
+        last_segmentation = segmentation
+
+        attempt_records.append({
+            "attempt_index": attempt_index,
+            "top_clearance": top_clearance_attempts[attempt_index],
+            "xy_offset": xy_offset_attempts[attempt_index],
+            "grasp_position": grasp_position.tolist() if hasattr(grasp_position, "tolist") else grasp_position,
+            "grasp_quaternion_wxyz": grasp_quaternion,
+            "lift_position": lift_position.tolist() if hasattr(lift_position, "tolist") else lift_position,
+            "verified_position": verified_position.tolist() if hasattr(verified_position, "tolist") else verified_position,
+            "verified_lifted": verified_lifted,
+        })
+
+        if verified_lifted:
+            return {
+                "success": True,
+                "grasp_position": grasp_position,
+                "grasp_quaternion": grasp_quaternion,
+                "lift_position": lift_position,
+                "obb": obb,
+                "segmentation": segmentation,
+                "attempt_records": attempt_records,
+            }
+
+    return {
+        "success": False,
+        "grasp_position": last_grasp_position,
+        "grasp_quaternion": last_grasp_quaternion,
+        "lift_position": last_lift_position,
+        "obb": last_obb,
+        "segmentation": last_segmentation,
+        "attempt_records": attempt_records,
+    }
+
+#===================================================================================================
+# Skill 3/3: place_carried_object_on_segmented_target_with_hover_correction
+# Interface: def place_carried_object_on_segmented_target_with_hover_correction(target_prompt,
+#            initial_target_center, placement_quaternion, hover_z_offset=0.18,
+#            release_z_offset=0.05, retreat_z_offset=0.21, use_multiview=True):
+# Documentation string: Places an already-grasped object onto a target surface/region by moving to
+#                       an initial hover above the target, re-segmenting the target from the hover
+#                       view, correcting XY placement, descending to release, opening the gripper,
+#                       and retreating upward.
+# Tier: verified; uses: 7; successes: 6
+#===================================================================================================
+def place_carried_object_on_segmented_target_with_hover_correction(target_prompt, initial_target_center, placement_quaternion, hover_z_offset=0.18, release_z_offset=0.05, retreat_z_offset=0.21, use_multiview=True):
+    def _coord(position, index):
+        if position is None:
+            return None
+        if hasattr(position, "tolist"):
+            position = position.tolist()
+        try:
+            return position[index]
+        except Exception:
+            return None
+
+    def _make_position_like(reference_position, x_value, y_value, z_value):
+        if reference_position is not None and hasattr(reference_position, "copy"):
+            new_position = reference_position.copy()
+            new_position[0] = float(x_value)
+            new_position[1] = float(y_value)
+            new_position[2] = float(z_value)
+            return new_position
+        return [float(x_value), float(y_value), float(z_value)]
+
+    def _position_with_z_offset(center, z_offset):
+        x = _coord(center, 0)
+        y = _coord(center, 1)
+        z = _coord(center, 2)
+        if x is None or y is None or z is None:
+            return None
+        return _make_position_like(center, x, y, float(z) + float(z_offset))
+
+    def _replace_xy_keep_z(base_position, xy_source_position):
+        bx = _coord(base_position, 0)
+        by = _coord(base_position, 1)
+        bz = _coord(base_position, 2)
+        sx = _coord(xy_source_position, 0)
+        sy = _coord(xy_source_position, 1)
+        if bx is None or by is None or bz is None or sx is None or sy is None:
+            return base_position
+        return _make_position_like(base_position, sx, sy, bz)
+
+    def _xy_distance(position_a, position_b):
+        ax = _coord(position_a, 0)
+        ay = _coord(position_a, 1)
+        bx = _coord(position_b, 0)
+        by = _coord(position_b, 1)
+        if ax is None or ay is None or bx is None or by is None:
+            return None
+        return ((float(ax) - float(bx)) ** 2 + (float(ay) - float(by)) ** 2) ** 0.5
+
+    def _position_within_table_bounds(position):
+        x = _coord(position, 0)
+        y = _coord(position, 1)
+        z = _coord(position, 2)
+        if x is None or y is None or z is None:
+            return False
+        return (-0.45 <= float(x) <= 0.45) and (-0.55 <= float(y) <= 0.55) and (0.60 <= float(z) <= 1.05)
+
+    def _segment_target_center(prompt, multiview):
+        segmentation = get_object_3d_points_and_masks_from_language(prompt, use_multiview=multiview)
+        points = None
+        if isinstance(segmentation, dict) and "points_3d" in segmentation:
+            points = segmentation["points_3d"]
+        if points is None:
+            return None, segmentation, None
+        try:
+            if len(points) == 0:
+                return None, segmentation, None
+        except Exception:
+            return None, segmentation, None
+        obb = get_oriented_bounding_box_from_3d_points(points)
+        center = None
+        if isinstance(obb, dict) and "center" in obb:
+            center = obb["center"]
+        return center, segmentation, obb
+
+    log = {
+        "success": False,
+        "target_prompt": target_prompt,
+        "initial_target_center": initial_target_center,
+        "hover_position": None,
+        "residual_target_center": None,
+        "residual_xy_distance": None,
+        "corrected_target_center": None,
+        "release_position": None,
+        "retreat_position": None,
+        "placement_quaternion": placement_quaternion,
+    }
+
+    if initial_target_center is None:
+        log["failure_reason"] = "no_initial_target_center"
+        return log
+
+    target_center = initial_target_center
+    hover_position = _position_with_z_offset(target_center, hover_z_offset)
+    if hover_position is None:
+        log["failure_reason"] = "could_not_build_hover_position"
+        return log
+
+    log["hover_position"] = hover_position
+    goto_pose(hover_position, placement_quaternion, z_approach=0.0)
+
+    residual_center, residual_segmentation, residual_obb = _segment_target_center(target_prompt, use_multiview)
+    log["residual_target_center"] = residual_center
+    log["residual_segmentation"] = residual_segmentation
+    log["residual_obb"] = residual_obb
+    log["residual_xy_distance"] = _xy_distance(target_center, residual_center)
+
+    if _position_within_table_bounds(residual_center):
+        target_center = _replace_xy_keep_z(target_center, residual_center)
+
+    log["corrected_target_center"] = target_center
+    corrected_hover_position = _position_with_z_offset(target_center, hover_z_offset)
+    if corrected_hover_position is not None:
+        log["corrected_hover_position"] = corrected_hover_position
+        goto_pose(corrected_hover_position, placement_quaternion, z_approach=0.0)
+
+    release_position = _position_with_z_offset(target_center, release_z_offset)
+    if release_position is None:
+        log["failure_reason"] = "could_not_build_release_position"
+        return log
+
+    log["release_position"] = release_position
+    goto_pose(release_position, placement_quaternion, z_approach=0.0)
+    log["open_result"] = open_gripper()
+
+    retreat_position = _position_with_z_offset(target_center, retreat_z_offset)
+    if retreat_position is not None:
+        log["retreat_position"] = retreat_position
+        goto_pose(retreat_position, placement_quaternion, z_approach=0.0)
+
+    log["final_target_center"] = target_center
+    log["success"] = True
+    return log
+\end{lstlisting}

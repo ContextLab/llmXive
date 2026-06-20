@@ -1,0 +1,59 @@
+{
+  "arxiv_id": "2606.15133",
+  "arxiv_url": "https://arxiv.org/abs/2606.15133",
+  "title": "DragMesh-2: Physically Plausible Dexterous Hand-Object Interaction with Articulated Objects",
+  "authors": [
+    "Tianshan Zhang",
+    "Yijia Duan",
+    "Yanjun Li",
+    "Zeyu Zhang",
+    "Hao Tang"
+  ],
+  "submitter": "github-actions[bot]",
+  "abstract": "Dexterous interaction with articulated objects is important for household, assistive, and humanoid manipulation, where multi-finger hands can provide compliant contact patterns beyond parallel-jaw grasping. However, articulated-object manipulation differs from static-object manipulation: the target part cannot be directly actuated, and its motion must emerge through sustained physical hand--handle contact. This makes the transition from object-centric articulated generation to hand-driven dexterous hand--object interaction non-trivial, since geometric trajectory replay or open-loop execution does not model the contact dynamics required to move the articulated part. Moreover, policies trained only for task completion under fixed dynamics can overfit nominal contact loads, especially without tactile or force feedback, and may degrade when the contact load changes. To address these challenges, we present DragMesh-2, a contact-driven framework for dexterous interaction with articulated objects that extends articulated interaction from object-centric generation to hand-driven dexterous hand--object interaction, where articulated motion must arise through physical contact. We further propose PICA, a physically informed contact-aware training mechanism that injects physical signals into policy learning without tactile or force feedback, improving robustness and task success under changing contact loads. Finally, we conduct systematic evaluation across multiple damping conditions and articulated-object categories to study robustness under contact-load variation, and provide a pure-geometry dexterous interaction resource to support future loco-manipulation and humanoid hand--object interaction research. Across seven GAPartNet objects, DragMesh-2 achieves stronger robustness under contact-load variation than the compared methods while maintaining high task success across damping conditions.",
+  "submitted_via": "llmXive dashboard, GitHub issue #346",
+  "license": "arXiv Non-exclusive Distribution License",
+  "license_url": "http://arxiv.org/licenses/nonexclusive-distrib/1.0/",
+  "code": [
+    "https://github.com/AIGeeksGroup/DragMesh-2"
+  ],
+  "data": [],
+  "toplevel_tex": [
+    "example.tex"
+  ],
+  "source_files": [
+    "00README.json",
+    "appendix.tex",
+    "corl_2026.sty",
+    "corlabbrvnat.bst",
+    "example.bib",
+    "example.tex",
+    "fig",
+    "fig/attach.png",
+    "fig/image.png",
+    "fig/open.png",
+    "fig/qual_41529_3.png",
+    "fig/qual_41529_2.png",
+    "fig/grasp.png",
+    "fig/qual_41529_1.png",
+    "fig/fig_main_grouped.pdf",
+    "fig/appendix",
+    "fig/appendix/sim_7310_drag.png",
+    "fig/appendix/real_stage_open.png",
+    "fig/appendix/44962.png",
+    "fig/appendix/sim_12583_approach.png",
+    "fig/appendix/real_stage_approach.png",
+    "fig/appendix/sim_12583_drag.png",
+    "fig/appendix/40147.png",
+    "fig/appendix/sim_7310_grasp.png",
+    "fig/appendix/48513.png",
+    "fig/appendix/sim_12583_grasp.png",
+    "fig/appendix/real_stage_grasp.png",
+    "fig/appendix/sim_7310_approach.png",
+    "fig/appendix/sim_46440_grasp.png",
+    "fig/appendix/sim_46440_approach.png",
+    "fig/appendix/sim_46440_drag.png",
+    "fig/appendix/102996.png",
+    "fig/appendix/103008.png"
+  ]
+}

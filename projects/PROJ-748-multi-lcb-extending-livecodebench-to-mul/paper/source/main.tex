@@ -1,0 +1,877 @@
+
+\documentclass{article} % For LaTeX2e
+\usepackage{iclr2026_conference,times}
+
+% Optional math commands from https://github.com/goodfeli/dlbook_notation.
+\input{add_math_commands.tex}
+\input{add_packages.tex}
+
+\title{Multi-LCB: Extending LiveCodeBench to \\ Multiple Programming~Languages
+}
+\input{authors.tex}
+\newcommand{\fix}{\marginpar{FIX}}
+\newcommand{\new}{\marginpar{NEW}}
+
+\iclrfinalcopy % Uncomment for camera-ready version, but NOT for submission.
+\begin{document}
+
+
+\maketitle
+
+\begin{abstract}
+LiveCodeBench (LCB) has recently become a widely adopted benchmark for evaluating large language models (LLMs) on code-generation tasks. By curating competitive programming problems, constantly adding fresh problems to the set, and filtering them by release dates, LCB provides contamination-aware evaluation and offers a holistic view of coding capability. However, LCB remains restricted to Python, leaving open the question of whether LLMs can generalize across the diverse programming languages required in real-world software engineering.
+
+
+We introduce Multi-LCB, a benchmark for evaluating LLMs across twelve programming languages, including Python.
+Multi-LCB transforms Python tasks from the LCB dataset into equivalent tasks in other languages while preserving LCB’s contamination controls and evaluation protocol.
+Because it is fully compatible with the original LCB format, Multi-LCB will automatically track future LCB updates, enabling systematic assessment of cross-language code generation competence and requiring models to sustain performance well beyond Python.
+
+We evaluated 24 LLMs for instruction and reasoning on Multi-LCB, uncovering evidence of Python overfitting, language-specific contamination, and substantial disparities in multilingual performance. Our results establish Multi-LCB as a rigorous new benchmark for multi-programming-language code evaluation, directly addressing LCB’s primary limitation and exposing critical gaps in current LLM capabilities. %All prompts, source code and experimental configurations are publicly available at \url{https://github.com/Multi-LCB/Multi-LCB}.
+\end{abstract}
+
+
+
+\section{Introduction}
+Large language models (LLMs) have recently demonstrated impressive capabilities in code-related tasks \citep{ridnik2024code, lozhkov2024starcoder, roziere2023code, li2022competition, nijkamp2022codegen}, powering applications such as AI-assisted programming, automated debugging, and code translation. To measure these abilities, benchmarks such as HumanEval \citep{chen2021evaluating}, MBPP \citep{austin2021program}, and APPS \citep{hendrycks2021measuring} have been widely adopted. However, these datasets suffer from well-documented limitations, including contamination from training corpora, narrow task scope, and weak correlation with human judgment.  
+LiveCodeBench (LCB)~\citep{jain2024livecodebench} addresses these shortcomings by continuously curating competitive-programming problems, filtering them by release date, and enabling \textit{contamination-aware, continuously updatable evaluation}. As a result, LCB has quickly become a standard benchmark for evaluating LLMs on code-generation tasks \citep{kavukcuoglu2025, deepseek2025r1_0528}.
+
+
+Despite these strengths, LCB~\citep{jain2024livecodebench} evaluates only Python. While convenient, this limitation overlooks a central reality of software engineering: developers routinely work across diverse programming languages, each with its own syntax, semantics, and idiomatic practices. An LLM capable of solving problems exclusively in Python may perform poorly when C++ is required for systems programming, Java for enterprise software, or JavaScript for web development. Current evaluations therefore leave open a critical question: \textit{can LLMs generalize coding competence across multiple programming languages, or are they overfitted to Python?}
+
+
+In this work, we introduce \textbf{Multi-LCB}, an extension of LCB~\citep{jain2024livecodebench} to twelve programming languages while preserving its contamination controls and evaluation protocol.  
+Multi-LCB replicates every LCB task across all supported languages, enabling direct comparison of model performance on identical problems in different programming languages and updating automatically as LCB evolves. We evaluate 24 reasoning- and instruction-oriented LLMs on Multi-LCB and uncover key findings:
+\begin{enumerate}
+\item \textit{Python is not always a reliable proxy for individual non-Python languages}.  Our results reveal substantial and practically meaningful performance gaps across languages. In several cases, models that are stronger on Python do not retain their advantage in other languages.
+    \item \textit{Python overfitting}. Models that perform strongly in Python often degrade sharply in other languages.
+    \item \textit{Language-specific contamination}. Evidence of data leakage varies by programming language, reflecting uneven distribution in pretraining corpora.
+    \item \textit{Substantial multi-programming-language disparities}. Models show large performance gaps across languages, with weaker results in statically typed or less prevalent languages.
+\end{enumerate}
+
+Our main contributions are:
+\begin{enumerate}
+\item We extend LCB~\citep{jain2024livecodebench} to 12 programming languages without task loss, enabling direct comparison of LLM abilities to solve identical problems across different languages.
+\item We provide a comprehensive evaluation of 24 instruction- and reasoning-oriented LLMs across these languages, revealing systematic multi programming languages performance gaps and evidence of language-specific contamination.
+\item We publicly release all prompts, source code and experimental configurations  %at \url{https://github.com/Multi-LCB/Multi-LCB} 
+to facilitate reproducibility and future research.
+\end{enumerate}
+
+These results establish Multi-LCB as a rigorous benchmark for multi-programming-language code evaluation, directly addressing LCB’s Python-only limitation and providing a foundation for developing more robust, programming language agnostic coding models.
+
+\section{Related Work}
+\label{sec_related_work}
+
+\textbf{Single-language code benchmarks}. 
+Early code-generation benchmarks evaluate functional correctness almost exclusively in Python. \textit{HumanEval}~\citep{chen2021evaluating} contains 164 hand-written problems, each defined by a natural language prompt, a fixed function signature, and hidden unit tests; tasks are short, single-function programs created specifically for evaluation rather than drawn from programming contests. \textit{MBPP}~\citep{austin2021program} likewise offers small Python exercises aimed at introductory programming and interview practice. Subsequent datasets expanded scale and difficulty: \textit{APPS}~\citep{hendrycks2021measuring} aggregates competition and interview style problems with hidden test suites, \textit{CodeContests}~\citep{li2022competition} compiles algorithmic contest tasks with official judge input/output data, and \textit{CodeXGLUE}~\citep{lu2021codexglue} provides a broad suite of generation, translation, and retrieval tasks.
+Despite their influence, these resources are static snapshots, lack release date filtering to prevent training set contamination and are therefore largely saturated, remain heavily Python centric, and do not enforce a unified STDIN/STDOUT protocol. %, all of which limit their usefulness for real time, multi programming language evaluation.
+
+\textbf{Multi-programming-language benchmarks.}
+Several datasets extend code generation evaluation beyond Python. \textit{MBXP}~\citep{athiwaratkun2022multi} translates functional-format Python problems (e.g., HumanEval~\citep{chen2021evaluating}, MBPP~\citep{austin2021program}) by rewriting function signatures and regenerating unit tests for each language. Even a simple Python assertion like: 
+
+\texttt{ \qquad \qquad \qquad \qquad
+\textcolor{deepgreen}{assert}\ 
+\textcolor{blue}{binomial\_coeff}\textcolor{black}{(}\textcolor{deeporange}{5}\textcolor{black}{, }\textcolor{deeporange}{2}\textcolor{black}{)}\ 
+\textcolor{black}{==}\ 
+\textcolor{deeporange}{10}
+} 
+
+must be expanded into multi-line Java test code. This translation must be repeated separately for every language and is sensitive to syntax and runtime differences. Concurrent work \textit{MultiPL-E}~\citep{cassano2023multipl} similarly performs  translation of HumanEval and MBPP (including their unit tests) into 19 programming languages. \textit{HumanEval-XL}~\citep{peng2024humaneval} similarly expands HumanEval to additional languages and provides a standardized execution harness while preserving the functional, unit-test format. Multi-LCB avoids this by keeping only the natural-language description and converting hidden tests into a language-agnostic \texttt{STDIN/STDOUT}
+ format, for example: \texttt{
+\noindent{}\\
+ \color{blue}Input:\\
+\color{black}5\;2\\
+ \color{blue}Output:\\
+\color{black}10}
+
+Other projects broaden language coverage in different ways. \textit{Ag-LiveCodeBench-X}~\citep{boruch2025agnostics} reuses a subset of LiveCodeBench tasks already in STDIN/STDOUT format and adds rarer targets such as Lua, R, Julia, OCaml, and Fortran. 
+\textit{xCodeEval}~\citep{khan2023xcodeeval} likewise provides a unified multilingual execution framework and resembles our approach, but it draws exclusively from Codeforces problems and is not continuously updated. 
+\textit{McEval}~\citep{chai2024mceval} and \textit{BigCodeBench}~\citep{zhuo2024bigcodebench} once offered broad language coverage, but both are static and evaluate different task sets per language, hindering direct cross language comparison.
+
+
+\textbf{Contamination-aware evaluation.} LiveCodeBench (LCB)~\citep{jain2024livecodebench} introduced release date filtering and continuous collection of Python problems from three major competitive programming platforms: LeetCode, AtCoder, and Codeforces (see Appendix~\ref{app_subsec_platforms} for task statistics).  
+By harvesting new tasks and filtering them by post-training release dates, LCB enables live, contamination aware evaluation of LLMs and has become a \textit{de-facto standard} for robust single language (Python) code assessment~\citep{comanici2025gemini, yang2025qwen3, liu2024deepseek}. A related effort, \textit{EvoCodeBench}~\citep{li2024evocodebench}, followed a similar evolving design but was not actively maintained and remained limited to Python.
+\textit{Multi-LCB} builds directly on this foundation. It reuses the entire LCB~\citep{jain2024livecodebench} task pool and inherits its contamination controls. %, while automatically converting all problems to a unified STDIN/STDOUT format and extending evaluation to twelve major programming languages under the same Pass@1 metric. %This design enables clean, side-by-side measurement of cross-language generalization, detection of language-specific contamination, and analysis of Python overfitting in modern LLMs.
+
+
+\input{add_schematic}
+
+\section{Benchmark Design}
+\label{sec_bench}
+This section describes the approach, used to construct the Multi-LCB benchmark. Figure \ref{fig:multi-lcb-overview} illustrates the full pipeline. %, which proceeds through five stages: data collection, conversion of functional format tasks to a unified STDIN/STDOUT format, generation of model solutions, sandboxed execution, and automatic testing and evaluation. %The framework preserves LiveCodeBench’s contamination controls and live-update protocol while enabling rigorous multi-programming language evaluation. 
+Please note, that although Multi-LCB is built on LCB, the same approach \textit{can be applied to any dataset} with a comparable structure.
+
+
+
+\textbf{Data Source.} Earlier versions of LCB supported several evaluation scenarios beyond code generation: self-repair, code execution, and test output prediction. But the latest releases (v5-v6) focus exclusively on \textit{code generation}, the most widely benchmarked capability of modern LLMs. In this setting, a model receives a natural language problem statement with sample input/output pairs and must synthesize a program that passes all hidden test cases.
+
+To construct Multi-LCB, we load the desired version of the LCB \textit{code generation} dataset from Hugging Face, retrieving Python problems and their metadata. We convert every release of LCB code generation dataset without modification, preserving all tasks from three competitive-programming platforms: LeetCode, AtCoder, and Codeforces. Each task includes a natural language description, input/output examples, and contest release date for contamination-aware filtering. Test conversion is applied only to LeetCode's functional format tasks to ensure unified STDIN/STDOUT evaluation. Details about platforms and temporal distribution appear in the Appendix \ref{app_subsec_platforms}.
+
+
+\textbf{Conversion of functional format.} LCB supports two native task formats: \textbf{STDIN/STDOUT} (as in AtCoder and Codeforces), where a program reads from standard input and writes to standard output, and \textbf{Functional} (as in LeetCode), where a specific function is implemented and invoked by the evaluation system.
+Directly extending the functional format to a multi-programming language benchmark is challenging.
+Each LeetCode task provides Python starter code tightly coupled to its own testing harness. Producing equivalent starter code and call signatures for many target languages would require custom templates for every language, leading to an unsustainable and error-prone process.
+To overcome this limitation, we designed an \textbf{automatic conversion pipeline} that rewrites every Functional task into a unified STDIN/STDOUT format. This pipeline consists of two components: (1) prompt adaptation that reformats problem statements and examples for model input, and (2) test conversion that transforms all test cases for automated evaluation.
+
+
+
+
+The pipeline first parses examples from the problem statement and reformats them into STDIN/STDOUT format for inclusion in model prompts. (see Appendix~\ref{app_atcoder_prompts}). Separately, it converts all test cases (both public and hidden) from the original format to enable unified automated evaluation. This unification allows a single evaluation harness to handle both the original STDIN/STDOUT problems and the adapted functional tasks across all supported languages. 
+Since the original benchmark is based on Python, tasks involving Python-specific behavior could theoretically appear. However, tasks on LeetCode, AtCoder, and Codeforces are authored by human experts and are intentionally designed to avoid language-specific ambiguities, as these platforms support many programming languages. Consequently, Multi-LCB requires no language-specific rewriting, and the tasks remain inherently language-agnostic. Moreover, in our manual inspection of approximately 500 tasks, we did not find any cases in which language-dependent features introduced inconsistencies.
+%Also, this format is a popular choice on the programming contests, e. g. it is used at Codeforces one of the biggest programming competition platforms. 
+Note that tasks unsuitable for strict input/output grading, such as those admitting multiple valid answers or requiring explicit data structure construction, are already excluded in the official LCB dataset that we load, so Multi-LCB inherits this filtering without any additional intervention. The remaining tasks are grouped by I/O structure:
+\textbf{Scalar}: inputs and outputs are single, scalar values (e.g. integers, floats, booleans, or simple strings); \textbf{One-Dimensional}: involve one-dimensional arrays (lists) as input or output; \textbf{Two-Dimensional}: include exactly one two-dimensional array (matrix or jagged array) in the I/O. As a result, all functional tasks, including their examples and hidden tests, are consistently converted to STDIN/STDOUT format: lists are space-separated, and for 2D arrays the first line specifies the number of rows, followed by row-wise space-separated values. This conversion applies to both the examples shown to the models and all test cases used for evaluation.
+
+
+\textbf{Code generation.} We adopt a zero-shot prompting strategy that follows the original LiveCodeBench protocol.
+For each task, the benchmark constructs a prompt with three components:
+
+\begin{enumerate}
+    \item  a \texttt{system message} instructs the model to act as an expert programmer in the target language  (e.g., \texttt{``You are an expert Python programmer...''});
+    \item  a \texttt{user message} provides the complete natural language problem statement with explicit STDIN/STDOUT specifications and input/output sample cases already provided in the original problem descriptions; 
+    \item a code-block placeholder indicates where the solution must be written:
+\begin{verbatim}
+""" python
+# YOUR CODE HERE
+"""
+### Answer: (use the provided format with backticks)
+\end{verbatim}
+The code-block header is set to the target language (e.g., \texttt{cpp}, \texttt{java}, \texttt{python}) to ensure correct syntax highlighting and parsing.
+\end{enumerate}
+
+
+Models are required to output only the complete program source that reads from the standard input and writes to the standard output.
+High-level zero-shot template prompts for both native AtCoder and CodeForces tasks and adapted LeetCode problems are included in the Appendix~\ref{app_prompts} for reference.
+
+%\textbf{Sandboxed Execution.} Candidate programs are executed inside language-specific sandboxes that provide isolation and enforce strict time and memory limits. Each sandbox bundles the minimal runtime and compiler or interpreter for the target language, with dependencies managed through Conda environments.
+
+\textbf{Automatic Testing and Evaluation.} Correctness is assessed against a hidden suite of official test cases provided by the original contests. A program is marked correct only if it passes all tests without runtime errors or timeouts. For quantitative comparison we report Pass@1, the fraction of tasks for which the model’s first generated solution passes every public and hidden test.
+%When evaluating stochastic models we optionally sample multiple outputs but score only the first, aligning with the standard LiveCodeBench protocol.
+
+
+Together, these stages create a fully automated pipeline: a model receives a problem prompt, emits a candidate solution, the code is securely compiled and executed, and the output is graded against hidden tests -- all without human intervention.
+This process preserves LCB’s rigorous contamination controls while enabling direct, language-agnostic evaluation of code generation across the diverse set of languages supported by Multi-LCB. Note, that the same set of tasks is used across evaluations on different programming languages, hence task difference does not hinder the comparison of the multi-language model capabilities.
+
+\subsection{Language set and motivation}
+
+This study evaluates multilingual code generation across major programming languages: C++, C\#, Python, Java, Rust, Go, TypeScript, JavaScript, Ruby, PHP, Kotlin and Scala. The selection balances three criteria: (1) popularity based on Github, StackOverFlow, RedMonk and TIOBE rankings, (2) stable infrastructure support through package managers like Conda for reproducible execution, and (3) paradigmatic diversity across compilation strategies, type systems, and memory management models. For detailed programming language rankings across multiple sources, as well as the runtime characteristics information, please see Appendix \ref{app_rankings}.
+
+%While additional languages like Swift or Haskell would broaden coverage, practical infrastructure constraints guided our current selection, with future expansion planned as support matures.
+
+
+% The selected languages therefore challenge models not only to adapt to varied syntax but also to handle deep semantic and ecosystem differences such as compilation strategies, type systems, and memory management. This carefully balanced selection enables direct, apples-to-apples comparisons of model performance on the same set of problems across a truly diverse spectrum of programming languages.
+
+%The ten supported languages were chosen based on industry adoption and diversity of language design. They span multiple paradigms and runtime models: compiled (C++, Rust, Go), JIT-based (Java, C\#, Kotlin), transpiled (TypeScript → JavaScript), and interpreted (Python, Ruby, PHP). This variety tests not only syntax adaptation but also deeper semantic and ecosystem differences that real-world software engineering requires.
+
+
+
+
+
+
+
+
+
+
+
+
+\section{Experiment Setup}
+\label{sec_exp_setup}
+
+Here we describe the experimental configuration used to evaluate LLMs on the Multi-LCB benchmark.  
+
+\textbf{Models} We evaluate a diverse set of 24 publicly available large language models (LLMs) spanning from 7B to 685B parameters and covering both general-purpose and code-specialized domains. The pool includes instruction-tuned and reasoning-augmented variants from the Qwen3, DeepSeek, OlympicCoder, OpenReasoning, and OpenCoder families, among others.
+Representative examples include \texttt{GPT-OSS-120B$^*$ (Medium)}, \texttt{Qwen3-235B-A22B-Thinking-2507$^*$}, \texttt{DeepSeek-R1-0528$^*$} and \texttt{OpenReasoning-Nemotron-32B$^*$}.
+We intentionally selected models to capture a wide variety of training paradigms (pure code pretraining, mixed-domain training, instruction tuning, reasoning-enhanced fine-tuning).
+Appendix~\ref{app_subsec_models} lists all checkpoints with their estimated training cut-off dates.
+
+\textbf{Hardware and Environment.}
+All experiments were run on a cluster of 16 NVIDIA H100 80 GB GPUs with CUDA 12.3 and Python 3.11 inside Conda environments.
+Each programming language is executed inside an isolated sandbox container that bundles its corresponding compiler or interpreter (e.g., GCC 13 for C++, Rust 1.79, OpenJDK 21, .NET 8, CPython 3.11, Node.js 20).
+The sandbox enforces strict resource limits: 6 s wall-time per test case, 4 GB memory, and no external network access.
+This ensures deterministic, secure, and language-agnostic execution.
+
+\textbf{Inference Protocol.}
+Following the original LiveCodeBench protocol, we adopt a zero-shot prompting strategy.
+For each problem, we generate a model-specific number of tokens (set according to its configuration) using nucleus sampling with temperature = 0.2 and top-p = 0.95, applying a triple-backtick stop sequence to capture the complete code block.
+Models are served with vLLM \citep{kwon2023efficient} or SGLang \citep{zheng2024sglang} for efficient batched decoding.
+%Each task is evaluated once per language with three random seeds; we report mean results and 95\% bootstrap confidence intervals.
+
+\textbf{Evaluation Metric}
+We report Pass@1 (\%) averaged on 10 runs as the primary metric, which measures the fraction of problems solved correctly by the first generated solution. A solution is marked correct only if it compiles/interprets successfully and passes all hidden official test cases without runtime errors or timeouts.
+
+
+
+%Together, these choices provide a reproducible and language-fair experimental setup, ensuring that differences in performance reflect true multilingual code-generation ability rather than artifacts of infrastructure or evaluation protocol.
+\input{tables/tab_exps_feb25_pass1_avg10_t0.2}
+
+\section{Experiments and Results}
+\label{sec_exp_results}
+
+
+
+We evaluate a suite of frontier large language models on Multi-LCB, spanning 12 programming languages and reporting Pass@1 averaged on 10 runs as the primary metric (Table \ref{tab_exps_feb25_pass1_avg10_t0.2}). 
+This section presents a detailed analysis of model performance on  latest Dataset v6 (Feb 2025 -- May 2025) (Section \ref{subsec_exp_results}), compares findings with single-language LiveCodeBench (LCB) results (Section \ref{subsec_exp_comparison_lcb}), and investigates contamination signals (Section \ref{subsec_exp_contamination}).  
+For additional performance results at various sampling temperatures, Pass@5 and Pass@10 metrics and other dataset releases (July 2024-May 2025 and the full 1,055-task benchmark) see appendix \ref{app_exp_results}.
+
+
+
+
+
+
+
+
+\subsection{Experiments Results on Multi-LCB}
+\label{subsec_exp_results}
+
+We study performance variations in models released more recently. Particularly, we evaluate 24 recent large language models on Multi-LCB, restricting tasks to those released after 2025-02-01 to ensure live, post-cutoff evaluation and minimize any risk of training-data leakage. Model approximate cutoff dates are listed in Appendix~\ref{app_subsec_models} Table~\ref{tab_model_details}. 
+
+\begin{wrapfigure}{r}{0.5\textwidth} 
+    \centering
+\includegraphics[width=0.45\textwidth]{figs/radar_chart_top_10_models_pass_at_1_temp_0p2.png}
+    \caption{Top-10 models by Pass@1}
+    \label{fig:top_10_models_pass1}
+\end{wrapfigure}
+
+Table \ref{tab_exps_feb25_pass1_avg10_t0.2} summarizes Pass@1 averaged on 10 runs with temperature $t = 0.2$ performance across twelve programming languages on Dataset v6 (Feb 2025 -- May 2025), while Figure \ref{fig:top_10_models_pass1} highlights the results for the 10 best-performing models. 
+
+
+
+
+Our results reveal substantial and practically meaningful performance gaps across languages.  For example, \texttt{GPT-OSS-120B$^{*}$ (Medium)} outperforms \texttt{Qwen3-235B-A22B-Thk-2507$^{*}$} on Go, Javascript, Typescript, Rust, Ruby and Kotlin, and \texttt{DeepSeek-R1-0528$^{*}$} outperforms \texttt{Qwen3- 235B-A22B-Thk-2507$^{*}$} on Rust, Ruby and Scala, despite \texttt{Qwen3-235B-A22B-Thk-2507$^{*}$} being consistently stronger on Python. 
+\textit{This is precisely why strong Python ability is not always a reliable proxy for true cross-lingual code generation competence} and evaluation must consider performance in the target languages rather than relying on Python alone.
+
+
+
+ \begin{wrapfigure}{r}{0.5\textwidth} 
+    \centering
+    \includegraphics[width=0.45\textwidth]{figs/python_vs_all_pass_at_1_ellipses.png}
+    \caption{Scatter of Python vs.\ Average Pass@1  }
+    \label{fig:python_vs_all_pass1_ellipces}
+\end{wrapfigure}
+
+
+
+
+Figure \ref{fig:python_vs_all_pass1_ellipces} plots per-model Pass@1 averaged on 10 runs with sampling temperature $t = 0.2$ scores on Python against the cross programming language average on Dataset v6 (Feb 2025 -- May 2025). 
+
+
+ Almost every point lies above the $x=y$ diagonal, demonstrating a consistent bias toward Python. Models without explicit multi programming languages training, such as \texttt{OpenRsn-Nmt-32B$^{*}$} and \texttt{OpenCodeRsn-Nmt-1.1-32B$^{*}$}, show the starkest gap, exceeding 60\% on Python while remaining below 30\% across other languages. 
+
+
+Even the largest reasoning-augmented models, including \texttt{Qwen3-235B-Thk} and \texttt{DeepSeek-R1}, retain a measurable positive bias toward Python, though the disparity is less pronounced. %The mean Python score hovers around 45\%, roughly 10-15 points higher than the overall benchmark average.
+
+These results confirm that strong Python ability is not necessarily a reliable proxy for true cross-lingual code generation competence.
+
+
+ The most strongest models, \texttt{GPT-OSS-120B$^{*}$ (Medium)}, \texttt{Qwen3-235B-A22B-Thk-2507$^{*}$} and \texttt{DeepSeek-R1-0528$^{*}$} establish a strong yet far-from-saturated frontier, while the next tier of high-performing models, such as \texttt{Qwen3-30B-A3B-Thk-2507$^{*}$}, illustrates that only a handful of reasoning-augmented variants can exceed the 50\% mark. Most of the evaluated models remain below 40\%, \textit{underscoring the benchmark’s  challenge of achieving robust multi programming language code generation correctness}.
+
+% Trends across model families further show that reasoning-tuned variants consistently outperform their instruction-only counterparts.  
+%For example, \texttt{Qwen3-235B-A22B-Thinking-2507} surpasses the similarly scaled \texttt{Qwen3-235B-A22B-Instr-2507} by more than 20 percentage points. 
+%By contrast, simply scaling parameter counts without reasoning augmentation yields diminishing returns, as several 30-32B models lag behind smaller CoT-enhanced peers.
+
+
+
+% Возможные выводы по графику: 
+% Практически все модели показывают более высокие результаты на Python, чем в среднем по другим языкам.
+% На графике (рис. X) большинство точек расположено выше линии x = y, что указывает на перевес Python.
+% У моделей без мультиязычного обучения (например, OpenReasoner, OpenCodeReasoner) разрыв особенно велик: Python высок, другие языки существенно ниже.
+% Даже крупные мультиязычные модели (например, Qwen3-235B-Thinking, DeepSeek-R1) сохраняют положительный bias в пользу Python, хотя менее выраженный.
+
+
+\begin{wrapfigure}{r}{0.55\textwidth} 
+%\begin{figure}[hbt]
+    \centering
+    \includegraphics[width=0.55\textwidth]{figs/language_performance_boxplot_pass_at_1.jpg}
+    \caption{Pass@1 distribution across 12 languages}
+    \label{fig:performance_boxplot_pass1}
+%\end{figure}
+\end{wrapfigure}
+
+Figure~\ref{fig:performance_boxplot_pass1} plots Pass@1 distribution across 12 languages on with sampling temperature t = 0.2 on Dataset v6 (Feb 2025 – May 2025). Boxes show the interquartile range with the horizontal line marking the median and the red diamond indicating the mean.
+This reveals a clear difficulty gradient. Python achieves the highest \textbf{mean} Pass@1 of 0.482, with Java and C++ close behind at about 0.44. C\#, Ruby, PHP, Go, Rust, Kotlin and JavaScript/TypeScript form a middle tier with means near 0.33-0.39, while Scala consistently trail at means below 0.29.  
+These gaps persist across the top-performing models, reflecting structural challenges such as compilation complexity, ownership semantics, and smaller ecosystem resources.
+
+
+
+%These results demonstrate that Multi-LCB not only provides rigorous multilingual evaluation but also exposes the limits of current training strategies, highlighting the need for reasoning-aware design to advance cross-language code generation.
+
+
+We observe that Python consistently outperforms other languages on Multi-LCB. This suggests that current LLMs are substantially more trained on Python code, especially for reasoning-mode training, and that cross-language knowledge transfer remains only partial. We suppose that model performance could be improved by increasing training coverage of non-Python programming languages.
+
+
+%видя что питон работает лучше ост языки мы делаем предположение что модели больше тренирвоались в питоне, espessially  training for reasoning, и трансфер знаний прошел только частичный. мы предполгаем что можно увеличить качество моделей если их больше тренировать в другие языки.
+
+
+%Total tasks distribution across platforms, difficulty and Functional format I/O dimensionality can be found in Appendix~\ref{app_distribution}. Table \ref{tab_exps_feb25} provides per-model, per programming language scores as well as average score for all twelve programming languages performance. Note that we report performance on all programming languages, so averaging can be done on subset of interesting languages. Evaluation on subsets of tasks released on other periods presented in Appendix \ref{app_exp_results}.
+
+
+%\subsection{Pass@1 vs Pass@10}
+
+
+
+
+\subsection{Comparison with LiveCodeBench}
+\label{subsec_exp_comparison_lcb}
+
+
+
+To verify that our multilingual extensions preserve the fidelity of the original LiveCodeBench (LCB), we compare Pass@1 scores on the Python subset of Multi-LCB against the official results reported for LCB versions v4-v6. 
+Table~\ref{tab:model-comparison} reports original leaderboard results (ORIG) and our reproduced scores (OUR), with $\Delta$ representing the absolute difference.
+
+
+\input{tables/comparison_with_orig}
+
+Overall, reproduction is strong: differences are typically within a few percentage points, with a mean absolute deviation of only about 3\%.  
+For example, \texttt{Qwen3-235B-A22B-Thinking-2507} achieves 74.0\% Pass@1 in our evaluation versus 74.1\% on the original v6 leaderboard ($\Delta=-0.1$), while \texttt{DeepSeek-R1-0528} records 66.3\% compared to 68.7\% ($\Delta=-2.4$).  
+Even for models with larger gaps, such as \texttt{Qwen3-235B-A22B-Ins-2507} ($\Delta=-8.0$) or \texttt{Qwen3-8B*} ($\Delta=-8.6$), the rank ordering across models remains consistent.
+
+These close alignments confirm that Multi-LCB’s multilingual transformations introduce no artificial difficulty for Python tasks.  
+Performance differences instead reflect natural leaderboard variance and underscore that the multilingual benchmark faithfully reproduces the single-language LCB setting, ensuring that any additional challenges arise from genuine cross-language generalization rather than implementation artifacts.
+
+
+
+\begin{wrapfigure}{r}{0.55\textwidth} 
+    \centering
+    \includegraphics[width=0.55\textwidth]{figs//monthly_trends/monthly_pass_at_1_trends_overall.png}
+    \caption{Monthly Pass@1 trends averaged across all programming languages for top-10 models.}
+    \label{fig:monthly_trends_overall}
+\end{wrapfigure}
+
+\subsection{Contamination on Multi-LCB}
+\label{subsec_exp_contamination}
+
+
+A core design goal of Multi-LCB is contamination-aware evaluation via release-date filtering.  
+Nevertheless, \emph{time-wise} analysis reveals clear evidence of residual contamination on older (pre-cutoff) problems.  
+Figure~\ref{fig:monthly_trends_overall} shows monthly Pass@1 trends for the top-10 models averaged across all programming languages : scores are systematically higher on earlier months and exhibit step-like drops when the evaluation window crosses model cutoffs, followed by sustained lower performance on post–cutoff problems. Our main comparisons in Section~\ref{sec_exp_results} restrict evaluation to tasks released on or after 2025-02-01, ensuring \emph{live, post-cutoff} measurement. Under this setting, performance drops to a level that better reflects true generalization, whereas inflated scores on older windows are explained by pretraining exposure rather than genuine zero-contamination generalization.
+
+
+
+
+
+
+
+
+\section{Limitations and Threats to Validity}
+
+%\subsection{Limitations}
+
+\textbf{Language Coverage and Selection.} 
+Multi-LCB covers 12 programming languages but does not include some important languages such as Swift, Haskell, R, and others. The language selection is based on popularity rankings in 2025, which may not reflect specialized domains or emerging languages. Additionally, some languages have various dialects and versions that are not accounted for in our evaluation framework.
+
+\textbf{Task Complexity and Domain.} 
+While the selected programming languages span different domains (systems programming, web development, data science), the tasks themselves remain rooted in competitive programming. Although algorithmic problem-solving has indirect relevance to industrial coding capabilities, Multi-LCB does not directly assess real-world software engineering scenarios such as API integration, debugging legacy code, or collaborative development workflows.
+
+\textbf{Evaluation Protocol Constraints.} 
+The strict STDIN/STDOUT format may introduce performance degradation not only due to algorithmic reasoning limitations but also due to syntax unfamiliarity, difficulty parsing input formats, or failure to follow output specifications. Models may fail tasks due to format compliance issues rather than core problem-solving deficits, potentially confounding our assessment of true multilingual coding competence.
+
+\textbf{Model Selection Bias.} 
+Our evaluation focuses exclusively on publicly available models, excluding proprietary systems that may represent the current state-of-the-art. This limitation means our results reflect only a subset of available models and may not accurately represent the real-world leaderboard of multilingual code generation capabilities.
+
+%\subsection{Threats to Validity}
+
+\textbf{Construct Validity.} 
+The automatic conversion from functional format to STDIN/STDOUT may alter task complexity differently across programming languages. Some languages may be more naturally suited for certain problem types, potentially creating unequal evaluation conditions that affect cross-language comparisons.
+
+\textbf{Internal Validity.} 
+Despite date-based filtering, hidden forms of contamination may persist through similar problem patterns or solution templates present in training data. Additionally, models may exhibit temporal bias based on varying exposure to different programming languages during their training periods.
+
+\section{Future Work}
+
+Multi-LCB's modular design enables straightforward language expansion. We plan to add Swift, Haskell, R, and Julia by defining their compilation commands and runtime environments. %Evaluation will extend beyond Pass@1 to include Pass@10 metrics, revealing model consistency across sampling strategies and languages. 
+We will evaluate proprietary models (GPT-4, Claude, Gemini) to establish comprehensive multilingual leaderboards reflecting current state-of-the-art performance. The STDIN/STDOUT framework directly supports LCB-Pro \citep{zheng2025livecodebench} and other benchmarks requiring format conversion, enabling broader contamination-aware multilingual evaluation without additional infrastructure changes.
+
+
+\section{Conclusions}
+
+We introduced \textbf{Multi-LCB}, a contamination aware benchmark for evaluating large language models on multilingual code generation. Multi-LCB provides an extensible framework spanning twelve programming languages and continuously updates with newly released problems. The conversion methodology extends beyond LCB to other Python benchmarks (e. g. LCB Pro \citep{zheng2025livecodebench}), offering a general approach for multilingual code evaluation. By inheriting LiveCodeBench’s live evaluation protocol and unified STDIN/STDOUT execution, it enables rigorous, cross programming language assessment and mitigates data contamination that affects static benchmarks. Our experiments expose programming language specific contamination, evidence of Python overfitting, and significant performance gaps across programming languages.  
+We hope Multi-LCB will serve as a durable resource for advancing the evaluation of code-oriented LLMs and guiding future research in multilingual program synthesis.
+
+
+
+\bibliography{bib}
+\bibliographystyle{iclr2026_conference}
+
+\clearpage
+\appendix
+
+%\iffalse
+
+
+\addcontentsline{toc}{part}{Appendix} % optional: add to main ToC
+%\markboth{APPENDIX}{APPENDIX}
+
+\etocsettocstyle{%
+  \vspace*{2em}
+  \begin{center}
+    \LARGE\bfseries Appendix
+  \end{center}
+  \section*{Contents}
+}{}
+\etocsetnexttocdepth{2}                   % show sections & subsections
+\localtableofcontents
+
+
+%\iffalse
+
+\clearpage
+\section{Legal Compliance and License}
+\label{app_legal}
+
+The Multi-LCB benchmark contains no personally identifiable information, offensive content, or proprietary code. 
+It is derived entirely from the publicly released LiveCodeBench (LCB) dataset, which itself sources only publicly accessible contest problems, reference solutions, and test cases from \textbf{LeetCode}, \textbf{AtCoder}, and \textbf{Codeforces}. Our redistribution and multi programming language transformation of LCB fall under Fair Use (\S107, U.S. Copyright Act): the benchmark is provided solely for non-commercial academic research, reproduces only the material necessary for evaluation, and does not diminish the market value of the original platforms or LCB. Multi-LCB is strictly an evaluation resource, no models are trained on these tasks, and is released under a \textbf{CC BY-NC 4.0} license to ensure non-commercial use.
+
+%\iffalse
+\section{UI of Multi-LCB}
+\label{app_ui}
+
+Figure~\ref{fig:UI} presents the web interface of \textbf{Multi-LCB}, displaying a subset of tasks released between \textbf{January~2024} and \textbf{December~2024}.  
+A \emph{time-range scroller} at the top allows users to interactively select different time windows to filter tasks and monitor model performance on newly released problems.  
+This interactive design highlights the \emph{live and continuously updated} nature of the benchmark, enabling researchers to track progress as fresh contest tasks are incorporated.
+
+\begin{figure}[hbt]
+    \centering
+    \includegraphics[width=0.99\linewidth]{figs/ui-leaderboard.png}
+    \caption{Multi-LCB web interface showing tasks released between January~2024 to December~2024, with an interactive time-range scroller for filtering and visualization.}
+    \label{fig:UI}
+\end{figure}
+
+\section{Prompt Examples}
+\label{app_prompts}
+
+\newtcolorbox{origtext}{
+  colback=blue!5!white,
+  colframe=blue!75!black,
+  fonttitle=\bfseries,
+  title=Original
+}
+
+\newtcolorbox{addedtext}{
+  colback=red!5!white,
+  colframe=red!75!black,
+  fonttitle=\bfseries,
+  title=Added
+}
+
+This appendix shows example prompts from Multi-LCB. 
+We distinguish the \textbf{original problem text} as it appears on the source platform and the \textbf{additional instructions} that we add in order to unify everything into the STDIN/STDOUT format. 
+Original parts are placed in blue boxes, while added parts are placed in red boxes.
+
+
+
+\subsection{AtCoder/CodeForces Example (native STDIN/STDOUT)}
+\label{app_atcoder_prompts}
+
+\begin{origtext}
+\texttt{\#\#\#} Question:  
+Find the number of positive integers not greater than \texttt{N} that have exactly $9$ positive divisors.\\
+
+\textbf{Input:}  
+\texttt{N} 
+
+\textbf{Output:}  
+Print the answer.\\  
+
+\textbf{Constraints:}  
+$1 \leq \texttt{N} \leq 4 \times 10^{12}$  \\
+
+Sample Input 1: 
+\begin{verbatim}
+200  
+\end{verbatim}
+Sample Output 1:  
+\begin{verbatim}
+3
+\end{verbatim}
+\end{origtext}
+
+\begin{addedtext}
+
+\textcolor{gray}{
+\texttt{\#\#\#} Format: \\ 
+Read the inputs from STDIN solve the problem and write the answer to STDOUT (do not directly test on the sample inputs). Enclose your code within delimiters as follows. Ensure that when the python program runs, it reads the inputs, runs the algorithm and writes output to STDOUT.}\\
+\\
+\textcolor{gray}{
+\texttt{""" python } \\
+\texttt{\# YOUR CODE HERE} \\
+\texttt{"""} }
+\\
+
+\textcolor{gray}{
+\texttt{\#\#\#} Answer: (use the provided format with triple quotes)}
+\end{addedtext}
+
+
+\subsection{LeetCode Example (adapted into STDIN/STDOUT)}
+\label{app_leetcode_prompts}
+
+\begin{origtext}
+\texttt{\#\#\#} Question:  
+You are given an integer array \texttt{enemyEnergies} and an integer \texttt{currentEnergy}... (original description)
+\\
+
+\textbf{Example 1:}  \\
+\textcolor{gray}{
+\textbf{Input:} \texttt{enemyEnergies} $ = [3,2,2]$, \texttt{currentEnergy} $ = 2$  \\
+\textbf{Output:} $3$  \\
+\textbf{Explanation:}  \\
+Several operations lead to a maximum of $3$ points (see original problem description).
+}
+\\
+
+\textbf{Example 2:}  \\
+\textcolor{gray}{
+\textbf{Input:} \texttt{enemyEnergies} $= [2]$, \texttt{currentEnergy} = $10$  \\
+\textbf{Output}: 5  \\
+\textbf{Explanation}:  \\
+Performing the first operation 5 times on enemy 0 yields the maximum number of points. }
+\\
+
+\textbf{Constraints}:  
+\begin{itemize}
+    \item $1 \leq \texttt{enemyEnergies.length} \leq 10^5$
+    \item $1 \leq \texttt{enemyEnergies}[i] \leq 10^9 $
+    \item $0 \leq \texttt{currentEnergy} \leq 10^9$
+\end{itemize}
+\end{origtext}
+
+\begin{addedtext}
+\textcolor{gray}{
+\texttt{\#\#\#} Format: \\ 
+Read the inputs from STDIN solve the problem and write the answer to STDOUT (do not directly test on the sample inputs). Enclose your code within delimiters as follows. Ensure that when the python program runs, it reads the inputs, runs the algorithm and writes output to STDOUT.}\\
+\\
+\\
+For 2D arrays, the first line indicates the number of rows, followed by newline-separated rows.  \\
+
+Sample Input 1:  
+\begin{verbatim}
+3 2 2  
+2  
+\end{verbatim}
+
+Sample Output 1:  
+\begin{verbatim}
+3  
+\end{verbatim} 
+
+\textcolor{gray}{
+\texttt{""" python } \\
+\texttt{\# YOUR CODE HERE} \\
+\texttt{"""} }
+\\
+
+\textcolor{gray}{
+\texttt{\#\#\#} Answer: (use the provided format with triple quotes)}
+\end{addedtext}
+
+For non-Python settings, only the header of the code block is replaced (e.g., \texttt{""" cpp}, \texttt{""" java}). 
+The rest of the prompt structure remains identical.
+
+
+\section{Tasks Distribution}
+\label{app_distribution}
+
+
+\subsection{Task Distribution by Difficulty and Platform}
+\label{app_subsec_platforms}
+
+LiveCodeBench (LCB) continuously aggregates competitive programming problems in Python from three major platforms: \textbf{LeetCode}, \textbf{AtCoder}, and \textbf{Codeforces}.  
+Figure~\ref{fig:task_difficalty_histogram} shows the monthly distribution of tasks by difficulty, and Figure~\ref{fig:task_platform_histogram} presents the monthly distribution by source platform.  
+Together, these figures highlight the steady inflow of new problems and the live, contamination-aware nature of LCB, and, by extension Multi-LCB.
+
+
+\begin{figure}[hbt]
+    \centering
+    \includegraphics[width=0.8\textwidth]{figs/monthly_task_distribution_iclr.png}
+    \caption{Monthly distribution of Tasks by Difficulty.}
+    \label{fig:task_difficalty_histogram}
+\end{figure}
+
+
+
+\begin{figure}[hbt]
+    \centering
+    \includegraphics[width=0.8\textwidth]{figs/monthly_platform_distribution_iclr.png}
+    \caption{Monthly distribution of LCB tasks by platform.}
+    \label{fig:task_platform_histogram}
+\end{figure}
+
+Each platform hosts frequent contests whose tasks provide a natural language description of a problem, example input/output pairs, and hidden tests, ensuring that solutions must be fully correct to receive credit.  
+Because every contest attracts thousands of participants and receives official editorial review, the problems are inherently vetted for clarity and correctness. Across the full lifetime of the dataset, the platform composition is as follows:
+
+ \textbf{Codeforces}: Competitive-programming problems known for a wide range of difficulty and algorithmic focus, almost exclusively in \texttt{STDIN/STDOUT} format.
+
+ \textbf{LeetCode}: Interview oriented challenges emphasizing data structures and algorithms, originally in a Functional format.
+
+\textbf{AtCoder}: Algorithmically rich competitive programming problems, typically using \texttt{STDIN/STDOUT} input/output.
+
+\subsection{Task Distribution by I/O Data Dimensionality (LeetCode Functional Format)}
+\label{app_subsec_leetcode}
+
+
+\begin{figure}[hbt]
+    \centering
+    \includegraphics[width=0.8\textwidth]{figs/monthly_task_type_distribution_leetcode.png}
+    \caption{Monthly task distribution  by I/O data dimensionality (LeetCode Functional format).}
+    \label{fig:task_leetcode_histogram}
+\end{figure}
+
+Figure~\ref{fig:task_leetcode_histogram} presents the temporal distribution of LeetCode tasks grouped by the I/O data dimensionality of their Functional format.  
+The plot highlights how problems with different input/output structures, such as scalar values, one-dimensional arrays, and two-dimensional arrays, have entered the benchmark over time, illustrating the variety of functional tasks inherited from LeetCode within the LCB dataset.
+
+
+
+
+
+\iffalse
+\begin{wrapfigure}{l}{0.25\linewidth}
+\begin{minipage}{\linewidth}
+\captionof{table}{Example 
+STDIN/STDOUT input format}
+\label{tab:verbatim-matrix}
+\begin{tabular}{c}
+%\hline
+\begin{minipage}{0.9\linewidth}
+\begin{verbatim}
+
+3
+1 2 3
+4 5 6
+7 8 9
+
+\end{verbatim}
+\end{minipage}\\
+%\hline
+\end{tabular}
+\end{minipage}
+\end{wrapfigure}
+
+
+
+\section{Tasks by input/output Functional format}
+\begin{table}[t]
+\caption{Sample table title}
+\label{sample-table}
+\begin{center}
+\begin{tabular}{|l|r|}
+\hline
+\textbf{Task Type} & \textbf{Count} \\
+\hline
+One-Dimensional & 89 \\
+Scalar & 55 \\
+Two-Dimensional & 39 \\
+Two-Dimensional Ambiguous & 3 \\
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+
+\fi
+
+
+\section{Programming language rankings and runtime characteristics}
+\label{app_rankings}
+
+This study evaluates multilingual code generation across major programming languages selected for their 2025 popularity and broad industrial relevance. Programming language rankings across multiple sources presented in Table~\ref{tab:lang-2025-en}.
+
+\begin{table}[hbp]
+\centering
+\caption{Programming language rankings across multiple sources (dates in footnotes)}
+\label{tab:lang-2025-en}
+\begin{tabular}{lcccl}
+\toprule
+\textbf{Language} & \textbf{TIOBE\footnotemark[1]} & \textbf{GitHub\footnotemark[2]} & \textbf{Stack Overflow\footnotemark[3]} & \textbf{RedMonk\footnotemark[4]} \\
+\midrule
+Python      & 1 (26.98\%) & 1       & 4 (57\%)         & 2  \\
+C\texttt{++} & 2 (9.80\%)  & 5  & 9 (23\%)         & 7  \\
+Java        & 4 (8.76\%)  & 2       & 7 (29\%)         & 3  \\
+C\#         & 5 (4.87\%)  & 10  & 8 (27\%)         & 5  \\
+JavaScript  & 6 (3.36\%)  & 4       & 1 (66\%)         & 1  \\
+TypeScript  & 37 (0.28\%) & 6       & 6 (43\%)         & 6  \\
+Go          & 7 (2.04\%)  & 3  & 13 ($\sim$2\%) & 12 \\
+Rust        & 18 (1.01\%) & 13 & 14 ($\sim$2\%) & 19 \\
+Ruby        & 23 (0.76\%) & 8  & 18 ($\sim$1.5\%) & 9 \\
+PHP         & 14 (1.28\%) & 7  & 12 ($\sim$15\%)  & 4 \\
+Kotlin      & 20 (0.90\%) & 15  & 15 ($\sim$3\%)   & 14 \\
+Scala       & 34 (0.41\%) & 14   & 29 ($\sim$1\%)   & 14 \\
+\bottomrule
+\end{tabular}
+\footnotetext[1]{TIOBE Index, September 2025.}
+\footnotetext[2]{GitHub Octoverse 2024, November 2024.}
+\footnotetext[3]{Stack Overflow Developer Survey 2025, July 2025.}
+\footnotetext[4]{RedMonk Language Rankings, January 2025 (published June 2025).}
+\end{table}
+
+These languages span a wide range of paradigms and runtime characteristics, capturing the diversity of real-world software development:
+
+\begin{itemize}
+    \item \textbf{Compilation model:} 
+    \begin{itemize}
+        \item Compiled/JIT — C++, Rust, Go, Java, C\#, Scala, Kotlin
+        \item Interpreted — Python, Ruby, PHP
+        \item Transpiled — TypeScript $\rightarrow$ JavaScript
+    \end{itemize}
+    \item \textbf{Type system:}
+    \begin{itemize}
+        \item Static — C++, Rust, Go, Java, C\#, Scala, Kotlin, TypeScript
+        \item Dynamic — Python, JavaScript, Ruby, PHP
+    \end{itemize}
+    \item \textbf{Memory management:}
+    \begin{itemize}
+        \item RAII/manual — C++
+        \item Ownership/borrowing — Rust
+        \item Garbage collection — Java, C\#, Go, Scala, Kotlin, PHP, Ruby, JavaScript/TypeScript
+    \end{itemize}
+    \item \textbf{Runtime platforms:}
+    \begin{itemize}
+        \item Native — C++, Rust, Go
+        \item JVM — Java, Scala, Kotlin
+        \item .NET CLR — C\#
+        \item Interpreters/VMs — Python, Ruby, PHP
+        \item JavaScript engines — JavaScript, TypeScript
+    \end{itemize}
+    \item \textbf{Domain ecosystems:}
+    \begin{itemize}
+        \item Systems/performance — C++, Rust, Go
+        \item Enterprise/JVM and .NET — Java, C\#, Scala, Kotlin
+        \item Web/backend and scripting — JavaScript, TypeScript, PHP, Ruby
+        \item Data/AI glue — Python
+    \end{itemize}
+\end{itemize}
+
+
+
+\section{Experiments}
+\label{app_exp_results}
+
+\subsection{Models overview}
+\label{app_subsec_models}
+
+We provide details for all models included in our study in Table~\ref{tab_model_details}.
+
+\input{tables/tab_model_details}
+
+\subsection{Performance on the Multi-LCB (Feb-May 2025 Subset) Across Sampling Temperatures}
+
+
+\subsubsection{Pass@1 averaged over 10 runs performance at various sampling temperatures}
+
+Table~\ref{tab_exps_feb25_pass1_avg10_t0.6} report Pass@1 scores averaged over 10 runs at sampling temperature $t=0.6$. Each score indicates the percentage of problems solved correctly on the first attempt, with higher values reflecting better performance. 
+
+\input{tables/tab_exps_feb25_pass1_avg10_t0.6}
+
+ Table~\ref{tab_exps_feb25_pass1_avg10_t1.0} reports Pass@1 scores averaged over 10 runs at sampling temperature $t=1.0$. Each score indicates the percentage of problems solved correctly on the first attempt, with higher values reflecting better performance.
+
+ \input{tables/tab_exps_feb25_pass1_avg10_t1.0}
+
+
+
+\subsubsection{Pass@5 performance at different sampling temperatures}
+
+Table~\ref{tab_exps_feb25_pass5_t0.2}, Table~\ref{tab_exps_feb25_pass5_t0.6} and Table~\ref{tab_exps_feb25_pass5_t1.0} reports Pass@5 scores at sampling temperatures $t=0.2$, $t=0.6$ and $t=1.0$ respectively. Each score indicates the percentage of problems solved correctly on the 5th attempt, with higher values reflecting better performance. 
+
+\input{tables/tab_exps_feb25_pass5_t0.2}
+
+\input{tables/tab_exps_feb25_pass5_t0.6}
+
+\input{tables/tab_exps_feb25_pass5_t1.0}
+
+
+\subsubsection{Pass@10 performance at different sampling temperatures}
+
+
+
+Table~\ref{tab_exps_feb25_pass10_t0.2}, Table~\ref{tab_exps_feb25_pass10_t0.6} and Table~\ref{tab_exps_feb25_pass10_t1.0} reports Pass@10 scores at sampling temperatures $t=0.2$, $t=0.6$ and $t=1.0$ respectively. Each score indicates the percentage of problems solved correctly on the 10th attempt, with higher values reflecting better performance. 
+
+\input{tables/tab_exps_feb25_pass10_t0.2}
+
+\input{tables/tab_exps_feb25_pass10_t0.6}
+
+\input{tables/tab_exps_feb25_pass10_t1.0}
+
+
+
+
+
+\iffalse
+\subsubsection{Pass@1 performance at sampling temperature $t=0.2$}
+
+Table~\ref{tab_exps_feb25_pass1_t0.2} reports Pass@10 scores at sampling temperature $t=0.2$. Each score reflects the percentage of problems solved correctly on the first attempt, with higher values indicating better performance. We can compare performance results with Pass@1 scores averaged over 10 runs reported at Table~\ref{tab_exps_feb25_pass1_avg10_t0.2} and see no significant difference.
+
+\input{tables/tab_exps_feb25_pass1_t0.2}
+\fi
+
+
+\subsection{Performance on the Multi-LCB (Jul 2024-May 2025 Subset)}
+
+Table~\ref{tab_exps_july24} reports Pass@1 scores at sampling temperature $t = 0.2$ for all evaluated models on the Multi-LCB subset containing tasks from July 2024 to May 2025. Each score reflects the percentage of problems solved correctly on the first attempt, with higher values indicating better performance.
+ 
+\input{tables/tab_exps_jul24}
+
+
+\subsection{Performance on the Complete Multi-LCB Benchmark}
+
+\input{tables/tab_exps_complete}
+
+
+Table~\ref{tab:multi_lcb_1055} reports Pass@1 scores at sampling temperature $t = 0.2$, for all 19 evaluated models on the complete Multi-LCB benchmark, which contains 1,055 tasks per programming language. Each score reflects the percentage of problems solved correctly on the first attempt, with higher values indicating better performance. Models marked with an asterisk (*) are reasoning-enhanced variants.
+
+
+
+
+
+
+\section{Computation time}
+
+Table~\ref{tab:eval-times} reports the average compilation and execution time required to evaluate one full Multi-LCB run (1,050 tasks per language) across 90 parallel CPUs. On average, each language requires about 8 min 50 s ($\approx 530$ s) per model, with a total wall-clock time of roughly 106 hours when aggregated over all twelve languages.
+
+Execution cost varies noticeably by language. Ruby shows the highest mean time at 17 min 37 s, followed by Go and Python, each exceeding 11 minutes on average. In contrast, Kotlin, PHP, and JavaScript complete evaluation in under 4 minutes. These differences primarily reflect compilation overheads and runtime performance of each language’s toolchain, and they guide resource planning for future large-scale model evaluations.
+
+\input{tables/eval_times}
+
+
+
+\section{Languages and Compiler Versions}
+All experiments were conducted in a controlled environment using the following language runtimes and compiler versions to ensure consistency and reproducibility across all tasks in Multi-LCB:
+
+\begin{itemize}
+    \item \textbf{C++}: gcc 14.3.0
+    \item \textbf{Java}: OpenJDK 8.0.412
+    \item \textbf{Python}: 3.12.11
+    \item \textbf{Rust}: 1.88.0
+    \item \textbf{Go}: 1.22.12
+    \item \textbf{Ruby}: 3.3.6
+    \item \textbf{JavaScript (Node.js)}: 20.19.4
+    \item \textbf{TypeScript (Deno)}: 2.3.4
+    \item \textbf{C\# (Mono)}: 6.12.0.199
+    \item \textbf{Compilers (general)}: 1.11.0
+    \item \textbf{PHP}: 8.1.0
+    \item \textbf{Kotlin}: 2.2.0
+    \item \textbf{Scala}: 2.11.8
+    \item \textbf{pip}: 25.2
+\end{itemize}
+
+These versions were used consistently for compilation, execution, and evaluation to guarantee reproducibility of all Multi-LCB results.
+
+\clearpage
+
+
+\input{apps/appI}
+\input{apps/appK}
+\input{apps/appL}
+
+%\iffalse
+
+
+% \begin{figure}
+%     \centering
+%     \includegraphics[width=0.9\textwidth]{figs//monthly_trends/monthly_pass_at_1_trends_overall.png}
+%     \caption{Enter Caption}
+%     \label{fig:placeholder}
+% \end{figure}
+
+%\section{}
+
+%\fi
+\end{document}
+
+
