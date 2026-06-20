@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2405.06219",
+  "judged_at": "2026-06-20T05:49:18Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "kvarn: variance-normalized kv-cache quantization mitigates error accumulation in reasoning tasks computer science",
+  "rationale": "The paper investigates KV‑cache quantization for LLMs—a core mechanism of the user’s question—though with a different technique (sliding‑window and channel grouping). It provides empirical evidence on how KV‑cache quantization affects model accuracy, satisfying criterion (a) same‑mechanism evidence.",
+  "relevant": true
+}

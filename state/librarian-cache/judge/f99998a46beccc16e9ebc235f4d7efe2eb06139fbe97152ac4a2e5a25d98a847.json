@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2605.22882",
+  "judged_at": "2026-06-20T05:48:16Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "minwm: a full-stack open-source framework for real-time interactive video world models computer science",
+  "rationale": "The paper studies video world models—a core mechanism of the user’s question—by introducing a geometry‑enhanced model (GEM‑4D) for real‑time prediction and robot manipulation, thus providing same‑mechanism evidence (criterion a) relevant to a full‑stack interactive video world‑model framework.",
+  "relevant": true
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2605.09649",
+  "judged_at": "2026-06-20T05:49:25Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "kvarn: variance-normalized kv-cache quantization mitigates error accumulation in reasoning tasks computer science",
+  "rationale": "The paper investigates how a KV‑cache manipulation (learned eviction) impacts long‑context reasoning performance, thus measuring a dependent variable (reasoning task accuracy/error) on the same KV‑cache domain as the user's interest in variance‑normalized KV‑cache quantization (criterion (b)).",
+  "relevant": true
+}

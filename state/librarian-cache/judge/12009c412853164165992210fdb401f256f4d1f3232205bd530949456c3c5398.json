@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2203.08975",
+  "judged_at": "2026-06-20T05:47:13Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "foundation protocol: a coordination layer for agentic society computer science",
+  "rationale": "The paper surveys communication mechanisms for coordinating multiple agents in multi‑agent deep reinforcement learning, directly addressing the same coordination‑layer concept underlying a “Foundation Protocol” for agentic societies (acceptance category (a) – same‑mechanism evidence, and (d) – foundational methodological reference).",
+  "relevant": true
+}

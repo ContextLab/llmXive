@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2512.19206",
+  "judged_at": "2026-06-20T05:49:27Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "kvarn: variance-normalized kv-cache quantization mitigates error accumulation in reasoning tasks computer science",
+  "rationale": "The paper investigates KV‑cache quantization for long‑context reasoning tasks, directly studying the same mechanism (KV‑cache quantization) and its impact on reasoning performance as the user's KVarN work, satisfying acceptance criterion (a) same‑mechanism evidence.",
+  "relevant": true
+}

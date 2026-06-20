@@ -1,0 +1,575 @@
+{
+  "fetched_at": "2026-06-20T05:49:27Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "KVarN: Variance-Normalized KV-Cache Quantization Mitigates Error Accumulation in Reasoning Tasks",
+      "target_n": 5
+    },
+    "duration_seconds": 57.944,
+    "ended_at": "2026-06-20T05:49:27Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "variance‑normalized key‑value cache quantization"
+        ],
+        [
+          2,
+          "KV‑cache quantization for transformer reasoning"
+        ],
+        [
+          3,
+          "error accumulation mitigation in LLM inference"
+        ],
+        [
+          4,
+          "normalized cache quantization in language models"
+        ],
+        [
+          5,
+          "variance‑aware KV‑cache compression"
+        ],
+        [
+          6,
+          "quantized attention memory for reasoning tasks"
+        ],
+        [
+          7,
+          "low‑bit KV‑cache quantization in transformers"
+        ],
+        [
+          8,
+          "numerical stability of KV‑cache quantization"
+        ],
+        [
+          9,
+          "memory‑efficient attention via cache quantization"
+        ],
+        [
+          10,
+          "variance scaling in KV‑cache representation"
+        ],
+        [
+          11,
+          "quantization noise reduction for reasoning LLMs"
+        ],
+        [
+          12,
+          "cache compression techniques for chain‑of‑thought reasoning"
+        ],
+        [
+          13,
+          "bias‑corrected KV‑cache quantization"
+        ],
+        [
+          14,
+          "adaptive KV‑cache quantization for long‑context reasoning"
+        ],
+        [
+          15,
+          "precision‑aware KV‑cache quantization"
+        ],
+        [
+          16,
+          "error propagation control in quantized transformer caches"
+        ],
+        [
+          17,
+          "KV‑cache quantization with variance normalization"
+        ],
+        [
+          18,
+          "quantized key‑value memory for multi‑step reasoning"
+        ],
+        [
+          19,
+          "variance‑normalized attention cache quantization"
+        ],
+        [
+          20,
+          "efficient KV‑cache quantization for reasoning workloads"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "KVarN: Variance-Normalized KV-Cache Quantization Mitigates Error Accumulation in Reasoning Tasks computer science": 0,
+        "KV‑cache quantization for transformer reasoning": 4,
+        "variance‑normalized key‑value cache quantization": 3
+      },
+      "total_queries_issued": 2
+    },
+    "extracted_queries": [
+      "variance-normalized KV quantization",
+      "GSM8K reasoning benchmark",
+      "low-bit KV cache compression",
+      "reasoning error accumulation metric",
+      "quantization noise mitigation variance scaling"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2604.24971"
+      ]
+    },
+    "per_query_hit_count": {
+      "GSM8K reasoning benchmark": 2,
+      "KVarN: Variance-Normalized KV-Cache Quantization Mitigates Error Accumulation in Reasoning Tasks computer science": 3,
+      "low-bit KV cache compression": 2,
+      "quantization noise mitigation variance scaling": 3,
+      "reasoning error accumulation metric": 2,
+      "variance-normalized KV quantization": 1
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 1,
+      "rejections": [
+        {
+          "primary_pointer": "2505.15781",
+          "rationale": "The paper introduces a delayed KV‑cache mechanism for diffusion language models aimed at inference speedup, without discussing KV‑cache quantization, variance‑normalization, or error accumulation in reasoning tasks, which are the core constructs of the user's question. Hence it does not meet any inclusion criteria (a‑f).",
+          "title": "dKV-Cache: The Cache for Diffusion Language Models"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-20T05:48:29Z",
+    "term_input": {
+      "normalized": "kvarn: variance-normalized kv-cache quantization mitigates error accumulation in reasoning tasks computer science",
+      "raw": "KVarN: Variance-Normalized KV-Cache Quantization Mitigates Error Accumulation in Reasoning Tasks computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present PolyKV, a system in which multiple concurrent inference agents share a single, asymmetrically compressed KV cache pool. Rather than allocating a separate KV cache per agent -- the standard paradigm -- PolyKV writes a compressed cache once and injects it into N independent agent contexts via HuggingFace DynamicCache objects. Compression is asymmetric: Keys are quantized at int8 (q8_0) to preserve softmax stability, while Values are compressed using TurboQuant MSE -- a Fast Walsh-Hadamard Transform (FWHT) rotation followed by 3-bit Lloyd-Max quantization with centroids tuned to N(0,1). We evaluate across two model scales (SmolLM2-1.7B-Instruct and Llama-3-8B-Instruct), three context lengths (600-7,194 tokens), and up to 15 concurrent agents. PolyKV achieves a stable 2.91x compression ratio across all configurations. On Llama-3-8B with 15 agents sharing a 4K-token context, PolyKV reduces KV cache memory from 19.8 GB to 0.45 GB -- a 97.7% reduction -- while maintaining only +0.57% perplexity degradation and a mean BERTScore F1 of 0.928. PPL delta does not grow with agent count and improves as context length increases, inverting to -0.26% at 1,851 coherent tokens. To our knowledge, no prior work combines a single shared, lossy-compressed KV pool with multi-reader concurrent agent access.",
+          "claimed_authors": [
+            "Ishan Patel",
+            "Ishan Joshi"
+          ],
+          "claimed_title": "PolyKV: A Shared Asymmetrically-Compressed KV Cache Pool for Multi-Agent LLM Inference",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2604.24971"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='KVarN: Variance-Normalized KV-Cache Quantization Mitigates Error Accumulation in', candidate_title='PolyKV: A Shared Asymmetrically-Compressed KV Cache Pool for Multi-Agent LLM Inference')",
+        "failed_at": "2026-06-20T05:49:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Flow theory describes an optimal cognitive state where individuals experience deep focus and intrinsic motivation when a task's difficulty aligns with their skill level. In AI-augmented reasoning, interventions that disrupt the state of cognitive flow can hinder rather than enhance decision-making. This paper proposes a context-aware cognitive augmentation framework that adapts interventions based on three key contextual factors: type, timing, and scale. By leveraging multimodal behavioral cues (e.g., gaze behavior, typing hesitation, interaction speed), AI can dynamically adjust cognitive support to maintain or restore flow. We introduce the concept of cognitive flow, an extension of flow theory in AI-augmented reasoning, where interventions are personalized, adaptive, and minimally intrusive. By shifting from static interventions to context-aware augmentation, our approach ensures that AI systems support deep engagement in complex decision-making and reasoning without disrupting cognitive immersion.",
+          "claimed_authors": [
+            "Dinithi Dissanayake",
+            "Suranga Nanayakkara"
+          ],
+          "claimed_title": "Navigating the State of Cognitive Flow: Context-Aware AI Interventions for Effective Reasoning Support",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.16021"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='KVarN: Variance-Normalized KV-Cache Quantization Mitigates Error Accumulation in', candidate_title='Navigating the State of Cognitive Flow: Context-Aware AI Interventions for Effective Reasoning Support')",
+        "failed_at": "2026-06-20T05:49:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large language models (LLMs) face growing challenges in efficient generative inference due to the increasing memory demands of Key-Value (KV) caches, especially for long sequences. Existing eviction methods typically retain KV pairs with high attention weights but overlook the impact of attention redistribution caused by token removal, as well as the spatial-temporal dynamics in KV selection. In this paper, we propose ReST-KV, a robust KV eviction method that combines layer-wise output Reconstruction and Spatial-Temporal smoothing to provide a more comprehensive perspective for the KV cache eviction task. Specifically, ReST-KV formulates KV cache eviction as an optimization problem that minimizes output discrepancies through efficient layer-wise reconstruction. By directly modeling how each token's removal affects the model output, our method naturally captures attention redistribution effects, going beyond simplistic reliance on raw attention weights. To further enhance robustness, we design exponential moving average smoothing to handle temporal variations and an adaptive window-based mechanism to capture spatial patterns. Our method, ReST-KV, significantly advances performance on long-context benchmarks. It surpasses state-of-the-art baselines by 2.58% on LongBench and 15.2% on RULER. Additionally, ReST-KV consistently outperforms existing methods on Needle-in-a-Haystack and InfiniteBench, all while achieving a remarkable 10.61$\\times$ reduction in decoding latency at 128k context length. The code is publicly available at https://github.com/an-yongqi/rest-kv to facilitate reproducibility and further research.",
+          "claimed_authors": [
+            "Yongqi An",
+            "Chang Lu",
+            "Kuan Zhu",
+            "Tao Yu",
+            "Chaoyang Zhao",
+            "Hong Wu",
+            "Ming Tang",
+            "Jinqiao Wang"
+          ],
+          "claimed_title": "ReST-KV: Robust KV Cache Eviction with Layer-wise Output Reconstruction and Spatial-Temporal Smoothing",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2605.08840"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='KVarN: Variance-Normalized KV-Cache Quantization Mitigates Error Accumulation in', candidate_title='ReST-KV: Robust KV Cache Eviction with Layer-wise Output Reconstruction and Spatial-Temporal Smoothing')",
+        "failed_at": "2026-06-20T05:49:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this work, we introduce a novel evaluation paradigm for Large Language Models (LLMs) that compels them to transition from a traditional question-answering role, akin to a student, to a solution-scoring role, akin to a teacher. This paradigm, focusing on \"reasoning about reasoning,\" hence termed meta-reasoning, shifts the emphasis from result-oriented assessments, which often neglect the reasoning process, to a more comprehensive evaluation that effectively distinguishes between the cognitive capabilities of different models. By applying this paradigm in the GSM8K dataset, we have developed the MR-GSM8K benchmark. Our extensive analysis includes several state-of-the-art models from both open-source and commercial domains, uncovering fundamental deficiencies in their training and evaluation methodologies. Notably, while models like Deepseek-v2 and Claude3-Sonnet closely competed with GPT-4 in GSM8K, their performance disparities expanded dramatically in MR-GSM8K, with differences widening to over 20 absolute points, underscoring the significant challenge posed by our meta-reasoning approach.",
+          "claimed_authors": [
+            "Zhongshen Zeng",
+            "Pengguang Chen",
+            "Shu Liu",
+            "Haiyun Jiang",
+            "Jiaya Jia"
+          ],
+          "claimed_title": "MR-GSM8K: A Meta-Reasoning Benchmark for Large Language Model Evaluation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2312.17080"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='KVarN: Variance-Normalized KV-Cache Quantization Mitigates Error Accumulation in', candidate_title='MR-GSM8K: A Meta-Reasoning Benchmark for Large Language Model Evaluation')",
+        "failed_at": "2026-06-20T05:49:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Vision language models (VLMs) achieve unified modeling of images and text, enabling them to accomplish complex real-world tasks through perception, planning, and reasoning. Among these tasks, reasoning is particularly representative, with mathematical reasoning serving as a prominent example. It highlights the high-level capability of VLMs to comprehend mathematical information in images and to perform sophisticated reasoning. Recently, numerous visual mathematical reasoning benchmarks have been proposed, but they are often restricted to geometry, lack coverage of math word problems, and rarely assess reasoning across multiple images. To address these gaps, we introduce GSM8K-V, a purely visual multi-image mathematical reasoning benchmark. GSM8K-V is built by systematically mapping each sample from the widely used text-based GSM8K into visual form. Through a carefully designed automated image-generation pipeline combined with meticulous human annotation, we curate 1,319 high-quality samples. We evaluate a wide range of open-source and closed-source models on GSM8K-V. Results show that although existing VLMs have nearly saturated performance on text-based GSM8K, there remains substantial room for improvement on GSM8K-V. For example, the best-performing model, Gemini-2.5-Pro, achieves 95.22% accuracy on GSM8K but only 46.93% on GSM8K-V. We conduct a comprehensive analysis of GSM8K-V, examining the limitations of current models as well as potential directions for improvement. GSM8K-V offers a new perspective on visual mathematical reasoning and establishes a benchmark to guide the development of more robust and generalizable VLMs.",
+          "claimed_authors": [
+            "Fan Yuan",
+            "Yuchen Yan",
+            "Yifan Jiang",
+            "Haoran Zhao",
+            "Tao Feng",
+            "Jinyan Chen",
+            "Yanwei Lou",
+            "Wenqi Zhang",
+            "Yongliang Shen",
+            "Weiming Lu",
+            "Jun Xiao",
+            "Yueting Zhuang"
+          ],
+          "claimed_title": "GSM8K-V: Can Vision Language Models Solve Grade School Math Word Problems in Visual Contexts",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2509.25160"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='KVarN: Variance-Normalized KV-Cache Quantization Mitigates Error Accumulation in', candidate_title='GSM8K-V: Can Vision Language Models Solve Grade School Math Word Problems in Visual Contexts')",
+        "failed_at": "2026-06-20T05:49:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Key-value~(KV) caching is an important technique to accelerate the inference of large language models~(LLMs), but incurs significant memory overhead. To compress the size of KV cache, existing methods often compromise precision or require extra data for calibration, limiting their practicality in LLM deployment. In this paper, we introduce \\textbf{DecoQuant}, a novel data-free low-bit quantization technique based on tensor decomposition methods, to effectively compress KV cache. Our core idea is to adjust the outlier distribution of the original matrix by performing tensor decomposition, so that the quantization difficulties are migrated from the matrix to decomposed local tensors. Specially, we find that outliers mainly concentrate on small local tensors, while large tensors tend to have a narrower value range. Based on this finding, we propose to apply low-bit quantization to the large tensor, while maintaining high-precision representation for the small tensor. Furthermore, we utilize the proposed quantization method to compress the KV cache of LLMs to accelerate the inference and develop an efficient dequantization kernel tailored specifically for DecoQuant. Through extensive experiments, DecoQuant demonstrates remarkable efficiency gains, showcasing up to a $\\sim$75\\% reduction in memory footprint while maintaining comparable generation quality.",
+          "claimed_authors": [
+            "Peiyu Liu",
+            "Ze-Feng Gao",
+            "Wayne Xin Zhao",
+            "Yipeng Ma",
+            "Tao Wang",
+            "Ji-Rong Wen"
+          ],
+          "claimed_title": "Unlocking Data-free Low-bit Quantization with Matrix Decomposition for KV Cache Compression",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.12591"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='KVarN: Variance-Normalized KV-Cache Quantization Mitigates Error Accumulation in', candidate_title='Unlocking Data-free Low-bit Quantization with Matrix Decomposition for KV Cache Compression')",
+        "failed_at": "2026-06-20T05:49:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The key-value (KV) cache is a major bottleneck in long-context inference, where memory and computation grow with sequence length. Existing KV eviction methods reduce this cost but typically degrade performance relative to full-cache inference. Our key insight is that full-cache attention is not always optimal: in long contexts, irrelevant tokens can dilute attention away from useful evidence, so selective, learnable eviction can improve generation rather than merely approximate the full cache. We introduce a global retention-based KV eviction method that learns each token's future utility under a unified memory budget. Lightweight retention gates assign utility scores to cached KV entries, and a shared final scoring projection calibrates these scores across all layers and heads. This enables a single global eviction policy in which tokens from different layers, heads, and modalities compete directly for cache capacity. We further provide theoretical analysis showing that preferentially retaining useful tokens reduces attention dilution, and we justify geometric retention as a query-agnostic proxy for future utility. Across diverse long-context language and vision-language reasoning, and multi-turn dialogue benchmarks, our method substantially reduces KV memory while matching or surpassing full-cache inference. These results suggest that learned, globally calibrated KV eviction is not only a compression technique, but also a mechanism for improving long-context reasoning.",
+          "claimed_authors": [
+            "Ngoc Bui",
+            "Hieu Trung Nguyen",
+            "Arman Cohan",
+            "Rex Ying"
+          ],
+          "claimed_title": "Make Each Token Count: Towards Improving Long-Context Performance with KV Cache Eviction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2605.09649"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='KVarN: Variance-Normalized KV-Cache Quantization Mitigates Error Accumulation in', candidate_title='Make Each Token Count: Towards Improving Long-Context Performance with KV Cache Eviction')",
+        "failed_at": "2026-06-20T05:49:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We consider the question of extending propositional logic to a logic of plausible reasoning, and posit four requirements that any such extension should satisfy. Each is a requirement that some property of classical propositional logic be preserved in the extended logic; as such, the requirements are simpler and less problematic than those used in Cox's Theorem and its variants. As with Cox's Theorem, our requirements imply that the extended logic must be isomorphic to (finite-set) probability theory. We also obtain specific numerical values for the probabilities, recovering the classical definition of probability as a theorem, with truth assignments that satisfy the premise playing the role of the \"possible cases.\"",
+          "claimed_authors": [
+            "Kevin S. Van Horn"
+          ],
+          "claimed_title": "From Propositional Logic to Plausible Reasoning: A Uniqueness Theorem",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1706.05261"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='KVarN: Variance-Normalized KV-Cache Quantization Mitigates Error Accumulation in', candidate_title='From Propositional Logic to Plausible Reasoning: A Uniqueness Theorem')",
+        "failed_at": "2026-06-20T05:49:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The production of an intense, high energy and low emittance muon beam is interesting for a possible muon collider. The Low EMittance Muon Accelerator (LEMMA) team at the Istituto Nazionale di Fisica Nucleare (INFN), in Italy, is studying the production of a 22.5 GeV low emittance muon beam from a high energy positron beam at twice the muon energy impinging on a fixed thin target. The LEMMA scheme proposes to perform the muon accumulation from multiple ($10^2$ to $10^3$) positron bunches to increase the population of a single muon bunch that is recirculated through the target using two small accumulator rings, one per muon species. The three beams ($μ^+$ and $μ^-$ at 22.5 GeV and $e^+$ at twice the muon energy) share the same phase space at the target on every positron bunch interaction, producing new muons inside the preserved beam emittance. We study the requirements and optics design of the accumulator to recirculate the muons over the target using a Fixed Field Alternating Gradient (FFA) arc. As a result, we achieve a compact 230 m long accumulator with two Interaction Points, energy acceptance of $\\pm5$ %, low twiss beta function at the target $β^*_μ=20$ cm, and a drift space 2$L^*$ of 20 cm enough to accommodate 1 % of a radiation length $X_0$ for several material options. These optics parameters are obtained with magnets similar to those foreseen for new colliders like FCC or CLIC, and could be extended further with new magnet designs. The current muon accumulation results will serve as input for beam combination studies.",
+          "claimed_authors": [
+            "O. R. Blanco-Garcia",
+            "A. Ciarma"
+          ],
+          "claimed_title": "Optics studies of a Muon Accumulator Ring based on FFA cells",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2011.11701"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='KVarN: Variance-Normalized KV-Cache Quantization Mitigates Error Accumulation in', candidate_title='Optics studies of a Muon Accumulator Ring based on FFA cells')",
+        "failed_at": "2026-06-20T05:49:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large language models (LLMs) demand substantial computational and memory resources, creating deployment challenges. Quantization-aware training (QAT) addresses these challenges by reducing model precision while maintaining performance. However, the scaling behavior of QAT, especially at 4-bit precision (W4A4), is not well understood. Existing QAT scaling laws often ignore key factors such as the number of training tokens and quantization granularity, which limits their applicability. This paper proposes a unified scaling law for QAT that models quantization error as a function of model size, training data volume, and quantization group size. Through 268 QAT experiments, we show that quantization error decreases as model size increases, but rises with more training tokens and coarser quantization granularity. To identify the sources of W4A4 quantization error, we decompose it into weight and activation components. Both components follow the overall trend of W4A4 quantization error, but with different sensitivities. Specifically, weight quantization error increases more rapidly with more training tokens. Further analysis shows that the activation quantization error in the FC2 layer, caused by outliers, is the primary bottleneck of W4A4 QAT quantization error. By applying mixed-precision quantization to address this bottleneck, we demonstrate that weight and activation quantization errors can converge to similar levels. Additionally, with more training data, weight quantization error eventually exceeds activation quantization error, suggesting that reducing weight quantization error is also important in such scenarios. These findings offer key insights for improving QAT research and development.",
+          "claimed_authors": [
+            "Mengzhao Chen",
+            "Chaoyi Zhang",
+            "Jing Liu",
+            "Yutao Zeng",
+            "Zeyue Xue",
+            "Zhiheng Liu",
+            "Yunshui Li",
+            "Jin Ma",
+            "Jie Huang",
+            "Xun Zhou",
+            "Ping Luo"
+          ],
+          "claimed_title": "Scaling Law for Quantization-Aware Training",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2505.14302"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='KVarN: Variance-Normalized KV-Cache Quantization Mitigates Error Accumulation in', candidate_title='Scaling Law for Quantization-Aware Training')",
+        "failed_at": "2026-06-20T05:49:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This study explores the potential to enhance the reflectance of solar insolation by the human settlement and grassland components of the Earth's terrestrial surface as a climate change mitigation measure. Preliminary estimates derived using a static radiative transfer model indicate that such efforts could amplify the planetary albedo enough to offset the current global annual average level of radiative forcing caused by anthropogenic greenhouse gases by as much as 30 percent or 0.76 W/m2. Terrestrial albedo amplification may thus extend, by about 25 years, the time available to advance the development and use of low-emission energy conversion technologies which ultimately remain essential to mitigate long-term climate change. However, additional study is needed to confirm the estimates reported here and to assess the economic and environmental impacts of active land-surface albedo amplification as a climate change mitigation measure.",
+          "claimed_authors": [
+            "Robert M. Hamwey"
+          ],
+          "claimed_title": "Active Amplification of the Terrestrial Albedo to Mitigate Climate Change: An Exploratory Study",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2005,
+          "primary_pointer": "physics/0512170"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='KVarN: Variance-Normalized KV-Cache Quantization Mitigates Error Accumulation in', candidate_title='Active Amplification of the Terrestrial Albedo to Mitigate Climate Change: An Exploratory Study')",
+        "failed_at": "2026-06-20T05:49:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A time-dependent bias voltage on a tunnel junction generates a time-dependent modulation of its current fluctuations, and in particular of its variance. This translates into an excitation at frequency $\\tilde{f}$ generating correlations between current fluctuating at any frequency $f$ and at frequency $\\pm$ $\\tilde{f} -f$. We report the measurement of such a correlation in the fully quantum regime, i.e. when both frequencies are much greater than $k_BT/h$ with $T$ the temperature. Such a correlator, usually referred to as the noise susceptibility, is involved in corrections to the measurements of higher-order moments and in the squeezing of noise.",
+          "claimed_authors": [
+            "Clovis Farley",
+            "Edouard Pinsolle",
+            "Bertrand Reulet"
+          ],
+          "claimed_title": "Noise Dynamics in the Quantum Regime",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2311.17794"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='KVarN: Variance-Normalized KV-Cache Quantization Mitigates Error Accumulation in', candidate_title='Noise Dynamics in the Quantum Regime')",
+        "failed_at": "2026-06-20T05:49:00Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Lorenz K. Muller",
+            "Philippe Bich",
+            "Chiara Boretti",
+            "Hyun-Min Chang",
+            "Jiawei Zhuang",
+            "Lukas Cavigelli"
+          ],
+          "title": "KVarN: Variance-Normalized KV-Cache Quantization Mitigates Error Accumulation in Reasoning Tasks",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2606.03458",
+        "summary": "Test-time scaling is a powerful approach to obtain better reasoning in large language models, but it becomes memory-bottlenecked during long-horizon decoding, as the KV-cache grows. KV-cache quantization can help improve this, but current methods are evaluated under prefill-like settings and errors behave differently under autoregressive decoding. We show that in the latter regime, quantization errors accumulate across timesteps, driven primarily by incorrect token scales. We introduce KVarN, a calibration-free KV-cache quantizer that applies a Hadamard rotation followed by a dual-scaling variance normalization across both axes of the K and V matrices. We find that this combination fixes outlying token-scale errors and substantially reduces error accumulation over existing baselines. KVarN establishes a new state-of-theart for KV-cache quantization on generative benchmarks, including MATH500, AIME24 and HumanEval, at 2-bit precision. A vLLM implementation of the KVarN method is available at https://github.com/huawei-csl/KVarN",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2606.03458",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-20T05:48:59Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yuxuan Yue",
+            "Zhihang Yuan",
+            "Haojie Duanmu",
+            "Sifan Zhou",
+            "Jianlong Wu",
+            "Liqiang Nie"
+          ],
+          "title": "WKVQuant: Quantizing Weight and Key/Value Cache for Large Language Models Gains More",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2402.12065",
+        "summary": "Large Language Models (LLMs) face significant deployment challenges due to their substantial memory requirements and the computational demands of auto-regressive text generation process. This paper addresses these challenges by focusing on the quantization of LLMs, a technique that reduces memory consumption by converting model parameters and activations into low-bit integers. We critically analyze the existing quantization approaches, identifying their limitations in balancing the accuracy and efficiency of the quantized LLMs. To advance beyond these limitations, we propose WKVQuant, a PTQ framework especially designed for quantizing weights and the key/value (KV) cache of LLMs. Specifically, we incorporates past-only quantization to improve the computation of attention. Additionally, we introduce two-dimensional quantization strategy to handle the distribution of KV cache, along with a cross-block reconstruction regularization for parameter optimization. Experiments show that WKVQuant achieves almost comparable memory savings to weight-activation quantization, while also approaching the performance of weight-only quantization.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2402.12065",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-20T05:49:03Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Haojie Duanmu",
+            "Zhihang Yuan",
+            "Xiuhong Li",
+            "Jiangfei Duan",
+            "Xingcheng Zhang",
+            "Dahua Lin"
+          ],
+          "title": "SKVQ: Sliding-window Key and Value Cache Quantization for Large Language Models",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2405.06219",
+        "summary": "Large language models (LLMs) can now handle longer sequences of tokens, enabling complex tasks like book understanding and generating lengthy novels. However, the key-value (KV) cache required for LLMs consumes substantial memory as context length increasing, becoming the bottleneck for deployment. In this paper, we present a strategy called SKVQ, which stands for sliding-window KV cache quantization, to address the issue of extremely low bitwidth KV cache quantization. To achieve this, SKVQ rearranges the channels of the KV cache in order to improve the similarity of channels in quantization groups, and applies clipped dynamic quantization at the group level. Additionally, SKVQ ensures that the most recent window tokens in the KV cache are preserved with high precision. This helps maintain the accuracy of a small but important portion of the KV cache.SKVQ achieves high compression ratios while maintaining accuracy. Our evaluation on LLMs demonstrates that SKVQ surpasses previous quantization approaches, allowing for quantization of the KV cache to 2-bit keys and 1.5-bit values with minimal loss of accuracy. With SKVQ, it is possible to process context lengths of up to 1M on an 80GB memory GPU for a 7b model and up to 7 times faster decoding.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2405.06219",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-20T05:49:03Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Ishan Patel",
+            "Ishan Joshi"
+          ],
+          "title": "PolyKV: A Shared Asymmetrically-Compressed KV Cache Pool for Multi-Agent LLM Inference",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2604.24971",
+        "summary": "We present PolyKV, a system in which multiple concurrent inference agents share a single, asymmetrically compressed KV cache pool. Rather than allocating a separate KV cache per agent -- the standard paradigm -- PolyKV writes a compressed cache once and injects it into N independent agent contexts via HuggingFace DynamicCache objects. Compression is asymmetric: Keys are quantized at int8 (q8_0) to preserve softmax stability, while Values are compressed using TurboQuant MSE -- a Fast Walsh-Hadamard Transform (FWHT) rotation followed by 3-bit Lloyd-Max quantization with centroids tuned to N(0,1). We evaluate across two model scales (SmolLM2-1.7B-Instruct and Llama-3-8B-Instruct), three context lengths (600-7,194 tokens), and up to 15 concurrent agents. PolyKV achieves a stable 2.91x compression ratio across all configurations. On Llama-3-8B with 15 agents sharing a 4K-token context, PolyKV reduces KV cache memory from 19.8 GB to 0.45 GB -- a 97.7% reduction -- while maintaining only +0.57% perplexity degradation and a mean BERTScore F1 of 0.928. PPL delta does not grow with agent count and improves as context length increases, inverting to -0.26% at 1,851 coherent tokens. To our knowledge, no prior work combines a single shared, lossy-compressed KV pool with multi-reader concurrent agent access.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2604.24971",
+          "http_status": 200,
+          "pdf_sample_score": 0.3031,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-20T05:49:08Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Ngoc Bui",
+            "Hieu Trung Nguyen",
+            "Arman Cohan",
+            "Rex Ying"
+          ],
+          "title": "Make Each Token Count: Towards Improving Long-Context Performance with KV Cache Eviction",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2605.09649",
+        "summary": "The key-value (KV) cache is a major bottleneck in long-context inference, where memory and computation grow with sequence length. Existing KV eviction methods reduce this cost but typically degrade performance relative to full-cache inference. Our key insight is that full-cache attention is not always optimal: in long contexts, irrelevant tokens can dilute attention away from useful evidence, so selective, learnable eviction can improve generation rather than merely approximate the full cache. We introduce a global retention-based KV eviction method that learns each token's future utility under a unified memory budget. Lightweight retention gates assign utility scores to cached KV entries, and a shared final scoring projection calibrates these scores across all layers and heads. This enables a single global eviction policy in which tokens from different layers, heads, and modalities compete directly for cache capacity. We further provide theoretical analysis showing that preferentially retaining useful tokens reduces attention dilution, and we justify geometric retention as a query-agnostic proxy for future utility. Across diverse long-context language and vision-language reasoning, and multi-turn dialogue benchmarks, our method substantially reduces KV memory while matching or surpassing full-cache inference. These results suggest that learned, globally calibrated KV eviction is not only a compression technique, but also a mechanism for improving long-context reasoning.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2605.09649",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-20T05:49:08Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Tao Zhang",
+            "Ziqian Zeng",
+            "Hao Peng",
+            "Huiping Zhuang",
+            "Cen Chen"
+          ],
+          "title": "MixKVQ: Query-Aware Mixed-Precision KV Cache Quantization for Long-Context Reasoning",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2512.19206",
+        "summary": "Long Chain-of-Thought (CoT) reasoning has significantly advanced the capabilities of Large Language Models (LLMs), but this progress is accompanied by substantial memory and latency overhead from the extensive Key-Value (KV) cache. Although KV cache quantization is a promising compression technique, existing low-bit quantization methods often exhibit severe performance degradation on complex reasoning tasks. Fixed-precision quantization struggles to handle outlier channels in the key cache, while current mixed-precision strategies fail to accurately identify components requiring high-precision representation. We find that an effective low-bit KV cache quantization strategy must consider two factors: a key channel's intrinsic quantization difficulty and its relevance to the query. Based on this insight, we propose MixKVQ, a novel plug-and-play method that introduces a lightweight, query-aware algorithm to identify and preserve critical key channels that need higher precision, while applying per-token quantization for value cache. Experiments on complex reasoning datasets demonstrate that our approach significantly outperforms existing low-bit methods, achieving performance comparable to a full-precision baseline at a substantially reduced memory footprint.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2512.19206",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.75,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-20T05:49:09Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "kvarn: variance-normalized kv-cache quantization mitigates error accumulation in reasoning tasks computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

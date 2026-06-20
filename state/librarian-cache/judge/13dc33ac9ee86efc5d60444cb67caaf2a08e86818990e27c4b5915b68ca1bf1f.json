@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2604.24971",
+  "judged_at": "2026-06-20T05:49:21Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "kvarn: variance-normalized kv-cache quantization mitigates error accumulation in reasoning tasks computer science",
+  "rationale": "The paper studies KV‑cache quantization (asymmetric compression of keys and values), which is the same mechanism the user’s question concerns (variance‑normalized KV‑cache quantization), satisfying acceptance criterion (a) despite using a different quantization scheme and focusing on multi‑agent sharing rather than reasoning error accumulation.",
+  "relevant": true
+}

@@ -167,8 +167,16 @@
     "classified_at": "2026-06-08T16:44:19Z",
     "verdict": false
   },
+  "PROJ-628-foundation-protocol-a-coordination-layer::1.6.0": {
+    "classified_at": "2026-06-20T05:47:07Z",
+    "verdict": false
+  },
   "PROJ-635-evalverse-pipeline-aware-and-expert-cali::1.6.0": {
     "classified_at": "2026-06-04T03:42:21Z",
+    "verdict": false
+  },
+  "PROJ-642-minwm-a-full-stack-open-source-framework::1.6.0": {
+    "classified_at": "2026-06-20T05:48:03Z",
     "verdict": false
   },
   "PROJ-645-qwen-vla-unifying-vision-language-action::1.6.0": {
@@ -181,6 +189,10 @@
   },
   "PROJ-647-mellum2-technical-report::1.6.0": {
     "classified_at": "2026-06-18T13:28:10Z",
+    "verdict": false
+  },
+  "PROJ-657-https-arxiv-org-abs-2606-03458::1.6.0": {
+    "classified_at": "2026-06-20T05:48:59Z",
     "verdict": false
   },
   "PROJ-659-trust-region-on-policy-distillation::1.6.0": {

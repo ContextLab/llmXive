@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2412.06333",
+  "judged_at": "2026-06-20T05:47:18Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "foundation protocol: a coordination layer for agentic society computer science",
+  "rationale": "The paper studies a coordination mechanism (conventions augmenting the action space) to improve cooperation among multiple agents, which directly relates to the concept of a coordination layer for an agentic society (category a). It provides empirical evidence on how such a layer can enhance multi‑agent interaction, making it a relevant prior work for the user's topic.",
+  "relevant": true
+}

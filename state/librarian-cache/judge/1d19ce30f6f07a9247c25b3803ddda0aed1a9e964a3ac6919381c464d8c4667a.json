@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2512.14002",
+  "judged_at": "2026-06-20T05:48:11Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "minwm: a full-stack open-source framework for real-time interactive video world models computer science",
+  "rationale": "The paper focuses on task offloading and resource allocation in vehicular edge computing, not on a full‑stack open‑source framework for real‑time interactive video world models; it does not share the same mechanism, variables, or domain required by the user's question.",
+  "relevant": false
+}

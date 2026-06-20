@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2401.16216",
+  "judged_at": "2026-06-20T05:47:21Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "foundation protocol: a coordination layer for agentic society computer science",
+  "rationale": "The paper studies semantic relationships among agent communication protocols—a core mechanism underlying coordination layers in multi‑agent societies—so it addresses the same domain and mechanism (protocol semantics) relevant to a “Foundation Protocol” coordination layer (acceptance category (a)).",
+  "relevant": true
+}

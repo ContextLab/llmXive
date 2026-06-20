@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-04T09:21:53.148575Z'
-current_stage: brainstormed
+current_stage: flesh_out_complete
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-657-https-arxiv-org-abs-2606-03458
-last_run_id: 6fb7bda5-b7fd-4fa1-9ab8-51f502363561
+last_run_id: eda67aeb-ee3c-4656-8729-12ca06a40d42
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: null
 title: 'KVarN: Variance-Normalized KV-Cache Quantization Mitigates Error Accumulation
   in Reasoning Tasks'
-updated_at: '2026-06-20T04:42:08.097878Z'
+updated_at: '2026-06-20T05:49:37.591589Z'

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2505.15781",
+  "judged_at": "2026-06-20T05:49:16Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "kvarn: variance-normalized kv-cache quantization mitigates error accumulation in reasoning tasks computer science",
+  "rationale": "The paper introduces a delayed KV‑cache mechanism for diffusion language models aimed at inference speedup, without discussing KV‑cache quantization, variance‑normalization, or error accumulation in reasoning tasks, which are the core constructs of the user's question. Hence it does not meet any inclusion criteria (a‑f).",
+  "relevant": false
+}

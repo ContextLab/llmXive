@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2402.12065",
+  "judged_at": "2026-06-20T05:49:13Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "kvarn: variance-normalized kv-cache quantization mitigates error accumulation in reasoning tasks computer science",
+  "rationale": "The paper studies quantization of the key/value cache in large language models, which is the same mechanism (KV‑cache quantization) that the user's question focuses on, even though it uses a different specific technique. This satisfies inclusion criterion (a) – same‑mechanism evidence.",
+  "relevant": true
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1806.09998",
+  "judged_at": "2026-06-20T05:48:12Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "minwm: a full-stack open-source framework for real-time interactive video world models computer science",
+  "rationale": "The paper focuses on real‑time motor state monitoring and fault diagnosis using LabVIEW and industrial sensor data, which is unrelated to a full‑stack open‑source framework for real‑time interactive video world models in computer science. It does not address the same mechanisms, variables, or domain.",
+  "relevant": false
+}

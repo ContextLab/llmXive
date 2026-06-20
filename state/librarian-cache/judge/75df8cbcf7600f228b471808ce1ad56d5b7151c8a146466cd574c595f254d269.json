@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1311.5108",
+  "judged_at": "2026-06-20T05:47:16Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "foundation protocol: a coordination layer for agentic society computer science",
+  "rationale": "The paper studies mechanisms for coordinating agents across multiple levels (activation/deactivation and aggregation/disaggregation), which directly relate to the coordination layer concept in agentic societies, satisfying criterion (a) – same‑mechanism evidence.",
+  "relevant": true
+}
