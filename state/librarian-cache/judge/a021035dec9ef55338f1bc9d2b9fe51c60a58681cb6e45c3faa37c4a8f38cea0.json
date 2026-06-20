@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1309.5840",
+  "judged_at": "2026-06-20T01:19:28Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "resting-state fmri entropy predicts metacognitive accuracy neuroscience",
+  "rationale": "The paper studies resting‑state functional connectivity using fNIRS in autistic children and does not address rs‑fMRI entropy or metacognitive accuracy, nor does it provide a baseline, methodology, or population relevant to the user's question. It therefore fails all inclusion criteria (a‑f).",
+  "relevant": false
+}

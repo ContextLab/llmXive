@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2110.10980",
+  "judged_at": "2026-06-20T01:17:59Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "ambient temperature influence on moral decision speed psychology",
+  "rationale": "The paper discusses ethics-based auditing of automated decision‑making systems, which bears no relation to ambient temperature, moral decision‑making speed, or psychological processes, thus it does not meet any inclusion criteria.",
+  "relevant": false
+}

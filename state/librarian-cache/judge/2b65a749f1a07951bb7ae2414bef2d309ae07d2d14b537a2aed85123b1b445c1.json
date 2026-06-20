@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1611.03605",
+  "judged_at": "2026-06-20T01:17:01Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "linking resting‑state fmri entropy to creative problem solving neuroscience",
+  "rationale": "The paper offers a foundational conceptual framework that proposes entropy as a driver of creative cognition, which is a canonical reference for the theoretical link between entropy and creativity (acceptance category (d)). It does not provide rs‑fMRI data, but it is relevant background for a literature review on entropy‑creativity relationships.",
+  "relevant": true
+}

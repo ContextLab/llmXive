@@ -1,0 +1,444 @@
+{
+  "fetched_at": "2026-06-20T01:19:28Z",
+  "field": "neuroscience",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "neuroscience",
+      "idea_body_excerpt": "Resting-State fMRI Entropy Predicts Metacognitive Accuracy",
+      "target_n": 5
+    },
+    "duration_seconds": 69.178,
+    "ended_at": "2026-06-20T01:19:28Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "Resting-state functional connectivity and metacognitive performance"
+        ],
+        [
+          2,
+          "Multiscale entropy of resting‑state BOLD predicting metacognitive accuracy"
+        ],
+        [
+          3,
+          "Sample entropy of spontaneous fMRI signals and confidence calibration"
+        ],
+        [
+          4,
+          "Intrinsic brain signal variability as a predictor of metacognitive sensitivity"
+        ],
+        [
+          5,
+          "Resting‑state neural complexity correlates with metacognitive efficiency"
+        ],
+        [
+          6,
+          "BOLD signal entropy as a biomarker for metacognitive insight"
+        ],
+        [
+          7,
+          "Resting‑state brain network entropy and self‑monitoring ability"
+        ],
+        [
+          8,
+          "Intrinsic functional connectivity entropy and metacognitive control"
+        ],
+        [
+          9,
+          "Whole‑brain entropy metrics linked to metacognitive monitoring"
+        ],
+        [
+          10,
+          "Resting‑state cerebral entropy and decision‑confidence accuracy"
+        ],
+        [
+          11,
+          "Neural entropy in the default mode network and metacognitive precision"
+        ],
+        [
+          12,
+          "Resting‑state brain activity irregularity and introspective accuracy"
+        ],
+        [
+          13,
+          "Entropy of spontaneous BOLD fluctuations predicting metacognitive ability"
+        ],
+        [
+          14,
+          "Resting‑state network heterogeneity associated with metacognitive performance"
+        ],
+        [
+          15,
+          "fMRI signal complexity measures and metacognitive evaluation"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Resting-State fMRI Entropy Predicts Metacognitive Accuracy neuroscience": 0,
+        "Resting-state functional connectivity and metacognitive performance": 3
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "sample entropy fMRI",
+      "Human Connectome Project metacognition",
+      "meta-d prime resting-state",
+      "metacognitive efficiency fMRI",
+      "neural complexity predictive coding"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "1208.0924"
+      ]
+    },
+    "per_query_hit_count": {
+      "Human Connectome Project metacognition": 3,
+      "Resting-State fMRI Entropy Predicts Metacognitive Accuracy neuroscience": 3,
+      "meta-d prime resting-state": 2,
+      "metacognitive efficiency fMRI": 2,
+      "neural complexity predictive coding": 3,
+      "sample entropy fMRI": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 4,
+      "rejections": [
+        {
+          "primary_pointer": "2509.13612",
+          "rationale": "The paper focuses on using a generative model to predict visually evoked fMRI from resting‑state scans, without examining rs‑fMRI entropy, metacognitive performance, or their relationship; it does not meet any inclusion criteria (a‑f).",
+          "title": "Rest2Visual: Predicting Visually Evoked fMRI from Resting-State Scans"
+        },
+        {
+          "primary_pointer": "2412.07783",
+          "rationale": "The paper predicts neonatal developmental scores from fMRI using a transformer model and does not examine resting‑state fMRI entropy, metacognitive accuracy, or their relationship, nor does it provide a baseline or foundational method for those constructs. Hence it does not meet any inclusion criteria (a‑f).",
+          "title": "Swin fMRI Transformer Predicts Early Neurodevelopmental Outcomes from Neonatal fMRI"
+        },
+        {
+          "primary_pointer": "1202.4751",
+          "rationale": "The paper studies fractal‑based correlation and Hurst exponents in resting‑state fMRI of rats, without measuring entropy, metacognitive performance, or any human‑subject variables; it therefore does not address the mechanism (entropy) or outcome (metacognitive accuracy) of the user's question.",
+          "title": "Fractal-based Correlation Analysis for Resting State Functional Connectivity of the Rat Brain in Functional MRI"
+        },
+        {
+          "primary_pointer": "1309.5840",
+          "rationale": "The paper studies resting‑state functional connectivity using fNIRS in autistic children and does not address rs‑fMRI entropy or metacognitive accuracy, nor does it provide a baseline, methodology, or population relevant to the user's question. It therefore fails all inclusion criteria (a‑f).",
+          "title": "Reduced interhemispheric functional connectivity of children with autism: evidence from functional near infrared spectroscopy studies"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-20T01:18:18Z",
+    "term_input": {
+      "normalized": "resting-state fmri entropy predicts metacognitive accuracy neuroscience",
+      "raw": "Resting-State fMRI Entropy Predicts Metacognitive Accuracy neuroscience"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent advances in multimodal large language models (LLMs) have enabled unified reasoning across images, audio, and video, but extending such capability to brain imaging remains largely unexplored. Bridging this gap is essential to link neural activity with semantic cognition and to develop cross-modal brain representations. To this end, we present fMRI-LM, a foundational model that bridges functional MRI (fMRI) and language through a three-stage framework. In Stage 1, we learn a neural tokenizer that maps fMRI into discrete tokens embedded in a language-consistent space. In Stage 2, a pretrained LLM is adapted to jointly model fMRI tokens and text, treating brain activity as a sequence that can be temporally predicted and linguistically described. To overcome the lack of natural fMRI-text pairs, we construct a large descriptive corpus that translates diverse imaging-based features into structured textual descriptors, capturing the low-level organization of fMRI signals. In Stage 3, we perform multi-task, multi-paradigm instruction tuning to endow fMRI-LM with high-level semantic understanding, supporting diverse downstream applications. Across various benchmarks, fMRI-LM achieves strong zero-shot and few-shot performance, and adapts efficiently with parameter-efficient tuning (LoRA), establishing a scalable pathway toward a language-aligned, universal model for structural and semantic understanding of fMRI.",
+          "claimed_authors": [
+            "Yuxiang Wei",
+            "Yanteng Zhang",
+            "Xi Xiao",
+            "Chengxuan Qian",
+            "Tianyang Wang",
+            "Vince D. Calhoun"
+          ],
+          "claimed_title": "fMRI-LM: Towards a Universal Foundation Model for Language-Aligned fMRI Understanding",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2511.21760"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Resting-State fMRI Entropy Predicts Metacognitive Accuracy neuroscience', candidate_title='fMRI-LM: Towards a Universal Foundation Model for Language-Aligned fMRI Understanding')",
+        "failed_at": "2026-06-20T01:18:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Information theory provides a spectrum of nonlinear methods capable of grasping an internal structure of a signal together with an insight into its complex nature. In this work, we discuss the usefulness of the selected entropy techniques for a description of the information carried by the surface electromyography signals during colorectal cancer treatment. The electrical activity of the external anal sphincter can serve as a potential source of knowledge of the actual state of the patient who underwent a common surgery for rectal cancer in the form of anterior or lower anterior resection. The calculation of Sample entropy parameters has been extended to multiple time scales in terms of the Multiscale Sample Entropy. The specific values of the entropy measures and their dependence on the time scales were analyzed with regard to the time elapsed since the operation, the type of surgical treatment and also the different depths of the rectum canal. The Mann Whithney U test and Anova Friedman statistics indicate the statistically significant differences among all of stages of treatment and for all consecutive depths of rectum area for the estimated Sample Entropy. The further analysis at the multiple time scales signify the substantial differences among compared stages of treatment in the group of patients who underwent the lower anterior resection.",
+          "claimed_authors": [
+            "Paulina Trybek",
+            "Michal Nowakowski",
+            "Jerzy Salowka",
+            "Jakub Spiechowicz",
+            "Lukasz Machura"
+          ],
+          "claimed_title": "Sample entropy of sEMG signals at different stages of rectal cancer treatment",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1811.02956"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Resting-State fMRI Entropy Predicts Metacognitive Accuracy neuroscience', candidate_title='Sample entropy of sEMG signals at different stages of rectal cancer treatment')",
+        "failed_at": "2026-06-20T01:18:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Approximate entropy (ApEn) and sample entropy (SampEn) are widely used for temporal complexity analysis of real-world phenomena. However, their relationship with the Hurst exponent as a measure of self-similarity is not widely studied. Additionally, ApEn and SampEn are susceptible to signal amplitude changes. A common practice for addressing this issue is to correct their input signal amplitude by its standard deviation. In this study, we first show, using simulations, that ApEn and SampEn are related to the Hurst exponent in their tolerance r and embedding dimension m parameters. We then propose a modification to ApEn and SampEn called range entropy or RangeEn. We show that RangeEn is more robust to nonstationary signal changes, and it has a more linear relationship with the Hurst exponent, compared to ApEn and SampEn. RangeEn is bounded in the tolerance r-plane between 0 (maximum entropy) and 1 (minimum entropy) and it has no need for signal amplitude correction. Finally, we demonstrate the clinical usefulness of signal entropy measures for characterisation of epileptic EEG data as a real-world example.",
+          "claimed_authors": [
+            "Amir Omidvarnia",
+            "Mostefa Mesbah",
+            "Mangor Pedersen",
+            "Graeme Jackson"
+          ],
+          "claimed_title": "Range entropy: A bridge between signal complexity and self-similarity",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1809.06500"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Resting-State fMRI Entropy Predicts Metacognitive Accuracy neuroscience', candidate_title='Range entropy: A bridge between signal complexity and self-similarity')",
+        "failed_at": "2026-06-20T01:18:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "While generative artificial intelligence (Gen AI) increasingly transforms academic environments, a critical gap exists in understanding and mitigating human biases in AI interactions, such as anchoring and confirmation bias. This position paper advocates for metacognitive AI literacy interventions to help university students critically engage with AI and address biases across the Human-AI interaction workflows. The paper presents the importance of considering (1) metacognitive support with deliberate friction focusing on human bias; (2) bi-directional Human-AI interaction intervention addressing both input formulation and output interpretation; and (3) adaptive scaffolding that responds to diverse user engagement patterns. These frameworks are illustrated through ongoing work on \"DeBiasMe,\" AIED (AI in Education) interventions designed to enhance awareness of cognitive biases while empowering user agency in AI interactions. The paper invites multiple stakeholders to engage in discussions on design and evaluation methods for scaffolding mechanisms, bias visualization, and analysis frameworks. This position contributes to the emerging field of AI-augmented learning by emphasizing the critical role of metacognition in helping students navigate the complex interaction between human, statistical, and systemic biases in AI use while highlighting how cognitive adaptation to AI systems must be explicitly integrated into comprehensive AI literacy frameworks.",
+          "claimed_authors": [
+            "Chaeyeon Lim"
+          ],
+          "claimed_title": "DeBiasMe: De-biasing Human-AI Interactions with Metacognitive AIED (AI in Education) Interventions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.16770"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Resting-State fMRI Entropy Predicts Metacognitive Accuracy neuroscience', candidate_title='DeBiasMe: De-biasing Human-AI Interactions with Metacognitive AIED (AI in Education) Interventions')",
+        "failed_at": "2026-06-20T01:18:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The book consists of a number of short articles that present achievements of the Araucaria members, collaborators, and friends, in various aspects of distance determinations and related topics. It celebrates the 20-year anniversary of the Araucaria Project, acknowledges the people who worked for its success, and popularises our methods and results among broader readership.\n  This book is a part of a project that has received funding from the European Union's Horizon 2020 research and innovation programme under grant agreement No 695099.",
+          "claimed_authors": [
+            "The Araucaria Project",
+            " :",
+            "G. Pietrzyński",
+            "W. Gieren",
+            "P. Karczmarek",
+            "M. Górski",
+            "B. Zgirski",
+            "P. Wielgórski",
+            "L. Breuval",
+            "K. Suchomska",
+            "A. Gallenne",
+            "P. Kervella",
+            "G. Hajdu",
+            "B. Pilecki",
+            "J. Storm",
+            "N. Nardetto",
+            "R. P. Kudritzki",
+            "M. Taormina",
+            "F. Bresolin",
+            "R. Smolec",
+            "W. Narloch",
+            "C. Gałan",
+            "M. Lewis",
+            "R. Chini"
+          ],
+          "claimed_title": "The Araucaria Project: Improving the cosmic distance scale",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2305.17247"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Resting-State fMRI Entropy Predicts Metacognitive Accuracy neuroscience', candidate_title='The Araucaria Project: Improving the cosmic distance scale')",
+        "failed_at": "2026-06-20T01:18:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "By defining the current limits (and thereby the frontiers), many boundaries are shaping, and will continue to shape, the future of Artificial Intelligence (AI). We push on these boundaries in order to make further progress into what were yesterday's frontiers. They are both pliable and resilient - always creating new boundaries of what AI can (or should) achieve. Among these are technical boundaries (such as processing capacity), psychological boundaries (such as human trust in AI systems), ethical boundaries (such as with AI weapons), and conceptual boundaries (such as the AI people can imagine). It is within this final category while it can play a fundamental role in all other boundaries} that we find the construct of needs and the limitations that our current concept of need places on the future AI.",
+          "claimed_authors": [
+            "Ryan Watkins",
+            "Soheil Human"
+          ],
+          "claimed_title": "Needs-aware Artificial Intelligence: AI that 'serves [human] needs'",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2202.04977"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Resting-State fMRI Entropy Predicts Metacognitive Accuracy neuroscience', candidate_title=\"Needs-aware Artificial Intelligence: AI that 'serves [human] needs'\")",
+        "failed_at": "2026-06-20T01:18:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The most studies on functional connectivity have been done by analyzing the brain's hemodynamic response to a stimulation. On the other hand, the low-frequency spontaneous fluctuations in the blood oxygen level dependent (BOLD) signals of functional MRI have been observed in the resting state. However, the BOLD signals in resting state are significantly corrupted by huge noises arising from cardiac pulsation, respiration, subject motion, scanner, and so forth. Especially, the noise compounds are stronger in the rat brain than in the human brain. To overcome such an artifact, we assumed that fractal behavior in BOLD signals reflects low frequency neural activity, and applied the theorem such that the wavelet correlation spectrum between long memory processes is scale-invariant over low frequency scales. Here, we report an experiment that shows special correlation patterns not only in correlation of scaling coefficients in very low-frequency band (less than 0.0078Hz) but also in asymptotic wavelet correlation. In addition, we show the distribution of the Hurst exponents in the rat brain.",
+          "claimed_authors": [
+            "Wonsang You",
+            "Joerg Stadler"
+          ],
+          "claimed_title": "Fractal-based Correlation Analysis for Resting State Functional Connectivity of the Rat Brain in Functional MRI",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1202.4751"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Resting-State fMRI Entropy Predicts Metacognitive Accuracy neuroscience', candidate_title='Fractal-based Correlation Analysis for Resting State Functional Connectivity of the Rat Brain in Functional MRI')",
+        "failed_at": "2026-06-20T01:18:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We prove unconditionally that for each $\\ell \\geq 1$, the difference $φ(p-\\ell) - φ(p+\\ell)$ is positive for $50\\%$ of odd primes $p$ and negative for $50\\%$.",
+          "claimed_authors": [
+            "Stephan Ramon Garcia",
+            "Florian Luca"
+          ],
+          "claimed_title": "On the difference in values of the Euler totient function near prime arguments",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1706.00392"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Resting-State fMRI Entropy Predicts Metacognitive Accuracy neuroscience', candidate_title='On the difference in values of the Euler totient function near prime arguments')",
+        "failed_at": "2026-06-20T01:18:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We introduce a cross-domain behavioural assay of monitoring-control coupling in LLMs, grounded in the Nelson and Narens (1990) metacognitive framework and applying human psychometric methodology to LLM evaluation. The battery comprises 524 items across six cognitive domains (learning, metacognitive calibration, social cognition, attention, executive function, prospective regulation), each grounded in an established experimental paradigm. Tasks T1-T5 were pre-registered on OSF prior to data collection; T6 was added as an exploratory extension. After every forced-choice response, dual probes adapted from Koriat and Goldsmith (1996) ask the model to KEEP or WITHDRAW its answer and to BET or decline. The critical metric is the withdraw delta: the difference in withdrawal rate between incorrect and correct items. Applied to 20 frontier LLMs (10,480 evaluations), the battery discriminates three profiles consistent with the Nelson-Narens architecture: blanket confidence, blanket withdrawal, and selective sensitivity. Accuracy rank and metacognitive sensitivity rank are largely inverted. Retrospective monitoring and prospective regulation appear dissociable (r = .17, 95% CI wide given n=20; exemplar-based evidence is the primary support). Scaling on metacognitive calibration is architecture-dependent: monotonically decreasing (Qwen), monotonically increasing (GPT-5.4), or flat (Gemma). Behavioural findings converge structurally with an independent Type-2 SDT approach, providing preliminary cross-method construct validity. All items, data, and code: https://github.com/synthiumjp/metacognitive-monitoring-battery.",
+          "claimed_authors": [
+            "Jon-Paul Cacioli"
+          ],
+          "claimed_title": "The Metacognitive Monitoring Battery: A Cross-Domain Benchmark for LLM Self-Monitoring",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2604.15702"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Resting-State fMRI Entropy Predicts Metacognitive Accuracy neuroscience', candidate_title='The Metacognitive Monitoring Battery: A Cross-Domain Benchmark for LLM Self-Monitoring')",
+        "failed_at": "2026-06-20T01:18:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In deductive domains, three metacognitive knowledge types in ascending order are declarative, procedural, and conditional learning. This work leverages Deep Reinforcement Learning (DRL) in providing adaptive metacognitive interventions to bridge the gap between the three knowledge types and prepare students for future learning across Intelligent Tutoring Systems (ITSs). Students received these interventions that taught how and when to use a backward-chaining (BC) strategy on a logic tutor that supports a default forward-chaining strategy. Six weeks later, we trained students on a probability tutor that only supports BC without interventions. Our results show that on both ITSs, DRL bridged the metacognitive knowledge gap between students and significantly improved their learning performance over their control peers. Furthermore, the DRL policy adapted to the metacognitive development on the logic tutor across declarative, procedural, and conditional students, causing their strategic decisions to be more autonomous.",
+          "claimed_authors": [
+            "Mark Abdelshiheed",
+            "John Wesley Hostetter",
+            "Tiffany Barnes",
+            "Min Chi"
+          ],
+          "claimed_title": "Bridging Declarative, Procedural, and Conditional Metacognitive Knowledge Gap Using Deep Reinforcement Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2304.11739"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Resting-State fMRI Entropy Predicts Metacognitive Accuracy neuroscience', candidate_title='Bridging Declarative, Procedural, and Conditional Metacognitive Knowledge Gap Using Deep Reinforcement Learning')",
+        "failed_at": "2026-06-20T01:18:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "An iterated refinement procedure for the Guruswami--Sudan list decoding algorithm for Generalised Reed--Solomon codes based on Alekhnovich's module minimisation is proposed. The method is parametrisable and allows variants of the usual list decoding approach. In particular, finding the list of \\emph{closest} codewords within an intermediate radius can be performed with improved average-case complexity while retaining the worst-case complexity.",
+          "claimed_authors": [
+            "Johan Sebastian Rosenkilde Nielsen",
+            "Alexander Zeh"
+          ],
+          "claimed_title": "Multi-Trial Guruswami--Sudan Decoding for Generalised Reed--Solomon Codes",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1301.6236"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Resting-State fMRI Entropy Predicts Metacognitive Accuracy neuroscience', candidate_title='Multi-Trial Guruswami--Sudan Decoding for Generalised Reed--Solomon Codes')",
+        "failed_at": "2026-06-20T01:18:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "While various complexity measures for deep neural networks exist, specifying an appropriate measure capable of predicting and explaining generalization in deep networks has proven challenging. We propose Neural Complexity (NC), a meta-learning framework for predicting generalization. Our model learns a scalar complexity measure through interactions with many heterogeneous tasks in a data-driven way. The trained NC model can be added to the standard training loss to regularize any task learner in a standard supervised learning scenario. We contrast NC's approach against existing manually-designed complexity measures and other meta-learning models, and we validate NC's performance on multiple regression and classification tasks",
+          "claimed_authors": [
+            "Yoonho Lee",
+            "Juho Lee",
+            "Sung Ju Hwang",
+            "Eunho Yang",
+            "Seungjin Choi"
+          ],
+          "claimed_title": "Neural Complexity Measures",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2008.02953"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Resting-State fMRI Entropy Predicts Metacognitive Accuracy neuroscience', candidate_title='Neural Complexity Measures')",
+        "failed_at": "2026-06-20T01:18:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Artificial Intelligence and Machine learning have been widely used in various fields of mathematical computing, physical modeling, computational science, communication science, and stochastic analysis. Approaches based on Deep Artificial Neural Networks (DANN) are very popular in our days. Depending on the learning task, the exact form of DANNs is determined via their multi-layer architecture, activation functions and the so-called loss function. However, for a majority of deep learning approaches based on DANNs, the kernel structure of neural signal processing remains the same, where the node response is encoded as a linear superposition of neural activity, while the non-linearity is triggered by the activation functions. In the current paper, we suggest to analyze the neural signal processing in DANNs from the point of view of homogeneous chaos theory as known from polynomial chaos expansion (PCE). From the PCE perspective, the (linear) response on each node of a DANN could be seen as a $1^{st}$ degree multi-variate polynomial of single neurons from the previous layer, i.e. linear weighted sum of monomials. From this point of view, the conventional DANN structure relies implicitly (but erroneously) on a Gaussian distribution of neural signals. Additionally, this view revels that by design DANNs do not necessarily fulfill any orthogonality or orthonormality condition for a majority of data-driven applications. Therefore, the prevailing handling of neural signals in DANNs could lead to redundant representation as any neural signal could contain some partial information from other neural signals. To tackle that challenge, we suggest to employ the data-driven generalization of PCE theory known as arbitrary polynomial chaos (aPC) to construct a corresponding multi-variate orthonormal representations on each node of a DANN to obtain Deep arbitrary polynomial chaos neural networks.",
+          "claimed_authors": [
+            "Sergey Oladyshkin",
+            "Timothy Praditia",
+            "Ilja Kröker",
+            "Farid Mohammadi",
+            "Wolfgang Nowak",
+            "Sebastian Otte"
+          ],
+          "claimed_title": "The Deep Arbitrary Polynomial Chaos Neural Network or how Deep Artificial Neural Networks could benefit from Data-Driven Homogeneous Chaos Theory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.14753"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Resting-State fMRI Entropy Predicts Metacognitive Accuracy neuroscience', candidate_title='The Deep Arbitrary Polynomial Chaos Neural Network or how Deep Artificial Neural Networks could benefit from Data-Driven Homogeneous Chaos Theory')",
+        "failed_at": "2026-06-20T01:18:55Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Wonsang You",
+            "Jörg Stadler"
+          ],
+          "title": "Fractal-driven distortion of resting state functional networks in fMRI: a simulation study",
+          "venue": "arXiv",
+          "year": 2012
+        },
+        "primary_pointer": "1208.0924",
+        "summary": "Fractals are self-similar and scale-invariant patterns found ubiquitously in nature. A lot of evidences implying fractal properties such as 1/f power spectrums have been also observed in resting state fMRI time series. To explain the fractal behavior in rs-fMRI, we have proposed the fractal-based model of resting state hemodynamic response function (rs-HRF) whose properties can be summarized by a fractal exponent. Here we show, through a simulation studies, that the fractal behavior of cerebral hemodynamics may cause significant distortion of network properties between neuronal activities and BOLD signals. We simulated neuronal population activities based on the stochastic neural field model from the Macaque brain network, and then obtained their corresponding BOLD signals by convolving them with the rs-HRF filter. The precision of centrality estimated in each node was deteriorated overall in three networks based on transfer entropy, mutual information, and Pearson correlation; particularly the distortion of transfer entropy was more sensitive to the standard deviation of fractal exponents. A node with high centrality was resilient to desynchronized fractal dynamics over all frequencies while a node with small centrality exhibited huge distortion of both wavelet correlation and centrality over low frequencies. This theoretical expectation indicates that the difference of fractal exponents between brain regions leads to discrepancy of statistical network properties, especially at nodes with small centrality, between neuronal activities and BOLD signals, and that the traditional definitions of resting state functional connectivity may not effectively reflect the dynamics of spontaneous neuronal activities.",
+        "summary_grounded_pdf": true,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1208.0924",
+          "http_status": 200,
+          "pdf_sample_score": 0.5018,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-20T01:18:55Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "resting-state fmri entropy predicts metacognitive accuracy neuroscience",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

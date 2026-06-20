@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2510.22364",
+  "judged_at": "2026-06-20T01:16:51Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "linking resting‑state fmri entropy to creative problem solving neuroscience",
+  "rationale": "The paper examines a resting‑state neural measure (EEG functional connectivity) and its relationship to creativity‑related outcomes (creative self‑efficacy and engagement), which aligns with the user’s interest in linking intrinsic brain activity (resting‑state fMRI entropy) to creative problem solving. This satisfies inclusion criterion (b) – it measures a dependent variable (creativity) on the same domain of resting‑state brain dynamics – and also fits the cross‑vocabulary cluster (f) as an al",
+  "relevant": true
+}

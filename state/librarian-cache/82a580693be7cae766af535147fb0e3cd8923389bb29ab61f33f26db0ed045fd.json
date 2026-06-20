@@ -1,0 +1,481 @@
+{
+  "fetched_at": "2026-06-20T01:17:02Z",
+  "field": "neuroscience",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "neuroscience",
+      "idea_body_excerpt": "Linking Resting‑State fMRI Entropy to Creative Problem Solving",
+      "target_n": 5
+    },
+    "duration_seconds": 159.702,
+    "ended_at": "2026-06-20T01:17:02Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "resting‑state fMRI signal complexity and creative cognition"
+        ],
+        [
+          2,
+          "multiscale entropy of BOLD activity predicting divergent thinking"
+        ],
+        [
+          3,
+          "neural entropy in the default mode network and creative problem solving"
+        ],
+        [
+          4,
+          "intrinsic brain activity variability and insight problem solving"
+        ],
+        [
+          5,
+          "BOLD signal irregularity as a marker of creative ideation"
+        ],
+        [
+          6,
+          "functional connectivity entropy and creative performance"
+        ],
+        [
+          7,
+          "resting‑state brain network entropy and creative ability"
+        ],
+        [
+          8,
+          "complexity analysis of spontaneous fMRI fluctuations and creativity"
+        ],
+        [
+          9,
+          "entropy‑based measures of intrinsic neural dynamics and creative thinking"
+        ],
+        [
+          10,
+          "graph entropy of resting‑state networks linked to creative output"
+        ],
+        [
+          11,
+          "dynamical complexity of resting‑state fMRI and divergent thinking scores"
+        ],
+        [
+          12,
+          "multivariate entropy of resting‑state BOLD signals predicting creative problem solving"
+        ],
+        [
+          13,
+          "neural signal entropy as predictor of insight generation"
+        ],
+        [
+          14,
+          "resting‑state functional connectivity variability and creative cognition"
+        ],
+        [
+          15,
+          "brain signal irregularity metrics and creative problem‑solving performance"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Linking Resting‑State fMRI Entropy to Creative Problem Solving neuroscience": 0,
+        "multiscale entropy of BOLD activity predicting divergent thinking": 1,
+        "neural entropy in the default mode network and creative problem solving": 2,
+        "resting‑state fMRI signal complexity and creative cognition": 2
+      },
+      "total_queries_issued": 3
+    },
+    "extracted_queries": [
+      "multiscale entropy fMRI",
+      "remote associates test resting-state",
+      "BOLD signal variability creativity",
+      "divergent thinking performance fMRI",
+      "neural criticality creative cognition"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "1208.0924"
+      ]
+    },
+    "per_query_hit_count": {
+      "BOLD signal variability creativity": 3,
+      "Linking Resting‑State fMRI Entropy to Creative Problem Solving neuroscience": 3,
+      "divergent thinking performance fMRI": 2,
+      "multiscale entropy fMRI": 2,
+      "neural criticality creative cognition": 3,
+      "remote associates test resting-state": 2
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 2,
+      "rejections": [
+        {
+          "primary_pointer": "1811.02956",
+          "rationale": "The paper studies sample entropy of surface EMG signals in rectal cancer patients, which is unrelated to resting‑state fMRI, brain entropy, or creative problem‑solving; it does not share the relevant mechanism, variables, or population required for inclusion.",
+          "title": "Sample entropy of sEMG signals at different stages of rectal cancer treatment"
+        },
+        {
+          "primary_pointer": "cs/0501004",
+          "rationale": "The paper focuses on societal-scale collective intelligence and social‑network frameworks, without addressing resting‑state fMRI, entropy measures, or individual creative problem solving in the brain, thus it is off‑domain and unrelated to the user's neuroscience question.",
+          "title": "Advances towards a General-Purpose Societal-Scale Human-Collective Problem-Solving Engine"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-20T01:14:22Z",
+    "term_input": {
+      "normalized": "linking resting‑state fmri entropy to creative problem solving neuroscience",
+      "raw": "Linking Resting‑State fMRI Entropy to Creative Problem Solving neuroscience"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent advances in multimodal large language models (LLMs) have enabled unified reasoning across images, audio, and video, but extending such capability to brain imaging remains largely unexplored. Bridging this gap is essential to link neural activity with semantic cognition and to develop cross-modal brain representations. To this end, we present fMRI-LM, a foundational model that bridges functional MRI (fMRI) and language through a three-stage framework. In Stage 1, we learn a neural tokenizer that maps fMRI into discrete tokens embedded in a language-consistent space. In Stage 2, a pretrained LLM is adapted to jointly model fMRI tokens and text, treating brain activity as a sequence that can be temporally predicted and linguistically described. To overcome the lack of natural fMRI-text pairs, we construct a large descriptive corpus that translates diverse imaging-based features into structured textual descriptors, capturing the low-level organization of fMRI signals. In Stage 3, we perform multi-task, multi-paradigm instruction tuning to endow fMRI-LM with high-level semantic understanding, supporting diverse downstream applications. Across various benchmarks, fMRI-LM achieves strong zero-shot and few-shot performance, and adapts efficiently with parameter-efficient tuning (LoRA), establishing a scalable pathway toward a language-aligned, universal model for structural and semantic understanding of fMRI.",
+          "claimed_authors": [
+            "Yuxiang Wei",
+            "Yanteng Zhang",
+            "Xi Xiao",
+            "Chengxuan Qian",
+            "Tianyang Wang",
+            "Vince D. Calhoun"
+          ],
+          "claimed_title": "fMRI-LM: Towards a Universal Foundation Model for Language-Aligned fMRI Understanding",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2511.21760"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Linking Resting‑State fMRI Entropy to Creative Problem Solving neuroscience', candidate_title='fMRI-LM: Towards a Universal Foundation Model for Language-Aligned fMRI Understanding')",
+        "failed_at": "2026-06-20T01:16:25Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Immersive virtual reality (VR) emerges as a promising research and clinical tool. However, several studies suggest that VR induced adverse symptoms and effects (VRISE) may undermine the health and safety standards, and the reliability of the scientific results. In the current literature review, the technical reasons for the adverse symptomatology are investigated to provide suggestions and technological knowledge for the implementation of VR head-mounted display (HMD) systems in cognitive neuroscience. The technological systematic literature indicated features pertinent to display, sound, motion tracking, navigation, ergonomic interactions, user experience, and computer hardware that should be considered by the researchers. Subsequently, a meta-analysis of 44 neuroscientific or neuropsychological studies involving VR HMD systems was performed. The meta-analysis of the VR studies demonstrated that new generation HMDs induced significantly less VRISE and marginally fewer dropouts.Importantly, the commercial versions of the new generation HMDs with ergonomic interactions had zero incidents of adverse symptomatology and dropouts. HMDs equivalent to or greater than the commercial versions of contemporary HMDs accompanied with ergonomic interactions are suitable for implementation in cognitive neuroscience. In conclusion, researchers technological competency, along with meticulous methods and reports pertinent to software, hardware, and VRISE, are paramount to ensure the health and safety standards and the reliability of neuroscientific results.",
+          "claimed_authors": [
+            "Panagiotis Kourtesis",
+            "Simona Collina",
+            "Leonidas A. A. Doumas",
+            "Sarah E. MacPherson"
+          ],
+          "claimed_title": "Technological Competence is a Precondition for Effective Implementation of Virtual Reality Head Mounted Displays in Human Neuroscience: A Technological Review and Meta-analysis",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2101.08123"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Linking Resting‑State fMRI Entropy to Creative Problem Solving neuroscience', candidate_title='Technological Competence is a Precondition for Effective Implementation of Virtual Reality Head Mounted Displays in Human Neuroscience: A Technological Review and Meta-analysis')",
+        "failed_at": "2026-06-20T01:16:25Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Intracellular calcium is regulated in part by the release of Ca$^{2+}$ ions from the endoplasmic reticulum via inositol-4,5-triphosphate receptor (IP$_3$R) channels (among other possibilities such as RyR and L-type calcium channels). The resulting dynamics are highly diverse, lead to local calcium \"puffs\" as well as global waves propagating through cells, as observed in {\\it Xenopus} oocytes, neurons, and other cell types. Local fluctuations in the number of calcium ions play a crucial role in the onset of these features. Previous modeling studies of calcium puff dynamics stemming from IP$_3$R channels have predominantly focused on stochastic channel models coupled to deterministic diffusion of ions, thereby neglecting local fluctuations of the ion number. Tracking of individual ions is computationally difficult due to the scale separation in the Ca$^{2+}$ concentration when channels are in the open or closed states. In this paper, a spatial multiscale model for investigating of the dynamics of puffs is presented. It couples Brownian motion (diffusion) of ions with a stochastic channel gating model. The model is used to analyze calcium puff statistics. Concentration time traces as well as channel state information are studied. We identify the regime in which puffs can be found and develop a mean-field theory to extract the boundary of this regime. Puffs are only possible when the time scale of channel inhibition is sufficiently large. Implications for the understanding of puff generation and termination are discussed.",
+          "claimed_authors": [
+            "Ulrich Dobramysl",
+            "Sten Rüdiger",
+            "Radek Erban"
+          ],
+          "claimed_title": "Particle-based Multiscale Modeling of Calcium Puff Dynamics",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2015,
+          "primary_pointer": "1504.00146"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Linking Resting‑State fMRI Entropy to Creative Problem Solving neuroscience', candidate_title='Particle-based Multiscale Modeling of Calcium Puff Dynamics')",
+        "failed_at": "2026-06-20T01:16:25Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The entropy for a black hole in a de Sitter space is approached within the framework of spacetime foam. A simple model, made by $N$ wormholes in a semiclassical approximation, is taken under examination to compute the entropy for such a case. An extension to the extreme case when the black hole and cosmological horizons are equal is discussed.",
+          "claimed_authors": [
+            "Remo Garattini"
+          ],
+          "claimed_title": "A Spacetime Foam Approach to the Schwarzschild-de Sitter Entropy",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2000,
+          "primary_pointer": "gr-qc/0003089"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Linking Resting‑State fMRI Entropy to Creative Problem Solving neuroscience', candidate_title='A Spacetime Foam Approach to the Schwarzschild-de Sitter Entropy')",
+        "failed_at": "2026-06-20T01:16:25Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Remote Sensing Image Retrieval remains a challenging topic due to the special nature of Remote Sensing Imagery. Such images contain various different semantic objects, which clearly complicates the retrieval task. In this paper, we present an image retrieval pipeline that uses attentive, local convolutional features and aggregates them using the Vector of Locally Aggregated Descriptors (VLAD) to produce a global descriptor. We study various system parameters such as the multiplicative and additive attention mechanisms and descriptor dimensionality. We propose a query expansion method that requires no external inputs. Experiments demonstrate that even without training, the local convolutional features and global representation outperform other systems. After system tuning, we can achieve state-of-the-art or competitive results. Furthermore, we observe that our query expansion method increases overall system performance by about 3%, using only the top-three retrieved images. Finally, we show how dimensionality reduction produces compact descriptors with increased retrieval performance and fast retrieval computation times, e.g. 50% faster than the current systems.",
+          "claimed_authors": [
+            "Raffaele Imbriaco",
+            "Clint Sebastian",
+            "Egor Bondarev",
+            "Peter H. N. de With"
+          ],
+          "claimed_title": "Aggregated Deep Local Features for Remote Sensing Image Retrieval",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1903.09469"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Linking Resting‑State fMRI Entropy to Creative Problem Solving neuroscience', candidate_title='Aggregated Deep Local Features for Remote Sensing Image Retrieval')",
+        "failed_at": "2026-06-20T01:16:25Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Monitoring changes in the Earth's surface is crucial for understanding natural processes and human impacts, necessitating precise and comprehensive interpretation methodologies. Remote sensing satellite imagery offers a unique perspective for monitoring these changes, leading to the emergence of remote sensing image change interpretation (RSICI) as a significant research focus. Current RSICI technology encompasses change detection and change captioning, each with its limitations in providing comprehensive interpretation. To address this, we propose an interactive Change-Agent, which can follow user instructions to achieve comprehensive change interpretation and insightful analysis, such as change detection and change captioning, change object counting, change cause analysis, etc. The Change-Agent integrates a multi-level change interpretation (MCI) model as the eyes and a large language model (LLM) as the brain. The MCI model contains two branches of pixel-level change detection and semantic-level change captioning, in which the BI-temporal Iterative Interaction (BI3) layer is proposed to enhance the model's discriminative feature representation capabilities. To support the training of the MCI model, we build the LEVIR-MCI dataset with a large number of change masks and captions of changes. Experiments demonstrate the SOTA performance of the MCI model in achieving both change detection and change description simultaneously, and highlight the promising application value of our Change-Agent in facilitating comprehensive interpretation of surface changes, which opens up a new avenue for intelligent remote sensing applications. To facilitate future research, we will make our dataset and codebase of the MCI model and Change-Agent publicly available at https://github.com/Chen-Yang-Liu/Change-Agent",
+          "claimed_authors": [
+            "Chenyang Liu",
+            "Keyan Chen",
+            "Haotian Zhang",
+            "Zipeng Qi",
+            "Zhengxia Zou",
+            "Zhenwei Shi"
+          ],
+          "claimed_title": "Change-Agent: Towards Interactive Comprehensive Remote Sensing Change Interpretation and Analysis",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2403.19646"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Linking Resting‑State fMRI Entropy to Creative Problem Solving neuroscience', candidate_title='Change-Agent: Towards Interactive Comprehensive Remote Sensing Change Interpretation and Analysis')",
+        "failed_at": "2026-06-20T01:16:25Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper offers a retrospective of what we learnt from organizing the workshop *Ethical Considerations in Creative applications of Computer Vision* at CVPR 2021 conference and, prior to that, a series of workshops on *Computer Vision for Fashion, Art and Design* at ECCV 2018, ICCV 2019, and CVPR 2020. We hope this reflection will bring artists and machine learning researchers into conversation around the ethical and social dimensions of creative applications of computer vision.",
+          "claimed_authors": [
+            "Negar Rostamzadeh",
+            "Emily Denton",
+            "Linda Petrini"
+          ],
+          "claimed_title": "Ethics and Creativity in Computer Vision",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2112.03111"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Linking Resting‑State fMRI Entropy to Creative Problem Solving neuroscience', candidate_title='Ethics and Creativity in Computer Vision')",
+        "failed_at": "2026-06-20T01:16:25Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The rapid advancement in machine learning has led to a surge in automatic data generation, making it increasingly challenging to differentiate between naturally or human-generated data and machine-generated data. Despite these advancements, the generation of creative data remains a challenge. This paper aims to investigate and comprehend the essence of creativity, both in general and within the context of natural language generation. We review various approaches to creative writing devices and tasks, with a specific focus on the generation of poetry. We aim to shed light on the challenges and opportunities in the field of creative data generation.",
+          "claimed_authors": [
+            "Mohamad Elzohbi",
+            "Richard Zhao"
+          ],
+          "claimed_title": "Creative Data Generation: A Review Focusing on Text and Poetry",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2305.08493"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Linking Resting‑State fMRI Entropy to Creative Problem Solving neuroscience', candidate_title='Creative Data Generation: A Review Focusing on Text and Poetry')",
+        "failed_at": "2026-06-20T01:16:25Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Although creativity is encouraged in the abstract it is often discouraged in educational and workplace settings. Using an agent-based model of cultural evolution, we investigated the idea that tempering the novelty-generating effects of creativity with the novelty-preserving effects of imitation is beneficial for society. In Experiment One we systematically introduced individual differences in creativity, and observed a trade-off between the ratio of creators to imitators, and how creative the creators were. Excess creativity was detrimental because creators invested in unproven ideas at the expense of propagating proven ones. Experiment Two tested the hypothesis that society as a whole benefits if individuals adjust how creative they are in accordance with their creative success. When effective creators created more, and ineffective creators created less (social regulation), the agents segregated into creators and imitators, and the mean fitness of outputs was temporarily higher. We hypothesized that the temporary nature of the effect was due to a ceiling on output fitness. In Experiment Three we made the space of possible outputs open-ended by giving agents the capacity to chain simple outputs into arbitrarily complex ones such that fitter outputs were always possible. With the capacity for chained outputs, the effect of social regulation could indeed be maintained indefinitely. The results are discussed in light of empirical data.",
+          "claimed_authors": [
+            "Liane Gabora",
+            "Simon Tseng"
+          ],
+          "claimed_title": "The Social Benefits of Balancing Creativity and Imitation: Evidence from an Agent-based Model",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1705.00107"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Linking Resting‑State fMRI Entropy to Creative Problem Solving neuroscience', candidate_title='The Social Benefits of Balancing Creativity and Imitation: Evidence from an Agent-based Model')",
+        "failed_at": "2026-06-20T01:16:25Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We develop a model of wishful thinking that incorporates the costs and benefits of biased beliefs. We establish the connection between distorted beliefs and risk, revealing how wishful thinking can be understood in terms of risk measures. Our model accommodates extreme beliefs, allowing wishful-thinking decision-makers to assign zero probability to undesirable states and positive probability to otherwise impossible states.",
+          "claimed_authors": [
+            "Jarrod Burgh",
+            "Emerson Melo"
+          ],
+          "claimed_title": "Wishful Thinking is Risky Thinking",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2307.02422"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Linking Resting‑State fMRI Entropy to Creative Problem Solving neuroscience', candidate_title='Wishful Thinking is Risky Thinking')",
+        "failed_at": "2026-06-20T01:16:25Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Software systems continuously evolve due to new functionalities, requirements, or maintenance activities. In the context of software evolution, software refactoring has gained a strategic relevance. The space of possible software refactoring is usually very large, as it is given by the combinations of different refactoring actions that can produce software system alternatives. Multi-objective algorithms have shown the ability to discover alternatives by pursuing different objectives simultaneously. Performance of such algorithms in the context of software model refactoring is of paramount importance. Therefore, in this paper, we conduct a performance analysis of three genetic algorithms to compare them in terms of performance and quality of solutions. Our results show that there are significant differences in performance among the algorithms (e.g., PESA2 seems to be the fastest one, while NSGA-II shows the least memory usage).",
+          "claimed_authors": [
+            "Vittorio Cortellessa",
+            "Daniele Di Pompeo",
+            "Michele Tucci"
+          ],
+          "claimed_title": "Performance of Genetic Algorithms in the Context of Software Model Refactoring",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2308.13875"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Linking Resting‑State fMRI Entropy to Creative Problem Solving neuroscience', candidate_title='Performance of Genetic Algorithms in the Context of Software Model Refactoring')",
+        "failed_at": "2026-06-20T01:16:25Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper proposes an explanation of the cognitive change that occurs as the creative process proceeds. During the initial, intuitive phase, each thought activates, and potentially retrieves information from, a large region containing many memory locations. Because of the distributed, content-addressable structure of memory, the diverse contents of these many locations merge to generate the next thought. Novel associations often result. As one focuses on an idea, the region searched and retrieved from narrows, such that the next thought is the product of fewer memory locations. This enables a shift from association-based to causation-based thinking, which facilitates the fine-tuning and manifestation of the creative work.",
+          "claimed_authors": [
+            "Liane Gabora"
+          ],
+          "claimed_title": "Cognitive Mechanisms Underlying the Creative Process",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1310.1678"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Linking Resting‑State fMRI Entropy to Creative Problem Solving neuroscience', candidate_title='Cognitive Mechanisms Underlying the Creative Process')",
+        "failed_at": "2026-06-20T01:16:25Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "It has long been argued that neural networks have to establish and maintain a certain intermediate level of activity in order to keep away from the regimes of chaos and silence. Strong evidence for criticality has been observed in terms of spatio-temporal activity avalanches first in cultures of rat cortex by Beggs and Plenz (2003) and subsequently in many more experimental setups. These findings sparked intense research on theoretical models for criticality and avalanche dynamics in neural networks, where usually some dynamical order parameter is fed back onto the network topology by adapting the synaptic couplings. We here give an overview of existing theoretical models of dynamical networks. While most models emphasize biological and neurophysiological detail, our path here is different: we pick up the thread of an early self-organized critical neural network model by Bornholdt and Roehl (2001) and test its applicability in the light of experimental data. Keeping the simplicity of early models, and at the same time lifting the drawback of a spin formulation with respect to the biological system, we here study an improved model (Rybarsch and Bornholdt, 2012b) and show that it adapts to criticality exhibiting avalanche statistics that compare well with experimental data without the need for parameter tuning.",
+          "claimed_authors": [
+            "Matthias Rybarsch",
+            "Stefan Bornholdt"
+          ],
+          "claimed_title": "Self-organized criticality in neural network models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1212.3106"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Linking Resting‑State fMRI Entropy to Creative Problem Solving neuroscience', candidate_title='Self-organized criticality in neural network models')",
+        "failed_at": "2026-06-20T01:16:25Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper states the case for applying the conceptual and analytic tools associated with the study of entropy in physical systems to cognition, focusing on creative cognition. It is proposed that minds modify their contents and adapt to their environments to minimize psychological entropy: arousal-provoking uncertainty, which can be experienced negatively as anxiety, or positively as a wellspring for creativity (or both). Thus, intrinsically motivated creativity begins with detection of high psychological entropy material (e.g., a question or inconsistency), which provokes uncertainty and is arousal-inducing. This material is recursively considering from new contexts until it is sufficiently restructured that arousal dissipates and entropy reaches an acceptable level. Restructuring involves neural synchrony and dynamic binding, and may be facilitated by temporarily shifting to a more associative mode of thought. The creative outcome may similarly induce restructuring in others, and thereby contribute to the cultural evolution of more nuanced understandings. Thus, the concept of entropy could play a unifying role in cognitive science as a driver of thought and action, and in cultural studies as the driver of the creative innovations that fuel cultural evolution. The paper concludes with an invitation for cross-disciplinary exploration of this potential new arena of entropy studies.",
+          "claimed_authors": [
+            "Liane Gabora"
+          ],
+          "claimed_title": "A Possible Role for Entropy in Creative Cognition",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1611.03605"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Linking Resting‑State fMRI Entropy to Creative Problem Solving neuroscience', candidate_title='A Possible Role for Entropy in Creative Cognition')",
+        "failed_at": "2026-06-20T01:16:25Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Wonsang You",
+            "Jörg Stadler"
+          ],
+          "title": "Fractal-driven distortion of resting state functional networks in fMRI: a simulation study",
+          "venue": "arXiv",
+          "year": 2012
+        },
+        "primary_pointer": "1208.0924",
+        "summary": "Fractals are self-similar and scale-invariant patterns found ubiquitously in nature. A lot of evidences implying fractal properties such as 1/f power spectrums have been also observed in resting state fMRI time series. To explain the fractal behavior in rs-fMRI, we have proposed the fractal-based model of resting state hemodynamic response function (rs-HRF) whose properties can be summarized by a fractal exponent. Here we show, through a simulation studies, that the fractal behavior of cerebral hemodynamics may cause significant distortion of network properties between neuronal activities and BOLD signals. We simulated neuronal population activities based on the stochastic neural field model from the Macaque brain network, and then obtained their corresponding BOLD signals by convolving them with the rs-HRF filter. The precision of centrality estimated in each node was deteriorated overall in three networks based on transfer entropy, mutual information, and Pearson correlation; particularly the distortion of transfer entropy was more sensitive to the standard deviation of fractal exponents. A node with high centrality was resilient to desynchronized fractal dynamics over all frequencies while a node with small centrality exhibited huge distortion of both wavelet correlation and centrality over low frequencies. This theoretical expectation indicates that the difference of fractal exponents between brain regions leads to discrepancy of statistical network properties, especially at nodes with small centrality, between neuronal activities and BOLD signals, and that the traditional definitions of resting state functional connectivity may not effectively reflect the dynamics of spontaneous neuronal activities.",
+        "summary_grounded_pdf": true,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1208.0924",
+          "http_status": 200,
+          "pdf_sample_score": 0.5018,
+          "query_relevance_score": 0.4444,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-20T01:16:25Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Samir Damji",
+            "Simrut Kurry",
+            "Shazia'Ayn Babul",
+            "Joydeep Bhattacharya",
+            "Naznin Virji-Babul"
+          ],
+          "title": "Resting-State EEG Network Profiles Associated with Creative Engagement and Creative Self-Efficacy",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2510.22364",
+        "summary": "Creativity is a core cognitive capacity underlying innovation and adaptive problem solving, yet how it is represented in the brain's intrinsic functional architecture is not fully understood. While resting-state fMRI studies have identified large-scale network correlates associated with differences in creativity, EEG provides the temporal resolution for examining oscillatory dynamics contributing to intrinsic network organization. We examined whether resting-state EEG connectivity patterns are associated with individual differences across multiple creativity-related measures. Thirty healthy young adults completed a multidimensional creativity battery comprising the Inventory of Creative Activities and Achievements (ICAA), the Divergent Association Task (DAT), the Matchstick Arithmetic Puzzles Task (MAPT) and a Self-rating (SR) of creative ability. Graph-theoretical analyses of alpha-band functional connectivity revealed two participant groups, each with distinct patterns of neural activity: Cluster 1 showed reduced global connectivity with relatively preserved left frontal connectivity and greater network modularity; Cluster 0 exhibited stronger overall connectivity strength, reduced modularity and higher local clustering. Notably, Cluster 1 reported higher self-rated creative ability and more frequent engagement in real-world creative activities. These findings suggest that resting-state EEG connectivity patterns are associated with variation in creative self-efficacy and creative engagement, highlighting characteristic patterns of alpha-band network organization observed at rest.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2510.22364",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5714,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-20T01:16:32Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Liane Gabora"
+          ],
+          "title": "A Possible Role for Entropy in Creative Cognition",
+          "venue": "arXiv",
+          "year": 2016
+        },
+        "primary_pointer": "1611.03605",
+        "summary": "This paper states the case for applying the conceptual and analytic tools associated with the study of entropy in physical systems to cognition, focusing on creative cognition. It is proposed that minds modify their contents and adapt to their environments to minimize psychological entropy: arousal-provoking uncertainty, which can be experienced negatively as anxiety, or positively as a wellspring for creativity (or both). Thus, intrinsically motivated creativity begins with detection of high psychological entropy material (e.g., a question or inconsistency), which provokes uncertainty and is arousal-inducing. This material is recursively considering from new contexts until it is sufficiently restructured that arousal dissipates and entropy reaches an acceptable level. Restructuring involves neural synchrony and dynamic binding, and may be facilitated by temporarily shifting to a more associative mode of thought. The creative outcome may similarly induce restructuring in others, and thereby contribute to the cultural evolution of more nuanced understandings. Thus, the concept of entropy could play a unifying role in cognitive science as a driver of thought and action, and in cultural studies as the driver of the creative innovations that fuel cultural evolution. The paper concludes with an invitation for cross-disciplinary exploration of this potential new arena of entropy studies.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1611.03605",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-20T01:16:43Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "linking resting‑state fmri entropy to creative problem solving neuroscience",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

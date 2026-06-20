@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1208.0924",
+  "judged_at": "2026-06-20T01:16:47Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "linking resting‑state fmri entropy to creative problem solving neuroscience",
+  "rationale": "The paper investigates entropy‑related metrics (transfer entropy, mutual information) in resting‑state fMRI, thereby measuring an independent variable (rs‑fMRI entropy) on the same domain as the user's question, satisfying inclusion criterion (b). It does not address creative problem solving, but provides relevant methodological and baseline information on rs‑fMRI entropy.",
+  "relevant": true
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "cs/0501004",
+  "judged_at": "2026-06-20T01:16:56Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "linking resting‑state fmri entropy to creative problem solving neuroscience",
+  "rationale": "The paper focuses on societal-scale collective intelligence and social‑network frameworks, without addressing resting‑state fMRI, entropy measures, or individual creative problem solving in the brain, thus it is off‑domain and unrelated to the user's neuroscience question.",
+  "relevant": false
+}

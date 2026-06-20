@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1208.0924",
+  "judged_at": "2026-06-20T01:19:09Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "resting-state fmri entropy predicts metacognitive accuracy neuroscience",
+  "rationale": "The paper measures an entropy‑related quantity (transfer entropy) on resting‑state fMRI data, thus addressing one of the user’s independent variables (rs‑fMRI entropy) within the same domain, satisfying inclusion criterion (b). It does not need to also examine metacognitive accuracy to be a relevant methodological or baseline reference for the literature review.",
+  "relevant": true
+}

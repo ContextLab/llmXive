@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1202.4918",
+  "judged_at": "2026-06-20T01:18:06Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "ambient temperature influence on moral decision speed psychology",
+  "rationale": "The paper studies quantum decision theory and social interactions, without addressing ambient temperature, moral decision contexts, or decision speed, so it does not meet any inclusion criteria (a‑f) for the user's question.",
+  "relevant": false
+}

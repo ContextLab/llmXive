@@ -1,0 +1,549 @@
+{
+  "fetched_at": "2026-06-20T01:18:10Z",
+  "field": "psychology",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "psychology",
+      "idea_body_excerpt": "Ambient Temperature Influence on Moral Decision Speed",
+      "target_n": 5
+    },
+    "duration_seconds": 59.803,
+    "ended_at": "2026-06-20T01:18:10Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "temperature effects on moral judgment latency"
+        ],
+        [
+          2,
+          "heat exposure and ethical decision‑making speed"
+        ],
+        [
+          3,
+          "cold temperature influence on moral reasoning time"
+        ],
+        [
+          4,
+          "environmental temperature and moral choice reaction time"
+        ],
+        [
+          5,
+          "thermal manipulation of moral dilemma response speed"
+        ],
+        [
+          6,
+          "ambient heat impact on moral cognition latency"
+        ],
+        [
+          7,
+          "thermal stress and moral judgment speed"
+        ],
+        [
+          8,
+          "temperature priming of ethical decision latency"
+        ],
+        [
+          9,
+          "climate temperature effects on prosocial decision time"
+        ],
+        [
+          10,
+          "heat‑induced changes in moral intuition speed"
+        ],
+        [
+          11,
+          "temperature‑dependent moral reasoning latency"
+        ],
+        [
+          12,
+          "thermal context and moral violation detection time"
+        ],
+        [
+          13,
+          "ambient temperature modulation of dual‑process moral reasoning"
+        ],
+        [
+          14,
+          "temperature‑related variations in moral choice response time"
+        ],
+        [
+          15,
+          "psychophysiological temperature effects on ethical decision speed"
+        ],
+        [
+          16,
+          "heat exposure and moral judgment reaction time"
+        ],
+        [
+          17,
+          "cold environment influence on moral deliberation speed"
+        ],
+        [
+          18,
+          "temperature‑induced shifts in moral decision latency"
+        ],
+        [
+          19,
+          "environmental heat and moral intuition processing speed"
+        ],
+        [
+          20,
+          "thermal conditions and speed of moral judgment formation"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Ambient Temperature Influence on Moral Decision Speed psychology": 0,
+        "heat exposure and ethical decision‑making speed": 4,
+        "temperature effects on moral judgment latency": 0
+      },
+      "total_queries_issued": 2
+    },
+    "extracted_queries": [
+      "thermal context moral judgment latency",
+      "trolley problem ambient temperature",
+      "heat priming moral judgment RT",
+      "moral decision reaction time",
+      "embodied cognition temperature moral judgment"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "1202.4918"
+      ]
+    },
+    "per_query_hit_count": {
+      "Ambient Temperature Influence on Moral Decision Speed psychology": 3,
+      "embodied cognition temperature moral judgment": 3,
+      "heat priming moral judgment RT": 1,
+      "moral decision reaction time": 1,
+      "thermal context moral judgment latency": 2,
+      "trolley problem ambient temperature": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": true,
+      "rejected_count": 5,
+      "rejections": [
+        {
+          "primary_pointer": "2603.23114",
+          "rationale": "The paper studies contextual sensitivity of large language model moral judgments and compares them to human responses, without addressing ambient temperature, moral decision speed, or human psychological mechanisms, thus it is unrelated to the user's research question.",
+          "title": "Between Rules and Reality: On the Context Sensitivity of LLM Moral Judgment"
+        },
+        {
+          "primary_pointer": "2110.10980",
+          "rationale": "The paper discusses ethics-based auditing of automated decision‑making systems, which bears no relation to ambient temperature, moral decision‑making speed, or psychological processes, thus it does not meet any inclusion criteria.",
+          "title": "Ethics-Based Auditing of Automated Decision-Making Systems: Nature, Scope, and Limitations"
+        },
+        {
+          "primary_pointer": "2111.04380",
+          "rationale": "The paper focuses on ethics-based auditing of automated decision‑making systems and governance, which is unrelated to ambient temperature, moral decision‑making speed, or psychological processes; it does not address any of the variables or mechanisms in the user's question.",
+          "title": "Ethics-Based Auditing of Automated Decision-Making Systems: Intervention Points and Policy Implications"
+        },
+        {
+          "primary_pointer": "1202.4918",
+          "rationale": "The paper studies quantum decision theory and social interactions, without addressing ambient temperature, moral decision contexts, or decision speed, so it does not meet any inclusion criteria (a‑f) for the user's question.",
+          "title": "Quantum decision making by social agents"
+        },
+        {
+          "primary_pointer": "1906.05803",
+          "rationale": "The paper investigates risk‑taking behavior using inverse reinforcement learning and does not examine ambient temperature, moral judgments, or decision speed in a moral context, so it lacks any of the accepted relevance criteria (a‑f).",
+          "title": "Modeling and Interpreting Real-world Human Risk Decision Making with Inverse Reinforcement Learning"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-20T01:17:10Z",
+    "term_input": {
+      "normalized": "ambient temperature influence on moral decision speed psychology",
+      "raw": "Ambient Temperature Influence on Moral Decision Speed psychology"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large language models (LLMs) exhibit expert-level performance in tasks across a wide range of different domains. Ethical issues raised by LLMs and the need to align future versions makes it important to know how state of the art models reason about moral and legal issues. In this paper, we employ the methods of experimental psychology to probe into this question. We replicate eight studies from the experimental literature with instances of Google's Gemini Pro, Anthropic's Claude 2.1, OpenAI's GPT-4, and Meta's Llama 2 Chat 70b. We find that alignment with human responses shifts from one experiment to another, and that models differ amongst themselves as to their overall alignment, with GPT-4 taking a clear lead over all other models we tested. Nonetheless, even when LLM-generated responses are highly correlated to human responses, there are still systematic differences, with a tendency for models to exaggerate effects that are present among humans, in part by reducing variance. This recommends caution with regards to proposals of replacing human participants with current state-of-the-art LLMs in psychological research and highlights the need for further research about the distinctive aspects of machine psychology.",
+          "claimed_authors": [
+            "Guilherme F. C. F. Almeida",
+            "José Luiz Nunes",
+            "Neele Engelmann",
+            "Alex Wiegmann",
+            "Marcelo de Araújo"
+          ],
+          "claimed_title": "Exploring the psychology of LLMs' Moral and Legal Reasoning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2308.01264"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Ambient Temperature Influence on Moral Decision Speed psychology', candidate_title=\"Exploring the psychology of LLMs' Moral and Legal Reasoning\")",
+        "failed_at": "2026-06-20T01:17:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The ethics of artificial intelligence (AI) systems has risen as an imminent concern across scholarly communities. This concern has propagated a great interest in algorithmic fairness. Large research agendas are now devoted to increasing algorithmic fairness, assessing algorithmic fairness, and understanding human perceptions of fairness. We argue that there is an overreliance on fairness as a single dimension of morality, which comes at the expense of other important human values. Drawing from moral psychology, we present five moral dimensions that go beyond fairness, and suggest three ways these alternative dimensions may contribute to ethical AI development.",
+          "claimed_authors": [
+            "Kimi Wenzel",
+            "Geoff Kaufman",
+            "Laura Dabbish"
+          ],
+          "claimed_title": "Beyond Fairness: Alternative Moral Dimensions for Assessing Algorithms and Designing Systems",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2312.12559"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Ambient Temperature Influence on Moral Decision Speed psychology', candidate_title='Beyond Fairness: Alternative Moral Dimensions for Assessing Algorithms and Designing Systems')",
+        "failed_at": "2026-06-20T01:17:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The fields of AI current lacks methods to quantitatively assess and potentially alter the moral values inherent in the output of large language models (LLMs). However, decades of social science research has developed and refined widely-accepted moral value surveys, such as the World Values Survey (WVS), eliciting value judgments from direct questions in various geographies. We have turned those questions into value statements and use NLP to compute to how well popular LLMs are aligned with moral values for various demographics and cultures. While the WVS is accepted as an explicit assessment of values, we lack methods for assessing implicit moral and cultural values in media, e.g., encountered in social media, political rhetoric, narratives, and generated by AI systems such as LLMs that are increasingly present in our daily lives. As we consume online content and utilize LLM outputs, we might ask, which moral values are being implicitly promoted or undercut, or -- in the case of LLMs -- if they are intending to represent a cultural identity, are they doing so consistently? In this paper we utilize a Recognizing Value Resonance (RVR) NLP model to identify WVS values that resonate and conflict with a given passage of output text. We apply RVR to the text generated by LLMs to characterize implicit moral values, allowing us to quantify the moral/cultural distance between LLMs and various demographics that have been surveyed using the WVS. In line with other work we find that LLMs exhibit several Western-centric value biases; they overestimate how conservative people in non-Western countries are, they are less accurate in representing gender for non-Western countries, and portray older populations as having more traditional values. Our results highlight value misalignment and age groups, and a need for social science informed technological solutions addressing value plurality in LLMs.",
+          "claimed_authors": [
+            "Noam Benkler",
+            "Drisana Mosaphir",
+            "Scott Friedman",
+            "Andrew Smart",
+            "Sonja Schmer-Galunder"
+          ],
+          "claimed_title": "Assessing LLMs for Moral Value Pluralism",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2312.10075"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Ambient Temperature Influence on Moral Decision Speed psychology', candidate_title='Assessing LLMs for Moral Value Pluralism')",
+        "failed_at": "2026-06-20T01:17:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Work in AI ethics and fairness has made much progress in regulating LLMs to reflect certain values, such as fairness, truth, and diversity. However, it has taken the problem of how LLMs might 'mean' anything at all for granted. Without addressing this, it is not clear what imbuing LLMs with such values even means. In response, we provide a general theory of meaning that extends beyond humans. We use this theory to explicate the precise nature of LLMs as meaning-agents. We suggest that the LLM, by virtue of its position as a meaning-agent, already grasps the constructions of human society (e.g. morality, gender, and race) in concept. Consequently, under certain ethical frameworks, currently popular methods for model alignment are limited at best and counterproductive at worst. Moreover, unaligned models may help us better develop our moral and social philosophy.",
+          "claimed_authors": [
+            "Mark Pock",
+            "Andre Ye",
+            "Jared Moore"
+          ],
+          "claimed_title": "LLMs grasp morality in concept",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2311.02294"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Ambient Temperature Influence on Moral Decision Speed psychology', candidate_title='LLMs grasp morality in concept')",
+        "failed_at": "2026-06-20T01:17:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "As automated vehicles receive more attention from the media, there has been an equivalent increase in the coverage of the ethical choices a vehicle may be forced to make in certain crash situations with no clear safe outcome. Much of this coverage has focused on a philosophical thought experiment known as the \"trolley problem,\" and substituting an automated vehicle for the trolley and the car's software for the bystander. While this is a stark and straightforward example of ethical decision making for an automated vehicle, it risks marginalizing the entire field if it is to become the only ethical problem in the public's mind. In this chapter, I discuss the shortcomings of the trolley problem, and introduce more nuanced examples that involve crash risk and uncertainty. Risk management is introduced as an alternative approach, and its ethical dimensions are discussed.",
+          "claimed_authors": [
+            "Noah J. Goodall"
+          ],
+          "claimed_title": "Away from Trolley Problems and Toward Risk Management",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2010.15217"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Ambient Temperature Influence on Moral Decision Speed psychology', candidate_title='Away from Trolley Problems and Toward Risk Management')",
+        "failed_at": "2026-06-20T01:17:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present three large classes of examples of conformal structures for which the equations for the Fefferman-Graham ambient metric to be Ricci-flat are linear PDEs, which we solve explicitly. These explicit solutions enable us to discuss the holonomy of the corresponding ambient metrics. Our examples include conformal pp-waves and, more importantly, conformal structures that are defined by generic rank 2 and 3 distributions in respective dimensions 5 and 6. The corresponding explicit Fefferman-Graham ambient metrics provide a large class of metrics with holonomy equal to the exceptional non-compact Lie group $\\mathbf{G}_2$ as well as ambient metrics with holonomy contained in $\\mathbf{Spin}(4,3)$.",
+          "claimed_authors": [
+            "Ian M. Anderson",
+            "Thomas Leistner",
+            "Pawel Nurowski"
+          ],
+          "claimed_title": "Explicit ambient metrics and holonomy",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2015,
+          "primary_pointer": "1501.00852"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Ambient Temperature Influence on Moral Decision Speed psychology', candidate_title='Explicit ambient metrics and holonomy')",
+        "failed_at": "2026-06-20T01:17:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The computer security research community regularly tackles ethical questions. The field of ethics / moral philosophy has for centuries considered what it means to be \"morally good\" or at least \"morally allowed / acceptable\". Among philosophy's contributions are (1) frameworks for evaluating the morality of actions -- including the well-established consequentialist and deontological frameworks -- and (2) scenarios (like trolley problems) featuring moral dilemmas that can facilitate discussion about and intellectual inquiry into different perspectives on moral reasoning and decision-making. In a classic trolley problem, consequentialist and deontological analyses may render different opinions. In this research, we explicitly make and explore connections between moral questions in computer security research and ethics / moral philosophy through the creation and analysis of trolley problem-like computer security-themed moral dilemmas and, in doing so, we seek to contribute to conversations among security researchers about the morality of security research-related decisions. We explicitly do not seek to define what is morally right or wrong, nor do we argue for one framework over another. Indeed, the consequentialist and deontological frameworks that we center, in addition to coming to different conclusions for our scenarios, have significant limitations. Instead, by offering our scenarios and by comparing two different approaches to ethics, we strive to contribute to how the computer security research field considers and converses about ethical questions, especially when there are different perspectives on what is morally right or acceptable.",
+          "claimed_authors": [
+            "Tadayoshi Kohno",
+            "Yasemin Acar",
+            "Wulf Loh"
+          ],
+          "claimed_title": "Ethical Frameworks and Computer Security Trolley Problems: Foundations for Conversations",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2302.14326"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Ambient Temperature Influence on Moral Decision Speed psychology', candidate_title='Ethical Frameworks and Computer Security Trolley Problems: Foundations for Conversations')",
+        "failed_at": "2026-06-20T01:17:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The aim of this paper is to briefly recall heat transfer modes and explain their integration within a software dedicated to building simulation (CODYRUN). Detailed elements of the validation of this software are presented and two applications are finally discussed. One concerns the modeling of a flat plate air collector and the second focuses on the modeling of Trombe solar walls. In each case, detailed modeling of heat transfer allows precise understanding of thermal and energetic behavior of the studied structures. Recent decades have seen a proliferation of tools for building thermal simulation. These applications cover a wide spectrum from very simplified steady state models to dynamic simulation ones, including computational fluid dynamics modules (Clarke, 2001). These tools are widely available in design offices and engineering firms. They are often used for the design of HVAC systems and still subject to detailed research, particularly with respect to the integration of new fields (specific insulation materials, lighting, pollutants transport, etc.). Available from: http://www.intechopen.com/books/evaporation-condensation-and-heat-transfer/heat-transfer-in-buildings-application-to-solar-air-collector-and-trombe-wall-design",
+          "claimed_authors": [
+            "Harry Boyer",
+            "Frédéric Miranville",
+            "Dimitri Bigot",
+            "Stéphane Guichard",
+            "Ingar Idriss",
+            "Aurélien Jean",
+            "Ali Hamada Fakra",
+            "Ted Soubdhan"
+          ],
+          "claimed_title": "Heat transfer in buildings : application to air solar heating and Trombe wall design",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1212.5260"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Ambient Temperature Influence on Moral Decision Speed psychology', candidate_title='Heat transfer in buildings : application to air solar heating and Trombe wall design')",
+        "failed_at": "2026-06-20T01:17:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The space-time foliation Sigma compatible with the gravitational field g on a 4-manifold M determines a fibration pi of M, pi : M -> N is a surjective submersion over the 1-dimensional leaves space N. M is then written as a disjoint union of the leaves of Sigma, which are 3-dimensional spacelike surfaces on M.\n  The decomposition, TM=Sigma + T^0 M, also implies that we can define a lift of the curves on N to curves (non-spacelike) on M.\n  The stable causality condition M coincides with Sigma being a causal space-time distribution, generated by an exact timelike 1-form omega^0 = dt where t is some real function on M. In this case M is written as a disjoint union of a family of spacelike 3-surfaces of constant t, which cover D^+(S) of a initial 3-surface S of M.",
+          "claimed_authors": [
+            "Mihaela Time"
+          ],
+          "claimed_title": "Space-time distributions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 1998,
+          "primary_pointer": "gr-qc/9810059"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Ambient Temperature Influence on Moral Decision Speed psychology', candidate_title='Space-time distributions')",
+        "failed_at": "2026-06-20T01:17:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We introduce RynnEC, a video multimodal large language model designed for embodied cognition. Built upon a general-purpose vision-language foundation model, RynnEC incorporates a region encoder and a mask decoder, enabling flexible region-level video interaction. Despite its compact architecture, RynnEC achieves state-of-the-art performance in object property understanding, object segmentation, and spatial reasoning. Conceptually, it offers a region-centric video paradigm for the brain of embodied agents, providing fine-grained perception of the physical world and enabling more precise interactions. To mitigate the scarcity of annotated 3D datasets, we propose an egocentric video based pipeline for generating embodied cognition data. Furthermore, we introduce RynnEC-Bench, a region-centered benchmark for evaluating embodied cognitive capabilities. We anticipate that RynnEC will advance the development of general-purpose cognitive cores for embodied agents and facilitate generalization across diverse embodied tasks. The code, model checkpoints, and benchmark are available at: https://github.com/alibaba-damo-academy/RynnEC",
+          "claimed_authors": [
+            "Ronghao Dang",
+            "Yuqian Yuan",
+            "Yunxuan Mao",
+            "Kehan Li",
+            "Jiangpin Liu",
+            "Zhikai Wang",
+            "Xin Li",
+            "Fan Wang",
+            "Deli Zhao"
+          ],
+          "claimed_title": "RynnEC: Bringing MLLMs into Embodied World",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2508.14160"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Ambient Temperature Influence on Moral Decision Speed psychology', candidate_title='RynnEC: Bringing MLLMs into Embodied World')",
+        "failed_at": "2026-06-20T01:17:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A large body of compelling evidence has been accumulated demonstrating that embodiment - the agent's physical setup, including its shape, materials, sensors and actuators - is constitutive for any form of cognition and as a consequence, models of cognition need to be embodied. In contrast to methods from empirical sciences to study cognition, robots can be freely manipulated and virtually all key variables of their embodiment and control programs can be systematically varied. As such, they provide an extremely powerful tool of investigation. We present a robotic bottom-up or developmental approach, focusing on three stages: (a) low-level behaviors like walking and reflexes, (b) learning regularities in sensorimotor spaces, and (c) human-like cognition. We also show that robotic based research is not only a productive path to deepening our understanding of cognition, but that robots can strongly benefit from human-like cognition in order to become more autonomous, robust, resilient, and safe.",
+          "claimed_authors": [
+            "Matej Hoffmann",
+            "Rolf Pfeifer"
+          ],
+          "claimed_title": "Robots as Powerful Allies for the Study of Embodied Cognition from the Bottom Up",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1801.04819"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Ambient Temperature Influence on Moral Decision Speed psychology', candidate_title='Robots as Powerful Allies for the Study of Embodied Cognition from the Bottom Up')",
+        "failed_at": "2026-06-20T01:17:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Scientists have traditionally limited the mechanisms of social cognition to one brain, but recent approaches claim that interaction also realizes cognitive work. Experiments under constrained virtual settings revealed that interaction dynamics implicitly guide social cognition. Here we show that embodied social interaction can be constitutive of agency detection and of experiencing another`s presence. Pairs of participants moved their \"avatars\" along an invisible virtual line and could make haptic contact with three identical objects, two of which embodied the other`s motions, but only one, the other`s avatar, also embodied the other`s contact sensor and thereby enabled responsive interaction. Co-regulated interactions were significantly correlated with identifications of the other`s avatar and reports of the clearest awareness of the other`s presence. These results challenge folk psychological notions about the boundaries of mind, but make sense from evolutionary and developmental perspectives: an extendible mind can offload cognitive work into its environment.",
+          "claimed_authors": [
+            "Tom Froese",
+            "Hiroyuki Iizuka",
+            "Takashi Ikegami"
+          ],
+          "claimed_title": "Embodied social interaction constitutes social cognition in pairs of humans: A minimalist virtual reality experiment",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1401.4158"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Ambient Temperature Influence on Moral Decision Speed psychology', candidate_title='Embodied social interaction constitutes social cognition in pairs of humans: A minimalist virtual reality experiment')",
+        "failed_at": "2026-06-20T01:17:42Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Adrian Sauter",
+            "Mona Schirmer"
+          ],
+          "title": "Between Rules and Reality: On the Context Sensitivity of LLM Moral Judgment",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2603.23114",
+        "summary": "A human's moral decision depends heavily on the context. Yet research on LLM morality has largely studied fixed scenarios. We address this gap by introducing Contextual MoralChoice, a dataset of moral dilemmas with systematic contextual variations known from moral psychology to shift human judgment: consequentialist, emotional, and relational. Evaluating 22 LLMs, we find that nearly all models are context-sensitive, shifting their judgments toward rule-violating behavior. Comparing with a human survey, we find that models and humans are most triggered by different contextual variations, and that a model aligned with human judgments in the base case is not necessarily aligned in its contextual sensitivity. This raises the question of controlling contextual sensitivity, which we address with an activation steering approach that can reliably increase or decrease a model's contextual sensitivity.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2603.23114",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4286,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-20T01:17:41Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Jakob Mokander",
+            "Jessica Morley",
+            "Mariarosaria Taddeo",
+            "Luciano Floridi"
+          ],
+          "title": "Ethics-Based Auditing of Automated Decision-Making Systems: Nature, Scope, and Limitations",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2021
+        },
+        "primary_pointer": "2110.10980",
+        "summary": "Important decisions that impact human lives, livelihoods, and the natural environment are increasingly being automated. Delegating tasks to so-called automated decision-making systems (ADMS) can improve efficiency and enable new solutions. However, these benefits are coupled with ethical challenges. For example, ADMS may produce discriminatory outcomes, violate individual privacy, and undermine human self-determination. New governance mechanisms are thus needed that help organisations design and deploy ADMS in ways that are ethical, while enabling society to reap the full economic and social benefits of automation. In this article, we consider the feasibility and efficacy of ethics-based auditing (EBA) as a governance mechanism that allows organisations to validate claims made about their ADMS. Building on previous work, we define EBA as a structured process whereby an entity's present or past behaviour is assessed for consistency with relevant principles or norms. We then offer three contributions to the existing literature. First, we provide a theoretical explanation of how EBA can contribute to good governance by promoting procedural regularity and transparency. Second, we propose seven criteria for how to design and implement EBA procedures successfully. Third, we identify and discuss the conceptual, technical, social, economic, organisational, and institutional constraints associated with EBA. We conclude that EBA should be considered an integral component of multifaced approaches to managing the ethical risks posed by ADMS.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2110.10980",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-20T01:17:51Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Jakob Mokander",
+            "Maria Axente"
+          ],
+          "title": "Ethics-Based Auditing of Automated Decision-Making Systems: Intervention Points and Policy Implications",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2021
+        },
+        "primary_pointer": "2111.04380",
+        "summary": "Organisations increasingly use automated decision-making systems (ADMS) to inform decisions that affect humans and their environment. While the use of ADMS can improve the accuracy and efficiency of decision-making processes, it is also coupled with ethical challenges. Unfortunately, the governance mechanisms currently used to oversee human decision-making often fail when applied to ADMS. In previous work, we proposed that ethics-based auditing (EBA), i.e. a structured process by which ADMS are assessed for consistency with relevant principles or norms, can (a) help organisations verify claims about their ADMS and (b) provide decision-subjects with justifications for the outputs produced by ADMS. In this article, we outline the conditions under which EBA procedures can be feasible and effective in practice. First, we argue that EBA is best understood as a 'soft' yet 'formal' governance mechanism. This implies that the main responsibility of auditors should be to spark ethical deliberation at key intervention points throughout the software development process and ensure that there is sufficient documentation to respond to potential inquiries. Second, we frame ADMS as parts of larger socio-technical systems to demonstrate that to be feasible and effective, EBA procedures must link to intervention points that span all levels of organisational governance and all phases of the software lifecycle. The main function of EBA should therefore be to inform, formalise, assess, and interlink existing governance structures. Finally, we discuss the policy implications of our findings. To support the emergence of feasible and effective EBA procedures, policymakers and regulators could provide standardised reporting formats, facilitate knowledge exchange, provide guidance on how to resolve normative tensions, and create an independent body to oversee EBA of ADMS.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2111.04380",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-20T01:17:52Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "V. I. Yukalov",
+            "D. Sornette"
+          ],
+          "title": "Quantum decision making by social agents",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2012
+        },
+        "primary_pointer": "1202.4918",
+        "summary": "The influence of additional information on the decision making of agents, who are interacting members of a society, is analyzed within the mathematical framework based on the use of quantum probabilities. The introduction of social interactions, which influence the decisions of individual agents, leads to a generalization of the quantum decision theory developed earlier by the authors for separate individuals. The generalized approach is free of the standard paradoxes of classical decision theory. This approach also explains the error-attenuation effects observed for the paradoxes occurring when decision makers, who are members of a society, consult with each other, increasing in this way the available mutual information. A precise correspondence between quantum decision theory and classical utility theory is formulated via the introduction of an intermediate probabilistic version of utility theory of a novel form, which obeys the requirement that zero-utility prospects should have zero probability weights.",
+        "summary_grounded_pdf": null,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1202.4918",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-20T01:17:52Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Quanying Liu",
+            "Haiyan Wu",
+            "Anqi Liu"
+          ],
+          "title": "Modeling and Interpreting Real-world Human Risk Decision Making with Inverse Reinforcement Learning",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2019
+        },
+        "primary_pointer": "1906.05803",
+        "summary": "We model human decision-making behaviors in a risk-taking task using inverse reinforcement learning (IRL) for the purposes of understanding real human decision making under risk. To the best of our knowledge, this is the first work applying IRL to reveal the implicit reward function in human risk-taking decision making and to interpret risk-prone and risk-averse decision-making policies. We hypothesize that the state history (e.g. rewards and decisions in previous trials) are related to the human reward function, which leads to risk-averse and risk-prone decisions. We design features that reflect these factors in the reward function of IRL and learn the corresponding weight that is interpretable as the importance of features. The results confirm the sub-optimal risk-related decisions of human-driven by the personalized reward function. In particular, the risk-prone person tends to decide based on the current pump number, while the risk-averse person relies on burst information from the previous trial and the average end status. Our results demonstrate that IRL is an effective tool to model human decision-making behavior, as well as to help interpret the human psychological process in risk decision-making.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1906.05803",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-20T01:17:52Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "ambient temperature influence on moral decision speed psychology",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

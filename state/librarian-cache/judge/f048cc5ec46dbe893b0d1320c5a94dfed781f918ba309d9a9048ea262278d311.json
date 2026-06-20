@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1811.02956",
+  "judged_at": "2026-06-20T01:16:54Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "linking resting‑state fmri entropy to creative problem solving neuroscience",
+  "rationale": "The paper studies sample entropy of surface EMG signals in rectal cancer patients, which is unrelated to resting‑state fMRI, brain entropy, or creative problem‑solving; it does not share the relevant mechanism, variables, or population required for inclusion.",
+  "relevant": false
+}

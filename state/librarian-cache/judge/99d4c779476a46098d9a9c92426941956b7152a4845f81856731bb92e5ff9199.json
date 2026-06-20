@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1202.4751",
+  "judged_at": "2026-06-20T01:19:23Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "resting-state fmri entropy predicts metacognitive accuracy neuroscience",
+  "rationale": "The paper studies fractal‑based correlation and Hurst exponents in resting‑state fMRI of rats, without measuring entropy, metacognitive performance, or any human‑subject variables; it therefore does not address the mechanism (entropy) or outcome (metacognitive accuracy) of the user's question.",
+  "relevant": false
+}

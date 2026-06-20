@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2509.13612",
+  "judged_at": "2026-06-20T01:19:12Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "resting-state fmri entropy predicts metacognitive accuracy neuroscience",
+  "rationale": "The paper focuses on using a generative model to predict visually evoked fMRI from resting‑state scans, without examining rs‑fMRI entropy, metacognitive performance, or their relationship; it does not meet any inclusion criteria (a‑f).",
+  "relevant": false
+}

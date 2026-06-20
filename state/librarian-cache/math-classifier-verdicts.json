@@ -318,5 +318,17 @@
   "PROJ-737-assessing-uncertainty-quantification-tec::1.6.0": {
     "classified_at": "2026-06-19T08:12:39Z",
     "verdict": false
+  },
+  "PROJ-743-ambient-temperature-influence-on-moral-d::1.6.0": {
+    "classified_at": "2026-06-20T01:17:41Z",
+    "verdict": false
+  },
+  "PROJ-744-linking-resting-state-fmri-entropy-to-cr::1.6.0": {
+    "classified_at": "2026-06-20T01:16:25Z",
+    "verdict": false
+  },
+  "PROJ-745-resting-state-fmri-entropy-predicts-meta::1.6.0": {
+    "classified_at": "2026-06-20T01:18:55Z",
+    "verdict": false
   }
 }

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2412.07783",
+  "judged_at": "2026-06-20T01:19:16Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "resting-state fmri entropy predicts metacognitive accuracy neuroscience",
+  "rationale": "The paper predicts neonatal developmental scores from fMRI using a transformer model and does not examine resting‑state fMRI entropy, metacognitive accuracy, or their relationship, nor does it provide a baseline or foundational method for those constructs. Hence it does not meet any inclusion criteria (a‑f).",
+  "relevant": false
+}

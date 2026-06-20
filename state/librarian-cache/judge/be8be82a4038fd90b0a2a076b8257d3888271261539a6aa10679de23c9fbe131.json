@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2603.23114",
+  "judged_at": "2026-06-20T01:17:56Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "ambient temperature influence on moral decision speed psychology",
+  "rationale": "The paper studies contextual sensitivity of large language model moral judgments and compares them to human responses, without addressing ambient temperature, moral decision speed, or human psychological mechanisms, thus it is unrelated to the user's research question.",
+  "relevant": false
+}
