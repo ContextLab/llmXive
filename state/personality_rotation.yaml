@@ -1,12 +1,7 @@
-last_used: daniel-kahneman
-last_used_at: '2026-06-20T00:35:47.318167+00:00'
-last_outcome: committed
+last_used: david-krakauer
+last_used_at: '2026-06-20T01:43:14.644979+00:00'
+last_outcome: triage_rejected_advanced_as_abstain
 history:
-- slug: dan-rockmore
-  started_at: '2026-06-08T00:40:52.183692+00:00'
-  ended_at: '2026-06-08T03:08:22.954370+00:00'
-  outcome: triage_rejected_advanced_as_abstain
-  action: comment
 - slug: daniel-kahneman
   started_at: '2026-06-08T03:08:22.954370+00:00'
   ended_at: '2026-06-08T05:09:50.599526+00:00'
@@ -1123,3 +1118,8 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-704-measuring-epistemic-resilience-of-llms-u/paper/reviews/daniel-kahneman-simulated__2026-06-20__paper.md
+- slug: david-krakauer
+  started_at: '2026-06-20T00:35:47.318167+00:00'
+  ended_at: '2026-06-20T01:43:14.644979+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
