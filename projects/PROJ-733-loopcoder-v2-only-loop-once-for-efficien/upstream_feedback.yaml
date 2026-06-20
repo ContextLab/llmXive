@@ -1,0 +1,315 @@
+project_id: PROJ-733-loopcoder-v2-only-loop-once-for-efficien
+arxiv_id: '2606.18023'
+schema_version: 1
+rounds:
+- round_number: 1
+  triggered_at: '2026-06-20T21:33:31.705536+00:00'
+  verdict_class: science
+  note: ''
+  action_items:
+  - id: 6225cf906e3f
+    text: "Add explicit citations for the SWE-bench Verified and Multi\u2011SWE (SWE\u2011\
+      M) benchmark suites when reporting performance improvements (e.g., baseline\
+      \ 43.0 \u2192 64.4 points)."
+    severity: writing
+  - id: 6c28e63ceec6
+    text: "Provide source references for the comparative numbers of larger open and\
+      \ proprietary models shown in Table\u202F1 (e.g., GPT\u20115.1, Claude\u2011\
+      Opus\u20114.5, Gemini\u20113\u2011Pro). If these are taken from external papers\
+      \ or leaderboards, cite them accordingly."
+    severity: writing
+  - id: 9fd38989425b
+    text: "Remove duplicated and unused \\usepackage statements (e.g., multiple \\\
+      usepackage{inputenc}, \\usepackage{graphicx}, \\usepackage{multirow}) and consolidate\
+      \ the preamble into a single, well\u2011documented block."
+    severity: writing
+  - id: 201d426b7437
+    text: Create a minimal build script (Makefile or a short bash script) that invokes
+      pdflatex/biber with the correct flags and lists all required LaTeX packages,
+      enabling anyone to compile the paper from a fresh TeX Live installation.
+    severity: writing
+  - id: e0c6e822d600
+    text: "Add a README.md that documents the exact TeX distribution version, required\
+      \ packages, and any non\u2011standard fonts or assets (e.g., the custom class\
+      \ `map.cls`), and include instructions for obtaining the `resources/packages.tex`\
+      \ and figure PDFs."
+    severity: writing
+  - id: bed88b9ec98e
+    text: Separate the large preamble into a dedicated file (e.g., `preamble.tex`)
+      and `\input{preamble}` from the main document to improve modularity and readability.
+    severity: writing
+  - id: 344eb796f1ee
+    text: Provide a small test suite (e.g., a CI script) that checks the LaTeX source
+      compiles without errors and that all referenced figures/tables exist, ensuring
+      reproducibility of the PDF.
+    severity: writing
+  - id: d0b5a952d9f9
+    text: "Document random seeds or deterministic settings used during any data\u2011\
+      driven figure generation (e.g., plots in `graph/`), and include the scripts\
+      \ that produce those figures."
+    severity: writing
+  - id: 744d1afcf178
+    text: 'Add a detailed data statement describing the pretraining corpus: source
+      repositories, licensing terms for each component, deduplication methodology,
+      and any filtering applied.'
+    severity: science
+  - id: 03f5e79046c0
+    text: "Provide explicit version identifiers (e.g., commit hashes, dataset release\
+      \ tags) for all external data used, and include checksums (SHA\u2011256) for\
+      \ the released model checkpoints and any auxiliary files."
+    severity: science
+  - id: c702f90a2369
+    text: "Document the licensing of the released model and any associated code or\
+      \ scripts, and ensure the license is included in the repository (e.g., MIT,\
+      \ Apache\u20112.0)."
+    severity: writing
+  - id: a93f083ad009
+    text: Archive or snapshot external URLs (e.g., the HuggingFace model page) using
+      a service like archive.org and cite the archived link to mitigate link rot.
+    severity: writing
+  - id: bec993cf0e64
+    text: If possible, release a small sample of the pretraining data or a manifest
+      file listing the constituent datasets with their licenses, to improve reproducibility
+      and transparency.
+    severity: science
+  - id: a1ba7d368ba3
+    text: "Add concise, descriptive alt\u2011text for every figure (e.g., Fig.\u202F\
+      1\u20137) so that screen\u2011reader users can understand the visualized metrics\
+      \ such as step size\u202F\u03B4\u207D\u02B3\u207E, angular change\u202Fcos\u202F\
+      \u03B8\u207D\u02B3\u207E, effective rank, KL\u2011divergences, etc."
+    severity: writing
+  - id: 3efe05693c29
+    text: Verify that all axes in the plotted figures have explicit labels (including
+      units where applicable) and that legends are large enough to be legible when
+      the figure is printed at column width.
+    severity: writing
+  - id: e2719701bf42
+    text: "Replace or augment the current colour\u2011only encodings with colour\u2011\
+      blind\u2011safe palettes or add hatch/marker patterns, especially in heat\u2011\
+      map figures (e.g., Fig.\u202F3 and Fig.\u202F4) where red\u2011green contrasts\
+      \ are used."
+    severity: writing
+  - id: 4a65b60e2616
+    text: "Ensure that every caption fully defines all symbols and abbreviations used\
+      \ in the figure (e.g.,\u202F\u03A9\u207D\u02B3\u207E,\u202F\u0394p\u207D\u02B3\
+      \u207E,\u202Fg\u0304\u207D\u02B3\u207E,\u202FD_KL\u207D\u02B3\u207E) so that\
+      \ the figure can be understood without referring back to the main text."
+    severity: writing
+  - id: 74e84fca1380
+    text: "Provide high\u2011resolution (300\u202Fdpi) PDF/PNG versions of all figures\
+      \ for the final camera\u2011ready version to avoid loss of detail in print,\
+      \ and check that line widths remain distinguishable at the final scale."
+    severity: writing
+  - id: 62d96d22c4ee
+    text: "Define every acronym at first use (e.g., PLT, KV, G\u2011SWA, CLP, RMSNorm,\
+      \ bf16, G\u2011SWA, LLM, CoT)."
+    severity: writing
+  - id: 1560d641a05e
+    text: "Replace overly technical phrases such as \u201Ccross\u2011loop position\
+      \ offsets\u201D, \u201Clatent chain\u2011of\u2011thought\u201D, \u201Cgain\u2013\
+      cost scissors\u201D, and \u201Cintrinsic offset cost\u201D with plain\u2011\
+      language equivalents or add brief explanatory footnotes."
+    severity: writing
+  - id: dcf27276a351
+    text: "Introduce a concise glossary for domain\u2011specific jargon (e.g., \u201C\
+      sliding\u2011window attention\u201D, \u201Cshared\u2011KV\u201D, \u201Cfixed\u2011\
+      point gap\u201D) to aid non\u2011specialist readers."
+    severity: writing
+  - id: e3f647267307
+    text: "Avoid dense noun clusters like \u2018parallel loop transformer (PLT) mechanism,\
+      \ G\u2011SWA with window size w = 64 and first\u2011loop KV sharing\u2019 (see\
+      \ Section\u202F2, Eq.\u202F(2)). Break into shorter sentences and explain each\
+      \ component in simple terms."
+    severity: writing
+  - id: 6265e510f34b
+    text: "Limit the use of mathematical symbols without verbal description; for instance,\
+      \ explain the meaning of symbols\u202FR,\u202FN,\u202F\u03B4\u207D\u02B3\u207E\
+      ,\u202F\u03A9\u207D\u02B3\u207E in the text rather than only in equations."
+    severity: writing
+  - id: 74b73da9fe40
+    text: "Reduce repetitive use of the term \u201Cloop\u2011count\u201D when a simpler\
+      \ phrase like \u201Cnumber of iterations\u201D would suffice, especially in\
+      \ Sections\u202F3.1\u20133.3."
+    severity: writing
+  - id: efe52b05cb81
+    text: "Clarify the meaning of \u201Cgain\u2013cost trade\u2011off\u201D early\
+      \ in the Introduction (Section\u202F1) for readers unfamiliar with optimization\
+      \ terminology."
+    severity: writing
+  - id: 0be5d556baaf
+    text: "The paper asserts that the intrinsic offset cost \u03A9\u207D\u02B3\u207E\
+      \ remains nearly constant across loops despite a documented decline in effective\
+      \ rank (representation diversity). Provide a more rigorous justification (e.g.,\
+      \ statistical analysis across layers and tokens) or reconcile this apparent\
+      \ contradiction."
+    severity: science
+  - id: b0d5ee78f27c
+    text: "Clarify the computational cost of using effective\u2011rank as a \u2018\
+      lightweight\u2019 diagnostic for loop\u2011count selection. If it requires a\
+      \ full forward pass, the claim of low overhead is misleading."
+    severity: writing
+  - id: f39c8eae40eb
+    text: "In Section\u202F3.2 (Intrinsic offset cost) the definition of \u03A9\u207D\
+      \u02B3\u207E uses a mean over adjacent token distances, but the paper does not\
+      \ specify how sequence boundaries (first token) are handled. Explicitly state\
+      \ the treatment of edge cases to avoid ambiguity."
+    severity: writing
+  - id: e56605eda4ba
+    text: "The gain\u2013cost trade\u2011off argument hinges on the offset cost being\
+      \ a fixed per\u2011loop tax while the marginal gain shrinks. Include a quantitative\
+      \ model (e.g., a simple equation or plot) that demonstrates the point where\
+      \ gain < cost, rather than relying solely on qualitative description."
+    severity: science
+  - id: f6514dc1f0b7
+    text: "Temper the claim that the observed saturation at two loops is a universal\
+      \ property of PLT. The experiments only cover loop counts 1\u20114 and a single\
+      \ 7B model; broader model sizes or higher loop counts are not evaluated."
+    severity: science
+  - id: ea0feb45c88b
+    text: "Clarify that the constancy of the CLP\u2011induced offset cost is demonstrated\
+      \ only for the PLT\u2084 configuration; acknowledge that this may not hold for\
+      \ other architectures or training regimes."
+    severity: writing
+  - id: d5ad49df98d1
+    text: "Add a dedicated section on dual\u2011use risks, explicitly discussing how\
+      \ LoopCoder\u2011v2 could be used to generate malicious or vulnerable code (e.g.,\
+      \ exploits, ransomware) and outline mitigation strategies such as usage\u2011\
+      policy enforcement, model\u2011output filtering, and rate\u2011limiting."
+    severity: science
+  - id: 3c3ff7539aaf
+    text: "Provide a clear data\u2011licensing audit for the 18\u202FT\u2011token\
+      \ pre\u2011training corpus, especially the code portion. Verify that all code\
+      \ snippets are either public\u2011domain, permissively licensed, or have been\
+      \ appropriately filtered for copyrighted material."
+    severity: science
+  - id: 6c2bf939a0ee
+    text: "Describe any steps taken to remove personally identifiable information\
+      \ (PII) from the text side of the corpus and from the instruction\u2011tuning\
+      \ dataset. If no PII\u2011scrubbing was performed, acknowledge the risk and\
+      \ propose a remediation plan."
+    severity: writing
+  - id: 0adec09aef6c
+    text: "Include a responsible\u2011release statement in the paper and the HuggingFace\
+      \ repository, specifying the intended use cases, prohibited applications, and\
+      \ a contact channel for reporting misuse."
+    severity: writing
+  - id: 426b609440d2
+    text: "Assess the potential impact of the CLP positional offset on model interpretability\
+      \ and safety: could the offset cause subtle mis\u2011alignments that lead to\
+      \ incorrect code generation in safety\u2011critical contexts? Recommend evaluation\
+      \ on safety\u2011focused benchmarks (e.g., code that must not contain insecure\
+      \ patterns)."
+    severity: science
+  - id: f3f941393510
+    text: "Clarify whether any human annotators were involved in the instruction\u2011\
+      tuning data creation. If so, confirm that IRB approval or equivalent ethical\
+      \ review was obtained, and include a brief description of consent procedures."
+    severity: writing
+  - id: 59bc2fb50b68
+    text: "The manuscript reports benchmark scores (e.g., Table\u202F1) without any\
+      \ statistical significance testing or confidence intervals. Add appropriate\
+      \ hypothesis tests (e.g., paired bootstrap) and report p\u2011values or confidence\
+      \ intervals to substantiate claims of improvement over baselines."
+    severity: science
+  - id: f70b8b66d00f
+    text: "Multiple benchmark suites are evaluated (\u224810) and many metrics are\
+      \ compared across loop counts, yet no correction for multiple comparisons is\
+      \ discussed. Include a brief justification (e.g., Bonferroni, Holm) or report\
+      \ family\u2011wise error rates."
+    severity: science
+  - id: 8f711118a6c4
+    text: "Figures show 95\u202F% confidence bands derived from 500 samples, but the\
+      \ sampling procedure (random seed, data split) is not described. Clarify how\
+      \ the samples are drawn, whether they are independent, and provide the exact\
+      \ method for CI computation."
+    severity: writing
+  - id: 2afbda66ffb1
+    text: "Reproducibility of the statistical analyses is limited: the code for computing\
+      \ step\u2011size, effective rank, KL divergences, and the offset cost is not\
+      \ released. Provide a public repository (or include in the HuggingFace repo)\
+      \ with scripts and exact random seeds used for all diagnostics."
+    severity: science
+  - id: 6cd0433ae825
+    text: "Assumptions underlying the per\u2011loop metrics (e.g., normality of hidden\u2011\
+      state updates, independence of token\u2011wise distances) are not examined.\
+      \ Add a brief diagnostic (e.g., QQ\u2011plots or Shapiro\u2011Wilk tests) to\
+      \ justify the use of means and standard errors."
+    severity: science
+  - id: d13adb9c02fb
+    text: Remove duplicate and redundant package imports (e.g., multiple `inputenc`,
+      `graphicx`, `booktabs`, `array`, `multirow`, `float` etc.) to improve LaTeX
+      hygiene and reduce compilation overhead.
+    severity: writing
+  - id: 2510b3387af6
+    text: 'Standardize table formatting: use `booktabs` consistently, align numeric
+      columns on the decimal point (e.g., `S` column type from `siunitx`), and ensure
+      all tables have a `\\label` placed after the `\\caption`.'
+    severity: writing
+  - id: d7716014df52
+    text: "Place all figure `\\\\caption{...}` commands immediately after the `\\\\\
+      includegraphics` line and before the `\\\\label`, and add a `\\\\label` to each\
+      \ figure for reliable cross\u2011referencing."
+    severity: writing
+  - id: 3a0c8986bb1b
+    text: Replace raw `\\paragraph{}` headings with proper `\\subsection` or `\\subsubsection`
+      where appropriate to maintain a clear hierarchical structure and avoid overly
+      dense paragraph headings.
+    severity: writing
+  - id: fb2864233b27
+    text: "Ensure all cross\u2011references (`\\\\autoref{...}`) point to existing\
+      \ `\\\\label`s; some references (e.g., `\\\\autoref{sec:exp-results}`) lack\
+      \ a matching label in the source."
+    severity: writing
+  - id: 827c8dfbb4d3
+    text: "Consolidate and order package imports: load core packages first (`amsmath`,\
+      \ `amssymb`, `graphicx`, `hyperref`), then optional ones, and avoid re\u2011\
+      defining colors or commands in multiple places."
+    severity: writing
+  - id: 71f1f74db70f
+    text: "Abstract (lines\u202F1\u20119) contains several run\u2011on sentences and\
+      \ inconsistent tense; break into shorter sentences and ensure parallel structure."
+    severity: writing
+  - id: a73c6e121746
+    text: "In the Introduction (section\u202F1, lines\u202F120\u2011150) the phrase\
+      \ \u201Cstandard sequential looping is difficult to deploy efficiently\u201D\
+      \ is vague; replace with a concrete description of latency and memory growth."
+    severity: writing
+  - id: d56b2d69bdb4
+    text: "Throughout the manuscript, commas are often missing before coordinating\
+      \ conjunctions (e.g., \u201C...and attention routing, and output\u2011distribution\
+      \ shift\u201D in \xA73.2); add Oxford commas for clarity."
+    severity: writing
+  - id: 00511d5d85d2
+    text: "The term \u201Cgain\u2013cost\u201D is introduced in multiple places with\
+      \ inconsistent hyphenation (e.g., \u201Cgain\u2013cost view\u201D vs. \u201C\
+      gain\u2013cost trade\u2011off\u201D); standardize to \u201Cgain\u2013cost\u201D\
+      ."
+    severity: writing
+  - id: d9e65d163bc4
+    text: "Algorithm\u202F1 (lines\u202F260\u2011285) mixes inline comments with full\
+      \ sentences; reformat comments to be concise fragments and align indentation."
+    severity: writing
+  - id: 3910ebc33a67
+    text: "Table\u202F1 (lines\u202F340\u2011360) mixes units and symbols without\
+      \ spaces (e.g., \u201C7B\u2011parameter\u201D); insert a space or use an en\u2011\
+      dash consistently."
+    severity: writing
+  - id: dd0eeb02ae65
+    text: "Figure captions (e.g., Fig\u202F2 caption lines\u202F380\u2011390) contain\
+      \ informal language like \u201Cthe gain\u2013cost scissors\u201D; replace with\
+      \ formal phrasing such as \u201Cgain\u2013cost trade\u2011off diagram\u201D."
+    severity: writing
+  - id: c4c40baa6d03
+    text: "The Discussion section (\xA76) repeats the same bullet points from the\
+      \ analysis; consolidate to avoid redundancy."
+    severity: writing
+  - id: bfac9c9e87e2
+    text: Multiple sections contain duplicated LaTeX packages (e.g., \usepackage{graphicx}
+      appears three times in the preamble); clean the preamble to improve readability
+      of source.
+    severity: writing
+  - id: e7854438f586
+    text: "Some equations lack proper punctuation after the displayed formula (e.g.,\
+      \ Eq.\u202F(1) on line\u202F210); add commas or periods to integrate them into\
+      \ the narrative."
+    severity: writing

@@ -117,3 +117,6 @@ ready:
 - project_id: PROJ-581-https-arxiv-org-abs-2605-13301
   revision_spec_path: specs/auto-revisions/PROJ-581-https-arxiv-org-abs-2605-13301/round-1
   queued_at: '2026-06-19T16:06:02.120008+00:00'
+- project_id: PROJ-733-loopcoder-v2-only-loop-once-for-efficien
+  revision_spec_path: specs/auto-revisions/PROJ-733-loopcoder-v2-only-loop-once-for-efficien/round-1
+  queued_at: '2026-06-20T21:33:31.743841+00:00'
