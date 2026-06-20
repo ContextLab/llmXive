@@ -1,11 +1,7 @@
-last_used: linus-pauling
-last_used_at: '2026-06-20T09:40:19.178876+00:00'
-last_outcome: committed
+last_used: marie-curie
+last_used_at: '2026-06-20T10:49:11.131470+00:00'
+last_outcome: abstained
 history:
-- slug: john-von-neumann
-  started_at: '2026-06-08T12:54:43.034840+00:00'
-  ended_at: '2026-06-08T14:28:32.450624+00:00'
-  outcome: malformed_response
 - slug: john-von-neumann
   started_at: '2026-06-08T14:28:32.450624+00:00'
   ended_at: '2026-06-08T15:48:49.338097+00:00'
@@ -1125,3 +1121,8 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/reviews/research/linus-pauling-simulated__2026-06-20__research.md
+- slug: marie-curie
+  started_at: '2026-06-20T09:40:19.178876+00:00'
+  ended_at: '2026-06-20T10:49:11.131470+00:00'
+  outcome: abstained
+  action: abstain
