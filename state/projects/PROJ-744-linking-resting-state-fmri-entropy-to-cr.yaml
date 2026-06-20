@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-20T01:14:01.746547Z'
-current_stage: flesh_out_complete
+current_stage: validated
 failed_stage: null
 field: neuroscience
 human_escalation_reason: null
 id: PROJ-744-linking-resting-state-fmri-entropy-to-cr
-last_run_id: c3333b7e-5465-417f-9a70-3b34a9e6e92d
+last_run_id: 27bc4c0c-8dba-4929-ab02-59e31f1c1eab
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: "Linking Resting\u2011State fMRI Entropy to Creative Problem Solving"
-updated_at: '2026-06-20T01:17:09.834665Z'
+updated_at: '2026-06-20T02:37:19.225716Z'
