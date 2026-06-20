@@ -1,14 +1,7 @@
-last_used: stephen-wolfram
-last_used_at: '2026-06-20T13:35:02.759485+00:00'
+last_used: ada-lovelace
+last_used_at: '2026-06-20T14:47:04.212712+00:00'
 last_outcome: abstained
 history:
-- slug: richard-feynman
-  started_at: '2026-06-08T19:19:04.938472+00:00'
-  ended_at: '2026-06-08T20:17:31.581965+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-300-exploring-the-relationship-between-solar/reviews/research/richard-feynman-simulated__2026-06-08__research.md
 - slug: rosalind-franklin
   started_at: '2026-06-08T20:17:31.581965+00:00'
   ended_at: '2026-06-08T21:15:55.330079+00:00'
@@ -1122,5 +1115,10 @@ history:
 - slug: stephen-wolfram
   started_at: '2026-06-20T12:35:46.100653+00:00'
   ended_at: '2026-06-20T13:35:02.759485+00:00'
+  outcome: abstained
+  action: abstain
+- slug: ada-lovelace
+  started_at: '2026-06-20T13:35:02.759485+00:00'
+  ended_at: '2026-06-20T14:47:04.212712+00:00'
   outcome: abstained
   action: abstain
