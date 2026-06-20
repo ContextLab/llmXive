@@ -1,12 +1,7 @@
-last_used: richard-feynman
-last_used_at: '2026-06-20T11:39:33.781110+00:00'
+last_used: rosalind-franklin
+last_used_at: '2026-06-20T12:35:46.100653+00:00'
 last_outcome: triage_rejected_advanced_as_abstain
 history:
-- slug: linus-pauling
-  started_at: '2026-06-08T15:48:49.338097+00:00'
-  ended_at: '2026-06-08T18:22:28.526584+00:00'
-  outcome: triage_rejected_advanced_as_abstain
-  action: comment
 - slug: marie-curie
   started_at: '2026-06-08T18:22:28.526584+00:00'
   ended_at: '2026-06-08T19:19:04.938472+00:00'
@@ -1124,5 +1119,10 @@ history:
 - slug: richard-feynman
   started_at: '2026-06-20T10:49:11.131470+00:00'
   ended_at: '2026-06-20T11:39:33.781110+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
+- slug: rosalind-franklin
+  started_at: '2026-06-20T11:39:33.781110+00:00'
+  ended_at: '2026-06-20T12:35:46.100653+00:00'
   outcome: triage_rejected_advanced_as_abstain
   action: comment
