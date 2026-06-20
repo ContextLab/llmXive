@@ -1,0 +1,10 @@
+{
+  "pdf": "/home/runner/work/llmXive/llmXive/projects/PROJ-751-moebius-0-2b-lightweight-image-inpaintin/paper/pdf/main-llmxive.pdf",
+  "audit": null,
+  "repair_rounds": 0,
+  "llmxive_compile_attempts": 0,
+  "status": "restyled_unaudited",
+  "failure": null,
+  "paper_id": "PROJ-751-moebius-0-2b-lightweight-image-inpaintin",
+  "updated_at": "2026-06-20T09:45:25.532823+00:00"
+}
