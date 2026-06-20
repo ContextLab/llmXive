@@ -1,0 +1,723 @@
+\documentclass{article}
+
+
+% if you need to pass options to natbib, use, e.g.:
+%   \PassOptionsToPackage{natbib}
+
+
+% ready for submission
+% \usepackage{neurips_2026}
+\usepackage[preprint]{neurips_2026}
+\bibliographystyle{apalike}
+
+
+% to compile a preprint version, e.g., for submission to arXiv, add add the
+% [preprint] option:
+%     \usepackage[preprint]{neurips_2026}
+
+
+% to compile a camera-ready version, add the [final] option, e.g.:
+%     \usepackage[final]{neurips_2026}
+
+
+% to avoid loading the natbib package, add option nonatbib:
+%    \usepackage[nonatbib]{neurips_2026}
+
+\usepackage{tikz}
+\usetikzlibrary{positioning, arrows.meta, calc} % Load necessary libraries
+
+\usepackage[utf8]{inputenc} % allow utf-8 input
+\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+\usepackage{hyperref}       % hyperlinks
+\usepackage{url}            % simple URL typesetting
+\usepackage{booktabs}       % professional-quality tables
+\usepackage{tabularx}
+\usepackage{multirow}
+\usepackage{array} 
+\renewcommand{\tabularxcolumn}[1]{m{#1}} % Centers X columns vertically
+
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{microtype}      % microtypography
+\usepackage{xcolor}         % colors
+\usepackage{graphicx}
+\usepackage{enumitem}
+\usepackage{amsmath}
+\usepackage{subcaption}
+\usepackage{xspace}
+\usepackage{ragged2e}
+\usepackage{letterspace}
+\usepackage{multirow}
+\usepackage{booktabs}
+\usepackage{array}
+\definecolor{darkblue}{HTML}{000090}
+\usepackage{ragged2e} % Required for \Centering
+\usepackage[export]{adjustbox} 
+\usepackage[most]{tcolorbox}
+\AtBeginEnvironment{tcolorbox}{\small}
+
+\hypersetup{
+    colorlinks=true,
+    citecolor=darkblue,
+    linkcolor=darkblue,
+    filecolor=darkblue,      
+    urlcolor=darkblue,
+}
+
+\renewcommand{\comment}[3]{\textcolor{#1}{[\textbf{\textsc{#2}} #3]}}
+\newcommand{\mcm}[1]{\comment{blue}{MCM:}{#1}}
+\newcommand{\alex}[1]{\comment{red}{Alex}{#1}}
+
+\input{macros.tex}
+
+%%%%%%%% Vaishnavh added this to leave notes
+% To hide comments, uncomment \draftfalse and comment out \drafttrue
+% To add commands for yourself, you must add a command under \ifdraft
+% and a corresponding empty one under \else.
+% You can create two types of notes: a margin note and an inline note.
+\usepackage[textwidth=2cm]{todonotes}
+\newif\ifdraft
+\drafttrue
+%\draftfalse
+\ifdraft
+
+    % Margin note
+    \newcommand{\marginvn}[1]{\todo[color=red!20,size=\tiny]{ VN:  #1}}
+    %Inline note
+    \newcommand\inlinevn[1]{{\color{red} { \scriptsize (VN:#1)}}}
+        
+
+\else
+    \newcommand\marginvn[1]{}
+    \newcommand{\inlinevn}[1]{}
+
+    %\newcommand\revision[1]{{\color{Blue}#1}}
+    \newcommand\note[1]{}
+    \presetkeys{todonotes}{disable}{}
+\fi
+
+
+\title{The Topological Trouble With Transformers}
+\author{%
+  Michael C.~Mozer\\
+  Google DeepMind\\
+  \texttt{mcmozer@google.com} \\
+  \And
+  Shoaib Ahmed Siddiqui\\
+  Google DeepMind \\
+  \texttt{shoaibasidd@google.com} \\
+  \And 
+  Rosanne Liu\\
+  Google DeepMind\\
+  \texttt{rosanneliu@google.com}
+  %\And
+  %\AND
+  % examples of more authors
+  % \And
+  % Coauthor \\
+  % Affiliation \\
+  % Address \\
+  % \texttt{email} \\
+  % \AND
+  % Coauthor \\
+  % Affiliation \\
+  % Address \\
+  % \texttt{email} \\
+  % \And
+  % Coauthor \\
+  % Affiliation \\
+  % Address \\
+  % \texttt{email} \\
+  % \And
+  % Coauthor \\
+  % Affiliation \\
+  % Address \\
+  % \texttt{email} \\
+}
+
+
+\begin{document}
+
+
+\maketitle
+%\newcommand{\pause}{{\footnotesize\textsc{<PAUSE>}}\xspace}
+%\newcommand{\dk}{{\footnotesize\textsc{<don't know>}}\xspace}
+%\newcommand{\pause}[1][]{{\footnotesize\textls[-20]{\textsc{<pause#1>}}}\xspace}
+%\newcommand{\dk}{{\footnotesize\textls[-40]{\textsc{<don't know>}}}\xspace}
+%\newcommand{\ldp}{{\ensuremath{\ell_\text{CYB-DP}}}\xspace}
+%\newcommand{\lrho}{{\ensuremath{\ell_\text{CYB}\DesiredStopProb}}\xspace}
+%\newcommand{\lva}{{\ensuremath{\ell_\text{CYB-VA}}}\xspace}
+%\newcolumntype{M}[1]{>{\centering\arraybackslash}m{#1}}
+\newcommand{\faintred}[1]{\colorbox{red!20}{#1}}
+\newcommand{\faintgreen}[1]{\colorbox{green!20}{#1}}
+
+
+\begin{abstract}
+Transformers encode structure in sequences via an expanding contextual history. However, their purely feedforward architecture fundamentally limits dynamic state tracking. State tracking---the iterative updating of latent variables reflecting an evolving environment---involves inherently sequential dependencies that feedforward networks struggle to maintain. Consequently, feedforward models push evolving state representations deeper into their layer stack with each new input step, rendering information inaccessible in shallow layers and ultimately exhausting the model's depth. While this depth limit can be bypassed by dynamic depth models and by explicit or latent thinking that externalizes state representations, these solutions are computationally and memory inefficient. In this article, we argue that temporally extended cognition requires refocusing from explicit thought traces to implicit activation dynamics via recurrent architectures. We introduce a taxonomy of recurrent and continuous-thought transformer architectures, categorizing them by their recurrence axis (depth versus step) and their ratio of input tokens to recurrence steps. Finally, we outline promising research directions, including enhanced state-space models and coarse-grained recurrence, to better integrate state tracking into modern foundation models.
+\end{abstract}
+
+\section{Introduction}
+
+%The interactions among billions of neurons make the brain a complex dynamical system. The emergent mind can also be usefully conceptualized  as a dynamical process with a high-dimensional state, $s$, that evolves over time, modulated by external stimuli, $x$.  In discrete time, the state progression can be formalized as $s_t= f(s_{t-1}, x_t)$.
+
+Progress in understanding human cognition has resulted from conceptualizing the
+brain as a dynamical system.
+%A dynamical systems perspective offers insight into the human brain at two distinct levels.
+In terms of its hardware, the physical brain is composed of billions of interacting neurons whose collective behavior is inherently dynamical. In terms of its function, the emergent mind can be usefully modeled as a dynamical process with a high-dimensional state, $s$, that evolves over time, modulated by external stimuli, $x$. These levels can be bridged by formalizing the state progression as $s_t= f(s_{t-1}, x_t)$, assuming discrete time $t$.
+
+From this perspective, an ideal architecture for modeling temporally extended cognition would be a recurrent neural network (RNN), which explicitly performs such a state-update operation. In principle, gradient-based training procedures might discover the function $f$ from data such that the important input signals would be integrated into the state representation and held until later required.  The appeal of RNNs was somewhat dampened in the 1990s by the inherent limitations of gradient-based training \citep{mozer1992,hochreiter1998,hochreiter2001}.
+
+Until the transformer \citep{Vaswanietal2017} came along, feedforward nets did not seem like a viable approach to replicating human thought and reasoning.
+The transformer, with an audaciously long context window, retains all information in its history, often postponing the selection of relevant data until required for inference \citep{meng2022locating}.
+In contrast, RNNs filter information as it arrives into a bottlenecked state
+representation \citep{hochreiter1997long}. This article is about what can go wrong with the transformer's strategy and approaches that can address its limitations.
+
+
+
+\section{State tracking}
+
+Tracking the evolving world state is an essential ingredient for 
+language understanding and 
+reasoning, regardless of how tracking is achieved. The transformer's 
+strategy often leverages its capacity to retrieve static, previously 
+observed information from a context window. The attention mechanism of 
+transformers is highly effective at retrieving past tokens \citep{olsson2022context}.
+However,
+this lookup mechanism is conceptually distinct from the explicit maintenance
+of a dynamic state---the iterative, inherently sequential updating of 
+latent variables that reflect a changing environment. The term 
+\emph{belief state} is often used to refer to this compact, sufficient 
+summary of the knowledge an AI agent has about its environment \citep{Chrisman1992,kaelbling1998planning}.
+Belief state can be a set of facts or it can be a probability distribution over possible worlds.
+
+To illustrate, consider the game of twenty questions. Each answer to a question
+narrows the hypothesis space, and each subsequent question should be designed
+to shrink the hypothesis space further. In a game where one is asked to
+guess a number, if one is told that the number is larger than 50, it would 
+make no sense to follow up it with a guess of 25. And on the flip side, 
+if one is asked to think of a number between 1 and 100 and respond `higher'
+or `lower' to guesses, maintaining the state---the hidden number---is critical 
+to preventing inconsistent answers. Yet, here is a trace from Gemini 3 (Fast)
+revealing a failure mode of models:\footnote{This example was originally suggested
+by Gamal ElSayed circa 2020, still causing some modern foundation models to fail. Other models may have been trained to address this particular failure mode. 
+\citet{baldelli2026} formally address the failure of standard models to reliably maintain a consistent hidden state over sequential interactions.}
+
+% blank line needed here for arxiv to correctly format box in html
+\begin{tcolorbox}[sharp corners, colback=white, colframe=black, fontupper=\ttfamily]
+User: Think of a number between 1 and 100 and I'll guess. Please respond only with "higher" or "lower" or "you got it". My first guess is 60.\newline
+Model: lower\newline
+User: 41\newline
+Model: lower\newline
+User: 70\newline
+Model: \faintred{higher}
+\end{tcolorbox}
+Even though the model cannot generate a random number internally, it can 
+play the game without actually having a number in mind simply by choosing 
+responses consistent with its previous responses. However, consistency requires
+tracking the valid range.  
+Gemini 3 Thinking \emph{does} generate an explicit target, but then it fails to make use of the generated target even though it is also a part of the input token stream in this case:
+\begin{tcolorbox}[sharp corners, colback=white, colframe=black, fontupper=\ttfamily]
+User: Think of a number between 1 and 100 and I'll guess. Please respond only with "higher" or "lower" or "you got it". My first guess is 60.\newline
+Model (thinking): \emph{I've begun designing the core game mechanics. I've successfully established the need for a number within the range of 1 to 100. The user's initial input, which is 60, is noted. Now I've internally selected the hidden number, choosing 42. Since 60 is higher than 42, my next step is to correctly communicate the response "lower".}\newline
+Model: lower\newline
+User: 42\newline
+Model: \faintred{lower}
+\end{tcolorbox}
+Beyond games, state tracking is essential to understanding the ever-changing world,
+the structure of arguments, and social interactions. State tracking failures 
+in foundation models lead to loss of coherence in multi-turn conversations 
+\citep{laban2025},  inefficiency in information gathering  \citep{sawyer2025}, 
+and  breakdowns in communication and cooperation in multi-agent settings 
+\citep{davidson2025,khatua2026}.
+
+Without proper state tracking, models flip-flop in their
+interpretations and fail to detect their inconsistencies, e.g.,
+the meaning of a polysemous word \citep{lepori2025}:\footnote{The example
+that follows was produced by Gemini 2.5 Flash in 2025. Although the model sometimes
+responded correctly, and newer and more powerful models are much less susceptible to
+this error, the example reveals a fundamental limitation of the core architecture.}
+\begin{tcolorbox}[sharp corners, colback=white, colframe=black, fontupper=\ttfamily]
+User: Fred took the day off work and pulled out his fishing pole. He drove to the bank. When he reaches the bank, should he wear boots or sandals?\newline
+Model: While sandals may be more comfortable for a casual day, they are not the best choice for fishing, especially at a river bank. Here's why: ...\newline
+User: Is it likely that Fred will find an ATM at this bank?\newline
+Model: \faintred{It is highly likely that Fred will find an ATM at the bank.} Most banks, especially those located near bodies of water popular for fishing, have ATMs on-site for customer convenience.
+\end{tcolorbox}
+
+In this example, the model jumps from one interpretation of bank to the
+other without a human-like acknowledgment of the reversal
+(e.g., ``Oh wait, I misinterpreted. You must have been talking about a financial institution.''). 
+We consider this flip-flop a failure to track the world situation, the model's earlier responses, and the 
+listener's expectations.
+
+While tracking Fred's location in the above example should not be challenging, in the most general case,
+it is untenable for models---and people---to maintain and track probabilistic belief states over all environmental possibilities because the distributions explode in dimensionality.  People
+adopt heuristics such as sampling \citep[e.g.,][]{Vul2014}, collapsing
+distributions into prototypical cases \citep{Tversky1971}, or forming concrete
+mental models most consistent with premises \citep{johnson1983}, 
+like a MAP estimate. Nonetheless, even finite-memory, deterministic state
+tracking can be unreliable in a transformer decoder.
+
+We will use a schematic to explain the challenge of state tracking.
+In Figure~\ref{fig:ff_transformer}a, we depict the transformer with input steps
+shown along the horizontal axis and blocks (or layers) of the transformer along 
+the vertical axis. Activation propagates from bottom to top (shallow to deep layers).
+For three selected blocks, we use color to indicate the 
+functional connectivity of a causal transformer: activation in a block is influenced
+by all blocks immediately below and below to the left.
+In Figure~\ref{fig:ff_transformer}b, we depict the flow of state information, indicated by the green rectangles. The integration
+of the state representation and a new input (purple arrows) leads to a new
+state representation, $s_t = f(s_{t-1},x_t)$. Because the architecture
+is feedforward, $s_t$ must lie deeper in the stack than $s_{t-1}$, eventually
+topping out of the model. Figure~\ref{fig:ff_other_models} shows examples from
+several recent articles matching this upward activation flow. This flow
+can make the integration of information over the sequence unreliable
+\citep{biran2024,grant2025,lepori2025,sawyer2025,venhoff2025,baldelli2026}.
+\begin{figure}[b!]
+    \centering
+    \includegraphics[width=5.0in]{fig/xformer_pic_shaded.pdf}
+    \caption{(a) Schematic depiction of transformer decoder architecture with input
+    steps along horizontal axis and blocks (layers) along vertical axis. Activation
+    flows upwards, from shallow to deep layers. For three selected blocks outlined in color, the 
+    functional input connectivity of a causal model is shown by colored lines and shading of
+    the input sources.
+    (b) The propagation of state representations, indicated by the green rectangles.
+    In cases where these representations depend on previous states and current inputs, 
+    the state tracking capability of a feedforward transformer is fundamentally 
+    limited by the depth of the model.
+    } \label{fig:ff_transformer}
+\end{figure}
+
+\begin{figure}[tb]
+    \centering
+    %\includegraphics[width=4in]{fig/ff_other_models.pdf}
+    \includegraphics[width=5.5in]{fig/ff_other_models_onerow.pdf}
+    \caption{Two examples from the literature: 
+    \citet{li2025} and \citet{Lindsey2025}.
+    The details of each Figure are not critical, but in each case, the upward flow
+    of information to deeper layers is depicted.
+    } \label{fig:ff_other_models}
+    %\citet{brinkmann2024},
+    %The \citet{brinkmann2024} diagram is flipped to show deeper layers on top.
+\end{figure}
+
+Not every state-tracking problem requires depth linear in the
+number of layers. \citet{merrill2025} prove the necessity and sufficiency of 
+$\log n$ layers to recognize regular language strings of up to length
+$n$ and graph-connectivity problems with $n$ vertices. However, this proof
+addresses only the constructability of solutions, not their learnability.
+
+In practice, many researchers have identified clever solutions
+obtained by training depth-limited models on specific finite sequence-length
+problems \citep{li2025,piotrowski2025,prakash2026,shai2024}. Essentially, when
+the state update function, $f$ is of a certain form, the sequence
+of state updates may be composed into a simpler one-step function, e.g., 
+there exists a function $g$ computable by a transformer layer such that
+\[
+s_t = f(\dots f(f(s_0, x_1), x_2), \dots, x_t) = g(s_0, x_1, \dots, x_t).
+\]
+Training losses have been proposed that aim to
+steer models toward such solutions, to the extent they exist exactly or
+approximately \citep{hu2025,teoh2025,huang2026semantictubepredictionbeating}.
+However, when belief-state cascades push deeper and deeper into a network, computational limitations arise because the resulting representations are unavailable to shallower layers. To illustrate, Figure~\ref{fig:bank} depicts the processing of the bank dialog.
+Using a technique called Patchscopes \citep{ghandeharioun2024}, \citet{lepori2025}
+observed that the embedding of the polysemous word `bank' was ambiguous (i.e.,
+a mixture of money bank vs. river bank) at shallow layers of the network, but 
+deep in the network, the model selected the river bank interpretation. The
+previous sentences provided context (e.g., `took the day off work', 'fishing pole') to support one interpretation over the other. In the Figure, we depict this contextualization as occurring at the sixth block of the transformer stack, 
+which means that when subsequent tokens are processed, the disambiguation
+is not available in blocks 1-5.  \citet{lepori2025} show that this delayed disambiguation leads to downstream errors whenever the response generation outpaces the model's internal semantic convergence, such as when the model forms its
+yes/no response to the question about an ATM at the bank.
+
+\begin{figure}[tb]
+    \centering
+    \includegraphics[width=4.25in]{fig/racingthoughts.pdf}
+    \caption{The depth of a state representation in a transformer can
+    limit its utility for inference (adapted from \citeauthor{lepori2025}, \citeyear{lepori2025}).
+    The input tokens are presented at the bottom, processed sequentially by the layers of the model.
+    The symbols within the layers represent the model's internal belief state. This highlights 
+    that despite the model converging to the correct belief (river bank) deep in the network 
+    at the ``bank'' token, this high-level disambiguation is inaccessible to the shallower layers 
+    of subsequent tokens. Consequently, when processing the final tokens, the model defaults 
+    to superficial associations (money bank $\rightarrow$ ATM) early in the stack, resulting in an 
+    incorrect prediction at the last token position.
+    } \label{fig:bank}
+\end{figure}
+
+If reasonable models make errors when the inference cascade is
+just two steps (\citeauthor{lepori2025} studied Gemma2-9B), it should be no surprise that models produce more severe failures
+in comprehending extended multi-agent conversations. 
+
+One solution to the depth dilemma is chain-of-thought style ``thinking'' where
+the model recasts a deep representation as one or more output tokens, which are
+then available to the model on its input \citep{wei2022chain}. For ordinary, step-by-step 
+microcognition, this solution is a cop out. Inferences that people make 
+automatically and unconsciously and then utilize consistently, such as the 
+selection of a polysemous word's meaning, should not require elaborated, extended 
+cognition. Even those who disagree with this desideratum should agree that if 
+cognition in a transformer can be shifted from explicit thought traces to implicit
+activation dynamics, the resulting model will be more powerful.
+
+\section{Recurrent architectures}
+
+As we previously mentioned, the state tracking ability of a feedforward model is limited
+by model depth  \citep[e.g.,][]{merrill-sabharwal-2023-parallelism,Strobl2024,merrill2025}
+and by the fact that effectively utilizing the state
+representation becomes more challenging as it shifts upwards to deeper layers
+\citep{biran2024,lepori2025,sawyer2025,venhoff2025}.
+
+The alternative is a recurrent model, which is necessary to express arbitrary 
+state dynamics, i.e., $s_t = f(s_{t-1},x_t)$. In this section, we explore
+how to combine recurrence with transformers.
+Given the subtle yet critical differences among varieties of recurrence, they are easily conflated and mistakenly
+treated as equivalent.
+This equivalence is problematic because recurrence is not
+in itself sufficient for state tracking; the most popular
+form of recurrence is unable to track state \citep{merrill2025illusion}.
+
+Figure~\ref{fig:unrolling_generic}, adapted from \citet{rumelhart1986}, shows a simple recurrent net (left) and 
+the net  unrolled $t$ steps to form a weight-constrained feedforward net (right).
+\begin{figure}[t!]
+    \centering
+    \includegraphics[width=5in]{fig/unrolling_generic_compact.pdf}
+    \caption{Unrolling a three-neuron recurrent neural net (left) into its equivalent feedforward network (right).
+    Figure adapted from \citet{rumelhart1986}.
+    } \label{fig:unrolling_generic}
+\end{figure}
+Unrolling the net requires making a copy of all neurons in the network for each
+step of recurrence. At each step, activation flows through each connection.
+
+\begin{figure}[b!]
+    \centering
+    \includegraphics[width=5.5in]{fig/unrolling_transformer.pdf}
+    \caption{Unrolling a transformer. Each rectangle represents a transformer
+    layer. The colored boxes represent distinct input tokens. The arrows indicate 
+    flow of activity. Note that the figure represents the output of the full transformer layer, which includes both the self-attention as well as the feedforward layer.
+    The gray filled rectangles indicate blocks that can
+    be replaced by the frozen KV cache as their values no longer change. The 
+    light grey unfilled rectangles represent input steps that are ignored at a given
+    unrolling step. (a) A
+    transformer with recurrence that allows activation from a deep layer to influence
+    a shallow layer. (b) An unrolled depth-recurrent transformer.
+    (c) An unrolled blockwise-recurrent transformer.
+    (d) A transformer with potential attractor dynamics.
+    } \label{fig:unrolling_transformer}
+\end{figure}
+Now consider a transformer with some recurrent connections, as depicted in
+Figure~\ref{fig:unrolling_transformer}a. As before, each box denotes a 
+transformer block and the horizontal and vertical axes correspond to input tokens 
+and layers, respectively. The additional arrows are meant to illustrate
+one possible type of recurrence involving activation flow from a deep layer to 
+a shallow layer at every input step. The nature of the activation flow 
+is not important for our purposes; for example, the shallow layer may generate 
+queries that allow  it to cross attend to keys and values from the deep layer \citep[e.g.,][]{fan2021}.
+
+Unlike the simple RNN in Figure~\ref{fig:unrolling_generic}, which can be unrolled 
+in only one way, unrolling the recurrent transformer in 
+Figure~\ref{fig:unrolling_transformer}a  results in ambiguity
+due to the fact that that the transformer
+architecture incorporates three distinct ordered dimensions:
+(1) the layers of the architecture, bottom to top (shallow to deep) in the Figure;
+(2) the input steps of the architecture, left to right in the Figure; and
+(3) autoregressive steps performed at execution. During model pretraining,
+an ordinary (feedforward) transformer has only a single autoregressive step 
+because all input steps are run in parallel; and during inference, autoregressive
+steps are typically confounded with input steps, although multi-token prediction
+allows for multiple input/output steps per autoregressive step \citep{gloeckle2024better}.
+However,
+recurrence allows for further decoupling. In particular, many forms of
+recurrence require that even when a model is trained via teacher forcing,
+it must still be unrolled autoregressively \citep{teoh2025next}. This necessary sequentiality is
+what we mean by \emph{autoregressive unrolling}, not
+the sequentiality that arises from token-by-token generation in a pure feedforward model.
+
+Figure~\ref{fig:unrolling_transformer}b depicts a transformer unrolled in
+depth, sometimes referred to as a \emph{looped transformer}. 
+Depth recurrence---whether
+of individual layers or ranges of layers, and whether deterministic or adaptive---is 
+a very popular and successful approach.
+Some methods are designed and trained to allow for inference time scaling
+\citep[e.g.,][]{yang2024,nowak2024,raposo2024,alabdulmohsin2025recursive,bae2025,chen2025,geiping2025,rodkin2025,yu2025backattn,zhu2025,zeng2026ponderlm,jeddi2026loopformer}; others incorporate recurrence via pretraining \citep{sanyal2026} or fine tuning a pretrained model \citep{koishekenov2025,mcleish2025}; and surprisingly, several operate purely as an
+inference-time method to improve reasoning
+\citep{li2025skiplayerloopit,chen2026,ng2026rys}.
+
+While depth recurrence can increase the expressivity of a 
+transformer \citep{saunshi2025}, it does not enable indefinite state tracking;
+the propagation is still depth limited. To appreciate this fact, pick any layer $l$
+in the lower or upper stack as the representation of $s(0)$, the state at the 
+first stack. Then note that any $s(t+1)$, if it is to depend arbitrarily on 
+$s(t)$ recursively, must be in a higher layer. The state representation still
+shifts upward due to the parallel propagation of activation across steps $t$,
+regardless of how deep the transformer is made to be with recurrent depth (Figure~\ref{fig:ff_transformer}b).
+
+Indefinite tracking of state with an arbitrary state update function requires 
+sequential dependency that precludes parallelization across the sequence length
+\emph{during training}.  Two examples of autoregressive updates are presented in
+Figures~\ref{fig:unrolling_transformer}c,d. Figure~\ref{fig:unrolling_transformer}c 
+depicts a blockwise-recurrent model  \citep{hutchins2022,chevalier2023adaptinglanguagemodelscompress,chen2025melodi,borazjanizadeh2026} 
+in which a subsequence of input steps  is run in parallel (two in the Figure) followed 
+by an  autoregressive iteration; Figure~\ref{fig:unrolling_transformer}d 
+shows a model in which one input step is presented per autoregressive step, and at
+step $t$, all stacks up to $t-1$ send a signal from the deep layer to the shallow
+layer, yielding a fully recurrent model.  This model may have attractor dynamics
+since each layer continues to update, converging only when all previous steps have
+reached asymptote.
+
+\begin{figure}[b!]
+    \centering
+    \includegraphics[width=5.5in]{fig/unrolling_latent_thinking.pdf}
+    \caption{Unrolling a latent-thought model, where the model feeds back its latent thoughts as input to the model for multiple auto-regressive steps before processing the next input token, which is marked with the blue color \citep[e.g.,][]{hao2025coconut,jolicoeurmartineau2025}.
+    } \label{fig:unrolling_latent_thinking}
+\end{figure}
+Having addressed recurrence with multiple input steps per autoregressive step (Figure~\ref{fig:unrolling_transformer}c) and a standard one-to-one mapping
+(Figure~\ref{fig:unrolling_transformer}d), we can also consider a setup where
+multiple autoregressive steps are executed for each input step
+(Figure~\ref{fig:unrolling_latent_thinking}).
+Latent-thought models have this form \citep[e.g.,][]{hao2025coconut,jolicoeurmartineau2025}.
+Some of these models can track state, whereas others do not \citep[e.g.,][]{galashov2025}.
+
+\begin{figure}[b!]
+    \centering
+    \includegraphics[width=5.5in]{fig/unrolling_ssm.pdf}
+    \caption{Unrolling an SSM, where information from the previous input step at layer $l$ flows directly to the next step in the horizontal direction \citep[e.g.,][]{allenzhu2025,gu2024}.
+    } \label{fig:unrolling_ssm}
+\end{figure}
+The examples of recurrence we have given all involve signal propagation from
+deeper layers to shallower layers, but within-layer propagation over inputs steps
+(Figure~\ref{fig:unrolling_ssm}) also yields state dynamics \citep[e.g.,][]{allenzhu2025,gu2024}.
+
+\begin{table}[t!]
+\centering
+\caption{A taxonomy of recurrent transformer architectures, with selected examples. Note that ratio $> 1$ indicates processing multiple tokens per recurrence step, while ratio $< 1$ indicates multiple recurrence steps per token.}
+\label{tab:recurrent_transformer_space}
+\begin{tabularx}{5.5in}{|m{1.1in}|X|X|X|} % Changed |l| to |m{1.1in}| for vertical centering
+\hline
+\multirow{2}{*}{\textbf{Recurrence Axis}}
+ & \multicolumn{3}{c|}{\textbf{Input Tokens Per Recurrence Step}} \\ \cline{2-4} 
+& \multicolumn{1}{c|}{\textit{Ratio $>1$}} & \multicolumn{1}{c|}{\textit{Ratio $=1$}} & \multicolumn{1}{c|}{\textit{Ratio $<1$}} \\ \hline
+\textit{Depth} &  
+\tiny\RaggedRight
+\color{brown}[Figure~\ref{fig:unrolling_transformer}b] \color{black}
+looped transformer \citep{giannou2023looped},
+universal transformer \citep{dehghani2018universal},
+RINS \citep{alabdulmohsin2025recursive}
+& 
+\tiny\centering 
+\color{brown}[Figure~\ref{fig:unrolling_transformer}d]\color{black}
+% Gemini said ALBERT which is BS
+& 
+\tiny\RaggedRight
+%\color{red}Deep Equilibrium Models (DEQ) 
+\\ \hline
+\textit{Step} & 
+\tiny\RaggedRight
+block-recurrent transformers \citep{hutchins2022}
+% Gemini: compressive transformers
+& 
+\tiny\RaggedRight 
+\color{brown}[Figure~\ref{fig:unrolling_ssm}b] \color{black}
+linear attention \citep{Katharopoulos2020Transformers},
+DeltaNet \citep{schlag2021},
+MAMBA \citep{gu2024},
+canon layers \citep{allenzhu2025}, 
+PaTH attention \citep{yang2025path},
+RWKV-7 \citep{peng2025rwkv},
+test-time regression \citep{sun2025learning}
+%\color{red} RetNet, DeltaNet 
+& 
+\tiny\RaggedRight
+DeltaProduct \citep{siems2025deltaproduct}
+\\ \hline
+\textit{Depth + Step} & 
+\tiny\RaggedRight
+\color{brown}[Figure~\ref{fig:unrolling_transformer}c] \color{black}
+recurrent memory transformer \citep{bulatov2022},
+RINs \citep{jabri2023},
+sentence gestalt \citep{borazjanizadeh2026}
+& 
+\tiny\RaggedRight
+feedback transformer \citep{fan2021}
+& 
+\tiny\RaggedRight
+\color{brown}[Figure~\ref{fig:unrolling_latent_thinking}] \color{black}
+COCONUT \citep{hao2025coconut},
+hierarchical reasoning model \citep{jolicoeurmartineau2025},
+CYB \citep{galashov2025}
+%\color{red}Quiet-STaR, Universal Transformers + ACT, Thought-Buffer models
+\\ \hline
+\end{tabularx}
+\end{table}
+
+Table~\ref{tab:recurrent_transformer_space} attempts to lay out a taxonomy of
+recurrent transformer architectures that includes the cases we have considered
+so far. We characterize architectures along two dimensions: \emph{recurrence axis} and \emph{input tokens per recurrence step}.  The axis can be depth alone
+(Figures~\ref{fig:unrolling_transformer}b,c,d), in step alone
+(Figure~\ref{fig:unrolling_ssm}), and in both depth and step
+(Figure~\ref{fig:unrolling_latent_thinking}).
+The ratio of input tokens to recurrence steps can be greater than one
+(Figure~\ref{fig:unrolling_transformer}b,c), equal to one 
+(Figure~\ref{fig:unrolling_transformer}d, \ref{fig:unrolling_ssm}), or less
+than one (Figure~\ref{fig:unrolling_latent_thinking}).\footnote{We define a `recurrence step' strictly as a sequential dependency that precludes parallelization across the sequence length during training.}
+In cells of the 
+taxonomy, we list some popular and representative transformer-based architectures. 
+We omit architectures that are described as ``recurrent'' in the sense
+that processing is iterative, but that are neither recurrent in depth nor
+step, e.g., Transformer-XL \citep{dai2019transformerxlattentivelanguagemodels}.
+%Note that pure RNNs can also described within this taxonomic space; a generic RNN having a layer of fully connected hidden units \citep[e.g.,][]{mozer1989focused,elman1990finding} lands in the center cell of the Table.
+Being recurrent in depth and/or step is necessary for state tracking but is not sufficient.
+Essentially, full-fledged state tracking requires sequential dynamics during training; any model that
+can be entirely parallelized across the context has limitations in updating state.
+
+While we have not shown all such architectures, we have not succeeded in identifying
+any examples of work that lies in the empty cells of the taxonomy. Some of these
+cells would be worth exploration.
+For example, architectures in the second row, third column, 
+could include ones with within-layer attractor dynamics, where the model's 
+activation may iterate to convergence before advancing
+to the next token. Architectures in the first row, second and third columns, are
+interesting because they feed activation from a deep layer to a shallow layer (once 
+for $\text{ratio}=1$, multiple times for $\text{ratio}>1$) in a manner that---unlike
+the looped  transformer---does allow for indefinite state propagation.
+
+We have deliberately sidestepped the question of what a recurrent arrow signifies
+in terms of activation dynamics. Different models make different proposals.
+The arrow could indicate copying key-value cache \citep{yang2024kvsharer}, it could represent a source 
+of keys and values for cross attention \citep{fan2021} or self attention \citep{oncescu2026}, or it might represent a direct connection through a linear layer,
+an MLP, or an adapter such as LoRA \citep{hu2022lora}.
+The coupling of step-to-step recurrence with attention---which gives neurons direct visibility to the 
+entire  step history---prevents credit assignment bottlenecks that arise when training traditional
+recurrent neural networks \citep{Ke2018,oncescu2026}.
+
+\section{Architectural limitations and workarounds}
+
+\citet{liu2026serialscalinghypothesis} point to the weakness of modern massively
+parallel architectures on problems that are inherently sequential, problems where 
+combinatorics make it impractical to parallelize, such as 
+state tracking, multihop inference, and planning. Formal analyses point
+to bounds on serial capacity for transformers 
+\citep{merrill-sabharwal-2023-parallelism}. State-space models (SSMs) are often
+touted as a means of state propagation, but SSMs with linear updates are
+no more expressive than an ordinary transformer \citep{merrill2025illusion}.
+In contrast, chain of thought does enhance model expressivity 
+\citep{li2024chain,merrill2024cot}, as one would intuit:  Allowing a model
+to talk to itself, whether in natural language or latent space, sends signals
+from deep in the transformer to shallow layers, thereby propagating state forward.
+It is no wonder that frontier models have become increasingly reliant on internal
+`thinking'. However, the reliance on intermediate outputs to track
+micro-state may perform wasteful computation steps and unnecessarily consume the context window. Implicit activation dynamics---albeit recurrent---might be adequate to 
+efficiently update mundane state information of the sort that people can 
+process unconsciously  and automatically. 
+In human terms, it is fine to talk to yourself if you are reasoning through a 
+calculus problem,  but it is a bit weird to have to continually remind yourself of 
+the relationship between two characters in a book you are reading.
+
+Given their limitations in state tracking, why are transformers as successful
+as they are? The short answer is that by being able to reexamine their entire input
+history, they can often turn a state-tracking problem into a working memory problem, 
+i.e., into retrieval from the context window. For example, consider the
+\emph{latch} problem from the 1990s that required a sequence-processing model latch
+on to a bit of information early in a sequence and to retain it over a long time gap
+\citep{mozer1991induction,Bengio1994}. This problem in large part motivated LSTM but is entirely trivial for a transformer that can re-index into its input history to retrieve
+the early information. Transformers learn many clever strategies including this
+sort of lookback \citep{prakash2026}, associatve scans \citep{li2025},
+more specialized algorithms for formal language understanding
+\citep{allenzhu2025physicslanguagemodels1,piotrowski2025}, including
+belief updating that reflects state uncertainty \citep{shai2024}.
+A simple illustration is the computation of parity from an input sequence
+of $0$'s and $1$'s. Instead of maintaining a parity state, the model can compute pairwise
+parity in the first layer of a transformer, then combine the pairs into four-bit
+parity in the second layer, and so forth, achieving a computation from scratch in
+$\log_2 n$ feedforward layers for a sequence of maximum length $n$.
+Such alternate and even shortcut solutions are common for transformers to develop in practice \citep{liu2022transformers}.
+
+Another factor in the success of transformers is their support of
+\emph{state compositionality}.  State need not be---as we have depicted 
+it in Figure~\ref{fig:ff_transformer}---a monolithic representation.
+The representation of state can be split across embeddings and updated
+asynchronously for each component. For example, if the model needs to 
+track the changing locations of two entities, those state variables can be updated
+independently for each entity.
+
+\section{Promising directions}
+In addition to the native mechanisms that transformers have to estimate state, 
+several emerging research directions seem particularly promising for promoting
+state maintenance and updating. These directions balance the need for 
+expressivity with computational feasibility.
+
+\subsection{Enhanced State-Space Models}
+While most linear SSMs do not exceed the expressivity of standard transformers, 
+Delta Net \citep{schlag2021}, when its eigenvalue range is extended to include negative 
+values \citep{grazzi2025}, maintains the
+highly desirable property of being trainable in parallel while simultaneously achieving
+greater expressivity than a standard transformer. The delta rule underlying Delta Net
+has inspired a range of further developments, including
+RWKV-7 \citep{peng2025rwkv} and PaTH attention \citep{yang2025path}, that also
+achieve state tracking beyond the capability of ordinary transformers while demonstrating
+competitive language modeling at scale.
+Similarly, other new forms of attention are being developed with
+sequential dependencies that promise to be more powerful in stateful tasks 
+\citep{lin2025forgetting,leviathan2025selective,beltagy2020longformer}, including the 
+notion of gated linear attention \citep{Yang2024gatedlinearattention} and gated
+Delta Net \citep{yang2025gated} that, when mixed with
+standard transformer blocks is more powerful than either, both in
+theory and practice \citep{merrill2026olmohybrid}.
+
+\subsection{Approximating state tracking in feedforward transformers}
+Rather than incorporating recurrence, feedforward transformers can be steered 
+to better approximate state tracking through specialized training objectives and 
+structural priors \citep{hu2025,teoh2025,huang2026semantictubepredictionbeating}.
+The promise is that such biases will encourage models to bolster their
+native lookback abilities. However, we hope that future research will take
+into account structured, compositional state representations.
+
+\subsection{Coarse recurrence}
+Introducing recurrence at a coarser granularity than individual tokens can mitigate 
+the computational burden of token-by-token state updates. In the past, block-recurrent
+models have operated on this principle by compressing and passing memory forward in fixed-
+length chunks. A promising approach is to consider linguistic structure in identifying
+the chunks: \citet{borazjanizadeh2026} have modeled language as a sequence of discrete `thoughts' by chunking at the sentence level.
+
+\subsection{Leveraging representational alignment}
+Variable-depth models dynamically select the number of iterations of a layer or
+the number of times a range of layers repeats. The fact that this approach succeeds
+with only fine tuning---and sometimes with no training whatsoever---suggests that 
+the model is well predisposed to communication of representations across layers,
+due to the alignment resulting from the residual connections. Similarly,
+canon layers \citep{allenzhu2025physicslanguagemodels1} leverage alignment of
+representations from one input step to the next. We speculate that there are
+additional means of leveraging this alignment.
+
+\subsection{Efficient training of recurrence}
+Any architecture which is capable of indefinite, arbitrary state propagation 
+requires autoregressive processing. Autoregressive pretraining is 
+computationally inefficient and limits parallelization \citep{chevalier2023adaptinglanguagemodelscompress}.  One potential solution is
+a multi-stage training scheme in which initial pretraining relies entirely on
+standard, parallelizable feedforward transformer architectures.
+Recurrent mechanisms are then introduced only at a later training stage. 
+To ensure training efficiency during these subsequent recurrent stages, 
+optimization techniques such as truncated gradient methods 
+and---for training attractor dynamics---recurrent backpropagation 
+\citep{almeida1987learning,pineda1987generalization,liao2018}.
+Methods have also been proposed to increase \emph{arithmetic intensity} to obtain scaling
+that is near linear time in context length versus quadratic for a naive implementation
+\citep{oncescu2026}.
+
+\section{Conclusions}
+Although the transformer’s feedforward design has expanded the limits of context-based
+retrieval, its topological structure remains fundamentally at odds with the 
+iterative nature of state tracking. As we have argued, the current reliance on 
+explicit natural-language-like ``thought'' to bypass depth limitations is an inefficient workaround for a structural deficiency. By transitioning toward implicit, recurrent activation dynamics, we can move beyond these depth-limited constraints to attain 
+robust long-term coherence and multihop inference.
+
+The taxonomy and research directions proposed in this article provide a roadmap 
+for improving sequential inference dependencies without sacrificing the 
+foundational strengths of modern models. Ultimately, bridging the gap between 
+the transformer's parallel efficiency and the brain's inherent dynamical nature 
+is essential. The next generation of foundation models must do more than simply 
+re-scan the past; they must maintain a fluid, evolving representation of reality 
+that persists across the many time scales required for temporally extended cognition.
+\begin{ack}
+Many thanks to Sunny Sanyal, Kazuki Irie, Kevin Murphy, Jay McClelland, and Chris Williams for helpful feedback on earlier drafts of the manuscript.
+\end{ack}
+\newpage
+\bibliography{topological_trouble}
+\end{document}

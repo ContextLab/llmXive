@@ -1,0 +1,25 @@
+%%% Current notations
+% May not be a complete macro of all existing notations, please check
+% \newcommand{\WorldStopProb}{\tau}
+% \newcommand{\MaxWorldStopStep}{\mu}
+% \newcommand{\WorldStopStep}{M}
+% \newcommand{\SelfStopStep}{S}
+% \newcommand{\WorldStopAtIProb}{{\omega_i}} % assumes no prev step was a termination
+% \newcommand{\DontKnowProb}{d}
+% \newcommand{\SelfStopProb}{s}
+% \newcommand{\discount}{\gamma}
+% \newcommand{\NextTokenProb}{t}
+
+
+%%% Vaishnavh's suggested changes
+\newcommand{\WorldStopProb}{{\omega}}
+\newcommand{\MaxWorldStopStep}{{W^{\textit{max}}}}
+\newcommand{\WorldStopStep}{{W}}
+\newcommand{\SelfStopStep}{{S}}
+%\newcommand{\WorldStopAtIProb}{{ \omega_{ \vert \to i \cdot }}} % assumes no prev step was a termination
+\newcommand{\WorldStopAtIProb}{\widetilde{\omega}} % assumes no prev step was a termination
+\newcommand{\DontKnowProb}{d}
+\newcommand{\SelfStopProb}{s}
+\newcommand{\discount}{\gamma}
+\newcommand{\NextTokenProb}{t}
+\newcommand{\DesiredStopProb}{\rho}
