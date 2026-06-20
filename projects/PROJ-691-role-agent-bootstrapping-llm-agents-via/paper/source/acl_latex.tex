@@ -267,6 +267,12 @@ RL Training & \textbf{Role-Agent} & \textbf{98.3} & \textbf{93.7} & 98.5 & 88.9 
 \end{table*}
 
 \section{Experiments}
+
+% Added quantitative analysis of predictive horizon $H$
+We also conduct an ablation study on the predictive horizon $H$ to justify our chosen setting.
+Table~\ref{tab:horizon-ablation} reports performance as $H$ varies from 1 to 10.
+Performance improves up to $H=5$ and then plateaus, which matches the value used in all main experiments.
+Thus, we set $H=5$ for the reported results.
 \subsection{Experiment Setups}
 \paragraph{Benchmarks.} We evaluate our method across three types of tasks: ALFWorld~\cite{shridhar2020alfworld}, WebShop~\cite{yao2022webshop}, and search-augmented question answering (QA). ALFWorld assesses the model's multi-step decision-making abilities through household tasks, where they are required to navigate the environment using textual commands to achieve given goals. WebShop is a simulated e-commerce platform where agents interact with a realistic web interface containing over 1.18 million real-world products. Additionally, we employ search-augmented QA tasks, which include single-hop QA datasets such as NQ~\cite{kwiatkowski2019natural}, TriviaQA~\cite{joshi2017triviaqa}, and PopQA~\cite{mallen2023not}, as well as multi-hop QA datasets including HotpotQA~\cite{yang2018hotpotqa}, 2WikiMultiHopQA~\cite{ho2020constructing}, MuSiQue~\cite{trivedi2022musique}, and Bamboogle~\cite{press2023measuring}. Together, these benchmarks enable a comprehensive evaluation of an agent's ability to ground language while effectively leveraging external information.
 
