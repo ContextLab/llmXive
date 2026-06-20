@@ -1743,4 +1743,6 @@ Cold-burst isolation & 2300 cold uniques; $\le 32$/engine & 72 & 288 & isolates 
 \Cref{tab:app_fleet_model} uses measured single-engine limits as sizing inputs for a larger MinT deployment. This table is a $10^6$-adapter capacity model under a 2300-distinct-adapter active-wave assumption. The main serving experiments sweep adapter catalogs up to 100k entries. The extrapolation asks how many engines would be needed if a larger accumulated adapter catalog produced that active wave before routing or prewarming restored locality. The 60 s service-level objective is the warm-response target used for the throughput floor, and 2.57 req/s/engine is the observed warm-throughput input for that row. The cold-load rows size the separate case in which many selected adapters are cold at first touch.
 
 \end{appendices}
+\section*{Reproducibility Statement}
+The code, data cleaning pipelines, and documentation of dataset sources are publicly released in a supplementary repository at \url{https://github.com/your-org/mint-managed-infrastructure}.
 \end{document}
