@@ -1,12 +1,7 @@
 last_used: alan-turing
-last_used_at: '2026-06-21T07:09:48.992918+00:00'
-last_outcome: committed
+last_used_at: '2026-06-21T08:52:02.438144+00:00'
+last_outcome: librarian_held
 history:
-- slug: rosalind-franklin
-  started_at: '2026-06-09T18:45:00.247542+00:00'
-  ended_at: '2026-06-09T19:43:52.933866+00:00'
-  outcome: triage_rejected_advanced_as_abstain
-  action: comment
 - slug: stephen-wolfram
   started_at: '2026-06-09T19:43:52.933866+00:00'
   ended_at: '2026-06-09T20:42:56.473325+00:00'
@@ -1124,3 +1119,10 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-747-s-agent-spatial-tool-use-elicits-reasoni/reviews/research/alan-turing-simulated__2026-06-21__research.md
+- slug: albert-einstein
+  started_at: '2026-06-21T07:09:48.992918+00:00'
+  ended_at: '2026-06-21T08:52:02.438144+00:00'
+  outcome: librarian_held
+  action: comment
+  committed_paths:
+  - projects/PROJ-752-testing-the-equivalence-principle-with-s/reviews/research/_held/albert-einstein-simulated__2026-06-21__research.md
