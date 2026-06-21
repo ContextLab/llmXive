@@ -331,6 +331,10 @@
     "classified_at": "2026-06-19T08:12:39Z",
     "verdict": false
   },
+  "PROJ-739-guava-an-effective-and-universal-harness::1.6.0": {
+    "classified_at": "2026-06-21T01:27:17Z",
+    "verdict": false
+  },
   "PROJ-743-ambient-temperature-influence-on-moral-d::1.6.0": {
     "classified_at": "2026-06-20T01:17:41Z",
     "verdict": false
@@ -341,6 +345,14 @@
   },
   "PROJ-745-resting-state-fmri-entropy-predicts-meta::1.6.0": {
     "classified_at": "2026-06-20T01:18:55Z",
+    "verdict": false
+  },
+  "PROJ-752-testing-the-equivalence-principle-with-s::1.6.0": {
+    "classified_at": "2026-06-21T01:26:05Z",
+    "verdict": false
+  },
+  "PROJ-753-testing-the-isotropy-of-cosmic-expansion::1.6.0": {
+    "classified_at": "2026-06-21T01:24:16Z",
     "verdict": false
   }
 }

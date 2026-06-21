@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2101.02842",
+  "judged_at": "2026-06-21T01:27:42Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "guava: an effective and universal harness for embodied manipulation computer science",
+  "rationale": "The paper presents a competition-specific grasp and motion‑planning solution rather than a general‑purpose framework or harness for embodied manipulation like “Guava,” and it does not discuss the same mechanism or tool, so it falls outside the relevant literature scope.",
+  "relevant": false
+}

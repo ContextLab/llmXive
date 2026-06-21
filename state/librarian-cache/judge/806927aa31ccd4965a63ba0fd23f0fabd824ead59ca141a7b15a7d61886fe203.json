@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2312.07214",
+  "judged_at": "2026-06-21T01:27:38Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "guava: an effective and universal harness for embodied manipulation computer science",
+  "rationale": "The paper focuses on integrating large language models for variable autonomy in human‑robot teaming, not on the “Guava” framework or a universal harness for embodied manipulation; it does not address the same mechanism, variables, or canonical studies relevant to the user's question.",
+  "relevant": false
+}

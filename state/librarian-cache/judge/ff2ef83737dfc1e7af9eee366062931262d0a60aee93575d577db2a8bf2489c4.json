@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "gr-qc/0105014",
+  "judged_at": "2026-06-21T01:26:19Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "testing the equivalence principle with satellite laser ranging physics",
+  "rationale": "The paper employs Satellite Laser Ranging to test relativistic predictions of General Relativity (e.g., frame‑dragging, pericenter shift, PPN parameters β and γ), which shares the same experimental mechanism and domain as EP tests with SLR, satisfying acceptance criterion (a) same‑mechanism evidence.",
+  "relevant": true
+}

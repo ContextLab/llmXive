@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "0808.0658",
+  "judged_at": "2026-06-21T01:26:14Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "testing the equivalence principle with satellite laser ranging physics",
+  "rationale": "The paper focuses on measuring the Lense‑Thirring gravitomagnetic effect with SLR, which addresses a different relativistic phenomenon than the Equivalence Principle; it does not provide data, methodology, or baseline directly relevant to EP tests, so it falls under the “distinct construct” rejection criterion.",
+  "relevant": false
+}

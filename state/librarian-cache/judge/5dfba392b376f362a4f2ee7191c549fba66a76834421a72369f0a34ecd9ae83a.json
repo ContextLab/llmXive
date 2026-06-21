@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2606.06061",
+  "judged_at": "2026-06-21T01:27:31Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "guava: an effective and universal harness for embodied manipulation computer science",
+  "rationale": "The paper presents a framework that integrates language and vision-language models with ROS 2 to enable embodied robot manipulation, directly addressing the same domain and mechanism (a universal harness for embodied manipulation) as the user's query about “Guava”. It therefore serves as relevant prior work on a similar manipulation framework.",
+  "relevant": true
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2307.02434",
+  "judged_at": "2026-06-21T01:25:08Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "testing the isotropy of cosmic expansion with type ia supernova data physics",
+  "rationale": "The paper focuses on the tension in the absolute magnitude and H₀ calibration of Type Ia supernovae, not on testing directional isotropy of cosmic expansion; it does not address the same mechanism, variable, or methodology relevant to isotropy studies. Hence it is off‑topic for the user's specific question.",
+  "relevant": false
+}

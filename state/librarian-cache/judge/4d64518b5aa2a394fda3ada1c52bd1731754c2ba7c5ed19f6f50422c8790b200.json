@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1605.07822",
+  "judged_at": "2026-06-21T01:26:24Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "testing the equivalence principle with satellite laser ranging physics",
+  "rationale": "The paper investigates the Nordtvedt parameter η, a direct measure of strong equivalence principle violation, providing a satellite‑based test of the EP (though via radio tracking rather than laser ranging). This matches the same underlying mechanism (EP testing) required for the literature review (acceptance category (a)).",
+  "relevant": true
+}

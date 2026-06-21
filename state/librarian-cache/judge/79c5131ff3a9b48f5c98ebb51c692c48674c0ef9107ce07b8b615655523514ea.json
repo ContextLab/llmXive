@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2504.00902",
+  "judged_at": "2026-06-21T01:25:12Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "testing the isotropy of cosmic expansion with type ia supernova data physics",
+  "rationale": "The paper studies a ranking scheme for core‑collapse supernovae using aesthetic and infant‑based criteria, with no focus on Type Ia supernovae, cosmic expansion, or testing isotropy; it is unrelated to the user's domain and variables.",
+  "relevant": false
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "astro-ph/0411022",
+  "judged_at": "2026-06-21T01:25:10Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "testing the isotropy of cosmic expansion with type ia supernova data physics",
+  "rationale": "The paper studies anisotropy in ultra‑high‑energy cosmic ray arrival directions using cluster data, which is unrelated to testing the isotropy of cosmic expansion with Type Ia supernova observations; it does not address the same mechanism, variables, or domain.",
+  "relevant": false
+}

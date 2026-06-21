@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1407.0090",
+  "judged_at": "2026-06-21T01:26:31Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "testing the equivalence principle with satellite laser ranging physics",
+  "rationale": "The paper investigates the strong equivalence principle (Nordtvedt effect) using a triple pulsar system, providing a measurement of the Nordtvedt parameter ηₙ. This constitutes same‑mechanism evidence (category a) and a cross‑vocabulary alternative method (category f) for testing the equivalence principle, making it a relevant reference for a literature review on EP tests—even though it does not use satellite laser ranging.",
+  "relevant": true
+}

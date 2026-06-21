@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "astro-ph/0105413",
+  "judged_at": "2026-06-21T01:25:04Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "testing the isotropy of cosmic expansion with type ia supernova data physics",
+  "rationale": "The paper establishes an empirical baseline for the cosmic expansion rate (H₀) and related cosmological parameters using Type Ia supernovae, providing foundational measurements of the dependent variable (expansion) in the same data domain that isotropy tests would build upon. This fits acceptance criterion (c) (empirical baseline) and (d) (foundational methodology for SN Ia cosmology).",
+  "relevant": true
+}

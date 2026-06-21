@@ -1,0 +1,406 @@
+{
+  "fetched_at": "2026-06-21T01:26:36Z",
+  "field": "physics",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "physics",
+      "idea_body_excerpt": "Testing the Equivalence Principle with Satellite Laser Ranging",
+      "target_n": 5
+    },
+    "duration_seconds": 76.435,
+    "ended_at": "2026-06-21T01:26:36Z",
+    "expansion": null,
+    "extracted_queries": [
+      "universality free fall",
+      "LAGEOS satellite laser ranging",
+      "Nordtvedt parameter",
+      "Eötvös parameter limits",
+      "scalar-tensor equivalence violation"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "1901.11163"
+      ]
+    },
+    "per_query_hit_count": {
+      "Eötvös parameter limits": 3,
+      "LAGEOS satellite laser ranging": 2,
+      "Nordtvedt parameter": 3,
+      "Testing the Equivalence Principle with Satellite Laser Ranging physics": 3,
+      "scalar-tensor equivalence violation": 3,
+      "universality free fall": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 1,
+      "rejections": [
+        {
+          "primary_pointer": "0808.0658",
+          "rationale": "The paper focuses on measuring the Lense‑Thirring gravitomagnetic effect with SLR, which addresses a different relativistic phenomenon than the Equivalence Principle; it does not provide data, methodology, or baseline directly relevant to EP tests, so it falls under the “distinct construct” rejection criterion.",
+          "title": "Advances in the measurement of the Lense-Thirring effect with Satellite Laser Ranging in the gravitational field of the Earth"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-21T01:25:20Z",
+    "term_input": {
+      "normalized": "testing the equivalence principle with satellite laser ranging physics",
+      "raw": "Testing the Equivalence Principle with Satellite Laser Ranging physics"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this Chapter we illustrate the close connection between the violation of the weak equivalence principle typical of gravitational interactions at finite temperature, and similar violations induced by a breaking of the local Lorentz symmetry. We also discuss the physical implications of the effective repulsive forces possibly arising in such a generalized gravitational context, by considering, for an illustrative purpose, a quasi-Riemannian model of gravity with rotational symmetry as the local gauge group in tangent space.",
+          "claimed_authors": [
+            "M. Gasperini"
+          ],
+          "claimed_title": "Gravity at Finite Temperature, Equivalence Principle,and Local Lorentz Invariance",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2101.00458"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Testing the Equivalence Principle with Satellite Laser Ranging physics', candidate_title='Gravity at Finite Temperature, Equivalence Principle,and Local Lorentz Invariance')",
+        "failed_at": "2026-06-21T01:26:06Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The European Particle Physics Strategy Update (EPPSU) process takes a bottom-up approach, whereby the community is first invited to submit proposals (also called inputs) for projects that it would like to see realised in the near-term, mid-term and longer-term future. National inputs as well as inputs from National Laboratories are also an important element of the process. All these inputs are then reviewed by the Physics Preparatory Group (PPG), whose role is to organize a Symposium around the submitted ideas and to prepare a community discussion on the importance and merits of the various proposals. The results of these discussions are then concisely summarised in this Briefing Book, prepared by the Conveners, assisted by Scientific Secretaries, and with further contributions provided by the Contributors listed on the title page. This constitutes the basis for the considerations of the European Strategy Group (ESG), consisting of scientific delegates from CERN Member States, Associate Member States, directors of major European laboratories, representatives of various European organizations as well as invitees from outside the European Community. The ESG has the mission to formulate the European Strategy Update for the consideration and approval of the CERN Council.",
+          "claimed_authors": [
+            " European Strategy for Particle Physics Preparatory Group"
+          ],
+          "claimed_title": "Physics Briefing Book",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1910.11775"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Testing the Equivalence Principle with Satellite Laser Ranging physics', candidate_title='Physics Briefing Book')",
+        "failed_at": "2026-06-21T01:26:06Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Different experiments are ongoing to measure the effect of gravity on cold neutral antimatter atoms such as positronium, muonium and antihydrogen. Among those, the project GBAR in CERN aims to measure precisely the gravitational fall of ultracold antihydrogen atoms. In the ultracold regime, the interaction of antihydrogen atoms with a surface is governed by the phenomenon of quantum reflection which results in bouncing of antihydrogen atoms on matter surfaces. This allows the application of a filtering scheme to increase the precision of the free fall measurement. In the ultimate limit of smallest vertical velocities, antihydrogen atoms are settled in gravitational quantum states in close analogy to ultracold neutrons (UCNs). Positronium is another neutral system involving antimatter for which free fall under gravity is currently being investigated at UCL. Building on the experimental techniques under development for the free fall measurement, gravitational quantum states could also be observed in positronium. In this contribution, we review the status of the ongoing experiments and discuss the prospects of observing gravitational quantum states of antimatter and their implications.",
+          "claimed_authors": [
+            "Gabriel Dufour",
+            "David B. Cassidy",
+            "Paolo Crivelli",
+            "Pascal Debu",
+            "Astrid Lambrecht",
+            "Valery V. Nesvizhevsky",
+            "Serge Reynaud",
+            "Alexei Yu. Voronin",
+            "Thomas E. Wall"
+          ],
+          "claimed_title": "Prospects for studies of the free fall and gravitational quantum states of antimatter",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1409.0705"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Testing the Equivalence Principle with Satellite Laser Ranging physics', candidate_title='Prospects for studies of the free fall and gravitational quantum states of antimatter')",
+        "failed_at": "2026-06-21T01:26:06Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We provide two simple universality criteria. Our first criterion states that $\\mathcal{S}\\subset G_d:=U(d)$ is universal if and only if $\\mathcal{S}$ forms a $δ$-approximate $t(d)$-design, where $t(2)=6$ and $t(d)=4$ for $d\\geq3$. Our second universality criterion says that $\\mathcal{S}\\subset G_d$ is universal if and only if the centralizer of $\\mathcal{S}^{t(d),t(d)}=\\{U^{\\otimes t(d)}\\otimes \\bar{U}^{\\otimes t(d)}|U\\in \\mathcal{S}\\}$ is equal to the centralizer of $G_d^{t(d),t(d)}=\\{U^{\\otimes t(d)}\\otimes \\bar{U}^{\\otimes t(d)}|U\\in G_d\\}$, where $t(2)=3$, and $t(d)=2$ for $d\\geq 3$. The equality of the centralizers can be verified by comparing their dimensions.",
+          "claimed_authors": [
+            "Adam Sawicki",
+            "Lorenzo Mattioli",
+            "Zoltán Zimborás"
+          ],
+          "claimed_title": "How to check universality of quantum gates?",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2111.03862"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Testing the Equivalence Principle with Satellite Laser Ranging physics', candidate_title='How to check universality of quantum gates?')",
+        "failed_at": "2026-06-21T01:26:06Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We demonstrate that a de Broglie wave of a particle in a gravitational field turns towards the region of a smaller gravitational potential, causing the particle to fall. This turning is caused by clocks running slower in the smaller potential. We use the analogy of ocean waves that are slower in shallower water and turn towards beaches. This approach explains the free fall qualitatively and quantitatively without postulating motion along geodesics and with only elementary algebra.",
+          "claimed_authors": [
+            "Anna Czarnecka",
+            "Andrzej Czarnecki"
+          ],
+          "claimed_title": "Gravitational time dilation, free fall, and matter waves",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2007.13851"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Testing the Equivalence Principle with Satellite Laser Ranging physics', candidate_title='Gravitational time dilation, free fall, and matter waves')",
+        "failed_at": "2026-06-21T01:26:06Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Bounds to the Nordtvedt parameter are obtained from the motion of the first twelve Trojan asteroids in the period 1906-1990. From the analysis performed, we derive a value for the inverse of the Saturn mass 3497.80 \\pm 0.81 and the Nordtvedt parameter -0.56 \\pm 0.48, from a simultaneous solution for all asteroids.",
+          "claimed_authors": [
+            "R. B. Orellana",
+            "H. Vucetich"
+          ],
+          "claimed_title": "The Nordtvedt effect in the Trojan asteroids",
+          "claimed_venue": "arXiv",
+          "claimed_year": 1992,
+          "primary_pointer": "gr-qc/9210002"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Testing the Equivalence Principle with Satellite Laser Ranging physics', candidate_title='The Nordtvedt effect in the Trojan asteroids')",
+        "failed_at": "2026-06-21T01:26:06Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The elements of the Eötvös matrix are useful for various geodetic applications, such as the interpolation of the elements of the deflection of the vertical, the determination of gravity anomalies and the determination of geoid heights. A torsion balance instrument is customarily used for the determination of the Eötvös components. In this work, we show that it is possible to estimate the Eötvös components, at a point on the physical surface of the Earth, using gravity measurements at three nearby points, comprising a very small network. In the first part, we present the method in detail, while in the second part we demonstrate a numerical example. We conclude that this method is able to estimate the elements of the Eötvös matrix with satisfactory accuracy.",
+          "claimed_authors": [
+            "G. Manoussakis",
+            "R. Korakitis",
+            "P. Milas"
+          ],
+          "claimed_title": "Gravimetric estimation of the Eötvös components",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1611.02044"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Testing the Equivalence Principle with Satellite Laser Ranging physics', candidate_title='Gravimetric estimation of the Eötvös components')",
+        "failed_at": "2026-06-21T01:26:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Linear Parameter-Varying (LPV) framework has long been used to guarantee performance and stability requirements of nonlinear (NL) systems mainly through the $\\mathcal{L}_2$-gain concept. However, recent research has pointed out that current $\\mathcal{L}_2$-gain based LPV synthesis methods can fail to guarantee these requirements if stabilization of a non-zero operating condition (e.g. reference tracking, constant disturbance rejection, etc.) is required. In this paper, an LPV based synthesis method is proposed which is able to guarantee incremental performance and stability of an NL system even with reference and disturbance rejection objectives. The developed approach and the current $\\mathcal{L}_2$ LPV synthesis method are compared in a simulation study of the position control problem of a Duffing oscillator, showing performance improvements of the proposed method compared to the current $\\mathcal{L}_2$-based approach for tracking and disturbance rejection.",
+          "claimed_authors": [
+            "P. J. W. Koelewijn",
+            "R. Tóth",
+            "H. Nijmeijer"
+          ],
+          "claimed_title": "Linear Parameter-Varying Control of Nonlinear Systems based on Incremental Stability",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1909.07154"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Testing the Equivalence Principle with Satellite Laser Ranging physics', candidate_title='Linear Parameter-Varying Control of Nonlinear Systems based on Incremental Stability')",
+        "failed_at": "2026-06-21T01:26:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The cosmological memory effect is a permanent change in the relative separation of test particles located in a FLRW spacetime due to the passage of gravitational waves. In the case of a spatially flat FLRW spacetime filled with a perfect fluid in general relativity, it is known that only tensor perturbations contribute to the memory effect while scalar and vector perturbations do not. In this paper, we show that in the context of scalar-tensor theories, the scalar perturbations associated to the scalar graviton contribute to the memory effect as well. We find that, depending on the mass and coupling, the influence of cosmic expansion on the memory effect due to the scalar perturbations can be either stronger or weaker than the one induced by the tensor perturbations. As a byproduct, in an appendix, we develop a general framework which can be used to study coupled wave equations in any curved spacetime region which admits a foliation by time slices.",
+          "claimed_authors": [
+            "Mohammad Ali Gorji",
+            "Taisuke Matsuda",
+            "Shinji Mukohyama"
+          ],
+          "claimed_title": "Cosmological memory effect in scalar-tensor theories",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2204.09182"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Testing the Equivalence Principle with Satellite Laser Ranging physics', candidate_title='Cosmological memory effect in scalar-tensor theories')",
+        "failed_at": "2026-06-21T01:26:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We analyze possible violations of the Equivalence Principle in scalar-tensor gravity at finite temperature $T.$ Before we present an approach where the Equivalence Principle violation is achieved within the framework of Quantum Field Theory. After, we rely on an alternative approach first proposed by Gasperini, which leads to the same outcome obtained in the framework of Quantum Field Theory (one-loop corrections) at finite $T$. Finally, we exhibit the application of the above formalism both to a generic diagonal metric, cast in spherical coordinates, and to the Brans-Dicke theory. In the last case, we show that it is possible to put a significant constraint on the free parameter of the theory by means of experimental bounds on the Equivalence Principle.",
+          "claimed_authors": [
+            "Massimo Blasone",
+            "Salvatore Capozziello",
+            "Gaetano Lambiase",
+            "Luciano Petruzziello"
+          ],
+          "claimed_title": "Equivalence principle violation at finite temperature in scalar-tensor gravity",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1812.08029"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Testing the Equivalence Principle with Satellite Laser Ranging physics', candidate_title='Equivalence principle violation at finite temperature in scalar-tensor gravity')",
+        "failed_at": "2026-06-21T01:26:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study the equivalence principle and its violations by quantum effects in scalar-tensor theories that admit a conformal frame in which matter only couples to the spacetime metric. These theories possess Ward identities that guarantee the validity of the weak equivalence principle to all orders in the matter coupling constants. These Ward identities originate from a broken Weyl symmetry under which the scalar field transforms by a shift, and from the symmetry required to couple a massless spin two particle to matter (diffeomorphism invariance). But the same identities also predict violations of the weak equivalence principle relatively suppressed by at least two powers of the gravitational couplings, and imply that quantum corrections do not preserve the structure of the action of these theories. We illustrate our analysis with a set of specific examples for spin zero and spin half matter fields that show why matter couplings do respect the equivalence principle, and how the couplings to the gravitational scalar lead to the weak equivalence principle violations predicted by the Ward identities.",
+          "claimed_authors": [
+            "Cristian Armendariz-Picon",
+            "Riccardo Penco"
+          ],
+          "claimed_title": "Quantum Equivalence Principle Violations in Scalar-Tensor Theories",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1108.6028"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Testing the Equivalence Principle with Satellite Laser Ranging physics', candidate_title='Quantum Equivalence Principle Violations in Scalar-Tensor Theories')",
+        "failed_at": "2026-06-21T01:26:07Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "James G. Williams",
+            "Dale H. Boggs",
+            "Slava G. Turyshev",
+            "J. Todd Ratcliff"
+          ],
+          "title": "Lunar Laser Ranging Science",
+          "venue": "arXiv",
+          "year": 2004
+        },
+        "primary_pointer": "gr-qc/0411095",
+        "summary": "Analysis of Lunar Laser Ranging (LLR) data provides science results: gravitational physics and ephemeris information from the orbit, lunar science from rotation and solid-body tides, and Earth science. Sensitive tests of gravitational physics include the Equivalence Principle, limits on the time variation of the gravitational constant G, and geodetic precession. The equivalence principle test is used for an accurate determination of the parametrized post-Newtonian (PPN) parameter β. Lunar ephemerides are a product of the LLR analysis used by current and future spacecraft missions. The analysis is sensitive to astronomical parameters such as orbit, masses and obliquity. The dissipation-caused semimajor axis rate is 37.9 mm/yr and the associated acceleration in orbital longitude is -25.7 ''/cent^2, dominated by tides on Earth with a 1% lunar contribution. Lunar rotational variation has sensitivity to interior structure, physical properties, and energy dissipation. The second-degree lunar Love numbers are detected; k_2 has an accuracy of 11%. Lunar tidal dissipation is strong and its Q has a weak dependence on tidal frequency. A fluid core of about 20% the Moon's radius is indicated by the dissipation data. Evidence for the oblateness of the lunar fluid-core/solid-mantle boundary is getting stronger. This would be independent evidence for a fluid lunar core. Moon-centered coordinates of four retroreflectors are determined. Station positions and motion, Earth rotation variations, nutation, and precession are determined from analyses. Extending the data span and improving range accuracy will yield improved and new scientific results. Adding either new retroreflectors or precise active transponders on the Moon would improve the accuracy of the science results.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/gr-qc/0411095",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.7143,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-21T01:26:05Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Lorenzo Iorio"
+          ],
+          "title": "Testing General Relativity with LAGEOS, LAGEOS II and Ajisai laser-ranged satellites",
+          "venue": "arXiv",
+          "year": 2001
+        },
+        "primary_pointer": "gr-qc/0105014",
+        "summary": "The accuracy reached in the past few years by Satellite Laser Ranging (SLR) allows for measuring even tiny features of the Earth's gravitational field predicted by Einstein's General Relativity by means of artificial satellites. The gravitomagnetic dragging of the orbit of a test body is currently under measurement by analyzing a suitable combination of the orbital residuals of LAGEOS and LAGEOS II. The lower bound of the error in this experiment amount to 12.92%. It is due to the mismodeling in the even zonal harmonics of the geopotential which are the most important sources of systematic error. A similar approach could be used in order to measure the relativistic gravitoelectric pericenter shift in the field of the Earth with a lower bound of the systematic relative error of 0.6% due to the even zonal harmonics as well. The inclusion of the ranging data to the Japanese passive geodetic satellite Ajisai would improve such limits to 10.78% and 0.08% respectively and would allow to improve the accuracy in the determination of the PPN parameters beta and gamma.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/gr-qc/0105014",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5714,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-21T01:26:06Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Fabrizio De Marchi",
+            "Giacomo Tommei",
+            "Andrea Milani",
+            "Giulia Schettino"
+          ],
+          "title": "Constraining the Nordtvedt parameter with the BepiColombo Radioscience experiment",
+          "venue": "arXiv",
+          "year": 2016
+        },
+        "primary_pointer": "1605.07822",
+        "summary": "BepiColombo is a joint ESA/JAXA mission to Mercury with challenging objectives regarding geophysics, geodesy and fundamental physics. The Mercury Orbiter Radioscience Experiment (MORE) is one of the on-board experiments, including three different but linked experiments: gravimetry, rotation and relativity. The aim of the relativity experiment is the measurement of the post-Newtonian parameters. Thanks to accurate tracking between Earth and spacecraft, the results are expected to be very precise. However, the outcomes of the experiment strictly depends on our \"knowledge\" about solar system: ephemerides, number of bodies (planets, satellites and asteroids) and their masses. In this paper we describe a semi-analytic model used to perform a covariance analysis to quantify the effects, on the relativity experiment, due to the uncertainties of solar system bodies parameters. In particular, our attention is focused on the Nordtvedt parameter $η$ used to parametrize the strong equivalence principle violation. After our analysis we estimated $σ[η]\\lessapprox 4.5\\times 10^{-5}$ which is about 1~order of magnitude larger than the \"ideal\" case where masses of planets and asteroids have no errors. The current value, obtained from ground based experiments and lunar laser ranging measurements, is $σ[η]\\approx 4.4\\times 10^{-4}$. Therefore, we conclude that, even in presence of uncertainties on solar system parameters, the measurement of $η$ by MORE can improve the current precision of about 1~order of magnitude.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1605.07822",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.7143,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-21T01:26:06Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Wen-biao Han",
+            "Shi-long Liao"
+          ],
+          "title": "PSR J0337+1715: an appropriate laboratory for testing the Nordtvedt effect",
+          "venue": "arXiv",
+          "year": 2014
+        },
+        "primary_pointer": "1407.0090",
+        "summary": "Highly accurate binary-pulsar timing plays an important role in test of General Relativity. In this Letter, we argue that PSR J0337+1715, a milli-second pulsar in a stellar triple system, could be a very good laboratory for testing the strong equivalence principle (SEP). From the reported orbital parameters of this triple system, we give an uplimited estimation of the Nordtvedt parameter $η_\\text{N} < 10^{-4}$ based on the orbital polarization calculation. This result is slightly better than the existed ones. In addition, if based on the observed uncertain value of inner orbital eccentricity, we even can obtain $η_\\text{N}$ up to $10^{-7}$, which needs to be confirmed in future. However, more rigorous and accurate measurement of the Nordtvedt effect should be taken from more timing data of PSR J0337+1715.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1407.0090",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4286,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-21T01:26:07Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Ephraim Fischbach",
+            "Dennis E. Krause"
+          ],
+          "title": "The Eötvös Paradox: The Enduring Significance of Eötvös' Most Famous Paper",
+          "venue": "arXiv",
+          "year": 2019
+        },
+        "primary_pointer": "1901.11163",
+        "summary": "Following the death of Baron Loránd von Eötvös in 1919, his collaborators Desiderius Pekár and Eugen Fekete co-authored a paper in 1922 containing the results of a series of earlier experiments testing the identity of inertial and gravitational mass, the Weak Equivalence Principle (WEP). Although the so-called \"EPF\" paper made no claim for any WEP violations, a subsequent 1986 reanalysis of the EPF paper revealed a pattern in their data suggesting the presence of a new (\"fifth\") force in nature. Although the EPF data, and the 1986 reanalysis of these data, present fairly compelling evidence for such a fifth force, many contemporary experiments have failed to detect its presence. Here we summarize the key elements of this \"Eötvös paradox,\" and suggest some possible paths to a resolution. Along the way we also discuss the close relationship between Eötvös and Einstein, and consider how their respective contributions may have been influenced by the other's.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1901.11163",
+          "http_status": 200,
+          "pdf_sample_score": 0.2209,
+          "query_relevance_score": 0.4286,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-21T01:26:07Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "testing the equivalence principle with satellite laser ranging physics",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

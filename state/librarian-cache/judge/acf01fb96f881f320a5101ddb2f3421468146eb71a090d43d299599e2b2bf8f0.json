@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1901.11163",
+  "judged_at": "2026-06-21T01:26:36Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "testing the equivalence principle with satellite laser ranging physics",
+  "rationale": "The paper investigates tests of the Weak Equivalence Principle, i.e., the same fundamental mechanism (testing the equivalence of inertial and gravitational mass) that the user’s question concerns, even though it uses historic torsion‑balance experiments rather than satellite laser ranging (acceptance category (a)).",
+  "relevant": true
+}

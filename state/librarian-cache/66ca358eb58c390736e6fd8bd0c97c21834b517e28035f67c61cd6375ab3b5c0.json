@@ -1,0 +1,562 @@
+{
+  "fetched_at": "2026-06-21T01:27:43Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "Guava: An Effective and Universal Harness for Embodied Manipulation",
+      "target_n": 5
+    },
+    "duration_seconds": 55.802,
+    "ended_at": "2026-06-21T01:27:43Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "universal robot manipulation framework"
+        ],
+        [
+          2,
+          "embodied manipulation toolkit"
+        ],
+        [
+          3,
+          "general‑purpose manipulation architecture"
+        ],
+        [
+          4,
+          "modular robotic manipulation system"
+        ],
+        [
+          5,
+          "task‑agnostic manipulation platform"
+        ],
+        [
+          6,
+          "adaptive manipulation control pipeline"
+        ],
+        [
+          7,
+          "end‑to‑end embodied manipulation framework"
+        ],
+        [
+          8,
+          "multi‑modal robot manipulation library"
+        ],
+        [
+          9,
+          "hierarchical manipulation policies suite"
+        ],
+        [
+          10,
+          "simulation‑to‑real transfer for manipulation"
+        ],
+        [
+          11,
+          "cross‑domain robotic manipulation framework"
+        ],
+        [
+          12,
+          "plug‑and‑play manipulation interface for robots"
+        ],
+        [
+          13,
+          "open‑source manipulation stack for embodied agents"
+        ],
+        [
+          14,
+          "unified grasping and manipulation API"
+        ],
+        [
+          15,
+          "learning‑based embodied manipulation pipeline"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Guava: An Effective and Universal Harness for Embodied Manipulation computer science": 0,
+        "universal robot manipulation framework": 4
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "robotic manipulation framework",
+      "MuJoCo manipulation benchmark",
+      "dexterous manipulation dataset",
+      "manipulation success rate metric",
+      "sim2real transfer learning"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2510.26551"
+      ]
+    },
+    "per_query_hit_count": {
+      "Guava: An Effective and Universal Harness for Embodied Manipulation computer science": 3,
+      "MuJoCo manipulation benchmark": 2,
+      "dexterous manipulation dataset": 3,
+      "manipulation success rate metric": 2,
+      "robotic manipulation framework": 3,
+      "sim2real transfer learning": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 2,
+      "rejections": [
+        {
+          "primary_pointer": "2312.07214",
+          "rationale": "The paper focuses on integrating large language models for variable autonomy in human‑robot teaming, not on the “Guava” framework or a universal harness for embodied manipulation; it does not address the same mechanism, variables, or canonical studies relevant to the user's question.",
+          "title": "Exploring Large Language Models to Facilitate Variable Autonomy for Human-Robot Teaming"
+        },
+        {
+          "primary_pointer": "2101.02842",
+          "rationale": "The paper presents a competition-specific grasp and motion‑planning solution rather than a general‑purpose framework or harness for embodied manipulation like “Guava,” and it does not discuss the same mechanism or tool, so it falls outside the relevant literature scope.",
+          "title": "Grasp and Motion Planning for Dexterous Manipulation for the Real Robot Challenge"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-21T01:26:47Z",
+    "term_input": {
+      "normalized": "guava: an effective and universal harness for embodied manipulation computer science",
+      "raw": "Guava: An Effective and Universal Harness for Embodied Manipulation computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Reconstructing a high-quality, animatable 3D human avatar with expressive facial and hand motions from a single image has gained significant attention due to its broad application potential. 3D human avatar reconstruction typically requires multi-view or monocular videos and training on individual IDs, which is both complex and time-consuming. Furthermore, limited by SMPLX's expressiveness, these methods often focus on body motion but struggle with facial expressions. To address these challenges, we first introduce an expressive human model (EHM) to enhance facial expression capabilities and develop an accurate tracking method. Based on this template model, we propose GUAVA, the first framework for fast animatable upper-body 3D Gaussian avatar reconstruction. We leverage inverse texture mapping and projection sampling techniques to infer Ubody (upper-body) Gaussians from a single image. The rendered images are refined through a neural refiner. Experimental results demonstrate that GUAVA significantly outperforms previous methods in rendering quality and offers significant speed improvements, with reconstruction times in the sub-second range (0.1s), and supports real-time animation and rendering.",
+          "claimed_authors": [
+            "Dongbin Zhang",
+            "Yunfei Liu",
+            "Lijian Lin",
+            "Ye Zhu",
+            "Yang Li",
+            "Minghan Qin",
+            "Yu Li",
+            "Haoqian Wang"
+          ],
+          "claimed_title": "GUAVA: Generalizable Upper Body 3D Gaussian Avatar",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2505.03351"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Guava: An Effective and Universal Harness for Embodied Manipulation computer sci', candidate_title='GUAVA: Generalizable Upper Body 3D Gaussian Avatar')",
+        "failed_at": "2026-06-21T01:27:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "World models have emerged as a pivotal component in robot manipulation planning, enabling agents to predict future environmental states and reason about the consequences of actions before execution. While video-generation models are increasingly adopted, they often lack rigorous physical grounding, leading to hallucinations and a failure to maintain consistency in long-horizon physical constraints. To address these limitations, we propose Embodied Tree of Thoughts (EToT), a novel Real2Sim2Real planning framework that leverages a physics-based interactive digital twin as an embodied world model. EToT formulates manipulation planning as a tree search expanded through two synergistic mechanisms: (1) Priori Branching, which generates diverse candidate execution paths based on semantic and spatial analysis; and (2) Reflective Branching, which utilizes VLMs to diagnose execution failures within the simulator and iteratively refine the planning tree with corrective actions. By grounding high-level reasoning in a physics simulator, our framework ensures that generated plans adhere to rigid-body dynamics and collision constraints. We validate EToT on a suite of short- and long-horizon manipulation tasks, where it consistently outperforms baselines by effectively predicting physical dynamics and adapting to potential failures. Website at https://embodied-tree-of-thoughts.github.io .",
+          "claimed_authors": [
+            "Wenjiang Xu",
+            "Cindy Wang",
+            "Rui Fang",
+            "Mingkang Zhang",
+            "Lusong Li",
+            "Jing Xu",
+            "Jiayuan Gu",
+            "Zecui Zeng",
+            "Rui Chen"
+          ],
+          "claimed_title": "Embodied Tree of Thoughts: Deliberate Manipulation Planning with Embodied World Model",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.08188"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Guava: An Effective and Universal Harness for Embodied Manipulation computer sci', candidate_title='Embodied Tree of Thoughts: Deliberate Manipulation Planning with Embodied World Model')",
+        "failed_at": "2026-06-21T01:27:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Robotic manipulation, a key frontier in robotics and embodied AI, requires precise motor control and multimodal understanding, yet traditional rule-based methods fail to scale or generalize in unstructured, novel environments. In recent years, Vision-Language-Action (VLA) models, built upon Large Vision-Language Models (VLMs) pretrained on vast image-text datasets, have emerged as a transformative paradigm. This survey provides the first systematic, taxonomy-oriented review of large VLM-based VLA models for robotic manipulation. We begin by clearly defining large VLM-based VLA models and delineating two principal architectural paradigms: (1) monolithic models, encompassing single-system and dual-system designs with differing levels of integration; and (2) hierarchical models, which explicitly decouple planning from execution via interpretable intermediate representations. Building on this foundation, we present an in-depth examination of large VLM-based VLA models: (1) integration with advanced domains, including reinforcement learning, training-free optimization, learning from human videos, and world model integration; (2) synthesis of distinctive characteristics, consolidating architectural traits, operational strengths, and the datasets and benchmarks that support their development; (3) identification of promising directions, including memory mechanisms, 4D perception, efficient adaptation, multi-agent cooperation, and other emerging capabilities. This survey consolidates recent advances to resolve inconsistencies in existing taxonomies, mitigate research fragmentation, and fill a critical gap through the systematic integration of studies at the intersection of large VLMs and robotic manipulation. We provide a regularly updated project page to document ongoing progress: https://github.com/JiuTian-VL/Large-VLM-based-VLA-for-Robotic-Manipulation",
+          "claimed_authors": [
+            "Rui Shao",
+            "Wei Li",
+            "Lingsen Zhang",
+            "Renshan Zhang",
+            "Zhiyang Liu",
+            "Ran Chen",
+            "Liqiang Nie"
+          ],
+          "claimed_title": "Large VLM-based Vision-Language-Action Models for Robotic Manipulation: A Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2508.13073"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Guava: An Effective and Universal Harness for Embodied Manipulation computer sci', candidate_title='Large VLM-based Vision-Language-Action Models for Robotic Manipulation: A Survey')",
+        "failed_at": "2026-06-21T01:27:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present a benchmark to facilitate simulated manipulation; an attempt to overcome the obstacles of physical benchmarks through the distribution of a real world, ground truth dataset. Users are given various simulated manipulation tasks with assigned protocols having the objective of replicating the real world results of a recorded dataset. The benchmark comprises of a range of metrics used to characterise the successes of submitted environments whilst providing insight into their deficiencies. We apply our benchmark to two simulation environments, PyBullet and V-Rep, and publish the results. All materials required to benchmark an environment, including protocols and the dataset, can be found at the benchmarks' website https://research.csiro.au/robotics/manipulation-benchmark/.",
+          "claimed_authors": [
+            "Jack Collins",
+            "Jessie McVicar",
+            "David Wedlock",
+            "Ross Brown",
+            "David Howard",
+            "Jürgen Leitner"
+          ],
+          "claimed_title": "Benchmarking Simulated Robotic Manipulation through a Real World Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1911.01557"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Guava: An Effective and Universal Harness for Embodied Manipulation computer sci', candidate_title='Benchmarking Simulated Robotic Manipulation through a Real World Dataset')",
+        "failed_at": "2026-06-21T01:27:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Conventional robots possess a limited understanding of their kinematics and are confined to preprogrammed tasks, hindering their ability to leverage tools efficiently. Driven by the essential components of tool usage - grasping the desired outcome, selecting the most suitable tool, determining optimal tool orientation, and executing precise manipulations - we introduce a pioneering framework. Our novel approach expands the capabilities of the robot's inverse kinematics solver, empowering it to acquire a sequential repertoire of actions using tools of varying lengths. By integrating a simulation-learned action trajectory with the tool, we showcase the practicality of transferring acquired skills from simulation to real-world scenarios through comprehensive experimentation. Remarkably, our extended inverse kinematics solver demonstrates an impressive error rate of less than 1 cm. Furthermore, our trained policy achieves a mean error of 8 cm in simulation. Noteworthy, our model achieves virtually indistinguishable performance when employing two distinct tools of different lengths. This research provides an indication of potential advances in the exploration of all four fundamental aspects of tool usage, enabling robots to master the intricate art of tool manipulation across diverse tasks.",
+          "claimed_authors": [
+            "Prathamesh Kothavale",
+            "Sravani Boddepalli"
+          ],
+          "claimed_title": "Adaptive Inverse Kinematics Framework for Learning Variable-Length Tool Manipulation in Robotics",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2510.26551"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Guava: An Effective and Universal Harness for Embodied Manipulation computer sci', candidate_title='Adaptive Inverse Kinematics Framework for Learning Variable-Length Tool Manipulation in Robotics')",
+        "failed_at": "2026-06-21T01:27:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We leverage the fast physics simulator, MuJoCo to run tasks in a continuous control environment and reveal details like the observation space, action space, rewards, etc. for each task. We benchmark value-based methods for continuous control by comparing Q-learning and SARSA through a discretization approach, and using them as baselines, progressively moving into one of the state-of-the-art deep policy gradient method DDPG. Over a large number of episodes, Qlearning outscored SARSA, but DDPG outperformed both in a small number of episodes. Lastly, we also fine-tuned the model hyper-parameters expecting to squeeze more performance but using lesser time and resources. We anticipated that the new design for DDPG would vastly improve performance, yet after only a few episodes, we were able to achieve decent average rewards. We expect to improve the performance provided adequate time and computational resources.",
+          "claimed_authors": [
+            "Vaddadi Sai Rahul",
+            "Debajyoti Chakraborty"
+          ],
+          "claimed_title": "Exploring reinforcement learning techniques for discrete and continuous control tasks in the MuJoCo environment",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2307.11166"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Guava: An Effective and Universal Harness for Embodied Manipulation computer sci', candidate_title='Exploring reinforcement learning techniques for discrete and continuous control tasks in the MuJoCo environment')",
+        "failed_at": "2026-06-21T01:27:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Realistic physics engines play a crucial role for learning to manipulate deformable objects such as garments in simulation. By doing so, researchers can circumvent challenges such as sensing the deformation of the object in the realworld. In spite of the extensive use of simulations for this task, few works have evaluated the reality gap between deformable object simulators and real-world data. We present a benchmark dataset to evaluate the sim-to-real gap in cloth manipulation. The dataset is collected by performing a dynamic as well as a quasi-static cloth manipulation task involving contact with a rigid table. We use the dataset to evaluate the reality gap, computational time, and simulation stability of four popular deformable object simulators: MuJoCo, Bullet, Flex, and SOFA. Additionally, we discuss the benefits and drawbacks of each simulator. The benchmark dataset is open-source. Supplementary material, videos, and code, can be found at https://sites.google.com/view/cloth-sim2real-benchmark.",
+          "claimed_authors": [
+            "David Blanco-Mulero",
+            "Oriol Barbany",
+            "Gokhan Alcan",
+            "Adrià Colomé",
+            "Carme Torras",
+            "Ville Kyrki"
+          ],
+          "claimed_title": "Benchmarking the Sim-to-Real Gap in Cloth Manipulation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2310.09543"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Guava: An Effective and Universal Harness for Embodied Manipulation computer sci', candidate_title='Benchmarking the Sim-to-Real Gap in Cloth Manipulation')",
+        "failed_at": "2026-06-21T01:27:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Existing research that addressed cable manipulation relied on two-fingered grippers, which make it difficult to perform similar cable manipulation tasks that humans perform. However, unlike dexterous manipulation of rigid objects, the development of dexterous cable manipulation skills in robotics remains underexplored due to the unique challenges posed by a cable's deformability and inherent uncertainty. In addition, using a dexterous hand introduces specific difficulties in tasks, such as cable grasping, pulling, and in-hand bending, for which no dedicated task definitions, benchmarks, or evaluation metrics exist. Furthermore, we observed that most existing dexterous hands are designed with structures identical to humans', typically featuring only one thumb, which often limits their effectiveness during dexterous cable manipulation. Lastly, existing non-task-specific methods did not have enough generalization ability to solve these cable manipulation tasks or are unsuitable due to the designed hardware. We have three contributions in real-world dexterous cable manipulation in the following steps: (1) We first defined and organized a set of dexterous cable manipulation tasks into a comprehensive taxonomy, covering most short-horizon action primitives and long-horizon tasks for one-handed cable manipulation. This taxonomy revealed that coordination between the thumb and the index finger is critical for cable manipulation, which decomposes long-horizon tasks into simpler primitives. (2) We designed a novel five-fingered hand with 25 degrees of freedom (DoF), featuring two symmetric thumb-index configurations and a rotatable joint on each fingertip, which enables dexterous cable manipulation. (3) We developed a demonstration collection pipeline for this non-anthropomorphic hand, which is difficult to operate by previous motion capture methods.",
+          "claimed_authors": [
+            "Sun Zhaole",
+            "Xiao Gao",
+            "Xiaofeng Mao",
+            "Jihong Zhu",
+            "Aude Billard",
+            "Robert B. Fisher"
+          ],
+          "claimed_title": "Dexterous Cable Manipulation: Taxonomy, Multi-Fingered Hand Design, and Long-Horizon Manipulation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2502.00396"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Guava: An Effective and Universal Harness for Embodied Manipulation computer sci', candidate_title='Dexterous Cable Manipulation: Taxonomy, Multi-Fingered Hand Design, and Long-Horizon Manipulation')",
+        "failed_at": "2026-06-21T01:27:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Dexterous multi-fingered hands are extremely versatile and provide a generic way to perform a multitude of tasks in human-centric environments. However, effectively controlling them remains challenging due to their high dimensionality and large number of potential contacts. Deep reinforcement learning (DRL) provides a model-agnostic approach to control complex dynamical systems, but has not been shown to scale to high-dimensional dexterous manipulation. Furthermore, deployment of DRL on physical systems remains challenging due to sample inefficiency. Consequently, the success of DRL in robotics has thus far been limited to simpler manipulators and tasks. In this work, we show that model-free DRL can effectively scale up to complex manipulation tasks with a high-dimensional 24-DoF hand, and solve them from scratch in simulated experiments. Furthermore, with the use of a small number of human demonstrations, the sample complexity can be significantly reduced, which enables learning with sample sizes equivalent to a few hours of robot experience. The use of demonstrations result in policies that exhibit very natural movements and, surprisingly, are also substantially more robust.",
+          "claimed_authors": [
+            "Aravind Rajeswaran",
+            "Vikash Kumar",
+            "Abhishek Gupta",
+            "Giulia Vezzani",
+            "John Schulman",
+            "Emanuel Todorov",
+            "Sergey Levine"
+          ],
+          "claimed_title": "Learning Complex Dexterous Manipulation with Deep Reinforcement Learning and Demonstrations",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1709.10087"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Guava: An Effective and Universal Harness for Embodied Manipulation computer sci', candidate_title='Learning Complex Dexterous Manipulation with Deep Reinforcement Learning and Demonstrations')",
+        "failed_at": "2026-06-21T01:27:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We use reinforcement learning (RL) to learn dexterous in-hand manipulation policies which can perform vision-based object reorientation on a physical Shadow Dexterous Hand. The training is performed in a simulated environment in which we randomize many of the physical properties of the system like friction coefficients and an object's appearance. Our policies transfer to the physical robot despite being trained entirely in simulation. Our method does not rely on any human demonstrations, but many behaviors found in human manipulation emerge naturally, including finger gaiting, multi-finger coordination, and the controlled use of gravity. Our results were obtained using the same distributed RL system that was used to train OpenAI Five. We also include a video of our results: https://youtu.be/jwSbzNHGflM",
+          "claimed_authors": [
+            " OpenAI",
+            "Marcin Andrychowicz",
+            "Bowen Baker",
+            "Maciek Chociej",
+            "Rafal Jozefowicz",
+            "Bob McGrew",
+            "Jakub Pachocki",
+            "Arthur Petron",
+            "Matthias Plappert",
+            "Glenn Powell",
+            "Alex Ray",
+            "Jonas Schneider",
+            "Szymon Sidor",
+            "Josh Tobin",
+            "Peter Welinder",
+            "Lilian Weng",
+            "Wojciech Zaremba"
+          ],
+          "claimed_title": "Learning Dexterous In-Hand Manipulation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1808.00177"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Guava: An Effective and Universal Harness for Embodied Manipulation computer sci', candidate_title='Learning Dexterous In-Hand Manipulation')",
+        "failed_at": "2026-06-21T01:27:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Current approaches for humanoid whole-body manipulation, primarily relying on teleoperation or visual sim-to-real reinforcement learning, are hindered by hardware logistics and complex reward engineering. Consequently, demonstrated autonomous skills remain limited and are typically restricted to controlled environments. In this paper, we present the Humanoid Manipulation Interface (HuMI), a portable and efficient framework for learning diverse whole-body manipulation tasks across various environments. HuMI enables robot-free data collection by capturing rich whole-body motion using portable hardware. This data drives a hierarchical learning pipeline that translates human motions into dexterous and feasible humanoid skills. Extensive experiments across five whole-body tasks--including kneeling, squatting, tossing, walking, and bimanual manipulation--demonstrate that HuMI achieves a 3x increase in data collection efficiency compared to teleoperation and attains a 70% success rate in unseen environments.",
+          "claimed_authors": [
+            "Ruiqian Nai",
+            "Boyuan Zheng",
+            "Junming Zhao",
+            "Haodong Zhu",
+            "Sicong Dai",
+            "Zunhao Chen",
+            "Yihang Hu",
+            "Yingdong Hu",
+            "Tong Zhang",
+            "Chuan Wen",
+            "Yang Gao"
+          ],
+          "claimed_title": "Humanoid Manipulation Interface: Humanoid Whole-Body Manipulation from Robot-Free Demonstrations",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2602.06643"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Guava: An Effective and Universal Harness for Embodied Manipulation computer sci', candidate_title='Humanoid Manipulation Interface: Humanoid Whole-Body Manipulation from Robot-Free Demonstrations')",
+        "failed_at": "2026-06-21T01:27:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We introduce the notion of coarse metric. Every coarse metric induces a coarse structure on the underlying set. Conversely, we observe that all coarse spaces come from a particular type of coarse metric in a unique way. In the case when the coarse structure $\\mathcal{E}$ on a set $X$ is defined by a coarse metric that takes values in a meet-complete totally ordered set, we define the associated Hausdorff coarse metric on the set $\\mathcal{P}_0(X)$ of non-empty subsets of $X$ and show that it induces the Hausdorff coarse structure on $\\mathcal{P}_0(X)$.\n  On the other hand, we define the notion of pseudo uniform metric. Each pseudo uniform metric induces a uniform structure on the underlying space. In the reverse direction, we show that a uniform structure $\\mathcal{U}$ on a set $X$ is induced by a map $d$ from $X\\times X$ to a partially ordered set (with no requirement on $d$) if and only if $\\mathcal{U}$ admits a base $\\mathcal{B}$ such that $\\mathcal{B}\\cup \\{\\bigcap \\mathcal{U}\\}$ is closed under arbitrary intersections. In this case, $\\mathcal{U}$ is actually defined by a pseudo uniform metric. We also show that a uniform structures $\\mathcal{U}$ comes from a pseudo uniform metric that takes values in a totally ordered set if and only if $\\mathcal{U}$ admits a totally ordered base.\n  Finally, a valuation ring will produce an example of a coarse and pseudo uniform metric that take values in a totally ordered set.",
+          "claimed_authors": [
+            "Chi-Keung Ng"
+          ],
+          "claimed_title": "Coarse metric and uniform metric",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2012.07298"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Guava: An Effective and Universal Harness for Embodied Manipulation computer sci', candidate_title='Coarse metric and uniform metric')",
+        "failed_at": "2026-06-21T01:27:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The advent of federated learning has facilitated large-scale data exchange amongst machine learning models while maintaining privacy. Despite its brief history, federated learning is rapidly evolving to make wider use more practical. One of the most significant advancements in this domain is the incorporation of transfer learning into federated learning, which overcomes fundamental constraints of primary federated learning, particularly in terms of security. This chapter performs a comprehensive survey on the intersection of federated and transfer learning from a security point of view. The main goal of this study is to uncover potential vulnerabilities and defense mechanisms that might compromise the privacy and performance of systems that use federated and transfer learning.",
+          "claimed_authors": [
+            "Ehsan Hallaji",
+            "Roozbeh Razavi-Far",
+            "Mehrdad Saif"
+          ],
+          "claimed_title": "Federated and Transfer Learning: A Survey on Adversaries and Defense Mechanisms",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2207.02337"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Guava: An Effective and Universal Harness for Embodied Manipulation computer sci', candidate_title='Federated and Transfer Learning: A Survey on Adversaries and Defense Mechanisms')",
+        "failed_at": "2026-06-21T01:27:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This report presents the debates, posters, and discussions of the Sim2Real workshop held in conjunction with the 2020 edition of the \"Robotics: Science and System\" conference. Twelve leaders of the field took competing debate positions on the definition, viability, and importance of transferring skills from simulation to the real world in the context of robotics problems. The debaters also joined a large panel discussion, answering audience questions and outlining the future of Sim2Real in robotics. Furthermore, we invited extended abstracts to this workshop which are summarized in this report. Based on the workshop, this report concludes with directions for practitioners exploiting this technology and for researchers further exploring open problems in this area.",
+          "claimed_authors": [
+            "Sebastian Höfer",
+            "Kostas Bekris",
+            "Ankur Handa",
+            "Juan Camilo Gamboa",
+            "Florian Golemo",
+            "Melissa Mozifian",
+            "Chris Atkeson",
+            "Dieter Fox",
+            "Ken Goldberg",
+            "John Leonard",
+            "C. Karen Liu",
+            "Jan Peters",
+            "Shuran Song",
+            "Peter Welinder",
+            "Martha White"
+          ],
+          "claimed_title": "Perspectives on Sim2Real Transfer for Robotics: A Summary of the R:SS 2020 Workshop",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2012.03806"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Guava: An Effective and Universal Harness for Embodied Manipulation computer sci', candidate_title='Perspectives on Sim2Real Transfer for Robotics: A Summary of the R:SS 2020 Workshop')",
+        "failed_at": "2026-06-21T01:27:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Sim2real transfer has received increasing attention lately due to the success of learning robotic tasks in simulation end-to-end. While there has been a lot of progress in transferring vision-based navigation policies, the existing sim2real strategy for audio-visual navigation performs data augmentation empirically without measuring the acoustic gap. The sound differs from light in that it spans across much wider frequencies and thus requires a different solution for sim2real. We propose the first treatment of sim2real for audio-visual navigation by disentangling it into acoustic field prediction (AFP) and waypoint navigation. We first validate our design choice in the SoundSpaces simulator and show improvement on the Continuous AudioGoal navigation benchmark. We then collect real-world data to measure the spectral difference between the simulation and the real world by training AFP models that only take a specific frequency subband as input. We further propose a frequency-adaptive strategy that intelligently selects the best frequency band for prediction based on both the measured spectral difference and the energy distribution of the received audio, which improves the performance on the real data. Lastly, we build a real robot platform and show that the transferred policy can successfully navigate to sounding objects. This work demonstrates the potential of building intelligent agents that can see, hear, and act entirely from simulation, and transferring them to the real world.",
+          "claimed_authors": [
+            "Changan Chen",
+            "Jordi Ramos",
+            "Anshul Tomar",
+            "Kristen Grauman"
+          ],
+          "claimed_title": "Sim2Real Transfer for Audio-Visual Navigation with Frequency-Adaptive Acoustic Field Prediction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.02821"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Guava: An Effective and Universal Harness for Embodied Manipulation computer sci', candidate_title='Sim2Real Transfer for Audio-Visual Navigation with Frequency-Adaptive Acoustic Field Prediction')",
+        "failed_at": "2026-06-21T01:27:17Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Haowen Liu",
+            "Xirui Li",
+            "Shaoxiong Yao",
+            "Peng Shi",
+            "Tianyi Zhou",
+            "Jia-Bin Huang",
+            "Furong Huang",
+            "Jiayuan Mao"
+          ],
+          "title": "Guava: An Effective and Universal Harness for Embodied Manipulation",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2606.18363",
+        "summary": "Language models trained on large-scale vision-language data have demonstrated strong potential for embodied agents. Harnessing models through embodied tools use offers a promising alternative to end-to-end vision-language-action systems by combining high-level reasoning with external modules for perception, planning, and control. However, it remains unclear what makes an effective harness for embodied manipulation, and to what extent such a harness can unlock embodied capabilities in a wide range of reasoning models. In this work, we present Guava, a harness framework for embodied tool use developed through systematic exploration of the design space of agent workflows, action spaces, and observation spaces. Our study identifies three key ingredients for effective embodied agents: iterative perception-reasoning-action loops, semantic action abstractions, and multimodal observations. To understand whether these design principles are universal even to small models, we develop an end-to-end training pipeline that distills embodied manipulation capabilities into a 4B open-source model using fewer than 2K trajectories collected entirely in simulation. Experimental results in both simulation and real-world environments show performance comparable to frontier proprietary models while exhibiting strong generalization to unseen objects, novel instructions, and long-horizon tasks. Results suggest that a well-designed harness can serve as a scalable, model-agnostic interface for embodied manipulation, enabling strong emergent embodied capabilities in compact open-source models with minimal training data.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2606.18363",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.75,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-21T01:27:17Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Arash Ghasemzadeh Kakroudi",
+            "Roel Pieters"
+          ],
+          "title": "A Conversational Framework for Human-Robot Collaborative Manipulation with Distributed Generative AI models",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2606.06061",
+        "summary": "This paper presents a distributed conversational framework for human-robot collaborative manipulation that integrates local language and vision-language models (VLMs) with a Robot Operating System 2 (ROS 2)-based execution stack. Language understanding, visual grounding, orchestration, and motion execution run as separate ROS 2 nodes, enabling flexible deployment across distributed hardware while maintaining a responsive control loop. From free-form user commands, the system generates structured action requests for pick, place, and handover. It uses a VLM to return image-space targets, which are converted into metric robot-frame goals using depth and calibration. A web dashboard exposes intermediate intent and grounding overlays (pixel, depth, and robot-frame) and requires explicit operator confirmation before any motion is executed. Experiments on a Franka FR3 platform evaluate end-to-end task reliability and latency under increasing working table scene ambiguity and compare alternative LLM/VLM configurations in the same pipeline. Code and full documentation are available at [github.com/cogrob-tuni/franka-llm](https://github.com/cogrob-tuni/franka-llm).",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2606.06061",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.75,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-21T01:27:21Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Prathamesh Kothavale",
+            "Sravani Boddepalli"
+          ],
+          "title": "Adaptive Inverse Kinematics Framework for Learning Variable-Length Tool Manipulation in Robotics",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2510.26551",
+        "summary": "Conventional robots possess a limited understanding of their kinematics and are confined to preprogrammed tasks, hindering their ability to leverage tools efficiently. Driven by the essential components of tool usage - grasping the desired outcome, selecting the most suitable tool, determining optimal tool orientation, and executing precise manipulations - we introduce a pioneering framework. Our novel approach expands the capabilities of the robot's inverse kinematics solver, empowering it to acquire a sequential repertoire of actions using tools of varying lengths. By integrating a simulation-learned action trajectory with the tool, we showcase the practicality of transferring acquired skills from simulation to real-world scenarios through comprehensive experimentation. Remarkably, our extended inverse kinematics solver demonstrates an impressive error rate of less than 1 cm. Furthermore, our trained policy achieves a mean error of 8 cm in simulation. Noteworthy, our model achieves virtually indistinguishable performance when employing two distinct tools of different lengths. This research provides an indication of potential advances in the exploration of all four fundamental aspects of tool usage, enabling robots to master the intricate art of tool manipulation across diverse tasks.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2510.26551",
+          "http_status": 200,
+          "pdf_sample_score": 0.2767,
+          "query_relevance_score": 0.75,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-21T01:27:21Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "guava: an effective and universal harness for embodied manipulation computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

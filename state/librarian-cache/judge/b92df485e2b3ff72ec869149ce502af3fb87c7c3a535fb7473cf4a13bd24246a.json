@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2606.18363",
+  "judged_at": "2026-06-21T01:27:26Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "guava: an effective and universal harness for embodied manipulation computer science",
+  "rationale": "The paper introduces and evaluates the Guava framework, directly studying the same mechanism (a harness for embodied manipulation) that the user's question concerns, serving as a foundational reference for this line of work.",
+  "relevant": true
+}

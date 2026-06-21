@@ -1,0 +1,566 @@
+{
+  "fetched_at": "2026-06-21T01:25:12Z",
+  "field": "physics",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "physics",
+      "idea_body_excerpt": "Testing the Isotropy of Cosmic Expansion with Type Ia Supernova Data",
+      "target_n": 5
+    },
+    "duration_seconds": 92.872,
+    "ended_at": "2026-06-21T01:25:12Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "anisotropy of cosmic expansion supernovae"
+        ],
+        [
+          2,
+          "hemispherical asymmetry in Type Ia supernova distances"
+        ],
+        [
+          3,
+          "directional dependence of the Hubble constant from SN Ia"
+        ],
+        [
+          4,
+          "dipole anisotropy in supernova luminosity distances"
+        ],
+        [
+          5,
+          "tests of the cosmological principle with Type Ia supernovae"
+        ],
+        [
+          6,
+          "large‑scale isotropy constraints using SN Ia data"
+        ],
+        [
+          7,
+          "bulk flow measurements from low‑z Type Ia supernovae"
+        ],
+        [
+          8,
+          "redshift‑dependent anisotropy in supernova cosmology"
+        ],
+        [
+          9,
+          "cosmic acceleration isotropy probes with SN Ia"
+        ],
+        [
+          10,
+          "supernova‑based dipole modulation of the distance‑redshift relation"
+        ],
+        [
+          11,
+          "peculiar velocity field reconstruction from Type Ia supernovae"
+        ],
+        [
+          12,
+          "Bayesian inference of isotropy in supernova cosmology"
+        ],
+        [
+          13,
+          "multi‑probe isotropy tests (SN Ia + BAO + CMB)"
+        ],
+        [
+          14,
+          "directional variation of dark‑energy equation of state using SN Ia"
+        ],
+        [
+          15,
+          "high‑redshift Type Ia supernova anisotropy analysis"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Testing the Isotropy of Cosmic Expansion with Type Ia Supernova Data physics": 0,
+        "anisotropy of cosmic expansion supernovae": 4
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "cosmic anisotropy Hubble flow",
+      "Pantheon SN Ia dataset",
+      "CMB dipole anisotropy",
+      "Hubble constant directional variation",
+      "Bianchi cosmology anisotropic expansion"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "astro-ph/0105413"
+      ]
+    },
+    "per_query_hit_count": {
+      "Bianchi cosmology anisotropic expansion": 3,
+      "CMB dipole anisotropy": 3,
+      "Hubble constant directional variation": 3,
+      "Pantheon SN Ia dataset": 3,
+      "Testing the Isotropy of Cosmic Expansion with Type Ia Supernova Data physics": 3,
+      "cosmic anisotropy Hubble flow": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 4,
+      "rejections": [
+        {
+          "primary_pointer": "1705.04233",
+          "rationale": "The paper studies high‑energy cosmic‑ray properties using radio observations, which is unrelated to testing the isotropy of cosmic expansion with Type Ia supernova data; it shares no relevant mechanism, variables, or empirical population with the user's question.",
+          "title": "Measurement of the properites of cosmic rays with the LOFAR radio telescope"
+        },
+        {
+          "primary_pointer": "2307.02434",
+          "rationale": "The paper focuses on the tension in the absolute magnitude and H₀ calibration of Type Ia supernovae, not on testing directional isotropy of cosmic expansion; it does not address the same mechanism, variable, or methodology relevant to isotropy studies. Hence it is off‑topic for the user's specific question.",
+          "title": "The tension in the absolute magnitude of Type Ia supernovae"
+        },
+        {
+          "primary_pointer": "astro-ph/0411022",
+          "rationale": "The paper studies anisotropy in ultra‑high‑energy cosmic ray arrival directions using cluster data, which is unrelated to testing the isotropy of cosmic expansion with Type Ia supernova observations; it does not address the same mechanism, variables, or domain.",
+          "title": "Are Clusters as Indicators of the Cosmic Ray Anisotropy ?"
+        },
+        {
+          "primary_pointer": "2504.00902",
+          "rationale": "The paper studies a ranking scheme for core‑collapse supernovae using aesthetic and infant‑based criteria, with no focus on Type Ia supernovae, cosmic expansion, or testing isotropy; it is unrelated to the user's domain and variables.",
+          "title": "A multi-modal infant-based metric for choosing the best supernova"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-21T01:23:39Z",
+    "term_input": {
+      "normalized": "testing the isotropy of cosmic expansion with type ia supernova data physics",
+      "raw": "Testing the Isotropy of Cosmic Expansion with Type Ia Supernova Data physics"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We review some recent developments in theoretical studies on the connection between the progenitor systems of Type Ia supernovae (SNe Ia) and the explosion mechanisms. (1) DD-subCh: In the merging of double C+O white dwarfs (DD scenario), if the carbon detonation is induced near the white dwarf (WD) surface in the early dynamical phase, it could result in the (effectively) sub-Chandrasekhar mass explosion. (2) DD-Ch: If no surface C-detonation is ignited, the WD could grow until the Chandrasekhar mass is reached, but the outcome depends on whether the quiescent carbon shell burning is ignited and burns C+O into O+Ne+Mg. (3) SD-subCh: In the single degenerate (SD) scenario, if the He shell-flashes grow strong to induce a He detonation, it leads to the sub-Chandra explosion. (4) SD-Ch: If the He-shell flashes are not strong enough, they still produce interesting amount of Si and S near the surface of C+O WD before the explosion. In the Chandra mass explosion, the central density is high enough to produce electron capture elements, e.g., stable Ni-58. Observations of the emission lines of Ni in the nebular spectra provides useful diagnostics of the sub-Chandra vs. Chandra issue. The recent observations of relatively low velocity carbon near the surface of SNe Ia provide also interesting constraint on the explosion models.",
+          "claimed_authors": [
+            "Ken'ichi Nomoto",
+            "Yasuomi Kamiya",
+            "Naohito Nakasato"
+          ],
+          "claimed_title": "Type Ia Supernova Models and Progenitor Scenarios",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1302.3371"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Testing the Isotropy of Cosmic Expansion with Type\\u202fIa Supernova Data physics', candidate_title='Type Ia Supernova Models and Progenitor Scenarios')",
+        "failed_at": "2026-06-21T01:24:16Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The clusters (doublets) in ultrahigh energy cosmic rays are considered based on Yakutsk and AGASA extensive air shower array data. The problem of cluster origin is discussed. It is found that arrival directions of the clusters can point to a cosmic ray anisotropy. As a result of analysis of clusters, the conclusion on composition and origin of ultrahigh energy cosmic rays has been made.",
+          "claimed_authors": [
+            "A. A. Mikhailov",
+            "N. N. Efremov"
+          ],
+          "claimed_title": "Are Clusters as Indicators of the Cosmic Ray Anisotropy ?",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2004,
+          "primary_pointer": "astro-ph/0411022"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Testing the Isotropy of Cosmic Expansion with Type\\u202fIa Supernova Data physics', candidate_title='Are Clusters as Indicators of the Cosmic Ray Anisotropy ?')",
+        "failed_at": "2026-06-21T01:24:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The two main advantages of space-based observation of extreme-energy ($\\gtrsim 10^{19}$~eV) cosmic-rays (EECRs) over ground-based observatories are the increased field of view, and the all-sky coverage with nearly uniform systematics of an orbiting observatory. The former guarantees increased statistics, whereas the latter enables a partitioning of the sky into spherical harmonics. We have begun an investigation, using the spherical harmonic technique, of the reach of \\J\\ into potential anisotropies in the extreme-energy cosmic-ray sky-map. The technique is explained here, and simulations are presented. The discovery of anisotropies would help to identify the long-sought origin of EECRs.",
+          "claimed_authors": [
+            "Peter B. Denton",
+            "Luis A. Anchordoqui",
+            "Andreas A. Berlind",
+            "Matthew Richardson",
+            "Thomas J. Weiler"
+          ],
+          "claimed_title": "Sensitivity of orbiting JEM-EUSO to large-scale cosmic-ray anisotropies",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1401.5757"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Testing the Isotropy of Cosmic Expansion with Type\\u202fIa Supernova Data physics', candidate_title='Sensitivity of orbiting JEM-EUSO to large-scale cosmic-ray anisotropies')",
+        "failed_at": "2026-06-21T01:24:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present the first homogeneous release of several thousand Type Ia supernovae (SNe Ia), all having spectroscopic classification, and spectroscopic redshifts for half the sample. This release, named the \"DR2\", contains 3628 nearby (z < 0.3) SNe Ia discovered, followed and classified by the Zwicky Transient Facility survey between March 2018 and December 2020. Of these, 3000 have good-to-excellent sampling and 2667 pass standard cosmology light-curve quality cuts. This release is thus the largest SN Ia release to date, increasing by an order of magnitude the number of well characterized low-redshift objects. With the \"DR2\", we also provide a volume-limited (z < 0.06) sample of nearly a thousand SNe Ia. With such a large, homogeneous and well controlled dataset, we are studying key current questions on SN cosmology, such as the linearity SNe Ia standardization, the SN and host dependencies, the diversity of the SN Ia population, and the accuracy of the current light-curve modeling. These, and more, are studied in detail in a series of articles associated with this release. Alongside the SN Ia parameters, we publish our force-photometry gri-band light curves, 5138 spectra, local and global host properties, observing logs, and a python tool to ease use and access of these data. The photometric accuracy of the \"DR2\" is not yet suited for cosmological parameter inference, which will follow as \"DR2.5\" release. We nonetheless demonstrate that the multi-thousand SN Ia Hubble Diagram has a typical 0.15 mag scatter.",
+          "claimed_authors": [
+            "Mickael Rigault",
+            "Mathew Smith",
+            "Ariel Goobar",
+            "Kate Maguire",
+            "Georgios Dimitriadis",
+            "Umut Burgaz",
+            "Suhail Dhawan",
+            "Jesper Sollerman",
+            "Nicolas Regnault",
+            "Marek Kowalski",
+            "Melissa Amenouche",
+            "Marie Aubert",
+            "Chloé Barjou-Delayre",
+            "Julian Bautista",
+            "Josh S. Bloom",
+            "Bastien Carreres",
+            "Tracy X. Chen",
+            "Yannick Copin",
+            "Maxime Deckers",
+            "Dominique Fouchez",
+            "Christoffer Fremling",
+            "Lluis Galbany",
+            "Madeleine Ginolin",
+            "Matthew Graham",
+            "Mancy M. Kasliwal",
+            "W. D'Arcy Kenworthy",
+            "Young-Lo Kim",
+            "Dylan Kuhn",
+            "Frank F. Masci",
+            "Tomas Müller-Bravo",
+            "Adam Miller",
+            "Joel Johansson",
+            "Jakob Nordin",
+            "Peter Nugent",
+            "Igor Andreoni",
+            "Eric Bellm",
+            "Marc Betoule",
+            "Mahmoud Osman",
+            "Dan Perley",
+            "Brodie Popovic",
+            "Philippe Rosnet",
+            "Damiano Rosselli",
+            "Florian Ruppin",
+            "Robert Senzel",
+            "Ben Rusholme",
+            "Tassilo Schweyer",
+            "Jacco H. Terwel",
+            "Alice Townsend",
+            "Andy Tzanidakis",
+            "Avery Wold",
+            "Josiah Purdum",
+            "Yu-Jing Qin",
+            "Benjamin Racine",
+            "Simeon Reusch",
+            "Reed Riddle",
+            "Lin Yan"
+          ],
+          "claimed_title": "ZTF SN Ia DR2: Overview",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2409.04346"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Testing the Isotropy of Cosmic Expansion with Type\\u202fIa Supernova Data physics', candidate_title='ZTF SN Ia DR2: Overview')",
+        "failed_at": "2026-06-21T01:24:32Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The second data release of Type Ia supernovae (SNe Ia) observed by the Zwicky Transient Facility has provided a homogeneous sample of 3628 SNe Ia with photometric and spectral information. This unprecedented sample size enables us to better explore our currently tentative understanding of the dependence of host environment on SN Ia properties. In this paper, we make use of two-dimensional image decomposition to model the host galaxies of SNe Ia. We model elliptical galaxies as well as disk/spiral galaxies with or without central bulges and bars. This allows for the categorisation of SN Ia based on their morphological host environment, as well as the extraction of intrinsic galaxy properties corrected for both cosmological and atmospheric effects. We find that although this image decomposition technique leads to a significant bias towards elliptical galaxies in our final sample of galaxies, the overall results are robust. By successfully modelling 728 host galaxies, we find that the photometric properties of SNe Ia found in disks and in elliptical galaxies, correlate fundamentally differently with their host environment. We identified strong linear relations between light-curve stretch and our model-derived galaxy colour for both the elliptical (16.8$σ$) and disk (5.1$σ$) subpopulations of SNe Ia. Lower stretch SNe Ia are found in redder environments, which we identify as an age/metallicity effect. Within the subpopulation of SNe Ia found in disk containing galaxies, we find a significant linear trend (6.1$σ$) between light-curve stretch and model-derived local $r$-band surface brightness, which we link to the age/metallicity gradients found in disk galaxies. SN Ia colour shows little correlation with host environment as seen in the literature. We identify a possible dust effect in our model-derived surface brightness (3.3$σ$), for SNe Ia in disk galaxies.",
+          "claimed_authors": [
+            "R. Senzel",
+            "K. Maguire",
+            "U. Burgaz",
+            "G. Dimitriadis",
+            "M. Rigault",
+            "A. Goobar",
+            "J. Johansson",
+            "M. Smith",
+            "M. Deckers",
+            "L. Galbany",
+            "M. Ginolin",
+            "L. Harvey",
+            "Y. -L. Kim",
+            "T. E. Muller-Bravo",
+            "P. Nugent",
+            "P. Rosnet",
+            "J. Sollerman",
+            "J. H. Terwel",
+            "R. R. Laher",
+            "D. Reiley",
+            "B. Rusholme"
+          ],
+          "claimed_title": "ZTF SN Ia DR2: An environmental study of Type Ia supernovae using host galaxy image decomposition",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2411.11986"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Testing the Isotropy of Cosmic Expansion with Type\\u202fIa Supernova Data physics', candidate_title='ZTF SN Ia DR2: An environmental study of Type Ia supernovae using host galaxy image decomposition')",
+        "failed_at": "2026-06-21T01:24:32Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The RSNA Abdominal Traumatic Injury CT (RATIC) dataset is the largest publicly available collection of adult abdominal CT studies annotated for traumatic injuries. This dataset includes 4,274 studies from 23 institutions across 14 countries. The dataset is freely available for non-commercial use via Kaggle at https://www.kaggle.com/competitions/rsna-2023-abdominal-trauma-detection. Created for the RSNA 2023 Abdominal Trauma Detection competition, the dataset encourages the development of advanced machine learning models for detecting abdominal injuries on CT scans. The dataset encompasses detection and classification of traumatic injuries across multiple organs, including the liver, spleen, kidneys, bowel, and mesentery. Annotations were created by expert radiologists from the American Society of Emergency Radiology (ASER) and Society of Abdominal Radiology (SAR). The dataset is annotated at multiple levels, including the presence of injuries in three solid organs with injury grading, image-level annotations for active extravasations and bowel injury, and voxelwise segmentations of each of the potentially injured organs. With the release of this dataset, we hope to facilitate research and development in machine learning and abdominal trauma that can lead to improved patient care and outcomes.",
+          "claimed_authors": [
+            "Jeffrey D. Rudie",
+            "Hui-Ming Lin",
+            "Robyn L. Ball",
+            "Sabeena Jalal",
+            "Luciano M. Prevedello",
+            "Savvas Nicolaou",
+            "Brett S. Marinelli",
+            "Adam E. Flanders",
+            "Kirti Magudia",
+            "George Shih",
+            "Melissa A. Davis",
+            "John Mongan",
+            "Peter D. Chang",
+            "Ferco H. Berger",
+            "Sebastiaan Hermans",
+            "Meng Law",
+            "Tyler Richards",
+            "Jan-Peter Grunz",
+            "Andreas Steven Kunz",
+            "Shobhit Mathur",
+            "Sandro Galea-Soler",
+            "Andrew D. Chung",
+            "Saif Afat",
+            "Chin-Chi Kuo",
+            "Layal Aweidah",
+            "Ana Villanueva Campos",
+            "Arjuna Somasundaram",
+            "Felipe Antonio Sanchez Tijmes",
+            "Attaporn Jantarangkoon",
+            "Leonardo Kayat Bittencourt",
+            "Michael Brassil",
+            "Ayoub El Hajjami",
+            "Hakan Dogan",
+            "Muris Becircic",
+            "Agrahara G. Bharatkumar",
+            "Eduardo Moreno Júdice de Mattos Farina",
+            "Dataset Curator Group",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Errol Colak"
+          ],
+          "claimed_title": "The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.19595"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Testing the Isotropy of Cosmic Expansion with Type\\u202fIa Supernova Data physics', candidate_title='The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset')",
+        "failed_at": "2026-06-21T01:24:32Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "On the assumption that quasars (QSO) and gamma-ray bursts (GRB) represent \\textit{standardisable candles}, we provide evidence that the Hubble constant $H_0$ adopts larger values in hemispheres aligned with the CMB dipole direction. If substantiated, this trend signals a departure from FLRW cosmology. In particular, QSOs show a definite trend, whereas our findings in GRBs are consistent with an isotropic Universe, but we show in a sample of GRBs calibrated with Type Ia supernovae (SN) that this conclusion may change as one focuses on GRBs more closely (mis)aligned with the CMB dipole direction. The statistical significance in QSOs alone is $\\gtrsim 2 σ$ and when combined with similar trends in strong lensing, Type Ia SN and calibrated GRBs, this increases to $\\sim 3 σ$. Our findings are consistent with reported discrepancies in the cosmic dipole and anisotropies in galaxy cluster scaling relations. The reported variations in $H_0$ across the sky suggest that Hubble tension may be a symptom of a deeper cosmological malaise.",
+          "claimed_authors": [
+            "Orlando Luongo",
+            "Marco Muccino",
+            "Eoin Ó Colgáin",
+            "M. M. Sheikh-Jabbari",
+            "Lu Yin"
+          ],
+          "claimed_title": "On Larger $H_0$ Values in the CMB Dipole Direction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2108.13228"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Testing the Isotropy of Cosmic Expansion with Type\\u202fIa Supernova Data physics', candidate_title='On Larger $H_0$ Values in the CMB Dipole Direction')",
+        "failed_at": "2026-06-21T01:24:32Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Bianchi VII_h models have been recently proposed to explain potential anomalies in the CMB anisotropy as observed by WMAP. We investigate the violation of statistical isotropy due to an embedded Bianchi VII_h templates in the CMB anisotropy maps to determine whether the existence of a hidden Bianchi template in the WMAP data is consistent with the previous null detection of the bipolar power spectrum in the WMAP first year maps. We argue that although correcting the WMAP maps for the Bianchi template may explain some features in the WMAP data it may cause other anomalies such as preferred directions leading to detectable levels of violation of statistical isotropy in the Bianchi corrected maps. We compute the bipolar power spectrum for the low density Bianchi VII_h models embedded in the background CMB anisotropy maps with the power spectrum that have been shown in recent literature to best fit the first year WMAP data. By examining statistical isotropy of these maps, we put a limit of {σ/H}_0 < 2.77E-10 (99% CL) on the shear parameter in Bianchi VII_h models.",
+          "claimed_authors": [
+            "Tuhin Ghosh",
+            "Amir Hajian",
+            "Tarun Souradeep"
+          ],
+          "claimed_title": "Unveiling Hidden Patterns in CMB Anisotropy Maps",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2006,
+          "primary_pointer": "astro-ph/0604279"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Testing the Isotropy of Cosmic Expansion with Type\\u202fIa Supernova Data physics', candidate_title='Unveiling Hidden Patterns in CMB Anisotropy Maps')",
+        "failed_at": "2026-06-21T01:24:32Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The largest anisotropy in the cosmic microwave background (CMB) is the $\\approx 3$ mK dipole assumed to be due to our velocity with respect to the CMB. Over the past ten years the precision of our knowledge of the dipole has increased by a factor of ten. We discuss the most recent measurement of this dipole obtained from the four year COBE Differential Microwave Radiometers (DMR) as reported by Lineweaver \\etal (1996). The inferred velocity of the Local Group is $v_{LG}= 627 \\pm 22$ km/s in the direction $\\ell = 276°\\pm 3$, $b= 30°\\pm 2$. We compare this most recent measurement to a compilation of more than 30 years of dipole observations.",
+          "claimed_authors": [
+            "Charles H. Lineweaver"
+          ],
+          "claimed_title": "The CMB Dipole: The Most Recent Measurement And Some History",
+          "claimed_venue": "arXiv",
+          "claimed_year": 1996,
+          "primary_pointer": "astro-ph/9609034"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Testing the Isotropy of Cosmic Expansion with Type\\u202fIa Supernova Data physics', candidate_title='The CMB Dipole: The Most Recent Measurement And Some History')",
+        "failed_at": "2026-06-21T01:24:32Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Hubble constant $H_0$ is the value of the cosmic expansion rate at one time (the present), and cannot be adjusted successfully without taking into account the entire expansion history and cosmology. We outline some conditions, that if not quite ``no go'' are ``no thanks'', showing that changing the expansion history, e.g. employing dynamical dark energy, cannot reconcile disparate deductions of $H_0$ without upsetting some other cosmological measurement.",
+          "claimed_authors": [
+            "Eric V. Linder"
+          ],
+          "claimed_title": "A Whole Cosmology View of the Hubble Constant",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2301.09695"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Testing the Isotropy of Cosmic Expansion with Type\\u202fIa Supernova Data physics', candidate_title='A Whole Cosmology View of the Hubble Constant')",
+        "failed_at": "2026-06-21T01:24:32Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Dark radiation, parameterized in terms of $N_{\\rm eff}$, has been considered many times in the literature as a possible remedy in alleviating the Hubble constant ($H_0$) tension. We review here the effect of such an extra dark radiation component in the different cosmological observables, focusing mostly on $H_0$. While a larger value of $N_{\\rm eff}$ automatically implies a larger value of the Hubble constant, and one would naively expect that such a simple scenario provides a decent solution, more elaborated models are required. Light sterile neutrinos or neutrino asymmetries are among the first-order corrections to the most economical (tree-level) massless dark radiation scenario. However, they are not fully satisfactory in solving the $H_0$ issue. We devote here special attention to second-order corrections: some interacting scenarios, such as those with new dark radiation degrees of freedom that exhibit a non-free streaming nature are highly satisfactory alternative cosmologies where to solve the Hubble constant tension. Models with self-interacting sterile neutrinos and/or majorons, both well-motivated beyond the Standard Model particles, will be discussed along our assessment.",
+          "claimed_authors": [
+            "Stefano Gariazzo",
+            "Olga Mena"
+          ],
+          "claimed_title": "On the dark radiation role in the Hubble constant tension",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.15067"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Testing the Isotropy of Cosmic Expansion with Type\\u202fIa Supernova Data physics', candidate_title='On the dark radiation role in the Hubble constant tension')",
+        "failed_at": "2026-06-21T01:24:33Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We find a Friedmann model with appropriate matter/energy density such that the solution of the Wheeler-DeWitt equation exactly corresponds to the classical evolution. The well-known problems in quantum cosmology disappear in the resulting coasting evolution. The exact quantum-classical correspondence is demonstrated with the help of the de Broglie-Bohm and modified de Broglie-Bohm approaches to quantum mechanics. It is reassuring that such a solution leads to a robust model for the universe, which agrees well with cosmological expansion indicated by SNe Ia data.",
+          "claimed_authors": [
+            "Moncy V. John"
+          ],
+          "claimed_title": "Exact Classical Correspondence in Quantum Cosmology",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1405.7957"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Testing the Isotropy of Cosmic Expansion with Type\\u202fIa Supernova Data physics', candidate_title='Exact Classical Correspondence in Quantum Cosmology')",
+        "failed_at": "2026-06-21T01:24:33Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this article we review recent developments of cyclic cosmology. A typical non-singular cyclic model within General Relativity requires a non-conventional fluid with negative effective energy density, in order to cancel the matter component and lead to a non-singular bounce. However, the existence of such a non-conventional fluid usually leads to quantum instabilities and makes the theory ill-defined. In the present work we follow the alternative way, obtaining two scenarios of non-singular cyclic cosmological evolutions in the context of gravitational theories beyond General Relativity. The degrees-of-freedom examination reveals that these two models are free of the Phantom Menace. Our analysis illustrates that, if cyclic cosmology describes overall universe, a theory of gravity beyond Einstein may be expected.",
+          "claimed_authors": [
+            "Yi-Fu Cai",
+            "Emmanuel N. Saridakis"
+          ],
+          "claimed_title": "Non-singular Cyclic Cosmology without Phantom Menace",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1108.6052"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Testing the Isotropy of Cosmic Expansion with Type\\u202fIa Supernova Data physics', candidate_title='Non-singular Cyclic Cosmology without Phantom Menace')",
+        "failed_at": "2026-06-21T01:24:33Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We investigate diagonal Bianchi-I spacetimes in the presence of viscous fluids by using the shear and the anisotropic pressure components as the basic variables, where the viscosity is driven by the (second-order) causal thermodynamics. A few exact solutions are presented, among which we mention the anisotropic versions of de Sitter/anti-de Sitter geometries as well as an asymptotically isotropic spacetime presenting an effective constant cosmic acceleration without any cosmological constant. The qualitative analysis of the solutions for barotropic fluids with linear equations of state suggests that the behaviour is quite general.",
+          "claimed_authors": [
+            "Eduardo Bittencourt",
+            "Leandro G. Gomes",
+            "Renato Klippert"
+          ],
+          "claimed_title": "Bianchi-I cosmology from causal thermodynamics",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1610.00020"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Testing the Isotropy of Cosmic Expansion with Type\\u202fIa Supernova Data physics', candidate_title='Bianchi-I cosmology from causal thermodynamics')",
+        "failed_at": "2026-06-21T01:24:33Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Saurabh Jha",
+            "the High-Z Supernova Search Team"
+          ],
+          "title": "Testing Cosmic Acceleration with Type Ia Supernovae",
+          "venue": "arXiv",
+          "year": 2001
+        },
+        "primary_pointer": "astro-ph/0101521",
+        "summary": "We discuss recent evidence for an accelerating Universe from measurements of type Ia supernovae at high redshift, and describe tests of various systematic effects such as extinction and evolution that could be biasing the cosmological result. Continued observations of these objects, both over a wider wavelength region and at higher redshift, should provide strong evidence in favor or against the accelerating Universe hypothesis.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/astro-ph/0101521",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-21T01:24:16Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "John L. Tonry",
+            "The High-Z Supernova Search Team"
+          ],
+          "title": "Type Ia Supernovae, the Hubble Constant, the Cosmological Constant, and the Age of the Universe",
+          "venue": "arXiv",
+          "year": 2001
+        },
+        "primary_pointer": "astro-ph/0105413",
+        "summary": "The age of the Universe depends on both the present-day Hubble Constant and on the history of cosmic expansion. For decelerating cosmologies such as Omega_m= 1, the dimensionless product H_0,t_0<1 and modestly high values of the Hubble constant H_0 > 70 would be inconsistent with a cosmic age t_0 larger than 12 Gyr. But if Omega_Lambda > 0, then H_0,t_0 can take on a range of values. Evidence from the Hubble diagram for high redshift Type Ia supernovae favors Omega_Lambda~0.7 and H_0,t_0 ~ 1. Then, if H_0 lies in the range 65--73, the age of the Universe, t_0, is 14+/-1.6 Gyr.",
+        "summary_grounded_pdf": null,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/astro-ph/0105413",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-21T01:24:16Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "testing the isotropy of cosmic expansion with type ia supernova data physics",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

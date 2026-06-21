@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "astro-ph/0101521",
+  "judged_at": "2026-06-21T01:24:59Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "testing the isotropy of cosmic expansion with type ia supernova data physics",
+  "rationale": "The paper measures a key dependent variable—cosmic expansion/acceleration—using Type Ia supernova data, which matches one of the user’s variables on the same domain (category (b)). It therefore serves as a relevant baseline study for any investigation of anisotropy in the expansion.",
+  "relevant": true
+}

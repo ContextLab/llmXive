@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2510.26551",
+  "judged_at": "2026-06-21T01:27:35Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "guava: an effective and universal harness for embodied manipulation computer science",
+  "rationale": "The paper presents a framework for tool‑based embodied manipulation in robotics, expanding inverse‑kinematics capabilities to handle variable‑length tools—directly addressing the same mechanism (embodied manipulation) that the user’s “Guava” harness aims to support (acceptance category a).",
+  "relevant": true
+}

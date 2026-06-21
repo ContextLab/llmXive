@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "gr-qc/0411095",
+  "judged_at": "2026-06-21T01:26:10Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "testing the equivalence principle with satellite laser ranging physics",
+  "rationale": "The paper conducts sensitive tests of the Equivalence Principle using Lunar Laser Ranging, which shares the same physical mechanism (laser ranging measurements of EP violations) as Satellite Laser Ranging, satisfying acceptance criterion (a) – same‑mechanism evidence.",
+  "relevant": true
+}

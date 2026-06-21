@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1705.04233",
+  "judged_at": "2026-06-21T01:25:05Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "testing the isotropy of cosmic expansion with type ia supernova data physics",
+  "rationale": "The paper studies high‑energy cosmic‑ray properties using radio observations, which is unrelated to testing the isotropy of cosmic expansion with Type Ia supernova data; it shares no relevant mechanism, variables, or empirical population with the user's question.",
+  "relevant": false
+}
