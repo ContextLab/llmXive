@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-06T08:55:13.787130Z'
-current_stage: flesh_out_complete
+current_stage: flesh_out_in_progress
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-671-code2lora-hypernetwork-generated-adapter
-last_run_id: 058a85e5-3baf-408c-ae02-7e4b8a29732f
+last_run_id: ee35c362-b19e-4d7b-bfe6-4727b0c92c7c
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: null
 title: 'Code2LoRA: Hypernetwork-Generated Adapters for Code Language Models under
   Software Evolution'
-updated_at: '2026-06-21T13:01:33.787311Z'
+updated_at: '2026-06-21T13:23:32.603486Z'

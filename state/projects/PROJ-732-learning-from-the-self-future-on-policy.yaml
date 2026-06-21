@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-18T11:25:24.544246Z'
-current_stage: flesh_out_complete
+current_stage: validated
 failed_stage: null
 field: linguistics
 human_escalation_reason: null
 id: PROJ-732-learning-from-the-self-future-on-policy
-last_run_id: 6c74c80b-8f48-48e3-b0ec-39616e380b67
+last_run_id: ca030586-2903-4172-9c13-12a8ece0506e
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'Learning from the Self-future: On-policy Self-distillation for dLLMs'
-updated_at: '2026-06-21T13:02:50.147186Z'
+updated_at: '2026-06-21T13:23:25.850591Z'
