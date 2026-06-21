@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "0910.4576",
+  "judged_at": "2026-06-21T09:55:15Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the impact of repeated exposure to neutral faces on implicit bias psychology",
+  "rationale": "The paper studies photoabsorption in sodium metal clusters, a topic in condensed‑matter physics, and has no connection to repeated exposure to neutral faces, implicit bias, or any psychological constructs. It is off‑domain and unrelated to the user's research question.",
+  "relevant": false
+}

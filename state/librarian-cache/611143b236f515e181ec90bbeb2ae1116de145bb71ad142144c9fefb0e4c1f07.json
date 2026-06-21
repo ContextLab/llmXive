@@ -1,0 +1,566 @@
+{
+  "fetched_at": "2026-06-21T09:55:18Z",
+  "field": "psychology",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "psychology",
+      "idea_body_excerpt": "The Impact of Repeated Exposure to Neutral Faces on Implicit Bias",
+      "target_n": 5
+    },
+    "duration_seconds": 78.22,
+    "ended_at": "2026-06-21T09:55:18Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "implicit bias modulation through repeated neutral face exposure"
+        ],
+        [
+          2,
+          "habituation to neutral facial stimuli and unconscious prejudice"
+        ],
+        [
+          3,
+          "repeated presentation of neutral faces and automatic bias"
+        ],
+        [
+          4,
+          "neutral face priming effects on implicit attitudes"
+        ],
+        [
+          5,
+          "face familiarity and implicit stereotyping"
+        ],
+        [
+          6,
+          "repeated neutral facial image exposure and implicit prejudice"
+        ],
+        [
+          7,
+          "exposure frequency of neutral faces and bias strength"
+        ],
+        [
+          8,
+          "visual exposure to neutral faces and implicit social cognition"
+        ],
+        [
+          9,
+          "neutral facial stimulus repetition and bias attenuation"
+        ],
+        [
+          10,
+          "repeated neutral face viewing and implicit racial bias"
+        ],
+        [
+          11,
+          "face exposure training for reduction of unconscious bias"
+        ],
+        [
+          12,
+          "implicit association changes after neutral face exposure"
+        ],
+        [
+          13,
+          "repeated facial exposure and automatic prejudice"
+        ],
+        [
+          14,
+          "visual habituation to faces and implicit attitude shift"
+        ],
+        [
+          15,
+          "repeated presentation of non‑emotional faces and implicit bias"
+        ],
+        [
+          16,
+          "neutral face exposure paradigm and implicit bias measurement"
+        ],
+        [
+          17,
+          "repeated neutral face exposure and implicit evaluation shifts"
+        ],
+        [
+          18,
+          "face exposure frequency effects on implicit bias"
+        ],
+        [
+          19,
+          "habituation to neutral faces and implicit stereotype activation"
+        ],
+        [
+          20,
+          "repeated neutral facial stimulus viewing and unconscious bias mitigation"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "The Impact of Repeated Exposure to Neutral Faces on Implicit Bias psychology": 0,
+        "exposure frequency of neutral faces and bias strength": 2,
+        "face familiarity and implicit stereotyping": 1,
+        "habituation to neutral facial stimuli and unconscious prejudice": 1,
+        "implicit bias modulation through repeated neutral face exposure": 0,
+        "neutral face priming effects on implicit attitudes": 0,
+        "repeated neutral facial image exposure and implicit prejudice": 0,
+        "repeated presentation of neutral faces and automatic bias": 2
+      },
+      "total_queries_issued": 7
+    },
+    "extracted_queries": [
+      "habituation neutral faces implicit attitudes",
+      "KDEF neutral faces implicit bias",
+      "IAT face exposure bias",
+      "IAT score change exposure",
+      "mere exposure effect implicit bias"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2301.12812"
+      ]
+    },
+    "per_query_hit_count": {
+      "IAT face exposure bias": 1,
+      "IAT score change exposure": 3,
+      "KDEF neutral faces implicit bias": 0,
+      "The Impact of Repeated Exposure to Neutral Faces on Implicit Bias psychology": 3,
+      "habituation neutral faces implicit attitudes": 3,
+      "mere exposure effect implicit bias": 1
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": true,
+      "rejected_count": 6,
+      "rejections": [
+        {
+          "primary_pointer": "2301.12812",
+          "rationale": "The paper studies neural habituation to repeated looming stimuli in zebrafish and does not address repeated exposure to neutral human faces, implicit bias, or related psychological outcomes; it falls outside the domain and constructs of the user's question.",
+          "title": "Optimal information gain at the onset of habituation to repeated stimuli"
+        },
+        {
+          "primary_pointer": "2305.02321",
+          "rationale": "The candidate paper studies political bias in NLP summarization systems, which is unrelated to the psychological mechanisms of repeated exposure to neutral faces or implicit bias; it shares no variables, constructs, or domain with the user's question.",
+          "title": "Entity-Based Evaluation of Political Bias in Automatic Summarization"
+        },
+        {
+          "primary_pointer": "1905.11684",
+          "rationale": "The paper studies algorithmic gender bias in machine translation, which is unrelated to the psychological effect of repeated exposure to neutral faces on implicit bias; it does not share the same mechanism, variables, or domain required for inclusion.",
+          "title": "On Measuring Gender Bias in Translation of Gender-neutral Pronouns"
+        },
+        {
+          "primary_pointer": "2208.00352",
+          "rationale": "The paper investigates neural markers of face familiarity using MEG, without examining repeated exposure to neutral faces or measuring implicit bias, so it does not address any of the variables or mechanisms central to the user's question.",
+          "title": "Neural Correlates of Face Familiarity Perception"
+        },
+        {
+          "primary_pointer": "0910.4576",
+          "rationale": "The paper studies photoabsorption in sodium metal clusters, a topic in condensed‑matter physics, and has no connection to repeated exposure to neutral faces, implicit bias, or any psychological constructs. It is off‑domain and unrelated to the user's research question.",
+          "title": "Fragmentation of the photoabsorption strength in neutral and charged metal microclusters"
+        },
+        {
+          "primary_pointer": "1604.05076",
+          "rationale": "The paper studies noise and bias in frequency counters, a topic in metrology and signal processing, which bears no connection to repeated exposure to neutral faces, implicit bias, or psychological mechanisms. It is off‑domain and does not address any of the variables or constructs of the user's question.",
+          "title": "On temporal correlations in high-resolution frequency counting"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-21T09:54:00Z",
+    "term_input": {
+      "normalized": "the impact of repeated exposure to neutral faces on implicit bias psychology",
+      "raw": "The Impact of Repeated Exposure to Neutral Faces on Implicit Bias psychology"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study the implicit bias of generic optimization methods, such as mirror descent, natural gradient descent, and steepest descent with respect to different potentials and norms, when optimizing underdetermined linear regression or separable linear classification problems. We explore the question of whether the specific global minimum (among the many possible global minima) reached by an algorithm can be characterized in terms of the potential or norm of the optimization geometry, and independently of hyperparameter choices such as step-size and momentum.",
+          "claimed_authors": [
+            "Suriya Gunasekar",
+            "Jason Lee",
+            "Daniel Soudry",
+            "Nathan Srebro"
+          ],
+          "claimed_title": "Characterizing Implicit Bias in Terms of Optimization Geometry",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1802.08246"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='The Impact of Repeated Exposure to Neutral Faces on Implicit Bias psychology', candidate_title='Characterizing Implicit Bias in Terms of Optimization Geometry')",
+        "failed_at": "2026-06-21T09:54:29Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Bias in web search has been in the spotlight of bias detection research for quite a while. At the same time, little attention has been paid to query suggestions in this regard. Awareness of the problem of biased query suggestions has been raised. Likewise, there is a rising need for automatic bias detection approaches. This paper adds on the bias detection pipeline for bias detection in query suggestions of person-related search developed by Bonart et al. \\cite{Bonart_2019a}. The sparseness and lack of contextual metadata of query suggestions make them a difficult subject for bias detection. Furthermore, query suggestions are perceived very briefly and subliminally. To overcome these issues, perception-aware metrics are introduced. Consequently, the enhanced pipeline is able to better detect systematic topical bias in search engine query suggestions for person-related searches. The results of an analysis performed with the developed pipeline confirm this assumption. Due to the perception-aware bias detection metrics, findings produced by the pipeline can be assumed to reflect bias that users would discern.",
+          "claimed_authors": [
+            "Fabian Haak",
+            "Philipp Schaer"
+          ],
+          "claimed_title": "Perception-Aware Bias Detection for Query Suggestions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2601.03730"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='The Impact of Repeated Exposure to Neutral Faces on Implicit Bias psychology', candidate_title='Perception-Aware Bias Detection for Query Suggestions')",
+        "failed_at": "2026-06-21T09:54:29Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Synthetically generated images can be used to create media content or to complement datasets for training image analysis models. Several methods have recently been proposed for the synthesis of high-fidelity face images; however, the potential biases introduced by such methods have not been sufficiently addressed. This paper examines the bias introduced by the widely popular StyleGAN2 generative model trained on the Flickr Faces HQ dataset and proposes two sampling strategies to balance the representation of selected attributes in the generated face images. We focus on two protected attributes, gender and age, and reveal that biases arise in the distribution of randomly sampled images against very young and very old age groups, as well as against female faces. These biases are also assessed for different image quality levels based on the GIQA score. To mitigate bias, we propose two alternative methods for sampling on selected lines or spheres of the latent space to increase the number of generated samples from the under-represented classes. The experimental results show a decrease in bias against underrepresented groups and a more uniform distribution of the protected features at different levels of image quality.",
+          "claimed_authors": [
+            "Emmanouil Maragkoudakis",
+            "Symeon Papadopoulos",
+            "Iraklis Varlamis",
+            "Christos Diou"
+          ],
+          "claimed_title": "Sampling Strategies for Mitigating Bias in Face Synthesis Methods",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.11320"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='The Impact of Repeated Exposure to Neutral Faces on Implicit Bias psychology', candidate_title='Sampling Strategies for Mitigating Bias in Face Synthesis Methods')",
+        "failed_at": "2026-06-21T09:54:29Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Student attitudes and approaches to problem solving can impact how well they learn physics. Prior research in the US using a validated Attitude and Approaches to Problem Solving (AAPS) survey suggests that there are major differences between students in introductory physics and astronomy courses and physics experts in terms of their attitudes and approaches to physics problem solving. Here we discuss the validation, administration and analysis of data for the Turkish version of the AAPS survey for high school and university students in Turkey. After the validation and administration of the Turkish version of the survey, the analysis of the data was conducted by grouping the data by grade level, school type, and gender. While there are no statistically significant differences between the averages of various groups on the survey, overall, the university students in Turkey were more expert-like than vocational high school students. On an item by item basis, there are statistically differences between the averages of the groups on many items. For example, on average, the university students demonstrated less expert-like attitudes about the role of equations and formulas in problem solving, in solving difficult problems, and in knowing when the solution is not correct, whereas they displayed more expert-like attitudes and approaches on items related to meta-cognition in physics problem solving. A principal component analysis on the data yields item clusters into which the student responses on various survey items can be grouped. A comparison of the responses of the Turkish and American university students enrolled in algebra-based introductory physics courses shows that on more than half of the items, the responses of these two groups were statistically significantly different with the US students on average responding to the items in more expert-like manner.",
+          "claimed_authors": [
+            "Nuri Balta",
+            "Andrew Mason",
+            "Chandralekha Singh"
+          ],
+          "claimed_title": "Surveying Turkish high school and university student attitudes and approaches to physics problem solving",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1604.02620"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Repeated Exposure to Neutral Faces on Implicit Bias psychology', candidate_title='Surveying Turkish high school and university student attitudes and approaches to physics problem solving')",
+        "failed_at": "2026-06-21T09:54:29Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Understanding instructor attitudes and approaches to teaching quantum mechanics can be helpful in developing research-based learning tools. Here we discuss the findings from a survey in which 13 instructors reflected on issues related to quantum mechanics teaching. Topics included opinions about the goals of a quantum mechanics course, general challenges in teaching the subject, student preparation for the course, comparison between their own learning of quantum mechanics vs. how they teach it and the extent to which contemporary topics are incorporated into the syllabus.",
+          "claimed_authors": [
+            "Shabnam Siddiqui",
+            "Chandralekha Singh"
+          ],
+          "claimed_title": "Surveying Instructors' Attitudes and Approaches to Teaching Quantum Mechanics",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1603.06025"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Repeated Exposure to Neutral Faces on Implicit Bias psychology', candidate_title=\"Surveying Instructors' Attitudes and Approaches to Teaching Quantum Mechanics\")",
+        "failed_at": "2026-06-21T09:54:29Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The rapid expansion of high-speed internet has led to the emergence of new digital jobs, such as digital influencers, fitness models, and adult models who share content on subscription-based social media platforms. Across two experiments involving 1,002 participants, we combined theories from social psychology and information systems to investigate how digital jobs are perceived compared to matched established jobs, and predictors of attitudes toward those jobs (e.g., symbolic threat, contact, perceived usefulness). We found that individuals in digital professions were perceived as less favorably and less hard-working than those in matched established jobs. Digital jobs were also regarded as more threatening to societal values and less useful. The relation between job type and attitudes toward these jobs was partially mediated by contact with people working in these jobs, perceived usefulness, perception of hard work, and symbolic threat. These effects were consistent across both experiments, and various moderators: openness to new experiences, attitudes toward digitalization, political orientation, and age. Among the nine jobs examined, lecturers were perceived as most positive, while adult models were viewed as least positive. Overall, our findings demonstrate that integrating theories from social psychology and information systems can enhance our understanding of how attitudes are formed.",
+          "claimed_authors": [
+            "Paul H. P. Hanel",
+            "Gabriel Lins de Holanda Coelho",
+            "Jennifer Haase"
+          ],
+          "claimed_title": "From Influencers to Lecturers: Understanding Public Attitudes Toward Digital vs. Traditional Jobs",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2309.12885"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='The Impact of Repeated Exposure to Neutral Faces on Implicit Bias psychology', candidate_title='From Influencers to Lecturers: Understanding Public Attitudes Toward Digital vs. Traditional Jobs')",
+        "failed_at": "2026-06-21T09:54:29Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Implicit Association Test, IAT, is widely used to measure hidden (subconscious) human biases, implicit bias, of many topics: race, gender, age, ethnicity, religion stereotypes. There is a need to understand the reliability of these measures as they are being used in many decisions in society today. A case study was undertaken to independently test the reliability of (ability to reproduce) racial bias research claims of Black White relations based on IAT (implicit bias) and explicit bias measurements using statistical p value plots. These claims were for IAT, real world behavior correlations and explicit bias, real world behavior correlations of Black White relations.\n  The p value plots were constructed using data sets from published literature and the plots exhibited considerable randomness for all correlations examined. This randomness supports a lack of correlation between IAT, implicit bias, and explicit bias measurements with real world behaviors of Whites towards Blacks. These findings were for microbehaviors (measures of nonverbal and subtle verbal behavior) and person perception judgments (explicit judgments about others). Findings of the p value plots were consistent with the case study research claim that the IAT provides little insight into who will discriminate against whom. It was also observed that the amount of real world variance explained by the IAT and explicit bias measurements was small, less than 5 percent. Others have noted that the poor performance of both the IAT and explicit bias measurements are mostly consistent with a (flawed instruments explanation) problems in theories that motivated development and use of these instruments.",
+          "claimed_authors": [
+            "S. Stanley Young",
+            "Warren B. Kindzierski"
+          ],
+          "claimed_title": "Reproducibility of Implicit Association Test (IAT) -- Case study of meta-analysis of racial bias research claims",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2312.14984"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='The Impact of Repeated Exposure to Neutral Faces on Implicit Bias psychology', candidate_title='Reproducibility of Implicit Association Test (IAT) -- Case study of meta-analysis of racial bias research claims')",
+        "failed_at": "2026-06-21T09:54:29Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We consider here the identification of change-points on large-scale data streams. The objective is to find the most efficient way of combining information across data stream so that detection is possible under the smallest detectable change magnitude. The challenge comes from the sparsity of change-points when only a small fraction of data streams undergo change at any point in time. The most successful approach to the sparsity issue so far has been the application of hard thresholding such that only local scores from data streams exhibiting significant changes are considered and added. However the identification of an optimal threshold is a difficult one. In particular it is unlikely that the same threshold is optimal for different levels of sparsity. We propose here a sparse likelihood score for identifying a sparse signal. The score is a likelihood ratio for testing between the null hypothesis of no change against an alternative hypothesis in which the change-points or signals are barely detectable. By the Neyman-Pearson Lemma this score has maximum detection power at the given alternative. The outcome is that we have a scoring of data streams that is successful in detecting at the boundary of the detectable region of signals and change-points. The likelihood score can be seen as a soft thresholding approach to sparse signal and change-point detection in which local scores that indicate small changes are down-weighted much more than local scores indicating large changes. We are able to show second-order optimality of the sparsity likelihood score in the sense of achieving successful detection at the minimum detectable order of change magnitude as well as at the minimum detection asymptotic constant with respect this order of change.",
+          "claimed_authors": [
+            "Shouri Hu",
+            "Jingyan Huang",
+            "Hao Chen",
+            "Hock Peng Chan"
+          ],
+          "claimed_title": "Likelihood Scores for Sparse Signal and Change-Point Detection",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2105.07137"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Repeated Exposure to Neutral Faces on Implicit Bias psychology', candidate_title='Likelihood Scores for Sparse Signal and Change-Point Detection')",
+        "failed_at": "2026-06-21T09:54:29Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The response of precipitation extremes to climate change is considered using results from theory, modeling, and observations, with a focus on the physical factors that control the response. Observations and simulations with climate models show that precipitation extremes intensify in response to a warming climate. However, the sensitivity of precipitation extremes to warming remains uncertain when convection is important, and it may be higher in the tropics than the extratropics. Several physical contributions govern the response of precipitation extremes. The thermodynamic contribution is robust and well understood, but theoretical understanding of the microphysical and dynamical contributions is still being developed. Orographic precipitation extremes and snowfall extremes respond differently from other precipitation extremes and require particular attention. Outstanding research challenges include the influence of mesoscale convective organization, the dependence on the duration considered, and the need to better constrain the sensitivity of tropical precipitation extremes to warming.",
+          "claimed_authors": [
+            "Paul A. O'Gorman"
+          ],
+          "claimed_title": "Precipitation extremes under climate change",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2015,
+          "primary_pointer": "1503.07557"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Repeated Exposure to Neutral Faces on Implicit Bias psychology', candidate_title='Precipitation extremes under climate change')",
+        "failed_at": "2026-06-21T09:54:29Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Exposure Correction (EC) aims to recover proper exposure conditions for images captured under over-exposure or under-exposure scenarios. While existing deep learning models have shown promising results, few have fully embedded Retinex theory into their architecture, highlighting a gap in current methodologies. Additionally, the balance between high performance and efficiency remains an under-explored problem for exposure correction task. Inspired by Mamba which demonstrates powerful and highly efficient sequence modeling, we introduce a novel framework based on Mamba for Exposure Correction (ECMamba) with dual pathways, each dedicated to the restoration of reflectance and illumination map, respectively. Specifically, we firstly derive the Retinex theory and we train a Retinex estimator capable of mapping inputs into two intermediary spaces, each approximating the target reflectance and illumination map, respectively. This setup facilitates the refined restoration process of the subsequent Exposure Correction Mamba Module (ECMM). Moreover, we develop a novel 2D Selective State-space layer guided by Retinex information (Retinex-SS2D) as the core operator of ECMM. This architecture incorporates an innovative 2D scanning strategy based on deformable feature aggregation, thereby enhancing both efficiency and effectiveness. Extensive experiment results and comprehensive ablation studies demonstrate the outstanding performance and the importance of each component of our proposed ECMamba. Code is available at https://github.com/LowlevelAI/ECMamba.",
+          "claimed_authors": [
+            "Wei Dong",
+            "Han Zhou",
+            "Yulun Zhang",
+            "Xiaohong Liu",
+            "Jun Chen"
+          ],
+          "claimed_title": "ECMamba: Consolidating Selective State Space Model with Retinex Guidance for Efficient Multiple Exposure Correction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2410.21535"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='The Impact of Repeated Exposure to Neutral Faces on Implicit Bias psychology', candidate_title='ECMamba: Consolidating Selective State Space Model with Retinex Guidance for Efficient Multiple Exposure Correction')",
+        "failed_at": "2026-06-21T09:54:29Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The traditional recommendation framework seeks to connect user and content, by finding the best match possible based on users past interaction. However, a good content recommendation is not necessarily similar to what the user has chosen in the past. As humans, users naturally evolve, learn, forget, get bored, they change their perspective of the world and in consequence, of the recommendable content. One well known mechanism that affects user interest is the Mere Exposure Effect: when repeatedly exposed to stimuli, users' interest tends to rise with the initial exposures, reaching a peak, and gradually decreasing thereafter, resulting in an inverted-U shape. Since previous research has shown that the magnitude of the effect depends on a number of interesting factors such as stimulus complexity and familiarity, leveraging this effect is a way to not only improve repeated recommendation but to gain a more in-depth understanding of both users and stimuli. In this work we present (Mere) Exposure2Vec (Ex2Vec) our model that leverages the Mere Exposure Effect in repeat consumption to derive user and item characterization and track user interest evolution. We validate our model through predicting future music consumption based on repetition and discuss its implications for recommendation scenarios where repetition is common.",
+          "claimed_authors": [
+            "Bruno Sguerra",
+            "Viet-Anh Tran",
+            "Romain Hennequin"
+          ],
+          "claimed_title": "Ex2Vec: Characterizing Users and Items from the Mere Exposure Effect",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2311.10635"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='The Impact of Repeated Exposure to Neutral Faces on Implicit Bias psychology', candidate_title='Ex2Vec: Characterizing Users and Items from the Mere Exposure Effect')",
+        "failed_at": "2026-06-21T09:54:29Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Giorgio Nicoletti",
+            "Matteo Bruzzone",
+            "Samir Suweis",
+            "Marco Dal Maschio",
+            "Daniel Maria Busiello"
+          ],
+          "title": "Optimal information gain at the onset of habituation to repeated stimuli",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2301.12812",
+        "summary": "Biological and living systems process information across spatiotemporal scales, exhibiting the hallmark ability to constantly modulate their behavior to ever-changing and complex environments. In the presence of repeated stimuli, a distinctive response is the progressive reduction of the activity at both sensory and molecular levels, known as habituation. In this work, we solve a minimal microscopic model devoid of biological details, where habituation to an external signal is driven by negative feedback provided by a slow storage mechanism. We show that our model recapitulates the main features of habituation, such as spontaneous recovery, potentiation, subliminal accumulation, and input sensitivity. Crucially, our approach enables a complete characterization of the stochastic dynamics, allowing us to compute how much information the system encodes on the input signal. We find that an intermediate level of habituation is associated with a steep increase in information. In particular, we are able to characterize this region of maximal information gain in terms of an optimal trade-off between information and energy consumption. We test our dynamical predictions against experimentally recorded neural responses in a zebrafish larva subjected to repeated looming stimulations, showing that our model captures the main components of the observed neural habituation. Our work makes a fundamental step towards uncovering the functional mechanisms that shape habituation in biological systems from an information-theoretic and thermodynamic perspective.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2301.12812",
+          "http_status": 200,
+          "pdf_sample_score": 0.2657,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-21T09:54:38Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Karen Zhou",
+            "Chenhao Tan"
+          ],
+          "title": "Entity-Based Evaluation of Political Bias in Automatic Summarization",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2305.02321",
+        "summary": "Growing literature has shown that NLP systems may encode social biases; however, the political bias of summarization models remains relatively unknown. In this work, we use an entity replacement method to investigate the portrayal of politicians in automatically generated summaries of news articles. We develop an entity-based computational framework to assess the sensitivities of several extractive and abstractive summarizers to the politicians Donald Trump and Joe Biden. We find consistent differences in these summaries upon entity replacement, such as reduced emphasis of Trump's presence in the context of the same article and a more individualistic representation of Trump with respect to the collective US government (i.e., administration). These summary dissimilarities are most prominent when the entity is heavily featured in the source article. Our characterization provides a foundation for future studies of bias in summarization and for normative discussions on the ideal qualities of automatic summaries.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2305.02321",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-21T09:54:43Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Won Ik Cho",
+            "Ji Won Kim",
+            "Seok Min Kim",
+            "Nam Soo Kim"
+          ],
+          "title": "On Measuring Gender Bias in Translation of Gender-neutral Pronouns",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2019
+        },
+        "primary_pointer": "1905.11684",
+        "summary": "Ethics regarding social bias has recently thrown striking issues in natural language processing. Especially for gender-related topics, the need for a system that reduces the model bias has grown in areas such as image captioning, content recommendation, and automated employment. However, detection and evaluation of gender bias in the machine translation systems are not yet thoroughly investigated, for the task being cross-lingual and challenging to define. In this paper, we propose a scheme for making up a test set that evaluates the gender bias in a machine translation system, with Korean, a language with gender-neutral pronouns. Three word/phrase sets are primarily constructed, each incorporating positive/negative expressions or occupations; all the terms are gender-independent or at least not biased to one side severely. Then, additional sentence lists are constructed concerning formality of the pronouns and politeness of the sentences. With the generated sentence set of size 4,236 in total, we evaluate gender bias in conventional machine translation systems utilizing the proposed measure, which is termed here as translation gender bias index (TGBI). The corpus and the code for evaluation is available on-line.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1905.11684",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-21T09:54:44Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Evan Ehrenberg",
+            "Kleovoulos Leo Tsourides",
+            "Hossein Nejati",
+            "Ngai-Man Cheung",
+            "Pawan Sinha"
+          ],
+          "title": "Neural Correlates of Face Familiarity Perception",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2022
+        },
+        "primary_pointer": "2208.00352",
+        "summary": "In the domain of face recognition, there exists a puzzling timing discrepancy between results from macaque neurophysiology on the one hand and human electrophysiology on the other. Single unit recordings in macaques have demonstrated face identity specific responses in extra-striate visual cortex within 100 milliseconds of stimulus onset. In EEG and MEG experiments with humans, however, a consistent distinction between neural activity corresponding to unfamiliar and familiar faces has been reported to emerge around 250 ms. This points to the possibility that there may be a hitherto undiscovered early correlate of face familiarity perception in human electrophysiological traces. We report here a successful search for such a correlate in dense MEG recordings using pattern classification techniques. Our analyses reveal markers of face familiarity as early as 85 ms after stimulus onset. Low-level attributes of the images, such as luminance and color distributions, are unable to account for this early emerging response difference. These results help reconcile human and macaque data, and provide clues regarding neural mechanisms underlying familiar face perception.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2208.00352",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-21T09:54:53Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "C. Yannouleas",
+            "R. A. Broglia",
+            "M. Brack",
+            "P. -F. Bortignon"
+          ],
+          "title": "Fragmentation of the photoabsorption strength in neutral and charged metal microclusters",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2009
+        },
+        "primary_pointer": "0910.4576",
+        "summary": "The line shape of the plasma resonance in both neutral and charged small sodium clusters is calculated. The overall properties of the multipeak structure observed in the photoabsorption cross section of spherical Na_8 and Na_20 neutral clusters can be understood in terms of Landau damping. Quantal configurations are shown to play an important role. In the case of charged Na_9+ and Na_21^+ clusters a single peak is predicted that carries most of the oscillator strength.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/0910.4576",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-21T09:55:03Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Tim Dunker",
+            "Harald Hauglin",
+            "Ole Petter Rønningen"
+          ],
+          "title": "On temporal correlations in high-resolution frequency counting",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2016
+        },
+        "primary_pointer": "1604.05076",
+        "summary": "We analyze noise properties of time series of frequency data from different counting modes of a Keysight 53230A frequency counter. We use a 10 MHz reference signal from a passive hydrogen maser connected via phase-stable Huber+Suhner Sucoflex 104 cables to the reference and input connectors of the counter. We find that the high resolution gap-free (CONT) frequency counting process imposes long-term correlations in the output data, resulting in a modified Allan deviation that is characteristic of random walk phase noise. Equally important, the CONT mode results in a frequency bias. In contrast, the counter's undocumented raw continuous mode (RCON) yields unbiased frequency stability estimates with white phase noise characteristics, and of a magnitude consistent with the counter's 20 ps single-shot resolution. Furthermore, we demonstrate that a 100-point running average filter in conjunction with the RCON mode yields resolution enhanced frequency estimates with flicker phase noise characteristics. For instance, the counter's built-in moving-average function can be used. The improved noise characteristics of the averaged RCON mode versus the CONT mode imply that the former mode yields frequency estimates with improved confidence for a given measurement time.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1604.05076",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-21T09:55:04Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "the impact of repeated exposure to neutral faces on implicit bias psychology",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

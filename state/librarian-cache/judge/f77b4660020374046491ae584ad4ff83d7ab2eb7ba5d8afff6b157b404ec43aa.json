@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2301.12812",
+  "judged_at": "2026-06-21T09:55:08Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the impact of repeated exposure to neutral faces on implicit bias psychology",
+  "rationale": "The paper studies neural habituation to repeated looming stimuli in zebrafish and does not address repeated exposure to neutral human faces, implicit bias, or related psychological outcomes; it falls outside the domain and constructs of the user's question.",
+  "relevant": false
+}

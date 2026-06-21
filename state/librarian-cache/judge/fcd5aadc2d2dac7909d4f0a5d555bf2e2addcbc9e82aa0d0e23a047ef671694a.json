@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2208.00352",
+  "judged_at": "2026-06-21T09:55:13Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the impact of repeated exposure to neutral faces on implicit bias psychology",
+  "rationale": "The paper investigates neural markers of face familiarity using MEG, without examining repeated exposure to neutral faces or measuring implicit bias, so it does not address any of the variables or mechanisms central to the user's question.",
+  "relevant": false
+}

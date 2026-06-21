@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2305.02321",
+  "judged_at": "2026-06-21T09:55:09Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the impact of repeated exposure to neutral faces on implicit bias psychology",
+  "rationale": "The candidate paper studies political bias in NLP summarization systems, which is unrelated to the psychological mechanisms of repeated exposure to neutral faces or implicit bias; it shares no variables, constructs, or domain with the user's question.",
+  "relevant": false
+}

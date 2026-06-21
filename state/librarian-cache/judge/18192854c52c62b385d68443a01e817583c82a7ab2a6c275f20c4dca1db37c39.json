@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1905.11684",
+  "judged_at": "2026-06-21T09:55:11Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the impact of repeated exposure to neutral faces on implicit bias psychology",
+  "rationale": "The paper studies algorithmic gender bias in machine translation, which is unrelated to the psychological effect of repeated exposure to neutral faces on implicit bias; it does not share the same mechanism, variables, or domain required for inclusion.",
+  "relevant": false
+}

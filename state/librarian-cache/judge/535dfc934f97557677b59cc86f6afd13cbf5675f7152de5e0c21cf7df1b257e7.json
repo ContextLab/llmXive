@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1604.05076",
+  "judged_at": "2026-06-21T09:55:16Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the impact of repeated exposure to neutral faces on implicit bias psychology",
+  "rationale": "The paper studies noise and bias in frequency counters, a topic in metrology and signal processing, which bears no connection to repeated exposure to neutral faces, implicit bias, or psychological mechanisms. It is off‑domain and does not address any of the variables or constructs of the user's question.",
+  "relevant": false
+}
