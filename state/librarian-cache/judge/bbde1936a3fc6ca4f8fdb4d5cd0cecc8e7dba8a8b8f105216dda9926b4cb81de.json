@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2311.11335",
+  "judged_at": "2026-06-21T13:02:17Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "learning from the self-future: on-policy self-distillation for dllms linguistics",
+  "rationale": "The paper studies the same algorithmic mechanism—self‑distillation via a student‑teacher scheme (data2vec)—as the user’s question about on‑policy self‑distillation for language models, albeit applied to time‑series data, satisfying acceptance criterion (a).",
+  "relevant": true
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2504.19565",
+  "judged_at": "2026-06-21T13:02:25Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "learning from the self-future: on-policy self-distillation for dllms linguistics",
+  "rationale": "The paper focuses on agentic corpus distillation for biomedical LLMs, a data‑selection method in a different domain and not on‑policy self‑distillation of the model itself, so it does not meet any inclusion criteria (a‑f).",
+  "relevant": false
+}

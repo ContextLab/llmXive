@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2402.14679",
+  "judged_at": "2026-06-21T13:02:35Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "learning from the self-future: on-policy self-distillation for dllms linguistics",
+  "rationale": "The paper investigates LLM personality consistency, which does not address the mechanism of on‑policy self‑distillation or its linguistic learning effects; it lacks relevance to the self‑future/self‑distillation construct central to the user's question.",
+  "relevant": false
+}

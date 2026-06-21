@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1601.07392",
+  "judged_at": "2026-06-21T13:01:09Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "code2lora: hypernetwork-generated adapters for code language models under software evolution computer science",
+  "rationale": "The paper discusses software engineering lessons for the Nmag micromagnetic simulation tool and does not address code language models, hypernetwork-generated adapters, or software evolution of code LLMs, which are the core constructs of the user's question. It falls under the off-domain rejection criteria.",
+  "relevant": false
+}

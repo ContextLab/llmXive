@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2606.06492",
+  "judged_at": "2026-06-21T13:01:07Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "code2lora: hypernetwork-generated adapters for code language models under software evolution computer science",
+  "rationale": "The paper directly studies the same mechanism (hypernetwork‑generated LoRA adapters for code language models in evolving software repositories), matching the user’s topic and providing the foundational methodology and empirical results for Code2LoRA (category a and d).",
+  "relevant": true
+}

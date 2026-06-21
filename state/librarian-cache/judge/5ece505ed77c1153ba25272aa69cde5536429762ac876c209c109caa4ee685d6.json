@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2604.02352",
+  "judged_at": "2026-06-21T13:01:20Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "code2lora: hypernetwork-generated adapters for code language models under software evolution computer science",
+  "rationale": "The paper studies a parameter‑efficient fine‑tuning technique (Contrastive Prompt Tuning) for code language models, which belongs to the same alternative‑vocabulary cluster of PEFT methods (e.g., adapters/LoRA) relevant to the user’s focus on hypernetwork‑generated adapters for code models. It therefore provides a related methodological reference for the literature review.",
+  "relevant": true
+}

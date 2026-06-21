@@ -227,6 +227,10 @@
     "classified_at": "2026-06-16T08:24:18Z",
     "verdict": false
   },
+  "PROJ-671-code2lora-hypernetwork-generated-adapter::1.6.0": {
+    "classified_at": "2026-06-21T13:01:04Z",
+    "verdict": false
+  },
   "PROJ-672-the-impact-of-bounded-confidence-on-opin::1.6.0": {
     "classified_at": "2026-06-06T13:49:43Z",
     "verdict": false
@@ -329,6 +333,10 @@
   },
   "PROJ-727-assessing-energy-consumption-of-llm-infe::1.6.0": {
     "classified_at": "2026-06-17T14:21:41Z",
+    "verdict": false
+  },
+  "PROJ-732-learning-from-the-self-future-on-policy::1.6.0": {
+    "classified_at": "2026-06-21T13:02:05Z",
     "verdict": false
   },
   "PROJ-735-transferability-of-dft-d3-dispersion-to-::1.6.0": {

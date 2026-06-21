@@ -1,0 +1,641 @@
+{
+  "fetched_at": "2026-06-21T13:02:37Z",
+  "field": "linguistics",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "linguistics",
+      "idea_body_excerpt": "Learning from the Self-future: On-policy Self-distillation for dLLMs",
+      "target_n": 5
+    },
+    "duration_seconds": 62.844,
+    "ended_at": "2026-06-21T13:02:37Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "on‑policy self‑distillation for large language models"
+        ],
+        [
+          2,
+          "teacher‑free distillation of autoregressive LLMs"
+        ],
+        [
+          3,
+          "self‑training with future token prediction in language models"
+        ],
+        [
+          4,
+          "self‑knowledge distillation for conversational AI"
+        ],
+        [
+          5,
+          "online distillation of generative language models"
+        ],
+        [
+          6,
+          "future‑aware self‑distillation in neural language generation"
+        ],
+        [
+          7,
+          "self‑imitation learning for large‑scale language models"
+        ],
+        [
+          8,
+          "policy distillation for text generation models"
+        ],
+        [
+          9,
+          "recursive self‑distillation of transformer‑based LLMs"
+        ],
+        [
+          10,
+          "self‑consistency distillation for language model outputs"
+        ],
+        [
+          11,
+          "self‑ensembling techniques for neural language models"
+        ],
+        [
+          12,
+          "incremental self‑distillation in natural language processing"
+        ],
+        [
+          13,
+          "teacher‑less knowledge transfer in large language models"
+        ],
+        [
+          14,
+          "future‑token guided self‑distillation for text generation"
+        ],
+        [
+          15,
+          "autonomous self‑distillation in pretrained language models"
+        ],
+        [
+          16,
+          "self‑supervised future prediction distillation for LLMs"
+        ],
+        [
+          17,
+          "on‑policy knowledge distillation for dialogue systems"
+        ],
+        [
+          18,
+          "self‑refinement distillation for generative text models"
+        ],
+        [
+          19,
+          "self‑distilled language model pretraining strategies"
+        ],
+        [
+          20,
+          "adaptive self‑distillation for multilingual LLMs"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Learning from the Self-future: On-policy Self-distillation for dLLMs linguistics": 0,
+        "on‑policy self‑distillation for large language models": 5
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "self‑knowledge distillation",
+      "Universal Dependencies corpus",
+      "syntactic probing LLM",
+      "perplexity linguistic evaluation",
+      "self‑distillation regularization theory"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2501.05032"
+      ]
+    },
+    "per_query_hit_count": {
+      "Learning from the Self-future: On-policy Self-distillation for dLLMs linguistics": 3,
+      "Universal Dependencies corpus": 3,
+      "perplexity linguistic evaluation": 3,
+      "self‑distillation regularization theory": 2,
+      "self‑knowledge distillation": 3,
+      "syntactic probing LLM": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 3,
+      "rejections": [
+        {
+          "primary_pointer": "2504.19565",
+          "rationale": "The paper focuses on agentic corpus distillation for biomedical LLMs, a data‑selection method in a different domain and not on‑policy self‑distillation of the model itself, so it does not meet any inclusion criteria (a‑f).",
+          "title": "Knowledge-Driven Agentic Scientific Corpus Distillation Framework for Biomedical Large Language Models Training"
+        },
+        {
+          "primary_pointer": "2402.14679",
+          "rationale": "The paper investigates LLM personality consistency, which does not address the mechanism of on‑policy self‑distillation or its linguistic learning effects; it lacks relevance to the self‑future/self‑distillation construct central to the user's question.",
+          "title": "Is Self-knowledge and Action Consistent or Not: Investigating Large Language Model's Personality"
+        },
+        {
+          "primary_pointer": "2405.11357",
+          "rationale": "The paper studies LLMs' character‑level understanding and does not address self‑distillation, on‑policy learning, or the “self‑future” mechanism central to the user's question, thus it lacks relevance to the requested research focus.",
+          "title": "Large Language Models Lack Understanding of Character Composition of Words"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-21T13:01:34Z",
+    "term_input": {
+      "normalized": "learning from the self-future: on-policy self-distillation for dllms linguistics",
+      "raw": "Learning from the Self-future: On-policy Self-distillation for dLLMs linguistics"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We propose uncommon self-knowledge (USK) as a candidate criterion for consciousness: synergistic information a system carries about itself that exists only in the joint of its subsystems and is destroyed by decomposition. Drawing on Gottwald's partition-lattice grounding of Partial Information Decomposition (PID), where redundancy corresponds to Aumann's common knowledge and synergy to the gap between separate and joint observation, we propose the synergistic component of self-directed information as a candidate formal signature for conscious processing. If correct, the framework would (1) offer a clean separation between consciousness and metacognition (synergistic vs. redundant self-knowledge), (2) provide principled resolutions to counterexamples that challenge IIT, GWT, and HOT, (3) be operationalizable via Partial Information Rate Decomposition (PIRD) with self-targeting, and (4) generate distinctive empirical predictions, the strongest being a GWT timing dissociation (consciousness correlates with pre-broadcast synergy formation, not broadcast itself) and a specific dissociation between self-report disruption and task-performance disruption under middle-layer perturbation in LLMs. The proposal is consistent with recent empirical findings that both anaesthesia and Alzheimer's disease specifically reduce synergistic information processing while preserving or increasing redundancy.",
+          "claimed_authors": [
+            "Krti Tallam"
+          ],
+          "claimed_title": "Consciousness as Uncommon Self-Knowledge: A Synergistic Information Framework",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2605.13884"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Learning from the Self-future: On-policy Self-distillation for dLLMs linguistics', candidate_title='Consciousness as Uncommon Self-Knowledge: A Synergistic Information Framework')",
+        "failed_at": "2026-06-21T13:02:06Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "To boost the performance, deep neural networks require deeper or wider network structures that involve massive computational and memory costs. To alleviate this issue, the self-knowledge distillation method regularizes the model by distilling the internal knowledge of the model itself. Conventional self-knowledge distillation methods require additional trainable parameters or are dependent on the data. In this paper, we propose a simple and effective self-knowledge distillation method using a dropout (SD-Dropout). SD-Dropout distills the posterior distributions of multiple models through a dropout sampling. Our method does not require any additional trainable modules, does not rely on data, and requires only simple operations. Furthermore, this simple method can be easily combined with various self-knowledge distillation approaches. We provide a theoretical and experimental analysis of the effect of forward and reverse KL-divergences in our work. Extensive experiments on various vision tasks, i.e., image classification, object detection, and distribution shift, demonstrate that the proposed method can effectively improve the generalization of a single network. Further experiments show that the proposed method also improves calibration performance, adversarial robustness, and out-of-distribution detection ability.",
+          "claimed_authors": [
+            "Hyoje Lee",
+            "Yeachan Park",
+            "Hyun Seo",
+            "Myungjoo Kang"
+          ],
+          "claimed_title": "Self-Knowledge Distillation via Dropout",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2208.05642"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Learning from the Self-future: On-policy Self-distillation for dLLMs linguistics', candidate_title='Self-Knowledge Distillation via Dropout')",
+        "failed_at": "2026-06-21T13:02:06Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Automatic temporal ordering of events described in discourse has been of great interest in recent years. Event orderings are conveyed in text via va rious linguistic mechanisms including the use of expressions such as \"before\", \"after\" or \"during\" that explicitly assert a temporal relation -- temporal signals. In this paper, we investigate the role of temporal signals in temporal relation extraction and provide a quantitative analysis of these expres sions in the TimeBank annotated corpus.",
+          "claimed_authors": [
+            "Leon Derczynski",
+            "Robert Gaizauskas"
+          ],
+          "claimed_title": "A Corpus-based Study of Temporal Signals",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1203.5066"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Learning from the Self-future: On-policy Self-distillation for dLLMs linguistics', candidate_title='A Corpus-based Study of Temporal Signals')",
+        "failed_at": "2026-06-21T13:02:06Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Universal Dependencies (UD) and Universal Morphology (UniMorph) projects each present schemata for annotating the morphosyntactic details of language. Each project also provides corpora of annotated text in many languages - UD at the token level and UniMorph at the type level. As each corpus is built by different annotators, language-specific decisions hinder the goal of universal schemata. With compatibility of tags, each project's annotations could be used to validate the other's. Additionally, the availability of both type- and token-level resources would be a boon to tasks such as parsing and homograph disambiguation. To ease this interoperability, we present a deterministic mapping from Universal Dependencies v2 features into the UniMorph schema. We validate our approach by lookup in the UniMorph corpora and find a macro-average of 64.13% recall. We also note incompatibilities due to paucity of data on either side. Finally, we present a critical evaluation of the foundations, strengths, and weaknesses of the two annotation projects.",
+          "claimed_authors": [
+            "Arya D. McCarthy",
+            "Miikka Silfverberg",
+            "Ryan Cotterell",
+            "Mans Hulden",
+            "David Yarowsky"
+          ],
+          "claimed_title": "Marrying Universal Dependencies and Universal Morphology",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1810.06743"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Learning from the Self-future: On-policy Self-distillation for dLLMs linguistics', candidate_title='Marrying Universal Dependencies and Universal Morphology')",
+        "failed_at": "2026-06-21T13:02:06Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper introduces a new Romanian speech corpus from the ROBIN project, called ROBIN Technical Acquisition Speech Corpus (ROBINTASC). Its main purpose was to improve the behaviour of a conversational agent, allowing human-machine interaction in the context of purchasing technical equipment. The paper contains a detailed description of the acquisition process, corpus statistics as well as an evaluation of the corpus influence on a low-latency ASR system as well as a dialogue component.",
+          "claimed_authors": [
+            "Vasile Păiş",
+            "Radu Ion",
+            "Andrei-Marius Avram",
+            "Elena Irimia",
+            "Verginica Barbu Mititelu",
+            "Maria Mitrofan"
+          ],
+          "claimed_title": "Human-Machine Interaction Speech Corpus from the ROBIN project",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2111.11170"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Learning from the Self-future: On-policy Self-distillation for dLLMs linguistics', candidate_title='Human-Machine Interaction Speech Corpus from the ROBIN project')",
+        "failed_at": "2026-06-21T13:02:06Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large language models (LLMs) drive significant financial innovations, yet their high-concurrency deployment is severely bottlenecked by KV cache memory overhead, which inflates infrastructure costs and throttles scalability. To address this, we propose YouZhi-LLM, a highly efficient financial LLM empowered by a comprehensive structural transition and training pipeline natively built on the Huawei Ascend ecosystem. At its algorithmic core, YouZhi-LLM features a layer-adaptive GQA-to-MLA transition framework that dynamically assigns per-layer FreqFold sizes, maximizing KV-cache compression while minimizing perplexity degradation. To recover representation capacity and inject domain expertise, the Ascend-based training pipeline seamlessly integrates generalized knowledge distillation with financial-specific supervised fine-tuning. Evaluations demonstrate the superiority of this systematic approach, with the adaptive transition reducing perplexity degradation by up to 35% over uniform baselines. Crucially, when evaluated on Ascend NPUs via vLLM-Ascend, the massive KV-cache reduction translates directly into deployment efficiency. Compared to their respective base models, YouZhi-7B yields a 12.3% improvement in average financial benchmark score alongside a 2.69$\\times$ increase in maximum concurrency; similarly, YouZhi-14B achieves a 7.0% accuracy gain and a 2.43$\\times$ concurrency boost, establishing a new paradigm for cost-effective, high-throughput financial inference.",
+          "claimed_authors": [
+            " PSBC LLM Team",
+            " Huawei LLM Team",
+            "Ruihan Long",
+            "Junjie Wu",
+            "Tianan Zhang",
+            "Duo Zhang",
+            "Yaozong Wu",
+            "Jinbin Fu",
+            "Chang Liu",
+            "Zhentao Tang",
+            "Wenshuang Yang",
+            "Xin Wang",
+            "Zhihao Song",
+            "Ning Huang",
+            "Wenjing Xu",
+            "Shuai Zong",
+            "Shupei Sun",
+            "Sen Wang",
+            "Jing Hu",
+            "Bin Wang",
+            "Xinyu Wang",
+            "Junkui Ju",
+            "Zequn Ding",
+            "Jie Ran",
+            "Man Luo",
+            "Shixiong Kai",
+            "Linkai Hou",
+            "Kaichao Liang",
+            "Hu Zhao",
+            "Yang Zhao",
+            "Shucheng Lin",
+            "Wei Yu",
+            "Chenghan Jiang",
+            "Jingjing Ding",
+            "Jiahui Zhang",
+            "Tian Jin",
+            "Yuhang Zhang",
+            "Dong Guo",
+            "Wei Sun",
+            "Jun Xie",
+            "Jianwei Li",
+            "Lei Cao",
+            "Pei Li",
+            "Jiabin Li",
+            "Jia Yuan",
+            "Rui Yuan",
+            "Jing Zhu",
+            "Mingxuan Yuan",
+            "Zhangcheng Lv",
+            "Xin Jiang",
+            "Xiuhong Fei",
+            "Xiaozhe Ren",
+            "Yulong Li",
+            "Zhipeng Zhang",
+            "Hang Wang",
+            "Zhaohui Xu",
+            "Rui Zhao",
+            "Yibo He",
+            "Xinzhuang Niu"
+          ],
+          "claimed_title": "YouZhi: Towards High-Concurrency Financial LLMs via Adaptive GQA-to-MLA Transition",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.05868"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Learning from the Self-future: On-policy Self-distillation for dLLMs linguistics', candidate_title='YouZhi: Towards High-Concurrency Financial LLMs via Adaptive GQA-to-MLA Transition')",
+        "failed_at": "2026-06-21T13:02:06Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Humans exhibit garden path effects: When reading sentences that are temporarily structurally ambiguous, they slow down when the structure is disambiguated in favor of the less preferred alternative. Surprisal theory (Hale, 2001; Levy, 2008), a prominent explanation of this finding, proposes that these slowdowns are due to the unpredictability of each of the words that occur in these sentences. Challenging this hypothesis, van Schijndel & Linzen (2021) find that estimates of the cost of word predictability derived from language models severely underestimate the magnitude of human garden path effects. In this work, we consider whether this underestimation is due to the fact that humans weight syntactic factors in their predictions more highly than language models do. We propose a method for estimating syntactic predictability from a language model, allowing us to weigh the cost of lexical and syntactic predictability independently. We find that treating syntactic predictability independently from lexical predictability indeed results in larger estimates of garden path. At the same time, even when syntactic predictability is independently weighted, surprisal still greatly underestimate the magnitude of human garden path effects. Our results support the hypothesis that predictability is not the only factor responsible for the processing cost associated with garden path sentences.",
+          "claimed_authors": [
+            "Suhas Arehalli",
+            "Brian Dillon",
+            "Tal Linzen"
+          ],
+          "claimed_title": "Syntactic Surprisal From Neural Models Predicts, But Underestimates, Human Processing Difficulty From Syntactic Ambiguities",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2210.12187"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Learning from the Self-future: On-policy Self-distillation for dLLMs linguistics', candidate_title='Syntactic Surprisal From Neural Models Predicts, But Underestimates, Human Processing Difficulty From Syntactic Ambiguities')",
+        "failed_at": "2026-06-21T13:02:06Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large language models (LLMs) achieve strong performance on metaphor detection and interpretation tasks, yet it remains unclear what such behavioral success reveals about metaphor processing. We present a diagnostic analysis that examines the limits of behavioral evidence by probing three complementary dimensions: semantic attribute alignment, lexical invariance, and syntactic sensitivity. Using geometric probing, we assess whether model-generated interpretations align with reference semantic attributes; through context-varying substitution, we analyze the stability of lexical associations between metaphorical and literal expressions; and via controlled syntactic perturbations, we examine sensitivity in metaphor detection. Our analysis reveals that LLM-generated interpretations can exhibit semantic drift relative to reference attributes; stable lexical anchors persist across contextual conditions, potentially supporting conventional metaphors while biasing novel metaphors requiring contextual integration; and detection performance is sensitive to syntactic irregularities. These findings suggest that strong behavioral performance may reflect heterogeneous underlying signals, highlighting the need for caution when interpreting metaphor benchmarks as evidence of robust, integrated semantic understanding.",
+          "claimed_authors": [
+            "Fengying Ye",
+            "Shanshan Wang",
+            "Lidia S. Chao",
+            "Derek F. Wong"
+          ],
+          "claimed_title": "Probing Semantic Alignment, Lexical Invariance, and Syntactic Influence in LLM Metaphor Processing",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2510.04120"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Learning from the Self-future: On-policy Self-distillation for dLLMs linguistics', candidate_title='Probing Semantic Alignment, Lexical Invariance, and Syntactic Influence in LLM Metaphor Processing')",
+        "failed_at": "2026-06-21T13:02:06Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A lively research field has recently emerged that uses experimental methods to probe the linguistic behavior of modern deep networks. While work in this tradition often reports intriguing results about the grammatical skills of deep nets, it is not clear what their implications for linguistic theorizing should be. As a consequence, linguistically-oriented deep net analysis has had very little impact on linguistics at large. In this chapter, I suggest that deep networks should be treated as theories making explicit predictions about the acceptability of linguistic utterances. I argue that, if we overcome some obstacles standing in the way of seriously pursuing this idea, we will gain a powerful new theoretical tool, complementary to mainstream algebraic approaches.",
+          "claimed_authors": [
+            "Marco Baroni"
+          ],
+          "claimed_title": "On the proper role of linguistically-oriented deep net analysis in linguistic theorizing",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2106.08694"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Learning from the Self-future: On-policy Self-distillation for dLLMs linguistics', candidate_title='On the proper role of linguistically-oriented deep net analysis in linguistic theorizing')",
+        "failed_at": "2026-06-21T13:02:06Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper reports on the state-of-the-art in application of multidimensional scaling (MDS) techniques to create semantic maps in linguistic research. MDS refers to a statistical technique that represents objects (lexical items, linguistic contexts, languages, etc.) as points in a space so that close similarity between the objects corresponds to close distances between the corresponding points in the representation. We focus on the use of MDS in combination with parallel corpus data as used in research on cross-linguistic variation.\n  We first introduce the mathematical foundations of MDS and then give an exhaustive overview of past research that employs MDS techniques in combination with parallel corpus data. We propose a set of terminology to succinctly describe the key parameters of a particular MDS application. We then show that this computational methodology is theory-neutral, i.e. it can be employed to answer research questions in a variety of linguistic theoretical frameworks. Finally, we show how this leads to two lines of future developments for MDS research in linguistics.",
+          "claimed_authors": [
+            "Martijn van der Klis",
+            "Jos Tellings"
+          ],
+          "claimed_title": "Generating semantic maps through multidimensional scaling: linguistic applications and theory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2012.04946"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Learning from the Self-future: On-policy Self-distillation for dLLMs linguistics', candidate_title='Generating semantic maps through multidimensional scaling: linguistic applications and theory')",
+        "failed_at": "2026-06-21T13:02:06Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A short review of similarities between dolphins and humans with the help of quantitative linguistics and information theory.",
+          "claimed_authors": [
+            "R. Ferrer-i-Cancho",
+            "D. Lusseau",
+            "B. McCowan"
+          ],
+          "claimed_title": "Parallels of human language in the behavior of bottlenose dolphins",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1605.01661"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Learning from the Self-future: On-policy Self-distillation for dLLMs linguistics', candidate_title='Parallels of human language in the behavior of bottlenose dolphins')",
+        "failed_at": "2026-06-21T13:02:06Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Self-distillation has emerged as an effective post-training paradigm for LLMs, often improving performance while shortening reasoning traces. However, in mathematical reasoning, we find that it can reduce response length while degrading performance. We trace this degradation to the suppression of epistemic verbalization - the model's expression of uncertainty during reasoning. Through controlled experiments varying conditioning context richness and task coverage, we show that conditioning the teacher on rich information suppresses uncertainty expression, enabling rapid in-domain optimization with limited task coverage but harming OOD performance, where unseen problems benefit from expressing uncertainty and adjusting accordingly. Across Qwen3-1.7B/8B, DeepSeek-Distill-Qwen-7B, and Olmo3-7B-Instruct, we observe performance drops of up to 40%. Our findings highlight that exposing appropriate levels of uncertainty is crucial for robust reasoning and underscore the importance of optimizing reasoning behavior beyond merely reinforcing correct answer traces.",
+          "claimed_authors": [
+            "Jeonghye Kim",
+            "Xufang Luo",
+            "Minbeom Kim",
+            "Sangmook Lee",
+            "Dohyung Kim",
+            "Jiwon Jeon",
+            "Dongsheng Li",
+            "Yuqing Yang"
+          ],
+          "claimed_title": "Why Does Self-Distillation (Sometimes) Degrade the Reasoning Capability of LLMs?",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.24472"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Learning from the Self-future: On-policy Self-distillation for dLLMs linguistics', candidate_title='Why Does Self-Distillation (Sometimes) Degrade the Reasoning Capability of LLMs?')",
+        "failed_at": "2026-06-21T13:02:06Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The functional Schrodinger picture formulation of quantum field theory and the variational Gaussian approximation method based on the formulation are briefly reviewed. After presenting recent attempts to improve the variational approximation, we introduce a new systematic method based on the background field method, which enables one to compute the order-by-order correction terms to the Gaussian approximation of the effective action.",
+          "claimed_authors": [
+            "Jae Hyung Yee"
+          ],
+          "claimed_title": "Variational Approach to Quantum Field Theory: Gaussian Approximation and the Perturbative Expansion around It",
+          "claimed_venue": "arXiv",
+          "claimed_year": 1997,
+          "primary_pointer": "hep-th/9707234"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Learning from the Self-future: On-policy Self-distillation for dLLMs linguistics', candidate_title='Variational Approach to Quantum Field Theory: Gaussian Approximation and the Perturbative Expansion around It')",
+        "failed_at": "2026-06-21T13:02:06Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yifu Luo",
+            "Zeyu Chen",
+            "Haoyu Wang",
+            "Xinhao Hu",
+            "Yuxuan Zhang",
+            "Zhizhou Sha",
+            "Shiwei Liu"
+          ],
+          "title": "Learning from the Self-future: On-policy Self-distillation for dLLMs",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2606.18195",
+        "summary": "On-policy self-distillation (OPSD) has proven effective for post-training large language models (LLMs), yet its application to diffusion LLMs (dLLMs) remains unexplored. Existing OPSD methods are inherently autoregressive-centric. They inject privileged information via left-to-right prefix conditioning with token-level divergence supervision, a design that fundamentally conflicts with the arbitraryorder generation of dLLMs. We introduce d-OPSD, the first OPSD framework tailored for dLLMs. Our approach makes two core contributions. First, we reframe self-teacher construction by using self-generated answers as suffix conditioning, enabling the student model to learn from \"self future-experience\" rather than privileged prefixes. Second, we shift supervision from token-level to step-level, aligning training with the iterative denoising process of dLLMs. Experiments across four reasoning benchmarks show that d-OPSD consistently outperforms RLVR and SFT baselines with superior sample efficiency, requiring only around 10% of the optimization steps by RLVR and opening a promising pathway for dLLM posttraining. The code is available at https://github.com/xingzhejun/d-OPSD.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2606.18195",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8571,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-21T13:02:05Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Felix Pieper",
+            "Konstantin Ditschuneit",
+            "Martin Genzel",
+            "Alexandra Lindt",
+            "Johannes Otterbach"
+          ],
+          "title": "Self-Distilled Representation Learning for Time Series",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2311.11335",
+        "summary": "Self-supervised learning for time-series data holds potential similar to that recently unleashed in Natural Language Processing and Computer Vision. While most existing works in this area focus on contrastive learning, we propose a conceptually simple yet powerful non-contrastive approach, based on the data2vec self-distillation framework. The core of our method is a student-teacher scheme that predicts the latent representation of an input time series from masked views of the same time series. This strategy avoids strong modality-specific assumptions and biases typically introduced by the design of contrastive sample pairs. We demonstrate the competitiveness of our approach for classification and forecasting as downstream tasks, comparing with state-of-the-art self-supervised learning methods on the UCR and UEA archives as well as the ETT and Electricity datasets.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2311.11335",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4286,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-21T13:02:05Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Mohammed Adnan",
+            "Yani A. Ioannou",
+            "Chuan-Yung Tsai",
+            "Graham W. Taylor"
+          ],
+          "title": "Domain-Agnostic Clustering with Self-Distillation",
+          "venue": "arXiv",
+          "year": 2021
+        },
+        "primary_pointer": "2111.12170",
+        "summary": "Recent advancements in self-supervised learning have reduced the gap between supervised and unsupervised representation learning. However, most self-supervised and deep clustering techniques rely heavily on data augmentation, rendering them ineffective for many learning tasks where insufficient domain knowledge exists for performing augmentation. We propose a new self-distillation based algorithm for domain-agnostic clustering. Our method builds upon the existing deep clustering frameworks and requires no separate student model. The proposed method outperforms existing domain agnostic (augmentation-free) algorithms on CIFAR-10. We empirically demonstrate that knowledge distillation can improve unsupervised representation learning by extracting richer `dark knowledge' from the model than using predicted labels alone. Preliminary experiments also suggest that self-distillation improves the convergence of DeepCluster-v2.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2111.12170",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4286,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-21T13:02:06Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Chuanguang Yang",
+            "Xinqiang Yu",
+            "Zhulin An",
+            "Yongjun Xu"
+          ],
+          "title": "Categories of Response-Based, Feature-Based, and Relation-Based Knowledge Distillation",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2306.10687",
+        "summary": "Deep neural networks have achieved remarkable performance for artificial intelligence tasks. The success behind intelligent systems often relies on large-scale models with high computational complexity and storage costs. The over-parameterized networks are often easy to optimize and can achieve better performance. However, it is challenging to deploy them over resource-limited edge-devices. Knowledge Distillation (KD) aims to optimize a lightweight network from the perspective of over-parameterized training. The traditional offline KD transfers knowledge from a cumbersome teacher to a small and fast student network. When a sizeable pre-trained teacher network is unavailable, online KD can improve a group of models by collaborative or mutual learning. Without needing extra models, Self-KD boosts the network itself using attached auxiliary architectures. KD mainly involves knowledge extraction and distillation strategies these two aspects. Beyond KD schemes, various KD algorithms are widely used in practical applications, such as multi-teacher KD, cross-modal KD, attention-based KD, data-free KD and adversarial KD. This paper provides a comprehensive KD survey, including knowledge categories, distillation schemes and algorithms, as well as some empirical studies on performance comparison. Finally, we discuss the open challenges of existing KD works and prospect the future directions.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2306.10687",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5714,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-21T13:02:06Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Siyan Zhao",
+            "Zhihui Xie",
+            "Mengchen Liu",
+            "Jing Huang",
+            "Guan Pang",
+            "Feiyu Chen",
+            "Aditya Grover"
+          ],
+          "title": "Self-Distilled Reasoner: On-Policy Self-Distillation for Large Language Models",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2601.18734",
+        "summary": "Knowledge distillation improves large language model (LLM) reasoning by compressing the knowledge of a teacher LLM to train smaller LLMs. On-policy distillation advances this approach by having the student sample its own trajectories while a teacher LLM provides dense token-level supervision, addressing the distribution mismatch between training and inference in off-policy distillation methods. However, on-policy distillation typically requires a separate, often larger, teacher LLM and does not explicitly leverage ground-truth solutions available in reasoning datasets. Inspired by the intuition that a sufficiently capable LLM can rationalize external privileged reasoning traces and teach its weaker self, we introduce On-Policy Self-Distillation (OPSD), a learning algorithm where a single LLM acts as both teacher and student with different contexts. The teacher policy conditions on privileged information (e.g., verified reasoning traces) while the student policy sees only the question; training minimizes the per-token divergence between these distributions over the student's own rollouts. We demonstrate the efficacy of our method on multiple mathematical reasoning benchmarks, achieving superior token efficiency compared to reinforcement learning methods and better performance over off-policy distillation methods. Code repo: https://github.com/siyan-zhao/OPSD.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2601.18734",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 1.0,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-21T13:02:10Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Ethem Yağız Çalık",
+            "Talha Rüzgar Akkuş"
+          ],
+          "title": "Enhancing Human-Like Responses in Large Language Models",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2501.05032",
+        "summary": "This paper explores the advancements in making large language models (LLMs) more human-like. We focus on techniques that enhance natural language understanding, conversational coherence, and emotional intelligence in AI systems. The study evaluates various approaches, including fine-tuning with diverse datasets, incorporating psychological principles, and designing models that better mimic human reasoning patterns. Our findings demonstrate that these enhancements not only improve user interactions but also open new possibilities for AI applications across different domains. Future work will address the ethical implications and potential biases introduced by these human-like attributes.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2501.05032",
+          "http_status": 200,
+          "pdf_sample_score": 0.1866,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-21T13:02:11Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "learning from the self-future: on-policy self-distillation for dllms linguistics",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

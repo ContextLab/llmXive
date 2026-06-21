@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2501.05032",
+  "judged_at": "2026-06-21T13:02:32Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "learning from the self-future: on-policy self-distillation for dllms linguistics",
+  "rationale": "The paper evaluates linguistic quality (“human‑like responses”) of large language models, which is a dependent variable in the same domain (LLM linguistics) that the user’s question concerns, satisfying acceptance criterion (b).",
+  "relevant": true
+}

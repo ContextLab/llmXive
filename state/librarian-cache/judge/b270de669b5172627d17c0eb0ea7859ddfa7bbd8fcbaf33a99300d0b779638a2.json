@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2401.10065",
+  "judged_at": "2026-06-21T13:01:22Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "code2lora: hypernetwork-generated adapters for code language models under software evolution computer science",
+  "rationale": "The paper studies code prompting to improve conditional reasoning in code‑enabled LLMs, which is unrelated to hypernetwork‑generated adapters (LoRA) or software‑evolution adaptation of code models; it does not address the same mechanism, variables, or population required for the user's question.",
+  "relevant": false
+}

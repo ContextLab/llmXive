@@ -1,0 +1,478 @@
+{
+  "fetched_at": "2026-06-21T13:01:23Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "Code2LoRA: Hypernetwork-Generated Adapters for Code Language Models under Software Evolution",
+      "target_n": 5
+    },
+    "duration_seconds": 50.902,
+    "ended_at": "2026-06-21T13:01:23Z",
+    "expansion": null,
+    "extracted_queries": [
+      "low-rank adaptation hypernetwork",
+      "GitHub commit dataset",
+      "prompt tuning code models",
+      "Pass@k code generation",
+      "catastrophic forgetting continual learning"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2606.06492"
+      ]
+    },
+    "per_query_hit_count": {
+      "Code2LoRA: Hypernetwork-Generated Adapters for Code Language Models under Software Evolution computer science": 3,
+      "GitHub commit dataset": 3,
+      "Pass@k code generation": 3,
+      "catastrophic forgetting continual learning": 3,
+      "low-rank adaptation hypernetwork": 3,
+      "prompt tuning code models": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 2,
+      "rejections": [
+        {
+          "primary_pointer": "1601.07392",
+          "rationale": "The paper discusses software engineering lessons for the Nmag micromagnetic simulation tool and does not address code language models, hypernetwork-generated adapters, or software evolution of code LLMs, which are the core constructs of the user's question. It falls under the off-domain rejection criteria.",
+          "title": "Nmag micromagnetic simulation tool - software engineering lessons learned"
+        },
+        {
+          "primary_pointer": "2401.10065",
+          "rationale": "The paper studies code prompting to improve conditional reasoning in code‑enabled LLMs, which is unrelated to hypernetwork‑generated adapters (LoRA) or software‑evolution adaptation of code models; it does not address the same mechanism, variables, or population required for the user's question.",
+          "title": "Code Prompting Elicits Conditional Reasoning Abilities in Text+Code LLMs"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-21T13:00:32Z",
+    "term_input": {
+      "normalized": "code2lora: hypernetwork-generated adapters for code language models under software evolution computer science",
+      "raw": "Code2LoRA: Hypernetwork-Generated Adapters for Code Language Models under Software Evolution computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Software Visualization encompasses the development and evaluation of methods for graphically representing different aspects of methods of software, including its structure, execution and evolution. Creating visualizations helps the user to better understand complex phenomena. It is also found by the software engineering community that visualization is essential and important. In order to visualize the evolution of the models in Model-Driven Software Evolution, authors have proposed a framework which consists of 7 key areas (views) and 22 key features for the assessment of Model Driven Software Evolution process and addresses a number of stakeholder concerns. The framework is derived by the application of the Goal Question Metric Paradigm. This paper aims to describe an application of the framework by considering different visualization tools/CASE tools which are used to visualize the models in different views and to capture the information of models during their evolution. Comparison of such tools is also possible by using the framework.",
+          "claimed_authors": [
+            "Akepogu Anand Rao",
+            "Karanam Madhavi"
+          ],
+          "claimed_title": "Framework for Visualizing Model-Driven Software Evolution and its Application",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.1188"
+        },
+        "details": "query-relevance 0.273 < 0.3 (query='Code2LoRA: Hypernetwork-Generated Adapters for Code Language Models under Softwa', candidate_title='Framework for Visualizing Model-Driven Software Evolution and its Application')",
+        "failed_at": "2026-06-21T13:01:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Transformers can under some circumstances generalize to novel problem instances whose constituent parts might have been encountered during training, but whose compositions have not. What mechanisms underlie this ability for compositional generalization? By reformulating multi-head attention as a hypernetwork, we reveal that a composable, low-dimensional latent code specifies key-query specific operations. We find empirically that this latent code is predictive of the subtasks the network performs on unseen task compositions, revealing that latent codes acquired during training are reused to solve unseen problem instances. To further examine the hypothesis that the intrinsic hypernetwork of multi-head attention supports compositional generalization, we ablate whether making the hypernetwork-generated linear value network nonlinear strengthens compositionality. We find that this modification improves compositional generalization on abstract reasoning tasks. In particular, we introduce a symbolic version of the Raven's Progressive Matrices human intelligence test, which gives us precise control over the problem compositions encountered during training and evaluation. We demonstrate on this task how scaling model size and data enables compositional generalization in transformers and gives rise to a functionally structured latent space.",
+          "claimed_authors": [
+            "Simon Schug",
+            "Seijin Kobayashi",
+            "Yassir Akram",
+            "João Sacramento",
+            "Razvan Pascanu"
+          ],
+          "claimed_title": "Attention as a Hypernetwork",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2406.05816"
+        },
+        "details": "query-relevance 0.273 < 0.3 (query='Code2LoRA: Hypernetwork-Generated Adapters for Code Language Models under Softwa', candidate_title='Attention as a Hypernetwork')",
+        "failed_at": "2026-06-21T13:01:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Parameter-efficient fine-tuning (PEFT) has emerged as a powerful paradigm for adapting large-scale pre-trained models to downstream tasks with minimal additional parameters. Among PEFT methods, Low-Rank Adaptation (LoRA) stands out for its effectiveness by inserting trainable low-rank matrices into weight updates to enable efficient adaptation. However, when applied to multi-head self-attention, existing LoRA-based methods typically fine-tune each attention head independently, overlooking potential interactions and shared structure among heads. To address this limitation, we propose Hypernetwork-Driven Low-rank Adaptation (HyRA) that employs a hypernetwork to generate joint low-rank matrices for all attention heads within a layer. The shared generator promotes cross-head information sharing, helping low-rank modules avoid the redundant feature learning seen in traditional LoRA methods. Theoretically, our method achieves significantly better sample efficiency compared to standard LoRA. Empirically, we evaluate HyRA on a comprehensive suite of language and vision benchmarks. Our approach consistently outperforms existing parameter-efficient fine-tuning (PEFT) baselines across a wide range of tasks. Notably, in low-data regimes, HyRA achieves substantial improvements over LoRA, underscoring its practical sample efficiency and effectiveness in data-scarce scenarios.",
+          "claimed_authors": [
+            "Nghiem T. Diep",
+            "Dung Le",
+            "Tuan Truong",
+            "Tan Dinh",
+            "Huy Nguyen",
+            "Nhat Ho"
+          ],
+          "claimed_title": "Hypernetwork-Driven Low-Rank Adaptation Across Attention Heads",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2510.04295"
+        },
+        "details": "query-relevance 0.273 < 0.3 (query='Code2LoRA: Hypernetwork-Generated Adapters for Code Language Models under Softwa', candidate_title='Hypernetwork-Driven Low-Rank Adaptation Across Attention Heads')",
+        "failed_at": "2026-06-21T13:01:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The RSNA Abdominal Traumatic Injury CT (RATIC) dataset is the largest publicly available collection of adult abdominal CT studies annotated for traumatic injuries. This dataset includes 4,274 studies from 23 institutions across 14 countries. The dataset is freely available for non-commercial use via Kaggle at https://www.kaggle.com/competitions/rsna-2023-abdominal-trauma-detection. Created for the RSNA 2023 Abdominal Trauma Detection competition, the dataset encourages the development of advanced machine learning models for detecting abdominal injuries on CT scans. The dataset encompasses detection and classification of traumatic injuries across multiple organs, including the liver, spleen, kidneys, bowel, and mesentery. Annotations were created by expert radiologists from the American Society of Emergency Radiology (ASER) and Society of Abdominal Radiology (SAR). The dataset is annotated at multiple levels, including the presence of injuries in three solid organs with injury grading, image-level annotations for active extravasations and bowel injury, and voxelwise segmentations of each of the potentially injured organs. With the release of this dataset, we hope to facilitate research and development in machine learning and abdominal trauma that can lead to improved patient care and outcomes.",
+          "claimed_authors": [
+            "Jeffrey D. Rudie",
+            "Hui-Ming Lin",
+            "Robyn L. Ball",
+            "Sabeena Jalal",
+            "Luciano M. Prevedello",
+            "Savvas Nicolaou",
+            "Brett S. Marinelli",
+            "Adam E. Flanders",
+            "Kirti Magudia",
+            "George Shih",
+            "Melissa A. Davis",
+            "John Mongan",
+            "Peter D. Chang",
+            "Ferco H. Berger",
+            "Sebastiaan Hermans",
+            "Meng Law",
+            "Tyler Richards",
+            "Jan-Peter Grunz",
+            "Andreas Steven Kunz",
+            "Shobhit Mathur",
+            "Sandro Galea-Soler",
+            "Andrew D. Chung",
+            "Saif Afat",
+            "Chin-Chi Kuo",
+            "Layal Aweidah",
+            "Ana Villanueva Campos",
+            "Arjuna Somasundaram",
+            "Felipe Antonio Sanchez Tijmes",
+            "Attaporn Jantarangkoon",
+            "Leonardo Kayat Bittencourt",
+            "Michael Brassil",
+            "Ayoub El Hajjami",
+            "Hakan Dogan",
+            "Muris Becircic",
+            "Agrahara G. Bharatkumar",
+            "Eduardo Moreno Júdice de Mattos Farina",
+            "Dataset Curator Group",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Errol Colak"
+          ],
+          "claimed_title": "The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.19595"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='Code2LoRA: Hypernetwork-Generated Adapters for Code Language Models under Softwa', candidate_title='The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset')",
+        "failed_at": "2026-06-21T13:01:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Commit signing is a principal mechanism for verifying the origin of code in software supply chains. Security frameworks treat it as a core trust signal, assuming developers sign their commits consistently with keys they control and keep those keys in good standing over time. Whether this assumption holds in practice has not been evaluated at ecosystem scale. This study addresses this gap. We present the first developer-centric, ecosystem-scale measurement of commit signing on GitHub, covering the platform's full history, spanning 71,694 active developers, 16.1 million commits, and 874,198 repositories. To summarize our findings: (1) overall signing adoption rates are misleading, as most signed commits come from automatic platform signing rather than deliberate developer action; (2) developers who do sign locally rarely keep it up consistently across repositories or over time; (3) signing lapse rates rise alongside account age rather than falling, making sustained coverage structurally unlikely; and (4) developers manage their signing keys poorly, leaving expired keys unrevoked and letting credential debt grow over time. Our findings show that the assumptions underlying supply-chain security frameworks do not hold in practice, establishing that progress requires either signing credentials redesigned to travel with developer identity while remaining outside platform control, or frameworks built on defenses that do not depend on every developer managing their own keys.",
+          "claimed_authors": [
+            "Abubakar Sadiq Shittu",
+            "John Sadik",
+            "Farzin Gholamrezae",
+            "Scott Ruoti"
+          ],
+          "claimed_title": "Analysis of Commit Signing on Github",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2604.14014"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='Code2LoRA: Hypernetwork-Generated Adapters for Code Language Models under Softwa', candidate_title='Analysis of Commit Signing on Github')",
+        "failed_at": "2026-06-21T13:01:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Radiological Society of North America (RSNA) Lumbar Degenerative Imaging Spine Classification (LumbarDISC) dataset is the largest publicly available dataset of adult MRI lumbar spine examinations annotated for degenerative changes. The dataset includes 2,697 patients with a total of 8,593 image series from 8 institutions across 6 countries and 5 continents. The dataset is available for free for non-commercial use via Kaggle and RSNA Medical Imaging Resource of AI (MIRA). The dataset was created for the RSNA 2024 Lumbar Spine Degenerative Classification competition where competitors developed deep learning models to grade degenerative changes in the lumbar spine. The degree of spinal canal, subarticular recess, and neural foraminal stenosis was graded at each intervertebral disc level in the lumbar spine. The images were annotated by expert volunteer neuroradiologists and musculoskeletal radiologists from the RSNA, American Society of Neuroradiology, and the American Society of Spine Radiology. This dataset aims to facilitate research and development in machine learning and lumbar spine imaging to lead to improved patient care and clinical efficiency.",
+          "claimed_authors": [
+            "Tyler J. Richards",
+            "Adam E. Flanders",
+            "Errol Colak",
+            "Luciano M. Prevedello",
+            "Robyn L. Ball",
+            "Felipe Kitamura",
+            "John Mongan",
+            "Maryam Vazirabad",
+            "Hui-Ming Lin",
+            "Anne Kendell",
+            "Thanat Kanthawang",
+            "Salita Angkurawaranon",
+            "Emre Altinmakas",
+            "Hakan Dogan",
+            "Paulo Eduardo de Aguiar Kuriki",
+            "Arjuna Somasundaram",
+            "Christopher Ruston",
+            "Deniz Bulja",
+            "Naida Spahovic",
+            "Jennifer Sommer",
+            "Sirui Jiang",
+            "Eduardo Moreno Judice de Mattos Farina",
+            "Eduardo Caminha Nunes",
+            "Michael Brassil",
+            "Megan McNamara",
+            "Johanna Ortiz",
+            "Jacob Peoples",
+            "Vinson L. Uytana",
+            "Anthony Kam",
+            "Venkata N. S. Dola",
+            "Daniel Murphy",
+            "David Vu",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Competition Data Notebook Group",
+            "Jason F. Talbott"
+          ],
+          "claimed_title": "The RSNA Lumbar Degenerative Imaging Spine Classification (LumbarDISC) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.09162"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='Code2LoRA: Hypernetwork-Generated Adapters for Code Language Models under Softwa', candidate_title='The RSNA Lumbar Degenerative Imaging Spine Classification (LumbarDISC) Dataset')",
+        "failed_at": "2026-06-21T13:01:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Visual prompt tuning (VPT) is a promising solution incorporating learnable prompt tokens to customize pre-trained models for downstream tasks. However, VPT and its variants often encounter challenges like prompt initialization, prompt length, and subpar performance in self-supervised pretraining, hindering successful contextual adaptation. This study commences by exploring the correlation evolvement between prompts and patch tokens during proficient training. Inspired by the observation that the prompt tokens tend to share high mutual information with patch tokens, we propose initializing prompts with downstream token prototypes. The strategic initialization, a stand-in for the previous initialization, substantially improves performance in fine-tuning. To refine further, we optimize token construction with a streamlined pipeline that maintains excellent performance with almost no increase in computational expenses compared to VPT. Exhaustive experiments show our proposed approach outperforms existing methods by a remarkable margin. For instance, it surpasses full fine-tuning in 19 out of 24 tasks, using less than 0.4% of learnable parameters on the FGVC and VTAB-1K benchmarks. Notably, our method significantly advances the adaptation for self-supervised pretraining, achieving impressive task performance gains of at least 10% to 30%. Besides, the experimental results demonstrate the proposed SPT is robust to prompt lengths and scales well with model capacity and training data size. We finally provide an insightful exploration into the amount of target data facilitating the adaptation of pre-trained models to downstream tasks. The code is available at https://github.com/WangYZ1608/Self-Prompt-Tuning.",
+          "claimed_authors": [
+            "Yuzhu Wang",
+            "Lechao Cheng",
+            "Chaowei Fang",
+            "Dingwen Zhang",
+            "Manni Duan",
+            "Meng Wang"
+          ],
+          "claimed_title": "Revisiting the Power of Prompt for Visual Tuning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2402.02382"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='Code2LoRA: Hypernetwork-Generated Adapters for Code Language Models under Softwa', candidate_title='Revisiting the Power of Prompt for Visual Tuning')",
+        "failed_at": "2026-06-21T13:01:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Repeated sampling with a verifier is the standard way to allocate test-time compute for code generation, with pass@$K$ as the canonical metric. Yet the standard policy class draws $K$ independent samples from a single answer distribution, so attempts often collapse onto near-duplicate reasoning paths and waste the budget on redundant rollouts. This failure is costly in competitive programming, where many problems admit multiple distinct algorithmic strategies and pass@$K$ requires only one correct attempt. We propose Coordinated Pass@$K$ Policy Optimization (CPPO), which turns pass@$K$ generation into joint exploration over strategies: a planner emits a tuple of $K{=}4$ alternative high-level methods, and a shared solver attempts one solution per method. CPPO trains this joint policy with a multiplicative planner reward, $R_{\\mathrm{plan}} = J_ψ\\cdot R_{\\mathrm{out}}$, assigning credit only to valid strategy tuples that lead to verifier-confirmed pass@$K$ success. Across APPS, CodeContests, and LiveCodeBench-v6, CPPO improves pass@$4$ over direct sampling, planning baselines, planner-only SFT, and pass@$K$-oriented RL under the same $K{=}4$ solver-attempt budget, with statistically significant gains on six of nine model--benchmark cells. The largest single gain is $+0.16$ on Qwen3.5-9B LiveCodeBench-v6 over the strongest baseline, PKPO ($0.588 \\rightarrow 0.748$; paired bootstrap, $p < 0.05$).",
+          "claimed_authors": [
+            "Yilong Li",
+            "Suman Banerjee",
+            "Tong Che"
+          ],
+          "claimed_title": "Cast a Wider Net: Coordinated Pass@K Policy Optimization for Code Reasoning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2605.27000"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='Code2LoRA: Hypernetwork-Generated Adapters for Code Language Models under Softwa', candidate_title='Cast a Wider Net: Coordinated Pass@K Policy Optimization for Code Reasoning')",
+        "failed_at": "2026-06-21T13:01:06Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Pretrained transformer-based models have shown high performance in natural language generation task. However, a new wave of interest has surged: automatic programming language generation. This task consists of translating natural language instructions to a programming code. Despite the fact that well-known pretrained models on language generation have achieved good performance in learning programming languages, effort is still needed in automatic code generation. In this paper, we introduce JaCoText, a model based on Transformers neural network. It aims to generate java source code from natural language text. JaCoText leverages advantages of both natural language and code generation models. More specifically, we study some findings from the state of the art and use them to (1) initialize our model from powerful pretrained models, (2) explore additional pretraining on our java dataset, (3) carry out experiments combining the unimodal and bimodal data in the training, and (4) scale the input and output length during the fine-tuning of the model. Conducted experiments on CONCODE dataset show that JaCoText achieves new state-of-the-art results.",
+          "claimed_authors": [
+            "Jessica López Espejel",
+            "Mahaman Sanoussi Yahaya Alassan",
+            "Walid Dahhane",
+            "El Hassane Ettifouri"
+          ],
+          "claimed_title": "JaCoText: A Pretrained Model for Java Code-Text Generation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2303.12869"
+        },
+        "details": "query-relevance 0.273 < 0.3 (query='Code2LoRA: Hypernetwork-Generated Adapters for Code Language Models under Softwa', candidate_title='JaCoText: A Pretrained Model for Java Code-Text Generation')",
+        "failed_at": "2026-06-21T13:01:06Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Reinforcement Learning with Verifiable Rewards (RLVR) has emerged as a powerful paradigm to improve Large Language Models on reasoning tasks such as coding, math or logic. To assess the reasoning boundary (the fraction of problems a model can solve) researchers often report Pass@k at large sampling budgets. Recent results reveal a crossover phenomenon: while RLVR models outperform the base model at small k values, the base model usually outperforms them when sampling a very large number of completions. This has been interpreted as evidence that base models have a larger reasoning boundary. We argue that on tasks with discrete answer spaces, such as math with numeric outputs, Pass@k at large k reflects the increasingly higher chance of success in the limit of the number of trials rather than genuine reasoning, and can therefore be misleading. We propose Cover@tau, which measures the fraction of problems that a model can solve for which at least a tau proportion of completions are correct. Unlike Pass@k, Cover@tau captures reasoning under an explicit reliability threshold: models that rely on random guessing degrade rapidly as tau increases. We evaluate several RLVR models using Cover@tau-based metrics and illustrate how the relative rankings of popular algorithms change compared to Pass@1, offering a different perspective on reasoning boundaries.",
+          "claimed_authors": [
+            "Marius Dragoi",
+            "Ioana Pintilie",
+            "Florin Gogianu",
+            "Florin Brad"
+          ],
+          "claimed_title": "Beyond Pass@k: Breadth-Depth Metrics for Reasoning Boundaries",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2510.08325"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='Code2LoRA: Hypernetwork-Generated Adapters for Code Language Models under Softwa', candidate_title='Beyond Pass@k: Breadth-Depth Metrics for Reasoning Boundaries')",
+        "failed_at": "2026-06-21T13:01:06Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Explaining the behaviors of deep neural networks, usually considered as black boxes, is critical especially when they are now being adopted over diverse aspects of human life. Taking the advantages of interpretable machine learning (interpretable ML), this work proposes a novel tool called Catastrophic Forgetting Dissector (or CFD) to explain catastrophic forgetting in continual learning settings. We also introduce a new method called Critical Freezing based on the observations of our tool. Experiments on ResNet articulate how catastrophic forgetting happens, particularly showing which components of this famous network are forgetting. Our new continual learning algorithm defeats various recent techniques by a significant margin, proving the capability of the investigation. Critical freezing not only attacks catastrophic forgetting but also exposes explainability.",
+          "claimed_authors": [
+            "Giang Nguyen"
+          ],
+          "claimed_title": "Overcoming Catastrophic Forgetting by XAI",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2211.14177"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Code2LoRA: Hypernetwork-Generated Adapters for Code Language Models under Softwa', candidate_title='Overcoming Catastrophic Forgetting by XAI')",
+        "failed_at": "2026-06-21T13:01:06Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Continual learning (CL) is a setting in which an agent has to learn from an incoming stream of data during its entire lifetime. Although major advances have been made in the field, one recurring problem which remains unsolved is that of Catastrophic Forgetting (CF). While the issue has been extensively studied empirically, little attention has been paid from a theoretical angle. In this paper, we show that the impact of CF increases as two tasks increasingly align. We introduce a measure of task similarity called the NTK overlap matrix which is at the core of CF. We analyze common projected gradient algorithms and demonstrate how they mitigate forgetting. Then, we propose a variant of Orthogonal Gradient Descent (OGD) which leverages structure of the data through Principal Component Analysis (PCA). Experiments support our theoretical findings and show how our method can help reduce CF on classical CL datasets.",
+          "claimed_authors": [
+            "Thang Doan",
+            "Mehdi Bennani",
+            "Bogdan Mazoure",
+            "Guillaume Rabusseau",
+            "Pierre Alquier"
+          ],
+          "claimed_title": "A Theoretical Analysis of Catastrophic Forgetting through the NTK Overlap Matrix",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2010.04003"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Code2LoRA: Hypernetwork-Generated Adapters for Code Language Models under Softwa', candidate_title='A Theoretical Analysis of Catastrophic Forgetting through the NTK Overlap Matrix')",
+        "failed_at": "2026-06-21T13:01:06Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Deep learning is often criticized by two serious issues which rarely exist in natural nervous systems: overfitting and catastrophic forgetting. It can even memorize randomly labelled data, which has little knowledge behind the instance-label pairs. When a deep network continually learns over time by accommodating new tasks, it usually quickly overwrites the knowledge learned from previous tasks. Referred to as the {\\it neural variability}, it is well-known in neuroscience that human brain reactions exhibit substantial variability even in response to the same stimulus. This mechanism balances accuracy and plasticity/flexibility in the motor learning of natural nervous systems. Thus it motivates us to design a similar mechanism named {\\it artificial neural variability} (ANV), which helps artificial neural networks learn some advantages from ``natural'' neural networks. We rigorously prove that ANV plays as an implicit regularizer of the mutual information between the training data and the learned model. This result theoretically guarantees ANV a strictly improved generalizability, robustness to label noise, and robustness to catastrophic forgetting. We then devise a {\\it neural variable risk minimization} (NVRM) framework and {\\it neural variable optimizers} to achieve ANV for conventional network architectures in practice. The empirical studies demonstrate that NVRM can effectively relieve overfitting, label noise memorization, and catastrophic forgetting at negligible costs. \\footnote{Code: \\url{https://github.com/zeke-xie/artificial-neural-variability-for-deep-learning}.",
+          "claimed_authors": [
+            "Zeke Xie",
+            "Fengxiang He",
+            "Shaopeng Fu",
+            "Issei Sato",
+            "Dacheng Tao",
+            "Masashi Sugiyama"
+          ],
+          "claimed_title": "Artificial Neural Variability for Deep Learning: On Overfitting, Noise Memorization, and Catastrophic Forgetting",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2011.06220"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='Code2LoRA: Hypernetwork-Generated Adapters for Code Language Models under Softwa', candidate_title='Artificial Neural Variability for Deep Learning: On Overfitting, Noise Memorization, and Catastrophic Forgetting')",
+        "failed_at": "2026-06-21T13:01:06Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Liliana Hotsko",
+            "Yinxi Li",
+            "Yuntian Deng",
+            "Pengyu Nie"
+          ],
+          "title": "Code2LoRA: Hypernetwork-Generated Adapters for Code Language Models under Software Evolution",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2606.06492",
+        "summary": "Code language models need repository-level context to resolve imports, APIs, and project conventions. Existing methods inject this knowledge as long inputs (retrieved through RAG or dependency analysis) or through per-repository fine-tuning and LoRA -- costly at repository scale and brittle to evolving codebases. We introduce Code2LoRA, a hypernetwork framework that generates repository-specific LoRA adapters, effectively injecting repository knowledge with zero inference-time token overhead. Code2LoRA supports two usage scenarios: Code2LoRA-Static converts a single repository snapshot into an adapter, suitable for comprehension of stable codebases; while Code2LoRA-Evo maintains an adapter backed by a GRU hidden state updated per code diff, suitable for active development of evolving codebases. To evaluate Code2LoRA against parameter-efficient fine-tuning baselines, we build RepoPeftBench, a benchmark of 604 Python repositories with two tracks: a static track with 40K training and 12K test assertion-completion tasks, and an evolution track with 215K commit-derived training and 87K commit-derived test tasks. On the static track, Code2LoRA-Static achieves 63.8% cross-repo and 66.2% in-repo exact match, matching the per-repository LoRA upper bound; on the evolution track, Code2LoRA-Evo achieves 60.3% cross-repo exact match (+5.2 pp over a single shared LoRA). Code2LoRA's code can be found at https://anonymous.4open.science/r/code2lora-6857; the model checkpoints and RepoPeftBench datasets can be found at https://huggingface.co/code2lora.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2606.06492",
+          "http_status": 200,
+          "pdf_sample_score": 0.3187,
+          "query_relevance_score": 0.9091,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-21T13:01:04Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "J. Pablo Muñoz",
+            "Jinjie Yuan",
+            "Nilesh Jain"
+          ],
+          "title": "Low-Rank Adapters Meet Neural Architecture Search for LLM Compression",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2501.16372",
+        "summary": "The rapid expansion of Large Language Models (LLMs) has posed significant challenges regarding the computational resources required for fine-tuning and deployment. Recent advancements in low-rank adapters have demonstrated their efficacy in parameter-efficient fine-tuning (PEFT) of these models. This retrospective paper comprehensively discusses innovative approaches that synergize low-rank representations with Neural Architecture Search (NAS) techniques, particularly weight-sharing super-networks. Robust solutions for compressing and fine-tuning large pre-trained models are developed by integrating these methodologies. Our analysis highlights the potential of these combined strategies to democratize the use of LLMs, making them more accessible for deployment in resource-constrained environments. The resulting models exhibit reduced memory footprints and faster inference times, paving the way for more practical and scalable applications of LLMs. Models and code are available at https://github.com/IntelLabs/Hardware-Aware-Automated-Machine-Learning.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2501.16372",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3636,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-21T13:01:05Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Sophie Weidmann",
+            "Fernando Castor"
+          ],
+          "title": "An Initial Exploration of Contrastive Prompt Tuning to Generate Energy-Efficient Code",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2604.02352",
+        "summary": "Although LLMs are capable of generating functionally correct code, they also tend to produce less energy-efficient code in comparison to human-written solutions. As these inefficiencies lead to higher computational overhead, they are in direct conflict with Green Software Development (GSD) efforts, which aim to reduce the energy consumption of code. To support these efforts, this study aims to investigate whether and how LLMs can be optimized to promote the generation of energy-efficient code. To this end, we employ Contrastive Prompt Tuning (CPT). CPT combines Contrastive Learning techniques, which help the model to distinguish between efficient and inefficient code, and Prompt Tuning, a Parameter-Efficient Fine Tuning (PEFT) approach that requires only a fraction of the cost of traditional fine tuning. This study evaluates CPT on Python, Java and C++ coding problems across three different models to provide a comprehensive evaluation. The method achieves consistent improvements in code accuracy for two models but efficiency gains vary by model, language and task complexity, indicating that improvements are not uniformly reliable.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2604.02352",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3636,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-21T13:01:05Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "code2lora: hypernetwork-generated adapters for code language models under software evolution computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

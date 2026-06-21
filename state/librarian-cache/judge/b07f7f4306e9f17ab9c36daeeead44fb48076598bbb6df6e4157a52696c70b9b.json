@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2501.16372",
+  "judged_at": "2026-06-21T13:01:14Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "code2lora: hypernetwork-generated adapters for code language models under software evolution computer science",
+  "rationale": "The paper investigates low‑rank adapters (a form of PEFT/LoRA) for large language models, which matches the core mechanism (adapter‑based fine‑tuning) of the user's “hypernetwork‑generated adapters” question, satisfying inclusion criterion (a) same‑mechanism evidence (and also serves as a foundational reference for adapter methods).",
+  "relevant": true
+}

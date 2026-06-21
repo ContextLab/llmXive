@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2601.18734",
+  "judged_at": "2026-06-21T13:02:28Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "learning from the self-future: on-policy self-distillation for dllms linguistics",
+  "rationale": "The paper studies the same mechanism—on‑policy self‑distillation—by having a single LLM act as both teacher and student, which directly matches the user's focus on on‑policy self‑distillation for dLLMs (category (a): same‑mechanism evidence).",
+  "relevant": true
+}

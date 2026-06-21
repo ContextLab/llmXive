@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2111.12170",
+  "judged_at": "2026-06-21T13:02:20Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "learning from the self-future: on-policy self-distillation for dllms linguistics",
+  "rationale": "The paper studies self‑distillation as an algorithmic mechanism, providing empirical evidence of how self‑distillation improves representation learning and convergence. Although it focuses on image clustering rather than dLLMs or linguistics, it matches criterion (a): same‑mechanism evidence for self‑distillation, making it a relevant methodological reference for the user's on‑policy self‑distillation research.",
+  "relevant": true
+}

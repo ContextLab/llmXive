@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2405.11357",
+  "judged_at": "2026-06-21T13:02:37Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "learning from the self-future: on-policy self-distillation for dllms linguistics",
+  "rationale": "The paper studies LLMs' character‑level understanding and does not address self‑distillation, on‑policy learning, or the “self‑future” mechanism central to the user's question, thus it lacks relevance to the requested research focus.",
+  "relevant": false
+}

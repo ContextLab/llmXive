@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2306.10687",
+  "judged_at": "2026-06-21T13:02:22Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "learning from the self-future: on-policy self-distillation for dllms linguistics",
+  "rationale": "The paper surveys knowledge distillation methods and includes a dedicated discussion of self‑KD (self‑distillation), which matches the core mechanism of the user’s question (on‑policy self‑distillation for large language models). It therefore serves as a foundational reference on the self‑distillation technique even though it is not specific to dLLMs or linguistics.",
+  "relevant": true
+}

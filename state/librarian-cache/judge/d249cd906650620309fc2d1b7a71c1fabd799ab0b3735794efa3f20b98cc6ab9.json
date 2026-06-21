@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2606.18195",
+  "judged_at": "2026-06-21T13:02:13Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "learning from the self-future: on-policy self-distillation for dllms linguistics",
+  "rationale": "The paper studies on‑policy self‑distillation (the same mechanism the user is investigating) applied to diffusion LLMs (dLLMs), directly matching the core method and model class of the research question (acceptance category a).",
+  "relevant": true
+}
