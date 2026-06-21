@@ -1,12 +1,7 @@
-last_used: albert-einstein
-last_used_at: '2026-06-21T10:16:27.812233+00:00'
-last_outcome: triage_rejected_advanced_as_abstain
+last_used: dan-rockmore
+last_used_at: '2026-06-21T11:32:12.156148+00:00'
+last_outcome: abstained
 history:
-- slug: ada-lovelace
-  started_at: '2026-06-09T20:42:56.473325+00:00'
-  ended_at: '2026-06-09T21:35:24.924860+00:00'
-  outcome: triage_rejected_advanced_as_abstain
-  action: comment
 - slug: alan-turing
   started_at: '2026-06-09T21:35:24.924860+00:00'
   ended_at: '2026-06-09T22:32:05.804445+00:00'
@@ -1126,3 +1121,8 @@ history:
   ended_at: '2026-06-21T10:16:27.812233+00:00'
   outcome: triage_rejected_advanced_as_abstain
   action: comment
+- slug: dan-rockmore
+  started_at: '2026-06-21T10:16:27.812233+00:00'
+  ended_at: '2026-06-21T11:32:12.156148+00:00'
+  outcome: abstained
+  action: abstain
