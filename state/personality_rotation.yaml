@@ -1,14 +1,7 @@
-last_used: daniel-kahneman
-last_used_at: '2026-06-21T18:04:03.751678+00:00'
-last_outcome: librarian_held
+last_used: david-krakauer
+last_used_at: '2026-06-21T20:07:35.389537+00:00'
+last_outcome: abstained
 history:
-- slug: david-krakauer
-  started_at: '2026-06-10T00:48:34.629398+00:00'
-  ended_at: '2026-06-10T01:45:36.787909+00:00'
-  outcome: librarian_held
-  action: comment
-  committed_paths:
-  - projects/PROJ-683-researchclawbench-a-benchmark-for-end-to/paper/reviews/_held/david-krakauer-simulated__2026-06-10__paper.md
 - slug: david-krakauer
   started_at: '2026-06-10T01:45:36.787909+00:00'
   ended_at: '2026-06-10T03:07:17.469117+00:00'
@@ -1132,3 +1125,8 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-628-foundation-protocol-a-coordination-layer/reviews/research/_held/david-krakauer-simulated__2026-06-21__research.md
+- slug: david-krakauer
+  started_at: '2026-06-21T18:04:03.751678+00:00'
+  ended_at: '2026-06-21T20:07:35.389537+00:00'
+  outcome: abstained
+  action: abstain
