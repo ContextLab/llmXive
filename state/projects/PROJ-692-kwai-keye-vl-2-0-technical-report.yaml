@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-11T11:34:00.136868Z'
-current_stage: flesh_out_complete
+current_stage: validated
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-692-kwai-keye-vl-2-0-technical-report
-last_run_id: 311c9ef7-c973-4e72-92ef-4d85c81a2d13
+last_run_id: 7e90f8b7-0a09-468e-bee6-119abfa58cec
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: Kwai Keye-VL-2.0 Technical Report
-updated_at: '2026-06-21T11:24:45.363372Z'
+updated_at: '2026-06-21T11:39:12.387964Z'
