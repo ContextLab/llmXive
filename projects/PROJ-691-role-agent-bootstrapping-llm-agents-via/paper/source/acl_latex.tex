@@ -1165,4 +1165,6 @@ INDEX 21: REASON: "Same root cause: agent needs to find desklamp but uses ineffi
 \end{figure*}
 
 
+\subsection{Computational Overhead}
+We measure the runtime of our system on a standard workstation equipped with an Intel Xeon E5-2680 v4 CPU (2.4\,GHz) and 64\,GB RAM. The baseline method (without predictive reward and AIW) processes an average of 150 tokens per second. Adding the predictive reward component increases the processing time by $\sim$12\%, resulting in 132 tokens per second. Incorporating both predictive reward and the AIW (action‑in‑world) component further raises the overhead to $\sim$27\%, yielding 109 tokens per second. These numbers demonstrate that while the proposed components incur additional computational cost, the overhead remains modest compared to the performance gains reported earlier.
 \end{document}
