@@ -6,13 +6,13 @@ failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-749-playful-agentic-robot-learning
-last_run_id: null
+last_run_id: eab06dcf-b349-477a-b1fa-f57b9df3a517
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
-revision_spec_path: null
+revision_spec_path: specs/auto-revisions/PROJ-749-playful-agentic-robot-learning/round-1
 speckit_paper_dir: null
 speckit_research_dir: null
 title: Playful Agentic Robot Learning
-updated_at: '2026-06-20T09:06:17.334810Z'
+updated_at: '2026-06-21T15:39:51.571003Z'

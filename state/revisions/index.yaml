@@ -132,3 +132,6 @@ ready:
 - project_id: PROJ-564-qwen-image-vae-2-0-technical-report
   revision_spec_path: specs/auto-revisions/PROJ-564-qwen-image-vae-2-0-technical-report/round-1
   queued_at: '2026-06-21T12:47:22.185133+00:00'
+- project_id: PROJ-749-playful-agentic-robot-learning
+  revision_spec_path: specs/auto-revisions/PROJ-749-playful-agentic-robot-learning/round-1
+  queued_at: '2026-06-21T15:39:51.552168+00:00'
