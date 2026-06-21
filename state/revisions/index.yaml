@@ -120,3 +120,6 @@ ready:
 - project_id: PROJ-733-loopcoder-v2-only-loop-once-for-efficien
   revision_spec_path: specs/auto-revisions/PROJ-733-loopcoder-v2-only-loop-once-for-efficien/round-1
   queued_at: '2026-06-20T21:33:31.743841+00:00'
+- project_id: PROJ-563-many-shot-cot-icl-making-in-context-lear
+  revision_spec_path: specs/auto-revisions/PROJ-563-many-shot-cot-icl-making-in-context-lear/round-1
+  queued_at: '2026-06-21T04:34:12.646958+00:00'
