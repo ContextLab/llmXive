@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2507.01949",
+  "judged_at": "2026-06-21T11:24:29Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "kwai keye-vl-2.0 technical report computer science",
+  "rationale": "The paper is the technical report describing the Kwai Keye-VL multimodal model, serving as the canonical reference for the Kwai Keye-VL series (including the 2.0 version) and thus satisfies the foundational methodology/canonical reference criterion (d).",
+  "relevant": true
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2207.13219",
+  "judged_at": "2026-06-21T11:24:36Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "kwai keye-vl-2.0 technical report computer science",
+  "rationale": "The paper describes the Dalorex architecture for memory‑bound workloads and does not discuss or relate to the Kwai Keye‑VL‑2.0 technical report; it is unrelated to the user's specific topic.",
+  "relevant": false
+}

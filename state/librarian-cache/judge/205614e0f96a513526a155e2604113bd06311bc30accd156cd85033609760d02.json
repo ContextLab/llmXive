@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2203.08975",
+  "judged_at": "2026-06-21T11:25:31Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "searchswarm: towards delegation intelligence in agentic llms for long-horizon deep research computer science",
+  "rationale": "The survey studies the communication mechanisms that enable coordination among multiple agents, which is the same underlying mechanism (agentic coordination/delegation) central to “delegation intelligence in agentic LLMs” and thus serves as a foundational reference for the multi‑agent aspect of the question (acceptance category (a)).",
+  "relevant": true
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2512.13930",
+  "judged_at": "2026-06-21T11:25:28Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "searchswarm: towards delegation intelligence in agentic llms for long-horizon deep research computer science",
+  "rationale": "The paper studies hierarchical multi‑agent LLM reasoning where higher‑level agents delegate tasks to lower‑level agents, directly addressing delegation intelligence and long‑horizon autonomous research—matching the same mechanism (a) despite focusing on materials discovery rather than a generic computer‑science setting.",
+  "relevant": true
+}

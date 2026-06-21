@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2409.02645",
+  "judged_at": "2026-06-21T11:25:40Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "searchswarm: towards delegation intelligence in agentic llms for long-horizon deep research computer science",
+  "rationale": "The paper surveys emergent language in multi‑agent reinforcement learning and does not study delegation intelligence, agentic LLMs, or long‑horizon deep research, so it lacks the relevant mechanism, variables, or domain required for inclusion.",
+  "relevant": false
+}

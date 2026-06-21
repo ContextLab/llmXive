@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2604.14140",
+  "judged_at": "2026-06-21T11:25:26Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "searchswarm: towards delegation intelligence in agentic llms for long-horizon deep research computer science",
+  "rationale": "The paper provides a benchmark that directly measures long‑horizon chain‑of‑thought reasoning in LLMs, which is the core mechanism underlying “delegation intelligence” for agentic LLMs in long‑horizon deep research (acceptance category (a): same‑mechanism evidence).",
+  "relevant": true
+}

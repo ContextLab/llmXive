@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2509.01563",
+  "judged_at": "2026-06-21T11:24:32Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "kwai keye-vl-2.0 technical report computer science",
+  "rationale": "The paper describes the preceding version (Keye‑VL‑1.5) of the same multimodal video model family, providing foundational methodology and system details that would be cited as prior work when reviewing the newer Kwai Keye‑VL‑2.0 technical report (acceptance category d).",
+  "relevant": true
+}

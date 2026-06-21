@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2606.10651",
+  "judged_at": "2026-06-21T11:24:26Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "kwai keye-vl-2.0 technical report computer science",
+  "rationale": "The candidate is the exact technical report titled “Kwai Keye-VL-2.0 Technical Report,” directly matching the user’s query; it provides the primary description of the Kwai Keye-VL-2.0 model (acceptance category a – same‑mechanism evidence).",
+  "relevant": true
+}

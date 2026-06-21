@@ -1,0 +1,762 @@
+{
+  "fetched_at": "2026-06-21T11:24:37Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "Kwai Keye-VL-2.0 Technical Report",
+      "target_n": 5
+    },
+    "duration_seconds": 65.966,
+    "ended_at": "2026-06-21T11:24:37Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "Kwai Keye VL 2.0 architecture"
+        ],
+        [
+          2,
+          "Kwai Keye-VL 2.0 model description"
+        ],
+        [
+          3,
+          "Kwai vision‑language model Keye‑VL 2.0"
+        ],
+        [
+          4,
+          "Keye‑VL 2.0 multimodal system"
+        ],
+        [
+          5,
+          "Kwai Keye‑VL 2.0 research paper"
+        ],
+        [
+          6,
+          "Kwai Keye‑VL 2.0 technical documentation"
+        ],
+        [
+          7,
+          "Keye‑VL 2.0 cross‑modal alignment"
+        ],
+        [
+          8,
+          "Kwai multimodal transformer Keye‑VL 2.0"
+        ],
+        [
+          9,
+          "Kwai Keye‑VL 2.0 benchmark results"
+        ],
+        [
+          10,
+          "Kwai Keye‑VL 2.0 pretraining methodology"
+        ],
+        [
+          11,
+          "Kwai visual‑language model Keye‑VL 2.0 evaluation"
+        ],
+        [
+          12,
+          "Keye‑VL 2.0 dataset and training data"
+        ],
+        [
+          13,
+          "Kwai Keye‑VL 2.0 performance analysis"
+        ],
+        [
+          14,
+          "Kwai multimodal large language model Keye‑VL 2.0"
+        ],
+        [
+          15,
+          "Kwai Keye‑VL 2.0 implementation details"
+        ],
+        [
+          16,
+          "Keye‑VL 2.0 vision‑language fusion techniques"
+        ],
+        [
+          17,
+          "Kwai AI vision‑language system Keye‑VL 2.0"
+        ],
+        [
+          18,
+          "Kwai Keye‑VL 2.0 technical report PDF"
+        ],
+        [
+          19,
+          "Kwai Keye‑VL 2.0 research overview"
+        ],
+        [
+          20,
+          "Kwai Keye‑VL 2.0 scientific article"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Kwai Keye VL 2.0 architecture": 5,
+        "Kwai Keye-VL-2.0 Technical Report computer science": 0
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "multimodal transformer pretraining",
+      "COCO caption vision-language dataset",
+      "visual question answering benchmark",
+      "retrieval recall evaluation metric",
+      "contrastive cross-modal learning"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2606.10651"
+      ]
+    },
+    "per_query_hit_count": {
+      "COCO caption vision-language dataset": 3,
+      "Kwai Keye-VL-2.0 Technical Report computer science": 3,
+      "contrastive cross-modal learning": 3,
+      "multimodal transformer pretraining": 3,
+      "retrieval recall evaluation metric": 3,
+      "visual question answering benchmark": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 3,
+      "rejections": [
+        {
+          "primary_pointer": "1211.0310",
+          "rationale": "The candidate paper concerns astrophysics and dark energy science with the LSST, which is unrelated to the computer‑science‑focused “Kwai Keye‑VL‑2.0 Technical Report” query; it shares no relevant mechanism, variables, or domain.",
+          "title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration"
+        },
+        {
+          "primary_pointer": "2009.00804",
+          "rationale": "The paper discusses architectural considerations for graph neural networks and does not relate to the Kwai Keye‑VL‑2.0 technical report or its specific computer‑science context, thus it is off‑domain for the user's query.",
+          "title": "Architectural Implications of Graph Neural Networks"
+        },
+        {
+          "primary_pointer": "2207.13219",
+          "rationale": "The paper describes the Dalorex architecture for memory‑bound workloads and does not discuss or relate to the Kwai Keye‑VL‑2.0 technical report; it is unrelated to the user's specific topic.",
+          "title": "Dalorex: A Data-Local Program Execution and Architecture for Memory-bound Applications"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-21T11:23:31Z",
+    "term_input": {
+      "normalized": "kwai keye-vl-2.0 technical report computer science",
+      "raw": "Kwai Keye-VL-2.0 Technical Report computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Sensing human motions through Inertial Measurement Units (IMUs) embedded in personal devices has enabled significant applications in health and wellness. Labeled IMU data is scarce, however, unlabeled or weakly labeled IMU data can be used to model human motions. For video or text modalities, the \"pretrain and adapt\" approach utilizes large volumes of unlabeled or weakly labeled data to build a strong feature extractor, followed by adaptation to specific tasks using limited labeled data. However, pretraining methods are poorly understood for IMU data, and pipelines are rarely evaluated on out-of-domain tasks. We propose PRIMUS: a method for PRetraining IMU encoderS that uses a novel pretraining objective that is empirically validated based on downstream performance on both in-domain and out-of-domain datasets. The PRIMUS objective effectively enhances downstream performance by combining self-supervision, multimodal, and nearest-neighbor supervision. With fewer than 500 labeled samples per class, PRIMUS improves test accuracy by up to 15%, compared to state-of-the-art baselines. To benefit the broader community, we have open-sourced our code at github.com/nokia-bell-labs/pretrained-imu-encoders.",
+          "claimed_authors": [
+            "Arnav M. Das",
+            "Chi Ian Tang",
+            "Fahim Kawsar",
+            "Mohammad Malekzadeh"
+          ],
+          "claimed_title": "PRIMUS: Pretraining IMU Encoders with Multimodal Self-Supervision",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2411.15127"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Kwai Keye-VL-2.0 Technical Report computer science', candidate_title='PRIMUS: Pretraining IMU Encoders with Multimodal Self-Supervision')",
+        "failed_at": "2026-06-21T11:24:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Automated deception detection systems can enhance health, justice, and security in society by helping humans detect deceivers in high-stakes situations across medical and legal domains, among others. This paper presents a novel analysis of the discriminative power of dimensional representations of facial affect for automated deception detection, along with interpretable features from visual, vocal, and verbal modalities. We used a video dataset of people communicating truthfully or deceptively in real-world, high-stakes courtroom situations. We leveraged recent advances in automated emotion recognition in-the-wild by implementing a state-of-the-art deep neural network trained on the Aff-Wild database to extract continuous representations of facial valence and facial arousal from speakers. We experimented with unimodal Support Vector Machines (SVM) and SVM-based multimodal fusion methods to identify effective features, modalities, and modeling approaches for detecting deception. Unimodal models trained on facial affect achieved an AUC of 80%, and facial affect contributed towards the highest-performing multimodal approach (adaptive boosting) that achieved an AUC of 91% when tested on speakers who were not part of training sets. This approach achieved a higher AUC than existing automated machine learning approaches that used interpretable visual, vocal, and verbal features to detect deception in this dataset, but did not use facial affect. Across all videos, deceptive and truthful speakers exhibited significant differences in facial valence and facial arousal, contributing computational support to existing psychological theories on affect and deception. The demonstrated importance of facial affect in our models informs and motivates the future development of automated, affect-aware machine learning approaches for modeling and detecting deception and other social behaviors in-the-wild.",
+          "claimed_authors": [
+            "Leena Mathur",
+            "Maja J Matarić"
+          ],
+          "claimed_title": "Introducing Representations of Facial Affect in Automated Multimodal Deception Detection",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2008.13369"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Kwai Keye-VL-2.0 Technical Report computer science', candidate_title='Introducing Representations of Facial Affect in Automated Multimodal Deception Detection')",
+        "failed_at": "2026-06-21T11:24:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present the MULTIMODAL UNIVERSE, a large-scale multimodal dataset of scientific astronomical data, compiled specifically to facilitate machine learning research. Overall, the MULTIMODAL UNIVERSE contains hundreds of millions of astronomical observations, constituting 100\\,TB of multi-channel and hyper-spectral images, spectra, multivariate time series, as well as a wide variety of associated scientific measurements and \"metadata\". In addition, we include a range of benchmark tasks representative of standard practices for machine learning methods in astrophysics. This massive dataset will enable the development of large multi-modal models specifically targeted towards scientific applications. All codes used to compile the MULTIMODAL UNIVERSE and a description of how to access the data is available at https://github.com/MultimodalUniverse/MultimodalUniverse",
+          "claimed_authors": [
+            " The Multimodal Universe Collaboration",
+            "Jeroen Audenaert",
+            "Micah Bowles",
+            "Benjamin M. Boyd",
+            "David Chemaly",
+            "Brian Cherinka",
+            "Ioana Ciucă",
+            "Miles Cranmer",
+            "Aaron Do",
+            "Matthew Grayling",
+            "Erin E. Hayes",
+            "Tom Hehir",
+            "Shirley Ho",
+            "Marc Huertas-Company",
+            "Kartheik G. Iyer",
+            "Maja Jablonska",
+            "Francois Lanusse",
+            "Henry W. Leung",
+            "Kaisey Mandel",
+            "Juan Rafael Martínez-Galarza",
+            "Peter Melchior",
+            "Lucas Meyer",
+            "Liam H. Parker",
+            "Helen Qu",
+            "Jeff Shen",
+            "Michael J. Smith",
+            "Connor Stone",
+            "Mike Walmsley",
+            "John F. Wu"
+          ],
+          "claimed_title": "The Multimodal Universe: Enabling Large-Scale Machine Learning with 100TB of Astronomical Scientific Data",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2412.02527"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Kwai Keye-VL-2.0 Technical Report computer science', candidate_title='The Multimodal Universe: Enabling Large-Scale Machine Learning with 100TB of Astronomical Scientific Data')",
+        "failed_at": "2026-06-21T11:24:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Urdu, spoken by over 250 million people, remains critically under-served in multimodal and vision-language research. The absence of large-scale, high-quality datasets has limited the development of Urdu-capable systems and reinforced biases in multilingual vision-language models trained primarily on high-resource languages. To address this gap, we present COCO-Urdu, a large-scale image-caption dataset derived from MS COCO, containing 59,000 images and 319,000 Urdu captions selected through stratified sampling to preserve the original distribution. Captions were translated using SeamlessM4T v2 and validated with a hybrid multimodal quality estimation framework that integrates COMET-Kiwi for translation quality, CLIP-based similarity for visual grounding, and BERTScore with back-translation for semantic consistency; low-scoring captions were iteratively refined using open-source large language models. We further benchmark COCO-Urdu on BLEU, SacreBLEU, and chrF, reporting consistently strong results. To the best of our knowledge, COCO-Urdu is the largest publicly available Urdu captioning dataset. By releasing both the dataset and the quality estimation pipeline, we aim to reduce language bias in multimodal research and establish a foundation for inclusive vision-language systems.",
+          "claimed_authors": [
+            "Umair Hassan"
+          ],
+          "claimed_title": "COCO-Urdu: A Large-Scale Urdu Image-Caption Dataset with Multimodal Quality Estimation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2509.09014"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Kwai Keye-VL-2.0 Technical Report computer science', candidate_title='COCO-Urdu: A Large-Scale Urdu Image-Caption Dataset with Multimodal Quality Estimation')",
+        "failed_at": "2026-06-21T11:24:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Image-Text matching (ITM) is a common task for evaluating the quality of Vision and Language (VL) models. However, existing ITM benchmarks have a significant limitation. They have many missing correspondences, originating from the data construction process itself. For example, a caption is only matched with one image although the caption can be matched with other similar images and vice versa. To correct the massive false negatives, we construct the Extended COCO Validation (ECCV) Caption dataset by supplying the missing associations with machine and human annotators. We employ five state-of-the-art ITM models with diverse properties for our annotation process. Our dataset provides x3.6 positive image-to-caption associations and x8.5 caption-to-image associations compared to the original MS-COCO. We also propose to use an informative ranking-based metric mAP@R, rather than the popular Recall@K (R@K). We re-evaluate the existing 25 VL models on existing and proposed benchmarks. Our findings are that the existing benchmarks, such as COCO 1K R@K, COCO 5K R@K, CxC R@1 are highly correlated with each other, while the rankings change when we shift to the ECCV mAP@R. Lastly, we delve into the effect of the bias introduced by the choice of machine annotator. Source code and dataset are available at https://github.com/naver-ai/eccv-caption",
+          "claimed_authors": [
+            "Sanghyuk Chun",
+            "Wonjae Kim",
+            "Song Park",
+            "Minsuk Chang",
+            "Seong Joon Oh"
+          ],
+          "claimed_title": "ECCV Caption: Correcting False Negatives by Collecting Machine-and-Human-verified Image-Caption Associations for MS-COCO",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2204.03359"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Kwai Keye-VL-2.0 Technical Report computer science', candidate_title='ECCV Caption: Correcting False Negatives by Collecting Machine-and-Human-verified Image-Caption Associations for MS-COCO')",
+        "failed_at": "2026-06-21T11:24:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The RSNA Abdominal Traumatic Injury CT (RATIC) dataset is the largest publicly available collection of adult abdominal CT studies annotated for traumatic injuries. This dataset includes 4,274 studies from 23 institutions across 14 countries. The dataset is freely available for non-commercial use via Kaggle at https://www.kaggle.com/competitions/rsna-2023-abdominal-trauma-detection. Created for the RSNA 2023 Abdominal Trauma Detection competition, the dataset encourages the development of advanced machine learning models for detecting abdominal injuries on CT scans. The dataset encompasses detection and classification of traumatic injuries across multiple organs, including the liver, spleen, kidneys, bowel, and mesentery. Annotations were created by expert radiologists from the American Society of Emergency Radiology (ASER) and Society of Abdominal Radiology (SAR). The dataset is annotated at multiple levels, including the presence of injuries in three solid organs with injury grading, image-level annotations for active extravasations and bowel injury, and voxelwise segmentations of each of the potentially injured organs. With the release of this dataset, we hope to facilitate research and development in machine learning and abdominal trauma that can lead to improved patient care and outcomes.",
+          "claimed_authors": [
+            "Jeffrey D. Rudie",
+            "Hui-Ming Lin",
+            "Robyn L. Ball",
+            "Sabeena Jalal",
+            "Luciano M. Prevedello",
+            "Savvas Nicolaou",
+            "Brett S. Marinelli",
+            "Adam E. Flanders",
+            "Kirti Magudia",
+            "George Shih",
+            "Melissa A. Davis",
+            "John Mongan",
+            "Peter D. Chang",
+            "Ferco H. Berger",
+            "Sebastiaan Hermans",
+            "Meng Law",
+            "Tyler Richards",
+            "Jan-Peter Grunz",
+            "Andreas Steven Kunz",
+            "Shobhit Mathur",
+            "Sandro Galea-Soler",
+            "Andrew D. Chung",
+            "Saif Afat",
+            "Chin-Chi Kuo",
+            "Layal Aweidah",
+            "Ana Villanueva Campos",
+            "Arjuna Somasundaram",
+            "Felipe Antonio Sanchez Tijmes",
+            "Attaporn Jantarangkoon",
+            "Leonardo Kayat Bittencourt",
+            "Michael Brassil",
+            "Ayoub El Hajjami",
+            "Hakan Dogan",
+            "Muris Becircic",
+            "Agrahara G. Bharatkumar",
+            "Eduardo Moreno Júdice de Mattos Farina",
+            "Dataset Curator Group",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Errol Colak"
+          ],
+          "claimed_title": "The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.19595"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Kwai Keye-VL-2.0 Technical Report computer science', candidate_title='The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset')",
+        "failed_at": "2026-06-21T11:24:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "To produce a domain-agnostic question answering model for the Machine Reading Question Answering (MRQA) 2019 Shared Task, we investigate the relative benefits of large pre-trained language models, various data sampling strategies, as well as query and context paraphrases generated by back-translation. We find a simple negative sampling technique to be particularly effective, even though it is typically used for datasets that include unanswerable questions, such as SQuAD 2.0. When applied in conjunction with per-domain sampling, our XLNet (Yang et al., 2019)-based submission achieved the second best Exact Match and F1 in the MRQA leaderboard competition.",
+          "claimed_authors": [
+            "Shayne Longpre",
+            "Yi Lu",
+            "Zhucheng Tu",
+            "Chris DuBois"
+          ],
+          "claimed_title": "An Exploration of Data Augmentation and Sampling Techniques for Domain-Agnostic Question Answering",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1912.02145"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Kwai Keye-VL-2.0 Technical Report computer science', candidate_title='An Exploration of Data Augmentation and Sampling Techniques for Domain-Agnostic Question Answering')",
+        "failed_at": "2026-06-21T11:24:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Visual Question Answering (VQA) is an increasingly popular topic in deep learning research, requiring coordination of natural language processing and computer vision modules into a single architecture. We build upon the model which placed first in the VQA Challenge by developing thirteen new attention mechanisms and introducing a simplified classifier. We performed 300 GPU hours of extensive hyperparameter and architecture searches and were able to achieve an evaluation score of 64.78%, outperforming the existing state-of-the-art single model's validation score of 63.15%.",
+          "claimed_authors": [
+            "Jasdeep Singh",
+            "Vincent Ying",
+            "Alex Nutkiewicz"
+          ],
+          "claimed_title": "Attention on Attention: Architectures for Visual Question Answering (VQA)",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1803.07724"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Kwai Keye-VL-2.0 Technical Report computer science', candidate_title='Attention on Attention: Architectures for Visual Question Answering (VQA)')",
+        "failed_at": "2026-06-21T11:24:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper, we present our solution for the WSDM2023 Toloka Visual Question Answering Challenge. Inspired by the application of multimodal pre-trained models to various downstream tasks(e.g., visual question answering, visual grounding, and cross-modal retrieval), we approached this competition as a visual grounding task, where the input is an image and a question, guiding the model to answer the question and display the answer as a bounding box on the image. We designed a three-stage solution for this task. Specifically, we used the visual-language pre-trained model OFA as the foundation. In the first stage, we constructed a large-scale synthetic dataset similar to the competition dataset and coarse-tuned the model to learn generalized semantic information. In the second stage, we treated the competition task as a visual grounding task, loaded the weights from the previous stage, and continued to fine-tune the model on the competition dataset, transferring the semantic information learned in the first stage to the competition task. Finally, we designed a bounding box matching and replacing post-processing strategy to correct the model's prediction results. Our team achieved a score of 76.342 on the final leaderboard, ranking second.",
+          "claimed_authors": [
+            "Xiangyu Wu",
+            "Zhouyang Chi",
+            "Yang Yang",
+            "Jianfeng Lu"
+          ],
+          "claimed_title": "Second Place Solution of WSDM2023 Toloka Visual Question Answering Challenge",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2407.04255"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Kwai Keye-VL-2.0 Technical Report computer science', candidate_title='Second Place Solution of WSDM2023 Toloka Visual Question Answering Challenge')",
+        "failed_at": "2026-06-21T11:24:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In realistic retrieval settings with large and evolving knowledge bases, the total number of documents relevant to a query is typically unknown, and recall cannot be computed. In this paper, we evaluate several established strategies for handling this limitation by measuring the correlation between retrieval quality metrics and LLM-based judgments of response quality, where responses are generated from the retrieved documents. We conduct experiments across multiple datasets with a relatively low number of relevant documents (2-15). We also introduce a simple retrieval quality measure that performs well without requiring knowledge of the total number of relevant documents.",
+          "claimed_authors": [
+            "Shelly Schwartz",
+            "Oleg Vasilyev",
+            "Randy Sawaya"
+          ],
+          "claimed_title": "How important is Recall for Measuring Retrieval Quality?",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.20854"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Kwai Keye-VL-2.0 Technical Report computer science', candidate_title='How important is Recall for Measuring Retrieval Quality?')",
+        "failed_at": "2026-06-21T11:24:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Many questions cannot be answered simply; their answers must include numerous nuanced details and additional context. Complex Answer Retrieval (CAR) is the retrieval of answers to such questions. In their simplest form, these questions are constructed from a topic entity (e.g., `cheese') and a facet (e.g., `health effects'). While topic matching has been thoroughly explored, we observe that some facets use general language that is unlikely to appear verbatim in answers. We call these low-utility facets. In this work, we present an approach to CAR that identifies and addresses low-utility facets. We propose two estimators of facet utility. These include exploiting the hierarchical structure of CAR queries and using facet frequency information from training data. To improve the retrieval performance on low-utility headings, we also include entity similarity scores using knowledge graph embeddings. We apply our approaches to a leading neural ranking technique, and evaluate using the TREC CAR dataset. We find that our approach perform significantly better than the unmodified neural ranker and other leading CAR techniques. We also provide a detailed analysis of our results, and verify that low-utility facets are indeed more difficult to match, and that our approach improves the performance for these difficult queries.",
+          "claimed_authors": [
+            "Sean MacAvaney",
+            "Andrew Yates",
+            "Arman Cohan",
+            "Luca Soldaini",
+            "Kai Hui",
+            "Nazli Goharian",
+            "Ophir Frieder"
+          ],
+          "claimed_title": "Overcoming low-utility facets for complex answer retrieval",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1811.08772"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Kwai Keye-VL-2.0 Technical Report computer science', candidate_title='Overcoming low-utility facets for complex answer retrieval')",
+        "failed_at": "2026-06-21T11:24:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This report describes metrics for the evaluation of the effectiveness of segment-based retrieval based on existing binary information retrieval metrics. This metrics are described in the context of a task for the hyperlinking of video segments. This evaluation approach re-uses existing evaluation measures from the standard Cranfield evaluation paradigm. Our adaptation approach can in principle be used with any kind of effectiveness measure that uses binary relevance, and for other segment-baed retrieval tasks. In our video hyperlinking setting, we use precision at a cut-off rank n and mean average precision.",
+          "claimed_authors": [
+            "Robin Aly",
+            "Maria Eskevich",
+            "Roeland Ordelman",
+            "Gareth J. F. Jones"
+          ],
+          "claimed_title": "Adapting Binary Information Retrieval Evaluation Metrics for Segment-based Retrieval Tasks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1312.1913"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Kwai Keye-VL-2.0 Technical Report computer science', candidate_title='Adapting Binary Information Retrieval Evaluation Metrics for Segment-based Retrieval Tasks')",
+        "failed_at": "2026-06-21T11:24:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "With the flourishing of social media platforms, vision-language pre-training (VLP) recently has received great attention and many remarkable progresses have been achieved. The success of VLP largely benefits from the information complementation and enhancement between different modalities. However, most of recent studies focus on cross-modal contrastive learning (CMCL) to promote image-text alignment by pulling embeddings of positive sample pairs together while pushing those of negative pairs apart, which ignores the natural asymmetry property between different modalities and requires large-scale image-text corpus to achieve arduous progress. To mitigate this predicament, we propose CMAL, a Cross-Modal Associative Learning framework with anchor points detection and cross-modal associative learning for VLP. Specifically, we first respectively embed visual objects and textual tokens into separate hypersphere spaces to learn intra-modal hidden features, and then design a cross-modal associative prompt layer to perform anchor point masking and swap feature filling for constructing a hybrid cross-modal associative prompt. Afterwards, we exploit a unified semantic encoder to learn their cross-modal interactive features for context adaptation. Finally, we design an associative mapping classification layer to learn potential associative mappings between modalities at anchor points, within which we develop a fresh self-supervised associative mapping classification task to boost CMAL's performance. Experimental results verify the effectiveness of CMAL, showing that it achieves competitive performance against previous CMCL-based methods on four common downstream vision-and-language tasks, with significantly fewer corpus. Especially, CMAL obtains new state-of-the-art results on SNLI-VE and REC (testA).",
+          "claimed_authors": [
+            "Zhiyuan Ma",
+            "Jianjun Li",
+            "Guohui Li",
+            "Kaiyan Huang"
+          ],
+          "claimed_title": "CMAL: A Novel Cross-Modal Associative Learning Framework for Vision-Language Pre-Training",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2410.12595"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Kwai Keye-VL-2.0 Technical Report computer science', candidate_title='CMAL: A Novel Cross-Modal Associative Learning Framework for Vision-Language Pre-Training')",
+        "failed_at": "2026-06-21T11:24:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Contrastive learning operates on a simple yet effective principle: Embeddings of positive pairs are pulled together, while those of negative pairs are pushed apart. In this paper, we propose a unified framework for understanding contrastive learning through the lens of cosine similarity, and present two key theoretical insights derived from this framework. First, in full-batch settings, we show that perfect alignment of positive pairs is unattainable when negative-pair similarities fall below a threshold, and this misalignment can be mitigated by incorporating within-view negative pairs into the objective. Second, in mini-batch settings, smaller batch sizes induce stronger separation among negative pairs in the embedding space, i.e., higher variance in their similarities, which in turn degrades the quality of learned representations compared to full-batch settings. To address this, we propose an auxiliary loss that reduces the variance of negative-pair similarities in mini-batch settings. Empirical results show that incorporating the proposed loss improves performance in small-batch settings.",
+          "claimed_authors": [
+            "Chungpa Lee",
+            "Sehee Lim",
+            "Kibok Lee",
+            "Jy-yong Sohn"
+          ],
+          "claimed_title": "On the Similarities of Embeddings in Contrastive Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.09781"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Kwai Keye-VL-2.0 Technical Report computer science', candidate_title='On the Similarities of Embeddings in Contrastive Learning')",
+        "failed_at": "2026-06-21T11:24:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper addresses the challenges of learning representations for recipes and food images in the cross-modal retrieval problem. As the relationship between a recipe and its cooked dish is cause-and-effect, treating a recipe as a text source describing the visual appearance of a dish for learning representation, as the existing approaches, will create bias misleading image-and-recipe similarity judgment. Specifically, a food image may not equally capture every detail in a recipe, due to factors such as the cooking process, dish presentation, and image-capturing conditions. The current representation learning tends to capture dominant visual-text alignment while overlooking subtle variations that determine retrieval relevance. In this paper, we model such bias in cross-modal representation learning using causal theory. The causal view of this problem suggests ingredients as one of the confounder sources and a simple backdoor adjustment can alleviate the bias. By causal intervention, we reformulate the conventional model for food-to-recipe retrieval with an additional term to remove the potential bias in similarity judgment. Based on this theory-informed formulation, we empirically prove the oracle performance of retrieval on the Recipe1M dataset to be MedR=1 across the testing data sizes of 1K, 10K, and even 50K. We also propose a plug-and-play neural module, which is essentially a multi-label ingredient classifier for debiasing. New state-of-the-art search performances are reported on the Recipe1M dataset.",
+          "claimed_authors": [
+            "Qing Wang",
+            "Chong-Wah Ngo",
+            "Ee-Peng Lim"
+          ],
+          "claimed_title": "Towards Unbiased Cross-Modal Representation Learning for Food Image-to-Recipe Retrieval",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2511.15201"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Kwai Keye-VL-2.0 Technical Report computer science', candidate_title='Towards Unbiased Cross-Modal Representation Learning for Food Image-to-Recipe Retrieval')",
+        "failed_at": "2026-06-21T11:24:04Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            " Kwai Keye Team",
+            "Bin Wen",
+            "Changyi Liu",
+            "Chengru Song",
+            "Chongling Rao",
+            "Guowang Zhang",
+            "Han Li",
+            "Haonan Fan",
+            "Hengrui Ju",
+            "Jiankang Chen",
+            "Jiapeng Chen",
+            "Jiawei Yuan",
+            "Kaixuan Yang",
+            "Kaiyu Jiang",
+            "Kun Gai",
+            "Lingzhi Zhou",
+            "Na Nie",
+            "Sen Na",
+            "Tianke Zhang",
+            "Tingting Gao",
+            "Xuanyu Zheng",
+            "Yulong Chen",
+            "Fan Yang",
+            "Haixuan Gao",
+            "Lele Yang",
+            "Mingqiao Liu",
+            "Muxi Diao",
+            "Qi Zhang",
+            "Qile Su",
+            "Wei Chen",
+            "Wentao Hong",
+            "Xingyu Lu",
+            "Yancheng Long",
+            "Yankai Yang",
+            "Yingxin Li",
+            "Yiyang Fan",
+            "Yu Xia",
+            "Yuzhe Chen",
+            "Ziliang Lai",
+            "Chuan Yi",
+            "Haonan Jia",
+            "Tianming Liang",
+            "Weixin Xu",
+            "Xiaoxiao Ma",
+            "Yang Tian",
+            "Yufei Han",
+            "Feng Han",
+            "Hang Li",
+            "Jing Wang",
+            "Jinghui Jia",
+            "Junmin Chen",
+            "Junyu Shi",
+            "Ruilin Zhang"
+          ],
+          "title": "Kwai Keye-VL-2.0 Technical Report",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2606.10651",
+        "summary": "We introduce Kwai Keye-VL-2.0-30B-A3B, an open-source Mixture-of-Experts (MoE) multimodal foundation model designed to advance long-video understanding and agentic intelligence. To address the challenges of ultra-long contexts, information redundancy, and prohibitive computational costs inherent in hour-level videos, Keye-VL-2.0 is the first to adapt DeepSeek Sparse Attention (DSA) to GQA-based multimodal architectures, enabling lossless 256K context processing while capturing critical frames and long-range temporal dependencies. This architecture is underpinned by a highly optimized training and inference infrastructure, including scalable video I/O, heterogeneous ViT-LM parallelism, and custom DSA kernels that significantly maximize throughput and minimize computational overhead. Furthermore, to overcome the algorithmic dilemma of catastrophic forgetting during multi-task alignment, we introduce Cross-Modal Multi-Teacher On-Policy Distillation (MOPD) paired with Context-RL and Video-RL. By distilling dense token-level teacher feedback from on-policy rollouts back into the MoE backbone, which activates only 3B parameters, Keye-VL-2.0 natively empowers advanced agent collaboration across Code, Tool, and Search scenarios with multimodal self-correction. Extensive evaluations across video understanding, temporal grounding, reasoning, STEM, and agent benchmarks demonstrate that Keye-VL-2.0-30B-A3B achieves state-of-the-art performance among models of similar scale, particularly excelling in fine-grained temporal localization on TimeLens and long-video comprehension on Video-MME-v2 and LongVideoBench. We release our model checkpoints to accelerate community progress toward scalable and robust multimodal agentic applications.",
+        "summary_grounded_pdf": true,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2606.10651",
+          "http_status": 200,
+          "pdf_sample_score": 0.5296,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-21T11:24:03Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            " Kwai Keye Team",
+            "Biao Yang",
+            "Bin Wen",
+            "Changyi Liu",
+            "Chenglong Chu",
+            "Chengru Song",
+            "Chongling Rao",
+            "Chuan Yi",
+            "Da Li",
+            "Dunju Zang",
+            "Fan Yang",
+            "Guorui Zhou",
+            "Hao Peng",
+            "Haojie Ding",
+            "Jiaming Huang",
+            "Jiangxia Cao",
+            "Jiankang Chen",
+            "Jingyun Hua",
+            "Jin Ouyang",
+            "Kaibing Chen",
+            "Kaiyu Jiang",
+            "Kaiyu Tang",
+            "Kun Gai",
+            "Shengnan Zhang",
+            "Siyang Mao",
+            "Sui Huang",
+            "Tianke Zhang",
+            "Tingting Gao",
+            "Wei Chen",
+            "Wei Yuan",
+            "Xiangyu Wu",
+            "Xiao Hu",
+            "Xingyu Lu",
+            "Yang Zhou",
+            "Yi-Fan Zhang",
+            "Yiping Yang",
+            "Yulong Chen",
+            "Zhenhua Wu",
+            "Zhenyu Li",
+            "Zhixin Ling",
+            "Ziming Li",
+            "Dehua Ma",
+            "Di Xu",
+            "Haixuan Gao",
+            "Hang Li",
+            "Jiawei Guo",
+            "Jing Wang",
+            "Lejian Ren",
+            "Muhao Wei",
+            "Qianqian Wang",
+            "Qigen Hu",
+            "Shiyao Wang",
+            "Tao Yu",
+            "Xinchen Luo",
+            "Yan Li",
+            "Yiming Liang",
+            "Yuhang Hu",
+            "Zeyi Lu",
+            "Zhuoran Yang",
+            "Zixing Zhang"
+          ],
+          "title": "Kwai Keye-VL Technical Report",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2507.01949",
+        "summary": "While Multimodal Large Language Models (MLLMs) demonstrate remarkable capabilities on static images, they often fall short in comprehending dynamic, information-dense short-form videos, a dominant medium in today's digital landscape. To bridge this gap, we introduce \\textbf{Kwai Keye-VL}, an 8-billion-parameter multimodal foundation model engineered for leading-edge performance in short-video understanding while maintaining robust general-purpose vision-language abilities. The development of Keye-VL rests on two core pillars: a massive, high-quality dataset exceeding 600 billion tokens with a strong emphasis on video, and an innovative training recipe. This recipe features a four-stage pre-training process for solid vision-language alignment, followed by a meticulous two-phase post-training process. The first post-training stage enhances foundational capabilities like instruction following, while the second phase focuses on stimulating advanced reasoning. In this second phase, a key innovation is our five-mode ``cold-start'' data mixture, which includes ``thinking'', ``non-thinking'', ``auto-think'', ``think with image'', and high-quality video data. This mixture teaches the model to decide when and how to reason. Subsequent reinforcement learning (RL) and alignment steps further enhance these reasoning capabilities and correct abnormal model behaviors, such as repetitive outputs. To validate our approach, we conduct extensive evaluations, showing that Keye-VL achieves state-of-the-art results on public video benchmarks and remains highly competitive on general image-based tasks (Figure 1). Furthermore, we develop and release the \\textbf{KC-MMBench}, a new benchmark tailored for real-world short-video scenarios, where Keye-VL shows a significant advantage.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2507.01949",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-21T11:24:03Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Biao Yang",
+            "Bin Wen",
+            "Boyang Ding",
+            "Changyi Liu",
+            "Chenglong Chu",
+            "Chengru Song",
+            "Chongling Rao",
+            "Chuan Yi",
+            "Da Li",
+            "Dunju Zang",
+            "Fan Yang",
+            "Guorui Zhou",
+            "Guowang Zhang",
+            "Han Shen",
+            "Hao Peng",
+            "Haojie Ding",
+            "Hao Wang",
+            "Haonan Fan",
+            "Hengrui Ju",
+            "Jiaming Huang",
+            "Jiangxia Cao",
+            "Jiankang Chen",
+            "Jingyun Hua",
+            "Kaibing Chen",
+            "Kaiyu Jiang",
+            "Kaiyu Tang",
+            "Kun Gai",
+            "Muhao Wei",
+            "Qiang Wang",
+            "Ruitao Wang",
+            "Sen Na",
+            "Shengnan Zhang",
+            "Siyang Mao",
+            "Sui Huang",
+            "Tianke Zhang",
+            "Tingting Gao",
+            "Wei Chen",
+            "Wei Yuan",
+            "Xiangyu Wu",
+            "Xiao Hu",
+            "Xingyu Lu",
+            "Yi-Fan Zhang",
+            "Yiping Yang",
+            "Yulong Chen",
+            "Zeyi Lu",
+            "Zhenhua Wu",
+            "Zhixin Ling",
+            "Zhuoran Yang",
+            "Ziming Li",
+            "Di Xu",
+            "Haixuan Gao",
+            "Hang Li",
+            "Jing Wang",
+            "Lejian Ren",
+            "Qigen Hu",
+            "Qianqian Wang",
+            "Shiyao Wang",
+            "Xinchen Luo",
+            "Yan Li",
+            "Yuhang Hu",
+            "Zixing Zhang"
+          ],
+          "title": "Kwai Keye-VL 1.5 Technical Report",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2509.01563",
+        "summary": "In recent years, the development of Large Language Models (LLMs) has significantly advanced, extending their capabilities to multimodal tasks through Multimodal Large Language Models (MLLMs). However, video understanding remains a challenging area due to the dynamic and information-dense nature of videos. Existing models struggle with the trade-off between spatial resolution and temporal coverage when processing video content. We present Keye-VL-1.5, which addresses fundamental challenges in video comprehension through three key innovations. First, we introduce a novel Slow-Fast video encoding strategy that dynamically allocates computational resources based on inter-frame similarity, processing key frames with significant visual changes at higher resolution (Slow pathway) while handling relatively static frames with increased temporal coverage at lower resolution (Fast pathway). Second, we implement a progressive four-stage pre-training methodology that systematically extends the model's context length from 8K to 128K tokens, enabling processing of longer videos and more complex visual content. Third, we develop a comprehensive post-training pipeline focusing on reasoning enhancement and human preference alignment, incorporating a 5-step chain-of-thought data construction process, iterative GSPO-based reinforcement learning with progressive prompt hinting for difficult cases, and alignment training. Through extensive evaluation on public benchmarks and rigorous internal human assessment, Keye-VL-1.5 demonstrates significant improvements over existing models, particularly excelling in video understanding tasks while maintaining competitive performance on general multimodal benchmarks.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2509.01563",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-21T11:24:08Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "kwai keye-vl-2.0 technical report computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

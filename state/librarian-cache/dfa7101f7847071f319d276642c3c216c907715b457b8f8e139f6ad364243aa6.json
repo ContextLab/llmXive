@@ -1,0 +1,669 @@
+{
+  "fetched_at": "2026-06-21T11:25:40Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "SearchSwarm: Towards Delegation Intelligence in Agentic LLMs for Long-Horizon Deep Research",
+      "target_n": 5
+    },
+    "duration_seconds": 53.976,
+    "ended_at": "2026-06-21T11:25:40Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "multi-agent large language model coordination"
+        ],
+        [
+          2,
+          "hierarchical task delegation for LLM agents"
+        ],
+        [
+          3,
+          "swarm-based AI research assistants"
+        ],
+        [
+          4,
+          "long-term planning in autonomous language agents"
+        ],
+        [
+          5,
+          "delegation mechanisms in generative AI systems"
+        ],
+        [
+          6,
+          "agentic LLM orchestration frameworks"
+        ],
+        [
+          7,
+          "recursive prompting for deep research tasks"
+        ],
+        [
+          8,
+          "collaborative language model pipelines"
+        ],
+        [
+          9,
+          "self-organizing LLM swarms for scientific discovery"
+        ],
+        [
+          10,
+          "meta‑prompting strategies for multi‑step reasoning"
+        ],
+        [
+          11,
+          "hierarchical reinforcement learning for LLM agents"
+        ],
+        [
+          12,
+          "AI‑driven research workflow automation"
+        ],
+        [
+          13,
+          "distributed LLM inference for complex problem solving"
+        ],
+        [
+          14,
+          "emergent coordination in large language model collectives"
+        ],
+        [
+          15,
+          "task decomposition in autonomous AI agents"
+        ],
+        [
+          16,
+          "long‑horizon goal pursuit with language models"
+        ],
+        [
+          17,
+          "multi‑step prompting architectures"
+        ],
+        [
+          18,
+          "AI delegation frameworks for knowledge extraction"
+        ],
+        [
+          19,
+          "swarm intelligence applied to generative AI"
+        ],
+        [
+          20,
+          "autonomous research agent ecosystems"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "SearchSwarm: Towards Delegation Intelligence in Agentic LLMs for Long-Horizon Deep Research computer science": 0,
+        "multi-agent large language model coordination": 5
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "LLM agent coordination",
+      "AutoGPT benchmark",
+      "hierarchical planning LLM",
+      "long-horizon task success rate",
+      "recursive prompting delegation theory"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2203.08975"
+      ]
+    },
+    "per_query_hit_count": {
+      "AutoGPT benchmark": 3,
+      "LLM agent coordination": 3,
+      "SearchSwarm: Towards Delegation Intelligence in Agentic LLMs for Long-Horizon Deep Research computer science": 3,
+      "hierarchical planning LLM": 3,
+      "long-horizon task success rate": 3,
+      "recursive prompting delegation theory": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 2,
+      "rejections": [
+        {
+          "primary_pointer": "1311.5108",
+          "rationale": "The paper focuses on a generic multi‑level multi‑agent simulation methodology and does not address delegation mechanisms, agentic LLMs, or long‑horizon deep research, which are the core constructs of the user's question. It therefore lacks a relevant mechanism, variable, or domain overlap.",
+          "title": "A Methodology to Engineer and Validate Dynamic Multi-level Multi-agent Based Simulations"
+        },
+        {
+          "primary_pointer": "2409.02645",
+          "rationale": "The paper surveys emergent language in multi‑agent reinforcement learning and does not study delegation intelligence, agentic LLMs, or long‑horizon deep research, so it lacks the relevant mechanism, variables, or domain required for inclusion.",
+          "title": "Emergent Language: A Survey and Taxonomy"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-21T11:24:46Z",
+    "term_input": {
+      "normalized": "searchswarm: towards delegation intelligence in agentic llms for long-horizon deep research computer science",
+      "raw": "SearchSwarm: Towards Delegation Intelligence in Agentic LLMs for Long-Horizon Deep Research computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Agentic AI systems increasingly execute consequential actions on behalf of human principals, delegating tasks through multi-step chains of autonomous agents. No existing standard addresses a fundamental accountability gap: verifying that terminal actions in a delegation chain were genuinely authorized by a human principal, through what chain of delegation, and under what scope. This paper presents the Human Delegation Provenance (HDP) protocol, a lightweight token-based scheme that cryptographically captures and verifies human authorization context in multi-agent systems. An HDP token binds a human authorization event to a session, records each agent's delegation action as a signed hop in an append-only chain, and enables any participant to verify the full provenance record using only the issuer's Ed25519 public key and the current session identifier. Verification is fully offline, requiring no registry lookups or third-party trust anchors. We situate HDP within the existing landscape of delegation protocols, identify its distinct design point relative to OAuth 2.0 Token Exchange (RFC 8693), JSON Web Tokens (RFC 7519), UCAN, and the Intent Provenance Protocol (draft-haberkamp-ipp-00), and demonstrate that existing standards fail to address the multi-hop, append-only, human-provenance requirements of agentic systems. HDP has been published as an IETF Internet-Draft (draft-helixar-hdp-agentic-delegation-00) and a reference TypeScript SDK is publicly available.",
+          "claimed_authors": [
+            "Asiri Dalugoda"
+          ],
+          "claimed_title": "HDP: A Lightweight Cryptographic Protocol for Human Delegation Provenance in Agentic AI Systems",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2604.04522"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='SearchSwarm: Towards Delegation Intelligence in Agentic LLMs for Long-Horizon De', candidate_title='HDP: A Lightweight Cryptographic Protocol for Human Delegation Provenance in Agentic AI Systems')",
+        "failed_at": "2026-06-21T11:25:16Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Modern society is permeated with computers, and the software that controls them can have latent, long-term, and immediate effects that reach far beyond the actual users of these systems. This places researchers in Computer Science and Software Engineering in a critical position of influence and responsibility, more than any other field because computer systems are vital research tools for other disciplines. This essay presents several key ethical concerns and responsibilities relating to research in computing. The goal is to promote awareness and discussion of ethical issues among computer science researchers. A hypothetical case study is provided, along with questions for reflection and discussion.",
+          "claimed_authors": [
+            "David R. Wright"
+          ],
+          "claimed_title": "Motivation, Design, and Ubiquity: A Discussion of Research Ethics and Computer Science",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2007,
+          "primary_pointer": "0706.0484"
+        },
+        "details": "query-relevance 0.273 < 0.3 (query='SearchSwarm: Towards Delegation Intelligence in Agentic LLMs for Long-Horizon De', candidate_title='Motivation, Design, and Ubiquity: A Discussion of Research Ethics and Computer Science')",
+        "failed_at": "2026-06-21T11:25:16Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In the domain of Human-Computer Interaction, focus groups represent a widely utilised yet resource-intensive methodology, often demanding the expertise of skilled moderators and meticulous preparatory efforts. This study introduces the ``Focus Agent,'' a Large Language Model (LLM) powered framework that simulates both the focus group (for data collection) and acts as a moderator in a focus group setting with human participants. To assess the data quality derived from the Focus Agent, we ran five focus group sessions with a total of 23 human participants as well as deploying the Focus Agent to simulate these discussions with AI participants. Quantitative analysis indicates that Focus Agent can generate opinions similar to those of human participants. Furthermore, the research exposes some improvements associated with LLMs acting as moderators in focus group discussions that include human participants.",
+          "claimed_authors": [
+            "Taiyu Zhang",
+            "Xuesong Zhang",
+            "Robbe Cools",
+            "Adalberto L. Simeone"
+          ],
+          "claimed_title": "Focus Agent: LLM-Powered Virtual Focus Group",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2409.01907"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='SearchSwarm: Towards Delegation Intelligence in Agentic LLMs for Long-Horizon De', candidate_title='Focus Agent: LLM-Powered Virtual Focus Group')",
+        "failed_at": "2026-06-21T11:25:16Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Integrating large language models (LLMs) into personal assistants, like Xiao Ai and Blue Heart V, effectively enhances their ability to interact with humans, solve complex tasks, and manage IoT devices. Such assistants are also termed LLM-driven agents. Upon receiving user requests, the LLM-driven agent generates plans using an LLM, executes these plans through various tools, and then returns the response to the user. During this process, the latency for generating a plan with an LLM can reach tens of seconds, significantly degrading user experience. Real-world dataset analysis shows that about 30% of the requests received by LLM-driven agents are identical or similar, which allows the reuse of previously generated plans to reduce latency. However, it is difficult to accurately define the similarity between the request texts received by the LLM-driven agent through directly evaluating the original request texts. Moreover, the diverse expressions of natural language and the unstructured format of plan texts make implementing plan reuse challenging. To address these issues, we present and implement a plan reuse mechanism for LLM-driven agents called AgentReuse. AgentReuse leverages the similarities and differences among requests' semantics and uses intent classification to evaluate the similarities between requests and enable the reuse of plans. Experimental results based on a real-world dataset demonstrate that AgentReuse achieves a 93% effective plan reuse rate, an F1 score of 0.9718, and an accuracy of 0.9459 in evaluating request similarities, reducing latency by 93.12% compared with baselines without using the reuse mechanism.",
+          "claimed_authors": [
+            "Guopeng Li",
+            "Ruiqi Wu",
+            "Haisheng Tan"
+          ],
+          "claimed_title": "A Plan Reuse Mechanism for LLM-Driven Agent",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.21309"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='SearchSwarm: Towards Delegation Intelligence in Agentic LLMs for Long-Horizon De', candidate_title='A Plan Reuse Mechanism for LLM-Driven Agent')",
+        "failed_at": "2026-06-21T11:25:16Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In healthcare intelligence, the ability to fuse heterogeneous, multi-intent information from diverse clinical sources is fundamental to building reliable decision-making systems. Large Language Model (LLM)-driven information interaction systems currently showing potential promise in the healthcare domain. Nevertheless, they often suffer from information redundancy and coupling when dealing with complex medical intents, leading to severe hallucinations and performance bottlenecks. To this end, we propose MedAide, an LLM-based medical multi-agent collaboration framework designed to enable intent-aware information fusion and coordinated reasoning across specialized healthcare domains. Specifically, we introduce a regularization-guided module that combines syntactic constraints with retrieval augmented generation to decompose complex queries into structured representations, facilitating fine-grained clinical information fusion and intent resolution. Additionally, a dynamic intent prototype matching module is proposed to utilize dynamic prototype representation with a semantic similarity matching mechanism to achieve adaptive recognition and updating of the agent's intent in multi-round healthcare dialogues. Ultimately, we design a rotation agent collaboration mechanism that introduces dynamic role rotation and decision-level information fusion across specialized medical agents. Extensive experiments are conducted on four medical benchmarks with composite intents. Experimental results from automated metrics and expert doctor evaluations show that MedAide outperforms current LLMs and improves their medical proficiency and strategic reasoning.",
+          "claimed_authors": [
+            "Dingkang Yang",
+            "Jinjie Wei",
+            "Mingcheng Li",
+            "Jiyao Liu",
+            "Lihao Liu",
+            "Ming Hu",
+            "Junjun He",
+            "Yakun Ju",
+            "Wei Zhou",
+            "Yang Liu",
+            "Lihua Zhang"
+          ],
+          "claimed_title": "MedAide: Information Fusion and Anatomy of Medical Intents via LLM-based Agent Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2410.12532"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='SearchSwarm: Towards Delegation Intelligence in Agentic LLMs for Long-Horizon De', candidate_title='MedAide: Information Fusion and Anatomy of Medical Intents via LLM-based Agent Collaboration')",
+        "failed_at": "2026-06-21T11:25:16Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Advancements in ultra-low-power tiny machine learning (TinyML) systems promise to unlock an entirely new class of smart applications. However, continued progress is limited by the lack of a widely accepted and easily reproducible benchmark for these systems. To meet this need, we present MLPerf Tiny, the first industry-standard benchmark suite for ultra-low-power tiny machine learning systems. The benchmark suite is the collaborative effort of more than 50 organizations from industry and academia and reflects the needs of the community. MLPerf Tiny measures the accuracy, latency, and energy of machine learning inference to properly evaluate the tradeoffs between systems. Additionally, MLPerf Tiny implements a modular design that enables benchmark submitters to show the benefits of their product, regardless of where it falls on the ML deployment stack, in a fair and reproducible manner. The suite features four benchmarks: keyword spotting, visual wake words, image classification, and anomaly detection.",
+          "claimed_authors": [
+            "Colby Banbury",
+            "Vijay Janapa Reddi",
+            "Peter Torelli",
+            "Jeremy Holleman",
+            "Nat Jeffries",
+            "Csaba Kiraly",
+            "Pietro Montino",
+            "David Kanter",
+            "Sebastian Ahmed",
+            "Danilo Pau",
+            "Urmish Thakker",
+            "Antonio Torrini",
+            "Peter Warden",
+            "Jay Cordaro",
+            "Giuseppe Di Guglielmo",
+            "Javier Duarte",
+            "Stephen Gibellini",
+            "Videet Parekh",
+            "Honson Tran",
+            "Nhan Tran",
+            "Niu Wenxu",
+            "Xu Xuesong"
+          ],
+          "claimed_title": "MLPerf Tiny Benchmark",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2106.07597"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='SearchSwarm: Towards Delegation Intelligence in Agentic LLMs for Long-Horizon De', candidate_title='MLPerf Tiny Benchmark')",
+        "failed_at": "2026-06-21T11:25:16Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Clinical notes are assigned ICD codes - sets of codes for diagnoses and procedures. In the recent years, predictive machine learning models have been built for automatic ICD coding. However, there is a lack of widely accepted benchmarks for automated ICD coding models based on large-scale public EHR data.\n  This paper proposes a public benchmark suite for ICD-10 coding using a large EHR dataset derived from MIMIC-IV, the most recent public EHR dataset. We implement and compare several popular methods for ICD coding prediction tasks to standardize data preprocessing and establish a comprehensive ICD coding benchmark dataset. This approach fosters reproducibility and model comparison, accelerating progress toward employing automated ICD coding in future studies. Furthermore, we create a new ICD-9 benchmark using MIMIC-IV data, providing more data points and a higher number of ICD codes than MIMIC-III. Our open-source code offers easy access to data processing steps, benchmark creation, and experiment replication for those with MIMIC-IV access, providing insights, guidance, and protocols to efficiently develop ICD coding models.",
+          "claimed_authors": [
+            "Thanh-Tung Nguyen",
+            "Viktor Schlegel",
+            "Abhinav Kashyap",
+            "Stefan Winkler",
+            "Shao-Syuan Huang",
+            "Jie-Jyun Liu",
+            "Chih-Jen Lin"
+          ],
+          "claimed_title": "Mimic-IV-ICD: A new benchmark for eXtreme MultiLabel Classification",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2304.13998"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='SearchSwarm: Towards Delegation Intelligence in Agentic LLMs for Long-Horizon De', candidate_title='Mimic-IV-ICD: A new benchmark for eXtreme MultiLabel Classification')",
+        "failed_at": "2026-06-21T11:25:16Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this pioneering study, inspired by AutoGPT, the state-of-the-art open-source application based on the GPT-4 large language model, we develop a novel tool called AD-AutoGPT which can conduct data collection, processing, and analysis about complex health narratives of Alzheimer's Disease in an autonomous manner via users' textual prompts. We collated comprehensive data from a variety of news sources, including the Alzheimer's Association, BBC, Mayo Clinic, and the National Institute on Aging since June 2022, leading to the autonomous execution of robust trend analyses, intertopic distance maps visualization, and identification of salient terms pertinent to Alzheimer's Disease. This approach has yielded not only a quantifiable metric of relevant discourse but also valuable insights into public focus on Alzheimer's Disease. This application of AD-AutoGPT in public health signifies the transformative potential of AI in facilitating a data-rich understanding of complex health narratives like Alzheimer's Disease in an autonomous manner, setting the groundwork for future AI-driven investigations in global health landscapes.",
+          "claimed_authors": [
+            "Haixing Dai",
+            "Yiwei Li",
+            "Zhengliang Liu",
+            "Lin Zhao",
+            "Zihao Wu",
+            "Suhang Song",
+            "Ye Shen",
+            "Dajiang Zhu",
+            "Xiang Li",
+            "Sheng Li",
+            "Xiaobai Yao",
+            "Lu Shi",
+            "Quanzheng Li",
+            "Zhuo Chen",
+            "Donglan Zhang",
+            "Gengchen Mai",
+            "Tianming Liu"
+          ],
+          "claimed_title": "AD-AutoGPT: An Autonomous GPT for Alzheimer's Disease Infodemiology",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.10095"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='SearchSwarm: Towards Delegation Intelligence in Agentic LLMs for Long-Horizon De', candidate_title=\"AD-AutoGPT: An Autonomous GPT for Alzheimer's Disease Infodemiology\")",
+        "failed_at": "2026-06-21T11:25:16Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Real world applications as in industry and robotics need modelling rich and diverse automated planning problems. Their resolution usually requires coordinated and concurrent action execution. In several cases, these problems are naturally decomposed in a hierarchical way and expressed by a Hierarchical Task Network (HTN) formalism.\n  HDDL, a hierarchical extension of the Planning Domain Definition Language (PDDL), unlike PDDL 2.1 does not allow to represent planning problems with numerical and temporal constraints, which are essential for real world applications. We propose to fill the gap between HDDL and these operational needs and to extend HDDL by taking inspiration from PDDL 2.1 in order to express numerical and temporal expressions. This paper opens discussions on the semantics and the syntax needed for a future HDDL 2.1 extension.",
+          "claimed_authors": [
+            "Damien Pellier",
+            "Alexandre Albore",
+            "Humbert Fiorino",
+            "Rafael Bailon-Ruiz"
+          ],
+          "claimed_title": "HDDL 2.1: Towards Defining a Formalism and a Semantics for Temporal HTN Planning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.07353"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='SearchSwarm: Towards Delegation Intelligence in Agentic LLMs for Long-Horizon De', candidate_title='HDDL 2.1: Towards Defining a Formalism and a Semantics for Temporal HTN Planning')",
+        "failed_at": "2026-06-21T11:25:16Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "To make effective decisions in novel environments with long-horizon goals, it is crucial to engage in hierarchical reasoning across spatial and temporal scales. This entails planning abstract subgoal sequences, visually reasoning about the underlying plans, and executing actions in accordance with the devised plan through visual-motor control. We propose Compositional Foundation Models for Hierarchical Planning (HiP), a foundation model which leverages multiple expert foundation model trained on language, vision and action data individually jointly together to solve long-horizon tasks. We use a large language model to construct symbolic plans that are grounded in the environment through a large video diffusion model. Generated video plans are then grounded to visual-motor control, through an inverse dynamics model that infers actions from generated videos. To enable effective reasoning within this hierarchy, we enforce consistency between the models via iterative refinement. We illustrate the efficacy and adaptability of our approach in three different long-horizon table-top manipulation tasks.",
+          "claimed_authors": [
+            "Anurag Ajay",
+            "Seungwook Han",
+            "Yilun Du",
+            "Shuang Li",
+            "Abhi Gupta",
+            "Tommi Jaakkola",
+            "Josh Tenenbaum",
+            "Leslie Kaelbling",
+            "Akash Srivastava",
+            "Pulkit Agrawal"
+          ],
+          "claimed_title": "Compositional Foundation Models for Hierarchical Planning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2309.08587"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='SearchSwarm: Towards Delegation Intelligence in Agentic LLMs for Long-Horizon De', candidate_title='Compositional Foundation Models for Hierarchical Planning')",
+        "failed_at": "2026-06-21T11:25:16Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent advances in Large Language Models (LLMs) are fostering their integration into several reasoning-related fields, including Automated Planning (AP). However, their integration into Hierarchical Planning (HP), a subfield of AP that leverages hierarchical knowledge to enhance planning performance, remains largely unexplored. In this preliminary work, we propose a roadmap to address this gap and harness the potential of LLMs for HP. To this end, we present a taxonomy of integration methods, exploring how LLMs can be utilized within the HP life cycle. Additionally, we provide a benchmark with a standardized dataset for evaluating the performance of future LLM-based HP approaches, and present initial results for a state-of-the-art HP planner and LLM planner. As expected, the latter exhibits limited performance (3\\% correct plans, and none with a correct hierarchical decomposition) but serves as a valuable baseline for future approaches.",
+          "claimed_authors": [
+            "Israel Puerta-Merino",
+            "Carlos Núñez-Molina",
+            "Pablo Mesejo",
+            "Juan Fernández-Olivares"
+          ],
+          "claimed_title": "A Roadmap to Guide the Integration of LLMs in Hierarchical Planning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2501.08068"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='SearchSwarm: Towards Delegation Intelligence in Agentic LLMs for Long-Horizon De', candidate_title='A Roadmap to Guide the Integration of LLMs in Hierarchical Planning')",
+        "failed_at": "2026-06-21T11:25:16Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Existing Vision-Language Navigation (VLN) methods primarily focus on single-stage navigation, limiting their effectiveness in multi-stage and long-horizon tasks within complex and dynamic environments. To address these limitations, we propose a novel VLN task, named Long-Horizon Vision-Language Navigation (LH-VLN), which emphasizes long-term planning and decision consistency across consecutive subtasks. Furthermore, to support LH-VLN, we develop an automated data generation platform NavGen, which constructs datasets with complex task structures and improves data utility through a bidirectional, multi-granularity generation approach. To accurately evaluate complex tasks, we construct the Long-Horizon Planning and Reasoning in VLN (LHPR-VLN) benchmark consisting of 3,260 tasks with an average of 150 task steps, serving as the first dataset specifically designed for the long-horizon vision-language navigation task. Furthermore, we propose Independent Success Rate (ISR), Conditional Success Rate (CSR), and CSR weight by Ground Truth (CGT) metrics, to provide fine-grained assessments of task completion. To improve model adaptability in complex tasks, we propose a novel Multi-Granularity Dynamic Memory (MGDM) module that integrates short-term memory blurring with long-term memory retrieval to enable flexible navigation in dynamic environments. Our platform, benchmark and method supply LH-VLN with a robust data generation pipeline, comprehensive model evaluation dataset, reasonable metrics, and a novel VLN model, establishing a foundational framework for advancing LH-VLN.",
+          "claimed_authors": [
+            "Xinshuai Song",
+            "Weixing Chen",
+            "Yang Liu",
+            "Weikai Chen",
+            "Guanbin Li",
+            "Liang Lin"
+          ],
+          "claimed_title": "Towards Long-Horizon Vision-Language Navigation: Platform, Benchmark and Method",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2412.09082"
+        },
+        "details": "query-relevance 0.273 < 0.3 (query='SearchSwarm: Towards Delegation Intelligence in Agentic LLMs for Long-Horizon De', candidate_title='Towards Long-Horizon Vision-Language Navigation: Platform, Benchmark and Method')",
+        "failed_at": "2026-06-21T11:25:16Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large language models (LLMs) demonstrate remarkable reasoning capabilities, yet their performance often deteriorates sharply in long-horizon tasks, exhibiting systematic breakdown beyond certain scales. Conventional explanations primarily attribute this phenomenon to task complexity, such as combinatorial search explosion or long-term credit assignment challenges. In this work, we argue that these explanations are incomplete: even in linear, unbranched tasks without semantic ambiguity, autoregressive execution is subject to an intrinsic stability limit.\n  We propose that the fundamental constraint on long-horizon reasoning arises from process-level instability in autoregressive generation rather than solely from search or task complexity, reframing long-horizon reasoning as a problem of structural governance. We derive Theorem~A, showing that decision advantage in single-path autoregressive reasoning decays exponentially with execution length, imposing a fundamental bound on maintainable reasoning chains. This result implies a structural consequence: stable long-horizon reasoning requires discrete segmentation, naturally inducing graph-like execution structures such as directed acyclic graphs (DAGs).\n  Empirical studies in both synthetic environments and real TextWorld tasks reveal observable performance cliffs consistent with theoretical predictions. Our findings provide a dynamical perspective on long-horizon reasoning failure and suggest new limitations on maintaining long-term coherence under purely autoregressive architectures. Furthermore, we highlight that short-horizon evaluation protocols may obscure structural instability, indicating a potential shift from scaling toward structured governance in future reasoning systems.",
+          "claimed_authors": [
+            "Hsien-Jyh Liao"
+          ],
+          "claimed_title": "Intrinsic Stability Limits of Autoregressive Reasoning: Structural Consequences for Long-Horizon Execution",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2602.06413"
+        },
+        "details": "query-relevance 0.273 < 0.3 (query='SearchSwarm: Towards Delegation Intelligence in Agentic LLMs for Long-Horizon De', candidate_title='Intrinsic Stability Limits of Autoregressive Reasoning: Structural Consequences for Long-Horizon Execution')",
+        "failed_at": "2026-06-21T11:25:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The functional Schrodinger picture formulation of quantum field theory and the variational Gaussian approximation method based on the formulation are briefly reviewed. After presenting recent attempts to improve the variational approximation, we introduce a new systematic method based on the background field method, which enables one to compute the order-by-order correction terms to the Gaussian approximation of the effective action.",
+          "claimed_authors": [
+            "Jae Hyung Yee"
+          ],
+          "claimed_title": "Variational Approach to Quantum Field Theory: Gaussian Approximation and the Perturbative Expansion around It",
+          "claimed_venue": "arXiv",
+          "claimed_year": 1997,
+          "primary_pointer": "hep-th/9707234"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='SearchSwarm: Towards Delegation Intelligence in Agentic LLMs for Long-Horizon De', candidate_title='Variational Approach to Quantum Field Theory: Gaussian Approximation and the Perturbative Expansion around It')",
+        "failed_at": "2026-06-21T11:25:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper we examine the effectiveness of several multi-arm bandit algorithms when used as a trust system to select agents to delegate tasks to. In contrast to existing work, we allow for recursive delegation to occur. That is, a task delegated to one agent can be delegated onwards by that agent, with further delegation possible until some agent finally executes the task. We show that modifications to the standard multi-arm bandit algorithms can provide improvements in performance in such recursive delegation settings.",
+          "claimed_authors": [
+            "Nir Oren"
+          ],
+          "claimed_title": "Revisiting MAB based approaches to recursive delegation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2311.01243"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='SearchSwarm: Towards Delegation Intelligence in Agentic LLMs for Long-Horizon De', candidate_title='Revisiting MAB based approaches to recursive delegation')",
+        "failed_at": "2026-06-21T11:25:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We introduce Meta Prompting (MP), a framework that elevates the reasoning capabilities of large language models (LLMs) by focusing on the formal structure of a task rather than content-specific examples. We establish a theoretical foundation for this paradigm, formalizing MP as a functor that maps a category of tasks to a category of structured prompts, thereby guaranteeing that compositional problem-solving strategies can be systematically decomposed into modular prompt structures. We extend this concept to Recursive Meta Prompting (RMP), an automated process where an LLM can generate and refine its own prompts. We model this self-improvement loop formally as a monad, providing a principled framework for automated prompt engineering. Our claims are validated through extensive experiments demonstrating that a Qwen-72B base model, guided by a single, example-agnostic meta-prompt, achieves state-of-the-art results on MATH, GSM8K, and Game of 24. These results are achieved with substantial token efficiency gains over traditional few-shot methods. Project Page: https://github.com/meta-prompting/meta-prompting.",
+          "claimed_authors": [
+            "Yifan Zhang",
+            "Yang Yuan",
+            "Andrew Chi-Chih Yao"
+          ],
+          "claimed_title": "Meta Prompting for AI Systems",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2311.11482"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='SearchSwarm: Towards Delegation Intelligence in Agentic LLMs for Long-Horizon De', candidate_title='Meta Prompting for AI Systems')",
+        "failed_at": "2026-06-21T11:25:17Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Pu Ning",
+            "Quan Chen",
+            "Kun Tao",
+            "Xinyu Tang",
+            "Tianshu Wang",
+            "Qianggang Cao",
+            "Xinyu Kong",
+            "Zujie Wen",
+            "Zhiqiang Zhang",
+            "Jun Zhou"
+          ],
+          "title": "SearchSwarm: Towards Delegation Intelligence in Agentic LLMs for Long-Horizon Deep Research",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2606.09730",
+        "summary": "Large language models are increasingly expected to handle complex, long-horizon real-world tasks whose context demands can grow without bound, yet model context windows remain inherently finite. Recent work explores a paradigm where a main agent decomposes tasks and dispatches subtasks to subagents, which execute and return only summarized results, conserving the main agent's context budget. However, performing this well requires delegation intelligence: the ability to decompose complex tasks, determine when and what to delegate, and integrate returned results into the ongoing workflow. Training data for this capability is scarce in naturally occurring text, and to our knowledge, how to synthesize such data and train models to acquire this capability remains largely unexplored in the open-source community. To bridge this gap, we present a preliminary exploration targeting deep research, a representative long-horizon agent task. Specifically, we design a harness that guides the model toward high-quality task decomposition and delegation, while constraining subagents to return results properly to support the main agent's workflow. The harness-guided trajectories naturally encode correct delegation decisions, which we use as supervised fine-tuning data to internalize delegation intelligence into model weights. Our resulting model, SearchSwarm-30B-A3B, achieves 68.1 on BrowseComp and 73.3 on BrowseComp-ZH, the best results among all models of comparable scale. We will release our harness, model weights, and training data to facilitate future research.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2606.09730",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8182,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-21T11:25:16Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Sumeet Ramesh Motwani",
+            "Daniel Nichols",
+            "Charles London",
+            "Peggy Li",
+            "Fabio Pizzati",
+            "Acer Blake",
+            "Hasan Hammoud",
+            "Tavish McDonald",
+            "Akshat Naik",
+            "Alesia Ivanova",
+            "Vignesh Baskaran",
+            "Ivan Laptev",
+            "Ruben Glatt",
+            "Tal Ben-Nun",
+            "Philip Torr",
+            "Natasha Jaques",
+            "Ameya Prabhu",
+            "Brian Bartoldson",
+            "Bhavya Kailkhura",
+            "Christian Schroeder de Witt"
+          ],
+          "title": "LongCoT: Benchmarking Long-Horizon Chain-of-Thought Reasoning",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2604.14140",
+        "summary": "As language models are increasingly deployed for complex autonomous tasks, their ability to reason accurately over longer horizons becomes critical. An essential component of this ability is planning and managing a long, complex chain-of-thought (CoT). We introduce LongCoT, a scalable benchmark of 2,500 expert-designed problems spanning chemistry, mathematics, computer science, chess, and logic to isolate and directly measure the long-horizon CoT reasoning capabilities of frontier models. Problems consist of a short input with a verifiable answer; solving them requires navigating a graph of interdependent steps that span tens to hundreds of thousands of reasoning tokens. Each local step is individually tractable for frontier models, so failures reflect long-horizon reasoning limitations. At release, the best models achieve <10% accuracy (GPT 5.2: 9.8%; Gemini 3 Pro: 6.1%) on LongCoT, revealing a substantial gap in current capabilities. Overall, LongCoT provides a rigorous measure of long-horizon reasoning, tracking the ability of frontier models to reason reliably over extended periods.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2604.14140",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3636,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-21T11:25:16Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Samuel Rothfarb",
+            "Megan C. Davis",
+            "Ivana Matanovic",
+            "Baikun Li",
+            "Edward F. Holby",
+            "Wilton J. M. Kort-Kamp"
+          ],
+          "title": "Hierarchical Multi-agent Large Language Model Reasoning for Autonomous Functional Materials Discovery",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2512.13930",
+        "summary": "Artificial intelligence is reshaping scientific exploration, but most methods automate procedural tasks without engaging in scientific reasoning, limiting autonomy in discovery. We introduce Materials Agents for Simulation and Theory in Electronic-structure Reasoning (MASTER), an active learning framework where large language models autonomously design, execute, and interpret atomistic simulations. In MASTER, a multimodal system translates natural language into density functional theory workflows, while higher-level reasoning agents guide discovery through a hierarchy of strategies, including a single agent baseline and three multi-agent approaches: peer review, triage-ranking, and triage-forms. Across two chemical applications, CO adsorption on Cu-surface transition metal (M) adatoms and on M-N-C catalysts, reasoning-driven exploration reduces required atomistic simulations by up to 90% relative to trial-and-error selection. Reasoning trajectories reveal chemically grounded decisions that cannot be explained by stochastic sampling or semantic bias. Altogether, multi-agent collaboration accelerates materials discovery and marks a new paradigm for autonomous scientific exploration.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2512.13930",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-21T11:25:21Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Changxi Zhu",
+            "Mehdi Dastani",
+            "Shihan Wang"
+          ],
+          "title": "A Survey of Multi-Agent Deep Reinforcement Learning with Communication",
+          "venue": "arXiv",
+          "year": 2022
+        },
+        "primary_pointer": "2203.08975",
+        "summary": "Communication is an effective mechanism for coordinating the behaviors of multiple agents, broadening their views of the environment, and to support their collaborations. In the field of multi-agent deep reinforcement learning (MADRL), agents can improve the overall learning performance and achieve their objectives by communication. Agents can communicate various types of messages, either to all agents or to specific agent groups, or conditioned on specific constraints. With the growing body of research work in MADRL with communication (Comm-MADRL), there is a lack of a systematic and structural approach to distinguish and classify existing Comm-MADRL approaches. In this paper, we survey recent works in the Comm-MADRL field and consider various aspects of communication that can play a role in designing and developing multi-agent reinforcement learning systems. With these aspects in mind, we propose 9 dimensions along which Comm-MADRL approaches can be analyzed, developed, and compared. By projecting existing works into the multi-dimensional space, we discover interesting trends. We also propose some novel directions for designing future Comm-MADRL systems through exploring possible combinations of the dimensions.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2203.08975",
+          "http_status": 200,
+          "pdf_sample_score": 0.2597,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-21T11:25:21Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Renxi Wang",
+            "Haonan Li",
+            "Xudong Han",
+            "Yixuan Zhang",
+            "Timothy Baldwin"
+          ],
+          "title": "Learning From Failure: Integrating Negative Examples when Fine-tuning Large Language Models as Agents",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2402.11651",
+        "summary": "Large language models (LLMs) have achieved success in acting as agents, which interact with environments through tools such as search engines. However, LLMs are optimized for language generation instead of tool use during training or alignment, limiting their effectiveness as agents. To resolve this problem, previous work has first collected interaction trajectories between LLMs and environments, using only trajectories that successfully finished the task to fine-tune smaller models, making fine-tuning data scarce and acquiring it both difficult and costly. Discarding failed trajectories also leads to significant wastage of data and resources and limits the possible optimization paths during fine-tuning. In this paper, we argue that unsuccessful trajectories offer valuable insights, and LLMs can learn from these trajectories through appropriate quality control and fine-tuning strategies. By simply adding a prefix or suffix that tells the model whether to generate a successful trajectory during training, we improve model performance by a large margin on mathematical reasoning, multi-hop question answering, and strategic question answering tasks. We further analyze the inference results and find that our method provides a better trade-off between valuable information and errors in unsuccessful trajectories. To our knowledge, we are the first to demonstrate the value of negative trajectories and their application in agent-tunning scenarios. Our findings offer guidance for developing better agent-tuning methods and low-resource data usage techniques.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2402.11651",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-21T11:25:22Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "searchswarm: towards delegation intelligence in agentic llms for long-horizon deep research computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

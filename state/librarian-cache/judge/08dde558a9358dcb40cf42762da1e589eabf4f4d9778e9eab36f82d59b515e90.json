@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2402.11651",
+  "judged_at": "2026-06-21T11:25:33Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "searchswarm: towards delegation intelligence in agentic llms for long-horizon deep research computer science",
+  "rationale": "The paper studies agentic LLMs and how fine‑tuning with negative (failed) trajectories affects their performance on multi‑hop and strategic tasks, which are relevant to long‑horizon reasoning and delegation in research agents. This satisfies criterion (b): it measures a key dependent variable (agent performance) within the same domain of agentic LLMs.",
+  "relevant": true
+}

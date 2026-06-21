@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1211.0310",
+  "judged_at": "2026-06-21T11:24:30Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "kwai keye-vl-2.0 technical report computer science",
+  "rationale": "The candidate paper concerns astrophysics and dark energy science with the LSST, which is unrelated to the computer‑science‑focused “Kwai Keye‑VL‑2.0 Technical Report” query; it shares no relevant mechanism, variables, or domain.",
+  "relevant": false
+}
