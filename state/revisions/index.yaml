@@ -135,3 +135,6 @@ ready:
 - project_id: PROJ-749-playful-agentic-robot-learning
   revision_spec_path: specs/auto-revisions/PROJ-749-playful-agentic-robot-learning/round-1
   queued_at: '2026-06-21T15:39:51.552168+00:00'
+- project_id: PROJ-699-interleavethinker-reinforcing-agentic-in
+  revision_spec_path: specs/auto-revisions/PROJ-699-interleavethinker-reinforcing-agentic-in/round-1
+  queued_at: '2026-06-21T18:39:09.141649+00:00'

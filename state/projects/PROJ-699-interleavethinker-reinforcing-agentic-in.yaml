@@ -6,13 +6,13 @@ failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-699-interleavethinker-reinforcing-agentic-in
-last_run_id: null
+last_run_id: f1f70e95-6f17-4457-b62d-72f6e3c70e9a
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
-revision_spec_path: null
+revision_spec_path: specs/auto-revisions/PROJ-699-interleavethinker-reinforcing-agentic-in/round-1
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'InterleaveThinker: Reinforcing Agentic Interleaved Generation'
-updated_at: '2026-06-13T09:06:21.771798Z'
+updated_at: '2026-06-21T18:39:09.158215Z'

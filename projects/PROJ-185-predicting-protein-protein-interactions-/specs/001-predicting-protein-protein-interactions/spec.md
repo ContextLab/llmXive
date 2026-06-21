@@ -1,6 +1,6 @@
 # Feature Specification: Predict Protein‑Protein Interactions from Co‑expression Networks in Public Plant Databases  
 
-**Feature Branch**: `[###-predict-ppi-coexpression]`  
+**Feature Branch**: `PROJ-185-predict-ppi-coexpression`  
 **Created**: 2026‑06‑17  
 **Status**: Draft  
 **Input**: User description: “Develop a reproducible pipeline that downloads public *Arabidopsis thaliana* RNA‑seq data, builds a high‑threshold co‑expression network, and tests whether the resulting edges recover known protein‑protein interactions from STRING, with functional enrichment of the predicted interactome.”
@@ -14,7 +14,7 @@ A researcher wants to run the pipeline on a fresh GitHub Actions runner and obta
 **Why this priority**: This is the core value‑add of the feature – producing hypothesis sets of PPIs without any manual preprocessing, across all targeted species.
 
 **Traceability**:  
-- Functional Requirements: FR-001, FR-002, FR-003, FR-004, FR-005, FR-009, FR-010, FR-011  
+- Functional Requirements: FR-001, FR-002, FR-003, FR-004, FR-005, FR-009, FR-010, FR-011, **FR-012**  
 - Success Criteria: SC-001, SC-003, SC-004, SC-005  
 
 **Independent Test**: Execute the `make all` target on a fresh runner and verify that for each species a file `predicted_ppi_<species>.tsv` is created and contains ≥ 10 000 edges (or an empty file if no edges meet the threshold).
@@ -34,7 +34,7 @@ A researcher wants to know how well the co‑expression‑derived predictions re
 **Why this priority**: Validation is essential to assess the scientific claim and to decide whether co‑expression alone is sufficient.
 
 **Traceability**:  
-- Functional Requirements: FR-006, FR-007, FR-009, FR-010, FR-011  
+- Functional Requirements: FR-006, FR-007, FR-009, FR-010, FR-011, **FR-012**  
 - Success Criteria: SC-001, SC-003, SC-004, SC-005  
 
 **Independent Test**: Run the `make evaluate` target and check that `evaluation_metrics.json` contains AUROC and AUPRC values for each species.
@@ -54,7 +54,7 @@ A researcher wants to know whether the predicted PPIs are biologically coherent 
 **Why this priority**: Functional relevance supports the utility of the predictions beyond statistical performance.
 
 **Traceability**:  
-- Functional Requirements: FR-008, FR-009, FR-010, FR-011  
+- Functional Requirements: FR-008, FR-009, FR-010, FR-011, **FR-012**  
 - Success Criteria: SC-002, SC-003, SC-004, SC-005  
 
 **Independent Test**: Run the `make enrich` target and verify that `go_enrichment_<species>.tsv` lists GO terms with adjusted p‑values for each species.
@@ -76,7 +76,7 @@ A researcher wants to know whether the predicted PPIs are biologically coherent 
   *A clear error `STRING reference not found or unreadable` is raised; downstream steps for the affected species are skipped.*
 
 - **What if the correlation threshold yields zero edges for a species?**  
-  *The pipeline aborts with error `No edges meet correlation threshold` and records this in `pipeline.log`. No evaluation is performed for that species, preserving the SC‑001 requirement that successful runs achieve AUROC ≥ 0.70.*
+  *The pipeline records a warning `No edges meet correlation threshold` in `pipeline.log`, writes an empty `predicted_ppi_<species>.tsv` file (header only), and skips evaluation for that species while allowing the overall run to succeed.*
 
 ## Requirements *(mandatory)*
 
@@ -107,10 +107,10 @@ A researcher wants to know whether the predicted PPIs are biologically coherent 
 
 ### Measurable Outcomes
 
-- **SC-001**: AUROC of the co‑expression‑derived predictions against STRING high‑confidence interactions must be **≥ 0.70** on the primary dataset for each species.  
+- **SC-001**: AUROC of the co‑expression‑derived predictions against STRING high‑confidence interactions must be **≥ 0.70** **and** AUPRC must be **≥ 0.65** on the primary dataset for each species.  
 - **SC-002**: Adjusted p‑value for at least one GO term in the enrichment report must be **< 0.05** (Benjamini–Hochberg) for each species.  
 - **SC-003**: End‑to‑end pipeline runtime on the default GitHub Actions runner must be **≤ 6 hours** (wall‑clock).  
-- **SC-004**: The pipeline must produce reproducible results (identical `evaluation_metrics.json` and `go_enrichment_<species>.tsv` files) when re‑run on the same input data with the same random seed.  
+- **SC-004**: The pipeline must produce reproducible results (identical `evaluation_metrics.json` and `go_enrichment_<species>.tsv` files) when re‑run on the same input data with the same random seed (as provided via FR‑012).  
 - **SC-005**: All required output files (`predicted_ppi_<species>.tsv`, `evaluation_metrics.json`, `go_enrichment_<species>.tsv`, `pipeline.log`) must be present and parsable after a successful run for each species.
 
 ## Assumptions
