@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2008.06415",
+  "judged_at": "2026-06-21T05:52:11Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "assessing dataset imbalance effects on materials property predictions materials science",
+  "rationale": "The paper measures a key dependent variable of the user's question—prediction accuracy of material properties—on the relevant domain (crystalline materials), satisfying criterion (b) (independent-or-dependent variable on the same domain). It thus provides an empirical baseline for material property prediction performance, which is pertinent to studies assessing how dataset imbalance influences such predictions.",
+  "relevant": true
+}

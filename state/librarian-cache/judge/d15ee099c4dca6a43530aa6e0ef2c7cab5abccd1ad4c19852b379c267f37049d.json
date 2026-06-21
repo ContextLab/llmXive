@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1812.11477",
+  "judged_at": "2026-06-21T05:51:16Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "linking resting-state fmri entropy to real-world decision risk‑taking neuroscience",
+  "rationale": "The paper is a general review of machine learning techniques for rs‑fMRI and does not examine rs‑fMRI entropy, decision‑making, or risk‑taking behavior, nor does it provide a foundational method specifically for entropy‑based analyses; therefore it lacks a direct connection to the user’s variables or mechanism.",
+  "relevant": false
+}

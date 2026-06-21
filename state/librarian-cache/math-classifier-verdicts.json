@@ -354,5 +354,17 @@
   "PROJ-753-testing-the-isotropy-of-cosmic-expansion::1.6.0": {
     "classified_at": "2026-06-21T01:24:16Z",
     "verdict": false
+  },
+  "PROJ-754-linking-resting-state-fmri-entropy-to-re::1.6.0": {
+    "classified_at": "2026-06-21T05:50:57Z",
+    "verdict": false
+  },
+  "PROJ-755-the-influence-of-chatbot-politeness-on-u::1.6.0": {
+    "classified_at": "2026-06-21T05:50:04Z",
+    "verdict": false
+  },
+  "PROJ-756-assessing-dataset-imbalance-effects-on-m::1.6.0": {
+    "classified_at": "2026-06-21T05:51:53Z",
+    "verdict": false
   }
 }

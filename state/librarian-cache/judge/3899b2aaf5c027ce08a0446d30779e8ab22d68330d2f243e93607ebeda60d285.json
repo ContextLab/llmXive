@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2604.22417",
+  "judged_at": "2026-06-21T05:50:15Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the influence of chatbot politeness on user trust psychology",
+  "rationale": "The paper investigates trust in social LLM‑based chatbots, measuring the dependent variable (user trust) within the same domain of chatbot interaction, satisfying inclusion criterion (b) (independent‑or‑dependent variable on the same domain). It provides a relevant empirical baseline for trust formation that is pertinent to a literature review on how chatbot characteristics (including politeness) influence trust.",
+  "relevant": true
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2602.18444",
+  "judged_at": "2026-06-21T05:50:11Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the influence of chatbot politeness on user trust psychology",
+  "rationale": "The paper investigates chatbot politeness (and fairness) and evaluates its impact on user perceptions such as trust and anxiety, providing empirical evidence on the same mechanism (politeness) affecting user trust psychology, satisfying inclusion criterion (a).",
+  "relevant": true
+}

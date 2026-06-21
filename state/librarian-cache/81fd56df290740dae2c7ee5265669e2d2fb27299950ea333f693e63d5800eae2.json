@@ -1,0 +1,448 @@
+{
+  "fetched_at": "2026-06-21T05:51:16Z",
+  "field": "neuroscience",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "neuroscience",
+      "idea_body_excerpt": "Linking Resting-State fMRI Entropy to Real-World Decision Risk‑Taking",
+      "target_n": 5
+    },
+    "duration_seconds": 47.995,
+    "ended_at": "2026-06-21T05:51:16Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "resting-state fMRI signal complexity and risk‑taking behavior"
+        ],
+        [
+          2,
+          "neural entropy metrics and real‑world decision making under uncertainty"
+        ],
+        [
+          3,
+          "intrinsic brain activity variability and risk propensity"
+        ],
+        [
+          4,
+          "rs‑fMRI functional connectivity and impulsive decision making"
+        ],
+        [
+          5,
+          "brain signal entropy and gambling risk preferences"
+        ],
+        [
+          6,
+          "resting‑state network complexity and financial risk behavior"
+        ],
+        [
+          7,
+          "BOLD signal entropy and adaptive risk assessment"
+        ],
+        [
+          8,
+          "spontaneous brain activity entropy and risky choice"
+        ],
+        [
+          9,
+          "resting‑state functional connectivity entropy and sensation‑seeking"
+        ],
+        [
+          10,
+          "whole‑brain entropy measures and decision‑making risk profiles"
+        ],
+        [
+          11,
+          "resting‑state fMRI variability and real‑world risk‑taking outcomes"
+        ],
+        [
+          12,
+          "intrinsic neural complexity and risk‑averse versus risk‑seeking traits"
+        ],
+        [
+          13,
+          "cerebral entropy indices and probabilistic decision tasks"
+        ],
+        [
+          14,
+          "rs‑fMRI dynamic functional connectivity and risk‑related behavior"
+        ],
+        [
+          15,
+          "brain signal heterogeneity and everyday risk‑taking tendencies"
+        ],
+        [
+          16,
+          "resting‑state entropy mapping and risk‑taking personality dimensions"
+        ],
+        [
+          17,
+          "neural complexity analysis and economic decision risk"
+        ],
+        [
+          18,
+          "spontaneous BOLD fluctuations and risk‑taking propensity"
+        ],
+        [
+          19,
+          "resting‑state brain network entropy and behavioral risk metrics"
+        ],
+        [
+          20,
+          "intrinsic functional entropy and real‑world risk behavior assessments"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Linking Resting-State fMRI Entropy to Real-World Decision Risk‑Taking neuroscience": 0,
+        "resting-state fMRI signal complexity and risk‑taking behavior": 3
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "multiscale entropy fMRI",
+      "BART resting-state fMRI",
+      "brain signal complexity functional connectivity",
+      "risk-taking behavior neuroimaging",
+      "entropy decision uncertainty neural coding"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "1906.05803"
+      ]
+    },
+    "per_query_hit_count": {
+      "BART resting-state fMRI": 1,
+      "Linking Resting-State fMRI Entropy to Real-World Decision Risk‑Taking neuroscience": 3,
+      "brain signal complexity functional connectivity": 3,
+      "entropy decision uncertainty neural coding": 2,
+      "multiscale entropy fMRI": 2,
+      "risk-taking behavior neuroimaging": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 2,
+      "rejections": [
+        {
+          "primary_pointer": "1911.08448",
+          "rationale": "The paper focuses on financial market risk‑taking models and AI trading systems, with no measurement of resting‑state fMRI entropy, brain activity, or human decision‑risk behavior, thus it is off‑domain and unrelated to the neuroscience question.",
+          "title": "Artificial intelligence approach to momentum risk-taking"
+        },
+        {
+          "primary_pointer": "1812.11477",
+          "rationale": "The paper is a general review of machine learning techniques for rs‑fMRI and does not examine rs‑fMRI entropy, decision‑making, or risk‑taking behavior, nor does it provide a foundational method specifically for entropy‑based analyses; therefore it lacks a direct connection to the user’s variables or mechanism.",
+          "title": "Machine learning in resting-state fMRI analysis"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-21T05:50:28Z",
+    "term_input": {
+      "normalized": "linking resting-state fmri entropy to real-world decision risk‑taking neuroscience",
+      "raw": "Linking Resting-State fMRI Entropy to Real-World Decision Risk‑Taking neuroscience"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent advances in multimodal large language models (LLMs) have enabled unified reasoning across images, audio, and video, but extending such capability to brain imaging remains largely unexplored. Bridging this gap is essential to link neural activity with semantic cognition and to develop cross-modal brain representations. To this end, we present fMRI-LM, a foundational model that bridges functional MRI (fMRI) and language through a three-stage framework. In Stage 1, we learn a neural tokenizer that maps fMRI into discrete tokens embedded in a language-consistent space. In Stage 2, a pretrained LLM is adapted to jointly model fMRI tokens and text, treating brain activity as a sequence that can be temporally predicted and linguistically described. To overcome the lack of natural fMRI-text pairs, we construct a large descriptive corpus that translates diverse imaging-based features into structured textual descriptors, capturing the low-level organization of fMRI signals. In Stage 3, we perform multi-task, multi-paradigm instruction tuning to endow fMRI-LM with high-level semantic understanding, supporting diverse downstream applications. Across various benchmarks, fMRI-LM achieves strong zero-shot and few-shot performance, and adapts efficiently with parameter-efficient tuning (LoRA), establishing a scalable pathway toward a language-aligned, universal model for structural and semantic understanding of fMRI.",
+          "claimed_authors": [
+            "Yuxiang Wei",
+            "Yanteng Zhang",
+            "Xi Xiao",
+            "Chengxuan Qian",
+            "Tianyang Wang",
+            "Vince D. Calhoun"
+          ],
+          "claimed_title": "fMRI-LM: Towards a Universal Foundation Model for Language-Aligned fMRI Understanding",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2511.21760"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='Linking Resting-State fMRI Entropy to Real-World Decision Risk‑Taking neuroscien', candidate_title='fMRI-LM: Towards a Universal Foundation Model for Language-Aligned fMRI Understanding')",
+        "failed_at": "2026-06-21T05:50:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Intracellular calcium is regulated in part by the release of Ca$^{2+}$ ions from the endoplasmic reticulum via inositol-4,5-triphosphate receptor (IP$_3$R) channels (among other possibilities such as RyR and L-type calcium channels). The resulting dynamics are highly diverse, lead to local calcium \"puffs\" as well as global waves propagating through cells, as observed in {\\it Xenopus} oocytes, neurons, and other cell types. Local fluctuations in the number of calcium ions play a crucial role in the onset of these features. Previous modeling studies of calcium puff dynamics stemming from IP$_3$R channels have predominantly focused on stochastic channel models coupled to deterministic diffusion of ions, thereby neglecting local fluctuations of the ion number. Tracking of individual ions is computationally difficult due to the scale separation in the Ca$^{2+}$ concentration when channels are in the open or closed states. In this paper, a spatial multiscale model for investigating of the dynamics of puffs is presented. It couples Brownian motion (diffusion) of ions with a stochastic channel gating model. The model is used to analyze calcium puff statistics. Concentration time traces as well as channel state information are studied. We identify the regime in which puffs can be found and develop a mean-field theory to extract the boundary of this regime. Puffs are only possible when the time scale of channel inhibition is sufficiently large. Implications for the understanding of puff generation and termination are discussed.",
+          "claimed_authors": [
+            "Ulrich Dobramysl",
+            "Sten Rüdiger",
+            "Radek Erban"
+          ],
+          "claimed_title": "Particle-based Multiscale Modeling of Calcium Puff Dynamics",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2015,
+          "primary_pointer": "1504.00146"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='Linking Resting-State fMRI Entropy to Real-World Decision Risk‑Taking neuroscien', candidate_title='Particle-based Multiscale Modeling of Calcium Puff Dynamics')",
+        "failed_at": "2026-06-21T05:50:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The entropy for a black hole in a de Sitter space is approached within the framework of spacetime foam. A simple model, made by $N$ wormholes in a semiclassical approximation, is taken under examination to compute the entropy for such a case. An extension to the extreme case when the black hole and cosmological horizons are equal is discussed.",
+          "claimed_authors": [
+            "Remo Garattini"
+          ],
+          "claimed_title": "A Spacetime Foam Approach to the Schwarzschild-de Sitter Entropy",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2000,
+          "primary_pointer": "gr-qc/0003089"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='Linking Resting-State fMRI Entropy to Real-World Decision Risk‑Taking neuroscien', candidate_title='A Spacetime Foam Approach to the Schwarzschild-de Sitter Entropy')",
+        "failed_at": "2026-06-21T05:50:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The most studies on functional connectivity have been done by analyzing the brain's hemodynamic response to a stimulation. On the other hand, the low-frequency spontaneous fluctuations in the blood oxygen level dependent (BOLD) signals of functional MRI have been observed in the resting state. However, the BOLD signals in resting state are significantly corrupted by huge noises arising from cardiac pulsation, respiration, subject motion, scanner, and so forth. Especially, the noise compounds are stronger in the rat brain than in the human brain. To overcome such an artifact, we assumed that fractal behavior in BOLD signals reflects low frequency neural activity, and applied the theorem such that the wavelet correlation spectrum between long memory processes is scale-invariant over low frequency scales. Here, we report an experiment that shows special correlation patterns not only in correlation of scaling coefficients in very low-frequency band (less than 0.0078Hz) but also in asymptotic wavelet correlation. In addition, we show the distribution of the Hurst exponents in the rat brain.",
+          "claimed_authors": [
+            "Wonsang You",
+            "Joerg Stadler"
+          ],
+          "claimed_title": "Fractal-based Correlation Analysis for Resting State Functional Connectivity of the Rat Brain in Functional MRI",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1202.4751"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='Linking Resting-State fMRI Entropy to Real-World Decision Risk‑Taking neuroscien', candidate_title='Fractal-based Correlation Analysis for Resting State Functional Connectivity of the Rat Brain in Functional MRI')",
+        "failed_at": "2026-06-21T05:50:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Understanding the human brain remains the Holy Grail in biomedical science, and arguably in all of the sciences. Our brains represent the most complex systems in the world (and some contend the universe) comprising nearly one hundred billion neurons with septillions of possible connections between them. The structure of these connections engenders an efficient hierarchical system capable of consciousness, as well as complex thoughts, feelings, and behaviors. Brain connectivity and network analyses have exploded over the last decade due to their potential in helping us understand both normal and abnormal brain function. Functional connectivity (FC) analysis examines functional associations between time series pairs in specified brain voxels or regions. Brain network analysis serves as a distinct subfield of connectivity analysis in which associations are quantified for all time series pairs to create an interconnected representation of the brain (a brain network), which allows studying its systemic properties. While connectivity analyses underlie network analyses, the subtle distinction between the two research areas has generally been overlooked in the literature, with them often being referred to synonymously. However, developing more useful analytic methods and allowing for more precise biological interpretations requires distinguishing these two complementary domains.",
+          "claimed_authors": [
+            "Sean L. Simpson",
+            "Paul J. Laurienti"
+          ],
+          "claimed_title": "Disentangling Brain Graphs: A Note on the Conflation of Network and Connectivity Analyses",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1602.00933"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='Linking Resting-State fMRI Entropy to Real-World Decision Risk‑Taking neuroscien', candidate_title='Disentangling Brain Graphs: A Note on the Conflation of Network and Connectivity Analyses')",
+        "failed_at": "2026-06-21T05:50:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Synchronization of brain activity fluctuations is believed to represent communication between spatially distant neural processes. These inter-areal functional interactions develop in the background of a complex network of axonal connections linking cortical and sub-cortical neurons, termed the human \"structural connectome\". Theoretical considerations and experimental evidence support the view that the human brain can be modeled as a system operating at a critical point between ordered (sub-critical) and disordered (super-critical) phases. Here, we explore the hypothesis that pathologies resulting from brain injury of different etiology are related to the model of a critical brain. For this purpose, we investigate how damage to the integrity of the structural connectome impacts on the signatures of critical dynamics. Adopting a hybrid modeling approach combining an empirical weighted network of human structural connections with a conceptual model of critical dynamics, we show that lesions located at highly transited connections progressively displace the model towards the sub-critical regime. The topological properties of the nodes and links are of less importance when considered independently of their weight in the network. We observe that damage to midline hubs such as the middle and posterior cingulate cortex is most crucial for the disruption of criticality in the model. However, a similar effect can be achieved by targeting less transited nodes and links whose connection weights add up to an equivalent amount. This implies that brain pathology does not necessarily arise due to insult targeted at well-connected areas and that inter- subject variability could obscure lesions located at non-hub regions. Finally, we discuss the predictions of our model in the context of clinical studies of traumatic brain injury and neurodegenerative disorders.",
+          "claimed_authors": [
+            "Ariel Haimovici",
+            "Pablo Balenzuela",
+            "Enzo Tagliazucchi"
+          ],
+          "claimed_title": "Dynamical signatures of structural connectivity damage to a model of the brain posed at criticality",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1611.03026"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='Linking Resting-State fMRI Entropy to Real-World Decision Risk‑Taking neuroscien', candidate_title='Dynamical signatures of structural connectivity damage to a model of the brain posed at criticality')",
+        "failed_at": "2026-06-21T05:50:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A formula for an average connectivity between cortical areas in mammals is derived. Based on comparative neuroanatomical data, it is found, surprisingly, that this connectivity is either only weakly dependent or independent of brain size. It is discussed how this formula can be used to estimate the average length of axons in white matter. Other allometric relations, such as cortical patches and area sizes vs. brain size, are also provided. Finally, some functional implications, with an emphasis on efficient cortical computation, are discussed as well.",
+          "claimed_authors": [
+            "Jan Karbowski"
+          ],
+          "claimed_title": "How does connectivity between cortical areas depend on brain size? Implications for efficient computation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2003,
+          "primary_pointer": "q-bio/0310015"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Linking Resting-State fMRI Entropy to Real-World Decision Risk‑Taking neuroscien', candidate_title='How does connectivity between cortical areas depend on brain size? Implications for efficient computation')",
+        "failed_at": "2026-06-21T05:50:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent research in neuroimaging has focused on assessing associations between genetic variants that are measured on a genomewide scale and brain imaging phenotypes. A large number of works in the area apply massively univariate analyses on a genomewide basis to find single nucleotide polymorphisms that influence brain structure. In this paper, we propose using various dimensionality reduction methods on both brain structural MRI scans and genomic data, motivated by the Alzheimer's Disease Neuroimaging Initiative (ADNI) study. We also consider a new multiple testing adjustment method and compare it with two existing false discovery rate (FDR) adjustment methods. The simulation results suggest an increase in power for the proposed method. The real data analysis suggests that the proposed procedure is able to find associations between genetic variants and brain volume differences that offer potentially new biological insights.",
+          "claimed_authors": [
+            "Wen-Yu Hua",
+            "Thomas E. Nichols",
+            "Debashis Ghosh",
+            "the Alzheimer's Disease Neuroimaging Initiative"
+          ],
+          "claimed_title": "Multiple Comparison Procedures for Neuroimaging Genomewide Association Studies",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1402.2678"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='Linking Resting-State fMRI Entropy to Real-World Decision Risk‑Taking neuroscien', candidate_title='Multiple Comparison Procedures for Neuroimaging Genomewide Association Studies')",
+        "failed_at": "2026-06-21T05:50:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Automated methods for Alzheimer's disease (AD) classification have the potential for great clinical benefits and may provide insight for combating the disease. Machine learning, and more specifically deep neural networks, have been shown to have great efficacy in this domain. These algorithms often use neurological imaging data such as MRI and PET, but a comprehensive and balanced comparison of these modalities has not been performed. In order to accurately determine the relative strength of each imaging variant, this work performs a comparison study in the context of Alzheimer's dementia classification using the Alzheimer's Disease Neuroimaging Initiative (ADNI) dataset. Furthermore, this work analyzes the benefits of using both modalities in a fusion setting and discusses how these data types may be leveraged in future AD studies using deep learning.",
+          "claimed_authors": [
+            "Arjun Punjabi",
+            "Adam Martersteck",
+            "Yanran Wang",
+            "Todd B. Parrish",
+            "Aggelos K. Katsaggelos",
+            "the Alzheimer's Disease Neuroimaging Initiative"
+          ],
+          "claimed_title": "Neuroimaging Modality Fusion in Alzheimer's Classification Using Convolutional Neural Networks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1811.05105"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Linking Resting-State fMRI Entropy to Real-World Decision Risk‑Taking neuroscien', candidate_title=\"Neuroimaging Modality Fusion in Alzheimer's Classification Using Convolutional Neural Networks\")",
+        "failed_at": "2026-06-21T05:50:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Compared with large-scale physical batteries, aggregated and coordinated generic energy storage (GES) resources provide low-cost, but uncertain, flexibility for power grid operations. While GES can be characterized by different types of uncertainty, the literature mostly focuses on decision-independent uncertainties (DIUs), such as exogenous stochastic disturbances caused by weather conditions. Instead, this manuscript focuses on newly-introduced decision-dependent uncertainties (DDUs) and considers an optimal GES dispatch that accounts for uncertain available state-of-charge (SoC) bounds that are affected by incentive signals and discomfort levels. To incorporate DDUs, we present a novel chance-constrained optimization (CCO) approach for the day-ahead economic dispatch of GES units. Two tractable methods are presented to solve the proposed CCO problem with DDUs: (i) a robust reformulation for general but incomplete distributions of DDUs, and (ii) an iterative algorithm for specific and known distributions of DDUs. Furthermore, reliability indices are introduced to verify the applicability of the proposed approach with respect to the reliability of the response of GES units. Simulation-based analysis shows that the proposed methods yield conservative, but credible, GES dispatch strategies and reduced penalty cost by incorporating DDUs in the constraints and leveraging data-driven parameter identification. This results in improved availability and performance of coordinated GES units.",
+          "claimed_authors": [
+            "Ning Qi",
+            "Pierre Pinson",
+            "Mads R. Almassalkhi",
+            "Lin Cheng",
+            "Yingrui Zhuang"
+          ],
+          "claimed_title": "Chance-Constrained Generic Energy Storage Operations under Decision-Dependent Uncertainty",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2201.06407"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='Linking Resting-State fMRI Entropy to Real-World Decision Risk‑Taking neuroscien', candidate_title='Chance-Constrained Generic Energy Storage Operations under Decision-Dependent Uncertainty')",
+        "failed_at": "2026-06-21T05:50:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We consider the description of open quantum systems with probability sinks (or sources) in terms of general non-Hermitian Hamiltonians.~Within such a framework, we study novel possible definitions of the quantum linear entropy as an indicator of the flow of information during the dynamics. Such linear entropy functionals are necessary in the case of a partially Wigner-transformed non-Hermitian Hamiltonian (which is typically useful within a mixed quantum-classical representation). Both the case of a system represented by a pure non-Hermitian Hamiltonian as well as that of the case of non-Hermitian dynamics in a classical bath are explicitly considered.",
+          "claimed_authors": [
+            "Alessandro Sergi",
+            "Paolo V. Giaquinta"
+          ],
+          "claimed_title": "Linear Quantum Entropy and Non-Hermitian Hamiltonians",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1612.05917"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='Linking Resting-State fMRI Entropy to Real-World Decision Risk‑Taking neuroscien', candidate_title='Linear Quantum Entropy and Non-Hermitian Hamiltonians')",
+        "failed_at": "2026-06-21T05:50:58Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Wonsang You",
+            "Jörg Stadler"
+          ],
+          "title": "Fractal-driven distortion of resting state functional networks in fMRI: a simulation study",
+          "venue": "arXiv",
+          "year": 2012
+        },
+        "primary_pointer": "1208.0924",
+        "summary": "Fractals are self-similar and scale-invariant patterns found ubiquitously in nature. A lot of evidences implying fractal properties such as 1/f power spectrums have been also observed in resting state fMRI time series. To explain the fractal behavior in rs-fMRI, we have proposed the fractal-based model of resting state hemodynamic response function (rs-HRF) whose properties can be summarized by a fractal exponent. Here we show, through a simulation studies, that the fractal behavior of cerebral hemodynamics may cause significant distortion of network properties between neuronal activities and BOLD signals. We simulated neuronal population activities based on the stochastic neural field model from the Macaque brain network, and then obtained their corresponding BOLD signals by convolving them with the rs-HRF filter. The precision of centrality estimated in each node was deteriorated overall in three networks based on transfer entropy, mutual information, and Pearson correlation; particularly the distortion of transfer entropy was more sensitive to the standard deviation of fractal exponents. A node with high centrality was resilient to desynchronized fractal dynamics over all frequencies while a node with small centrality exhibited huge distortion of both wavelet correlation and centrality over low frequencies. This theoretical expectation indicates that the difference of fractal exponents between brain regions leads to discrepancy of statistical network properties, especially at nodes with small centrality, between neuronal activities and BOLD signals, and that the traditional definitions of resting state functional connectivity may not effectively reflect the dynamics of spontaneous neuronal activities.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1208.0924",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3636,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-21T05:50:57Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Quanying Liu",
+            "Haiyan Wu",
+            "Anqi Liu"
+          ],
+          "title": "Modeling and Interpreting Real-world Human Risk Decision Making with Inverse Reinforcement Learning",
+          "venue": "arXiv",
+          "year": 2019
+        },
+        "primary_pointer": "1906.05803",
+        "summary": "We model human decision-making behaviors in a risk-taking task using inverse reinforcement learning (IRL) for the purposes of understanding real human decision making under risk. To the best of our knowledge, this is the first work applying IRL to reveal the implicit reward function in human risk-taking decision making and to interpret risk-prone and risk-averse decision-making policies. We hypothesize that the state history (e.g. rewards and decisions in previous trials) are related to the human reward function, which leads to risk-averse and risk-prone decisions. We design features that reflect these factors in the reward function of IRL and learn the corresponding weight that is interpretable as the importance of features. The results confirm the sub-optimal risk-related decisions of human-driven by the personalized reward function. In particular, the risk-prone person tends to decide based on the current pump number, while the risk-averse person relies on burst information from the previous trial and the average end status. Our results demonstrate that IRL is an effective tool to model human decision-making behavior, as well as to help interpret the human psychological process in risk decision-making.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1906.05803",
+          "http_status": 200,
+          "pdf_sample_score": 0.2241,
+          "query_relevance_score": 0.5455,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-21T05:50:58Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Wonsang You",
+            "Joerg Stadler"
+          ],
+          "title": "Fractal-based Correlation Analysis for Resting State Functional Connectivity of the Rat Brain in Functional MRI",
+          "venue": "arXiv",
+          "year": 2012
+        },
+        "primary_pointer": "1202.4751",
+        "summary": "The most studies on functional connectivity have been done by analyzing the brain's hemodynamic response to a stimulation. On the other hand, the low-frequency spontaneous fluctuations in the blood oxygen level dependent (BOLD) signals of functional MRI have been observed in the resting state. However, the BOLD signals in resting state are significantly corrupted by huge noises arising from cardiac pulsation, respiration, subject motion, scanner, and so forth. Especially, the noise compounds are stronger in the rat brain than in the human brain. To overcome such an artifact, we assumed that fractal behavior in BOLD signals reflects low frequency neural activity, and applied the theorem such that the wavelet correlation spectrum between long memory processes is scale-invariant over low frequency scales. Here, we report an experiment that shows special correlation patterns not only in correlation of scaling coefficients in very low-frequency band (less than 0.0078Hz) but also in asymptotic wavelet correlation. In addition, we show the distribution of the Hurst exponents in the rat brain.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1202.4751",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-21T05:51:02Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "linking resting-state fmri entropy to real-world decision risk‑taking neuroscience",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

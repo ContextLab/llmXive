@@ -1,0 +1,487 @@
+{
+  "fetched_at": "2026-06-21T05:50:20Z",
+  "field": "psychology",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "psychology",
+      "idea_body_excerpt": "The Influence of Chatbot Politeness on User Trust",
+      "target_n": 5
+    },
+    "duration_seconds": 47.911,
+    "ended_at": "2026-06-21T05:50:20Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "chatbot politeness and user trust perception"
+        ],
+        [
+          2,
+          "conversational agent courtesy effects on trustworthiness"
+        ],
+        [
+          3,
+          "perceived politeness of virtual assistants influencing trust"
+        ],
+        [
+          4,
+          "politeness cues in dialogue systems and trust formation"
+        ],
+        [
+          5,
+          "social presence of chatbots and its impact on user trust"
+        ],
+        [
+          6,
+          "courteous language in AI chatbots and credibility judgments"
+        ],
+        [
+          7,
+          "politeness strategies in conversational AI affecting trust"
+        ],
+        [
+          8,
+          "user trust in anthropomorphic chatbots with polite behavior"
+        ],
+        [
+          9,
+          "affective wording in chatbots and its role in trust development"
+        ],
+        [
+          10,
+          "politeness markers and user willingness to disclose to chatbots"
+        ],
+        [
+          11,
+          "trust calibration in human‑AI interaction through politeness"
+        ],
+        [
+          12,
+          "perceived competence of polite chatbots and user confidence"
+        ],
+        [
+          13,
+          "interpersonal politeness theory applied to chatbot design"
+        ],
+        [
+          14,
+          "impact of courteous chatbot responses on perceived reliability"
+        ],
+        [
+          15,
+          "social etiquette in human‑computer interaction and trust outcomes"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "The Influence of Chatbot Politeness on User Trust psychology": 0,
+        "chatbot politeness and user trust perception": 4
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "linguistic politeness trust",
+      "human-computer interaction chatbot",
+      "social presence trust",
+      "trust rating chatbot",
+      "Politeness Theory trust"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2602.18444"
+      ]
+    },
+    "per_query_hit_count": {
+      "Politeness Theory trust": 2,
+      "The Influence of Chatbot Politeness on User Trust psychology": 3,
+      "human-computer interaction chatbot": 3,
+      "linguistic politeness trust": 3,
+      "social presence trust": 3,
+      "trust rating chatbot": 1
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 0,
+      "rejections": []
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-21T05:49:32Z",
+    "term_input": {
+      "normalized": "the influence of chatbot politeness on user trust psychology",
+      "raw": "The Influence of Chatbot Politeness on User Trust psychology"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Trust is often cited as an essential criterion for the effective use and real-world deployment of AI. Researchers argue that AI should be more transparent to increase trust, making transparency one of the main goals of XAI. Nevertheless, empirical research on this topic is inconclusive regarding the effect of transparency on trust. An explanation for this ambiguity could be that trust is operationalized differently within XAI. In this position paper, we advocate for a clear distinction between behavioral (objective) measures of reliance and attitudinal (subjective) measures of trust. However, researchers sometimes appear to use behavioral measures when intending to capture trust, although attitudinal measures would be more appropriate. Based on past research, we emphasize that there are sound theoretical reasons to keep trust and reliance separate. Properly distinguishing these two concepts provides a more comprehensive understanding of how transparency affects trust and reliance, benefiting future XAI research.",
+          "claimed_authors": [
+            "Nicolas Scharowski",
+            "Sebastian A. C. Perrig",
+            "Nick von Felten",
+            "Florian Brühlmann"
+          ],
+          "claimed_title": "Trust and Reliance in XAI -- Distinguishing Between Attitudinal and Behavioral Measures",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2203.12318"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='The Influence of Chatbot Politeness on User Trust psychology', candidate_title='Trust and Reliance in XAI -- Distinguishing Between Attitudinal and Behavioral Measures')",
+        "failed_at": "2026-06-21T05:50:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Quorum systems are a key abstraction in distributed fault-tolerant computing for capturing trust assumptions. They can be found at the core of many algorithms for implementing reliable broadcasts, shared memory, consensus and other problems. This paper introduces asymmetric Byzantine quorum systems that model subjective trust. Every process is free to choose which combinations of other processes it trusts and which ones it considers faulty. Asymmetric quorum systems strictly generalize standard Byzantine quorum systems, which have only one global trust assumption for all processes. This work also presents protocols that implement abstractions of shared memory, broadcast primitives, and a consensus protocol among processes prone to Byzantine faults and asymmetric trust. The model and protocols pave the way for realizing more elaborate algorithms with asymmetric trust.",
+          "claimed_authors": [
+            "Orestis Alpos",
+            "Christian Cachin",
+            "Björn Tackmann",
+            "Luca Zanolini"
+          ],
+          "claimed_title": "Asymmetric Distributed Trust",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1906.09314"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='The Influence of Chatbot Politeness on User Trust psychology', candidate_title='Asymmetric Distributed Trust')",
+        "failed_at": "2026-06-21T05:50:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper I present a classifier for automatic identification of linguistic politeness in Hindi texts. I have used the manually annotated corpus of over 25,000 blog comments to train an SVM. Making use of the discursive and interactional approaches to politeness the paper gives an exposition of the normative, conventionalised politeness structures of Hindi. It is seen that using these manually recognised structures as features in training the SVM significantly improves the performance of the classifier on the test set. The trained system gives a significantly high accuracy of over 77% which is within 2% of human accuracy.",
+          "claimed_authors": [
+            "Ritesh Kumar"
+          ],
+          "claimed_title": "Towards automatic identification of linguistic politeness in Hindi texts",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2111.15268"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='The Influence of Chatbot Politeness on User Trust psychology', candidate_title='Towards automatic identification of linguistic politeness in Hindi texts')",
+        "failed_at": "2026-06-21T05:50:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Heuristic evaluation is a widely used method in Human-Computer Interaction (HCI) to inspect interfaces and identify issues based on heuristics. Recently, Large Language Models (LLMs), such as GPT-4o, have been applied in HCI to assist in persona creation, the ideation process, and the analysis of semi-structured interviews. However, considering the need to understand heuristics and the high degree of abstraction required to evaluate them, LLMs may have difficulty conducting heuristic evaluation. However, prior research has not investigated GPT-4o's performance in heuristic evaluation compared to HCI experts in web-based systems. In this context, this study aims to compare the results of a heuristic evaluation performed by GPT-4o and human experts. To this end, we selected a set of screenshots from a web system and asked GPT-4o to perform a heuristic evaluation based on Nielsen's Heuristics from a literature-grounded prompt. Our results indicate that only 21.2% of the issues identified by human experts were also identified by GPT-4o, despite it found 27 new issues. We also found that GPT-4o performed better for heuristics related to aesthetic and minimalist design and match between system and real world, whereas it has difficulty identifying issues in heuristics related to flexibility, control, and user efficiency. Additionally, we noticed that GPT-4o generated several false positives due to hallucinations and attempts to predict issues. Finally, we highlight five takeaways for the conscious use of GPT-4o in heuristic evaluations.",
+          "claimed_authors": [
+            "Guilherme Guerino",
+            "Luiz Rodrigues",
+            "Bruna Capeleti",
+            "Rafael Ferreira Mello",
+            "André Freire",
+            "Luciana Zaina"
+          ],
+          "claimed_title": "Can GPT-4o Evaluate Usability Like Human Experts? A Comparative Study on Issue Identification in Heuristic Evaluation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.16345"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='The Influence of Chatbot Politeness on User Trust psychology', candidate_title='Can GPT-4o Evaluate Usability Like Human Experts? A Comparative Study on Issue Identification in Heuristic Evaluation')",
+        "failed_at": "2026-06-21T05:50:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "With Artificial intelligence (AI) to aid or automate decision-making advancing rapidly, a particular concern is its fairness. In order to create reliable, safe and trustworthy systems through human-centred artificial intelligence (HCAI) design, recent efforts have produced user interfaces (UIs) for AI experts to investigate the fairness of AI models. In this work, we provide a design space exploration that supports not only data scientists but also domain experts to investigate AI fairness. Using loan applications as an example, we held a series of workshops with loan officers and data scientists to elicit their requirements. We instantiated these requirements into FairHIL, a UI to support human-in-the-loop fairness investigations, and describe how this UI could be generalized to other use cases. We evaluated FairHIL through a think-aloud user study. Our work contributes better designs to investigate an AI model's fairness-and move closer towards responsible AI.",
+          "claimed_authors": [
+            "Yuri Nakao",
+            "Lorenzo Strappelli",
+            "Simone Stumpf",
+            "Aisha Naseer",
+            "Daniele Regoli",
+            "Giulia Del Gamba"
+          ],
+          "claimed_title": "Towards Responsible AI: A Design Space Exploration of Human-Centered Artificial Intelligence User Interfaces to Investigate Fairness",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2206.00474"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='The Influence of Chatbot Politeness on User Trust psychology', candidate_title='Towards Responsible AI: A Design Space Exploration of Human-Centered Artificial Intelligence User Interfaces to Investigate Fairness')",
+        "failed_at": "2026-06-21T05:50:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper, we study trust levels in social networks from the perspective of Dunbar's number.",
+          "claimed_authors": [
+            "Santanu Acharjee",
+            "Akhil Thomas Panicker"
+          ],
+          "claimed_title": "Trust levels in social networks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2203.04740"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='The Influence of Chatbot Politeness on User Trust psychology', candidate_title='Trust levels in social networks')",
+        "failed_at": "2026-06-21T05:50:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "All online sharing systems gather data that reflects users' collective behaviour and their shared activities. This data can be used to extract different kinds of relationships, which can be grouped into layers, and which are basic components of the multidimensional social network proposed in the paper. The layers are created on the basis of two types of relations between humans, i.e. direct and object-based ones which respectively correspond to either social or semantic links between individuals. For better understanding of the complexity of the social network structure, layers and their profiles were identified and studied on two, spanned in time, snapshots of the Flickr population. Additionally, for each layer, a separate strength measure was proposed. The experiments on the Flickr photo sharing system revealed that the relationships between users result either from semantic links between objects they operate on or from social connections of these users. Moreover, the density of the social network increases in time. The second part of the study is devoted to building a social recommender system that supports the creation of new relations between users in a multimedia sharing system. Its main goal is to generate personalized suggestions that are continuously adapted to users' needs depending on the personal weights assigned to each layer in the multidimensional social network. The conducted experiments confirmed the usefulness of the proposed model.",
+          "claimed_authors": [
+            "Przemyslaw Kazienko",
+            "Katarzyna Musial",
+            "Tomasz Kajdanowicz"
+          ],
+          "claimed_title": "Multidimensional Social Network in the Social Recommender System",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1303.0093"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Influence of Chatbot Politeness on User Trust psychology', candidate_title='Multidimensional Social Network in the Social Recommender System')",
+        "failed_at": "2026-06-21T05:50:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper, we analyse the sustainability of social networks using STrust, our social trust model. The novelty of the model is that it introduces the concept of engagement trust and combines it with the popularity trust to derive the social trust of the community as well as of individual members in the community. This enables the recommender system to use these different types of trust to recommend different things to the community, and identify (and recommend) different roles. For example, it recommends mentors using the engagement trust and leaders using the popularity trust. We then show the utility of the model by analysing data from two types of social networks. We also study the sustainability of a community through our social trust model. We observe that a 5% drop in highly trusted members causes more than a 50% drop in social capital that, in turn, raises the question of sustainability of the community. We report our analysis and its results.",
+          "claimed_authors": [
+            "Surya Nepal",
+            "Cecile Paris",
+            "Sanat Kumar Bista",
+            "Wanita Sherchan"
+          ],
+          "claimed_title": "A Trust Model Based Analysis of Social Networks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1311.4606"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='The Influence of Chatbot Politeness on User Trust psychology', candidate_title='A Trust Model Based Analysis of Social Networks')",
+        "failed_at": "2026-06-21T05:50:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Innovation is a key component in trying new solutions for the students to learn efficiently and in ways that correspond to their own experience, where chatbots are one of these new solutions. One of the main problem that chatbots face today is to mimic human language, where they try to find the best answer to an input, which is not how a human conversation usually works, rather taking into account the previous messages and building onto them. Extreme programming methodology was chosen to use integrate ChatterBot, Pyside2, web scraping and Tampermonkey into Blackboard as a test case. Problems occurred with the bot and more training was needed for the bot to work perfectly, but the integration and web scraping worked, giving us a chatbot that was able to talk with. We showed the plausibility of integrating an AI bot in an educational setting.",
+          "claimed_authors": [
+            "Dimitrios Chaskopoulos",
+            "Jonas Eilertsen Hægdahl",
+            "Petter Sagvold",
+            "Claire Trinquet",
+            "Maryam Edalati"
+          ],
+          "claimed_title": "Implementing a Chatbot Solution for Learning Management System",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2206.13187"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='The Influence of Chatbot Politeness on User Trust psychology', candidate_title='Implementing a Chatbot Solution for Learning Management System')",
+        "failed_at": "2026-06-21T05:50:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The functional Schrodinger picture formulation of quantum field theory and the variational Gaussian approximation method based on the formulation are briefly reviewed. After presenting recent attempts to improve the variational approximation, we introduce a new systematic method based on the background field method, which enables one to compute the order-by-order correction terms to the Gaussian approximation of the effective action.",
+          "claimed_authors": [
+            "Jae Hyung Yee"
+          ],
+          "claimed_title": "Variational Approach to Quantum Field Theory: Gaussian Approximation and the Perturbative Expansion around It",
+          "claimed_venue": "arXiv",
+          "claimed_year": 1997,
+          "primary_pointer": "hep-th/9707234"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Influence of Chatbot Politeness on User Trust psychology', candidate_title='Variational Approach to Quantum Field Theory: Gaussian Approximation and the Perturbative Expansion around It')",
+        "failed_at": "2026-06-21T05:50:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Jupiter-Saturn 2:5 near-commensurability is analyzed in a fully analytic Hamiltonian planetary theory. Computations for the Sun-Jupiter-Saturn system, extending to the third order of the masses and to the 8th degree in the eccentricities and inclinations, reveal an unexpectedly sensitive dependence of the solution on initial data and its likely nonconvergence. The source of the sensitivity and apparent lack of convergence is this near-commensurability, the so-called great inequality. This indicates that simple averaging, still common in current semi-analytic planetary theories, may not be an adequate technique to obtain information on the long-term dynamics of the Solar System.\n  Preliminary results suggest that these difficulties can be overcome by using resonant normal forms.",
+          "claimed_authors": [
+            "F. Varadi",
+            "M. Ghil",
+            "W. M. Kaula",
+            " Keywords",
+            " :",
+            "Hamiltonian systems",
+            "planetary motion",
+            "perturbation theory",
+            " resonances"
+          ],
+          "claimed_title": "The Great Inequality In A Hamiltonian Planetary Theory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 1993,
+          "primary_pointer": "chao-dyn/9311011"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Influence of Chatbot Politeness on User Trust psychology', candidate_title='The Great Inequality In A Hamiltonian Planetary Theory')",
+        "failed_at": "2026-06-21T05:50:05Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yuvarani Ganesan",
+            "Salsabila Harlen",
+            "Azfar Rahman Bin Fazul Rahman",
+            "Akashdeep Singh",
+            "Zahra Fathanah",
+            "Raja Jamilah Raja Yusof"
+          ],
+          "title": "LunaAI: A Polite and Fair Healthcare Guidance Chatbot",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2602.18444",
+        "summary": "Conversational AI has significant potential in the healthcare sector, but many existing systems fall short in emotional intelligence, fairness, and politeness, which are essential for building patient trust. This gap reduces the effectiveness of digital health solutions and can increase user anxiety. This study addresses the challenge of integrating ethical communication principles by designing and evaluating LunaAI, a healthcare chatbot prototype. Using a user-centered design approach informed by a structured literature review, we developed conversational scenarios that handle both routine and hostile user interactions. The system was implemented using the Google Gemini API and deployed as a mobile-first Progressive Web App built with React, Vite, and Firebase. Preliminary user testing was conducted with a small participant group, and responses were evaluated using established frameworks such as the Godspeed Questionnaire. In addition, a comparative analysis was performed between LunaAI's tailored responses and the baseline outputs of an uncustomized large language model. The results indicate measurable improvements in key interaction qualities, with average user ratings of 4.7 out of 5 for politeness and 4.9 out of 5 for fairness. These findings highlight the importance of intentional ethical conversational design for human-computer interaction, particularly in sensitive healthcare contexts.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2602.18444",
+          "http_status": 200,
+          "pdf_sample_score": 0.1872,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-21T05:50:04Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Aditya Gulati",
+            "Nuria Oliver"
+          ],
+          "title": "Why do we Trust Chatbots? From Normative Principles to Behavioral Drivers",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2602.08707",
+        "summary": "As chatbots increasingly blur the boundary between automated systems and human conversation, the foundations of trust in these systems warrant closer examination. While regulatory and policy frameworks tend to define trust in normative terms, the trust users place in chatbots often emerges from behavioral mechanisms. In many cases, this trust is not earned through demonstrated trustworthiness but is instead shaped by interactional design choices that leverage cognitive biases to influence user behavior. Based on this observation, we propose reframing chatbots not as companions or assistants, but as highly skilled salespeople whose objectives are determined by the deploying organization. We argue that the coexistence of competing notions of \"trust\" under a shared term obscures important distinctions between psychological trust formation and normative trustworthiness. Addressing this gap requires further research and stronger support mechanisms to help users appropriately calibrate trust in conversational AI systems.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2602.08707",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-21T05:50:04Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Annie Landerberg",
+            "Kari Flatmo",
+            "Alan Said"
+          ],
+          "title": "Trust as a Situated User State in Social LLM-Based Chatbots: A Longitudinal Study of Snapchat's My AI",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2604.22417",
+        "summary": "Social chatbots based on large language models are increasingly embedded in everyday platforms, yet how users develop trust in these systems over time remains unclear. We present a four-week longitudinal qualitative survey study (N = 27) of trust formation in Snapchat's My AI, a socially embedded conversational agent. Our findings show that trust is shaped by perceived ability, conversational behavior, human-likeness, transparency, privacy concerns, and trust in the host platform. Trust does not remain stable, but evolves through interaction as users adapt their expectations, refine their prompting strategies, and actively regulate how and when they rely on the system. These processes reflect a continuous negotiation of trust, not a one-time evaluation. While conversational fluency supports engagement, excessive anthropomorphism and limited transparency can undermine trust over time. We synthesize these findings into a conceptual model that frames trust as a dynamic user state shaped by interaction context and expectations, with implications for the design of human-centered and adaptive conversational agents.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2604.22417",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-21T05:50:04Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Ana Paula Chaves",
+            "Marco Aurelio Gerosa"
+          ],
+          "title": "How should my chatbot interact? A survey on human-chatbot interaction design",
+          "venue": "arXiv",
+          "year": 2019
+        },
+        "primary_pointer": "1904.02743",
+        "summary": "Chatbots' growing popularity has brought new challenges to HCI, having changed the patterns of human interactions with computers. The increasing need to approximate conversational interaction styles raises expectations for chatbots to present social behaviors that are habitual in human-human communication. In this survey, we argue that chatbots should be enriched with social characteristics that cohere with users' expectations, ultimately avoiding frustration and dissatisfaction. We bring together the literature on disembodied, text-based chatbots to derive a conceptual model of social characteristics for chatbots. We analyzed 56 papers from various domains to understand how social characteristics can benefit human-chatbot interactions and identify the challenges and strategies to designing them. Additionally, we discussed how characteristics may influence one another. Our results provide relevant opportunities to both researchers and designers to advance human-chatbot interactions.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1904.02743",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-21T05:50:05Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Biplav Srivastava",
+            "Kausik Lakkaraju",
+            "Tarmo Koppel",
+            "Vignesh Narayanan",
+            "Ashish Kundu",
+            "Sachindra Joshi"
+          ],
+          "title": "Evaluating Chatbots to Promote Users' Trust -- Practices and Open Problems",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2309.05680",
+        "summary": "Chatbots, the common moniker for collaborative assistants, are Artificial Intelligence (AI) software that enables people to naturally interact with them to get tasks done. Although chatbots have been studied since the dawn of AI, they have particularly caught the imagination of the public and businesses since the launch of easy-to-use and general-purpose Large Language Model-based chatbots like ChatGPT. As businesses look towards chatbots as a potential technology to engage users, who may be end customers, suppliers, or even their own employees, proper testing of chatbots is important to address and mitigate issues of trust related to service or product performance, user satisfaction and long-term unintended consequences for society. This paper reviews current practices for chatbot testing, identifies gaps as open problems in pursuit of user trust, and outlines a path forward.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2309.05680",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-21T05:50:09Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "the influence of chatbot politeness on user trust psychology",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

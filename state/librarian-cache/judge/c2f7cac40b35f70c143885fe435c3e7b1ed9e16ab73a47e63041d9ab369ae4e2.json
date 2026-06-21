@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1904.02743",
+  "judged_at": "2026-06-21T05:50:18Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the influence of chatbot politeness on user trust psychology",
+  "rationale": "The paper surveys social characteristics of chatbots, including politeness, which is the independent variable of interest, and discusses their impact on user outcomes such as satisfaction and likely trust, satisfying criterion (b) by covering a key variable (politeness) within the chatbot domain.",
+  "relevant": true
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1208.0924",
+  "judged_at": "2026-06-21T05:51:05Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "linking resting-state fmri entropy to real-world decision risk‑taking neuroscience",
+  "rationale": "The paper investigates entropy‑related metrics (transfer entropy, mutual information) in resting‑state fMRI, directly addressing the same mechanistic construct (rs‑fMRI entropy) that the user’s question concerns, even though it does not examine risk‑taking behavior. This satisfies inclusion criterion (a) (same‑mechanism evidence) and (b) (measures an independent variable of interest).",
+  "relevant": true
+}

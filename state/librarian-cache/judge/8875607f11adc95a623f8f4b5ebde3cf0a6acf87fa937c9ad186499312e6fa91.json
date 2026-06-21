@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1906.05803",
+  "judged_at": "2026-06-21T05:51:09Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "linking resting-state fmri entropy to real-world decision risk‑taking neuroscience",
+  "rationale": "The paper measures the dependent variable of interest—human risk‑taking decision behavior—providing empirical data on real‑world (or task‑based) risk decisions, which satisfies inclusion criterion (b) (measuring at least one of the user’s variables in the same domain).",
+  "relevant": true
+}

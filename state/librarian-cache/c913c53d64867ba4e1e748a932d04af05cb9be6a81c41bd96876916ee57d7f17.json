@@ -1,0 +1,559 @@
+{
+  "fetched_at": "2026-06-21T05:52:19Z",
+  "field": "materials science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "materials science",
+      "idea_body_excerpt": "Assessing Dataset Imbalance Effects on Materials Property Predictions",
+      "target_n": 5
+    },
+    "duration_seconds": 54.424,
+    "ended_at": "2026-06-21T05:52:19Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "imbalanced data effects on materials property prediction"
+        ],
+        [
+          2,
+          "class imbalance in materials informatics models"
+        ],
+        [
+          3,
+          "dataset skewness impact on crystal property forecasts"
+        ],
+        [
+          4,
+          "data distribution bias in materials machine learning"
+        ],
+        [
+          5,
+          "minority class under‑representation in materials datasets"
+        ],
+        [
+          6,
+          "sample size imbalance for alloy property prediction"
+        ],
+        [
+          7,
+          "imbalanced regression challenges in materials science"
+        ],
+        [
+          8,
+          "data scarcity and prediction accuracy for material properties"
+        ],
+        [
+          9,
+          "oversampling and undersampling techniques for materials datasets"
+        ],
+        [
+          10,
+          "synthetic data augmentation in materials property modeling"
+        ],
+        [
+          11,
+          "bias mitigation strategies for imbalanced materials data"
+        ],
+        [
+          12,
+          "few‑shot learning for scarce materials property datasets"
+        ],
+        [
+          13,
+          "transfer learning to address imbalance in materials predictions"
+        ],
+        [
+          14,
+          "active learning for imbalanced materials property datasets"
+        ],
+        [
+          15,
+          "distribution shift and robustness in materials property prediction models"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Assessing Dataset Imbalance Effects on Materials Property Predictions materials science": 0,
+        "class imbalance in materials informatics models": 3,
+        "imbalanced data effects on materials property prediction": 2
+      },
+      "total_queries_issued": 2
+    },
+    "extracted_queries": [
+      "class imbalance materials dataset",
+      "Materials Project property prediction",
+      "distribution shift materials ML",
+      "MAE property prediction materials",
+      "cost-sensitive learning materials property"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "1809.10388"
+      ]
+    },
+    "per_query_hit_count": {
+      "Assessing Dataset Imbalance Effects on Materials Property Predictions materials science": 3,
+      "MAE property prediction materials": 1,
+      "Materials Project property prediction": 2,
+      "class imbalance materials dataset": 3,
+      "cost-sensitive learning materials property": 2,
+      "distribution shift materials ML": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 3,
+      "rejections": [
+        {
+          "primary_pointer": "2401.11052",
+          "rationale": "The paper evaluates large language models for extracting material entities and relations from literature, without studying dataset imbalance or its impact on materials property prediction models, so it does not address the user's question about imbalance effects.",
+          "title": "Mining experimental data from Materials Science literature with Large Language Models: an evaluation study"
+        },
+        {
+          "primary_pointer": "2102.04721",
+          "rationale": "The paper studies dataset imbalance and classification performance, but it is confined to credit‑scoring data and does not involve materials property prediction or the materials science domain, so it does not meet any inclusion criteria for the user's question.",
+          "title": "Classification of Imbalanced Credit scoring data sets Based on Ensemble Method with the Weighted-Hybrid-Sampling"
+        },
+        {
+          "primary_pointer": "2303.11568",
+          "rationale": "The paper focuses on large AI models applied to health informatics and does not address dataset imbalance, materials property prediction, or any aspect of materials science, thus it is off‑domain and unrelated to the user's research question.",
+          "title": "Large AI Models in Health Informatics: Applications, Challenges, and the Future"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-21T05:51:24Z",
+    "term_input": {
+      "normalized": "assessing dataset imbalance effects on materials property predictions materials science",
+      "raw": "Assessing Dataset Imbalance Effects on Materials Property Predictions materials science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Material representations that are compatible with machine learning models play a key role in developing models that exhibit high accuracy for property prediction. Atomic orbital interactions are one of the important factors that govern the properties of crystalline materials, from which the local chemical environments of atoms is inferred. Therefore, to develop robust machine learningmodels for material properties prediction, it is imperative to include features representing such chemical attributes. Here, we propose the Orbital Graph Convolutional Neural Network (OGCNN), a crystal graph convolutional neural network framework that includes atomic orbital interaction features that learns material properties in a robust way. In addition, we embedded an encoder-decoder network into the OGCNN enabling it to learn important features among basic atomic (elemental features), orbital-orbital interactions, and topological features. We examined the performance of this model on a broad range of crystalline material data to predict different properties. We benchmarked the performance of the OGCNN model with that of: 1) the crystal graph convolutional neural network (CGCNN), 2) other state-of-the-art descriptors for material representations including Many-body Tensor Representation (MBTR) and the Smooth Overlap of Atomic Positions (SOAP), and 3) other conventional regression machine learning algorithms where different crystal featurization methods have been used. We find that OGCNN significantly outperforms them. The OGCNN model with high predictive accuracy can be used to discover new materials among the immense phase and compound spaces of materials",
+          "claimed_authors": [
+            "Mohammadreza Karamad",
+            "Rishikesh Magar",
+            "Yuting Shi",
+            "Samira Siahrostami",
+            "Ian D. Gates",
+            "Amir Barati Farimani"
+          ],
+          "claimed_title": "Orbital Graph Convolutional Neural Network for Material Property Prediction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2008.06415"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Assessing Dataset Imbalance Effects on Materials Property Predictions materials ', candidate_title='Orbital Graph Convolutional Neural Network for Material Property Prediction')",
+        "failed_at": "2026-06-21T05:51:53Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This review presents recent breakthroughs in the realm of nonlinear Hall effects, emphasizing central theoretical foundations and recent experimental progress. We elucidate the quantum origin of the second-order Hall response, focusing on the Berry curvature dipole, which may arise in inversion symmetry broken systems. The theoretical framework also reveals the impact of disorder scattering effects on the nonlinear response. We further discuss the possibility of obtaining nonlinear Hall responses beyond the second order. We examine symmetry-based indicators essential for the manifestation of nonlinear Hall effects in time-reversal symmetric crystals, setting the stage for a detailed exploration of theoretical models and candidate materials predicted to exhibit sizable and tunable Berry curvature dipole. We summarize groundbreaking experimental reports on measuring both intrinsic and extrinsic nonlinear Hall effects across diverse material classes. Finally, we highlight some of the other intriguing nonlinear effects, including nonlinear planar Hall, nonlinear anomalous Hall, and nonlinear spin and valley Hall effects. We conclude with an outlook on pivotal open questions and challenges, marking the trajectory of this rapidly evolving field.",
+          "claimed_authors": [
+            "Arka Bandyopadhyay",
+            "Nesta Benno Joseph",
+            "Awadhesh Narayan"
+          ],
+          "claimed_title": "Non-linear Hall Effects: Mechanisms and Materials",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2401.02282"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Assessing Dataset Imbalance Effects on Materials Property Predictions materials ', candidate_title='Non-linear Hall Effects: Mechanisms and Materials')",
+        "failed_at": "2026-06-21T05:51:53Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The RSNA Abdominal Traumatic Injury CT (RATIC) dataset is the largest publicly available collection of adult abdominal CT studies annotated for traumatic injuries. This dataset includes 4,274 studies from 23 institutions across 14 countries. The dataset is freely available for non-commercial use via Kaggle at https://www.kaggle.com/competitions/rsna-2023-abdominal-trauma-detection. Created for the RSNA 2023 Abdominal Trauma Detection competition, the dataset encourages the development of advanced machine learning models for detecting abdominal injuries on CT scans. The dataset encompasses detection and classification of traumatic injuries across multiple organs, including the liver, spleen, kidneys, bowel, and mesentery. Annotations were created by expert radiologists from the American Society of Emergency Radiology (ASER) and Society of Abdominal Radiology (SAR). The dataset is annotated at multiple levels, including the presence of injuries in three solid organs with injury grading, image-level annotations for active extravasations and bowel injury, and voxelwise segmentations of each of the potentially injured organs. With the release of this dataset, we hope to facilitate research and development in machine learning and abdominal trauma that can lead to improved patient care and outcomes.",
+          "claimed_authors": [
+            "Jeffrey D. Rudie",
+            "Hui-Ming Lin",
+            "Robyn L. Ball",
+            "Sabeena Jalal",
+            "Luciano M. Prevedello",
+            "Savvas Nicolaou",
+            "Brett S. Marinelli",
+            "Adam E. Flanders",
+            "Kirti Magudia",
+            "George Shih",
+            "Melissa A. Davis",
+            "John Mongan",
+            "Peter D. Chang",
+            "Ferco H. Berger",
+            "Sebastiaan Hermans",
+            "Meng Law",
+            "Tyler Richards",
+            "Jan-Peter Grunz",
+            "Andreas Steven Kunz",
+            "Shobhit Mathur",
+            "Sandro Galea-Soler",
+            "Andrew D. Chung",
+            "Saif Afat",
+            "Chin-Chi Kuo",
+            "Layal Aweidah",
+            "Ana Villanueva Campos",
+            "Arjuna Somasundaram",
+            "Felipe Antonio Sanchez Tijmes",
+            "Attaporn Jantarangkoon",
+            "Leonardo Kayat Bittencourt",
+            "Michael Brassil",
+            "Ayoub El Hajjami",
+            "Hakan Dogan",
+            "Muris Becircic",
+            "Agrahara G. Bharatkumar",
+            "Eduardo Moreno Júdice de Mattos Farina",
+            "Dataset Curator Group",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Errol Colak"
+          ],
+          "claimed_title": "The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.19595"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Assessing Dataset Imbalance Effects on Materials Property Predictions materials ', candidate_title='The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset')",
+        "failed_at": "2026-06-21T05:51:53Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Online class imbalance learning constitutes a new problem and an emerging research topic that focusses on the challenges of online learning under class imbalance and concept drift. Class imbalance deals with data streams that have very skewed distributions while concept drift deals with changes in the class imbalance status. Little work exists that addresses these challenges and in this paper we introduce queue-based resampling, a novel algorithm that successfully addresses the co-existence of class imbalance and concept drift. The central idea of the proposed resampling algorithm is to selectively include in the training set a subset of the examples that appeared in the past. Results on two popular benchmark datasets demonstrate the effectiveness of queue-based resampling over state-of-the-art methods in terms of learning speed and quality.",
+          "claimed_authors": [
+            "Kleanthis Malialis",
+            "Christos G. Panayiotou",
+            "Marios M. Polycarpou"
+          ],
+          "claimed_title": "Queue-based Resampling for Online Class Imbalance Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1809.10388"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Assessing Dataset Imbalance Effects on Materials Property Predictions materials ', candidate_title='Queue-based Resampling for Online Class Imbalance Learning')",
+        "failed_at": "2026-06-21T05:51:53Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this work, we define cost-free learning (CFL) formally in comparison with cost-sensitive learning (CSL). The main difference between them is that a CFL approach seeks optimal classification results without requiring any cost information, even in the class imbalance problem. In fact, several CFL approaches exist in the related studies, such as sampling and some criteria-based pproaches. However, to our best knowledge, none of the existing CFL and CSL approaches are able to process the abstaining classifications properly when no information is given about errors and rejects. Based on information theory, we propose a novel CFL which seeks to maximize normalized mutual information of the targets and the decision outputs of classifiers. Using the strategy, we can deal with binary/multi-class classifications with/without abstaining. Significant features are observed from the new strategy. While the degree of class imbalance is changing, the proposed strategy is able to balance the errors and rejects accordingly and automatically. Another advantage of the strategy is its ability of deriving optimal rejection thresholds for abstaining classifications and the \"equivalent\" costs in binary classifications. The connection between rejection thresholds and ROC curve is explored. Empirical investigation is made on several benchmark data sets in comparison with other existing approaches. The classification results demonstrate a promising perspective of the strategy in machine learning.",
+          "claimed_authors": [
+            "Xiaowan Zhang",
+            "Bao-Gang Hu"
+          ],
+          "claimed_title": "A New Strategy of Cost-Free Learning in the Class Imbalance Problem",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1307.5730"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Assessing Dataset Imbalance Effects on Materials Property Predictions materials ', candidate_title='A New Strategy of Cost-Free Learning in the Class Imbalance Problem')",
+        "failed_at": "2026-06-21T05:51:53Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The book consists of a number of short articles that present achievements of the Araucaria members, collaborators, and friends, in various aspects of distance determinations and related topics. It celebrates the 20-year anniversary of the Araucaria Project, acknowledges the people who worked for its success, and popularises our methods and results among broader readership.\n  This book is a part of a project that has received funding from the European Union's Horizon 2020 research and innovation programme under grant agreement No 695099.",
+          "claimed_authors": [
+            "The Araucaria Project",
+            " :",
+            "G. Pietrzyński",
+            "W. Gieren",
+            "P. Karczmarek",
+            "M. Górski",
+            "B. Zgirski",
+            "P. Wielgórski",
+            "L. Breuval",
+            "K. Suchomska",
+            "A. Gallenne",
+            "P. Kervella",
+            "G. Hajdu",
+            "B. Pilecki",
+            "J. Storm",
+            "N. Nardetto",
+            "R. P. Kudritzki",
+            "M. Taormina",
+            "F. Bresolin",
+            "R. Smolec",
+            "W. Narloch",
+            "C. Gałan",
+            "M. Lewis",
+            "R. Chini"
+          ],
+          "claimed_title": "The Araucaria Project: Improving the cosmic distance scale",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2305.17247"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Assessing Dataset Imbalance Effects on Materials Property Predictions materials ', candidate_title='The Araucaria Project: Improving the cosmic distance scale')",
+        "failed_at": "2026-06-21T05:51:53Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "AI-assisted molecular property prediction has become a promising technique in early-stage drug discovery and materials design in recent years. However, due to high-cost and complex wet-lab experiments, real-world molecules usually experience the issue of scarce annotations, leading to limited labeled data for effective supervised AI model learning. In light of this, few-shot molecular property prediction (FSMPP) has emerged as an expressive paradigm that enables learning from only a few labeled examples. Despite rapidly growing attention, existing FSMPP studies remain fragmented, without a coherent framework to capture methodological advances and domain-specific challenges. In this work, we present the first comprehensive and systematic survey of few-shot molecular property prediction. We begin by analyzing the few-shot phenomenon in molecular datasets and highlighting two core challenges: (1) cross-property generalization under distribution shifts, where each task corresponding to each property, may follow a different data distribution or even be inherently weakly related to others from a biochemical perspective, requiring the model to transfer knowledge across heterogeneous prediction tasks, and (2) cross-molecule generalization under structural heterogeneity, where molecules involved in different or same properties may exhibit significant structural diversity, making model difficult to achieve generalization. Then, we introduce a unified taxonomy that organizes existing methods into data, model, and learning paradigm levels, reflecting their strategies for extracting knowledge from scarce supervision in few-shot molecular property prediction. Next, we compare representative methods, summarize benchmark datasets and evaluation protocols. In the end, we identify key trends and future directions for advancing the continued research on FSMPP.",
+          "claimed_authors": [
+            "Zeyu Wang",
+            "Tianyi Jiang",
+            "Huanchang Ma",
+            "Yao Lu",
+            "Xiaoze Bao",
+            "Shanqing Yu",
+            "Qi Xuan",
+            "Shirui Pan",
+            "Xin Zheng"
+          ],
+          "claimed_title": "Few-shot Molecular Property Prediction: A Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2510.08900"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Assessing Dataset Imbalance Effects on Materials Property Predictions materials ', candidate_title='Few-shot Molecular Property Prediction: A Survey')",
+        "failed_at": "2026-06-21T05:51:53Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Time series prediction is often complicated by distribution shift which demands adaptive models to accommodate time-varying distributions. We frame time series prediction under distribution shift as a weighted empirical risk minimisation problem. The weighting of previous observations in the empirical risk is determined by a forgetting mechanism which controls the trade-off between the relevancy and effective sample size that is used for the estimation of the predictive model. In contrast to previous work, we propose a gradient-based learning method for the parameters of the forgetting mechanism. This speeds up optimisation and therefore allows more expressive forgetting mechanisms.",
+          "claimed_authors": [
+            "Stefanos Bennett",
+            "Jase Clarkson"
+          ],
+          "claimed_title": "Time Series Prediction under Distribution Shift using Differentiable Forgetting",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2207.11486"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Assessing Dataset Imbalance Effects on Materials Property Predictions materials ', candidate_title='Time Series Prediction under Distribution Shift using Differentiable Forgetting')",
+        "failed_at": "2026-06-21T05:51:53Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Estimating the test performance of software AI-based medical devices under distribution shifts is crucial for evaluating the safety, efficiency, and usability prior to clinical deployment. Due to the nature of regulated medical device software and the difficulty in acquiring large amounts of labeled medical datasets, we consider the task of predicting the test accuracy of an arbitrary black-box model on an unlabeled target domain without modification to the original training process or any distributional assumptions of the original source data (i.e. we treat the model as a \"black-box\" and only use the predicted output responses). We propose a \"black-box\" test estimation technique based on conformal prediction and evaluate it against other methods on three medical imaging datasets (mammography, dermatology, and histopathology) under several clinically relevant types of distribution shift (institution, hardware scanner, atlas, hospital). We hope that by promoting practical and effective estimation techniques for black-box models, manufacturers of medical devices will develop more standardized and realistic evaluation procedures to improve the robustness and trustworthiness of clinical AI tools.",
+          "claimed_authors": [
+            "Charles Lu",
+            "Syed Rakin Ahmed",
+            "Praveer Singh",
+            "Jayashree Kalpathy-Cramer"
+          ],
+          "claimed_title": "Estimating Test Performance for AI Medical Devices under Distribution Shift with Conformal Prediction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2207.05796"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Assessing Dataset Imbalance Effects on Materials Property Predictions materials ', candidate_title='Estimating Test Performance for AI Medical Devices under Distribution Shift with Conformal Prediction')",
+        "failed_at": "2026-06-21T05:51:53Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The development of radiation-tolerant materials capable of maintaining structural, electrical, and thermal stability in extreme, radiation-rich environments remains a critical challenge in materials science. In this work, the effects of 60 MeV 35Cl ion irradiation on highly oriented pyrolytic graphite (HOPG) and multilayer reduced graphene oxide (ML-rGO) were investigated. The samples were exposed to fluences of 5.11 x 10^9 and 1.3 x 10^10 ions/cm^2 and characterized by X-ray diffraction (XRD), Raman spectroscopy, scanning electron microscopy (SEM), atomic force microscopy (AFM), and electrical transport measurements. The results show that the irradiation response is strongly influenced by the initial structural organization of the material. In HOPG, ion exposure leads to a progressive loss of crystalline order, evidenced by XRD peak broadening and an increase in the Raman ID/IG ratio, accompanied by a reduction in electrical transport performance. In contrast, ML-rGO exhibits distinct behavior at higher fluences, suggesting partial structural reorganization. The appearance of more defined graphitic features in XRD and Raman analyses, along with changes in surface morphology and electrical response, suggests the formation of more ordered sp2 domains. These findings indicate that irradiation effects vary with the initial degree of order, providing useful insights for selecting carbon-based materials for devices operating under severe radiation conditions.",
+          "claimed_authors": [
+            "Marcilei A. Guazzelli",
+            "Saulo G. Alberton",
+            "Nemitala Added",
+            "Vitor A. P. Aguiar",
+            "Koiti Araki",
+            "Luis H. Avanzi",
+            "Francesco Cappuzzello",
+            "Manuela Cavallaro",
+            "Eliane F. Chinaglia",
+            "Marcia T. Escote",
+            "Fabio F. Ferreira",
+            "Mauro Giovannini",
+            "Renato F. Jardim",
+            "Sueli H. Masunaga",
+            "Nilberto H. Medina",
+            "Marcelo Nakamura",
+            "José R. B. Oliveira",
+            "Roberto B. B. Santos",
+            "Alexis C. Villas-Bôas"
+          ],
+          "claimed_title": "Resilience of the physicochemical properties of graphene-based materials for applications in harsh radiation environments",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2605.26311"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Assessing Dataset Imbalance Effects on Materials Property Predictions materials ', candidate_title='Resilience of the physicochemical properties of graphene-based materials for applications in harsh radiation environments')",
+        "failed_at": "2026-06-21T05:51:53Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Medical image segmentation remains a formidable challenge due to the label scarcity. Pre-training Vision Transformer (ViT) through masked image modeling (MIM) on large-scale unlabeled medical datasets presents a promising solution, providing both computational efficiency and model generalization for various downstream tasks. However, current ViT-based MIM pre-training frameworks predominantly emphasize local aggregation representations in output layers and fail to exploit the rich representations across different ViT layers that better capture fine-grained semantic information needed for more precise medical downstream tasks. To fill the above gap, we hereby present Hierarchical Encoder-driven MAE (Hi-End-MAE), a simple yet effective ViT-based pre-training solution, which centers on two key innovations: (1) Encoder-driven reconstruction, which encourages the encoder to learn more informative features to guide the reconstruction of masked patches; and (2) Hierarchical dense decoding, which implements a hierarchical decoding structure to capture rich representations across different layers. We pre-train Hi-End-MAE on a large-scale dataset of 10K CT scans and evaluated its performance across seven public medical image segmentation benchmarks. Extensive experiments demonstrate that Hi-End-MAE achieves superior transfer learning capabilities across various downstream tasks, revealing the potential of ViT in medical imaging applications. The code is available at: https://github.com/FengheTan9/Hi-End-MAE",
+          "claimed_authors": [
+            "Fenghe Tang",
+            "Qingsong Yao",
+            "Wenxin Ma",
+            "Chenxu Wu",
+            "Zihang Jiang",
+            "S. Kevin Zhou"
+          ],
+          "claimed_title": "Hi-End-MAE: Hierarchical encoder-driven masked autoencoders are stronger vision learners for medical image segmentation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2502.08347"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Assessing Dataset Imbalance Effects on Materials Property Predictions materials ', candidate_title='Hi-End-MAE: Hierarchical encoder-driven masked autoencoders are stronger vision learners for medical image segmentation')",
+        "failed_at": "2026-06-21T05:51:53Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Developing accurate, transferable and computationally inexpensive machine learning models can rapidly accelerate the discovery and development of new materials. Some of the major challenges involved in developing such models are, (i) limited availability of materials data as compared to other fields, (ii) lack of universal descriptor of materials to predict its various properties. The limited availability of materials data can be addressed through transfer learning, while the generic representation was recently addressed by Xie and Grossman [1], where they developed a crystal graph convolutional neural network (CGCNN) that provides a unified representation of crystals. In this work, we develop a new model (MT-CGCNN) by integrating CGCNN with transfer learning based on multi-task (MT) learning. We demonstrate the effectiveness of MT-CGCNN by simultaneous prediction of various material properties such as Formation Energy, Band Gap and Fermi Energy for a wide range of inorganic crystals (46774 materials). MT-CGCNN is able to reduce the test error when employed on correlated properties by upto 8%. The model prediction has lower test error compared to CGCNN, even when the training data is reduced by 10%. We also demonstrate our model's better performance through prediction of end user scenario related to metal/non-metal classification. These results encourage further development of machine learning approaches which leverage multi-task learning to address the aforementioned challenges in the discovery of new materials. We make MT-CGCNN's source code available to encourage reproducible research.",
+          "claimed_authors": [
+            "Soumya Sanyal",
+            "Janakiraman Balachandran",
+            "Naganand Yadati",
+            "Abhishek Kumar",
+            "Padmini Rajagopalan",
+            "Suchismita Sanyal",
+            "Partha Talukdar"
+          ],
+          "claimed_title": "MT-CGCNN: Integrating Crystal Graph Convolutional Neural Network with Multitask Learning for Material Property Prediction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1811.05660"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Assessing Dataset Imbalance Effects on Materials Property Predictions materials ', candidate_title='MT-CGCNN: Integrating Crystal Graph Convolutional Neural Network with Multitask Learning for Material Property Prediction')",
+        "failed_at": "2026-06-21T05:51:53Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Inductive concept learning is the task of learning to assign cases to a discrete set of classes. In real-world applications of concept learning, there are many different types of cost involved. The majority of the machine learning literature ignores all types of cost (unless accuracy is interpreted as a type of cost measure). A few papers have investigated the cost of misclassification errors. Very few papers have examined the many other types of cost. In this paper, we attempt to create a taxonomy of the different types of cost that are involved in inductive concept learning. This taxonomy may help to organize the literature on cost-sensitive learning. We hope that it will inspire researchers to investigate all types of cost in inductive concept learning in more depth.",
+          "claimed_authors": [
+            "Peter D. Turney"
+          ],
+          "claimed_title": "Types of Cost in Inductive Concept Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2002,
+          "primary_pointer": "cs/0212034"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Assessing Dataset Imbalance Effects on Materials Property Predictions materials ', candidate_title='Types of Cost in Inductive Concept Learning')",
+        "failed_at": "2026-06-21T05:51:53Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Mohammadreza Karamad",
+            "Rishikesh Magar",
+            "Yuting Shi",
+            "Samira Siahrostami",
+            "Ian D. Gates",
+            "Amir Barati Farimani"
+          ],
+          "title": "Orbital Graph Convolutional Neural Network for Material Property Prediction",
+          "venue": "arXiv",
+          "year": 2020
+        },
+        "primary_pointer": "2008.06415",
+        "summary": "Material representations that are compatible with machine learning models play a key role in developing models that exhibit high accuracy for property prediction. Atomic orbital interactions are one of the important factors that govern the properties of crystalline materials, from which the local chemical environments of atoms is inferred. Therefore, to develop robust machine learningmodels for material properties prediction, it is imperative to include features representing such chemical attributes. Here, we propose the Orbital Graph Convolutional Neural Network (OGCNN), a crystal graph convolutional neural network framework that includes atomic orbital interaction features that learns material properties in a robust way. In addition, we embedded an encoder-decoder network into the OGCNN enabling it to learn important features among basic atomic (elemental features), orbital-orbital interactions, and topological features. We examined the performance of this model on a broad range of crystalline material data to predict different properties. We benchmarked the performance of the OGCNN model with that of: 1) the crystal graph convolutional neural network (CGCNN), 2) other state-of-the-art descriptors for material representations including Many-body Tensor Representation (MBTR) and the Smooth Overlap of Atomic Positions (SOAP), and 3) other conventional regression machine learning algorithms where different crystal featurization methods have been used. We find that OGCNN significantly outperforms them. The OGCNN model with high predictive accuracy can be used to discover new materials among the immense phase and compound spaces of materials",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2008.06415",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.75,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-21T05:51:58Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Kleanthis Malialis",
+            "Christos G. Panayiotou",
+            "Marios M. Polycarpou"
+          ],
+          "title": "Queue-based Resampling for Online Class Imbalance Learning",
+          "venue": "arXiv",
+          "year": 2018
+        },
+        "primary_pointer": "1809.10388",
+        "summary": "Online class imbalance learning constitutes a new problem and an emerging research topic that focusses on the challenges of online learning under class imbalance and concept drift. Class imbalance deals with data streams that have very skewed distributions while concept drift deals with changes in the class imbalance status. Little work exists that addresses these challenges and in this paper we introduce queue-based resampling, a novel algorithm that successfully addresses the co-existence of class imbalance and concept drift. The central idea of the proposed resampling algorithm is to selectively include in the training set a subset of the examples that appeared in the past. Results on two popular benchmark datasets demonstrate the effectiveness of queue-based resampling over state-of-the-art methods in terms of learning speed and quality.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1809.10388",
+          "http_status": 200,
+          "pdf_sample_score": 0.191,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-21T05:52:03Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Xiaowan Zhang",
+            "Bao-Gang Hu"
+          ],
+          "title": "A New Strategy of Cost-Free Learning in the Class Imbalance Problem",
+          "venue": "arXiv",
+          "year": 2013
+        },
+        "primary_pointer": "1307.5730",
+        "summary": "In this work, we define cost-free learning (CFL) formally in comparison with cost-sensitive learning (CSL). The main difference between them is that a CFL approach seeks optimal classification results without requiring any cost information, even in the class imbalance problem. In fact, several CFL approaches exist in the related studies, such as sampling and some criteria-based pproaches. However, to our best knowledge, none of the existing CFL and CSL approaches are able to process the abstaining classifications properly when no information is given about errors and rejects. Based on information theory, we propose a novel CFL which seeks to maximize normalized mutual information of the targets and the decision outputs of classifiers. Using the strategy, we can deal with binary/multi-class classifications with/without abstaining. Significant features are observed from the new strategy. While the degree of class imbalance is changing, the proposed strategy is able to balance the errors and rejects accordingly and automatically. Another advantage of the strategy is its ability of deriving optimal rejection thresholds for abstaining classifications and the \"equivalent\" costs in binary classifications. The connection between rejection thresholds and ROC curve is explored. Empirical investigation is made on several benchmark data sets in comparison with other existing approaches. The classification results demonstrate a promising perspective of the strategy in machine learning.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1307.5730",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-21T05:52:03Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "assessing dataset imbalance effects on materials property predictions materials science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1809.10388",
+  "judged_at": "2026-06-21T05:52:15Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "assessing dataset imbalance effects on materials property predictions materials science",
+  "rationale": "The paper investigates how class‑imbalance (dataset imbalance) impacts learning performance, providing empirical evidence of the same mechanism the user’s question concerns, even though it uses generic benchmark data rather than materials‑science datasets. This satisfies acceptance criterion (a).",
+  "relevant": true
+}

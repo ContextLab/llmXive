@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2303.11568",
+  "judged_at": "2026-06-21T05:52:18Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "assessing dataset imbalance effects on materials property predictions materials science",
+  "rationale": "The paper focuses on large AI models applied to health informatics and does not address dataset imbalance, materials property prediction, or any aspect of materials science, thus it is off‑domain and unrelated to the user's research question.",
+  "relevant": false
+}

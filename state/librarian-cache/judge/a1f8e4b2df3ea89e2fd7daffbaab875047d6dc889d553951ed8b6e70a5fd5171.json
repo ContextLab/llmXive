@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2102.04721",
+  "judged_at": "2026-06-21T05:52:08Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "assessing dataset imbalance effects on materials property predictions materials science",
+  "rationale": "The paper studies dataset imbalance and classification performance, but it is confined to credit‑scoring data and does not involve materials property prediction or the materials science domain, so it does not meet any inclusion criteria for the user's question.",
+  "relevant": false
+}

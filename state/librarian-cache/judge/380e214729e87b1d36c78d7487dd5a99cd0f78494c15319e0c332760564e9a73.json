@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2309.05680",
+  "judged_at": "2026-06-21T05:50:19Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the influence of chatbot politeness on user trust psychology",
+  "rationale": "The paper focuses on user trust in chatbots, covering practices and challenges related to fostering trust, thereby addressing the dependent variable (user trust) in the same domain as the user's question (category (b)).",
+  "relevant": true
+}

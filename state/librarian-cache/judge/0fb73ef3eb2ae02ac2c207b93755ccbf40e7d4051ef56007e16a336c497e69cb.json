@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1911.08448",
+  "judged_at": "2026-06-21T05:51:10Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "linking resting-state fmri entropy to real-world decision risk‑taking neuroscience",
+  "rationale": "The paper focuses on financial market risk‑taking models and AI trading systems, with no measurement of resting‑state fMRI entropy, brain activity, or human decision‑risk behavior, thus it is off‑domain and unrelated to the neuroscience question.",
+  "relevant": false
+}

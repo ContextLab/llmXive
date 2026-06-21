@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1307.5730",
+  "judged_at": "2026-06-21T05:52:17Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "assessing dataset imbalance effects on materials property predictions materials science",
+  "rationale": "The paper introduces a novel cost‑free learning approach for handling class‑imbalance problems, providing a foundational methodology that researchers studying the effects of dataset imbalance on materials property prediction models would likely cite. This matches acceptance criterion (d) – a canonical methods reference for the imbalance mechanism.",
+  "relevant": true
+}

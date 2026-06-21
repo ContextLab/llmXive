@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1202.4751",
+  "judged_at": "2026-06-21T05:51:13Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "linking resting-state fmri entropy to real-world decision risk‑taking neuroscience",
+  "rationale": "The paper provides a methodological approach to quantify the complexity of resting‑state BOLD signals (via fractal behavior and Hurst exponents), which is a same‑mechanism measure related to rs‑fMRI entropy (acceptance category a) and can serve as a foundational reference for complexity metrics in resting‑state studies.",
+  "relevant": true
+}
