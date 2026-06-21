@@ -14,3 +14,27 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-06-19T18:38:46Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: QM9 DFT reference data uses the B3LYP/6-31G(2df,p) method
+  claim_id: c_1013b8b5
+  context: T032 [US2] Validate predictions against QM9 DFT reference data (B3LYP/6-31G(2df,p))
+    in `projects/001-predicting-molecular-dipole-moments/code/analysis/validate_dft.py`
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: While QM9 comprises 134,000 molecules calculated using DFT (B3LYP/6-31G(2df,p))
+        opti-
+      source_id: '2305.18454'
+      url: https://arxiv.org/abs/2305.18454
+      value: 134,000
+    filled: true
+  kind: numeric
+  raw_text: Validate predictions against QM9 DFT reference data (B3LYP/6-31G(2df,p))
+  resolved_value: 134,000
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-21T10:17:44Z'

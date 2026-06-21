@@ -40,7 +40,7 @@ description: "Task list template for feature implementation"
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Setup data directory structure (data/raw/, data/processed/, data/checkpoints/) per plan.md in `projects/001-predicting-molecular-dipole-moments/`
+- [X] T004 Setup data directory structure (data/raw/, data/processed/, data/checkpoints/) per plan.md in `projects/001-predicting-molecular-dipole-moments/`
 - [ ] T005 [P] Initialize state tracking with state/projects/001-predicting-molecular-dipole-moments.yaml
 - [ ] T006 [P] Configure pytest 7.4.3 with contract test framework in `projects/001-predicting-molecular-dipole-moments/tests/`
 - [ ] T007 [P] Create YAML contract schema files in `projects/001-predicting-molecular-dipole-moments/tests/contracts/` (molecule.schema.yaml, feature_set.schema.yaml, model_output.schema.yaml)
@@ -53,7 +53,7 @@ description: "Task list template for feature implementation"
 
 ## Phase 3: User Story 1 - Dataset Preparation and Baseline Feature Extraction (Priority: P1) 🎯 MVP
 
-**Goal**: Download QM9 dataset, filter to 10k random subset [UNRESOLVED-CLAIM: c_de9b44f3 — status=not_enough_info], extract 3D coordinates and 2D descriptors for baseline comparison
+**Goal**: Download QM9 dataset, filter to 10k random subset, extract 3D coordinates and 2D descriptors for baseline comparison
 
 **Independent Test**: Verify data files exist, subset size equals 10k, and both 3D and 2D feature matrices are generated with no missing values
 
@@ -102,7 +102,7 @@ description: "Task list template for feature implementation"
 - [ ] T029 [US2] Implement Random Forest training with 5 random seeds in `projects/001-predicting-molecular-dipole-moments/code/training/train_rf.py` (FR-005)
 - [ ] T030 [US2] Implement identical train/test split generation across seeds in `projects/001-predicting-molecular-dipole-moments/code/training/split_data.py`
 - [ ] T031 [US2] Implement MAE and RMSE metric computation in `projects/001-predicting-molecular-dipole-moments/code/training/evaluate.py` (FR-006)
-- [ ] T032 [US2] Validate predictions against QM9 DFT reference data (B3LYP/6-31G(2df,p)) in `projects/001-predicting-molecular-dipole-moments/code/analysis/validate_dft.py` (FR-011, during evaluation phase)
+- [ ] T032 [US2] {{claim:c_1013b8b5}} (2305.18454, https://arxiv.org/abs/2305.18454) in `projects/001-predicting-molecular-dipole-moments/code/analysis/validate_dft.py` (FR-011, during evaluation phase)
 - [ ] T033 [US2] Save model checkpoints to data/checkpoints/model_seed_{N}.pt and rf_seed_{N}.pkl
 - [ ] T034 [US2] Generate results/metrics.csv with performance across all 5 seeds (SC-005, FR-006)
 

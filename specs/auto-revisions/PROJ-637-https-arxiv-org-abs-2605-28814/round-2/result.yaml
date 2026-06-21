@@ -1,0 +1,322 @@
+project_id: PROJ-637-https-arxiv-org-abs-2605-28814
+round: 2
+revision_kind: paper_science
+from_stage: paper_review
+to_stage: clarified
+worst_severity: science
+seed_action_items:
+- id: 8275443f8291
+  text: Multiple citation keys used in the text (e.g., skydiscover, openevolve, gepa,
+    musique, maxrl, selftaught, wu2025inference) are missing from the provided ref.bib.
+    This prevents verification of claims regarding baseline data provenance (Section
+    4.2, Table 2) and related work (Section 1). Add these entries to ref.bib to support
+    the factual claims.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-637-https-arxiv-org-abs-2605-28814/paper/source/
+  location: ''
+- id: 0a384a504686
+  text: Supplementary material must include a requirements.txt or Dockerfile to ensure
+    reproducibility of the experimental environment (e.g., vLLM, FAISS versions).
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-637-https-arxiv-org-abs-2605-28814/paper/source/
+  location: ''
+- id: 4f1447719bd9
+  text: Clarify the exact commit hash or version of the GitHub repository linked in
+    the Abstract, as the public URL may change.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-637-https-arxiv-org-abs-2605-28814/paper/source/
+  location: ''
+- id: 7db0eb15395f
+  text: "Appendix Section 5 (Prompts) is helpful, but ensure the Python snippets in\
+    \ verify_code (Appendix \ref{app:prompts:backward}) are validated for syntax and\
+    \ dependencies."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-637-https-arxiv-org-abs-2605-28814/paper/source/
+  location: ''
+- id: 161ea9030647
+  text: In Appendix Section 5 (sections/appendix.tex), the verify_code prompt examples
+    reference 'np.' (numpy) without specifying imports or environment context, risking
+    runtime errors if evaluated as stated.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-637-https-arxiv-org-abs-2605-28814/paper/source/
+  location: ''
+- id: e374e8c83430
+  text: Explicitly state the license terms for the Knights-and-Knaves and MuSiQue
+    datasets used in training and validation.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-637-https-arxiv-org-abs-2605-28814/paper/source/
+  location: ''
+- id: 4acb3970c8bd
+  text: Clarify data split integrity in Appendix A.2 to ensure the 'solvable split'
+    for training does not leak validation information.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-637-https-arxiv-org-abs-2605-28814/paper/source/
+  location: ''
+- id: 78da07a452b4
+  text: Document API dependency risks for the Open Problem Solving benchmark (GPT-5)
+    to address reproducibility constraints.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-637-https-arxiv-org-abs-2605-28814/paper/source/
+  location: ''
+- id: 5b17f4717f33
+  text: Add alt text for all figures to ensure accessibility compliance (missing in
+    LaTeX source for fig:teaser, fig:forward, fig:kk, fig:kk_abl, fig:case).
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-637-https-arxiv-org-abs-2605-28814/paper/source/
+  location: ''
+- id: 3bae699b4a49
+  text: Verify axis labels include units on all plots (fig:kk, fig:kk_abl, tab:cost_posttraining,
+    tab:cost_inference); currently unverifiable from LaTeX source alone.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-637-https-arxiv-org-abs-2605-28814/paper/source/
+  location: ''
+- id: 22fa474fc243
+  text: Ensure color choices (green!60!black, red!70!black) are colorblind-safe; recommend
+    adding patterns or shapes as secondary encodings.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-637-https-arxiv-org-abs-2605-28814/paper/source/
+  location: ''
+- id: 5c5af3d8697f
+  text: Define acronyms RLVR, SFT, EMA, and OOD at first use. RLVR appears in Intro
+    without definition. SFT appears in Appendix without definition. EMA appears in
+    Fig 2 caption without definition. OOD appears in Keywords but not text.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-637-https-arxiv-org-abs-2605-28814/paper/source/
+  location: ''
+- id: ec52ba98becb
+  text: Replace or gloss heavy mathematical jargon in Theoretical Motivations (Appendix).
+    Terms like 'filtration', 'martingale difference sequence', and 'Doob martingale'
+    exclude non-specialist readers.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-637-https-arxiv-org-abs-2605-28814/paper/source/
+  location: ''
+- id: 1e86bb319754
+  text: Clarify biological metaphors in Method section. 'Translocation' and 'evolution
+    operators' need plain English equivalents or clearer definitions for general AI
+    audiences.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-637-https-arxiv-org-abs-2605-28814/paper/source/
+  location: ''
+- id: e87e33d159e7
+  text: Clarify whether 'answer reweighting' is an integral component of BES or an
+    external MaxRL technique. The Method section defines BES as a search algorithm
+    agnostic to training, but the Ablation study treats reweighting as a BES component.
+    Explicitly distinguish 'BES Search' from 'BES + Training Tricks' to ensure logical
+    consistency between definition and experimental claims.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-637-https-arxiv-org-abs-2605-28814/paper/source/
+  location: ''
+- id: 5d64986d8ca8
+  text: Temper theoretical claims in Abstract and Section 3 to reflect that assumptions
+    (e.g., sub-goal independence) are not empirically validated on the models used.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-637-https-arxiv-org-abs-2605-28814/paper/source/
+  location: ''
+- id: b95399fd677c
+  text: Revise cost analysis claims in Section 4.3; characterize the ~40% API cost
+    increase more accurately rather than as 'modest'.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-637-https-arxiv-org-abs-2605-28814/paper/source/
+  location: ''
+- id: 45badd653540
+  text: "Expand the broader impacts section (app/lim.tex) to specify concrete dual-use\
+    \ scenarios beyond generic 'tasks that could be misused' \u2014 e.g., could BES\
+    \ improve generation of harmful code, exploit strategies, or adversarial examples?"
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-637-https-arxiv-org-abs-2605-28814/paper/source/
+  location: ''
+- id: 927db125f2e2
+  text: Add discussion of safety evaluation protocols before releasing trained models
+    on GitHub. Consider whether capability gating or usage restrictions should accompany
+    the release.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-637-https-arxiv-org-abs-2605-28814/paper/source/
+  location: ''
+- id: 33732edd395a
+  text: Clarify the provenance and safety status of GPT-5 in the inference experiments
+    (app/inference_setup). If this is a future/fictional model, note the implications
+    for reproducibility and safety assessment.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-637-https-arxiv-org-abs-2605-28814/paper/source/
+  location: ''
+- id: 3202067920a9
+  text: Table 2 relies on external baseline results from SkyDiscover (Section 4.2).
+    To establish scientific control, re-run baselines in the same environment or provide
+    variance estimates acknowledging environmental confounds.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-637-https-arxiv-org-abs-2605-28814/paper/source/
+  location: ''
+- id: e00af43ecdfd
+  text: "Table 1 reports accuracy without standard deviations across seeds. Add error\
+    \ bars or report mean\xB1std over multiple independent training runs to assess\
+    \ statistical significance."
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-637-https-arxiv-org-abs-2605-28814/paper/source/
+  location: ''
+- id: ddfeec160f3b
+  text: Inference benchmarks (Table 2) report only 3 runs. Justify this sample size
+    or increase replication to ensure reported means are stable against stochastic
+    search variance.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-637-https-arxiv-org-abs-2605-28814/paper/source/
+  location: ''
+- id: a97df04d9085
+  text: Add standard deviations and confidence intervals to Table 2 (Multi-Hop Reasoning)
+    to quantify variance across seeds.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-637-https-arxiv-org-abs-2605-28814/paper/source/
+  location: ''
+- id: 344ccfa3e424
+  text: Increase the number of random seeds for Open Problem Solving benchmarks from
+    3 to at least 5 for robust statistical inference.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-637-https-arxiv-org-abs-2605-28814/paper/source/
+  location: ''
+- id: f1741f241ef4
+  text: Perform statistical significance testing (e.g., t-tests) to validate claims
+    of outperformance over baselines.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-637-https-arxiv-org-abs-2605-28814/paper/source/
+  location: ''
+- id: 573e45a395ae
+  text: 'Reorder main sections: ''Related Work'' (sections/rw.tex) is currently included
+    after ''Experiments'' (line 102 in neurips_2026.tex). Standard NeurIPS convention
+    places Related Work immediately after Introduction.'
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-637-https-arxiv-org-abs-2605-28814/paper/source/
+  location: ''
+- id: b347b752a7dc
+  text: 'Remove duplicate package loading: ''xcolor'' is loaded at line 82 and again
+    at line 129 in neurips_2026.tex. Keep only one instance to avoid compilation warnings.'
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-637-https-arxiv-org-abs-2605-28814/paper/source/
+  location: ''
+- id: 4a212af98d8e
+  text: 'Resolve duplicate section titles: ''Theoretical Motivations'' appears in
+    both main body (theory.tex) and Appendix (appendix.tex, line 305). Rename the
+    Appendix section to ''Additional Theory'' for clarity in the Table of Contents.'
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-637-https-arxiv-org-abs-2605-28814/paper/source/
+  location: ''
+- id: 8b02ff5fc9e5
+  text: "Replace \resizebox on tables: Tables tab:multihop (exp.tex, line 135) and\
+    \ tab:ops (exp.tex, line 176) use \resizebox which distorts typography. Use tabularx\
+    \ width settings instead."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-637-https-arxiv-org-abs-2605-28814/paper/source/
+  location: ''
+- id: 9a737a50303f
+  text: "Fix theorem statement formatting: In appendix.tex (lines 428, 525), the period\
+    \ is inside the \textbf{} command (e.g., \textbf{.}). Move the period outside\
+    \ the bold scope for standard punctuation."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-637-https-arxiv-org-abs-2605-28814/paper/source/
+  location: ''
+- id: 8665acb3427b
+  text: In sections/rw.tex, the section header 'Self-Improvement for LLM and Agent'
+    uses singular nouns where plural is standard for the field. Please change to 'LLMs
+    and Agents'.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-637-https-arxiv-org-abs-2605-28814/paper/source/
+  location: ''
+- id: 5e6cb1b9b66f
+  text: In sections/method.tex, the phrase 'every several forward search steps' is
+    awkward. Replace with 'every few forward search steps' for better flow.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-637-https-arxiv-org-abs-2605-28814/paper/source/
+  location: ''
+- id: 05dab288d242
+  text: In sections/intro.tex, ensure consistent pluralization of 'agentic systems'
+    and 'models' throughout the text to avoid singular/plural mismatch.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-637-https-arxiv-org-abs-2605-28814/paper/source/
+  location: ''
+kickback_reason: 'advancement.evaluate: paper-review non-convergence; routing via
+  engine adapter.'
+kickback_artifact_links:
+- projects/PROJ-637-https-arxiv-org-abs-2605-28814/paper/source/
+stage_results:
+- name: specify
+  status: success
+- name: clarify
+  status: success
+  note: auto-resolved; deterministic adapter needs no clarifications
+- name: plan
+  status: success
+- name: tasks
+  status: success
+  note: 34 tasks emitted (one per concern)
+- name: analyze
+  status: success
+  iterations: 1
+  finding_count: 0
+final_outcome: ready_for_implementation
+produced_at: '2026-06-21T10:17:45.276569+00:00'

@@ -1,0 +1,6 @@
+'|against data dft prediction qm9 reference validate':
+  quote: While QM9 comprises 134,000 molecules calculated using DFT (B3LYP/6-31G(2df,p))
+    opti-
+  source_id: '2305.18454'
+  url: https://arxiv.org/abs/2305.18454
+  value: 134,000

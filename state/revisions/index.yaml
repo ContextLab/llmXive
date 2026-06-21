@@ -126,3 +126,6 @@ ready:
 - project_id: PROJ-567-anyflow-any-step-video-diffusion-model-w
   revision_spec_path: specs/auto-revisions/PROJ-567-anyflow-any-step-video-diffusion-model-w/round-1
   queued_at: '2026-06-21T09:55:41.373810+00:00'
+- project_id: PROJ-637-https-arxiv-org-abs-2605-28814
+  revision_spec_path: specs/auto-revisions/PROJ-637-https-arxiv-org-abs-2605-28814/round-2
+  queued_at: '2026-06-21T10:17:45.287866+00:00'
