@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2208.07271",
+  "judged_at": "2026-06-22T03:26:35Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "testing hubble constant isotropy using pantheon supernova sample physics",
+  "rationale": "The paper analyzes the Pantheon+ Type Ia supernova sample—the same empirical population referenced in the user’s question—so it qualifies under criterion (e) as an empirical‑population canonical study, even though it focuses on the Hubble law’s linearity rather than isotropy.",
+  "relevant": true
+}

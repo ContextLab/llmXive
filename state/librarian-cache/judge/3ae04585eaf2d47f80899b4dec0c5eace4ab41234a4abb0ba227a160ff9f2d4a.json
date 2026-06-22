@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2305.18176",
+  "judged_at": "2026-06-22T03:28:11Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "meta‑analysis of trust perception in deepfake facial stimuli psychology",
+  "rationale": "The paper investigates trust perception of machine‑generated text, not of deepfake facial stimuli; it does not study the visual deepfake domain or the specific psychological responses to facial deepfakes, so it falls outside the relevant construct‑domain scope.",
+  "relevant": false
+}

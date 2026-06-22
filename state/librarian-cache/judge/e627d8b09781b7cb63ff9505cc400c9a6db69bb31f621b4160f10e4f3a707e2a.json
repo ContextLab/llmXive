@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2510.19024",
+  "judged_at": "2026-06-22T03:28:17Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "meta‑analysis of trust perception in deepfake facial stimuli psychology",
+  "rationale": "The paper investigates trust perception of AI‑generated images, directly measuring a key dependent variable (trust) in the same type of visual stimulus (AI‑generated/deepfake‑like content), satisfying criterion (b) (independent/dependent variable on the same domain) and also (a) (same‑mechanism evidence).",
+  "relevant": true
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1604.04334",
+  "judged_at": "2026-06-22T03:28:28Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "meta‑analysis of trust perception in deepfake facial stimuli psychology",
+  "rationale": "The paper studies facial expression recognition using geometric features and SVMs on standard expression datasets, without addressing deepfake facial stimuli, trust perception, or meta‑analytic synthesis, so it does not meet any inclusion criteria (a‑f).",
+  "relevant": false
+}

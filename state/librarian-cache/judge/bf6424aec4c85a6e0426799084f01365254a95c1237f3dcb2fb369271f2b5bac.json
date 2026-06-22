@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2504.00902",
+  "judged_at": "2026-06-22T03:26:51Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "testing hubble constant isotropy using pantheon supernova sample physics",
+  "rationale": "The paper studies a ranking scheme for core‑collapse supernovae based on explosion energy and aesthetic criteria, with no connection to Hubble constant measurements, isotropy tests, or the Pantheon supernova sample, thus it does not address the user's research domain.",
+  "relevant": false
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2509.04073",
+  "judged_at": "2026-06-22T03:26:48Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "testing hubble constant isotropy using pantheon supernova sample physics",
+  "rationale": "The paper provides a large, cosmology‑grade Type Ia supernova dataset and details the photometric methodology (scene‑modeling photometry) that underpins accurate distance‑modulus measurements—one of the key dependent variables (SN Ia distances) used in Hubble‑constant and isotropy analyses. This qualifies under criterion (b): it measures a core variable (SN Ia photometry/calibration) on the same domain (SN Ia cosmology) relevant to the user's question.",
+  "relevant": true
+}

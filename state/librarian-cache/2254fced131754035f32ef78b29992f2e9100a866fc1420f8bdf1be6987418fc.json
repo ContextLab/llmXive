@@ -1,0 +1,504 @@
+{
+  "fetched_at": "2026-06-22T03:28:28Z",
+  "field": "psychology",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "psychology",
+      "idea_body_excerpt": "Meta‑Analysis of Trust Perception in Deepfake Facial Stimuli",
+      "target_n": 5
+    },
+    "duration_seconds": 74.69,
+    "ended_at": "2026-06-22T03:28:28Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "perceived trustworthiness of synthetic faces"
+        ],
+        [
+          2,
+          "facial trust cues in AI‑generated media"
+        ],
+        [
+          3,
+          "credibility assessment of deepfake videos"
+        ],
+        [
+          4,
+          "deception detection in manipulated facial stimuli"
+        ],
+        [
+          5,
+          "authenticity judgments of artificial facial expressions"
+        ],
+        [
+          6,
+          "trust perception of computer‑generated faces"
+        ],
+        [
+          7,
+          "social trust in synthetic visual media"
+        ],
+        [
+          8,
+          "believability of AI‑generated facial images"
+        ],
+        [
+          9,
+          "psychological responses to deepfake facial manipulation"
+        ],
+        [
+          10,
+          "trustworthiness evaluation of fabricated facial videos"
+        ],
+        [
+          11,
+          "media literacy and deepfake trust perception"
+        ],
+        [
+          12,
+          "affective trust in manipulated face stimuli"
+        ],
+        [
+          13,
+          "facial identity fraud detection and trust"
+        ],
+        [
+          14,
+          "perceived authenticity of synthetic avatars"
+        ],
+        [
+          15,
+          "trust heuristics for AI‑created facial content"
+        ],
+        [
+          16,
+          "human judgment of deepfake realism"
+        ],
+        [
+          17,
+          "visual deception and trust in digital media"
+        ],
+        [
+          18,
+          "meta‑analytic review of deepfake credibility"
+        ],
+        [
+          19,
+          "trust formation with altered facial cues"
+        ],
+        [
+          20,
+          "evaluation of trust in generated facial stimuli"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Meta‑Analysis of Trust Perception in Deepfake Facial Stimuli psychology": 0,
+        "facial trust cues in AI‑generated media": 4,
+        "perceived trustworthiness of synthetic faces": 1
+      },
+      "total_queries_issued": 2
+    },
+    "extracted_queries": [
+      "authenticity judgment synthetic faces",
+      "MTurk facial trust perception study",
+      "perceived realism deepfake",
+      "trustworthiness rating facial stimuli",
+      "source monitoring illusion deepfake"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2509.13948"
+      ]
+    },
+    "per_query_hit_count": {
+      "MTurk facial trust perception study": 3,
+      "Meta‑Analysis of Trust Perception in Deepfake Facial Stimuli psychology": 3,
+      "authenticity judgment synthetic faces": 3,
+      "perceived realism deepfake": 2,
+      "source monitoring illusion deepfake": 1,
+      "trustworthiness rating facial stimuli": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 3,
+      "rejections": [
+        {
+          "primary_pointer": "2305.18176",
+          "rationale": "The paper investigates trust perception of machine‑generated text, not of deepfake facial stimuli; it does not study the visual deepfake domain or the specific psychological responses to facial deepfakes, so it falls outside the relevant construct‑domain scope.",
+          "title": "Perceived Trustworthiness of Natural Language Generators"
+        },
+        {
+          "primary_pointer": "1702.03385",
+          "rationale": "The paper studies trust cues in micro‑task crowdsourcing platforms, which is unrelated to trust perception of deepfake facial stimuli in a psychological context; it shares no mechanism, variable, or domain with the user's question.",
+          "title": "On the Improvement of Quality and Reliability of Trust Cues in Micro-task Crowdsourcing (Position paper)"
+        },
+        {
+          "primary_pointer": "1604.04334",
+          "rationale": "The paper studies facial expression recognition using geometric features and SVMs on standard expression datasets, without addressing deepfake facial stimuli, trust perception, or meta‑analytic synthesis, so it does not meet any inclusion criteria (a‑f).",
+          "title": "Recognition of facial expressions based on salient geometric features and support vector machines"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-22T03:27:13Z",
+    "term_input": {
+      "normalized": "meta‑analysis of trust perception in deepfake facial stimuli psychology",
+      "raw": "Meta‑Analysis of Trust Perception in Deepfake Facial Stimuli psychology"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The rise of deepfake technology brings forth new questions about the authenticity of various forms of media found online today. Videos and images generated by artificial intelligence (AI) have become increasingly more difficult to differentiate from genuine media, resulting in the need for new models to detect artificially-generated media. While many models have attempted to solve this, most focus on direct image processing, adapting a convolutional neural network (CNN) or a recurrent neural network (RNN) that directly interacts with the video image data. This paper introduces an approach of using solely facial landmarks for deepfake detection. Using a dataset consisting of both deepfake and genuine videos of human faces, this paper describes an approach for extracting facial landmarks for deepfake detection, focusing on identifying subtle inconsistencies in facial movements instead of raw image processing. Experimental results demonstrated that this feature extraction technique is effective in various neural network models, with the same facial landmarks tested on three neural network models, with promising performance metrics indicating its potential for real-world applications. The findings discussed in this paper include RNN and artificial neural network (ANN) models with accuracy between 96% and 93%, respectively, with a CNN model hovering around 78%. This research challenges the assumption that raw image processing is necessary to identify deepfake videos by presenting a facial feature extraction approach compatible with various neural network models while requiring fewer parameters.",
+          "claimed_authors": [
+            "Benjamin Carter",
+            "Nathan Dilla",
+            "Micheal Callahan",
+            "Atuhaire Ambala"
+          ],
+          "claimed_title": "Deepfake Detection Via Facial Feature Extraction and Modeling",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2507.18815"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Meta‑Analysis of Trust Perception in Deepfake Facial Stimuli psychology', candidate_title='Deepfake Detection Via Facial Feature Extraction and Modeling')",
+        "failed_at": "2026-06-22T03:27:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The rising use of deepfakes in criminal activities presents a significant issue, inciting widespread controversy. While numerous studies have tackled this problem, most primarily focus on deepfake detection. These reactive solutions are insufficient as a fundamental approach for crimes where authenticity is disregarded. Existing proactive defenses also have limitations, as they are effective only for deepfake models based on specific Generative Adversarial Networks (GANs), making them less applicable in light of recent advancements in diffusion-based models. In this paper, we propose a proactive defense method named FaceShield, which introduces novel defense strategies targeting deepfakes generated by Diffusion Models (DMs) and facilitates defenses on various existing GAN-based deepfake models through facial feature extractor manipulations. Our approach consists of three main components: (i) manipulating the attention mechanism of DMs to exclude protected facial features during the denoising process, (ii) targeting prominent facial feature extraction models to enhance the robustness of our adversarial perturbation, and (iii) employing Gaussian blur and low-pass filtering techniques to improve imperceptibility while enhancing robustness against JPEG compression. Experimental results on the CelebA-HQ and VGGFace2-HQ datasets demonstrate that our method achieves state-of-the-art performance against the latest deepfake models based on DMs, while also exhibiting transferability to GANs and showcasing greater imperceptibility of noise along with enhanced robustness. Code is available here: https://github.com/kuai-lab/iccv25_faceshield",
+          "claimed_authors": [
+            "Jaehwan Jeong",
+            "Sumin In",
+            "Sieun Kim",
+            "Hannie Shin",
+            "Jongheon Jeong",
+            "Sang Ho Yoon",
+            "Jaewook Chung",
+            "Sangpil Kim"
+          ],
+          "claimed_title": "FaceShield: Defending Facial Image against Deepfake Threats",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2412.09921"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Meta‑Analysis of Trust Perception in Deepfake Facial Stimuli psychology', candidate_title='FaceShield: Defending Facial Image against Deepfake Threats')",
+        "failed_at": "2026-06-22T03:27:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Existing deepfake detection methods fail to generalize well to unseen or degraded samples, which can be attributed to the over-fitting of low-level forgery patterns. Here we argue that high-level semantics are also indispensable recipes for generalizable forgery detection. Recently, large pre-trained Vision Transformers (ViTs) have shown promising generalization capability. In this paper, we propose the first parameter-efficient tuning approach for deepfake detection, namely DeepFake-Adapter, to effectively and efficiently adapt the generalizable high-level semantics from large pre-trained ViTs to aid deepfake detection. Given large pre-trained models but limited deepfake data, DeepFake-Adapter introduces lightweight yet dedicated dual-level adapter modules to a ViT while keeping the model backbone frozen. Specifically, to guide the adaptation process to be aware of both global and local forgery cues of deepfake data, 1) we not only insert Globally-aware Bottleneck Adapters in parallel to MLP layers of ViT, 2) but also actively cross-attend Locally-aware Spatial Adapters with features from ViT. Unlike existing deepfake detection methods merely focusing on low-level forgery patterns, the forgery detection process of our model can be regularized by generalizable high-level semantics from a pre-trained ViT and adapted by global and local low-level forgeries of deepfake data. Extensive experiments on several standard deepfake detection benchmarks validate the effectiveness of our approach. Notably, DeepFake-Adapter demonstrates a convincing advantage under cross-dataset and cross-manipulation settings. The code has been released at https://github.com/rshaojimmy/DeepFake-Adapter.",
+          "claimed_authors": [
+            "Rui Shao",
+            "Tianxing Wu",
+            "Liqiang Nie",
+            "Ziwei Liu"
+          ],
+          "claimed_title": "DeepFake-Adapter: Dual-Level Adapter for DeepFake Detection",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.00863"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Meta‑Analysis of Trust Perception in Deepfake Facial Stimuli psychology', candidate_title='DeepFake-Adapter: Dual-Level Adapter for DeepFake Detection')",
+        "failed_at": "2026-06-22T03:27:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Reaching some form of consensus is often necessary for autonomous agents that want to coordinate their actions or otherwise engage in joint activities. One way to reach a consensus is by aggregating individual information, such as decisions, beliefs, preferences and constraints. Judgment aggregation is a social choice method, which generalises voting, that studies the aggregation of individual judgments regarding the truth-value of logically related propositions. As such, judgment aggregation is applicable for consensus reaching problems in multi agent systems. As other social choice theory, judgment aggregation research is abundant with impossibility results. However, the aim of this tutorial is to give an introduction to the methods of judgment aggregation, not the impossibility results. In particular, the tutorial will introduce the basic frameworks that model judgment aggregation problems and give an overview of the judgment aggregation functions so far developed as well as their social theoretic and computational complexity properties. The focus of the tutorial are consensus reaching problems in multi agent systems that can be modelled as judgment aggregation problems. The desirable properties of a judgment aggregation method applied to these problems are not necessarily the same as properties desirable in legal or political contexts, which is considered to be the native domain of judgment aggregation. After this tutorial the participants are expected to be able to read and understand judgment aggregation literature and have a grasp on the state-of-the-art and open questions in judgment aggregation research of interest to multi agent systems.",
+          "claimed_authors": [
+            "Marija Slavkovik"
+          ],
+          "claimed_title": "An Introductory Course to Judgment Aggregation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1607.03307"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Meta‑Analysis of Trust Perception in Deepfake Facial Stimuli psychology', candidate_title='An Introductory Course to Judgment Aggregation')",
+        "failed_at": "2026-06-22T03:27:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper, we investigate the potential of image-to-image translation (I2I) techniques for transferring realism to 3D-rendered facial images in the context of Face Recognition (FR) systems. The primary motivation for using 3D-rendered facial images lies in their ability to circumvent the challenges associated with collecting large real face datasets for training FR systems. These images are generated entirely by 3D rendering engines, facilitating the generation of synthetic identities. However, it has been observed that FR systems trained on such synthetic datasets underperform when compared to those trained on real datasets, on various FR benchmarks. In this work, we demonstrate that by transferring the realism to 3D-rendered images (i.e., making the 3D-rendered images look more real), we can boost the performance of FR systems trained on these more photorealistic images. This improvement is evident when these systems are evaluated against FR benchmarks utilizing real-world data, thereby paving new pathways for employing synthetic data in real-world applications.",
+          "claimed_authors": [
+            "Parsa Rahimi",
+            "Behrooz Razeghi",
+            "Sebastien Marcel"
+          ],
+          "claimed_title": "Synthetic to Authentic: Transferring Realism to 3D Face Renderings for Boosting Face Recognition",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2407.07627"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Meta‑Analysis of Trust Perception in Deepfake Facial Stimuli psychology', candidate_title='Synthetic to Authentic: Transferring Realism to 3D Face Renderings for Boosting Face Recognition')",
+        "failed_at": "2026-06-22T03:27:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Synthetic data (SD) have garnered attention as a privacy enhancing technology. Unfortunately, there is no standard for quantifying their degree of privacy protection. In this paper, we discuss proposed quantification approaches. This contributes to the development of SD privacy standards; stimulates multi-disciplinary discussion; and helps SD researchers make informed modeling and evaluation decisions.",
+          "claimed_authors": [
+            "Alexander Boudewijn",
+            "Andrea Filippo Ferraris",
+            "Daniele Panfilo",
+            "Vanessa Cocca",
+            "Sabrina Zinutti",
+            "Karel De Schepper",
+            "Carlo Rossi Chauvenet"
+          ],
+          "claimed_title": "Privacy Measurement in Tabular Synthetic Data: State of the Art and Future Research Directions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2311.17453"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Meta‑Analysis of Trust Perception in Deepfake Facial Stimuli psychology', candidate_title='Privacy Measurement in Tabular Synthetic Data: State of the Art and Future Research Directions')",
+        "failed_at": "2026-06-22T03:27:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large-scale AI models such as GPT-4 have accelerated the deployment of artificial intelligence across critical domains including law, healthcare, and finance, raising urgent questions about trust and transparency. This study investigates the relationship between explainability and user trust in AI systems through a quantitative experimental design. Using an interactive, web-based loan approval simulation, we compare how different types of explanations, ranging from basic feature importance to interactive counterfactuals influence perceived trust. Results suggest that interactivity enhances both user engagement and confidence, and that the clarity and relevance of explanations are key determinants of trust. These findings contribute empirical evidence to the growing field of human-centered explainable AI, highlighting measurable effects of explainability design on user perception",
+          "claimed_authors": [
+            "Allen Daniel Sunny"
+          ],
+          "claimed_title": "Preliminary Quantitative Study on Explainability and Trust in AI Systems",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2510.15769"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Meta‑Analysis of Trust Perception in Deepfake Facial Stimuli psychology', candidate_title='Preliminary Quantitative Study on Explainability and Trust in AI Systems')",
+        "failed_at": "2026-06-22T03:27:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Trust is often cited as an essential criterion for the effective use and real-world deployment of AI. Researchers argue that AI should be more transparent to increase trust, making transparency one of the main goals of XAI. Nevertheless, empirical research on this topic is inconclusive regarding the effect of transparency on trust. An explanation for this ambiguity could be that trust is operationalized differently within XAI. In this position paper, we advocate for a clear distinction between behavioral (objective) measures of reliance and attitudinal (subjective) measures of trust. However, researchers sometimes appear to use behavioral measures when intending to capture trust, although attitudinal measures would be more appropriate. Based on past research, we emphasize that there are sound theoretical reasons to keep trust and reliance separate. Properly distinguishing these two concepts provides a more comprehensive understanding of how transparency affects trust and reliance, benefiting future XAI research.",
+          "claimed_authors": [
+            "Nicolas Scharowski",
+            "Sebastian A. C. Perrig",
+            "Nick von Felten",
+            "Florian Brühlmann"
+          ],
+          "claimed_title": "Trust and Reliance in XAI -- Distinguishing Between Attitudinal and Behavioral Measures",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2203.12318"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Meta‑Analysis of Trust Perception in Deepfake Facial Stimuli psychology', candidate_title='Trust and Reliance in XAI -- Distinguishing Between Attitudinal and Behavioral Measures')",
+        "failed_at": "2026-06-22T03:27:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The recent renaissance in generative models, driven primarily by the advent of diffusion models and iterative improvement in GAN methods, has enabled many creative applications. However, each advancement is also accompanied by a rise in the potential for misuse. In the arena of the deepfake generation, this is a key societal issue. In particular, the ability to modify segments of videos using such generative techniques creates a new paradigm of deepfakes which are mostly real videos altered slightly to distort the truth. This paradigm has been under-explored by the current deepfake detection methods in the academic literature. In this paper, we present a deepfake detection method that can address this issue by performing deepfake prediction at the frame and video levels. To facilitate testing our method, we prepared a new benchmark dataset where videos have both real and fake frame sequences with very subtle transitions. We provide a benchmark on the proposed dataset with our detection method which utilizes the Vision Transformer based on Scaling and Shifting to learn spatial features, and a Timeseries Transformer to learn temporal features of the videos to help facilitate the interpretation of possible deepfakes. Extensive experiments on a variety of deepfake generation methods show excellent results by the proposed method on temporal segmentation and classical video-level predictions as well. In particular, the paradigm we address will form a powerful tool for the moderation of deepfakes, where human oversight can be better targeted to the parts of videos suspected of being deepfakes. All experiments can be reproduced at: github.com/rgb91/temporal-deepfake-segmentation.",
+          "claimed_authors": [
+            "Sanjay Saha",
+            "Rashindrie Perera",
+            "Sachith Seneviratne",
+            "Tamasha Malepathirana",
+            "Sanka Rasnayaka",
+            "Deshani Geethika",
+            "Terence Sim",
+            "Saman Halgamuge"
+          ],
+          "claimed_title": "Undercover Deepfakes: Detecting Fake Segments in Videos",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2305.06564"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Meta‑Analysis of Trust Perception in Deepfake Facial Stimuli psychology', candidate_title='Undercover Deepfakes: Detecting Fake Segments in Videos')",
+        "failed_at": "2026-06-22T03:27:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent multimodal deepfake detection methods designed for generalization conjecture that single-stage supervised training struggles to generalize across unseen manipulations and datasets. However, such approaches that target generalization require pretraining over real samples. Additionally, these methods primarily focus on detecting audio-visual inconsistencies and may overlook intra-modal artifacts causing them to fail against manipulations that preserve audio-visual alignment. To address these limitations, we propose a single-stage training framework that enhances generalization by incorporating next-frame prediction for both uni-modal and cross-modal features. Additionally, we introduce a window-level attention mechanism to capture discrepancies between predicted and actual frames, enabling the model to detect local artifacts around every frame, which is crucial for accurately classifying fully manipulated videos and effectively localizing deepfake segments in partially spoofed samples. Our model, evaluated on multiple benchmark datasets, demonstrates strong generalization and precise temporal localization.",
+          "claimed_authors": [
+            "Ashutosh Anshul",
+            "Shreyas Gopal",
+            "Deepu Rajan",
+            "Eng Siong Chng"
+          ],
+          "claimed_title": "Next-Frame Feature Prediction for Multimodal Deepfake Detection and Temporal Localization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2511.10212"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Meta‑Analysis of Trust Perception in Deepfake Facial Stimuli psychology', candidate_title='Next-Frame Feature Prediction for Multimodal Deepfake Detection and Temporal Localization')",
+        "failed_at": "2026-06-22T03:27:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Neural mechanisms of touch are typically studied in laboratory settings using robotic or other types of well-controlled devices. Such stimuli are very different from highly complex naturalistic human-to-human touch interactions. The lack of scientifically useful naturalistic stimuli hampers progress, particularly in social touch research. Vision science, on the other hand, has benefitted from inventions such as virtual reality systems that have provided researchers with precision control of naturalistic stimuli. In the field of touch research, producing and manipulating stimuli is particularly challenging due to the complexity of skin mechanics. Here we review the history of touch neuroscience focusing on the contrast between strictly controlled and naturalistic stimuli and compare with vision science. We discuss new methods that may overcome the obstacles with precision-controlled tactile stimuli, and recent successes in naturalistic texture production. In social touch research, precise tracking and measurement of naturalistic human-to-human touch interactions offers exciting new possibilities.",
+          "claimed_authors": [
+            "Anne Margarette S. Maallo",
+            "Basil Duvernoy",
+            "Håkan Olausson",
+            "Sarah McIntyre"
+          ],
+          "claimed_title": "Naturalistic stimuli in touch research",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2201.11868"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Meta‑Analysis of Trust Perception in Deepfake Facial Stimuli psychology', candidate_title='Naturalistic stimuli in touch research')",
+        "failed_at": "2026-06-22T03:27:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Facial expressions convey nonverbal cues which play an important role in interpersonal relations, and are widely used in behavior interpretation of emotions, cognitive science, and social interactions. In this paper we analyze different ways of representing geometric feature and present a fully automatic facial expression recognition (FER) system using salient geometric features. In geometric feature-based FER approach, the first important step is to initialize and track dense set of facial points as the expression evolves over time in consecutive frames. In the proposed system, facial points are initialized using elastic bunch graph matching (EBGM) algorithm and tracking is performed using Kanade-Lucas-Tomaci (KLT) tracker. We extract geometric features from point, line and triangle composed of tracking results of facial points. The most discriminative line and triangle features are extracted using feature selective multi-class AdaBoost with the help of extreme learning machine (ELM) classification. Finally the geometric features for FER are extracted from the boosted line, and triangles composed of facial points. The recognition accuracy using features from point, line and triangle are analyzed independently. The performance of the proposed FER system is evaluated on three different data sets: namely CK+, MMI and MUG facial expression data sets.",
+          "claimed_authors": [
+            "Deepak Ghimire",
+            "Joonwhoan Lee",
+            "Ze-Nian Li",
+            "Sunghwan Jeong"
+          ],
+          "claimed_title": "Recognition of facial expressions based on salient geometric features and support vector machines",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1604.04334"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Meta‑Analysis of Trust Perception in Deepfake Facial Stimuli psychology', candidate_title='Recognition of facial expressions based on salient geometric features and support vector machines')",
+        "failed_at": "2026-06-22T03:27:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper introduces a new control signal for facial motion generation: timeline control. Compared to audio and text signals, timelines provide more fine-grained control, such as generating specific facial motions with precise timing. Users can specify a multi-track timeline of facial actions arranged in temporal intervals, allowing precise control over the timing of each action. To model the timeline control capability, We first annotate the time intervals of facial actions in natural facial motion sequences at a frame-level granularity. This process is facilitated by Toeplitz Inverse Covariance-based Clustering to minimize human labor. Based on the annotations, we propose a diffusion-based generation model capable of generating facial motions that are natural and accurately aligned with input timelines. Our method supports text-guided motion generation by using ChatGPT to convert text into timelines. Experimental results show that our method can annotate facial action intervals with satisfactory accuracy, and produces natural facial motions accurately aligned with timelines.",
+          "claimed_authors": [
+            "Yifeng Ma",
+            "Jinwei Qi",
+            "Chaonan Ji",
+            "Peng Zhang",
+            "Bang Zhang",
+            "Zhidong Deng",
+            "Liefeng Bo"
+          ],
+          "claimed_title": "Exploring Timeline Control for Facial Motion Generation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2505.20861"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Meta‑Analysis of Trust Perception in Deepfake Facial Stimuli psychology', candidate_title='Exploring Timeline Control for Facial Motion Generation')",
+        "failed_at": "2026-06-22T03:27:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We define and investigate source-modality monitoring -- the ability of multimodal models to track and communicate the input source from which pieces of information originate. We consider source-modality monitoring as an instance of the more general binding problem, and evaluate the extent to which models exploit syntactic vs. semantic signals in order to bind words like image in a user-provided prompt to specific components of their input and context (i.e., actual images). Across experiments spanning 11 vision-language models (VLMs) performing target-modality information retrieval tasks, we find that both syntactic and semantic signals play an important role, but that the latter tend to outweigh the former in cases when modalities are highly distinct distributionally. We discuss the implications of these findings for model robustness, and in the context of increasingly multimodal agentic systems.",
+          "claimed_authors": [
+            "Etha Tianze Hua",
+            "Tian Yun",
+            "Ellie Pavlick"
+          ],
+          "claimed_title": "Source-Modality Monitoring in Vision-Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2604.22038"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Meta‑Analysis of Trust Perception in Deepfake Facial Stimuli psychology', candidate_title='Source-Modality Monitoring in Vision-Language Models')",
+        "failed_at": "2026-06-22T03:27:47Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Benedict Barrow",
+            "Roger K. Moore"
+          ],
+          "title": "The Influence of Facial Features on the Perceived Trustworthiness of a Social Robot",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2509.13948",
+        "summary": "Trust and the perception of trustworthiness play an important role in decision-making and our behaviour towards others, and this is true not only of human-human interactions but also of human-robot interactions. While significant advances have been made in recent years in the field of social robotics, there is still some way to go before we fully understand the factors that influence human trust in robots. This paper presents the results of a study into the first impressions created by a social robot's facial features, based on the hypothesis that a `babyface' engenders trust. By manipulating the back-projected face of a Furhat robot, the study confirms that eye shape and size have a significant impact on the perception of trustworthiness. The work thus contributes to an understanding of the design choices that need to be made when developing social robots so as to optimise the effectiveness of human-robot interaction.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2509.13948",
+          "http_status": 200,
+          "pdf_sample_score": 0.2013,
+          "query_relevance_score": 0.4286,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-22T03:27:47Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Jingruo Chen",
+            "TungYen Wang",
+            "Marie Williams",
+            "Natalia Jordan",
+            "Mingyi Shao",
+            "Linda Zhang",
+            "Susan R. Fussell"
+          ],
+          "title": "Examining the Impact of Label Detail and Content Stakes on User Perceptions of AI-Generated Images on Social Media",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2510.19024",
+        "summary": "AI-generated images are increasingly prevalent on social media, raising concerns about trust and authenticity. This study investigates how different levels of label detail (basic, moderate, maximum) and content stakes (high vs. low) influence user engagement with and perceptions of AI-generated images through a within-subjects experimental study with 105 participants. Our findings reveal that increasing label detail enhances user perceptions of label transparency but does not affect user engagement. However, content stakes significantly impact user engagement and perceptions, with users demonstrating higher engagement and trust in low-stakes images. These results suggest that social media platforms can adopt detailed labels to improve transparency without compromising user engagement, offering insights for effective labeling strategies for AI-generated content.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2510.19024",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-22T03:27:58Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "meta‑analysis of trust perception in deepfake facial stimuli psychology",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

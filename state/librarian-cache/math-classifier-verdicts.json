@@ -386,5 +386,13 @@
   "PROJ-756-assessing-dataset-imbalance-effects-on-m::1.6.0": {
     "classified_at": "2026-06-21T05:51:53Z",
     "verdict": false
+  },
+  "PROJ-757-meta-analysis-of-trust-perception-in-dee::1.6.0": {
+    "classified_at": "2026-06-22T03:27:47Z",
+    "verdict": false
+  },
+  "PROJ-758-testing-hubble-constant-isotropy-using-p::1.6.0": {
+    "classified_at": "2026-06-22T03:26:22Z",
+    "verdict": false
   }
 }

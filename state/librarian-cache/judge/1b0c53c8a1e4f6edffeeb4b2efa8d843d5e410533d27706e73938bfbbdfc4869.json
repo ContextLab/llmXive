@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "astro-ph/0105413",
+  "judged_at": "2026-06-22T03:26:58Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "testing hubble constant isotropy using pantheon supernova sample physics",
+  "rationale": "The paper provides a foundational measurement of the Hubble constant using Type Ia supernovae, establishing baseline H₀ values from SN data (category (b) – it measures one of the user’s key variables, H₀, on the same supernova sample domain, and also serves as a canonical methodological reference for SN‑based H₀ studies).",
+  "relevant": true
+}

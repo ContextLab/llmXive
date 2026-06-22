@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2307.02434",
+  "judged_at": "2026-06-22T03:27:02Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "testing hubble constant isotropy using pantheon supernova sample physics",
+  "rationale": "The paper provides an empirical baseline measurement of the Hubble constant using Type Ia supernovae (the same dependent variable of interest) and discusses supernova magnitude calibration, which is directly relevant to any study of H₀ isotropy with the Pantheon sample (acceptance category (c) – empirical baseline).",
+  "relevant": true
+}

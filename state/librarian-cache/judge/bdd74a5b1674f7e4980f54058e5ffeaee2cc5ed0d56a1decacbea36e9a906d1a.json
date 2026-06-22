@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2305.17243",
+  "judged_at": "2026-06-22T03:26:42Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "testing hubble constant isotropy using pantheon supernova sample physics",
+  "rationale": "The paper focuses on measuring the Hubble constant with Type II supernovae and does not address isotropy or the Pantheon Type Ia supernova sample; it therefore does not meet any inclusion criteria for the user's specific question.",
+  "relevant": false
+}

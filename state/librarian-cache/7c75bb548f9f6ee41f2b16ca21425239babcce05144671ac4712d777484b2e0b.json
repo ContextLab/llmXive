@@ -1,0 +1,616 @@
+{
+  "fetched_at": "2026-06-22T03:27:03Z",
+  "field": "physics",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "physics",
+      "idea_body_excerpt": "Testing Hubble Constant Isotropy Using Pantheon Supernova Sample",
+      "target_n": 5
+    },
+    "duration_seconds": 88.295,
+    "ended_at": "2026-06-22T03:27:03Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "anisotropy of the Hubble constant with Pantheon supernovae"
+        ],
+        [
+          2,
+          "directional dependence of H₀ in SN Ia samples"
+        ],
+        [
+          3,
+          "Hubble parameter dipole anisotropy Pantheon dataset"
+        ],
+        [
+          4,
+          "spatial variation of the cosmic expansion rate from supernovae"
+        ],
+        [
+          5,
+          "testing cosmic isotropy of H₀ using Pantheon + SN Ia"
+        ],
+        [
+          6,
+          "large‑scale H₀ anisotropy studies with Type Ia supernovae"
+        ],
+        [
+          7,
+          "hemispherical asymmetry of the Hubble constant in Pantheon"
+        ],
+        [
+          8,
+          "Bayesian hierarchical analysis of H₀ isotropy with SN Ia"
+        ],
+        [
+          9,
+          "cosmic variance of the Hubble constant from Pantheon supernovae"
+        ],
+        [
+          10,
+          "low‑redshift H₀ directional analysis using SN Ia distance moduli"
+        ],
+        [
+          11,
+          "tests of the cosmological principle with Pantheon supernova data"
+        ],
+        [
+          12,
+          "dipole modulation of the luminosity distance–redshift relation"
+        ],
+        [
+          13,
+          "bulk‑flow effects on H₀ measurements from Pantheon"
+        ],
+        [
+          14,
+          "angular dependence of the SN Ia Hubble diagram"
+        ],
+        [
+          15,
+          "constraints on H₀ anisotropy from combined Pantheon and other SN Ia samples"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Testing Hubble Constant Isotropy Using Pantheon Supernova Sample physics": 0,
+        "anisotropy of the Hubble constant with Pantheon supernovae": 5
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "Hubble flow anisotropy",
+      "Pantheon SN Ia",
+      "hemispherical H0 variation",
+      "H0 constraints supernova",
+      "inhomogeneous cosmology H0 anisotropy"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2208.07271"
+      ]
+    },
+    "per_query_hit_count": {
+      "H0 constraints supernova": 2,
+      "Hubble flow anisotropy": 3,
+      "Pantheon SN Ia": 3,
+      "Testing Hubble Constant Isotropy Using Pantheon Supernova Sample physics": 3,
+      "hemispherical H0 variation": 3,
+      "inhomogeneous cosmology H0 anisotropy": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 2,
+      "rejections": [
+        {
+          "primary_pointer": "2305.17243",
+          "rationale": "The paper focuses on measuring the Hubble constant with Type II supernovae and does not address isotropy or the Pantheon Type Ia supernova sample; it therefore does not meet any inclusion criteria for the user's specific question.",
+          "title": "The pursuit of the Hubble Constant using Type II Supernovae"
+        },
+        {
+          "primary_pointer": "2504.00902",
+          "rationale": "The paper studies a ranking scheme for core‑collapse supernovae based on explosion energy and aesthetic criteria, with no connection to Hubble constant measurements, isotropy tests, or the Pantheon supernova sample, thus it does not address the user's research domain.",
+          "title": "A multi-modal infant-based metric for choosing the best supernova"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-22T03:25:35Z",
+    "term_input": {
+      "normalized": "testing hubble constant isotropy using pantheon supernova sample physics",
+      "raw": "Testing Hubble Constant Isotropy Using Pantheon Supernova Sample physics"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The age of the Universe depends on both the present-day Hubble Constant and on the history of cosmic expansion. For decelerating cosmologies such as Omega_m= 1, the dimensionless product H_0,t_0<1 and modestly high values of the Hubble constant H_0 > 70 would be inconsistent with a cosmic age t_0 larger than 12 Gyr. But if Omega_Lambda > 0, then H_0,t_0 can take on a range of values. Evidence from the Hubble diagram for high redshift Type Ia supernovae favors Omega_Lambda~0.7 and H_0,t_0 ~ 1. Then, if H_0 lies in the range 65--73, the age of the Universe, t_0, is 14+/-1.6 Gyr.",
+          "claimed_authors": [
+            "John L. Tonry",
+            "The High-Z Supernova Search Team"
+          ],
+          "claimed_title": "Type Ia Supernovae, the Hubble Constant, the Cosmological Constant, and the Age of the Universe",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2001,
+          "primary_pointer": "astro-ph/0105413"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Testing Hubble Constant Isotropy Using Pantheon Supernova Sample physics', candidate_title='Type Ia Supernovae, the Hubble Constant, the Cosmological Constant, and the Age of the Universe')",
+        "failed_at": "2026-06-22T03:26:22Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We examine the characteristics of mean flow and scalar concentration characteristics of a turbulent boundary layer flow impinging on a cluster of tall obstacles (which can also be interpreted as a porous obstruction). The cluster is created with a group of cylinders of diameter $d$ and height $h$ arranged in a circular patch of diameter $D$.The solidity of the patch/obstruction is defined by $φ$ (the total planar area covered by cylinders), which is systematically varied ($0.098 \\leq φ\\leq 1$) by increasing the number of cylinders in a patch ($N_c$). A point source is placed at ground level upstream of the patch and its transport around the patch is examined. Time-averaged velocity and scalar fields, obtained from simultaneous planar PIV-PLIF (particle image velocimetry-planar laser-induced fluorescence) measurements, reveal that the characteristics of wake and flow above porous patches are heavily influenced by $φ$. In particular, we observe that the horizontal and vertical extent of the wake and scalar concentration downstream of the patches decreases and increases with $φ$, respectively. Here, the recirculation bubble is shifted closer to the trailing edge of the patches as $φ$ increases, limiting the flow from convecting downstream, decreasing the scalar concentration and virtually `extending' the patch in streamwise direction. As the bubble forms in the trailing edge, vertical bleeding increases and hence the concentration increases above patch where the cylinders appear to be `extend' vertically towards the freestream.",
+          "claimed_authors": [
+            "Dea Daniella Wangsawijaya",
+            "Claudia Nicolai",
+            "Bharathram Ganapathisubramani"
+          ],
+          "claimed_title": "Time-averaged velocity and scalar fields of the flow surrounding a group of cylinders",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2110.02266"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Testing Hubble Constant Isotropy Using Pantheon Supernova Sample physics', candidate_title='Time-averaged velocity and scalar fields of the flow surrounding a group of cylinders')",
+        "failed_at": "2026-06-22T03:26:22Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Phase-field methods have long been used to model the flow of immiscible fluids. Their ability to naturally capture interface topological changes is widely recognized, but their accuracy in simulating flows of real fluids in practical geometries is not established. We here quantitatively investigate the convergence of the phase-field method to the sharp-interface limit with simulations of two-phase pipe flow. We focus on core-annular flows, in which a highly viscous fluid is lubricated by a less viscous fluid, and validate our simulations with an analytic laminar solution, a formal linear stability analysis and also in the fully nonlinear regime. We demonstrate the ability of the phase-field method to accurately deal with non-rectangular geometry, strong advection, unsteady fluctuations and large viscosity contrast. We argue that phase-field methods are very promising for quantitatively studying moderately turbulent flows, especially at high concentrations of the disperse phase.",
+          "claimed_authors": [
+            "Baofang Song",
+            "Carlos Plana",
+            "Jose M. Lopez",
+            "Marc Avila"
+          ],
+          "claimed_title": "Phase-field simulation of core-annular pipe flow",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1902.07351"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Testing Hubble Constant Isotropy Using Pantheon Supernova Sample physics', candidate_title='Phase-field simulation of core-annular pipe flow')",
+        "failed_at": "2026-06-22T03:26:22Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Measurement techniques such as Magnetic Resonance Velocimety (MRV) and Magnetic Resonance Concentration (MRC) are useful for obtaining 3D time-averaged flow quantities in complex turbulent flows, but cannot measure turbulent correlations or near-wall data. In this work, we use highly resolved Large Eddy Simulations (LES) to complement the experiments and bypass those limitations. Coupling LES and magnetic resonance experimental techniques is especially advantageous in complex non-homogeneous flows because the 3D data allow for extensive validation, creating confidence that the simulation results portray a physically realistic flow. As such we can treat the simulation as data, which \"enrich\" the original MRI mean flow results. This approach is demonstrated using a cylindrical and inclined jet in crossflow with three distinct velocity ratios, $r=1$, $r=1.5$, and $r=2$. The numerical mesh is highly refined in order for the subgrid scale models to have negligible contribution, and a systematic, iterative procedure is described to set inlet conditions. The validation of the mean flow data shows excellent agreement between simulation and experiments, which creates confidence that the LES data can be used to enrich the experiments with near-wall results and turbulent statistics. We also discuss some mean flow features and how they vary with velocity ratio, including wall concentration, the counter rotating vortex pair, and the in-hole velocity.",
+          "claimed_authors": [
+            "Pedro M. Milani",
+            "Ian E. Gunady",
+            "David S. Ching",
+            "Andrew J. Banko",
+            "Christopher J. Elkins",
+            "John K. Eaton"
+          ],
+          "claimed_title": "Enriching MRI mean flow data of inclined jets in crossflow with Large Eddy Simulations",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1908.03540"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Testing Hubble Constant Isotropy Using Pantheon Supernova Sample physics', candidate_title='Enriching MRI mean flow data of inclined jets in crossflow with Large Eddy Simulations')",
+        "failed_at": "2026-06-22T03:26:22Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present the first homogeneous release of several thousand Type Ia supernovae (SNe Ia), all having spectroscopic classification, and spectroscopic redshifts for half the sample. This release, named the \"DR2\", contains 3628 nearby (z < 0.3) SNe Ia discovered, followed and classified by the Zwicky Transient Facility survey between March 2018 and December 2020. Of these, 3000 have good-to-excellent sampling and 2667 pass standard cosmology light-curve quality cuts. This release is thus the largest SN Ia release to date, increasing by an order of magnitude the number of well characterized low-redshift objects. With the \"DR2\", we also provide a volume-limited (z < 0.06) sample of nearly a thousand SNe Ia. With such a large, homogeneous and well controlled dataset, we are studying key current questions on SN cosmology, such as the linearity SNe Ia standardization, the SN and host dependencies, the diversity of the SN Ia population, and the accuracy of the current light-curve modeling. These, and more, are studied in detail in a series of articles associated with this release. Alongside the SN Ia parameters, we publish our force-photometry gri-band light curves, 5138 spectra, local and global host properties, observing logs, and a python tool to ease use and access of these data. The photometric accuracy of the \"DR2\" is not yet suited for cosmological parameter inference, which will follow as \"DR2.5\" release. We nonetheless demonstrate that the multi-thousand SN Ia Hubble Diagram has a typical 0.15 mag scatter.",
+          "claimed_authors": [
+            "Mickael Rigault",
+            "Mathew Smith",
+            "Ariel Goobar",
+            "Kate Maguire",
+            "Georgios Dimitriadis",
+            "Umut Burgaz",
+            "Suhail Dhawan",
+            "Jesper Sollerman",
+            "Nicolas Regnault",
+            "Marek Kowalski",
+            "Melissa Amenouche",
+            "Marie Aubert",
+            "Chloé Barjou-Delayre",
+            "Julian Bautista",
+            "Josh S. Bloom",
+            "Bastien Carreres",
+            "Tracy X. Chen",
+            "Yannick Copin",
+            "Maxime Deckers",
+            "Dominique Fouchez",
+            "Christoffer Fremling",
+            "Lluis Galbany",
+            "Madeleine Ginolin",
+            "Matthew Graham",
+            "Mancy M. Kasliwal",
+            "W. D'Arcy Kenworthy",
+            "Young-Lo Kim",
+            "Dylan Kuhn",
+            "Frank F. Masci",
+            "Tomas Müller-Bravo",
+            "Adam Miller",
+            "Joel Johansson",
+            "Jakob Nordin",
+            "Peter Nugent",
+            "Igor Andreoni",
+            "Eric Bellm",
+            "Marc Betoule",
+            "Mahmoud Osman",
+            "Dan Perley",
+            "Brodie Popovic",
+            "Philippe Rosnet",
+            "Damiano Rosselli",
+            "Florian Ruppin",
+            "Robert Senzel",
+            "Ben Rusholme",
+            "Tassilo Schweyer",
+            "Jacco H. Terwel",
+            "Alice Townsend",
+            "Andy Tzanidakis",
+            "Avery Wold",
+            "Josiah Purdum",
+            "Yu-Jing Qin",
+            "Benjamin Racine",
+            "Simeon Reusch",
+            "Reed Riddle",
+            "Lin Yan"
+          ],
+          "claimed_title": "ZTF SN Ia DR2: Overview",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2409.04346"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Testing Hubble Constant Isotropy Using Pantheon Supernova Sample physics', candidate_title='ZTF SN Ia DR2: Overview')",
+        "failed_at": "2026-06-22T03:26:22Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The second data release of Type Ia supernovae (SNe Ia) observed by the Zwicky Transient Facility has provided a homogeneous sample of 3628 SNe Ia with photometric and spectral information. This unprecedented sample size enables us to better explore our currently tentative understanding of the dependence of host environment on SN Ia properties. In this paper, we make use of two-dimensional image decomposition to model the host galaxies of SNe Ia. We model elliptical galaxies as well as disk/spiral galaxies with or without central bulges and bars. This allows for the categorisation of SN Ia based on their morphological host environment, as well as the extraction of intrinsic galaxy properties corrected for both cosmological and atmospheric effects. We find that although this image decomposition technique leads to a significant bias towards elliptical galaxies in our final sample of galaxies, the overall results are robust. By successfully modelling 728 host galaxies, we find that the photometric properties of SNe Ia found in disks and in elliptical galaxies, correlate fundamentally differently with their host environment. We identified strong linear relations between light-curve stretch and our model-derived galaxy colour for both the elliptical (16.8$σ$) and disk (5.1$σ$) subpopulations of SNe Ia. Lower stretch SNe Ia are found in redder environments, which we identify as an age/metallicity effect. Within the subpopulation of SNe Ia found in disk containing galaxies, we find a significant linear trend (6.1$σ$) between light-curve stretch and model-derived local $r$-band surface brightness, which we link to the age/metallicity gradients found in disk galaxies. SN Ia colour shows little correlation with host environment as seen in the literature. We identify a possible dust effect in our model-derived surface brightness (3.3$σ$), for SNe Ia in disk galaxies.",
+          "claimed_authors": [
+            "R. Senzel",
+            "K. Maguire",
+            "U. Burgaz",
+            "G. Dimitriadis",
+            "M. Rigault",
+            "A. Goobar",
+            "J. Johansson",
+            "M. Smith",
+            "M. Deckers",
+            "L. Galbany",
+            "M. Ginolin",
+            "L. Harvey",
+            "Y. -L. Kim",
+            "T. E. Muller-Bravo",
+            "P. Nugent",
+            "P. Rosnet",
+            "J. Sollerman",
+            "J. H. Terwel",
+            "R. R. Laher",
+            "D. Reiley",
+            "B. Rusholme"
+          ],
+          "claimed_title": "ZTF SN Ia DR2: An environmental study of Type Ia supernovae using host galaxy image decomposition",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2411.11986"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Testing Hubble Constant Isotropy Using Pantheon Supernova Sample physics', candidate_title='ZTF SN Ia DR2: An environmental study of Type Ia supernovae using host galaxy image decomposition')",
+        "failed_at": "2026-06-22T03:26:22Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper investigates whether changes to late time physics can resolve the `Hubble tension'. It is argued that many of the claims in the literature favouring such solutions are caused by a misunderstanding of how distance ladder measurements actually work and, in particular, by the inappropriate use of a distance ladder H0 prior. A dynamics-free inverse distance ladder shows that changes to late time physics are strongly constrained observationally and cannot resolve the discrepancy between the SH0ES data and the base LCDM cosmology inferred from Planck. We propose a statistically rigorous scheme to replace the use of H0 priors",
+          "claimed_authors": [
+            "George Efstathiou"
+          ],
+          "claimed_title": "To H0 or not to H0?",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2103.08723"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Testing Hubble Constant Isotropy Using Pantheon Supernova Sample physics', candidate_title='To H0 or not to H0?')",
+        "failed_at": "2026-06-22T03:26:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The daily sunspot numbers of the whole disk as well as the northern and southern hemispheres from January 1, 1945 to December 31, 2010 are used to investigate the temporal variation of the rotational cycle length through the continuous wavelet transformation analysis method. The auto-correlation function analysis of daily hemispheric sunspot numbers shows that the southern hemisphere rotates faster than the northern hemisphere. The results obtained from the wavelet transformation analysis are: there exists no direct relationship between the variation trend of the rotational cycle length and the variation trend of solar activity in the two hemispheres; the rotational cycle length of both hemispheres has no significant period appearing at the 11 years, but has significant period of about 7.6 years. Analysis concerning the solar cycle dependence of the rotational cycle length shows that in the whole disk and the northern hemisphere acceleration seems to appear before the minimum time of solar activity. Furthermore, the cross-correlation study indicates that the rotational cycle length of the two hemispheres has different phases, and the rotational cycle length of the whole disk as well as the northern and southern hemispheres also has phase shifts with the corresponding solar activity. What's more, the temporal variation of North-South (N-S) asymmetry of the rotational cycle length is also studied; it displays the same variation trend as the N-S asymmetry of solar activity in a solar cycle as well as in the considered time interval, and it has two significant periods of 7.7 and 17.5 years. Moreover, the N-S asymmetry of the rotational cycle length and the N-S asymmetry of solar activity are highly correlated. It's inferred that the northern hemisphere should rotate faster at the beginning of solar cycle 24.",
+          "claimed_authors": [
+            "J. -L. Xie",
+            "X. -J. Shi",
+            "J. -C. Xu"
+          ],
+          "claimed_title": "Temporal Variation of the Hemispheric Solar Rotation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1112.1578"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Testing Hubble Constant Isotropy Using Pantheon Supernova Sample physics', candidate_title='Temporal Variation of the Hemispheric Solar Rotation')",
+        "failed_at": "2026-06-22T03:26:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The recently observed color-suppressed B0bar to D0 pi0, D0 eta, D0 eta', Ds+ K-, D0 K0bar, D0 rho0 and D0 omega decay modes all have rates larger than expected. The color-suppressed Bs to D0 phi, D0bar phi modes, which were suggested for the extraction of the unitarity angle gamma in the Gronau-London method, could be larger than the previous estimation by one order of magnitude. Several new theoretical clean modes in Bs decays are suggested for the extraction of gamma. The proposed Bs to D0 h0, D0bar h0 decay modes with h0 = pi0, eta, eta', rho0, omega in addition to h0 = phi are free from penguin contributions. Their decay rates can be estimated from the observed color-suppressed B0bar to D0 h0 rates through SU(3) symmetry. A combined study of these D0 h0, D0bar h0 modes in addition to the D0 phi, D0bar phi modes is useful in the extraction of gamma in the Bs system without involving the Bs-Bsbar mixing. Since the b to u and b to c transitions belong to the same topological diagram, the relative strong phase is likely to be small. In this case, the CP asymmetries are suppressed and the untagged rates are very useful in the gamma extraction.",
+          "claimed_authors": [
+            "Chun-Khiang Chua"
+          ],
+          "claimed_title": "Extracting the unitarity angle gamma in Bs to D0 h0, D0bar h0 Decays",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2005,
+          "primary_pointer": "hep-ph/0510301"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Testing Hubble Constant Isotropy Using Pantheon Supernova Sample physics', candidate_title='Extracting the unitarity angle gamma in Bs to D0 h0, D0bar h0 Decays')",
+        "failed_at": "2026-06-22T03:26:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We discuss recent evidence for an accelerating Universe from measurements of type Ia supernovae at high redshift, and describe tests of various systematic effects such as extinction and evolution that could be biasing the cosmological result. Continued observations of these objects, both over a wider wavelength region and at higher redshift, should provide strong evidence in favor or against the accelerating Universe hypothesis.",
+          "claimed_authors": [
+            "Saurabh Jha",
+            "the High-Z Supernova Search Team"
+          ],
+          "claimed_title": "Testing Cosmic Acceleration with Type Ia Supernovae",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2001,
+          "primary_pointer": "astro-ph/0101521"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Testing Hubble Constant Isotropy Using Pantheon Supernova Sample physics', candidate_title='Testing Cosmic Acceleration with Type Ia Supernovae')",
+        "failed_at": "2026-06-22T03:26:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recently, inhomogeneous generalisations of the Friedmann-Lemaitre-Robertson-Walker cosmological models have gained interest in the astrophysical community and are more often employed to study cosmological phenomena. However, in many papers the inhomogeneous cosmological models are treated as an alternative to the FLRW models. In fact, they are not an alternative, but an exact perturbation of the latter, and are gradually becoming a necessity in modern cosmology. The assumption of homogeneity is just a first approximation introduced to simplify equations. So far this assumption is commonly believed to have worked well, but future and more precise observations will not be properly analysed unless inhomogeneities are taken into account. This paper reviews recent developments in the field and shows the importance of an inhomogeneous framework in the analysis of cosmological observations.",
+          "claimed_authors": [
+            "Krzysztof Bolejko",
+            "Marie-Noëlle Célérier",
+            "Andrzej Krasiński"
+          ],
+          "claimed_title": "Inhomogeneous cosmological models: exact solutions and their applications",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1102.1449"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Testing Hubble Constant Isotropy Using Pantheon Supernova Sample physics', candidate_title='Inhomogeneous cosmological models: exact solutions and their applications')",
+        "failed_at": "2026-06-22T03:26:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We outline the key-steps toward the construction of a physical, fully relativistic cosmology. The influence of inhomogeneities on the effective evolution history of the Universe is encoded in backreaction terms and expressed through spatially averaged geometrical invariants. These are absent and potential candidates for the missing dark sources in the standard model. Since they can be interpreted as energies of an emerging scalar field (the morphon), we are in the position to propose a strategy of how phenomenological scalar field models for Dark Energy, Dark Matter and Inflation, that are usually added as fundamental sources to a homogeneous-geometry (FLRW) cosmology, can be potentially traced back to inhomogeneous geometrical properties of space and its embedding into spacetime. We lay down a line of arguments that is - thus far only qualitatively - conclusive, and we address open problems of quantitative nature, related to the interpretation of observations. We discuss within a covariant framework ... [abridged]",
+          "claimed_authors": [
+            "Thomas Buchert"
+          ],
+          "claimed_title": "Toward physical cosmology: focus on inhomogeneous geometry and its non-perturbative effects",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1103.2016"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Testing Hubble Constant Isotropy Using Pantheon Supernova Sample physics', candidate_title='Toward physical cosmology: focus on inhomogeneous geometry and its non-perturbative effects')",
+        "failed_at": "2026-06-22T03:26:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This article looks at how inhomogeneous spacetime models may be significant for cosmology. First it looks at how the averaging process may affect large scale dynamics, with backreaction effects leading to effective contributions to the averaged energy-momentum tensor. Secondly it considers how local inhomogeneities may affect cosmological observations in cosmology, possibly significantly affecting the concordance model parameters. Thirdly it presents the possibility that the universe is spatially inhomogeneous on Hubble scales, with a violation of the Copernican principle leading to an apparent acceleration of the universe. This could perhaps even remove the need for the postulate of dark energy.",
+          "claimed_authors": [
+            "George F R Ellis"
+          ],
+          "claimed_title": "Inhomogeneity effects in Cosmology",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1103.2335"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Testing Hubble Constant Isotropy Using Pantheon Supernova Sample physics', candidate_title='Inhomogeneity effects in Cosmology')",
+        "failed_at": "2026-06-22T03:26:23Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Deng Wang"
+          ],
+          "title": "Testing the Hubble law with Pantheon+",
+          "venue": "arXiv",
+          "year": 2022
+        },
+        "primary_pointer": "2208.07271",
+        "summary": "The Hubble law (HL) governs the low-redshift (low-z) evolution of the distance of an object. However, there is a lack of an investigation of its validity and effective radius for a long time, since the low-z background data with a high precision is scarce. The latest Type Ia supernovae sample Pantheon+ having a significant increase of low-z data provides an excellent opportunity to test the HL. We propose a generalized HL and implement the first modern test of the HL with Pantheon+. We obtain the constraint on the deviation parameter $α=1.00118\\pm0.00044$, confirm the validity of linear HL with a $0.04\\%$ precision and give the transition redshift $z_t=0.03$ and luminosity distance $D_{L,t}=123.13\\pm1.75$ Mpc, which means that HL holds when $z<0.03$ and breaks down at a distance of $D_L>123.13$ Mpc. Comparing the ability of Type Ia supernovae and HII galaxies in testing the HL, we stress the uniqueness and strong power of Type Ia supernovae in probing the low-z physics.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2208.07271",
+          "http_status": 200,
+          "pdf_sample_score": 0.2028,
+          "query_relevance_score": 0.5556,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-22T03:26:22Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "L. Lacroix",
+            "N. Regnault",
+            "T. de Jaeger",
+            "M. Le Jeune",
+            "M. Betoule",
+            "J. -M. Colley",
+            "M. Bernard",
+            "M. Rigault",
+            "M. Smith",
+            "A. Goobar",
+            "K. Maguire",
+            "G. Dimitriadis",
+            "J. Nordin",
+            "J. Johansson",
+            "M. Aubert",
+            "C. Barjou",
+            "E. C. Bellm",
+            "S. Bongard",
+            "U. Burgaz",
+            "B. Carreres",
+            "D. Fouchez",
+            "F. Feinstein",
+            "L. Galbany",
+            "M. Ginolin",
+            "M. Graham",
+            "D. Kuhn",
+            "R. R. Laher",
+            "T. E. Müller-Bravo",
+            "J. Neveu",
+            "M. Osman",
+            "B. Popovic",
+            "B. Racine",
+            "P. Rosnet",
+            "D. Rosselli",
+            "R. Smith",
+            "J. Sollerman",
+            "J. H. Terwel",
+            "A. Townsend",
+            "A. Wold"
+          ],
+          "title": "ZTF SNe Ia DR2: Towards cosmology-grade ZTF supernova light curves using scene modeling photometry",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2509.04073",
+        "summary": "The Zwicky Transient Facility (ZTF) is conducting a wide-field survey of the northern sky in three optical bands and the collaboration cosmology working group has released 3628 spectroscopically confirmed Type Ia supernovae (SNe Ia) discovered during its first 2.5 years of operation. This \"ZTF SN Ia DR2\" sample is the largest SN Ia dataset to date.\n  Fully exploiting this dataset to improve understanding of the properties of dark energy requires a photometric accuracy of O(0.1%). This can be achieved using Scene Modeling Photometry (SMP), which is optimal to extract a transient signal (SN) from a complex background (its host), while ensuring a common flux estimator with nearby stars used as calibration reference. In this paper, we present the status of the SMP development and use it to assess the precision and accuracy of the ZTF SN Ia DR2 force photometry light curves.\n  We reach a repeatability of the star observations better than 1%. However, we have identified a new sensor effect, dubbed \"pocket-effect\", which distorts the Point Spread Function (PSF) in a flux-dependent manner leading to non-linearities in the photometry of a few percent. Correcting for this effect requires time- and sensor-dependent corrections to be applied at the pixel level, which is currently under development. This effects affects all light curve releases to date -- both from forced photometry and scene modelling preventing ZTF SN Ia DR2 to be used for accurate cosmological inference.\n  Comparing the SMP and forced photometry measurements, we find that stretch and color estimated from both processings are consistent, aside from a 10 mmag shift in color. This assess the robustness of results presented as part of the the ZTF SN Ia DR2 release. The absolute calibration however shifts by 90 mmag. A reprocessing of the full ZTF SN Ia DR2 dataset using the SMP method is currently in progress.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2509.04073",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-22T03:26:22Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Animesh Sah",
+            "Mohamed Rameez",
+            "Subir Sarkar",
+            "Christos Tsagas"
+          ],
+          "title": "Anisotropy in Pantheon+ supernovae",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2411.10838",
+        "summary": "We employ Maximum Likelihood Estimators to examine the Pantheon+ catalogue of Type Ia supernovae for large scale anisotropies in the expansion rate of the Universe. The analyses are carried out in the heliocentric frame, the CMB frame, as well as the Local Group frame. In all frames, the Hubble expansion rate in the redshift range 0.023 < z < 0.15 is found to have a statistically significant dipolar variation exceeding 1.5 km/s/Mpc, i.e. bigger than the claimed 1% uncertainty in the SH0ES measurement of the Hubble parameter H_0. The deceleration parameter too has a redshift-dependent dipolar modulation at > 5 sigma significance, consistent with previous findings using the SDSSII/SNLS3 Joint Lightcurve Analysis catalogue. The inferred cosmic acceleration cannot therefore be due to a Cosmological Constant, but is likely a general relativistic effect due to the anomalous bulk flow in our local Universe.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2411.10838",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 1.0,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-22T03:26:29Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "John L. Tonry",
+            "The High-Z Supernova Search Team"
+          ],
+          "title": "Type Ia Supernovae, the Hubble Constant, the Cosmological Constant, and the Age of the Universe",
+          "venue": "arXiv",
+          "year": 2001
+        },
+        "primary_pointer": "astro-ph/0105413",
+        "summary": "The age of the Universe depends on both the present-day Hubble Constant and on the history of cosmic expansion. For decelerating cosmologies such as Omega_m= 1, the dimensionless product H_0,t_0<1 and modestly high values of the Hubble constant H_0 > 70 would be inconsistent with a cosmic age t_0 larger than 12 Gyr. But if Omega_Lambda > 0, then H_0,t_0 can take on a range of values. Evidence from the Hubble diagram for high redshift Type Ia supernovae favors Omega_Lambda~0.7 and H_0,t_0 ~ 1. Then, if H_0 lies in the range 65--73, the age of the Universe, t_0, is 14+/-1.6 Gyr.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/astro-ph/0105413",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-22T03:26:29Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "David Camarena",
+            "Valerio Marra"
+          ],
+          "title": "The tension in the absolute magnitude of Type Ia supernovae",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2307.02434",
+        "summary": "This study aims to elucidate the tension in the Hubble constant ($H_0$), a key metric in cosmology representing the universe's expansion rate. Conflicting results from independent measurements such as the Planck satellite mission and the SH0ES collaboration have sparked interest in exploring alternative cosmological models. We extend the analysis by SH0ES to an arbitrary cosmographic model, obtaining a competitive local $H_0$ determination which only assumes the standard flat $Λ$CDM model ($73.14 \\pm 1.10$ km/s/Mpc), and another which only assumes the FLRW metric ($74.56 \\pm 1.61$ km/s/Mpc). The study also stresses the importance of the supernova magnitude calibration ($M_B$) in cosmological inference and highlights the tension in $M_B$ when supernovae are calibrated either by CMB and BAO observations or the first two rungs of the cosmic distance ladder. This discrepancy, independent of the physics involved, suggests that models solely changing the Hubble flow and maintaining a sound horizon distance consistent with CMB, fail to explain the discrepancy between early- and late-time measurements of $H_0$.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2307.02434",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-22T03:26:30Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "testing hubble constant isotropy using pantheon supernova sample physics",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

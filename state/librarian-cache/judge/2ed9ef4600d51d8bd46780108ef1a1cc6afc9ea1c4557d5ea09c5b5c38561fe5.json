@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2509.13948",
+  "judged_at": "2026-06-22T03:28:02Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "meta‑analysis of trust perception in deepfake facial stimuli psychology",
+  "rationale": "The paper investigates how facial features influence perceived trustworthiness, addressing the same psychological mechanism (trust perception of facial stimuli) that underlies the user's deepfake focus, satisfying inclusion criterion (a) same‑mechanism evidence.",
+  "relevant": true
+}

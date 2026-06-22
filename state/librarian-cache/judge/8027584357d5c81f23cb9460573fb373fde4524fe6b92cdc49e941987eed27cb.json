@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2411.10838",
+  "judged_at": "2026-06-22T03:26:53Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "testing hubble constant isotropy using pantheon supernova sample physics",
+  "rationale": "The paper directly investigates anisotropies in the Hubble expansion rate using the Pantheon (and Pantheon+) supernova sample, which is precisely the mechanism and dataset the user’s question concerns (category a).",
+  "relevant": true
+}
