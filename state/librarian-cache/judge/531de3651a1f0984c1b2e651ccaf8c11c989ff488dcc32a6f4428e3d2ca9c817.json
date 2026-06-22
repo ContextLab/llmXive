@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1511.02001",
+  "judged_at": "2026-06-22T18:34:56Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "evaluating calibration of probabilistic weather forecasts statistics",
+  "rationale": "The paper studies and implements locally calibrated probabilistic wind‑speed forecasts and evaluates the calibration of these forecasts, directly addressing the same mechanism (calibration of probabilistic weather forecasts) that the user’s question concerns (acceptance category a).",
+  "relevant": true
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1307.7650",
+  "judged_at": "2026-06-22T18:35:21Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "evaluating calibration of probabilistic weather forecasts statistics",
+  "rationale": "The paper introduces and evaluates calibration metrics (CopPIT, copula calibration) for multivariate probabilistic forecasts, and applies them to ensemble weather forecasts of wind vectors, directly addressing the evaluation of calibration in probabilistic weather forecasting (category a).",
+  "relevant": true
+}

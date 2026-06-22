@@ -1,0 +1,589 @@
+{
+  "fetched_at": "2026-06-22T18:33:20Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "Quantifying Hallucination in LLM-Generated API Documentation",
+      "target_n": 5
+    },
+    "duration_seconds": 47.632,
+    "ended_at": "2026-06-22T18:33:20Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "measuring factual errors in LLM-generated API documentation"
+        ],
+        [
+          2,
+          "evaluating hallucinations in AI-generated software documentation"
+        ],
+        [
+          3,
+          "assessing truthfulness of language model API references"
+        ],
+        [
+          4,
+          "detection of fabricated content in generated API specifications"
+        ],
+        [
+          5,
+          "factual consistency metrics for generated API documentation"
+        ],
+        [
+          6,
+          "hallucination detection in programmatic documentation generation"
+        ],
+        [
+          7,
+          "reliability assessment of AI-generated SDK documentation"
+        ],
+        [
+          8,
+          "benchmark for hallucination in software API generation"
+        ],
+        [
+          9,
+          "automated evaluation of factuality in LLM API docs"
+        ],
+        [
+          10,
+          "metrics for factual accuracy in AI-produced API guides"
+        ],
+        [
+          11,
+          "semantic drift measurement in LLM-generated API documentation"
+        ],
+        [
+          12,
+          "hallucination mitigation strategies for language model documentation synthesis"
+        ],
+        [
+          13,
+          "consistency scoring for generated API references"
+        ],
+        [
+          14,
+          "evaluation of truthfulness in generated programming interface descriptions"
+        ],
+        [
+          15,
+          "validation of generated API documentation correctness"
+        ],
+        [
+          16,
+          "hallucination rate analysis for code‑assistant documentation output"
+        ],
+        [
+          17,
+          "detection of fabricated API examples by large language models"
+        ],
+        [
+          18,
+          "factuality analysis of AI-generated REST API documentation"
+        ],
+        [
+          19,
+          "assessment of misinformation in LLM-generated code documentation"
+        ],
+        [
+          20,
+          "reliability metrics for AI-generated software API manuals"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Quantifying Hallucination in LLM-Generated API Documentation computer science": 0,
+        "measuring factual errors in LLM-generated API documentation": 3
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "fabrication detection language model",
+      "LLM API documentation dataset",
+      "faithfulness evaluation NLG",
+      "FactCC factual consistency metric",
+      "retrieval augmentation hallucination mitigation"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2504.05324"
+      ]
+    },
+    "per_query_hit_count": {
+      "FactCC factual consistency metric": 3,
+      "LLM API documentation dataset": 2,
+      "Quantifying Hallucination in LLM-Generated API Documentation computer science": 3,
+      "fabrication detection language model": 3,
+      "faithfulness evaluation NLG": 3,
+      "retrieval augmentation hallucination mitigation": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 2,
+      "rejections": [
+        {
+          "primary_pointer": "2409.09288",
+          "rationale": "The paper focuses on using LLMs to generate API security rules and validates them via execution feedback, without addressing or quantifying hallucination in LLM‑generated API documentation. It does not measure the hallucination phenomenon or provide a baseline for it, so it falls outside the relevant construct and domain.",
+          "title": "Generating API Parameter Security Rules with LLM for API Misuse Detection"
+        },
+        {
+          "primary_pointer": "2501.16945",
+          "rationale": "The paper focuses on automating tool generation from existing REST API documentation and diagnosing general extraction errors, without measuring or quantifying hallucination in LLM‑generated API documentation; thus it lacks a direct connection to the user’s specific construct of hallucination quantification.",
+          "title": "ToolFactory: Automating Tool Generation by Leveraging LLM to Understand REST API Documentations"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-22T18:32:32Z",
+    "term_input": {
+      "normalized": "quantifying hallucination in llm-generated api documentation computer science",
+      "raw": "Quantifying Hallucination in LLM-Generated API Documentation computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Quantifying Hallucination in LLM-Generated API Documentation computer science', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-06-22T18:33:02Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The fusion of language and vision in large vision-language models (LVLMs) has revolutionized deep learning-based object detection by enhancing adaptability, contextual reasoning, and generalization beyond traditional architectures. This in-depth review presents a structured exploration of the state-of-the-art in LVLMs, systematically organized through a three-step research review process. First, we discuss the functioning of vision language models (VLMs) for object detection, describing how these models harness natural language processing (NLP) and computer vision (CV) techniques to revolutionize object detection and localization. We then explain the architectural innovations, training paradigms, and output flexibility of recent LVLMs for object detection, highlighting how they achieve advanced contextual understanding for object detection. The review thoroughly examines the approaches used in integration of visual and textual information, demonstrating the progress made in object detection using VLMs that facilitate more sophisticated object detection and localization strategies. This review presents comprehensive visualizations demonstrating LVLMs' effectiveness in diverse scenarios including localization and segmentation, and then compares their real-time performance, adaptability, and complexity to traditional deep learning systems. Based on the review, its is expected that LVLMs will soon meet or surpass the performance of conventional methods in object detection. The review also identifies a few major limitations of the current LVLM modes, proposes solutions to address those challenges, and presents a clear roadmap for the future advancement in this field. We conclude, based on this study, that the recent advancement in LVLMs have made and will continue to make a transformative impact on object detection and robotic applications in the future.",
+          "claimed_authors": [
+            "Ranjan Sapkota",
+            "Manoj Karkee"
+          ],
+          "claimed_title": "Object Detection with Multimodal Large Vision-Language Models: An In-depth Review",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2508.19294"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Quantifying Hallucination in LLM-Generated API Documentation computer science', candidate_title='Object Detection with Multimodal Large Vision-Language Models: An In-depth Review')",
+        "failed_at": "2026-06-22T18:33:02Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Vision-Language Model (VLM) have gained widespread adoption in Open-Vocabulary (OV) object detection and segmentation tasks. Despite they have shown promise on OV-related tasks, their effectiveness in conventional vision tasks has thus far been unevaluated. In this work, we present the systematic review of VLM-based detection and segmentation, view VLM as the foundational model and conduct comprehensive evaluations across multiple downstream tasks for the first time: 1) The evaluation spans eight detection scenarios (closed-set detection, domain adaptation, crowded objects, etc.) and eight segmentation scenarios (few-shot, open-world, small object, etc.), revealing distinct performance advantages and limitations of various VLM architectures across tasks. 2) As for detection tasks, we evaluate VLMs under three finetuning granularities: \\textit{zero prediction}, \\textit{visual fine-tuning}, and \\textit{text prompt}, and further analyze how different finetuning strategies impact performance under varied task. 3) Based on empirical findings, we provide in-depth analysis of the correlations between task characteristics, model architectures, and training methodologies, offering insights for future VLM design. 4) We believe that this work shall be valuable to the pattern recognition experts working in the fields of computer vision, multimodal learning, and vision foundation models by introducing them to the problem, and familiarizing them with the current status of the progress while providing promising directions for future research. A project associated with this review and evaluation has been created at https://github.com/better-chao/perceptual_abilities_evaluation.",
+          "claimed_authors": [
+            "Yongchao Feng",
+            "Yajie Liu",
+            "Shuai Yang",
+            "Wenrui Cai",
+            "Jinqing Zhang",
+            "Qiqi Zhan",
+            "Ziyue Huang",
+            "Hongxi Yan",
+            "Qiao Wan",
+            "Chenguang Liu",
+            "Junzhe Wang",
+            "Jiahui Lv",
+            "Ziqi Liu",
+            "Tengyuan Shi",
+            "Qingjie Liu",
+            "Yunhong Wang"
+          ],
+          "claimed_title": "Vision-Language Model for Object Detection and Segmentation: A Review and Evaluation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.09480"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Quantifying Hallucination in LLM-Generated API Documentation computer science', candidate_title='Vision-Language Model for Object Detection and Segmentation: A Review and Evaluation')",
+        "failed_at": "2026-06-22T18:33:02Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent incidents in certain online games and communities, where anonymity is guaranteed, show that unchecked inappropriate remarks frequently escalate into verbal abuse and even criminal behavior, raising significant social concerns. Consequently, there is a growing need for research on techniques that can detect inappropriate utterances within conversational texts to help build a safer communication environment. Although large-scale language models trained on Korean corpora and chain-of-thought reasoning have recently gained attention, research applying these approaches to inappropriate utterance detection remains limited. In this study, we propose a soft inductive bias approach that explicitly defines reasoning perspectives to guide the inference process, thereby promoting rational decision-making and preventing errors that may arise during reasoning. We fine-tune a Korean large language model using the proposed method and conduct both quantitative performance comparisons and qualitative evaluations across different training strategies. Experimental results show that the Kanana-1.5 model achieves an average accuracy of 87.0046, improving by approximately 3.89 percent over standard supervised learning. These findings indicate that the proposed method goes beyond simple knowledge imitation by large language models and enables more precise and consistent judgments through constrained reasoning perspectives, demonstrating its effectiveness for inappropriate utterance detection.",
+          "claimed_authors": [
+            "Ju-Young Kim",
+            "Ji-Hong Park",
+            "Se-Yeon Lee",
+            "Sujin Park",
+            "Gun-Woo Kim"
+          ],
+          "claimed_title": "Soft Inductive Bias Approach via Explicit Reasoning Perspectives in Inappropriate Utterance Detection Using Large Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.08480"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Quantifying Hallucination in LLM-Generated API Documentation computer science', candidate_title='Soft Inductive Bias Approach via Explicit Reasoning Perspectives in Inappropriate Utterance Detection Using Large Language Models')",
+        "failed_at": "2026-06-22T18:33:02Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The RSNA Abdominal Traumatic Injury CT (RATIC) dataset is the largest publicly available collection of adult abdominal CT studies annotated for traumatic injuries. This dataset includes 4,274 studies from 23 institutions across 14 countries. The dataset is freely available for non-commercial use via Kaggle at https://www.kaggle.com/competitions/rsna-2023-abdominal-trauma-detection. Created for the RSNA 2023 Abdominal Trauma Detection competition, the dataset encourages the development of advanced machine learning models for detecting abdominal injuries on CT scans. The dataset encompasses detection and classification of traumatic injuries across multiple organs, including the liver, spleen, kidneys, bowel, and mesentery. Annotations were created by expert radiologists from the American Society of Emergency Radiology (ASER) and Society of Abdominal Radiology (SAR). The dataset is annotated at multiple levels, including the presence of injuries in three solid organs with injury grading, image-level annotations for active extravasations and bowel injury, and voxelwise segmentations of each of the potentially injured organs. With the release of this dataset, we hope to facilitate research and development in machine learning and abdominal trauma that can lead to improved patient care and outcomes.",
+          "claimed_authors": [
+            "Jeffrey D. Rudie",
+            "Hui-Ming Lin",
+            "Robyn L. Ball",
+            "Sabeena Jalal",
+            "Luciano M. Prevedello",
+            "Savvas Nicolaou",
+            "Brett S. Marinelli",
+            "Adam E. Flanders",
+            "Kirti Magudia",
+            "George Shih",
+            "Melissa A. Davis",
+            "John Mongan",
+            "Peter D. Chang",
+            "Ferco H. Berger",
+            "Sebastiaan Hermans",
+            "Meng Law",
+            "Tyler Richards",
+            "Jan-Peter Grunz",
+            "Andreas Steven Kunz",
+            "Shobhit Mathur",
+            "Sandro Galea-Soler",
+            "Andrew D. Chung",
+            "Saif Afat",
+            "Chin-Chi Kuo",
+            "Layal Aweidah",
+            "Ana Villanueva Campos",
+            "Arjuna Somasundaram",
+            "Felipe Antonio Sanchez Tijmes",
+            "Attaporn Jantarangkoon",
+            "Leonardo Kayat Bittencourt",
+            "Michael Brassil",
+            "Ayoub El Hajjami",
+            "Hakan Dogan",
+            "Muris Becircic",
+            "Agrahara G. Bharatkumar",
+            "Eduardo Moreno Júdice de Mattos Farina",
+            "Dataset Curator Group",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Errol Colak"
+          ],
+          "claimed_title": "The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.19595"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Quantifying Hallucination in LLM-Generated API Documentation computer science', candidate_title='The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset')",
+        "failed_at": "2026-06-22T18:33:02Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Radiological Society of North America (RSNA) Lumbar Degenerative Imaging Spine Classification (LumbarDISC) dataset is the largest publicly available dataset of adult MRI lumbar spine examinations annotated for degenerative changes. The dataset includes 2,697 patients with a total of 8,593 image series from 8 institutions across 6 countries and 5 continents. The dataset is available for free for non-commercial use via Kaggle and RSNA Medical Imaging Resource of AI (MIRA). The dataset was created for the RSNA 2024 Lumbar Spine Degenerative Classification competition where competitors developed deep learning models to grade degenerative changes in the lumbar spine. The degree of spinal canal, subarticular recess, and neural foraminal stenosis was graded at each intervertebral disc level in the lumbar spine. The images were annotated by expert volunteer neuroradiologists and musculoskeletal radiologists from the RSNA, American Society of Neuroradiology, and the American Society of Spine Radiology. This dataset aims to facilitate research and development in machine learning and lumbar spine imaging to lead to improved patient care and clinical efficiency.",
+          "claimed_authors": [
+            "Tyler J. Richards",
+            "Adam E. Flanders",
+            "Errol Colak",
+            "Luciano M. Prevedello",
+            "Robyn L. Ball",
+            "Felipe Kitamura",
+            "John Mongan",
+            "Maryam Vazirabad",
+            "Hui-Ming Lin",
+            "Anne Kendell",
+            "Thanat Kanthawang",
+            "Salita Angkurawaranon",
+            "Emre Altinmakas",
+            "Hakan Dogan",
+            "Paulo Eduardo de Aguiar Kuriki",
+            "Arjuna Somasundaram",
+            "Christopher Ruston",
+            "Deniz Bulja",
+            "Naida Spahovic",
+            "Jennifer Sommer",
+            "Sirui Jiang",
+            "Eduardo Moreno Judice de Mattos Farina",
+            "Eduardo Caminha Nunes",
+            "Michael Brassil",
+            "Megan McNamara",
+            "Johanna Ortiz",
+            "Jacob Peoples",
+            "Vinson L. Uytana",
+            "Anthony Kam",
+            "Venkata N. S. Dola",
+            "Daniel Murphy",
+            "David Vu",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Competition Data Notebook Group",
+            "Jason F. Talbott"
+          ],
+          "claimed_title": "The RSNA Lumbar Degenerative Imaging Spine Classification (LumbarDISC) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.09162"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Quantifying Hallucination in LLM-Generated API Documentation computer science', candidate_title='The RSNA Lumbar Degenerative Imaging Spine Classification (LumbarDISC) Dataset')",
+        "failed_at": "2026-06-22T18:33:02Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Natural Language Generation (NLG) evaluation has changed dramatically since 1990, and will continue to evolve in the future. In 1990, when NLG had close ties to linguistics, there was very little formal experimental evaluation in the modern sense. In 2026, when NLG is closely linked to machine learning, experimental evaluation is expected and indeed fundamental to research. Many evaluation techniques were developed over this period, including most recently LLM-as-Judge. I expect NLG evaluation will continue to evolve in the future. In particular, impact, qualitative, and safety evaluation will become more important as large numbers of people routinely use NLG technology.",
+          "claimed_authors": [
+            "Ehud Reiter"
+          ],
+          "claimed_title": "NLG Evaluation: Past, Present, Future",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2605.23715"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Quantifying Hallucination in LLM-Generated API Documentation computer science', candidate_title='NLG Evaluation: Past, Present, Future')",
+        "failed_at": "2026-06-22T18:33:02Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The success of Deep Learning has created a surge in interest in a wide a range of Natural Language Generation (NLG) tasks. Deep Learning has not only pushed the state of the art in several existing NLG tasks but has also facilitated researchers to explore various newer NLG tasks such as image captioning. Such rapid progress in NLG has necessitated the development of accurate automatic evaluation metrics that would allow us to track the progress in the field of NLG. However, unlike classification tasks, automatically evaluating NLG systems in itself is a huge challenge. Several works have shown that early heuristic-based metrics such as BLEU, ROUGE are inadequate for capturing the nuances in the different NLG tasks. The expanding number of NLG models and the shortcomings of the current metrics has led to a rapid surge in the number of evaluation metrics proposed since 2014. Moreover, various evaluation metrics have shifted from using pre-determined heuristic-based formulae to trained transformer models. This rapid change in a relatively short time has led to the need for a survey of the existing NLG metrics to help existing and new researchers to quickly come up to speed with the developments that have happened in NLG evaluation in the last few years. Through this survey, we first wish to highlight the challenges and difficulties in automatically evaluating NLG systems. Then, we provide a coherent taxonomy of the evaluation metrics to organize the existing metrics and to better understand the developments in the field. We also describe the different metrics in detail and highlight their key contributions. Later, we discuss the main shortcomings identified in the existing metrics and describe the methodology used to evaluate evaluation metrics. Finally, we discuss our suggestions and recommendations on the next steps forward to improve the automatic evaluation metrics.",
+          "claimed_authors": [
+            "Ananya B. Sai",
+            "Akash Kumar Mohankumar",
+            "Mitesh M. Khapra"
+          ],
+          "claimed_title": "A Survey of Evaluation Metrics Used for NLG Systems",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2008.12009"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Quantifying Hallucination in LLM-Generated API Documentation computer science', candidate_title='A Survey of Evaluation Metrics Used for NLG Systems')",
+        "failed_at": "2026-06-22T18:33:02Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Reference-free faithfulness metrics verify each atomic claim a model makes against ground truth, and are increasingly used to evaluate grounded generation. We show they share a blind spot: they measure only precision -- are the stated claims supported? -- and therefore reward abstention, since a model can score near-perfect faithfulness by saying almost nothing. We make this measurable using Formula 1 telemetry, a domain where strategic ground truth is derived deterministically and, crucially, completely: for each decision we know the full set of facts that mattered. This completeness -- absent in open-domain faithfulness benchmarks -- lets us measure recall (coverage of the relevant facts) exactly, alongside precision. On a multilingual (EN/ES/PT) benchmark of 7,253 decision instances spanning 157 races, the most precise frontier model covers under half of the relevant facts and ranks last by F1, so requiring coverage reorders the systems; the same effect reappears in a second complete-oracle domain (NOAA weather forecasts). Fine-tuning small models (1B-7B) on the complete oracle closes the precision-recall gap entirely (F1 ~0.98), beating every zero-shot frontier system regardless of scale. We pair faithfulness with coverage into a single score, validate the metric (controlled perturbation; agreement across a model-free regex extractor and a cross-family LLM extractor, system-level Spearman 1.0), and give a verifier-guided generation method that improves precision and recall without references. We release the benchmark, structured annotations, metric, baselines, and an interactive demo.",
+          "claimed_authors": [
+            "Juan S. Santillana"
+          ],
+          "claimed_title": "Precision Is Not Faithfulness: Coverage-Aware Evaluation of Grounded Generation with a Complete Oracle",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.09376"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Quantifying Hallucination in LLM-Generated API Documentation computer science', candidate_title='Precision Is Not Faithfulness: Coverage-Aware Evaluation of Grounded Generation with a Complete Oracle')",
+        "failed_at": "2026-06-22T18:33:02Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Multilingual large-scale Pretrained Language Models (PLMs) have been shown to store considerable amounts of factual knowledge, but large variations are observed across languages. With the ultimate goal of ensuring that users with different language backgrounds obtain consistent feedback from the same model, we study the cross-lingual consistency (CLC) of factual knowledge in various multilingual PLMs. To this end, we propose a Ranking-based Consistency (RankC) metric to evaluate knowledge consistency across languages independently from accuracy. Using this metric, we conduct an in-depth analysis of the determining factors for CLC, both at model level and at language-pair level. Among other results, we find that increasing model size leads to higher factual probing accuracy in most languages, but does not improve cross-lingual consistency. Finally, we conduct a case study on CLC when new factual associations are inserted in the PLMs via model editing. Results on a small sample of facts inserted in English reveal a clear pattern whereby the new piece of knowledge transfers only to languages with which English has a high RankC score.",
+          "claimed_authors": [
+            "Jirui Qi",
+            "Raquel Fernández",
+            "Arianna Bisazza"
+          ],
+          "claimed_title": "Cross-Lingual Consistency of Factual Knowledge in Multilingual Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2310.10378"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Quantifying Hallucination in LLM-Generated API Documentation computer science', candidate_title='Cross-Lingual Consistency of Factual Knowledge in Multilingual Language Models')",
+        "failed_at": "2026-06-22T18:33:02Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large Language Models have significantly advanced natural language processing tasks, but remain prone to generating incorrect or misleading but plausible arguments. This issue, known as hallucination, is particularly concerning in high-stakes domains like clinical applications, where factual inaccuracies can have severe consequences. Existing evaluation metrics fail to adequately assess factual consistency and lack interpretability, making diagnosing and mitigating errors difficult. We propose an interpretable framework for factual consistency assessment for in-domain and open-domain texts to address these limitations. Our approach decomposes text into atomic facts and introduces a flexible, schema-free methodology. Unlike previous methods with an absolute metric, we incorporate a weighted metric to enhance factual evaluation. Additionally, we propose a mechanism to control assessment complexity in intricate domains. We benchmark our approach on popular general and clinical datasets and release our code to support fact-aware model training in future research.",
+          "claimed_authors": [
+            "Ahmad Aghaebrahimian"
+          ],
+          "claimed_title": "AlignCheck: a Semantic Open-Domain Metric for Factual Consistency Assessment",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.03634"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Quantifying Hallucination in LLM-Generated API Documentation computer science', candidate_title='AlignCheck: a Semantic Open-Domain Metric for Factual Consistency Assessment')",
+        "failed_at": "2026-06-22T18:33:02Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Evaluating the factual consistency of abstractive text summarization remains a significant challenge, particularly for long documents, where conventional metrics struggle with input length limitations and long-range dependencies. In this work, we systematically evaluate the reliability of six widely used reference-free factuality metrics, originally proposed for short-form summarization, in the long-document setting. We probe metric robustness through seven factuality-preserving perturbations applied to summaries, namely paraphrasing, simplification, synonym replacement, logically equivalent negations, vocabulary reduction, compression, and source text insertion, and further analyze their sensitivity to retrieval context and claim information density. Across three long-form benchmark datasets spanning science fiction, legal, and scientific domains, our results reveal that existing short-form metrics produce inconsistent scores for semantically equivalent summaries and exhibit declining reliability for information-dense claims whose content is semantically similar to many parts of the source document. While expanding the retrieval context improves stability in some domains, no metric consistently maintains factual alignment under long-context conditions. Finally, our results highlight concrete directions for improving factuality evaluation, including multi-span reasoning, context-aware calibration, and training on meaning-preserving variations to enhance robustness in long-form summarization. We release all code, perturbed data, and scripts required to reproduce our results at https://github.com/zainmujahid/metricEval-longSum.",
+          "claimed_authors": [
+            "Zain Muhammad Mujahid",
+            "Dustin Wright",
+            "Isabelle Augenstein"
+          ],
+          "claimed_title": "Stress Testing Factual Consistency Metrics for Long-Document Summarization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2511.07689"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Quantifying Hallucination in LLM-Generated API Documentation computer science', candidate_title='Stress Testing Factual Consistency Metrics for Long-Document Summarization')",
+        "failed_at": "2026-06-22T18:33:02Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large Vision-Language Models (LVLMs) still struggle with vision hallucination, where generated responses are inconsistent with the visual input. Existing methods either rely on large-scale annotated data for fine-tuning, which incurs massive computational overhead, or employ static post-hoc strategies that overlook the dynamic nature of hallucination emergence. To address these, we introduce a new self-rewarding framework, enabling dynamic hallucination mitigation at inference time without external supervision. On the empirical side, we reveal that visual hallucination exhibits phase-wise dynamic patterns, peaking at the onset of each semantic phase. Drawing on these insights, we propose \\textbf{PSRD} (\\textbf{Phase-wise \\textbf{S}elf-\\textbf{R}eward \\textbf{D}ecoding) for online hallucination correction guided by phase-wise self-reward signals. To reduce the cost of repeated self-evaluation during decoding, we distill the hallucination guidance signal from LVLMs into a lightweight reward model. The reward model subsequently provides on-the-fly guidance for targeted intervention during the decoding process, enabling precise hallucination suppression. The proposed PSRD significantly reduces the hallucination rate of LLaVA-1.5-7B by 50.0% and consistently outperforms existing post-hoc methods across five hallucination evaluation benchmarks for four LVLMs. Further analysis confirms that PSRD effectively mitigates hallucination propagation and achieves a highly controllable trade-off between strong performance and inference efficiency.",
+          "claimed_authors": [
+            "Yu Zhang",
+            "Chuyang Sun",
+            "Kehai Chen",
+            "Xuefeng Bai",
+            "Yang Xiang",
+            "Min Zhang"
+          ],
+          "claimed_title": "Mitigating Multimodal Hallucination via Phase-wise Self-reward",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2604.17982"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Quantifying Hallucination in LLM-Generated API Documentation computer science', candidate_title='Mitigating Multimodal Hallucination via Phase-wise Self-reward')",
+        "failed_at": "2026-06-22T18:33:02Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Retrieval Augmented Generation (RAG) has emerged as a promising solution to address hallucination issues in Large Language Models (LLMs). However, the integration of multiple retrieval sources, while potentially more informative, introduces new challenges that can paradoxically exacerbate hallucination problems. These challenges manifest primarily in two aspects: the sparse distribution of multi-source data that hinders the capture of logical relationships and the inherent inconsistencies among different sources that lead to information conflicts. To address these challenges, we propose MultiRAG, a novel framework designed to mitigate hallucination in multi-source retrieval-augmented generation through knowledge-guided approaches. Our framework introduces two key innovations: (1) a knowledge construction module that employs multi-source line graphs to efficiently aggregate logical relationships across different knowledge sources, effectively addressing the sparse data distribution issue; and (2) a sophisticated retrieval module that implements a multi-level confidence calculation mechanism, performing both graph-level and node-level assessments to identify and eliminate unreliable information nodes, thereby reducing hallucinations caused by inter-source inconsistencies. Extensive experiments on four multi-domain query datasets and two multi-hop QA datasets demonstrate that MultiRAG significantly enhances the reliability and efficiency of knowledge retrieval in complex multi-source scenarios. \\textcolor{blue}{Our code is available in https://github.com/wuwenlong123/MultiRAG.",
+          "claimed_authors": [
+            "Wenlong Wu",
+            "Haofen Wang",
+            "Bohan Li",
+            "Peixuan Huang",
+            "Xinzhe Zhao",
+            "Lei Liang"
+          ],
+          "claimed_title": "MultiRAG: A Knowledge-guided Framework for Mitigating Hallucination in Multi-source Retrieval Augmented Generation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2508.03553"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Quantifying Hallucination in LLM-Generated API Documentation computer science', candidate_title='MultiRAG: A Knowledge-guided Framework for Mitigating Hallucination in Multi-source Retrieval Augmented Generation')",
+        "failed_at": "2026-06-22T18:33:02Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Nihal Jain",
+            "Robert Kwiatkowski",
+            "Baishakhi Ray",
+            "Murali Krishna Ramanathan",
+            "Varun Kumar"
+          ],
+          "title": "On Mitigating Code LLM Hallucinations with API Documentation",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2407.09726",
+        "summary": "In this study, we address the issue of API hallucinations in various software engineering contexts. We introduce CloudAPIBench, a new benchmark designed to measure API hallucination occurrences. CloudAPIBench also provides annotations for frequencies of API occurrences in the public domain, allowing us to study API hallucinations at various frequency levels. Our findings reveal that Code LLMs struggle with low frequency APIs: for e.g., GPT-4o achieves only 38.58% valid low frequency API invocations. We demonstrate that Documentation Augmented Generation (DAG) significantly improves performance for low frequency APIs (increase to 47.94% with DAG) but negatively impacts high frequency APIs when using sub-optimal retrievers (a 39.02% absolute drop). To mitigate this, we propose to intelligently trigger DAG where we check against an API index or leverage Code LLMs' confidence scores to retrieve only when needed. We demonstrate that our proposed methods enhance the balance between low and high frequency API performance, resulting in more reliable API invocations (8.20% absolute improvement on CloudAPIBench for GPT-4o).",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2407.09726",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-22T18:33:02Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Chandana Sree Mala",
+            "Gizem Gezici",
+            "Fosca Giannotti"
+          ],
+          "title": "Hybrid Retrieval for Hallucination Mitigation in Large Language Models: A Comparative Analysis",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2504.05324",
+        "summary": "Large Language Models (LLMs) excel in language comprehension and generation but are prone to hallucinations, producing factually incorrect or unsupported outputs. Retrieval Augmented Generation (RAG) systems address this issue by grounding LLM responses with external knowledge. This study evaluates the relationship between retriever effectiveness and hallucination reduction in LLMs using three retrieval approaches: sparse retrieval based on BM25 keyword search, dense retrieval using semantic search with Sentence Transformers, and a proposed hybrid retrieval module. The hybrid module incorporates query expansion and combines the results of sparse and dense retrievers through a dynamically weighted Reciprocal Rank Fusion score. Using the HaluBench dataset, a benchmark for hallucinations in question answering tasks, we assess retrieval performance with metrics such as mean average precision and normalised discounted cumulative gain, focusing on the relevance of the top three retrieved documents. Results show that the hybrid retriever achieves better relevance scores, outperforming both sparse and dense retrievers. Further evaluation of LLM-generated answers against ground truth using metrics such as accuracy, hallucination rate, and rejection rate reveals that the hybrid retriever achieves the highest accuracy on fails, the lowest hallucination rate, and the lowest rejection rate. These findings highlight the hybrid retriever's ability to enhance retrieval relevance, reduce hallucination rates, and improve LLM reliability, emphasising the importance of advanced retrieval techniques in mitigating hallucinations and improving response accuracy.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2504.05324",
+          "http_status": 200,
+          "pdf_sample_score": 0.2562,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-22T18:33:02Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Daniel Maninger",
+            "Leon Chemnitz",
+            "Amir Molzam Sharifloo",
+            "Tushar Lamba",
+            "Jannis Brugger",
+            "Mira Mezini"
+          ],
+          "title": "Evaluating and Mitigating Errors in LLM-Generated Web API Integrations",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2509.20172",
+        "summary": "API integration is a cornerstone of our digital infrastructure, enabling software systems to connect and interact. However, as shown by many studies, writing or generating correct code to invoke APIs, particularly web APIs, is challenging. Although large language models (LLMs) have become popular in software development, their effectiveness in automating the generation of web API integration code remains unexplored. In order to address this, we present WAPIIBench, a dataset and evaluation pipeline designed to assess the ability of LLMs to generate web API invocation code. Our experiments with several open-source LLMs reveal that generating API invocations poses a significant challenge, resulting in hallucinated endpoints, incorrect argument usage, and other errors. None of the evaluated open-source models was able to solve more than 40% of the tasks. Motivated by those findings, we explore the potential of constrained decoding for generating API invocations. To this end, we propose an automatic translation from API specifications to constraints. Our approach prevents violations of API usage rules and significantly increases the overall correctness of the generated code, on average by 90% and 135%, depending on the provided starter code.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2509.20172",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5714,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-22T18:33:07Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "quantifying hallucination in llm-generated api documentation computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

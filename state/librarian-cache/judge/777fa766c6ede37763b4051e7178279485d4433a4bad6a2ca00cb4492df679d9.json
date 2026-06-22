@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2407.09726",
+  "judged_at": "2026-06-22T18:33:12Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "quantifying hallucination in llm-generated api documentation computer science",
+  "rationale": "The paper introduces a benchmark (CloudAPIBench) that measures and quantifies API hallucinations in code LLM outputs, directly addressing the mechanism of hallucination in LLM‑generated API documentation (acceptance category (a) and also provides an empirical baseline (c)).",
+  "relevant": true
+}

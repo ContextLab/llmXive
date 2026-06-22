@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2001.02121",
+  "judged_at": "2026-06-22T18:35:06Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "evaluating calibration of probabilistic weather forecasts statistics",
+  "rationale": "The paper introduces a machine‑learning method for producing probabilistic forecasts (CatBoostLSS) but does not address the evaluation or calibration of such forecasts, nor is it specific to weather data; it therefore lacks the required connection to the user's focus on calibration statistics.",
+  "relevant": false
+}

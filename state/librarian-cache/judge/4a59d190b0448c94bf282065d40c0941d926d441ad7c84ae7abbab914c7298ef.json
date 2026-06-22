@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2509.20172",
+  "judged_at": "2026-06-22T18:33:17Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "quantifying hallucination in llm-generated api documentation computer science",
+  "rationale": "The paper empirically measures hallucinated elements (e.g., nonexistent endpoints) in LLM‑generated API integration artifacts, providing a baseline quantification of hallucination in the API domain, which aligns with the same‑mechanism evidence (category a) and empirical baseline (category c) needed for a literature review on quantifying hallucination in LLM‑generated API documentation.",
+  "relevant": true
+}

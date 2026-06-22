@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1703.06754",
+  "judged_at": "2026-06-22T18:34:53Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "evaluating calibration of probabilistic weather forecasts statistics",
+  "rationale": "The study evaluates verification of probabilistic solar‑flare forecasts using standard operational weather‑prediction verification methods, which include calibration‑related statistics; thus it provides same‑mechanism evidence (category a) and an empirical baseline for assessing calibration of probabilistic weather forecasts.",
+  "relevant": true
+}

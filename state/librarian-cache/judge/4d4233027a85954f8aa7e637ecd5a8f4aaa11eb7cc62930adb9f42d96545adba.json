@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1804.02985",
+  "judged_at": "2026-06-22T18:34:54Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "evaluating calibration of probabilistic weather forecasts statistics",
+  "rationale": "The paper conducts reliability (calibration) analysis of probabilistic space‑weather forecasts, directly measuring the same calibration mechanisms (reliability diagrams, ROC) that the user’s question concerns, satisfying acceptance criterion (a).",
+  "relevant": true
+}

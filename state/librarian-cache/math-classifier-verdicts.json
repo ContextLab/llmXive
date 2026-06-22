@@ -410,5 +410,13 @@
   "PROJ-761-assessing-reproducibility-of-machine-lea::1.6.0": {
     "classified_at": "2026-06-22T09:14:51Z",
     "verdict": false
+  },
+  "PROJ-762-quantifying-hallucination-in-llm-generat::1.6.0": {
+    "classified_at": "2026-06-22T18:33:02Z",
+    "verdict": false
+  },
+  "PROJ-764-assessing-uncertainty-quantification-tec::1.6.0": {
+    "classified_at": "2026-06-22T18:32:06Z",
+    "verdict": false
   }
 }

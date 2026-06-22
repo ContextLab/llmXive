@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2310.11435",
+  "judged_at": "2026-06-22T18:32:14Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "assessing uncertainty quantification techniques for machine‑learning predicted material properties materials science",
+  "rationale": "The paper studies uncertainty quantification for machine‑learning model outputs (turbulence model predictions), which matches the same mechanism (UQ of ML‑predicted quantities) asked about, even though the application domain (turbulent flows) differs from materials science. This makes it a relevant methodological reference under criterion (a).",
+  "relevant": true
+}

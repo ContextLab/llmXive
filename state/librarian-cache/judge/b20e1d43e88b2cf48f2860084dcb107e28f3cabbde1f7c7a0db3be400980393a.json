@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2510.26809",
+  "judged_at": "2026-06-22T18:35:17Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "evaluating calibration of probabilistic weather forecasts statistics",
+  "rationale": "The paper introduces a generalized signal‑to‑noise (RPC) statistic based on proper scoring rules, focusing on forecast predictability rather than calibration; it does not address calibration metrics or methods for probabilistic weather forecasts, so it falls outside the relevant literature for evaluating forecast calibration.",
+  "relevant": false
+}

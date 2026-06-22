@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "physics/0401046",
+  "judged_at": "2026-06-22T18:35:09Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "evaluating calibration of probabilistic weather forecasts statistics",
+  "rationale": "The paper examines the Brier score, a core metric used to assess calibration and skill of binary probabilistic weather forecasts, and proposes alternatives—fulfilling category (a) same‑mechanism evidence for evaluating calibration statistics.",
+  "relevant": true
+}

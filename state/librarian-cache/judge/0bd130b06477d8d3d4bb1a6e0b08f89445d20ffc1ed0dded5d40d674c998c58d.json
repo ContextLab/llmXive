@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2008.06415",
+  "judged_at": "2026-06-22T18:32:23Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "assessing uncertainty quantification techniques for machine‑learning predicted material properties materials science",
+  "rationale": "The paper introduces an orbital graph convolutional network and benchmarks its predictive accuracy for material properties, but it does not discuss, evaluate, or provide uncertainty quantification techniques, metrics, or methods, so it fails to meet any of the inclusion criteria (a‑f).",
+  "relevant": false
+}

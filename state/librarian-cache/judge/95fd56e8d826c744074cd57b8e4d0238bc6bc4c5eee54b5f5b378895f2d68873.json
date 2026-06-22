@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2307.05846",
+  "judged_at": "2026-06-22T18:35:22Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "evaluating calibration of probabilistic weather forecasts statistics",
+  "rationale": "The paper studies the same mechanism—calibration assessment of probabilistic weather forecasts—using rank/PIT histograms and pre‑rank functions, directly relevant to the statistics for evaluating forecast calibration (category a).",
+  "relevant": true
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2409.09288",
+  "judged_at": "2026-06-22T18:33:10Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "quantifying hallucination in llm-generated api documentation computer science",
+  "rationale": "The paper focuses on using LLMs to generate API security rules and validates them via execution feedback, without addressing or quantifying hallucination in LLM‑generated API documentation. It does not measure the hallucination phenomenon or provide a baseline for it, so it falls outside the relevant construct and domain.",
+  "relevant": false
+}

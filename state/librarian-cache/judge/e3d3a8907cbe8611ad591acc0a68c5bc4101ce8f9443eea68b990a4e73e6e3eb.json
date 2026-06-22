@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2501.16945",
+  "judged_at": "2026-06-22T18:33:19Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "quantifying hallucination in llm-generated api documentation computer science",
+  "rationale": "The paper focuses on automating tool generation from existing REST API documentation and diagnosing general extraction errors, without measuring or quantifying hallucination in LLM‑generated API documentation; thus it lacks a direct connection to the user’s specific construct of hallucination quantification.",
+  "relevant": false
+}

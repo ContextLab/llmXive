@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1112.6390",
+  "judged_at": "2026-06-22T18:35:14Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "evaluating calibration of probabilistic weather forecasts statistics",
+  "rationale": "The paper investigates calibration (and sharpening) of probabilistic forecasts and discusses density forecast combination, directly addressing the same mechanism of evaluating calibration for probabilistic weather forecasts (category a). It therefore constitutes relevant prior work for a literature review on calibration statistics in probabilistic weather forecasting.",
+  "relevant": true
+}

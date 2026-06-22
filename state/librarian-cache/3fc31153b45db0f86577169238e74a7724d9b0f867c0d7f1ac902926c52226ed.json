@@ -1,0 +1,595 @@
+{
+  "fetched_at": "2026-06-22T18:35:23Z",
+  "field": "statistics",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "statistics",
+      "idea_body_excerpt": "Evaluating Calibration of Probabilistic Weather Forecasts",
+      "target_n": 5
+    },
+    "duration_seconds": 115.563,
+    "ended_at": "2026-06-22T18:35:23Z",
+    "expansion": null,
+    "extracted_queries": [
+      "reliability diagram calibration",
+      "ECMWF ensemble verification",
+      "rank histogram probabilistic forecast",
+      "Brier score CRPS evaluation",
+      "Bayesian model averaging post‑processing"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": false,
+      "verdict": null
+    },
+    "outcome": "success",
+    "pdf_sample": {
+      "sample_size_target": 2,
+      "sampled_count": 2,
+      "sampled_pointers": [
+        "2307.05846",
+        "2309.12236"
+      ]
+    },
+    "per_query_hit_count": {
+      "Bayesian model averaging post‑processing": 3,
+      "Brier score CRPS evaluation": 3,
+      "ECMWF ensemble verification": 3,
+      "Evaluating Calibration of Probabilistic Weather Forecasts statistics": 3,
+      "rank histogram probabilistic forecast": 3,
+      "reliability diagram calibration": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 4,
+      "rejections": [
+        {
+          "primary_pointer": "1907.03178",
+          "rationale": "The paper introduces a method (XGBoostLSS) for generating probabilistic forecasts but does not address the evaluation or calibration of such forecasts, nor is it specific to weather forecasting; it lacks the calibration metrics or assessment framework required by the user's question.",
+          "title": "XGBoostLSS -- An extension of XGBoost to probabilistic forecasting"
+        },
+        {
+          "primary_pointer": "2606.02663",
+          "rationale": "The paper proposes an adaptive method for mixing probabilistic weather forecasts and analyzes regret bounds, but it does not study or evaluate calibration statistics (e.g., reliability, Brier score, PIT histograms) for probabilistic forecasts, which is the core of the user's question. Hence it lacks a measurable connection to the calibration evaluation mechanism.",
+          "title": "AdaWeather: Adaptively Mixing Probabilistic Weather Forecasts with Logarithmic Regret"
+        },
+        {
+          "primary_pointer": "2001.02121",
+          "rationale": "The paper introduces a machine‑learning method for producing probabilistic forecasts (CatBoostLSS) but does not address the evaluation or calibration of such forecasts, nor is it specific to weather data; it therefore lacks the required connection to the user's focus on calibration statistics.",
+          "title": "CatBoostLSS -- An extension of CatBoost to probabilistic forecasting"
+        },
+        {
+          "primary_pointer": "2510.26809",
+          "rationale": "The paper introduces a generalized signal‑to‑noise (RPC) statistic based on proper scoring rules, focusing on forecast predictability rather than calibration; it does not address calibration metrics or methods for probabilistic weather forecasts, so it falls outside the relevant literature for evaluating forecast calibration.",
+          "title": "A generalisation of the signal-to-noise ratio using proper scoring rules"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-22T18:33:28Z",
+    "term_input": {
+      "normalized": "evaluating calibration of probabilistic weather forecasts statistics",
+      "raw": "Evaluating Calibration of Probabilistic Weather Forecasts statistics"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The integration of Artificial Intelligence (AI) into safety-critical systems introduces a new reliability paradigm: silent failures, where AI produces confident but incorrect outputs that can be dangerous. This paper introduces the Formal Assurance and Monitoring Environment (FAME), a novel framework that confronts this challenge. FAME synergizes the mathematical rigor of offline formal synthesis with the vigilance of online runtime monitoring to create a verifiable safety net around opaque AI components. We demonstrate its efficacy in an autonomous vehicle perception system, where FAME successfully detected 93.5% of critical safety violations that were otherwise silent. By contextualizing our framework within the ISO 26262 and ISO/PAS 8800 standards, we provide reliability engineers with a practical, certifiable pathway for deploying trustworthy AI. FAME represents a crucial shift from accepting probabilistic performance to enforcing provable safety in next-generation systems.",
+          "claimed_authors": [
+            "Guan-Yan Yang",
+            "Farn Wang"
+          ],
+          "claimed_title": "Taming Silent Failures: A Framework for Verifiable AI Reliability",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2510.22224"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Evaluating Calibration of Probabilistic Weather Forecasts statistics', candidate_title='Taming Silent Failures: A Framework for Verifiable AI Reliability')",
+        "failed_at": "2026-06-22T18:34:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Enabled and driven by modern advances in wireless telecommunication and artificial intelligence, the convergence of communication, computing, and control is becoming inevitable in future industrial applications. Analytical and optimizing frameworks, however, are not yet readily developed for this new technical trend. In this work we discuss the necessity and typical scenarios of this convergence, and propose a new approach to model the system-level reliability across all involved domainss",
+          "claimed_authors": [
+            "Bin Han",
+            "Hans D. Schotten"
+          ],
+          "claimed_title": "Modeling the System-Level Reliability towards a Convergence of Communication, Computing and Control",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2206.11522"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating Calibration of Probabilistic Weather Forecasts statistics', candidate_title='Modeling the System-Level Reliability towards a Convergence of Communication, Computing and Control')",
+        "failed_at": "2026-06-22T18:34:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper has been written to mark 25 years of operational medium-range ensemble forecasting. The origins of the ECMWF Ensemble Prediction System are outlined, including the development of the precursor real-time Met Office monthly ensemble forecast system. In particular, the reasons for the development of singular vectors and stochastic physics - particular features of the ECMWF Ensemble Prediction System - are discussed. The author speculates about the development and use of ensemble prediction in the next 25 years.",
+          "claimed_authors": [
+            "Tim Palmer"
+          ],
+          "claimed_title": "The ECMWF Ensemble Prediction System: Looking Back (more than) 25 Years and Projecting Forward 25 Years",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1803.06940"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating Calibration of Probabilistic Weather Forecasts statistics', candidate_title='The ECMWF Ensemble Prediction System: Looking Back (more than) 25 Years and Projecting Forward 25 Years')",
+        "failed_at": "2026-06-22T18:34:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper presents results from the development and evaluation of a deductive verification benchmark consisting of 26 unmodified Linux kernel library functions implementing conventional memory and string operations. The formal contract of the functions was extracted from their source code and was represented in the form of preconditions and postconditions. The correctness of 23 functions was completely proved using AstraVer toolset, although success for 11 functions was achieved using 2 new specification language constructs. Another 2 functions were proved after a minor modification of their source code, while the final one cannot be completely proved using the existing memory model. The benchmark can be used for the testing and evaluation of deductive verification tools and as a starting point for verifying other parts of the Linux kernel.",
+          "claimed_authors": [
+            "Denis Efremov",
+            "Mikhail Mandrykin",
+            "Alexey Khoroshilov"
+          ],
+          "claimed_title": "Deductive Verification of Unmodified Linux Kernel Library Functions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1809.00626"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating Calibration of Probabilistic Weather Forecasts statistics', candidate_title='Deductive Verification of Unmodified Linux Kernel Library Functions')",
+        "failed_at": "2026-06-22T18:34:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The predictability of eight southern European tropical-like cyclones, seven of which Medicanes, is studied evaluating ECMWF operational ensemble forecasts against operational analysis data. Forecast cyclone trajectories are compared to the cyclone trajectory in the analysis by means of a dynamic time warping technique, which allows to find a match in terms of their overall spatio-temporal similarity. Each storm is treated as an object and its forecasts are analysed using metrics that describe intensity, symmetry, compactness, and upper-level thermal structure. This object-based approach allows to focus on specific storm features, while tolerating their shifts in time and space to some extent. The compactness and symmetry of the storms are generally underpredicted, especially at long lead times. However, forecast accuracy tends to strongly improve at short lead times, indicating that the ECMWF ensemble forecast model can adequately reproduce Medicanes, albeit only few days in advance. In particular, late forecasts which have been initialised when the cyclone has already developed are distinctly more accurate than earlier forecasts in predicting its kinematic and thermal structure, confirming previous findings of high sensitivity of Medicane simulations to initial conditions. Findings reveal a markedly non-gradual evolution of ensemble forecasts with lead time. Specifically, a rapid increase in the probability of cyclone occurrence (\"forecast jump\") is seen in most cases, generally between 5 and 7 days lead time. Jumps are also found for ensemble median and/or spread for storm thermal structure forecasts. This behaviour is compatible with the existence of predictability barriers. On the other hand, storm position forecasts often exhibit a consistent spatial distribution of storm position uncertainty and bias between consecutive forecasts.",
+          "claimed_authors": [
+            "Enrico Di Muzio",
+            "Michael Riemer",
+            "Andreas H. Fink",
+            "Michael Maier-Gerber"
+          ],
+          "claimed_title": "Assessing the predictability of Medicanes in ECMWF ensemble forecasts using an object-based approach",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1812.06513"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Evaluating Calibration of Probabilistic Weather Forecasts statistics', candidate_title='Assessing the predictability of Medicanes in ECMWF ensemble forecasts using an object-based approach')",
+        "failed_at": "2026-06-22T18:34:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Brier score is commonly used for evaluating probability predictions. In survival analysis, with right-censored observations of the event times, this score can be weighted by the inverse probability of censoring (IPCW) to retain its original interpretation. It is common practice to estimate the censoring distribution with the Kaplan-Meier estimator, even though it assumes that the censoring distribution is independent of the covariates. This paper discusses the general impact of the censoring estimates on the Brier score and shows that the estimation of the censoring distribution can be problematic. In particular, when the censoring times can be identified from the covariates, the IPCW score is no longer valid. For administratively censored data, where the potential censoring times are known for all individuals, we propose an alternative version of the Brier score. This administrative Brier score does not require estimation of the censoring distribution and is valid even if the censoring times can be identified from the covariates.",
+          "claimed_authors": [
+            "Håvard Kvamme",
+            "Ørnulf Borgan"
+          ],
+          "claimed_title": "The Brier Score under Administrative Censoring: Problems and Solutions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1912.08581"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating Calibration of Probabilistic Weather Forecasts statistics', candidate_title='The Brier Score under Administrative Censoring: Problems and Solutions')",
+        "failed_at": "2026-06-22T18:34:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This article reports the world averages for measurements on b-hadron properties obtained by the Heavy Flavor Averaging Group (HFAG) using the available results at the end of 2006. In the averaging, the input parameters used in the various analyses are adjusted (rescaled) to common values, and all known correlations are taken into account. The averages include lifetimes, neutral meson mixing parameters, parameters of semileptonic decays, branching fractions of B decays to final states with open charm, charmonium and no charm, and measurements related to CP asymmetries.",
+          "claimed_authors": [
+            " Heavy Flavor Averaging Group"
+          ],
+          "claimed_title": "Averages of b-hadron properties at the end of 2006",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2007,
+          "primary_pointer": "0704.3575"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating Calibration of Probabilistic Weather Forecasts statistics', candidate_title='Averages of b-hadron properties at the end of 2006')",
+        "failed_at": "2026-06-22T18:34:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This article reports world averages for measurements on b-hadron properties obtained by the Heavy Flavor Averaging Group (HFAG) using the available results as of winter 2005 conferences. In the averaging, the input parameters used in the various analyses are adjusted (rescaled) to common values, and all known correlations are taken into account. The averages include lifetimes, neutral meson mixing parameters, semileptonic decay parameters, rare decay branching fractions, and CP violation measurements.",
+          "claimed_authors": [
+            " Heavy Flavor Averaging Group"
+          ],
+          "claimed_title": "Averages of b-hadron Properties as of Winter 2005",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2005,
+          "primary_pointer": "hep-ex/0505100"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating Calibration of Probabilistic Weather Forecasts statistics', candidate_title='Averages of b-hadron Properties as of Winter 2005')",
+        "failed_at": "2026-06-22T18:34:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This article reports world averages for measurements on b-hadron properties obtained by the Heavy Flavor Averaging Group (HFAG) using the available results as of summer 2004 conferences. In the averaging, the input parameters used in the various analyses are adjusted (rescaled) to common values, and all known correlations are taken into account. The averages include b-hadron lifetimes, B-oscillation (mixing) parameters, semileptonic decay parameters, rare decay branching fractions, and CP violation measurements.",
+          "claimed_authors": [
+            " Heavy Flavor Averaging Group"
+          ],
+          "claimed_title": "Averages of b-hadron Properties as of Summer 2004",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2004,
+          "primary_pointer": "hep-ex/0412073"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating Calibration of Probabilistic Weather Forecasts statistics', candidate_title='Averages of b-hadron Properties as of Summer 2004')",
+        "failed_at": "2026-06-22T18:34:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "Every uncalibrated classifier has a corresponding true calibration map that calibrates its confidence. Deviations of this idealistic map from the identity map reveal miscalibration. Such calibration errors can be reduced with many post-hoc calibration methods which fit some family of calibration maps on a validation dataset. In contrast, evaluation of calibration with the expected calibration error (ECE) on the test set does not explicitly involve fitting. However, as we demonstrate, ECE can still be viewed as if fitting a family of functions on the test data. This motivates the fit-on-the-test view on evaluation: first, approximate a calibration map on the test data, and second, quantify its distance from the identity. Exploiting this view allows us to unlock missed opportunities: (1) use the plethora of post-hoc calibration methods for evaluating calibration; (2) tune the number of bins in ECE with cross-validation. Furthermore, we introduce: (3) benchmarking on pseudo-real data where the true calibration map can be estimated very precisely; and (4) novel calibration and evaluation methods using new calibration map families PL and PL3.",
+          "claimed_authors": [
+            "Markus Kängsepp",
+            "Kaspar Valk",
+            "Meelis Kull"
+          ],
+          "claimed_title": "On the Usefulness of the Fit-on-the-Test View on Evaluating Calibration of Classifiers",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2203.08958"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Evaluating Calibration of Probabilistic Weather Forecasts statistics', candidate_title='On the Usefulness of the Fit-on-the-Test View on Evaluating Calibration of Classifiers')",
+        "failed_at": "2026-06-22T18:34:50Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "Real-world multimodal systems routinely face missing-input scenarios, and in reality, robots lose audio in a factory or a clinical record omits lab tests at inference time. Standard fusion layers either preserve robustness or calibration but never both. We introduce Adaptive Entropy-Gated Contrastive Fusion (AECF), a single light-weight layer that (i) adapts its entropy coefficient per instance, (ii) enforces monotone calibration across all modality subsets, and (iii) drives a curriculum mask directly from training-time entropy. On AV-MNIST and MS-COCO, AECF improves masked-input mAP by +18 pp at a 50% drop rate while reducing ECE by up to 200%, yet adds 1% run-time. All back-bones remain frozen, making AECF an easy drop-in layer for robust, calibrated multimodal inference.",
+          "claimed_authors": [
+            "Leon Chlon",
+            "Maggie Chlon",
+            "MarcAntonio M. Awada"
+          ],
+          "claimed_title": "Robust Multimodal Learning via Entropy-Gated Contrastive Fusion",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2505.15417"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Evaluating Calibration of Probabilistic Weather Forecasts statistics', candidate_title='Robust Multimodal Learning via Entropy-Gated Contrastive Fusion')",
+        "failed_at": "2026-06-22T18:34:50Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Sophie A. Murray",
+            "Suzy Bingham",
+            "Michael Sharpe",
+            "David R. Jackson"
+          ],
+          "title": "Flare forecasting at the Met Office Space Weather Operations Centre",
+          "venue": "arXiv",
+          "year": 2017
+        },
+        "primary_pointer": "1703.06754",
+        "summary": "The Met Office Space Weather Operations Centre produces 24/7/365 space weather guidance, alerts, and forecasts to a wide range of government and commercial end users across the United Kingdom. Solar flare forecasts are one of its products, which are issued multiple times a day in two forms; forecasts for each active region on the solar disk over the next 24 hours, and full-disk forecasts for the next four days. Here the forecasting process is described in detail, as well as first verification of archived forecasts using methods commonly used in operational weather prediction. Real-time verification available for operational flare forecasting use is also described. The influence of human forecasters is highlighted, with human-edited forecasts outperforming original model results, and forecasting skill decreasing over longer forecast lead times.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1703.06754",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-22T18:34:47Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Michael A. Sharpe",
+            "Sophie A. Murray"
+          ],
+          "title": "Verification of Space Weather Forecasts issued by the Met Office Space Weather Operations Centre",
+          "venue": "arXiv",
+          "year": 2018
+        },
+        "primary_pointer": "1804.02985",
+        "summary": "The Met Office Space Weather Operations Centre was founded in 2014 and part of its remit is a daily Space Weather Technical Forecast to help the UK build resilience to space weather impacts; guidance includes four day geo-magnetic storm forecasts (GMSF) and X-ray flare forecasts (XRFF). It is crucial for forecasters, users, modelers and stakeholders to understand the strengths and weaknesses of these forecasts; therefore, it is important to verify against the most reliable truth data source available. The present study contains verification results for XRFFs using GOES-15 satellite data and GMSF using planetary K-index (Kp) values from the GFZ Helmholtz Centre. To assess the value of the verification results it is helpful to compare them against a reference forecast and the frequency of occurrence during a rolling prediction period is used for this purpose. Analysis of the rolling 12-month performance over a 19-month period suggests that both the XRFF and GMSF struggle to provide a better prediction than the reference. However, a relative operating characteristic and reliability analysis of the full 19-month period reveals that although the GMSF and XRFF possess discriminatory skill, events tend to be over-forecast.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1804.02985",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-22T18:34:47Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Michael Scheuerer",
+            "David Möller"
+          ],
+          "title": "Probabilistic wind speed forecasting on a grid based on ensemble model output statistics",
+          "venue": "arXiv",
+          "year": 2015
+        },
+        "primary_pointer": "1511.02001",
+        "summary": "Probabilistic forecasts of wind speed are important for a wide range of applications, ranging from operational decision making in connection with wind power generation to storm warnings, ship routing and aviation. We present a statistical method that provides locally calibrated, probabilistic wind speed forecasts at any desired place within the forecast domain based on the output of a numerical weather prediction (NWP) model. Three approaches for wind speed post-processing are proposed, which use either truncated normal, gamma or truncated logistic distributions to make probabilistic predictions about future observations conditional on the forecasts of an ensemble prediction system (EPS). In order to provide probabilistic forecasts on a grid, predictive distributions that were calibrated with local wind speed observations need to be interpolated. We study several interpolation schemes that combine geostatistical methods with local information on annual mean wind speeds, and evaluate the proposed methodology with surface wind speed forecasts over Germany from the COSMO-DE (Consortium for Small-scale Modelling) ensemble prediction system.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1511.02001",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-22T18:34:47Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Jarosław Błasiok",
+            "Preetum Nakkiran"
+          ],
+          "title": "Smooth ECE: Principled Reliability Diagrams via Kernel Smoothing",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2309.12236",
+        "summary": "Calibration measures and reliability diagrams are two fundamental tools for measuring and interpreting the calibration of probabilistic predictors. Calibration measures quantify the degree of miscalibration, and reliability diagrams visualize the structure of this miscalibration. However, the most common constructions of reliability diagrams and calibration measures -- binning and ECE -- both suffer from well-known flaws (e.g. discontinuity). We show that a simple modification fixes both constructions: first smooth the observations using an RBF kernel, then compute the Expected Calibration Error (ECE) of this smoothed function. We prove that with a careful choice of bandwidth, this method yields a calibration measure that is well-behaved in the sense of (Błasiok, Gopalan, Hu, and Nakkiran 2023a) -- a consistent calibration measure. We call this measure the SmoothECE. Moreover, the reliability diagram obtained from this smoothed function visually encodes the SmoothECE, just as binned reliability diagrams encode the BinnedECE.\n  We also provide a Python package with simple, hyperparameter-free methods for measuring and plotting calibration: `pip install relplot\\`.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2309.12236",
+          "http_status": 200,
+          "pdf_sample_score": 0.2416,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-22T18:34:48Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Linard Hoessly"
+          ],
+          "title": "On misconceptions about the Brier score in binary prediction models",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2504.04906",
+        "summary": "The Brier score is a widely used metric evaluating overall performance of probabilistic predictions for binary outcomes in clinical research. However, its interpretation can be complex, as it does not align with commonly taught concepts in medical statistics. Consequently, the Brier score is often misinterpreted, sometimes to a significant extent, a fact that has not been adequately addressed in the literature. We aim to explore prevalent misconceptions surrounding the Brier score and elucidate the understanding and interpretation of Brier scores for practitioners.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2504.04906",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-22T18:34:49Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Stephen Jewson"
+          ],
+          "title": "The problem with the Brier score",
+          "venue": "arXiv",
+          "year": 2004
+        },
+        "primary_pointer": "physics/0401046",
+        "summary": "The Brier score is frequently used by meteorologists to measure the skill of binary probabilistic forecasts. We show, however, that in simple idealised cases it gives counterintuitive results. We advocate the use of an alternative measure that has a more compelling intuitive justification.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/physics/0401046",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-22T18:34:49Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Tilmann Gneiting",
+            "Roopesh Ranjan"
+          ],
+          "title": "Combining Predictive Distributions",
+          "venue": "arXiv",
+          "year": 2011
+        },
+        "primary_pointer": "1106.1638",
+        "summary": "Predictive distributions need to be aggregated when probabilistic forecasts are merged, or when expert opinions expressed in terms of probability distributions are fused. We take a prediction space approach that applies to discrete, mixed discrete-continuous and continuous predictive distributions alike, and study combination formulas for cumulative distribution functions from the perspectives of coherence, probabilistic and conditional calibration, and dispersion. Both linear and non-linear aggregation methods are investigated, including generalized, spread-adjusted and beta-transformed linear pools. The effects and techniques are demonstrated theoretically, in simulation examples, and in case studies on density forecasts for S&P 500 returns and daily maximum temperature at Seattle-Tacoma Airport.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "theoremsearch",
+          "final_url": "https://arxiv.org/abs/1106.1638",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-22T18:34:49Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Maxime Taillardat",
+            "Anne-Laure Fougères",
+            "Philippe Naveau",
+            "Raphaël de Fondeville"
+          ],
+          "title": "Evaluating probabilistic forecasts of extremes using continuous ranked probability score distributions",
+          "venue": "arXiv",
+          "year": 2019
+        },
+        "primary_pointer": "1905.04022",
+        "summary": "Verifying probabilistic forecasts for extreme events is a highly active research area because popular media and public opinions are naturally focused on extreme events, and biased conclusions are readily made. In this context, classical verification methods tailored for extreme events, such as thresholded and weighted scoring rules, have undesirable properties that cannot be mitigated, and the well-known continuous ranked probability score (CRPS) is no exception.\n  In this paper, we define a formal framework for assessing the behavior of forecast evaluation procedures with respect to extreme events, which we use to demonstrate that assessment based on the expectation of a proper score is not suitable for extremes. Alternatively, we propose studying the properties of the CRPS as a random variable by using extreme value theory to address extreme event verification. An index is introduced to compare calibrated forecasts, which summarizes the ability of probabilistic forecasts for predicting extremes. The strengths and limitations of this method are discussed using both theoretical arguments and simulations.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "theoremsearch",
+          "final_url": "https://arxiv.org/abs/1905.04022",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-22T18:34:49Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Reason Lesego Machete"
+          ],
+          "title": "Early Warning with Calibrated and Sharper Probabilistic Forecasts",
+          "venue": "arXiv",
+          "year": 2011
+        },
+        "primary_pointer": "1112.6390",
+        "summary": "Given a nonlinear model, a probabilistic forecast may be obtained by Monte Carlo simulations. At a given forecast horizon, Monte Carlo simulations yield sets of discrete forecasts, which can be converted to density forecasts. The resulting density forecasts will inevitably be downgraded by model mis-specification. In order to enhance the quality of the density forecasts, one can mix them with the unconditional density. This paper examines the value of combining conditional density forecasts with the unconditional density. The findings have positive implications for issuing early warnings in different disciplines including economics and meteorology, but UK inflation forecasts are considered as an example.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "theoremsearch",
+          "final_url": "https://arxiv.org/abs/1112.6390",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-22T18:34:49Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Sebastian Arnold",
+            "Eva-Maria Walz",
+            "Johanna Ziegel",
+            "Tilmann Gneiting"
+          ],
+          "title": "Decompositions of the mean continuous ranked probability score",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2311.14122",
+        "summary": "The continuous ranked probability score (crps) is the most commonly used scoring rule in the evaluation of probabilistic forecasts for real-valued outcomes. To assess and rank forecasting methods, researchers compute the mean crps over given sets of forecast situations, based on the respective predictive distributions and outcomes. We propose a new, isotonicity-based decomposition of the mean crps into interpretable components that quantify miscalibration (MSC), discrimination ability (DSC), and uncertainty (UNC), respectively. In a detailed theoretical analysis, we compare the new approach to empirical decompositions proposed earlier, generalize to population versions, analyse their properties and relationships, and relate to a hierarchy of notions of calibration. The isotonicity-based decomposition guarantees the nonnegativity of the components and quantifies calibration in a sense that is stronger than for other types of decompositions, subject to the nondegeneracy of empirical decompositions. We illustrate the usage of the isotonicity-based decomposition in case studies from weather prediction and machine learning.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "theoremsearch",
+          "final_url": "https://arxiv.org/abs/2311.14122",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-22T18:34:50Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Johanna F. Ziegel",
+            "Tilmann Gneiting"
+          ],
+          "title": "Copula Calibration",
+          "venue": "arXiv",
+          "year": 2013
+        },
+        "primary_pointer": "1307.7650",
+        "summary": "We propose notions of calibration for probabilistic forecasts of general multivariate quantities. Probabilistic copula calibration is a natural analogue of probabilistic calibration in the univariate setting. It can be assessed empirically by checking for the uniformity of the copula probability integral transform (CopPIT), which is invariant under coordinate permutations and coordinatewise strictly monotone transformations of the predictive distribution and the outcome. The CopPIT histogram can be interpreted as a generalization and variant of the multivariate rank histogram, which has been used to check the calibration of ensemble forecasts. Climatological copula calibration is an analogue of marginal calibration in the univariate setting. Methods and tools are illustrated in a simulation study and applied to compare raw numerical model and statistically postprocessed ensemble forecasts of bivariate wind vectors.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "theoremsearch",
+          "final_url": "https://arxiv.org/abs/1307.7650",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-22T18:34:50Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Sam Allen",
+            "Johanna Ziegel",
+            "David Ginsbourger"
+          ],
+          "title": "Assessing the calibration of multivariate probabilistic forecasts",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2307.05846",
+        "summary": "Rank and PIT histograms are established tools to assess the calibration of probabilistic forecasts. They not only check whether an ensemble forecast is calibrated, but they also reveal what systematic biases (if any) are present in the forecasts. Several extensions of rank histograms have been proposed to evaluate the calibration of probabilistic forecasts for multivariate outcomes. These extensions introduce a so-called pre-rank function that condenses the multivariate forecasts and observations into univariate objects, from which a standard rank histogram can be produced. Existing pre-rank functions typically aim to preserve as much information as possible when condensing the multivariate forecasts and observations into univariate objects. Although this is sensible when conducting statistical tests for multivariate calibration, it can hinder the interpretation of the resulting histograms. In this paper, we demonstrate that there are few restrictions on the choice of pre-rank function, meaning forecasters can choose a pre-rank function depending on what information they want to extract from their forecasts. We introduce the concept of simple pre-rank functions, and provide examples that can be used to assess the location, scale, and dependence structure of multivariate probabilistic forecasts, as well as pre-rank functions tailored to the evaluation of probabilistic spatial field forecasts. The simple pre-rank functions that we introduce are easy to interpret, easy to implement, and they deliberately provide complementary information, meaning several pre-rank functions can be employed to achieve a more complete understanding of multivariate forecast performance. We then discuss how e-values can be employed to formally test for multivariate calibration over time. This is demonstrated in an application to wind speed forecasting using the EUPPBench post-processing benchmark data set.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "theoremsearch",
+          "final_url": "https://arxiv.org/abs/2307.05846",
+          "http_status": 200,
+          "pdf_sample_score": 0.3842,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-22T18:34:50Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "evaluating calibration of probabilistic weather forecasts statistics",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

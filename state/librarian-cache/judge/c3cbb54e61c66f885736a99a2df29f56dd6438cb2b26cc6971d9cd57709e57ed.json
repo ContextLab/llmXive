@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2504.05324",
+  "judged_at": "2026-06-22T18:33:14Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "quantifying hallucination in llm-generated api documentation computer science",
+  "rationale": "The paper quantifies hallucination rates in LLM outputs (a dependent variable of interest) using established metrics, providing an empirical baseline and methodology for measuring hallucinations, which is directly relevant to any study aiming to quantify hallucination in LLM‑generated API documentation. (Category b / c).",
+  "relevant": true
+}

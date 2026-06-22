@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2311.14122",
+  "judged_at": "2026-06-22T18:35:19Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "evaluating calibration of probabilistic weather forecasts statistics",
+  "rationale": "The paper develops a decomposition of the continuous ranked probability score that isolates a miscalibration component, directly addressing how to evaluate calibration of probabilistic forecasts (including weather forecasts) and thus matches criterion (a) – same‑mechanism evidence for calibration assessment.",
+  "relevant": true
+}

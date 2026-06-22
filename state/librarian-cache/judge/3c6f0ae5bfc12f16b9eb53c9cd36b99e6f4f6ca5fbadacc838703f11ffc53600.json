@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2111.01037",
+  "judged_at": "2026-06-22T18:32:17Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "assessing uncertainty quantification techniques for machine‑learning predicted material properties materials science",
+  "rationale": "The paper focuses on interpretability and explainability for ML in materials science and only briefly mentions the need for uncertainty estimates, without evaluating or comparing uncertainty quantification techniques for predicted material properties. It does not provide the same mechanism, variable measurement, baseline, or foundational methodology needed for the user's specific UQ assessment question.",
+  "relevant": false
+}

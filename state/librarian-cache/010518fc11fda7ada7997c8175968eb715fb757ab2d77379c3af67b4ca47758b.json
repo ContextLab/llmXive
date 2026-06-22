@@ -1,0 +1,552 @@
+{
+  "fetched_at": "2026-06-22T18:32:23Z",
+  "field": "materials science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "materials science",
+      "idea_body_excerpt": "Assessing Uncertainty Quantification Techniques for Machine‑Learning Predicted Material Properties",
+      "target_n": 5
+    },
+    "duration_seconds": 48.936,
+    "ended_at": "2026-06-22T18:32:23Z",
+    "expansion": null,
+    "extracted_queries": [
+      "predictive uncertainty aleatoric epistemic",
+      "Materials Project dataset",
+      "deep ensemble calibration",
+      "expected calibration error materials",
+      "Bayesian neural network materials property"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2310.11435"
+      ]
+    },
+    "per_query_hit_count": {
+      "Assessing Uncertainty Quantification Techniques for Machine‑Learning Predicted Material Properties materials science": 3,
+      "Bayesian neural network materials property": 3,
+      "Materials Project dataset": 3,
+      "deep ensemble calibration": 3,
+      "expected calibration error materials": 3,
+      "predictive uncertainty aleatoric epistemic": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 2,
+      "rejections": [
+        {
+          "primary_pointer": "2111.01037",
+          "rationale": "The paper focuses on interpretability and explainability for ML in materials science and only briefly mentions the need for uncertainty estimates, without evaluating or comparing uncertainty quantification techniques for predicted material properties. It does not provide the same mechanism, variable measurement, baseline, or foundational methodology needed for the user's specific UQ assessment question.",
+          "title": "Interpretable and Explainable Machine Learning for Materials Science and Chemistry"
+        },
+        {
+          "primary_pointer": "2008.06415",
+          "rationale": "The paper introduces an orbital graph convolutional network and benchmarks its predictive accuracy for material properties, but it does not discuss, evaluate, or provide uncertainty quantification techniques, metrics, or methods, so it fails to meet any of the inclusion criteria (a‑f).",
+          "title": "Orbital Graph Convolutional Neural Network for Material Property Prediction"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-22T18:31:34Z",
+    "term_input": {
+      "normalized": "assessing uncertainty quantification techniques for machine‑learning predicted material properties materials science",
+      "raw": "Assessing Uncertainty Quantification Techniques for Machine‑Learning Predicted Material Properties materials science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The precision of contouring target structures and organs-at-risk (OAR) in radiotherapy planning is crucial for ensuring treatment efficacy and patient safety. Recent advancements in deep learning (DL) have significantly improved OAR contouring performance, yet the reliability of these models, especially in the presence of out-of-distribution (OOD) scenarios, remains a concern in clinical settings. This application study explores the integration of epistemic uncertainty estimation within the OAR contouring workflow to enable OOD detection in clinically relevant scenarios, using specifically compiled data. Furthermore, we introduce an advanced statistical method for OOD detection to enhance the methodological framework of uncertainty estimation. Our empirical evaluation demonstrates that epistemic uncertainty estimation is effective in identifying instances where model predictions are unreliable and may require an expert review. Notably, our approach achieves an AUC-ROC of 0.95 for OOD detection, with a specificity of 0.95 and a sensitivity of 0.92 for implant cases, underscoring its efficacy. This study addresses significant gaps in the current research landscape, such as the lack of ground truth for uncertainty estimation and limited empirical evaluations. Additionally, it provides a clinically relevant application of epistemic uncertainty estimation in an FDA-approved and widely used clinical solution for OAR segmentation from Varian, a Siemens Healthineers company, highlighting its practical benefits.",
+          "claimed_authors": [
+            "Marvin Tom Teichmann",
+            "Manasi Datar",
+            "Lisa Kratzke",
+            "Fernando Vega",
+            "Florin C. Ghesu"
+          ],
+          "claimed_title": "Towards Integrating Epistemic Uncertainty Estimation into the Radiotherapy Workflow",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2409.18628"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='Assessing Uncertainty Quantification Techniques for Machine‑Learning Predicted M', candidate_title='Towards Integrating Epistemic Uncertainty Estimation into the Radiotherapy Workflow')",
+        "failed_at": "2026-06-22T18:32:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Characterizing aleatoric and epistemic uncertainty on the predicted rewards can help in building reliable reinforcement learning (RL) systems. Aleatoric uncertainty results from the irreducible environment stochasticity leading to inherently risky states and actions. Epistemic uncertainty results from the limited information accumulated during learning to make informed decisions. Characterizing aleatoric and epistemic uncertainty can be used to speed up learning in a training environment, improve generalization to similar testing environments, and flag unfamiliar behavior in anomalous testing environments. In this work, we introduce a framework for disentangling aleatoric and epistemic uncertainty in RL. (1) We first define four desiderata that capture the desired behavior for aleatoric and epistemic uncertainty estimation in RL at both training and testing time. (2) We then present four RL models inspired by supervised learning (i.e. Monte Carlo dropout, ensemble, deep kernel learning models, and evidential networks) to instantiate aleatoric and epistemic uncertainty. Finally, (3) we propose a practical evaluation method to evaluate uncertainty estimation in model-free RL based on detection of out-of-distribution environments and generalization to perturbed environments. We present theoretical and experimental evidence to validate that carefully equipping model-free RL agents with supervised learning uncertainty methods can fulfill our desiderata.",
+          "claimed_authors": [
+            "Bertrand Charpentier",
+            "Ransalu Senanayake",
+            "Mykel Kochenderfer",
+            "Stephan Günnemann"
+          ],
+          "claimed_title": "Disentangling Epistemic and Aleatoric Uncertainty in Reinforcement Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2206.01558"
+        },
+        "details": "query-relevance 0.273 < 0.3 (query='Assessing Uncertainty Quantification Techniques for Machine‑Learning Predicted M', candidate_title='Disentangling Epistemic and Aleatoric Uncertainty in Reinforcement Learning')",
+        "failed_at": "2026-06-22T18:32:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The RSNA Abdominal Traumatic Injury CT (RATIC) dataset is the largest publicly available collection of adult abdominal CT studies annotated for traumatic injuries. This dataset includes 4,274 studies from 23 institutions across 14 countries. The dataset is freely available for non-commercial use via Kaggle at https://www.kaggle.com/competitions/rsna-2023-abdominal-trauma-detection. Created for the RSNA 2023 Abdominal Trauma Detection competition, the dataset encourages the development of advanced machine learning models for detecting abdominal injuries on CT scans. The dataset encompasses detection and classification of traumatic injuries across multiple organs, including the liver, spleen, kidneys, bowel, and mesentery. Annotations were created by expert radiologists from the American Society of Emergency Radiology (ASER) and Society of Abdominal Radiology (SAR). The dataset is annotated at multiple levels, including the presence of injuries in three solid organs with injury grading, image-level annotations for active extravasations and bowel injury, and voxelwise segmentations of each of the potentially injured organs. With the release of this dataset, we hope to facilitate research and development in machine learning and abdominal trauma that can lead to improved patient care and outcomes.",
+          "claimed_authors": [
+            "Jeffrey D. Rudie",
+            "Hui-Ming Lin",
+            "Robyn L. Ball",
+            "Sabeena Jalal",
+            "Luciano M. Prevedello",
+            "Savvas Nicolaou",
+            "Brett S. Marinelli",
+            "Adam E. Flanders",
+            "Kirti Magudia",
+            "George Shih",
+            "Melissa A. Davis",
+            "John Mongan",
+            "Peter D. Chang",
+            "Ferco H. Berger",
+            "Sebastiaan Hermans",
+            "Meng Law",
+            "Tyler Richards",
+            "Jan-Peter Grunz",
+            "Andreas Steven Kunz",
+            "Shobhit Mathur",
+            "Sandro Galea-Soler",
+            "Andrew D. Chung",
+            "Saif Afat",
+            "Chin-Chi Kuo",
+            "Layal Aweidah",
+            "Ana Villanueva Campos",
+            "Arjuna Somasundaram",
+            "Felipe Antonio Sanchez Tijmes",
+            "Attaporn Jantarangkoon",
+            "Leonardo Kayat Bittencourt",
+            "Michael Brassil",
+            "Ayoub El Hajjami",
+            "Hakan Dogan",
+            "Muris Becircic",
+            "Agrahara G. Bharatkumar",
+            "Eduardo Moreno Júdice de Mattos Farina",
+            "Dataset Curator Group",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Errol Colak"
+          ],
+          "claimed_title": "The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.19595"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='Assessing Uncertainty Quantification Techniques for Machine‑Learning Predicted M', candidate_title='The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset')",
+        "failed_at": "2026-06-22T18:32:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The book consists of a number of short articles that present achievements of the Araucaria members, collaborators, and friends, in various aspects of distance determinations and related topics. It celebrates the 20-year anniversary of the Araucaria Project, acknowledges the people who worked for its success, and popularises our methods and results among broader readership.\n  This book is a part of a project that has received funding from the European Union's Horizon 2020 research and innovation programme under grant agreement No 695099.",
+          "claimed_authors": [
+            "The Araucaria Project",
+            " :",
+            "G. Pietrzyński",
+            "W. Gieren",
+            "P. Karczmarek",
+            "M. Górski",
+            "B. Zgirski",
+            "P. Wielgórski",
+            "L. Breuval",
+            "K. Suchomska",
+            "A. Gallenne",
+            "P. Kervella",
+            "G. Hajdu",
+            "B. Pilecki",
+            "J. Storm",
+            "N. Nardetto",
+            "R. P. Kudritzki",
+            "M. Taormina",
+            "F. Bresolin",
+            "R. Smolec",
+            "W. Narloch",
+            "C. Gałan",
+            "M. Lewis",
+            "R. Chini"
+          ],
+          "claimed_title": "The Araucaria Project: Improving the cosmic distance scale",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2305.17247"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Assessing Uncertainty Quantification Techniques for Machine‑Learning Predicted M', candidate_title='The Araucaria Project: Improving the cosmic distance scale')",
+        "failed_at": "2026-06-22T18:32:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Radiological Society of North America (RSNA) Lumbar Degenerative Imaging Spine Classification (LumbarDISC) dataset is the largest publicly available dataset of adult MRI lumbar spine examinations annotated for degenerative changes. The dataset includes 2,697 patients with a total of 8,593 image series from 8 institutions across 6 countries and 5 continents. The dataset is available for free for non-commercial use via Kaggle and RSNA Medical Imaging Resource of AI (MIRA). The dataset was created for the RSNA 2024 Lumbar Spine Degenerative Classification competition where competitors developed deep learning models to grade degenerative changes in the lumbar spine. The degree of spinal canal, subarticular recess, and neural foraminal stenosis was graded at each intervertebral disc level in the lumbar spine. The images were annotated by expert volunteer neuroradiologists and musculoskeletal radiologists from the RSNA, American Society of Neuroradiology, and the American Society of Spine Radiology. This dataset aims to facilitate research and development in machine learning and lumbar spine imaging to lead to improved patient care and clinical efficiency.",
+          "claimed_authors": [
+            "Tyler J. Richards",
+            "Adam E. Flanders",
+            "Errol Colak",
+            "Luciano M. Prevedello",
+            "Robyn L. Ball",
+            "Felipe Kitamura",
+            "John Mongan",
+            "Maryam Vazirabad",
+            "Hui-Ming Lin",
+            "Anne Kendell",
+            "Thanat Kanthawang",
+            "Salita Angkurawaranon",
+            "Emre Altinmakas",
+            "Hakan Dogan",
+            "Paulo Eduardo de Aguiar Kuriki",
+            "Arjuna Somasundaram",
+            "Christopher Ruston",
+            "Deniz Bulja",
+            "Naida Spahovic",
+            "Jennifer Sommer",
+            "Sirui Jiang",
+            "Eduardo Moreno Judice de Mattos Farina",
+            "Eduardo Caminha Nunes",
+            "Michael Brassil",
+            "Megan McNamara",
+            "Johanna Ortiz",
+            "Jacob Peoples",
+            "Vinson L. Uytana",
+            "Anthony Kam",
+            "Venkata N. S. Dola",
+            "Daniel Murphy",
+            "David Vu",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Competition Data Notebook Group",
+            "Jason F. Talbott"
+          ],
+          "claimed_title": "The RSNA Lumbar Degenerative Imaging Spine Classification (LumbarDISC) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.09162"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='Assessing Uncertainty Quantification Techniques for Machine‑Learning Predicted M', candidate_title='The RSNA Lumbar Degenerative Imaging Spine Classification (LumbarDISC) Dataset')",
+        "failed_at": "2026-06-22T18:32:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "These notes were compiled as lecture notes for a course developed and taught at the University of the Southern California. They should be accessible to a typical engineering graduate student with a strong background in Applied Mathematics.\n  The main objective of these notes is to introduce a student who is familiar with concepts in linear algebra and partial differential equations to select topics in deep learning. These lecture notes exploit the strong connections between deep learning algorithms and the more conventional techniques of computational physics to achieve two goals. First, they use concepts from computational physics to develop an understanding of deep learning algorithms. Not surprisingly, many concepts in deep learning can be connected to similar concepts in computational physics, and one can utilize this connection to better understand these algorithms. Second, several novel deep learning algorithms can be used to solve challenging problems in computational physics. Thus, they offer someone who is interested in modeling a physical phenomena with a complementary set of tools.",
+          "claimed_authors": [
+            "Deep Ray",
+            "Orazio Pinti",
+            "Assad A. Oberai"
+          ],
+          "claimed_title": "Deep Learning and Computational Physics (Lecture Notes)",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2301.00942"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='Assessing Uncertainty Quantification Techniques for Machine‑Learning Predicted M', candidate_title='Deep Learning and Computational Physics (Lecture Notes)')",
+        "failed_at": "2026-06-22T18:32:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Deep Neural Networks, often owing to the overparameterization, are shown to be capable of exactly memorizing even randomly labelled data. Empirical studies have also shown that none of the standard regularization techniques mitigate such overfitting. We investigate whether the choice of the loss function can affect this memorization. We empirically show, with benchmark data sets MNIST and CIFAR-10, that a symmetric loss function, as opposed to either cross-entropy or squared error loss, results in significant improvement in the ability of the network to resist such overfitting. We then provide a formal definition for robustness to memorization and provide a theoretical explanation as to why the symmetric losses provide this robustness. Our results clearly bring out the role loss functions alone can play in this phenomenon of memorization.",
+          "claimed_authors": [
+            "Deep Patel",
+            "P. S. Sastry"
+          ],
+          "claimed_title": "Memorization in Deep Neural Networks: Does the Loss Function matter?",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2107.09957"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='Assessing Uncertainty Quantification Techniques for Machine‑Learning Predicted M', candidate_title='Memorization in Deep Neural Networks: Does the Loss Function matter?')",
+        "failed_at": "2026-06-22T18:32:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Deep neural networks and the ENO procedure are both efficient frameworks for approximating rough functions. We prove that at any order, the ENO interpolation procedure can be cast as a deep ReLU neural network. This surprising fact enables the transfer of several desirable properties of the ENO procedure to deep neural networks, including its high-order accuracy at approximating Lipschitz functions. Numerical tests for the resulting neural networks show excellent performance for approximating solutions of nonlinear conservation laws and at data compression.",
+          "claimed_authors": [
+            "Tim De Ryck",
+            "Siddhartha Mishra",
+            "Deep Ray"
+          ],
+          "claimed_title": "On the approximation of rough functions with deep neural networks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1912.06732"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='Assessing Uncertainty Quantification Techniques for Machine‑Learning Predicted M', candidate_title='On the approximation of rough functions with deep neural networks')",
+        "failed_at": "2026-06-22T18:32:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In the rapidly expanding field of two-dimensional materials, magnetic monolayers show great promise for the future applications in nanoelectronics, data storage, and sensing. The research in intrinsically magnetic two-dimensional materials mainly focuses on synthetic iodide and telluride based compounds, which inherently suffer from the lack of ambient stability. So far, naturally occurring layered magnetic materials have been vastly overlooked. These minerals offer a unique opportunity to explore air-stable complex layered systems with high concentration of local moment bearing ions. We demonstrate magnetic ordering in iron-rich two-dimensional phyllosilicates, focusing on mineral species of minnesotaite, annite, and biotite. These are naturally occurring van der Waals magnetic materials which integrate local moment baring ions of iron via magnesium/aluminium substitution in their octahedral sites. Due to self-inherent capping by silicate/aluminate tetrahedral groups, ultra-thin layers are air-stable. Chemical characterization, quantitative elemental analysis, and iron oxidation states were determined via Raman spectroscopy, wavelength disperse X-ray spectroscopy, X-ray absorption spectroscopy, and X-ray photoelectron spectroscopy. Superconducting quantum interference device magnetometry measurements were performed to examine the magnetic ordering. These layered materials exhibit paramagnetic or superparamagnetic characteristics at room temperature. At low temperature ferrimagnetic or antiferromagnetic ordering occurs, with the critical ordering temperature of 38.7 K for minnesotaite, 36.1 K for annite, and 4.9 K for biotite. In-field magnetic force microscopy on iron bearing phyllosilicates confirmed the paramagnetic response at room temperature, present down to monolayers.",
+          "claimed_authors": [
+            "Muhammad Zubair Khan",
+            "Oleg E. Peil",
+            "Apoorva Sharma",
+            "Oleksandr Selyshchev",
+            "Sergio Valencia",
+            "Florian Kronast",
+            "Maik Zimmermann",
+            "Muhammad Awais Aslam",
+            "Johann G. Raith",
+            "Christian Teichert",
+            "Dietrich R. T. Zahn",
+            "Georgeta Salvan",
+            "Aleksandar Matković",
+            "Chair of Physics",
+            "Department Physics",
+            " Mechanics",
+            "Electrical engineering",
+            "Montanuniversität Leoben",
+            " 8700",
+            " Leoben",
+            " Austria.",
+            "Materials Center Leoben Forschung GmbH",
+            " 8700",
+            " Leoben",
+            " Austria.",
+            "Semiconductor Physics",
+            "Chemnitz University of Technology",
+            " D-09107",
+            " Chemnitz",
+            " Germany.",
+            "Department of Spin",
+            "Topology in Quantum Materials",
+            "Helmholtz-Zentrum Berlin",
+            "Albert-Einstein-Str. 15",
+            " D-12489",
+            " Berlin",
+            " Germany.",
+            "Chair of Resource Mineralogy",
+            "Montanuniversität Leoben",
+            " 8700",
+            " Leoben",
+            " Austria.",
+            "Centre for Materials",
+            " Architecture",
+            "Integration of Nanomembranes",
+            "Chemnitz University of Technology",
+            " 09126",
+            " Chemnitz",
+            " Germany"
+          ],
+          "claimed_title": "Probing magnetic ordering in air stable iron-rich van der Waals minerals",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2304.06533"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='Assessing Uncertainty Quantification Techniques for Machine‑Learning Predicted M', candidate_title='Probing magnetic ordering in air stable iron-rich van der Waals minerals')",
+        "failed_at": "2026-06-22T18:32:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A new multiferroic material, CuBr2, is reported for the first time. CuBr2 has not only a high transition temperature (close to liquid nitrogen temperature) but also low dielectric loss and strong magnetoelectric coupling. These findings reveal the importance of anion effects in the search for the high temperature multiferroics materials among these low-dimensional spin systems.",
+          "claimed_authors": [
+            "L. Zhao",
+            "T. L. Hung",
+            "C. C. Li",
+            "Y. Y. Chen",
+            "M. K. Wu",
+            "R. K. Kremer",
+            "M. G. Banks",
+            "A. Simon",
+            "M. H. Whangbo",
+            "C. Lee",
+            "J. S. Kim",
+            "I. Kim",
+            "K. H. Kim"
+          ],
+          "claimed_title": "CuBr2-A New Multiferroic Material with High Critical Temperature",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1205.5318"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='Assessing Uncertainty Quantification Techniques for Machine‑Learning Predicted M', candidate_title='CuBr2-A New Multiferroic Material with High Critical Temperature')",
+        "failed_at": "2026-06-22T18:32:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Two-dimensional (2D) materials are among the most promising candidates for next-generation electronics due to their atomic thinness, allowing for flexible transparent electronics and ultimate length scaling. Thus far, atomically-thin p-n junctions, metal-semiconductor contacts, and metal-insulator barriers have been demonstrated. While 2D materials achieve the thinnest possible devices, precise nanoscale control over the lateral dimensions is also necessary. Here, we report the direct synthesis of sub-nanometer-wide 1D MoS2 channels embedded within WSe2 monolayers, using a dislocation-catalyzed approach. The 1D channels have edges free of misfit dislocations and dangling bonds, forming a coherent interface with the embedding 2D matrix. Periodic dislocation arrays produce 2D superlattices of coherent MoS2 1D channels in WSe2. Using molecular dynamics simulations, we have identified other combinations of 2D materials where 1D channels can also be formed. The electronic band structure of these 1D channels offer the promise of carrier confinement in a direct-gap material and charge separation needed to access the ultimate length scales necessary for future electronic applications.",
+          "claimed_authors": [
+            "Yimo Han",
+            "Ming-Yang Li",
+            "Gang-Seob Jung",
+            "Mark A. Marsalis",
+            "Zhao Qin",
+            "Markus J. Buehler",
+            "Lain-Jong Li",
+            "David A. Muller"
+          ],
+          "claimed_title": "Sub-Nanometer Channels Embedded in Two-Dimensional Materials",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1707.09880"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='Assessing Uncertainty Quantification Techniques for Machine‑Learning Predicted M', candidate_title='Sub-Nanometer Channels Embedded in Two-Dimensional Materials')",
+        "failed_at": "2026-06-22T18:32:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Random Neural Networks (RNNs) are a class of Neural Networks (NNs) that can also be seen as a specific type of queuing network. They have been successfully used in several domains during the last 25 years, as queuing networks to analyze the performance of resource sharing in many engineering areas, as learning tools and in combinatorial optimization, where they are seen as neural systems, and also as models of neurological aspects of living beings. In this article we focus on their learning capabilities, and more specifically, we present a practical guide for using the RNN to solve supervised learning problems. We give a general description of these models using almost indistinctly the terminology of Queuing Theory and the neural one. We present the standard learning procedures used by RNNs, adapted from similar well-established improvements in the standard NN field. We describe in particular a set of learning algorithms covering techniques based on the use of first order and, then, of second order derivatives. We also discuss some issues related to these objects and present new perspectives about their use in supervised learning problems. The tutorial describes their most relevant applications, and also provides a large bibliography.",
+          "claimed_authors": [
+            "Sebastián Basterrech",
+            "Gerardo Rubino"
+          ],
+          "claimed_title": "A Tutorial about Random Neural Networks in Supervised Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1609.04846"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='Assessing Uncertainty Quantification Techniques for Machine‑Learning Predicted M', candidate_title='A Tutorial about Random Neural Networks in Supervised Learning')",
+        "failed_at": "2026-06-22T18:32:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "It is of some interest to understand how statistically based mechanisms for signal processing might be integrated with biologically motivated mechanisms such as neural networks. This paper explores a novel hybrid approach for classifying segments of sequential data, such as individual spoken works. The approach combines a hidden Markov model (HMM) with a spiking neural network (SNN). The HMM, consisting of states and transitions, forms a fixed backbone with nonadaptive transition probabilities. The SNN, however, implements a biologically based Bayesian computation that derives from the spike timing-dependent plasticity (STDP) learning rule. The emission (observation) probabilities of the HMM are represented in the SNN and trained with the STDP rule. A separate SNN, each with the same architecture, is associated with each of the states of the HMM. Because of the STDP training, each SNN implements an expectation maximization algorithm to learn the emission probabilities for one HMM state. The model was studied on synthesized spike-train data and also on spoken word data. Preliminary results suggest its performance compares favorably with other biologically motivated approaches. Because of the model's uniqueness and initial promise, it warrants further study. It provides some new ideas on how the brain might implement the equivalent of an HMM in a neural circuit.",
+          "claimed_authors": [
+            "Amirhossein Tavanaei",
+            "Anthony S Maida"
+          ],
+          "claimed_title": "Training a Hidden Markov Model with a Bayesian Spiking Neural Network",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1606.00825"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='Assessing Uncertainty Quantification Techniques for Machine‑Learning Predicted M', candidate_title='Training a Hidden Markov Model with a Bayesian Spiking Neural Network')",
+        "failed_at": "2026-06-22T18:32:07Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Soumya Sanyal",
+            "Janakiraman Balachandran",
+            "Naganand Yadati",
+            "Abhishek Kumar",
+            "Padmini Rajagopalan",
+            "Suchismita Sanyal",
+            "Partha Talukdar"
+          ],
+          "title": "MT-CGCNN: Integrating Crystal Graph Convolutional Neural Network with Multitask Learning for Material Property Prediction",
+          "venue": "arXiv",
+          "year": 2018
+        },
+        "primary_pointer": "1811.05660",
+        "summary": "Developing accurate, transferable and computationally inexpensive machine learning models can rapidly accelerate the discovery and development of new materials. Some of the major challenges involved in developing such models are, (i) limited availability of materials data as compared to other fields, (ii) lack of universal descriptor of materials to predict its various properties. The limited availability of materials data can be addressed through transfer learning, while the generic representation was recently addressed by Xie and Grossman [1], where they developed a crystal graph convolutional neural network (CGCNN) that provides a unified representation of crystals. In this work, we develop a new model (MT-CGCNN) by integrating CGCNN with transfer learning based on multi-task (MT) learning. We demonstrate the effectiveness of MT-CGCNN by simultaneous prediction of various material properties such as Formation Energy, Band Gap and Fermi Energy for a wide range of inorganic crystals (46774 materials). MT-CGCNN is able to reduce the test error when employed on correlated properties by upto 8%. The model prediction has lower test error compared to CGCNN, even when the training data is reduced by 10%. We also demonstrate our model's better performance through prediction of end user scenario related to metal/non-metal classification. These results encourage further development of machine learning approaches which leverage multi-task learning to address the aforementioned challenges in the discovery of new materials. We make MT-CGCNN's source code available to encourage reproducible research.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1811.05660",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4545,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-22T18:32:06Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Minghan Chu",
+            "Weicheng Qian"
+          ],
+          "title": "Uncertainty Quantification For Turbulent Flows with Machine Learning",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2310.11435",
+        "summary": "Turbulent flows are of central importance across applications in science and engineering problems. For design and analysis, scientists and engineers use Computational Fluid Dynamics (CFD) simulations using turbulence models. Turbulent models are limited approximations, introducing epistemic uncertainty in CFD results. For reliable design and analysis, we require quantification of these uncertainties. The Eigenspace Perturbation Method (EPM) is the preeminent physics based approach for turbulence model UQ, but often leads to overly conservative uncertainty bounds. In this study, we use Machine Learning (ML) models to moderate the EPM perturbations and introduce our physics constrained machine learning framework for turbulence model UQ. We test this framework in multiple problems to show that it leads to improved calibration of the uncertainty estimates.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2310.11435",
+          "http_status": 200,
+          "pdf_sample_score": 0.2,
+          "query_relevance_score": 0.4545,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-22T18:32:06Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Lisa Wimmer",
+            "Yusuf Sale",
+            "Paul Hofman",
+            "Bern Bischl",
+            "Eyke Hüllermeier"
+          ],
+          "title": "Quantifying Aleatoric and Epistemic Uncertainty in Machine Learning: Are Conditional Entropy and Mutual Information Appropriate Measures?",
+          "venue": "arXiv",
+          "year": 2022
+        },
+        "primary_pointer": "2209.03302",
+        "summary": "The quantification of aleatoric and epistemic uncertainty in terms of conditional entropy and mutual information, respectively, has recently become quite common in machine learning. While the properties of these measures, which are rooted in information theory, seem appealing at first glance, we identify various incoherencies that call their appropriateness into question. In addition to the measures themselves, we critically discuss the idea of an additive decomposition of total uncertainty into its aleatoric and epistemic constituents. Experiments across different computer vision tasks support our theoretical findings and raise concerns about current practice in uncertainty quantification.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2209.03302",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4545,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-22T18:32:07Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "assessing uncertainty quantification techniques for machine‑learning predicted material properties materials science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

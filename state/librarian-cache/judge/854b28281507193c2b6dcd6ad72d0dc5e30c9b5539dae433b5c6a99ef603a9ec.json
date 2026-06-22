@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2504.04906",
+  "judged_at": "2026-06-22T18:35:07Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "evaluating calibration of probabilistic weather forecasts statistics",
+  "rationale": "The paper discusses the Brier score, a core proper scoring rule used to assess calibration of probabilistic forecasts, which is the same statistical tool relevant to evaluating calibration of probabilistic weather forecasts (acceptance category a). Even though the application domain is clinical, the underlying metric and its interpretation are directly pertinent to the user's methodological focus.",
+  "relevant": true
+}

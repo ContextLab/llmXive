@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2606.02663",
+  "judged_at": "2026-06-22T18:35:03Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "evaluating calibration of probabilistic weather forecasts statistics",
+  "rationale": "The paper proposes an adaptive method for mixing probabilistic weather forecasts and analyzes regret bounds, but it does not study or evaluate calibration statistics (e.g., reliability, Brier score, PIT histograms) for probabilistic forecasts, which is the core of the user's question. Hence it lacks a measurable connection to the calibration evaluation mechanism.",
+  "relevant": false
+}

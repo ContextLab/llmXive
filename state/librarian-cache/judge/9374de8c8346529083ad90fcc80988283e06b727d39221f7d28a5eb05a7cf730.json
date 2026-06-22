@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1811.05660",
+  "judged_at": "2026-06-22T18:32:11Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "assessing uncertainty quantification techniques for machine‑learning predicted material properties materials science",
+  "rationale": "The paper evaluates machine‑learning predictions of material properties (formation energy, band gap, etc.) on a large inorganic crystal dataset, thus measuring the dependent variable of interest (ML‑predicted material properties) within the materials science domain, satisfying inclusion criterion (b).",
+  "relevant": true
+}

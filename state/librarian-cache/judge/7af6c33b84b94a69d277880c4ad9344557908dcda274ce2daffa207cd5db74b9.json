@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2209.03302",
+  "judged_at": "2026-06-22T18:32:20Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "assessing uncertainty quantification techniques for machine‑learning predicted material properties materials science",
+  "rationale": "The paper evaluates core uncertainty quantification methods (aleatoric vs. epistemic uncertainty via conditional entropy and mutual information), providing theoretical and empirical assessment of these techniques—matching the same UQ mechanisms the user’s question concerns, even though the experiments are on computer‑vision data (criterion (a)).",
+  "relevant": true
+}

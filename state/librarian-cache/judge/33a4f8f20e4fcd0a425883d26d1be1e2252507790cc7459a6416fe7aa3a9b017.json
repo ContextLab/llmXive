@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1907.03178",
+  "judged_at": "2026-06-22T18:35:00Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "evaluating calibration of probabilistic weather forecasts statistics",
+  "rationale": "The paper introduces a method (XGBoostLSS) for generating probabilistic forecasts but does not address the evaluation or calibration of such forecasts, nor is it specific to weather forecasting; it lacks the calibration metrics or assessment framework required by the user's question.",
+  "relevant": false
+}

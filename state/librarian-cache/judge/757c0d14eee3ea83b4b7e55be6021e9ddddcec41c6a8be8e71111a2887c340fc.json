@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1905.04022",
+  "judged_at": "2026-06-22T18:35:12Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "evaluating calibration of probabilistic weather forecasts statistics",
+  "rationale": "The paper studies the evaluation (including calibration) of probabilistic weather forecasts using the continuous ranked probability score, which is a core statistical tool for assessing forecast calibration; thus it provides same‑mechanism evidence (category a) relevant to the user’s question.",
+  "relevant": true
+}

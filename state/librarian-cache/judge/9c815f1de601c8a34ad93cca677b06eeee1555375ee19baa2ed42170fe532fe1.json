@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2309.12236",
+  "judged_at": "2026-06-22T18:34:58Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "evaluating calibration of probabilistic weather forecasts statistics",
+  "rationale": "The paper introduces SmoothECE, a calibration measure and reliability diagram method for probabilistic predictors, directly addressing the mechanism of evaluating calibration (a) and providing a foundational methodology (d) that can be applied to probabilistic weather forecasts.",
+  "relevant": true
+}
