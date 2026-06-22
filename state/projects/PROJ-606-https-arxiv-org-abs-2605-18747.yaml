@@ -6,13 +6,13 @@ failed_stage: null
 field: linguistics
 human_escalation_reason: null
 id: PROJ-606-https-arxiv-org-abs-2605-18747
-last_run_id: null
+last_run_id: 4305f54d-07d1-4b65-805f-00dec2b9abd3
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
-revision_spec_path: null
+revision_spec_path: specs/auto-revisions/PROJ-606-https-arxiv-org-abs-2605-18747/round-1
 speckit_paper_dir: null
 speckit_research_dir: null
 title: Code as Agent Harness
-updated_at: '2026-05-20T11:03:37.649528Z'
+updated_at: '2026-06-22T10:57:57.660751Z'

@@ -138,3 +138,6 @@ ready:
 - project_id: PROJ-699-interleavethinker-reinforcing-agentic-in
   revision_spec_path: specs/auto-revisions/PROJ-699-interleavethinker-reinforcing-agentic-in/round-1
   queued_at: '2026-06-21T18:39:09.141649+00:00'
+- project_id: PROJ-606-https-arxiv-org-abs-2605-18747
+  revision_spec_path: specs/auto-revisions/PROJ-606-https-arxiv-org-abs-2605-18747/round-1
+  queued_at: '2026-06-22T10:57:57.644260+00:00'
