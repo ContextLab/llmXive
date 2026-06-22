@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2007.10695",
+  "judged_at": "2026-06-22T21:46:28Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the impact of incidental music on autobiographical memory retrieval psychology",
+  "rationale": "The paper studies music‑induced bodily movement and predicts personality/empathy traits, without examining incidental music, autobiographical memory, or memory retrieval, so it lacks any relevant mechanism, variable, or population for the user's question.",
+  "relevant": false
+}

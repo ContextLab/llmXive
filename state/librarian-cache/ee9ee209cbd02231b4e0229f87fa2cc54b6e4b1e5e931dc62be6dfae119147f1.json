@@ -1,0 +1,390 @@
+{
+  "fetched_at": "2026-06-22T21:46:30Z",
+  "field": "psychology",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "psychology",
+      "idea_body_excerpt": "The Impact of Incidental Music on Autobiographical Memory Retrieval",
+      "target_n": 5
+    },
+    "duration_seconds": 54.085,
+    "ended_at": "2026-06-22T21:46:30Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "incidental music and autobiographical recall"
+        ],
+        [
+          2,
+          "background music effects on personal memory retrieval"
+        ],
+        [
+          3,
+          "music‑evoked autobiographical memories"
+        ],
+        [
+          4,
+          "ambient sound influence on episodic memory retrieval"
+        ],
+        [
+          5,
+          "auditory context and self‑referential memory"
+        ],
+        [
+          6,
+          "effect of background melodies on episodic recall"
+        ],
+        [
+          7,
+          "music priming and autobiographical memory"
+        ],
+        [
+          8,
+          "soundtrack influence on personal event recollection"
+        ],
+        [
+          9,
+          "environmental music and memory consolidation"
+        ],
+        [
+          10,
+          "musical mood induction and autobiographical recall"
+        ],
+        [
+          11,
+          "incidental auditory cues and memory retrieval"
+        ],
+        [
+          12,
+          "background music during memory testing"
+        ],
+        [
+          13,
+          "music‑induced nostalgia and memory performance"
+        ],
+        [
+          14,
+          "non‑task‑related music and episodic memory"
+        ],
+        [
+          15,
+          "auditory distraction and autobiographical memory"
+        ],
+        [
+          16,
+          "music context effects on reminiscence"
+        ],
+        [
+          17,
+          "soundscape impact on self‑memory"
+        ],
+        [
+          18,
+          "music as contextual cue for autobiographical retrieval"
+        ],
+        [
+          19,
+          "incidental soundscapes and recall of personal experiences"
+        ],
+        [
+          20,
+          "auditory background and memory vividness"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "The Impact of Incidental Music on Autobiographical Memory Retrieval psychology": 0,
+        "background music effects on personal memory retrieval": 4,
+        "incidental music and autobiographical recall": 0
+      },
+      "total_queries_issued": 2
+    },
+    "extracted_queries": [
+      "background music episodic recall",
+      "undergraduate participants music memory",
+      "mood induction music autobiographical retrieval",
+      "recall accuracy incidental music",
+      "encoding specificity music context"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2311.18604"
+      ]
+    },
+    "per_query_hit_count": {
+      "The Impact of Incidental Music on Autobiographical Memory Retrieval psychology": 3,
+      "background music episodic recall": 3,
+      "encoding specificity music context": 1,
+      "mood induction music autobiographical retrieval": 0,
+      "recall accuracy incidental music": 0,
+      "undergraduate participants music memory": 1
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": true,
+      "rejected_count": 4,
+      "rejections": [
+        {
+          "primary_pointer": "2311.18604",
+          "rationale": "The paper focuses on a music‑structure segmentation algorithm and does not investigate incidental music, autobiographical memory retrieval, or any psychological effects, thus it lacks any relevant mechanism, variable, or domain connection to the user's question.",
+          "title": "Barwise Music Structure Analysis with the Correlation Block-Matching Segmentation Algorithm"
+        },
+        {
+          "primary_pointer": "2309.02567",
+          "rationale": "The paper evaluates symbolic music representations for classification tasks in music information retrieval and does not investigate incidental music, autobiographical memory, or their psychological interaction, thus it lacks any relevant mechanism, variable, or population for the user's question.",
+          "title": "Symbolic Music Representations for Classification Tasks: A Systematic Evaluation"
+        },
+        {
+          "primary_pointer": "2007.10695",
+          "rationale": "The paper studies music‑induced bodily movement and predicts personality/empathy traits, without examining incidental music, autobiographical memory, or memory retrieval, so it lacks any relevant mechanism, variable, or population for the user's question.",
+          "title": "Towards Multimodal MIR: Predicting individual differences from music-induced movement"
+        },
+        {
+          "primary_pointer": "2309.12111",
+          "rationale": "The paper focuses on machine‑learning methods for audio‑sheet‑music retrieval and does not investigate incidental music, autobiographical memory, or any psychological effects, thus it is unrelated to the user's research question.",
+          "title": "Passage Summarization with Recurrent Models for Audio-Sheet Music Retrieval"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-22T21:45:36Z",
+    "term_input": {
+      "normalized": "the impact of incidental music on autobiographical memory retrieval psychology",
+      "raw": "The Impact of Incidental Music on Autobiographical Memory Retrieval psychology"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Mathematics, and more generally computational sciences, intervene in several aspects of music. Mathematics describes the acoustics of the sounds giving formal tools to physics, and the matter of music itself in terms of compositional structures and strategies. Mathematics can also be applied to the entire making of music, from the score to the performance, connecting compositional structures to acoustical reality of sounds. Moreover, the precise concept of gesture has a decisive role in understanding musical performance. In this paper, we apply some concepts of category theory to compare gestures of orchestral musicians, and to investigate the relationship between orchestra and conductor, as well as between listeners and conductor/orchestra. To this aim, we will introduce the concept of gestural similarity. The mathematical tools used can be applied to gesture classification, and to interdisciplinary comparisons between music and visual arts.",
+          "claimed_authors": [
+            "Maria Mannone"
+          ],
+          "claimed_title": "Introduction to Gestural Similarity in Music. An Application of Category Theory to the Orchestra",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1904.10340"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='The Impact of Incidental Music on Autobiographical Memory Retrieval psychology', candidate_title='Introduction to Gestural Similarity in Music. An Application of Category Theory to the Orchestra')",
+        "failed_at": "2026-06-22T21:46:11Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Drawing an analogy with automatic image completion systems, we propose Music SketchNet, a neural network framework that allows users to specify partial musical ideas guiding automatic music generation. We focus on generating the missing measures in incomplete monophonic musical pieces, conditioned on surrounding context, and optionally guided by user-specified pitch and rhythm snippets. First, we introduce SketchVAE, a novel variational autoencoder that explicitly factorizes rhythm and pitch contour to form the basis of our proposed model. Then we introduce two discriminative architectures, SketchInpainter and SketchConnector, that in conjunction perform the guided music completion, filling in representations for the missing measures conditioned on surrounding context and user-specified snippets. We evaluate SketchNet on a standard dataset of Irish folk music and compare with models from recent works. When used for music completion, our approach outperforms the state-of-the-art both in terms of objective metrics and subjective listening tests. Finally, we demonstrate that our model can successfully incorporate user-specified snippets during the generation process.",
+          "claimed_authors": [
+            "Ke Chen",
+            "Cheng-i Wang",
+            "Taylor Berg-Kirkpatrick",
+            "Shlomo Dubnov"
+          ],
+          "claimed_title": "Music SketchNet: Controllable Music Generation via Factorized Representations of Pitch and Rhythm",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2008.01291"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='The Impact of Incidental Music on Autobiographical Memory Retrieval psychology', candidate_title='Music SketchNet: Controllable Music Generation via Factorized Representations of Pitch and Rhythm')",
+        "failed_at": "2026-06-22T21:46:11Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Dorabella cipher is an encrypted note written by English composer Edward Elgar, which has defied decipherment attempts for more than a century. While most proposed solutions are English texts, we investigate the hypothesis that Dorabella represents enciphered music. We weigh the evidence for and against the hypothesis, devise a simplified music notation, and attempt to reconstruct a melody from the cipher. Our tools are n-gram models of music which we validate on existing music corpora enciphered using monoalphabetic substitution. By applying our methods to Dorabella, we produce a decipherment with musical qualities, which is then transformed via artful composition into a listenable melody. Far from arguing that the end result represents the only true solution, we instead frame the process of decipherment as part of the composition process.",
+          "claimed_authors": [
+            "Bradley Hauer",
+            "Colin Choi",
+            "Abram Hindle",
+            "Scott Smallwood",
+            "Grzegorz Kondrak"
+          ],
+          "claimed_title": "Dorabella Cipher as Musical Inspiration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2509.17950"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='The Impact of Incidental Music on Autobiographical Memory Retrieval psychology', candidate_title='Dorabella Cipher as Musical Inspiration')",
+        "failed_at": "2026-06-22T21:46:11Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Human annotations of mood in music are essential for music generation and recommender systems. However, existing datasets predominantly focus on Western songs with terms derived from English, which may limit generalizability across diverse linguistic and cultural backgrounds. We introduce 'GlobalMood', a novel cross-cultural benchmark dataset comprising 1,180 songs sampled from 59 countries, with large-scale annotations collected from 2,519 individuals across five culturally and linguistically distinct locations: U.S., France, Mexico, S. Korea, and Egypt. Rather than imposing predefined emotion and mood categories, we implement a bottom-up, participant-driven approach to organically elicit culturally specific music-related emotion terms. We then recruit another pool of human participants to collect 988,925 ratings for these culture-specific descriptors. Our analysis confirms the presence of a valence-arousal structure shared across cultures, yet also reveals significant divergences in how certain emotion terms (despite being dictionary equivalents) are perceived cross-culturally. State-of-the-art multimodal models benefit substantially from fine-tuning on our cross-culturally balanced dataset, particularly in non-English contexts. Broadly, our findings inform the ongoing debate on the universality versus cultural specificity of emotional descriptors, and our methodology can contribute to other multimodal and cross-lingual research.",
+          "claimed_authors": [
+            "Harin Lee",
+            "Elif Çelen",
+            "Peter Harrison",
+            "Manuel Anglada-Tort",
+            "Pol van Rijn",
+            "Minsu Park",
+            "Marc Schönwiesner",
+            "Nori Jacoby"
+          ],
+          "claimed_title": "GlobalMood: A cross-cultural benchmark for music emotion recognition",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2505.09539"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='The Impact of Incidental Music on Autobiographical Memory Retrieval psychology', candidate_title='GlobalMood: A cross-cultural benchmark for music emotion recognition')",
+        "failed_at": "2026-06-22T21:46:11Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present a semantic vector space model for capturing complex polyphonic musical context. A word2vec model based on a skip-gram representation with negative sampling was used to model slices of music from a dataset of Beethoven's piano sonatas. A visualization of the reduced vector space using t-distributed stochastic neighbor embedding shows that the resulting embedded vector space captures tonal relationships, even without any explicit information about the musical contents of the slices. Secondly, an excerpt of the Moonlight Sonata from Beethoven was altered by replacing slices based on context similarity. The resulting music shows that the selected slice based on similar word2vec context also has a relatively short tonal distance from the original slice.",
+          "claimed_authors": [
+            "Dorien Herremans",
+            "Ching-Hua Chuan"
+          ],
+          "claimed_title": "Modeling Musical Context with Word2vec",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1706.09088"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='The Impact of Incidental Music on Autobiographical Memory Retrieval psychology', candidate_title='Modeling Musical Context with Word2vec')",
+        "failed_at": "2026-06-22T21:46:11Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Axel Marmoret",
+            "Jérémy E. Cohen",
+            "Frédéric Bimbot"
+          ],
+          "title": "Barwise Music Structure Analysis with the Correlation Block-Matching Segmentation Algorithm",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2311.18604",
+        "summary": "Music Structure Analysis (MSA) is a Music Information Retrieval task consisting of representing a song in a simplified, organized manner by breaking it down into sections typically corresponding to ``chorus'', ``verse'', ``solo'', etc. In this work, we extend an MSA algorithm called the Correlation Block-Matching (CBM) algorithm introduced by (Marmoret et al., 2020, 2022b). The CBM algorithm is a dynamic programming algorithm that segments self-similarity matrices, which are a standard description used in MSA and in numerous other applications. In this work, self-similarity matrices are computed from the feature representation of an audio signal and time is sampled at the bar-scale. This study examines three different standard similarity functions for the computation of self-similarity matrices. Results show that, in optimal conditions, the proposed algorithm achieves a level of performance which is competitive with supervised state-of-the-art methods while only requiring knowledge of bar positions. In addition, the algorithm is made open-source and is highly customizable.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2311.18604",
+          "http_status": 200,
+          "pdf_sample_score": 0.2573,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-22T21:46:10Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Huan Zhang",
+            "Emmanouil Karystinaios",
+            "Simon Dixon",
+            "Gerhard Widmer",
+            "Carlos Eduardo Cancino-Chacón"
+          ],
+          "title": "Symbolic Music Representations for Classification Tasks: A Systematic Evaluation",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2309.02567",
+        "summary": "Music Information Retrieval (MIR) has seen a recent surge in deep learning-based approaches, which often involve encoding symbolic music (i.e., music represented in terms of discrete note events) in an image-like or language like fashion. However, symbolic music is neither an image nor a sentence, and research in the symbolic domain lacks a comprehensive overview of the different available representations. In this paper, we investigate matrix (piano roll), sequence, and graph representations and their corresponding neural architectures, in combination with symbolic scores and performances on three piece-level classification tasks. We also introduce a novel graph representation for symbolic performances and explore the capability of graph representations in global classification tasks. Our systematic evaluation shows advantages and limitations of each input representation. Our results suggest that the graph representation, as the newest and least explored among the three approaches, exhibits promising performance, while being more light-weight in training.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2309.02567",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-22T21:46:10Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yudhik Agrawal",
+            "Samyak Jain",
+            "Emily Carlson",
+            "Petri Toiviainen",
+            "Vinoo Alluri"
+          ],
+          "title": "Towards Multimodal MIR: Predicting individual differences from music-induced movement",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2020
+        },
+        "primary_pointer": "2007.10695",
+        "summary": "As the field of Music Information Retrieval grows, it is important to take into consideration the multi-modality of music and how aspects of musical engagement such as movement and gesture might be taken into account. Bodily movement is universally associated with music and reflective of important individual features related to music preference such as personality, mood, and empathy. Future multimodal MIR systems may benefit from taking these aspects into account. The current study addresses this by identifying individual differences, specifically Big Five personality traits, and scores on the Empathy and Systemizing Quotients (EQ/SQ) from participants' free dance movements. Our model successfully explored the unseen space for personality as well as EQ, SQ, which has not previously been accomplished for the latter. R2 scores for personality, EQ, and SQ were 76.3%, 77.1%, and 86.7% respectively. As a follow-up, we investigated which bodily joints were most important in defining these traits. We discuss how further research may explore how the mapping of these traits to movement patterns can be used to build a more personalized, multi-modal recommendation system, as well as potential therapeutic applications.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2007.10695",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-22T21:46:10Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Luis Carvalho",
+            "Gerhard Widmer"
+          ],
+          "title": "Passage Summarization with Recurrent Models for Audio-Sheet Music Retrieval",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2309.12111",
+        "summary": "Many applications of cross-modal music retrieval are related to connecting sheet music images to audio recordings. A typical and recent approach to this is to learn, via deep neural networks, a joint embedding space that correlates short fixed-size snippets of audio and sheet music by means of an appropriate similarity structure. However, two challenges that arise out of this strategy are the requirement of strongly aligned data to train the networks, and the inherent discrepancies of musical content between audio and sheet music snippets caused by local and global tempo differences. In this paper, we address these two shortcomings by designing a cross-modal recurrent network that learns joint embeddings that can summarize longer passages of corresponding audio and sheet music. The benefits of our method are that it only requires weakly aligned audio-sheet music pairs, as well as that the recurrent network handles the non-linearities caused by tempo variations between audio and sheet music. We conduct a number of experiments on synthetic and real piano data and scores, showing that our proposed recurrent method leads to more accurate retrieval in all possible configurations.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2309.12111",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-22T21:46:20Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "the impact of incidental music on autobiographical memory retrieval psychology",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

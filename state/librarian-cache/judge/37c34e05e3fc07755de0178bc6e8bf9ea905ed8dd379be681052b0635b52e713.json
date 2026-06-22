@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2309.02567",
+  "judged_at": "2026-06-22T21:46:24Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the impact of incidental music on autobiographical memory retrieval psychology",
+  "rationale": "The paper evaluates symbolic music representations for classification tasks in music information retrieval and does not investigate incidental music, autobiographical memory, or their psychological interaction, thus it lacks any relevant mechanism, variable, or population for the user's question.",
+  "relevant": false
+}

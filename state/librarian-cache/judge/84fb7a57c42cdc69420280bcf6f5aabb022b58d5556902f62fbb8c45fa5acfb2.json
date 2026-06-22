@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2309.12111",
+  "judged_at": "2026-06-22T21:46:30Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the impact of incidental music on autobiographical memory retrieval psychology",
+  "rationale": "The paper focuses on machine‑learning methods for audio‑sheet‑music retrieval and does not investigate incidental music, autobiographical memory, or any psychological effects, thus it is unrelated to the user's research question.",
+  "relevant": false
+}

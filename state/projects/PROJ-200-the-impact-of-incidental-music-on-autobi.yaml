@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-03T12:29:02.781215Z'
-current_stage: flesh_out_in_progress
+current_stage: flesh_out_complete
 failed_stage: null
 field: psychology
 human_escalation_reason: null
 id: PROJ-200-the-impact-of-incidental-music-on-autobi
-last_run_id: 94f2f031-9f25-4714-98c1-4202eb67855b
+last_run_id: f1969820-0fa2-4426-8dc0-1b0256747a8c
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: The Impact of Incidental Music on Autobiographical Memory Retrieval
-updated_at: '2026-06-15T07:35:38.481156Z'
+updated_at: '2026-06-22T21:46:46.432273Z'
