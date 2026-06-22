@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2410.13989",
+  "judged_at": "2026-06-22T09:15:00Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "assessing reproducibility of machine‑learned reaction yield models chemistry",
+  "rationale": "The paper studies reproducibility of a vision‑language model for image classification, not of machine‑learned reaction‑yield models in chemistry; it does not address the domain, variables, or mechanisms specific to the user's question.",
+  "relevant": false
+}

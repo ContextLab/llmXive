@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2605.09842",
+  "judged_at": "2026-06-22T09:14:58Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "assessing reproducibility of machine‑learned reaction yield models chemistry",
+  "rationale": "The paper studies financial Treasury yield‑curve forecasting with machine learning, not chemical reaction yield prediction, and does not address reproducibility of such models; thus it is off‑domain for the user's question.",
+  "relevant": false
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2206.07902",
+  "judged_at": "2026-06-22T09:12:55Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "systematic review of privacy-preserving federated learning protocols computer science",
+  "rationale": "The paper studies differential‑privacy mechanisms within federated learning (cross‑silo setting), providing empirical baselines and theoretical analysis of privacy‑preserving FL protocols—fulfilling criteria (a) same‑mechanism evidence and (c) empirical baseline for the domain of privacy‑preserving federated learning.",
+  "relevant": true
+}

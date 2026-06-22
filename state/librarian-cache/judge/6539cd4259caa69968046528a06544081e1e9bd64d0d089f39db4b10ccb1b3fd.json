@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2606.19264",
+  "judged_at": "2026-06-22T09:14:10Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "energy profiling of quantized llm inference on edge cpus computer science",
+  "rationale": "The paper focuses on using LLM conditional distributions for structured probabilistic inference (Large Language Gibbs) and does not address quantization, edge‑CPU deployment, or energy profiling of LLM inference, which are the core variables of the user's question. Hence it falls outside the relevant domain and mechanisms.",
+  "relevant": false
+}

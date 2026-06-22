@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2409.13004",
+  "judged_at": "2026-06-22T09:13:02Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "systematic review of privacy-preserving federated learning protocols computer science",
+  "rationale": "The paper investigates privacy leakage and mitigation (gradient noise) in federated learning, directly studying a privacy‑preserving mechanism relevant to FL protocols, satisfying criterion (a) (same‑mechanism evidence) and (b) (measures a dependent variable—privacy leakage—in the FL domain).",
+  "relevant": true
+}

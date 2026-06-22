@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2204.01150",
+  "judged_at": "2026-06-22T09:15:03Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "assessing reproducibility of machine‑learned reaction yield models chemistry",
+  "rationale": "The paper focuses on theoretical guarantees for a data‑driven nonlinear predictive control scheme in control systems, with no connection to chemical reaction yield modeling, machine‑learned yield predictions, or reproducibility assessments in chemistry. It is off‑domain and does not address any of the variables or mechanisms of the user's question.",
+  "relevant": false
+}

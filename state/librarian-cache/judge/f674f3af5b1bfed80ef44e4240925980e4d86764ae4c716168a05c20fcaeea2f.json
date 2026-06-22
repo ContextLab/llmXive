@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2007.06081",
+  "judged_at": "2026-06-22T09:12:49Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "systematic review of privacy-preserving federated learning protocols computer science",
+  "rationale": "The paper proposes a privacy‑preserving federated learning protocol (vertical, asynchronous FL with perturbed local embeddings) and evaluates its privacy guarantees and performance, directly matching the domain and mechanism of interest for a systematic review of privacy‑preserving FL protocols (acceptance category a).",
+  "relevant": true
+}

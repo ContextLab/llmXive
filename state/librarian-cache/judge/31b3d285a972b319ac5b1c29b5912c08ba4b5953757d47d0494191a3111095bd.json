@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2507.19663",
+  "judged_at": "2026-06-22T09:15:06Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "assessing reproducibility of machine‑learned reaction yield models chemistry",
+  "rationale": "The paper focuses on Bayesian optimization for solder joint reliability in micro‑electronics and does not study machine‑learned reaction yield models, chemistry, or the reproducibility of such models, placing it off‑domain from the user's question.",
+  "relevant": false
+}

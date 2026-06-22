@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2209.14086",
+  "judged_at": "2026-06-22T09:12:53Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "systematic review of privacy-preserving federated learning protocols computer science",
+  "rationale": "The paper proposes and evaluates a specific privacy‑preserving federated learning protocol that combines local differential privacy with momentum gradient descent, directly addressing the same mechanism and domain (privacy‑preserving FL) that the systematic review aims to cover (acceptance category a).",
+  "relevant": true
+}

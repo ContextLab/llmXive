@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2402.11651",
+  "judged_at": "2026-06-22T09:14:08Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "energy profiling of quantized llm inference on edge cpus computer science",
+  "rationale": "The paper studies fine‑tuning LLM agents with negative examples and does not address quantization, edge‑CPU inference, or energy consumption profiling, which are the core constructs of the user's question. It therefore lacks any of the inclusion criteria (a‑f).",
+  "relevant": false
+}

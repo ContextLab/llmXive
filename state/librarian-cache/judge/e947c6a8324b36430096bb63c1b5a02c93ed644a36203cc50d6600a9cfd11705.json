@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2605.11733",
+  "judged_at": "2026-06-22T09:13:58Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "energy profiling of quantized llm inference on edge cpus computer science",
+  "rationale": "The paper introduces a framework for measuring LLM inference energy per token and highlights quantization as an energy‑saving lever, thus providing same‑mechanism evidence (energy profiling) and a foundational methodology that is directly relevant to studies of quantized LLM inference on edge CPUs.",
+  "relevant": true
+}

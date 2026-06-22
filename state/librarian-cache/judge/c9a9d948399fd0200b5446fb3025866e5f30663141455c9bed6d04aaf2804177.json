@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2504.03360",
+  "judged_at": "2026-06-22T09:13:55Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "energy profiling of quantized llm inference on edge cpus computer science",
+  "rationale": "The paper measures the same mechanism of interest—energy consumption (energy profiling) of quantized LLM inference on an edge CPU (Raspberry Pi 4)—directly aligning with the user’s focus, satisfying acceptance criterion (a) (and also (c) as an empirical baseline).",
+  "relevant": true
+}

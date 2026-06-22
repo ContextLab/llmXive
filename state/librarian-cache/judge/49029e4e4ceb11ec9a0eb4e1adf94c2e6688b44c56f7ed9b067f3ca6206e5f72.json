@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2512.15759",
+  "judged_at": "2026-06-22T09:12:59Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "systematic review of privacy-preserving federated learning protocols computer science",
+  "rationale": "The paper proposes and analyzes a federated learning protocol that explicitly incorporates differential‑privacy guarantees and evaluates its privacy‑utility trade‑offs, directly addressing the same mechanism (privacy‑preserving federated learning) that the systematic review seeks to cover (category a).",
+  "relevant": true
+}

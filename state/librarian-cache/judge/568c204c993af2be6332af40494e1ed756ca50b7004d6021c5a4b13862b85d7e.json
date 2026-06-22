@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2004.11794",
+  "judged_at": "2026-06-22T09:12:47Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "systematic review of privacy-preserving federated learning protocols computer science",
+  "rationale": "The paper surveys privacy‑preserving federated learning methods (same mechanism as the user’s focus) and thus provides relevant prior work on FL protocols, albeit within the IoT domain (category (a) and (e)). It is a pertinent reference for a systematic review of privacy‑preserving FL protocols.",
+  "relevant": true
+}

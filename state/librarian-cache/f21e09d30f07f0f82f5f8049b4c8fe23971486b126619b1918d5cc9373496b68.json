@@ -1,0 +1,359 @@
+{
+  "fetched_at": "2026-06-22T09:13:02Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "Systematic Review of Privacy-Preserving Federated Learning Protocols",
+      "target_n": 5
+    },
+    "duration_seconds": 55.154,
+    "ended_at": "2026-06-22T09:13:02Z",
+    "expansion": null,
+    "extracted_queries": [
+      "differential privacy federated learning",
+      "cross-silo federated learning privacy",
+      "homomorphic encryption federated learning",
+      "privacy-utility tradeoff federated learning",
+      "gradient leakage attacks federated learning"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2206.07902"
+      ]
+    },
+    "per_query_hit_count": {
+      "Systematic Review of Privacy-Preserving Federated Learning Protocols computer science": 3,
+      "cross-silo federated learning privacy": 1,
+      "differential privacy federated learning": 3,
+      "gradient leakage attacks federated learning": 1,
+      "homomorphic encryption federated learning": 2,
+      "privacy-utility tradeoff federated learning": 1
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 0,
+      "rejections": []
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-22T09:12:07Z",
+    "term_input": {
+      "normalized": "systematic review of privacy-preserving federated learning protocols computer science",
+      "raw": "Systematic Review of Privacy-Preserving Federated Learning Protocols computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Homomorphic encryption is a sophisticated encryption technique that allows computations on encrypted data to be done without the requirement for decryption. This trait makes homomorphic encryption appropriate for safe computation in sensitive data scenarios, such as cloud computing, medical data exchange, and financial transactions. The data is encrypted using a public key in homomorphic encryption, and the calculation is conducted on the encrypted data using an algorithm that retains the encryption. The computed result is then decrypted with a private key to acquire the final output. This abstract notion protects data while allowing complicated computations to be done on the encrypted data, resulting in a secure and efficient approach to analysing sensitive information. This article is intended to give a clear idea about the various fully Homomorphic Encryption Schemes present in the literature and analyse and compare the results of each of these schemes. Further, we also provide applications and open-source tools of homomorphic encryption schemes.",
+          "claimed_authors": [
+            "Nimish Jain",
+            "Aswani Kumar Cherukuri"
+          ],
+          "claimed_title": "Revisiting Fully Homomorphic Encryption Schemes",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2305.05904"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Systematic Review of Privacy-Preserving Federated Learning Protocols computer sc', candidate_title='Revisiting Fully Homomorphic Encryption Schemes')",
+        "failed_at": "2026-06-22T09:12:41Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yiwen Lu"
+          ],
+          "title": "SRFed: Mitigating Poisoning Attacks in Privacy-Preserving Federated Learning with Heterogeneous Data",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2602.16480",
+        "summary": "Federated Learning (FL) enables collaborative model training without exposing clients' private data, and has been widely adopted in privacy-sensitive scenarios. However, FL faces two critical security threats: curious servers that may launch inference attacks to reconstruct clients' private data, and compromised clients that can launch poisoning attacks to disrupt model aggregation. Existing solutions mitigate these attacks by combining mainstream privacy-preserving techniques with defensive aggregation strategies. However, they either incur high computation and communication overhead or perform poorly under non-independent and identically distributed (Non-IID) data settings. To tackle these challenges, we propose SRFed, an efficient Byzantine-robust and privacy-preserving FL framework for Non-IID scenarios. First, we design a decentralized efficient functional encryption (DEFE) scheme to support efficient model encryption and non-interactive decryption. DEFE also eliminates third-party reliance and defends against server-side inference attacks. Second, we develop a privacy-preserving defensive model aggregation mechanism based on DEFE. This mechanism filters poisonous models under Non-IID data by layer-wise projection and clustering-based analysis. Theoretical analysis and extensive experiments show that SRFed outperforms state-of-the-art baselines in privacy protection, Byzantine robustness, and efficiency.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2602.16480",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4444,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-22T09:12:39Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Swanand Kadhe",
+            "Nived Rajaraman",
+            "O. Ozan Koyluoglu",
+            "Kannan Ramchandran"
+          ],
+          "title": "FastSecAgg: Scalable Secure Aggregation for Privacy-Preserving Federated Learning",
+          "venue": "arXiv",
+          "year": 2020
+        },
+        "primary_pointer": "2009.11248",
+        "summary": "Recent attacks on federated learning demonstrate that keeping the training data on clients' devices does not provide sufficient privacy, as the model parameters shared by clients can leak information about their training data. A 'secure aggregation' protocol enables the server to aggregate clients' models in a privacy-preserving manner. However, existing secure aggregation protocols incur high computation/communication costs, especially when the number of model parameters is larger than the number of clients participating in an iteration -- a typical scenario in federated learning.\n  In this paper, we propose a secure aggregation protocol, FastSecAgg, that is efficient in terms of computation and communication, and robust to client dropouts. The main building block of FastSecAgg is a novel multi-secret sharing scheme, FastShare, based on the Fast Fourier Transform (FFT), which may be of independent interest. FastShare is information-theoretically secure, and achieves a trade-off between the number of secrets, privacy threshold, and dropout tolerance. Riding on the capabilities of FastShare, we prove that FastSecAgg is (i) secure against the server colluding with 'any' subset of some constant fraction (e.g. $\\sim10\\%$) of the clients in the honest-but-curious setting; and (ii) tolerates dropouts of a 'random' subset of some constant fraction (e.g. $\\sim10\\%$) of the clients. FastSecAgg achieves significantly smaller computation cost than existing schemes while achieving the same (orderwise) communication cost. In addition, it guarantees security against adaptive adversaries, which can perform client corruptions dynamically during the execution of the protocol.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2009.11248",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5556,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-22T09:12:39Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Christopher Briggs",
+            "Zhong Fan",
+            "Peter Andras"
+          ],
+          "title": "A Review of Privacy-preserving Federated Learning for the Internet-of-Things",
+          "venue": "arXiv",
+          "year": 2020
+        },
+        "primary_pointer": "2004.11794",
+        "summary": "The Internet-of-Things (IoT) generates vast quantities of data, much of it attributable to individuals' activity and behaviour. Gathering personal data and performing machine learning tasks on this data in a central location presents a significant privacy risk to individuals as well as challenges with communicating this data to the cloud. However, analytics based on machine learning and in particular deep learning benefit greatly from large amounts of data to develop high-performance predictive models. This work reviews federated learning as an approach for performing machine learning on distributed data with the goal of protecting the privacy of user-generated data as well as reducing communication costs associated with data transfer. We survey a wide variety of papers covering communication-efficiency, client heterogeneity and privacy preserving methods that are crucial for federated learning in the context of the IoT. Throughout this review, we identify the strengths and weaknesses of different methods applied to federated learning and finally, we outline future directions for privacy preserving federated learning research, particularly focusing on IoT applications.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2004.11794",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5556,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-22T09:12:39Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Tianyi Chen",
+            "Xiao Jin",
+            "Yuejiao Sun",
+            "Wotao Yin"
+          ],
+          "title": "VAFL: a Method of Vertical Asynchronous Federated Learning",
+          "venue": "arXiv",
+          "year": 2020
+        },
+        "primary_pointer": "2007.06081",
+        "summary": "Horizontal Federated learning (FL) handles multi-client data that share the same set of features, and vertical FL trains a better predictor that combine all the features from different clients. This paper targets solving vertical FL in an asynchronous fashion, and develops a simple FL method. The new method allows each client to run stochastic gradient algorithms without coordination with other clients, so it is suitable for intermittent connectivity of clients. This method further uses a new technique of perturbed local embedding to ensure data privacy and improve communication efficiency. Theoretically, we present the convergence rate and privacy level of our method for strongly convex, nonconvex and even nonsmooth objectives separately. Empirically, we apply our method to FL on various image and healthcare datasets. The results compare favorably to centralized and synchronous FL methods.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2007.06081",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-22T09:12:39Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Ehsan Hallaji",
+            "Roozbeh Razavi-Far",
+            "Mehrdad Saif"
+          ],
+          "title": "Federated and Transfer Learning: A Survey on Adversaries and Defense Mechanisms",
+          "venue": "arXiv",
+          "year": 2022
+        },
+        "primary_pointer": "2207.02337",
+        "summary": "The advent of federated learning has facilitated large-scale data exchange amongst machine learning models while maintaining privacy. Despite its brief history, federated learning is rapidly evolving to make wider use more practical. One of the most significant advancements in this domain is the incorporation of transfer learning into federated learning, which overcomes fundamental constraints of primary federated learning, particularly in terms of security. This chapter performs a comprehensive survey on the intersection of federated and transfer learning from a security point of view. The main goal of this study is to uncover potential vulnerabilities and defense mechanisms that might compromise the privacy and performance of systems that use federated and transfer learning.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2207.02337",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-22T09:12:40Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Mengde Han",
+            "Tianqing Zhu",
+            "Wanlei Zhou"
+          ],
+          "title": "Momentum Gradient Descent Federated Learning with Local Differential Privacy",
+          "venue": "arXiv",
+          "year": 2022
+        },
+        "primary_pointer": "2209.14086",
+        "summary": "Nowadays, the development of information technology is growing rapidly. In the big data era, the privacy of personal information has been more pronounced. The major challenge is to find a way to guarantee that sensitive personal information is not disclosed while data is published and analyzed. Centralized differential privacy is established on the assumption of a trusted third-party data curator. However, this assumption is not always true in reality. As a new privacy preservation model, local differential privacy has relatively strong privacy guarantees. Although federated learning has relatively been a privacy-preserving approach for distributed learning, it still introduces various privacy concerns. To avoid privacy threats and reduce communication costs, in this article, we propose integrating federated learning and local differential privacy with momentum gradient descent to improve the performance of machine learning models.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2209.14086",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4444,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-22T09:12:40Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Ziyu Liu",
+            "Shengyuan Hu",
+            "Zhiwei Steven Wu",
+            "Virginia Smith"
+          ],
+          "title": "On Privacy and Personalization in Cross-Silo Federated Learning",
+          "venue": "arXiv",
+          "year": 2022
+        },
+        "primary_pointer": "2206.07902",
+        "summary": "While the application of differential privacy (DP) has been well-studied in cross-device federated learning (FL), there is a lack of work considering DP and its implications for cross-silo FL, a setting characterized by a limited number of clients each containing many data subjects. In cross-silo FL, usual notions of client-level DP are less suitable as real-world privacy regulations typically concern the in-silo data subjects rather than the silos themselves. In this work, we instead consider an alternative notion of silo-specific sample-level DP, where silos set their own privacy targets for their local examples. Under this setting, we reconsider the roles of personalization in federated learning. In particular, we show that mean-regularized multi-task learning (MR-MTL), a simple personalization framework, is a strong baseline for cross-silo FL: under stronger privacy requirements, silos are incentivized to federate more with each other to mitigate DP noise, resulting in consistent improvements relative to standard baseline methods. We provide an empirical study of competing methods as well as a theoretical characterization of MR-MTL for mean estimation, highlighting the interplay between privacy and cross-silo data heterogeneity. Our work serves to establish baselines for private cross-silo FL as well as identify key directions of future work in this area.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2206.07902",
+          "http_status": 200,
+          "pdf_sample_score": 0.2969,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-22T09:12:40Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Lukas Böhm",
+            "Arjhun Swaminathan",
+            "Anika Hannemann",
+            "Erik Buchmann"
+          ],
+          "title": "Understanding the Resource Cost of Fully Homomorphic Encryption in Quantum Federated Learning",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2603.02799",
+        "summary": "Quantum Federated Learning (QFL) enables distributed training of Quantum Machine Learning (QML) models by sharing model gradients instead of raw data. However, these gradients can still expose sensitive user information. To enhance privacy, homomorphic encryption of parameters has been proposed as a solution in QFL and related frameworks. In this work, we evaluate the overhead introduced by Fully Homomorphic Encryption (FHE) in QFL setups and assess its feasibility for real-world applications. We implemented various QML models including a Quantum Convolutional Neural Network (QCNN) trained in a federated environment with parameters encrypted using the CKKS scheme. This work marks the first QCNN trained in a federated setting with CKKS-encrypted parameters. Models of varying architectures were trained to predict brain tumors from MRI scans. The experiments reveal that memory and communication overhead remain substantial, making FHE challenging to deploy. Minimizing overhead requires reducing the number of model parameters, which, however, leads to a decline in classification performance, introducing a trade-off between privacy and model complexity.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2603.02799",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-22T09:12:40Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Jahidul Arafat"
+          ],
+          "title": "Semantic-Constrained Federated Aggregation: Convergence Theory and Privacy-Utility Bounds for Knowledge-Enhanced Distributed Learning",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2512.15759",
+        "summary": "Federated learning enables collaborative model training across distributed data sources but suffers from slow convergence under non-IID data conditions. Existing solutions employ algorithmic modifications treating all client updates identically, ignoring semantic validity. We introduce Semantic-Constrained Federated Aggregation (SCFA), a theoretically-grounded framework incorporating domain knowledge constraints into distributed optimization. We prove SCFA achieves convergence rate O(1/sqrt(T) + rho) where rho represents constraint violation rate, establishing the first convergence theory for constraint-based federated learning. Our analysis shows constraints reduce effective data heterogeneity by 41% and improve privacy-utility tradeoffs through hypothesis space reduction by factor theta=0.37. Under (epsilon,delta)-differential privacy with epsilon=10, constraint regularization maintains utility within 3.7% of non-private baseline versus 12.1% degradation for standard federated learning, representing 2.7x improvement. We validate our framework on manufacturing predictive maintenance using Bosch production data with 1.18 million samples and 968 sensor features, constructing knowledge graphs encoding 3,000 constraints from ISA-95 and MASON ontologies. Experiments demonstrate 22% faster convergence, 41.3% model divergence reduction, and constraint violation thresholds where rho<0.05 maintains 90% optimal performance while rho>0.18 causes catastrophic failure. Our theoretical predictions match empirical observations with R^2>0.90 across convergence, privacy, and violation-performance relationships.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2512.15759",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-22T09:12:41Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Wenqi Wei",
+            "Tiansheng Huang",
+            "Zachary Yahn",
+            "Anoop Singhal",
+            "Margaret Loper",
+            "Ling Liu"
+          ],
+          "title": "Data Poisoning and Leakage Analysis in Federated Learning",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2409.13004",
+        "summary": "Data poisoning and leakage risks impede the massive deployment of federated learning in the real world. This chapter reveals the truths and pitfalls of understanding two dominating threats: {\\em training data privacy intrusion} and {\\em training data poisoning}. We first investigate training data privacy threat and present our observations on when and how training data may be leaked during the course of federated training. One promising defense strategy is to perturb the raw gradient update by adding some controlled randomized noise prior to sharing during each round of federated learning. We discuss the importance of determining the proper amount of randomized noise and the proper location to add such noise for effective mitigation of gradient leakage threats against training data privacy. Then we will review and compare different training data poisoning threats and analyze why and when such data poisoning induced model Trojan attacks may lead to detrimental damage on the performance of the global model. We will categorize and compare representative poisoning attacks and the effectiveness of their mitigation techniques, delivering an in-depth understanding of the negative impact of data poisoning. Finally, we demonstrate the potential of dynamic model perturbation in simultaneously ensuring privacy protection, poisoning resilience, and model performance. The chapter concludes with a discussion on additional risk factors in federated learning, including the negative impact of skewness, data and algorithmic biases, as well as misinformation in training data. Powered by empirical evidence, our analytical study offers some transformative insights into effective privacy protection and security assurance strategies in attack-resilient federated learning.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2409.13004",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4444,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-22T09:12:41Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "systematic review of privacy-preserving federated learning protocols computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

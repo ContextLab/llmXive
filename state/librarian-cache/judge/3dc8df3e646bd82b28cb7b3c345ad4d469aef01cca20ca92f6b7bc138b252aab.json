@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2207.02337",
+  "judged_at": "2026-06-22T09:12:52Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "systematic review of privacy-preserving federated learning protocols computer science",
+  "rationale": "The paper surveys security and defense mechanisms for federated (and transfer) learning, directly addressing privacy‑preserving aspects of federated learning protocols (same‑mechanism evidence, category (a), and cross‑vocabulary cluster of privacy/security, category (f)).",
+  "relevant": true
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2406.07553",
+  "judged_at": "2026-06-22T09:14:06Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "energy profiling of quantized llm inference on edge cpus computer science",
+  "rationale": "The paper measures power consumption (energy) of LLM inference on CPUs, providing empirical data on energy reduction, which aligns with the same mechanism (energy profiling) the user’s question concerns, even though it does not focus on quantization or edge‑specific hardware. This satisfies acceptance criterion (a) – same‑mechanism evidence.",
+  "relevant": true
+}

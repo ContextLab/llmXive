@@ -1,0 +1,710 @@
+{
+  "fetched_at": "2026-06-22T09:15:07Z",
+  "field": "chemistry",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "chemistry",
+      "idea_body_excerpt": "Assessing Reproducibility of Machine‑Learned Reaction Yield Models",
+      "target_n": 5
+    },
+    "duration_seconds": 45.865,
+    "ended_at": "2026-06-22T09:15:07Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "reproducibility of data‑driven reaction yield predictions"
+        ],
+        [
+          2,
+          "validation of machine‑learning reaction yield models"
+        ],
+        [
+          3,
+          "benchmarking AI‑based reaction yield forecasts"
+        ],
+        [
+          4,
+          "robustness assessment of neural network reaction yield predictors"
+        ],
+        [
+          5,
+          "cross‑validation of chemoinformatics reaction yield models"
+        ],
+        [
+          6,
+          "uncertainty quantification in ML reaction yield predictions"
+        ],
+        [
+          7,
+          "generalizability of data‑driven chemical reaction models"
+        ],
+        [
+          8,
+          "reproducible AI for synthetic chemistry yield estimation"
+        ],
+        [
+          9,
+          "reproducibility metrics for predictive reaction yield models"
+        ],
+        [
+          10,
+          "replicability of machine‑learned reaction outcome estimators"
+        ],
+        [
+          11,
+          "evaluation of model transferability in reaction yield prediction"
+        ],
+        [
+          12,
+          "assessment of model performance consistency for reaction yields"
+        ],
+        [
+          13,
+          "reproducibility study of deep learning reaction yield predictors"
+        ],
+        [
+          14,
+          "statistical reproducibility of reaction yield estimators"
+        ],
+        [
+          15,
+          "benchmark datasets for reproducible reaction yield modeling"
+        ],
+        [
+          16,
+          "model validation protocols for reaction yield prediction"
+        ],
+        [
+          17,
+          "reproducibility challenges in data‑driven synthetic chemistry"
+        ],
+        [
+          18,
+          "reliable machine‑learning approaches to reaction yield estimation"
+        ],
+        [
+          19,
+          "reproducibility of hybrid quantum‑chemical/ML reaction yield models"
+        ],
+        [
+          20,
+          "reproducibility of AI‑assisted reaction optimization workflows"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Assessing Reproducibility of Machine‑Learned Reaction Yield Models chemistry": 0,
+        "reproducibility of data‑driven reaction yield predictions": 4
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "model replicability reaction yield",
+      "USPTO reaction yield dataset",
+      "out‑of‑distribution generalization reaction yield",
+      "MAE reaction yield prediction",
+      "data leakage reaction yield modeling"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2605.09842"
+      ]
+    },
+    "per_query_hit_count": {
+      "Assessing Reproducibility of Machine‑Learned Reaction Yield Models chemistry": 3,
+      "MAE reaction yield prediction": 3,
+      "USPTO reaction yield dataset": 2,
+      "data leakage reaction yield modeling": 3,
+      "model replicability reaction yield": 3,
+      "out‑of‑distribution generalization reaction yield": 2
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": true,
+      "rejected_count": 6,
+      "rejections": [
+        {
+          "primary_pointer": "2605.09842",
+          "rationale": "The paper studies financial Treasury yield‑curve forecasting with machine learning, not chemical reaction yield prediction, and does not address reproducibility of such models; thus it is off‑domain for the user's question.",
+          "title": "Yield Curve Forecasting using Machine Learning and Econometrics: A Comparative Analysis"
+        },
+        {
+          "primary_pointer": "2410.13989",
+          "rationale": "The paper studies reproducibility of a vision‑language model for image classification, not of machine‑learned reaction‑yield models in chemistry; it does not address the domain, variables, or mechanisms specific to the user's question.",
+          "title": "Reproducibility study of \"LICO: Explainable Models with Language-Image Consistency\""
+        },
+        {
+          "primary_pointer": "2408.04767",
+          "rationale": "The paper focuses on pixel-level sensing and computer‑vision control loops, with no relevance to chemical reaction yield prediction, machine‑learned models in chemistry, or reproducibility assessment, thus it is off‑domain and unrelated to the user's research question.",
+          "title": "Data-Driven Pixel Control: Challenges and Prospects"
+        },
+        {
+          "primary_pointer": "2204.01150",
+          "rationale": "The paper focuses on theoretical guarantees for a data‑driven nonlinear predictive control scheme in control systems, with no connection to chemical reaction yield modeling, machine‑learned yield predictions, or reproducibility assessments in chemistry. It is off‑domain and does not address any of the variables or mechanisms of the user's question.",
+          "title": "Practical exponential stability of a robust data-driven nonlinear predictive control scheme"
+        },
+        {
+          "primary_pointer": "2507.19663",
+          "rationale": "The paper focuses on Bayesian optimization for solder joint reliability in micro‑electronics and does not study machine‑learned reaction yield models, chemistry, or the reproducibility of such models, placing it off‑domain from the user's question.",
+          "title": "Adaptive Bayesian Data-Driven Design of Reliable Solder Joints for Micro-electronic Devices"
+        },
+        {
+          "primary_pointer": "2408.06634",
+          "rationale": "The paper focuses on financial stock prediction using LLMs and QLoRA, which is unrelated to machine‑learned reaction yield models, chemistry, or reproducibility assessment, thus it falls under the off‑domain rejection rule.",
+          "title": "Harnessing Earnings Reports for Stock Predictions: A QLoRA-Enhanced LLM Approach"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-22T09:14:21Z",
+    "term_input": {
+      "normalized": "assessing reproducibility of machine‑learned reaction yield models chemistry",
+      "raw": "Assessing Reproducibility of Machine‑Learned Reaction Yield Models chemistry"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Machine learning algorithms designed to characterize, monitor, and intervene on human health (ML4H) are expected to perform safely and reliably when operating at scale, potentially outside strict human supervision. This requirement warrants a stricter attention to issues of reproducibility than other fields of machine learning.\n  In this work, we conduct a systematic evaluation of over 100 recently published ML4H research papers along several dimensions related to reproducibility. We find that the field of ML4H compares poorly to more established machine learning fields, particularly concerning data and code accessibility. Finally, drawing from success in other fields of science, we propose recommendations to data providers, academic publishers, and the ML4H research community in order to promote reproducible research moving forward.",
+          "claimed_authors": [
+            "Matthew B. A. McDermott",
+            "Shirly Wang",
+            "Nikki Marinsek",
+            "Rajesh Ranganath",
+            "Marzyeh Ghassemi",
+            "Luca Foschini"
+          ],
+          "claimed_title": "Reproducibility in Machine Learning for Health",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1907.01463"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Assessing Reproducibility of Machine‑Learned Reaction Yield Models chemistry', candidate_title='Reproducibility in Machine Learning for Health')",
+        "failed_at": "2026-06-22T09:14:51Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Establishing a docker-based replicability infrastructure offers the community a great opportunity: measuring the run time of information retrieval systems. The time required to present query results to a user is paramount to the users satisfaction. Recent advances in neural IR re-ranking models put the issue of query latency at the forefront. They bring a complex trade-off between performance and effectiveness based on a myriad of factors: the choice of encoding model, network architecture, hardware acceleration and many others. The best performing models (currently using the BERT transformer model) run orders of magnitude more slowly than simpler architectures. We aim to broaden the focus of the neural IR community to include performance considerations -- to sustain the practical applicability of our innovations. In this position paper we supply our argument with a case study exploring the performance of different neural re-ranking models. Finally, we propose to extend the OSIRRC docker-based replicability infrastructure with two performance focused benchmark scenarios.",
+          "claimed_authors": [
+            "Sebastian Hofstätter",
+            "Allan Hanbury"
+          ],
+          "claimed_title": "Let's measure run time! Extending the IR replicability infrastructure to include performance aspects",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1907.04614"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Assessing Reproducibility of Machine‑Learned Reaction Yield Models chemistry', candidate_title=\"Let's measure run time! Extending the IR replicability infrastructure to include performance aspects\")",
+        "failed_at": "2026-06-22T09:14:52Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study a statistical framework for replicability based on a recently proposed quantitative measure of replication success, the sceptical $p$-value. A recalibration is proposed to obtain exact overall Type-I error control if the effect is null in both studies and additional bounds on the partial and conditional Type-I error rate, which represent the case where only one study has a null effect. The approach avoids the double dichotomization for significance of the two-trials rule and has larger project power to detect existing effects over both studies in combination. It can also be used for power calculations and requires a smaller replication sample size than the two-trials rule for already convincing original studies. We illustrate the performance of the proposed methodology in an application to data from the Experimental Economics Replication Project.",
+          "claimed_authors": [
+            "Charlotte Micheloud",
+            "Fadoua Balabdaoui",
+            "Leonhard Held"
+          ],
+          "claimed_title": "Assessing replicability with the sceptical p-value: Type-I error control and sample size planning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2207.00464"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Assessing Reproducibility of Machine‑Learned Reaction Yield Models chemistry', candidate_title='Assessing replicability with the sceptical p-value: Type-I error control and sample size planning')",
+        "failed_at": "2026-06-22T09:14:52Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Reaction RuleML is a general, practical, compact and user-friendly XML-serialized language for the family of reaction rules. In this white paper we give a review of the history of event / action /state processing and reaction rule approaches and systems in different domains, define basic concepts and give a classification of the event, action, state processing and reasoning space as well as a discussion of relevant / related work",
+          "claimed_authors": [
+            "Adrian Paschke"
+          ],
+          "claimed_title": "The Reaction RuleML Classification of the Event / Action / State Processing and Reasoning Space",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2006,
+          "primary_pointer": "cs/0611047"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Assessing Reproducibility of Machine‑Learned Reaction Yield Models chemistry', candidate_title='The Reaction RuleML Classification of the Event / Action / State Processing and Reasoning Space')",
+        "failed_at": "2026-06-22T09:14:52Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The RSNA Abdominal Traumatic Injury CT (RATIC) dataset is the largest publicly available collection of adult abdominal CT studies annotated for traumatic injuries. This dataset includes 4,274 studies from 23 institutions across 14 countries. The dataset is freely available for non-commercial use via Kaggle at https://www.kaggle.com/competitions/rsna-2023-abdominal-trauma-detection. Created for the RSNA 2023 Abdominal Trauma Detection competition, the dataset encourages the development of advanced machine learning models for detecting abdominal injuries on CT scans. The dataset encompasses detection and classification of traumatic injuries across multiple organs, including the liver, spleen, kidneys, bowel, and mesentery. Annotations were created by expert radiologists from the American Society of Emergency Radiology (ASER) and Society of Abdominal Radiology (SAR). The dataset is annotated at multiple levels, including the presence of injuries in three solid organs with injury grading, image-level annotations for active extravasations and bowel injury, and voxelwise segmentations of each of the potentially injured organs. With the release of this dataset, we hope to facilitate research and development in machine learning and abdominal trauma that can lead to improved patient care and outcomes.",
+          "claimed_authors": [
+            "Jeffrey D. Rudie",
+            "Hui-Ming Lin",
+            "Robyn L. Ball",
+            "Sabeena Jalal",
+            "Luciano M. Prevedello",
+            "Savvas Nicolaou",
+            "Brett S. Marinelli",
+            "Adam E. Flanders",
+            "Kirti Magudia",
+            "George Shih",
+            "Melissa A. Davis",
+            "John Mongan",
+            "Peter D. Chang",
+            "Ferco H. Berger",
+            "Sebastiaan Hermans",
+            "Meng Law",
+            "Tyler Richards",
+            "Jan-Peter Grunz",
+            "Andreas Steven Kunz",
+            "Shobhit Mathur",
+            "Sandro Galea-Soler",
+            "Andrew D. Chung",
+            "Saif Afat",
+            "Chin-Chi Kuo",
+            "Layal Aweidah",
+            "Ana Villanueva Campos",
+            "Arjuna Somasundaram",
+            "Felipe Antonio Sanchez Tijmes",
+            "Attaporn Jantarangkoon",
+            "Leonardo Kayat Bittencourt",
+            "Michael Brassil",
+            "Ayoub El Hajjami",
+            "Hakan Dogan",
+            "Muris Becircic",
+            "Agrahara G. Bharatkumar",
+            "Eduardo Moreno Júdice de Mattos Farina",
+            "Dataset Curator Group",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Errol Colak"
+          ],
+          "claimed_title": "The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.19595"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Assessing Reproducibility of Machine‑Learned Reaction Yield Models chemistry', candidate_title='The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset')",
+        "failed_at": "2026-06-22T09:14:52Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Radiological Society of North America (RSNA) Lumbar Degenerative Imaging Spine Classification (LumbarDISC) dataset is the largest publicly available dataset of adult MRI lumbar spine examinations annotated for degenerative changes. The dataset includes 2,697 patients with a total of 8,593 image series from 8 institutions across 6 countries and 5 continents. The dataset is available for free for non-commercial use via Kaggle and RSNA Medical Imaging Resource of AI (MIRA). The dataset was created for the RSNA 2024 Lumbar Spine Degenerative Classification competition where competitors developed deep learning models to grade degenerative changes in the lumbar spine. The degree of spinal canal, subarticular recess, and neural foraminal stenosis was graded at each intervertebral disc level in the lumbar spine. The images were annotated by expert volunteer neuroradiologists and musculoskeletal radiologists from the RSNA, American Society of Neuroradiology, and the American Society of Spine Radiology. This dataset aims to facilitate research and development in machine learning and lumbar spine imaging to lead to improved patient care and clinical efficiency.",
+          "claimed_authors": [
+            "Tyler J. Richards",
+            "Adam E. Flanders",
+            "Errol Colak",
+            "Luciano M. Prevedello",
+            "Robyn L. Ball",
+            "Felipe Kitamura",
+            "John Mongan",
+            "Maryam Vazirabad",
+            "Hui-Ming Lin",
+            "Anne Kendell",
+            "Thanat Kanthawang",
+            "Salita Angkurawaranon",
+            "Emre Altinmakas",
+            "Hakan Dogan",
+            "Paulo Eduardo de Aguiar Kuriki",
+            "Arjuna Somasundaram",
+            "Christopher Ruston",
+            "Deniz Bulja",
+            "Naida Spahovic",
+            "Jennifer Sommer",
+            "Sirui Jiang",
+            "Eduardo Moreno Judice de Mattos Farina",
+            "Eduardo Caminha Nunes",
+            "Michael Brassil",
+            "Megan McNamara",
+            "Johanna Ortiz",
+            "Jacob Peoples",
+            "Vinson L. Uytana",
+            "Anthony Kam",
+            "Venkata N. S. Dola",
+            "Daniel Murphy",
+            "David Vu",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Competition Data Notebook Group",
+            "Jason F. Talbott"
+          ],
+          "claimed_title": "The RSNA Lumbar Degenerative Imaging Spine Classification (LumbarDISC) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.09162"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Assessing Reproducibility of Machine‑Learned Reaction Yield Models chemistry', candidate_title='The RSNA Lumbar Degenerative Imaging Spine Classification (LumbarDISC) Dataset')",
+        "failed_at": "2026-06-22T09:14:52Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We expect the generalization error to improve with more samples from a similar task, and to deteriorate with more samples from an out-of-distribution (OOD) task. In this work, we show a counter-intuitive phenomenon: the generalization error of a task can be a non-monotonic function of the number of OOD samples. As the number of OOD samples increases, the generalization error on the target task improves before deteriorating beyond a threshold. In other words, there is value in training on small amounts of OOD data. We use Fisher's Linear Discriminant on synthetic datasets and deep networks on computer vision benchmarks such as MNIST, CIFAR-10, CINIC-10, PACS and DomainNet to demonstrate and analyze this phenomenon. In the idealistic setting where we know which samples are OOD, we show that these non-monotonic trends can be exploited using an appropriately weighted objective of the target and OOD empirical risk. While its practical utility is limited, this does suggest that if we can detect OOD samples, then there may be ways to benefit from them. When we do not know which samples are OOD, we show how a number of go-to strategies such as data-augmentation, hyper-parameter optimization, and pre-training are not enough to ensure that the target generalization error does not deteriorate with the number of OOD samples in the dataset.",
+          "claimed_authors": [
+            "Ashwin De Silva",
+            "Rahul Ramesh",
+            "Carey E. Priebe",
+            "Pratik Chaudhari",
+            "Joshua T. Vogelstein"
+          ],
+          "claimed_title": "The Value of Out-of-Distribution Data",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2208.10967"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Assessing Reproducibility of Machine‑Learned Reaction Yield Models chemistry', candidate_title='The Value of Out-of-Distribution Data')",
+        "failed_at": "2026-06-22T09:14:52Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Machine learning (ML) systems in natural language processing (NLP) face significant challenges in generalizing to out-of-distribution (OOD) data, where the test distribution differs from the training data distribution. This poses important questions about the robustness of NLP models and their high accuracy, which may be artificially inflated due to their underlying sensitivity to systematic biases. Despite these challenges, there is a lack of comprehensive surveys on the generalization challenge from an OOD perspective in text classification. Therefore, this paper aims to fill this gap by presenting the first comprehensive review of recent progress, methods, and evaluations on this topic. We furth discuss the challenges involved and potential future research directions. By providing quick access to existing work, we hope this survey will encourage future research in this area.",
+          "claimed_authors": [
+            "Linyi Yang",
+            "Yaoxiao Song",
+            "Xuan Ren",
+            "Chenyang Lyu",
+            "Yidong Wang",
+            "Lingqiao Liu",
+            "Jindong Wang",
+            "Jennifer Foster",
+            "Yue Zhang"
+          ],
+          "claimed_title": "Out-of-Distribution Generalization in Text Classification: Past, Present, and Future",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2305.14104"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Assessing Reproducibility of Machine‑Learned Reaction Yield Models chemistry', candidate_title='Out-of-Distribution Generalization in Text Classification: Past, Present, and Future')",
+        "failed_at": "2026-06-22T09:14:52Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Medical image segmentation remains a formidable challenge due to the label scarcity. Pre-training Vision Transformer (ViT) through masked image modeling (MIM) on large-scale unlabeled medical datasets presents a promising solution, providing both computational efficiency and model generalization for various downstream tasks. However, current ViT-based MIM pre-training frameworks predominantly emphasize local aggregation representations in output layers and fail to exploit the rich representations across different ViT layers that better capture fine-grained semantic information needed for more precise medical downstream tasks. To fill the above gap, we hereby present Hierarchical Encoder-driven MAE (Hi-End-MAE), a simple yet effective ViT-based pre-training solution, which centers on two key innovations: (1) Encoder-driven reconstruction, which encourages the encoder to learn more informative features to guide the reconstruction of masked patches; and (2) Hierarchical dense decoding, which implements a hierarchical decoding structure to capture rich representations across different layers. We pre-train Hi-End-MAE on a large-scale dataset of 10K CT scans and evaluated its performance across seven public medical image segmentation benchmarks. Extensive experiments demonstrate that Hi-End-MAE achieves superior transfer learning capabilities across various downstream tasks, revealing the potential of ViT in medical imaging applications. The code is available at: https://github.com/FengheTan9/Hi-End-MAE",
+          "claimed_authors": [
+            "Fenghe Tang",
+            "Qingsong Yao",
+            "Wenxin Ma",
+            "Chenxu Wu",
+            "Zihang Jiang",
+            "S. Kevin Zhou"
+          ],
+          "claimed_title": "Hi-End-MAE: Hierarchical encoder-driven masked autoencoders are stronger vision learners for medical image segmentation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2502.08347"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Assessing Reproducibility of Machine‑Learned Reaction Yield Models chemistry', candidate_title='Hi-End-MAE: Hierarchical encoder-driven masked autoencoders are stronger vision learners for medical image segmentation')",
+        "failed_at": "2026-06-22T09:14:52Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Nowadays, multimedia forensics faces unprecedented challenges due to the rapid advancement of multimedia generation technology thereby making Image Manipulation Localization (IML) crucial in the pursuit of truth. The key to IML lies in revealing the artifacts or inconsistencies between the tampered and authentic areas, which are evident under pixel-level features. Consequently, existing studies treat IML as a low-level vision task, focusing on allocating tampered masks by crafting pixel-level features such as image RGB noises, edge signals, or high-frequency features. However, in practice, tampering commonly occurs at the object level, and different classes of objects have varying likelihoods of becoming targets of tampering. Therefore, object semantics are also vital in identifying the tampered areas in addition to pixel-level features. This necessitates IML models to carry out a semantic understanding of the entire image. In this paper, we reformulate the IML task as a high-level vision task that greatly benefits from low-level features. Based on such an interpretation, we propose a method to enhance the Masked Autoencoder (MAE) by incorporating high-resolution inputs and a perceptual loss supervision module, which is termed Perceptual MAE (PMAE). While MAE has demonstrated an impressive understanding of object semantics, PMAE can also compensate for low-level semantics with our proposed enhancements. Evidenced by extensive experiments, this paradigm effectively unites the low-level and high-level features of the IML task and outperforms state-of-the-art tampering localization methods on all five publicly available datasets.",
+          "claimed_authors": [
+            "Xiaochen Ma",
+            "Jizhe Zhou",
+            "Xiong Xu",
+            "Zhuohang Jiang",
+            "Chi-Man Pun"
+          ],
+          "claimed_title": "Perceptual MAE for Image Manipulation Localization: A High-level Vision Learner Focusing on Low-level Features",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2310.06525"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Assessing Reproducibility of Machine‑Learned Reaction Yield Models chemistry', candidate_title='Perceptual MAE for Image Manipulation Localization: A High-level Vision Learner Focusing on Low-level Features')",
+        "failed_at": "2026-06-22T09:14:52Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Growing techniques have been emerging to improve the performance of passage retrieval. As an effective representation bottleneck pretraining technique, the contextual masked auto-encoder utilizes contextual embedding to assist in the reconstruction of passages. However, it only uses a single auto-encoding pre-task for dense representation pre-training. This study brings multi-view modeling to the contextual masked auto-encoder. Firstly, multi-view representation utilizes both dense and sparse vectors as multi-view representations, aiming to capture sentence semantics from different aspects. Moreover, multiview decoding paradigm utilizes both autoencoding and auto-regressive decoders in representation bottleneck pre-training, aiming to provide both reconstructive and generative signals for better contextual representation pretraining. We refer to this multi-view pretraining method as CoT-MAE v2. Through extensive experiments, we show that CoT-MAE v2 is effective and robust on large-scale passage retrieval benchmarks and out-of-domain zero-shot benchmarks.",
+          "claimed_authors": [
+            "Xing Wu",
+            "Guangyuan Ma",
+            "Peng Wang",
+            "Meng Lin",
+            "Zijia Lin",
+            "Fuzheng Zhang",
+            "Songlin Hu"
+          ],
+          "claimed_title": "CoT-MAE v2: Contextual Masked Auto-Encoder with Multi-view Modeling for Passage Retrieval",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2304.03158"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Assessing Reproducibility of Machine‑Learned Reaction Yield Models chemistry', candidate_title='CoT-MAE v2: Contextual Masked Auto-Encoder with Multi-view Modeling for Passage Retrieval')",
+        "failed_at": "2026-06-22T09:14:52Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed optimization in the presence of Byzantine adversaries, where both data and computation are distributed among $m$ worker machines, $t$ of which may be corrupt. The compromised nodes may collaboratively and arbitrarily deviate from their pre-specified programs, and a designated (master) node iteratively computes the model/parameter vector for generalized linear models. In this work, we primarily focus on two iterative algorithms: Proximal Gradient Descent (PGD) and Coordinate Descent (CD). Gradient descent (GD) is a special case of these algorithms. PGD is typically used in the data-parallel setting, where data is partitioned across different samples, whereas, CD is used in the model-parallelism setting, where data is partitioned across the parameter space.\n  In this paper, we propose a method based on data encoding and error correction over real numbers to combat adversarial attacks. We can tolerate up to $t\\leq \\lfloor\\frac{m-1}{2}\\rfloor$ corrupt worker nodes, which is information-theoretically optimal. We give deterministic guarantees, and our method does not assume any probability distribution on the data. We develop a {\\em sparse} encoding scheme which enables computationally efficient data encoding and decoding. We demonstrate a trade-off between the corruption threshold and the resource requirements (storage, computational, and communication complexity). As an example, for $t\\leq\\frac{m}{3}$, our scheme incurs only a {\\em constant} overhead on these resources, over that required by the plain distributed PGD/CD algorithms which provide no adversarial protection. To the best of our knowledge, ours is the first paper that makes CD secure against adversarial attacks.\n  Our encoding scheme extends efficiently to the data streaming model and for stochastic gradient descent (SGD). We also give experimental results to show the efficacy of our proposed schemes.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Linqi Song",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Data Encoding for Byzantine-Resilient Distributed Optimization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1907.02664"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Assessing Reproducibility of Machine‑Learned Reaction Yield Models chemistry', candidate_title='Data Encoding for Byzantine-Resilient Distributed Optimization')",
+        "failed_at": "2026-06-22T09:14:52Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed stochastic gradient descent (SGD) in the master-worker architecture under Byzantine attacks. We consider the heterogeneous data model, where different workers may have different local datasets, and we do not make any probabilistic assumptions on data generation. At the core of our algorithm, we use the polynomial-time outlier-filtering procedure for robust mean estimation proposed by Steinhardt et al. (ITCS 2018) to filter-out corrupt gradients. In order to be able to apply their filtering procedure in our {\\em heterogeneous} data setting where workers compute {\\em stochastic} gradients, we derive a new matrix concentration result, which may be of independent interest.\n  We provide convergence analyses for smooth strongly-convex and non-convex objectives. We derive our results under the bounded variance assumption on local stochastic gradients and a {\\em deterministic} condition on datasets, namely, gradient dissimilarity; and for both these quantities, we provide concrete bounds in the statistical heterogeneous data model. We give a trade-off between the mini-batch size for stochastic gradients and the approximation error. Our algorithm can tolerate up to $\\frac{1}{4}$ fraction Byzantine workers. It can find approximate optimal parameters in the strongly-convex setting exponentially fast and reach to an approximate stationary point in the non-convex setting with a linear speed, thus, matching the convergence rates of vanilla SGD in the Byzantine-free setting.\n  We also propose and analyze a Byzantine-resilient SGD algorithm with gradient compression, where workers send $k$ random coordinates of their gradients. Under mild conditions, we show a $\\frac{d}{k}$-factor saving in communication bits as well as decoding complexity over our compression-free algorithm without affecting its convergence rate (order-wise) and the approximation error.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2005.07866"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Assessing Reproducibility of Machine‑Learned Reaction Yield Models chemistry', candidate_title='Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data')",
+        "failed_at": "2026-06-22T09:14:52Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper we use H II starburst galaxy apparent magnitude versus redshift data from Siegel et al. (2005) to constrain dark energy cosmological model parameters. These constraints are generally consistent with those derived using other data sets, but are not as restrictive as the tightest currently available constraints.",
+          "claimed_authors": [
+            "Data Mania",
+            "Bharat Ratra"
+          ],
+          "claimed_title": "Constraints on dark energy from H II starburst galaxy apparent magnitude versus redshift data",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1110.5626"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Assessing Reproducibility of Machine‑Learned Reaction Yield Models chemistry', candidate_title='Constraints on dark energy from H II starburst galaxy apparent magnitude versus redshift data')",
+        "failed_at": "2026-06-22T09:14:52Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Aman Singh",
+            "Tokunbo Ogunfunmi",
+            "Sanjiv Das"
+          ],
+          "title": "Yield Curve Forecasting using Machine Learning and Econometrics: A Comparative Analysis",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2605.09842",
+        "summary": "While machine learning has revolutionized many fields such as natural language processing (NLP) and computer vision, its impact on time-series forecasting is still widely disputed, especially in the finance domain. This paper compares forecasting performance on U.S. Treasury yield curve data across econometrics/time-series analysis, classical machine learning, and deep learning methods, using daily data over 47 years. The Treasury yield curve is important because it is widely used by every participant in the bond markets, which are larger than equity markets. We examine a variety of methods that have not been tested on yield curve forecasting, especially deep learning algorithms. The algorithms include the Autoregressive Integrated Moving Average (ARIMA) model and its extensions, naive benchmarks, ensemble methods, Recurrent Neural Networks (RNNs), and multiple transformers built for forecasting. ARIMA and naive econometric models outperform other models overall, except in one time block. Of the machine learning methods, TimeGPT, LGBM and RNNs perform the best. Furthermore, the paper explores whether stationary or nonstationary data are more appropriate as input to deep learning models.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2605.09842",
+          "http_status": 200,
+          "pdf_sample_score": 0.2494,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-22T09:14:51Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Luan Fletcher",
+            "Robert van der Klis",
+            "Martin Sedláček",
+            "Stefan Vasilev",
+            "Christos Athanasiadis"
+          ],
+          "title": "Reproducibility study of \"LICO: Explainable Models with Language-Image Consistency\"",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2410.13989",
+        "summary": "The growing reproducibility crisis in machine learning has brought forward a need for careful examination of research findings. This paper investigates the claims made by Lei et al. (2023) regarding their proposed method, LICO, for enhancing post-hoc interpretability techniques and improving image classification performance. LICO leverages natural language supervision from a vision-language model to enrich feature representations and guide the learning process. We conduct a comprehensive reproducibility study, employing (Wide) ResNets and established interpretability methods like Grad-CAM and RISE. We were mostly unable to reproduce the authors' results. In particular, we did not find that LICO consistently led to improved classification performance or improvements in quantitative and qualitative measures of interpretability. Thus, our findings highlight the importance of rigorous evaluation and transparent reporting in interpretability research.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2410.13989",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-22T09:14:52Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Saurabh Farkya",
+            "Zachary Alan Daniels",
+            "Aswin Raghavan",
+            "Gooitzen van der Wal",
+            "Michael Isnardi",
+            "Michael Piacentino",
+            "David Zhang"
+          ],
+          "title": "Data-Driven Pixel Control: Challenges and Prospects",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2408.04767",
+        "summary": "Recent advancements in sensors have led to high resolution and high data throughput at the pixel level. Simultaneously, the adoption of increasingly large (deep) neural networks (NNs) has lead to significant progress in computer vision. Currently, visual intelligence comes at increasingly high computational complexity, energy, and latency. We study a data-driven system that combines dynamic sensing at the pixel level with computer vision analytics at the video level and propose a feedback control loop to minimize data movement between the sensor front-end and computational back-end without compromising detection and tracking precision. Our contributions are threefold: (1) We introduce anticipatory attention and show that it leads to high precision prediction with sparse activation of pixels; (2) Leveraging the feedback control, we show that the dimensionality of learned feature vectors can be significantly reduced with increased sparsity; and (3) We emulate analog design choices (such as varying RGB or Bayer pixel format and analog noise) and study their impact on the key metrics of the data-driven system. Comparative analysis with traditional pixel and deep learning models shows significant performance enhancements. Our system achieves a 10X reduction in bandwidth and a 15-30X improvement in Energy-Delay Product (EDP) when activating only 30% of pixels, with a minor reduction in object detection and tracking precision. Based on analog emulation, our system can achieve a throughput of 205 megapixels/sec (MP/s) with a power consumption of only 110 mW per MP, i.e., a theoretical improvement of ~30X in EDP.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2408.04767",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-22T09:14:55Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Mohammad Alsalti",
+            "Victor G. Lopez",
+            "Julian Berberich",
+            "Frank Allgöwer",
+            "Matthias A. Müller"
+          ],
+          "title": "Practical exponential stability of a robust data-driven nonlinear predictive control scheme",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2022
+        },
+        "primary_pointer": "2204.01150",
+        "summary": "We provide theoretical guarantees for recursive feasibility and practical exponential stability of the closed-loop system of a feedback linearizable nonlinear system when controlled by a robust data-driven nonlinear predictive control scheme. This technical report serves as a supplementary material to our recent paper \"Data-driven Nonlinear Predictive Control for Feedback Linearizable Systems\". The arguments shown in this report follow similar steps to those for the LTI case, since feedback linearizable systems are linear in transformed coordinates. However, the proof was suitably adapted to match the nonlinear setting under consideration, and the differences are emphasized throughout the proof.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2204.01150",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-22T09:14:56Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Leo Guo",
+            "Adwait Inamdar",
+            "Willem D. van Driel",
+            "GuoQi Zhang"
+          ],
+          "title": "Adaptive Bayesian Data-Driven Design of Reliable Solder Joints for Micro-electronic Devices",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2507.19663",
+        "summary": "Solder joint reliability related to failures due to thermomechanical loading is a critically important yet physically complex engineering problem. As a result, simulated behavior is oftentimes computationally expensive. In an increasingly data-driven world, the usage of efficient data-driven design schemes is a popular choice. Among them, Bayesian optimization (BO) with Gaussian process regression is one of the most important representatives. The authors argue that computational savings can be obtained from exploiting thorough surrogate modeling and selecting a design candidate based on multiple acquisition functions. This is feasible due to the relatively low computational cost, compared to the expensive simulation objective. This paper addresses the shortcomings in the adjacent literature by providing and implementing a novel heuristic framework to perform BO with adaptive hyperparameters across the various optimization iterations. Adaptive BO is subsequently compared to regular BO when faced with synthetic objective minimization problems. The results show the efficiency of adaptive BO when compared any worst-performing regular Bayesian schemes. As an engineering use case, the solder joint reliability problem is tackled by minimizing the accumulated non-linear creep strain under a cyclic thermal load. Results show that adaptive BO outperforms regular BO by 3% on average at any given computational budget threshold, critically saving half of the computational expense budget. This practical result underlines the methodological potential of the adaptive Bayesian data-driven methodology to achieve better results and cut optimization-related expenses. Lastly, in order to promote the reproducibility of the results, the data-driven implementations are made available on an open-source basis.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2507.19663",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-22T09:14:56Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Haowei Ni",
+            "Shuchen Meng",
+            "Xupeng Chen",
+            "Ziqing Zhao",
+            "Andi Chen",
+            "Panfeng Li",
+            "Shiyao Zhang",
+            "Qifu Yin",
+            "Yuanqing Wang",
+            "Yuxi Chan"
+          ],
+          "title": "Harnessing Earnings Reports for Stock Predictions: A QLoRA-Enhanced LLM Approach",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2408.06634",
+        "summary": "Accurate stock market predictions following earnings reports are crucial for investors. Traditional methods, particularly classical machine learning models, struggle with these predictions because they cannot effectively process and interpret extensive textual data contained in earnings reports and often overlook nuances that influence market movements. This paper introduces an advanced approach by employing Large Language Models (LLMs) instruction fine-tuned with a novel combination of instruction-based techniques and quantized low-rank adaptation (QLoRA) compression. Our methodology integrates 'base factors', such as financial metric growth and earnings transcripts, with 'external factors', including recent market indices performances and analyst grades, to create a rich, supervised dataset. This comprehensive dataset enables our models to achieve superior predictive performance in terms of accuracy, weighted F1, and Matthews correlation coefficient (MCC), especially evident in the comparison with benchmarks such as GPT-4. We specifically highlight the efficacy of the llama-3-8b-Instruct-4bit model, which showcases significant improvements over baseline models. The paper also discusses the potential of expanding the output capabilities to include a 'Hold' option and extending the prediction horizon, aiming to accommodate various investment styles and time frames. This study not only demonstrates the power of integrating cutting-edge AI with fine-tuned financial data but also paves the way for future research in enhancing AI-driven financial analysis tools.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2408.06634",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-22T09:14:56Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "assessing reproducibility of machine‑learned reaction yield models chemistry",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

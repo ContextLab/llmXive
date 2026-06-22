@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2009.11248",
+  "judged_at": "2026-06-22T09:12:45Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "systematic review of privacy-preserving federated learning protocols computer science",
+  "rationale": "The paper proposes and evaluates a specific privacy‑preserving federated learning protocol (FastSecAgg) based on secure aggregation, directly addressing the same mechanism (privacy‑preserving FL protocols) that the systematic review seeks to cover (acceptance category a).",
+  "relevant": true
+}

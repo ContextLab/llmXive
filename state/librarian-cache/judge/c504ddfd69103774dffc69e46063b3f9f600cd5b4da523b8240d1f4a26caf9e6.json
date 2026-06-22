@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2408.04767",
+  "judged_at": "2026-06-22T09:15:02Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "assessing reproducibility of machine‑learned reaction yield models chemistry",
+  "rationale": "The paper focuses on pixel-level sensing and computer‑vision control loops, with no relevance to chemical reaction yield prediction, machine‑learned models in chemistry, or reproducibility assessment, thus it is off‑domain and unrelated to the user's research question.",
+  "relevant": false
+}

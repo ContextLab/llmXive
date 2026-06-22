@@ -394,5 +394,17 @@
   "PROJ-758-testing-hubble-constant-isotropy-using-p::1.6.0": {
     "classified_at": "2026-06-22T03:26:22Z",
     "verdict": false
+  },
+  "PROJ-759-energy-profiling-of-quantized-llm-infere::1.6.0": {
+    "classified_at": "2026-06-22T09:13:43Z",
+    "verdict": false
+  },
+  "PROJ-760-systematic-review-of-privacy-preserving-::1.6.0": {
+    "classified_at": "2026-06-22T09:12:39Z",
+    "verdict": false
+  },
+  "PROJ-761-assessing-reproducibility-of-machine-lea::1.6.0": {
+    "classified_at": "2026-06-22T09:14:51Z",
+    "verdict": false
   }
 }

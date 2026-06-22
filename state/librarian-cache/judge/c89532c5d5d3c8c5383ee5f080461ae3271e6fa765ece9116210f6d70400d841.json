@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2408.06634",
+  "judged_at": "2026-06-22T09:15:07Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "assessing reproducibility of machine‑learned reaction yield models chemistry",
+  "rationale": "The paper focuses on financial stock prediction using LLMs and QLoRA, which is unrelated to machine‑learned reaction yield models, chemistry, or reproducibility assessment, thus it falls under the off‑domain rejection rule.",
+  "relevant": false
+}

@@ -1,0 +1,565 @@
+{
+  "fetched_at": "2026-06-22T09:14:11Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "Energy Profiling of Quantized LLM Inference on Edge CPUs",
+      "target_n": 5
+    },
+    "duration_seconds": 57.26,
+    "ended_at": "2026-06-22T09:14:11Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "Energy consumption analysis of quantized large language model inference on edge CPUs"
+        ],
+        [
+          2,
+          "Power profiling of low‑bit LLM inference on mobile processors"
+        ],
+        [
+          3,
+          "Energy efficiency of 8‑bit quantized transformer models on edge devices"
+        ],
+        [
+          4,
+          "Hardware‑aware energy measurement of compressed LLMs on ARM CPUs"
+        ],
+        [
+          5,
+          "Energy‑aware benchmarking of quantized neural networks for LLM inference on edge platforms"
+        ],
+        [
+          6,
+          "Power draw profiling of binary/4‑bit LLM inference on IoT processors"
+        ],
+        [
+          7,
+          "Energy‑aware optimization of quantized LLM inference for edge hardware"
+        ],
+        [
+          8,
+          "Low‑power execution of quantized large language models on edge CPUs"
+        ],
+        [
+          9,
+          "Energy measurement of mixed‑precision LLM inference on embedded processors"
+        ],
+        [
+          10,
+          "Profiling power consumption of quantized transformer models on edge AI chips"
+        ],
+        [
+          11,
+          "Energy consumption of on‑device LLM inference with model quantization"
+        ],
+        [
+          12,
+          "Performance‑power trade‑offs for quantized LLMs on edge CPUs"
+        ],
+        [
+          13,
+          "Energy‑efficient deployment of compressed LLMs on edge computing platforms"
+        ],
+        [
+          14,
+          "Quantization‑aware power profiling of LLM inference on ARM Cortex cores"
+        ],
+        [
+          15,
+          "Power analysis of compact LLM inference on edge AI accelerators"
+        ],
+        [
+          16,
+          "Energy benchmarking of 4‑bit LLM inference on edge processors"
+        ],
+        [
+          17,
+          "Hardware energy profiling of quantized language models for mobile inference"
+        ],
+        [
+          18,
+          "Low‑energy inference strategies for quantized LLMs on edge devices"
+        ],
+        [
+          19,
+          "Edge CPU power consumption for int8 LLM inference"
+        ],
+        [
+          20,
+          "Energy‑aware model compression for on‑device language model inference"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Energy Profiling of Quantized LLM Inference on Edge CPUs computer science": 0,
+        "Energy consumption analysis of quantized large language model inference on edge CPUs": 4
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "power consumption quantized LLM",
+      "Raspberry Pi edge CPU LLM inference",
+      "energy per token throughput",
+      "joules per inference benchmark",
+      "quantization accuracy energy tradeoff"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2406.07553"
+      ]
+    },
+    "per_query_hit_count": {
+      "Energy Profiling of Quantized LLM Inference on Edge CPUs computer science": 3,
+      "Raspberry Pi edge CPU LLM inference": 2,
+      "energy per token throughput": 2,
+      "joules per inference benchmark": 3,
+      "power consumption quantized LLM": 3,
+      "quantization accuracy energy tradeoff": 1
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 2,
+      "rejections": [
+        {
+          "primary_pointer": "2402.11651",
+          "rationale": "The paper studies fine‑tuning LLM agents with negative examples and does not address quantization, edge‑CPU inference, or energy consumption profiling, which are the core constructs of the user's question. It therefore lacks any of the inclusion criteria (a‑f).",
+          "title": "Learning From Failure: Integrating Negative Examples when Fine-tuning Large Language Models as Agents"
+        },
+        {
+          "primary_pointer": "2606.19264",
+          "rationale": "The paper focuses on using LLM conditional distributions for structured probabilistic inference (Large Language Gibbs) and does not address quantization, edge‑CPU deployment, or energy profiling of LLM inference, which are the core variables of the user's question. Hence it falls outside the relevant domain and mechanisms.",
+          "title": "Structured Inference with Large Language Gibbs"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-22T09:13:13Z",
+    "term_input": {
+      "normalized": "energy profiling of quantized llm inference on edge cpus computer science",
+      "raw": "Energy Profiling of Quantized LLM Inference on Edge CPUs computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Energy Profiling of Quantized LLM Inference on Edge CPUs computer science', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-06-22T09:13:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Quantum walks on translation invariant regular graphs spread quadratically faster than their classical counterparts. The same coherence that gives them this quantum speedup inhibits, or even stops their spread in the presence of disorder. We ask how to create an efficient transport channel from a fixed source site (A) to fixed target site (B) in a disordered 2-dimensional discrete-time quantum walk by cutting some of the links. We show that the somewhat counterintuitive strategy of cutting links along a single line connecting A to B creates such a channel. The efficient transport along the cut is due to topologically protected chiral edge states, which exist even though the bulk Chern number in this system vanishes. We give a realization of the walk as a periodically driven lattice Hamiltonian, and identify the bulk topological invariant responsible for the edge states as the quasienergy winding of this Hamiltonian.",
+          "claimed_authors": [
+            "Janos K. Asboth",
+            "Jonathan M. Edge"
+          ],
+          "claimed_title": "Edge-state enhanced transport in a 2-dimensional quantum walk",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1411.3958"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Energy Profiling of Quantized LLM Inference on Edge CPUs computer science', candidate_title='Edge-state enhanced transport in a 2-dimensional quantum walk')",
+        "failed_at": "2026-06-22T09:13:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Over the last decades, Quantum Key Distribution (QKD) has risen as a promising solution for secure communications. However, like all cryptographic protocols, QKD implementations can open security vulnerabilities. Until now, the study of physical vulnerabilities in QKD setups has primarily focused on the optical channel. In classical cryptoanalysis, power and electromagnetic side-channel analysis are powerful techniques used to access unwanted information about the encryption key in symmetric-key algorithms. In QKD they have rarely been used, since they require an eavesdropper to have access to Alice or Bob's setups. However, security proofs of QKD protocols generally assume that these setups are secure, making it crucial to understand the necessary security measures to ensure this protection. In this work, we propose and implement a power side-channel analysis to a QKD system, by exploiting the power consumption of the electronic driver controlling the electro-optical components of the QKD transmitter. QKD modules typically require very precise electronic drivers, such as Field Programmable Gate Arrays (FPGAs). Here, we show that the FPGA's power consumption can leak information about the QKD operation, and consequently the transmitted key. The analysis was performed on the QKD transmitter at the University of Padua. Our results are consistent and show critical information leakage, having reached a maximum accuracy of 73.35% in predicting transmitted qubits at a 100 MHz repetition frequency.",
+          "claimed_authors": [
+            "Beatriz Lopes da Costa",
+            "Matías R. Bolaños",
+            "Ricardo Chaves",
+            "Claudio Narduzzi",
+            "Marco Avesani",
+            "Davide Giacomo Marangon",
+            "Andrea Stanco",
+            "Giuseppe Vallone",
+            "Paolo Villoresi",
+            "Yasser Omar"
+          ],
+          "claimed_title": "Power-consumption Backdoor in Quantum Key Distribution",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2503.11767"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Energy Profiling of Quantized LLM Inference on Edge CPUs computer science', candidate_title='Power-consumption Backdoor in Quantum Key Distribution')",
+        "failed_at": "2026-06-22T09:13:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large language models (LLMs) drive significant financial innovations, yet their high-concurrency deployment is severely bottlenecked by KV cache memory overhead, which inflates infrastructure costs and throttles scalability. To address this, we propose YouZhi-LLM, a highly efficient financial LLM empowered by a comprehensive structural transition and training pipeline natively built on the Huawei Ascend ecosystem. At its algorithmic core, YouZhi-LLM features a layer-adaptive GQA-to-MLA transition framework that dynamically assigns per-layer FreqFold sizes, maximizing KV-cache compression while minimizing perplexity degradation. To recover representation capacity and inject domain expertise, the Ascend-based training pipeline seamlessly integrates generalized knowledge distillation with financial-specific supervised fine-tuning. Evaluations demonstrate the superiority of this systematic approach, with the adaptive transition reducing perplexity degradation by up to 35% over uniform baselines. Crucially, when evaluated on Ascend NPUs via vLLM-Ascend, the massive KV-cache reduction translates directly into deployment efficiency. Compared to their respective base models, YouZhi-7B yields a 12.3% improvement in average financial benchmark score alongside a 2.69$\\times$ increase in maximum concurrency; similarly, YouZhi-14B achieves a 7.0% accuracy gain and a 2.43$\\times$ concurrency boost, establishing a new paradigm for cost-effective, high-throughput financial inference.",
+          "claimed_authors": [
+            " PSBC LLM Team",
+            " Huawei LLM Team",
+            "Ruihan Long",
+            "Junjie Wu",
+            "Tianan Zhang",
+            "Duo Zhang",
+            "Yaozong Wu",
+            "Jinbin Fu",
+            "Chang Liu",
+            "Zhentao Tang",
+            "Wenshuang Yang",
+            "Xin Wang",
+            "Zhihao Song",
+            "Ning Huang",
+            "Wenjing Xu",
+            "Shuai Zong",
+            "Shupei Sun",
+            "Sen Wang",
+            "Jing Hu",
+            "Bin Wang",
+            "Xinyu Wang",
+            "Junkui Ju",
+            "Zequn Ding",
+            "Jie Ran",
+            "Man Luo",
+            "Shixiong Kai",
+            "Linkai Hou",
+            "Kaichao Liang",
+            "Hu Zhao",
+            "Yang Zhao",
+            "Shucheng Lin",
+            "Wei Yu",
+            "Chenghan Jiang",
+            "Jingjing Ding",
+            "Jiahui Zhang",
+            "Tian Jin",
+            "Yuhang Zhang",
+            "Dong Guo",
+            "Wei Sun",
+            "Jun Xie",
+            "Jianwei Li",
+            "Lei Cao",
+            "Pei Li",
+            "Jiabin Li",
+            "Jia Yuan",
+            "Rui Yuan",
+            "Jing Zhu",
+            "Mingxuan Yuan",
+            "Zhangcheng Lv",
+            "Xin Jiang",
+            "Xiuhong Fei",
+            "Xiaozhe Ren",
+            "Yulong Li",
+            "Zhipeng Zhang",
+            "Hang Wang",
+            "Zhaohui Xu",
+            "Rui Zhao",
+            "Yibo He",
+            "Xinzhuang Niu"
+          ],
+          "claimed_title": "YouZhi: Towards High-Concurrency Financial LLMs via Adaptive GQA-to-MLA Transition",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.05868"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Energy Profiling of Quantized LLM Inference on Edge CPUs computer science', candidate_title='YouZhi: Towards High-Concurrency Financial LLMs via Adaptive GQA-to-MLA Transition')",
+        "failed_at": "2026-06-22T09:13:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Efficiently solving Optimal Power Flow (OPF) problems in power systems is crucial for operational planning and grid management. There is a growing need for scalable algorithms capable of handling the increasing variability, constraints, and uncertainties in modern power networks while providing accurate and fast solutions. To address this, machine learning techniques, particularly Graph Neural Networks (GNNs) have emerged as promising approaches. This letter introduces PowerGraph-LLM, the first framework explicitly designed for solving OPF problems using Large Language Models (LLMs). The proposed approach combines graph and tabular representations of power grids to effectively query LLMs, capturing the complex relationships and constraints in power systems. A new implementation of in-context learning and fine-tuning protocols for LLMs is introduced, tailored specifically for the OPF problem. PowerGraph-LLM demonstrates reliable performances using off-the-shelf LLM. Our study reveals the impact of LLM architecture, size, and fine-tuning and demonstrates our framework's ability to handle realistic grid components and constraints.",
+          "claimed_authors": [
+            "Fabien Bernier",
+            "Jun Cao",
+            "Maxime Cordy",
+            "Salah Ghamizi"
+          ],
+          "claimed_title": "PowerGraph-LLM: Novel Power Grid Graph Embedding and Optimization with Large Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2501.07639"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Energy Profiling of Quantized LLM Inference on Edge CPUs computer science', candidate_title='PowerGraph-LLM: Novel Power Grid Graph Embedding and Optimization with Large Language Models')",
+        "failed_at": "2026-06-22T09:13:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper presents EDURFID, an automated school attendance control system based on RFID technology designed for rural educational institutions in Peru. The system integrates open-source hardware (Raspberry Pi 5, Arduino UNO R3) with RC522 RFID modules operating at 13.56 MHz, implementing a web architecture developed in Python Django. The system demonstrates 100% precision in RFID readings with 0.03-second response time, achieving 94% cost reduction compared to commercial solutions. Validation at Túpac Amaru Secondary Educational Institution showed successful automation of attendance processes, saving 50 daily minutes of administrative time while providing real-time reporting capabilities.",
+          "claimed_authors": [
+            "Cliver Oliver Turpo Benique"
+          ],
+          "claimed_title": "School Attendance Control System Based on RFID Technology with Raspberry Pi and Arduino: EDURFID",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2507.14191"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Energy Profiling of Quantized LLM Inference on Edge CPUs computer science', candidate_title='School Attendance Control System Based on RFID Technology with Raspberry Pi and Arduino: EDURFID')",
+        "failed_at": "2026-06-22T09:13:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We identified and computed the horizontal wavelengths of atmospheric gravity waves in clouds using a visible camera installed on a window of the Columbus module of the International Space Station (ISS) and controlled by a Raspberry Pi computer. The experiment was designed in the context of the Astro Pi challenge, a project run by ESA in collaboration with the Raspberry Pi Foundation, where students are allowed the opportunity to write a code to be executed at the ISS. A code was developed to maximize the probability of capturing images of clouds while the ISS is orbiting the Earth. Several constraints had to be fulfilled such as the experiment duration limit (3 hours) and the maximum data size (3 gigabytes). After receiving the data from the ISS, small-scale gravity waves were observed in different regions in the northern hemisphere with horizontal wavelengths in the range of 1.0 to 4.7 km.",
+          "claimed_authors": [
+            "Tiago E. C. Magalhães",
+            "Diogo E. C. G. Silva",
+            "Carlos E. C. G. Silva",
+            "Afonso A. Dinis",
+            "José P. M. Magalhães",
+            "Tânia M. Ribeiro"
+          ],
+          "claimed_title": "Observation of atmospheric gravity waves using a Raspberry Pi camera module on board the International Space Station",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2105.01520"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Energy Profiling of Quantized LLM Inference on Edge CPUs computer science', candidate_title='Observation of atmospheric gravity waves using a Raspberry Pi camera module on board the International Space Station')",
+        "failed_at": "2026-06-22T09:13:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We describe the Dark Energy Survey (DES), a proposed optical-near infrared survey of 5000 sq. deg of the South Galactic Cap to ~24th magnitude in SDSS griz, that would use a new 3 sq. deg CCD camera to be mounted on the Blanco 4-m telescope at Cerro Telolo Inter-American Observatory (CTIO). The survey data will allow us to measure the dark energy and dark matter densities and the dark energy equation of state through four independent methods: galaxy clusters, weak gravitational lensing tomography, galaxy angular clustering, and supernova distances. These methods are doubly complementary: they constrain different combinations of cosmological model parameters and are subject to different systematic errors. By deriving the four sets of measurements from the same data set with a common analysis framework, we will obtain important cross checks of the systematic errors and thereby make a substantial and robust advance in the precision of dark energy measurements.",
+          "claimed_authors": [
+            " The Dark Energy Survey Collaboration"
+          ],
+          "claimed_title": "The Dark Energy Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2005,
+          "primary_pointer": "astro-ph/0510346"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Energy Profiling of Quantized LLM Inference on Edge CPUs computer science', candidate_title='The Dark Energy Survey')",
+        "failed_at": "2026-06-22T09:13:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Semi-supervised (SS) inference has received much attention in recent years. Apart from a moderate-sized labeled data, L, the SS setting is characterized by an additional, much larger sized, unlabeled data, U. The setting of |U| >> |L|, makes SS inference unique and different from the standard missing data problems, owing to natural violation of the so-called \"positivity\" or \"overlap\" assumption. However, most of the SS literature implicitly assumes L and U to be equally distributed, i.e., no selection bias in the labeling. Inferential challenges in missing at random (MAR) type labeling allowing for selection bias, are inevitably exacerbated by the decaying nature of the propensity score (PS). We address this gap for a prototype problem, the estimation of the response's mean. We propose a double robust SS (DRSS) mean estimator and give a complete characterization of its asymptotic properties. The proposed estimator is consistent as long as either the outcome or the PS model is correctly specified. When both models are correctly specified, we provide inference results with a non-standard consistency rate that depends on the smaller size |L|. The results are also extended to causal inference with imbalanced treatment groups. Further, we provide several novel choices of models and estimators of the decaying PS, including a novel offset logistic model and a stratified labeling model. We present their properties under both high and low dimensional settings. These may be of independent interest. Lastly, we present extensive simulations and also a real data application.",
+          "claimed_authors": [
+            "Yuqian Zhang",
+            "Abhishek Chakrabortty",
+            "Jelena Bradic"
+          ],
+          "claimed_title": "Double Robust Semi-Supervised Inference for the Mean: Selection Bias under MAR Labeling with Decaying Overlap",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2104.06667"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Energy Profiling of Quantized LLM Inference on Edge CPUs computer science', candidate_title='Double Robust Semi-Supervised Inference for the Mean: Selection Bias under MAR Labeling with Decaying Overlap')",
+        "failed_at": "2026-06-22T09:13:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In statistical mechanics, entropy is defined as a fundamental quantity. However, its unit, J/K, involves that of temperature, which is only subsequently defined - and defined in terms of entropy. This circularity arises with the introduction of Boltzmann's constant into the very expression of entropy. The J/K carried by the constant prevents entropy from finding a unit of its own while simultaneously obfuscating its informational nature. Following the precepts of information theory, we argue that entropy is well measured in bits and coincides with information capacity at thermodynamic equilibrium. Consequently, not only is the temperature of a system in equilibrium expressed in J/bit, but it acquires a clear meaning: It is the cost in energy to increase its information capacity by 1 bit. Viewing temperature as joules per bit uncovers the strong duality exhibited by Gibbs long ago between available capacity and free energy. It also simplifies Landauer's cost and clarifies that it is a cost of displacement, not of erasure. Replacing the kelvin with the bit as an SI unit would remove Boltzmann's constant from the seven defining constants.",
+          "claimed_authors": [
+            "Charles Alexandre Bédard",
+            "Sophie Berthelette",
+            "Xavier Coiteux-Roy",
+            "Stefan Wolf"
+          ],
+          "claimed_title": "Temperature as Joules per Bit",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2401.12119"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Energy Profiling of Quantized LLM Inference on Edge CPUs computer science', candidate_title='Temperature as Joules per Bit')",
+        "failed_at": "2026-06-22T09:13:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We revisit the maximum-entropy inference of the state of a finite-level quantum system under linear constraints. The constraints are specified by the expected values of a set of fixed observables. We point out the existence of discontinuities in this inference method. This is a pure quantum phenomenon since the maximum-entropy inference is continuous for mutually commuting observables. The question arises why some sets of observables are distinguished by a discontinuity in an inference method which is still discussed as a universal inference method. In this paper we make an example of a discontinuity and we explain a characterization of the discontinuities in terms of the openness of the (restricted) linear map that assigns expected values to states.",
+          "claimed_authors": [
+            "Stephan Weis"
+          ],
+          "claimed_title": "Discontinuities in the Maximum-Entropy Inference",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1308.6126"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Energy Profiling of Quantized LLM Inference on Edge CPUs computer science', candidate_title='Discontinuities in the Maximum-Entropy Inference')",
+        "failed_at": "2026-06-22T09:13:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Existing weight-activation quantization methods for Large Language Models (LLMs) primarily address channel-wise outliers but often neglect token-wise outliers, which limits the accuracy of quantized models. In this work, we propose PrefixQuant, a novel quantization method that achieves state-of-the-art performance across various precision levels (W4A4KV4 and W4A8KV4) and granularities (dynamic and static quantization) by effectively isolating token-wise outliers. First, PrefixQuant eliminates token-wise outliers by prefixing outlier tokens in the KV cache, a process that is training-free and highly efficient (e.g., 1 minutes for Llama-3-70B). Second, PrefixQuant introduces new trainable parameters for block-wise training to compensate for quantization error. Our experiments show that PrefixQuant significantly outperforms existing dynamic quantization methods, even under coarser static quantization settings. For instance, PrefixQuant achieves an average accuracy improvement of +3.08 and +2.85 points over SpinQuant (dynamic quantization) on five zero-shot reasoning tasks under dynamic and static quantization settings, respectively, on W4A4KV4 Llama-3-8B. Additionally, we demonstrate up to 2.74x prefilling speedup and 2.16x decoding speedup for LLMs using W4A4 PrefixQuant. Our code is available at https://github.com/ChenMnZ/PrefixQuant.",
+          "claimed_authors": [
+            "Mengzhao Chen",
+            "Yi Liu",
+            "Jiahao Wang",
+            "Yi Bin",
+            "Wenqi Shao",
+            "Ping Luo"
+          ],
+          "claimed_title": "PrefixQuant: Eliminating Outliers by Prefixed Tokens for Large Language Models Quantization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2410.05265"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Energy Profiling of Quantized LLM Inference on Edge CPUs computer science', candidate_title='PrefixQuant: Eliminating Outliers by Prefixed Tokens for Large Language Models Quantization')",
+        "failed_at": "2026-06-22T09:13:43Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Erik Johannes Husom",
+            "Arda Goknil",
+            "Merve Astekin",
+            "Lwin Khin Shar",
+            "Andre Kåsen",
+            "Sagar Sen",
+            "Benedikt Andreas Mithassel",
+            "Ahmet Soylu"
+          ],
+          "title": "Sustainable LLM Inference for Edge AI: Evaluating Quantized LLMs for Energy Efficiency, Output Accuracy, and Inference Latency",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2504.03360",
+        "summary": "Deploying Large Language Models (LLMs) on edge devices presents significant challenges due to computational constraints, memory limitations, inference speed, and energy consumption. Model quantization has emerged as a key technique to enable efficient LLM inference by reducing model size and computational overhead. In this study, we conduct a comprehensive analysis of 28 quantized LLMs from the Ollama library, which applies by default Post-Training Quantization (PTQ) and weight-only quantization techniques, deployed on an edge device (Raspberry Pi 4 with 4GB RAM). We evaluate energy efficiency, inference performance, and output accuracy across multiple quantization levels and task types. Models are benchmarked on five standardized datasets (CommonsenseQA, BIG-Bench Hard, TruthfulQA, GSM8K, and HumanEval), and we employ a high-resolution, hardware-based energy measurement tool to capture real-world power consumption. Our findings reveal the trade-offs between energy efficiency, inference speed, and accuracy in different quantization settings, highlighting configurations that optimize LLM deployment for resource-constrained environments. By integrating hardware-level energy profiling with LLM benchmarking, this study provides actionable insights for sustainable AI, bridging a critical gap in existing research on energy-aware LLM deployment.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2504.03360",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-22T09:13:43Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Xiang Liu",
+            "Shimiao Yuan",
+            "Zhenheng Tang",
+            "Peijie Dong",
+            "Kaiyong Zhao",
+            "Qiang Wang",
+            "Bo Li",
+            "Xiaowen Chu"
+          ],
+          "title": "Position: LLM Inference Should Be Evaluated as Energy-to-Token Production",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2605.11733",
+        "summary": "LLM inference is still evaluated mainly as a model or software problem: accuracy, latency, throughput, and hardware utilization. This is incomplete. At deployment scale, the relevant output is a quality-conditioned token produced under joint constraints from effective compute, delivered data-center power, cooling capacity, PUE, and utilization.\n  We argue that the ML community should treat inference as \\emph{energy-to-token production}. We formalize this view with a dimensionally consistent Token Production Function in which token rate is bounded by both compute-per-token and energy-per-token ceilings. Listed API prices vary by over an order of magnitude across providers, but we use price dispersion only as directional motivation, not as causal evidence of marginal cost. The core physical question is instead: under fixed quality and service targets, when does the binding constraint move from theoretical peak compute toward delivered power, cooling, and operational efficiency?\n  Under this framing, system optimizations -- latent KV-cache compression, sparse or heavily compressed attention, quantization, routing, and difficulty-adaptive reasoning -- are not merely local engineering tricks. They are energy-to-token levers because they reduce FLOPs/token, joules/token, memory traffic, or utilization losses under fixed $(q^{*},s^{*})$. We therefore call for inference papers and benchmarks to report Joules/token, active binding constraint, PUE-adjusted delivered power, and utilization-adjusted token output alongside accuracy and latency.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2605.11733",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-22T09:13:43Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Radosvet Desislavov",
+            "Fernando Martínez-Plumed",
+            "José Hernández-Orallo"
+          ],
+          "title": "Compute and Energy Consumption Trends in Deep Learning Inference",
+          "venue": "arXiv",
+          "year": 2021
+        },
+        "primary_pointer": "2109.05472",
+        "summary": "The progress of some AI paradigms such as deep learning is said to be linked to an exponential growth in the number of parameters. There are many studies corroborating these trends, but does this translate into an exponential increase in energy consumption? In order to answer this question we focus on inference costs rather than training costs, as the former account for most of the computing effort, solely because of the multiplicative factors. Also, apart from algorithmic innovations, we account for more specific and powerful hardware (leading to higher FLOPS) that is usually accompanied with important energy efficiency optimisations. We also move the focus from the first implementation of a breakthrough paper towards the consolidated version of the techniques one or two year later. Under this distinctive and comprehensive perspective, we study relevant models in the areas of computer vision and natural language processing: for a sustained increase in performance we see a much softer growth in energy consumption than previously anticipated. The only caveat is, yet again, the multiplicative factor, as future AI increases penetration and becomes more pervasive.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2109.05472",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4444,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-22T09:13:50Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Ditto PS",
+            "Jithin VG",
+            "Adarsh MS"
+          ],
+          "title": "Inference Acceleration for Large Language Models on CPUs",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2406.07553",
+        "summary": "In recent years, large language models have demonstrated remarkable performance across various natural language processing (NLP) tasks. However, deploying these models for real-world applications often requires efficient inference solutions to handle the computational demands. In this paper, we explore the utilization of CPUs for accelerating the inference of large language models. Specifically, we introduce a parallelized approach to enhance throughput by 1) Exploiting the parallel processing capabilities of modern CPU architectures, 2) Batching the inference request. Our evaluation shows the accelerated inference engine gives an 18-22x improvement in the generated token per sec. The improvement is more with longer sequence and larger models. In addition to this, we can also run multiple workers in the same machine with NUMA node isolation to further improvement in tokens/s. Table 2, we have received 4x additional improvement with 4 workers. This would also make Gen-AI based products and companies environment friendly, our estimates shows that CPU usage for Inference could reduce the power consumption of LLMs by 48.9% while providing production ready throughput and latency.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2406.07553",
+          "http_status": 200,
+          "pdf_sample_score": 0.2918,
+          "query_relevance_score": 0.5556,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-22T09:13:50Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "energy profiling of quantized llm inference on edge cpus computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}
