@@ -1,14 +1,7 @@
-last_used: stephen-wolfram
-last_used_at: '2026-06-22T07:56:50.540486+00:00'
+last_used: ada-lovelace
+last_used_at: '2026-06-22T10:01:30.918388+00:00'
 last_outcome: triage_rejected_advanced_as_abstain
 history:
-- slug: rosalind-franklin
-  started_at: '2026-06-10T15:46:59.166607+00:00'
-  ended_at: '2026-06-10T17:06:44.798891+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-674-gc-content-and-thermal-stability-of-arch/reviews/research/rosalind-franklin-simulated__2026-06-10__research.md
 - slug: stephen-wolfram
   started_at: '2026-06-10T17:06:44.798891+00:00'
   ended_at: '2026-06-10T19:24:07.551659+00:00'
@@ -1124,5 +1117,10 @@ history:
 - slug: stephen-wolfram
   started_at: '2026-06-22T05:49:13.430674+00:00'
   ended_at: '2026-06-22T07:56:50.540486+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
+- slug: ada-lovelace
+  started_at: '2026-06-22T07:56:50.540486+00:00'
+  ended_at: '2026-06-22T10:01:30.918388+00:00'
   outcome: triage_rejected_advanced_as_abstain
   action: comment
