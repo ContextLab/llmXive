@@ -1,12 +1,7 @@
-last_used: eric-kandel
-last_used_at: '2026-06-22T22:34:34.983050+00:00'
-last_outcome: abstained
+last_used: freeman-dyson
+last_used_at: '2026-06-22T23:31:36.053728+00:00'
+last_outcome: committed
 history:
-- slug: david-krakauer
-  started_at: '2026-06-11T00:03:26.154099+00:00'
-  ended_at: '2026-06-11T01:23:12.946868+00:00'
-  outcome: triage_rejected_advanced_as_abstain
-  action: comment
 - slug: eric-kandel
   started_at: '2026-06-11T01:23:12.946868+00:00'
   ended_at: '2026-06-11T02:24:40.333218+00:00'
@@ -1120,3 +1115,10 @@ history:
   ended_at: '2026-06-22T22:34:34.983050+00:00'
   outcome: abstained
   action: abstain
+- slug: freeman-dyson
+  started_at: '2026-06-22T22:34:34.983050+00:00'
+  ended_at: '2026-06-22T23:31:36.053728+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-689-searchswarm-towards-delegation-intellige/paper/reviews/freeman-dyson-simulated__2026-06-22__paper.md
