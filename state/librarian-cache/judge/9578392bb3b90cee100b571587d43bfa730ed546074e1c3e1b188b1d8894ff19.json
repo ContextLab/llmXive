@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1409.6402",
+  "judged_at": "2026-06-22T13:55:38Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting the impact of impurities on the superconductivity of magnesium diboride materials science",
+  "rationale": "The paper investigates how Cr impurities suppress superconductivity in BaFe₂₋ₓNiₓAs₂, providing same‑mechanism evidence (impurity‑induced pair‑breaking) relevant to predicting impurity impacts on superconductivity, even though the host material differs from MgB₂ (acceptance category a).",
+  "relevant": true
+}

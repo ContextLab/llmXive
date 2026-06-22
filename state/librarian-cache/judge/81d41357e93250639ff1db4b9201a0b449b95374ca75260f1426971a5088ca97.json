@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "0707.3984",
+  "judged_at": "2026-06-22T13:55:40Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting the impact of impurities on the superconductivity of magnesium diboride materials science",
+  "rationale": "The paper studies finite‑temperature dynamics of a Bose‑Einstein condensate in optical lattices and Landau instability, with no focus on MgB₂, superconductivity, or impurity effects, thus it does not address the mechanism, variables, or domain of the user's question.",
+  "relevant": false
+}

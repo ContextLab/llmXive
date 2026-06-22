@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "cond-mat/0506562",
+  "judged_at": "2026-06-22T13:55:46Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting the impact of impurities on the superconductivity of magnesium diboride materials science",
+  "rationale": "The paper studies how defect/impurity introduction (via neutron irradiation) alters key superconducting properties (upper critical field, anisotropy, critical current) of MgB₂, providing same‑mechanism evidence (category a) and an empirical baseline for impurity‑induced changes in superconductivity.",
+  "relevant": true
+}

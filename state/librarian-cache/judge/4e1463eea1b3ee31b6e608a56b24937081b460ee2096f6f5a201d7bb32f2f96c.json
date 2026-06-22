@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2304.06533",
+  "judged_at": "2026-06-22T13:55:29Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting the impact of impurities on the superconductivity of magnesium diboride materials science",
+  "rationale": "The paper studies magnetic ordering in iron‑rich van der Waals minerals and does not address magnesium diboride, its superconductivity, or the effect of impurities on that property, so it is unrelated to the user's research question.",
+  "relevant": false
+}

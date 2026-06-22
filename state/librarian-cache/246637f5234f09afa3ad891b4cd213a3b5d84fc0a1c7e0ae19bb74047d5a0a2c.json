@@ -1,0 +1,563 @@
+{
+  "fetched_at": "2026-06-22T13:55:46Z",
+  "field": "materials science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "materials science",
+      "idea_body_excerpt": "Predicting the Impact of Impurities on the Superconductivity of Magnesium Diboride",
+      "target_n": 5
+    },
+    "duration_seconds": 61.076,
+    "ended_at": "2026-06-22T13:55:46Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "impurity doping effects on MgB₂ superconductivity"
+        ],
+        [
+          2,
+          "defect‑induced changes in MgB₂ critical temperature"
+        ],
+        [
+          3,
+          "computational modeling of impurity scattering in MgB₂"
+        ],
+        [
+          4,
+          "first‑principles prediction of dopant influence on MgB₂ superconducting properties"
+        ],
+        [
+          5,
+          "machine‑learning prediction of impurity impact in magnesium diboride"
+        ],
+        [
+          6,
+          "electronic structure of doped MgB₂"
+        ],
+        [
+          7,
+          "chemical substitution in magnesium diboride superconductors"
+        ],
+        [
+          8,
+          "MgB₂ superconducting gap modulation by alloying"
+        ],
+        [
+          9,
+          "carbon substitution effects on MgB₂ Tc"
+        ],
+        [
+          10,
+          "theoretical study of disorder in MgB₂"
+        ],
+        [
+          11,
+          "ab initio calculations of impurity states in MgB₂"
+        ],
+        [
+          12,
+          "density‑functional theory of impurity effects in magnesium diboride"
+        ],
+        [
+          13,
+          "high‑throughput screening of MgB₂ dopants for enhanced superconductivity"
+        ],
+        [
+          14,
+          "flux‑pinning improvement by nano‑inclusions in MgB₂"
+        ],
+        [
+          15,
+          "statistical modeling of impurity concentration versus superconducting performance in MgB₂"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Predicting the Impact of Impurities on the Superconductivity of Magnesium Diboride materials science": 0,
+        "defect‑induced changes in MgB₂ critical temperature": 3,
+        "impurity doping effects on MgB₂ superconductivity": 1
+      },
+      "total_queries_issued": 2
+    },
+    "extracted_queries": [
+      "dopant induced Tc suppression",
+      "MgB2 doped superconductivity",
+      "machine learning defect Tc prediction",
+      "critical temperature prediction MgB2",
+      "pair-breaking impurity scattering MgB2"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "1409.6402"
+      ]
+    },
+    "per_query_hit_count": {
+      "MgB2 doped superconductivity": 3,
+      "Predicting the Impact of Impurities on the Superconductivity of Magnesium Diboride materials science": 3,
+      "critical temperature prediction MgB2": 2,
+      "dopant induced Tc suppression": 3,
+      "machine learning defect Tc prediction": 3,
+      "pair-breaking impurity scattering MgB2": 2
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 2,
+      "rejections": [
+        {
+          "primary_pointer": "2304.06533",
+          "rationale": "The paper studies magnetic ordering in iron‑rich van der Waals minerals and does not address magnesium diboride, its superconductivity, or the effect of impurities on that property, so it is unrelated to the user's research question.",
+          "title": "Probing magnetic ordering in air stable iron-rich van der Waals minerals"
+        },
+        {
+          "primary_pointer": "0707.3984",
+          "rationale": "The paper studies finite‑temperature dynamics of a Bose‑Einstein condensate in optical lattices and Landau instability, with no focus on MgB₂, superconductivity, or impurity effects, thus it does not address the mechanism, variables, or domain of the user's question.",
+          "title": "Coarse-Grained Finite-Temperature Theory for the Condensate in Optical Lattices"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-22T13:54:45Z",
+    "term_input": {
+      "normalized": "predicting the impact of impurities on the superconductivity of magnesium diboride materials science",
+      "raw": "Predicting the Impact of Impurities on the Superconductivity of Magnesium Diboride materials science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Phosphorus (P) is considered to be one of the key elements for life, making it an important element to look for in the abundance analysis of spectra of stellar systems. Yet, there exists only a handful of spectroscopic studies to estimate the P abundances and investigate its trend across a range of metallicities. We have observed full HK band spectra at a spectral resolving power of R=45,000 with IGRINS instrument. Abundances are determined using SME in combination with 1D MARCS stellar atmosphere models. The investigated sample of stars have reliable stellar parameters estimated using optical FIES spectra (GILD; Jönsson et al. in prep.). In order to determine the P abundances from the 16482.92 Angstrom P line, we take special care of the CO($ν=7-4$) blend. We determine the C, N, O abundances from atomic carbon and a range of non-blended molecular lines (CO, CN, OH) which are aplenty in the H band region of K giant stars, assuring an appropriate modelling of the blending CO($ν=7-4$) line. We present [P/Fe] vs [Fe/H] trend for 38 K giant stars in the metallicity range of -1.2 dex $<$ [Fe/H] $<$ 0.4 dex. We find that our trend matches well with the compiled literature sample of prominently dwarf stars and limited number of giant stars. Our trend is found to be higher by $\\sim$ 0.05 - 0.1 dex compared to the theoretical chemical evolution trend in Cescutti et al. 2012 resulting from core collapse supernova (type II) of massive stars with the P yields from Kobayashi et al. (2006) arbitrarily increased by a factor of 2.75. Thus the enhancement factor might need to be $\\sim$ 0.05 - 0.1 dex higher to match our trend. We also find an empirically determined primary behaviour for phosphorus. Furthermore, the phosphorus abundance is found to be elevated by $\\sim$ 0.6 - 0.9 dex in two metal poor s-enriched stars compared to the theoretical chemical evolution trend.",
+          "claimed_authors": [
+            "G. Nandakumar",
+            "N. Ryde",
+            "M. Montelius",
+            "B. Thorsbro",
+            "H. Jönsson",
+            "G. Mace",
+            "Lund Observatory",
+            "Department of Astronomy",
+            "Theoretical Physics",
+            "Lund University",
+            "Box 43",
+            "SE-221 00 Lund",
+            " Sweden",
+            "Kapteyn Astronomical Institute",
+            "University of Groningen",
+            "Landleven 12",
+            "NL-9747 AD Groningen",
+            "the Netherlands",
+            "Department of Astronomy",
+            "School of Science",
+            "The University of Tokyo",
+            "7-3-1 Hongo",
+            " Bunkyo-ku",
+            "Tokyo 113-0033",
+            " Japan",
+            "Materials Science",
+            "Applied Mathematics",
+            "Malmö University",
+            "SE-205 06 Malmö",
+            " Sweden",
+            "Department of Astronomy",
+            "McDonald Observatory",
+            "The University of Texas",
+            " Austin",
+            "TX 78712",
+            " USA"
+          ],
+          "claimed_title": "The Galactic Chemical Evolution of phosphorus observed with IGRINS",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2210.04940"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Impact of Impurities on the Superconductivity of Magnesium Dibori', candidate_title='The Galactic Chemical Evolution of phosphorus observed with IGRINS')",
+        "failed_at": "2026-06-22T13:55:16Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "TC++ is a free/libre open-source software of the transcorrelated (TC) method for first-principles calculation of solids. Here, the TC method is one of the promising wave-function theories that can be applied to periodic systems with reasonable computational cost and satisfactory accuracy. We present our implementation of TC++ including a detailed description of the divergence correction technique applied to the TC effective interactions. We also present the way to use TC++ and some results of application to simple periodic systems: bulk silicon and homogeneous electron gas.",
+          "claimed_authors": [
+            "Masayuki Ochi"
+          ],
+          "claimed_title": "TC++: First-principles calculation code for solids using the transcorrelated method",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2302.07420"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Impact of Impurities on the Superconductivity of Magnesium Dibori', candidate_title='TC++: First-principles calculation code for solids using the transcorrelated method')",
+        "failed_at": "2026-06-22T13:55:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper describes a novel method to increase the resistive Tc of cuprate superconductors to values that might approach room temperature if the method is applied to the so-called underdoped regime. This involves ordering the dopants that provide the holes as well as provide pair breaking. The strategy is to separate the doped regions with lower Tc from metallic but undoped regions with the higher Tc.",
+          "claimed_authors": [
+            "Stuart A. Wolf",
+            "Vladimir Z. Kresin"
+          ],
+          "claimed_title": "Ordering of dopants and potential increase in Tc to near room temperature",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1111.3211"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Impact of Impurities on the Superconductivity of Magnesium Dibori', candidate_title='Ordering of dopants and potential increase in Tc to near room temperature')",
+        "failed_at": "2026-06-22T13:55:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "It is shown, that the problem rising Tc diborides is a problem of nonstoichiometry in a plane of boron in diborides of heavy metals being compounds of variable composition.",
+          "claimed_authors": [
+            "L. M. Volkova",
+            "S. A. Polyshchuk",
+            "F. E. Herbeck"
+          ],
+          "claimed_title": "Why Tc of MgB2 is the highest in a number of diborides?",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2003,
+          "primary_pointer": "cond-mat/0310511"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Impact of Impurities on the Superconductivity of Magnesium Dibori', candidate_title='Why Tc of MgB2 is the highest in a number of diborides?')",
+        "failed_at": "2026-06-22T13:55:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We report on the superconducting performance of the ex-situ SiC doped MgB2 monofilamentary tapes. Polycrystalline powders of MgB2 doped with 5 and 10 wt% SiC were synthesized by conventional solid-state reaction route and characterized for their superconducting performance. It is found that superconducting parameters i.e. upper critical field (Hc2), irreversibility field (Hirr) and critical current density (Jc) are all improved significantly with SiC addition. Also it was found that relatively lower synthesis temperature (700 C) resulted in further improved superconducting parameters. As synthesized powders are used for ex-situ powder-in-tube (PIT) monofilamentary tapes and superconducting parameters are determined. Albeit the superconducting transition temperature (Tc) is decreased slightly (2K) for SiC doped tapes, the superconducting performance in terms of critical current density (Jc), being determined from both magnetization and transport measurements, is improved significantly. In particular the SiC doped and 700 °C synthesized MgB2 tapes exhibited the transport Jc of nearly 10^4 A/cm2 under applied fields of as high as 7 Tesla. Further it is found that the Jc anisotropy decreases significantly for SiC doped tapes. Disorder due to substitution of C at B site being created from broken SiC and the presence of nano SiC respectively in SiC added ex-situ MgB2 tapes are responsible for decreased anisotropy and improved Jc(H) performance.",
+          "claimed_authors": [
+            "Gennaro Romano",
+            "Arpita Vajpayee",
+            "Maurizio Vignolo",
+            "V. P. S. Awana",
+            "Carlo Frederghini"
+          ],
+          "claimed_title": "Superconducting performance of ex-situ SiC-doped MgB2 mono-filamentary tapes",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1405.4124"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Impact of Impurities on the Superconductivity of Magnesium Dibori', candidate_title='Superconducting performance of ex-situ SiC-doped MgB2 mono-filamentary tapes')",
+        "failed_at": "2026-06-22T13:55:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "It is shown that the superconducting intermetallic compound MgB2 possesses a narrow, partly filled \"superconducting band\" with Wannier functions of special symmetry in its band structure. This result corroborates previous observations about the band structures of numerous superconductors and non-superconductors showing that evidently superconductivity is always connected with such superconducting bands. These findings are interpreted in the framework of a nonadiabatic extension of the Heisenberg model. Within this new group-theoretical model of correlated systems, Cooper pairs are stabilized by a nonadiabatic mechanism of constraining forces effective in narrow superconducting bands. The formation of Cooper pairs in a superconducting band is mediated by the energetically lowest boson excitations in the considered material that carry the crystal spin-angular momentum 1 x h-bar. These crystal-spin-1 bosons are proposed to determine whether the material is a conventional low-Tc or a high-Tc superconductor. This interpretation provides the electron-phonon mechanism that enters the BCS theory in conventional superconductors.",
+          "claimed_authors": [
+            "Ekkehard Krüger"
+          ],
+          "claimed_title": "Superconducting band stabilizing superconductivity in MgB2",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2009,
+          "primary_pointer": "0908.1656"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Predicting the Impact of Impurities on the Superconductivity of Magnesium Dibori', candidate_title='Superconducting band stabilizing superconductivity in MgB2')",
+        "failed_at": "2026-06-22T13:55:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Data science has become increasingly essential for the production of official statistics, as it enables the automated collection, processing, and analysis of large amounts of data. With such data science practices in place, it enables more timely, more insightful and more flexible reporting. However, the quality and integrity of data-science-driven statistics rely on the accuracy and reliability of the data sources and the machine learning techniques that support them. In particular, changes in data sources are inevitable to occur and pose significant risks that are crucial to address in the context of machine learning for official statistics.\n  This paper gives an overview of the main risks, liabilities, and uncertainties associated with changing data sources in the context of machine learning for official statistics. We provide a checklist of the most prevalent origins and causes of changing data sources; not only on a technical level but also regarding ownership, ethics, regulation, and public perception. Next, we highlight the repercussions of changing data sources on statistical reporting. These include technical effects such as concept drift, bias, availability, validity, accuracy and completeness, but also the neutrality and potential discontinuation of the statistical offering. We offer a few important precautionary measures, such as enhancing robustness in both data sourcing and statistical techniques, and thorough monitoring. In doing so, machine learning-based official statistics can maintain integrity, reliability, consistency, and relevance in policy-making, decision-making, and public discourse.",
+          "claimed_authors": [
+            "Cedric De Boom",
+            "Michael Reusens"
+          ],
+          "claimed_title": "Changing Data Sources in the Age of Machine Learning for Official Statistics",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.04338"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Predicting the Impact of Impurities on the Superconductivity of Magnesium Dibori', candidate_title='Changing Data Sources in the Age of Machine Learning for Official Statistics')",
+        "failed_at": "2026-06-22T13:55:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Modern biology frequently relies on machine learning to provide predictions and improve decision processes. There have been recent calls for more scrutiny on machine learning performance and possible limitations. Here we present a set of community-wide recommendations aiming to help establish standards of supervised machine learning validation in biology. Adopting a structured methods description for machine learning based on data, optimization, model, evaluation (DOME) will aim to help both reviewers and readers to better understand and assess the performance and limitations of a method or outcome. The recommendations are formulated as questions to anyone wishing to pursue implementation of a machine learning algorithm. Answers to these questions can be easily included in the supplementary material of published papers.",
+          "claimed_authors": [
+            "Ian Walsh",
+            "Dmytro Fishman",
+            "Dario Garcia-Gasulla",
+            "Tiina Titma",
+            "Gianluca Pollastri",
+            "The ELIXIR Machine Learning focus group",
+            "Jen Harrow",
+            "Fotis E. Psomopoulos",
+            "Silvio C. E. Tosatto"
+          ],
+          "claimed_title": "DOME: Recommendations for supervised machine learning validation in biology",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2006.16189"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Impact of Impurities on the Superconductivity of Magnesium Dibori', candidate_title='DOME: Recommendations for supervised machine learning validation in biology')",
+        "failed_at": "2026-06-22T13:55:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Learning curves are a concept from social sciences that has been adopted in the context of machine learning to assess the performance of a learning algorithm with respect to a certain resource, e.g., the number of training examples or the number of training iterations. Learning curves have important applications in several machine learning contexts, most notably in data acquisition, early stopping of model training, and model selection. For instance, learning curves can be used to model the performance of the combination of an algorithm and its hyperparameter configuration, providing insights into their potential suitability at an early stage and often expediting the algorithm selection process. Various learning curve models have been proposed to use learning curves for decision making. Some of these models answer the binary decision question of whether a given algorithm at a certain budget will outperform a certain reference performance, whereas more complex models predict the entire learning curve of an algorithm. We contribute a framework that categorises learning curve approaches using three criteria: the decision-making situation they address, the intrinsic learning curve question they answer and the type of resources they use. We survey papers from the literature and classify them into this framework.",
+          "claimed_authors": [
+            "Felix Mohr",
+            "Jan N. van Rijn"
+          ],
+          "claimed_title": "Learning Curves for Decision Making in Supervised Machine Learning: A Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2201.12150"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Impact of Impurities on the Superconductivity of Magnesium Dibori', candidate_title='Learning Curves for Decision Making in Supervised Machine Learning: A Survey')",
+        "failed_at": "2026-06-22T13:55:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The angular and temperature dependence of the upper critical field Hc2 in MgB2 was determined from torque magnetometry measurements on single crystals. The Hc2 anisotropy gamma_H was found to decrease with increasing temperature, in disagreement with the anisotropic Ginzburg-Landau theory, which predicts that the gamma_H is temperature independent. This behaviour can be explained by the two band nature of superconductivity in MgB2. An analysis of measurements of the reversible torque in the mixed state yields a field dependent effective anisotropy gamma_eff, which can be at least partially explained by different anisotropies of the penetration depth and the upper critical field. It is shown that a peak effect in fields of about 0.85 Hc2 is a manifestation of an order-disorder phase transition of vortex matter. The H-T phase diagram of MgB2 for H//c correlates with the intermediate strength of thermal fluctuations in MgB2, as compared to those in high and low Tc superconductors.",
+          "claimed_authors": [
+            "M. Angst",
+            "R. Puzniak",
+            "A. Wisniewski",
+            "J. Roos",
+            "H. Keller",
+            "P. Miranovic",
+            "J. Jun",
+            "S. M. Kazakov",
+            "J. Karpinski"
+          ],
+          "claimed_title": "Anisotropy of the superconducting state properties and phase diagram of MgB2 by torque magnetometry on single crystals",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2002,
+          "primary_pointer": "cond-mat/0210701"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Predicting the Impact of Impurities on the Superconductivity of Magnesium Dibori', candidate_title='Anisotropy of the superconducting state properties and phase diagram of MgB2 by torque magnetometry on single crystals')",
+        "failed_at": "2026-06-22T13:55:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present strong evidence for the existence of an acoustic plasmon mode, that is, a quadrupolar charge collective mode with linear dispersion, in MgB2. This mode may be responsible for the anomalously small value of the Coulomb pseudopotential required to explain the high superconducting transition temperature of 40K.",
+          "claimed_authors": [
+            "K. Voelker",
+            "V. I. Anisimov",
+            "T. M. Rice"
+          ],
+          "claimed_title": "Acoustic Plasmons in MgB2",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2001,
+          "primary_pointer": "cond-mat/0103082"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Impact of Impurities on the Superconductivity of Magnesium Dibori', candidate_title='Acoustic Plasmons in MgB2')",
+        "failed_at": "2026-06-22T13:55:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We calculate the change in the superconducting transition temperature Tc of MgB2 caused by interband nonmagnetic impurity scattering using the Eliashberg theory for the two-band model of this compound. Much slower rate of Tc suppression is obtained compared to the prediction based on the BCS treatment of the two-band model which ignores renormalization and damping associated with the electron-phonon interaction. Hence, the interband impurity scattering rates deduced from experiments on MgB2 using the formula which results from the BCS approach to the two-band model are underestimated. We generalize the BCS treatment of the two-band model to include renormalization effects of the electron-phonon interaction and find an excellent agreement with the full strong coupling calculation.",
+          "claimed_authors": [
+            "B. Mitrovic"
+          ],
+          "claimed_title": "On the rate of Tc suppression by the interband impurity scattering in MgB2",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2004,
+          "primary_pointer": "cond-mat/0408011"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Impact of Impurities on the Superconductivity of Magnesium Dibori', candidate_title='On the rate of Tc suppression by the interband impurity scattering in MgB2')",
+        "failed_at": "2026-06-22T13:55:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present studies of the photoexcited quasiparticle dynamics in MgB2 where, using femtosecond optical techniques, Cooper pair breaking dynamics (PBD) have been temporally resolved for the first time. The PBD are strongly temperature and photoexcitation intensity dependent. Analysis of the PBD using the Rothwarf-Taylor equations suggests that the anomalous PBD arises from the fact that in MgB2 photoexcitation is initially followed by energy relaxation to high frequency phonons instead of, as commonly assumed, e-e thermalization. Furthermore, the bare quasiparticle recombination rate and the probability for pair-breaking by phonons have been determined.",
+          "claimed_authors": [
+            "J. Demsar",
+            "R. D. Averitt",
+            "A. J. Taylor",
+            "V. V. Kabanov",
+            "W. N. Kang",
+            "H. J. Kim",
+            "E. M. Choi",
+            "S. I. Lee"
+          ],
+          "claimed_title": "Pair-breaking and superconducting state recovery dynamics in MgB2",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2003,
+          "primary_pointer": "cond-mat/0310379"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Impact of Impurities on the Superconductivity of Magnesium Dibori', candidate_title='Pair-breaking and superconducting state recovery dynamics in MgB2')",
+        "failed_at": "2026-06-22T13:55:17Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Vitali F. Nesterenko"
+          ],
+          "title": "Bulk Magnesium Diboride, Mechanical and Superconducting Properties",
+          "venue": "arXiv",
+          "year": 2002
+        },
+        "primary_pointer": "cond-mat/0212543",
+        "summary": "Hot Isostatic Pressing was applied to synthesize bulk samples with diameter up to 30 mm starting with Alfa Aesar magnesium diboride powder. HIPing at 2 kbar, 1000 C with cooling under pressure (DMCUP cycle) resulted in a fully dense (or low porosity) material with a sharp superconducting transition and critical current comparable with the best reported. Elastic constants were measured using method of resonant ultrasound spectroscopy. Their values for most dense samples (bulk modulus 142.5 GPa and Young's modulus 272.5 GPa) are close to theoretically predicted values for solid magnesium diboride. Porosity is resposible for lower values of elastic constants. Fracture toughness is evaluated based on measurements of microhardness and elastic constants. Upper critical field and irreversibility field are comparable with data for samples sintered at 3 GPa. Microstructural propeties of HIPed smaples are responsible for enhanced flux pinning. Method allows scaling of the size of the samples and manufacture of complex shapes.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/cond-mat/0212543",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-22T13:55:16Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Cristina Buzea",
+            "Tsutomu Yamashita"
+          ],
+          "title": "Review of superconducting properties of MgB2",
+          "venue": "arXiv",
+          "year": 2001
+        },
+        "primary_pointer": "cond-mat/0108265",
+        "summary": "This review paper illustrates the main normal and superconducting state properties of magnesium diboride, a material known since early 1950's, but recently discovered to be superconductive at a remarkably high critical temperature Tc=40K for a binary compound. What makes MgB2 so special? Its high Tc, simple crystal structure, large coherence lengths, high critical current densities and fields, transparency of grain boundaries to current promises that MgB2 will be a good material for both large scale applications and electronic devices. During the last seven month, MgB2 has been fabricated in various forms, bulk, single crystals, thin films, tapes and wires. The largest critical current densities >10MA/cm2 and critical fields 40T are achieved for thin films. The anisotropy ratio inferred from upper critical field measurements is still to be resolved, a wide range of values being reported, between 1.2 and 9. Also there is no consensus about the existence of a single anisotropic or double energy gap. One central issue is whether or not MgB2 represents a new class of superconductors, being the tip of an iceberg who awaits to be discovered. Up to date MgB2 holds the record of the highest Tc in its class. However, the discovery of superconductivity in MgB2 revived the interest in non-oxides and initiated a search for superconductivity in related materials, several compounds being already announced to become superconductive: TaB2, BeB2.75, C-S composites, and the elemental B under pressure.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/cond-mat/0108265",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-22T13:55:17Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Rui Zhang",
+            "Dongliang Gong",
+            "Xingye Lu",
+            "Shiliang Li",
+            "Pengcheng Dai",
+            "Huiqian Luo"
+          ],
+          "title": "The effect of Cr impurity to superconductivity in electron-doped BaFe2-xNixAs2",
+          "venue": "arXiv",
+          "year": 2014
+        },
+        "primary_pointer": "1409.6402",
+        "summary": "We use transport and magnetization measurements to study the effect of Cr-doping to the phase diagram of the electron-doped superconducting BaFe2-xNixAs2 iron pnictides. In principle, adding Cr to electron-doped BaFe2-xNixAs2 should be equivalent to the effect of hole-doping. However, we find that Cr doping suppresses superconductivity via impurity effect, while not affecting the normal state resistivity above 100 K. We establish the phase diagram of Cr-doped BaFe2-x-yNixCryAs2 iron pnictides, and demonstrate that Cr-doping near optimal superconductivity restore the long-range antiferromagnetic order suppressed by superconductivity.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1409.6402",
+          "http_status": 200,
+          "pdf_sample_score": 0.129,
+          "query_relevance_score": 0.75,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-22T13:55:21Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yu. G. Naidyuk",
+            "O. E. Kvitnitskaya",
+            "D. V. Efremov",
+            "S. -L. Drechsler"
+          ],
+          "title": "Enhanced critical temperatures in the strongly overdoped iron-based superconductors AFe$_2$As$_2$ (A = K, Cs, Rb) observed by point contacts",
+          "venue": "arXiv",
+          "year": 2020
+        },
+        "primary_pointer": "2009.05339",
+        "summary": "A remarkable several times increase (up to 10 K) of the superconducting critical temperature Tc has been observed in point contacts created on the base of single crystals AFe$_2$As$_2$ (A = K, Cs, Rb). Possible reasons for such a Tc increase in point contacts are briefly discussed on a qualitative level. Among them, it is most likely attributed to interfacial carrier doping and/or uniaxial non-homogeneous pressure arising when the contact is created.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2009.05339",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-22T13:55:27Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "M. Eisterer",
+            "C. Krutzler",
+            "H. W. Weber"
+          ],
+          "title": "Influence of the upper critical field anisotropy on the transport properties of polycrystalline MgB$_{2}$",
+          "venue": "arXiv",
+          "year": 2005
+        },
+        "primary_pointer": "cond-mat/0506562",
+        "summary": "The intrinsic properties of MgB$_2$ form the basis for all applications of this superconductor. We wish to emphasize that the application range of polycrystalline MgB$_2$ is limited by the upper critical field H$_{c2}$ and its anisotropy. In wires or tapes, the MgB$_2$ grains are randomly oriented or only slightly textured and the anisotropy of the upper critical field leads to different transport properties in different grains, if a magnetic field is applied and the current transport becomes percolative. The irreversibility line is caused by the disappearance of a continuous superconducting current path and not by depinning as in high temperature superconductors. Based on a percolation model, we demonstrate how changes of the upper critical field and its anisotropy and how changes of flux pinning will influence the critical currents of a wire or a tape. These predictions are compared to results of neutron irradiation experiments, where these parameters were changed systematically.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/cond-mat/0506562",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-22T13:55:27Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "predicting the impact of impurities on the superconductivity of magnesium diboride materials science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "cond-mat/0108265",
+  "judged_at": "2026-06-22T13:55:35Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting the impact of impurities on the superconductivity of magnesium diboride materials science",
+  "rationale": "The paper is a comprehensive review of MgB₂ superconducting properties, serving as a foundational reference that anyone studying MgB₂—including the effect of impurities on its superconductivity—would cite for baseline material characteristics (category d).",
+  "relevant": true
+}

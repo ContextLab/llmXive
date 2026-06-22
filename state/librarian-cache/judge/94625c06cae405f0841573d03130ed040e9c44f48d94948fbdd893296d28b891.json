@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "cond-mat/0212543",
+  "judged_at": "2026-06-22T13:55:32Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting the impact of impurities on the superconductivity of magnesium diboride materials science",
+  "rationale": "The paper measures superconducting properties (critical current, transition temperature, upper critical field) of bulk MgB₂, providing empirical data on the dependent variable of interest within the same material system, satisfying criterion (b) (independent-or-dependent variable on the same domain).",
+  "relevant": true
+}

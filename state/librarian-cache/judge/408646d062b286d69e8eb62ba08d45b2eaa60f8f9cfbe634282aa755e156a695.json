@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2009.05339",
+  "judged_at": "2026-06-22T13:55:43Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting the impact of impurities on the superconductivity of magnesium diboride materials science",
+  "rationale": "The paper investigates how interfacial carrier doping (an impurity‑like effect) and pressure modify the superconducting critical temperature, which is the same causal mechanism (impurity/doping impact on Tc) that the user’s question concerns, even though the material system (AFe₂As₂) differs from MgB₂. This satisfies acceptance criterion (a).",
+  "relevant": true
+}
