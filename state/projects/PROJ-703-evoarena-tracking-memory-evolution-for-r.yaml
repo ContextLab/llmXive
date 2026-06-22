@@ -11,8 +11,8 @@ last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
-revision_spec_path: specs/auto-revisions/PROJ-703-evoarena-tracking-memory-evolution-for-r/round-1
+revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'EvoArena: Tracking Memory Evolution for Robust LLM Agents in Dynamic Environments'
-updated_at: '2026-06-18T18:55:06.896843Z'
+updated_at: '2026-06-22T04:44:42.166569Z'
