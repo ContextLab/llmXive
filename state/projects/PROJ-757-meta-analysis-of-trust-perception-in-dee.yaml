@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-22T03:25:15.672654Z'
-current_stage: flesh_out_complete
+current_stage: validated
 failed_stage: null
 field: psychology
 human_escalation_reason: null
 id: PROJ-757-meta-analysis-of-trust-perception-in-dee
-last_run_id: 5d2075c1-b04f-4f97-8916-460d08cd50bb
+last_run_id: 0088b7d2-0892-4a55-8d98-8c229671bf4d
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: "Meta\u2011Analysis of Trust Perception in Deepfake Facial Stimuli"
-updated_at: '2026-06-22T03:28:35.953295Z'
+updated_at: '2026-06-22T05:30:43.632281Z'
