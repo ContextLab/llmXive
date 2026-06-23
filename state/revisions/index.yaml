@@ -153,3 +153,6 @@ ready:
 - project_id: PROJ-654-https-arxiv-org-abs-2605-29707
   revision_spec_path: specs/auto-revisions/PROJ-654-https-arxiv-org-abs-2605-29707/round-2
   queued_at: '2026-06-23T13:04:10.022926+00:00'
+- project_id: PROJ-627-trisplat-simulation-ready-feed-forward-3
+  revision_spec_path: specs/auto-revisions/PROJ-627-trisplat-simulation-ready-feed-forward-3/round-2
+  queued_at: '2026-06-23T18:43:24.367910+00:00'
