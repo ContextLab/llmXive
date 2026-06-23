@@ -6,13 +6,13 @@ failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-571-co-evolving-policy-distillation
-last_run_id: 52271de9-1a3d-4d45-a976-9e0eb248c59b
+last_run_id: 92bd461a-4850-4afd-b4f6-80d459e16460
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
-revision_spec_path: null
+revision_spec_path: specs/auto-revisions/PROJ-571-co-evolving-policy-distillation/round-1
 speckit_paper_dir: null
 speckit_research_dir: null
 title: Co-Evolving Policy Distillation
-updated_at: '2026-05-17T14:54:28.496117Z'
+updated_at: '2026-06-23T04:26:12.177750Z'
