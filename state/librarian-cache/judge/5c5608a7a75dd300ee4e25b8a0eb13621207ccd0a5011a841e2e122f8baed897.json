@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2502.13081",
+  "judged_at": "2026-06-23T11:25:15Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "memslides: a hierarchical memory driven agent framework for personalized slide generation with multi-turn local revision linguistics",
+  "rationale": "The paper surveys personalized **image** generation techniques and does not address hierarchical memory‑driven agents, multi‑turn local revision, or slide‑specific generation, which are the core constructs of the user's question. It therefore lacks a measurable connection to the required mechanism or domain.",
+  "relevant": false
+}

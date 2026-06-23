@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2307.03645",
+  "judged_at": "2026-06-23T11:25:32Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "memslides: a hierarchical memory driven agent framework for personalized slide generation with multi-turn local revision linguistics",
+  "rationale": "The paper investigates how discourse relations are distributed within and across turns in spontaneous conversation, providing empirical insight into multi‑turn linguistic structures (category a: same‑mechanism evidence). This aligns with the “multi‑turn local revision linguistics” aspect of the MemSlides framework, even though it does not address slide generation or memory‑driven agents directly.",
+  "relevant": true
+}

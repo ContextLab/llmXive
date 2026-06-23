@@ -9,75 +9,103 @@ paper_authors:
   - Yibo Yang
 ---
 
-# MemSlides: A Hierarchical Memory Driven Agent Framework for Personalized Slide Generation with Multi-turn Local Revision
+# MemSlides: A Hierarchical Memory‑Driven Agent Framework for Personalized Slide Generation with Multi‑turn Local Revision  
 
-A paper was submitted via the website for consideration / review.
+**Field**: linguistics  
 
-Source URL: https://arxiv.org/abs/2606.17162
-Paper authors (from arXiv): Ye Jin, Yangyang Xu, Jun Zhu, Yibo Yang
+## Research question  
 
-Submitted by: github-actions[bot]
+How does the inclusion of a hierarchical memory architecture (persistent user‑profile memory + session‑level working memory) in a language‑model‑based agent affect (i) the personalization of generated slide content to a user’s stated preferences and (ii) the coherence of the deck across multi‑turn local revisions, compared with a flat‑memory baseline?  
 
-(Intake from human-submission issue #351.)
+## Motivation  
 
-## Rejection rationale (2026-06-23)
+Personalized slide decks are increasingly produced by LLM agents, yet current systems struggle to retain user preferences over a dialogue and to keep revisions globally coherent. A memory hierarchy that separates long‑term persona information from short‑term interaction state offers a principled way to address these gaps, but its actual impact on slide quality has not been empirically demonstrated.  
 
-Paper-stage review found one or more `fatal`-severity action items. The underlying research question is returned to the backlog so a fresh approach can be considered:
+## Related work  
 
-- **[ea75007f332a]** Add a reproducibility README and automation (e.g., Makefile or scripts) that installs exact LaTeX package versions, pulls the data, runs the evaluation scripts, and produces all tables/figures from raw outputs.
-- **[0734102684ee]** Provide the Python (or shell) scripts used to generate the quantitative tables (profile_memory_v6_*.tex) and figures, together with version‑pinned dependencies (requirements.txt) and random seeds for deterministic runs.
-- **[072127c48e25]** Separate experimental code from the manuscript: place all data‑processing, model‑calling, and metric‑computation logic in a dedicated `src/` directory with clear module boundaries rather than embedding large code blocks in the LaTeX source.
-- **[3d10783082f6]** Introduce a minimal test suite (e.g., pytest) that validates data loading, API‑call wrappers, and metric calculations to catch regressions before paper generation.
-- **[ffb8ca980416]** Document how external APIs (GPT‑5, GLM‑5, Gemini) are accessed, including handling of API keys, rate limits, and cost accounting, so that reviewers can reproduce the experiments without hidden credentials.
-- **[46729eda15a2]** Ensure all figures are generated from source files (e.g., matplotlib, tikz) rather than static PDFs; include the source code (e.g., .py or .tex) for each figure in the repository.
-- **[a08b33387bf4]** Add an explicit license statement for the GitHub repository (https://github.com/huohua325/Memslides) and any other third‑party code or assets used. Prefer an OSI‑approved open‑source license and include the license file in the repository.
-- **[4bd651c5fcc8]** Release the constructed user‑profile bank and all evaluation artifacts (prompts, generated decks, judge outputs, trace logs) in a stable, version‑controlled repository (e.g., Zenodo or a GitHub release with a DOI) to enable reproducibility.
-- **[45721849f184]** Archive all external URLs (code repo, website, project page, video) using a web‑archiving service (e.g., archive.org) and include the archived URLs in the paper to mitigate link‑rot.
-- **[c9b8c3bda925]** Provide a data schema description (e.g., JSON schema) for the profile entries and tool‑memory records, and document how missing fields are handled during the seeded‑completion step.
-- **[8a9c0587875e]** Specify version identifiers for the profile bank (e.g., v1.0) and for any model API versions used, and record these in the appendix to improve traceability.
-- **[c3bcfaf4bdac]** Add descriptive alt‑text (or a short descriptive caption) for every included figure (e.g., via the \includegraphics[...]{...} optional argument or a surrounding \caption) to improve accessibility for screen‑reader users.
-- **[6010d3d4164f]** Check and, if necessary, adjust the colour palette used in all diagrams (Figures 1, 2, 3, 8, 9, 10) to ensure they remain distinguishable when printed in grayscale and for common colour‑blindness types (e.g., replace red/green contrasts with colour‑blind‑safe palettes or add pattern/label cues).
-- **[ae20ffb299ce]** Verify that any raster images embedded in the PDF figures (e.g., slide screenshots in Figures 4, 5, 6, 7) have a resolution of at least 300 dpi so that details are legible at typical print sizes.
-- **[714257837904]** For any figure that contains axes, data points, or quantitative plots (none are present now, but future additions), ensure that axis labels include units and that legends are clear and not reliant solely on colour.
-- **[e57aa3480787]** Replace or simplify overloaded terms such as “hierarchical memory framework”, “personalized presentation agents”, and “multi‑turn localized revision” with clearer, more concrete language.
-- **[a6b0403b468d]** Define every acronym at first use (e.g., LLM, API, RAG, etc.) and consider removing those that are not essential to the core argument.
-- **[8c7861117ece]** Break up long, dense sentences (e.g., the abstract paragraph and several sentences in the Introduction) to improve readability for non‑specialist readers.
-- **[28495eacce2a]** Reduce reliance on field‑specific buzzwords like “scoped slide‑local revision”, “execution contract”, and “guarded patch calls”; replace them with plain descriptions of the process.
-- **[db3d34a0ffe9]** Add brief explanatory footnotes or parenthetical remarks for technical concepts such as “tool‑memory injection”, “working memory”, and “profile‑memory routing” to aid readers unfamiliar with agent‑memory literature.
-- **[823876a96e0a]** The claim that working memory supports session‑level preference carryover is only backed by qualitative figures (Appendix Fig. 9). Provide a systematic quantitative evaluation (e.g., controlled ablation or statistical analysis) to substantiate this claim.
-- **[6e4c3019e121]** Clarify whether the profile‑memory and tool‑memory ablations control for all other variables (e.g., template usage, prompt phrasing). Explicitly state that the only difference between conditions is the memory injection to avoid implicit causal assumptions.
-- **[3e5e41718912]** In Section 3, the problem formulation is presented twice with slightly different notation (e.g., $z_t$ vs $U(z_{t-1},f_t)$). Consolidate the formulation to avoid potential confusion about the role of session state.
-- **[210d8e4dc7a5]** Temper the causal claim in the abstract and conclusion that “effective personalization … depends on separating persistent user profiles, session-level working memory, and reusable execution experience” – the evidence is limited to controlled persona‑alignment and diagnostic modify settings, not real‑world user studies.
-- **[430dd7c6ae9d]** Add a clear statement in the discussion that the presented gains may not generalize to heterogeneous user populations, noisy feedback, or production‑scale slide authoring pipelines.
-- **[1397ec877d22]** Provide quantitative analysis of variance or statistical significance for the persona‑alignment scores (e.g., confidence intervals) to avoid implying definitive superiority when differences are modest (e.g., Gemini 3.1 Pro Structure scores).
-- **[1bb38e9917bd]** Clarify that the tool‑memory improvements are demonstrated only on a diagnostic matched‑pair benchmark; avoid extrapolating to broader editing scenarios without additional evaluation.
-- **[80dae345dfee]** In the limitations section, explicitly acknowledge that the profile bank and edit requests are synthetic proxies and that user privacy, consent, and memory management in real deployments remain untested.
-- **[aeeb7d582b44]** The paper stores persistent user‑profile memory that may contain personally identifiable or sensitive preference information. The manuscript lacks concrete mechanisms for user consent, data minimization, and secure deletion of these profiles.
-- **[5c045961580e]** Evaluation is performed on synthetic persona‑intent profiles rather than real user data, yet the authors claim broader applicability. An IRB or ethics review is required before deploying with actual users.
-- **[ac035287e929]** Potential for misuse: the system can generate highly tailored persuasive slides, which could be weaponized for misinformation or targeted propaganda. No discussion of misuse mitigation or access controls is provided.
-- **[f8bb244f1bd0]** The paper does not address bias that may be encoded in the profile bank (e.g., occupational stereotypes) and how the system might amplify such biases in generated decks.
-- **[c22311bb0320]** No audit or transparency features are described for the hierarchical memory (e.g., user‑visible logs of what preferences are stored or how they influence output).
-- **[b90e05feb08a]** Report variance (e.g., standard deviation or confidence intervals) for all quantitative tables (e.g., Table 1, Table 2, Table 3) and perform appropriate statistical significance tests to support claims of improvement.
-- **[bd188e8f0e12]** Clarify the exact number of unique decks evaluated per persona‑intent pair and per model family; the current description (49 runs) conflates runs with distinct evaluation units.
-- **[6d5f1fcf493f]** Provide a power analysis or justification that the matched‑pair tool‑memory evaluation (9 pairs) is sufficient to draw reliable conclusions, or increase the number of pairs.
-- **[5c766fc00288]** Include effect size measures (e.g., Cohen's d) for the persona‑alignment gains to contextualize practical significance beyond raw score differences.
-- **[75cd48e930dc]** Document the randomization procedure for selecting source materials, personas, and modify requests to rule out selection bias.
-- **[91ed05f47ea4]** Address potential p‑hacking by pre‑registering evaluation protocols or explicitly stating that all reported metrics were defined a priori.
-- **[0b7cbf22b60c]** The paper reports mean scores for persona‑alignment and quality metrics but provides no confidence intervals or standard deviations, making it impossible to assess the statistical reliability of the reported differences.
-- **[b49ad7912c31]** No statistical significance testing (e.g., paired t‑tests, Wilcoxon signed‑rank tests) is reported for the comparisons between MemSlides and baselines, despite multiple metrics and model families being evaluated; this raises the risk of false positives due to multiple comparisons.
-- **[349d7e274670]** The diagnostic matched‑pair tool‑memory evaluation aggregates results across nine pairs, yet the paper does not correct for the multiple hypothesis tests performed (e.g., Bonferroni or Holm correction), nor does it report effect sizes.
-- **[6d7e3a89cb49]** Assumptions underlying the use of arithmetic and geometric means (e.g., normality, independence) are not justified, especially for metrics like Core Tool Time Ratio that are ratios of skewed timing data.
-- **[adfdebb6b047]** Reproducibility of the statistical analysis is limited: the code for computing the paired‑robustness sign test, the exact formulas for the geometric mean of time ratios, and the random seed settings are not released.
-- **[27ca2f6b2c64]** The paper mixes different scales (0‑10 judges, 1‑5 quality scores, raw seconds) in a single table without normalizing or providing variance estimates, which can mislead readers about the relative magnitude of improvements.
-- **[874e9b398f35]** In the author block (main.tex lines 30‑45) the mix of \And and \AND creates inconsistent vertical spacing. Use a single macro (\And) for all author separations and move the manual \vspace{-0.85em} out of the author environment.
-- **[db268053483c]** After \maketitle the manual \vspace{-1.55em} and \vspace{0.35em} (lines 53‑55) are non‑standard and can cause layout glitches on different page sizes. Replace them with proper spacing commands (e.g., \setlength{\belowcaptionskip}{...}) or adjust the class options.
-- **[dfc45da89f25]** Figure captions should be placed below the \includegraphics command and before the \label. Several figures (e.g., Fig. 1 in sections/01_introduction.tex lines 84‑88) have the \label after the caption, which is correct, but ensure no extra vertical space (\vspace{-3mm}) is inserted between the image and caption as it may break the caption‑figure association.
-- **[bdc0fccc6145]** Table environments occasionally lack explicit \centering before the font size change (e.g., tables/profile_memory_v6_bestof_main_table.tex lines 5‑7). Move \centering to the top of the table environment to guarantee consistent horizontal alignment.
-- **[301efc50ae65]** Ensure every referenced figure/table has a preceding \label that appears after the \caption. The reference to Fig.~\ref{fig:appendix_working_memory_carryover} (appendix/appendix.tex line 84) is correct, but double‑check all other cross‑references for this ordering.
-- **[751b93d7640d]** The bibliography style plainnat is used, but the natbib package is not loaded. Add \usepackage{natbib} in the preamble to guarantee proper citation formatting.
-- **[02961ce97f85]** Several sentences in the abstract and introduction are overly long and contain comma splices, making them hard to follow (e.g., abstract lines 4‑6, introduction lines 9‑12). Break them into shorter sentences and use clearer conjunctions.
-- **[ca949768a460]** Inconsistent use of hyphenation for terms like “multi‑turn” and “multi‑turn” (sometimes hyphenated, sometimes not). Standardize throughout the manuscript.
-- **[7c9a7ebb1d69]** Figure captions (e.g., Figure 1 and Figure 2) lack descriptive detail about what the reader should notice; add brief explanatory sentences.
-- **[eac7bd744a25]** The bibliography style mixes plainnat with author‑year citations, leading to mismatched formatting in the reference list. Choose a single citation style and apply it consistently.
-- **[b1a0e5fcd5a8]** The conclusion (Section 6) repeats earlier points without summarizing key take‑aways; rewrite to provide a concise synthesis and future‑work outlook.
-- **[db454106a22b]** There are several typographical errors such as missing spaces after periods and inconsistent capitalization of section headings (e.g., “Problem Formulation” vs. “Multi‑Turn Localized Modify Execution”). Proofread for these minor issues.
+- [Training Language Models with Memory Augmentation (2022)](https://arxiv.org/abs/2205.12674) — Introduces non‑parametric memory modules for LMs, providing the core technical building block for hierarchical memory in our agent.  
+- [A2P-Vis: an Analyzer-to-Presenter Agentic Pipeline for Visual Insights Generation and Reporting (2025)](https://arxiv.org/abs/2512.22101) — Presents an end‑to‑end agentic pipeline that assembles generated visual artifacts into a coherent report, analogous to slide‑deck assembly and highlighting the need for coordinated multi‑step generation.  
+- [AutoStudio: Crafting Consistent Subjects in Multi‑turn Interactive Image Generation (2024)](https://arxiv.org/abs/2406.01388) — Studies multi‑turn interactive generation and shows how consistency degrades without explicit memory handling, motivating our focus on revision coherence.  
+- [When Memory Becomes a Vulnerability: Towards Multi‑turn Jailbreak Attacks against Text‑to‑Image Generation Systems (2025)](https://arxiv.org/abs/2504.20376) — Analyzes how memory mechanisms can be exploited in multi‑turn settings, underscoring the importance of robust memory design for reliable slide generation.  
+- [The distribution of discourse relations within and across turns in spontaneous conversation (2023)](https://arxiv.org/abs/2307.03645) — Provides a discourse‑relations framework useful for measuring coherence across successive slide‑revision turns.  
+
+## Expected results  
+
+We expect that the hierarchical‑memory agent will (a) achieve higher alignment scores between generated slide text and synthetic user‑profile specifications (e.g., ↑ 10 % average semantic similarity) and (b) produce decks with significantly better discourse‑coherence metrics across revision turns (e.g., ↑ 0.12 Δ entity‑grid score). Paired statistical tests (two‑tailed t‑tests, α = 0.05) and effect‑size estimates (Cohen’s d) will confirm whether these improvements are reliable.  
+
+## Methodology sketch  
+
+- **Data acquisition**  
+  1. Download a public collection of lecture slide PDFs from the *arXiv* “cs.LG” category (≈ 200 decks) via `wget`.  
+  2. Extract slide text using `pdfminer.six` and store as JSON‑lines (`slide_id`, `text`).  
+  3. Synthesize 100 user‑profile specifications (topic interests, preferred tone, visual style) via templated prompts to an open‑source LLM (e.g., Llama‑2‑7B).  
+
+- **Model implementation**  
+  4. Install the memory‑augmented LM code from the 2022 “Training Language Models with Memory Augmentation” repository (pip install `memlm`).  
+  5. Build two agent variants:  
+     - **Hierarchical‑Memory Agent**: persistent profile memory + session working memory (as described in the MemSlides proposal).  
+     - **Flat‑Memory Baseline**: a single short‑term cache without long‑term profile storage.  
+
+- **Slide generation & multi‑turn revision**  
+  6. For each profile, prompt the agent to generate an initial slide deck (≈ 10 slides) from a given topic.  
+  7. Simulate a local revision turn by providing feedback (“increase formality”, “add more examples”) and let the agent revise only the affected slides, repeating for three turns.  
+
+- **Evaluation metrics**  
+  8. **Personalization**: compute semantic similarity between generated slide sentences and the profile’s preference keywords using SBERT embeddings; average over slides.  
+  9. **Coherence**: apply the discourse‑relation classifier from the 2023 conversation paper to successive slide pairs and derive an entity‑grid coherence score across the whole deck.  
+  10. Record runtime and memory usage for each turn (to confirm feasibility on a 2‑core, 7 GB runner).  
+
+- **Statistical analysis**  
+  11. Perform paired t‑tests comparing hierarchical vs. flat agents on personalization and coherence scores across all profiles and random seeds (3 seeds).  
+  12. Report 95 % confidence intervals and Cohen’s d effect sizes.  
+
+- **Reproducibility**  
+  13. All scripts, exact dependency versions (`requirements.txt`), random seeds, and the synthetic profile bank are archived in a Zenodo‑linked GitHub release.  
+
+## Duplicate-check  
+
+- Reviewed existing ideas: *(none)*.  
+- Closest match: *(none)*.  
+- Verdict: **NOT a duplicate**.
+
+
+## Search trail
+
+**Generated by**: librarian (prompt v1.6.0) on 2026-06-23T11:25:36Z
+**Outcome**: success_after_expansion
+**Original term**: MemSlides: A Hierarchical Memory Driven Agent Framework for Personalized Slide Generation with Multi-turn Local Revision linguistics
+**Verified citation count**: 5
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | MemSlides: A Hierarchical Memory Driven Agent Framework for Personalized Slide Generation with Multi-turn Local Revision linguistics | 0 |
+| 1 | hierarchical memory‑augmented language models for slide authoring | 1 |
+| 2 | personalized presentation generation using neural agents | 3 |
+| 3 | multi‑turn text revision in discourse generation | 5 |
+| 4 | adaptive content generation with hierarchical memory networks | 0 |
+| 5 | local editing strategies for automated slide creation | 0 |
+| 6 | memory‑driven natural language generation for educational materials | 0 |
+| 7 | agent‑based slide synthesis with contextual memory | 0 |
+| 8 | hierarchical attention mechanisms for presentation text generation | 0 |
+| 9 | iterative revision models for personalized lecture slides | 0 |
+| 10 | neural memory architectures for discourse structuring | 0 |
+| 11 | dynamic slide generation via multi‑turn dialogue systems | 0 |
+| 12 | personalized slide deck construction using transformer memory | 0 |
+| 13 | context‑aware language generation for visual presentations | 0 |
+| 14 | hierarchical encoder‑decoder models for slide content | 0 |
+| 15 | local revision modeling in automated document drafting | 0 |
+| 16 | memory‑augmented agents for adaptive educational content | 0 |
+| 17 | multi‑step text generation for presentation design | 0 |
+| 18 | discourse‑aware slide generation frameworks | 0 |
+| 19 | incremental revision in neural language generation | 0 |
+| 20 | personalized educational slide generation with hierarchical memory | 0 |
+
+### Verified citations
+
+1. **Training Language Models with Memory Augmentation** (2022). Zexuan Zhong, Tao Lei, Danqi Chen. arXiv. [2205.12674](https://arxiv.org/abs/2205.12674). PDF-sampled: No.
+2. **A2P-Vis: an Analyzer-to-Presenter Agentic Pipeline for Visual Insights Generation and Reporting** (2025). Shuyu Gan, Renxiang Wang, James Mooney, Dongyeop Kang. arXiv. [2512.22101](https://arxiv.org/abs/2512.22101). PDF-sampled: No.
+3. **AutoStudio: Crafting Consistent Subjects in Multi-turn Interactive Image Generation** (2024). Junhao Cheng, Xi Lu, Hanhui Li, Khun Loun Zai, Baiqiao Yin, et al.. arXiv. [2406.01388](https://arxiv.org/abs/2406.01388). PDF-sampled: No.
+4. **When Memory Becomes a Vulnerability: Towards Multi-turn Jailbreak Attacks against Text-to-Image Generation Systems** (2025). Shiqian Zhao, Jiayang Liu, Yiming Li, Runyi Hu, Xiaojun Jia, et al.. arXiv. [2504.20376](https://arxiv.org/abs/2504.20376). PDF-sampled: No.
+5. **The distribution of discourse relations within and across turns in spontaneous conversation** (2023). S. Magalí López Cortez, Cassandra L. Jacobs. arXiv. [2307.03645](https://arxiv.org/abs/2307.03645). PDF-sampled: No.

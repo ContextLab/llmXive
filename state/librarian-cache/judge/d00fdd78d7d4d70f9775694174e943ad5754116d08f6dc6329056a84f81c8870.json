@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2406.01388",
+  "judged_at": "2026-06-23T11:25:23Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "memslides: a hierarchical memory driven agent framework for personalized slide generation with multi-turn local revision linguistics",
+  "rationale": "The paper presents a multi‑agent, multi‑turn interactive generation framework (AutoStudio) that addresses maintaining consistency across dialogue turns, which aligns with the user's interest in a hierarchical memory‑driven, multi‑turn agent system for personalized slide generation (same‑mechanism evidence, category (a)).",
+  "relevant": true
+}

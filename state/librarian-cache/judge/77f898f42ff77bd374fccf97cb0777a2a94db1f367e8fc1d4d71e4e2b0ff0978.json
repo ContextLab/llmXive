@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2205.12674",
+  "judged_at": "2026-06-23T11:25:11Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "memslides: a hierarchical memory driven agent framework for personalized slide generation with multi-turn local revision linguistics",
+  "rationale": "The paper studies memory‑augmented language models, introducing training methods for integrating local, long‑term, and external memories—mechanisms that underlie the hierarchical memory‑driven agent described in the user's question. This constitutes same‑mechanism evidence (category a) and a foundational methodology reference (category d) for memory‑augmented NLP systems, making it a relevant prior work for the literature review.",
+  "relevant": true
+}

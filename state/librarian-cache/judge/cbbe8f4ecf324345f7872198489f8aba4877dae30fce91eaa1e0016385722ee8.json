@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2512.22101",
+  "judged_at": "2026-06-23T11:25:20Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "memslides: a hierarchical memory driven agent framework for personalized slide generation with multi-turn local revision linguistics",
+  "rationale": "The paper presents an agentic pipeline (Analyzer + Presenter) that automatically creates visual reports and revises narrative content, which aligns with the same underlying mechanism of using AI agents for multi‑turn, locally revised slide/presentation generation, satisfying inclusion criterion (a).",
+  "relevant": true
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1703.08987",
+  "judged_at": "2026-06-23T11:25:17Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "memslides: a hierarchical memory driven agent framework for personalized slide generation with multi-turn local revision linguistics",
+  "rationale": "The candidate paper studies LIDAR-based driving path generation with convolutional neural networks, which is unrelated to hierarchical memory-driven agents, personalized slide generation, or multi‑turn linguistic revision; it does not share the mechanism, variables, methodology, or domain of the user's question.",
+  "relevant": false
+}

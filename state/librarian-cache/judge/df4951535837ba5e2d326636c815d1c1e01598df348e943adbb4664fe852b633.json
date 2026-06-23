@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2504.20376",
+  "judged_at": "2026-06-23T11:25:26Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "memslides: a hierarchical memory driven agent framework for personalized slide generation with multi-turn local revision linguistics",
+  "rationale": "The paper studies the same core mechanism—memory usage in multi‑turn interactions of generative models—though applied to text‑to‑image generation rather than slide creation. This provides relevant evidence on hierarchical/multi‑turn memory dynamics (criterion a) and can serve as a baseline reference for memory‑driven agent behavior in the user's domain.",
+  "relevant": true
+}
