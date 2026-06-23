@@ -24,10 +24,14 @@ jobs:
         with: { python-version: "3.11", cache: pip }
       - run: pip install -e ".[dev]"
       - run: python -m llmxive preflight
-      - name: Run research reviewers (7 specialists)
+      - name: Run research reviewers (research_complete -> research_review)
         run: python -m llmxive run --max-tasks 14 --stage research_complete
-      - name: Run paper reviewers (12 specialists)
+      - name: Drive research-review convergence (review -> revise -> re-review)
+        run: python -m llmxive run --max-tasks 14 --stage research_review
+      - name: Run paper reviewers (paper_complete -> paper_review)
         run: python -m llmxive run --max-tasks 24 --stage paper_complete
+      - name: Drive paper-review convergence
+        run: python -m llmxive run --max-tasks 24 --stage paper_review
       - run: python -c "from llmxive.agents.status_reporter import regenerate_web_data; from pathlib import Path; regenerate_web_data(repo_root=Path('.'))"
       - name: Commit + push
         id: commit

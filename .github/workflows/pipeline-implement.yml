@@ -24,8 +24,10 @@ jobs:
         with: { python-version: "3.11", cache: pip }
       - run: pip install -e ".[dev]"
       - run: python -m llmxive preflight
-      - name: Run implementer pass
+      - name: Run tasker pass (tasked -> in_progress)
         run: python -m llmxive run --max-tasks 6 --stage tasked
+      - name: Run implement + execute pass (in_progress -> research_complete)
+        run: python -m llmxive run --max-tasks 6 --stage in_progress
       - run: python -c "from llmxive.agents.status_reporter import regenerate_web_data; from pathlib import Path; regenerate_web_data(repo_root=Path('.'))"
       - name: Commit + push
         id: commit
