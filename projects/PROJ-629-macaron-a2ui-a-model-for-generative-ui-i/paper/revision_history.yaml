@@ -1,0 +1,20 @@
+schema_version: '1'
+project_id: PROJ-629-macaron-a2ui-a-model-for-generative-ui-i
+rounds:
+- round_number: 1
+  ran_at: '2026-06-23T09:46:21.104229Z'
+  implementer_agent: llmXive-implementer-v1.0
+  canonical_identity: llmXive-implementer-v1.0 (openai.gpt-oss-120b on dartmouth,
+    2026-06-23)
+  tasks_done: 0
+  tasks_failed: 0
+  tasks_skipped: 1
+  resulting_pdf_sha256: null
+  implementer_log_path: specs/auto-revisions/PROJ-629-macaron-a2ui-a-model-for-generative-ui-i/round-1/implementer-log.yaml
+  task_outcomes:
+  - id: '001'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[auditdef00000]** (severity: writing): Rendering-audit
+      defect (section_number_gap): {"kind": "section_number_gap", "evidence": "expected
+      section 4, saw section 6", "class": "unsu'
