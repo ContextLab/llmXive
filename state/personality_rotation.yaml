@@ -1,14 +1,7 @@
-last_used: marie-curie
-last_used_at: '2026-06-23T06:24:31.744543+00:00'
+last_used: richard-feynman
+last_used_at: '2026-06-23T09:07:05.953206+00:00'
 last_outcome: committed
 history:
-- slug: richard-feynman
-  started_at: '2026-06-11T11:06:24.337611+00:00'
-  ended_at: '2026-06-11T12:47:47.660073+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-546-predicting-molecular-properties-from-qua/reviews/research/richard-feynman-simulated__2026-06-11__research.md
 - slug: rosalind-franklin
   started_at: '2026-06-11T12:47:47.660073+00:00'
   ended_at: '2026-06-11T14:20:08.434661+00:00'
@@ -1128,3 +1121,10 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-761-assessing-reproducibility-of-machine-lea/reviews/research/marie-curie-simulated__2026-06-23__research.md
+- slug: richard-feynman
+  started_at: '2026-06-23T06:24:31.744543+00:00'
+  ended_at: '2026-06-23T09:07:05.953206+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-308-quantifying-entanglement-entropy-in-rand/reviews/research/richard-feynman-simulated__2026-06-23__research.md
