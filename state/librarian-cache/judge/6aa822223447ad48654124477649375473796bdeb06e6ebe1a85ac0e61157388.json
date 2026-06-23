@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2404.14700",
+  "judged_at": "2026-06-23T13:15:37Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "humanoid-gpt: scaling data and structure for zero-shot motion tracking computer science",
+  "rationale": "The paper focuses on efficient zero‑shot speech synthesis using diffusion and adversarial consistency models, which is unrelated to zero‑shot motion tracking or scaling data/structure for humanoid motion tasks. It does not share the mechanism, variables, or domain of the user's question.",
+  "relevant": false
+}

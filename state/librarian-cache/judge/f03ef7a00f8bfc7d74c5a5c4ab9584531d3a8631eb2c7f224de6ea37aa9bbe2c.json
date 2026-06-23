@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2606.18216",
+  "judged_at": "2026-06-23T13:16:33Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "zone of proximal policy optimization: teacher in prompts, not gradients linguistics",
+  "rationale": "The paper introduces and evaluates the Zone of Proximal Policy Optimization (ZPPO) method, which exactly matches the user's focus on “teacher in prompts, not gradients” and the associated mechanism. It therefore provides same‑mechanism evidence (category a) and serves as a canonical reference for this approach.",
+  "relevant": true
+}

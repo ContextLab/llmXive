@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2509.16679",
+  "judged_at": "2026-06-23T13:16:52Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "zone of proximal policy optimization: teacher in prompts, not gradients linguistics",
+  "rationale": "The survey discusses reinforcement‑learning methods (including policy‑optimization algorithms such as PPO) applied to large language models, providing a canonical overview of the RL mechanisms that underlie “teacher‑in‑prompts” approaches. It therefore supplies baseline and methodological context for the user’s focus on prompt‑based, gradient‑free policy optimization in linguistics. (Acceptance via criteria (b) and (d)).",
+  "relevant": true
+}

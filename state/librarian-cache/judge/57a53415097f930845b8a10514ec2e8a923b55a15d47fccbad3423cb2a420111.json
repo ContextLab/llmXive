@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2401.16700",
+  "judged_at": "2026-06-23T13:15:35Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "humanoid-gpt: scaling data and structure for zero-shot motion tracking computer science",
+  "rationale": "The paper studies 3D human pose estimation (a motion‑tracking task) using transformer‑based spatial‑temporal relational modeling, thus providing same‑mechanism evidence (a) and measuring a core dependent variable (pose accuracy) on the same domain of human motion tracking as the user's question (b).",
+  "relevant": true
+}

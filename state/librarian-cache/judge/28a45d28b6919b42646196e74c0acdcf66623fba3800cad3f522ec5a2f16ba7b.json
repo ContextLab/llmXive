@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2407.17482",
+  "judged_at": "2026-06-23T13:16:49Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "zone of proximal policy optimization: teacher in prompts, not gradients linguistics",
+  "rationale": "The paper discusses ethical and cultural considerations of RLHF, not the technical mechanism of a “Zone of Proximal Policy Optimization” where a teacher is provided via prompts rather than gradient updates, nor does it address any of the relevant variables or methods implied by the user's question. It therefore falls outside the domain of the requested literature.",
+  "relevant": false
+}

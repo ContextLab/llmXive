@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2010.10008",
+  "judged_at": "2026-06-23T13:15:32Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "humanoid-gpt: scaling data and structure for zero-shot motion tracking computer science",
+  "rationale": "The paper studies human pose estimation (a form of motion tracking) in video data, focusing on scaling training data and leveraging temporal structure—key variables relevant to “scaling data and structure” for motion tracking. It thus provides empirical baseline and methodological context for the user’s zero‑shot motion‑tracking research (acceptance category (b) and (c)).",
+  "relevant": true
+}

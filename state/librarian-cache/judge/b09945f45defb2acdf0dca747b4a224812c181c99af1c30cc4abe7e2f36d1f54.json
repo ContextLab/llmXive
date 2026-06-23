@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2506.06323",
+  "judged_at": "2026-06-23T13:16:40Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "zone of proximal policy optimization: teacher in prompts, not gradients linguistics",
+  "rationale": "The paper employs Proximal Policy Optimization (PPO), the same algorithmic mechanism referenced in the user’s question about “Zone of Proximal Policy Optimization,” satisfying acceptance criterion (a) despite focusing on adaptive signal filtering rather than prompting or linguistics.",
+  "relevant": true
+}

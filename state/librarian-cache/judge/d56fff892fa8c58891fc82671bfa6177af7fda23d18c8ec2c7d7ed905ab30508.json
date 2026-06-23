@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2605.00942",
+  "judged_at": "2026-06-23T13:16:43Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "zone of proximal policy optimization: teacher in prompts, not gradients linguistics",
+  "rationale": "The paper employs Proximal Policy Optimization to select prompts for an LLM, demonstrating the same “teacher‑in‑prompts, not gradients” mechanism the user is investigating, even though the application domain is software test generation rather than linguistics (acceptance category (a)).",
+  "relevant": true
+}

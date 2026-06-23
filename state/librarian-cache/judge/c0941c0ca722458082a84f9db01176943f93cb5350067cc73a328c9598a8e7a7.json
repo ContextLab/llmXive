@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2606.03985",
+  "judged_at": "2026-06-23T13:15:26Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "humanoid-gpt: scaling data and structure for zero-shot motion tracking computer science",
+  "rationale": "The paper directly studies the same mechanism—scaling data and model structure in a GPT‑style Transformer for zero‑shot whole‑body motion tracking—matching the user's research focus (category a).",
+  "relevant": true
+}

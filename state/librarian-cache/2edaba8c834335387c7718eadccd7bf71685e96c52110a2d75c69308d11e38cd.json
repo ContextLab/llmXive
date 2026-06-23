@@ -1,0 +1,698 @@
+{
+  "fetched_at": "2026-06-23T13:15:43Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "Humanoid-GPT: Scaling Data and Structure for Zero-Shot Motion Tracking",
+      "target_n": 5
+    },
+    "duration_seconds": 55.376,
+    "ended_at": "2026-06-23T13:15:43Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "zero-shot human pose estimation"
+        ],
+        [
+          2,
+          "transformer-based motion synthesis"
+        ],
+        [
+          3,
+          "large language models for motion capture"
+        ],
+        [
+          4,
+          "hierarchical motion representation learning"
+        ],
+        [
+          5,
+          "data-efficient humanoid motion tracking"
+        ],
+        [
+          6,
+          "unsupervised skeletal motion modeling"
+        ],
+        [
+          7,
+          "cross-domain zero-shot motion transfer"
+        ],
+        [
+          8,
+          "generative pretrained transformer for pose tracking"
+        ],
+        [
+          9,
+          "scaling datasets for 3D human motion"
+        ],
+        [
+          10,
+          "structured motion priors in deep networks"
+        ],
+        [
+          11,
+          "multi‑modal humanoid motion prediction"
+        ],
+        [
+          12,
+          "few‑shot kinematic tracking"
+        ],
+        [
+          13,
+          "latent‑space motion interpolation"
+        ],
+        [
+          14,
+          "self‑supervised human motion learning"
+        ],
+        [
+          15,
+          "graph neural networks for pose estimation"
+        ],
+        [
+          16,
+          "zero‑shot action recognition from video"
+        ],
+        [
+          17,
+          "motion retargeting with large models"
+        ],
+        [
+          18,
+          "scalable motion‑capture datasets"
+        ],
+        [
+          19,
+          "hierarchical transformer for skeleton sequences"
+        ],
+        [
+          20,
+          "embodied AI motion tracking"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Humanoid-GPT: Scaling Data and Structure for Zero-Shot Motion Tracking computer science": 0,
+        "zero-shot human pose estimation": 5
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "unsupervised pose inference",
+      "Human3.6M AMASS dataset",
+      "graph neural network human motion",
+      "MPJPE evaluation metric",
+      "scaling laws motion modeling"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2010.10008"
+      ]
+    },
+    "per_query_hit_count": {
+      "Human3.6M AMASS dataset": 3,
+      "Humanoid-GPT: Scaling Data and Structure for Zero-Shot Motion Tracking computer science": 3,
+      "MPJPE evaluation metric": 3,
+      "graph neural network human motion": 3,
+      "scaling laws motion modeling": 3,
+      "unsupervised pose inference": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 1,
+      "rejections": [
+        {
+          "primary_pointer": "2404.14700",
+          "rationale": "The paper focuses on efficient zero‑shot speech synthesis using diffusion and adversarial consistency models, which is unrelated to zero‑shot motion tracking or scaling data/structure for humanoid motion tasks. It does not share the mechanism, variables, or domain of the user's question.",
+          "title": "FlashSpeech: Efficient Zero-Shot Speech Synthesis"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-23T13:14:47Z",
+    "term_input": {
+      "normalized": "humanoid-gpt: scaling data and structure for zero-shot motion tracking computer science",
+      "raw": "Humanoid-GPT: Scaling Data and Structure for Zero-Shot Motion Tracking computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed optimization in the presence of Byzantine adversaries, where both data and computation are distributed among $m$ worker machines, $t$ of which may be corrupt. The compromised nodes may collaboratively and arbitrarily deviate from their pre-specified programs, and a designated (master) node iteratively computes the model/parameter vector for generalized linear models. In this work, we primarily focus on two iterative algorithms: Proximal Gradient Descent (PGD) and Coordinate Descent (CD). Gradient descent (GD) is a special case of these algorithms. PGD is typically used in the data-parallel setting, where data is partitioned across different samples, whereas, CD is used in the model-parallelism setting, where data is partitioned across the parameter space.\n  In this paper, we propose a method based on data encoding and error correction over real numbers to combat adversarial attacks. We can tolerate up to $t\\leq \\lfloor\\frac{m-1}{2}\\rfloor$ corrupt worker nodes, which is information-theoretically optimal. We give deterministic guarantees, and our method does not assume any probability distribution on the data. We develop a {\\em sparse} encoding scheme which enables computationally efficient data encoding and decoding. We demonstrate a trade-off between the corruption threshold and the resource requirements (storage, computational, and communication complexity). As an example, for $t\\leq\\frac{m}{3}$, our scheme incurs only a {\\em constant} overhead on these resources, over that required by the plain distributed PGD/CD algorithms which provide no adversarial protection. To the best of our knowledge, ours is the first paper that makes CD secure against adversarial attacks.\n  Our encoding scheme extends efficiently to the data streaming model and for stochastic gradient descent (SGD). We also give experimental results to show the efficacy of our proposed schemes.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Linqi Song",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Data Encoding for Byzantine-Resilient Distributed Optimization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1907.02664"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='Humanoid-GPT: Scaling Data and Structure for Zero-Shot Motion Tracking computer ', candidate_title='Data Encoding for Byzantine-Resilient Distributed Optimization')",
+        "failed_at": "2026-06-23T13:15:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed stochastic gradient descent (SGD) in the master-worker architecture under Byzantine attacks. We consider the heterogeneous data model, where different workers may have different local datasets, and we do not make any probabilistic assumptions on data generation. At the core of our algorithm, we use the polynomial-time outlier-filtering procedure for robust mean estimation proposed by Steinhardt et al. (ITCS 2018) to filter-out corrupt gradients. In order to be able to apply their filtering procedure in our {\\em heterogeneous} data setting where workers compute {\\em stochastic} gradients, we derive a new matrix concentration result, which may be of independent interest.\n  We provide convergence analyses for smooth strongly-convex and non-convex objectives. We derive our results under the bounded variance assumption on local stochastic gradients and a {\\em deterministic} condition on datasets, namely, gradient dissimilarity; and for both these quantities, we provide concrete bounds in the statistical heterogeneous data model. We give a trade-off between the mini-batch size for stochastic gradients and the approximation error. Our algorithm can tolerate up to $\\frac{1}{4}$ fraction Byzantine workers. It can find approximate optimal parameters in the strongly-convex setting exponentially fast and reach to an approximate stationary point in the non-convex setting with a linear speed, thus, matching the convergence rates of vanilla SGD in the Byzantine-free setting.\n  We also propose and analyze a Byzantine-resilient SGD algorithm with gradient compression, where workers send $k$ random coordinates of their gradients. Under mild conditions, we show a $\\frac{d}{k}$-factor saving in communication bits as well as decoding complexity over our compression-free algorithm without affecting its convergence rate (order-wise) and the approximation error.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2005.07866"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='Humanoid-GPT: Scaling Data and Structure for Zero-Shot Motion Tracking computer ', candidate_title='Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data')",
+        "failed_at": "2026-06-23T13:15:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Learning a good 3D human pose representation is important for human pose related tasks, e.g. human 3D pose estimation and action recognition. Within all these problems, preserving the intrinsic pose information and adapting to view variations are two critical issues. In this work, we propose a novel Siamese denoising autoencoder to learn a 3D pose representation by disentangling the pose-dependent and view-dependent feature from the human skeleton data, in a fully unsupervised manner. These two disentangled features are utilized together as the representation of the 3D pose. To consider both the kinematic and geometric dependencies, a sequential bidirectional recursive network (SeBiReNet) is further proposed to model the human skeleton data. Extensive experiments demonstrate that the learned representation 1) preserves the intrinsic information of human pose, 2) shows good transferability across datasets and tasks. Notably, our approach achieves state-of-the-art performance on two inherently different tasks: pose denoising and unsupervised action recognition. Code and models are available at: \\url{https://github.com/NIEQiang001/unsupervised-human-pose.git}",
+          "claimed_authors": [
+            "Qiang Nie",
+            "Ziwei Liu",
+            "Yunhui Liu"
+          ],
+          "claimed_title": "Unsupervised 3D Human Pose Representation with Viewpoint and Pose Disentanglement",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2007.07053"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='Humanoid-GPT: Scaling Data and Structure for Zero-Shot Motion Tracking computer ', candidate_title='Unsupervised 3D Human Pose Representation with Viewpoint and Pose Disentanglement')",
+        "failed_at": "2026-06-23T13:15:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Today, a large fraction of Internet traffic is originated by Content Providers (CPs) such as content distribution networks and hyper-giants. To cope with the increasing demand for content, CPs deploy massively distributed infrastructures. This poses new challenges for CPs as they have to dynamically map end-users to appropriate servers, without being fully aware of network conditions within an ISP as well as the end-users network locations. Furthermore, ISPs struggle to cope with rapid traffic shifts caused by the dynamic server selection process of CPs.\n  In this paper, we argue that the challenges that CPs and ISPs face separately today can be turned into an opportunity. We show how they can jointly take advantage of the deployed distributed infrastructures to improve their operation and end-user performance. We propose Content-aware Traffic Engineering (CaTE), which dynamically adapts the traffic demand for content hosted on CPs by utilizing ISP network information and end-user location during the server selection process. As a result, CPs enhance their end-user to server mapping and improve end-user experience, thanks to the ability of network-informed server selection to circumvent network bottlenecks. In addition, ISPs gain the ability to partially influence the traffic demands in their networks. Our results with operational data show improvements in path length and delay between end-user and the assigned CP server, network wide traffic reduction of up to 15%, and a decrease in ISP link utilization of up to 40% when applying CaTE to traffic delivered by a small number of major CPs.",
+          "claimed_authors": [
+            "Benjamin Frank",
+            "Ingmar Poese",
+            "Georgios Smaragdakis",
+            "Steve Uhlig",
+            "Anja Feldmann"
+          ],
+          "claimed_title": "Content-aware Traffic Engineering",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1202.1464"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='Humanoid-GPT: Scaling Data and Structure for Zero-Shot Motion Tracking computer ', candidate_title='Content-aware Traffic Engineering')",
+        "failed_at": "2026-06-23T13:15:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Learning model-free object pose estimation for unseen instances remains a fundamental challenge in 3D vision. Existing methods typically fall into two disjoint paradigms: category-level approaches predict absolute poses in a canonical space but rely on predefined taxonomies, while relative pose methods estimate cross-view transformations but cannot recover single-view absolute pose. In this work, we propose Object Pose Transformer (\\ours{}), a unified feed-forward framework that bridges these paradigms through task factorization within a single model. \\ours{} jointly predicts depth, point maps, camera parameters, and normalized object coordinates (NOCS) from RGB inputs, enabling both category-level absolute SA(3) pose and unseen-object relative SE(3) pose. Our approach leverages contrastive object-centric latent embeddings for canonicalization without requiring semantic labels at inference time, and uses point maps as a camera-space representation to enable multi-view relative geometric reasoning. Through cross-frame feature interaction and shared object embeddings, our model leverages relative geometric consistency across views to improve absolute pose estimation, reducing ambiguity in single-view predictions. Furthermore, \\ours{} is camera-agnostic, learning camera intrinsics on-the-fly and supporting optional depth input for metric-scale recovery, while remaining fully functional in RGB-only settings. Extensive experiments on diverse benchmarks (NOCS, HouseCat6D, Omni6DPose, Toyota-Light) demonstrate state-of-the-art performance in both absolute and relative pose estimation tasks within a single unified architecture.",
+          "claimed_authors": [
+            "Weihang Li",
+            "Lorenzo Garattoni",
+            "Fabien Despinoy",
+            "Nassir Navab",
+            "Benjamin Busam"
+          ],
+          "claimed_title": "Object Pose Transformer: Unifying Unseen Object Pose Estimation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.23370"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Humanoid-GPT: Scaling Data and Structure for Zero-Shot Motion Tracking computer ', candidate_title='Object Pose Transformer: Unifying Unseen Object Pose Estimation')",
+        "failed_at": "2026-06-23T13:15:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The RSNA Abdominal Traumatic Injury CT (RATIC) dataset is the largest publicly available collection of adult abdominal CT studies annotated for traumatic injuries. This dataset includes 4,274 studies from 23 institutions across 14 countries. The dataset is freely available for non-commercial use via Kaggle at https://www.kaggle.com/competitions/rsna-2023-abdominal-trauma-detection. Created for the RSNA 2023 Abdominal Trauma Detection competition, the dataset encourages the development of advanced machine learning models for detecting abdominal injuries on CT scans. The dataset encompasses detection and classification of traumatic injuries across multiple organs, including the liver, spleen, kidneys, bowel, and mesentery. Annotations were created by expert radiologists from the American Society of Emergency Radiology (ASER) and Society of Abdominal Radiology (SAR). The dataset is annotated at multiple levels, including the presence of injuries in three solid organs with injury grading, image-level annotations for active extravasations and bowel injury, and voxelwise segmentations of each of the potentially injured organs. With the release of this dataset, we hope to facilitate research and development in machine learning and abdominal trauma that can lead to improved patient care and outcomes.",
+          "claimed_authors": [
+            "Jeffrey D. Rudie",
+            "Hui-Ming Lin",
+            "Robyn L. Ball",
+            "Sabeena Jalal",
+            "Luciano M. Prevedello",
+            "Savvas Nicolaou",
+            "Brett S. Marinelli",
+            "Adam E. Flanders",
+            "Kirti Magudia",
+            "George Shih",
+            "Melissa A. Davis",
+            "John Mongan",
+            "Peter D. Chang",
+            "Ferco H. Berger",
+            "Sebastiaan Hermans",
+            "Meng Law",
+            "Tyler Richards",
+            "Jan-Peter Grunz",
+            "Andreas Steven Kunz",
+            "Shobhit Mathur",
+            "Sandro Galea-Soler",
+            "Andrew D. Chung",
+            "Saif Afat",
+            "Chin-Chi Kuo",
+            "Layal Aweidah",
+            "Ana Villanueva Campos",
+            "Arjuna Somasundaram",
+            "Felipe Antonio Sanchez Tijmes",
+            "Attaporn Jantarangkoon",
+            "Leonardo Kayat Bittencourt",
+            "Michael Brassil",
+            "Ayoub El Hajjami",
+            "Hakan Dogan",
+            "Muris Becircic",
+            "Agrahara G. Bharatkumar",
+            "Eduardo Moreno Júdice de Mattos Farina",
+            "Dataset Curator Group",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Errol Colak"
+          ],
+          "claimed_title": "The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.19595"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Humanoid-GPT: Scaling Data and Structure for Zero-Shot Motion Tracking computer ', candidate_title='The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset')",
+        "failed_at": "2026-06-23T13:15:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Radiological Society of North America (RSNA) Lumbar Degenerative Imaging Spine Classification (LumbarDISC) dataset is the largest publicly available dataset of adult MRI lumbar spine examinations annotated for degenerative changes. The dataset includes 2,697 patients with a total of 8,593 image series from 8 institutions across 6 countries and 5 continents. The dataset is available for free for non-commercial use via Kaggle and RSNA Medical Imaging Resource of AI (MIRA). The dataset was created for the RSNA 2024 Lumbar Spine Degenerative Classification competition where competitors developed deep learning models to grade degenerative changes in the lumbar spine. The degree of spinal canal, subarticular recess, and neural foraminal stenosis was graded at each intervertebral disc level in the lumbar spine. The images were annotated by expert volunteer neuroradiologists and musculoskeletal radiologists from the RSNA, American Society of Neuroradiology, and the American Society of Spine Radiology. This dataset aims to facilitate research and development in machine learning and lumbar spine imaging to lead to improved patient care and clinical efficiency.",
+          "claimed_authors": [
+            "Tyler J. Richards",
+            "Adam E. Flanders",
+            "Errol Colak",
+            "Luciano M. Prevedello",
+            "Robyn L. Ball",
+            "Felipe Kitamura",
+            "John Mongan",
+            "Maryam Vazirabad",
+            "Hui-Ming Lin",
+            "Anne Kendell",
+            "Thanat Kanthawang",
+            "Salita Angkurawaranon",
+            "Emre Altinmakas",
+            "Hakan Dogan",
+            "Paulo Eduardo de Aguiar Kuriki",
+            "Arjuna Somasundaram",
+            "Christopher Ruston",
+            "Deniz Bulja",
+            "Naida Spahovic",
+            "Jennifer Sommer",
+            "Sirui Jiang",
+            "Eduardo Moreno Judice de Mattos Farina",
+            "Eduardo Caminha Nunes",
+            "Michael Brassil",
+            "Megan McNamara",
+            "Johanna Ortiz",
+            "Jacob Peoples",
+            "Vinson L. Uytana",
+            "Anthony Kam",
+            "Venkata N. S. Dola",
+            "Daniel Murphy",
+            "David Vu",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Competition Data Notebook Group",
+            "Jason F. Talbott"
+          ],
+          "claimed_title": "The RSNA Lumbar Degenerative Imaging Spine Classification (LumbarDISC) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.09162"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Humanoid-GPT: Scaling Data and Structure for Zero-Shot Motion Tracking computer ', candidate_title='The RSNA Lumbar Degenerative Imaging Spine Classification (LumbarDISC) Dataset')",
+        "failed_at": "2026-06-23T13:15:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present a benchmark for 3D human whole-body pose estimation, which involves identifying accurate 3D keypoints on the entire human body, including face, hands, body, and feet. Currently, the lack of a fully annotated and accurate 3D whole-body dataset results in deep networks being trained separately on specific body parts, which are combined during inference. Or they rely on pseudo-groundtruth provided by parametric body models which are not as accurate as detection based methods. To overcome these issues, we introduce the Human3.6M 3D WholeBody (H3WB) dataset, which provides whole-body annotations for the Human3.6M dataset using the COCO Wholebody layout. H3WB comprises 133 whole-body keypoint annotations on 100K images, made possible by our new multi-view pipeline. We also propose three tasks: i) 3D whole-body pose lifting from 2D complete whole-body pose, ii) 3D whole-body pose lifting from 2D incomplete whole-body pose, and iii) 3D whole-body pose estimation from a single RGB image. Additionally, we report several baselines from popular methods for these tasks. Furthermore, we also provide automated 3D whole-body annotations of TotalCapture and experimentally show that when used with H3WB it helps to improve the performance. Code and dataset is available at https://github.com/wholebody3d/wholebody3d",
+          "claimed_authors": [
+            "Yue Zhu",
+            "Nermin Samet",
+            "David Picard"
+          ],
+          "claimed_title": "H3WB: Human3.6M 3D WholeBody Dataset and Benchmark",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2211.15692"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Humanoid-GPT: Scaling Data and Structure for Zero-Shot Motion Tracking computer ', candidate_title='H3WB: Human3.6M 3D WholeBody Dataset and Benchmark')",
+        "failed_at": "2026-06-23T13:15:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Random Neural Networks (RNNs) are a class of Neural Networks (NNs) that can also be seen as a specific type of queuing network. They have been successfully used in several domains during the last 25 years, as queuing networks to analyze the performance of resource sharing in many engineering areas, as learning tools and in combinatorial optimization, where they are seen as neural systems, and also as models of neurological aspects of living beings. In this article we focus on their learning capabilities, and more specifically, we present a practical guide for using the RNN to solve supervised learning problems. We give a general description of these models using almost indistinctly the terminology of Queuing Theory and the neural one. We present the standard learning procedures used by RNNs, adapted from similar well-established improvements in the standard NN field. We describe in particular a set of learning algorithms covering techniques based on the use of first order and, then, of second order derivatives. We also discuss some issues related to these objects and present new perspectives about their use in supervised learning problems. The tutorial describes their most relevant applications, and also provides a large bibliography.",
+          "claimed_authors": [
+            "Sebastián Basterrech",
+            "Gerardo Rubino"
+          ],
+          "claimed_title": "A Tutorial about Random Neural Networks in Supervised Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1609.04846"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Humanoid-GPT: Scaling Data and Structure for Zero-Shot Motion Tracking computer ', candidate_title='A Tutorial about Random Neural Networks in Supervised Learning')",
+        "failed_at": "2026-06-23T13:15:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Learning powerful data embeddings has become a center piece in machine learning, especially in natural language processing and computer vision domains. The crux of these embeddings is that they are pretrained on huge corpus of data in a unsupervised fashion, sometimes aided with transfer learning. However currently in the graph learning domain, embeddings learned through existing graph neural networks (GNNs) are task dependent and thus cannot be shared across different datasets. In this paper, we present a first powerful and theoretically guaranteed graph neural network that is designed to learn task-independent graph embeddings, thereafter referred to as deep universal graph embedding (DUGNN). Our DUGNN model incorporates a novel graph neural network (as a universal graph encoder) and leverages rich Graph Kernels (as a multi-task graph decoder) for both unsupervised learning and (task-specific) adaptive supervised learning. By learning task-independent graph embeddings across diverse datasets, DUGNN also reaps the benefits of transfer learning. Through extensive experiments and ablation studies, we show that the proposed DUGNN model consistently outperforms both the existing state-of-art GNN models and Graph Kernels by an increased accuracy of 3% - 8% on graph classification benchmark datasets.",
+          "claimed_authors": [
+            "Saurabh Verma",
+            "Zhi-Li Zhang"
+          ],
+          "claimed_title": "Learning Universal Graph Neural Network Embeddings With Aid Of Transfer Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1909.10086"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='Humanoid-GPT: Scaling Data and Structure for Zero-Shot Motion Tracking computer ', candidate_title='Learning Universal Graph Neural Network Embeddings With Aid Of Transfer Learning')",
+        "failed_at": "2026-06-23T13:15:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Air pollution (AP) poses a great threat to human health, and people are paying more attention than ever to its prediction. Accurate prediction of AP helps people to plan for their outdoor activities and aids protecting human health. In this paper, long-short term memory (LSTM) recurrent neural networks (RNNs) have been used to predict the future concentration of air pollutants (APS) in Macau. Additionally, meteorological data and data on the concentration of APS have been utilized. Moreover, in Macau, some air quality monitoring stations (AQMSs) have less observed data in quantity, and, at the same time, some AQMSs recorded less observed data of certain types of APS. Therefore, the transfer learning and pre-trained neural networks have been employed to assist AQMSs with less observed data to build a neural network with high prediction accuracy. The experimental sample covers a period longer than 12-year and includes daily measurements from several APS as well as other more classical meteorological values. Records from five stations, four out of them are AQMSs and the remaining one is an automatic weather station, have been prepared from the aforesaid period and eventually underwent to computational intelligence techniques to build and extract a prediction knowledge-based system. As shown by experimentation, LSTM RNNs initialized with transfer learning methods have higher prediction accuracy; it incurred shorter training time than randomly initialized recurrent neural networks.",
+          "claimed_authors": [
+            "Iat Hang Fong",
+            "Tengyue Li",
+            "Simon Fong",
+            "Raymond K. Wong",
+            "Antonio J. Tallón-Ballesteros"
+          ],
+          "claimed_title": "Predicting concentration levels of air pollutants by transfer learning and recurrent neural network",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2502.01654"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='Humanoid-GPT: Scaling Data and Structure for Zero-Shot Motion Tracking computer ', candidate_title='Predicting concentration levels of air pollutants by transfer learning and recurrent neural network')",
+        "failed_at": "2026-06-23T13:15:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Chidamber and Kemerer first defined a cohesion measure for object-oriented software - the Lack of Cohesion in Methods (LCOM) metric. This paper presents a pedagogic evaluation and discussion about the LCOM metric using field data from three industrial systems. System 1 has 34 classes, System 2 has 383 classes and System 3 has 1055 classes. The main objectives of the study were to determine if the LCOM metric was appropriate in the measurement of class cohesion and the determination of properly and improperly designed classes in the studied systems. Chidamber and Kemerer's suite of metric was used as metric tool. Descriptive statistics was used to analyze results. The result of the study showed that in System 1, 78.8% (26 classes) were cohesive; System 2 54% (207 classes) were cohesive; System 3 30% (317 classes) were cohesive. We suggest that the LCOM metric measures class cohesiveness and was appropriate in the determination of properly and improperly designed classes in the studied system.",
+          "claimed_authors": [
+            "Ezekiel Okike"
+          ],
+          "claimed_title": "A Pedagogical Evaluation and Discussion about the Lack of Cohesion in Method (LCOM) Metric Using Field Experiment",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1004.3277"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='Humanoid-GPT: Scaling Data and Structure for Zero-Shot Motion Tracking computer ', candidate_title='A Pedagogical Evaluation and Discussion about the Lack of Cohesion in Method (LCOM) Metric Using Field Experiment')",
+        "failed_at": "2026-06-23T13:15:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Simultaneous speech-to-text translation systems must balance translation quality with latency. Although quality evaluation is well established, latency measurement remains a challenge. Existing metrics produce inconsistent results, especially in short-form settings with artificial presegmentation. We present the first comprehensive meta-evaluation of latency metrics across language pairs and systems. We uncover a structural bias in current metrics related to segmentation. We introduce YAAL (Yet Another Average Lagging) for a more accurate short-form evaluation and LongYAAL for unsegmented audio. We propose SoftSegmenter, a resegmentation tool based on soft word-level alignment. We show that YAAL and LongYAAL, together with SoftSegmenter, outperform popular latency metrics, enabling more reliable assessments of short- and long-form simultaneous speech translation systems. We implement all artifacts within the OmniSTEval toolkit: https://github.com/pe-trik/OmniSTEval.",
+          "claimed_authors": [
+            "Peter Polák",
+            "Sara Papi",
+            "Luisa Bentivogli",
+            "Ondřej Bojar"
+          ],
+          "claimed_title": "Better Late Than Never: Meta-Evaluation of Latency Metrics for Simultaneous Speech-to-Text Translation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2509.17349"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Humanoid-GPT: Scaling Data and Structure for Zero-Shot Motion Tracking computer ', candidate_title='Better Late Than Never: Meta-Evaluation of Latency Metrics for Simultaneous Speech-to-Text Translation')",
+        "failed_at": "2026-06-23T13:15:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We introduce the notion of coarse metric. Every coarse metric induces a coarse structure on the underlying set. Conversely, we observe that all coarse spaces come from a particular type of coarse metric in a unique way. In the case when the coarse structure $\\mathcal{E}$ on a set $X$ is defined by a coarse metric that takes values in a meet-complete totally ordered set, we define the associated Hausdorff coarse metric on the set $\\mathcal{P}_0(X)$ of non-empty subsets of $X$ and show that it induces the Hausdorff coarse structure on $\\mathcal{P}_0(X)$.\n  On the other hand, we define the notion of pseudo uniform metric. Each pseudo uniform metric induces a uniform structure on the underlying space. In the reverse direction, we show that a uniform structure $\\mathcal{U}$ on a set $X$ is induced by a map $d$ from $X\\times X$ to a partially ordered set (with no requirement on $d$) if and only if $\\mathcal{U}$ admits a base $\\mathcal{B}$ such that $\\mathcal{B}\\cup \\{\\bigcap \\mathcal{U}\\}$ is closed under arbitrary intersections. In this case, $\\mathcal{U}$ is actually defined by a pseudo uniform metric. We also show that a uniform structures $\\mathcal{U}$ comes from a pseudo uniform metric that takes values in a totally ordered set if and only if $\\mathcal{U}$ admits a totally ordered base.\n  Finally, a valuation ring will produce an example of a coarse and pseudo uniform metric that take values in a totally ordered set.",
+          "claimed_authors": [
+            "Chi-Keung Ng"
+          ],
+          "claimed_title": "Coarse metric and uniform metric",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2012.07298"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='Humanoid-GPT: Scaling Data and Structure for Zero-Shot Motion Tracking computer ', candidate_title='Coarse metric and uniform metric')",
+        "failed_at": "2026-06-23T13:15:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Deep neural networks exhibit empirical neural scaling laws, with error decreasing as a power law with increasing model or data size, across a wide variety of architectures, tasks, and datasets. This universality suggests that scaling laws may result from general properties of natural learning tasks. We develop a mathematical model intended to describe natural datasets using percolation theory. Two distinct criticality regimes emerge, each yielding optimal power-law neural scaling laws. These regimes, corresponding to power-law-distributed discrete subtasks and a dominant data manifold, can be associated with previously proposed theories of neural scaling, thereby grounding and unifying prior works. We test the theory by training regression models on toy datasets derived from percolation theory simulations. We suggest directions for quantitatively predicting language model scaling.",
+          "claimed_authors": [
+            "Ari Brill"
+          ],
+          "claimed_title": "Neural Scaling Laws Rooted in the Data Distribution",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2412.07942"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='Humanoid-GPT: Scaling Data and Structure for Zero-Shot Motion Tracking computer ', candidate_title='Neural Scaling Laws Rooted in the Data Distribution')",
+        "failed_at": "2026-06-23T13:15:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We find that the cross-entropy loss curves of neural language models empirically adhere to a scaling law with learning rate (LR) annealing over training steps: $$L(s) = L_0 + A\\cdot S_1^{-α} - C\\cdot S_2,$$ where $L(s)$ is the validation loss at step $s$, $S_1$ is the area under the LR curve, $S_2$ is the LR annealing area, and $L_0$, $A$, $C$, $α$ are constant parameters. This formulation takes into account two factors: (1) power-law scaling over data size, and (2) the additional loss reduction during LR annealing. Therefore, this formulation can describe the full loss curve at each step, rather than the single loss point at the end of training. Applying the scaling law with LR annealing and fitting only one or two training curves, we can accurately predict the loss at any given step across any learning rate scheduler (LRS). This approach significantly reduces computational cost in formulating scaling laws while providing more accuracy and expressiveness for training dynamics. Extensive experiments demonstrate that our findings hold across a range of hyper-parameters and model architectures, and our equation can extend to scaling effect of model sizes. Moreover, our formulation provides accurate theoretical verification and explanation for empirical results observed in numerous previous studies, particularly those focusing on LR schedule and annealing. We believe that this work is promising to enhance the understanding of LLM training dynamics while greatly democratizing scaling laws, and it can guide researchers in refining training strategies (e.g. critical LRS) for further LLMs.",
+          "claimed_authors": [
+            "Howe Tissue",
+            "Venus Wang",
+            "Lu Wang"
+          ],
+          "claimed_title": "Scaling Law with Learning Rate Annealing",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2408.11029"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='Humanoid-GPT: Scaling Data and Structure for Zero-Shot Motion Tracking computer ', candidate_title='Scaling Law with Learning Rate Annealing')",
+        "failed_at": "2026-06-23T13:15:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Scaling laws provide important insights that can guide the design of large language models (LLMs). Existing work has primarily focused on studying scaling laws for pretraining (upstream) loss. However, in transfer learning settings, in which LLMs are pretrained on an unsupervised dataset and then finetuned on a downstream task, we often also care about the downstream performance. In this work, we study the scaling behavior in a transfer learning setting, where LLMs are finetuned for machine translation tasks. Specifically, we investigate how the choice of the pretraining data and its size affect downstream performance (translation quality) as judged by: downstream cross-entropy and translation quality metrics such as BLEU and COMET scores. Our experiments indicate that the size of the finetuning dataset and the distribution alignment between the pretraining and downstream data significantly influence the scaling behavior. With sufficient alignment, both downstream cross-entropy and translation quality scores improve monotonically with more pretraining data. In such cases, we show that it is possible to predict the downstream translation quality metrics with good accuracy using a log-law. However, there are cases where moderate misalignment causes the downstream translation scores to fluctuate or get worse with more pretraining, whereas downstream cross-entropy monotonically improves. By analyzing these, we provide new practical insights for choosing appropriate pretraining data.",
+          "claimed_authors": [
+            "Berivan Isik",
+            "Natalia Ponomareva",
+            "Hussein Hazimeh",
+            "Dimitris Paparas",
+            "Sergei Vassilvitskii",
+            "Sanmi Koyejo"
+          ],
+          "claimed_title": "Scaling Laws for Downstream Task Performance of Large Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2402.04177"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='Humanoid-GPT: Scaling Data and Structure for Zero-Shot Motion Tracking computer ', candidate_title='Scaling Laws for Downstream Task Performance of Large Language Models')",
+        "failed_at": "2026-06-23T13:15:19Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Zekun Qi",
+            "Xuchuan Chen",
+            "Dairu Liu",
+            "Chenghuai Lin",
+            "Yunrui Lian",
+            "Sikai Liang",
+            "Zhikai Zhang",
+            "Yu Guan",
+            "Jilong Wang",
+            "Wenyao Zhang",
+            "Xinqiang Yu",
+            "He Wang",
+            "Li Yi"
+          ],
+          "title": "Humanoid-GPT: Scaling Data and Structure for Zero-Shot Motion Tracking",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2606.03985",
+        "summary": "We introduce Humanoid-GPT, a GPT-style Transformer with causal attention trained on a billion-scale motion corpus for whole-body control. Unlike prior shallow MLP trackers constrained by scarce data and an agility-generalization trade-off, Humanoid-GPT is pre-trained on a 2B-frame retargeted corpus that unifies all major mocap datasets with large-scale in-house recordings. Scaling both data and model capacity yields a single generative Transformer that tracks highly dynamic behaviors while achieving unprecedented zero-shot generalization to unseen motions and control tasks. Extensive experiments and scaling analyses show that our model establishes a new performance frontier, demonstrating robust zero-shot generalization to unseen tasks while simultaneously tracking highly dynamic and complex motions.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2606.03985",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8182,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-23T13:15:19Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Huayi Zhou",
+            "Mukun Luo",
+            "Fei Jiang",
+            "Yue Ding",
+            "Hongtao Lu",
+            "Kui Jia"
+          ],
+          "title": "Boosting Semi-Supervised 2D Human Pose Estimation by Revisiting Data Augmentation and Consistency Training",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2402.11566",
+        "summary": "The 2D human pose estimation (HPE) is a basic visual problem. However, its supervised learning requires massive keypoint labels, which is labor-intensive to collect. Thus, we aim at boosting a pose estimator by excavating extra unlabeled data with semi-supervised learning (SSL). Most previous SSHPE methods are consistency-based and strive to maintain consistent outputs for differently augmented inputs. Under this genre, we find that SSHPE can be boosted from two cores: advanced data augmentations and concise consistency training ways. Specifically, for the first core, we discover the synergistic effects of existing augmentations, and reveal novel paradigms for conveniently producing new superior HPE-oriented augmentations which can more effectively add noise on unlabeled samples. We can therefore establish paired easy-hard augmentations with larger difficulty gaps. For the second core, we propose to repeatedly augment unlabeled images with diverse hard augmentations, and generate multi-path predictions sequentially for optimizing multi-losses in a single network. This simple and compact design is interpretable, and easily benefits from newly found augmentations. Comparing to state-of-the-art SSL approaches, our method brings substantial improvements on public datasets. And we extensively validate the superiority and versatility of our approach on conventional human body images, overhead fisheye images, and human hand images. The code is released in https://github.com/hnuzhy/MultiAugs.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2402.11566",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-23T13:15:22Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Li Yuan",
+            "Shuning Chang",
+            "Xuecheng Nie",
+            "Ziyuan Huang",
+            "Yichen Zhou",
+            "Yunpeng Chen",
+            "Jiashi Feng",
+            "Shuicheng Yan"
+          ],
+          "title": "Towards Accurate Human Pose Estimation in Videos of Crowded Scenes",
+          "venue": "arXiv",
+          "year": 2020
+        },
+        "primary_pointer": "2010.10008",
+        "summary": "Video-based human pose estimation in crowded scenes is a challenging problem due to occlusion, motion blur, scale variation and viewpoint change, etc. Prior approaches always fail to deal with this problem because of (1) lacking of usage of temporal information; (2) lacking of training data in crowded scenes. In this paper, we focus on improving human pose estimation in videos of crowded scenes from the perspectives of exploiting temporal context and collecting new data. In particular, we first follow the top-down strategy to detect persons and perform single-person pose estimation for each frame. Then, we refine the frame-based pose estimation with temporal contexts deriving from the optical-flow. Specifically, for one frame, we forward the historical poses from the previous frames and backward the future poses from the subsequent frames to current frame, leading to stable and accurate human pose estimation in videos. In addition, we mine new data of similar scenes to HIE dataset from the Internet for improving the diversity of training set. In this way, our model achieves best performance on 7 out of 13 videos and 56.33 average w\\_AP on test dataset of HIE challenge.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2010.10008",
+          "http_status": 200,
+          "pdf_sample_score": 0.2459,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-23T13:15:23Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Jianbin Jiao",
+            "Xina Cheng",
+            "Weijie Chen",
+            "Xiaoting Yin",
+            "Hao Shi",
+            "Kailun Yang"
+          ],
+          "title": "Towards Precise 3D Human Pose Estimation with Multi-Perspective Spatial-Temporal Relational Transformers",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2401.16700",
+        "summary": "3D human pose estimation captures the human joint points in three-dimensional space while keeping the depth information and physical structure. That is essential for applications that require precise pose information, such as human-computer interaction, scene understanding, and rehabilitation training. Due to the challenges in data collection, mainstream datasets of 3D human pose estimation are primarily composed of multi-view video data collected in laboratory environments, which contains rich spatial-temporal correlation information besides the image frame content. Given the remarkable self-attention mechanism of transformers, capable of capturing the spatial-temporal correlation from multi-view video datasets, we propose a multi-stage framework for 3D sequence-to-sequence (seq2seq) human pose detection. Firstly, the spatial module represents the human pose feature by intra-image content, while the frame-image relation module extracts temporal relationships and 3D spatial positional relationship features between the multi-perspective images. Secondly, the self-attention mechanism is adopted to eliminate the interference from non-human body parts and reduce computing resources. Our method is evaluated on Human3.6M, a popular 3D human pose detection dataset. Experimental results demonstrate that our approach achieves state-of-the-art performance on this dataset. The source code will be available at https://github.com/WUJINHUAN/3D-human-pose.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2401.16700",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-23T13:15:23Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Zhe Zhang",
+            "Chunyu Wang",
+            "Wenhu Qin",
+            "Wenjun Zeng"
+          ],
+          "title": "Fusing Wearable IMUs with Multi-View Images for Human Pose Estimation: A Geometric Approach",
+          "venue": "arXiv",
+          "year": 2020
+        },
+        "primary_pointer": "2003.11163",
+        "summary": "We propose to estimate 3D human pose from multi-view images and a few IMUs attached at person's limbs. It operates by firstly detecting 2D poses from the two signals, and then lifting them to the 3D space. We present a geometric approach to reinforce the visual features of each pair of joints based on the IMUs. This notably improves 2D pose estimation accuracy especially when one joint is occluded. We call this approach Orientation Regularized Network (ORN). Then we lift the multi-view 2D poses to the 3D space by an Orientation Regularized Pictorial Structure Model (ORPSM) which jointly minimizes the projection error between the 3D and 2D poses, along with the discrepancy between the 3D pose and IMU orientations. The simple two-step approach reduces the error of the state-of-the-art by a large margin on a public dataset. Our code will be released at https://github.com/CHUNYUWANG/imu-human-pose-pytorch.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2003.11163",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-23T13:15:24Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "humanoid-gpt: scaling data and structure for zero-shot motion tracking computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

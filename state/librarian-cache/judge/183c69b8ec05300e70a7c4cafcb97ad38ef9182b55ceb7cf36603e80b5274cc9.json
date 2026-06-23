@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2308.04332",
+  "judged_at": "2026-06-23T13:16:46Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "zone of proximal policy optimization: teacher in prompts, not gradients linguistics",
+  "rationale": "The paper introduces a tool for experimenting with various types of human feedback in RLHF, but it does not discuss the specific mechanism of using prompts as teachers instead of gradient updates (the “Zone of Proximal Policy Optimization” concept) nor the linguistic aspects implied by the query. Hence it lacks a direct connection to the user’s research focus.",
+  "relevant": false
+}

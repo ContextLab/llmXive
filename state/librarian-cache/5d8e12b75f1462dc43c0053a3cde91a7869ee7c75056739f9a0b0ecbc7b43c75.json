@@ -1,0 +1,617 @@
+{
+  "fetched_at": "2026-06-23T13:16:59Z",
+  "field": "linguistics",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "linguistics",
+      "idea_body_excerpt": "Zone of Proximal Policy Optimization: Teacher in Prompts, Not Gradients",
+      "target_n": 5
+    },
+    "duration_seconds": 63.673,
+    "ended_at": "2026-06-23T13:16:59Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "reinforcement learning from human feedback for language models"
+        ],
+        [
+          2,
+          "prompt-based reinforcement learning in NLP"
+        ],
+        [
+          3,
+          "teacher‑guided prompting without gradient updates"
+        ],
+        [
+          4,
+          "proximal policy optimization applied to linguistic tasks"
+        ],
+        [
+          5,
+          "reward‑driven prompt engineering for syntax acquisition"
+        ],
+        [
+          6,
+          "policy gradient‑free learning with language model prompts"
+        ],
+        [
+          7,
+          "zero‑gradient reinforcement learning for linguistic annotation"
+        ],
+        [
+          8,
+          "teacher‑student framework for prompt tuning in linguistics"
+        ],
+        [
+          9,
+          "reinforcement learning with static prompts for language understanding"
+        ],
+        [
+          10,
+          "policy optimization via prompt feedback loops"
+        ],
+        [
+          11,
+          "reward modeling for prompt‑based language instruction"
+        ],
+        [
+          12,
+          "gradient‑free reinforcement learning for morphological analysis"
+        ],
+        [
+          13,
+          "prompt‑only reinforcement learning in computational linguistics"
+        ],
+        [
+          14,
+          "proximal policy optimization without backpropagation in NLP"
+        ],
+        [
+          15,
+          "teacher‑in‑the‑loop prompting for semantic parsing"
+        ],
+        [
+          16,
+          "reinforcement learning with fixed prompt templates"
+        ],
+        [
+          17,
+          "policy learning from prompt‑based rewards in discourse analysis"
+        ],
+        [
+          18,
+          "non‑gradient reinforcement methods for language model adaptation"
+        ],
+        [
+          19,
+          "feedback‑driven prompt optimization for linguistic modeling"
+        ],
+        [
+          20,
+          "RL‑based prompt refinement for syntactic pattern learning"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Zone of Proximal Policy Optimization: Teacher in Prompts, Not Gradients linguistics": 0,
+        "reinforcement learning from human feedback for language models": 5
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "prompt-based supervision PPO",
+      "large language model instruction tuning",
+      "reward modeling prompt engineering",
+      "generation quality metrics RL fine-tuning",
+      "gradient-free reinforcement learning language models"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2606.18216"
+      ]
+    },
+    "per_query_hit_count": {
+      "Zone of Proximal Policy Optimization: Teacher in Prompts, Not Gradients linguistics": 3,
+      "generation quality metrics RL fine-tuning": 3,
+      "gradient-free reinforcement learning language models": 3,
+      "large language model instruction tuning": 3,
+      "prompt-based supervision PPO": 3,
+      "reward modeling prompt engineering": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 4,
+      "rejections": [
+        {
+          "primary_pointer": "2009.08438",
+          "rationale": "The paper only compares PPO to an evolutionary algorithm on robotic locomotion tasks and does not address the “Zone of Proximal Policy Optimization” concept, prompt‑based teaching, or linguistic applications, so it lacks any of the inclusion criteria (a‑f).",
+          "title": "Competitiveness of MAP-Elites against Proximal Policy Optimization on locomotion tasks in deterministic simulations"
+        },
+        {
+          "primary_pointer": "2308.04332",
+          "rationale": "The paper introduces a tool for experimenting with various types of human feedback in RLHF, but it does not discuss the specific mechanism of using prompts as teachers instead of gradient updates (the “Zone of Proximal Policy Optimization” concept) nor the linguistic aspects implied by the query. Hence it lacks a direct connection to the user’s research focus.",
+          "title": "RLHF-Blender: A Configurable Interactive Interface for Learning from Diverse Human Feedback"
+        },
+        {
+          "primary_pointer": "2407.17482",
+          "rationale": "The paper discusses ethical and cultural considerations of RLHF, not the technical mechanism of a “Zone of Proximal Policy Optimization” where a teacher is provided via prompts rather than gradient updates, nor does it address any of the relevant variables or methods implied by the user's question. It therefore falls outside the domain of the requested literature.",
+          "title": "Reinforcement Learning from Human Feedback: Whose Culture, Whose Values, Whose Perspectives?"
+        },
+        {
+          "primary_pointer": "2602.12375",
+          "rationale": "The paper focuses on exploration bonuses using ensemble errors and does not address Proximal Policy Optimization, teacher‑in‑prompt guidance, or linguistic aspects of policy learning, which are central to the user's question. It falls outside the relevant mechanism, variables, and domain.",
+          "title": "Value Bonuses using Ensemble Errors for Exploration in Reinforcement Learning"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-23T13:15:55Z",
+    "term_input": {
+      "normalized": "zone of proximal policy optimization: teacher in prompts, not gradients linguistics",
+      "raw": "Zone of Proximal Policy Optimization: Teacher in Prompts, Not Gradients linguistics"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Customizing an LLM judge to a specific problem or domain often involves optimizing its prompt across multiple evaluation criteria simultaneously. Textual gradient methods automate this for a single judge criterion, however they produce natural-language critiques, not numerical vectors. Thus, the conflict-resolution toolkit of multi-task learning (PCGrad, MGDA) does not apply to this multi-objective textual gradient setting. We extend TextGrad to the multi-objective setting and test four decomposition modes of textual gradient optimizers by varying how much cross-objective information the loss, gradient and optimizer LLMs share. We find the gradient's task-focus drops by 59% (9.0 to 3.7 out of 10) when the gradient LLM must provide feedback on multiple criteria jointly. Separately, we observe that naively combining single-objective optimized instructions into a single prompt degrades Spearman rho from 0.305 to 0.220 (-0.085). These results identify two separable failure modes: optimization-time gradient dilution and inference-time instruction interference, which together constrain the design space for multi-objective judge optimization using textual feedback.",
+          "claimed_authors": [
+            "Parth Darshan",
+            "Abhishek Divekar"
+          ],
+          "claimed_title": "When Gradients Collide: Failure Modes of Multi-Objective Prompt Optimization for LLM Judges",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2605.26046"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Zone of Proximal Policy Optimization: Teacher in Prompts, Not Gradients linguist', candidate_title='When Gradients Collide: Failure Modes of Multi-Objective Prompt Optimization for LLM Judges')",
+        "failed_at": "2026-06-23T13:16:25Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Text-to-image diffusion models have achieved impressive results in synthesizing high-quality images from natural language prompts. However, commonly used prompting strategies remain relatively generic, limiting the model's ability to accurately express emotional intent and nuanced affective attributes. This work proposes EPIG, a method that enhances emotional expressiveness at the prompt level prior to image generation. Grounded in psychologically informed emotion representations (valence-arousal) and leveraging structured, role-aware prompt enrichment, EPIG enriches emotion-related components of prompts without modifying or retraining the image generation backbone. The resulting emotion-aware prompts guide the generative process toward more emotionally coherent visual outputs, with particular effectiveness in controlling arousal. EPIG is lightweight, training-free, and well suited for resource-constrained and personalized image generation scenarios. Experimental results on a benchmark of 10 diverse prompts show that EPIG reduces mean arousal error compared to strong baselines, including naive insertion and LLM-based prompt expansion, with reductions of 14% and 12%, respectively. These improvements are statistically significant. EPIG also preserves valence alignment and semantic consistency, as measured by CLIPScore and supported by ablation studies. The effect is more pronounced on prompts containing explicit subjects such as humans, children, or animals, where the reduction reaches 17%, highlighting the subject-sensitive behavior of the proposed method.",
+          "claimed_authors": [
+            "Emna Othmen",
+            "Mohamed Yassine Landolsi",
+            "Lotfi Ben Romdhane"
+          ],
+          "claimed_title": "EPIG: Emotion-Based Prompting for Personalised Image Generation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.13247"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Zone of Proximal Policy Optimization: Teacher in Prompts, Not Gradients linguist', candidate_title='EPIG: Emotion-Based Prompting for Personalised Image Generation')",
+        "failed_at": "2026-06-23T13:16:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Instruction tuning significantly enhances the performance of large language models (LLMs) across various tasks. However, the procedure to optimizing the mixing of instruction datasets for LLM fine-tuning is still poorly understood. This study categorizes instructions into three primary types: NLP downstream tasks, coding, and general chat. We explore the effects of instruction tuning on different combinations of datasets on LLM performance, and find that certain instruction types are more advantageous for specific applications but can negatively impact other areas. This work provides insights into instruction mixtures, laying the foundations for future research.",
+          "claimed_authors": [
+            "Renxi Wang",
+            "Haonan Li",
+            "Minghao Wu",
+            "Yuxia Wang",
+            "Xudong Han",
+            "Chiyu Zhang",
+            "Timothy Baldwin"
+          ],
+          "claimed_title": "Demystifying Instruction Mixing for Fine-tuning Large Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2312.10793"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Zone of Proximal Policy Optimization: Teacher in Prompts, Not Gradients linguist', candidate_title='Demystifying Instruction Mixing for Fine-tuning Large Language Models')",
+        "failed_at": "2026-06-23T13:16:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Training large language models (LLMs) with open-domain instruction following data brings colossal success. However, manually creating such instruction data is very time-consuming and labor-intensive. Moreover, humans may struggle to produce high-complexity instructions. In this paper, we show an avenue for creating large amounts of instruction data with varying levels of complexity using LLM instead of humans. Starting with an initial set of instructions, we use our proposed Evol-Instruct to rewrite them step by step into more complex instructions. Then, we mix all generated instruction data to fine-tune LLaMA. We call the resulting model WizardLM. Human evaluations on a complexity-balanced test bed and Vicuna's testset show that instructions from Evol-Instruct are superior to human-created ones. By analyzing the human evaluation results of the high complexity part, we demonstrate that outputs from our WizardLM are preferred to outputs from OpenAI ChatGPT. In GPT-4 automatic evaluation, WizardLM achieves more than 90\\% capacity of ChatGPT on 17 out of 29 skills. Even though WizardLM still lags behind ChatGPT in some aspects, our findings suggest that fine-tuning with AI-evolved instructions is a promising direction for enhancing LLMs. Our code and data are public at https://github.com/nlpxucan/WizardLM",
+          "claimed_authors": [
+            "Can Xu",
+            "Qingfeng Sun",
+            "Kai Zheng",
+            "Xiubo Geng",
+            "Pu Zhao",
+            "Jiazhan Feng",
+            "Chongyang Tao",
+            "Qingwei Lin",
+            "Daxin Jiang"
+          ],
+          "claimed_title": "WizardLM: Empowering large pre-trained language models to follow complex instructions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2304.12244"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Zone of Proximal Policy Optimization: Teacher in Prompts, Not Gradients linguist', candidate_title='WizardLM: Empowering large pre-trained language models to follow complex instructions')",
+        "failed_at": "2026-06-23T13:16:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In the swiftly expanding domain of Natural Language Processing (NLP), the potential of GPT-based models for the financial sector is increasingly evident. However, the integration of these models with financial datasets presents challenges, notably in determining their adeptness and relevance. This paper introduces a distinctive approach anchored in the Instruction Tuning paradigm for open-source large language models, specifically adapted for financial contexts. Through this methodology, we capitalize on the interoperability of open-source models, ensuring a seamless and transparent integration. We begin by explaining the Instruction Tuning paradigm, highlighting its effectiveness for immediate integration. The paper presents a benchmarking scheme designed for end-to-end training and testing, employing a cost-effective progression. Firstly, we assess basic competencies and fundamental tasks, such as Named Entity Recognition (NER) and sentiment analysis to enhance specialization. Next, we delve into a comprehensive model, executing multi-task operations by amalgamating all instructional tunings to examine versatility. Finally, we explore the zero-shot capabilities by earmarking unseen tasks and incorporating novel datasets to understand adaptability in uncharted terrains. Such a paradigm fortifies the principles of openness and reproducibility, laying a robust foundation for future investigations in open-source financial large language models (FinLLMs).",
+          "claimed_authors": [
+            "Neng Wang",
+            "Hongyang Yang",
+            "Christina Dan Wang"
+          ],
+          "claimed_title": "FinGPT: Instruction Tuning Benchmark for Open-Source Large Language Models in Financial Datasets",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2310.04793"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Zone of Proximal Policy Optimization: Teacher in Prompts, Not Gradients linguist', candidate_title='FinGPT: Instruction Tuning Benchmark for Open-Source Large Language Models in Financial Datasets')",
+        "failed_at": "2026-06-23T13:16:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large language models (LLMs) accelerate software development but often exhibit instability, non-determinism, and weak adherence to development discipline in unconstrained workflows. While test-driven development (TDD) provides a structured Red-Green-Refactor process, existing LLM-based approaches typically use tests as auxiliary inputs rather than enforceable process constraints. We present an AI-native TDD framework that operationalizes classical TDD principles as structured prompt-level and workflow-level governance mechanisms. Extracted principles are formalized in a machine-readable manifesto and distributed across planning, generation, repair, and validation stages within a layered architecture that separates model proposal from deterministic engine authority. The system enforces phase ordering, bounded repair loops, validation gates, and atomic mutation control to improve stability and reproducibility. We describe architecture and discuss encoding software engineering discipline directly into prompt orchestration, which we think offers a promising direction for reliable LLM-assisted development.",
+          "claimed_authors": [
+            "Tarlan Hasanli",
+            "Shahbaz Siddeeq",
+            "Bishwash Khanal",
+            "Pyry Kotilainen",
+            "Tommi Mikkonen",
+            "Pekka Abrahamsson"
+          ],
+          "claimed_title": "TDD Governance for Multi-Agent Code Generation via Prompt Engineering",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2604.26615"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Zone of Proximal Policy Optimization: Teacher in Prompts, Not Gradients linguist', candidate_title='TDD Governance for Multi-Agent Code Generation via Prompt Engineering')",
+        "failed_at": "2026-06-23T13:16:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Qualitative analysis plays a pivotal role in understanding the human and social aspects of software engineering. However, it remains a demanding process shaped by the subjective interpretation of individual researchers and sensitive to methodological choices such as prompt design. Recent advancements in Large Language Models (LLMs) offer promising opportunities to support this type of analysis, although their reliability in reproducing human qualitative reasoning under varying prompting conditions remains largely untested. This study presents a controlled empirical evaluation of three LLMs -- Claude Haiku, DeepSeek-Chat, and Gemini 2.5 Flash -- across two prompt engineering strategies (zero-shot and multi-shot closed coding), using Cohen's kappa as the primary agreement metric over ten independent runs per configuration. Results suggest that multi-shot prompting significantly improves agreement for Claude Haiku (Delta kappa = +0.034, Wilcoxon p = 0.004) but not for DeepSeek-Chat or Gemini 2.5 Flash. Intra-model stability varies substantially -- DeepSeek-Chat and Claude Haiku exhibit the lowest variance (SD approx. 0.017), while Gemini 2.5 Flash is the least stable (SD = 0.038). A systematic over-prediction of \"Sharing Negative Feedback\" is identified across all models (bias ratios up to 5.25x), alongside consistent under-prediction of \"Expressing Concerns.\" Collectively, these findings provide empirical evidence for prompt engineering guidelines in LLM-assisted qualitative coding for software engineering research.",
+          "claimed_authors": [
+            "Moaath Alshaikh",
+            "Tasneem Alshaher",
+            "Ricardo Vieira",
+            "Beatriz Santana",
+            "Clelio Xavier",
+            "Jose Amancio",
+            "Glauco Carneiro",
+            "Julio Leite",
+            "Savio Freire",
+            "Manoel Mendonca"
+          ],
+          "claimed_title": "Prompt Engineering Strategies for LLM-based Qualitative Coding of Psychological Safety in Software Engineering Communities: A Controlled Empirical Study",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2605.07422"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Zone of Proximal Policy Optimization: Teacher in Prompts, Not Gradients linguist', candidate_title='Prompt Engineering Strategies for LLM-based Qualitative Coding of Psychological Safety in Software Engineering Communities: A Controlled Empirical Study')",
+        "failed_at": "2026-06-23T13:16:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large Language Models (LLMs) have shown prominent performance in various downstream tasks and prompt engineering plays a pivotal role in optimizing LLMs' performance. This paper, not only as an overview of current prompt engineering methods, but also aims to highlight the limitation of designing prompts based on an anthropomorphic assumption that expects LLMs to think like humans. From our review of 50 representative studies, we demonstrate that a goal-oriented prompt formulation, which guides LLMs to follow established human logical thinking, significantly improves the performance of LLMs. Furthermore, We introduce a novel taxonomy that categorizes goal-oriented prompting methods into five interconnected stages and we demonstrate the broad applicability of our framework. With four future directions proposed, we hope to further emphasize the power and potential of goal-oriented prompt engineering in all fields.",
+          "claimed_authors": [
+            "Haochen Li",
+            "Jonathan Leung",
+            "Zhiqi Shen"
+          ],
+          "claimed_title": "Towards Goal-oriented Prompt Engineering for Large Language Models: A Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2401.14043"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Zone of Proximal Policy Optimization: Teacher in Prompts, Not Gradients linguist', candidate_title='Towards Goal-oriented Prompt Engineering for Large Language Models: A Survey')",
+        "failed_at": "2026-06-23T13:16:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Graph-to-text generation has benefited from pre-trained language models (PLMs) in achieving better performance than structured graph encoders. However, they fail to fully utilize the structure information of the input graph. In this paper, we aim to further improve the performance of the pre-trained language model by proposing a structured graph-to-text model with a two-step fine-tuning mechanism which first fine-tunes the model on Wikipedia before adapting to the graph-to-text generation. In addition to using the traditional token and position embeddings to encode the knowledge graph (KG), we propose a novel tree-level embedding method to capture the inter-dependency structures of the input graph. This new approach has significantly improved the performance of all text generation metrics for the English WebNLG 2017 dataset.",
+          "claimed_authors": [
+            "Qingyun Wang",
+            "Semih Yavuz",
+            "Victoria Lin",
+            "Heng Ji",
+            "Nazneen Rajani"
+          ],
+          "claimed_title": "Stage-wise Fine-tuning for Graph-to-Text Generation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2105.08021"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Zone of Proximal Policy Optimization: Teacher in Prompts, Not Gradients linguist', candidate_title='Stage-wise Fine-tuning for Graph-to-Text Generation')",
+        "failed_at": "2026-06-23T13:16:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "High-quality and open datasets remain a major bottleneck for text-to-image (T2I) fine-tuning. Despite rapid progress in model architectures and training pipelines, most publicly available fine-tuning datasets suffer from low resolution, poor text-image alignment, or limited diversity, resulting in a clear performance gap between open research models and enterprise-grade models. In this work, we present Fine-T2I, a large-scale, high-quality, and fully open dataset for T2I fine-tuning. Fine-T2I spans 10 task combinations, 32 prompt categories, 11 visual styles, and 5 prompt templates, and combines synthetic images generated by strong modern models with carefully curated real images from professional photographers. All samples are rigorously filtered for text-image alignment, visual fidelity, and prompt quality, with over 95% of initial candidates removed. The final dataset contains over 6 million text-image pairs, around 2 TB on disk, approaching the scale of pretraining datasets while maintaining fine-tuning-level quality. Across a diverse set of pretrained diffusion and autoregressive models, fine-tuning on Fine-T2I consistently improves both generation quality and instruction adherence, as validated by human evaluation, visual comparison, and automatic metrics. We release Fine-T2I under an open license to help close the data gap in T2I fine-tuning in the open community.",
+          "claimed_authors": [
+            "Xu Ma",
+            "Yitian Zhang",
+            "Qihua Dong",
+            "Yun Fu"
+          ],
+          "claimed_title": "Fine-T2I: An Open, Large-Scale, and Diverse Dataset for High-Quality T2I Fine-Tuning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2602.09439"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Zone of Proximal Policy Optimization: Teacher in Prompts, Not Gradients linguist', candidate_title='Fine-T2I: An Open, Large-Scale, and Diverse Dataset for High-Quality T2I Fine-Tuning')",
+        "failed_at": "2026-06-23T13:16:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present a practical pipeline for fine-tuning open-source video diffusion transformers to synthesize cinematic scenes for television and film production from small datasets. The proposed two-stage process decouples visual style learning from motion generation. In the first stage, Low-Rank Adaptation (LoRA) modules are integrated into the cross-attention layers of the Wan2.1 I2V-14B model to adapt its visual representations using a compact dataset of short clips from Ay Yapim's historical television film El Turco. This enables efficient domain transfer within hours on a single GPU. In the second stage, the fine-tuned model produces stylistically consistent keyframes that preserve costume, lighting, and color grading, which are then temporally expanded into coherent 720p sequences through the model's video decoder. We further apply lightweight parallelization and sequence partitioning strategies to accelerate inference without quality degradation. Quantitative and qualitative evaluations using FVD, CLIP-SIM, and LPIPS metrics, supported by a small expert user study, demonstrate measurable improvements in cinematic fidelity and temporal stability over the base model. The complete training and inference pipeline is released to support reproducibility and adaptation across cinematic domains.",
+          "claimed_authors": [
+            "Meftun Akarsu",
+            "Kerem Catay",
+            "Sedat Bin Vedat",
+            "Enes Kutay Yarkan",
+            "Ilke Senturk",
+            "Arda Sar",
+            "Dafne Eksioglu"
+          ],
+          "claimed_title": "Fine-Tuning Open Video Generators for Cinematic Scene Synthesis: A Small-Data Pipeline with LoRA and Wan2.1 I2V",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2510.27364"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Zone of Proximal Policy Optimization: Teacher in Prompts, Not Gradients linguist', candidate_title='Fine-Tuning Open Video Generators for Cinematic Scene Synthesis: A Small-Data Pipeline with LoRA and Wan2.1 I2V')",
+        "failed_at": "2026-06-23T13:16:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In recent years, training methods centered on Reinforcement Learning (RL) have markedly enhanced the reasoning and alignment performance of Large Language Models (LLMs), particularly in understanding human intents, following user instructions, and bolstering inferential strength. Although existing surveys offer overviews of RL augmented LLMs, their scope is often limited, failing to provide a comprehensive summary of how RL operates across the full lifecycle of LLMs. We systematically review the theoretical and practical advancements whereby RL empowers LLMs, especially Reinforcement Learning with Verifiable Rewards (RLVR). First, we briefly introduce the basic theory of RL. Second, we thoroughly detail application strategies for RL across various phases of the LLM lifecycle, including pre-training, alignment fine-tuning, and reinforced reasoning. In particular, we emphasize that RL methods in the reinforced reasoning phase serve as a pivotal driving force for advancing model reasoning to its limits. Next, we collate existing datasets and evaluation benchmarks currently used for RL fine-tuning, spanning human-annotated datasets, AI-assisted preference data, and program-verification-style corpora. Subsequently, we review the mainstream open-source tools and training frameworks available, providing clear practical references for subsequent research. Finally, we analyse the future challenges and trends in the field of RL-enhanced LLMs. This survey aims to present researchers and practitioners with the latest developments and frontier trends at the intersection of RL and LLMs, with the goal of fostering the evolution of LLMs that are more intelligent, generalizable, and secure.",
+          "claimed_authors": [
+            "Keliang Liu",
+            "Dingkang Yang",
+            "Ziyun Qian",
+            "Weijie Yin",
+            "Yuchi Wang",
+            "Hongsheng Li",
+            "Jun Liu",
+            "Peng Zhai",
+            "Yang Liu",
+            "Lihua Zhang"
+          ],
+          "claimed_title": "Reinforcement Learning Meets Large Language Models: A Survey of Advancements and Applications Across the LLM Lifecycle",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2509.16679"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Zone of Proximal Policy Optimization: Teacher in Prompts, Not Gradients linguist', candidate_title='Reinforcement Learning Meets Large Language Models: A Survey of Advancements and Applications Across the LLM Lifecycle')",
+        "failed_at": "2026-06-23T13:16:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Optimistic value estimates provide one mechanism for directed exploration in reinforcement learning (RL). The agent acts greedily with respect to an estimate of the value plus what can be seen as a value bonus. The value bonus can be learned by estimating a value function on reward bonuses, propagating local uncertainties around rewards. However, this approach only increases the value bonus for an action retroactively, after seeing a higher reward bonus from that state and action. Such an approach does not encourage the agent to visit a state and action for the first time. In this work, we introduce an algorithm for exploration called Value Bonuses with Ensemble errors (VBE), that maintains an ensemble of random action-value functions (RQFs). VBE uses the errors in the estimation of these RQFs to design value bonuses that provide first-visit optimism and deep exploration. The key idea is to design the rewards for these RQFs in such a way that the value bonus can decrease to zero. We show that VBE outperforms Bootstrap DQN and two reward bonus approaches (RND and ACB) on several classic environments used to test exploration and provide demonstrative experiments that it can scale easily to more complex environments like Atari.",
+          "claimed_authors": [
+            "Abdul Wahab",
+            "Raksha Kumaraswamy",
+            "Martha White"
+          ],
+          "claimed_title": "Value Bonuses using Ensemble Errors for Exploration in Reinforcement Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2602.12375"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Zone of Proximal Policy Optimization: Teacher in Prompts, Not Gradients linguist', candidate_title='Value Bonuses using Ensemble Errors for Exploration in Reinforcement Learning')",
+        "failed_at": "2026-06-23T13:16:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A suitable state representation is a fundamental part of the learning process in Reinforcement Learning. In various tasks, the state can either be described by natural language or be natural language itself. This survey outlines the strategies used in the literature to build natural language state representations. We appeal for more linguistically interpretable and grounded representations, careful justification of design decisions and evaluation of the effectiveness of different approaches.",
+          "claimed_authors": [
+            "Brielen Madureira",
+            "David Schlangen"
+          ],
+          "claimed_title": "An Overview of Natural Language State Representation for Reinforcement Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2007.09774"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Zone of Proximal Policy Optimization: Teacher in Prompts, Not Gradients linguist', candidate_title='An Overview of Natural Language State Representation for Reinforcement Learning')",
+        "failed_at": "2026-06-23T13:16:26Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Byung-Kwan Lee",
+            "Ximing Lu",
+            "Shizhe Diao",
+            "Minki Kang",
+            "Saurav Muralidharan",
+            "Karan Sapra",
+            "Andrew Tao",
+            "Pavlo Molchanov",
+            "Yejin Choi",
+            "Yu-Chiang Frank Wang",
+            "Ryo Hachiuma"
+          ],
+          "title": "Zone of Proximal Policy Optimization: Teacher in Prompts, Not Gradients",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2606.18216",
+        "summary": "Knowledge distillation transfers a teacher's competence to a small student but is brittle in the small-student regime: forcing the student to imitate logits from a much larger teacher concentrates it on the teacher's sharpest modes, hurting generalization on benchmark families beyond the training corpus. Reinforcement learning (RL) avoids logit imitation by training on the student's own rollouts. However, on questions where every rollout fails-yielding zero advantage and being silently discarded-injecting a stronger teacher's response into the policy gradient breaks the on-policy assumption and induces drift. We introduce Zone of Proximal Policy Optimization (ZPPO), inspired by Vygotsky's zone of proximal development, which keeps the teacher inside the prompt rather than the policy gradient. On hard questions, ZPPO constructs two reformulated prompts: a Binary Candidate-included Question (BCQ) pairs one correct teacher response with one incorrect student response as anonymized candidates the student must discriminate, and a Negative Candidate-included Question (NCQ) aggregates the student's wrong rollouts into a single prompt to surface their shared failure modes. A prompt replay buffer recirculates each hard question until it either graduates-the student's mean rollout accuracy on it reaches half- or is FIFO-evicted under finite capacity, amplifying BCQ and NCQ inside the student's current zone of proximal development. On the Qwen3.5 family at four student scales (0.8B-9B) with a 27B teacher, post-trained as vision-language models and evaluated on a 31-benchmark suite (16 VLM, 10 LLM, 5 Video), ZPPO outperforms off/on-policy distillation and GRPO, with the largest gains at the smallest scale.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2606.18216",
+          "http_status": 200,
+          "pdf_sample_score": 0.3407,
+          "query_relevance_score": 0.875,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-23T13:16:25Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Abdullah Burkan Bereketoglu"
+          ],
+          "title": "Composite Reward Design in PPO-Driven Adaptive Filtering",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2506.06323",
+        "summary": "Model-free and reinforcement learning-based adaptive filtering methods are gaining traction for denoising in dynamic, non-stationary environments such as wireless signal channels. Traditional filters like LMS, RLS, Wiener, and Kalman are limited by assumptions of stationary or requiring complex fine-tuning or exact noise statistics or fixed models. This letter proposes an adaptive filtering framework using Proximal Policy Optimization (PPO), guided by a composite reward that balances SNR improvement, MSE reduction, and residual smoothness. Experiments on synthetic signals with various noise types show that our PPO agent generalizes beyond its training distribution, achieving real-time performance and outperforming classical filters. This work demonstrates the viability of policy-gradient reinforcement learning for robust, low-latency adaptive signal filtering.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2506.06323",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-23T13:16:25Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Gourisetty Venkata Sai Koushik",
+            "Dama Aditya",
+            "Mahankali Harish Sai",
+            "Peddi Siddarhta",
+            "Shadab Ahmad",
+            "Vivek Yelleti"
+          ],
+          "title": "PPO guided Agentic Pipeline for Adaptive Prompt Selection and Test Case Generation",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2605.00942",
+        "summary": "Developing effective test cases capable of thoroughly exercising large-scale software systems is inherently difficult, especially if such systems have voluminous, complex, and deeply nested source codes. In this work, we present a novel approach for generating test cases using a reinforcement learning-driven agentic framework where Proximal Policy Optimization (PPO) is coupled with an LLM engine to guide prompt selection during test generation. Our approach consists of two phases. In Phase I, the ToT-guided optimization agent partitions and minimizes the source code by removing redundancies without changing the functional behavior of the source code. In Phase II, a PPO-based policy network is trained to solve the problem of selecting prompts among eight different prompting techniques, such as Boundary Value Analysis, Random Fuzzing, etc., based on the inputted 11-dimensional state vector representing the source code complexity metrics and live coverage metrics to direct the LLM engine towards exploring unvisited paths in the program. The PPO agent receives rewards based on a combination of increases in line and branch coverages, penalties for unexplored branches, and rewards for reducing source code length. From experiments conducted on twenty benchmark programs, it is evident that the proposed approach, PPO-LLM, outperforms CBMC, kS-LLM, and kS-LLM++ in terms of branch and line coverage in almost all cases, for various loop bound values ranging from BOUND~1 to BOUND~2000. While at BOUND~1, the coverage of branches is 100\\% using PPO-LLM on the PALS suite, in comparison, it is around 86.8\\% using kS-LLM++. This confirms that adaptive prompt selection driven by PPO substantially outperforms static prompting strategies on PALS type programs.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2605.00942",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-23T13:16:26Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Keliang Liu",
+            "Dingkang Yang",
+            "Ziyun Qian",
+            "Weijie Yin",
+            "Yuchi Wang",
+            "Hongsheng Li",
+            "Jun Liu",
+            "Peng Zhai",
+            "Yang Liu",
+            "Lihua Zhang"
+          ],
+          "title": "Reinforcement Learning Meets Large Language Models: A Survey of Advancements and Applications Across the LLM Lifecycle",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2509.16679",
+        "summary": "In recent years, training methods centered on Reinforcement Learning (RL) have markedly enhanced the reasoning and alignment performance of Large Language Models (LLMs), particularly in understanding human intents, following user instructions, and bolstering inferential strength. Although existing surveys offer overviews of RL augmented LLMs, their scope is often limited, failing to provide a comprehensive summary of how RL operates across the full lifecycle of LLMs. We systematically review the theoretical and practical advancements whereby RL empowers LLMs, especially Reinforcement Learning with Verifiable Rewards (RLVR). First, we briefly introduce the basic theory of RL. Second, we thoroughly detail application strategies for RL across various phases of the LLM lifecycle, including pre-training, alignment fine-tuning, and reinforced reasoning. In particular, we emphasize that RL methods in the reinforced reasoning phase serve as a pivotal driving force for advancing model reasoning to its limits. Next, we collate existing datasets and evaluation benchmarks currently used for RL fine-tuning, spanning human-annotated datasets, AI-assisted preference data, and program-verification-style corpora. Subsequently, we review the mainstream open-source tools and training frameworks available, providing clear practical references for subsequent research. Finally, we analyse the future challenges and trends in the field of RL-enhanced LLMs. This survey aims to present researchers and practitioners with the latest developments and frontier trends at the intersection of RL and LLMs, with the goal of fostering the evolution of LLMs that are more intelligent, generalizable, and secure.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2509.16679",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-23T13:16:30Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Zheng Yuan",
+            "Hongyi Yuan",
+            "Chuanqi Tan",
+            "Wei Wang",
+            "Songfang Huang",
+            "Fei Huang"
+          ],
+          "title": "RRHF: Rank Responses to Align Language Models with Human Feedback without tears",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2304.05302",
+        "summary": "Reinforcement Learning from Human Feedback (RLHF) facilitates the alignment of large language models with human preferences, significantly enhancing the quality of interactions between humans and models. InstructGPT implements RLHF through several stages, including Supervised Fine-Tuning (SFT), reward model training, and Proximal Policy Optimization (PPO). However, PPO is sensitive to hyperparameters and requires multiple models in its standard implementation, making it hard to train and scale up to larger parameter counts. In contrast, we propose a novel learning paradigm called RRHF, which scores sampled responses from different sources via a logarithm of conditional probabilities and learns to align these probabilities with human preferences through ranking loss. RRHF can leverage sampled responses from various sources including the model responses from itself, other large language model responses, and human expert responses to learn to rank them. RRHF only needs 1 to 2 models during tuning and can efficiently align language models with human preferences robustly without complex hyperparameter tuning. Additionally, RRHF can be considered an extension of SFT and reward model training while being simpler than PPO in terms of coding, model counts, and hyperparameters. We evaluate RRHF on the Helpful and Harmless dataset, demonstrating comparable alignment performance with PPO by reward model score and human labeling. Extensive experiments show that the performance of RRHF is highly related to sampling quality which suggests RRHF is a best-of-n learner. Codes available at https://github.com/GanjinZero/RRHF.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2304.05302",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 1.0,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-23T13:16:31Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "zone of proximal policy optimization: teacher in prompts, not gradients linguistics",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

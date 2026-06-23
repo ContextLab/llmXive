@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2003.11163",
+  "judged_at": "2026-06-23T13:15:41Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "humanoid-gpt: scaling data and structure for zero-shot motion tracking computer science",
+  "rationale": "The paper studies human pose (motion) tracking accuracy using multimodal data (IMUs + images), thereby measuring a key dependent variable (pose estimation error) in the same domain of motion tracking that the user's question concerns, satisfying criterion (b).",
+  "relevant": true
+}

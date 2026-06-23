@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2602.12375",
+  "judged_at": "2026-06-23T13:16:58Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "zone of proximal policy optimization: teacher in prompts, not gradients linguistics",
+  "rationale": "The paper focuses on exploration bonuses using ensemble errors and does not address Proximal Policy Optimization, teacher‑in‑prompt guidance, or linguistic aspects of policy learning, which are central to the user's question. It falls outside the relevant mechanism, variables, and domain.",
+  "relevant": false
+}
