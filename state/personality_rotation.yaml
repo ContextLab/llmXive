@@ -1,12 +1,7 @@
 last_used: alan-turing
-last_used_at: '2026-06-23T14:20:46.460646+00:00'
-last_outcome: committed
+last_used_at: '2026-06-23T16:49:31.038178+00:00'
+last_outcome: librarian_held
 history:
-- slug: albert-einstein
-  started_at: '2026-06-11T19:53:44.304481+00:00'
-  ended_at: '2026-06-11T20:50:10.924479+00:00'
-  outcome: triage_rejected_advanced_as_abstain
-  action: comment
 - slug: dan-rockmore
   started_at: '2026-06-11T20:50:10.924479+00:00'
   ended_at: '2026-06-11T21:46:02.567543+00:00'
@@ -1130,3 +1125,10 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-703-evoarena-tracking-memory-evolution-for-r/paper/reviews/alan-turing-simulated__2026-06-23__paper.md
+- slug: albert-einstein
+  started_at: '2026-06-23T14:20:46.460646+00:00'
+  ended_at: '2026-06-23T16:49:31.038178+00:00'
+  outcome: librarian_held
+  action: comment
+  committed_paths:
+  - projects/PROJ-758-testing-hubble-constant-isotropy-using-p/reviews/research/_held/albert-einstein-simulated__2026-06-23__research.md
