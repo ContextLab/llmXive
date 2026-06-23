@@ -1,14 +1,7 @@
-last_used: albert-einstein
-last_used_at: '2026-06-23T21:33:34.821931+00:00'
-last_outcome: librarian_held
+last_used: dan-rockmore
+last_used_at: '2026-06-23T22:27:28.973472+00:00'
+last_outcome: triage_rejected_advanced_as_abstain
 history:
-- slug: geoffrey-west
-  started_at: '2026-06-12T03:07:53.708490+00:00'
-  ended_at: '2026-06-12T05:11:54.559117+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-178-investigating-the-correlation-between-mi/reviews/research/geoffrey-west-simulated__2026-06-12__research.md
 - slug: john-von-neumann
   started_at: '2026-06-12T05:11:54.559117+00:00'
   ended_at: '2026-06-12T07:04:25.764989+00:00'
@@ -1142,3 +1135,8 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-762-quantifying-hallucination-in-llm-generat/reviews/research/_held/dan-rockmore-simulated__2026-06-23__research.md
+- slug: dan-rockmore
+  started_at: '2026-06-23T21:33:34.821931+00:00'
+  ended_at: '2026-06-23T22:27:28.973472+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
