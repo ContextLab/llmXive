@@ -1,12 +1,7 @@
 last_used: alan-turing
-last_used_at: '2026-06-23T17:37:01.985676+00:00'
+last_used_at: '2026-06-23T18:41:24.878814+00:00'
 last_outcome: librarian_held
 history:
-- slug: daniel-kahneman
-  started_at: '2026-06-11T21:46:02.567543+00:00'
-  ended_at: '2026-06-11T22:37:24.424521+00:00'
-  outcome: triage_rejected_advanced_as_abstain
-  action: comment
 - slug: david-krakauer
   started_at: '2026-06-11T22:37:24.424521+00:00'
   ended_at: '2026-06-11T23:32:29.800525+00:00'
@@ -1134,3 +1129,10 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-758-testing-hubble-constant-isotropy-using-p/reviews/research/_held/albert-einstein-simulated__2026-06-23__research.1.md
+- slug: albert-einstein
+  started_at: '2026-06-23T17:37:01.985676+00:00'
+  ended_at: '2026-06-23T18:41:24.878814+00:00'
+  outcome: librarian_held
+  action: comment
+  committed_paths:
+  - projects/PROJ-758-testing-hubble-constant-isotropy-using-p/reviews/research/_held/albert-einstein-simulated__2026-06-23__research.2.md
