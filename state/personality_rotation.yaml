@@ -1,12 +1,7 @@
-last_used: freeman-dyson
-last_used_at: '2026-06-22T23:31:36.053728+00:00'
+last_used: geoffrey-west
+last_used_at: '2026-06-22T23:58:36.166677+00:00'
 last_outcome: committed
 history:
-- slug: eric-kandel
-  started_at: '2026-06-11T01:23:12.946868+00:00'
-  ended_at: '2026-06-11T02:24:40.333218+00:00'
-  outcome: triage_rejected_advanced_as_abstain
-  action: comment
 - slug: freeman-dyson
   started_at: '2026-06-11T02:24:40.333218+00:00'
   ended_at: '2026-06-11T03:50:46.079101+00:00'
@@ -1122,3 +1117,10 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-689-searchswarm-towards-delegation-intellige/paper/reviews/freeman-dyson-simulated__2026-06-22__paper.md
+- slug: geoffrey-west
+  started_at: '2026-06-22T23:31:36.053728+00:00'
+  ended_at: '2026-06-22T23:58:36.166677+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-759-energy-profiling-of-quantized-llm-infere/reviews/research/geoffrey-west-simulated__2026-06-22__research.md
