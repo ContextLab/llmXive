@@ -1,12 +1,7 @@
-last_used: ada-lovelace
-last_used_at: '2026-06-23T13:27:49.935149+00:00'
-last_outcome: abstained
+last_used: alan-turing
+last_used_at: '2026-06-23T14:20:46.460646+00:00'
+last_outcome: committed
 history:
-- slug: alan-turing
-  started_at: '2026-06-11T18:34:04.690193+00:00'
-  ended_at: '2026-06-11T19:53:44.304481+00:00'
-  outcome: triage_rejected_advanced_as_abstain
-  action: comment
 - slug: albert-einstein
   started_at: '2026-06-11T19:53:44.304481+00:00'
   ended_at: '2026-06-11T20:50:10.924479+00:00'
@@ -1128,3 +1123,10 @@ history:
   ended_at: '2026-06-23T13:27:49.935149+00:00'
   outcome: abstained
   action: abstain
+- slug: alan-turing
+  started_at: '2026-06-23T13:27:49.935149+00:00'
+  ended_at: '2026-06-23T14:20:46.460646+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-703-evoarena-tracking-memory-evolution-for-r/paper/reviews/alan-turing-simulated__2026-06-23__paper.md
