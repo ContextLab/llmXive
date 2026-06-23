@@ -1,12 +1,7 @@
 last_used: albert-einstein
-last_used_at: '2026-06-23T20:44:07.012634+00:00'
-last_outcome: committed
+last_used_at: '2026-06-23T21:33:34.821931+00:00'
+last_outcome: librarian_held
 history:
-- slug: freeman-dyson
-  started_at: '2026-06-12T00:08:41.817458+00:00'
-  ended_at: '2026-06-12T03:07:53.708490+00:00'
-  outcome: triage_rejected_advanced_as_abstain
-  action: comment
 - slug: geoffrey-west
   started_at: '2026-06-12T03:07:53.708490+00:00'
   ended_at: '2026-06-12T05:11:54.559117+00:00'
@@ -1140,3 +1135,10 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-758-testing-hubble-constant-isotropy-using-p/reviews/research/albert-einstein-simulated__2026-06-23__research.md
+- slug: dan-rockmore
+  started_at: '2026-06-23T20:44:07.012634+00:00'
+  ended_at: '2026-06-23T21:33:34.821931+00:00'
+  outcome: librarian_held
+  action: comment
+  committed_paths:
+  - projects/PROJ-762-quantifying-hallucination-in-llm-generat/reviews/research/_held/dan-rockmore-simulated__2026-06-23__research.md
