@@ -1,12 +1,7 @@
-last_used: geoffrey-west
-last_used_at: '2026-06-23T01:40:30.266089+00:00'
-last_outcome: librarian_held
+last_used: john-von-neumann
+last_used_at: '2026-06-23T03:05:58.988298+00:00'
+last_outcome: abstained
 history:
-- slug: john-von-neumann
-  started_at: '2026-06-11T05:35:17.557976+00:00'
-  ended_at: '2026-06-11T07:43:40.466205+00:00'
-  outcome: triage_rejected_advanced_as_abstain
-  action: comment
 - slug: linus-pauling
   started_at: '2026-06-11T07:43:40.466205+00:00'
   ended_at: '2026-06-11T09:28:47.390144+00:00'
@@ -1128,3 +1123,8 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-308-quantifying-entanglement-entropy-in-rand/reviews/research/_held/john-von-neumann-simulated__2026-06-23__research.1.md
+- slug: john-von-neumann
+  started_at: '2026-06-23T01:40:30.266089+00:00'
+  ended_at: '2026-06-23T03:05:58.988298+00:00'
+  outcome: abstained
+  action: abstain
