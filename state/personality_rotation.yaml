@@ -1,12 +1,7 @@
 last_used: geoffrey-west
-last_used_at: '2026-06-22T23:58:36.166677+00:00'
-last_outcome: committed
+last_used_at: '2026-06-23T00:47:00.685325+00:00'
+last_outcome: librarian_held
 history:
-- slug: freeman-dyson
-  started_at: '2026-06-11T02:24:40.333218+00:00'
-  ended_at: '2026-06-11T03:50:46.079101+00:00'
-  outcome: triage_rejected_advanced_as_abstain
-  action: comment
 - slug: geoffrey-west
   started_at: '2026-06-11T03:50:46.079101+00:00'
   ended_at: '2026-06-11T05:35:17.557976+00:00'
@@ -1124,3 +1119,10 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-759-energy-profiling-of-quantized-llm-infere/reviews/research/geoffrey-west-simulated__2026-06-22__research.md
+- slug: john-von-neumann
+  started_at: '2026-06-22T23:58:36.166677+00:00'
+  ended_at: '2026-06-23T00:47:00.685325+00:00'
+  outcome: librarian_held
+  action: comment
+  committed_paths:
+  - projects/PROJ-308-quantifying-entanglement-entropy-in-rand/reviews/research/_held/john-von-neumann-simulated__2026-06-23__research.md
