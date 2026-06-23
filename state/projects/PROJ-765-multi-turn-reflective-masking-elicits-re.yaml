@@ -6,13 +6,13 @@ failed_stage: null
 field: linguistics
 human_escalation_reason: null
 id: PROJ-765-multi-turn-reflective-masking-elicits-re
-last_run_id: null
+last_run_id: df8c3a8d-3bc2-43d9-b61c-4a9080e1c6fe
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
-revision_spec_path: null
+revision_spec_path: specs/auto-revisions/PROJ-765-multi-turn-reflective-masking-elicits-re/round-1
 speckit_paper_dir: null
 speckit_research_dir: null
 title: Multi-Turn Reflective Masking Elicits Reasoning in Mask Diffusion Models
-updated_at: '2026-06-23T09:10:33.402388Z'
+updated_at: '2026-06-23T10:23:39.320629Z'

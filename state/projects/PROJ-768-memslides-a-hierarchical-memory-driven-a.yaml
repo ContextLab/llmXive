@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-23T09:10:42.369838Z'
-current_stage: paper_review
+current_stage: brainstormed
 failed_stage: null
 field: linguistics
 human_escalation_reason: null
 id: PROJ-768-memslides-a-hierarchical-memory-driven-a
-last_run_id: null
+last_run_id: 9d41e436-f6e3-4c7a-ac63-c29f65a83db1
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: null
 title: 'MemSlides: A Hierarchical Memory Driven Agent Framework for Personalized Slide
   Generation with Multi-turn Local Revision'
-updated_at: '2026-06-23T09:10:43.966758Z'
+updated_at: '2026-06-23T10:20:42.374447Z'

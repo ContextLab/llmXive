@@ -1,0 +1,361 @@
+project_id: PROJ-765-multi-turn-reflective-masking-elicits-re
+arxiv_id: '2606.16700'
+schema_version: 1
+rounds:
+- round_number: 1
+  triggered_at: '2026-06-23T10:23:39.267116+00:00'
+  verdict_class: science
+  note: ''
+  action_items:
+  - id: dd1c64438b89
+    text: "The statement in the abstract and introduction that \u201Cexisting MDMs\
+      \ do not support multi\u2011turn masking and denoising\u201D is presented without\
+      \ citation and may over\u2011state the prior art (e.g., RemeDi\u202F\\citep{huang2025don}\
+      \ already explores multi\u2011turn remasking). Add a citation or qualify the\
+      \ claim to avoid factual inaccuracy."
+    severity: writing
+  - id: ff068cbad12c
+    text: "Experimental results claim superiority over \u201Cstandard masking\u2011\
+      based baselines\u201D but only compare against Lumina and its SFT variant. To\
+      \ substantiate the claim, include comparisons to other recent multi\u2011turn\
+      \ or remasking MDM approaches (e.g., Wang\u202F2025\u202F\\citep{wang2025remasking},\
+      \ Huang\u202F2025\u202F\\citep{huang2025don}) or explicitly state that such\
+      \ baselines were not evaluated."
+    severity: writing
+  - id: d784d5f08619
+    text: "The paper asserts that the proposed method \u201Crequires no architectural\
+      \ changes\u201D while introducing the History Reference mechanism that adds\
+      \ a per\u2011position accumulated embedding and rotation operations. Clarify\
+      \ that this is a purely algorithmic addition without new learnable parameters,\
+      \ and cite the relevant implementation details (Appendix\u202F\\ref{app:rope-engineering})\
+      \ to support the claim."
+    severity: writing
+  - id: 3818f1907919
+    text: The submission does not include any source code, scripts, or dependency
+      specifications required to reproduce the experiments. Provide a public repository
+      (e.g., GitHub) containing the implementation of the Reflective Masking (RM)
+      and History Reference (HR) mechanisms, training pipelines, and inference code.
+    severity: writing
+  - id: 571237b6a282
+    text: Add a `requirements.txt` or `environment.yml` file that pins all Python
+      package versions (e.g., torch, transformers, diffusers) used in the experiments
+      to ensure reproducibility across environments.
+    severity: writing
+  - id: 0271b0856bee
+    text: "Include unit and integration tests for the core components (trajectory\
+      \ construction, accumulated embedding update, inference decision rule). Tests\
+      \ should cover edge cases such as empty histories, maximum sequence lengths,\
+      \ and boundary conditions for the decay factor \u03B3."
+    severity: writing
+  - id: 5d7e93834684
+    text: Provide a reproducibility script (e.g., `run_experiments.sh`) that automates
+      data download, model checkpoint loading, training, and evaluation for each of
+      the three tasks (image editing, Sudoku, text reasoning). The script should log
+      random seeds and allow deterministic runs.
+    severity: writing
+  - id: 76a8a62cbf06
+    text: "Document the hardware and software environment (GPU models, driver versions,\
+      \ CUDA/cuDNN versions) used for the reported training times (5\u202Fh on 2\u202F\
+      \xD7\u202FH100) to verify the claimed efficiency."
+    severity: writing
+  - id: aa9b5b3f5747
+    text: "Add a clear data availability statement that lists all external datasets\
+      \ used (ImgEdit, Sudoku synthetic generation code, MATH, MBPP, ARC\u2011Challenge)\
+      \ with their licenses, download URLs, and version identifiers (e.g., DOI or\
+      \ commit hash)."
+    severity: science
+  - id: 4ef8ba1f7b80
+    text: "Provide a persistent archive (e.g., Zenodo or OSF) for the training data\
+      \ splits and any synthetic data generation scripts, and include checksums (SHA\u2011\
+      256) for each file to enable verification."
+    severity: science
+  - id: 01f874923740
+    text: "Document the exact preprocessing steps applied to each dataset (tokenization,\
+      \ corruption distribution \u03BD, top\u2011k selection) and include the corresponding\
+      \ configuration files in the repository."
+    severity: writing
+  - id: fa53888aa1be
+    text: Ensure that all external resources referenced in the paper (figures, tables,
+      code snippets) have stable URLs; consider mirroring PDFs and images in the same
+      archive to avoid link rot.
+    severity: writing
+  - id: 345a1243cccc
+    text: "Specify the software versioning used for the base models (Lumina\u2011\
+      DiMOO, LLaDA, etc.) and the frozen checkpoint \u03B8\u2080 employed for the\
+      \ top\u2011k corruption distribution, including repository tags or commit hashes."
+    severity: science
+  - id: 7a73281f0cc6
+    text: If any dataset is not publicly releasable due to licensing restrictions,
+      describe the access procedure (e.g., request form) and provide a statement confirming
+      compliance with the original license.
+    severity: writing
+  - id: 2ef5ad7ac954
+    text: "Figure\u202F1 (the main image editing illustration) is low\u2011resolution\
+      \ when printed; increase DPI to \u2265300\u202Fppi and ensure the mask overlay\
+      \ is thick enough to be distinguishable in grayscale print."
+    severity: writing
+  - id: 8ea29df2e394
+    text: "All figures lack descriptive alt\u2011text in the LaTeX source (e.g., \\\
+      caption{...} does not include a \\label{fig:...} and no accompanying \\textbf{Alt\u2011\
+      text:} description). Add concise alt\u2011text for accessibility."
+    severity: writing
+  - id: 0c03fdd94d93
+    text: "Color palettes in the Sudoku and text\u2011generation result figures use\
+      \ red/green hues that are not color\u2011blind safe. Replace with a palette\
+      \ that is distinguishable for deuteranopia (e.g., blue/orange) and add pattern\
+      \ markers for the heat\u2011maps."
+    severity: writing
+  - id: 36df4dfabdca
+    text: "Axis labels and units are missing on the quantitative tables plotted as\
+      \ bar charts (e.g., Fig.\u202F2 showing Edit Precision, Coverage, etc.). Add\
+      \ explicit axis titles and indicate the metric direction (\u2191 for higher\u2011\
+      is\u2011better, \u2193 for lower\u2011is\u2011better)."
+    severity: writing
+  - id: 7ac6483428f7
+    text: "Figure captions sometimes refer to sub\u2011figures (e.g., \u201CFig.\u202F\
+      3 shows additional text revisions\u201D) but the sub\u2011figures are not labeled\
+      \ (a), (b), (c). Add sub\u2011figure labels and reference them consistently\
+      \ in the text."
+    severity: writing
+  - id: 5f27d29bfc70
+    text: "The heat\u2011map visualizations in the image\u2011editing results lack\
+      \ a color bar legend explaining the intensity scale. Include a legend with numeric\
+      \ range (e.g., 0\u2013255) to aid interpretation."
+    severity: writing
+  - id: ec624727e5bf
+    text: "In the inference diagram (Fig.\u202F4), the flow arrows are thin and may\
+      \ become illegible after scaling. Thicken arrows and use solid lines for primary\
+      \ flow, dashed lines for optional history reference paths."
+    severity: writing
+  - id: e18be5031c15
+    text: Some figures (e.g., the synthetic data pipeline diagram) are overly dense;
+      consider simplifying by removing redundant arrows and adding whitespace to improve
+      readability at column width.
+    severity: writing
+  - id: 33c7712c7068
+    text: Define every acronym at first use (e.g., AR, MDM, RM, HR, HER, SFT, VQAScore,
+      etc.) and add a glossary or parenthetical expansion.
+    severity: writing
+  - id: 60f8ec504db6
+    text: Replace overly technical phrases such as Bayes-Consistent Revision-Policy
+      Learning, plug-in excess-risk theorem, and information bound with simpler alternatives
+      or brief explanations for non-specialist readers.
+    severity: writing
+  - id: 71e7637bfb3f
+    text: Avoid dense jargon clusters in the abstract and introduction (e.g., intrinsic
+      reasoning capability, parameter-free mechanism, test-time scaling) by rephrasing
+      in plain language.
+    severity: writing
+  - id: c415f9e888ee
+    text: Limit the use of symbols and notation in prose (e.g., theta-independent,
+      gamma in (0,1], V and Vbar) unless absolutely necessary; provide intuitive descriptions
+      alongside.
+    severity: writing
+  - id: d8f1103bb7e1
+    text: Explain domain-specific terms like mask diffusion models, mask-predict,
+      rotary embeddings, and block-diagonal rotation in a sentence or footnote for
+      readers unfamiliar with diffusion literature.
+    severity: writing
+  - id: b9b2eb5fc8d4
+    text: Reduce the frequency of buzzwords such as latent capability, test-time scaling,
+      self-initiated, stateful view, and replace with concrete descriptions of what
+      the model actually does.
+    severity: writing
+  - id: edc048789c6d
+    text: In the experimental sections, replace shorthand like our method and baseline
+      with the full method names (e.g., Reflective Masking (RM), History Reference
+      (HR)) on first mention in each subsection.
+    severity: writing
+  - id: deaea1fccd95
+    text: Clarify the meaning of symbols like Ltrain, Linfer, Lrecon when they appear
+      in the main text; consider moving detailed equations to the appendix and summarizing
+      their purpose in plain terms.
+    severity: writing
+  - id: 0402615fe210
+    text: Add brief, non-technical summaries at the end of each major section (Method,
+      Experiments, Theory) to help readers grasp the high-level idea without parsing
+      all formalism.
+    severity: writing
+  - id: ee2773bbe603
+    text: "The paper states that no architectural changes are required, yet it introduces\
+      \ History Reference (HR) and History Embedding Rotation (HER), which add a per\u2011\
+      position accumulated embedding and modify the model\u2019s input. This contradicts\
+      \ the \u201Cno architectural changes\u201D claim. Clarify whether HR/HER are\
+      \ considered architectural changes and adjust the claim accordingly."
+    severity: writing
+  - id: 1e5bdb457750
+    text: "Eq.\u202F1\u2019s inference rule re\u2011masks a token whenever p(MASK)\
+      \ > p(current token). The manuscript does not discuss that this can trigger\
+      \ re\u2011masking for correct but uncertain tokens, potentially causing loops.\
+      \ Explain how the rule avoids such spurious revisions or add a confidence safeguard."
+    severity: science
+  - id: b17e6c8fc5ac
+    text: "Temper the claim that Reflective Masking is a \u201Cfundamental primitive\u201D\
+      \ for reasoning in MDMs; the current evidence is limited to three tasks and\
+      \ a narrow set of baselines."
+    severity: writing
+  - id: 82f3d626b74f
+    text: "Add stronger, state\u2011of\u2011the\u2011art baselines (e.g., recent mask\u2011\
+      diffusion editing or revision methods) for image editing and Sudoku to substantiate\
+      \ the reported gains."
+    severity: science
+  - id: 18f7bdde0fc5
+    text: "Clarify that History Reference introduces a new input representation (accumulated\
+      \ embedding with rotation) and incurs extra computation, which contradicts the\
+      \ statement of \u201Cno architectural changes.\u201D"
+    severity: writing
+  - id: e299fd0a61c6
+    text: Discuss the scalability of the method to larger diffusion models, as the
+      limitations section admits that experiments are on relatively small models.
+    severity: science
+  - id: 0a7f5e6733ae
+    text: "Provide empirical analysis (e.g., ablation of the Bayes\u2011consistent\
+      \ training objective) to support the theoretical claims about optimality under\
+      \ 0\u20111 revision risk."
+    severity: science
+  - id: 05e78f4c035c
+    text: "Add a dedicated discussion (\u22481\u20112 pages) on dual\u2011use risks,\
+      \ potential misuse of iterative image\u2011editing and text\u2011generation\
+      \ capabilities, and concrete mitigation strategies (e.g., content filters, usage\
+      \ policies, watermarking)."
+    severity: writing
+  - id: 21e1b6ec5b84
+    text: "Include a brief statement on data provenance and privacy, clarifying whether\
+      \ any real user\u2011generated images or text are used in training/evaluation,\
+      \ and ensure compliance with relevant data\u2011privacy regulations."
+    severity: writing
+  - id: 3e983b215750
+    text: Provide an ethical impact statement in the Limitations or a new Ethics section,
+      acknowledging possible harms (misinformation, deepfakes) and outlining responsible
+      deployment guidelines.
+    severity: writing
+  - id: 5f89a55a1361
+    text: "Provide statistical significance testing (e.g., confidence intervals or\
+      \ p\u2011values) for all quantitative results (image editing, Sudoku, and text\
+      \ reasoning). Without these, the reported improvements cannot be judged robustly."
+    severity: science
+  - id: 5e469f1c4bf4
+    text: "Report the number of random seeds, variance across runs, and any hyper\u2011\
+      parameter search procedures used. This is essential to assess reproducibility\
+      \ and to rule out p\u2011hacking."
+    severity: science
+  - id: 4ed2f2f53e30
+    text: Include a detailed description of the test set construction for Sudoku (e.g.,
+      number of boards, distribution of corruption levels) and for the text benchmarks
+      (e.g., exact splits, whether validation was used).
+    severity: writing
+  - id: f1014c3380e2
+    text: Add ablation studies that isolate the contribution of each component (Reflective
+      Masking vs. History Reference vs. decay vs. HER) across all three task domains,
+      not only Sudoku, to demonstrate that gains are not due to a single dominant
+      factor.
+    severity: science
+  - id: 8de1cd23d27a
+    text: "Clarify whether the same random corruption distribution (top\u2011k proposal)\
+      \ is used during training and evaluation, and quantify any distribution shift.\
+      \ If there is a shift, report its magnitude and its impact on performance."
+    severity: science
+  - id: f769cc48b200
+    text: "Report computational cost (e.g., FLOPs, wall\u2011clock time) for the multi\u2011\
+      turn revision process compared to standard baselines, to substantiate the claim\
+      \ of test\u2011time scaling efficiency."
+    severity: writing
+  - id: 635858cbc45f
+    text: "Report variability (e.g., standard deviations or confidence intervals)\
+      \ for all quantitative metrics in Tables\u202F1,\u202F2,\u202F3, and\u202F4.\
+      \ This includes edit precision/coverage, MAE\u2011RGB, PSNR, SSIM, VQAScore,\
+      \ and the user\u2011study preference percentages."
+    severity: science
+  - id: 58f1de601f2c
+    text: "Describe the number of independent runs, random seeds, and any data\u2011\
+      splitting procedures used for each experiment (image editing, Sudoku, and text\
+      \ reasoning) to ensure reproducibility of the reported numbers."
+    severity: science
+  - id: 735a87cc1c7f
+    text: "For the user study (Table\u202F1), perform appropriate statistical tests\
+      \ (e.g., binomial test or chi\u2011square) to assess significance of preference\
+      \ differences and report p\u2011values."
+    severity: science
+  - id: a3696ab8ec68
+    text: "Address multiple\u2011comparison concerns when evaluating several benchmarks\
+      \ (MATH, MBPP, ARC\u2011Challenge) by applying a correction method (e.g., Bonferroni\
+      \ or Holm) or clearly stating that each metric is evaluated independently."
+    severity: science
+  - id: a83908b0c647
+    text: "Clarify any assumptions made in the theoretical analysis (e.g., rich\u2011\
+      family idealization) and discuss how violations of these assumptions might affect\
+      \ empirical performance."
+    severity: writing
+  - id: 8d46cb2f7089
+    text: Remove duplicate package imports (e.g., `booktabs` and `wrapfig` are each
+      loaded twice in the preamble of `neurips_2026.tex`). This cleans the preamble
+      and avoids potential package conflicts.
+    severity: writing
+  - id: d905cd56919b
+    text: Standardize line length in source files to stay within ~80 characters for
+      better readability (e.g., long lines in `body/abstract.tex` and `body/method.tex`).
+    severity: writing
+  - id: aaa98587a0e2
+    text: Add explicit `\label{}` commands to all figures that are referenced in the
+      text but currently lack a label (e.g., the figure in `figures/Image_main_paper.tex`
+      is referenced but has only a caption).
+    severity: writing
+  - id: acddc46e1e4b
+    text: "Ensure consistent citation style: the document loads `natbib` with `numbers,\
+      \ compress` but uses author\u2011year `\\citep{...}` throughout. Either switch\
+      \ to a numeric style or change the `natbib` options to `authoryear` to match\
+      \ the citations."
+    severity: writing
+  - id: 30d51a963f08
+    text: Consider adding a `\clearpage` before the bibliography to guarantee that
+      all floats (figures/tables) are placed before the references, improving the
+      final layout.
+    severity: writing
+  - id: 1ec390700d89
+    text: "The abstract (body/abstract.tex lines\u202F1\u201112) contains several\
+      \ overly long sentences; break them into shorter clauses for better readability."
+    severity: writing
+  - id: 994be77e20cf
+    text: "In the introduction (body/introduction.tex lines\u202F5\u201115), the phrase\
+      \ \u201Cmulti\u2011turn and long\u2011horizon settings\u201D is repeated later;\
+      \ consider consolidating to avoid redundancy."
+    severity: writing
+  - id: 3dbc74f7fe53
+    text: "The method section (body/method.tex lines\u202F30\u201145) mixes notation\
+      \ styles (e.g., \\xstar, \\mask) without defining them in the main text; add\
+      \ a brief notation table or inline definitions."
+    severity: writing
+  - id: d4732ec854b7
+    text: Several LaTeX commands (e.g., \textbf{History Reference}) are used inside
+      sentences, which can disrupt flow; replace with plain text or move formatting
+      to the surrounding paragraph.
+    severity: writing
+  - id: 9e236061e581
+    text: "In the experiments section (body/experiments.tex lines\u202F70\u201185),\
+      \ the sentence starting with \u201CWe begin with image editing\u2026\u201D is\
+      \ a run\u2011on; split it for clarity."
+    severity: writing
+  - id: dc4653dcd9f2
+    text: "The conclusion (body/conclusion.tex lines\u202F1\u20118) ends with a dangling\
+      \ \u201C\\looseness-1\u201D command that is not standard; remove or replace\
+      \ with proper spacing."
+    severity: writing
+  - id: c49225eb8ac2
+    text: "Figure captions (e.g., figures/Image_main_paper.tex) contain informal language\
+      \ like \u201COur method accurately localizes\u2026\u201D, which could be more\
+      \ formal and concise."
+    severity: writing
+  - id: 088af41e24f9
+    text: The bibliography entries lack consistent punctuation (some have commas before
+      years, others do not); standardize to a single style.
+    severity: writing
+  - id: 79079f9f33a8
+    text: "Throughout the manuscript, the term \u201C\\methodfull\u201D is sometimes\
+      \ rendered as \u201C\\methodfull (\\method)\u201D and other times just \u201C\
+      \\method\u201D; pick one representation for consistency."
+    severity: writing
+  - id: a01ea652a63e
+    text: "The appendix (body/appendix.tex) includes a \u201C\\paragraph{Notation.}\u201D\
+      \ heading without a preceding section; consider using a proper subsection heading\
+      \ for hierarchy."
+    severity: writing

@@ -147,3 +147,6 @@ ready:
 - project_id: PROJ-571-co-evolving-policy-distillation
   revision_spec_path: specs/auto-revisions/PROJ-571-co-evolving-policy-distillation/round-1
   queued_at: '2026-06-23T04:26:12.160223+00:00'
+- project_id: PROJ-765-multi-turn-reflective-masking-elicits-re
+  revision_spec_path: specs/auto-revisions/PROJ-765-multi-turn-reflective-masking-elicits-re/round-1
+  queued_at: '2026-06-23T10:23:39.303421+00:00'
