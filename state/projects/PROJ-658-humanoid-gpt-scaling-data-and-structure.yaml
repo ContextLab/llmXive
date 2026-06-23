@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-04T09:22:00.128554Z'
-current_stage: flesh_out_complete
+current_stage: validated
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-658-humanoid-gpt-scaling-data-and-structure
-last_run_id: 70cad49d-91bc-45fa-9bf1-acc493b388dc
+last_run_id: 1fed97cf-b7a2-4787-b833-cdbc51baa4d1
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'Humanoid-GPT: Scaling Data and Structure for Zero-Shot Motion Tracking'
-updated_at: '2026-06-23T13:15:54.336386Z'
+updated_at: '2026-06-23T13:38:20.702547Z'
