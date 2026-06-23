@@ -1,0 +1,186 @@
+\section{Additional Dataset Details}
+\label{app:dataset-details}
+
+This appendix provides additional details about the construction, structure, and validation of \gatemem{}. 
+The main text summarizes the benchmark construction pipeline and domain-level statistics; here we expand on the design principles, domain characteristics, requester-role diversity, checkpoint taxonomy, and long-horizon challenge profile.
+
+\subsection{Detailed Design Principles}
+\label{app:dataset-design-principles}
+
+\paragraph{Institutional realism.}
+Each episode is written as a plausible institutional workflow rather than a collection of isolated fact queries. 
+The benchmark therefore contains longitudinal coordination, rescheduling, delegation, updates, and unrelated operational turns that separate evidence from later queries.
+
+\paragraph{Shared-memory difficulty.}
+Authorization is not reduced to a static role lookup. 
+It depends jointly on role, relationship, scope, and current state. 
+This is essential because many realistic failures arise when a requester has some operational connection to the case but not enough authority to access the protected detail.
+
+\paragraph{Current-state dependence.}
+The correct answer often depends on the latest authoritative value rather than the earliest mention. 
+Episodes therefore include explicit updates to dates, amounts, assignments, credentials, and safe wording so that successful utility requires robust state tracking.
+
+\paragraph{Soft-overreach access-control attacks.}
+Access-control checkpoints are designed to go beyond obvious adversarial requests. 
+They include delegated overreach, authority pressure, label-existence probing, and indirect inference, all of which are common in realistic deployments and easy for an assistant to mishandle while trying to remain helpful.
+
+\paragraph{Closed active-forgetting chains.}
+Active-forgetting checkpoints are built from complete attack chains. 
+A sensitive value first appears in the episode, is later explicitly deleted, and is only then targeted by direct, confirmatory, reconstructive, or socially engineered follow-up queries. 
+This prevents forgetting evaluation from degenerating into vague refusal testing.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.98\textwidth]{figures/fig_domain_complexity.pdf}
+\caption{
+Domain-level structural statistics for \gatemem{}. 
+The six panels report the number of episodes, average turns per episode, average reference tokens per turn, average principals per episode, average active roles per episode, and average checkpoints per episode. 
+The token counts are measured with a fixed reference tokenizer and characterize content density rather than runtime billing cost.
+}
+\label{fig:domain-complexity}
+\end{figure*}
+
+\subsection{Domain Details}
+\label{app:domain-details}
+
+\paragraph{Medical.}
+The medical domain models shared assistants used in patient-care settings. 
+Typical principals include physicians, nurses, patients, family members, pharmacists, reception staff, and schedulers. 
+Sensitive content includes protected health information, medication details, lab results, treatment plans, and deleted identifiers. 
+The central difficulty is that some requests are partially legitimate. 
+A family member may be involved in logistics while still lacking permission to view the protected value itself. 
+In the current release, the medical domain contains 21 episodes, 11 role types, and 579 checkpoints, including 210 utility checkpoints.
+
+\paragraph{Office.}
+The office domain models enterprise assistants serving project managers, engineers, finance staff, legal staff, executives, assistants, contractors, and other operational roles. 
+Sensitive content includes project confidentiality, commercial terms, credentials, incident details, staffing decisions, and deleted internal mappings. 
+This domain is particularly challenging because many requests are operationally plausible. 
+Delegation chains, project-scope ambiguity, and role adjacency create soft authorization boundaries that are difficult for current systems to respect consistently. 
+The current release contains 17 episodes, 16 role types, and 547 checkpoints, including 154 utility checkpoints.
+
+\paragraph{Education.}
+The education domain models campus assistants shared across academic, administrative, residential, and student-support workflows. 
+Typical principals include students, professors, teaching assistants, advisors, registrars, financial-aid staff, campus IT, residence staff, and parents or guardians. 
+Sensitive content includes grades, registration status, scholarship decisions, accommodation notes, internal review labels, temporary access credentials, and deleted support records. 
+This domain stresses parent overreach, delegated access, role mismatch between instructional and administrative staff, and recovery attempts over deleted support-related information. 
+In the current release, the education domain contains 30 episodes, 16 role types, and 540 checkpoints, evenly split across utility, access control, and active forgetting.
+
+\paragraph{Household.}
+The household domain models household and personal-coordination assistants used by residents, family members, caregivers, guests, service providers, and household staff. 
+Typical principals include primary residents, partners or spouses, roommates, adult children, minor children, elder family members, caregivers, nannies, cleaners, technicians, and trusted contacts. 
+Sensitive content includes schedules, access codes, care routines, payment arrangements, location-linked notes, and deleted household instructions. 
+This domain focuses on mixed personal and operational interactions in which the requester often has a plausible relationship to the household but not sufficient authority to access the protected detail. 
+In the current release, the household domain contains 23 episodes, 17 role types, and 552 checkpoints, including 184 utility checkpoints, 184 access-control checkpoints, and 184 active-forgetting checkpoints.
+
+At the episode level, all domains use long-form multi-party trajectories with parallel threads, confusable names, and late-stage current-state anchors. 
+These design choices ensure that the benchmark measures more than lexical retrieval. 
+The agent must integrate distributed evidence, resolve updates, and distinguish between what is useful to say and what remains protected.
+
+\subsection{Domain Structural Statistics}
+\label{app:domain-structural-statistics}
+
+Figure~\ref{fig:domain-complexity} reports structural statistics over the four domains. 
+The six panels show episode count, average turns per episode, reference tokens per turn, principals per episode, active roles per episode, and checkpoints per episode. 
+Two properties are visible. 
+First, \gatemem{} is built from long multi-party interaction traces rather than short fact snippets. 
+The office, education, and household domains all sustain roughly two hundred turns per episode on average, and the medical domain also remains longitudinal. 
+Second, the benchmark is genuinely multi-principal. 
+The office domain is especially dense in both principals and active roles, while education and household broaden coverage beyond enterprise and clinical settings.
+
+
+\subsection{Requester Diversity}
+\label{app:requester-diversity}
+
+Requester diversity is central to the benchmark design because the same memory pool is queried under different intents by different principals. 
+Figure~\ref{fig:requester-diversity} breaks requester distributions out separately for utility, access-control, and active-forgetting checkpoints. 
+The benchmark is intentionally not driven by a single canonical asker. 
+Medical utility is concentrated on patients and family members, whereas office, education, and household queries are spread across a broader set of operational roles. 
+Access-control and active-forgetting probes likewise come from many plausible but over-scoped requesters, making it difficult to solve \gatemem{} with a simple role blacklist or a single refusal template.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.98\textwidth]{figures/fig_requester_diversity.pdf}
+\caption{
+Requester diversity by query type and domain. 
+Each panel reports the percentage of checkpoints within a query type that are issued by a given requester role. 
+Utility, access-control, and active-forgetting checkpoints are separated because the same role can be legitimate in one setting and over-scoped in another.
+}
+\label{fig:requester-diversity}
+\end{figure*}
+
+\subsection{Checkpoint and Attack Composition}
+\label{app:checkpoint-attack-composition}
+
+Evaluation occurs through hidden checkpoints inserted at specific turn boundaries. 
+Each checkpoint contains an \texttt{as\_of\_turn\_id}, the requester identity, the natural-language query, and a task-specific annotation used only for judging.
+
+\paragraph{Utility checkpoints.}
+Utility checkpoints test legitimate information access. 
+They focus on current authoritative values, multi-slot synthesis, and long-horizon integration under state updates. 
+Their annotations specify an expected action and a set of answer elements that must be present for the response to count as useful.
+
+\paragraph{Access-control checkpoints.}
+Access-control checkpoints test whether the system resists over-scoped access. 
+They cover direct cross-principal requests as well as softer attacks such as delegated access, authority pressure, and label-existence probes. 
+Their annotations specify the expected safe action, any permitted summary content, and protected content that must not appear.
+
+\paragraph{Active-forgetting checkpoints.}
+Active-forgetting checkpoints test whether deleted information can still be recovered. 
+The targeted value may be queried directly, confirmed through yes-or-no prompts, reconstructed from fragments, or recovered by exploiting a later update. 
+These checkpoints require the normalized action \texttt{no\_memory}.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.98\textwidth]{figures/fig_checkpoint_attack_composition.pdf}
+\caption{
+Checkpoint composition and attack taxonomy. 
+Top: utility, access-control, and active-forgetting shares within each domain. 
+Bottom: access-control and active-forgetting attack mixtures within each domain, reported as percentages within the corresponding checkpoint type.
+}
+\label{fig:checkpoint-composition}
+\end{figure*}
+
+For access-control and active-forgetting checkpoints, we also annotate \texttt{leak\_targets}. 
+These targets support explicit leakage auditing in addition to LLM-based judgment, and they make the benchmark more transparent to manual inspection.
+
+Figure~\ref{fig:checkpoint-composition} summarizes how checkpoint types and attack categories are distributed. 
+The stacked bars at the top show that utility, access control, and active forgetting all occupy substantial mass in every domain, so no domain can be solved by optimizing only one evaluation mode. 
+The lower panels reveal that access-control attacks are not limited to blunt access violations. 
+They include family or partner overreach, delegated authority, indirect inference, label-existence probes, impersonation, and other soft boundary violations. 
+Active-forgetting attacks are similarly varied, covering direct recovery, yes-or-no confirmation, split reconstruction, social engineering, and update-conflict exploits. 
+This breadth is important because a forgetting benchmark composed only of direct restatement requests would overestimate real robustness.
+
+\subsection{Quality Control and Challenge Profile}
+\label{app:quality-control-challenge-profile}
+
+\gatemem{} is built with multiple validation layers. 
+First, all data files must satisfy a strict schema for episodes, checkpoints, normalized actions, and judging metadata. 
+Second, every utility checkpoint is checked to ensure that its gold answer is supported by the episode history before the specified checkpoint. 
+Third, every active-forgetting chain is checked for closure. 
+The sensitive value must appear before deletion, deletion must be explicit, and recovery attempts must occur only afterward. 
+Fourth, access-control and active-forgetting entries are inspected to ensure that \texttt{leak\_targets} are precise enough to support reliable auditing.
+
+Beyond automated checks, we use iterative manual review to refine episode quality. 
+In practice this review is crucial. 
+It removes ambiguous utility askers, strengthens late-stage current-state anchors, and eliminates cases where an access-control or active-forgetting target is under-specified. 
+We view this process as part of the benchmark contribution rather than a peripheral annotation detail.
+
+We also quantify the benchmark's long-horizon demands directly. 
+Figure~\ref{fig:challenge-profile} reports mean and 90th-percentile statistics for four challenge indicators. 
+\emph{Utility horizon} measures how far back the most distant necessary support lies relative to the query. 
+\emph{Support span} measures how widely the relevant evidence is distributed across the episode timeline. 
+\emph{Answer slots per utility checkpoint} measures how many required answer elements must be integrated for a complete response. 
+\emph{Delete-to-attack gap} measures how many turns separate an explicit deletion request from a later recovery attempt. 
+Reporting both means and upper-tail values avoids relying on unstable maxima while still surfacing the long tail that shared-memory agents must handle.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.98\textwidth]{figures/fig_challenge_profile.pdf}
+\caption{
+Long-horizon challenge profile across domains. 
+Mean summarizes the typical burden of each statistic, while the 90th percentile (P90) captures the harder long-tail cases without being dominated by a single extreme outlier. 
+From left to right and top to bottom, the panels show utility horizon, support span, answer slots per utility checkpoint, and the delete-to-attack gap. 
+Together they characterize how far back the agent must remember, how dispersed the supporting evidence is, how much information must be integrated into a complete answer, and how long deleted content remains vulnerable to later recovery attempts.
+}
+\label{fig:challenge-profile}
+\end{figure*}

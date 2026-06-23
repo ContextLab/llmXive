@@ -1,0 +1,21 @@
+\begin{table}[H]
+\centering
+\small
+\setlength{\tabcolsep}{6pt}
+\renewcommand{\arraystretch}{1.03}
+\caption{Paired robustness check for the diagnostic matched-pair tool-memory
+setting. Win/loss/tie/NA counts are computed from
+Table~\ref{tab:tool_memory_table1_pair_detail}. The exact one-sided sign test
+uses only wins and losses, excluding ties and unavailable pairs.}
+\label{tab:tool_memory_paired_robustness}
+\begin{tabular}{lcccc}
+\toprule
+Metric & W-L-T-NA & Valid W/L & Sign-test $p$ & Interpretation \\
+\midrule
+Closed-Loop Completion $\uparrow$ & 3-1-5-0 & 4 & 0.3125 & Directional \\
+Strict Verify $\uparrow$ & 8-1-0-0 & 9 & 0.0195 & Paired evidence \\
+First Correct Edit (s) $\downarrow$ & 6-2-0-1 & 8 & 0.1445 & Directional \\
+Core Tool Time Ratio $\downarrow$ & 8-1-0-0 & 9 & 0.0195 & Paired evidence \\
+\bottomrule
+\end{tabular}
+\end{table}

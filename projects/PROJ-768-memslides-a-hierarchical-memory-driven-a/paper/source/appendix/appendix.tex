@@ -1,0 +1,452 @@
+\section{Appendix}
+
+The appendix provides protocol details, supplemental quantitative tables, and
+qualitative examples that clarify how different memory signals appear in
+generated presentations. The qualitative figures are intended as diagnostic
+illustrations, while the aggregate claims remain tied to the quantitative
+tables in the main text and appendix.
+
+\subsection{Evaluation Protocol Details}
+\label{app:evaluation_protocol_details}
+
+Section~4 defines the evaluated claims and reports the main metrics. This
+appendix subsection records the protocol controls used to keep those metrics
+attributable to the corresponding memory condition, rather than to prompt
+leakage, arm ordering, or unmatched source materials.
+
+\paragraph{Blind profile-memory judging.}
+The profile-memory evaluation uses complete round-0 decks as the judging unit.
+Before judging, every candidate deck is rendered into page-aligned images and
+assigned an anonymous arm label. The judge receives only the target persona
+summary, the aligned deck images, and the dimension rubric; the original user
+prompt, parsed intent, system identity, and memory condition are hidden. This
+separation is important because the profile claim concerns whether persistent
+memory changes the produced deck, not whether a judge can recover instructions
+that were explicitly written in the current prompt. Each persona-alignment
+dimension receives three blind votes. We aggregate the votes under anonymous
+arm labels and map arms back to systems only after aggregation.
+
+\paragraph{Persona-alignment judgment operationalization.}
+The persona-alignment judgments report four 0--10 dimensions. \textit{Content}
+measures whether content selection, evidence type, emphasis, and wording match
+the target persona. \textit{Structure} measures whether page order and
+page-type/layout fit reflect persona-conditioned deck organization; it excludes
+template matching because this dimension targets deck organization rather than
+template retrieval accuracy. \textit{Visual} measures information density,
+whitespace, chart/card/diagram style, visual hierarchy, and overall visual tone.
+\textit{Specificity} uses distractor personas to test whether the deck remains
+identifiable as the target persona rather than a generic professional
+presentation.
+
+\paragraph{Matched tool-memory pairs.}
+The tool-memory protocol evaluates localized multi-turn modification as paired
+agent executions. Within each pair, the source deck, model family, persona, and
+modify request are fixed; the compared condition is whether tool memory is
+injected into the run. The reported process metrics are computed from recorded
+execution traces: edit completion, verification after change, finalization,
+time to first correct edit, and core tool time. Inspection and
+markdown-conversion calls are excluded from core tool time because they reflect
+observation and format transfer rather than edit execution. The modify
+scenarios are selected before inspecting pair outcomes and are intended as a
+diagnostic controlled setting, not as a distribution-level estimate over all
+possible user revisions. 
+\paragraph{Tool-metric operationalization.}
+Table~\ref{tab:tool_memory_table1_redesign} uses two higher-is-better metrics
+and two lower-is-better efficiency metrics. \textit{Closed-Loop Completion}
+measures whether a modify run reaches a successful local edit, verifies the
+edited result, and finalizes the revised deck. \textit{Strict Verify After
+Change} measures whether successful slide-changing edits are followed by local
+verification within a short tool-call window, so it rewards edit-and-check
+behavior rather than late or unrelated inspection. \textit{Time to First Correct
+Edit} is the wall-clock interval from modify-task start to the first
+slide-changing edit that satisfies the requested change. \textit{Core Tool Time
+Ratio} is the geometric mean of memory/no-injection core-tool time ratios after
+excluding inspection and markdown-conversion tools, with the no-injection arm
+normalized to 1.0. These definitions make the table about the editing
+trajectory itself: whether the agent reaches the requested local change, checks
+it promptly, and does so with less non-inspection tool work.
+
+\paragraph{Reproducibility information.}
+The paper reports the evaluated systems, model families, judge rubrics,
+evaluation configurations, matched-pair definitions, and trace-derived metrics
+needed to inspect the reported protocol. The source code is publicly available,
+and selected evaluation artifacts will be released when documentation and
+licensing checks are finalized.
+Table~\ref{tab:appendix_eval_protocol_summary} summarizes the main protocol
+controls for the profile-memory and tool-memory evaluations.
+
+\begin{table}[!htbp]
+\centering
+\small
+\setlength{\tabcolsep}{5pt}
+\caption{Protocol controls used to isolate memory effects in Section~4.}
+\label{tab:appendix_eval_protocol_summary}
+\begin{tabular}{lll}
+\toprule
+Control & Profile-memory evaluation & Tool-memory evaluation \\
+\midrule
+Evaluation unit & Complete round-0 deck & Paired modify execution \\
+Matched factors & Source, model family, task prompt & Source deck, model, persona, request \\
+Varied condition & Profile-memory injection & Tool-memory injection \\
+Hidden signals & Prompt, intent, system, memory label & Memory-condition label \\
+Aggregation & Three blind votes per dimension & Pair-level trace metrics \\
+Evidence scope & Main persona-alignment result & Diagnostic selected-pair setting \\
+\bottomrule
+\end{tabular}
+    \end{table}
+
+\subsection{Baseline Conditions and Prompt/Profile Separation}
+\label{app:baseline_provenance}
+
+The persona-alignment judgment comparison is designed to isolate persistent profile
+memory from prompt-level task conditioning. The memory-injected condition and
+its matched control use the same source material, model family, target persona,
+task prompt, and generation pipeline. The control condition keeps the authoring
+task unchanged but withholds long-term profile memory, session preference
+memory, and reusable tool experience from the generation context. The
+memory-injected condition receives the same task information plus the routed
+profile entry for the target persona-intent pair.
+
+This separation matters because the task prompt already contains the
+source-specific request and role intent. Profile memory is therefore evaluated
+as an additional persistent signal: structured preferences accumulated across
+controlled authoring jobs, not a replacement for the user request. SlideTailor is
+included as an external reference/template-conditioned personalization baseline;
+it is evaluated from its generated presentations under the same judging
+protocol, but it is not treated as an internal memory ablation.
+
+The judge-side protocol further prevents prompt or template leakage from
+dominating the score. The persona-alignment judge receives the target persona
+summary and rendered deck images, but not the original prompt, parsed task
+intent, system identity, or memory condition. The Structure metric deliberately
+excludes template matching, so the main profile table evaluates
+persona-conditioned organization and layout fit rather than template retrieval
+accuracy.
+
+\subsection{Compute Resources and Runtime Accounting}
+\label{app:compute_resources}
+
+All reported experiments are inference-time agent evaluations; no model
+training or fine-tuning is performed. Runs were orchestrated from a local
+Linux workstation using Python 3.11.14. The machine has 48 Intel Xeon Silver
+4214R CPU threads and 503 GiB of system memory; although the machine also has
+NVIDIA A40 GPUs, the reported experiments are primarily API-bound rather than
+GPU-bound. The local machine is used for agent orchestration, document
+conversion, slide rendering, image inspection, and tool-mediated HTML/PPT
+editing; LLM generation and judging are performed through external model APIs.
+
+For runtime accounting, each run records model-response usage, local tool-call
+outcomes, tool active time, and first-to-last-event wall-clock span. Because
+different LLM providers expose token accounting fields with slightly different
+schemas, we use these records as reproducibility accounting rather than as a
+normalized price estimate. Table~\ref{tab:appendix_compute_accounting} reports
+the resulting accounting summary. The prompt and completion token columns sum
+provider-reported token usage; tool-call columns count successful and failed
+local tool invocations; tool active time sums local tool execution duration; and
+wall-clock span measures the elapsed time from the first recorded event to the
+last recorded event within each run.
+
+The accounting rows are evidence scopes rather than additional experimental
+conditions. The profile-memory row summarizes the generation and analysis runs
+used for profile-memory experiments, so it should not be read as the number of
+decks used in Table~\ref{tab:profile_memory_v6_bestof_main}.
+The tool-memory row corresponds to the diagnostic matched-pair setting reported
+in Tables~\ref{tab:tool_memory_table1_redesign} and
+\ref{tab:tool_memory_table1_pair_detail}, counting both the memory-injected and
+no-injection arms for the nine matched pairs. The working-memory row covers the
+four runs used to construct the two qualitative carryover cases in
+Figure~\ref{fig:appendix_working_memory_carryover}. The table is intended to
+document API budget and local orchestration/runtime footprint, not to serve as a
+method-performance result or a GPU-compute claim.
+
+\input{tables/compute_runtime_accounting_table}
+
+For the diagnostic matched-pair tool-memory setting, the recorded process metrics
+also record the core tool-time used in Table~\ref{tab:tool_memory_table1_redesign}:
+110.5 seconds for memory-injected runs and 354.8 seconds for no-injection runs,
+after excluding inspection and markdown-conversion tools. Under the same
+exclusion, the matched runs contain 779 core tool calls for memory-injected
+runs and 878 for no-injection runs.
+
+\subsection{Profile-Bank Construction}
+\label{app:profile_bank_construction}
+
+The profile bank is built as a controlled multi-persona, multi-intent
+testbed for long-term personalization. We define ten occupation-style persona
+profiles, each associated with three role-intent buckets, resulting in 30
+persona-intent profile entries. The personas cover postsecondary teacher,
+software developer, management analyst, marketing manager, graphic designer,
+training and development specialist, financial manager, operations manager,
+medical and health services manager, and legislator. Each entry is used as the
+read/write unit for long-term profile memory during generation.
+Table~\ref{tab:appendix_profile_library_catalog} lists all 30 entries in the
+completed profile bank. The third column reports shortened English summaries
+of stored \texttt{profile\_json} fields: \texttt{layout.slide\_structure},
+\texttt{visual.chart\_type\_priority}, and, where useful,
+\texttt{content.notes}.
+
+\input{tables/profile_library_catalog_table}
+
+Library construction has two stages. First, each persona-intent entry receives
+controlled authoring interactions over the same source material but with
+different role-intent prompts, producing initial profile evidence for that
+entry. Second, because some accumulated entries remain sparse in structured
+fields, we apply a seeded completion step. This step uses stable persona
+prompts, an occupation-grounded role-preference registry, and existing profile
+signals to fill missing theme, visual, layout, content, and general fields. It
+follows only-fill-empty and intent-preservation rules: existing intent-specific
+signals are preserved when they already contain usable information, and generic
+task constraints such as page count or attachment-use instructions are filtered
+out.
+
+The seeded completion is treated as profile-bank construction, not as
+additional interaction evidence. It updates only the structured profile entry
+and does not create synthetic interaction episodes, tool experiences, or
+template-usage records. Each filled field is accompanied by provenance tags
+that identify whether it came from the seed prompt, role-preference registry,
+current profile signal, or suite intent definition. At runtime, the generation
+condition reads the completed profile entry matching the current persona and
+role intent, while the no-injection baseline uses the same source task without
+profile memory. The evaluation is defined by semantic persona and role-intent
+conditions rather than by implementation-specific profile identifiers.
+
+\subsection{DeepPresenter-Style Quality Evaluation}
+\label{app:deeppresenter_quality_eval}
+
+We evaluate the generated decks with the general-quality metric family reported
+by DeepPresenter~\citep{zheng2026deeppresenter}. This protocol is not a
+persona-specific alignment judge and does not replace
+Table~\ref{tab:profile_memory_v6_bestof_main} in the main text. Instead, it
+asks whether user-profile-memory injection preserves or improves standard
+presentation-quality dimensions while improving persona alignment.
+
+The metrics are reproduced as follows. \textit{Constraint}, \textit{Content},
+and \textit{Style} are reported on a 1--5 scale. \textit{Content} and
+\textit{Style} are computed with the released PPTEval-style prompt
+implementation used for presentation quality evaluation~\citep{zheng2025pptagent}.
+Content evaluates slide-level content clarity and image-text complementarity,
+while Style evaluates slide-level visual appeal and style coherence.
+\textit{Constraint} is reimplemented from the DeepPresenter paper definition
+for this task suite: it checks hard task constraints and instruction-level
+requirements that can be verified from the generated deck and source material.
+For SlideTailor, we report a language-adjusted Constraint score because its
+current generation setup does not target the requested output language; the
+language item is excluded while the remaining hard and semantic checks are
+retained. \textit{Diversity} follows the DeepPresenter diversity definition,
+using deck-level visual embeddings from DINOv2~\citep{oquab2023dinov2} and the
+normalized Vendi score~\citep{friedman2023vendi}; it is a suite-level metric.
+\textit{Avg.} is the arithmetic mean of Constraint, Content, and Style, and
+Diversity is not included in Avg. All values are re-evaluated on the generated
+presentations used in this work.
+
+Table~\ref{tab:profile_memory_v6_ppteval_main} in the main text reports these
+general-quality results; bold marks the best score in each metric column over
+the full table. Across the three model families, user-profile-memory injection
+keeps \textsc{Ours} competitive on the general-quality metrics while the
+persona-alignment table shows stronger personalization gains.
+The most stable pattern is on Content: \textsc{Ours} is above SlideTailor for
+all three model families and is close to or above the DeepPresenter no-injection
+baseline. \textsc{Ours} also achieves the highest Avg. on GPT-5 and GLM-5, while
+Gemini 3.1 Pro has a lower Avg. because of the Constraint score. On the visual
+side, \textsc{Ours} obtains the best Style and Diversity scores for Gemini 3.1
+Pro and remains close to the strongest systems in the other model families.
+Taken together, the table suggests that user-profile-memory injection is
+compatible with competitive general-quality behavior, but not uniformly dominant
+on every metric or every model.
+
+This quality check matters because it shows that the main persona-alignment
+gains do not come from a trivial trade-off that damages ordinary presentation
+quality. The evaluation uses the DeepPresenter quality family as an external
+consistency check, with Content and Style from the released PPTEval-style
+prompts, Constraint reimplemented from the DeepPresenter-style definition for
+this task suite, and Diversity computed from deck-level DINOv2 embeddings with a
+normalized Vendi score. It therefore supports a narrow and reviewer-safe
+conclusion: MemSlides improves persona-focused generation while remaining
+competitive on standard quality metrics, even though the gains are not monotonic
+across every model-metric pair.
+
+\subsection{Additional Persona-Alignment Judgment Results}
+
+The GPT-5 profile-memory details indicate that the main persona-alignment trend is
+not driven by a single persona. Table~\ref{tab:profile_memory_v6_bestof_gpt_appendix}
+reports ten-persona results under the persona-alignment judgments. On
+average, profile-memory injection improves Overall alignment by 2.42 points,
+with gains of 3.30 on Content, 2.30 on Structure, 3.17 on Visual, and 2.43 on
+Specificity. The gains are strongest when the target persona changes evidence
+selection, narrative organization, or visual treatment substantially; they are
+smaller when the no-injection baseline already happens to match the target
+persona reasonably well.
+
+\input{tables/profile_memory_v6_bestof_gpt_appendix_table}
+\FloatBarrier
+
+\subsection{Template-Guided Generation Examples}
+
+Figure~\ref{fig:appendix_template_generation_showcase} provides qualitative
+examples of template-guided generation under different user roles. Each example
+pairs a selected template slide with a generated slide for the same source
+paper. The examples show templates acting as concrete task-time design
+constraints over layout, palette, typography, and visual organization, while
+persona-conditioned generation adapts the slide content and emphasis.
+
+\begin{figure}[!t]
+  \centering
+  \includegraphics[width=1\linewidth]{template_generation_showcase_v7_comic_font_template_vs_generated_6panel}
+  \caption{Template-guided generation examples: selected template slides (top)
+  and matched persona/template generations (bottom).}
+  \label{fig:appendix_template_generation_showcase}
+\end{figure}
+\FloatBarrier
+
+\subsection{Tool-Memory Pair-Level Details}
+\label{app:tool_memory_pair_details}
+
+The pair-level tool-memory results make the diagnostic matched-pair setting
+transparent. Table~\ref{tab:tool_memory_table1_pair_detail} reports the
+tool-memory and no-injection values for each matched pair, together with the
+pair verdict from the tool-memory perspective. The Gemini 3.1 Pro rows use a
+fixed graphic-designer hard-modify family, so the setting exposes hard cases
+rather than selecting pairs by favorable outcomes. The improvements are not from a
+single model: most pairs either improve or tie on closed-loop completion, and
+most improve Strict Verify. First Correct Edit time and Core Tool Time Ratio
+also usually decrease, although not monotonically in every pair. This supports
+the diagnostic conclusion that tool memory is associated with more reliable
+localized editing behavior, while retaining the caveat that the table summarizes
+a diagnostic matched-pair setting.
+
+\input{tables/tool_memory_pair_detail_table}
+
+Figure~\ref{fig:appendix_tool_memory_localized_editing} illustrates the
+localized edit trajectory behind these process metrics.
+
+\begin{figure}[!t]
+  \centering
+  \includegraphics[width=0.9\linewidth]{tool_memory_localized_editing_comparison}
+  \caption{Illustrative qualitative trajectory for localized modify behavior.
+  The example contrasts broad or incomplete editing behavior with a more
+  constrained trajectory that inspects the target slide, applies a local patch,
+  verifies the local change, and finalizes the revision. This figure is a
+  process illustration for the diagnostic tool-memory setting rather than a
+  separate quantitative result.}
+  \label{fig:appendix_tool_memory_localized_editing}
+\end{figure}
+
+\paragraph{Paired robustness check.}
+Table~\ref{tab:tool_memory_paired_robustness} provides a non-parametric
+robustness check over the same nine matched pairs. For each metric, we compute
+pair-level wins and losses from Table~\ref{tab:tool_memory_table1_pair_detail}
+and apply an exact one-sided sign test after excluding ties and unavailable
+pairs. The strongest paired evidence appears on Strict Verify and Core Tool
+Time Ratio, while Closed-Loop Completion and First Correct Edit remain
+directionally favorable. Because the underlying setting is a diagnostic
+matched-pair protocol, these checks are intended to characterize robustness
+within this controlled protocol rather than to claim significance over the full
+distribution of possible modify requests.
+
+The W-L-T-NA column should be read as win--loss--tie--not-available counts from
+the tool-memory perspective. A win means that the memory-injected run is better
+than its no-injection counterpart under the metric direction: higher is better
+for Closed-Loop Completion and Strict Verify, while lower is better for First
+Correct Edit time and Core Tool Time Ratio. A tie means the two arms have the
+same value. NA means that one arm lacks a comparable value for that metric; for
+example, First Correct Edit is unavailable when a run never produces a
+verifiable first correct slide edit, so no latency comparison can be made. The
+sign test therefore uses only win/loss pairs and asks whether the number of
+wins is larger than would be expected under a 50--50 no-effect baseline.
+
+\input{tables/tool_memory_paired_robustness_table}
+
+\clearpage
+
+\subsection{Additional Qualitative Memory Cases}
+
+\begin{figure}[!t]
+  \centering
+  \includegraphics[width=0.95\linewidth]{working_memory_title_color_carryover}
+  \par\vspace{2pt}
+  \textbf{(a) Title-color carryover.}
+  \par\vspace{8pt}
+
+  \includegraphics[width=0.95\linewidth]{working_memory_summary_box_style_carryover}
+  \par\vspace{2pt}
+  \textbf{(b) Summary-box style carryover.}
+  \caption{Working-memory cases for delayed preference carryover. A
+  future-facing rule is stated in an earlier turn and only becomes actionable
+  after a later edit. Memory injection retrieves the stored rule at the trigger
+  turn, whereas the no-memory setting relies mainly on local context.}
+  \label{fig:appendix_working_memory_carryover}
+\end{figure}
+
+\subsection{Existing Assets and Use Conditions}
+
+We use existing presentation-generation systems, hosted model APIs, visual
+representation models, and author-created templates for research comparison,
+generation, evaluation, and analysis. We do not redistribute third-party model
+weights, proprietary endpoints, commercial services, or third-party code as
+part of this submission. Table~\ref{tab:existing_assets} summarizes the main
+existing assets used in the experiments and their use conditions.
+
+\begin{table}[!htbp]
+\centering
+\small
+\caption{Existing assets and use conditions.}
+\label{tab:existing_assets}
+\setlength{\tabcolsep}{5pt}
+\begin{tabular}{p{0.24\linewidth}p{0.68\linewidth}}
+\toprule
+Asset category & Use and condition \\
+\midrule
+Prior presentation systems &
+DeepPresenter, SlideTailor, and PPTAgent are cited and used for baseline
+generation, comparison, and evaluation alignment under their released code or
+project terms; third-party code is not redistributed. \\
+\midrule
+Hosted LLMs &
+GPT-5, GLM-5, and Gemini 3.1 Pro are used for generation, modification, and
+LLM-as-judge evaluation through hosted APIs or institutionally provided endpoints under
+applicable provider terms; no model weights or endpoints are redistributed. \\
+\midrule
+Visual representation models &
+DINOv2 is used for deck-level visual embeddings in diversity-style analysis.
+The standard DINOv2 model/code release is under Apache License 2.0; checkpoints
+are not redistributed. \\
+\midrule
+Presentation templates &
+Author-created templates are used as task-time design constraints for
+template-conditioned generation examples and evaluation settings; no
+third-party templates are redistributed. \\
+\midrule
+Evaluation materials &
+Profile-memory banks, prompts, generated decks, matched-pair definitions, and
+judge outputs are constructed for this paper's controlled evaluation. These
+materials are described for reproducibility. The source code is publicly
+available, and selected evaluation artifacts will be released when
+documentation and licensing checks are finalized. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Broader Impacts and Responsible Use}
+
+Personalized presentation agents can lower the cost of producing structured
+visual communication, helping users translate technical material into decks
+that better match their audience, role, and design preferences. Memory
+mechanisms may also reduce repeated instruction effort across authoring
+sessions and make multi-turn editing more efficient, especially when users
+need consistent style, recurring content emphasis, or localized revisions over
+an evolving deck.
+
+At the same time, persistent personalization introduces risks. Stored
+preference profiles may encode sensitive user habits, organizational style
+constraints, or audience-targeting strategies, and incorrect memory
+consolidation may preserve outdated or unintended preferences across future
+tasks. Presentation generation can also be misused to produce persuasive but
+misleading materials, or to over-adapt content framing to a target audience.
+These risks suggest that personalized presentation agents should provide
+user-visible memory inspection, editing, and deletion controls; avoid storing
+unnecessary sensitive information; and separate stable user preferences from
+one-off task instructions. Our current work studies controlled generation and
+editing settings rather than deployment, and we leave stronger privacy
+controls, memory auditing, and real-user governance mechanisms to future work.
+
+\clearpage

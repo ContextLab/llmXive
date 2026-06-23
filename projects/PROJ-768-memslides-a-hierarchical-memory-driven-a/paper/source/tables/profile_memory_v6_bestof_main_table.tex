@@ -1,0 +1,27 @@
+\begin{table}[t]
+\centering
+\small
+\setlength{\tabcolsep}{6pt}
+\renewcommand{\arraystretch}{1.0}
+\caption{Persona-alignment judgments for first-pass generation. Scores are
+averaged over three personas on a 0--10 scale; higher is better. Bold marks the
+best score per metric.}
+\label{tab:profile_memory_v6_bestof_main}
+\begin{tabular}{clcccc}
+\toprule
+Framework & Model & Content $\uparrow$ & Structure $\uparrow$ & Visual $\uparrow$ & Specificity $\uparrow$ \\
+\midrule
+\multirow{3}{*}{\centering DeepPresenter} & GPT-5 & 6.22 & 7.56 & 5.76 & 5.89 \\
+& GLM-5 & 6.67 & 7.61 & 5.28 & 7.22 \\
+& Gemini 3.1 Pro & 6.89 & 8.00 & 6.78 & 7.44 \\
+\midrule
+\multirow{3}{*}{\centering SlideTailor} & GPT-5 & 6.78 & 6.00 & 6.39 & 6.33 \\
+& GLM-5 & 4.44 & 4.89 & 4.00 & 3.89 \\
+& Gemini 3.1 Pro & 4.48 & 5.00 & 4.03 & 4.67 \\
+\midrule
+\multirow{3}{*}{\centering MemSlides (Ours)} & GPT-5 & 7.11 & 7.33 & 6.00 & 6.67 \\
+& GLM-5 & \textbf{9.00} & \textbf{8.78} & \textbf{8.56} & \textbf{8.89} \\
+& Gemini 3.1 Pro & 7.77 & 8.64 & 8.24 & 8.56 \\
+\bottomrule
+\end{tabular}
+\end{table}

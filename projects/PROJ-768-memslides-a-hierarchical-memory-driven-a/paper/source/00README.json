@@ -1,0 +1,37 @@
+{
+   "sources" : [
+      {
+         "usage" : "toplevel",
+         "filename" : "main.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "main.bbl"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "picture/resource-code-github-octicon.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "picture/resource-project-page.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "picture/resource-video-play.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "picture/resource-website-globe.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "references.bib"
+      }
+   ],
+   "spec_version" : 1,
+   "texlive_version" : "2025",
+   "process" : {
+      "compiler" : "pdflatex"
+   }
+}

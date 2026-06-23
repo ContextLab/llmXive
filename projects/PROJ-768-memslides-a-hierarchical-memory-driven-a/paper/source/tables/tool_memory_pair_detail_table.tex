@@ -1,0 +1,34 @@
+\begin{table}[!htbp]
+\centering
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\caption{Pair-level details for the diagnostic matched-pair tool-memory setting.
+Metric cells follow the same four metrics as Table~\ref{tab:tool_memory_table1_redesign}
+and report tool memory / no injection, with verdicts from the tool-memory perspective.}
+\label{tab:tool_memory_table1_pair_detail}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lllcccc}
+\toprule
+Model & Pair & Persona & \shortstack{Closed-Loop\\Completion $\uparrow$} & \shortstack{Strict\\Verify $\uparrow$} & \shortstack{First Correct\\Edit (s) $\downarrow$} & \shortstack{Core Tool\\Time Ratio $\downarrow$} \\
+\midrule
+GPT-5 & P1 & Graphic Designer & 1.000 / 1.000 (tie) & 0.947 / 0.278 (win) & 264.7 / 317.0 (win) & 0.043$\times$ / 1.000$\times$ (win) \\
+GPT-5 & P2 & Management Analyst & 1.000 / 1.000 (tie) & 0.579 / 0.471 (win) & 158.0 / 151.3 (loss) & 18.777$\times$ / 1.000$\times$ (loss) \\
+GPT-5 & P3 & Postsecondary Teacher & 1.000 / 0.000 (win) & 0.412 / 0.133 (win) & 93.3 / NA (NA) & 0.502$\times$ / 1.000$\times$ (win) \\
+GLM-5 & P4 & Graphic Designer & 1.000 / 0.667 (win) & 0.512 / 0.278 (win) & 128.3 / 215.0 (win) & 0.763$\times$ / 1.000$\times$ (win) \\
+GLM-5 & P5 & Graphic Designer & 1.000 / 1.000 (tie) & 0.548 / 0.457 (win) & 177.0 / 224.3 (win) & 0.064$\times$ / 1.000$\times$ (win) \\
+GLM-5 & P6 & Graphic Designer & 1.000 / 1.000 (tie) & 0.405 / 0.567 (loss) & 282.3 / 1063.3 (win) & 0.838$\times$ / 1.000$\times$ (win) \\
+Gemini 3.1 Pro & P7 & Graphic Designer & 0.667 / 1.000 (loss) & 0.481 / 0.183 (win) & 340.5 / 199.7 (loss) & 0.146$\times$ / 1.000$\times$ (win) \\
+Gemini 3.1 Pro & P8 & Graphic Designer & 1.000 / 1.000 (tie) & 0.366 / 0.242 (win) & 329.0 / 2303.0 (win) & 0.254$\times$ / 1.000$\times$ (win) \\
+Gemini 3.1 Pro & P9 & Graphic Designer & 1.000 / 0.667 (win) & 0.559 / 0.179 (win) & 260.3 / 402.0 (win) & 0.069$\times$ / 1.000$\times$ (win) \\
+\bottomrule
+\end{tabular}%
+}
+\vspace{2pt}
+\raggedright
+\footnotesize
+Aggregating these rows yields Table~\ref{tab:tool_memory_table1_redesign}.
+Closed-Loop Completion and Strict Verify use arithmetic means over the three
+pairs per model family. First Correct Edit excludes pairs with unavailable
+no-injection edit time. Core Tool Time Ratio uses the geometric mean of the
+tool-memory/no-injection ratios.
+\end{table}

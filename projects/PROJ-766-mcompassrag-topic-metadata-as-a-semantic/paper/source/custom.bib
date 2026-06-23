@@ -1,0 +1,878 @@
+@inproceedings{tao-etal-2025-saki,
+    title = "{SAKI}-{RAG}: Mitigating Context Fragmentation in Long-Document {RAG} via Sentence-level Attention Knowledge Integration",
+    author = "Tao, Wenyu  and
+      Xing, Xiaofen  and
+      Li, Zeliang  and
+      Xu, Xiangmin",
+    editor = "Christodoulopoulos, Christos  and
+      Chakraborty, Tanmoy  and
+      Rose, Carolyn  and
+      Peng, Violet",
+    booktitle = "Proceedings of the 2025 Conference on Empirical Methods in Natural Language Processing",
+    month = nov,
+    year = "2025",
+    address = "Suzhou, China",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2025.emnlp-main.63/",
+    doi = "10.18653/v1/2025.emnlp-main.63",
+    pages = "1195--1213",
+    ISBN = "979-8-89176-332-6",
+    abstract = "Traditional Retrieval-Augmented Generation (RAG) frameworks often segment documents into larger chunks to preserve contextual coherence, inadvertently introducing redundant noise. Recent advanced RAG frameworks have shifted toward finer-grained chunking to improve precision. However, in long-document scenarios, such chunking methods lead to fragmented contexts, isolated chunk semantics, and broken inter-chunk relationships, making cross-paragraph retrieval particularly challenging. To address this challenge, maintaining granular chunks while recovering their intrinsic semantic connections, we propose **SAKI-RAG** (Sentence-level Attention Knowledge Integration Retrieval-Augmented Generation). Our framework introduces two core components: (1) the **SentenceAttnLinker**, which constructs a semantically enriched knowledge repository by modeling inter-sentence attention relationships, and (2) the **Dual-Axis Retriever**, which is designed to expand and filter the candidate chunks from the dual dimensions of semantic similarity and contextual relevance. Experimental results across four datasets{---}Dragonball, SQUAD, NFCORPUS, and SCI-DOCS demonstrate that SAKI-RAG achieves better recall and precision compared to other RAG frameworks in long-document retrieval scenarios, while also exhibiting higher information efficiency."
+}
+
+@inproceedings{lewis2020retrieval,
+ author = {Lewis, Patrick and Perez, Ethan and Piktus, Aleksandra and Petroni, Fabio and Karpukhin, Vladimir and Goyal, Naman and K\"{u}ttler, Heinrich and Lewis, Mike and Yih, Wen-tau and Rockt\"{a}schel, Tim and Riedel, Sebastian and Kiela, Douwe},
+ booktitle = {Advances in Neural Information Processing Systems},
+ editor = {H. Larochelle and M. Ranzato and R. Hadsell and M.F. Balcan and H. Lin},
+ pages = {9459--9474},
+ publisher = {Curran Associates, Inc.},
+ title = {Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks},
+ url = {https://proceedings.neurips.cc/paper_files/paper/2020/file/6b493230205f780e1bc26945df7481e5-Paper.pdf},
+ volume = {33},
+ year = {2020}
+}
+
+
+@inproceedings{karpukhin-etal-2020-dense,
+    title = "Dense Passage Retrieval for Open-Domain Question Answering",
+    author = "Karpukhin, Vladimir  and
+      Oguz, Barlas  and
+      Min, Sewon  and
+      Lewis, Patrick  and
+      Wu, Ledell  and
+      Edunov, Sergey  and
+      Chen, Danqi  and
+      Yih, Wen-tau",
+    editor = "Webber, Bonnie  and
+      Cohn, Trevor  and
+      He, Yulan  and
+      Liu, Yang",
+    booktitle = "Proceedings of the 2020 Conference on Empirical Methods in Natural Language Processing (EMNLP)",
+    month = nov,
+    year = "2020",
+    address = "Online",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2020.emnlp-main.550/",
+    doi = "10.18653/v1/2020.emnlp-main.550",
+    pages = "6769--6781",
+    abstract = "Open-domain question answering relies on efficient passage retrieval to select candidate contexts, where traditional sparse vector space models, such as TF-IDF or BM25, are the de facto method. In this work, we show that retrieval can be practically implemented using dense representations alone, where embeddings are learned from a small number of questions and passages by a simple dual-encoder framework. When evaluated on a wide range of open-domain QA datasets, our dense retriever outperforms a strong Lucene-BM25 system greatly by 9{\%}-19{\%} absolute in terms of top-20 passage retrieval accuracy, and helps our end-to-end QA system establish new state-of-the-art on multiple open-domain QA benchmarks."
+}
+
+@inproceedings{izacard-grave-2021-leveraging,
+    title = "Leveraging Passage Retrieval with Generative Models for Open Domain Question Answering",
+    author = "Izacard, Gautier  and
+      Grave, Edouard",
+    editor = "Merlo, Paola  and
+      Tiedemann, Jorg  and
+      Tsarfaty, Reut",
+    booktitle = "Proceedings of the 16th Conference of the European Chapter of the Association for Computational Linguistics: Main Volume",
+    month = apr,
+    year = "2021",
+    address = "Online",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2021.eacl-main.74/",
+    doi = "10.18653/v1/2021.eacl-main.74",
+    pages = "874--880",
+    abstract = "Generative models for open domain question answering have proven to be competitive, without resorting to external knowledge. While promising, this approach requires to use models with billions of parameters, which are expensive to train and query. In this paper, we investigate how much these models can benefit from retrieving text passages, potentially containing evidence. We obtain state-of-the-art results on the Natural Questions and TriviaQA open benchmarks. Interestingly, we observe that the performance of this method significantly improves when increasing the number of retrieved passages. This is evidence that sequence-to-sequence models offers a flexible framework to efficiently aggregate and combine evidence from multiple passages."
+}
+
+@inproceedings{chen-etal-2024-dense,
+    title = "Dense {X} Retrieval: What Retrieval Granularity Should We Use?",
+    author = "Chen, Tong  and
+      Wang, Hongwei  and
+      Chen, Sihao  and
+      Yu, Wenhao  and
+      Ma, Kaixin  and
+      Zhao, Xinran  and
+      Zhang, Hongming  and
+      Yu, Dong",
+    editor = "Al-Onaizan, Yaser  and
+      Bansal, Mohit  and
+      Chen, Yun-Nung",
+    booktitle = "Proceedings of the 2024 Conference on Empirical Methods in Natural Language Processing",
+    month = nov,
+    year = "2024",
+    address = "Miami, Florida, USA",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2024.emnlp-main.845/",
+    doi = "10.18653/v1/2024.emnlp-main.845",
+    pages = "15159--15177",
+    abstract = "Dense retrieval has become a prominent method to obtain relevant context or world knowledge in open-domain NLP tasks. When we use a learned dense retriever on a retrieval corpus at inference time, an often-overlooked design choice is the retrieval unit in which the corpus is indexed, e.g. document, passage, or sentence. We discover that the retrieval unit choice significantly impacts the performance of both retrieval and downstream tasks. Distinct from the typical approach of using passages or sentences, we introduce a novel retrieval unit, proposition, for dense retrieval. Propositions are defined as atomic expressions within text, each encapsulating a distinct factoid and presented in a concise, self-contained natural language format. We conduct an empirical comparison of different retrieval granularity. Our experiments reveal that indexing a corpus by fine-grained units such as propositions significantly outperforms passage-level units in retrieval tasks. Moreover, constructing prompts with fine-grained retrieved units for retrieval-augmented language models improves the performance of downstream QA tasks given a specific computation budget."
+}
+
+@misc{zhao2024meta,
+      title={Meta-Chunking: Learning Text Segmentation and Semantic Completion via Logical Perception}, 
+      author={Jihao Zhao and Zhiyuan Ji and Yuchen Feng and Pengnian Qi and Simin Niu and Bo Tang and Feiyu Xiong and Zhiyu Li},
+      year={2025},
+      eprint={2410.12788},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2410.12788}, 
+}
+
+@inproceedings{
+sarthi2024raptor,
+title={{RAPTOR}: Recursive Abstractive Processing for Tree-Organized Retrieval},
+author={Parth Sarthi and Salman Abdullah and Aditi Tuli and Shubh Khanna and Anna Goldie and Christopher D Manning},
+booktitle={The Twelfth International Conference on Learning Representations},
+year={2024},
+url={https://openreview.net/forum?id=GN921JHCRw}
+}
+
+@inproceedings{gao-etal-2023-precise,
+    title = "Precise Zero-Shot Dense Retrieval without Relevance Labels",
+    author = "Gao, Luyu  and
+      Ma, Xueguang  and
+      Lin, Jimmy  and
+      Callan, Jamie",
+    editor = "Rogers, Anna  and
+      Boyd-Graber, Jordan  and
+      Okazaki, Naoaki",
+    booktitle = "Proceedings of the 61st Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers)",
+    month = jul,
+    year = "2023",
+    address = "Toronto, Canada",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2023.acl-long.99/",
+    doi = "10.18653/v1/2023.acl-long.99",
+    pages = "1762--1777",
+    abstract = "While dense retrieval has been shown to be effective and efficient across tasks and languages, it remains difficult to create effective fully zero-shot dense retrieval systems when no relevance labels are available. In this paper, we recognize the difficulty of zero-shot learning and encoding relevance. Instead, we propose to pivot through Hypothetical Document Embeddings (HyDE). Given a query, HyDE first zero-shot prompts an instruction-following language model (e.g., InstructGPT) to generate a hypothetical document. The document captures relevance patterns but is ``fake'' and may contain hallucinations. Then, an unsupervised contrastively learned encoder (e.g., Contriever) encodes the document into an embedding vector. This vector identifies a neighborhood in the corpus embedding space, from which similar real documents are retrieved based on vector similarity. This second step grounds the generated document to the actual corpus, with the encoder{'}s dense bottleneck filtering out the hallucinations. Our experiments show that HyDE significantly outperforms the state-of-the-art unsupervised dense retriever Contriever and shows strong performance comparable to fine-tuned retrievers across various tasks (e.g. web search, QA, fact verification) and in non-English languages (e.g., sw, ko, ja, bn)."
+}
+
+@inproceedings{wang-etal-2023-query2doc,
+    title = "Query2doc: Query Expansion with Large Language Models",
+    author = "Wang, Liang  and
+      Yang, Nan  and
+      Wei, Furu",
+    editor = "Bouamor, Houda  and
+      Pino, Juan  and
+      Bali, Kalika",
+    booktitle = "Proceedings of the 2023 Conference on Empirical Methods in Natural Language Processing",
+    month = dec,
+    year = "2023",
+    address = "Singapore",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2023.emnlp-main.585/",
+    doi = "10.18653/v1/2023.emnlp-main.585",
+    pages = "9414--9423",
+    abstract = "This paper introduces a simple yet effective query expansion approach, denoted as query2doc, to improve both sparse and dense retrieval systems. The proposed method first generates pseudo-documents by few-shot prompting large language models (LLMs), and then expands the query with generated pseudo documents. LLMs are trained on web-scale text corpora and are adept at knowledge memorization. The pseudo-documents from LLMs often contain highly relevant information that can aid in query disambiguation and guide the retrievers. Experimental results demonstrate that query2doc boosts the performance of BM25 by 3{\%} to 15{\%} on ad-hoc IR datasets, such as MS-MARCO and TREC DL, without any model fine-tuning. Furthermore, our method also benefits state-of-the-art dense retrievers in terms of both in-domain and out-of-domain results."
+}
+
+@inproceedings{zhou-etal-2024-hyqe,
+    title = "{H}y{QE}: Ranking Contexts with Hypothetical Query Embeddings",
+    author = "Zhou, Weichao  and
+      Zhang, Jiaxin  and
+      Hasson, Hilaf  and
+      Singh, Anu  and
+      Li, Wenchao",
+    editor = "Al-Onaizan, Yaser  and
+      Bansal, Mohit  and
+      Chen, Yun-Nung",
+    booktitle = "Findings of the Association for Computational Linguistics: EMNLP 2024",
+    month = nov,
+    year = "2024",
+    address = "Miami, Florida, USA",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2024.findings-emnlp.761/",
+    doi = "10.18653/v1/2024.findings-emnlp.761",
+    pages = "13014--13032",
+    abstract = "In retrieval-augmented systems, context ranking techniques are commonly employed to reorder the retrieved contexts based on their relevance to a user query. A standard approach is to measure this relevance through the similarity between contexts and queries in the embedding space. However, such similarity often fails to capture the relevance. Alternatively, large language models (LLMs) have been used for ranking contexts. However, they can encounter scalability issues when the number of candidate contexts grows and the context window sizes of the LLMs remain constrained. Additionally, these approaches require fine-tuning LLMs with domain-specific data. In this work, we introduce a scalable ranking framework that combines embedding similarity and LLM capabilities without requiring LLM fine-tuning. Our framework uses a pre-trained LLM to hypothesize the user query based on the retrieved contexts and ranks the context based on the similarity between the hypothesized queries and the user query. Our framework is efficient at inference time and is compatible with many other retrieval and ranking techniques. Experimental results show that our method improves the ranking performance across multiple benchmarks."
+}
+
+@inproceedings{trivedi-etal-2023-interleaving,
+    title = "Interleaving Retrieval with Chain-of-Thought Reasoning for Knowledge-Intensive Multi-Step Questions",
+    author = "Trivedi, Harsh  and
+      Balasubramanian, Niranjan  and
+      Khot, Tushar  and
+      Sabharwal, Ashish",
+    editor = "Rogers, Anna  and
+      Boyd-Graber, Jordan  and
+      Okazaki, Naoaki",
+    booktitle = "Proceedings of the 61st Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers)",
+    month = jul,
+    year = "2023",
+    address = "Toronto, Canada",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2023.acl-long.557/",
+    doi = "10.18653/v1/2023.acl-long.557",
+    pages = "10014--10037",
+    abstract = "Prompting-based large language models (LLMs) are surprisingly powerful at generating natural language reasoning steps or Chains-of-Thoughts (CoT) for multi-step question answering (QA). They struggle, however, when the necessary knowledge is either unavailable to the LLM or not up-to-date within its parameters. While using the question to retrieve relevant text from an external knowledge source helps LLMs, we observe that this one-step retrieve-and-read approach is insufficient for multi-step QA. Here, \textit{what to retrieve} depends on \textit{what has already been derived}, which in turn may depend on \textit{what was previously retrieved}. To address this, we propose IRCoT, a new approach for multi-step QA that interleaves retrieval with steps (sentences) in a CoT, guiding the retrieval with CoT and in turn using retrieved results to improve CoT. Using IRCoT with GPT3 substantially improves retrieval (up to 21 points) as well as downstream QA (up to 15 points) on four datasets: HotpotQA, 2WikiMultihopQA, MuSiQue, and IIRC. We observe similar substantial gains in out-of-distribution (OOD) settings as well as with much smaller models such as Flan-T5-large without additional training. IRCoT reduces model hallucination, resulting in factually more accurate CoT reasoning."
+}
+
+@inproceedings{
+zheng2024take,
+title={Take a Step Back: Evoking Reasoning via Abstraction in Large Language Models},
+author={Huaixiu Steven Zheng and Swaroop Mishra and Xinyun Chen and Heng-Tze Cheng and Ed H. Chi and Quoc V Le and Denny Zhou},
+booktitle={The Twelfth International Conference on Learning Representations},
+year={2024},
+url={https://openreview.net/forum?id=3bq3jsvcQ1}
+}
+
+@inproceedings{zhao-etal-2025-moc,
+    title = "{M}o{C}: Mixtures of Text Chunking Learners for Retrieval-Augmented Generation System",
+    author = "Zhao, Jihao  and
+      Ji, Zhiyuan  and
+      Fan, Zhaoxin  and
+      Wang, Hanyu  and
+      Niu, Simin  and
+      Tang, Bo  and
+      Xiong, Feiyu  and
+      Li, Zhiyu",
+    editor = "Che, Wanxiang  and
+      Nabende, Joyce  and
+      Shutova, Ekaterina  and
+      Pilehvar, Mohammad Taher",
+    booktitle = "Proceedings of the 63rd Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers)",
+    month = jul,
+    year = "2025",
+    address = "Vienna, Austria",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2025.acl-long.258/",
+    doi = "10.18653/v1/2025.acl-long.258",
+    pages = "5172--5189",
+    ISBN = "979-8-89176-251-0",
+    abstract = "Retrieval-Augmented Generation (RAG), while serving as a viable complement to large language models (LLMs), often overlooks the crucial aspect of text chunking within its pipeline. This paper initially introduces a dual-metric evaluation method, comprising Boundary Clarity and Chunk Stickiness, to enable the direct quantification of chunking quality. Leveraging this assessment method, we highlight the inherent limitations of traditional and semantic chunking in handling complex contextual nuances, thereby substantiating the necessity of integrating LLMs into chunking process. To address the inherent trade-off between computational efficiency and chunking precision in LLM-based approaches, we devise the granularity-aware Mixture-of-Chunkers (MoC) framework, which consists of a three-stage processing mechanism. Notably, our objective is to guide the chunker towards generating a structured list of chunking regular expressions, which are subsequently employed to extract chunks from the original text. Extensive experiments demonstrate that both our proposed metrics and the MoC framework effectively settle challenges of the chunking task, revealing the chunking kernel while enhancing the performance of the RAG system."
+}
+
+@inproceedings{verma-etal-2026-reflectiverag,
+    title = "{R}eflective{RAG}: Rethinking Adaptivity in Retrieval-Augmented Generation",
+    author = "Verma, Akshay  and
+      Gupta, Swapnil  and
+      Pillai, Siddharth  and
+      Sircar, Prateek  and
+      Gupta, Deepak",
+    editor = {Matusevych, Yevgen  and
+      Eryi{\u{g}}it, G{\"u}l{\c{s}}en  and
+      Aletras, Nikolaos},
+    booktitle = "Proceedings of the 19th Conference of the {E}uropean Chapter of the {A}ssociation for {C}omputational {L}inguistics (Volume 5: Industry Track)",
+    month = mar,
+    year = "2026",
+    address = "Rabat, Morocco",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2026.eacl-industry.27/",
+    doi = "10.18653/v1/2026.eacl-industry.27",
+    pages = "377--384",
+    ISBN = "979-8-89176-384-5",
+    abstract = "Retrieval-Augmented Generation (RAG) systems degrade sharply under extreme noise,where irrelevant or redundant passages dominate. Current methods-fixed top-k retrieval, cross-encoder reranking, or policy based iteration-depend on static heuristics orcostly reinforcement learning, failing to assess evidence sufficiency, detect subtle mismatches, or reduce redundancy, leading to hallucinations and poor grounding. We introduce ReflectiveRAG, a lightweight yet reasoning-driven architecture that enhances factual grounding through two complementary mechanisms: Self-Reflective Retrieval (SRR) and Contrastive Noise Removal (NR). SRR employs small language model as a decision controller that iteratively evaluates evidence sufficiency, enabling adaptive query reformulation withoutfixed schedules or policy training. NR further refines retrieved content via embedding-based contrastive filtering, enforcing semanticsparsity and removing redundant or tangential passages. Evaluated on WebQuestions, HotpotQA (distractor setting) and InternalQAwith 50M Common Crawl distractors, ReflectiveRAG achieves substantial gains over strong baselines-including DeepRAG-improving EMby +2.7 pp and F1 by +2.5 pp, while reducing evidence redundancy by 30.88{\%} with only 18 ms additional latency. Ablation studies con-firm that SRR and NR jointly drive both factual accuracy and efficiency, validating our central claim that retrieval reasoning and contrastivefiltering can outperform large-scale policy optimization in RAG."
+}
+
+@inproceedings{khan-etal-2026-df,
+    title = "{DF}-{RAG}: Query-Aware Diversity for Retrieval-Augmented Generation",
+    author = "Khan, Saadat Hasan  and
+      Hong, Spencer  and
+      Wu, Jingyu  and
+      Lybarger, Kevin  and
+      Yin, Youbing  and
+      Babinsky, Erin  and
+      Liu, Daben",
+    editor = "Demberg, Vera  and
+      Inui, Kentaro  and
+      Marquez, Llu{\'i}s",
+    booktitle = "Findings of the {A}ssociation for {C}omputational {L}inguistics: {EACL} 2026",
+    month = mar,
+    year = "2026",
+    address = "Rabat, Morocco",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2026.findings-eacl.150/",
+    doi = "10.18653/v1/2026.findings-eacl.150",
+    pages = "2873--2894",
+    ISBN = "979-8-89176-386-9",
+    abstract = "Retrieval-augmented generation (RAG) is a common technique for grounding language model outputs in domain-specific information. However, RAG is often challenged by reasoning-intensive question-answering (QA), since common retrieval methods like cosine similarity maximize relevance at the cost of introducing redundant content, which can reduce information recall. To address this, we introduce Diversity-Focused Retrieval-Augmented Generation (DF-RAG) that systematically incorporates diversity into the retrieval step to improve performance on complex, reasoning-intensive QA benchmarks. DF-RAG builds upon the Maximal Marginal Relevance framework to select information chunks that are both relevant to the query and maximally dissimilar from each other. A key innovation of DF-RAG is its ability to optimize the level of diversity for each query dynamically at test time without requiring any additional fine-tuning or prior information. We show that DF-RAG improves F1 performance on reasoning-intensive QA benchmarks by 4{--}10{\%} over vanilla RAG using cosine similarity and also outperforms other established baselines. Furthermore, we estimate an Oracle ceiling of up to 18{\%} absolute F1 gains over vanilla RAG, of which DF-RAG captures up to 91.3{\%}."
+}
+
+@inproceedings{nguyen2024enhancing,
+  title={Enhancing retrieval augmented generation with hierarchical text segmentation chunking},
+  author={Nguyen, Hai-Toan and Nguyen, Tien-Dat and Nguyen, Viet-Ha},
+  booktitle={International Symposium on Information and Communication Technology},
+  pages={209--220},
+  year={2024},
+  organization={Springer}
+}
+
+@inproceedings{merola2025reconstructing,
+  title={Reconstructing context: Evaluating advanced chunking strategies for retrieval-augmented generation},
+  author={Merola, Carlo and Singh, Jaspinder},
+  booktitle={International Workshop on Knowledge-Enhanced Information Retrieval},
+  pages={3--18},
+  year={2025},
+  organization={Springer}
+}
+
+@misc{openai2024gpt4o,
+  title        = {Introducing {GPT-4o} and more tools to {ChatGPT} free users},
+  author       = {{OpenAI}},
+  year         = {2024},
+  month        = may,
+  day          = {13},
+  howpublished = {\url{https://openai.com/index/gpt-4o-and-more-tools-to-chatgpt-free/}}
+}
+
+@misc{lin2025refrag,
+      title={REFRAG: Rethinking RAG based Decoding}, 
+      author={Xiaoqiang Lin and Aritra Ghosh and Bryan Kian Hsiang Low and Anshumali Shrivastava and Vijai Mohan},
+      year={2025},
+      eprint={2509.01092},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2509.01092}, 
+}
+
+@inproceedings{
+louis2026oscar,
+title={{OSCAR}: Online Soft Compression for {RAG}},
+author={Maxime Louis and Thibault Formal and Herv{\'e} D{\'e}jean and St{\'e}phane Clinchant},
+booktitle={The Fourteenth International Conference on Learning Representations},
+year={2026},
+url={https://openreview.net/forum?id=ideKAUWvFE}
+}
+
+@inproceedings{
+zhang2026smartchunk,
+title={SmartChunk Retrieval: Query-Aware Chunk Compression with Planning for Efficient Document {RAG}},
+author={Xuechen Zhang and Koustava Goswami and Samet Oymak and Jiasi Chen and Nedim Lipka},
+booktitle={The Fourteenth International Conference on Learning Representations},
+year={2026},
+url={https://openreview.net/forum?id=Myti1QwL2t}
+}
+
+@inproceedings{abaskohi-etal-2025-cemtm,
+    title = "{CEMTM}: Contextual Embedding-based Multimodal Topic Modeling",
+    author = "Abaskohi, Amirhossein  and
+      Li, Raymond  and
+      Li, Chuyuan  and
+      Joty, Shafiq  and
+      Carenini, Giuseppe",
+    editor = "Christodoulopoulos, Christos  and
+      Chakraborty, Tanmoy  and
+      Rose, Carolyn  and
+      Peng, Violet",
+    booktitle = "Proceedings of the 2025 Conference on Empirical Methods in Natural Language Processing",
+    month = nov,
+    year = "2025",
+    address = "Suzhou, China",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2025.emnlp-main.590/",
+    doi = "10.18653/v1/2025.emnlp-main.590",
+    pages = "11675--11692",
+    ISBN = "979-8-89176-332-6",
+    abstract = "We introduce CEMTM, a context-enhanced multimodal topic model designed to infer coherent and interpretable topic structures from both short and long documents containing text and images. CEMTM builds on fine-tuned large vision language models (LVLMs) to obtain contextualized embeddings, and employs a distributional attention mechanism to weight token-level contributions to topic inference. A reconstruction objective aligns topic-based representations with the document embedding, encouraging semantic consistency across modalities. Unlike existing approaches, CEMTM can process multiple images per document without repeated encoding and maintains interpretability through explicit word-topic and document-topic distributions. Extensive experiments on six multimodal benchmarks show that CEMTM consistently outperforms unimodal and multimodal baselines, achieving a remarkable average LLM score of 2.61. Further analysis shows its effectiveness in downstream few-shot retrieval and its ability to capture visually grounded semantics in complex domains such as scientific articles."
+}
+
+@article{huang2025deep,
+  title={Deep research agents: A systematic examination and roadmap},
+  author={Huang, Yuxuan and Chen, Yihang and Zhang, Haozheng and Li, Kang and Zhou, Huichi and Fang, Meng and Yang, Linyi and Li, Xiaoguang and Shang, Lifeng and Xu, Songcen and others},
+  journal={arXiv preprint arXiv:2506.18096},
+  year={2025}
+}
+
+@inproceedings{NIPS2015_35051070,
+ author = {Bhatia, Kush and Jain, Himanshu and Kar, Purushottam and Varma, Manik and Jain, Prateek},
+ booktitle = {Advances in Neural Information Processing Systems},
+ editor = {C. Cortes and N. Lawrence and D. Lee and M. Sugiyama and R. Garnett},
+ pages = {},
+ publisher = {Curran Associates, Inc.},
+ title = {Sparse Local Embeddings for Extreme Multi-label Classification},
+ url = {https://proceedings.neurips.cc/paper_files/paper/2015/file/35051070e572e47d2c26c241ab88307f-Paper.pdf},
+ volume = {28},
+ year = {2015}
+}
+
+@misc{zhang2025deepresearchsurveyautonomous,
+      title={Deep Research: A Survey of Autonomous Research Agents}, 
+      author={Wenlin Zhang and Xiaopeng Li and Yingyi Zhang and Pengyue Jia and Yichao Wang and Huifeng Guo and Yong Liu and Xiangyu Zhao},
+      year={2025},
+      eprint={2508.12752},
+      archivePrefix={arXiv},
+      primaryClass={cs.IR},
+      url={https://arxiv.org/abs/2508.12752}, 
+}
+
+@article{10.1145/3637870,
+author = {Zhao, Wayne Xin and Liu, Jing and Ren, Ruiyang and Wen, Ji-Rong},
+title = {Dense Text Retrieval Based on Pretrained Language Models: A Survey},
+year = {2024},
+issue_date = {July 2024},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+volume = {42},
+number = {4},
+issn = {1046-8188},
+url = {https://doi.org/10.1145/3637870},
+doi = {10.1145/3637870},
+abstract = {Text retrieval is a long-standing research topic on information seeking, where a system is required to return relevant information resources to user’s queries in natural language. From heuristic-based retrieval methods to learning-based ranking functions, the underlying retrieval models have been continually evolved with the ever-lasting technical innovation. To design effective retrieval models, a key point lies in how to learn text representations and model the relevance matching. The recent success of pretrained language models&nbsp;(PLM) sheds light on developing more capable text-retrieval approaches by leveraging the excellent modeling capacity of PLMs. With powerful PLMs, we can effectively learn the semantic representations of queries and texts in the latent representation space, and further construct the semantic matching function between the dense vectors for relevance modeling. Such a retrieval approach is called dense retrieval, since it employs dense vectors to represent the texts. Considering the rapid progress on dense retrieval, this survey systematically reviews the recent progress on PLM-based dense retrieval. Different from previous surveys on dense retrieval, we take a new perspective to organize the related studies by four major aspects, including architecture, training, indexing and integration, and thoroughly summarize the mainstream techniques for each aspect. We extensively collect the recent advances on this topic, and include 300+ reference papers. To support our survey, we create a website for providing useful resources, and release a code repository for dense retrieval. This survey aims to provide a comprehensive, practical reference focused on the major progress for dense text retrieval.},
+journal = {ACM Trans. Inf. Syst.},
+month = feb,
+articleno = {89},
+numpages = {60},
+keywords = {Text retrieval, dense retrieval, pretrained language models}
+}
+
+@inproceedings{
+prabhu2025mogic,
+title={{MOGIC}: Metadata-infused Oracle Guidance for Improved Extreme Classification},
+author={Suchith Chidananda Prabhu and Bhavyajeet Singh and Anshul Mittal and Siddarth Asokan and Shikhar Mohan and Deepak Saini and Yashoteja Prabhu and Lakshya Kumar and Jian Jiao and Amit S and Niket Tandon and Manish Gupta and Sumeet Agarwal and Manik Varma},
+booktitle={Forty-second International Conference on Machine Learning},
+year={2025},
+url={https://openreview.net/forum?id=uxA0GI240s}
+}
+
+@misc{qwen3technicalreport,
+      title={Qwen3 Technical Report}, 
+      author={Qwen Team},
+      year={2025},
+      eprint={2505.09388},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2505.09388}, 
+}
+
+@misc{zhang2025qwen3embeddingadvancingtext,
+      title={Qwen3 Embedding: Advancing Text Embedding and Reranking Through Foundation Models}, 
+      author={Yanzhao Zhang and Mingxin Li and Dingkun Long and Xin Zhang and Huan Lin and Baosong Yang and Pengjun Xie and An Yang and Dayiheng Liu and Junyang Lin and Fei Huang and Jingren Zhou},
+      year={2025},
+      eprint={2506.05176},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2506.05176}, 
+}
+
+@inproceedings{
+burns2023wiki,
+title={A Suite of Generative Tasks for Multi-Level Multimodal Webpage Understanding},
+author={Andrea Burns and Krishna Srinivasan and Joshua Ainslie and Geoff Brown and Bryan A. Plummer and Kate Saenko and Jianmo Ni and Mandy Guo},
+booktitle={The 2023 Conference on Empirical Methods in Natural Language Processing (EMNLP)},
+year={2023},
+url={https://openreview.net/forum?id=rwcLHjtUmn}
+}
+
+@inproceedings{
+abaskohi2026drbench,
+title={{DRB}ench: A Realistic Benchmark for Enterprise Deep Research},
+author={Amirhossein Abaskohi and Tianyi Chen and Miguel Mu{\~n}oz-M{\'a}rmol and Curtis Fox and Amrutha Varshini Ramesh and {\'E}tienne Marcotte and Xing Han L{\`u} and Nicolas Chapados and Spandana Gella and Christopher Pal and Alexandre Drouin and Issam H. Laradji},
+booktitle={The Fourteenth International Conference on Learning Representations},
+year={2026},
+url={https://openreview.net/forum?id=IGYQ4c92e2}
+}
+
+@inproceedings{bai-etal-2025-longbench,
+    title = "{L}ong{B}ench v2: Towards Deeper Understanding and Reasoning on Realistic Long-context Multitasks",
+    author = "Bai, Yushi  and
+      Tu, Shangqing  and
+      Zhang, Jiajie  and
+      Peng, Hao  and
+      Wang, Xiaozhi  and
+      Lv, Xin  and
+      Cao, Shulin  and
+      Xu, Jiazheng  and
+      Hou, Lei  and
+      Dong, Yuxiao  and
+      Tang, Jie  and
+      Li, Juanzi",
+    editor = "Che, Wanxiang  and
+      Nabende, Joyce  and
+      Shutova, Ekaterina  and
+      Pilehvar, Mohammad Taher",
+    booktitle = "Proceedings of the 63rd Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers)",
+    month = jul,
+    year = "2025",
+    address = "Vienna, Austria",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2025.acl-long.183/",
+    doi = "10.18653/v1/2025.acl-long.183",
+    pages = "3639--3664",
+    ISBN = "979-8-89176-251-0",
+    abstract = "This paper introduces LongBench v2, a benchmark designed to assess the ability of LLMs to handle long-context problems requiring deep understanding and reasoning across real-world multitasks. LongBench v2 consists of 503 challenging multiple-choice questions, with contexts ranging from 8k to 2M words, across six major task categories: single-document QA, multi-document QA, long in-context learning, long-dialogue history understanding, code repository understanding, and long structured data understanding. To ensure the breadth and the practicality, we collect data from nearly 100 highly educated individuals with diverse professional backgrounds. We employ both automated and manual review processes to maintain high quality and difficulty, resulting in human experts achieving only 53.7{\%} accuracy under a 15-minute time constraint. Our evaluation reveals that the best-performing model, when directly answers the questions, achieves only 50.1{\%} accuracy. In contrast, the o1-preview model, which includes longer reasoning, achieves 57.7{\%}, surpassing the human baseline by 4{\%}. These results highlight the importance of enhanced reasoning ability and scaling inference-time compute to tackle the long-context challenges in LongBench v2."
+}
+
+@misc{prabhakar2025enterprisedeepresearchsteerable,
+      title={Enterprise Deep Research: Steerable Multi-Agent Deep Research for Enterprise Analytics}, 
+      author={Akshara Prabhakar and Roshan Ram and Zixiang Chen and Silvio Savarese and Frank Wang and Caiming Xiong and Huan Wang and Weiran Yao},
+      year={2025},
+      eprint={2510.17797},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2510.17797}, 
+}
+
+@inproceedings{bai-etal-2024-longbench,
+    title = "{L}ong{B}ench: A Bilingual, Multitask Benchmark for Long Context Understanding",
+    author = "Bai, Yushi  and
+      Lv, Xin  and
+      Zhang, Jiajie  and
+      Lyu, Hongchang  and
+      Tang, Jiankai  and
+      Huang, Zhidian  and
+      Du, Zhengxiao  and
+      Liu, Xiao  and
+      Zeng, Aohan  and
+      Hou, Lei  and
+      Dong, Yuxiao  and
+      Tang, Jie  and
+      Li, Juanzi",
+    editor = "Ku, Lun-Wei  and
+      Martins, Andre  and
+      Srikumar, Vivek",
+    booktitle = "Proceedings of the 62nd Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers)",
+    month = aug,
+    year = "2024",
+    address = "Bangkok, Thailand",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2024.acl-long.172/",
+    doi = "10.18653/v1/2024.acl-long.172",
+    pages = "3119--3137",
+    abstract = "Although large language models (LLMs) demonstrate impressive performance for many language tasks, most of them can only handle texts a few thousand tokens long, limiting their applications on longer sequence inputs, such as books, reports, and codebases. Recent works have proposed methods to improve LLMs' long context capabilities by extending context windows and more sophisticated memory mechanisms. However, comprehensive benchmarks tailored for evaluating long context understanding are lacking. In this paper, we introduce LongBench, the first bilingual, multi-task benchmark for long context understanding, enabling a more rigorous evaluation of long context understanding. LongBench comprises 21 datasets across 6 task categories in both English and Chinese, with an average length of 6,711 words (English) and 13,386 characters (Chinese). These tasks cover key long-text application areas including single-doc QA, multi-doc QA, summarization, few-shot learning, synthetic tasks, and code completion. All datasets in LongBench are standardized into a unified format, allowing for effortless automatic evaluation of LLMs. Upon comprehensive evaluation of 8 LLMs on LongBench, we find that: (1) Commercial model (GPT-3.5-Turbo-16k) outperforms other open-sourced models, but still struggles on longer contexts. (2) Scaled position embedding and fine-tuning on longer sequences lead to substantial improvement on long context understanding. (3) Context compression technique such as retrieval brings improvement for model with weak ability on long contexts, but the performance still lags behind models that have strong long context understanding capability."
+}
+
+@inproceedings{
+loshchilov2018decoupled,
+title={Decoupled Weight Decay Regularization},
+author={Ilya Loshchilov and Frank Hutter},
+booktitle={International Conference on Learning Representations},
+year={2019},
+url={https://openreview.net/forum?id=Bkg6RiCqY7},
+}
+
+@inproceedings{cohan-etal-2020-specter,
+    title = "{SPECTER}: Document-level Representation Learning using Citation-informed Transformers",
+    author = "Cohan, Arman  and
+      Feldman, Sergey  and
+      Beltagy, Iz  and
+      Downey, Doug  and
+      Weld, Daniel",
+    editor = "Jurafsky, Dan  and
+      Chai, Joyce  and
+      Schluter, Natalie  and
+      Tetreault, Joel",
+    booktitle = "Proceedings of the 58th Annual Meeting of the Association for Computational Linguistics",
+    month = jul,
+    year = "2020",
+    address = "Online",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2020.acl-main.207/",
+    doi = "10.18653/v1/2020.acl-main.207",
+    pages = "2270--2282",
+    abstract = "Representation learning is a critical ingredient for natural language processing systems. Recent Transformer language models like BERT learn powerful textual representations, but these models are targeted towards token- and sentence-level training objectives and do not leverage information on inter-document relatedness, which limits their document-level representation power. For applications on scientific documents, such as classification and recommendation, accurate embeddings of documents are a necessity. We propose SPECTER, a new method to generate document-level embedding of scientific papers based on pretraining a Transformer language model on a powerful signal of document-level relatedness: the citation graph. Unlike existing pretrained language models, Specter can be easily applied to downstream applications without task-specific fine-tuning. Additionally, to encourage further research on document-level models, we introduce SciDocs, a new evaluation benchmark consisting of seven document-level tasks ranging from citation prediction, to document classification and recommendation. We show that Specter outperforms a variety of competitive baselines on the benchmark."
+}
+
+@misc{pipitone2024legalbenchragbenchmarkretrievalaugmentedgeneration,
+      title={LegalBench-RAG: A Benchmark for Retrieval-Augmented Generation in the Legal Domain}, 
+      author={Nicholas Pipitone and Ghita Houir Alami},
+      year={2024},
+      eprint={2408.10343},
+      archivePrefix={arXiv},
+      primaryClass={cs.AI},
+      url={https://arxiv.org/abs/2408.10343}, 
+}
+
+@inproceedings{zhu-etal-2025-rageval,
+    title = "{RAGE}val: Scenario Specific {RAG} Evaluation Dataset Generation Framework",
+    author = "Zhu, Kunlun  and
+      Luo, Yifan  and
+      Xu, Dingling  and
+      Yan, Yukun  and
+      Liu, Zhenghao  and
+      Yu, Shi  and
+      Wang, Ruobing  and
+      Wang, Shuo  and
+      Li, Yishan  and
+      Zhang, Nan  and
+      Han, Xu  and
+      Liu, Zhiyuan  and
+      Sun, Maosong",
+    editor = "Che, Wanxiang  and
+      Nabende, Joyce  and
+      Shutova, Ekaterina  and
+      Pilehvar, Mohammad Taher",
+    booktitle = "Proceedings of the 63rd Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers)",
+    month = jul,
+    year = "2025",
+    address = "Vienna, Austria",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2025.acl-long.418/",
+    doi = "10.18653/v1/2025.acl-long.418",
+    pages = "8520--8544",
+    ISBN = "979-8-89176-251-0",
+    abstract = "Retrieval-Augmented Generation (RAG) is a powerful approach that enables large language models (LLMs) to incorporate external knowledge. However, evaluating the effectiveness of RAG systems in specialized scenarios remains challenging due to the high costs of data construction and the lack of suitable evaluation metrics. This paper introduces RAGEval, a framework designed to assess RAG systems across diverse scenarios by generating high-quality documents, questions, answers, and references through a schema-based pipeline. With a focus on factual accuracy, we propose three novel metrics{---}Completeness, Hallucination, and Irrelevance{---}to evaluate LLM-generated responses rigorously. Experimental results show that RAGEval outperforms zero-shot and one-shot methods in terms of clarity, safety, conformity, and richness of generated samples. Furthermore, the use of LLMs for scoring the proposed metrics demonstrates a high level of consistency with human evaluations. RAGEval establishes a new paradigm for evaluating RAG systems in real-world applications. The code and dataset are released at https://github.com/OpenBMB/RAGEval."
+}
+
+@inproceedings{yang-etal-2018-hotpotqa,
+    title = "{H}otpot{QA}: A Dataset for Diverse, Explainable Multi-hop Question Answering",
+    author = "Yang, Zhilin  and
+      Qi, Peng  and
+      Zhang, Saizheng  and
+      Bengio, Yoshua  and
+      Cohen, William  and
+      Salakhutdinov, Ruslan  and
+      Manning, Christopher D.",
+    editor = "Riloff, Ellen  and
+      Chiang, David  and
+      Hockenmaier, Julia  and
+      Tsujii, Jun{'}ichi",
+    booktitle = "Proceedings of the 2018 Conference on Empirical Methods in Natural Language Processing",
+    month = oct # "-" # nov,
+    year = "2018",
+    address = "Brussels, Belgium",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/D18-1259/",
+    doi = "10.18653/v1/D18-1259",
+    pages = "2369--2380",
+    abstract = "Existing question answering (QA) datasets fail to train QA systems to perform complex reasoning and provide explanations for answers. We introduce HotpotQA, a new dataset with 113k Wikipedia-based question-answer pairs with four key features: (1) the questions require finding and reasoning over multiple supporting documents to answer; (2) the questions are diverse and not constrained to any pre-existing knowledge bases or knowledge schemas; (3) we provide sentence-level supporting facts required for reasoning, allowing QA systems to reason with strong supervision and explain the predictions; (4) we offer a new type of factoid comparison questions to test QA systems' ability to extract relevant facts and perform necessary comparison. We show that HotpotQA is challenging for the latest QA systems, and the supporting facts enable models to improve performance and make explainable predictions."
+}
+
+@inproceedings{rajpurkar-etal-2016-squad,
+    title = "{SQ}u{AD}: 100,000+ Questions for Machine Comprehension of Text",
+    author = "Rajpurkar, Pranav  and
+      Zhang, Jian  and
+      Lopyrev, Konstantin  and
+      Liang, Percy",
+    editor = "Su, Jian  and
+      Duh, Kevin  and
+      Carreras, Xavier",
+    booktitle = "Proceedings of the 2016 Conference on Empirical Methods in Natural Language Processing",
+    month = nov,
+    year = "2016",
+    address = "Austin, Texas",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/D16-1264",
+    doi = "10.18653/v1/D16-1264",
+    pages = "2383--2392",
+    eprint={1606.05250},
+    archivePrefix={arXiv},
+    primaryClass={cs.CL},
+}
+
+@article{zhang2025pageindex,
+  author = {Mingtian Zhang and Yu Tang and PageIndex Team},
+  title = {PageIndex: Next-Generation Vectorless, Reasoning-based RAG},
+  journal = {PageIndex Blog},
+  year = {2025},
+  month = {September},
+  url = {https://pageindex.ai/blog/pageindex-intro},
+}
+
+@misc{du2026aragscalingagenticretrievalaugmented,
+      title={A-RAG: Scaling Agentic Retrieval-Augmented Generation via Hierarchical Retrieval Interfaces}, 
+      author={Mingxuan Du and Benfeng Xu and Chiwei Zhu and Shaohan Wang and Pengyu Wang and Xiaorui Wang and Zhendong Mao},
+      year={2026},
+      eprint={2602.03442},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2602.03442}, 
+}
+
+@techreport{bashir2026context1,
+  title = {Chroma Context-1: Training a Self-Editing Search Agent},
+  author = {Bashir, Hammad and Hong, Kelly and Jiang, Patrick and Shi, Zhiyi},
+  year = {2026},
+  month = {March},
+  institution = {Chroma},
+  url = {https://trychroma.com/research/context-1},
+}
+
+@misc{openai2025gptoss120bgptoss20bmodel,
+      title={gpt-oss-120b \& gpt-oss-20b Model Card}, 
+      author={OpenAI},
+      year={2025},
+      eprint={2508.10925},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2508.10925}, 
+}
+
+@inproceedings{banerjee-lavie-2005-meteor,
+    title = "{METEOR}: An Automatic Metric for {MT} Evaluation with Improved Correlation with Human Judgments",
+    author = "Banerjee, Satanjeev  and
+      Lavie, Alon",
+    editor = "Goldstein, Jade  and
+      Lavie, Alon  and
+      Lin, Chin-Yew  and
+      Voss, Clare",
+    booktitle = "Proceedings of the {ACL} Workshop on Intrinsic and Extrinsic Evaluation Measures for Machine Translation and/or Summarization",
+    month = jun,
+    year = "2005",
+    address = "Ann Arbor, Michigan",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/W05-0909/",
+    pages = "65--72"
+}
+
+@inproceedings{lin-2004-rouge,
+    title = "{ROUGE}: A Package for Automatic Evaluation of Summaries",
+    author = "Lin, Chin-Yew",
+    booktitle = "Text Summarization Branches Out",
+    month = jul,
+    year = "2004",
+    address = "Barcelona, Spain",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/W04-1013/",
+    pages = "74--81"
+}
+
+@inproceedings{
+Zhang2020BERTScore,
+title={BERTScore: Evaluating Text Generation with BERT},
+author={Tianyi Zhang* and Varsha Kishore* and Felix Wu* and Kilian Q. Weinberger and Yoav Artzi},
+booktitle={International Conference on Learning Representations},
+year={2020},
+url={https://openreview.net/forum?id=SkeHuCVFDr}
+}
+
+@article{DBLP:journals/corr/NguyenRSGTMD16,
+  author    = {Tri Nguyen and
+               Mir Rosenberg and
+               Xia Song and
+               Jianfeng Gao and
+               Saurabh Tiwary and
+               Rangan Majumder and
+               Li Deng},
+  title     = {{MS} {MARCO:} {A} Human Generated MAchine Reading COmprehension Dataset},
+  journal   = {CoRR},
+  volume    = {abs/1611.09268},
+  year      = {2016},
+  url       = {http://arxiv.org/abs/1611.09268},
+  archivePrefix = {arXiv},
+  eprint    = {1611.09268},
+  timestamp = {Mon, 13 Aug 2018 16:49:03 +0200},
+  biburl    = {https://dblp.org/rec/journals/corr/NguyenRSGTMD16.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@misc{he2025clarabridgingretrievalgeneration,
+      title={CLaRa: Bridging Retrieval and Generation with Continuous Latent Reasoning}, 
+      author={Jie He and Richard He Bai and Sinead Williamson and Jeff Z. Pan and Navdeep Jaitly and Yizhe Zhang},
+      year={2025},
+      eprint={2511.18659},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2511.18659}, 
+}
+
+@misc{li2026improvingneuraltopicmodeling,
+      title={DSL-Topic: Improving Topic Modeling by Distilling Soft Labelsfrom Language Models}, 
+      author={Raymond Li and Amirhossein Abaskohi and Chuyuan Li and Gabriel Murray and Giuseppe Carenini},
+      year={2026},
+      eprint={2602.17907},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2602.17907}, 
+}
+
+@inproceedings{fang-etal-2024-cwtm,
+    title = "{CWTM}: Leveraging Contextualized Word Embeddings from {BERT} for Neural Topic Modeling",
+    author = "Fang, Zheng  and
+      He, Yulan  and
+      Procter, Rob",
+    editor = "Calzolari, Nicoletta  and
+      Kan, Min-Yen  and
+      Hoste, Veronique  and
+      Lenci, Alessandro  and
+      Sakti, Sakriani  and
+      Xue, Nianwen",
+    booktitle = "Proceedings of the 2024 Joint International Conference on Computational Linguistics, Language Resources and Evaluation (LREC-COLING 2024)",
+    month = may,
+    year = "2024",
+    address = "Torino, Italia",
+    publisher = "ELRA and ICCL",
+    url = "https://aclanthology.org/2024.lrec-main.382/",
+    pages = "4273--4286",
+    abstract = "Most existing topic models rely on bag-of-words (BOW) representation, which limits their ability to capture word order information and leads to challenges with out-of-vocabulary (OOV) words in new documents. Contextualized word embeddings, however, show superiority in word sense disambiguation and effectively address the OOV issue. In this work, we introduce a novel neural topic model called the Contextlized Word Topic Model (CWTM), which integrates contextualized word embeddings from BERT. The model is capable of learning the topic vector of a document without BOW information. In addition, it can also derive the topic vectors for individual words within a document based on their contextualized word embeddings. Experiments across various datasets show that CWTM generates more coherent and meaningful topics compared to existing topic models, while also accommodating unseen words in newly encountered documents."
+}
+
+@article{dieng-etal-2020-topic,
+    title = "Topic Modeling in Embedding Spaces",
+    author = "Dieng, Adji B.  and
+      Ruiz, Francisco J. R.  and
+      Blei, David M.",
+    editor = "Johnson, Mark  and
+      Roark, Brian  and
+      Nenkova, Ani",
+    journal = "Transactions of the Association for Computational Linguistics",
+    volume = "8",
+    year = "2020",
+    address = "Cambridge, MA",
+    publisher = "MIT Press",
+    url = "https://aclanthology.org/2020.tacl-1.29/",
+    doi = "10.1162/tacl_a_00325",
+    pages = "439--453",
+    abstract = "Topic modeling analyzes documents to learn meaningful patterns of words. However, existing topic models fail to learn interpretable topics when working with large and heavy-tailed vocabularies. To this end, we develop the embedded topic model (etm), a generative model of documents that marries traditional topic models with word embeddings. More specifically, the etm models each word with a categorical distribution whose natural parameter is the inner product between the word{'}s embedding and an embedding of its assigned topic. To fit the etm, we develop an efficient amortized variational inference algorithm. The etm discovers interpretable topics even with large vocabularies that include rare words and stop words. It outperforms existing document models, such as latent Dirichlet allocation, in terms of both topic quality and predictive performance."
+}
+
+@inproceedings{zheng-etal-2025-deepresearcher,
+    title = "{D}eep{R}esearcher: Scaling Deep Research via Reinforcement Learning in Real-world Environments",
+    author = "Zheng, Yuxiang  and
+      Fu, Dayuan  and
+      Hu, Xiangkun  and
+      Cai, Xiaojie  and
+      Ye, Lyumanshan  and
+      Lu, Pengrui  and
+      Liu, Pengfei",
+    editor = "Christodoulopoulos, Christos  and
+      Chakraborty, Tanmoy  and
+      Rose, Carolyn  and
+      Peng, Violet",
+    booktitle = "Proceedings of the 2025 Conference on Empirical Methods in Natural Language Processing",
+    month = nov,
+    year = "2025",
+    address = "Suzhou, China",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2025.emnlp-main.22/",
+    doi = "10.18653/v1/2025.emnlp-main.22",
+    pages = "414--431",
+    ISBN = "979-8-89176-332-6",
+    abstract = "Large Language Models (LLMs) with web search capabilities show significant potential for deep research, yet current methods{---}brittle prompt engineering or RAG-based reinforcement learning in controlled environments{---}fail to capture real-world complexities. In this paper, we introduce DeepResearcher, the first comprehensive framework for end-to-end training of LLM-based deep research agents through scaling reinforcement learning (RL) in real-world environments with authentic web search interactions. Unlike RAG approaches reliant on fixed corpora, DeepResearcher trains agents to navigate the noisy, dynamic open web. We implement a specialized multi-agent architecture where browsing agents extract relevant information from various webpage structures and overcoming significant technical challenges. Extensive experiments on open-domain research tasks demonstrate that DeepResearcher achieves substantial improvements of up to 28.9 points over prompt engineering-based baselines and up to 7.2 points over RAG-based RL agents. Our qualitative analysis reveals emergent cognitive behaviors from end-to-end RL training, such as planning, cross-validation, self-reflection for research redirection, and maintain honesty when unable to find definitive answers. Our results highlight that end-to-end training in real-world web environments is fundamental for developing robust research capabilities aligned with real-world applications. The source codefor DeepResearcher is released at: https://github.com/GAIR-NLP/DeepResearcher."
+}
+
+@inproceedings{NIPS2017_3f5ee243,
+ author = {Vaswani, Ashish and Shazeer, Noam and Parmar, Niki and Uszkoreit, Jakob and Jones, Llion and Gomez, Aidan N and Kaiser, \L ukasz and Polosukhin, Illia},
+ booktitle = {Advances in Neural Information Processing Systems},
+ editor = {I. Guyon and U. Von Luxburg and S. Bengio and H. Wallach and R. Fergus and S. Vishwanathan and R. Garnett},
+ pages = {},
+ publisher = {Curran Associates, Inc.},
+ title = {Attention is All you Need},
+ url = {https://proceedings.neurips.cc/paper_files/paper/2017/file/3f5ee243547dee91fbd053c1c4a845aa-Paper.pdf},
+ volume = {30},
+ year = {2017}
+}
+
+@inproceedings{chen-etal-2024-m3,
+    title = "{M}3-Embedding: Multi-Linguality, Multi-Functionality, Multi-Granularity Text Embeddings Through Self-Knowledge Distillation",
+    author = "Chen, Jianlyu  and
+      Xiao, Shitao  and
+      Zhang, Peitian  and
+      Luo, Kun  and
+      Lian, Defu  and
+      Liu, Zheng",
+    editor = "Ku, Lun-Wei  and
+      Martins, Andre  and
+      Srikumar, Vivek",
+    booktitle = "Findings of the Association for Computational Linguistics: ACL 2024",
+    month = aug,
+    year = "2024",
+    address = "Bangkok, Thailand",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2024.findings-acl.137/",
+    doi = "10.18653/v1/2024.findings-acl.137",
+    pages = "2318--2335",
+    abstract = "In this paper, we introduce a new embedding model called M3-Embedding, which is distinguished for its versatility in Multi-Linguality, Multi-Functionality, and Multi-Granularity. It provides a uniform support for the semantic retrieval of more than 100 working languages. It can simultaneously accomplish the three common retrieval functionalities: dense retrieval, multi-vector retrieval, and sparse retrieval. Besides, it is also capable of processing inputs of different granularities, spanning from short sentences to long documents of up to 8,192 tokens. The effective training of M3-Embedding presents a series of technical contributions. Notably, we propose a novel self-knowledge distillation approach, where the relevance scores from different retrieval functionalities can be integrated as the teacher signal to enhance the training quality. We also optimize the batching strategy, which enables a large batch size and high training throughput to improve the discriminativeness of embeddings. M3-Embedding exhibits a superior performance in our experiment, leading to new state-of-the-art results on multilingual, cross-lingual, and long-document retrieval benchmarks."
+}
+
+@misc{reimers2019sentencebertsentenceembeddingsusing,
+      title={Sentence-BERT: Sentence Embeddings using Siamese BERT-Networks}, 
+      author={Nils Reimers and Iryna Gurevych},
+      year={2019},
+      eprint={1908.10084},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/1908.10084}, 
+}
+
+@misc{wang2020minilmdeepselfattentiondistillation,
+      title={MiniLM: Deep Self-Attention Distillation for Task-Agnostic Compression of Pre-Trained Transformers}, 
+      author={Wenhui Wang and Furu Wei and Li Dong and Hangbo Bao and Nan Yang and Ming Zhou},
+      year={2020},
+      eprint={2002.10957},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2002.10957}, 
+}
+

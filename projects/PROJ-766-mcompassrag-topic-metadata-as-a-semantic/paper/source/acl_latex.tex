@@ -1,0 +1,162 @@
+\documentclass[11pt]{article}
+
+% Change "review" to "final" to generate the final (sometimes called camera-ready) version.
+% Change to "preprint" to generate a non-anonymous version with page numbers.
+\usepackage[preprint]{acl}
+
+% Standard package includes
+\usepackage{times}
+\usepackage{latexsym}
+
+% For proper rendering and hyphenation of words containing Latin characters (including in bib files)
+\usepackage[T1]{fontenc}
+% For Vietnamese characters
+% \usepackage[T5]{fontenc}
+% See https://www.latex-project.org/help/documentation/encguide.pdf for other character sets
+
+% This assumes your files are encoded as UTF8
+\usepackage[utf8]{inputenc}
+
+% This is not strictly necessary, and may be commented out,
+% but it will improve the layout of the manuscript,
+% and will typically save some space.
+\usepackage{microtype}
+
+% This is also not strictly necessary, and may be commented out.
+% However, it will improve the aesthetics of text in
+% the typewriter font.
+\usepackage{inconsolata}
+
+%Including images in your LaTeX document requires adding
+%additional package(s)
+\usepackage{graphicx}
+
+\usepackage{amsmath}
+\usepackage{xspace}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage[most]{tcolorbox}
+
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{xcolor}
+\usepackage{colortbl}
+\usepackage{array}
+\usepackage{makecell}
+\usepackage{siunitx}
+\usepackage{subcaption}
+\usepackage{pifont}
+\usepackage{fontawesome5}
+ 
+% Colour definitions (paste into preamble once)
+\definecolor{headerblue}{RGB}{13, 71, 161}
+\definecolor{groupgray}{RGB}{240, 242, 245}
+\definecolor{bestgold}{RGB}{255, 248, 220}
+\definecolor{oursblue}{RGB}{232, 240, 254}
+
+\definecolor{PromptBlue}{HTML}{EAF2FF}
+\definecolor{PromptFrame}{HTML}{3B6EA8}
+\definecolor{PromptTitle}{HTML}{1F4E79}
+
+\newcommand{\cmark}{\ding{51}}
+\newcommand{\xmark}{\ding{55}}
+
+% If the title and author information does not fit in the area allocated, uncomment the following
+%
+%\setlength\titlebox{<dim>}
+%
+% and set <dim> to something 5cm or larger.
+
+\newcommand{\logo}{\raisebox{-0.8em}{\includegraphics[height=2.5em]{figures/logo.png}}\hspace{0.3em}}
+\newcommand{\name}[1]{\textsc{MCompassRAG}\xspace}
+
+\title{\logo \name{}: Topic Metadata as a Semantic Compass for Paragraph-Level Retrieval}
+
+\author{
+\textbf{
+Amirhossein Abaskohi$^{1}$\thanks{Corresponding author: \texttt{aabaskoh@cs.ubc.ca}},
+Raymond Li$^{1}$,
+Gaetano Cimino$^{2}$,}\\
+\textbf{
+Peter West$^{1}$,
+Giuseppe Carenini$^{1}$,
+Issam H. Laradji$^{1,3}$}\\[0.5em]
+$^{1}$University of British Columbia, $^{2}$University of Salerno, $^{3}$ServiceNow Research 
+}
+
+
+\newtcolorbox[auto counter, number within=section]{promptbox}[2][]{
+    enhanced,
+    breakable,
+    colback=PromptBlue,
+    colframe=PromptFrame,
+    coltitle=white,
+    colbacktitle=PromptTitle,
+    title={\faMagic\hspace{0.5em}Prompt~\thetcbcounter: #2},
+    fonttitle=\bfseries\small,
+    fontupper=\small,
+    boxrule=0.7pt,
+    arc=2mm,
+    left=7pt,
+    right=7pt,
+    top=6pt,
+    bottom=6pt,
+    attach boxed title to top left={xshift=2mm,yshift=-2mm},
+    boxed title style={
+        arc=2mm,
+        boxrule=0pt,
+        left=5pt,
+        right=5pt,
+        top=3pt,
+        bottom=3pt
+    },
+    #1
+}
+
+\begin{document}
+\maketitle
+
+% -----------------------------------------------
+% SECTIONS
+% -----------------------------------------------
+
+\input{sections/1_abstract}
+\input{sections/2_introduction}
+\input{sections/3_relatedwork}
+\input{sections/4_method}
+\input{sections/5_experiments}
+\input{sections/6_ablations}
+\input{sections/7_conclusion}
+
+% -----------------------------------------------
+% Mandatory Sections
+% -----------------------------------------------
+
+\section*{Limitations}
+\name{} has a few limitations worth noting. First, the quality of topic-guided retrieval is directly dependent on the quality of the underlying topic model: poorly trained or misaligned topic representations will produce uninformative metadata signals. This creates a dependency on reliable topic modeling, which can be difficult in low-resource or specialized domains. Second, \name{} introduces several hyperparameters, including the number of topic-model topics $K$, selected metadata entries from the memory bank $L$, metadata topics used for retrieval $M$, and retrieved chunks $k$, whose interactions are non-trivial to tune. As shown in Section~\ref{sec:ablations}, performance is sensitive to the number of topics, so this choice requires validation. Third, the current topic enrichment strategy represents each chunk and query as a weighted sum of topic centroid embeddings, which is a lossy compression: combining multiple topic vectors into a single aggregated vector discards the individual structure of each topic signal. As more topics are included, aggregation becomes noisier. Future work should explore efficient sparse or cross-attention topic integration that better preserves per-topic structure.
+
+% -----------------------------------------------
+% References
+% -----------------------------------------------
+
+\bibliography{custom}
+
+% -----------------------------------------------
+% Appendix
+% -----------------------------------------------
+
+\clearpage
+
+\appendix
+
+\input{sections/app_prompt}
+\input{sections/app_benchmarks_baseline_detailed}
+\input{sections/app_training_and_implementation_details}
+\input{sections/app_detailed_results}
+\input{sections/app_topic_granularity}
+\input{sections/app_in_domain_topic_model}
+\input{sections/app_qualitative_analysis}
+
+\end{document}

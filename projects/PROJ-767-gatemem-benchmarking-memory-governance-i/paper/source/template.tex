@@ -1,0 +1,241 @@
+\documentclass{article}
+
+\usepackage{arxiv}
+
+\usepackage[numbers,compress]{natbib}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+
+\usepackage{graphicx}
+\usepackage[table,dvipsnames]{xcolor}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{booktabs}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{nicefrac}
+\usepackage{microtype}
+\usepackage{multirow}
+\usepackage{siunitx}
+\usepackage{tabularx}
+\usepackage{makecell}
+\usepackage{array}
+\usepackage{xspace}
+\usepackage{pifont}
+\usepackage{tikz}
+\usepackage{fontawesome5}
+\usepackage[most]{tcolorbox}
+\usepackage{fvextra}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=RoyalBlue,
+  citecolor=RoyalBlue,
+  urlcolor=RoyalBlue
+}
+
+% Table formatting
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+\newcolumntype{C}{>{\centering\arraybackslash}p{0.085\columnwidth}}
+\newcolumntype{P}[1]{>{\raggedright\arraybackslash}p{#1}}
+
+\sisetup{round-mode=places,round-precision=3}
+\renewcommand{\arraystretch}{1.22}
+\setlength{\tabcolsep}{3.6pt}
+
+
+\definecolor{CaseGreen}{HTML}{1A7F37}
+\definecolor{CaseRed}{HTML}{B42318}
+\definecolor{CaseOrange}{HTML}{B54708}
+\definecolor{CaseBorder}{HTML}{D0D5DD}
+\definecolor{SignalText}{HTML}{92400E}
+\newcommand{\signalresp}{\textcolor{SignalText}{\textbf{Signal}}}
+\newcommand{\goodresp}{\textcolor{CaseGreen}{\cmark}\,\textbf{Correct}}
+\newcommand{\badresp}{\textcolor{CaseRed}{\xmark}\,\textbf{Failure}}
+\newcommand{\warnresp}{\textcolor{CaseOrange}{\warnmark}\,\textbf{Mismatch}}
+
+\tcbset{
+  compactcase/.style={
+    enhanced,
+    colback=white,
+    colframe=CaseBorder,
+    boxrule=0.45pt,
+    arc=1.2mm,
+    left=1.0mm,
+    right=1.0mm,
+    top=0.8mm,
+    bottom=0.8mm,
+    fonttitle=\bfseries\footnotesize,
+    coltitle=black,
+    before skip=2pt,
+    after skip=3pt
+  }
+}
+
+% Project colors and macros
+\definecolor{llmheader}{RGB}{240,240,240}
+\definecolor{cuscol}{RGB}{220,244,248}
+\definecolor{ctxbg}{RGB}{240,240,245}
+\definecolor{retbg}{RGB}{239,246,255}
+\definecolor{agentbg}{RGB}{245,243,255}
+\definecolor{HeaderGray}{HTML}{F2F3F5}
+\definecolor{ZebraGray}{HTML}{FAFAFA}
+\definecolor{UtilityBg}{HTML}{EEF5FF}
+\definecolor{AccessBg}{HTML}{FFF3E8}
+\definecolor{ForgetBg}{HTML}{F6F0FF}
+\definecolor{PromptAccent}{RGB}{37,99,235}
+\definecolor{PromptBack}{RGB}{248,250,252}
+\definecolor{PromptTitleBack}{RGB}{239,246,255}
+\definecolor{PromptBorder}{RGB}{203,213,225}
+\definecolor{linkblue}{HTML}{2563EB}
+\colorlet{linkbluebg}{linkblue!7}
+
+\newcommand{\gatemem}{\textsc{GateMem}\xspace}
+\newcommand{\cmark}{\textcolor{green!55!black}{\ding{51}}}
+\newcommand{\xmark}{\textcolor{red!70!black}{\ding{55}}}
+\newcommand{\warnmark}{\textcolor{orange!85!black}{\textbf{!}}}
+\newcommand{\answerredacted}{\makecell[l]{\texttt{answer}\\\texttt{\_redacted}}}
+
+\newcommand{\hficon}{%
+  \raisebox{-0.18em}{%
+    \includegraphics[height=1.05em]{figures/hf-logo.png}%
+  }%
+}
+
+\newcommand{\linkpill}[5]{%
+  \href{#1}{%
+    \tikz[baseline=(text.base)]{%
+      \node[
+        draw=#2!35,
+        fill=#3,
+        rounded corners=8pt,
+        inner xsep=9pt,
+        inner ysep=3.5pt,
+        line width=0.6pt
+      ] (text) {%
+        \textcolor{#2}{%
+          \sffamily\bfseries\footnotesize
+          #4\hspace{0.38em}#5%
+        }%
+      };%
+    }%
+  }%
+}
+
+\DefineVerbatimEnvironment{PromptCode}{Verbatim}{
+  fontsize=\small, % \footnotesize
+  breaklines=true,
+  breakanywhere=true,
+  numbers=left,
+  numbersep=6pt,
+  xleftmargin=10pt,
+  obeytabs=true,
+  tabsize=2
+}
+
+\definecolor{gmMuted}{HTML}{6B7280}
+\definecolor{gmLine}{HTML}{D8DEE9}
+\definecolor{gmBg}{HTML}{F8FAFC}
+\definecolor{gmBlue}{HTML}{2563EB}
+
+\newtcolorbox{promptbox}[1]{
+  enhanced,
+  breakable,
+  sharp corners,
+  boxrule=0.4pt,
+  colback=PromptBack,
+  colframe=PromptBorder,
+  borderline west={1.6pt}{0pt}{PromptAccent},
+  colbacktitle=PromptTitleBack,
+  coltitle=black,
+  fonttitle=\bfseries\small,
+  title={#1},
+  left=1mm,
+  right=1mm,
+  top=1mm,
+  bottom=1mm,
+  arc=1mm
+}
+
+\title{\gatemem: Benchmarking Memory Governance in Multi-Principal Shared-Memory Agents}
+
+\author{
+\textbf{Zhe Ren}$^{1}$ \quad
+\textbf{Yibo Yang}$^{2}$\thanks{Corresponding authors: \texttt{yibo.yang93@gmail.com}, \texttt{guodandan@jlu.edu.cn}.} \quad
+\textbf{Yimeng Chen}$^{3}$ \quad
+\textbf{Zijun Zhao}$^{1}$ \quad
+\textbf{Benshuo Fu}$^{1}$ \\[-0.15em]
+\textbf{Zhihao Shu}$^{1}$ \quad
+\textbf{Bingjie Zhang}$^{1}$ \quad
+\textbf{Yangyang Xu}$^{4}$ \quad
+\textbf{Dandan Guo}$^{1,3}$\footnotemark[1] \quad
+\textbf{Shuicheng Yan}$^{5}$ \\[-0.05em]
+$^{1}$School of Artificial Intelligence, Jilin University \quad
+$^{2}$Shanghai Jiao Tong University \\[-0.1em]
+$^{3}$King Abdullah University of Science and Technology (KAUST) \\[-0.1em]
+$^{4}$Tsinghua University \quad
+$^{5}$National University of Singapore
+}
+
+
+\begin{document}
+
+\maketitle
+\vspace{-0.5em}
+
+\begin{center}
+\vspace{0.15em}
+\begin{tikzpicture}
+\node[
+    rounded corners=7pt,
+    draw=gmLine,
+    line width=0.45pt,
+    fill=gmBg,
+    inner xsep=8pt,
+    inner ysep=6pt
+] (card) {
+\begin{minipage}{0.70\linewidth}
+\centering
+{\small\textsf{\textbf{\color{RoyalBlue}\gatemem{} Public Artifact}}}\\[-0.15em]
+{\scriptsize\textcolor{gmMuted}{-- Shared-memory Governance Benchmark --}}\\[0.45em]
+
+{\small
+\href{https://github.com/rzhub/GateMem.git}{\faGithub\ Code}
+\quad$\cdot$\quad
+\href{https://huggingface.co/datasets/Ray368/GateMem}{\hficon\ Dataset}
+\quad$\cdot$\quad
+\href{https://rzhub.github.io/GateMem/}{\faTrophy\ Leaderboard}
+\quad$\cdot$\quad
+\href{https://rzhub.github.io/GateMem/project.html}{\faGlobe\ Project Page}
+}
+\end{minipage}
+};
+\end{tikzpicture}
+\vspace{-0.35em}
+\end{center}
+
+\vspace{1.6em}
+
+\begin{abstract}
+\input{sections/0_abstract}
+\end{abstract}
+
+\input{sections/1_introduction}
+\input{sections/2_related_work}
+\input{sections/3_task_formulation}
+\input{sections/4_experiments}
+\input{sections/5_conclusion}
+
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\appendix
+
+\clearpage
+\input{sections/A1_appendix_dataset}
+\input{sections/A2_appendix_baselines}
+\input{sections/A3_appendix_prompts}
+\input{sections/A4_appendix_experiment}
+\input{sections/A5_appendix_casestudy}
+
+\end{document}

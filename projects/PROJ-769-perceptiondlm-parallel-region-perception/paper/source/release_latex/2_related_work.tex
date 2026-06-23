@@ -1,0 +1,50 @@
+\section{Related Work}
+\label{sec:related_work}
+% 1. Diffusion Language Model.
+% 2. Image caption, ar->dvlm, parallel
+% 3. Region understanding.
+
+\noindent
+\textbf{Diffusion Language Models.} Diffusion Language Models (DLMs) have recently emerged as a promising alternative to autoregressive language modeling. 
+%
+Among them, masked diffusion models~\citep{you2025llada, ye2025dream, yangmmada}, have shown particularly strong empirical performance.
+%
+Building on this line of work, LLaDA scales masked diffusion language modeling to 8B parameters and demonstrates that diffusion-based language models can approach the performance of strong autoregressive LLMs, such as LLaMA3-8B, across a wide range of downstream tasks.
+%
+Recent LLaDA series further scale the model size to over 100B parameters, with a more complex architecture (Mixture of Experts, MoE) and stronger reasoning capabilities.
+%
+Meanwhile, several works also extend DLMs to multimodal settings, including visual understanding and generation~\citep{yangmmada, xin2025lumina}.
+%
+LLaDA-V~\citep{you2025llada} adapts the visual instruction tuning paradigm to masked diffusion language modeling, while MMaDA~\citep{yangmmada} extends DLMs to both generation and understanding.
+%
+After that, several works explore AR-based adaptation by leveraging pre-trained AR knowledge~\citep{cheng2025sdar, bie2025llada2}.
+%
+Our work mainly focuses on multimodal understanding tasks, where we build a stronger baseline that sets a new state of the art among diffusion VLMs.
+
+
+\noindent
+\textbf{Image Captioning in MLLMs.} Most image caption datasets are used for multimodal pre-training tasks, which is the first stage of MLLMs for text and vision alignment~\citep{li2025llava}.
+%
+With the rapid development of MLLMs, this is one of their abilities.
+%
+Recent works explore various caption settings, including dense, detailed, grounded, and region-sensitive formats~\citep{li2025denseworld, wang2025grasp}.
+%
+All previous solutions focus on AR-based image-to-text generation.
+%
+Several multimodal DLMs can generate text in parallel.
+%
+In contrast, our goal is to explore multiple-object caption generation in parallel using DLMs, enabling parallel generation at both the sequence (object) and token levels.
+%
+To our knowledge, we are the first to achieve this function.
+
+\noindent
+\textbf{Region Understanding of MLLMs.}
+In contrast to conventional MLLMs that primarily emphasize image-level understanding without dedicated extraction of localized features, region-level understanding requires MLLMs to accurately model region-specific attributes, fine-grained visual details, and spatial relationships within designated areas. 
+%
+Consequently, enhancing regional perception has become a central research focus for advancing MLLMs' visual perception capabilities.
+%
+Existing works have adopted three mainstream strategies to represent image regions-of-interest (RoIs), namely visual markers~\citep{yang2023set}, bounding boxes~\citep{zhang2307gpt4roi, chen2023shikra, rasheed2024glamm}, and segmentation masks~\citep{zhang2024omg,yuan2025sa2va, zhang2025pixel,yuan2025visual,wang2025grasp, zhou2026samtok, lian2025describe}.
+%
+These models are predominantly designed for single-region, single-caption generation, and nearly all adopt autoregressive (AR) LLMs as their core inference backbone, which restricts concurrent multi-region processing.
+%
+In contrast, our approach leverages DLMs that offer inherent efficiency advantages, thereby enabling natural support for high-efficiency \textit{parallel} region caption generation.

@@ -1,0 +1,158 @@
+\section{Experiments}
+
+\vspace{-1.2ex}
+We evaluate whether \methodname improves personalized presentation generation
+and multi-turn localized revision. The main text reports personalization results
+on a controlled multi-persona, multi-intent user profile bank, a
+DeepPresenter-style general-quality check on the same decks, and a diagnostic
+matched-pair modify evaluation for localized revision. Protocol details,
+baseline conditions, and profile-bank construction are provided in
+Appendices~\ref{app:evaluation_protocol_details},
+\ref{app:baseline_provenance}, \ref{app:profile_bank_construction},
+and~\ref{app:deeppresenter_quality_eval}, with protocol, profile-bank, and
+compute summaries in Appendix Tables~\ref{tab:appendix_eval_protocol_summary},
+\ref{tab:appendix_profile_library_catalog}, and
+\ref{tab:appendix_compute_accounting}; table captions define the reported
+metrics.
+
+\subsection{Main Results}
+
+\subsubsection{Personalization}
+
+\input{tables/profile_memory_v6_bestof_main_table}
+
+User profile memory improves round-0 persona alignment across multiple
+dimensions. Under the persona-alignment judgments, \textsc{Ours} achieves
+all-column wins over both baselines on GLM-5 and Gemini 3.1 Pro. With GPT-5, it
+remains ahead of SlideTailor on Content, Structure, and Specificity, and ahead
+of DeepPresenter on Content, Visual, and Specificity, while DeepPresenter has
+slightly higher Structure (Table~\ref{tab:profile_memory_v6_bestof_main};
+Appendix Table~\ref{tab:profile_memory_v6_bestof_gpt_appendix} gives
+per-persona GPT-5 details).
+
+\input{tables/profile_memory_v6_ppteval_main_table}
+
+\input{tables/tool_memory_main_table}
+
+
+
+On the same generated decks, the DeepPresenter-style quality metrics in
+Table~\ref{tab:profile_memory_v6_ppteval_main} check whether persona gains
+remain compatible with ordinary presentation quality. The results show that
+\methodname improves personalization alignment while maintaining competitive
+PPT generation quality.
+
+%\FloatBarrier
+
+
+
+\subsubsection{Localized Revision}
+
+
+In this diagnostic matched-pair modify setting, tool-memory injection is
+associated with stronger closed-loop completion and post-edit verification while
+reducing time to the first correct edit and core tool time
+(Table~\ref{tab:tool_memory_table1_redesign}). Since each matched pair changes
+only tool-memory injection, these process gains support the combined
+tool-memory pathway for reliable multi-turn modification, while the W-L-T-NA
+counts expose pair-level heterogeneity; Appendix
+Tables~\ref{tab:tool_memory_table1_pair_detail} and
+\ref{tab:tool_memory_paired_robustness} provide pair-level details and the
+paired robustness check.
+
+The same locality-sensitive setting is illustrated qualitatively in
+Figure~\ref{fig:localized_modify_example}, which contrasts a broader edit
+footprint with a targeted patch on the requested element; Appendix
+Figure~\ref{fig:appendix_tool_memory_localized_editing} shows a complementary
+process trajectory.
+
+\begin{figure}[!t]
+  \centering
+  \includegraphics[width=\linewidth]{localized_modify_example}
+  \vspace{-4mm}
+  \caption{Qualitative illustration of localized modify execution. Given the
+  same local edit request, DeepPresenter can satisfy the target change while
+  altering non-target regions of the slide. \methodname instead applies a
+  targeted patch to the requested element, preserving already aligned slide
+  content.}
+  \label{fig:localized_modify_example}
+\end{figure}
+
+\FloatBarrier
+
+\subsection{Analysis and Discussion}
+
+\noindent\textbf{User profile memory yields broad, not marginal, alignment gains.}
+Table~\ref{tab:profile_memory_v6_bestof_main} shows a consistent but not
+uniform pattern across model families. With GLM-5 and Gemini 3.1 Pro,
+\methodname leads both baselines on all four persona-alignment dimensions. With
+GPT-5, the gains are strongest on Content and Specificity, while the two
+baselines retain isolated advantages on Structure and Visual. Averaged across
+model families, \methodname improves over DeepPresenter by 1.37 points on
+Content, 0.53 on Structure, 1.66 on Visual, and 1.19 on Specificity, and
+improves over SlideTailor by 2.73, 2.95, 2.79, and 3.08 points on the same
+dimensions.
+
+\noindent\textbf{The gains are planning-level persona gains.}
+The strongest evidence is the joint movement of Structure and Specificity.
+Structure excludes template retrieval accuracy, while Specificity uses
+distractor personas; moreover, judges do not see the original prompt or parsed
+intent. Thus the improvement cannot be read as merely better template matching
+or generic visual polish. It indicates that routed long-term profiles help
+decide page roles, ordering, layout fit, evidence emphasis, and persona-distinct
+framing before round-0 generation.
+
+\noindent\textbf{Persona gains remain compatible with general deck quality.}
+Table~\ref{tab:profile_memory_v6_ppteval_main} shows that \textsc{Ours} obtains
+the best Avg. on GPT-5 and remains competitive on GLM-5, while Gemini 3.1 Pro
+shows the best Style and Diversity but lower Constraint. These results do not
+claim uniform dominance on every quality metric; they show that the
+persona-alignment improvements in Table~\ref{tab:profile_memory_v6_bestof_main}
+are not simply a trade-off against ordinary presentation quality.
+
+\begin{figure}[!t]
+  \centering
+  \includegraphics[width=\linewidth]{six_round_profile_consolidation_cases}
+  \vspace{-2mm}
+  \caption{Qualitative cross-job profile consolidation. Across six repeated
+  jobs, local feedback cues become reusable profile preferences and later
+  reappear as default slide-organization patterns, including evidence-boundary
+  guardrails, owner/timeline closure tables, module input--output responsibility
+  schemas, and implementation checklists. The figure is diagnostic case evidence
+  rather than a separate quantitative metric.}
+  \label{fig:six_round_profile_consolidation}
+\end{figure}
+
+\noindent\textbf{Localized revision should be judged by locality as well as success.}
+Figure~\ref{fig:localized_modify_example} shows the qualitative difference
+behind the modify setting: a system may satisfy the requested change while
+still touching non-target regions, whereas \methodname keeps the patch closer
+to the requested element. This is why the localized-revision metrics are
+paired with process constraints such as closed-loop completion, verification,
+and core-tool-time efficiency.
+
+\noindent\textbf{Scope of profile and working-memory evidence.}
+The round-0 persona-alignment table is the main quantitative evidence for user
+profile memory. Figure~\ref{fig:six_round_profile_consolidation} provides
+qualitative cross-job profile-consolidation evidence, showing how repeated local
+cues become reusable organization preferences in later jobs. Appendix
+Figure~\ref{fig:appendix_working_memory_carryover} provides complementary
+within-session evidence for delayed carryover of active temporary memory, and
+Appendix Figure~\ref{fig:appendix_template_generation_showcase} shows
+template-guided generation examples.
+
+
+\noindent\textbf{Tool memory improves overall reliability and search efficiency, but not by winning every pair.}
+In the diagnostic matched-pair modify setting, tool-memory injection raises
+overall Closed-Loop Completion from 0.815 to 0.963 (W-L-T-NA 3-1-5-0) and
+Strict Verify from 0.310 to 0.534 (8-1-0-0). It also reduces Time to First
+Correct Edit from 609.5s to 242.5s (6-2-0-1) and lowers the geometric mean
+Core Tool Time Ratio to 0.327$\times$ (8-1-0-0), indicating less
+non-inspection tool work. The pair-level counts are important: one Gemini
+hard-modify pair loses on Closed-Loop Completion, two pairs lose on first-edit
+latency, and one GPT-5 pair uses more core tool time. Together with the
+pair-level detail in Appendix~\ref{app:tool_memory_pair_details}, these process
+metrics are consistent with a more constrained localized editing pattern rather
+than repeated full-deck regeneration or broad exploratory edits.
+
+\FloatBarrier

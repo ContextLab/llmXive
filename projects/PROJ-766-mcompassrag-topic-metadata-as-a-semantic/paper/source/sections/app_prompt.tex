@@ -1,0 +1,50 @@
+\section{Prompts Used for Training}
+\label{app:training_prompts}
+
+This appendix lists the prompts used during training.  
+Prompt~\hyperref[app:training_prompts]{\ref*{app:training_prompts}.1} is used to generate base and expanded queries from training chunks. 
+The next prompt, Prompt~\hyperref[app:training_prompts]{\ref*{app:training_prompts}.2}, is used by the LLM teacher to assign relevance labels to query--chunk pairs during distillation.
+
+\begin{promptbox}{Query Expansion}
+\label{box:query_generation_prompt}
+You are given three consecutive chunks from a document: the previous chunk, the target chunk, and the next chunk.
+
+Your task has two steps.
+
+\textbf{Step 1: Generate a base query.}  
+Write a natural user question that requires information from the target chunk to answer. The question should not directly copy the answer from the chunk, and it should not reveal the answer.
+
+\textbf{Step 2: Generate an expanded query.}  
+Rewrite the base query by adding useful background context from the previous and next chunks. The expanded query should make the information need clearer, but it must not reveal the answer or include direct answer hints. Use only background context that helps specify the topic, setting, entities, or surrounding discussion.
+
+\textbf{Input:}
+
+Previous chunk: \{previous\_chunk\}
+
+Target chunk: \{target\_chunk\}
+
+Next chunk: \{next\_chunk\}
+
+\textbf{Output format:}
+
+Base query: \{base query\}
+
+Expanded query: \{expanded query\}
+\end{promptbox}
+
+\begin{promptbox}{Teacher Relevance Labeling}
+\label{box:teacher_labeling_prompt}
+You are given a question and a candidate knowledge chunk. Decide whether the chunk contains information that is useful for answering the question.
+
+Mark the chunk as relevant only if it provides direct or supporting evidence needed to answer the question. Do not mark a chunk as relevant based only on vague topical similarity.
+
+Question: \{expanded\_query\}
+
+Candidate chunk: \{candidate\_chunk\}
+
+Output only one number:
+
+1 = relevant
+
+0 = not relevant
+\end{promptbox}

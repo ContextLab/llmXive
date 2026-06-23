@@ -1,0 +1,231 @@
+% \section{Method}
+% \label{sec:method}
+\vspace{-3mm}
+\section{PerceptionDLM-Base: Stronger DVLM Baseline}
+
+To establish a strong and scalable baseline for diffusion-based multimodal perception, we first introduce PerceptionDLM-Base, a multimodal diffusion language model that extends large-language diffusion models to visual instruction tuning. 
+
+% \lxt{You can merge both preliminary and architecture into one. You can first introduce DLLM with notations and introduce what we have added on.}
+\subsection{Diffusion Language Modeling and Multimodal Architecture}
+
+\noindent
+\textbf{Diffusion Language Modeling Preliminaries}
+Let $x_0 = (x_1, \dots, x_N)$ be a sequence of discrete text tokens from a vocabulary $\mathcal{V}$. Discrete Diffusion Language Models (DLMs), such as LLaDA~\citep{nielarge}, formulate text generation as a generative Markov process. During the forward process, clean tokens $x_0$ are progressively corrupted into a sequence $x_t$ at timestep $t \in (0, 1]$, typically by replacing tokens with a special absorbing state (e.g., a \texttt{[MASK]} token). The reverse process learns a neural network $p_\theta(x_0 | x_t)$ to denoise $x_t$ back to $x_0$. The model is optimized using a reweighted variational lower bound, which simplifies to predicting the masked tokens:
+\begin{equation}
+\mathcal{L}_{\mathrm{DLM}} = -\mathbb{E}_{t, x_0, x_t} \left[ \frac{1}{t} \sum_{i=1}^{N} \mathbf{1}[x_t^i = \texttt{[MASK]}] \log p_\theta(x_0^i|x_t) \right],
+\end{equation}
+where $N$ is the sequence length and the indicator function $\mathbf{1}[\cdot]$ ensures that the loss is computed only for masked tokens.
+
+\noindent
+\textbf{Multimodal Architecture and Visual Instruction Tuning.}
+% PerceptionDLM builds upon a diffusion language backbone (LLaDA-8B) and follows a widely adopted LLaVA-style design in multimodal large language models~\citep{liu2023visual}, which consists of three components: a pretrained vision encoder, a lightweight vision-language connector, and a LLM decoder.
+To extend this diffusion language modeling paradigm to multimodal perception via visual instruction tuning~\citep{liu2023visual}, we introduce visual conditioning into the diffusion process. The overall architecture follows a widely adopted design comprising three components: a pretrained vision encoder, a lightweight vision-language connector, and a DLM decoder (LLaDA-8B).
+
+Given an input image $X_v$ and a corresponding textual instruction $X_q$, the objective is to generate the target text response $X_a$. First, we utilize a pretrained SigLIP-2~\citep{tschannen2025siglip} as the vision encoder to extract visual features $Z_v = \Phi_v(X_v)$. A two-layer MLP with GELU activation serves as the connector $\Phi_{c}$, projecting the visual features into the LLM's text embedding space to obtain continuous visual embeddings $H_v = \Phi_c(Z_v)$.
+
+The visual embeddings $H_v$ are concatenated with the discrete text embeddings of the instruction $X_q$ and the response $X_a$ to form the complete input sequence. During training, we apply the diffusion forward process \emph{only} to the target response tokens $X_a$, leaving the image representations $H_v$ and instruction tokens $X_q$ uncorrupted as conditions. Our multimodal visual instruction tuning objective is thus formulated as:
+\begin{equation}
+    \label{eq2}
+    \mathcal{L}_{\mathrm{PerceptionDLM_{Base}}} = - \mathbb{E}_{(X_v, X_q, X_a), t, x_t} \left[ \frac{1}{t} \sum_{i \in \mathcal{M}_a} \log p_\theta(x_0^i | x_t, H_v, X_q) \right],
+\end{equation}
+where $x_t$ is the partially masked target response sequence, and $\mathcal{M}_a$ denotes the indices of the masked tokens strictly within $X_a$. 
+
+PerceptionDLM-Base is trained using this discrete diffusion loss, followed by a 4-stage training paradigm. The detailed training parameters of each stage are shown in~\Cref{tab:traing_params}.
+
+\noindent
+\textbf{Dynamic Resolution for Multimodal Data}
+To better handle high-resolution images and preserve fine-grained spatial details, we adopt a dynamic-resolution strategy following prior work~\citep{chen2024expanding}. Specifically, each input image is dynamically partitioned into a grid of tiles of $512\times512$ pixels based on the aspect ratio and resolution of the raw images. Optionally, if the number of tiles $n_{tiles} > 1$, we append an additional thumbnail of the original image to the end of the tiles list.  Then each tile is independently processed with pixel unshuffle operation to reduce the number of visual tokens to one-quarter of the original. 
+%
+Then, the preprocessed visual tokens are encoded by the vision encoder and concatenated into a sequence. 
+%
+This design allows the model to scale to arbitrary image resolutions while maintaining a balance between computational efficiency and spatial fidelity. 
+
+%
+% For the vision encoder and vision-language connector, we selected Siglip2(\citet{tschannen2025siglip}) and a two-layer MLP with GELU activation, respectively. 
+%
+
+%
+% Our model is trained using the same discrete diffusion loss as LLaDA, followed by a 4-stage training paradigm. The detailed training parameters of each stage are shown in \Cref{tab:traing_params}.
+
+% figure 1(option)
+\vspace{-2mm}
+\subsection{Training Strategies}
+
+
+% \subsubsection{PerceptionDLM Training Pipeline}
+
+We adopt a multi-stage training strategy for PerceptionDLM-Base, following the visual instruction tuning paradigm adapted for diffusion language models~\citep{you2025llada, liu2023visual}. 
+%
+Our training pipeline progressively improves multimodal alignment, general knowledge, and instruction-following ability in four stages.
+%
+We use the latest open-source datasets to conduct our training.
+% Follwing LLaVA-OneVision-1.5 \citet{an2025llavaonevision15fullyopenframework} and Bee \citet{zhang2026beehighqualitycorpusfullstack}, we collect 52M open-source multimodal data to train
+
+\noindent
+\textbf{Stage 1: Vision-Language Alignment.}
+We first perform a lightweight alignment between visual and textual representations using the Bee-Training-Data-Stage1~\citep{zhang2025bee}. At this stage, we primarily train the vision-language connector while keeping most of the backbone parameters frozen, enabling stable alignment between visual features and the language embedding space.
+
+\noindent
+\textbf{Stage 2: Middle-stage Training.}
+After alignment, we conduct large-scale training on Bee-Training-Data-Stage2~\citep{zhang2025bee}. 
+%
+We explore two training strategies at this stage and the subsequent stages: (1) full-parameter training, where both the diffusion backbone and vision encoder are updated, and (2) partially frozen training, where the vision encoder remains fixed while updating the language model and projection layers. More details can be found in Appendix~\ref{sec:more_exp}.
+%
+This stage serves as a large-scale knowledge injection phase, exposing the model to diverse visual concepts and improving its general multimodal understanding capability. 
+%
+As in prior works~\citep{li2025llava, zhang2025bee}, such large-scale mid-training helps bridge the gap between lightweight alignment and instruction tuning by enhancing representational capacity.
+
+\noindent
+\textbf{Stage 3: Instruction Tuning.}
+We then perform supervised fine-tuning (SFT) using 22M samples from the LLaVA-OneVision-1.5-Instruct-Data~\citep{an2025llava}, which contains diverse visual instruction tasks, including visual question answering, reasoning, OCR, and grounding. 
+%
+This stage enables the model to follow complex multimodal instructions and improves its generalization across a wide range of downstream tasks.
+
+\noindent
+\textbf{Stage 4: High-Quality SFT Refinement.}
+Finally, we further refine the model using Honey-Data-15M~\citep{zhang2025bee}, a high-quality multimodal instruction dataset enriched with dual-level chain-of-thought annotations. 
+%
+This dataset emphasizes complex reasoning and long-form responses, which significantly enhance the model's reasoning ability.
+%
+% and instruction-following performance. 
+%
+This final stage improves both response quality and robustness in challenging multimodal scenarios.
+%, as shown in ~\Cref{sec:exp}.
+
+% Formulation.
+% Dataset/Benchmark.
+% Our Methods.
+% Training and Inference.
+
+
+\begin{figure*}[t]
+    \centering
+    \includegraphics[width=1.\linewidth]{figs/arch4.pdf}
+    \caption{\textbf{Overview of the proposed parallel region perception architecture.} Built upon PerceptionDLM-Base, the model integrates region prompting, RoI-aligned feature replay, and a structured attention masking mechanism to enable parallel, disentangled caption generation for multiple regions within a single diffusion process.}
+    %\caption{\textbf{Overview of the proposed parallel region perception architecture built upon PerceptionDLM.} Given an input image and multiple region masks, the visual encoder extracts global visual tokens, while region-specific masks are converted into mask embeddings and RoI-aligned feature tokens via region prompting and feature replay. Each region is associated with a dedicated placeholder token, which is expanded into localized RoI feature tokens that provide fine-grained visual context. During generation, we allocate separate masked token spans for each region caption. A structured attention masking mechanism is applied so that tokens in each region can attend only to shared global context and their own RoI features, while being isolated from other regions. This results in a block-wise attention structure that enables parallel and disentangled caption generation for multiple regions within a single diffusion process.}
+
+    %\vspace{-2mm}
+    
+    \label{fig:arch}
+\end{figure*}
+
+\vspace{-3mm}
+\section{Multimodal Diffusion Language Model for Parallel Perception}
+
+\vspace{-2mm}
+\subsection{Task Formulation}
+\noindent
+\textbf{Motivation.}
+While recent MLLMs have achieved strong performance on visual understanding tasks, they typically rely on autoregressive decoding and generate outputs sequentially. 
+%
+This limitation becomes particularly evident in region-level perception tasks, where \textbf{multiple} regions need to be perceived and described.
+%
+In contrast, diffusion language models naturally support parallel token generation, enabling joint prediction of multiple outputs within a \textbf{single denoising process}, whereas recent methods~\citep{lian2025describe, wang2025grasp} can only process each region independently. 
+%
+This motivates us to revisit region-level perception from the perspective of parallel generation.
+
+\noindent
+\textbf{Problem Definition.}
+Given an image $I$ and a set of $N$ regions $\{ R_i \}_{i=1}^N$, each represented by a binary mask, the goal is to generate a corresponding textual description $\{ y_i \}_{i=1}^N$ for all regions. 
+%
+Existing approaches typically process each region independently: $y_i = f(I,R_i)$, which leads to linear growth in inference latency with respect to the number of regions~\citep{rasheed2024glamm,lian2025describe}. 
+%
+In contrast, leveraging the inherent parallel decoding ability of diffusion language models, we can model $\{ y_i \}_{i=1}^N = f(I, \{ R_i \}_{i=1}^N)$, enabling simultaneous captioning of all region descriptions within a single diffusion process.
+
+%\input{figs/arch}
+\vspace{-2mm}
+\subsection{Model Architecture}
+To enable efficient parallel region perception and captioning under the formulation above, we build upon the region-centric feature extraction paradigm of a recent strong AR-based baseline~\citep{wang2025grasp}. On top of this foundation, we propose a unified architecture that introduces region prompting and structured attention masking, as illustrated in~\Cref{fig:arch}.
+Note that we highlight each component in a different color within the dashed boxes.
+
+\noindent
+\textbf{RoI-aligned Feature Replay from AR Baseline.} 
+% To accurately represent region-specific visual information, we adopt the RoI-aligned feature extraction strategy introduced by the strong AR-based baseline, GAR~\citep{wang2025grasp}.
+%
+For each region mask, localized visual features are extracted directly from the vision encoder and projected into the language embedding space as placeholder tokens. During preprocessing, each placeholder is expanded into a set of RoI feature tokens extracted from the corresponding visual region.
+
+\noindent
+\textbf{Region Prompting.}
+While RoI features capture visual details, parallel generation requires the model to strictly distinguish multiple concurrent targets. To effectively encode region identity into the input, we design a continuous region prompting mechanism. 
+%
+For each region $R_i$, we associate a learnable embedding $e_i$, which serves as a region-specific visual prompt. 
+%
+These embeddings are spatially broadcast and fused directly with the visual tokens corresponding to the masked regions, allowing the model to identify different regions and guide the generation process.
+%By explicitly injecting these identity embeddings, the model can unambiguously differentiate between multiple targets, effectively grounding the parallel text generation process and preventing semantic mismatch across different regions.
+
+% \noindent
+% \textbf{RoI-aligned Feature Replay.}
+% To represent region-specific visual information, we adopt a region-centric feature extraction strategy inspired by prior work~\citep{wang2025grasp}. 
+% %
+% For each region mask, we extract localized visual features from the vision encoder and project them into the language embedding space. 
+% %
+% This design allows the model to access both global image context and localized region features simultaneously. 
+% %
+% Concretely, we extend the input prompt by inserting special placeholder tokens, each corresponding to a specific region. 
+% %
+% During preprocessing, each placeholder is expanded into a set of RoI feature tokens extracted from the corresponding region.
+
+\noindent
+\textbf{Structured Attention Masking Mechanism.}
+Since DLMs denoise all tokens for all regions simultaneously, a key challenge in parallel generation is preventing interference across regions. 
+%
+To address this problem, we design a structured attention masking mechanism that enforces region-wise independence while preserving global context. Specifically, for tokens corresponding to region $R_i$, we restrict their attention to: (1) global visual tokens, (2) shared textual prompt tokens, (3) RoI feature tokens associated with region $R_i$, and (4) tokens within the same region-specific caption span. Meanwhile, attention to RoI features and caption tokens of other regions is masked out. This structured design results in a block-wise attention pattern that enforces region-level independence while preserving shared global context, enabling accurate parallel caption generation.
+
+As illustrated in~\Cref{fig:teaser}, our model can simultaneously describe multiple masked regions while achieving substantially better perception efficiency. Overall, our architecture transforms region-level perception from a sequential process into a structured parallel generation problem, fully leveraging the intrinsic parallelism of diffusion language models.
+
+%\lxt{Missing training and inference details.}
+%\lxt{This part is extremely important since this is the key difference of our approaches.}
+%\lxt{In addition, there are no discussions on the generated token speed.}
+
+% teaser
+
+
+
+%
+\vspace{-2mm}
+\subsection{ParaDLC-Bench}
+\vspace{-2mm}
+Inspired by DLC-Bench~\citep{lian2025describe}, we introduce an extended evaluation benchmark, \textbf{ParaDLC-Bench}, specifically adapted for multi-mask scenarios. Traditional evaluations rely on comprehensive reference captions, which struggle to handle the complex semantic entanglement that occurs during concurrent multi-target generation. 
+%
+Our benchmark inherits the reference-free evaluation paradigm of DLC-Bench, utilizing an LLM as a judge, but expands upon it: we extend the core focus of the evaluation from intra-region detail accuracy to inter-region feature independence and anti-interference capability.
+%
+Similar to DLC-Bench, our evaluation process consists of two steps:
+\begin{enumerate}
+    \item The model is prompted to generate detailed descriptions in parallel for multiple masked regions within a single image from the benchmark dataset.
+    \item An LLM serves as a judge, assessing the generated descriptions based on a predefined set of positive and negative questions. 
+    %
+    Furthermore, we observed that the reliability of the evaluation heavily depends on the reasoning capabilities of the judge LLM itself. Therefore, compared to DLC-Bench, which employs Llama-3.1-8B~\citep{grattafiori2024llama}, we utilize the more advanced GPT-5.2~\citep{gpt5.2} as our judge model to ensure accurate and robust assessments in complex multi-target interaction scenarios.
+\end{enumerate}
+
+Regarding question design, we adopt the strategy from DLC-Bench and tailor it for parallel caption generation tasks:
+\begin{itemize}
+    \item \textbf{Positive questions:} Focus on specific attributes unique to the target mask. The model earns a point for accurate inclusion, receives no points for omission, and incurs a penalty for factual errors.
+    \item \textbf{Negative \& Interference questions:} We introduce a key innovation within this category specifically for multi-target scenarios. In addition to checking for the inclusion of typical but absent attributes as in DLC-Bench, we specifically examine whether the model hallucinates features from other concurrent masked objects in the image into the current target's description (i.e., attribute entanglement). A point is awarded if the model successfully avoids such cross-region hallucination; otherwise, it incurs a penalty. To prevent completely off-topic captions from receiving high scores, this point is only awarded if the model correctly recognizes the target object.
+\end{itemize}
+
+To ensure the reliability of the evaluation, we implemented a rigorous quality control process. Expert human annotators conducted multiple rounds of strict cross-verification on all candidate questions to eliminate ambiguity, ensure strict spatial alignment with the targeted visual regions, and verify that the negative distractors were genuinely deceptive. Furthermore, we verified the robustness of our benchmark by re-evaluating the models across different open-source and closed-source judge LLMs (e.g., Qwen3.5-27B and Gemini-3.1-Pro), demonstrating stable performance rankings (detailed in Appendix~\ref{sec:more_exp}).
+%
+With this design, ParaDLC-Bench not only retains the flexibility and accuracy of DLC-Bench but also effectively tests the model's true competence in handling dense, multi-target tasks. 
+%
+Our benchmark ultimately comprises 2345 manually verified questions, covering a wide range of multi-region attribute interactions and potential cases of hallucination.
+%
+For more benchmark details, including the annotation pipeline and statistics, please refer to Appendix~\ref{sec:detail_bench}.
+
+\vspace{-2mm}
+\subsection{Training Data Engine}
+% \vspace{-2mm}
+To enhance parallel-region captioning of DLMs, we further construct high-quality single-image, multi-mask caption data, which we refer to as \textbf{ParaCaption-5.7M}.
+%
+We initially explore the Describe Anything dataset~\citep{lian2025describe}, which provides detailed caption annotations. 
+%
+However, because it lacks such concurrent multi-mask samples, we design an automated data construction pipeline based on existing large-scale segmentation datasets.
+
+The training data comprises two different sources: the SA-1B dataset~\citep{kirillov2023segment} and the COCONut dataset~\citep{deng2024coconut}. For a selected subset of the massive SA-1B dataset, which contains numerous part-level regions unsuitable for general descriptions, we first filter out masks that are completely occluded (which are typically considered part-level). 
+%
+We then employ GAR-8B~\citep{wang2025grasp}, a state-of-the-art region captioning model, to generate initial descriptions and employ an LLM to extract the core categories. 
+%
+Next, using these extracted categories, we apply SAM3~\citep{carion2025sam} to re-predict the masks and discard low-matching samples by calculating the Intersection over Union (IoU) with the ground-truth masks. 
+%
+Meanwhile, for the COCONut dataset, which includes inherent mask and category annotations, we similarly use GAR-8B to generate initial descriptions and directly use Qwen3-8B~\citep{yang2025qwen3} to determine whether the generated text semantically matches the provided ground-truth category annotations.
+%
+All verified data pairs from both datasets undergo a unified post-processing stage for length restriction and anti-repetition (hallucination) filtering to yield the final caption texts. Ultimately, we obtained 334k images with 3.4M masks from the COCONut dataset, and 83k images with 2.3M masks from the SA-1B dataset. 

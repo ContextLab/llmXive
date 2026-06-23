@@ -1,0 +1,52 @@
+\begin{table}[htbp]
+    \centering
+    \small
+    \setlength{\tabcolsep}{3pt}
+    \caption{
+        Quantitative results on the image editing task.
+    }
+    \label{tab:img-editing-main-results}
+    \begin{tabular}{lccccccc}
+        \toprule
+        \multirow{2}{*}{Method}
+        & \multicolumn{2}{c}{Edit Localization}
+        & \multicolumn{3}{c}{Background Preservation}
+        & \multicolumn{2}{c}{Overall Editing Quality} \\
+        \cmidrule(lr){2-3}
+        \cmidrule(lr){4-6}
+        \cmidrule(lr){7-8}
+        & Prec. $\uparrow$
+        & Coverage $\uparrow$
+        & MAE-RGB $\downarrow$
+        & PSNR (dB) $\uparrow$
+        & SSIM $\uparrow$
+        & VQAScore $\uparrow$
+        & User Study $\uparrow$ \\
+        \midrule
+        Lumina
+        & 65.81
+        & 41.68
+        & 12.497
+        & 23.092
+        & 0.6256
+        & 71.95
+        & 41.8 \\
+        Lumina+SFT
+        & 71.84
+        & 48.42
+        & 11.035
+        & 23.900
+        & 0.6570
+        & 81.61
+        & 53.3 \\
+        \method(Ours)
+        & \textbf{99.73}
+        & \textbf{73.02}
+        & \textbf{3.613}
+        & \textbf{34.759}
+        & \textbf{0.9744}
+        & \textbf{85.17}
+        & \textbf{68.2} \\
+        \bottomrule
+    \end{tabular}
+\end{table}

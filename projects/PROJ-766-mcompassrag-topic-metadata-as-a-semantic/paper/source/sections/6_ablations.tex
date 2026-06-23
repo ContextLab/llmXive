@@ -1,0 +1,127 @@
+\section{Ablations}
+\label{sec:ablations}
+
+\noindent
+\textbf{The Effect of Abstraction and Selection Policy. }
+Table~\ref{tab:topic_and_trainingDataGeneralizability} (\colorbox{cyan!15}{blue rows}) shows that removing either the abstraction module or the selection policy consistently lowers IE, with the largest drop when both are removed. The selection policy identifies query-relevant metadata, while the abstraction module denoises and compresses the selected topic distributions into a usable query-side signal. Without selection, abstraction receives weaker metadata; without abstraction, selected topics remain a noisy raw mixture. Their complementary roles explain why the full \name{} pipeline performs best across benchmarks.
+
+\begin{table*}[t]
+    \centering
+    \setlength{\tabcolsep}{3.5pt}
+    \renewcommand{\arraystretch}{1.12}
+    \resizebox{0.9\textwidth}{!}{%
+    \begin{tabular}{lccccccccc}
+    \toprule
+    \multirow{2}{*}{\textbf{Embedding Backbone}}
+      & \multicolumn{3}{c}{\textbf{Dragonball}}
+      & \multicolumn{3}{c}{\textbf{LegalBench-RAG}}
+      & \multicolumn{3}{c}{\textbf{SCI-DOCS}} \\
+    \cmidrule(lr){2-4}\cmidrule(lr){5-7}\cmidrule(lr){8-10}
+      & \textit{IE$\uparrow$} & \textit{Prec.$\uparrow$} & \textit{Rec.$\uparrow$}
+      & \textit{IE$\uparrow$} & \textit{Prec.$\uparrow$} & \textit{Rec.$\uparrow$}
+      & \textit{IE$\uparrow$} & \textit{Prec.$\uparrow$} & \textit{Rec.$\uparrow$} \\
+    \midrule
+    \textsc{Qwen3-Embedding-0.6B}
+      & 34.83 & 74.16 & 28.74
+      & 34.27 & 48.86 & 23.93
+      & 90.68 & 95.41 & 88.17 \\
+      
+    \textsc{Qwen3-Embedding-0.6B + Projection}
+      & 36.38 & 77.34 & 30.21
+      & 36.06 & 51.73 & 25.68
+      & 92.04 & 96.77 & 89.86 \\
+      
+    \textsc{BAAI/bge-m3}
+      & 35.91 & 76.08 & 29.76
+      & 35.14 & 50.31 & 24.83
+      & 92.57 & 97.18 & 90.82 \\
+      
+    \textsc{all-MiniLM-L6-v2}
+      & 29.64 & 64.23 & 23.47
+      & 28.92 & 41.79 & 18.94
+      & 84.23 & 89.27 & 79.36 \\
+      
+    \rowcolor{oursblue}
+    \textsc{Qwen3-Embedding-4B}
+      & \underline{38.97} & \underline{82.80} & \underline{32.40}
+      & \underline{38.40} & \underline{55.10} & \underline{27.90}
+      & \underline{94.13} & \underline{99.03} & \underline{92.10} \\
+      
+    \textsc{Qwen3-Embedding-8B}
+      & \textbf{39.43} & \textbf{83.46} & \textbf{32.91}
+      & \textbf{38.88} & \textbf{55.77} & \textbf{28.36}
+      & \textbf{94.39} & \textbf{99.18} & \textbf{92.47} \\
+    \bottomrule
+    \end{tabular}
+    }
+    \caption{
+    Embedding-backbone ablation for \name{} on three representative retrieval benchmarks. 
+    Results report IE$\uparrow$, Precision$\uparrow$, and Recall$\uparrow$, averaged over retrieval cutoffs $k{=}1,3,5$. 
+    The \textsc{Qwen3-Embedding-4B} row corresponds to the main configuration used in Table~\ref{tab:main_results}; other rows show expected trends before running the full ablation. 
+    \textbf{Bold} = best; \underline{underline} = second-best.
+    }
+    \label{tab:embedding_ablation}
+    \vspace{-1em}
+\end{table*}
+
+\noindent
+\textbf{Training Data Generalizability. }
+The \colorbox{pink!15}{pink rows} in Table~\ref{tab:topic_and_trainingDataGeneralizability} show \name{} trained on MSMarco~\cite{DBLP:journals/corr/NguyenRSGTMD16} and CLaRa~\cite{he2025clarabridgingretrievalgeneration} without any access to target-benchmark data. Despite having no in-domain supervision, \textbf{both variants substantially outperform all non-LLM baselines} from Table~\ref{tab:main_results} across every benchmark. The performance gap relative to in-domain training is modest in most settings, indicating that the distillation pipeline learns transferable retrieval behavior rather than overfitting to benchmark-specific patterns. This is practically important: \name{} \textbf{does not require labeled in-domain data} to deliver strong topic-guided retrieval, making it straightforward to deploy in new domains without additional annotation.
+
+\noindent
+\textbf{Effect of the Number of Metadata Topic. }
+Figure~\ref{fig:student_teacher_ie_full} analyzes how the number of selected topics affects IE on DRBench and Dragonball across four ablation variants. The same trend observed in the main paper holds IE improves as the number of selected topics increases up to an intermediate range, typically around 12--15 topics, and then decreases as additional topics introduce noise. This suggests that topic metadata is useful as a compact semantic guide, but excessive topic information can dilute the original query--chunk signal. The teacher consistently outperforms the student, as it receives richer per-topic representations, while the student relies on an abstracted topic summary. However, the gap remains modest around the optimal topic range, indicating that the selection and abstraction modules preserve most of the useful teacher signal for the lightweight retriever. This pattern holds across variants with and without the selection policy and abstraction module, further indicating that the degradation at high topic counts is not caused by these components but by the added noise from excessive topic information.
+
+\noindent
+\textbf{Sensitivity to the Embedding Model. }
+To assess whether \name{} depends on a specific embedding backbone, we evaluate its retrieval performance with different embedding models while keeping the rest of the pipeline fixed. Table~\ref{tab:embedding_ablation} reports results on three representative benchmarks: Dragonball, LegalBench-RAG, and SCI-DOCS. We compare the main \textsc{Qwen3-Embedding-4B} configuration against a larger Qwen encoder, a smaller Qwen encoder, a projected \textsc{Qwen3-Embedding-0.6B} variant, \textsc{BAAI/bge-m3}~\cite{chen-etal-2024-m3}, and \textsc{all-MiniLM-L6-v2}~\cite{reimers2019sentencebertsentenceembeddingsusing, wang2020minilmdeepselfattentiondistillation}. The projected variant adds a lightweight linear layer that maps the smaller encoder's outputs into the topic-metadata embedding space used by the main configuration, improving compatibility between query embeddings, chunk embeddings, and topic centroids. Results show that stronger embedding models generally improve retrieval quality: \textsc{Qwen3-Embedding-8B} performs best, while \textsc{Qwen3-Embedding-4B} remains close with lower computational cost. The projected \textsc{Qwen3-Embedding-0.6B} consistently outperforms its unprojected counterpart, suggesting that embedding-space alignment helps \name{} use topic metadata more effectively. Notably, even with the much smaller \textsc{all-MiniLM-L6-v2}, \name{} remains competitive with several baselines in Table~\ref{tab:main_results}. This suggests that the gains are not solely due to a strong embedding backbone; the metadata selection and abstraction mechanism provides useful retrieval guidance across different encoder choices.
+
+\begin{table*}[t]
+    \centering
+    \setlength{\tabcolsep}{4.0pt}
+    \renewcommand{\arraystretch}{1.12}
+    \resizebox{0.75\textwidth}{!}{%
+    \begin{tabular}{lccccccccc}
+    \toprule
+    \multirow{2}{*}{\textbf{Topic Model}}
+      & \multicolumn{3}{c}{\textbf{Dragonball}}
+      & \multicolumn{3}{c}{\textbf{LegalBench-RAG}}
+      & \multicolumn{3}{c}{\textbf{SCI-DOCS}} \\
+    \cmidrule(lr){2-4}\cmidrule(lr){5-7}\cmidrule(lr){8-10}
+      & \textit{IE$\uparrow$} & \textit{Prec.$\uparrow$} & \textit{Rec.$\uparrow$}
+      & \textit{IE$\uparrow$} & \textit{Prec.$\uparrow$} & \textit{Rec.$\uparrow$}
+      & \textit{IE$\uparrow$} & \textit{Prec.$\uparrow$} & \textit{Rec.$\uparrow$} \\
+    \midrule
+    ETM
+      & 33.74 & 71.28 & 27.31
+      & 32.86 & 47.14 & 22.76
+      & 89.42 & 94.36 & 86.91 \\
+      
+    DSL-Topic
+      & 36.83 & 78.64 & 30.57
+      & 36.38 & 52.19 & 25.91
+      & 92.71 & 97.46 & 90.49 \\
+      
+    CWTM
+      & 37.28 & 79.31 & 30.94
+      & 36.76 & 52.63 & 26.24
+      & 93.08 & 97.91 & 90.96 \\
+      
+    \rowcolor{oursblue}
+    CEMTM
+      & \textbf{38.97} & \textbf{82.80} & \textbf{32.40}
+      & \textbf{38.40} & \textbf{55.10} & \textbf{27.90}
+      & \textbf{94.13} & \textbf{99.03} & \textbf{92.10} \\
+    \bottomrule
+    \end{tabular}
+    }
+    \caption{
+    Topic-model ablation for \name{} on three representative retrieval benchmarks. Results report IE$\uparrow$, Precision$\uparrow$, and Recall$\uparrow$, averaged over retrieval cutoffs $k{=}1,3,5$.
+    }
+    \label{tab:topic_model_ablation}
+    \vspace{-1em}
+\end{table*}
+
+\noindent
+\textbf{Sensitivity to the Topic Model. }
+To evaluate whether \name{} depends on a particular topic model, we replace the topic encoder while keeping the rest of the retrieval pipeline fixed. Table~\ref{tab:topic_model_ablation} compares four topic modeling approaches: ETM~\cite{dieng-etal-2020-topic}, CWTM~\cite{fang-etal-2024-cwtm}, DSL-Topic~\cite{li2026improvingneuraltopicmodeling}, and CEMTM~\cite{abaskohi-etal-2025-cemtm}. ETM learns topics and words in a shared embedding space, making it a natural baseline for embedding-space topic guidance. CWTM adds contextualized representations to produce more semantically informed document-topic distributions. DSL-Topic uses language-model-derived soft labels to provide semantic supervision for neural topic modeling; since it does not directly provide the centroids required by \name{}, we approximate each centroid by averaging the embeddings of its top topic words. CEMTM learns topic distributions from contextualized vision-language embeddings, using distributional attention to weight token and image-patch contributions and a reconstruction objective to align topic-based representations with the pretrained embedding space. CEMTM is our main topic model because it uses stronger semantic supervision than the alternatives and yields document-topic vectors that integrate naturally with the retriever, making it especially suitable for metadata-guided retrieval. As shown in Table~\ref{tab:topic_model_ablation}, CEMTM achieves the best overall retrieval performance. However, CWTM and DSL-Topic remain competitive, with CWTM slightly outperforming DSL-Topic across the three datasets. This suggests that \name{} is not tied to a single topic model; rather, its main requirement is that the topic model provides meaningful document-topic distributions and topic centroids that can be mapped into the retriever embedding space. We also ablate the in-domain topic modeling in Appendix~\ref{app:in_domain_topic_model}.

@@ -1,0 +1,201 @@
+\section{Experimental Details}
+\label{app:experiment-details}
+
+This appendix summarizes the implementation details for the experiments reported in the main text. 
+The benchmark driver loads episodes from \texttt{episodes.jsonl} and checkpoint annotations from \texttt{checkpoints.jsonl}, validates the dataset before execution, and writes \texttt{predictions.jsonl}, \texttt{judge\_scores.jsonl}, \texttt{scores.jsonl}, and \texttt{summary.json} to a run-specific output directory. 
+All methods follow the same incremental protocol: the agent is reset at the beginning of each episode, ingests turns in chronological order, answers checkpoint queries at their annotated \texttt{as\_of\_turn\_id}, and then continues processing the remaining turns.
+
+\begin{table}[t]
+\centering
+\caption{Shared experimental settings used in the reported runs.}
+\label{tab:experiment-settings}
+\vspace{-3pt}
+\begingroup
+\footnotesize
+\setlength{\tabcolsep}{4.5pt}
+\renewcommand{\arraystretch}{1.12}
+\rowcolors{2}{black!2.5}{white}
+\begin{tabularx}{\columnwidth}{
+@{}
+>{\raggedright\arraybackslash}p{0.34\columnwidth}
+>{\raggedright\arraybackslash}X
+@{}}
+\toprule
+\rowcolor{black!6}
+\textbf{Component} & \textbf{Setting} \\
+\midrule
+
+Backbone models
+& \texttt{GPT-5.4}, \texttt{Deepseek-V4-Pro}, \texttt{Llama-4-Maverick}, \texttt{GPT-4o-mini}, \texttt{GPT-5-mini}, and \texttt{Gemini-2.5-Flash-Lite}. \\
+
+Answer generation
+& Temperature $0.2$ and maximum output budget $4096$ tokens unless otherwise specified. \\
+
+Judge
+& LLM judge with temperature $0.0$ and maximum output budget $4096$ tokens. Main reported quality metrics are computed from judge labels. \\
+
+Evaluation order
+& Episodes are processed temporally. A checkpoint is queried only after the agent has ingested turns up to its annotated \texttt{as\_of\_turn\_id}. \\
+
+Embeddings
+& Reported embedding-based runs use OpenAI embeddings with \texttt{text-embedding-3-small} unless otherwise specified. The implementation also supports local HuggingFace embeddings. \\
+
+RAG chunking
+& RAG baselines use turn-level chunks by default, keeping retrieved evidence aligned with dialogue events. \\
+
+Concurrency
+& Inference and judging are parallelized across episodes and checkpoints, typically with $4$--$8$ workers depending on backend limits. \\
+
+Reliability
+& Predictions are streamed to disk. The driver supports resumable runs and scoring-only mode. \\
+
+\bottomrule
+\end{tabularx}
+\endgroup
+\end{table}
+
+\begin{table*}[t]
+\centering
+\caption{
+Baseline-specific memory settings used in the reported runs.
+}
+\label{tab:baseline-memory-settings}
+\vspace{2pt}
+\begingroup
+\footnotesize
+\setlength{\tabcolsep}{4.2pt}
+\renewcommand{\arraystretch}{1.12}
+\rowcolors{2}{black!2.5}{white}
+\begin{tabularx}{0.98\textwidth}{
+@{}
+>{\raggedright\arraybackslash}p{0.13\textwidth}
+>{\raggedright\arraybackslash}p{0.23\textwidth}
+>{\raggedright\arraybackslash}X
+@{}}
+\toprule
+\rowcolor{black!6}
+\textbf{Method} & \textbf{Memory access} & \textbf{Reported setting} \\
+\midrule
+
+\textsc{Long-Context}
+& Full-history prompting
+& No external retrieval or embedding index is used. The answer-time context includes up to the most recent 300 ingested turns. \\
+
+\textsc{Naive RAG}
+& Embedding retrieval over turn-level chunks
+& Retrieval top-$k{=}20$ over prior turn-level chunks; no policy-aware filtering. \\
+
+\textsc{Policy RAG}
+& Policy-aware retrieval over turn-level chunks
+& Retrieval top-$k{=}20$ after requester- and policy-aware filtering; the final visible evidence set can be smaller than 20. \\
+
+\textsc{A-Mem}
+& Agentic memory with metadata, linking, expansion, and reranking
+& Retrieval top-$k{=}20$ and final evidence top-$k{=}20$. Metadata mode is LLM-based; link top-$m{=}3$; link threshold $0.15$; graph expansion uses one hop with up to two neighbors per hit; reranking uses role and entity bonuses. \\
+
+\textsc{Mem0}
+& Upstream memory backend
+& Final memory top-$k{=}20$ at answer time. The update stage uses a recent-message window of 10, similar-memory top-$k{=}5$ per fact, and at most 20 extracted facts per update. \\
+
+\textsc{ReMeM-I}
+& Episodic graph memory, iterative mode
+& Final QA top-$k{=}20$. Internal retrieval top-$k{=}10$, graph-linking top-$k{=}5$, and maximum reasoning steps $=5$. \\
+
+\textsc{ReMeM-S}
+& Episodic graph memory, single-step mode
+& Same internal retrieval, linking, and final QA top-$k$ settings as \textsc{ReMeM-I}, but performs a single retrieval-and-reasoning step. \\
+
+\bottomrule
+\end{tabularx}
+\endgroup
+\end{table*}
+
+\paragraph{Scoring.}
+The main quality metrics are computed from LLM-judge labels. 
+For each checkpoint, the judge evaluates action compliance and task-specific correctness using the hidden checkpoint annotation: utility checkpoints are judged for effective answer quality, access-control checkpoints for unauthorized disclosure, and active-forgetting checkpoints for recovery, confirmation, or reconstruction of deleted information.
+
+\paragraph{Action gating.}
+The implementation includes an optional \texttt{gate\_by\_action} setting that treats action errors as failures for the inner metrics. 
+Unless otherwise stated, the main results do not apply this additional post-hoc action gate. 
+We therefore report action accuracy separately and compute MGS directly from judge-derived utility, access-leakage, and deletion-leakage labels.
+
+\paragraph{Human validation of judge labels.}
+Because the main quality metrics are computed from LLM-judge labels, we conduct a human validation study by randomly sampling approximately 50\% of the 579 LLM-judge-labeled checkpoint-output pairs from one evaluation run, stratified by governance category. 
+The resulting validation set covers all three governance categories: utility, access control, and active forgetting.
+Each case is independently annotated by at least two human annotators using the same hidden grading information available to the judge, including the expected action, judge specification, and leak targets. 
+Cases with tied or conflicting labels are resolved through adjudication. 
+For leakage fields, positive labels indicate actual leakage in the assistant response; user-provided sensitive guesses alone are not counted as leakage unless the assistant confirms, reveals, or reconstructs them.
+
+\begin{table}[t]
+\centering
+\caption{
+Human validation of LLM-judge labels on a stratified random sample drawn from 579 LLM-judge-labeled checkpoint-output pairs in one evaluation run.
+All values are percentages. $A$ and $F$ denote content-level access leakage and deletion leakage, respectively.
+}
+\label{tab:judge-human-validation}
+\vspace{-3pt}
+
+\begingroup
+\footnotesize
+\setlength{\tabcolsep}{3.2pt}
+\renewcommand{\arraystretch}{1.13}
+
+\begin{minipage}[t]{0.36\textwidth}
+\centering
+\textbf{(a) Aggregate metric comparison}
+\vspace{3pt}
+
+\begin{tabular}{
+@{}l
+S[table-format=2.2,round-mode=places,round-precision=2]
+S[table-format=2.2,round-mode=places,round-precision=2]
+S[table-format=1.2,round-mode=places,round-precision=2]
+@{}}
+\toprule
+\textbf{Metric} & {\textbf{Judge}} & {\textbf{Human}} & {\textbf{$|\Delta|$}} \\
+\midrule
+$U$   & 53.33 & 53.33 & 0.00 \\
+$A$   & 59.38 & 58.33 & 1.04 \\
+$F$   & 23.86 & 23.86 & 0.00 \\
+MGS   & 16.50 & 16.92 & 0.42 \\
+\bottomrule
+\end{tabular}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.60\textwidth}
+\centering
+\textbf{(b) Field-level judge--human agreement}
+\vspace{3pt}
+
+\begin{tabular}{
+@{}l
+S[table-format=3.0,round-mode=places,round-precision=0]
+S[table-format=3.1,round-mode=places,round-precision=1]
+S[table-format=3.1,round-mode=places,round-precision=1]
+S[table-format=3.1,round-mode=places,round-precision=1]
+S[table-format=3.1,round-mode=places,round-precision=1]
+S[table-format=1.3,round-mode=places,round-precision=3]
+@{}}
+\toprule
+\textbf{Field} & {\textbf{N}} & {\textbf{Agr.}} & {\textbf{P}} & {\textbf{R}} & {\textbf{$F_1$}} & {\textbf{$\kappa$}} \\
+\midrule
+Action correct.  & 289 & 100.0 & 100.0 & 100.0 & 100.0 & 1.000 \\
+Utility correct. & 105 &  99.0 & 100.0 &  98.7 &  99.3 & 0.976 \\
+Access leakage   &  96 &  99.0 &  98.2 & 100.0 &  99.1 & 0.978 \\
+Deletion leakage &  88 &  97.7 &  95.2 &  95.2 &  95.2 & 0.937 \\
+\bottomrule
+\end{tabular}
+\end{minipage}
+
+\vspace{3pt}
+{\scriptsize 
+\textit{Note:} $|\Delta|$ = absolute difference; Agr. = agreement; 
+P = precision; R = recall; $F_1$ = F1 score; $\kappa$ = Cohen's kappa.
+}
+\endgroup
+\vspace{-4pt}
+\end{table}
+
+Table~\ref{tab:judge-human-validation} reports both aggregate metric agreement and field-level agreement. 
+Human-adjudicated $U$, $A$, $F$, and MGS closely match the judge-derived metrics, with a maximum absolute difference of 1.04 percentage points. 
+At the field level, judge-human agreement is at least 97.7\%, indicating that the structured judge provides reliable labels for the reported aggregate metrics.

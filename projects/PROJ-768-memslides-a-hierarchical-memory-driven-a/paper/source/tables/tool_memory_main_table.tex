@@ -1,0 +1,35 @@
+\begin{table}[t]
+\centering
+\small
+\setlength{\tabcolsep}{6pt}
+\renewcommand{\arraystretch}{0.9}
+\newcommand{\toolmemorymultiheader}[1]{\shortstack[c]{#1}}
+\providecommand{\cmark}{\textcolor{green!50!black}{\checkmark}}
+\providecommand{\xmark}{\textcolor{red!70!black}{\(\times\)}}
+\newcommand{\toolmemoryyes}{\cmark}
+\newcommand{\toolmemoryno}{\xmark}
+\caption{Tool-memory ablation on nine diagnostic modify pairs. Completion and
+verification are higher-is-better; time and ratio are lower-is-better.}
+\label{tab:tool_memory_table1_redesign}
+\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lccccc@{}}
+\toprule
+Model & \toolmemorymultiheader{Memory\\Injected} &
+\toolmemorymultiheader{Closed-Loop\\Completion $\uparrow$} &
+\toolmemorymultiheader{Strict\\Verify $\uparrow$} &
+\toolmemorymultiheader{First Correct\\Edit (s) $\downarrow$} &
+\toolmemorymultiheader{Core Tool\\Time Ratio $\downarrow$} \\
+\midrule
+\multirow{2}{*}{GPT-5} & \toolmemoryyes{} & \textbf{1.000} & \textbf{0.646} & \textbf{211.3} & \textbf{0.740$\times$} \\
+ & \toolmemoryno{} & 0.667 & 0.294 & 234.2 & 1.000$\times$ \\
+\midrule
+\multirow{2}{*}{GLM-5} & \toolmemoryyes{} & \textbf{1.000} & \textbf{0.488} & \textbf{195.9} & \textbf{0.344$\times$} \\
+ & \toolmemoryno{} & 0.889 & 0.434 & 500.9 & 1.000$\times$ \\
+\midrule
+\multirow{2}{*}{Gemini 3.1 Pro} & \toolmemoryyes{} & 0.889 & \textbf{0.469} & \textbf{309.9} & \textbf{0.137$\times$} \\
+ & \toolmemoryno{} & 0.889 & 0.201 & 968.2 & 1.000$\times$ \\
+\midrule
+\multirow{2}{*}{Overall} & \toolmemoryyes{} & \textbf{0.963} & \textbf{0.534} & \textbf{242.5} & \textbf{0.327$\times$} \\
+ & \toolmemoryno{} & 0.815 & 0.310 & 609.5 & 1.000$\times$ \\
+\bottomrule
+\end{tabular*}
+\end{table}

@@ -1,0 +1,32 @@
+\begin{table}[t]
+\centering
+\small
+\setlength{\tabcolsep}{5.2pt}
+\renewcommand{\arraystretch}{1.0}
+\caption{General-quality evaluation on the
+shared three-profile suite.  Constraint, Content, Style, and Avg. use a 1--5 scale;
+Diversity is a suite-level normalized DINOv2-Vendi score. The rows compare
+independent generated decks from DeepPresenter, SlideTailor, and \methodname
+under the same evaluation protocol.}
+\label{tab:profile_memory_v6_ppteval_main}
+\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}clccccc@{}}
+\toprule
+Framework & Model & Constraint $\uparrow$ & Content $\uparrow$ & Style $\uparrow$ & Avg. $\uparrow$ & Diversity $\uparrow$ \\
+\midrule
+\multirow{3}{*}{\centering DeepPresenter}
+& GPT-5 & 4.83 & 3.50 & 3.63 & 3.99 & 0.387 \\
+& Gemini 3.1 Pro & 4.17 & 3.33 & 4.00 & 3.83 & 0.370 \\
+& GLM-5 & 4.00 & 3.57 & 4.00 & 3.86 & 0.366 \\
+\midrule
+\multirow{3}{*}{\centering SlideTailor}
+& GPT-5 & 3.83 & 2.93 & 4.03 & 3.60 & 0.399 \\
+& Gemini 3.1 Pro & 3.83 & 3.20 & 4.00 & 3.68 & 0.364 \\
+& GLM-5 & 3.83 & 2.97 & 4.00 & 3.60 & 0.348 \\
+\midrule
+\multirow{3}{*}{\centering MemSlides ({Ours})}
+& GPT-5 & \textbf{5.00} & \textbf{3.60} & 3.90 & \textbf{4.17} & 0.380 \\
+& Gemini 3.1 Pro & 3.33 & 3.37 & \textbf{4.10} & 3.60 & \textbf{0.463} \\
+& GLM-5 & 3.83 & 3.34 & 4.03 & 3.74 & 0.391 \\
+\bottomrule
+\end{tabular*}
+\end{table}

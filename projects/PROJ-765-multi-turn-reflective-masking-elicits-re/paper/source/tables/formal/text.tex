@@ -1,0 +1,19 @@
+\begin{table}[htbp]
+\centering
+\small
+\caption{
+Performance comparison across benchmarks. $\Delta$ denotes the improvement over Vanilla SFT.
+}
+\begin{tabular}{lccccc}
+\toprule
+Benchmark & Category & LLaDA(\%) & Vanilla SFT(\%) & Ours(\%) & $\Delta$ \\
+\midrule
+MATH500 & Math & 19.4 & 22.4 & \textbf{24.8} & $\uparrow 2.4$ \\
+% Minerva MATH (0-shot) & Math & 0.226 & \textbf{0.241} & $\uparrow 1.48$ \\
+MBPP & Code & 28.0 & 30.6 & \textbf{39.4} & $\uparrow 8.8$ \\
+ARC-Challenge & MCQA & 73.7 & 81.3 & \textbf{86.1} & $\uparrow 4.8$ \\
+\bottomrule
+\end{tabular}
+
+\label{tab:textgen-main}
+\end{table}

@@ -1,0 +1,245 @@
+%\section{Hierarchical Memory for Multi-Turn Presentation Generation}
+\section{MemSlides}
+
+
+%\subsection{Stateful Revision Task and Operational Scopes}
+\subsection{Problem Formulation}
+
+
+% We formulate personalized presentation generation as a multi-turn, editable
+% authoring process rather than a one-shot source-to-slides conversion problem
+% \citep{sun2021d2s,zheng2025pptagent,zeng2025slidetailor,zheng2026deeppresenter}.
+% For each task, the system starts from source material $x$, a user $u$ with user profile memory $p_u$, and an optional template signal $\tau$ to produce an initial draft $S_0$:
+% $
+% S_0 = G_{\mathrm{init}}(x, p_u, \tau).
+% $
+% After receiving user feedback $f_t$ at turn $t$, it
+% continues revising the deck based on both the current deck and the current
+% session state. Our focus is therefore not a static mapping
+% $(x, u, \tau) \rightarrow S$, but a stateful interactive process:
+% \begin{equation}
+% z_t = U(z_{t-1}, f_t), \qquad
+% S_t = G_{\mathrm{edit}}(S_{t-1}, z_t; x, p_u, \tau), \ t \ge 1,
+% \end{equation}
+% where $z_t$ denotes the session state accumulated so far, and $U$ absorbs the current-round feedback into that state. We refer to the initial generation stage that produces $S_0$, before any revision feedback is observed, as \emph{round-0}. 
+% The goal is not merely to produce a usable first draft, but to iteratively move the deck toward the user's intended expressive state while avoiding unnecessary drift in already aligned slides.
+% These revisions are conditioned by three personalization inputs: the long-term profile, the task-time template, and the session feedback.
+
+% Personalized revision must reconcile personalization inputs with different lifetimes and priorities.
+% \textit{Long-term profile} inputs capture recurring user preferences across jobs in \textit{theme}, \textit{content}, \textit{visual}, \textit{layout}, \textit{template}, and \textit{general} categories. 
+% A \textit{task-time template}, whether explicitly provided or matched from the user's template library using template-use history, acts as a deck-local design constraint for the current job rather than as a generic profile-routing dimension.
+% % Appendix Figure~\ref{fig:appendix_template_generation_showcase} shows qualitative examples. \textit{Session feedback} introduces temporary preferences and constraints that are active within the current authoring session, such as ``make the titles of newly generated slides blue'' or ``compress the text starting from the results section''; Appendix Figure~\ref{fig:appendix_working_memory_carryover} shows qualitative cases of delayed preference carryover. When session preferences conflict with long-term profile items, the explicit current request should take precedence for the current deck; when they are compatible, both should remain active.
+
+% The temporal heterogeneity of personalization inputs shapes the operational structure of revision.
+% A \emph{job} is a complete deck-authoring session, a \emph{round} is one user-triggered revision within that session, and an \emph{operation} is a concrete editing action or tool call. Long-term profile inputs must remain available across jobs, while session feedback must stay active across relevant later rounds of the same deck. 
+% At the same time, revision requests may target a single slide, propagate across slides, or change the deck structure, so repeated full-deck regeneration can overwrite aligned content and increase context pressure.
+
+%%%% by xyy
+We formulate personalized presentation generation as a stateful, multi-turn authoring problem rather than a one-shot source-to-slides conversion task
+\citep{sun2021d2s,zheng2025pptagent,zeng2025slidetailor,zheng2026deeppresenter}.
+Given source material $x$, a user profile memory $P_u$, and an optional task-time template $\tau$, the system first produces an initial deck:
+\begin{equation}
+S_0 = G_{\mathrm{init}}(x, P_u, \tau).
+\end{equation}
+We refer to this initial generation stage as \emph{round-0}. After receiving user feedback $f_t$ at revision round $t$, the system updates a session state
+$z_t$ and edits the current deck accordingly:
+\begin{equation}
+z_t = U(z_{t-1}, f_t; S_{t-1}), \qquad
+S_t = G_{\mathrm{edit}}(S_{t-1}, x, P_u, \tau, z_t), \quad t \ge 1.
+\end{equation}
+Here, $z_t$ stores feedback-derived constraints and edit intentions that are active within the current authoring session. The objective is not only to improve the first draft, but also to move the deck toward the user's intended presentation while preserving slides that are already well aligned.
+
+This formulation separates three personalization signals with different lifetimes. The user profile memory $P_u$ captures recurring cross-job preferences, such as preferred themes, visual styles, layout habits, content density, and general design conventions. The task-time template $\tau$, when provided, serves as a deck-local design constraint for the current job. The session state $z_t$ captures temporary, turn-specific requirements, such as changing the color of new slide titles or compressing text after a particular section.
+When these signals conflict, explicit session feedback takes precedence for the current deck, followed by the task-time template and then the user profile memory.
+
+The temporal structure also determines the operational scope of revision. We define a \emph{job} as one complete deck-authoring session, a \emph{round} (turn) as one user-triggered revision within that job, and an \emph{operation} as a concrete edit or tool call. Revision requests may be local to a single slide, propagate across multiple slides, or modify the deck structure itself.
+Therefore, repeatedly regenerating the full deck is undesirable: it can overwrite already aligned content, introduce unnecessary drift, and increase context pressure. A stateful revision system should instead select the minimal effective scope for each request while carrying forward relevant session constraints.
+
+\begin{figure}[!t]
+  \centering
+  \includegraphics[width=\linewidth]{localized_tool_pipline}
+  \vspace{-2mm}
+  \caption{Localized modify execution in \methodname. Working memory supplies
+  active temporary preferences, carryover instructions, current edit state, and
+  buffered tool-memory signals to the Plan--Act--Guard pipeline. Plan builds an
+  execution contract, Act applies the minimal effective edit, and Guard verifies
+  coverage before finalizing the localized update.}
+  \label{fig:localized_tool_pipeline}
+\end{figure}
+
+
+\subsection{Multi-Turn Localized Modify Execution}
+
+\textbf{Plan.} \methodname converts each revision request into an explicit
+execution contract rather than leaving scope control implicit in the prompt. The
+contract records the inferred scope, target slide paths, active rule identifiers,
+selector hints, and whether target coverage is required. Local requests bind to
+the resolved slide; deck-level rules expand coverage to all slides; and hybrid
+requests preserve both the global rule and the local exception. Future-only
+rules created by an insertion request are not incorrectly forced onto existing
+slides, which avoids turning a structural edit into an unnecessary deck-wide
+rewrite.
+
+\textbf{Act.} The executor chooses editing tools according to this contract and
+the available slide structure. If target slides share an explicit selector, it
+prefers a batch CSS update; if the change targets common semantics such as
+titles, body text, or footers across structurally different slides, it uses
+semantic batch styling; if a single existing slide needs content or local
+structure changes, it reads a layout-first repair surface and applies
+non-empty patch operations to snapshot targets or exposed rules. Page insertion
+and deletion remain explicit page-level operations, while whole-slide rewriting
+is restricted to new slides or controlled recovery after a corrupted or
+uninspectable state.
+
+\textbf{Guard.} The protocol treats completion as a checked state, not merely as
+the model deciding to stop. Patch calls are bound to the snapshot content hash;
+stale snapshots trigger rebinding hints rather than immediate full rewrite; and
+every patch must specify concrete operations derived from repair candidates,
+rules, or targets. When coverage is required, premature \texttt{finalize} calls
+are blocked until all target slides are modified or explicitly confirmed
+compliant. These guards make localized revision a constrained execution process:
+the agent can update the intended deck region while reducing repeated
+re-contextualization, uncontrolled scope expansion, and drift in already aligned
+slides.
+
+Working memory is the session-scoped state layer that makes
+Plan--Act--Guard multi-turn rather than single-shot. It stores active temporary
+preferences from earlier feedback, carryover instructions that remain valid for
+the current deck, and edit-state records such as resolved targets, coverage
+status, and snapshot rebinding hints. It also buffers round-level tool-memory
+signals before transferable experiences are consolidated into long-term tool
+memory. Plan reads this state to construct the execution contract, Act uses it
+to restrict edits to the intended region, and Guard updates it after
+verification or rebinding.
+
+
+
+As illustrated in Figure~\ref{fig:localized_tool_pipeline}, localized
+modification gives the agent an editable substrate, but personalization still requires separating signals by lifetime and use. Rather
+than using one homogeneous buffer
+\citep{lewis2020rag,guu2020realm,khandelwal2019knnlm,borgeaud2021retro,izacard2022atlas,wang2023longmem},
+\methodname instantiates hierarchy memory through two modules: user profile
+memory decides what the deck should reflect, and tool memory supports how edits
+are executed, following agent-memory work on persistent and session state
+\citep{zhong2023memorybank,packer2023memgpt,park2023generativeagents,xu2025amem,chhikara2025mem0,wang2025mirix,kang2025memoryos,wu2025memoryage,yu2026agemem}.
+
+\subsection{User Profile Memory for Personalization}
+
+User profile memory governs personalization in \methodname.
+Instead of using personalization as a static prompt prefix, we represent it as a
+persistent user profile plus active temporary memory for the current session:
+\begin{equation}
+\label{eq:preference_memory_state}
+\mathcal{M}^{\mathrm{pref}}_t = \big(P_u, A_t\big),
+\end{equation}
+where $P_u$ is user $u$'s long-term profile and $A_t$ is the active temporary
+memory at revision round $t$. Stored profile items are organized by intent and
+presentation dimensions, while only the reconciled subset enters $A_t$. This
+separation is the lifecycle shown in
+Figure~\ref{fig:preference_memory_lifecycle}: user profile memory provides
+cross-job personalization priors, routing turns the intent-matched and
+request-compatible items into active temporary memory for the current deck, and
+job-end consolidation writes back only stable interaction signals. The figure
+therefore explains why profile memory is not injected as a static prompt block:
+it is selected, reconciled with the current request, used during round-0 and
+later revisions, and then updated after the round.
+
+\begin{figure}[!t]
+  \centering
+  \includegraphics[width=1.0\linewidth]{user_profile_preference_memory_lifecycle}
+  \vspace{-3mm}
+  \caption{User profile memory lifecycle in \methodname. Long term memory stores
+  intent-conditioned user profile memory accumulated across jobs. At job start,
+  user profile memory items are routed into active temporary memory by comparing them with the
+  current user request: compatible preferences coexist, explicit conflicts are
+  superseded, and only the active subset guides generation. At job end, stable interaction signals are consolidated
+  back into the user profile memory.}
+  \label{fig:preference_memory_lifecycle}
+\end{figure}
+
+% The prompt and user profile memory have different roles in this formulation. The current prompt supplies the task intent, source-specific request, and explicit constraints for the present deck. User profile memory stores recurring preferences that the user need not repeat, such as preferred evidence types, content density, visual style, layout rhythm, and closing-slide conventions.
+% user profile memory stores recurring preferences that need not be restated in the prompt. This separation is important because a role prompt may indicate that the user is, for example, a financial manager, but it does not determine the user's concrete recurring preferences over evidence type, density, layout rhythm, or closing-slide conventions.
+
+Before round-0 generation, \methodname selects the profile bucket for the
+current intent $i_0$, extracts constraints from the request $q_0$, and routes
+compatible items into working memory:
+\begin{equation}
+\label{eq:profile_routing}
+\begin{aligned}
+\tilde P_u = \mathcal{S}\!\left(P_u, i_0\right),
+\qquad
+C_0 = \mathcal{E}\!\left(q_0\right),
+\qquad
+A_0 = \mathcal{R}\!\left(\tilde P_u, C_0\right).
+\end{aligned}
+\end{equation}
+Here, $\mathcal{S}$ retrieves the intent-matched profile bucket, $\mathcal{E}$
+extracts request constraints, and $\mathcal{R}$ reconciles them. Explicit
+request conflicts supersede the corresponding profile item for the current deck;
+compatible preferences coexist as active memory.
+% When a prompt constraint conflicts with a stored preference, the explicit request supersedes the targeted items; when the two are compatible or apply to different scopes, they coexist as active constraints. 
+% The stored user profile memory spans six top-level categories, namely \textit{theme}, \textit{content}, \textit{visual}, \textit{layout}, \textit{template}, and \textit{general}, whereas runtime user profile memory routing operates on the non-template dimensions and materializes only the reconciled subset as active preference items in working memory.
+
+%Once iterative revision begins, the system maintains a dynamically evolving set of active temporary preference items:
+During revision, active temporary memory evolves with feedback:
+\begin{equation}
+\label{eq:working_memory_update}
+A_t = \mathcal{U}\!\left(A_{t-1}, r_t\right),
+\end{equation}
+% where $r_t$ is the newly received revision request. 
+where $r_t$ is the revision request at round $t$. The update operator
+$\mathcal{U}$ appends newly exposed preferences, supersedes true conflicts, and
+keeps non-conflicting items active for later rounds.
+
+At job end, long-term user profile memory is updated by consolidation rather
+than by directly promoting every temporary item:
+\begin{equation}
+\label{eq:profile_consolidation}
+P_u^{+} = \mathcal{C}\!\left(P_u, H\right),
+\end{equation}
+where $H$ denotes the user messages in the current job and $\mathcal{C}$ is
+intent-aware profile consolidation.
+% This design makes long-term personalization depend on stable, transferable signals that recur across the interaction rather than on transient session state. Active temporary preference items therefore supports within-session adaptation without conflating one-off requests with persistent user profile memory.
+This prevents transient requests from being stored as persistent preferences, while allowing stable, transferable signals to improve future personalization.
+
+
+\subsection{Tool Memory for Reliable Editing}
+
+Tool memory addresses the execution side of personalized editing. Even when the
+target preference is correct, the agent may repeat ineffective trials or
+re-trigger known tool misuse. Prior tool-using and reflective agents motivate
+interleaving reasoning, tool calls, and feedback
+\citep{yao2023react,shinn2023reflexion,schick2023toolformer,qin2023toolllm,madaan2023selfrefine}.
+% here, the remembered execution unit is tied to slide-edit scope and verification rather than to raw interaction history.
+In our setting, the remembered execution unit is tied to slide-edit scope and
+verification rather than to raw interaction history.
+
+In \methodname, tool memory is organized two execution flows that match
+the temporal granularity of localized editing
+(Figure~\ref{fig:tool_memory_lifecycle}). 
+Round-scope task experience is available when a modify job starts and is
+buffered in working memory across later modify rounds; after each round, agent
+lessons, tool-error summaries, and automatically extracted patterns can update
+this pool. Operation-scope tool-chain experience is finer grained: raw
+reasoning--tool--observation chains are segmented into reusable chain fragments,
+indexed by operation context, and retrieved before similar future tool calls.
+
+\begin{figure}[!t]
+  \centering
+  \includegraphics[width=\linewidth]{tool_memory}
+  \vspace{-4mm}
+  \caption{Tool memory flow in \methodname. Round-scope task experience is
+  available at job start, enters working memory during modify rounds, and is
+  updated through agent lessons, tool-error summaries, and automatically
+  extracted patterns before memory consolidation. Operation-scope tool-chain
+  experience records raw reasoning--tool--observation chains as compact
+  fragments that are retrieved and injected before similar future tool calls.}
+  \label{fig:tool_memory_lifecycle}
+\end{figure}
+
+We represent this execution support at revision round $t$ and operation $k$ as
+\begin{equation}
+\label{eq:tool_memory_state}
+\mathcal{M}^{\mathrm{tool}}_{t,k} = \big(E_t^{\mathrm{round}}, E_{t,k}^{\mathrm{op}}\big),
+\end{equation}
+where $E_t^{\mathrm{round}}$ denotes round-scope execution experience and $E_{t,k}^{\mathrm{op}}$ denotes operation-scope tool chain experience for the $k$-th operation. Tool memory does not define what the deck should look like; it helps the agent execute that objective with fewer repeated errors, less backtracking, and more reliable local verification. Transferable experiences are consolidated into long-term tool memory at job end.

@@ -1,0 +1,77 @@
+\section{Experiments}
+\label{sec:experiments}
+
+We evaluate our approach across three representative task categories that differ in the level of external guidance and the degree of required autonomous reasoning. These tasks are designed to systematically probe how \methodfull and \temporalmethodfull contribute under varying conditions of supervision and exploration. At one end of the spectrum, we consider image editing, where rich instructions directly specify both the target regions and desired modifications. We then study Sudoku, a structured reasoning task where the model must identify and correct erroneous entries with limited guidance. Finally, we evaluate on text reasoning tasks such as mathematical reasoning and code synthesis, where no explicit hints about the final output are provided. This progression enables us to examine the roles of \method and \temporalmethod, and to understand how they interact across tasks with increasing reasoning complexity and decreasing supervision.
+
+The training on these three tasks can be completed within about \textbf{5 hours} on 2 NVIDIA H100 80GB GPUs, avoiding the \textbf{days or weeks} long training often associated with prior architecture-changed approaches.
+
+
+
+\subsection{Instruction-based in-place image editing}
+\label{sec:image-editing-experiments}
+
+We begin with image editing~\citep{brooks2023instructpix2pix,zhang2023magicbrush,sheynin2024emu,hertz2022prompt}, a task characterized by strong external guidance from natural language instructions. Given an input image and an editing instruction, the model is required to localize the regions to be modified and generate corresponding updates that align with the semantic intent, while preserving the rest of the image. In this setting, the instruction provides explicit cues for both where and how to edit, leaving limited need for autonomous exploration. As a result, this task primarily evaluates whether \methodfull can enable precise, localized revisions based solely on instruction signals, without relying on iterative self-discovery or history-based reasoning.
+
+\textbf{Experiment settings.}
+We use Lumina-DiMOO (Lumina)~\citep{xin2025lumina} as the base model. For training and evaluation, we sample 85,000 examples from ImgEdit~\citep{ye2025imgedit} as the training set and hold out another 1,700 examples as the test set. To ensure a fair comparison, our method and the vanilla SFT baseline are trained under the same experimental setup.
+
+
+\input{tables/formal/image.tex}
+
+\input{figures/Image_main_paper}
+
+
+\textbf{Results.}
+Fig.~\ref{fig:image_edit_main_paper} and Tab.~\ref{tab:img-editing-main-results} present the qualitative and quantitative results on image editing.
+As shown in Fig.~\ref{fig:image_edit_main_paper}, our method accurately localizes the regions that require editing and masks them for subsequent generation.
+This provides the MDM with a cleaner current state, leading to higher-quality edits than the baselines.
+Moreover, since our method only regenerates the masked regions, the unmasked areas remain well aligned with the input image.
+This is further demonstrated by the heat maps in Fig.~\ref{fig:image_edit_main_paper}, where our changes are concentrated in the target edit regions, while the baselines introduce more globally distributed editing noise, leading to noticeable consistency issues that distort unaffected regions and even corrupt fine-grained details.
+
+For quantitative evaluation, we consider three aspects of image editing quality: localization accuracy, background preservation, and overall editing quality.
+For localization, we report Edit \textit{Precision}, which measures the percentage of changed pixels that fall inside the ground-truth target edit region, while Edit \textit{Coverage} measures the fraction of the target region that is modified.
+For background preservation, we use MAE-RGB~\citep{willmott2005advantages}, PSNR~\citep{huynh2008scope}, and SSIM~\citep{wang2004image} on the non-target regions between the edited and the input image.
+These metrics evaluate whether regions unrelated to the instruction remain unchanged.
+For overall editing quality, we use VQAScore~\citep{lin2024evaluating} to evaluate instruction following and content preservation, together with a 29-participant user study to measure human preference.
+As shown in Tab.~\ref{tab:img-editing-main-results}, our method outperforms baselines across all metrics.
+
+
+\subsection{Sudoku revision}
+\label{sec:sudoku-experiments}
+
+We next consider Sudoku~\citep{palm2018recurrent,wang2019satnet}, a structured reasoning task that requires the model to detect and correct errors in a partially incorrect grid. The input consists of Sudoku boards containing invalid entries, and the model must iteratively refine its predictions to produce a valid solution. Unlike image editing, this task requires the model to actively identify inconsistencies and explore possible corrections. At the same time, the search space is highly constrained due to the limited vocabulary and strict structural rules, making Sudoku a controlled environment for studying iterative reasoning and revision behaviors. This setting provides a challenging testbed for \methodfull and allows us to evaluate how \temporalmethodfull facilitates effective failure avoidance in the absence of explicit instructions about where errors occur or how revisions should be performed, thereby highlighting the importance of the \temporalmethod mechanism for autonomous error localization and refinement.
+
+\input{tables/formal/sudoku_ablation_components}
+
+\textbf{Experiment settings.}
+We construct a lightweight MDM with four Transformer layers and 0.81M parameters. We construct test examples from solved $9\times9$ boards by corrupting a specified number of cells (randomly chosen from 4 to 20), replacing the original digits with incorrect values. The model is tasked with correcting the corrupted board through iterative re-masking and re-prediction.
+
+\textbf{Results.}
+We evaluate four complementary metrics.
+\textit{Exact Accuracy} requires every cell in the final board to exactly match the ground-truth solution, while \textit{Valid Rate} only requires the final board to satisfy Sudoku constraints.
+We include \textit{Exact Accuracy} because our setting allows the model to re-mask and revise any position in the initial board. A low \textit{Exact Accuracy} score would indicate that the model tends to discard key given clues and regenerate a generic valid solution. Taken together, these two metrics provide a more comprehensive evaluation of the correction capability of the RM method.
+\textit{Replay Mistake} measures the fraction of re-masked erroneous cells that are later decoded back to their previous incorrect digit during the revision trajectory, and \textit{Conflict Cells} reports the average number of Sudoku-rule-violating cells in each final board.
+
+As shown in Tab.~\ref{tab:sudoku-ablation-components}, adding \temporalmethod greatly reduces repeated mistakes and constraint conflicts compared with the variant without \temporalmethod, suggesting that \temporalmethodfull helps the model avoid revisiting the same erroneous predictions. 
+However, introducing a decay factor alone still improves over the no-history baseline but performs worse than the \temporalmethod-only variant, indicating that simply weakening historical signals is insufficient for effective correction. After further incorporating \distancemethod, which explicitly disentangles historical information, applying decay becomes beneficial. Our full method achieves the best performance across all metrics. These results suggest that properly structuring historical information, rather than merely attenuating it, is crucial for improving iterative error correction, leading to more accurate Sudoku solutions with fewer rule violations.
+
+
+\subsection{Text reasoning task}
+\label{sec:textgen-experiments}
+
+Finally, we evaluate on text generation tasks, including mathematical problem solving and code generation, which require fully autonomous reasoning.
+Given only a problem description, the model must generate complete solutions without any direct hints about the final answer. These tasks present the most challenging setting, as the model needs to explore an unconstrained output space while maintaining logical consistency.
+In this regime, both \methodfull and \temporalmethodfull become critical: \method enables iterative revision of intermediate outputs, while \temporalmethod provides essential guidance by leveraging prior predictions to stabilize and improve the reasoning process.
+
+\textbf{Experiment settings.}
+We use LLaDA~\citep{nie2025large} as the base model and implement it using the dLLM~\citep{zhou2026dllm} library. We evaluate our method on reasoning benchmarks including MATH~\citep{lightman2023let,hendrycks2021measuring,lewkowycz2022solving}, MBPP~\citep{austin2021program}, and ARC-Challenge~\citep{clark2018think}. MATH and MBPP require multi-step reasoning and unconstrained generation, making them suitable for evaluating the revision capability introduced by \method. For each benchmark, we construct task-specific training data from the corresponding training split to equip the model with the revision capability of \method. For MBPP, we randomly use 30\% of the data for training and reserve the remaining 70\% for testing. In contrast, ARC-Challenge is evaluated in a standard forward-only multiple-choice setting, serving primarily to verify that introducing \method does not compromise the model’s original inference capability on conventional generation tasks.
+
+\input{tables/formal/text}
+\input{figures/text_case_main_paper}
+
+
+\textbf{Results.}
+Fig.~\ref{fig:text_case_main_paper} illustrates a representative revision trajectory, while Tab.~\ref{tab:textgen-main} and Tab.~\ref{tab:minerva-subject} report the quantitative results on text reasoning tasks. As shown in Fig.~\ref{fig:text_case_main_paper}, even when the model initially produces an incorrect answer, the introduction of \method enables subsequent correction through iterative revision. Specifically, the model first focuses on regions with richer local context, the chain-of-thought (CoT) portion, where it identifies erroneous tokens, selectively re-masks them, and predicts corrected replacements while avoiding unnecessary changes to already correct tokens. As the CoT becomes progressively more accurate, the improved context is propagated to the rest of the sequence. This allows the model to subsequently revise the final answer, ultimately arriving at the correct solution. Moreover, compared with prior re-mask methods that mainly involve fewer logic-critical token changes, our \method can revise mathematical tokens that directly determine the reasoning process and final answer. This behavior highlights that \method not only enables error correction but also performs targeted and context-aware revisions, improving both intermediate reasoning steps and final outputs.
+
+\input{tables/formal/minerva_subject}
+Tab.~\ref{tab:textgen-main} shows that \method consistently improves over both LLaDA and Vanilla SFT across math, code, and ARC-Challenge benchmarks. Tab.~\ref{tab:minerva-subject} further breaks down the results on Minerva MATH~\citep{lewkowycz2022solving} by subject category. \method improves over Vanilla SFT on nearly all subjects. Notably, the performance gain on MBPP is larger than that on MATH500. We attribute this to the nature of code generation tasks, where correctness depends on a larger number of tokens compared to MATH500. In contrast, MATH500 evaluation focuses primarily on the final answer. As a result, our RM method benefits more in code tasks, where iterative revision can correct a greater number of token-level errors. These results suggest that enabling the model to revise previous predictions provides consistent benefits for text generation, especially in tasks that require multi-step reasoning or structured outputs.

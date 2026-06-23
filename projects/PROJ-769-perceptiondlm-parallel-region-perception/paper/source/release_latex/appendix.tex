@@ -1,0 +1,594 @@
+% Overview.
+% 1. Data Pipeline and Data Statistics.
+% 2. More experiment results
+% 3. Related Works.
+% 4. Limitations and future works (directions).
+
+
+\section{Overview}\vspace{-5pt}
+
+% This appendix provides supplementary materials, extended discussions, and additional experimental results to support the main paper.
+Here is the table of contents of this appendix:
+
+\begin{itemize}
+    \item In \textbf{Appendix~\ref{sec:more_exp}}, we provide more implementation details along with additional experimental results. Detailed ablation studies analyzing the impact of each core component of PerceptionDLM can also be found in this section.
+    \item In \textbf{Appendix~\ref{sec:detail_bench}}, we introduce the details of our proposed ParaDLC-Bench, including the specific annotation guidelines, quality control protocols, and overall dataset statistics.
+    \item In \textbf{Appendix~\ref{sec:related_works}}, we provide an extended discussion of related works, covering broader literature on diffusion language models and region-level multimodal perception and captioning.
+    \item In \textbf{Appendix~\ref{sec:qua}}, we provide extensive visualization and qualitative results, showcasing PerceptionDLM's performance on fine-grained image understanding and parallel region captioning tasks.
+    \item In \textbf{Appendix~\ref{sec:limitation}}, we discuss the potential limitations of our current approach and provide an analysis of typical failure cases.
+\end{itemize}
+
+\section{Additional Experiments}
+\label{sec:more_exp}
+
+\noindent
+\textbf{Implementation details.} We summarize the implementation details of PerceptionDLM-Base pretraining and the parallel captioning model in this section. 
+
+The four-stage training setup of PerceptionDLM-Base is listed in~\Cref{tab:traing_params}; the entire pipeline is trained on $32\times$NVIDIA H100 (80GB) GPUs and takes approximately three weeks in total. We use the AdamW optimizer with cosine learning-rate schedule and $3\%$ linear warmup, BF16 mixed precision, and gradient checkpointing. The vision encoder is SigLIP-2~\citep{tschannen2025siglip} and the diffusion backbone is initialized from LLaDA-Instruct-8B~\citep{nielarge}; images are processed with the dynamic-resolution tiling strategy using a tile size of $512\times512$.
+
+For the parallel captioning model, we initialize from PerceptionDLM-Base and set all parameters trainable. We use a global batch size of 256, learning rate of $4\times10^{-5}$, one training epoch, maximum sequence length of 4096, and RoI output size of $4\times4$. We set the maximum number of region prompts per image at 6 during training. Training on the full ParaCaption-5.7M corpus takes about 2 days on $32\times$H100 GPUs and since it starts from the strong base checkpoint, this stage is substantially cheaper than base pretraining.
+
+For parallel-captioning ablations, unless otherwise specified, all runs use the same setting: training on DAM~\citep{lian2025describe} only, default PerceptionDLM as baseline architecture, and inference with 32 diffusion steps per diffusion process and generation length 32 per mask.
+%
+All latency and throughput evaluations are conducted on a single H100 GPU using BF16 precision, with a strictly matched batch size of 1 per image for all models. We keep all other hyper-parameters identical across ablation runs to ensure fair comparison.
+%
+For evaluation protocols, multimodal benchmarks are run with VLMEvalKit~\citep{duan2024vlmevalkit}. For ChartQA, DocVQA, and InfoVQA, we additionally adopt a stricter answer-matching judge based on a locally deployed Qwen3-8B~\citep{yang2025qwen3} to better reflect the true accuracy. For region-captioning benchmarks, the LLM judge (GPT-5.2 by default) is queried at \texttt{temperature=0} to remove sampling noise, and we further report robustness across different judge models in~\Cref{tab:judge_sensitivity}.
+
+\noindent
+\textbf{Evaluation on Multimodal Benchmarks} We evaluate PerceptionDLM-Base on a diverse set of multimodal benchmarks covering general VQA, reasoning, chart and document understanding, perception-oriented tasks, and hallucination robustness. Specifically, we report results on \textbf{General VQA} benchmarks (MMStar~\citep{chen2024mmstar}, SeedBench~\citep{li2023seedbench}, MMBench~\citep{liu2024mmbench}), \textbf{Reasoning} benchmarks (MMMU~\citep{yue2023mmmu}, MathVista~\citep{lu2023mathvista}, MathVerse-Vision-Only~\citep{zhang2024mathverse}), \textbf{OCR, Chart and Document Understanding} benchmarks (AI2D~\citep{kembhavi2016ai2d}, ChartQA~\citep{masry2022chartqa}, DocVQA~\citep{mathew2021docvqa}, InfoVQA~\citep{mathew2021infographicvqa}), \textbf{Perception} benchmarks (MMVP~\citep{tong2024mmvp}, BLINK~\citep{fu2024blink}, RealWorldQA~\citep{xai2024realworldqa} , CV-Bench-2D~\citep{tong2024cambrian}), and \textbf{Others} (HallusionBench~\citep{guan2023hallusionbench}, V*~\citep{wu2023vstar}).
+% As shown in \Cref{tab:main_results}, PerceptionDLM achieves strong performance across nearly all benchmark groups, demonstrating the effectiveness of diffusion-based multimodal training for general visual understanding.
+
+%\input{tables/training_params}
+\begin{table}[htbp]
+\centering
+\setlength{\belowcaptionskip}{8pt}
+\caption{Training parameters of PerceptionDLM-Base}
+\label{tab:traing_params}
+\resizebox{\textwidth}{!}{
+\begin{tabular}{l|c|c|c|c}
+\toprule[1.5pt]
+ & Stage-1 & Stage-2 & Stage-3 & Stage-4 \\
+\midrule
+Dataset & Bee-Training-Data-Stage1 & Bee-Training-Data-Stage2 & LLaVA-OneVision-1.5-Instruct-Data & Honey-Data-15M \\
+\#Samples & 1M & 14M & 22M & 15M \\
+\midrule
+Vision Tower & 
+siglip2-so400m-patch16-512 & 
+siglip2-so400m-patch16-512 & 
+siglip2-so400m-patch16-512 & 
+siglip2-so400m-patch16-512\\
+LLM Backbone & LLaDA-Instruct-8B & LLaDA-Instruct-8B & LLaDA-Instruct-8B & LLaDA-Instruct-8B \\
+% Trainable Model Parameters & Projector & \multicolumn{3}{|c}{Projector + LLM backbone} \\
+Trainable Model Parameters & Projector & Projector + LLM backbone & Projector + LLM backbone & Projector + LLM backbone \\
+\midrule
+Batch Size & 512 & 512 & 512 & 512 \\
+Model Max Length & 2048 & 4096 & 4096 & 4096 \\
+Learning Rate & $ 1 \times 10^{-3} $ & $ 4 \times 10^{-5} $ & $ 4 \times 10^{-5} $ & $ 4 \times 10^{-5} $ \\
+Epoch & 1 & 1 & 1 & 1 \\
+\bottomrule[1.5pt]
+\end{tabular}
+}
+\end{table}
+
+% \noindent
+% \textbf{Ablation Study and Analysis} We provide additional ablations to analyze data scaling, vision encoder training strategy, component contribution, and decoding configuration.
+
+\begin{table*}[htbp]
+\centering
+\setlength{\belowcaptionskip}{8pt}
+\caption{Multimodal benchmark comparison between PerceptionDLM-Base with trainable ViT variant and the frozen-ViT baseline. The compared benchmarks follow the same protocol as in~\Cref{tab:main_results}.}
+\label{tab:multimodal_vit_train_vs_freeze}
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.15}
+\resizebox{0.95\textwidth}{!}{
+\begin{tabular}{l | c c c c c c c c}
+\toprule
+\textbf{Model Variant} & \textbf{MMStar} & \textbf{MMBench} & \textbf{MMMU} & \textbf{MathVista} & \textbf{AI2D} & \textbf{ChartQA} & \textbf{MMVP} & \textbf{HallusionBench} \\
+\midrule
+PerceptionDLM-Base (Train ViT) & 61.9 & 83.7 & \textbf{48.7} & 61.9 & 82.0 &  89.3 & 79.7 & 54.6 \\
+\rowcolor{blue!8}
+\textbf{PerceptionDLM-Base (Freeze ViT, baseline)} & \textbf{63.7} & \textbf{85.0} & 47.2 & \textbf{65.5} & \textbf{85.0} & \textbf{91.6} & \textbf{82.0} & \textbf{58.4} \\
+\bottomrule
+\end{tabular}
+}
+\end{table*}
+
+
+\noindent
+\textbf{Impact of ViT Training Strategy on PerceptionDLM-Base.}
+We explore two optimization strategies for instruction tuning: (1) full-parameter training (updating both the diffusion backbone and ViT), and (2) partially frozen training (freezing ViT).~\Cref{tab:multimodal_vit_train_vs_freeze} evaluates their impact on multimodal capabilities. The frozen-ViT baseline significantly outperforms the full-parameter variant across most benchmarks. Thus, we adopt the partially frozen strategy to preserve broad visual understanding.
+
+%Although the full-parameter variant shows a marginal gain on the reasoning-heavy MMMU (48.7 vs. 47.2), its pervasive degradation on other tasks indicates that unfreezing the ViT compromises generalized pre-trained representations. Thus, we adopt the partially frozen strategy to preserve broad visual understanding.
+
+% scaling data
+
+% \begin{table}[htbp]
+% \centering
+% \setlength{\belowcaptionskip}{8pt}
+% \caption{Data scaling ablation for Parallel Captioning. Increasing the amount and diversity of training data consistently improves performance.}
+% % \vspace{2mm}
+% \label{tab:data_scaling_ablation}
+% \setlength{\tabcolsep}{6pt}
+% \renewcommand{\arraystretch}{1.15}
+% \resizebox{0.75\textwidth}{!}{
+% \begin{tabular}{l | l | c c c}
+% \toprule
+% \textbf{Method} & \textbf{Training Data} & \textbf{Pos(\%) $\uparrow$} & \textbf{Neg(\%) $\uparrow$} & \textbf{Avg(\%) $\uparrow$} \\
+% \midrule
+% % 前三行的第一列留空
+% & dam & 31.8 & 67.5 & 50.0 \\
+% & dam + sam & 32.2 & 70.6 & 52.2 \\
+% & dam + coconut & 39.0 & 73.0 & 56.9 \\
+% \rowcolor{blue!8}
+% % 在最后一行使用白底并向上合并 4 行
+% \cellcolor{white}\multirow{-4}{*}{\textbf{PerceptionDLM}}
+% & \textbf{dam + sam + coconut} & \textbf{39.7} & \textbf{80.6} & \textbf{61.4} \\
+% \bottomrule
+% \end{tabular}
+% }
+% \end{table}
+
+
+\begin{table}[htbp]
+\centering
+\setlength{\belowcaptionskip}{8pt}
+\caption{Data scaling ablations for Parallel Captioning. Increasing the amount and diversity of training data consistently improves performance.}
+% \vspace{2mm}
+\label{tab:data_scaling_ablation}
+\setlength{\tabcolsep}{6pt}
+\renewcommand{\arraystretch}{1.15}
+\resizebox{0.7\textwidth}{!}{
+\begin{tabular}{l | l | c c c}
+\toprule
+\textbf{Method} & \textbf{Training Data} & \textbf{Pos(\%) $\uparrow$} & \textbf{Neg(\%) $\uparrow$} & \textbf{Avg(\%) $\uparrow$} \\
+\midrule
+& DAM & 33.8 & 73.6 & 53.7 \\
+& DAM + COCONut & 38.4 & 77.1 & 57.7 \\
+\rowcolor{blue!8}
+\cellcolor{white}\multirow{-3}{*}{\textbf{PerceptionDLM}}
+& \textbf{DAM + COCONut + SAM} & \textbf{42.3} & \textbf{82.4} & \textbf{62.4} \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+\noindent
+\textbf{Ablations on Data Scaling}
+~\Cref{tab:data_scaling_ablation} demonstrates consistent performance gains as the training data scales up. Starting with the DAM dataset baseline (53.7\% average accuracy), we observe that introducing processed data sourced from the COCONut dataset~\citep{deng2024coconut} improves the average accuracy to 57.7\%. Further expanding the training corpus with SA-1B(SAM) dataset~\citep{carion2025sam} annotations yields the best performance, reaching 62.4\%. Notably, the improvements indicate that both data scale and data diversity are critical.
+
+
+\begin{table}[htbp]
+\centering
+\setlength{\belowcaptionskip}{8pt}
+\caption{Ablations on the training strategy of the vision encoder in PerceptionDLM. Freezing the vision encoder performs better, and is thus used as the default baseline setting.}
+%\vspace{2mm}
+\label{tab:vision_encoder_ablation}
+\setlength{\tabcolsep}{6pt}
+\renewcommand{\arraystretch}{1.15}
+\resizebox{0.75\textwidth}{!}{
+\begin{tabular}{l | c | c c c}
+\toprule
+\textbf{Method} & \textbf{Vision Encoder} & \textbf{Pos(\%) $\uparrow$} & \textbf{Neg(\%) $\uparrow$} & \textbf{Avg(\%) $\uparrow$} \\
+\midrule
+& Train & 31.8 & 68.8 & 50.3 \\
+\rowcolor{blue!8}
+\cellcolor{white}\multirow{-2}{*}{\textbf{PerceptionDLM}}
+& \textbf{Freeze} & \textbf{33.8} & \textbf{73.6} & \textbf{53.7} \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+\noindent
+\textbf{Ablations on Vision Encoder Training Strategy.}
+We investigate whether unfreezing the vision encoder during visual instruction tuning benefits region-level perception. As shown in~\Cref{tab:vision_encoder_ablation}, fully updating the vision encoder results in performance degradation on the fine-grained ParaDLC-Bench, consistent with observations on multimodal benchmarks. This suggests that the robust representations learned during the vision encoder's large-scale pre-training are highly important for complex localized perception tasks.
+
+% \begin{table}[htbp]
+% \centering
+% \setlength{\belowcaptionskip}{8pt}
+% \caption{Ablation on the attention masking mechanism in PerceptionDLM. Structured attention yields better overall performance than full attention, and is therefore adopted as the default baseline setting.}
+% %\vspace{2mm}
+% \label{tab:attention_mask_ablation}
+% \setlength{\tabcolsep}{6pt}
+% \renewcommand{\arraystretch}{1.15}
+% \resizebox{0.75\textwidth}{!}{
+% \begin{tabular}{l | c | c c c}
+% \toprule
+% \textbf{Method} & \textbf{Attention Mask} & \textbf{Pos.(\%) $\uparrow$} & \textbf{Neg.(\%) $\uparrow$} & \textbf{Avg.(\%) $\uparrow$} \\
+% \midrule
+% % 第一行第一列留空
+% & Full Attention & 30.8 & 64.1 & 47.5 \\
+% \rowcolor{blue!8}
+% % 使用白底覆盖蓝底，并使用向上跨行的 \multirow{-2} 渲染文字
+% \cellcolor{white}\multirow{-2}{*}{\textbf{PerceptionDLM}} 
+% & \textbf{Structured Attention} & 33.8 & \textbf{73.6} & \textbf{53.7} \\
+% \bottomrule
+% \end{tabular}
+% }
+% \end{table}
+
+
+\begin{table}[htbp]
+\centering
+\setlength{\belowcaptionskip}{8pt}
+\caption{Ablations on core design choices for parallel captioning under the same training setting, including module design and attention masking strategy. Results show that \textit{region prompting}, \textit{RoI-aligned feature replay}, and \textit{structured attention} are all important for the final performance. Following the judge-scoring protocol, Pos/Neg scores can be slightly negative when penalties dominate.}
+%\vspace{2mm}
+\label{tab:component_ablation}
+\setlength{\tabcolsep}{6pt}
+\renewcommand{\arraystretch}{1.15}
+\resizebox{0.7\textwidth}{!}{
+\begin{tabular}{l | c | c c c}
+\toprule
+\textbf{Method} & \textbf{Model Setting} & \textbf{Pos.(\%) $\uparrow$} & \textbf{Neg.(\%) $\uparrow$} & \textbf{Avg.(\%) $\uparrow$} \\
+\midrule
+& w/o region prompting & -0.01 & 2.4 & 1.1 \\
+& w/o RoI-aligned feature replay & 29.9 & 72.7 & 51.3 \\
+& Full Attention & 30.8 & 64.1 & 47.5 \\
+\rowcolor{blue!8}
+\cellcolor{white}\multirow{-4}{*}{\textbf{PerceptionDLM}}
+& \textbf{Full model (default baseline)} & \textbf{33.8} & \textbf{73.6} & \textbf{53.7} \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+\noindent
+\textbf{Ablations on Architecture Designs.}
+In~\Cref{tab:component_ablation}, we evaluate the necessity of our proposed structural designs for parallel captioning under a controlled training setting. The results confirm that all three core modules are indispensable:
+\begin{itemize}
+    \item Region Prompting: Without explicit region prompting, the model loses its spatial grounding capability entirely, resulting in a catastrophic drop to 1.1\% average accuracy. The model fails to associate textual generation with specific visual targets.
+    \item Structured Attention: Replacing our structured attention with standard full attention degrades the average accuracy by 6.2\%. This validates that structured attention successfully isolates the processing of different masks during parallel generation, mitigating feature interference and target confusion across multiple concurrent descriptions.
+    \item RoI-aligned Feature Replay: Removing this module results in a 2.4\% accuracy drop. This indicates that explicitly pooling and aligning localized visual features provides fine-grained cues that are essential for accurate regional perception.
+\end{itemize}
+
+
+\noindent
+\textbf{Qualitative Breakdown of Region Prompting.}
+Removing region prompting causes a catastrophic grounding failure, though not a language breakdown. Below is a qualitative example from the image in~\Cref{fig:teaser}(a) without learnable region prompts:
+\begin{itemize}
+    \item \textbf{Mask 1:} ``A tall, cylindrical stone pillar with a smooth surface and a slightly tapered top. The pillar has a uniform texture and appears to be made of a solid material.''
+    \item \textbf{Mask 2:} ``A tall, cylindrical stone pillar with a smooth surface and a slightly tapered top...''
+    \item \textbf{Mask 3:} ``A tall, cylindrical stone pillar with a smooth surface and a slightly tapered top...''
+\end{itemize}
+The model emits grammatically fluent, identical text for all masks. Without learnable region prompts, the model loses the ability to bind specific generated tokens to distinct spatial coordinates, completely failing the localized perception task.
+
+\noindent
+\textbf{Judge Model Sensitivity on ParaDLC-Bench.}
+To establish reproducibility and test the robustness of our benchmark, we re-evaluate the models using different Judge LLMs, including the open-source Qwen3.5-27B and the closed-source Gemini-3.1-Pro. As shown in \Cref{tab:judge_sensitivity}, although there are minor fluctuations in absolute scores and partial rankings due to differences in the judge models' reasoning capabilities, the main conclusions remain unchanged. PerceptionDLM consistently outperforms all other diffusion Vision-Language Models, remaining highly competitive with traditional AR models. This fully validates the reliability of the ParaDLC-Bench evaluation framework.
+
+\begin{table}[htbp]
+\centering
+\setlength{\belowcaptionskip}{8pt}
+\caption{Performance on ParaDLC-Bench by different judge models (G3.1P = Gemini-3.1-Pro Judge; Q3.5 = Qwen3.5-27B Judge).}
+\label{tab:judge_sensitivity}
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.15}
+\resizebox{0.95\textwidth}{!}{
+\begin{tabular}{l | c c c | c c c}
+\toprule
+\textbf{Model} & \textbf{G3.1P-Pos(\%)} & \textbf{G3.1P-Neg(\%)} & \textbf{G3.1P-Avg(\%)} & \textbf{Q3.5-Pos(\%)} & \textbf{Q3.5-Neg(\%)} & \textbf{Q3.5-Avg(\%)} \\
+\midrule
+GPT-5.2 & 42.6 & 72.6 & 57.6 & 50.7 & 72.8 & 61.8 \\
+Gemini-2.5-Pro & 41.1 & 73.6 & 57.3 & 45.5 & 73.4 & 59.4 \\
+Gemini-3.1-pro & 45.3 & 82.7 & 64.0 & 53.0 & 82.8 & 67.9 \\
+PixelRefer & 46.9 & 87.7 & 67.3 & 57.3 & 88.8 & 73.1 \\
+DAM & 52.3 & 88.0 & 70.1 & 59.6 & 88.8 & 74.2 \\
+GAR & 53.5 & 88.8 & 71.2 & 59.7 & 89.7 & 74.7 \\
+LLaDA-V & 31.0 & 53.0 & 42.0 & 38.9 & 51.0 & 45.0 \\
+SDAR-VL & 37.8 & 32.7 & 35.3 & 44.4 & 38.1 & 41.3 \\
+Dream-VL & 35.4 & 35.8 & 35.6 & 41.4 & 37.9 & 39.7 \\
+\rowcolor{blue!8}
+PerceptionDLM & 47.1 & 84.9 & 66.0 & 59.4 & 87.5 & 73.5 \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+
+\noindent
+\textbf{Impact of Denoising Steps on Accuracy and Latency.}
+To illustrate the trade-off between accuracy and inference latency, we evaluate PerceptionDLM on ParaDLC-Bench using Qwen3.5-27B judge across varying diffusion steps while keeping the generation length fixed at 32. As shown in \Cref{tab:denoising_steps_ablation}, \texttt{steps=32} is the optimal operating point, offering the best balance of high captioning accuracy and efficient inference time.
+
+\begin{table}[htbp]
+\centering
+\setlength{\belowcaptionskip}{8pt}
+\caption{Impact of denoising steps on accuracy and latency on ParaDLC-Bench.}
+\label{tab:denoising_steps_ablation}
+\setlength{\tabcolsep}{6pt}
+\renewcommand{\arraystretch}{1.15}
+\resizebox{0.7\textwidth}{!}{
+\begin{tabular}{l | c | c c c | c}
+\toprule
+\textbf{Method} & \textbf{Steps} & \textbf{Pos(\%) $\uparrow$} & \textbf{Neg(\%) $\uparrow$} & \textbf{Avg(\%) $\uparrow$} & \textbf{Time (s)} \\
+\midrule
+& 16 & 54.5 & 83.4 & 69.0 & 138 \\
+\rowcolor{blue!8}
+\cellcolor{white} & \textbf{32} & \textbf{59.4} & \textbf{87.5} & \textbf{73.5} & \textbf{276} \\
+& 48 & 57.3 & 83.7 & 70.5 & 411 \\
+\multirow{-4}{*}{\textbf{PerceptionDLM}} & 64 & 51.2 & 83.8 & 67.5 & 549 \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+\noindent
+\textbf{Inference with Exceeded Visual Prompts.}
+To address how the model generalizes to mask counts exceeding the number of trained visual prompts, we conduct an additional experiment testing a forced edge case where the model reuses the exact same visual prompt for all masks during inference. As shown in \Cref{tab:exceeded_prompts}, forcing the model to reuse visual prompts for distinct targets results in a performance drop. However, this is a graceful degradation (the average accuracy evaluated by Qwen3.5-27B drops from 73.5\% to 68.6\%), indicating that the model retains a strong baseline of parallel perception even when prompt capacity is exceeded. 
+
+For practical deployment in highly dense scenarios, the recommended strategy is to split the masks into multiple inference passes. As demonstrated by the parallelism scaling in~\Cref{fig:teaser}(c), this chunking strategy still yields a significant speedup over sequential AR pipelines while bypassing potential long-context limitations. Naturally, if a specific downstream application strictly requires simultaneous dense perception, the visual prompt capacity can easily be scaled up during training to accommodate it.  
+
+\begin{table}[htbp]
+\centering
+\setlength{\belowcaptionskip}{8pt}
+\caption{Inference with Exceeded Visual Prompts (Evaluated using Qwen3.5-27B Judge).}
+\label{tab:exceeded_prompts}
+\setlength{\tabcolsep}{6pt}
+\renewcommand{\arraystretch}{1.15}
+\resizebox{0.75\textwidth}{!}{
+\begin{tabular}{l | c c c}
+\toprule
+\textbf{Model Setting} & \textbf{Q3.5-Pos(\%) $\uparrow$} & \textbf{Q3.5-Neg(\%) $\uparrow$} & \textbf{Q3.5-Avg(\%) $\uparrow$} \\
+\midrule
+PerceptionDLM (same visual prompt) & 52.8 & 84.4 & 68.6 \\
+\rowcolor{blue!8}
+\textbf{PerceptionDLM (baseline)} & \textbf{59.4} & \textbf{87.5} & \textbf{73.5} \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+\noindent
+\textbf{Ablations on Caption Length Scaling.}
+To investigate the impact of description length, we conduct an ablation study by scaling the maximum number of generation tokens per mask from 32 to 64, while keeping the diffusion steps fixed at 32. As shown in \Cref{tab:length_scaling}, with fixed denoising steps, generating longer sequences forces the model to decode more tokens per step. This increased decoding density leads to severe error accumulation along the denoising trajectory, resulting in semantic drifting.
+
+\begin{table}[htbp]
+\centering
+\setlength{\belowcaptionskip}{8pt}
+\caption{Caption length scaling on Parallel Captioning(Evaluated using Qwen3.5-27B Judge).}
+\label{tab:length_scaling}
+\setlength{\tabcolsep}{6pt}
+\renewcommand{\arraystretch}{1.15}
+\resizebox{0.75\textwidth}{!}{
+\begin{tabular}{l | c | c | c c c}
+\toprule
+\textbf{Method} & \textbf{Length} & \textbf{Q3.5-Pos(\%) $\uparrow$} & \textbf{Q3.5-Neg(\%) $\uparrow$} & \textbf{Q3.5-Avg(\%) $\uparrow$} \\
+\midrule
+& 64 & 55.5 & 80.4 & 68.0 \\
+\rowcolor{blue!8}
+\cellcolor{white}\multirow{-2}{*}{\textbf{PerceptionDLM}} & \textbf{32} & \textbf{59.4} & \textbf{87.5} & \textbf{73.5} \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+\noindent
+\textbf{Single-Region Quality Regression Ablation.}
+To investigate whether parallel training degrades single-region capabilities, we conduct an ablation study training PerceptionDLM exclusively on single-mask format data. As shown in \Cref{tab:single_mask_ablation}, single-mask training yields performance similar to our parallel training baseline. This indicates that the gap compared to AR models on single-region tasks is not a regression caused by parallelization.
+
+\begin{table}[htbp]
+\centering
+\setlength{\belowcaptionskip}{8pt}
+\caption{Single Mask Training Ablation on DLC-Bench.}
+\label{tab:single_mask_ablation}
+\setlength{\tabcolsep}{6pt}
+\renewcommand{\arraystretch}{1.15}
+\resizebox{0.75\textwidth}{!}{
+\begin{tabular}{l | c c c}
+\toprule
+\textbf{Method} & \textbf{Pos(\%) $\uparrow$} & \textbf{Neg(\%) $\uparrow$} & \textbf{Avg(\%) $\uparrow$} \\
+\midrule
+PerceptionDLM (single mask training) & \textbf{34.5} & 69.8 & 52.1 \\
+\rowcolor{blue!8}
+\textbf{PerceptionDLM (baseline)} & 33.4 & \textbf{72.8} & \textbf{53.1} \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+\noindent
+\textbf{Zero-Shot Performance of PerceptionDLM-Base on ParaDLC-Bench.}
+To disentangle the benefits of our proposed architectural design from the supervisory signals provided by GAR-8B in the ParaCaption-5.7M dataset, we evaluate the zero-shot region perception capability of PerceptionDLM-Base prior to any dataset-specific fine-tuning. Evaluated by the GPT-5.2 judge, PerceptionDLM-Base achieves a zero-shot average accuracy of \textbf{53.0\%} on ParaDLC-Bench. This baseline substantially outperforms existing DVLMs, such as SDAR-VL, which attains an average accuracy of 31.3\%(shown in~\Cref{tab:dlcbench_comparison}). This demonstrates that the significant performance improvements of our framework are fundamentally driven by the architectural advancements, rather than merely stemming from the high-quality synthetic training corpus.
+
+\section{Details of ParaDLC-Bench} \label{sec:detail_bench}
+\subsection{Image and Instance Selection}
+To ensure the diversity and complexity of the evaluation scenarios, our base images are sourced from two mainstream open-source datasets: the validation set of Objects365 V2~\citep{shao2019objects365} and the DaTaSeg Objects365 Instance Segmentation Dataset~\citep{gu2023dataseg}. Both datasets provide a large number of images with high-quality instance segmentation masks. Specifically, the Objects365 V2 subset includes 54 images with a total of 178 mask instances, while the DaTaSeg subset comprises 46 images with a total of 121 mask instances.
+
+Regarding the instance sampling and filtering criteria, we primarily rely on the professional judgment of human annotators. Unlike DLC-Bench ~\citep{lian2025describe}, which focuses on a single challenging target, ParaDLC-Bench specifically emphasizes the interaction potential among multiple targets. Annotators consciously select "multi-instance combinations" that are spatially adjacent, semantically confusing, or prone to feature entanglement. Finally, to ensure the benchmark's rigor, we performed strict data deduplication and isolation, ensuring that none of the images used in this benchmark were present in the training sets of the evaluated models, thereby preventing data leakage.
+
+\subsection{Data Annotation Pipeline}
+The question generation pipeline of ParaDLC-Bench is inspired by the methodology of DLC-Bench~\citep{lian2025describe}, where the goals are designed specifically for "multi-target scenarios". The entire process consists of three core components: "LLM Extraction - Human Curation - Automated Format Conversion". 
+%
+We uniformly use the more advanced GPT-5.2~\citep{gpt5.2} as the foundational model for complex logical reasoning. 
+%
+We provide all of our prompts utilized in constructing our ParaDLC-Bench in~\Cref{fig:prompt1,fig:prompt2,fig:prompt3,fig:prompt4,fig:prompt5,fig:prompt6,fig:prompt7}.
+
+
+\textbf{Attribute Extraction:} We input the cropped version of the original image alongside the segmented image (retaining only the target instance) into GPT-5.2. For positive attribute extraction, the model is required to extract all visible parts of the target and generate an attribute list covering dimensions such as color, shape, texture, material, and size, uniformly outputting a tuple in the format of \texttt{([object name], [part name], [property name], [property value])}. Regarding negative attribute extraction—our core innovative design—we construct challenging distractors tailored for multi-target scenarios by extracting two types of negative samples that easily trigger model hallucinations: first, \textit{Negative Parts}, which are parts commonly associated with the object but invisible in the current mask; second, \textit{Salient Negatives / Mislocalization Targets}. In ParaDLC-Bench, the latter not only includes standard background objects but also focuses heavily on other concurrently evaluated targets in the image. This aims to test whether the model will incorrectly assign the features of other concurrent targets to the current one.
+
+\begin{figure*}[!t]
+    \centering
+    \includegraphics[width=1.\linewidth]{figs/benchmark.pdf}
+    \caption{\textbf{The evaluation pipeline for detailed localized captioning in ParaDLC-Bench.} (a) During evaluation, given an input image and multiple region masks, the Perception DLM simultaneously generates textual descriptions for all specified regions in a single pass. (b) Subsequently, each generated caption, paired with its corresponding evaluation questions, is fed into a text-only large language model (LLM Judge) to calculate the final score. (c) In the scoring mechanism, positive questions reward accurate details and penalize factual errors, while negative questions strictly penalize mislocalization and hallucinations to prevent false positives in irrelevant areas.}
+    \label{fig:bench}
+\end{figure*}
+
+\textbf{Human Curation \& Refinement:} To compensate for factual errors made by the LLM, human experts perform strict cross-verification starting from the initial lists generated by GPT-5.2. Experts are responsible for supplementing missing salient attributes and removing ambiguous details, ensuring that all attributes strictly align with the masked region and that the distractors are highly deceptive.
+
+\textbf{Question Generation:} After obtaining the manually verified attribute lists, we utilize GPT-5.2 to convert them into mutually exclusive multiple-choice questions. Through this rigorous pipeline, we ultimately constructed an evaluation question bank comprising 2,345 high-quality multiple-choice questions.
+
+\subsection{Scoring Mechanism}
+During the evaluation phase, we inherit the reference-free judge evaluation paradigm from DLC-Bench~\citep{lian2025describe}. The evaluated models are required to generate descriptions for multiple specified masked regions in the image. For models equipped with parallel generation capabilities, descriptions for all regions can be generated concurrently in a single pass; for models lacking this feature, descriptions are generated sequentially for each masked region. 
+%
+Subsequently, an LLM Judger (GPT-5.2~\citep{gpt5.2}) evaluates these descriptions using predefined positive and negative questions. 
+%
+Regarding judge variance, GPT-5.2 evaluations are conducted at strict \texttt{temperature=0} to eliminate sampling noise.
+
+To prevent models from cheating to gain higher scores by generating excessively long and ambiguous descriptions, a model can only receive positive or negative points if the base target is correctly identified. Unlike DLC-Bench, which averages global positive and negative scores, we compute the final score by averaging the individual scores across all masks, ensuring equal evaluation weighting for each region. The overall scoring process and an example are illustrated in~\Cref{fig:bench}.
+
+
+\begin{figure*}[htbp]
+    \centering
+    \includegraphics[width=0.8\linewidth]{figs/statics.pdf}
+    \caption{Data statistics of ParaDLC-Bench}
+    %\vspace{-2mm}
+    \label{fig:statics}
+\end{figure*}
+
+\subsection{Data Statistics}
+To intuitively illustrate the data composition and task difficulty of ParaDLC-Bench, we conducted a multi-dimensional statistical analysis on the finalized dataset:
+
+\textbf{Distribution of Number of Masks:} To highlight the core setting of "multi-target interaction,"~\Cref{fig:statics} details the distribution of the number of tested masks contained within a single image. All images in this benchmark contain 2 or more masked regions, with the vast majority ranging from 2 to 4. Some extremely challenging samples even contain up to 8 masks. This high-density distribution severely tests the model's local perception and anti-interference capabilities within complex contexts.
+
+\textbf{Distribution of Areas of Masks:}~\Cref{fig:statics} presents the area proportion distribution of the masked regions relative to the entire image. 
+%
+To fully test the model's local description capabilities at a fine-grained level, we intentionally retained a large number of micro-detail targets (small masks) that occupy an extremely small proportion of the image. 
+%
+The average mask area ratio is 0.07. This distribution highlights the importance of addressing small-scale and fine-grained understanding.
+
+
+\input{release_latex/2_related_work}
+\label{sec:related_works}
+
+
+\section{Visualization and Qualitative Results}
+\label{sec:qua}
+
+\noindent
+\textbf{Parallel Perception Capabilities.} 
+In~\Cref{fig:cases}, we present qualitative examples demonstrating that PerceptionDLM can simultaneously generate highly detailed and accurate descriptions for multiple masked regions within a single image through a single forward inference pass. Whether dealing with tightly packed objects (e.g., the various ingredients in the bowl) or spatially distributed subjects (e.g., the man and his fishing rod), the model successfully captures fine-grained attributes such as color, texture, shape.
+
+\noindent
+\textbf{Comparison with Baseline Models.} 
+In~\Cref{fig:compare}, we compare PerceptionDLM against existing strong baselines, including LLaDA-V, GAR-8B, and Gemini-3.1-Pro. When faced with adjacent and visually complex masks, PerceptionDLM effectively isolates region-specific visual context, producing descriptions that strictly align with the intended target regions. In contrast, baseline models frequently suffer from severe hallucinations and feature confusion. For instance, standard diffusion VLMs and AR-based region models may mistakenly assign the attributes of a neighboring object (e.g., colors, text, or parts) to the current target mask, or hallucinate entirely non-existent background elements. By comparison, PerceptionDLM significantly reduces such errors, effectively mitigating the severe cross-region interference observed in other models.
+
+\begin{figure*}[htbp]
+    \centering
+    \includegraphics[width=0.8\linewidth]{figs/infer_case.pdf}
+    \caption{\textbf{Qualitative examples} of PerceptionDLM generating detailed descriptions for multiple masked regions in parallel.}
+    %\vspace{-2mm}
+    \label{fig:cases}
+\end{figure*}
+
+\begin{figure*}[htbp]
+    \centering
+    \includegraphics[width=1.\linewidth]{figs/compare_case.pdf}
+    \caption{\textbf{Qualitative comparison of PerceptionDLM against existing baselines.} Correct attribute descriptions are highlighted in green, whereas hallucinations and errors are marked in red. PerceptionDLM effectively mitigates the severe cross-region interference observed in other models.}
+    %\vspace{-2mm}
+    \label{fig:compare}
+\end{figure*}
+
+\section{Limitations and Future Works}
+\label{sec:limitation}
+While PerceptionDLM significantly improves multi-region perception efficiency, certain limitations remain. First, the actual inference speed is still bounded by the multi-step denoising process inherent to diffusion models. Future work could address this by exploring step distillation techniques (e.g., pseudo-trajectory distillation~\citep{qian2026d3llm}) to compress the generation into fewer steps. Second, eliminating attribute entanglement in extremely dense or semantically similar regions remains challenging; introducing explicit region contrastive losses or more fine-grained attention masking could further mitigate hallucinations. Finally, to bridge the performance gap in complex reasoning tasks compared to advanced autoregressive models, applying Reinforcement Learning (RL) techniques to unlock deep reasoning capabilities represents a critical direction for future exploration.
+
+\noindent
+\textbf{Failure Case Analysis.}
+To better characterize the current limitations, we conduct a qualitative analysis of typical failure cases and group them into four representative categories, as illustrated in~\Cref{fig:failure_cases}:
+\begin{itemize}
+    \item \textbf{(a) Cross-region attribute entanglement.} When multiple masks are spatially adjacent or semantically similar, the model occasionally leaks attributes (e.g., color, texture, or material) from a neighboring target into the current region's description. For example, in~\Cref{fig:failure_cases}(a), the caption of one mask absorbs the appearance of an adjacent object on the same market stall.
+    \item \textbf{(b) Tiny or heavily occluded regions.} For extremely small or heavily occluded masks that occupy a negligible fraction of the image, limited visual evidence can lead to vague or partially incorrect descriptions. For example, in~\Cref{fig:failure_cases}(b), a small, low-resolution region is given an overly specific yet inaccurate description.
+    \item \textbf{(c) Hallucination of typical-but-absent attributes.} Following the two negative types in ParaDLC-Bench, the model may fabricate parts commonly associated with the object category yet absent from the mask, or borrow attributes from co-occurring objects. For example, in~\Cref{fig:failure_cases}(c), it invents white laces, eyelets, and tread for a tiny, blurry shoe region that are indiscernible from the pixels.
+    \item \textbf{(d) Fine-grained text.} The model can still struggle with reading small embedded text (OCR). For example, in~\Cref{fig:failure_cases}(d), it misreads the license plate as ``201-VH'' instead of the actual ``267-JAN''.
+\end{itemize}
+These observations are consistent with our quantitative findings and motivate the future directions discussed above.
+
+\begin{figure*}[htbp]
+    \centering
+    \begin{minipage}{0.49\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{figs/failure_case_1.png}
+        \vspace{1mm}
+        \centerline{(a) Cross-region attribute entanglement}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.49\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{figs/failure_case_2.png}
+        \vspace{1mm}
+        \centerline{(b) Tiny or heavily occluded regions}
+    \end{minipage}
+
+    \vspace{3mm}
+
+    \begin{minipage}{0.49\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{figs/failure_case_3.png}
+        \vspace{1mm}
+        \centerline{(c) Hallucination of typical-but-absent attributes}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.49\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{figs/failure_case_4.png}
+        \vspace{1mm}
+        \centerline{(d) Fine-grained text}
+    \end{minipage}
+
+    \caption{Representative failure cases of PerceptionDLM.}
+    \label{fig:failure_cases}
+\end{figure*}
+% \section{Prompts Templates}
+% \label{sec:prompt}
+% We provide all of our prompts utilized in building our data in \Cref{}
+
+% \section{Use of LLMs}
+% \label{sec:llm}
+
+% In preparing this paper, LLMs are employed in the methodology and preparation of this research. Specifically, LLMs are integrated into the automated pipelines to facilitate data construction, attribute extraction, and evaluation for our proposed datasets and benchmarks. During the drafting of this manuscript, AI-assisted tools are utilized strictly for lightweight tasks such as proofreading, grammatical correction, language refinement, and code implementation. All core research ideas, experimental designs, and substantive scientific writing remain the authors' original work.
+
+
+\begin{figure*}[htbp]
+    \centering
+    \includegraphics[width=1.\linewidth]{figs/System_Prompt_for_Question_Generation.pdf}
+    \caption{System Prompt for Question Generation}
+    %\vspace{-2mm}
+    \label{fig:prompt1}
+\end{figure*}
+
+\begin{figure*}[htbp]
+    \centering
+    \includegraphics[width=1.\linewidth]{figs/Prompt_for_Positive_Property_Extraction.pdf}
+    \caption{Prompt for Positive Property Extraction}
+    %\vspace{-2mm}
+    \label{fig:prompt2}
+\end{figure*}
+
+\begin{figure*}[htbp]
+    \centering
+    \includegraphics[width=1.\linewidth]{figs/Prompt_for_Negative_Attribute_Extraction.pdf}
+    \caption{Prompt for Negative Attribute Extraction}
+    %\vspace{-2mm}
+    \label{fig:prompt3}
+\end{figure*}
+
+\begin{figure*}[htbp]
+    \centering
+    \includegraphics[width=1.\linewidth]{figs/System_Prompt_for_Positive_Question_Formatting.pdf}
+    \caption{System Prompt for Positive Question Formatting}
+    %\vspace{-2mm}
+    \label{fig:prompt4}
+\end{figure*}
+
+\begin{figure*}[htbp]
+    \centering
+    \includegraphics[width=1.\linewidth]{figs/Prompt_for_Positive_Question_Formatting.pdf}
+    \caption{Prompt for Positive Question Formatting}
+    %\vspace{-2mm}
+    \label{fig:prompt5}
+\end{figure*}
+
+\begin{figure*}[htbp]
+    \centering
+    \includegraphics[width=1.\linewidth]{figs/System_Prompt_for_Negative_Question_Formatting.pdf}
+    \caption{System Prompt for Negative Question Formatting}
+    %\vspace{-2mm}
+    \label{fig:prompt6}
+\end{figure*}
+
+\begin{figure*}[htbp]
+    \centering
+    \includegraphics[width=1.\linewidth]{figs/Prompt_for_Negative_Question_Formatting.pdf}
+    \caption{Prompt for Negative Question Formatting}
+    %\vspace{-2mm}
+    \label{fig:prompt7}
+\end{figure*}

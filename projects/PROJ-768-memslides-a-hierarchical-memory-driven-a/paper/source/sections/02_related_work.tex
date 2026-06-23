@@ -1,0 +1,49 @@
+\section{Related Work}
+
+\paragraph{Slide generation.}
+Presentation generation has progressed from document compression and
+structured summarization to LLM-based systems that emphasize audience
+adaptation, editability, task-time preference inference, and visual refinement
+\citep{sun2021d2s,mondal2024personaaware,zheng2025pptagent,zeng2025slidetailor,zheng2026deeppresenter}.
+Presentation authoring also draws on controllable layout and design generation,
+including code-like layout representations, in-context layout prompting,
+layered or diffusion-based layout modeling, and visual preference modeling
+\citep{tang2023layoutnuwa,lin2023layoutprompter,inoue2023layoutdm,zhang2023layoutdiffusion,peng2025designpref}.
+These works improve slide quality, editability, task-level controllability, and
+visual composition. Our focus is complementary: how user-specific preference
+and execution memory should persist across slide-generation and revision
+sessions rather than being supplied only as current-task inputs.
+
+\paragraph{Memory and tool-using agents.}
+Retrieval-augmented and external-memory language models show that stored
+context can support generation
+\citep{lewis2020rag,guu2020realm,khandelwal2019knnlm,borgeaud2021retro,izacard2022atlas,wang2023longmem}.
+%while agent-memory systems study 
+These studies focus on
+persistent memory, reflection, structured
+updates, and long-term/short-term memory management
+\citep{zhong2023memorybank,packer2023memgpt,park2023generativeagents,xu2025amem,chhikara2025mem0,wang2025mirix,kang2025memoryos,wu2025memoryage,yu2026agemem}.
+Tool-using and reflective agents further establish patterns for interleaving
+reasoning with actions, using APIs or modular tools, coordinating execution,
+and learning from feedback
+\citep{yao2023react,shinn2023reflexion,schick2023toolformer,patil2023gorilla,qin2023toolllm,li2023apibank,karpas2022mrkl,wu2023autogen,wang2023voyager,madaan2023selfrefine,nakano2021webgpt,ahn2022saycan,wang2022selfconsistency,yao2023treeofthoughts,hu2026agentictooluse}.
+In contrast, \methodname targets personalized presentation authoring, where
+memory must distinguish user preference from execution experience and preserve
+the intended local edit scope during multi-turn revision.
+
+\paragraph{Personalized generation and evaluation.}
+Personalized generation has evolved from explicit persona conditioning to
+profile- and history-aware generation
+\citep{li2016persona,wu2021splitmemory,salemi2023lamp,mysore2023pearl,jiang2025personamem}.
+Recent surveys and alignment work characterize personalization as an agentic,
+retrieval-aware, and preference-sensitive problem
+\citep{zhang2024personalizationllm,li2025personalizationragagent}. In visual
+domains, personalized visualization recommendation and DesignPref show that
+persistent expressive or design preferences can be learned from user history
+\citep{qian2022personalizedvis,peng2025designpref}. In PPT generation,
+Persona-Aware-D2S and SlideTailor personalize slides through audience
+specifications, examples, or templates provided for the current task, whereas
+we study preferences accumulated across tasks and retained during multi-turn
+revision. Our evaluation follows rubric-based and pairwise LLM-as-judge
+protocols in a controlled memory/no-memory setting
+\citep{liu2023geval,zheng2023llmasjudge,kim2023prometheus,zhu2023judgelm,li2024arenahard}.

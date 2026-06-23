@@ -1,0 +1,222 @@
+\section{The \gatemem{} Benchmark}
+\label{sec:gatemem-benchmark}
+
+\gatemem{} evaluates memory-augmented assistants across four multi-principal domains: medical, office, education, and household. As summarized in Figure~\ref{fig:dataset-pipeline}, the benchmark construction pipeline consists of three stages. First, we define {scenario specifications} that establish principals, relationships, and scoped access rules. Second, with LLM assistance, we instantiate long-form multi-party {episodes} where facts, permissions, and deletion requests evolve over time. Finally, we insert {hidden checkpoints} to evaluate utility, access control, and active forgetting. All generated episodes undergo strict quality control for schema consistency, evidence support, deletion closure, and leak targets.
+
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=1\linewidth]{figures/fig_dataset_pipeline.pdf}
+    \caption{
+    Overview of the \gatemem{} dataset construction pipeline.
+    Starting from domain-specific scenario specifications, we instantiate multi-principal episodes with evolving facts, permissions, and deletion requests.
+    Hidden checkpoints are then inserted at selected turn boundaries to evaluate utility, access control, and active forgetting.
+    Each checkpoint includes hidden evaluation annotations, including the expected action, judge specification, and leak targets.
+    }
+    \label{fig:dataset-pipeline}
+\end{figure}
+
+\subsection{Episodes and Memory State}
+\label{subsec:episodes-memory-state}
+
+Each episode $e$ is an independent evaluation unit constructed from a scenario specification and an instantiated interaction trace. 
+We write
+\begin{equation}
+e=(\mathcal{S}_e,E_e),
+\end{equation}
+where $\mathcal{S}_e$ defines the background structure of the episode and $E_e$ is the resulting multi-party turn sequence. 
+The scenario specification is not merely a topic description. 
+It determines which principals appear in the episode, what roles and relationships they have, and which scoped access rules govern information flow:
+\begin{equation}
+\mathcal{S}_e = (\mathcal{D}_e,\mathcal{P}_e,\mathcal{R}_e,\mathcal{G}_e),
+\end{equation}
+where $\mathcal{D}_e$ is the domain, $\mathcal{P}_e$ is the set of principals, $\mathcal{R}_e$ describes their roles and relationships, and $\mathcal{G}_e$ denotes the initial access rules. 
+For example, in a medical episode, a family member may receive appointment logistics while being prohibited from accessing lab results, medication details, or clinical interpretation. Appendix~\ref{app:domain-details} provides analogous domain-specific details for all four domains. The interaction trace $E_e$ is a temporally ordered sequence of turns:
+\begin{equation}
+E_e=(\tau_1,\tau_2,\ldots,\tau_T).
+\end{equation}
+Each turn records a speaker, timestamp, turn type, and natural-language content:
+\begin{equation}
+\tau_t=(p_t,r_t,z_t,u_t),
+\end{equation}
+where $p_t\in\mathcal{P}_e$ is the speaker, $r_t$ is the timestamp, $z_t$ is the turn type, and $u_t$ is the utterance or event content. The timestamp preserves temporal order across updates, rescheduling, and deletion-to-recovery gaps, while the turn type distinguishes ordinary dialogue from events such as note updates, portal messages, lab results, scheduling changes, and deletion requests. These design choices are further discussed in Appendix~\ref{app:dataset-design-principles}. Turns may introduce facts, revise earlier facts, change access boundaries, or request forgetting. These operations are expressed in natural language and are not exposed to the agent as explicit memory-operation labels.
+
+As the episode progresses, the agent incrementally ingests each turn and updates its internal memory state before any checkpoint is evaluated. 
+Let $M^{(e)}_t$ denote the agent's memory state after processing the first $t$ turns of episode $e$, with $M^{(e)}_0=\varnothing$. 
+The state evolves as
+\begin{equation}
+M^{(e)}_t=\mathsf{Ingest}(M^{(e)}_{t-1},\tau_t,\mathcal{S}_e).
+\end{equation}
+\gatemem{} is agnostic to the internal representation of $M^{(e)}_t$: a system may use full-context replay, retrieved chunks, vector memory, structured records, or an external memory module. 
+This formulation captures the continuous ingestion of factual updates, authorization shifts, and deletion requests before the agent is queried at selected checkpoint boundaries.
+
+\subsection{Checkpoints and Governance Categories}
+\label{subsec:checkpoints-governance-categories}
+
+We evaluate memory governance through $N$ hidden checkpoints, formulated as
+\begin{equation}
+\mathcal{H}=\{(c_n,y_n)\}_{n=1}^{N}.
+\end{equation}
+Each checkpoint consists of a visible input $c_n$ and a hidden governance annotation $y_n$.
+
+\textbf{Checkpoint Input.}
+The visible input is a tuple
+\begin{equation}
+c_n=(e_n,t_n,p_n^{\mathrm{req}},x_n),
+\end{equation}
+where $e_n$ identifies the episode, $t_n$ is the turn boundary at which the checkpoint is evaluated, $p_n^{\mathrm{req}}\in\mathcal{P}_{e_n}$ is the authenticated requester, and $x_n$ is the natural-language query. 
+At evaluation time, the agent observes only this visible part of the checkpoint.
+
+\textbf{Governance Annotation.}
+For $c_n$, the corresponding hidden annotation is
+\begin{equation}
+y_n=(q_n,a_n^\star,J_n,\Lambda_n),
+\end{equation}
+where $q_n$ is the checkpoint category, $a_n^\star$ is the expected normalized action, $J_n$ is the judge specification, and $\Lambda_n$ contains protected leak targets when applicable. 
+These fields correspond to \texttt{query\_type}, \texttt{expected\_action}, \texttt{judge\_spec}, and \texttt{leak\_targets} in the released data. Appendix~\ref{app:quality-control-challenge-profile} describes the validation of these annotations.
+
+The category $q_n$ induces three disjoint checkpoint sets: $\mathcal{C}_u$ for \textsc{\textbf{Utility}}, $\mathcal{C}_a$ for \textsc{\textbf{Access Control}}, and $\mathcal{C}_f$ for \textsc{\textbf{Active Forgetting}}, with sizes $N_u$, $N_a$, and $N_f$. \textsc{Utility} checkpoints test whether an authorized requester obtains the current in-scope answer; the expected action is \texttt{answer}, and $J_n$ specifies the required answer elements. \textsc{Access Control} checkpoints test whether the agent withholds protected information from unauthorized or over-scoped requesters; the expected action is \texttt{refuse} or \texttt{answer\_redacted}, and $\Lambda_n$ specifies protected entities or values. \textsc{Active Forgetting} checkpoints test agent-facing deletion compliance after an explicit deletion request. The expected action is \texttt{no\_memory}, and the evaluation checks whether deleted information can be recovered, confirmed, or reconstructed through later queries. Appendix~\ref{app:checkpoint-attack-composition} provides the checkpoint taxonomy and attack-type composition. This is an interface-level criterion; \gatemem{} does not certify physical erasure from internal databases, vector indexes, caches, summaries, or model parameters.
+
+
+Given the memory state induced by the episode prefix, the evaluated system $f$ produces
+\begin{equation}
+\hat{o}_n=f(M^{(e_n)}_{t_n},p_n^{\mathrm{req}},x_n,\mathcal{S}_{e_n}),
+\end{equation}
+where $\hat{o}_n$ contains a normalized action $\hat{a}_n$ and a natural-language response $\hat{r}_n$. 
+Here $f$ denotes the evaluated assistant system, including its prompting strategy, retrieval method, memory representation, and response generation model. 
+Notably, the agent does not observe $q_n$, $a_n^\star$, $J_n$, or $\Lambda_n$.
+
+
+Responses are normalized into four actions: \texttt{answer}, \texttt{answer\_redacted}, \texttt{refuse}, and \texttt{no\_memory}. This action space distinguishes safe partial disclosure from refusal, separates deletion compliance from authorization restriction, and prevents over-refusal from masking utility failures.
+
+\subsection{Evaluation Metrics}
+\label{subsec:evaluation-metrics}
+
+We use an LLM-as-a-judge \citep{zheng2023judging,liu-etal-2023-g} to evaluate the model output $\hat{o}_n=(\hat{a}_n,\hat{r}_n)$ against the hidden annotation $y_n=(q_n, a_n^\star, J_n, \Lambda_n)$. Performance is quantified across three governance pillars.
+
+\textbf{Effective Utility ($U$).}
+Utility requires both action compliance and factual completeness. For a utility checkpoint ($n \in \mathcal{C}_u$), the response must use the expected action ($a_n^\star = \texttt{answer}$) and comprehensively cover the required elements defined in the judge specification $J_n$. The domain-level utility is
+\begin{equation}
+U = \frac{1}{N_u} \sum_{n \in \mathcal{C}_u} \mathbf{1}[\hat{a}_n = a_n^\star \wedge \mathrm{Satisfies}(\hat{r}_n, J_n)],
+\end{equation}
+where $\mathrm{Satisfies}(\cdot)$ is a judge-derived boolean indicating factual coverage. To monitor overly conservative behavior, we also track the over-refusal rate $\mathrm{OR} = \frac{1}{N_u} \sum_{n \in \mathcal{C}_u} \mathbf{1}[\hat{a}_n \neq \texttt{answer}]$.
+
+\textbf{Access-Control Violation ($A$).}
+An access-control violation occurs when the response leaks protected targets in $\Lambda_n$ or fails to take a valid restrictive action. Let $\mathcal{R}=\{\texttt{refuse},\texttt{answer\_redacted}\}$:
+\begin{equation}
+A = \frac{1}{N_a} \sum_{n \in \mathcal{C}_a}
+\mathbf{1}\!\left[
+\mathrm{Leaks}(\hat{r}_n, \Lambda_n)
+\vee \hat{a}_n \notin \mathcal{R}
+\right].
+\end{equation}
+
+\textbf{Active Forgetting Failure ($F$).}
+A forgetting failure occurs when deleted information in $\Lambda_n$ is recovered, confirmed, or reconstructed, or when the agent fails to take the no-memory action. Let $a_{\emptyset}=\texttt{no\_memory}$:
+\begin{equation}
+F = \frac{1}{N_f} \sum_{n \in \mathcal{C}_f}
+\mathbf{1}\!\left[
+\mathrm{Recovered}(\hat{r}_n, \Lambda_n)
+\vee \hat{a}_n \neq a_{\emptyset}
+\right].
+\end{equation}
+
+\textbf{Memory Governance Score (MGS).}
+The primary summary metric captures the holistic reliability of the shared-memory agent. It is defined multiplicatively:
+\begin{equation}
+\mathrm{MGS} = U \cdot (1 - A) \cdot (1 - F).
+\end{equation}
+This multiplicative form reflects the strict requirement of shared-memory governance: a system cannot obtain a high overall score merely by being highly useful if it leaks protected information, nor by being perfectly secure if it paralyzes legitimate authorized queries. 
+
+
+\textbf{Efficiency Metrics.}
+We also report efficiency metrics from runtime logs. For checkpoint $n$, let $D_n$ be wall-clock duration and $T_n$ be the total number of input and output tokens. We report
+\begin{equation}
+\mathrm{Sec/ckpt} = \frac{1}{N}\sum_{n=1}^{N}D_n,
+\qquad
+\mathrm{Tok/ckpt} = \frac{1}{N}\sum_{n=1}^{N}T_n .
+\end{equation}
+These metrics are used in the experiments to compare the runtime profiles of full-context prompting, retrieval-based memory, and external-memory systems.
+
+\begin{table}[t]
+\centering
+\caption{
+Overview of \gatemem{}.
+All domains follow a multi-principal shared-memory protocol, varying in scale, interaction length, role complexity, content density, and checkpoint composition.}
+\label{tab:domain-overview}
+
+\begingroup
+\footnotesize
+\setlength{\tabcolsep}{3.0pt}
+\renewcommand{\arraystretch}{1.12}
+\begin{tabularx}{\textwidth}{
+@{}
+>{\raggedright\arraybackslash}X
+*{6}{>{\centering\arraybackslash}p{0.075\textwidth}}
+*{4}{>{\centering\arraybackslash}p{0.055\textwidth}}
+@{}
+}
+\toprule
+\multirow{2}{*}{\textbf{Domain}}
+& \multirow{2}{*}{\textbf{Ep.}}
+& \multirow{2}{*}{\shortstack{\textbf{Turns}\\\textbf{/ ep.}}}
+& \multirow{2}{*}{\shortstack{\textbf{Tokens}\\\textbf{/ turn}}}
+& \multirow{2}{*}{\shortstack{\textbf{Princ.}\\\textbf{/ ep.}}}
+& \multirow{2}{*}{\shortstack{\textbf{Roles}\\\textbf{/ ep.}}}
+& \multirow{2}{*}{\shortstack{\textbf{Ckpts.}\\\textbf{/ ep.}}}
+& \multicolumn{4}{c}{\textbf{\# Checkpoints}} \\
+\cmidrule(lr){8-11}
+&
+&
+&
+&
+&
+&
+&
+\textbf{U}
+& \textbf{A}
+& \textbf{F}
+& \textbf{Total} \\
+\midrule
+
+\textsc{Medical}
+& 21 & 204.5 & 16.4 & 15.0 & 11.0 & 27.6
+& 210 & 192 & 177 & \textbf{579} \\
+
+\textsc{Office}
+& 17 & 241.2 & 28.9 & 17.8 & 14.8 & 32.2
+& 154 & 171 & 222 & \textbf{547} \\
+
+\textsc{Education}
+& 30 & 224.9 & 24.4 & 12.6 & 11.6 & 18.0
+& 180 & 180 & 180 & \textbf{540} \\
+
+\textsc{Household}
+& 23 & 224.0 & 24.7 & 9.8 & 9.6 & 24.0
+& 184 & 184 & 184 & \textbf{552} \\
+
+\midrule
+\rowcolor{RoyalBlue!4}
+\textbf{Total / Avg.}
+& \textbf{91}
+& \textbf{223.0}
+& \textbf{23.5}
+& \textbf{13.4}
+& \textbf{11.6}
+& \textbf{24.4}
+& \textbf{728}
+& \textbf{727}
+& \textbf{763}
+& \textbf{2,218} \\
+
+\bottomrule
+\end{tabularx}
+\endgroup
+\end{table}
+
+\subsection{Dataset Statistics and Quality Control}
+\label{subsec:dataset-statistics-quality-control}
+
+\gatemem{} comprises 91 long-form episodes and 2,218 hidden checkpoints across four domains: \textbf{Medical, Office, Education, and Household}. As summarized in  Table~\ref{tab:domain-overview} , the dataset provides a balanced distribution across utility, access control, and active forgetting. While the medical and office domains focus on professional coordination and partial delegation, education and household explore residential and academic boundaries where authorization is often implicit or fluid. 
+
+To ensure the integrity of this multi-principal environment, we implement a rigorous four-stage quality control pipeline: (1) \textbf{Schema Consistency} ensures every episode follows a unified structure with valid normalized actions; (2) \textbf{Chain-of-Evidence Validation} confirms that all utility gold answers are explicitly supported by the preceding interaction history; (3) \textbf{Deletion-Chain Closure} verifies that for every forgetting checkpoint, the target value was explicitly present, subsequently requested for deletion, and only then targeted for recovery; and (4) \textbf{Leak-Target Inspection} involves a manual audit of the targets $\Lambda_n$ to ensure they are precise enough for reliable automated auditing without false positives. Additional details about dataset construction are provided in Appendix~\ref{app:dataset-details}.

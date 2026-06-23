@@ -1,0 +1,20 @@
+\begin{table}[!htbp]
+\centering
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.05}
+\caption{API usage and local runtime for reported evidence scopes.}
+\label{tab:appendix_compute_accounting}
+\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lrrrrcrrr@{}}
+\toprule
+Evidence scope & Runs & \shortstack{LLM\\calls} &
+\shortstack{Prompt\\tokens} & \shortstack{Completion\\tokens} &
+\shortstack{Tool calls\\ok/err} & \shortstack{Tool active\\time (min)} &
+\shortstack{Wall span\\sum (h)} & \shortstack{Median run\\span (min)} \\
+\midrule
+Profile-memory experiments & 49 & 2{,}257 & 49.82M & 2.74M & 3{,}527/552 & 60.78 & 19.37 & 19.12 \\
+Tool-memory nine-pair & 18 & 1{,}085 & 19.40M & 0.92M & 1{,}931/220 & 62.25 & 17.52 & 43.99 \\
+Working-memory cases & 4 & 161 & 2.35M & 0.27M & 343/21 & 13.85 & 2.64 & 35.09 \\
+\bottomrule
+\end{tabular*}
+\end{table}

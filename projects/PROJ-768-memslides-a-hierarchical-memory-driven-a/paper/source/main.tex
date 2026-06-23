@@ -1,0 +1,155 @@
+\documentclass{article}
+
+\usepackage[preprint]{neurips_2026}
+\raggedbottom
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{nicefrac}
+\usepackage{microtype}
+\usepackage{xcolor}
+\usepackage{float}
+\usepackage{placeins}
+\usepackage{xspace}
+\usepackage{tikz}
+
+\setlength{\textfloatsep}{8pt}
+\setlength{\floatsep}{8pt}
+\setlength{\intextsep}{8pt}
+
+\graphicspath{{picture/}{figures/}}
+
+\definecolor{citeblue}{RGB}{45, 105, 160}
+\definecolor{codeaccent}{RGB}{68, 83, 105}
+\definecolor{codefill}{RGB}{232, 238, 247}
+\definecolor{websiteaccent}{RGB}{0, 127, 115}
+\definecolor{websitefill}{RGB}{215, 248, 241}
+\definecolor{projectaccent}{RGB}{115, 79, 210}
+\definecolor{projectfill}{RGB}{238, 231, 255}
+\definecolor{videoaccent}{RGB}{216, 73, 89}
+\definecolor{videofill}{RGB}{255, 229, 232}
+\setcitestyle{numbers,square,comma}
+\hypersetup{
+  colorlinks=true,
+  citecolor=citeblue,
+  linkcolor=citeblue,
+  urlcolor=citeblue
+}
+
+\newcommand{\methodname}{MemSlides\xspace}
+\newcommand{\resourcebutton}[8]{%
+  \href{#5}{%
+    \tikz[baseline=-0.50ex, x=1in, y=1in]{%
+      \node[
+        draw=#1,
+        fill=#2,
+        line width=0.70pt,
+        rounded corners=4.6pt,
+        minimum width=#6,
+        minimum height=0.268in,
+        inner sep=0pt
+      ] (button) {};
+      \node[inner sep=0pt] at ([xshift=13.1pt]button.west)
+        {\includegraphics[height=#7]{#3}};
+      \node[
+        anchor=west,
+        text=#4,
+        font=\rmfamily\bfseries\fontsize{7.8pt}{8.6pt}\selectfont
+      ] at ([xshift=23.0pt]button.west) {#8};
+    }%
+  }%
+}
+\newcommand{\resourcelinks}{%
+  \makebox[\textwidth][c]{%
+    \resourcebutton{codeaccent}{codefill}{resource-code-github-octicon.pdf}{codeaccent}{https://github.com/huohua325/Memslides}{0.69in}{0.185in}{Code}%
+    \hspace{0.60em}%
+    \resourcebutton{websiteaccent}{websitefill}{resource-website-globe.pdf}{websiteaccent}{https://memslides.com/}{0.85in}{0.205in}{Website}%
+    \hspace{0.60em}%
+    \resourcebutton{projectaccent}{projectfill}{resource-project-page.pdf}{projectaccent}{https://memslides.github.io/}{1.03in}{0.212in}{Project Page}%
+    \hspace{0.60em}%
+    \resourcebutton{videoaccent}{videofill}{resource-video-play.pdf}{videoaccent}{https://github.com/user-attachments/assets/a92ab49e-bc5c-4e90-8c0a-0f23b08a8857}{0.75in}{0.205in}{Video}%
+  }%
+}
+
+%\title{MemSlides: A Hierarchical Memory Framework for Personalized Presentation Agents}
+%\title{\methodname: A Hierarchical Memory Driven Agent Framework for Personalized Slide Generation}
+\title{\methodname: A Hierarchical Memory Driven Agent Framework for Personalized Slide Generation with Multi-turn Local Revision}
+
+
+\author{%
+  Ye Jin\\
+  Beijing University of Posts\\
+  and Telecommunications\\
+  \texttt{13681596382@bupt.edu.cn}\\
+  \And
+  Yangyang Xu\\
+  Tsinghua University\\
+  \texttt{yangyangxu@mail.tsinghua.edu.cn}\\
+  \vspace{-0.85em}
+  \AND
+  Jun Zhu\\
+  Tsinghua University\\
+  \texttt{dcszj@tsinghua.edu.cn}\\
+  \And
+  Yibo Yang\thanks{Corresponding author.}\\
+  Shanghai Jiao Tong University\\
+  \texttt{yibo.yang93@gmail.com}\\
+}
+
+\begin{document}
+
+\maketitle
+\vspace{-1.55em}
+\resourcelinks
+\vspace{0.35em}
+
+\begin{abstract}
+Personalized presentation generation requires more than conditioning on a
+current prompt or template: agents must preserve stable user preferences across
+tasks, retain newly introduced preferences and constraints during multi-turn
+revision, and carry out local edits reliably. We propose MemSlides, a
+hierarchical memory framework for personalized presentation agents that
+separates long-term memory from working memory and further divides long-term
+memory into user profile memory and tool memory. User profile memory stores
+intent-conditioned profiles for round-0 personalization, working memory carries
+active preferences and session constraints across revision rounds, and tool
+memory stores reusable execution experience for reliable localized editing.
+MemSlides pairs this memory design with scoped slide-local revision, so
+targeted updates act on the smallest affected region instead of repeatedly
+regenerating the full deck. In controlled experiments, user profile memory
+improves persona-alignment judgments on a multi-persona, multi-intent profile
+bank, tool-memory injection improves closed-loop modify behavior in diagnostic
+matched-pair settings, and qualitative cases illustrate working memory's ability to carryover preferences. Taken together, these results suggest that effective
+personalization in presentation authoring depends on separating persistent user
+profiles, session-level working memory, and reusable execution experience
+across generation and localized revision.
+\end{abstract}
+
+\input{sections/01_introduction}
+\input{sections/02_related_work}
+\input{sections/03_multi_turn_generation}
+\input{sections/05_experiments}
+\input{sections/06_conclusion}
+\input{sections/07_limitations}
+
+{
+\small
+\bibliographystyle{plainnat}
+\bibliography{references}
+}
+
+\clearpage
+\appendix
+\input{appendix/appendix}
+
+\end{document}

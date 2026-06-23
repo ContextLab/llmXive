@@ -1,0 +1,85 @@
+\section{Benchmark and Baseline Details}
+\label{app:benchmark_baseline_details}
+
+\begin{table*}[t]
+    \centering
+    \resizebox{\textwidth}{!}{%
+        \begin{tabular}{lllcccc}
+        \toprule
+        \textbf{Dataset} & \textbf{Domain} & \textbf{Language} & \textbf{\#Queries (eval)} & \textbf{Corpus Size (\#docs)} & \textbf{Avg.\ Doc.\ Len.\ (tokens)} & \textbf{Multi-hop} \\
+        \midrule
+        SCI-DOCS        & Scientific            & EN      & 1,000      & 25k  & 7,955   & \xmark \\
+        LegalBench-RAG  & Legal                 & EN      & 6,858   & 714      & 27.13k      & \xmark \\
+        Dragonball      & Finance/Legal/Medical & EN+ZH   & 6,711   & 2,311              & 11,436  & \xmark \\
+        HotpotQA        & Open-domain           & EN      & 113k    &   105k     &   1,247    & \cmark \\
+        SQuAD           & Open-domain           & EN      & 107,785 & 536    & 2,303   & \xmark \\
+        DRBench         & Enterprise            & EN      & 1,093      & 1,093   & 1,089      & \cmark \\
+        LongBenchV2     & Multi-task            & EN      & 503     & 503 &   59.38k    & \cmark \\
+        \bottomrule
+        \end{tabular}%
+    }
+    \caption{Statistics of the seven benchmark datasets used in our evaluation. ``Avg.\ Doc.\ Len.'' reports average document length in characters. ``\#Queries (eval)'' refers to the number of queries used in our experiments. ``Multi-hop'' indicates whether the benchmark requires cross-document reasoning.}
+    \label{tab:dataset_stats}
+    \vspace{-1em}
+\end{table*}
+
+\subsection{Benchmark Dataset Details}
+\label{app:benchmarks}
+
+We evaluate \name{} on seven benchmarks spanning scientific, legal, open-domain multi-hop, reading comprehension, enterprise deep research, and long-context tasks. Table~\ref{tab:dataset_stats} summarizes key statistics.
+
+\noindent
+\textbf{SCI-DOCS~\cite{cohan-etal-2020-specter}} is a comprehensive evaluation suite for scientific document embeddings, covering seven document-level tasks ranging from citation prediction and document classification to recommendation, and including tens of thousands of examples of anonymized user signals of document relatedness.  It was introduced alongside the SPECTER model to address the limitation that prior evaluations of scientific document representations focused on small datasets over a limited set of tasks, where extremely high AUC scores were already achievable.  The corpus consists of scientific paper abstracts, which are naturally multi-topic and stylistically homogeneous, making it a natural testbed for topic-guided retrieval.
+
+\noindent
+\textbf{LegalBench-RAG~\cite{pipitone2024legalbenchragbenchmarkretrievalaugmentedgeneration}} is the first benchmark designed specifically to evaluate the retrieval step of RAG pipelines in the legal domain. It is constructed by retracing the context used in LegalBench queries back to their original locations within the legal corpus, resulting in 6,858 query-answer pairs over a corpus of over 79 million characters, entirely human-annotated by legal experts.  The dataset covers a diverse range of legal documents including NDAs, M\&A agreements, commercial contracts, and privacy policies.  The benchmark demands precise, minimal snippet retrieval rather than broad document recall, making it an especially challenging test of fine-grained retrieval.
+
+\noindent
+\textbf{Dragonball~\cite{zhu-etal-2025-rageval}} is released as part of the RAGEval framework. It contains 6,711 questions meticulously designed to reflect the complexity and specificity of their domains, covering finance, legal, and medical scenarios in both Chinese and English.  The framework introduces three novel keypoint-based metrics—Completeness, Hallucination, and Irrelevance—to evaluate generated responses by distilling standard answers into 3–5 key points encompassing indispensable factual information and final conclusions.  Dragonball's multilingual and multi-domain construction stresses retrieval systems operating over heterogeneous, topically distinct evidence pools.
+
+\noindent
+\textbf{HotpotQA~\cite{yang-etal-2018-hotpotqa}} contains 113k Wikipedia-based question-answer pairs featuring four key properties: questions require finding and reasoning over multiple supporting documents; questions are diverse and unconstrained by any knowledge base schema; sentence-level supporting facts are provided for reasoning supervision; and a category of factoid comparison questions tests the ability to extract and compare relevant facts across entities.  Sentence-level supporting fact annotations make HotpotQA directly usable for chunk-level retrieval evaluation; its multi-hop structure requires retrievers to surface evidence distributed across distinct document segments.
+
+\noindent
+\textbf{SQuAD~\cite{rajpurkar-etal-2016-squad}} contains 107,785 question-answer pairs on 536 Wikipedia articles, where the answer to every question is a text span from the corresponding reading passage.  It covers a wide range of topics from musical celebrities to abstract concepts. Unlike HotpotQA, SQuAD questions are largely single-passage answerable, providing a complementary single-hop retrieval axis in our evaluation.
+
+\noindent
+\textbf{DRBench~\cite{abaskohi2026drbench}} evaluates AI agents on complex, open-ended deep research tasks in enterprise settings, requiring agents to identify supporting facts from both the public web and private company knowledge bases. Each task is grounded in realistic user personas and enterprise context, spanning a heterogeneous search space that includes productivity software, cloud file systems, emails, chat conversations, and the open web. The benchmark targets report generation in enterprise deep research settings, comprising 100 tasks with a total of 1,093 sub-questions.
+
+\noindent
+\textbf{LongBenchV2~\cite{bai-etal-2025-longbench}} consists of 503 challenging multiple-choice questions, with contexts ranging from 8k to 2M words, across six major task categories: single-document QA, multi-document QA, long in-context learning, long-dialogue history understanding, code repository understanding, and long structured data understanding.  Data was collected from nearly 100 highly educated individuals with diverse professional backgrounds. LongBenchV2 is used exclusively for downstream generation evaluation, as it does not provide chunk-level evidence labels that can serve as retrieval ground truth.
+
+\subsection{Baseline Method Details}
+\label{app:baselines}
+
+We compare against eleven baselines. We describe each method's core methodology below, along with which part of the pipeline—retrieval or generation—it primarily targets.
+
+\noindent
+\textbf{DenseXRetrieval~\cite{chen-etal-2024-dense}} introduces the \emph{proposition} as a novel retrieval unit for dense retrieval. Propositions are defined as atomic expressions within text, each encapsulating a distinct factoid and presented in a concise, self-contained natural language format.  A fine-tuned generation model called the Propositionizer—trained via a two-step distillation process—decomposes passages into their constituent propositions at indexing time.
+
+\noindent
+\textbf{Meta-Chunking (PPL and MSP)~\cite{zhao2024meta}} leverages LLMs' logical perception capabilities to identify optimal text segment boundaries, moving beyond fixed-size and similarity-based chunking. It defines a meta-chunk granularity between sentences and paragraphs, consisting of sentences with deep linguistic logical connections.  Two adaptive uncertainty-driven strategies are proposed: \emph{Perplexity (PPL) Chunking}, which identifies boundaries by analyzing the context perplexity distribution of an LLM—splitting at points of certainty and keeping intact at uncertainty; and \emph{Margin Sampling (MSP) Chunking}, which uses LLMs to perform binary classification on whether consecutive sentences should be segmented based on the probability difference from margin sampling. Additionally, a global information compensation mechanism—comprising a two-stage hierarchical summary generation process and a three-stage chunk rewriting procedure—preserves semantic integrity and contextual coherence across chunks.
+
+\noindent
+\textbf{RAPTOR~\cite{sarthi2024raptor}} introduces the novel approach of recursively embedding, clustering, and summarizing chunks of text to construct a tree with differing levels of summarization from the bottom up.  At inference time, retrieval operates across all tree levels, enabling queries to be answered by combining evidence from fine-grained passages and their higher-level summaries.
+
+\noindent
+\textbf{SAKI-RAG~\cite{tao-etal-2025-saki}} addresses context fragmentation in long-document RAG via two core components: (1) the SentenceAttnLinker, which constructs a semantically enriched knowledge repository by modeling inter-sentence attention relationships; and (2) the Dual-Axis Retriever, which expands and filters candidate chunks along both the semantic similarity and contextual relevance dimensions.
+
+\noindent
+\textbf{ReflectiveRAG~\cite{verma-etal-2026-reflectiverag}} addresses two persistent inefficiencies in standard RAG: static top-$k$ retrieval regardless of evidence sufficiency, and context redundancy from semantically overlapping retrieved passages. Current methods—fixed top-$k$ retrieval, cross-encoder reranking, or policy-based iteration—rely on static heuristics or costly reinforcement learning, failing to assess evidence sufficiency or reduce redundancy.  ReflectiveRAG introduces a Self-Reflective Retrieval (SRR) module that uses a compact language model to iteratively evaluate whether retrieved evidence is sufficient or requires further query reformulation, alongside a Noise Removal (NR) module that scores and filters retrieved chunks by relevance minus redundancy.
+
+\noindent
+\textbf{DF-RAG~\cite{khan-etal-2026-df}} systematically incorporates diversity into the retrieval step to improve performance on complex, reasoning-intensive QA benchmarks. It builds upon the Maximal Marginal Relevance framework to select information chunks that are both relevant to the query and maximally dissimilar from each other. A key innovation is its ability to optimize the level of diversity for each query dynamically at test time without requiring any additional fine-tuning or prior information.
+
+\noindent
+\textbf{REFRAG~\cite{lin2025refrag}} targets generation-side efficiency by exploiting block-diagonal attention patterns that arise from low inter-passage semantic similarity among retrieved chunks. It uses a compress–sense–expand framework: a lightweight encoder compresses each retrieved chunk into compact embeddings fed directly to the decoder; an RL-trained policy selectively determines which chunks require full token-level expansion; and the decoder operates over a substantially shorter effective input.
+
+\noindent
+\textbf{PageIndex~\cite{zhang2025pageindex}} replaces the standard chunk–embed–vector search pipeline with a hierarchical tree index built from documents, using an LLM to reason over that tree—analogous to how a human expert scans a table of contents.  Rather than passive similarity lookup, PageIndex performs active tree search, with the LLM navigating document structure across multiple reasoning steps. Retrieval happens inline during the model's reasoning process, allowing the system to begin streaming immediately without a blocking retrieval gate before the first token.
+
+\noindent
+\textbf{A-RAG~\cite{du2026aragscalingagenticretrievalaugmented}} proposes an agentic RAG framework that exposes hierarchical retrieval interfaces directly to the language model. Unlike existing methods that either retrieve passages in a single shot and concatenate them into input, or predefine a workflow and prompt the model to execute it step-by-step, A-RAG allows the model to adapt the retrieval strategy based on the specific task, choose different interaction strategies, and decide when sufficient evidence has been gathered to provide an answer. A-RAG satisfies three principles of agentic autonomy: Autonomous Strategy, Iterative Execution, and Interleaved Tool Use, making it a truly agentic framework.
+
+\noindent
+\textbf{Chroma Context-1~\cite{bashir2026context1}} is a 20B parameter agentic search model derived from \textsc{GPT-OSS-20B}~\cite{openai2025gptoss120bgptoss20bmodel} that achieves retrieval performance comparable to frontier-scale LLMs at a fraction of the cost and up to 10$\times$ faster inference speed. It is designed to be used as a subagent in conjunction with a frontier reasoning model: given a query, it produces a ranked list of documents relevant to satisfying the query. The model is trained to decompose queries into subqueries, iteratively search a corpus, and selectively edit its own context to free capacity for further exploration.  A key mechanism is self-editing context management, in which the agent actively discards retrieved passages deemed irrelevant as the context window fills, preventing context rot during long-horizon multi-hop retrieval.

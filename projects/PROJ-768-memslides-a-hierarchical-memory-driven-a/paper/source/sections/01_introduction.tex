@@ -1,0 +1,128 @@
+\section{Introduction}
+
+Automatic presentation generation aims to turn 
+%source documents, papers, or 
+user requests into structured slide decks, and 
+has gained increasing attention because slides are widely used, yet creating high-quality presentations remains time-consuming and cognitively demanding
+\citep{sun2021d2s,maheshwari2024presentations,mondal2024personaaware,zeng2025slidetailor}.
+Recent agentic systems further advance this task by 
+%planning, constructing, evaluating, and refining 
+producing 
+complete decks through multi-modal or tool-based workflows
+\citep{ge2025autopresent,zheng2025pptagent,xu2025pregenie,xie2025slidebot,liang2025slidegen,zheng2026deeppresenter,ozden2026arcdeck}.
+Although these systems can now produce complete and visually polished decks,
+they still lack persistent personalization, which is essential for generating ready-to-use slide decks because users vary in domain, purpose, style, and presentation habits.
+For example, users may prefer different layouts, templates, and styles when creating slides for different purposes, such as academic presentations versus business presentations.
+%An effective personalized slides generation framework should build and maintain user profiles, learning how a particular user tends to organize, style, and revise presentations for different intents from interaction history, rather than relying on users' repeatedly prompting their preferences. 
+An effective personalized slide generation framework should build and maintain user profiles that capture users' long-term preferences in organizing, styling, and revising presentations across different intents, rather than requiring users to repeatedly specify their preferences in every interaction.
+
+
+%: they do not reliably learn how a
+%particular user tends to organize, style, and revise presentations across
+%interactions. 
+
+%building and updating user profiles from interaction history, especially revision
+%feedback, rather than relying only on a single prompt or task-time template.
+
+
+Prior work has progressively expanded the capability of presentation-generation
+systems \citep{sun2021d2s,mondal2024personaaware,
+bandyopadhyay2024enhancing,maheshwari2024presentations,ge2025autopresent,
+xu2025pregenie,xie2025slidebot,liang2025slidegen,ozden2026arcdeck}. 
+PPTAgent moves beyond text-to-slides by coupling generation with
+presentation-specific evaluation \citep{zheng2025pptagent}, and DeepPresenter
+introduces environment-grounded reflection for agentic presentation generation
+\citep{zheng2026deeppresenter}. These systems improve general generation and
+agentic refinement, but do not explicitly model user-specific personalization.
+SlideTailor addresses personalization by conditioning scientific
+slide generation on reference slides and task-time templates
+\citep{zeng2025slidetailor}, but its personalization remains tied to provided
+examples or template conditions rather than to an accumulated user profile.
+These observations therefore expose a central gap: slide generation agents still lack a user-facing multi-turn dialogue process that converts revision requests into reusable preference memory and preserves local revision constraints across later turns.
+
+\begin{figure}[!t]
+  \centering
+  \includegraphics[width=\linewidth]{pptagent_memory_workflow}
+  \vspace{-3mm}
+  \caption{Overview of \methodname. The framework comprises long-term memory
+  and working memory. Long-term memory stores user profile memory and tool
+  memory for persistent personalization and reusable execution experience,
+  while working memory carries the current session state for personalized
+  generation and localized revision. In round $t$, $s_t$ is the current
+  session state, $f_t$ is the user feedback, and $s_{t+1}$ is the
+  updated state after \emph{Modify Exec}, the memory-guided revision executor.}
+  \label{fig:pptagent_memory_workflow}
+\end{figure}
+
+This gap has two roots. First, personalization in presentation authoring is
+often revealed through revision rather than fully specified before generation,
+yet existing slide generation agents still handle edits by re-contextualizing or
+re-generating large parts of the deck. As a result, small changes must compete
+with deck state and feedback history for limited context, making multi-turn
+local modification fragile. Second, current systems mainly improve
+presentation-agent workflows, tools, and evaluators, but still treat
+personalization as an implicit byproduct of prompting rather than a direct service enabled by
+memory design. In a similar spirit to agent memory work
+\citep{zhong2023memorybank,packer2023memgpt,wu2025memoryage}, personalization of 
+slide generation can be largely enhanced by incorporating memory as an explicit framework rather than
+an undifferentiated dialogue buffer.
+%consistent with recent agent-memory work
+
+To address these problems, in this paper, we present MemSlides that introduces scoped slide
+locality as its revision strategy for multi-turn slide editing. Rather
+than re-reading or re-writing the whole deck for each feedback turn,
+\methodname projects the request onto the smallest affected slide region and
+operates on a bounded repair surface. It reads only a structured snapshot of
+that local surface, including its local layout structure, available selectors,
+and exposed style rules, and writes back only patches scoped to explicit
+selectors or to those style rules. In this way, both reading and writing stay
+local by construction, reducing context pressure and unintended drift while
+preserving already aligned content across turns.
+
+Building on this modification strategy, \methodname is further integrated with a hierarchy memory
+framework for personalized presentation generation. The framework has two
+levels: long-term memory and working memory. Working memory maintains the
+current session state and temporary feedback across revision rounds, so later
+local edits can preserve active temporary memory from the same deck.
+Long-term memory persists across jobs and is further divided into user profile
+memory and tool memory. User profile memory is user-specific and intent-aware:
+for each user and each intent, preferences are organized by various
+dimensions including theme, content, visual, layout, template, and general, and are routed into working memory when each job starts. 
+Tool memory captures reusable execution experience for later edits. This
+hierarchy memory framework enables generating and revising presentations according to both
+persistent user preferences and the active intent of the current session. The overview of \methodname is shown in Figure~\ref{fig:pptagent_memory_workflow}.
+
+%We evaluate whether \methodname improves personalized presentation generation, rather than only aggregate deck quality or instruction satisfaction \citep{zheng2025pptagent,zheng2026deeppresenter}. 
+In experiments, we evaluate \methodname 
+across multiple dimensions including slide deck quality, instruction satisfaction, and preference alignment. 
+We develop \emph{persona-alignment judgments} as metrics to evaluate personalization alignment. 
+%and the \emph{matched local revision comparison} metric for multi-turn modification. 
+Qualitative comparisons further illustrate the effectiveness of MemSlides in aligning with users' preferences.
+%working-memory preference carryover.
+
+Our contributions are threefold:
+\begingroup
+\setlength{\parskip}{0pt}
+\setlength{\topsep}{2pt}
+\setlength{\partopsep}{0pt}
+\setlength{\itemsep}{1pt}
+\setlength{\parsep}{0pt}
+\begin{itemize}
+    \item We introduce \methodname, a personalized presentation agent that
+    supports multi-turn localized revision. By maintaining session state and
+    applying targeted slide-level updates instead of repeated full-deck
+    regeneration, \methodname provides the interaction substrate needed for
+    learning user preferences from revision feedback.
+    \item We further develop a hierarchical memory framework for \methodname consisting of
+    a long-term memory and a working memory. 
+    The long-term memory contains user profile memory and tool memory, allowing
+    stable user preferences and reusable execution experience to persist across
+    jobs, while working memory tracks session-specific constraints.
+    \item We construct a multi-persona, multi-intent
+    user profile bank for personalized presentation generation evaluation.
+    Experiments show that user profile memory improves round-0 persona
+    alignment, tool memory enhances localized modify reliability in diagnostic
+    matched-pair comparisons, and working memory supports
+    session-level preference carryover.
+\end{itemize}
+\endgroup

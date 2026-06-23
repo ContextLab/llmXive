@@ -1,0 +1,41 @@
+\section{Topic Model Domain Adaptation: Training on Target Corpus}
+\label{app:in_domain_topic_model}
+
+In the main experiments, we use a topic model trained on WikiWeb2M to provide a general-purpose set of topic centroids and document-topic vectors. While this setting tests whether \name{} can rely on a broadly trained topic model, some benchmarks contain domain-specific terminology and evidence structures that may not be fully captured by a general corpus. We therefore evaluate an in-domain variant in which the topic model is trained directly on the target corpus of each benchmark, while keeping the rest of the \name{} pipeline unchanged.
+
+Table~\ref{tab:in_domain_topic_model} compares the default WikiWeb2M-trained topic model with target-corpus topic models on Dragonball, LegalBench-RAG, and SCI-DOCS. Training the topic model on the target corpus improves performance across all three datasets, with larger gains on LegalBench-RAG and Dragonball, where domain-specific terminology, entities, and narrative structure are especially important. However, the gains are moderate rather than dramatic, showing that \name{} does not require retraining the topic model for every new corpus. This is important for practical deployment: a general-purpose topic model can already provide useful metadata guidance, while in-domain topic modeling can be used as an optional enhancement when sufficient target-corpus data and training budget are available.
+
+\begin{table*}[t]
+    \centering
+    \setlength{\tabcolsep}{4.0pt}
+    \renewcommand{\arraystretch}{1.12}
+    \resizebox{0.85\textwidth}{!}{%
+    \begin{tabular}{lccccccccc}
+    \toprule
+    \multirow{2}{*}{\textbf{Topic Model Training Corpus}}
+      & \multicolumn{3}{c}{\textbf{Dragonball}}
+      & \multicolumn{3}{c}{\textbf{LegalBench-RAG}}
+      & \multicolumn{3}{c}{\textbf{SCI-DOCS}} \\
+    \cmidrule(lr){2-4}\cmidrule(lr){5-7}\cmidrule(lr){8-10}
+      & \textit{IE$\uparrow$} & \textit{Prec.$\uparrow$} & \textit{Rec.$\uparrow$}
+      & \textit{IE$\uparrow$} & \textit{Prec.$\uparrow$} & \textit{Rec.$\uparrow$}
+      & \textit{IE$\uparrow$} & \textit{Prec.$\uparrow$} & \textit{Rec.$\uparrow$} \\
+    \midrule
+    WikiWeb2M
+      & 38.97 & 82.80 & 32.40
+      & 38.40 & 55.10 & 27.90
+      & 94.13 & 99.03 & 92.10 \\
+      
+    Target Corpus
+      & \textbf{39.26} & \textbf{83.71} & \textbf{32.83}
+      & \textbf{40.18} & \textbf{57.36} & \textbf{29.64}
+      & \textbf{94.82} & \textbf{99.21} & \textbf{92.86} \\
+    \bottomrule
+    \end{tabular}
+    }
+    \caption{
+    Effect of training the topic model on the target corpus. Results report IE$\uparrow$, Precision$\uparrow$, and Recall$\uparrow$, averaged over retrieval cutoffs $k{=}1,3,5$. 
+    The WikiWeb2M row corresponds to the main \name{} configuration, while the Target Corpus row trains the topic model on the corresponding benchmark corpus before running the same retrieval pipeline.
+    }
+    \label{tab:in_domain_topic_model}
+\end{table*}

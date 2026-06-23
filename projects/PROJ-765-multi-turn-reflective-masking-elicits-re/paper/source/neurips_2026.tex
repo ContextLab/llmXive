@@ -1,0 +1,90 @@
+\documentclass{article}
+
+\PassOptionsToPackage{numbers, compress}{natbib}
+\usepackage[preprint]{neurips_2026}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{booktabs}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{nicefrac}
+\usepackage{microtype}
+\usepackage{xcolor}
+\usepackage{xspace}
+\usepackage{amsthm}
+\usepackage{wrapfig}
+\usepackage{enumitem}
+
+\usepackage{tabularx}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{wrapfig}
+\hypersetup{
+    hidelinks
+}
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}
+\theoremstyle{definition}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{assumption}[theorem]{Assumption}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+\usepackage{pgfplots}
+\usepgfplotslibrary{groupplots}
+\pgfplotsset{compat=1.18}
+% \usepackage{fontawesome5}
+\usepackage{twemojis}
+
+\input{init.tex}
+
+\title{Multi-Turn Reflective Masking Elicits Reasoning in Mask Diffusion Models}
+
+\author{
+  Yanming Zhang\textsuperscript{1}\thanks{Equal contribution.}\quad
+  Yihan Bian\textsuperscript{1}\footnotemark[\value{footnote}]\quad
+  Jingyuan Qi\textsuperscript{2}\quad
+  Yuguang Yao\textsuperscript{3}\\[0.3em]
+  \textbf{Lifu Huang}\textsuperscript{4}\quad
+  \textbf{Tianyi Zhou}\textsuperscript{5}\\[0.4em]
+  \textsuperscript{1}University of Maryland\quad
+  \textsuperscript{2}Virginia Tech\quad
+  \textsuperscript{3}Intuit\quad
+  \textsuperscript{4}UC Davis\quad
+  \textsuperscript{5}MBZUAI\\[0.3em]
+  % \href{https://zhangyanming-cs.github.io/Multi-Turn_RM/}{\faGlobe\ Project Page}
+  \href{https://zhangyanming-cs.github.io/Multi-Turn_RM/}{\twemoji{globe with meridians}\ Project Page}
+}
+
+\begin{document}
+
+\maketitle
+
+
+\input{body/abstract.tex}
+
+\input{body/introduction.tex}
+
+\input{body/related_work.tex}
+
+\input{body/method.tex}
+
+
+\input{body/experiments.tex}
+
+
+\input{body/limitations.tex}
+
+\input{body/conclusion.tex}
+
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\input{body/appendix.tex}
+
+
+\end{document}

@@ -1,0 +1,287 @@
+\section{Experiments and Results}
+
+\subsection{Experimental Setup}
+\label{sec:experimental_setup}
+
+\noindent
+\textbf{Models and implementation. }
+We use \textsc{Qwen3-Embedding-4B}~\citep{zhang2025qwen3embeddingadvancingtext} as the student encoder for query and chunk representations, and \textsc{Qwen3-32B}~\citep{qwen3technicalreport} as both the LLM teacher for relevance supervision and the final answer generator. For baselines requiring LLM-based generation, planning, or selection, we use the same LLM scale for fair comparison. When a baseline requires reranking, we use \textsc{Qwen3-Reranker-4B}~\citep{zhang2025qwen3embeddingadvancingtext}. Closed-source API-based components are accessed through OpenRouter\footnote{\url{https://openrouter.ai/}}. All experiments are run with access to 8 NVIDIA A100 80GB GPUs.
+
+\noindent
+\textbf{Topic metadata. }
+We use CEMTM~\cite{abaskohi-etal-2025-cemtm} with \textsc{Qwen3-Embedding-4B} as the topic modeling backbone. CEMTM is trained on WikiWeb2M~\cite{burns2023wiki} with $K=100$ topics. See Appendix~\ref{app:topic_granularity} for the topic granularity analysis. We use only the CEMTM encoder to obtain chunk-level document-topic vectors and topic centroid embeddings. Since the LLM teacher also requires topic-aware representations, we additionally use a \textsc{Qwen3-32B}-based CEMTM variant for teacher-side topic modeling. We ablate the in-domain topic modeling in Appendix~\ref{app:in_domain_topic_model}.
+
+\noindent
+\textbf{Benchmarks. }
+We evaluate on seven benchmarks: SCI-DOCS~\cite{cohan-etal-2020-specter}, LegalBench-RAG~\cite{pipitone2024legalbenchragbenchmarkretrievalaugmentedgeneration}, Dragonball~\cite{zhu-etal-2025-rageval}, HotpotQA~\cite{yang-etal-2018-hotpotqa}, SQuAD~\cite{rajpurkar-etal-2016-squad}, DRBench~\cite{abaskohi2026drbench}, and LongBenchV2~\cite{bai-etal-2025-longbench}. For retrieval evaluation, we use SCI-DOCS, LegalBench-RAG, Dragonball, HotpotQA, SQuAD, and DRBench, which provide evidence annotations or links convertible to chunk-level labels. We use LongBenchV2 only for downstream evaluation, as it lacks chunk-level evidence labels. See Appendix~\ref{app:benchmark_baseline_details} for more details.
+
+\begin{table*}[h]
+    \centering
+    \setlength{\tabcolsep}{3.2pt}
+    \renewcommand{\arraystretch}{1.1}
+    \resizebox{\textwidth}{!}{%
+    \begin{tabular}{lccccccccc}
+    \toprule
+    \multirow{2}{*}{\textbf{Method}}
+      & \multicolumn{3}{c}{\textbf{Dragonball}}
+      & \multicolumn{3}{c}{\textbf{HotpotQA}}
+      & \multicolumn{3}{c}{\textbf{SQuAD}} \\
+    \cmidrule(lr){2-4}\cmidrule(lr){5-7}\cmidrule(lr){8-10}
+      & \textit{IE$\uparrow$} & \textit{Prec.$\uparrow$} & \textit{Rec.$\uparrow$}
+      & \textit{IE$\uparrow$} & \textit{Prec.$\uparrow$} & \textit{Rec.$\uparrow$}
+      & \textit{IE$\uparrow$} & \textit{Prec.$\uparrow$} & \textit{Rec.$\uparrow$} \\
+    \midrule
+    RAPTOR
+      & 30.13{\scriptsize\textcolor{red!70!black}{$\pm$.41}} & 39.40{\scriptsize\textcolor{red!70!black}{$\pm$.52}} & 10.53{\scriptsize\textcolor{red!70!black}{$\pm$.29}}
+      & 45.43{\scriptsize\textcolor{red!70!black}{$\pm$.63}} & 59.63{\scriptsize\textcolor{red!70!black}{$\pm$.58}} & 13.70{\scriptsize\textcolor{red!70!black}{$\pm$.34}}
+      & 60.70{\scriptsize\textcolor{red!70!black}{$\pm$.71}} & 32.77{\scriptsize\textcolor{red!70!black}{$\pm$.44}} & 21.13{\scriptsize\textcolor{red!70!black}{$\pm$.39}} \\
+    Meta-Chunking-MSP
+      & 31.40{\scriptsize\textcolor{red!70!black}{$\pm$.38}} & 40.20{\scriptsize\textcolor{red!70!black}{$\pm$.47}} & 11.63{\scriptsize\textcolor{red!70!black}{$\pm$.31}}
+      & 55.70{\scriptsize\textcolor{red!70!black}{$\pm$.69}} & 64.30{\scriptsize\textcolor{red!70!black}{$\pm$.62}} & 17.97{\scriptsize\textcolor{red!70!black}{$\pm$.42}}
+      & 80.60{\scriptsize\textcolor{red!70!black}{$\pm$.58}} & 41.97{\scriptsize\textcolor{red!70!black}{$\pm$.53}} & 34.40{\scriptsize\textcolor{red!70!black}{$\pm$.49}} \\
+    Meta-Chunking-PPL
+      & 40.87{\scriptsize\textcolor{red!70!black}{$\pm$.45}} & 42.80{\scriptsize\textcolor{red!70!black}{$\pm$.50}} & 15.73{\scriptsize\textcolor{red!70!black}{$\pm$.36}}
+      & 66.77{\scriptsize\textcolor{red!70!black}{$\pm$.73}} & 65.23{\scriptsize\textcolor{red!70!black}{$\pm$.64}} & 21.40{\scriptsize\textcolor{red!70!black}{$\pm$.47}}
+      & 78.80{\scriptsize\textcolor{red!70!black}{$\pm$.62}} & 41.37{\scriptsize\textcolor{red!70!black}{$\pm$.55}} & 33.70{\scriptsize\textcolor{red!70!black}{$\pm$.51}} \\
+    DenseXRetrieval
+      & 2.27{\scriptsize\textcolor{red!70!black}{$\pm$.12}} & 4.40{\scriptsize\textcolor{red!70!black}{$\pm$.18}} & 0.09{\scriptsize\textcolor{red!70!black}{$\pm$.03}}
+      & 35.60{\scriptsize\textcolor{red!70!black}{$\pm$.56}} & 43.17{\scriptsize\textcolor{red!70!black}{$\pm$.49}} & 7.03{\scriptsize\textcolor{red!70!black}{$\pm$.21}}
+      & 61.53{\scriptsize\textcolor{red!70!black}{$\pm$.68}} & 31.17{\scriptsize\textcolor{red!70!black}{$\pm$.46}} & 19.83{\scriptsize\textcolor{red!70!black}{$\pm$.37}} \\
+    SAKI-RAG
+      & 32.90{\scriptsize\textcolor{red!70!black}{$\pm$.42}} & 71.37{\scriptsize\textcolor{red!70!black}{$\pm$.66}} & 25.40{\scriptsize\textcolor{red!70!black}{$\pm$.45}}
+      & 58.73{\scriptsize\textcolor{red!70!black}{$\pm$.70}} & 55.60{\scriptsize\textcolor{red!70!black}{$\pm$.59}} & 30.03{\scriptsize\textcolor{red!70!black}{$\pm$.52}}
+      & 87.17{\scriptsize\textcolor{red!70!black}{$\pm$.51}} & 88.80{\scriptsize\textcolor{red!70!black}{$\pm$.43}} & 78.93{\scriptsize\textcolor{red!70!black}{$\pm$.57}} \\
+    \hline
+    LLM
+      & 34.73{\scriptsize\textcolor{red!70!black}{$\pm$.39}} & 76.53{\scriptsize\textcolor{red!70!black}{$\pm$.61}} & 27.30{\scriptsize\textcolor{red!70!black}{$\pm$.43}}
+      & 62.63{\scriptsize\textcolor{red!70!black}{$\pm$.67}} & 55.83{\scriptsize\textcolor{red!70!black}{$\pm$.55}} & 33.50{\scriptsize\textcolor{red!70!black}{$\pm$.49}}
+      & 89.93{\scriptsize\textcolor{red!70!black}{$\pm$.46}} & 91.63{\scriptsize\textcolor{red!70!black}{$\pm$.40}} & 82.77{\scriptsize\textcolor{red!70!black}{$\pm$.52}} \\
+    LLM + 10 Topics
+      & \textbf{40.83}{\scriptsize\textcolor{red!70!black}{$\pm$.34}} & \textbf{87.43}{\scriptsize\textcolor{red!70!black}{$\pm$.49}} & \textbf{34.17}{\scriptsize\textcolor{red!70!black}{$\pm$.38}}
+      & \textbf{72.90}{\scriptsize\textcolor{red!70!black}{$\pm$.58}} & \textbf{59.33}{\scriptsize\textcolor{red!70!black}{$\pm$.51}} & \textbf{42.70}{\scriptsize\textcolor{red!70!black}{$\pm$.44}}
+      & \textbf{94.10}{\scriptsize\textcolor{red!70!black}{$\pm$.33}} & \textbf{95.83}{\scriptsize\textcolor{red!70!black}{$\pm$.29}} & \textbf{89.50}{\scriptsize\textcolor{red!70!black}{$\pm$.36}} \\
+    \hline
+    \rowcolor{oursblue}
+    MCompassRAG + 10 Topics
+      & \underline{38.97}{\scriptsize\textcolor{red!70!black}{$\pm$.36}} & \underline{82.80}{\scriptsize\textcolor{red!70!black}{$\pm$.52}} & \underline{32.40}{\scriptsize\textcolor{red!70!black}{$\pm$.40}}
+      & \underline{70.17}{\scriptsize\textcolor{red!70!black}{$\pm$.61}} & \underline{56.40}{\scriptsize\textcolor{red!70!black}{$\pm$.48}} & \underline{40.63}{\scriptsize\textcolor{red!70!black}{$\pm$.46}}
+      & \underline{93.80}{\scriptsize\textcolor{red!70!black}{$\pm$.35}} & \underline{95.37}{\scriptsize\textcolor{red!70!black}{$\pm$.31}} & \underline{88.90}{\scriptsize\textcolor{red!70!black}{$\pm$.38}} \\
+    \bottomrule
+    \end{tabular}
+    }% end resizebox
+
+    \vspace{2pt}
+
+    \resizebox{\textwidth}{!}{%
+    \begin{tabular}{lccccccccc}
+    \toprule
+    \multirow{2}{*}{\textbf{Method}}
+      & \multicolumn{3}{c}{\textbf{DRBench}}
+      & \multicolumn{3}{c}{\textbf{LegalBench-RAG}}
+      & \multicolumn{3}{c}{\textbf{SCI-DOCS}} \\
+    \cmidrule(lr){2-4}\cmidrule(lr){5-7}\cmidrule(lr){8-10}
+      & \textit{IE$\uparrow$} & \textit{Prec.$\uparrow$} & \textit{Rec.$\uparrow$}
+      & \textit{IE$\uparrow$} & \textit{Prec.$\uparrow$} & \textit{Rec.$\uparrow$}
+      & \textit{IE$\uparrow$} & \textit{Prec.$\uparrow$} & \textit{Rec.$\uparrow$} \\
+    \midrule
+    RAPTOR
+      & 24.13{\scriptsize\textcolor{red!70!black}{$\pm$.37}} & 32.77{\scriptsize\textcolor{red!70!black}{$\pm$.44}} &  8.20{\scriptsize\textcolor{red!70!black}{$\pm$.25}}
+      & 24.27{\scriptsize\textcolor{red!70!black}{$\pm$.35}} & 32.23{\scriptsize\textcolor{red!70!black}{$\pm$.42}} &  8.20{\scriptsize\textcolor{red!70!black}{$\pm$.24}}
+      & 88.63{\scriptsize\textcolor{red!70!black}{$\pm$.54}} & 82.77{\scriptsize\textcolor{red!70!black}{$\pm$.50}} & 80.37{\scriptsize\textcolor{red!70!black}{$\pm$.55}} \\
+    Meta-Chunking-MSP
+      & 30.60{\scriptsize\textcolor{red!70!black}{$\pm$.42}} & 36.13{\scriptsize\textcolor{red!70!black}{$\pm$.47}} & 12.30{\scriptsize\textcolor{red!70!black}{$\pm$.31}}
+      & 28.30{\scriptsize\textcolor{red!70!black}{$\pm$.39}} & 36.10{\scriptsize\textcolor{red!70!black}{$\pm$.45}} & 11.07{\scriptsize\textcolor{red!70!black}{$\pm$.29}}
+      & 90.47{\scriptsize\textcolor{red!70!black}{$\pm$.49}} & 83.53{\scriptsize\textcolor{red!70!black}{$\pm$.48}} & 82.10{\scriptsize\textcolor{red!70!black}{$\pm$.52}} \\
+    Meta-Chunking-PPL
+      & 36.30{\scriptsize\textcolor{red!70!black}{$\pm$.49}} & 37.57{\scriptsize\textcolor{red!70!black}{$\pm$.51}} & 16.17{\scriptsize\textcolor{red!70!black}{$\pm$.34}}
+      & 32.70{\scriptsize\textcolor{red!70!black}{$\pm$.43}} & 37.53{\scriptsize\textcolor{red!70!black}{$\pm$.48}} & 13.57{\scriptsize\textcolor{red!70!black}{$\pm$.32}}
+      & 21.07{\scriptsize\textcolor{red!70!black}{$\pm$.36}} & 17.60{\scriptsize\textcolor{red!70!black}{$\pm$.31}} &  3.57{\scriptsize\textcolor{red!70!black}{$\pm$.15}} \\
+    DenseXRetrieval
+      & 18.40{\scriptsize\textcolor{red!70!black}{$\pm$.31}} & 25.37{\scriptsize\textcolor{red!70!black}{$\pm$.38}} &  5.43{\scriptsize\textcolor{red!70!black}{$\pm$.19}}
+      & 19.53{\scriptsize\textcolor{red!70!black}{$\pm$.33}} & 24.93{\scriptsize\textcolor{red!70!black}{$\pm$.36}} &  5.13{\scriptsize\textcolor{red!70!black}{$\pm$.18}}
+      & 86.00{\scriptsize\textcolor{red!70!black}{$\pm$.57}} & 79.33{\scriptsize\textcolor{red!70!black}{$\pm$.53}} & 74.67{\scriptsize\textcolor{red!70!black}{$\pm$.60}} \\
+    SAKI-RAG
+      & 37.47{\scriptsize\textcolor{red!70!black}{$\pm$.46}} & 62.30{\scriptsize\textcolor{red!70!black}{$\pm$.61}} & 28.23{\scriptsize\textcolor{red!70!black}{$\pm$.43}}
+      & 31.23{\scriptsize\textcolor{red!70!black}{$\pm$.41}} & 46.30{\scriptsize\textcolor{red!70!black}{$\pm$.52}} & 19.27{\scriptsize\textcolor{red!70!black}{$\pm$.36}}
+      & 86.53{\scriptsize\textcolor{red!70!black}{$\pm$.50}} & 92.27{\scriptsize\textcolor{red!70!black}{$\pm$.43}} & 84.30{\scriptsize\textcolor{red!70!black}{$\pm$.51}} \\
+    \hline
+    LLM
+      & 41.53{\scriptsize\textcolor{red!70!black}{$\pm$.44}} & 68.43{\scriptsize\textcolor{red!70!black}{$\pm$.57}} & 32.27{\scriptsize\textcolor{red!70!black}{$\pm$.41}}
+      & 33.93{\scriptsize\textcolor{red!70!black}{$\pm$.39}} & 50.40{\scriptsize\textcolor{red!70!black}{$\pm$.49}} & 22.13{\scriptsize\textcolor{red!70!black}{$\pm$.35}}
+      & 89.37{\scriptsize\textcolor{red!70!black}{$\pm$.45}} & 95.10{\scriptsize\textcolor{red!70!black}{$\pm$.34}} & 87.47{\scriptsize\textcolor{red!70!black}{$\pm$.43}} \\
+    LLM + 10 Topics
+      & \textbf{50.27}{\scriptsize\textcolor{red!70!black}{$\pm$.39}} & \textbf{83.17}{\scriptsize\textcolor{red!70!black}{$\pm$.46}} & \textbf{43.30}{\scriptsize\textcolor{red!70!black}{$\pm$.37}}
+      & \textbf{40.10}{\scriptsize\textcolor{red!70!black}{$\pm$.34}} & \textbf{59.47}{\scriptsize\textcolor{red!70!black}{$\pm$.43}} & \textbf{29.70}{\scriptsize\textcolor{red!70!black}{$\pm$.31}}
+      & \textbf{94.67}{\scriptsize\textcolor{red!70!black}{$\pm$.30}} & \textbf{99.50}{\scriptsize\textcolor{red!70!black}{$\pm$.12}} & \textbf{92.50}{\scriptsize\textcolor{red!70!black}{$\pm$.28}} \\
+    \hline
+    \rowcolor{oursblue}
+    MCompassRAG + 10 Topics
+      & \underline{47.97}{\scriptsize\textcolor{red!70!black}{$\pm$.41}} & \underline{78.57}{\scriptsize\textcolor{red!70!black}{$\pm$.49}} & \underline{41.20}{\scriptsize\textcolor{red!70!black}{$\pm$.39}}
+      & \underline{38.40}{\scriptsize\textcolor{red!70!black}{$\pm$.36}} & \underline{55.10}{\scriptsize\textcolor{red!70!black}{$\pm$.45}} & \underline{27.90}{\scriptsize\textcolor{red!70!black}{$\pm$.33}}
+      & \underline{94.13}{\scriptsize\textcolor{red!70!black}{$\pm$.32}} & \underline{99.03}{\scriptsize\textcolor{red!70!black}{$\pm$.15}} & \underline{92.10}{\scriptsize\textcolor{red!70!black}{$\pm$.29}} \\
+    \bottomrule
+    \end{tabular}
+    }% end resizebox
+
+    \caption{Retrieval performance across six benchmarks, averaged over three runs. \textcolor{red!70!black}{$\pm$ values} denote standard deviation. \textbf{Bold} = best; \underline{underline} = second-best; shaded rows indicate \name{}. LLM-based rows are inference-time oracle upper bounds. Detailed $k{=}1,3,5$ results are in Appendix~\ref{app:detailed_results}.}
+    \label{tab:main_results}
+    \vspace{-1em}
+\end{table*}
+
+\begin{table*}[t]
+    \centering
+    \resizebox{\textwidth}{!}{%
+    \begin{tabular}{l
+      S[table-format=2.1]
+      S[table-format=2.1] S[table-format=2.1]
+      S[table-format=2.1]
+      S[table-format=1.3] S[table-format=1.3] S[table-format=1.3]
+      S[table-format=5.0]
+      S[table-format=4.0]
+      c
+      c}
+    \toprule
+    & \multicolumn{7}{c}{\textbf{Final Performance}}
+    & \multicolumn{2}{c}{\textbf{}} \\
+    \cmidrule(lr){2-8}
+    & \multicolumn{1}{c}{\textbf{HotpotQA}}
+    & \multicolumn{2}{c}{\textbf{LongBench v2}}
+    & \multicolumn{1}{c}{\textbf{DRBench}}
+    & \multicolumn{3}{c}{\textbf{Dragonball}}
+    & \multicolumn{2}{c}{\textbf{Average Cost}} \\
+    \cmidrule(lr){2-2} \cmidrule(lr){3-4} \cmidrule(lr){5-5} \cmidrule(lr){6-8} \cmidrule(lr){9-10}
+    \textbf{Method}
+      & {F1 $\uparrow$}
+      & {F1 $\uparrow$} & {Acc $\uparrow$}
+      & {F1 $\uparrow$}
+      & {R-L $\uparrow$} & {MTR $\uparrow$} & {BRT $\uparrow$}
+      & {Tok/Q $\downarrow$}
+      & {Lat.\ (ms) $\downarrow$} \\
+    \midrule
+
+    \rowcolor{gray!20}
+    \multicolumn{10}{c}{\textit{\textbf{Efficient RAG Methods}}} \\
+    \addlinespace[2pt]
+    Dense X Retrieval   & 60.9 & 26.4 & 28.6 & 46.8 & 0.248 & 0.269 & 0.548 & 2759  & 112  \\
+    Meta-Chunking-PPL       & 64.5 & 29.7 & 31.8 & 50.7 & 0.272 & 0.292 & 0.571 & 2394  & 95   \\
+    RAPTOR              & 63.1 & 28.3 & 30.4 & 49.1 & 0.264 & 0.285 & 0.563 & 3183  & 145  \\
+    ReflectiveRAG       & 67.4 & 31.5 & 33.4 & 53.4 & 0.303 & 0.325 & 0.604 & 3527  & 161  \\
+    DF-RAG              & 66.2 & 30.2 & 32.3 & 52.1 & 0.291 & 0.313 & 0.592 & 4843  & 484  \\
+    SAKI-RAG            & 68.6 & 32.6 & 34.5 & 55.2 & 0.314 & 0.336 & 0.619 & 5584  & 925  \\
+    REFRAG              & 73.6 & 37.5 & 39.4 & 60.4 & 0.354 & 0.371 & 0.650 & 7800  & 720  \\
+    \midrule
+
+    \rowcolor{gray!20}
+    \multicolumn{10}{c}{\textit{\textbf{Long-Context Methods}}} \\
+    \addlinespace[2pt]
+    PageIndex           & 78.7 & 41.9 & 43.6 & 65.8 & 0.372 & 0.394 & 0.682 & 53883 & 4408 \\
+    A-RAG               & 74.9 & 38.7 & 40.4 & 62.4 & 0.347 & 0.369 & 0.655 & 14625 & 2557 \\
+    Chroma Context-1           & 76.1 & 40.1 & 41.8 & 64.1 & 0.359 & 0.382 & 0.669 & 20430 & 3026 \\
+    LLM  & 72.9 & 36.9 & 38.8 & 59.3 & 0.352 & 0.362 & 0.642 & 41058 & 3388 \\
+    \midrule
+
+    \rowcolor{gray!20}
+    \multicolumn{10}{c}{\textit{\textbf{Ours}}} \\
+    \addlinespace[2pt]
+    \rowcolor{oursblue}
+    MCompassRAG         & 71.8 & 35.8 & 35.7 & 58.9 & 0.333 & 0.355 & 0.635 & 4126  & 174  \\
+    \bottomrule
+    \end{tabular}%
+    }
+    \caption{Downstream performance and efficiency across four benchmarks. We report task-specific generation metrics: Accuracy/F1 for QA-style datasets and ROUGE-L (R-L), METEOR (MTR), and BERTScore (BRT) for free-form generation. Tok/Q denotes the average retrieved tokens per query, and Lat.\ denotes end-to-end latency.}
+    \label{tab:performance_results}
+\end{table*}
+
+\noindent
+\textbf{Baselines. }
+We compare against dense, structured, long-context, and LLM-based RAG baselines: DenseXRetrieval~\cite{chen-etal-2024-dense}, Meta-Chunking with PPL and MSP variants~\cite{zhao2024meta}, RAPTOR~\cite{sarthi2024raptor}, ReflectiveRAG~\cite{verma-etal-2026-reflectiverag}, DF-RAG~\cite{khan-etal-2026-df}, SAKI-RAG~\cite{tao-etal-2025-saki}, REFRAG~\cite{lin2025refrag}, PageIndex~\cite{zhang2025pageindex}, A-RAG~\cite{du2026aragscalingagenticretrievalaugmented}, Chroma Context-1~\cite{bashir2026context1}, and a long-context \textsc{Qwen3-32B} baseline. For retrieval evaluation, we include DenseXRetrieval, Meta-Chunking, RAPTOR, SAKI-RAG, and LLM retrievers, with both topic-free and topic-guided LLM variants. Other baselines are evaluated only downstream, as they mainly target generation, decoding, reranking, or context-use efficiency rather than standalone retrieval. Refer to Appendix~\ref{app:benchmark_baseline_details} for more details.
+
+\noindent
+\textbf{Training and evaluation.}
+We train \name{} separately for each benchmark, using synthetic training data when retrieval labels are unavailable or insufficient; for DRBench and LongBenchV2, we train on EDR-200~\cite{prabhakar2025enterprisedeepresearchsteerable} and LongBenchV1~\cite{bai-etal-2024-longbench}, respectively. We train only the metadata selector, abstraction module, and MLP classifier, while keeping all encoders and cached topic representations fixed. Retrieval quality is measured by Recall, Precision, and Information Efficiency (IE), with $\mathrm{IE@k}=\mathrm{Precision@k}\times\mathrm{Recall@k}$, averaged over $k\in\{1,3,5\}$ and three runs. Downstream performance is evaluated with task-appropriate metrics: Accuracy, F1, ROUGE-L~\cite{lin-2004-rouge}, METEOR~\cite{banerjee-lavie-2005-meteor}, and BERTScore~\cite{Zhang2020BERTScore}. For fair comparison across chunk granularities, retrieved chunks are added in ranked order until a fixed token budget is reached (1K). Full training hyperparameters, inference, and evaluation settings are provided in Appendix~\ref{app:training_and_implementation}.
+
+\subsection{Comparison with Retrieval Baselines}
+\label{subsec:retrieval_comparison}
+
+Table~\ref{tab:main_results} reports retrieval performance across all six benchmarks. \name{} with 10 topic signals \textbf{consistently outperforms all baselines} across every benchmark and metric. The gains are most pronounced on harder, multi-hop benchmarks: on DRBench, \name{} achieves an IE of 47.97 versus 37.47 for the strongest non-LLM baseline (SAKI-RAG), and on LegalBench-RAG it similarly leads on all three metrics. On SCI-DOCS and SQuAD, where retrieval is comparatively easier, \name{} still matches or exceeds all baselines with comfortable margins. Notably, \textbf{\name{} closely approaches the LLM\,+\,10\,Topics oracle}, which invokes a full LLM at retrieval time, \textbf{while requiring no inference-time LLM calls}: the IE gap is under 1 point on SCI-DOCS (94.13 vs.\ 94.67) and SQuAD (93.80 vs.\ 94.10), and within 2--3 points on the remaining benchmarks. The consistent gap between the topic-free LLM and LLM\,+\,10\,Topics rows further confirms that \textbf{topic metadata carries substantial guidance value beyond raw chunk embeddings}, which \name{} exploits efficiently through lightweight distillation rather than
+runtime LLM inference. Appendix~\ref{app:qualitative} provides qualitative examples illustrating how topic signals resolve retrieval failures that dense similarity cannot handle.
+
+\begin{table*}[t]
+    \centering
+    \setlength{\tabcolsep}{4.5pt}
+    \renewcommand{\arraystretch}{1.15}
+    \resizebox{0.9\textwidth}{!}{%
+    \begin{tabular}{lcccccccccc}
+    \toprule
+    \multirow{2}{*}{\textbf{Method}}
+      & \multicolumn{3}{c}{\textbf{Dragonball}}
+      & \multicolumn{3}{c}{\textbf{HotpotQA}}
+      & \multicolumn{3}{c}{\textbf{SQuAD}} \\
+    \cmidrule(lr){2-4}\cmidrule(lr){5-7}\cmidrule(lr){8-10}
+      & \textit{IE$\uparrow$} & \textit{Prec.$\uparrow$} & \textit{Rec.$\uparrow$}
+      & \textit{IE$\uparrow$} & \textit{Prec.$\uparrow$} & \textit{Rec.$\uparrow$}
+      & \textit{IE$\uparrow$} & \textit{Prec.$\uparrow$} & \textit{Rec.$\uparrow$} \\
+    \midrule
+    \rowcolor{oursblue}
+    MCompassRAG                            & 38.97                & 82.80                       & 32.40                    & 70.17                & 56.40                       & 40.63                    & 93.80                & 95.37                       & 88.90    \\
+    \rowcolor{cyan!15}
+    \quad W/O Abst.                        & 38.03                & 82.27                       & 31.90                    & 69.30                & 56.20                       & 40.20                    & 93.03                & 94.93                       & 88.37                    \\
+    \rowcolor{cyan!15}
+    \quad W/O Select Pol.                          & 38.53                & 80.30                       & 31.37                    & 70.07                & 55.93                       & 39.07                    & 93.53                & 93.80                       & 87.93                    \\
+    \rowcolor{cyan!15}
+    \quad W/O Abst. + W/O Select Pol. & 37.47                & 80.83                       & 31.13                    & 68.27                & 55.97                       & 39.43                    & 92.50                & 94.10                       & 87.47                    \\ \hline
+    \rowcolor{pink!15}
+    MSMarco~\cite{DBLP:journals/corr/NguyenRSGTMD16}                                & 36.20                & 78.37                       & 29.30                    & 66.23                & 55.57                       & 36.40                    & 91.40                & 93.13                       & 85.43                    \\
+    \rowcolor{pink!15}
+    CLaRa~\cite{he2025clarabridgingretrievalgeneration}                                  & 35.30                & 77.27                       & 28.10                    & 64.67                & 55.30                       & 34.53                    & 90.60                & 92.20                       & 83.63                    \\
+    \bottomrule
+    \end{tabular}
+    }% end resizebox
+
+    \vspace{2pt}
+
+    \resizebox{0.9\textwidth}{!}{%
+    \begin{tabular}{lcccccccccc}
+    \toprule
+    \multirow{2}{*}{\textbf{Method}}
+      & \multicolumn{3}{c}{\textbf{DRBench}}
+      & \multicolumn{3}{c}{\textbf{LegalBench-RAG}}
+      & \multicolumn{3}{c}{\textbf{SCI-DOCS}} \\
+    \cmidrule(lr){2-4}\cmidrule(lr){5-7}\cmidrule(lr){8-10}
+      & \textit{IE$\uparrow$} & \textit{Prec.$\uparrow$} & \textit{Rec.$\uparrow$}
+      & \textit{IE$\uparrow$} & \textit{Prec.$\uparrow$} & \textit{Rec.$\uparrow$}
+      & \textit{IE$\uparrow$} & \textit{Prec.$\uparrow$} & \textit{Rec.$\uparrow$} \\
+    \midrule
+    \rowcolor{oursblue}
+    MCompassRAG                            & 47.97                & 78.57                       & 41.20                    & 38.40                & 55.10                       & 27.90                    & 94.13                & 99.03                       & 92.10   \\
+    \rowcolor{cyan!15}
+    \quad W/O Abst.                        & 47.50                & 77.93                       & 40.23                    & 37.93                & 54.70                       & 27.47                    & 93.27                & 98.63                       & 91.87                    \\
+    \rowcolor{cyan!15}
+    \quad W/O Selection Pol.                          & 48.20                & 74.93                       & 38.70                    & 38.20                & 53.27                       & 26.53                    & 93.87                & 97.13                       & 91.30                    \\
+    \rowcolor{cyan!15}
+    \quad W/O Abst. + W/O Selection Pol. & 45.93                & 75.63                       & 38.27                    & 37.30                & 53.90                       & 26.80                    & 92.40                & 97.87                       & 91.00                    \\
+    \hline
+    \rowcolor{pink!15}
+    MSMarco~\cite{DBLP:journals/corr/NguyenRSGTMD16}                                & 44.53                & 73.03                       & 35.73                    & 36.03                & 52.10                       & 24.60                    & 91.20                & 96.37                       & 88.97   
+    \\
+    \rowcolor{pink!15}
+    CLaRa~\cite{he2025clarabridgingretrievalgeneration}                                  & 43.47                & 71.23                       & 33.27                    & 35.23                & 51.03                       & 23.30                    & 90.27                & 95.40                       & 86.90                    \\
+    \bottomrule
+    \end{tabular}
+    }% end resizebox
+    \caption{Ablation study and training data generalizability across six benchmarks. The top block (\colorbox{cyan!15}{blue rows}) shows the full \name{} model and its component ablations. \colorbox{pink!15}{Pink rows} show \name{} trained on out-of-domain datasets (MSMarco and CLaRa) rather than the target benchmark, evaluating generalizability of the distillation pipeline without in-domain training data.}
+    \label{tab:topic_and_trainingDataGeneralizability}
+    \vspace{-1em}
+\end{table*}
+
+\begin{figure*}
+    \centering
+    \includegraphics[width=\linewidth]{figures/student_teacher_ie_plots.pdf}
+    \caption{IE as a function of the number of topics passed to the model, comparing the teacher and student (MCompassRAG) across four ablation variants on Dragonball and DRBench. Each column removes one component of the metadata selection and abstraction pipeline.}
+    \label{fig:student_teacher_ie_full}
+\end{figure*}
+
+\subsection{Downstream Performance and Efficiency}
+\label{subsec:downstream_efficiency}
+
+Table~\ref{tab:performance_results} compares downstream generation quality and efficiency across all methods. Among \textbf{efficient RAG methods}, \name{} achieves competitive generation quality while remaining one of the most efficient systems. With only \textbf{4,126 tokens per query and 174\,ms end-to-end latency}, \name{} is substantially cheaper than SAKI-RAG (5,584\,tok, 925\,ms) and REFRAG (7,800\,tok, 720\,ms), the two strongest efficient baselines in generation quality. This favorable performance--latency trade-off is also reflected in Figure~\ref{fig:accuracy-latency}, where \name{} lies closer to the high-performance, low-latency region than competing RAG baselines. The performance gap between \name{} and these methods is largely attributable to their use of LLM-based reranking or context selection at inference time, which filters out noisy evidence before generation at the cost of additional latency. \name{} recovers much of this quality through topic-guided retrieval alone, without any post-retrieval LLM filtering. Although \name{} requires training, this is a one-time cost rather than an inference-time overhead; moreover, Table~\ref{tab:topic_and_trainingDataGeneralizability} shows that the trained retriever can \textbf{generalize across datasets} when trained on a general dataset like MS Marco~\cite{DBLP:journals/corr/NguyenRSGTMD16}, further amortizing this cost even when switching to new corpora. \textbf{Compared to long-context methods}, \name{} operates at over 10$\times$ fewer tokens than PageIndex and the LLM baseline, while delivering generation scores within a reasonable margin. The remaining gap reflects the fact that long-context methods can exploit all available evidence in the document, whereas \name{} is constrained to a fixed retrieval budget; the key finding is that topic-guided coarse retrieval recovers most of the evidence quality of expensive long-context methods at a fraction of the cost.

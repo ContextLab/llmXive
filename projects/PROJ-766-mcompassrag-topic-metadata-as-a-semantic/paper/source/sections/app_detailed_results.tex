@@ -1,0 +1,213 @@
+\section{Retrieval Performance at Different Cutoffs}
+\label{app:detailed_results}
+
+\begin{table*}[t]
+\centering
+\setlength{\tabcolsep}{4.5pt}
+\renewcommand{\arraystretch}{1.1}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lccccccccc}
+\toprule
+\multirow{2}{*}{\textbf{Method}}
+& \multicolumn{3}{c}{\textbf{Dragonball}} & \multicolumn{3}{c}{\textbf{HotpotQA}} & \multicolumn{3}{c}{\textbf{SQuAD}} \\
+\cmidrule(lr){2-4}\cmidrule(lr){5-7}\cmidrule(lr){8-10}
+  & \textit{IE$@3\uparrow$} & \textit{Prec.$@3\uparrow$} & \textit{Rec.$@3\uparrow$}  & \textit{IE$@3\uparrow$} & \textit{Prec.$@3\uparrow$} & \textit{Rec.$@3\uparrow$}  & \textit{IE$@3\uparrow$} & \textit{Prec.$@3\uparrow$} & \textit{Rec.$@3\uparrow$} \\
+\midrule
+RAPTOR
+  & 3.78 & 38.65 & 9.78
+  & 7.45 & 58.63 & 12.70
+  & 6.53 & 32.02 & 20.38 \\
+Meta-Chunking-MSP
+  & 4.29 & 39.45 & 10.88
+  & 10.74 & \underline{63.30} & 16.97
+  & 13.87 & 41.22 & 33.65 \\
+Meta-Chunking-PPL
+  & 6.30 & 42.05 & 14.98
+  & 13.10 & \textbf{64.23} & 20.40
+  & 13.38 & 40.62 & 32.95 \\
+DenseXRetrieval
+  & 0.03 & 2.65 & 1.07
+  & 2.54 & 42.17 & 6.03
+  & 5.80 & 30.42 & 19.08 \\
+SAKI-RAG
+  & 17.41 & 70.62 & 24.65
+  & 15.85 & 54.60 & 29.03
+  & 68.84 & 88.05 & 78.18 \\
+\hline
+LLM
+  & 20.12 & 75.78 & 26.55
+  & 17.82 & 54.83 & 32.50
+  & 74.54 & 90.88 & 82.02 \\
+LLM + 10 Topics
+  & \textbf{28.97} & \textbf{86.68} & \textbf{33.42}
+  & \textbf{24.32} & 58.33 & \textbf{41.70}
+  & \textbf{84.38} & \textbf{95.08} & \textbf{88.75} \\
+\hline
+\rowcolor{oursblue}
+MCompassRAG + 10 Topics
+  & \underline{25.97} & \underline{82.05} & \underline{31.65}
+  & \underline{21.96} & 55.40 & \underline{39.63}
+  & \underline{83.41} & \underline{94.62} & \underline{88.15} \\
+\bottomrule
+\end{tabular}
+}% end resizebox
+
+\vspace{2pt}
+
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lccccccccc}
+\toprule
+\multirow{2}{*}{\textbf{Method}}
+& \multicolumn{3}{c}{\textbf{DRBench}} & \multicolumn{3}{c}{\textbf{LegalBench-RAG}} & \multicolumn{3}{c}{\textbf{SCI-DOCS}} \\
+\cmidrule(lr){2-4}\cmidrule(lr){5-7}\cmidrule(lr){8-10}
+  & \textit{IE$@3\uparrow$} & \textit{Prec.$@3\uparrow$} & \textit{Rec.$@3\uparrow$}  & \textit{IE$@3\uparrow$} & \textit{Prec.$@3\uparrow$} & \textit{Rec.$@3\uparrow$}  & \textit{IE$@3\uparrow$} & \textit{Prec.$@3\uparrow$} & \textit{Rec.$@3\uparrow$} \\
+\midrule
+RAPTOR
+  & 2.34 & 31.90 & 7.32
+  & 2.35 & 31.48 & 7.45
+  & 65.51 & 82.14 & 79.75 \\
+Meta-Chunking-MSP
+  & 4.03 & 35.26 & 11.43
+  & 3.65 & 35.35 & 10.32
+  & 67.55 & 82.91 & 81.47 \\
+Meta-Chunking-PPL
+  & 5.62 & 36.70 & 15.30
+  & 4.72 & 36.78 & 12.82
+  & 0.50 & 16.98 & 2.94 \\
+DenseXRetrieval
+  & 1.11 & 24.50 & 4.55
+  & 1.06 & 24.18 & 4.38
+  & 58.28 & 78.70 & 74.05 \\
+SAKI-RAG
+  & 16.80 & 61.42 & 27.36
+  & 8.44 & 45.55 & 18.52
+  & 76.68 & 91.64 & 83.67 \\
+\hline
+LLM
+  & 21.21 & 67.56 & 31.40
+  & 10.62 & 49.65 & 21.38
+  & 82.04 & 94.47 & 86.84 \\
+LLM + 10 Topics
+  & \textbf{34.91} & \textbf{82.30} & \textbf{42.42}
+  & \textbf{17.00} & \textbf{58.72} & \textbf{28.95}
+  & \textbf{91.33} & \textbf{99.40} & \textbf{91.88} \\
+\hline
+\rowcolor{oursblue}
+MCompassRAG + 10 Topics
+  & \underline{31.33} & \underline{77.69} & \underline{40.33}
+  & \underline{14.76} & \underline{54.35} & \underline{27.15}
+  & \underline{90.41} & \underline{98.84} & \underline{91.47} \\
+\bottomrule
+\end{tabular}
+}% end resizebox
+\caption{Retrieval performance at depth $k{=}3$ across six benchmarks (IE\,$@3\uparrow$, Precision\,$@3\uparrow$, Recall\,$@3\uparrow$). \textbf{Bold} = best; \underline{underline} = second-best. \colorbox{oursblue}{\strut\,\name{}\,} rows are shaded.}
+\label{tab:results_at3}
+\vspace{-1em}
+\end{table*}
+
+Tables~\ref{tab:results_at1}, \ref{tab:results_at3}, and \ref{tab:results_at5} report retrieval performance at cutoffs $k{=}1$, $k{=}3$, and $k{=}5$, respectively, across all six benchmarks. As expected, both precision and recall increase monotonically with $k$ for all methods, since retrieving more documents provides greater coverage of relevant passages. The relative ordering of methods remains consistent across all cutoffs: \name{} outperforms all non-oracle baselines at every depth while staying within a narrow margin of the LLM\,+\,10\,Topics oracle, which relies on an LLM at retrieval time. This consistency demonstrates that the gains from topic-guided retrieval are not specific to any particular cutoff, but reflect a robust improvement in retrieval quality across the full range of evaluation settings reported here.
+
+\begin{table*}[t]
+\centering
+\setlength{\tabcolsep}{4.5pt}
+\renewcommand{\arraystretch}{1.1}
+
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lccccccccc}
+\toprule
+\multirow{2}{*}{\textbf{Method}}
+& \multicolumn{3}{c}{\textbf{Dragonball}} & \multicolumn{3}{c}{\textbf{HotpotQA}} & \multicolumn{3}{c}{\textbf{SQuAD}} \\
+\cmidrule(lr){2-4}\cmidrule(lr){5-7}\cmidrule(lr){8-10}
+  & \textit{IE$@5\uparrow$} & \textit{Prec.$@5\uparrow$} & \textit{Rec.$@5\uparrow$}  & \textit{IE$@5\uparrow$} & \textit{Prec.$@5\uparrow$} & \textit{Rec.$@5\uparrow$}  & \textit{IE$@5\uparrow$} & \textit{Prec.$@5\uparrow$} & \textit{Rec.$@5\uparrow$} \\
+\midrule
+RAPTOR
+  & 6.16 & 43.15 & 14.28
+  & 12.09 & 64.63 & 18.70
+  & 9.09 & 36.52 & 24.88 \\
+Meta-Chunking-MSP
+  & 6.76 & 43.95 & 15.38
+  & 15.92 & \underline{69.30} & 22.97
+  & 17.44 & 45.72 & 38.15 \\
+Meta-Chunking-PPL
+  & 9.07 & 46.55 & 19.48
+  & 18.54 & \textbf{70.23} & 26.40
+  & 16.90 & 45.12 & 37.45 \\
+DenseXRetrieval
+  & 0.02 & 8.15 & 0.20
+  & 5.79 & 48.17 & 12.03
+  & 8.23 & 34.92 & 23.58 \\
+SAKI-RAG
+  & 21.90 & 75.12 & 29.15
+  & 21.23 & 60.60 & 35.03
+  & 76.52 & 92.55 & 82.68 \\
+\hline
+LLM
+  & 24.93 & 80.28 & 31.05
+  & 23.42 & 60.83 & 38.50
+  & 82.52 & 95.38 & 86.52 \\
+LLM + 10 Topics
+  & \textbf{34.58} & \textbf{91.18} & \textbf{37.92}
+  & \textbf{30.69} & 64.33 & \textbf{47.70}
+  & \textbf{92.86} & \textbf{99.58} & \textbf{93.25} \\
+\hline
+\rowcolor{oursblue}
+MCompassRAG + 10 Topics
+  & \underline{31.29} & \underline{86.55} & \underline{36.15}
+  & \underline{28.02} & 61.40 & \underline{45.63}
+  & \underline{91.83} & \underline{99.12} & \underline{92.65} \\
+\bottomrule
+\end{tabular}
+}% end resizebox
+
+\vspace{2pt}
+
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lccccccccc}
+\toprule
+\multirow{2}{*}{\textbf{Method}}
+& \multicolumn{3}{c}{\textbf{DRBench}} & \multicolumn{3}{c}{\textbf{LegalBench-RAG}} & \multicolumn{3}{c}{\textbf{SCI-DOCS}} \\
+\cmidrule(lr){2-4}\cmidrule(lr){5-7}\cmidrule(lr){8-10}
+  & \textit{IE$@5\uparrow$} & \textit{Prec.$@5\uparrow$} & \textit{Rec.$@5\uparrow$}  & \textit{IE$@5\uparrow$} & \textit{Prec.$@5\uparrow$} & \textit{Rec.$@5\uparrow$}  & \textit{IE$@5\uparrow$} & \textit{Prec.$@5\uparrow$} & \textit{Rec.$@5\uparrow$} \\
+\midrule
+RAPTOR
+  & 4.67 & 37.15 & 12.57
+  & 4.30 & 35.98 & 11.95
+  & 71.72 & 85.89 & 83.50 \\
+Meta-Chunking-MSP
+  & 6.76 & 40.51 & 16.68
+  & 5.91 & 39.85 & 14.82
+  & 73.85 & 86.66 & 85.22 \\
+Meta-Chunking-PPL
+  & 8.62 & 41.95 & 20.55
+  & 7.15 & 41.28 & 17.32
+  & 1.39 & 20.73 & 6.70 \\
+DenseXRetrieval
+  & 2.92 & 29.75 & 9.80
+  & 2.55 & 28.68 & 8.88
+  & 64.15 & 82.45 & 77.80 \\
+SAKI-RAG
+  & 21.74 & 66.67 & 32.61
+  & 11.52 & 50.05 & 23.02
+  & 83.39 & 95.39 & 87.42 \\
+\hline
+LLM
+  & 26.68 & 72.81 & 36.65
+  & 14.01 & 54.15 & 25.88
+  & 88.98 & 98.22 & 90.59 \\
+LLM + 10 Topics
+  & \textbf{41.74} & \textbf{87.55} & \textbf{47.67}
+  & \textbf{21.15} & \textbf{63.22} & \textbf{33.45}
+  & \textbf{95.62} & \textbf{100.00} & \textbf{95.62} \\
+\hline
+\rowcolor{oursblue}
+MCompassRAG + 10 Topics
+  & \underline{37.80} & \underline{82.94} & \underline{45.58}
+  & \underline{18.63} & \underline{58.85} & \underline{31.65}
+  & \underline{95.22} & \underline{100.00} & \underline{95.22} \\
+\bottomrule
+\end{tabular}
+}% end resizebox
+\caption{Retrieval performance at depth $k{=}5$ across six benchmarks (IE\,$@5\uparrow$, Precision\,$@5\uparrow$, Recall\,$@5\uparrow$). \textbf{Bold} = best; \underline{underline} = second-best. \colorbox{oursblue}{\strut\,\name{}\,} rows are shaded.}
+\label{tab:results_at5}
+\vspace{-1em}
+\end{table*}

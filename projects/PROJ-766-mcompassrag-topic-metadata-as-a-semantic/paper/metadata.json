@@ -1,0 +1,55 @@
+{
+  "arxiv_id": "2606.18508",
+  "arxiv_url": "https://arxiv.org/abs/2606.18508",
+  "title": "MCompassRAG: Topic Metadata as a Semantic Compass for Paragraph-Level Retrieval",
+  "authors": [
+    "Amirhossein Abaskohi",
+    "Raymond Li",
+    "Gaetano Cimino",
+    "Peter West",
+    "Giuseppe Carenini",
+    "Issam H. Laradji"
+  ],
+  "submitter": "github-actions[bot]",
+  "abstract": "Retrieval-augmented generation (RAG) systems depend critically on how documents are chunked and searched. Fine-grained chunks can improve retrieval precision but expand the search space, increasing latency and cost; larger chunks reduce the number of candidates but make dense similarity less reliable, as the representation for each chunk mixes multiple topics and introduces more semantic noise. This trade-off becomes especially limiting in deep research tasks, where retrieval must be both fast and precise across large, heterogeneous corpora. We introduce MCompassRAG, a metadata-guided retrieval framework that uses topic-level signals as a semantic compass for selecting relevant evidence. Instead of relying only on cosine similarity between queries and noisy chunk embeddings, MCompassRAG enriches chunk representations with topic metadata in the same embedding space and trains a lightweight retriever through LLM-teacher distillation. At inference time, MCompassRAG performs topic-aware retrieval without additional LLM calls, improving both efficiency and evidence quality. Across six complex retrieval benchmarks, MCompassRAG improves information efficiency (IE) by 8.24% on average with over 5 times lower latency than the strongest efficient RAG baselines. Code is available on https://github.com/AmirAbaskohi/MCompassRAG.",
+  "submitted_via": "llmXive dashboard, GitHub issue #353",
+  "license": "arXiv Non-exclusive Distribution License",
+  "license_url": "http://arxiv.org/licenses/nonexclusive-distrib/1.0/",
+  "code": [
+    "https://github.com/AmirAbaskohi/MCompassRAG"
+  ],
+  "data": [],
+  "toplevel_tex": [
+    "acl_latex.tex"
+  ],
+  "source_files": [
+    "00README.json",
+    "acl_latex.tex",
+    "acl_natbib.bst",
+    "acl.sty",
+    "custom.bib",
+    "figures",
+    "figures/rag_accuracy_vs_latency.pdf",
+    "figures/logo.png",
+    "figures/tsne_qualitative_new.pdf",
+    "figures/CompassRAG_qualitative_comparison.pdf",
+    "figures/CompassRAG-pipeline_v2.pdf",
+    "figures/teaser_1.pdf",
+    "figures/student_teacher_ie_plots.pdf",
+    "sections",
+    "sections/app_training_and_implementation_details.tex",
+    "sections/app_qualitative_analysis.tex",
+    "sections/app_in_domain_topic_model.tex",
+    "sections/app_detailed_results.tex",
+    "sections/app_topic_granularity.tex",
+    "sections/7_conclusion.tex",
+    "sections/6_ablations.tex",
+    "sections/app_benchmarks_baseline_detailed.tex",
+    "sections/5_experiments.tex",
+    "sections/app_prompt.tex",
+    "sections/4_method.tex",
+    "sections/3_relatedwork.tex",
+    "sections/2_introduction.tex",
+    "sections/1_abstract.tex"
+  ]
+}

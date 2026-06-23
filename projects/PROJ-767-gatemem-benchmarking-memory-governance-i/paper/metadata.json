@@ -1,0 +1,57 @@
+{
+  "arxiv_id": "2606.18829",
+  "arxiv_url": "https://arxiv.org/abs/2606.18829",
+  "title": "GateMem: Benchmarking Memory Governance in Multi-Principal Shared-Memory Agents",
+  "authors": [
+    "Zhe Ren",
+    "Yibo Yang",
+    "Yimeng Chen",
+    "Zijun Zhao",
+    "Benshuo Fu",
+    "Zhihao Shu",
+    "Bingjie Zhang",
+    "Yangyang Xu",
+    "Dandan Guo",
+    "Shuicheng Yan"
+  ],
+  "submitter": "github-actions[bot]",
+  "abstract": "Memory benchmarks for LLM agents largely assume single-user settings, leaving shared assistants for hospitals, workplaces, campuses, and households understudied. In these deployments, multiple principals write to a common memory pool and query it under different roles, scopes, and relationships, so memory quality requires governance as well as recall. We introduce GateMem, a benchmark for multi-principal shared-memory agents. GateMem jointly evaluates utility for legitimate long-horizon requests with state updates, access control across contextual authorization boundaries, and agent-facing active forgetting after explicit deletion requests. It spans medical, office, education, and household domains, with long-form multi-party episodes, incremental memory injection, hidden checkpoints, structured judging, and leak-target annotations. Across diverse baselines and backbone models, no method simultaneously achieves strong utility, robust access control, and reliable forgetting. Long-context prompting often yields the best governance score at high token cost, while retrieval-based and external-memory methods reduce cost yet still leak unauthorized or deleted information. These results show current memory agents remain far from reliable shared institutional deployment.",
+  "submitted_via": "llmXive dashboard, GitHub issue #352",
+  "license": "arXiv Non-exclusive Distribution License",
+  "license_url": "http://arxiv.org/licenses/nonexclusive-distrib/1.0/",
+  "code": [
+    "https://github.com/rzhub/GateMem.git"
+  ],
+  "data": [],
+  "toplevel_tex": [
+    "template.tex"
+  ],
+  "source_files": [
+    "00README.json",
+    "arxiv.sty",
+    "figures",
+    "figures/fig_sensitivity_diagnostics.pdf",
+    "figures/fig_failure_mode.pdf",
+    "figures/fig_requester_diversity.pdf",
+    "figures/fig_domain_complexity.pdf",
+    "figures/fig_checkpoint_attack_composition.pdf",
+    "figures/fig_challenge_profile.pdf",
+    "figures/hf-logo.png",
+    "figures/fig_dataset_pipeline.pdf",
+    "figures/fig_gatemem_main.pdf",
+    "references.bib",
+    "sections",
+    "sections/A5_appendix_casestudy.tex",
+    "sections/A4_appendix_experiment.tex",
+    "sections/A3_appendix_prompts.tex",
+    "sections/A2_appendix_baselines.tex",
+    "sections/A1_appendix_dataset.tex",
+    "sections/5_conclusion.tex",
+    "sections/4_experiments.tex",
+    "sections/3_task_formulation.tex",
+    "sections/2_related_work.tex",
+    "sections/1_introduction.tex",
+    "sections/0_abstract.tex",
+    "template.tex"
+  ]
+}

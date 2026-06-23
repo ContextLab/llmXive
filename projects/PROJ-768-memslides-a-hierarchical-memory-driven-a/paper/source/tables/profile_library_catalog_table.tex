@@ -1,0 +1,189 @@
+\begingroup
+\small
+\setlength{\tabcolsep}{2.4pt}
+\renewcommand{\arraystretch}{1.05}
+\setlength{\LTleft}{0pt}
+\setlength{\LTright}{0pt}
+\setlength{\LTcapwidth}{\textwidth}
+\begin{longtable}{>{\scriptsize\raggedright\arraybackslash}p{0.22\linewidth}
+                  >{\scriptsize\raggedright\arraybackslash}p{0.25\linewidth}
+                  >{\scriptsize\raggedright\arraybackslash}p{0.43\linewidth}}
+\caption{Complete 30-entry profile bank used for long-term
+personalization. Each row corresponds to one persona-intent profile entry. The
+third column reports English summaries of stored \texttt{profile\_json} fields;
+long values are shortened for readability.}
+\label{tab:appendix_profile_library_catalog}\\
+\toprule
+Persona & Role-intent bucket & Stored profile fields (English summaries) \\
+\midrule
+\endfirsthead
+\toprule
+Persona & Role-intent bucket & Stored profile fields (English summaries) \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+Postsecondary teacher & Course unit teaching &
+\texttt{layout.slide\_structure}: cover $\rightarrow$ learning objectives
+$\rightarrow$ core concept breakdown $\rightarrow$ method workflow
+$\rightarrow$ classroom example $\rightarrow$ recap/Q\&A;
+\texttt{content.notes}: organize course units around objectives, concepts,
+methods, and examples. \\
+Postsecondary teacher & Research method explanation &
+\texttt{layout.slide\_structure}: two-column layout with explanation on the
+left and architecture/local diagrams on the right;
+\texttt{content.notes}: for graduate students, clarify problem definition,
+method steps, key experimental settings, and method rationale. \\
+Postsecondary teacher & Academic progress review &
+\texttt{layout.slide\_structure}: background/goals---stage progress---key
+results---open issues---next plan;
+\texttt{content.notes}: include core parameterized formulas and emphasize
+precise academic definitions. \\
+\midrule
+Software developer & Architecture walkthrough &
+\texttt{layout.slide\_structure}: overview/architecture diagram
+$\rightarrow$ module structure $\rightarrow$ data flow $\rightarrow$ design
+trade-offs $\rightarrow$ experimental evidence;
+\texttt{visual.chart\_type\_priority}: architecture/topology diagrams for
+overview pages and flowcharts for data flow. \\
+Software developer & Sprint risk update &
+\texttt{layout.slide\_structure}: current goal $\rightarrow$ completed
+capabilities $\rightarrow$ main risks $\rightarrow$ key dependencies
+$\rightarrow$ next steps;
+\texttt{visual.chart\_type\_priority}: status-risk comparison diagrams and
+milestone timelines. \\
+Software developer & Technical value brief &
+\texttt{content.notes}: organize into application scenarios, core technical
+capabilities, performance evidence, and engineering value;
+\texttt{visual.chart\_type\_priority}: comparison tables and evidence charts. \\
+\midrule
+Management analyst & Organizational diagnosis brief &
+\texttt{layout.slide\_structure}: current issues---root-cause breakdown---capability
+gaps---optimization directions;
+\texttt{visual.chart\_type\_priority}: issue trees, $2\times2$ priority
+matrices, capability heatmaps, and fishbone diagrams. \\
+Management analyst & Framework training session &
+\texttt{layout.slide\_structure}: use structured summary pages such as
+$2\times2$ matrices or card frameworks with action orientation;
+\texttt{visual.chart\_type\_priority}: process diagrams, decision trees, and
+priority matrices. \\
+Management analyst & Recommendation follow-up review &
+\texttt{layout.slide\_structure}: multi-column card layout and priority
+matrix for follow-up actions;
+\texttt{content.notes}: prioritize conclusions and logic chains over raw data
+stacking. \\
+\midrule
+Marketing manager & Go-to-market pitch &
+\texttt{layout.slide\_structure}: open with a hook, use numeric anchors in the
+middle, and close with a call to action;
+\texttt{content.notes}: prefer short, forceful titles and remove redundant
+labels such as ``objective.'' \\
+Marketing manager & Brand campaign showcase &
+\texttt{layout.slide\_structure}: put the core narrative on the cover; use big
+numbers and conclusion cards on inner slides while reducing tables;
+\texttt{content.notes}: avoid meta-labels on the cover. \\
+Marketing manager & Campaign performance review &
+\texttt{layout.slide\_structure}: highlight key metrics with KPI cards and
+reduce table/screenshot clutter;
+\texttt{visual.chart\_type\_priority}: KPI cards and metric cards, avoiding
+table screenshots. \\
+\midrule
+Graphic designer & Visual direction showcase &
+\texttt{layout.slide\_structure}: cover with theme/signature color
+$\rightarrow$ mood board $\rightarrow$ color palette and usage ratio
+$\rightarrow$ font pairing and type scale $\rightarrow$ grid/spacing rules;
+\texttt{content.notes}: avoid information overload and keep the visual
+direction sparse and clear. \\
+Graphic designer & Design rationale pitch &
+\texttt{layout.slide\_structure}: cover $\rightarrow$ design goals/audience
+$\rightarrow$ constraints and brand tone $\rightarrow$ alternatives/trade-offs
+$\rightarrow$ visual rationale;
+\texttt{visual.chart\_type\_priority}: annotated design diagrams, trade-off
+matrices, scorecards, and before/after cards. \\
+Graphic designer & Design iteration review &
+\texttt{layout.slide\_structure}: emphasize clear typography hierarchy and
+avoid overlap between text, graphics, and containers;
+\texttt{visual.chart\_type\_priority}: side-by-side before/after cards and
+annotated mockups with numbered callouts. \\
+\midrule
+Training and development specialist & Capability training workshop &
+\texttt{layout.slide\_structure}: organize by numbered learning-path steps;
+\texttt{content.notes}: use action-oriented titles with step numbers and cover
+objectives, key steps, examples, and recap reminders. \\
+Training and development specialist & Learning solution pitch &
+\texttt{layout.slide\_structure}: consolidate information into three or four
+logical modules and reduce scattered bullets;
+\texttt{content.notes}: prefer diagrammatic expression while keeping key terms
+and conclusion prompts such as expert recommendations. \\
+Training and development specialist & Rollout effectiveness review &
+\texttt{layout.slide\_structure}: organize around training goals, execution
+coverage, effectiveness observations, key issues, and improvement plans;
+\texttt{visual.chart\_type\_priority}: process diagrams, highlighted tables,
+and comparison tables. \\
+\midrule
+Financial manager & Budget and ROI assessment &
+\texttt{layout.slide\_structure}: one table per slide for comparison/impact
+tables, avoiding table walls; organize around inputs, expected returns, key
+metrics, and constraints;
+\texttt{visual.chart\_type\_priority}: key-variable impact tables and KPI
+summary tables. \\
+Financial manager & Finance control training &
+\texttt{layout.slide\_structure}: organize around policy goals, key controls,
+common risks, and execution requirements;
+\texttt{visual.chart\_type\_priority}: comparison tables, checklists, process
+diagrams, and KPI scorecards. \\
+Financial manager & Financial risk review &
+\texttt{layout.slide\_structure}: use conclusion/risk-stance titles and risk
+indicator panels with changes in liquidity, leverage, and coverage;
+\texttt{content.notes}: prefer quantitative indicators over vague wording. \\
+\midrule
+Operations manager & Execution alignment plan &
+\texttt{layout.slide\_structure}: prioritize process flow, combine timelines
+and kanban boards, and keep work-package boundaries clear;
+\texttt{visual.chart\_type\_priority}: flowcharts, timelines, and kanban
+boards. \\
+Operations manager & Process adoption training &
+\texttt{layout.slide\_structure}: convert lists into structured visuals:
+horizontal process diagrams for steps, responsibility matrices for ownership,
+and card grids for risks;
+\texttt{visual.chart\_type\_priority}: horizontal flowcharts, card grids, and
+responsibility matrices. \\
+Operations manager & Delivery risk review &
+\texttt{layout.slide\_structure}: use kanban/card layouts for baseline and
+configuration points; use tables for risk-remedy mapping;
+\texttt{content.notes}: cover delivery goal, current state, blocking risks,
+impact scope, and remediation plan. \\
+\midrule
+Medical and health services manager & Clinical workflow evidence review &
+\texttt{layout.slide\_structure}: structured ten-slide flow around workflow
+status, key evidence, metric changes, and improvement directions;
+\texttt{visual.chart\_type\_priority}: metric dashboards, horizontal clinical
+pathway diagrams, alert cards, and risk panels. \\
+Medical and health services manager & Compliance protocol training &
+\texttt{layout.slide\_structure}: use tables for checklists and comparisons,
+especially two-column tables in right-side modules;
+\texttt{content.notes}: clearly distinguish investigational from approved
+status for drugs or treatments. \\
+Medical and health services manager & Quality and safety review &
+\texttt{layout.slide\_structure}: visual-first layout with large metric cards,
+comparison diagrams for risks, and flowcharts for processes;
+\texttt{content.notes}: organize quality/safety reviews around key metrics,
+incidents, cause analysis, corrective actions, and next steps. \\
+\midrule
+Legislator & Public issue evidence brief &
+\texttt{layout.slide\_structure}: ten-slide evidence brief organized as issue
+background---core evidence---policy options---public impact;
+\texttt{visual.chart\_type\_priority}: comparison tables for policy trade-offs
+and tabular evidence. \\
+Legislator & Policy communication briefing &
+\texttt{layout.slide\_structure}: policy goals $\rightarrow$ key content
+$\rightarrow$ implementation points $\rightarrow$ public understanding path;
+\texttt{visual.chart\_type\_priority}: evidence-linkage tables. \\
+Legislator & Implementation accountability review &
+\texttt{layout.slide\_structure}: cover---commitments/framing---implementation
+progress and deviations---issue list and impact---accountability---remediation
+and supervision---milestone timeline---decision points;
+\texttt{visual.chart\_type\_priority}: responsibility matrices, issue-owner
+tracking tables, and compact remediation Gantt charts. \\
+\end{longtable}
+\endgroup

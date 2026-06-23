@@ -1,0 +1,145 @@
+\section{\name{}}
+
+\name{} is a metadata-guided retrieval framework that makes coarse-grained chunks more searchable without increasing the retrieval search space. Given chunks $\mathcal{C}=\{c_1,\ldots,c_N\}$ and a query $q$, the goal is to retrieve the top-$k$ chunks that provide useful evidence for answering the query. Instead of relying only on cosine similarity between query and chunk embeddings, \name{} augments both queries and chunks with topic-level metadata, allowing the retriever to better identify which semantic directions within a large chunk are relevant.
+
+Figure~\ref{fig:architecture} illustrates the full pipeline. First, each chunk is processed by a topic model to obtain a chunk-topic distribution, while topic centroids provide embedding-space representations of the topics. The chunk-topic distributions are cached in a corpus-level metadata bank and later used as query-side guidance. At inference time, the base query is encoded by the student encoder, and a selection policy compares the query embedding with metadata entries from the bank to select the most relevant topic distributions. An abstraction module then summarizes the selected metadata distributions into a refined query-topic distribution, reducing noise and bias from any single selected entry. This refined distribution is converted into a compact query-side topic vector and concatenated with the query embedding to form the metadata-enriched query representation. The student MLP classifier then scores this representation against each metadata-enriched chunk representation and returns the top-$k$ chunks. During training, an LLM teacher provides relevance supervision using expanded queries, while the student receives only the base query and learns through BCE and knowledge-distillation losses. Thus, query expansion and LLM teacher scoring are used only for training; inference requires only metadata selection, abstraction, and student scoring. The framework can use any topic model whose topics are represented in the retriever embedding space and that provides chunk-level topic distributions. In our implementation, we use CEMTM~\cite{abaskohi-etal-2025-cemtm}, an LLM-distilled topic model that also leverages attention signals to produce document-topic distributions.
+
+\subsection{Topic Metadata and Metadata Bank}
+\label{sec:metadata_bank}
+
+Let $\{\mathbf{t}_k\}_{k=1}^{K}$ denote the topic centroids, where each $\mathbf{t}_k \in \mathbb{R}^{d}$ lies in the retriever embedding space and serves as the vector representation, or prototype, of topic $k$. Each chunk $c$ is associated with a topic distribution $\boldsymbol{\theta}_c \in \mathbb{R}^{K}$, where $\theta_{c,r}$ measures the strength of topic $r$ in chunk $c$. Since chunks are longer and more informative than queries, their topic distributions can be computed reliably and cached offline. \name{} stores these chunk-level topic distributions in a metadata bank:
+
+\begin{equation}
+    \mathcal{M} = \{\boldsymbol{\theta}_{c_1}, \ldots, \boldsymbol{\theta}_{c_N}\}.
+\end{equation}
+The \textbf{metadata bank} represents the topical structure of the corpus and serves as the source of \textbf{query-side guidance at inference time}. Intuitively, it provides a corpus-level map of the semantic regions that queries may need to search, without relying only on the sparse signal in the query itself. Given a new query, \name{} does not directly rely on the query's own topic distribution, which may be unreliable due to its short length. Instead, it selects relevant topic distributions from $\mathcal{M}$ and abstracts them into a compact query-side topic representation. This abstraction step reduces bias toward any single selected chunk and produces a smoother topical signal, as described in Section~\ref{sec:selection_representation}.
+
+\subsection{Metadata Selection and Representation}
+\label{sec:selection_representation}
+
+At inference time, \name{} selects topic metadata from the bank that is relevant to the input query. The query is first encoded by the student encoder, $f_{\psi}$:
+\begin{equation}
+    \mathbf{e}_q = f_{\psi}(q) \in \mathbb{R}^{d}.
+\end{equation}
+We implement the \textbf{selection policy} as a lightweight scoring module over the concatenation of the query embedding and each metadata-entry embedding. Each metadata entry $\boldsymbol{\theta}_{c_i}$ is first converted into an embedding-space summary:
+\begin{equation}
+    \mathbf{m}_i = \sum_{k=1}^{K} \theta_{c_i,k}\mathbf{t}_k .
+\end{equation}
+The selector then assigns an unnormalized compatibility score between the query embedding and each metadata-entry summary:
+\begin{equation}
+    a_i = \mathbf{w}_s^\top [\mathbf{e}_q ; \mathbf{m}_i] + b_s ,
+\end{equation}
+where $[\cdot;\cdot]$ denotes concatenation. The scores are converted into a probability distribution over metadata entries using a softmax operation:
+\begin{equation}
+    s_i =
+    \frac{\exp(a_i)}
+    {\sum_{j=1}^{N} \exp(a_j)} .
+\end{equation}
+The top-$L$ metadata entries according to $s_i$ are selected and passed to the \textbf{abstraction module}.
+\begin{equation}
+    \mathbf{H}^{(0)}
+    =
+    [\boldsymbol{\theta}_{c_{j_1}};\ldots;\boldsymbol{\theta}_{c_{j_L}}]
+    \in \mathbb{R}^{L \times K}.
+\end{equation}
+After a two-layer Transformer encoder~\cite{NIPS2017_3f5ee243}, the outputs are mean-pooled to form a refined query topic distribution:
+\begin{equation}
+    \hat{\boldsymbol{\theta}}_q =
+    \frac{1}{L}\sum_{\ell=1}^{L} \mathbf{H}^{(2)}_{\ell}.
+\end{equation}
+This abstraction step combines complementary topic signals and suppresses redundant or noisy metadata entries and constructs topic-enriched representations for both chunks and queries. For a chunk $c$, we select the top-$M$ topics from its topic distribution (here, $L$ is the number of selected metadata entries, while $M$ is the number of selected topics):
+\begin{equation}
+    \mathcal{T}_c = \operatorname{top\text{-}M}(\boldsymbol{\theta}_c),
+\end{equation}
+and aggregate their topic centroids:
+\begin{equation}
+    \mathbf{g}_c =
+    \sum_{k \in \mathcal{T}_c}
+    \theta_{c,k}\mathbf{t}_k .
+\end{equation}
+The final chunk representation is $\mathbf{r}_c = [\mathbf{e}_c ; \mathbf{g}_c]$, where $\mathbf{e}_c=f_{\psi}(c)$ is the chunk embedding produced by the student encoder. Similarly, the refined query topic distribution $\hat{\boldsymbol{\theta}}_q$ is used to build a query-side topic summary with the top-$M$ topics, yielding $\mathbf{r}_q = [\mathbf{e}_q ; \mathbf{g}_q]$.
+
+The student retriever scores each query--chunk pair with a three-layer MLP classifier:
+\begin{equation}
+    z(q,c) =
+    \operatorname{MLP}_{\phi}([\mathbf{r}_q ; \mathbf{r}_c]),
+\end{equation}
+where $z(q,c)$ is the predicted relevance logit. This formulation casts retrieval as an extreme multi-label classification problem: each chunk is a candidate label, and each query may correspond to multiple relevant chunks.
+
+\subsection{Training with LLM-Teacher Distillation}
+\label{sec:training}
+
+\noindent
+\textbf{Training data construction. }
+We synthesize training data from the training split of each benchmark. For each dataset, we sample 2{,}000 chunks and use \textsc{GPT-4o}~\cite{openai2024gpt4o} to generate 10 natural queries per chunk, resulting in 20{,}000 query--chunk pairs before negative sampling. For each sampled chunk $c_i$, \textsc{GPT-4o} receives the target chunk together with its preceding and following chunks. It first generates a base query $q_i$ whose answer requires evidence from $c_i$. It then generates an expanded query $\tilde{q}_i$ by adding only background information from the two of the neighboring chunks, without revealing the answer or including answer-specific hints. We use Prompt~\hyperref[app:training_prompts]{\ref*{app:training_prompts}.1} for the query expansion.
+
+\noindent
+\textbf{Training procedure and objective. }
+For relevance supervision, the source chunk is treated as a positive candidate, while negatives are sampled from non-matching chunks. We include both random negatives and hard negatives, where hard negatives are retrieved using \texttt{Qwen3-Embedding-4B}~\cite{zhang2025qwen3embeddingadvancingtext} as high-similarity chunks that the LLM teacher judges as not useful for answering the query. GPT-4o is then used as an LLM teacher: given the expanded query $\tilde{q}_i$ and a candidate chunk, it predicts whether the chunk provides direct or supporting evidence for answering the query (see Prompt~\hyperref[app:training_prompts]{\ref*{app:training_prompts}.2}). The resulting hard label $y \in \{0,1\}$ and teacher score/logit $z^{\mathrm{T}}$ are used as supervision for the student relevance classifier.
+
+The teacher scores each query--chunk pair using the expanded query $\tilde{q}_i$, whereas the student receives only the base query $q_i$. This information asymmetry encourages the student to recover useful missing context through metadata selection and abstraction. The training objective combines hard-label binary cross-entropy with soft teacher distillation:
+\begin{equation}
+    \mathcal{L}
+    =
+    (1-\alpha)\mathcal{L}_{\mathrm{BCE}}
+    +
+    \alpha \mathcal{L}_{\mathrm{KD}},
+\end{equation}
+where $\alpha$ balances hard-label learning and soft distillation. The binary cross-entropy loss is
+\begin{equation}
+    \mathcal{L}_{\mathrm{BCE}}
+    =
+    - y \log \sigma(z)
+    - (1-y)\log(1-\sigma(z)),
+\end{equation}
+where $z$ is the student relevance logit and $\sigma$ is the sigmoid function. The distillation term matches the teacher and student soft scores:
+\begin{equation}
+    \mathcal{L}_{\mathrm{KD}}
+    =
+    \mathrm{KL}
+    \left(
+    \sigma(z^{\mathrm{T}}/\tau)
+    \;\|\;
+    \sigma(z/\tau)
+    \right),
+\end{equation}
+where $z^{\mathrm{T}}$ is the teacher score/logit and $\tau$ is the temperature. The student encoder, topic centroids, and cached chunk topic distributions are kept fixed. We train only the metadata selector, abstraction module, and MLP relevance classifier.
+
+\begin{algorithm}[t]
+\caption{\name{} Inference}
+\label{alg:inference}
+\begin{algorithmic}[1]
+\REQUIRE Query $q$, precomputed chunk representations $\{\mathbf{r}_{c_j}\}_{j=1}^{N}$, metadata bank $\mathcal{M}$, topic centroids $\{\mathbf{t}_r\}_{r=1}^{K}$, selected metadata count $L$, top topics $M$, retrieved chunks $k$
+\ENSURE Retrieved chunk set $\mathcal{C}_k$
+
+\STATE $\mathbf{e}_q \leftarrow f_{\psi}(q)$
+
+\STATE \textbf{// Metadata selection}
+\FOR{each metadata entry $\boldsymbol{\theta}_{c_i} \in \mathcal{M}$}
+    \STATE $\mathbf{m}_i \leftarrow \sum_{r=1}^{K} \theta_{c_i,r}\mathbf{t}_r$
+    \STATE $a_i \leftarrow \mathbf{w}_s^\top [\mathbf{e}_q ; \mathbf{m}_i] + b_s$
+\ENDFOR
+\STATE $s_i \leftarrow \frac{\exp(a_i)}{\sum_{j=1}^{|\mathcal{M}|}\exp(a_j)}$
+\STATE $\mathcal{S} \leftarrow \operatorname{top\text{-}L}(\{s_i\})$
+
+\STATE \textbf{// Metadata abstraction}
+\STATE $\mathbf{H}^{(0)} \leftarrow [\boldsymbol{\theta}_{c_j}]_{j \in \mathcal{S}}$
+\STATE $\hat{\boldsymbol{\theta}}_q \leftarrow \operatorname{MeanPool}(\operatorname{TransformerEnc}(\mathbf{H}^{(0)}))$
+\STATE $\mathcal{T}_q \leftarrow \operatorname{top\text{-}M}(\hat{\boldsymbol{\theta}}_q)$
+\STATE $\mathbf{g}_q \leftarrow \sum_{r \in \mathcal{T}_q} \hat{\theta}_{q,r}\mathbf{t}_r$
+\STATE $\mathbf{r}_q \leftarrow [\mathbf{e}_q;\mathbf{g}_q]$
+
+\STATE \textbf{// Retrieval}
+\FOR{each precomputed $\mathbf{r}_{c_j}$}
+    \STATE $z_j \leftarrow \operatorname{MLP}_{\phi}([\mathbf{r}_q ; \mathbf{r}_{c_j}])$
+\ENDFOR
+\STATE $\mathcal{C}_k \leftarrow \operatorname{top\text{-}k}_{c_j \in \mathcal{C}}(\{z_j\})$
+
+\RETURN $\mathcal{C}_k$
+\end{algorithmic}
+\end{algorithm}
+
+\subsection{Inference}
+\label{sec:inference}
+
+At inference time, \name{} retrieves evidence without LLM calls. All chunk embeddings, topic distributions, and topic-enriched chunk representations are precomputed offline as indices for retrieval. For a given query, \name{} computes the query embedding, selects and abstracts relevant metadata from the bank, scores all cached chunks with the MLP classifier, and returns the top-$k$ results. Algorithm~\ref{alg:inference} summarizes this procedure. Since topic extraction and chunk encoding are offline, online inference only requires lightweight metadata selection, abstraction, and scoring.

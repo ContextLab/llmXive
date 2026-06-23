@@ -1,0 +1,91 @@
+\section{Baseline Details}
+\label{app:baselines-details}
+
+\begin{table}[t]
+\centering
+\caption{
+Comparison of baseline memory mechanisms evaluated in GateMem.
+Baselines are grouped by family and compared by memory representation, update mechanism, and query-time access pattern.
+}
+\label{tab:baseline_methods}
+\vspace{-3pt}
+
+\small
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.12}
+\begin{tabularx}{\linewidth}{@{}p{2.25cm}YYY@{}}
+\toprule
+\textbf{Method} & \textbf{Memory Representation} & \textbf{Update Mechanism} & \textbf{Query-time Access} \\
+\midrule
+
+\rowcolor{ctxbg}
+\multicolumn{4}{c}{\textcolor{gray}{\textsc{Context-based baseline}}} \\
+
+\textbf{Long-Context}
+& Raw dialogue history
+& Append by turn
+& Direct context read \\
+
+\addlinespace[2pt]
+
+\rowcolor{retbg}
+\multicolumn{4}{c}{\textcolor{gray}{\textsc{Retrieval-based baselines}}} \\
+
+\textbf{RAG-Naive}
+& Chunked text memory
+& Append by chunk
+& Similarity-based top-$k$ retrieval \\
+
+\textbf{RAG-Policy}
+& Chunked text with access metadata
+& Append with record and scope metadata
+& Metadata-filtered retrieval \\
+
+\addlinespace[2pt]
+
+\rowcolor{agentbg}
+\multicolumn{4}{c}{\textcolor{gray}{\textsc{Agentic memory baselines}}} \\
+
+\textbf{A-Mem}~\citep{xu2026mem}
+& Linked memory notes
+& Note construction with link evolution
+& Graph retrieval and reranking \\
+
+\textbf{Mem0}~\citep{chhikara2025mem0}
+& Persistent memory entries
+& Extract and consolidate memories
+& Persistent memory search \\
+
+\textbf{REMem-I}~\citep{shu2026remem}
+& Hybrid episodic graph of gists and facts
+& Index episodes into memory graph
+& Iterative tool-based retrieval and reasoning \\
+
+\textbf{REMem-S}~\citep{shu2026remem}
+& Hybrid episodic graph of gists and facts
+& Index episodes into memory graph
+& Single-step retrieval and generation \\
+
+\bottomrule
+\end{tabularx}
+\end{table}
+
+The implementation supports seven baseline configurations. These include three custom baselines---\textsc{Long-Context}, \textsc{RAG-Naive}, and \textsc{RAG-Policy}---and four configurations derived from prior agentic memory systems: \textsc{A-Mem}~\citep{xu2026mem}, \textsc{Mem0}~\citep{chhikara2025mem0}, \textsc{ReMem-I}, and \textsc{ReMem-S}~\citep{shu2026remem}. The main result tables report the subset of baseline runs completed for the experimental configurations evaluated in this paper.
+
+\paragraph{\textsc{Long-Context}.}
+\textsc{Long-Context} places the full available interaction history in the model prompt and does not construct an explicit external memory store. This baseline provides a strong utility-oriented reference when prompt length is not tightly constrained, but it is not governance-aware and may expose information that should no longer be accessible.
+
+\paragraph{\textsc{RAG-Naive}.}
+\textsc{RAG-Naive} retrieves the top-$k$ relevant snippets from prior turns and provides them to the model as context. It follows the standard retrieval-augmented pattern of reducing prompt length through retrieved external context \citep{lewis2020retrieval}. It does not apply a dedicated access-control or deletion-aware policy layer, and therefore relies on the base model to decide whether retrieved information is safe to use.
+
+\paragraph{\textsc{RAG-Policy}.}
+\textsc{RAG-Policy} augments retrieval with policy-oriented metadata, including requester identity, domain rules, and access constraints. At query time, these metadata are used to make access-relevant information salient to the model. This baseline tests whether lightweight policy-aware retrieval and prompting are sufficient for shared-memory governance, without introducing a dedicated governance mechanism.
+
+\paragraph{\textsc{A-Mem}.}
+\textsc{A-Mem} is a Zettelkasten-inspired agentic memory system that stores interactions as structured notes with LLM-generated context, keywords, tags, embeddings, and links \citep{xu2026mem}. New memories can trigger dynamic link generation and memory evolution, making it a useful baseline for testing whether adaptive memory organization improves governance-sensitive long-horizon tasks.
+
+\paragraph{\textsc{Mem0}.}
+\textsc{Mem0} is a production-oriented long-term memory system that incrementally extracts salient facts from recent interactions and updates an external memory store through add, update, delete, or no-op operations \citep{chhikara2025mem0}. We include it as a practical persistent-memory baseline designed to balance long-term conversational continuity with retrieval efficiency.
+
+\paragraph{\textsc{ReMem}.}
+\textsc{ReMem} is an episodic memory framework that indexes interaction histories as a hybrid graph of time-aware gists and time-scoped facts, then reasons over this graph using retrieval and graph-exploration tools \citep{shu2026remem}. We evaluate two variants: \textsc{ReMem-I}, which performs iterative tool-based retrieval and reasoning, and \textsc{ReMem-S}, which uses a single-step embedding-retrieval-and-generation procedure with lower inference overhead.

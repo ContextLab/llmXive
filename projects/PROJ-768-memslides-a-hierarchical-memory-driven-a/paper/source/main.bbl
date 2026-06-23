@@ -1,0 +1,571 @@
+\begin{thebibliography}{62}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Ahn et~al.(2022)Ahn, Brohan, Brown, Chebotar, Cortes, David, Finn, Fu,
+  Gopalakrishnan, Hausman, et~al.]{ahn2022saycan}
+Michael Ahn, Anthony Brohan, Noah Brown, Yevgen Chebotar, Omar Cortes, Byron
+  David, Chelsea Finn, Chuyuan Fu, Keerthana Gopalakrishnan, Karol Hausman,
+  et~al.
+\newblock Do as i can, not as i say: Grounding language in robotic affordances.
+\newblock \emph{arXiv preprint arXiv:2204.01691}, 2022.
+\newblock URL \url{https://arxiv.org/abs/2204.01691}.
+
+\bibitem[Bandyopadhyay et~al.(2024)Bandyopadhyay, Maheshwari, Natarajan, and
+  Saxena]{bandyopadhyay2024enhancing}
+Sambaran Bandyopadhyay, Himanshu Maheshwari, Anandhavelu Natarajan, and Apoorv
+  Saxena.
+\newblock Enhancing presentation slide generation by {LLM}s with a multi-staged
+  end-to-end approach.
+\newblock In \emph{Proceedings of the 17th International Natural Language
+  Generation Conference}, pages 222--229, Tokyo, Japan, September 2024.
+  Association for Computational Linguistics.
+\newblock \doi{10.18653/v1/2024.inlg-main.18}.
+\newblock URL \url{https://aclanthology.org/2024.inlg-main.18/}.
+
+\bibitem[Borgeaud et~al.(2021)Borgeaud, Mensch, Hoffmann, Cai, Rutherford,
+  Millican, van~den Driessche, Lespiau, Damoc, Clark,
+  et~al.]{borgeaud2021retro}
+Sebastian Borgeaud, Arthur Mensch, Jordan Hoffmann, Trevor Cai, Eliza
+  Rutherford, Katie Millican, George van~den Driessche, Jean-Baptiste Lespiau,
+  Bogdan Damoc, Aidan Clark, et~al.
+\newblock Improving language models by retrieving from trillions of tokens.
+\newblock \emph{arXiv preprint arXiv:2112.04426}, 2021.
+\newblock URL \url{https://arxiv.org/abs/2112.04426}.
+
+\bibitem[Chhikara et~al.(2025)Chhikara, Khant, Aryan, Singh, and
+  Yadav]{chhikara2025mem0}
+Prateek Chhikara, Dev Khant, Saket Aryan, Taranjeet Singh, and Deshraj Yadav.
+\newblock Mem0: Building production-ready {AI} agents with scalable long-term
+  memory.
+\newblock \emph{arXiv preprint arXiv:2504.19413}, 2025.
+\newblock \doi{10.48550/arXiv.2504.19413}.
+\newblock URL \url{https://arxiv.org/abs/2504.19413}.
+
+\bibitem[Friedman and Dieng(2023)]{friedman2023vendi}
+Dan Friedman and Adji~Bousso Dieng.
+\newblock The vendi score: A diversity evaluation metric for machine learning.
+\newblock \emph{Transactions on Machine Learning Research}, 2023.
+\newblock URL \url{https://openreview.net/forum?id=g97OHbQyk1}.
+
+\bibitem[Ge et~al.(2025)Ge, Wang, Zhou, Peng, Subramanian, Tan, Sap, Suhr,
+  Fried, Neubig, and Darrell]{ge2025autopresent}
+Jiaxin Ge, Zora~Zhiruo Wang, Xuhui Zhou, Yi-Hao Peng, Sanjay Subramanian,
+  Qinyue Tan, Maarten Sap, Alane Suhr, Daniel Fried, Graham Neubig, and Trevor
+  Darrell.
+\newblock {AutoPresent}: Designing structured visuals from scratch.
+\newblock In \emph{Proceedings of the IEEE/CVF Conference on Computer Vision
+  and Pattern Recognition}, pages 2902--2911, June 2025.
+\newblock \doi{10.1109/CVPR52734.2025.00276}.
+\newblock URL
+  \url{https://openaccess.thecvf.com/content/CVPR2025/html/Ge_AutoPresent_Designing_Structured_Visuals_from_Scratch_CVPR_2025_paper.html}.
+
+\bibitem[Guu et~al.(2020)Guu, Lee, Tung, Pasupat, and Chang]{guu2020realm}
+Kelvin Guu, Kenton Lee, Zora Tung, Panupong Pasupat, and Ming-Wei Chang.
+\newblock {REALM}: Retrieval-augmented language model pre-training.
+\newblock In \emph{Proceedings of the 37th International Conference on Machine
+  Learning}, 2020.
+\newblock URL \url{https://arxiv.org/abs/2002.08909}.
+
+\bibitem[Hu et~al.(2026)Hu, Zhong, Chen, Bai, and Zhang]{hu2026agentictooluse}
+Jinchao Hu, Meizhi Zhong, Kehai Chen, Xuefeng Bai, and Min Zhang.
+\newblock Agentic tool use in large language models.
+\newblock \emph{arXiv preprint arXiv:2604.00835}, 2026.
+\newblock URL \url{https://arxiv.org/abs/2604.00835}.
+
+\bibitem[Inoue et~al.(2023)Inoue, Kikuchi, Simo-Serra, Otani, and
+  Yamaguchi]{inoue2023layoutdm}
+Naoto Inoue, Kotaro Kikuchi, Edgar Simo-Serra, Mayu Otani, and Kota Yamaguchi.
+\newblock {LayoutDM}: Discrete diffusion model for controllable layout
+  generation.
+\newblock \emph{arXiv preprint arXiv:2303.08137}, 2023.
+\newblock URL \url{https://arxiv.org/abs/2303.08137}.
+
+\bibitem[Izacard et~al.(2022)Izacard, Lewis, Lomeli, Hosseini, Petroni, Schick,
+  Dwivedi-Yu, Joulin, Riedel, and Grave]{izacard2022atlas}
+Gautier Izacard, Patrick Lewis, Maria Lomeli, Lucas Hosseini, Fabio Petroni,
+  Timo Schick, Jane Dwivedi-Yu, Armand Joulin, Sebastian Riedel, and Edouard
+  Grave.
+\newblock Atlas: Few-shot learning with retrieval augmented language models.
+\newblock \emph{arXiv preprint arXiv:2208.03299}, 2022.
+\newblock URL \url{https://arxiv.org/abs/2208.03299}.
+
+\bibitem[Jiang et~al.(2025)Jiang, Hao, Cho, Li, Yuan, Chen, Ungar, Taylor, and
+  Roth]{jiang2025personamem}
+Bowen Jiang, Zhuoqun Hao, Young-Min Cho, Bryan Li, Yuan Yuan, Sihao Chen, Lyle
+  Ungar, Camillo~J. Taylor, and Dan Roth.
+\newblock Know me, respond to me: Benchmarking {LLM}s for dynamic user
+  profiling and personalized responses at scale.
+\newblock \emph{arXiv preprint arXiv:2504.14225}, 2025.
+\newblock \doi{10.48550/arXiv.2504.14225}.
+\newblock URL \url{https://arxiv.org/abs/2504.14225}.
+
+\bibitem[Kang et~al.(2025)Kang, Ji, Zhao, and Bai]{kang2025memoryos}
+Jiazheng Kang, Mingming Ji, Zhe Zhao, and Ting Bai.
+\newblock Memory {OS} of {AI} agent.
+\newblock In \emph{Proceedings of the 2025 Conference on Empirical Methods in
+  Natural Language Processing}, pages 25961--25970, Suzhou, China, November
+  2025. Association for Computational Linguistics.
+\newblock \doi{10.18653/v1/2025.emnlp-main.1318}.
+\newblock URL \url{https://aclanthology.org/2025.emnlp-main.1318/}.
+
+\bibitem[Karpas et~al.(2022)Karpas, Abend, Belinkov, Lenz, Lieber, Ratner,
+  Shoham, Bata, Levine, Leyton-Brown, Muhlgay, Rozen, Schwartz, Shachaf,
+  Shalev-Shwartz, Shashua, and Tenenholtz]{karpas2022mrkl}
+Ehud Karpas, Omri Abend, Yonatan Belinkov, Barak Lenz, Opher Lieber, Nir
+  Ratner, Yoav Shoham, Hofit Bata, Yoav Levine, Kevin Leyton-Brown, Dor
+  Muhlgay, Noam Rozen, Erez Schwartz, Gal Shachaf, Shai Shalev-Shwartz, Amnon
+  Shashua, and Moshe Tenenholtz.
+\newblock {MRKL} systems: A modular, neuro-symbolic architecture that combines
+  large language models, external knowledge sources and discrete reasoning.
+\newblock \emph{arXiv preprint arXiv:2205.00445}, 2022.
+\newblock URL \url{https://arxiv.org/abs/2205.00445}.
+
+\bibitem[Khandelwal et~al.(2019)Khandelwal, Levy, Jurafsky, Zettlemoyer, and
+  Lewis]{khandelwal2019knnlm}
+Urvashi Khandelwal, Omer Levy, Dan Jurafsky, Luke Zettlemoyer, and Mike Lewis.
+\newblock Generalization through memorization: Nearest neighbor language
+  models.
+\newblock \emph{arXiv preprint arXiv:1911.00172}, 2019.
+\newblock URL \url{https://arxiv.org/abs/1911.00172}.
+
+\bibitem[Kim et~al.(2023)Kim, Shin, Cho, Jang, Longpre, Lee, Yun, Shin, Kim,
+  Thorne, and Seo]{kim2023prometheus}
+Seungone Kim, Jamin Shin, Yejin Cho, Joel Jang, Shayne Longpre, Hwaran Lee,
+  Sangdoo Yun, Seongjin Shin, Sungdong Kim, James Thorne, and Minjoon Seo.
+\newblock Prometheus: Inducing fine-grained evaluation capability in language
+  models.
+\newblock \emph{arXiv preprint arXiv:2310.08491}, 2023.
+\newblock URL \url{https://arxiv.org/abs/2310.08491}.
+
+\bibitem[Lewis et~al.(2020)Lewis, Perez, Piktus, Petroni, Karpukhin, Goyal,
+  K{\"u}ttler, Lewis, Yih, Rockt{\"a}schel, Riedel, and Kiela]{lewis2020rag}
+Patrick Lewis, Ethan Perez, Aleksandra Piktus, Fabio Petroni, Vladimir
+  Karpukhin, Naman Goyal, Heinrich K{\"u}ttler, Mike Lewis, Wen-tau Yih, Tim
+  Rockt{\"a}schel, Sebastian Riedel, and Douwe Kiela.
+\newblock Retrieval-augmented generation for knowledge-intensive {NLP} tasks.
+\newblock In \emph{Advances in Neural Information Processing Systems},
+  volume~33, pages 9459--9474, 2020.
+\newblock URL
+  \url{https://proceedings.neurips.cc/paper/2020/hash/6b493230205f780e1bc26945df7481e5-Abstract.html}.
+
+\bibitem[Li et~al.(2016)Li, Galley, Brockett, Spithourakis, Gao, and
+  Dolan]{li2016persona}
+Jiwei Li, Michel Galley, Chris Brockett, Georgios Spithourakis, Jianfeng Gao,
+  and Bill Dolan.
+\newblock A persona-based neural conversation model.
+\newblock In \emph{Proceedings of the 54th Annual Meeting of the Association
+  for Computational Linguistics (Volume 1: Long Papers)}, pages 994--1003,
+  Berlin, Germany, August 2016. Association for Computational Linguistics.
+\newblock \doi{10.18653/v1/P16-1094}.
+\newblock URL \url{https://aclanthology.org/P16-1094/}.
+
+\bibitem[Li et~al.(2023)Li, Zhao, Yu, Song, Li, Yu, Li, Huang, and
+  Li]{li2023apibank}
+Minghao Li, Yingxiu Zhao, Bowen Yu, Feifan Song, Hangyu Li, Haiyang Yu, Zhoujun
+  Li, Fei Huang, and Yongbin Li.
+\newblock {API}-bank: A comprehensive benchmark for tool-augmented {LLM}s.
+\newblock \emph{arXiv preprint arXiv:2304.08244}, 2023.
+\newblock URL \url{https://arxiv.org/abs/2304.08244}.
+
+\bibitem[Li et~al.(2024)Li, Chiang, Frick, Dunlap, Wu, Zhu, Gonzalez, and
+  Stoica]{li2024arenahard}
+Tianle Li, Wei-Lin Chiang, Evan Frick, Lisa Dunlap, Tianhao Wu, Banghua Zhu,
+  Joseph~E. Gonzalez, and Ion Stoica.
+\newblock From crowdsourced data to high-quality benchmarks: Arena-hard and
+  benchbuilder pipeline.
+\newblock \emph{arXiv preprint arXiv:2406.11939}, 2024.
+\newblock URL \url{https://arxiv.org/abs/2406.11939}.
+
+\bibitem[Li et~al.(2025)Li, Jia, Xu, Wen, Zhang, Zhang, Wang, Wang, Du, Li,
+  Liu, Guo, Tang, and Zhao]{li2025personalizationragagent}
+Xiaopeng Li, Pengyue Jia, Derong Xu, Yi~Wen, Yingyi Zhang, Wenlin Zhang, Wanyu
+  Wang, Yichao Wang, Zhaocheng Du, Xiangyang Li, Yong Liu, Huifeng Guo, Ruiming
+  Tang, and Xiangyu Zhao.
+\newblock A survey of personalization: From {RAG} to agent.
+\newblock \emph{arXiv preprint arXiv:2504.10147}, 2025.
+\newblock URL \url{https://arxiv.org/abs/2504.10147}.
+
+\bibitem[Liang et~al.(2025)Liang, Zhang, Xu, Sun, and You]{liang2025slidegen}
+Xin Liang, Xiang Zhang, Yiwei Xu, Siqi Sun, and Chenyu You.
+\newblock {SlideGen}: Collaborative multimodal agents for scientific slide
+  generation.
+\newblock \emph{arXiv preprint arXiv:2512.04529}, 2025.
+\newblock \doi{10.48550/arXiv.2512.04529}.
+\newblock URL \url{https://arxiv.org/abs/2512.04529}.
+
+\bibitem[Lin et~al.(2023)Lin, Guo, Sun, Yang, Lou, and
+  Zhang]{lin2023layoutprompter}
+Jiawei Lin, Jiaqi Guo, Shizhao Sun, Zijiang~James Yang, Jian-Guang Lou, and
+  Dongmei Zhang.
+\newblock {LayoutPrompter}: Awaken the design ability of large language models.
+\newblock \emph{arXiv preprint arXiv:2311.06495}, 2023.
+\newblock URL \url{https://arxiv.org/abs/2311.06495}.
+
+\bibitem[Liu et~al.(2023)Liu, Iter, Xu, Wang, Xu, and Zhu]{liu2023geval}
+Yang Liu, Dan Iter, Yichong Xu, Shuohang Wang, Ruochen Xu, and Chenguang Zhu.
+\newblock {G-Eval}: {NLG} evaluation using {GPT}-4 with better human alignment.
+\newblock \emph{arXiv preprint arXiv:2303.16634}, 2023.
+\newblock URL \url{https://arxiv.org/abs/2303.16634}.
+
+\bibitem[Madaan et~al.(2023)Madaan, Tandon, Gupta, Hallinan, Gao, Wiegreffe,
+  Alon, Dziri, Prabhumoye, Yang, et~al.]{madaan2023selfrefine}
+Aman Madaan, Niket Tandon, Prakhar Gupta, Skyler Hallinan, Luyu Gao, Sarah
+  Wiegreffe, Uri Alon, Nouha Dziri, Shrimai Prabhumoye, Yiming Yang, et~al.
+\newblock Self-refine: Iterative refinement with self-feedback.
+\newblock In \emph{Advances in Neural Information Processing Systems},
+  volume~36, pages 46534--46594, 2023.
+\newblock URL
+  \url{https://proceedings.neurips.cc/paper_files/paper/2023/hash/91edff07232fb1b55a505a9e9f6c0ff3-Abstract-Conference.html}.
+
+\bibitem[Maheshwari et~al.(2024)Maheshwari, Bandyopadhyay, Garimella, and
+  Natarajan]{maheshwari2024presentations}
+Himanshu Maheshwari, Sambaran Bandyopadhyay, Aparna Garimella, and Anandhavelu
+  Natarajan.
+\newblock Presentations are not always linear! {GNN} meets {LLM} for text
+  document-to-presentation transformation with attribution.
+\newblock In \emph{Findings of the Association for Computational Linguistics:
+  EMNLP 2024}, pages 15948--15962, Miami, Florida, USA, November 2024.
+  Association for Computational Linguistics.
+\newblock \doi{10.18653/v1/2024.findings-emnlp.936}.
+\newblock URL \url{https://aclanthology.org/2024.findings-emnlp.936/}.
+
+\bibitem[Mondal et~al.(2024)Mondal, S, Natarajan, Garimella, Bandyopadhyay, and
+  Boyd-Graber]{mondal2024personaaware}
+Ishani Mondal, Shwetha S, Anandhavelu Natarajan, Aparna Garimella, Sambaran
+  Bandyopadhyay, and Jordan Boyd-Graber.
+\newblock Presentations by the humans and for the humans: Harnessing {LLM}s for
+  generating persona-aware slides from documents.
+\newblock In \emph{Proceedings of the 18th Conference of the European Chapter
+  of the Association for Computational Linguistics (Volume 1: Long Papers)},
+  pages 2664--2684, St. Julian's, Malta, March 2024. Association for
+  Computational Linguistics.
+\newblock \doi{10.18653/v1/2024.eacl-long.163}.
+\newblock URL \url{https://aclanthology.org/2024.eacl-long.163/}.
+
+\bibitem[Mysore et~al.(2023)Mysore, Lu, Wan, Yang, Sarrafzadeh, Menezes,
+  Baghaee, Gonzalez, Neville, and Safavi]{mysore2023pearl}
+Sheshera Mysore, Zhuoran Lu, Mengting Wan, Longqi Yang, Bahareh Sarrafzadeh,
+  Steve Menezes, Tina Baghaee, Emmanuel~Barajas Gonzalez, Jennifer Neville, and
+  Tara Safavi.
+\newblock Pearl: Personalizing large language model writing assistants with
+  generation-calibrated retrievers.
+\newblock \emph{arXiv preprint arXiv:2311.09180}, 2023.
+\newblock URL \url{https://arxiv.org/abs/2311.09180}.
+
+\bibitem[Nakano et~al.(2021)Nakano, Hilton, Balaji, Wu, Ouyang, Kim, Hesse,
+  Jain, Kosaraju, Saunders, et~al.]{nakano2021webgpt}
+Reiichiro Nakano, Jacob Hilton, Suchir Balaji, Jeff Wu, Long Ouyang, Christina
+  Kim, Christopher Hesse, Shantanu Jain, Vineet Kosaraju, William Saunders,
+  et~al.
+\newblock {WebGPT}: Browser-assisted question-answering with human feedback.
+\newblock \emph{arXiv preprint arXiv:2112.09332}, 2021.
+\newblock URL \url{https://arxiv.org/abs/2112.09332}.
+
+\bibitem[Oquab et~al.(2024)Oquab, Darcet, Moutakanni, Vo, Szafraniec, Khalidov,
+  Fernandez, Haziza, Massa, El-Nouby, Assran, Ballas, Galuba, Howes, Huang, Li,
+  Misra, Rabbat, Sharma, Synnaeve, Xu, J{\'e}gou, Mairal, Labatut, Joulin, and
+  Bojanowski]{oquab2023dinov2}
+Maxime Oquab, Timoth{\'e}e Darcet, Th{\'e}o Moutakanni, Huy~V. Vo, Marc
+  Szafraniec, Vasil Khalidov, Pierre Fernandez, Daniel Haziza, Francisco Massa,
+  Alaaeldin El-Nouby, Mahmoud Assran, Nicolas Ballas, Wojciech Galuba, Russell
+  Howes, Po-Yao Huang, Shang-Wen Li, Ishan Misra, Michael Rabbat, Vasu Sharma,
+  Gabriel Synnaeve, Hu~Xu, Herv{\'e} J{\'e}gou, Julien Mairal, Patrick Labatut,
+  Armand Joulin, and Piotr Bojanowski.
+\newblock {DINOv2}: Learning robust visual features without supervision.
+\newblock \emph{Transactions on Machine Learning Research}, 2024.
+\newblock URL \url{https://openreview.net/forum?id=a68SUt6zFt}.
+
+\bibitem[Ozden et~al.(2026)Ozden, VS, Horoz, Kara, Kim, and
+  Rehg]{ozden2026arcdeck}
+Tarik~Can Ozden, Sachidanand VS, Furkan Horoz, Ozgur Kara, Junho Kim, and
+  James~M. Rehg.
+\newblock Narrative-driven paper-to-slide generation via {ArcDeck}.
+\newblock \emph{arXiv preprint arXiv:2604.11969}, 2026.
+\newblock \doi{10.48550/arXiv.2604.11969}.
+\newblock URL \url{https://arxiv.org/abs/2604.11969}.
+
+\bibitem[Packer et~al.(2023)Packer, Wooders, Lin, Fang, Patil, Stoica, and
+  Gonzalez]{packer2023memgpt}
+Charles Packer, Sarah Wooders, Kevin Lin, Vivian Fang, Shishir~G. Patil, Ion
+  Stoica, and Joseph~E. Gonzalez.
+\newblock Memgpt: Towards {LLM}s as operating systems.
+\newblock \emph{arXiv preprint arXiv:2310.08560}, 2023.
+\newblock \doi{10.48550/arXiv.2310.08560}.
+\newblock URL \url{https://arxiv.org/abs/2310.08560}.
+
+\bibitem[Park et~al.(2023)Park, O'Brien, Cai, Morris, Liang, and
+  Bernstein]{park2023generativeagents}
+Joon~Sung Park, Joseph~C. O'Brien, Carrie~J. Cai, Meredith~Ringel Morris, Percy
+  Liang, and Michael~S. Bernstein.
+\newblock Generative agents: Interactive simulacra of human behavior.
+\newblock \emph{arXiv preprint arXiv:2304.03442}, 2023.
+\newblock \doi{10.48550/arXiv.2304.03442}.
+\newblock URL \url{https://arxiv.org/abs/2304.03442}.
+
+\bibitem[Patil et~al.(2023)Patil, Zhang, Wang, and Gonzalez]{patil2023gorilla}
+Shishir~G. Patil, Tianjun Zhang, Xin Wang, and Joseph~E. Gonzalez.
+\newblock Gorilla: Large language model connected with massive {API}s.
+\newblock \emph{arXiv preprint arXiv:2305.15334}, 2023.
+\newblock URL \url{https://arxiv.org/abs/2305.15334}.
+
+\bibitem[Peng et~al.(2025)Peng, Bigham, and Wu]{peng2025designpref}
+Yi-Hao Peng, Jeffrey~P. Bigham, and Jason Wu.
+\newblock Designpref: Capturing personal preferences in visual design
+  generation.
+\newblock \emph{arXiv preprint arXiv:2511.20513}, 2025.
+\newblock \doi{10.48550/arXiv.2511.20513}.
+\newblock URL \url{https://arxiv.org/abs/2511.20513}.
+
+\bibitem[Qian et~al.(2022)Qian, Rossi, Du, Kim, Koh, Malik, Lee, and
+  Ahmed]{qian2022personalizedvis}
+Xin Qian, Ryan~A. Rossi, Fan Du, Sungchul Kim, Eunyee Koh, Sana Malik, Tak~Yeon
+  Lee, and Nesreen~K. Ahmed.
+\newblock Personalized visualization recommendation.
+\newblock \emph{ACM Transactions on the Web}, 16\penalty0 (3):\penalty0
+  11:1--11:47, 2022.
+\newblock \doi{10.1145/3538703}.
+\newblock URL \url{https://doi.org/10.1145/3538703}.
+
+\bibitem[Qin et~al.(2023)Qin, Liang, Ye, Zhu, Yan, Lu, Lin, Cong, Tang, Qian,
+  Zhao, Hong, Tian, Xie, Zhou, Gerstein, Li, Liu, and Sun]{qin2023toolllm}
+Yujia Qin, Shihao Liang, Yining Ye, Kunlun Zhu, Lan Yan, Yaxi Lu, Yankai Lin,
+  Xin Cong, Xiangru Tang, Bill Qian, Sihan Zhao, Lauren Hong, Runchu Tian,
+  Ruobing Xie, Jie Zhou, Mark Gerstein, Dahai Li, Zhiyuan Liu, and Maosong Sun.
+\newblock {ToolLLM}: Facilitating large language models to master 16000+
+  real-world {API}s.
+\newblock \emph{arXiv preprint arXiv:2307.16789}, 2023.
+\newblock URL \url{https://arxiv.org/abs/2307.16789}.
+
+\bibitem[Salemi et~al.(2023)Salemi, Mysore, Bendersky, and
+  Zamani]{salemi2023lamp}
+Alireza Salemi, Sheshera Mysore, Michael Bendersky, and Hamed Zamani.
+\newblock {LaMP}: When large language models meet personalization.
+\newblock \emph{arXiv preprint arXiv:2304.11406}, 2023.
+\newblock \doi{10.48550/arXiv.2304.11406}.
+\newblock URL \url{https://arxiv.org/abs/2304.11406}.
+
+\bibitem[Schick et~al.(2023)Schick, Dwivedi-Yu, Dess{\`i}, Raileanu, Lomeli,
+  Hambro, Zettlemoyer, Cancedda, and Scialom]{schick2023toolformer}
+Timo Schick, Jane Dwivedi-Yu, Roberto Dess{\`i}, Roberta Raileanu, Maria
+  Lomeli, Eric Hambro, Luke Zettlemoyer, Nicola Cancedda, and Thomas Scialom.
+\newblock Toolformer: Language models can teach themselves to use tools.
+\newblock In \emph{Advances in Neural Information Processing Systems},
+  volume~36, pages 68539--68551, 2023.
+\newblock URL
+  \url{https://proceedings.neurips.cc/paper_files/paper/2023/hash/d842425e4bf79ba039352da0f658a906-Abstract-Conference.html}.
+
+\bibitem[Shinn et~al.(2023)Shinn, Cassano, Gopinath, Narasimhan, and
+  Yao]{shinn2023reflexion}
+Noah Shinn, Federico Cassano, Ashwin Gopinath, Karthik Narasimhan, and Shunyu
+  Yao.
+\newblock Reflexion: Language agents with verbal reinforcement learning.
+\newblock In \emph{Advances in Neural Information Processing Systems},
+  volume~36, pages 8634--8652, 2023.
+\newblock URL
+  \url{https://proceedings.neurips.cc/paper_files/paper/2023/hash/1b44b878bb782e6954cd888628510e90-Abstract-Conference.html}.
+
+\bibitem[Sun et~al.(2021)Sun, Hou, Wang, Zhang, and Wang]{sun2021d2s}
+Edward Sun, Yufang Hou, Dakuo Wang, Yunfeng Zhang, and Nancy X.~R. Wang.
+\newblock {D2S}: Document-to-slide generation via query-based text
+  summarization.
+\newblock \emph{arXiv preprint arXiv:2105.03664}, 2021.
+\newblock \doi{10.48550/arXiv.2105.03664}.
+\newblock URL \url{https://arxiv.org/abs/2105.03664}.
+
+\bibitem[Tang et~al.(2023)Tang, Wu, Li, and Duan]{tang2023layoutnuwa}
+Zecheng Tang, Chenfei Wu, Juntao Li, and Nan Duan.
+\newblock {LayoutNUWA}: Revealing the hidden layout expertise of large language
+  models.
+\newblock \emph{arXiv preprint arXiv:2309.09506}, 2023.
+\newblock URL \url{https://arxiv.org/abs/2309.09506}.
+
+\bibitem[Wang et~al.(2023{\natexlab{a}})Wang, Xie, Jiang, Mandlekar, Xiao, Zhu,
+  Fan, and Anandkumar]{wang2023voyager}
+Guanzhi Wang, Yuqi Xie, Yunfan Jiang, Ajay Mandlekar, Chaowei Xiao, Yuke Zhu,
+  Linxi Fan, and Anima Anandkumar.
+\newblock Voyager: An open-ended embodied agent with large language models.
+\newblock \emph{arXiv preprint arXiv:2305.16291}, 2023{\natexlab{a}}.
+\newblock URL \url{https://arxiv.org/abs/2305.16291}.
+
+\bibitem[Wang et~al.(2023{\natexlab{b}})Wang, Dong, Cheng, Liu, Yan, Gao, and
+  Wei]{wang2023longmem}
+Weizhi Wang, Li~Dong, Hao Cheng, Xiaodong Liu, Xifeng Yan, Jianfeng Gao, and
+  Furu Wei.
+\newblock Augmenting language models with long-term memory.
+\newblock \emph{arXiv preprint arXiv:2306.07174}, 2023{\natexlab{b}}.
+\newblock \doi{10.48550/arXiv.2306.07174}.
+\newblock URL \url{https://arxiv.org/abs/2306.07174}.
+
+\bibitem[Wang et~al.(2022)Wang, Wei, Schuurmans, Le, Chi, Narang, Chowdhery,
+  and Zhou]{wang2022selfconsistency}
+Xuezhi Wang, Jason Wei, Dale Schuurmans, Quoc~V. Le, Ed~H. Chi, Sharan Narang,
+  Aakanksha Chowdhery, and Denny Zhou.
+\newblock Self-consistency improves chain of thought reasoning in language
+  models.
+\newblock \emph{arXiv preprint arXiv:2203.11171}, 2022.
+\newblock URL \url{https://arxiv.org/abs/2203.11171}.
+
+\bibitem[Wang and Chen(2025)]{wang2025mirix}
+Yu~Wang and Xi~Chen.
+\newblock Mirix: Multi-agent memory system for {LLM}-based agents.
+\newblock \emph{arXiv preprint arXiv:2507.07957}, 2025.
+\newblock \doi{10.48550/arXiv.2507.07957}.
+\newblock URL \url{https://arxiv.org/abs/2507.07957}.
+
+\bibitem[Wu et~al.(2023)Wu, Bansal, Zhang, Wu, Li, Zhu, Jiang, Zhang, Zhang,
+  Liu, et~al.]{wu2023autogen}
+Qingyun Wu, Gagan Bansal, Jieyu Zhang, Yiran Wu, Beibin Li, Erkang Zhu,
+  Li~Jiang, Xiaoyun Zhang, Shaokun Zhang, Jiale Liu, et~al.
+\newblock {AutoGen}: Enabling next-gen {LLM} applications via multi-agent
+  conversation.
+\newblock \emph{arXiv preprint arXiv:2308.08155}, 2023.
+\newblock URL \url{https://arxiv.org/abs/2308.08155}.
+
+\bibitem[Wu et~al.(2025)Wu, Liang, Zhang, Wang, Zhang, Guo, Tang, and
+  Liu]{wu2025memoryage}
+Yaxiong Wu, Sheng Liang, Chen Zhang, Yichao Wang, Yongyue Zhang, Huifeng Guo,
+  Ruiming Tang, and Yong Liu.
+\newblock From human memory to {AI} memory: A survey on memory mechanisms in
+  the era of {LLM}s.
+\newblock \emph{arXiv preprint arXiv:2504.15965}, 2025.
+\newblock URL \url{https://arxiv.org/abs/2504.15965}.
+
+\bibitem[Wu et~al.(2021)Wu, Ma, and Yang]{wu2021splitmemory}
+Yuwei Wu, Xuezhe Ma, and Diyi Yang.
+\newblock Personalized response generation via generative split memory network.
+\newblock In \emph{Proceedings of the 2021 Conference of the North American
+  Chapter of the Association for Computational Linguistics: Human Language
+  Technologies}, pages 1956--1970, Online, June 2021. Association for
+  Computational Linguistics.
+\newblock \doi{10.18653/v1/2021.naacl-main.157}.
+\newblock URL \url{https://aclanthology.org/2021.naacl-main.157/}.
+
+\bibitem[Xie et~al.(2025)Xie, Waterfield, Kennedy, and Zhang]{xie2025slidebot}
+Eric Xie, Danielle Waterfield, Michael Kennedy, and Aidong Zhang.
+\newblock {SlideBot}: A multi-agent framework for generating informative,
+  reliable, multi-modal presentations.
+\newblock \emph{arXiv preprint arXiv:2511.09804}, 2025.
+\newblock \doi{10.48550/arXiv.2511.09804}.
+\newblock URL \url{https://arxiv.org/abs/2511.09804}.
+
+\bibitem[Xu et~al.(2025{\natexlab{a}})Xu, Liang, Mei, Gao, Tan, and
+  Zhang]{xu2025amem}
+Wujiang Xu, Zujie Liang, Kai Mei, Hang Gao, Juntao Tan, and Yongfeng Zhang.
+\newblock {A-MEM}: Agentic memory for {LLM} agents.
+\newblock \emph{arXiv preprint arXiv:2502.12110}, 2025{\natexlab{a}}.
+\newblock \doi{10.48550/arXiv.2502.12110}.
+\newblock URL \url{https://arxiv.org/abs/2502.12110}.
+
+\bibitem[Xu et~al.(2025{\natexlab{b}})Xu, Xu, Chen, Chen, Zhang, and
+  Chen]{xu2025pregenie}
+Xiaojie Xu, Xinli Xu, Sirui Chen, Haoyu Chen, Fan Zhang, and Ying-Cong Chen.
+\newblock {PreGenie}: An agentic framework for high-quality visual presentation
+  generation.
+\newblock In \emph{Findings of the Association for Computational Linguistics:
+  EMNLP 2025}, pages 3045--3063, Suzhou, China, November 2025{\natexlab{b}}.
+  Association for Computational Linguistics.
+\newblock \doi{10.18653/v1/2025.findings-emnlp.165}.
+\newblock URL \url{https://aclanthology.org/2025.findings-emnlp.165/}.
+
+\bibitem[Yao et~al.(2023{\natexlab{a}})Yao, Yu, Zhao, Shafran, Griffiths, Cao,
+  and Narasimhan]{yao2023treeofthoughts}
+Shunyu Yao, Dian Yu, Jeffrey Zhao, Izhak Shafran, Thomas~L. Griffiths, Yuan
+  Cao, and Karthik Narasimhan.
+\newblock Tree of thoughts: Deliberate problem solving with large language
+  models.
+\newblock \emph{arXiv preprint arXiv:2305.10601}, 2023{\natexlab{a}}.
+\newblock URL \url{https://arxiv.org/abs/2305.10601}.
+
+\bibitem[Yao et~al.(2023{\natexlab{b}})Yao, Zhao, Yu, Du, Shafran, Narasimhan,
+  and Cao]{yao2023react}
+Shunyu Yao, Jeffrey Zhao, Dian Yu, Nan Du, Izhak Shafran, Karthik Narasimhan,
+  and Yuan Cao.
+\newblock {ReAct}: Synergizing reasoning and acting in language models.
+\newblock In \emph{The Eleventh International Conference on Learning
+  Representations}, 2023{\natexlab{b}}.
+\newblock URL \url{https://openreview.net/forum?id=WE_vluYUL-X}.
+
+\bibitem[Yu et~al.(2026)Yu, Yao, Xie, Tan, Feng, Li, and Wu]{yu2026agemem}
+Yi~Yu, Liuyi Yao, Yuexiang Xie, Qingquan Tan, Jiaqi Feng, Yaliang Li, and
+  Libing Wu.
+\newblock Agentic memory: Learning unified long-term and short-term memory
+  management for large language model agents.
+\newblock \emph{arXiv preprint arXiv:2601.01885}, 2026.
+\newblock \doi{10.48550/arXiv.2601.01885}.
+\newblock URL \url{https://arxiv.org/abs/2601.01885}.
+
+\bibitem[Zeng et~al.(2025)Zeng, Ouyang, Cui, and Ng]{zeng2025slidetailor}
+Wenzheng Zeng, Mingyu Ouyang, Langyuan Cui, and Hwee~Tou Ng.
+\newblock {SlideTailor}: Personalized presentation slide generation for
+  scientific papers.
+\newblock \emph{arXiv preprint arXiv:2512.20292}, 2025.
+\newblock \doi{10.48550/arXiv.2512.20292}.
+\newblock URL \url{https://arxiv.org/abs/2512.20292}.
+
+\bibitem[Zhang et~al.(2023)Zhang, Guo, Sun, Lou, and
+  Zhang]{zhang2023layoutdiffusion}
+Junyi Zhang, Jiaqi Guo, Shizhao Sun, Jian-Guang Lou, and Dongmei Zhang.
+\newblock Layoutdiffusion: Improving graphic layout generation by discrete
+  diffusion probabilistic models.
+\newblock \emph{arXiv preprint arXiv:2303.11589}, 2023.
+\newblock URL \url{https://arxiv.org/abs/2303.11589}.
+
+\bibitem[Zhang et~al.(2024)Zhang, Rossi, Kveton, Shao, Yang, Zamani,
+  Dernoncourt, Barrow, Yu, Kim, Zhang, Gu, Derr, Chen, Wu, Chen, Wang, Mitra,
+  Lipka, Ahmed, and Wang]{zhang2024personalizationllm}
+Zhehao Zhang, Ryan~A. Rossi, Branislav Kveton, Yijia Shao, Diyi Yang, Hamed
+  Zamani, Franck Dernoncourt, Joe Barrow, Tong Yu, Sungchul Kim, Ruiyi Zhang,
+  Jiuxiang Gu, Tyler Derr, Hongjie Chen, Junda Wu, Xiang Chen, Zichao Wang,
+  Subrata Mitra, Nedim Lipka, Nesreen Ahmed, and Yu~Wang.
+\newblock Personalization of large language models: A survey.
+\newblock \emph{arXiv preprint arXiv:2411.00027}, 2024.
+\newblock URL \url{https://arxiv.org/abs/2411.00027}.
+
+\bibitem[Zheng et~al.(2025)Zheng, Guan, Kong, Zhang, Zheng, Zhou, Lin, Lu, Han,
+  and Sun]{zheng2025pptagent}
+Hao Zheng, Xinyan Guan, Hao Kong, Wenkai Zhang, Jia Zheng, Weixiang Zhou,
+  Hongyu Lin, Yaojie Lu, Xianpei Han, and Le~Sun.
+\newblock {PPTAgent}: Generating and evaluating presentations beyond
+  text-to-slides.
+\newblock In \emph{Proceedings of the 2025 Conference on Empirical Methods in
+  Natural Language Processing}, pages 14402--14418, Suzhou, China, November
+  2025. Association for Computational Linguistics.
+\newblock \doi{10.18653/v1/2025.emnlp-main.728}.
+\newblock URL \url{https://aclanthology.org/2025.emnlp-main.728/}.
+
+\bibitem[Zheng et~al.(2026)Zheng, Mo, Yan, Yuan, Zhang, Chen, Lu, Lin, Han, and
+  Sun]{zheng2026deeppresenter}
+Hao Zheng, Guozhao Mo, Xinru Yan, Qianhao Yuan, Wenkai Zhang, Xuanang Chen,
+  Yaojie Lu, Hongyu Lin, Xianpei Han, and Le~Sun.
+\newblock {DeepPresenter}: Environment-grounded reflection for agentic
+  presentation generation.
+\newblock \emph{arXiv preprint arXiv:2602.22839}, 2026.
+\newblock \doi{10.48550/arXiv.2602.22839}.
+\newblock URL \url{https://arxiv.org/abs/2602.22839}.
+
+\bibitem[Zheng et~al.(2023)Zheng, Chiang, Sheng, Zhuang, Wu, Zhuang, Lin, Li,
+  Li, Xing, et~al.]{zheng2023llmasjudge}
+Lianmin Zheng, Wei-Lin Chiang, Ying Sheng, Siyuan Zhuang, Zhanghao Wu, Yonghao
+  Zhuang, Zi~Lin, Zhuohan Li, Dacheng Li, Eric~P. Xing, et~al.
+\newblock Judging {LLM}-as-a-judge with {MT}-bench and chatbot arena.
+\newblock \emph{arXiv preprint arXiv:2306.05685}, 2023.
+\newblock URL \url{https://arxiv.org/abs/2306.05685}.
+
+\bibitem[Zhong et~al.(2023)Zhong, Guo, Gao, Ye, and Wang]{zhong2023memorybank}
+Wanjun Zhong, Lianghong Guo, Qiqi Gao, He~Ye, and Yanlin Wang.
+\newblock Memorybank: Enhancing large language models with long-term memory.
+\newblock \emph{arXiv preprint arXiv:2305.10250}, 2023.
+\newblock \doi{10.48550/arXiv.2305.10250}.
+\newblock URL \url{https://arxiv.org/abs/2305.10250}.
+
+\bibitem[Zhu et~al.(2023)Zhu, Wang, and Wang]{zhu2023judgelm}
+Lianghui Zhu, Xinggang Wang, and Xinlong Wang.
+\newblock {JudgeLM}: Fine-tuned large language models are scalable judges.
+\newblock \emph{arXiv preprint arXiv:2310.17631}, 2023.
+\newblock URL \url{https://arxiv.org/abs/2310.17631}.
+
+\end{thebibliography}

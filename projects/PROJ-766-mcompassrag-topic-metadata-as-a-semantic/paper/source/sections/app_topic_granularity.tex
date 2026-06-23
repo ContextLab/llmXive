@@ -1,0 +1,39 @@
+\section{Effect of Topic Granularity of Topic Model}
+\label{app:topic_granularity}
+
+Table~\ref{tab:granularity} reports retrieval performance as a function of the number of topics $K$ in the underlying topic model. Two consistent patterns emerge across all three benchmarks. First, \textbf{performance peaks at $K=100$ and degrades monotonically as $K$ increases beyond this point}. At very high granularities ($K=500$--$2000$), topic representations become increasingly fine-grained and sparse, making each topic centroid less representative of a coherent semantic direction. As a result, the weighted aggregation of topic centroids produces chunk and query representations that are noisier and harder to match reliably. Second, \textbf{the student--teacher gap is largest at $K=100$ and nearly vanishes at high $K$}. At $K=100$, the LLM teacher can exploit the richer and more semantically coherent per-topic structure to outperform the student, which receives only a compressed topic summary. At $K \geq 500$, both the teacher and the student suffer equally from the degraded topic quality, and their performance converges. Together, these results suggest that \textbf{a moderate topic granularity of $K=100$ strikes the best balance} between topic coherence and coverage, and we use this setting across all experiments in the main paper. This finding is complementary to the analysis in Section~\ref{sec:ablations}, which studied the effect of how many topic signals are passed to the model at inference time: here we show that the quality of those signals, determined by $K$, is equally important. Even with an optimal number of passed topics, overly fine-grained or coarse topic models will degrade retrieval quality.
+
+\begin{table*}[t]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}ll ccccccccc@{}}
+\toprule
+& & \multicolumn{3}{c}{\textbf{SCI-DOCS}} & \multicolumn{3}{c}{\textbf{LegalBench-RAG}} & \multicolumn{3}{c}{\textbf{Dragonball}} \\
+\cmidrule(lr){3-5} \cmidrule(lr){6-8} \cmidrule(lr){9-11}
+$\textbf{K}$ & \textbf{Method} & {Recall $\uparrow$} & {Precision $\uparrow$} & {IE $\uparrow$} & {Recall $\uparrow$} & {Precision $\uparrow$} & {IE $\uparrow$} & {Recall $\uparrow$} & {Precision $\uparrow$} & {IE $\uparrow$} \\
+\midrule
+\multirow{2}{*}{50}
+  & MCompassRAG & 88.83 & 93.37 & 86.87 & 36.23 & 51.40 & 26.30 & 36.73 & 78.53 & 30.47 \\
+  & LLM         & 92.43 & 98.13 & 91.90 & 37.70 & 55.43 & 27.83 & 38.43 & 82.60 & 32.07 \\
+\midrule
+\multirow{2}{*}{100}
+  & MCompassRAG & 94.13 & 99.03 & 92.10 & 38.40 & 55.10 & 27.90 & 38.97 & 82.80 & 32.40 \\
+  & LLM         & 98.30 & 99.63 & 98.03 & 40.10 & 59.47 & 29.70 & 40.83 & 87.43 & 34.17 \\
+\midrule
+\multirow{2}{*}{500}
+  & MCompassRAG & 86.53 & 89.63 & 83.47 & 35.30 & 49.87 & 25.27 & 35.60 & 74.90 & 28.77 \\
+  & LLM         & 87.20 & 90.40 & 84.03 & 35.57 & 50.30 & 25.43 & 35.97 & 75.37 & 28.97 \\
+\midrule
+\multirow{2}{*}{1000}
+  & MCompassRAG & 84.80 & 87.10 & 81.17 & 34.60 & 48.47 & 24.57 & 34.63 & 72.83 & 27.80 \\
+  & LLM         & 85.13 & 87.47 & 81.50 & 34.73 & 48.67 & 24.67 & 34.83 & 73.07 & 27.90 \\
+\midrule
+\multirow{2}{*}{2000}
+  & MCompassRAG & 83.40 & 85.23 & 79.60 & 34.03 & 47.43 & 24.10 & 33.90 & 71.27 & 27.07 \\
+  & LLM         & 83.57 & 85.40 & 79.83 & 34.10 & 47.53 & 24.17 & 34.00 & 71.40 & 27.13 \\
+\bottomrule
+\end{tabular}%
+}
+\caption{Effect of topic model granularity ($K$) on retrieval performance across three datasets. Results are reported for MCompassRAG and LLM-based methods.}
+\label{tab:granularity}
+\end{table*}

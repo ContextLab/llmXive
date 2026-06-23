@@ -1,0 +1,103 @@
+% !TEX root = release.tex
+\documentclass[]{bytedance}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{microtype}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{booktabs}
+\usepackage{cleveref}
+\usepackage{graphicx}
+\usepackage{multirow}
+\usepackage{makecell}
+\usepackage{array}
+\usepackage[table]{xcolor}
+\usepackage{colortbl}
+
+% NOTE: including geometry package
+% The geometery package modifies some page properties when used. This can dramatically change the page margins, leading to severe template violation, and potential desk rejection. If the package is required, it can be used with the "pass" flag to skip the default page modifications, as in the following line:
+% \usepackage[pass]{geometry}
+
+\usepackage{lineno}
+
+\definecolor{darkblue}{rgb}{0, 0, 0.5}
+\hypersetup{colorlinks=true, citecolor=darkblue, linkcolor=darkblue, urlcolor=darkblue}
+
+
+\title{PerceptionDLM: Parallel Region Perception with \\ Multimodal Diffusion Language Models}
+
+
+\author{
+\centerline{
+Peking University MSALab, ByteDance
+}
+}
+
+\newcommand{\fix}{\marginpar{FIX}}
+\newcommand{\new}{\marginpar{NEW}}
+
+\abstract{
+Multimodal large language models (MLLMs) have achieved remarkable progress in visual understanding tasks. 
+%
+However, most existing MLLMs rely on autoregressive generation, which limits their efficiency for perception tasks that require captioning multiple regions. 
+%
+%In this work, we introduce \textbf{PerceptionDLM-Base}, a stronger multimodal diffusion language baseline that integrates diffusion language models (DLMs) with a visual encoder, achieving state-of-the-art performance among open-source diffusion-based MLLMs.
+%Region captioning is a fundamental visual perception task for multimodal large language models (MLLMs), yet existing MLLMs typically rely on autoregressive decoding and therefore process multiple regions sequentially. 
+%This sequential generation pattern limits efficiency in perception settings that require describing many regions within the same image. 
+%
+In this work, we propose \textbf{PerceptionDLM}, a multimodal diffusion language model optimized for efficient parallel region perception. Built upon \textbf{PerceptionDLM-Base}, a strong foundational baseline that achieves state-of-the-art performance among open-source diffusion MLLMs, our architecture fully leverages the parallel decoding nature of DLMs. Specifically, we introduce efficient prompting and structured attention masking to enable simultaneous perception of multiple masked regions, allowing the model to generate region descriptions in parallel at both the sequence and token levels.
+%
+This design significantly improves inference efficiency compared with existing approaches that process regions sequentially.
+%
+To systematically evaluate the parallelism property of visual perception capability for DLMs, we construct a new \textbf{Para}llel \textbf{D}etailed \textbf{L}ocalized \textbf{C}aptioning Benchmark (\textbf{ParaDLC-Bench}) by scaling the DLC-Bench to include multiple region masks per image, enabling joint evaluation of both caption quality and inference efficiency. 
+%
+Experiments demonstrate that PerceptionDLM maintains competitive performance in region captioning while achieving substantial speed improvements for multi-region perception tasks. 
+%
+Our results highlight the potential of multimodal diffusion language models for efficient, parallel visual perception.
+%
+To the best of our knowledge, we are the first to achieve parallel region caption and perception by leveraging the advantages of diffusion language models.
+%
+Code, models, and datasets are released.
+}
+
+\date{\today} \correspondence{\email{yhtong@pku.edu.cn, sunyang2533@gmail.com}}
+\checkdata[code]{\url{https://github.com/MSALab-PKU/PerceptionDLM}}
+\checkdata[models]{\url{https://huggingface.co/collections/MSALab/perceptiondlm-model-zoo}}
+
+\begin{document}
+
+\maketitle
+
+\input{release_latex/1_intro}
+\input{release_latex/3_method}
+\input{release_latex/4_exp}
+\input{release_latex/5_conclusion}
+
+
+% \section*{Ethics Statement}
+% % \vspace{-3mm}
+% Our work does not collect new data on humans and animals.
+% %
+% We use open-source datasets to conduct the DVLM experiments.
+% %
+% Although these datasets include humans and animals, our research only describes their appearance and does not cover gender, citizenship, or identity information.
+%Authors can add an optional ethics statement to the paper. 
+%For papers that touch on ethical issues, this section will be evaluated as part of the review process. The ethics statement should come at the end of the paper. It does not count toward the page limit, but should not be more than 1 page. 
+
+% \clearpage
+\input{release_latex/6_author}
+\clearpage
+
+\bibliography{colm2026_conference}
+\bibliographystyle{colm2026_conference}
+\clearpage
+
+\beginappendix
+\tableofcontents
+\clearpage
+\input{release_latex/appendix}
+
+
+\end{document}

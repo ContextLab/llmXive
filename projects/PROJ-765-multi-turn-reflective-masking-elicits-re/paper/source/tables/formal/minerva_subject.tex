@@ -1,0 +1,23 @@
+
+
+\begin{table}[htbp]
+\centering
+\caption{Performance comparison on Minerva MATH task across different subject categories.
+}
+
+\small
+\resizebox{0.95\linewidth}{!}{
+\begin{tabular}{lcccccccc}
+
+\toprule
+Subject & Algebra & Counting \& Prob. & Geometry & Intermediate Alg. & Num Theory & Prealgebra & Precalc & Aggregate \\
+\midrule
+Vanilla SFT(\%) & 28.90 & 17.72 & 20.67 & 13.07 & 17.41 & 36.28 & 14.10 & 22.62 \\
+Ours \method(\%) & \textbf{29.49} & \textbf{18.35} & \textbf{20.67} & \textbf{14.40} & \textbf{21.67} & \textbf{38.00} & \textbf{16.67} & \textbf{24.10} \\
+$\Delta$(\%) & $\uparrow0.59$ & $\uparrow0.63$ & $0$ & $\uparrow1.33$ & $\uparrow4.26$ & $\uparrow1.72$ & $\uparrow2.57$ & $\uparrow1.48$ \\
+\bottomrule
+\end{tabular}
+}
+
+\label{tab:minerva-subject}
+\end{table}
