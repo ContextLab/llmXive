@@ -4,7 +4,7 @@ The filtering step removed knots that are non‑hyperbolic (i.e., hyperbolic vol
 
 ## Exclusion Summary
 
-- Total excluded knots: **PLACEHOLDER_EXCLUDED_COUNT**
+- Total excluded knots: **0**
 - Reason: Non‑hyperbolic (volume ≤ 0)
 
 The full list of excluded knot identifiers is recorded in `data/processed/excluded_knots.csv`.

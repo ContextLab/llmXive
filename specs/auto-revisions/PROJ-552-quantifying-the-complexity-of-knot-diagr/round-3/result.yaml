@@ -1,0 +1,78 @@
+project_id: PROJ-552-quantifying-the-complexity-of-knot-diagr
+round: 3
+revision_kind: research_writing
+from_stage: research_review
+to_stage: tasked
+worst_severity: writing
+seed_action_items:
+- id: 561cf4344ef7
+  text: Replace the VIF placeholders in docs/reproducibility/multicollinearity_assessment.md
+    with the actual VIF values computed for crossing number and braid index.
+  severity: writing
+  engine_severity: writing
+  reviewer: research_reviewer
+  artifact: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/
+  location: ''
+- id: 6271e9dc0a7a
+  text: "Insert the true excluded\u2011knot count in docs/reproducibility/excluded_knots.md\
+    \ (replace PLACEHOLDER_EXCLUDED_COUNT)."
+  severity: writing
+  engine_severity: writing
+  reviewer: research_reviewer
+  artifact: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/
+  location: ''
+- id: 4bcfaf52277e
+  text: Fill in concrete coverage numbers in docs/reproducibility/invariant_coverage.md
+    (replace PLACEHOLDER_TOTAL and PLACEHOLDER_COVERAGE).
+  severity: writing
+  engine_severity: writing
+  reviewer: research_reviewer
+  artifact: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/
+  location: ''
+- id: 25ed4717cba0
+  text: "Update docs/reproducibility/data_quality_report.md to list the exact number\
+    \ of records flagged with missing_invariant_flags and report the format\u2011\
+    pass rate (must be \u2265 99 %)."
+  severity: writing
+  engine_severity: writing
+  reviewer: research_reviewer
+  artifact: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/
+  location: ''
+- id: f9884b262e98
+  text: Consolidate checksum documentation to a single authoritative manifest (retain
+    data/checksums.json only) and adjust all related policy/notice files to reflect
+    this change.
+  severity: writing
+  engine_severity: writing
+  reviewer: research_reviewer
+  artifact: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/
+  location: ''
+- id: 2ed374e1d199
+  text: "Compute the SHA\u2011256 hash of specs/001-knot-complexity-analysis/tasks.md\
+    \ and supply it in the review metadata (artifact_hash)."
+  severity: writing
+  engine_severity: writing
+  reviewer: research_reviewer
+  artifact: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/
+  location: ''
+kickback_reason: 'advancement.evaluate: research-review non-convergence; routing via
+  engine adapter.'
+kickback_artifact_links:
+- projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/
+stage_results:
+- name: specify
+  status: success
+- name: clarify
+  status: success
+  note: auto-resolved; deterministic adapter needs no clarifications
+- name: plan
+  status: success
+- name: tasks
+  status: success
+  note: 6 tasks emitted (one per concern)
+- name: analyze
+  status: success
+  iterations: 1
+  finding_count: 0
+final_outcome: ready_for_implementation
+produced_at: '2026-06-24T14:15:46.753513+00:00'

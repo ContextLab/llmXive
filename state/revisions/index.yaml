@@ -165,3 +165,6 @@ ready:
 - project_id: PROJ-552-quantifying-the-complexity-of-knot-diagr
   revision_spec_path: specs/auto-revisions/PROJ-552-quantifying-the-complexity-of-knot-diagr/round-2
   queued_at: '2026-06-24T14:03:57.435206+00:00'
+- project_id: PROJ-552-quantifying-the-complexity-of-knot-diagr
+  revision_spec_path: specs/auto-revisions/PROJ-552-quantifying-the-complexity-of-knot-diagr/round-3
+  queued_at: '2026-06-24T14:15:46.755159+00:00'
