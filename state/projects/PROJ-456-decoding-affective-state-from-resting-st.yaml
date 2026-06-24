@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-08T19:37:34.758341Z'
-current_stage: validated
+current_stage: project_initialized
 failed_stage: null
 field: neuroscience
 human_escalation_reason: null
 id: PROJ-456-decoding-affective-state-from-resting-st
-last_run_id: d8bff593-118c-4846-9fb6-db5619bf6c23
+last_run_id: e9fb8264-492f-4734-9715-c1a99969badd
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: Decoding Affective State from Resting-State EEG Microstates
-updated_at: '2026-06-13T23:07:35.903984Z'
+updated_at: '2026-06-24T11:21:25.190895Z'
