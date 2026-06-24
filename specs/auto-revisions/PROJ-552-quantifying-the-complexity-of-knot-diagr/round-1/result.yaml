@@ -1,154 +1,50 @@
 project_id: PROJ-552-quantifying-the-complexity-of-knot-diagr
 round: 1
-revision_kind: paper_writing
+revision_kind: research_writing
 from_stage: research_review
 to_stage: tasked
 worst_severity: writing
 seed_action_items:
-- id: a89853b485cc
-  text: "Imagine holding a piece of string, tying it into a knot, and then trying\
-    \ to describe that knot to someone who cannot see it. You might count crossings,\
-    \ trace the braid, but what you're really doing is telling a story about entanglement.\
-    \ This project seeks to formalize that intuition. The crossing number and braid\
-    \ index are both classical invariants\u2014each captures a different facet of\
-    \ the knot's geometry. But together, might they form something richer? I'm reminded\
-    \ of Fourier analysis: a single fr"
+- id: b7512022cb4d
+  text: 'Checksum Manifest: Retain a single authoritative checksum file (e.g., checksums.json),
+    remove/deprecate checksums.csv and checksums.sha256, and update all documentation
+    to reference the single manifest.'
   severity: writing
   engine_severity: writing
   reviewer: research_reviewer
   artifact: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/
   location: ''
-- id: 12eb17017fe7
-  text: 'The specification proposes to quantify knot complexity via crossing number
-    and braid index. This is a sound approach. We must ask: what is the standard of
-    evidence? When we measured the activity of radium salts, we did not claim a new
-    element until the atomic weight could be determined with precision. Similarly,
-    this work must establish the precision of its measurements across different classes
-    of prime knots. The crossing number is well-defined, but the braid index requires
-    careful experimental'
+- id: 1c87066999b5
+  text: "Duplicate\u2011Record Check: Implement a duplicate\u2011ID detection step\
+    \ in code/data/validator.py, run it on the full dataset, and record the result\
+    \ (expected 0) in data_quality_report.md."
   severity: writing
   engine_severity: writing
   reviewer: research_reviewer
   artifact: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/
   location: ''
-- id: b06a9b8fe49f
-  text: Provenance & Licensing
+- id: 2288689e59d1
+  text: "Sample\u2011Size Documentation: Populate validation_scope.md (or sample_size_adequacy.md)\
+    \ with a concrete table of knot counts per crossing number, and explicitly state\
+    \ that each stratified group meets the \u2265 5 % null\u2011field threshold and\
+    \ has enough records for descriptive statistics."
   severity: writing
   engine_severity: writing
   reviewer: research_reviewer
   artifact: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/
   location: ''
-- id: 8848392465c4
-  text: The project records provenance in provenance.yaml and in multiple reproducibility
-    documents (e.g., docs/reproducibility/knot_atlas_data_license.md).
+- id: 8e496dd74e41
+  text: "Hyperbolic Volume Cross\u2011Check: Complete hyperbolic_volume_validation.md\
+    \ with the actual coverage percentage, match rate, and a discussion of source\
+    \ independence (e.g., whether Knot Atlas and KnotInfo share underlying data)."
   severity: writing
   engine_severity: writing
   reviewer: research_reviewer
   artifact: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/
   location: ''
-- id: ec9ea7f023f6
-  text: "Licensing for the source code (MIT) and the Knot Atlas data (CC\u2011BY\u2011\
-    4.0) is clearly stated."
-  severity: writing
-  engine_severity: writing
-  reviewer: research_reviewer
-  artifact: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/
-  location: ''
-- id: b9eea2935a70
-  text: "Recommendation (non\u2011blocking): Consolidate provenance information into\
-    \ a single, version\u2011controlled file (e.g., PROVENANCE.md) and reference it\
-    \ from all other docs to avoid duplication."
-  severity: writing
-  engine_severity: writing
-  reviewer: research_reviewer
-  artifact: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/
-  location: ''
-- id: f77dc36be1cc
-  text: Schema Definition & Validation
-  severity: writing
-  engine_severity: writing
-  reviewer: research_reviewer
-  artifact: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/
-  location: ''
-- id: be2b296a6bc4
-  text: JSON/YAML schemas for KnotRecord, InvariantsDataset, and RegressionModel are
-    present under specs/001-knot-complexity-analysis/contracts/.
-  severity: writing
-  engine_severity: writing
-  reviewer: research_reviewer
-  artifact: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/
-  location: ''
-- id: 2e49d960b41b
-  text: Contract tests (tests/contract/test_schemas.py) are listed, indicating schema
-    conformance is verified.
-  severity: writing
-  engine_severity: writing
-  reviewer: research_reviewer
-  artifact: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/
-  location: ''
-- id: 6a457c45ea91
-  text: 'Issue (blocking): The schema files are not listed in the reproducibility
-    manifest, and there is no explicit version tag on the schemas. Adding a schema
-    version field and including the schemas in the checksum manifest would satisfy
-    Constitution Principle III.'
-  severity: writing
-  engine_severity: writing
-  reviewer: research_reviewer
-  artifact: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/
-  location: ''
-- id: 137ff3bd11f9
-  text: "Missing\u2011Data Handling"
-  severity: writing
-  engine_severity: writing
-  reviewer: research_reviewer
-  artifact: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/
-  location: ''
-- id: 1fb5bab4d90b
-  text: "The system distinguishes data_quality_flags (general quality issues) from\
-    \ missing_invariant_flags (uncomputable invariants) as required by FR\u2011002\
-    \ and FR\u2011009."
-  severity: writing
-  engine_severity: writing
-  reviewer: research_reviewer
-  artifact: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/
-  location: ''
-- id: 99cead546cdb
-  text: Flagging logic is implemented in code/data/validator.py and exercised by unit
-    tests.
-  severity: writing
-  engine_severity: writing
-  reviewer: research_reviewer
-  artifact: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/
-  location: ''
-- id: 3d2de06d1c04
-  text: "The data\u2011quality report (docs/reproducibility/data_quality_report.md)\
-    \ documents null\u2011percentage \u2264 5 % and format\u2011pass \u2265 99 %,\
-    \ satisfying SC\u2011013."
-  severity: writing
-  engine_severity: writing
-  reviewer: research_reviewer
-  artifact: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/
-  location: ''
-- id: c0e2c028859a
-  text: "Recommendation (non\u2011blocking): The duplicate\u2011record check is currently\
-    \ deferred (\u201Cduplicate records = 0 ([deferred])\u201D). For a research\u2011\
-    stage artifact this should be resolved; a simple duplicate\u2011ID scan can be\
-    \ added to the validator and the result recorded."
-  severity: writing
-  engine_severity: writing
-  reviewer: research_reviewer
-  artifact: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/
-  location: ''
-- id: 75577e829571
-  text: Version Control & Checksums
-  severity: writing
-  engine_severity: writing
-  reviewer: research_reviewer
-  artifact: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/
-  location: ''
-- id: 2254a7103ecb
-  text: "SHA\u2011256 checksums are generated (data/checksums.json, checksums.sha256)\
-    \ and documented in many docs/reproducibility/*.md files."
+- id: fd4ad1d5f921
+  text: "Artifact Hash: Provide the SHA\u2011256 hash of the primary artifact (tasks.md)\
+    \ so the review can be processed automatically."
   severity: writing
   engine_severity: writing
   reviewer: research_reviewer
@@ -168,10 +64,10 @@ stage_results:
   status: success
 - name: tasks
   status: success
-  note: 17 tasks emitted (one per concern)
+  note: 5 tasks emitted (one per concern)
 - name: analyze
   status: success
   iterations: 1
   finding_count: 0
 final_outcome: ready_for_implementation
-produced_at: '2026-06-18T15:33:13.924882+00:00'
+produced_at: '2026-06-24T14:02:16.717843+00:00'

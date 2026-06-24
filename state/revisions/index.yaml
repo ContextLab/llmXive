@@ -156,3 +156,12 @@ ready:
 - project_id: PROJ-627-trisplat-simulation-ready-feed-forward-3
   revision_spec_path: specs/auto-revisions/PROJ-627-trisplat-simulation-ready-feed-forward-3/round-2
   queued_at: '2026-06-23T18:43:24.367910+00:00'
+- project_id: PROJ-552-quantifying-the-complexity-of-knot-diagr
+  revision_spec_path: specs/auto-revisions/PROJ-552-quantifying-the-complexity-of-knot-diagr/round-1
+  queued_at: '2026-06-24T13:55:31.613703+00:00'
+- project_id: PROJ-552-quantifying-the-complexity-of-knot-diagr
+  revision_spec_path: specs/auto-revisions/PROJ-552-quantifying-the-complexity-of-knot-diagr/round-1
+  queued_at: '2026-06-24T14:02:16.719496+00:00'
+- project_id: PROJ-552-quantifying-the-complexity-of-knot-diagr
+  revision_spec_path: specs/auto-revisions/PROJ-552-quantifying-the-complexity-of-knot-diagr/round-2
+  queued_at: '2026-06-24T14:03:57.435206+00:00'

@@ -150,6 +150,18 @@ def apply_missing_and_quality_flags(
             results.append(vr)
 
     log_operation("apply_missing_and_quality_flags_end", success=True, count=len(results))
+    # Duplicate ID detection
+    id_field = "knot_id"
+    seen = set()
+    duplicate_count = 0
+    for vr in results:
+        rec_id = vr.record.get(id_field) or vr.record.get("id")
+        if rec_id is not None:
+            if rec_id in seen:
+                duplicate_count += 1
+            else:
+                seen.add(rec_id)
+    log_operation("duplicate_id_check", duplicate_count=duplicate_count)
     return results
 
 

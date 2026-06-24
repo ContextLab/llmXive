@@ -1,8 +1,8 @@
 [
   {
-    "path": "data/checksums.csv",
-    "sha256": "fe7b0b60a0c03d6b18e48cc9912d3e89c3b61c08b8ed798382aa9d2c15f5386b",
-    "size": 866
+    "path": "data/processed/excluded_knots.csv",
+    "sha256": "3cff7da563813fb299af63469bda5867fa5a4de400a25a731521ded971703755",
+    "size": 62
   },
   {
     "path": "data/processed/knots_validated.csv",
@@ -26,7 +26,7 @@
   },
   {
     "path": "data/checksums.json",
-    "sha256": "4c0b8b2e546d41da6e7ffd299f8b0ea20e9b37286f948c918719031b9e38eb76",
+    "sha256": "6e77965ed559c1945350011a2c5786ac621404cd7c0a38b88b2f1da940719f16",
     "size": 2506
   },
   {
@@ -71,8 +71,8 @@
   },
   {
     "path": "data/plots/crossing_vs_braid.png",
-    "sha256": "19ba2f6c8e0b68dd0b53702591f47f40c36ecbce227114a278c5a5ac4732b808",
-    "size": 27632
+    "sha256": "806db8eab2fbde635bb39213f6e3b7125a21ec079d2fb874ec9a02a503cce983",
+    "size": 27230
   },
   {
     "path": "data/plots/complexity_visualization_examples.png",
