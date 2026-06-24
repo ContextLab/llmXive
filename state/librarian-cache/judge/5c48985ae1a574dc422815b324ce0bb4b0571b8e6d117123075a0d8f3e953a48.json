@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2601.00491",
+  "judged_at": "2026-06-24T18:58:20Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "machine learning prediction of crack propagation rates in metals materials science",
+  "rationale": "The paper applies machine‑learning (physics‑informed neural networks) to fracture mechanics and predicts crack propagation behavior (directions/criteria), which shares the same underlying mechanism (crack propagation) as the user’s interest in rates, making it a relevant methodological and domain reference (categories (a) and (d)).",
+  "relevant": true
+}

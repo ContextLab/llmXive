@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1811.05660",
+  "judged_at": "2026-06-24T18:58:18Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "machine learning prediction of crack propagation rates in metals materials science",
+  "rationale": "The paper introduces a crystal graph convolutional neural network (CGCNN) with multitask learning for predicting material properties, which serves as a foundational methodology that researchers predicting crack propagation rates in metals would likely cite for its ML approach to material property prediction (acceptance category d).",
+  "relevant": true
+}

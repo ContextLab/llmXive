@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2510.21018",
+  "judged_at": "2026-06-24T18:58:34Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "machine learning prediction of crack propagation rates in metals materials science",
+  "rationale": "The paper studies machine‑learning‑based prediction of fatigue crack growth rates in a metal alloy (laser‑fused SS‑316L), directly measuring the same dependent variable (crack propagation rate) using ML methods, satisfying criterion (a) (same‑mechanism evidence) and (b) (independent variable on the same domain).",
+  "relevant": true
+}

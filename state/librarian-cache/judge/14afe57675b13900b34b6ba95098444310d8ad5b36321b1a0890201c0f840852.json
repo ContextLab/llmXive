@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2306.04338",
+  "judged_at": "2026-06-24T18:58:15Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "machine learning prediction of crack propagation rates in metals materials science",
+  "rationale": "The paper discusses machine‑learning challenges in official statistics and data‑source drift, which is unrelated to predicting crack propagation rates in metallic materials; it does not address the relevant domain, variables, or mechanisms.",
+  "relevant": false
+}

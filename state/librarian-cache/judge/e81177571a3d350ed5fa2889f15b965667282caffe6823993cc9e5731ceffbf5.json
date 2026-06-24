@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2112.08209",
+  "judged_at": "2026-06-24T18:58:27Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "machine learning prediction of crack propagation rates in metals materials science",
+  "rationale": "The paper quantifies and predicts fatigue crack growth rates (the dependent variable of interest) in metal alloys, providing empirical data and baseline modeling of crack propagation that is relevant to the domain, satisfying inclusion criterion (b).",
+  "relevant": true
+}

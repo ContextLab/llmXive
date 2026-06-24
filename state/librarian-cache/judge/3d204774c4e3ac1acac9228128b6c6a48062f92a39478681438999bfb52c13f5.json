@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2207.05698",
+  "judged_at": "2026-06-24T18:58:30Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "machine learning prediction of crack propagation rates in metals materials science",
+  "rationale": "The paper provides empirical measurements and baseline kinetics of fatigue crack growth in bearing steels, directly addressing the same physical mechanism (crack propagation rates in metals) that the user’s ML prediction work will target (acceptance criteria a / c).",
+  "relevant": true
+}

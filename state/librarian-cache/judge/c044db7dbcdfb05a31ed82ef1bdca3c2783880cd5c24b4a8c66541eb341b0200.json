@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1304.6283",
+  "judged_at": "2026-06-24T18:58:25Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "machine learning prediction of crack propagation rates in metals materials science",
+  "rationale": "The paper investigates the physical mechanism of crack propagation speed and microcrack dynamics (same‑mechanism evidence, category (a)), offering empirical insight into fracture behavior that is relevant background for any study—including ML‑based prediction—of crack propagation rates, even though the material system (brittle polymers) differs from the metals focus.",
+  "relevant": true
+}
