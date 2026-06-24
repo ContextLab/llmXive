@@ -4,7 +4,7 @@
 
 The Knot Atlas dataset included in this project is made available under the
 Creative Commons Attribution 4.0 International (CC BY 4.0) license.
-Provenance details are available in `data/provenance.yaml`.
+
 
 You are free to:
 

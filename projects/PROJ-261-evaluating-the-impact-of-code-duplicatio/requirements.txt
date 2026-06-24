@@ -1,0 +1,6 @@
+datasets
+transformers
+bitsandbytes
+scipy
+matplotlib
+pytest
