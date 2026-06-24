@@ -127,3 +127,34 @@ def test_batch_stops_on_no_progress(tmp_path, monkeypatch) -> None:
 
     # The progress guard stops after ONE no-op pass — never an infinite loop.
     assert _NoProgressAgent.runs == 1
+
+
+def test_all_tasks_done_triggers_execute_and_gate_not_implementer(tmp_path, monkeypatch) -> None:
+    """The batch→gate handoff: once every task is checked off, the NEXT
+    run_one_step must run the dedicated execution gate (real analysis), NOT
+    dispatch the implementer again on a fully-checked tasks.md. This is what
+    turns a drained in_progress into research_complete — protect it."""
+    import llmxive.execution.stage as exec_stage
+
+    project = _in_progress_project()
+    d = tmp_path / "projects" / project.id / "specs" / "001-x"
+    d.mkdir(parents=True, exist_ok=True)
+    (d / "tasks.md").write_text(
+        "# Tasks\n\n- [X] T001 done\n- [X] T002 done\n", encoding="utf-8"
+    )
+
+    gate_called = {"n": 0}
+
+    def _fake_gate(project_dir, *, repo_root):
+        gate_called["n"] += 1  # do not actually run the sandbox
+
+    monkeypatch.setattr(exec_stage, "execute_and_gate", _fake_gate)
+    # If the implementer were (wrongly) dispatched, this would raise.
+    class _BoomAgent:
+        def run(self, sk_ctx):
+            raise AssertionError("implementer dispatched on an all-done tasks.md")
+    _wire(monkeypatch, _BoomAgent, project)
+
+    graph.run_one_step(project, repo_root=tmp_path)
+
+    assert gate_called["n"] == 1
