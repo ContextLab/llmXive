@@ -42,10 +42,10 @@ description: "Task list template for feature implementation"
 
 - [X] T004 Setup data directory structure (data/raw/, data/processed/, data/checkpoints/) per plan.md in `projects/001-predicting-molecular-dipole-moments/`
 - [X] T005 [P] Initialize state tracking with state/projects/001-predicting-molecular-dipole-moments.yaml
-- [ ] T006 [P] Configure pytest 7.4.3 with contract test framework in `projects/001-predicting-molecular-dipole-moments/tests/`
-- [ ] T007 [P] Create YAML contract schema files in `projects/001-predicting-molecular-dipole-moments/tests/contracts/` (molecule.schema.yaml, feature_set.schema.yaml, model_output.schema.yaml)
-- [ ] T008 Configure environment configuration management with.env.example and config.py in `projects/001-predicting-molecular-dipole-moments/code/`
-- [ ] T009 Setup reproducibility framework with pinned random seeds in `projects/001-predicting-molecular-dipole-moments/code/utils/reproducibility.py`
+- [X] T006 [P] Configure pytest 7.4.3 with contract test framework in `projects/001-predicting-molecular-dipole-moments/tests/`
+- [X] T007 [P] Create YAML contract schema files in `projects/001-predicting-molecular-dipole-moments/tests/contracts/` (molecule.schema.yaml, feature_set.schema.yaml, model_output.schema.yaml)
+- [X] T008 Configure environment configuration management with.env.example and config.py in `projects/001-predicting-molecular-dipole-moments/code/`
+- [X] T009 Setup reproducibility framework with pinned random seeds in `projects/001-predicting-molecular-dipole-moments/code/utils/reproducibility.py`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -53,7 +53,7 @@ description: "Task list template for feature implementation"
 
 ## Phase 3: User Story 1 - Dataset Preparation and Baseline Feature Extraction (Priority: P1) 🎯 MVP
 
-**Goal**: Download QM9 dataset, filter to 10k random subset [UNRESOLVED-CLAIM: c_de2e9e30 — status=not_enough_info], extract 3D coordinates and 2D descriptors for baseline comparison
+**Goal**: Download QM9 dataset, Download QM9 dataset, Download QM9 dataset, Download QM9 dataset, Download QM9 dataset, filter to 10k random subset [UNRESOLVED-CLAIM: c_ab674af7 — status=not_enough_info], extract 3D coordinates and 2D descriptors for baseline comparison
 
 **Independent Test**: Verify data files exist, subset size equals 10k, and both 3D and 2D feature matrices are generated with no missing values
 
@@ -61,21 +61,21 @@ description: "Task list template for feature implementation"
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T010 [P] [US1] Contract test for molecule schema in `projects/001-predicting-molecular-dipole-moments/tests/contract/test_molecule_schema.py`
-- [ ] T011 [P] [US1] Contract test for feature_set schema in `projects/001-predicting-molecular-dipole-moments/tests/contract/test_feature_set_schema.py`
-- [ ] T012 [P] [US1] Integration test for QM9 download pipeline with memory profiling (< 8GB constraint) in `projects/001-predicting-molecular-dipole-moments/tests/integration/test_qm9_download.py`
-- [ ] T013 [P] [US1] Unit test for 3D coordinate extraction in `projects/001-predicting-molecular-dipole-moments/tests/unit/test_extract_3d_coords.py`
-- [ ] T014 [P] [US1] Unit test for 2D descriptor generation in `projects/001-predicting-molecular-dipole-moments/tests/unit/test_extract_2d_descriptors.py`
+- [X] T010 [P] [US1] Contract test for molecule schema in `projects/001-predicting-molecular-dipole-moments/tests/contract/test_molecule_schema.py`
+- [X] T011 [P] [US1] Contract test for feature_set schema in `projects/001-predicting-molecular-dipole-moments/tests/contract/test_feature_set_schema.py`
+- [X] T012 [P] [US1] Integration test for QM9 download pipeline with memory profiling (< 8GB constraint) in `projects/001-predicting-molecular-dipole-moments/tests/integration/test_qm9_download.py`
+- [X] T013 [P] [US1] Unit test for 3D coordinate extraction in `projects/001-predicting-molecular-dipole-moments/tests/unit/test_extract_3d_coords.py`
+- [X] T014 [P] [US1] Unit test for 2D descriptor generation in `projects/001-predicting-molecular-dipole-moments/tests/unit/test_extract_2d_descriptors.py`
 
 ### Implementation for User Story 1
 
-- [ ] T015 [US1] Implement QM9 download with integrity verification in `projects/001-predicting-molecular-dipole-moments/code/data/download_qm9.py` (FR-001, DOI 10.1038/sdata.2014.22 via HuggingFace datasets.load_dataset())
-- [ ] T016 [US1] Create 10k random subset with reproducibility seed in `projects/001-predicting-molecular-dipole-moments/code/data/create_subset.py` (MUST precede T017/T018 per spec computational efficiency requirement FR-010)
-- [ ] T017 [US1] Implement 3D coordinate, atom type, and bond connectivity extraction in `projects/001-predicting-molecular-dipole-moments/code/data/preprocess_3d.py` (FR-002, depends on T016)
-- [ ] T018 [US1] Implement 2D Morgan fingerprints and Coulomb matrix generation in `projects/001-predicting-molecular-dipole-moments/code/data/extract_2d_descriptors.py` (FR-003, depends on T016)
-- [ ] T019 [US1] Add validation for missing 3D coordinates handling in `projects/001-predicting-molecular-dipole-moments/code/data/handle_missing_coords.py` (edge case acceptance criteria)
-- [ ] T020 [US1] Generate output files: data/processed/molecules_10k.parquet, features_3d.parquet, features_2d.parquet
-- [ ] T021 [US1] Handle QM9 DOI link inaccessible edge case with retry/fallback in `projects/001-predicting-molecular-dipole-moments/code/data/download_qm9.py` (Edge Case: DOI inaccessible)
+- [X] T015 [US1] Implement QM9 download with integrity verification in `projects/001-predicting-molecular-dipole-moments/code/data/download_qm9.py` (FR-001, DOI 10.1038/sdata.2014.22 via HuggingFace datasets.load_dataset())
+- [X] T016 [US1] Create 10k random subset with reproducibility seed in `projects/001-predicting-molecular-dipole-moments/code/data/create_subset.py` (MUST precede T017/T018 per spec computational efficiency requirement FR-010)
+- [X] T017 [US1] Implement 3D coordinate, atom type, and bond connectivity extraction in `projects/001-predicting-molecular-dipole-moments/code/data/preprocess_3d.py` (FR-002, depends on T016)
+- [X] T018 [US1] Implement 2D Morgan fingerprints and Coulomb matrix generation in `projects/001-predicting-molecular-dipole-moments/code/data/extract_2d_descriptors.py` (FR-003, depends on T016)
+- [X] T019 [US1] Add validation for missing 3D coordinates handling in `projects/001-predicting-molecular-dipole-moments/code/data/handle_missing_coords.py` (edge case acceptance criteria)
+- [X] T020 [US1] Generate output files: data/processed/molecules_10k.parquet, features_3d.parquet, features_2d.parquet
+- [X] T021 [US1] Handle QM9 DOI link inaccessible edge case with retry/fallback in `projects/001-predicting-molecular-dipole-moments/code/data/download_qm9.py` (Edge Case: DOI inaccessible)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -89,22 +89,22 @@ description: "Task list template for feature implementation"
 
 ### Tests for User Story 2
 
-- [ ] T022 [P] [US2] Contract test for model_output schema with memory profiling (< 8GB constraint) in `projects/001-predicting-molecular-dipole-moments/tests/contract/test_model_output_schema.py`
-- [ ] T023 [P] [US2] Integration test for GNN training pipeline in `projects/001-predicting-molecular-dipole-moments/tests/integration/test_gnn_training.py`
-- [ ] T024 [P] [US2] Integration test for Random Forest training pipeline in `projects/001-predicting-molecular-dipole-moments/tests/integration/test_rf_training.py`
-- [ ] T025 [P] [US2] Unit test for MAE/RMSE metric computation in `projects/001-predicting-molecular-dipole-moments/tests/unit/test_metrics.py`
+- [X] T022 [P] [US2] Contract test for model_output schema with memory profiling (< 8GB constraint) in `projects/001-predicting-molecular-dipole-moments/tests/contract/test_model_output_schema.py`
+- [X] T023 [P] [US2] Integration test for GNN training pipeline in `projects/001-predicting-molecular-dipole-moments/tests/integration/test_gnn_training.py`
+- [X] T024 [P] [US2] Integration test for Random Forest training pipeline in `projects/001-predicting-molecular-dipole-moments/tests/integration/test_rf_training.py`
+- [X] T025 [P] [US2] Unit test for MAE/RMSE metric computation in `projects/001-predicting-molecular-dipole-moments/tests/unit/test_metrics.py`
 
 ### Implementation for User Story 2
 
-- [ ] T026 [P] [US2] Implement SchNet-style GNN architecture in `projects/001-predicting-molecular-dipole-moments/code/models/schnet_gnn.py` (FR-004, CPU-only mode)
-- [ ] T027 [P] [US2] Implement Random Forest baseline in `projects/001-predicting-molecular-dipole-moments/code/models/random_forest_baseline.py` (FR-005)
-- [ ] T028 [US2] Implement GNN training with 5 random seeds, 50 epochs, early stopping (patience=10) in `projects/001-predicting-molecular-dipole-moments/code/training/train_gnn.py` (FR-005)
-- [ ] T029 [US2] Implement Random Forest training with 5 random seeds in `projects/001-predicting-molecular-dipole-moments/code/training/train_rf.py` (FR-005)
-- [ ] T030 [US2] Implement identical train/test split generation across seeds in `projects/001-predicting-molecular-dipole-moments/code/training/split_data.py`
-- [ ] T031 [US2] Implement MAE and RMSE metric computation in `projects/001-predicting-molecular-dipole-moments/code/training/evaluate.py` (FR-006)
-- [ ] T032 [US2] {{claim:c_1013b8b5}} (2305.18454, https://arxiv.org/abs/2305.18454) in `projects/001-predicting-molecular-dipole-moments/code/analysis/validate_dft.py` (FR-011, during evaluation phase)
-- [ ] T033 [US2] Save model checkpoints to data/checkpoints/model_seed_{N}.pt and rf_seed_{N}.pkl
-- [ ] T034 [US2] Generate results/metrics.csv with performance across all 5 seeds (SC-005, FR-006)
+- [X] T026 [P] [US2] Implement SchNet-style GNN architecture in `projects/001-predicting-molecular-dipole-moments/code/models/schnet_gnn.py` (FR-004, CPU-only mode)
+- [X] T027 [P] [US2] Implement Random Forest baseline in `projects/001-predicting-molecular-dipole-moments/code/models/random_forest_baseline.py` (FR-005)
+- [X] T028 [US2] Implement GNN training with 5 random seeds, 50 epochs, early stopping (patience=10) in `projects/001-predicting-molecular-dipole-moments/code/training/train_gnn.py` (FR-005)
+- [X] T029 [US2] Implement Random Forest training with 5 random seeds in `projects/001-predicting-molecular-dipole-moments/code/training/train_rf.py` (FR-005)
+- [X] T030 [US2] Implement identical train/test split generation across seeds in `projects/001-predicting-molecular-dipole-moments/code/training/split_data.py`
+- [X] T031 [US2] Implement MAE and RMSE metric computation in `projects/001-predicting-molecular-dipole-moments/code/training/evaluate.py` (FR-006)
+- [X] T032 [US2] {{claim:c_1013b8b5}} (2305.18454, https://arxiv.org/abs/2305.18454 [UNRESOLVED-CLAIM: c_7f5b2110 — status=verified]) in `projects/001-predicting-molecular-dipole-moments/code/analysis/validate_dft.py` (FR-011, during evaluation phase)
+- [X] T033 [US2] Save model checkpoints to data/checkpoints/model_seed_{N}.pt and rf_seed_{N}.pkl
+- [X] T034 [US2] Generate results/metrics.csv with performance across all 5 seeds (SC-005, FR-006)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -118,21 +118,21 @@ description: "Task list template for feature implementation"
 
 ### Tests for User Story 3
 
-- [ ] T035 [P] [US3] Integration test for permutation importance pipeline with memory profiling (< 8GB constraint) in `projects/001-predicting-molecular-dipole-moments/tests/integration/test_permutation_importance.py`
-- [ ] T036 [P] [US3] Integration test for saliency mapping pipeline in `projects/001-predicting-molecular-dipole-moments/tests/integration/test_saliency_mapping.py`
-- [ ] T037 [P] [US3] Unit test for paired t-test computation in `projects/001-predicting-molecular-dipole-moments/tests/unit/test_statistical_tests.py`
+- [X] T035 [P] [US3] Integration test for permutation importance pipeline with memory profiling (< 8GB constraint) in `projects/001-predicting-molecular-dipole-moments/tests/integration/test_permutation_importance.py`
+- [X] T036 [P] [US3] Integration test for saliency mapping pipeline in `projects/001-predicting-molecular-dipole-moments/tests/integration/test_saliency_mapping.py`
+- [X] T037 [P] [US3] Unit test for paired t-test computation in `projects/001-predicting-molecular-dipole-moments/tests/unit/test_statistical_tests.py`
 
 ### Implementation for User Story 3
 
-- [ ] T038 [P] [US3] Implement permutation importance for Random Forest in `projects/001-predicting-molecular-dipole-moments/code/attribution/permutation_importance.py` (FR-007)
-- [ ] T039 [P] [US3] Implement saliency mapping for GNN node embeddings in `projects/001-predicting-molecular-dipole-moments/code/attribution/saliency_mapping.py` (FR-007)
-- [ ] T040 [US3] Rank structural contributions (electronegative atom placement, local bond angles) in `projects/001-predicting-molecular-dipole-moments/code/attribution/rank_contributions.py` (FR-007, SC-002)
-- [ ] T041 [US3] Implement paired t-tests (α=0.05) comparing RMSE distributions in `projects/001-predicting-molecular-dipole-moments/code/analysis/statistical_tests.py` (FR-008, SC-004)
-- [ ] T042 [US3] Generate results/attributions.json with feature importance rankings
-- [ ] T043 [US3] Generate results/significance.csv with t-test p-values across 5 seeds
-- [ ] T044 [US3] Compute confidence intervals (95%) for MAE and RMSE metrics in `projects/001-predicting-molecular-dipole-moments/code/analysis/confidence_intervals.py` (FR-012, SC-001)
-- [ ] T045 [US3] Visualize feature importance maps on representative molecules in `projects/001-predicting-molecular-dipole-moments/code/analysis/visualize_features.py` (FR-009, responsible for feature attribution visualizations only)
-- [ ] T046 [US3] Generate results/figures/*.png for model performance charts and general result visualizations (responsible for non-feature-attribution visualizations)
+- [X] T038 [P] [US3] Implement permutation importance for Random Forest in `projects/001-predicting-molecular-dipole-moments/code/attribution/permutation_importance.py` (FR-007)
+- [X] T039 [P] [US3] Implement saliency mapping for GNN node embeddings in `projects/001-predicting-molecular-dipole-moments/code/attribution/saliency_mapping.py` (FR-007)
+- [X] T040 [US3] Rank structural contributions (electronegative atom placement, local bond angles) in `projects/001-predicting-molecular-dipole-moments/code/attribution/rank_contributions.py` (FR-007, SC-002)
+- [X] T041 [US3] Implement paired t-tests (α=0.05) comparing RMSE distributions in `projects/001-predicting-molecular-dipole-moments/code/analysis/statistical_tests.py` (FR-008, SC-004)
+- [X] T042 [US3] Generate results/attributions.json with feature importance rankings
+- [X] T043 [US3] Generate results/significance.csv with t-test p-values across 5 seeds
+- [X] T044 [US3] Compute confidence intervals (95%) for MAE and RMSE metrics in `projects/001-predicting-molecular-dipole-moments/code/analysis/confidence_intervals.py` (FR-012, SC-001)
+- [X] T045 [US3] Visualize feature importance maps on representative molecules in `projects/001-predicting-molecular-dipole-moments/code/analysis/visualize_features.py` (FR-009, responsible for feature attribution visualizations only)
+- [X] T046 [US3] Generate results/figures/*.png for model performance charts and general result visualizations (responsible for non-feature-attribution visualizations)
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -142,11 +142,11 @@ description: "Task list template for feature implementation"
 
 **Purpose**: Align tasks with spec requirements and ensure all FRs are implemented
 
-- [ ] T049 [US1+US2+US3] Implement global 6h CPU time limit enforcement wrapper in `projects/001-predicting-molecular-dipole-moments/code/utils/pipeline_time_limit.py` (FR-010, SC-003, applies to entire pipeline not just training)
-- [ ] T050 [US1+US2+US3] Enforce 2 CPU cores constraint across entire pipeline in `projects/001-predicting-molecular-dipole-moments/code/utils/cpu_constraint.py` (FR-010, SC-003)
-- [ ] T051 [US1+US2+US3] Validate RMSE variance < 10% threshold across 5 seeds in `projects/001-predicting-molecular-dipole-moments/code/analysis/validate_variance.py` (SC-005)
-- [ ] T052 [US1+US2+US3] Enforce memory constraint (< 8GB) across entire pipeline in `projects/001-predicting-molecular-dipole-moments/code/utils/memory_constraint.py` (FR-013)
-- [ ] T053 [US1+US2+US3] Validate all cited literature URLs are accessible in `projects/001-predicting-molecular-dipole-moments/code/utils/validate_urls.py` (spec.md Assumptions)
+- [X] T049 [US1+US2+US3] Implement global 6h CPU time limit enforcement wrapper in `projects/001-predicting-molecular-dipole-moments/code/utils/pipeline_time_limit.py` (FR-010, SC-003, applies to entire pipeline not just training)
+- [X] T050 [US1+US2+US3] Enforce 2 CPU cores constraint across entire pipeline in `projects/001-predicting-molecular-dipole-moments/code/utils/cpu_constraint.py` (FR-010, SC-003)
+- [X] T051 [US1+US2+US3] Validate RMSE variance < 10% threshold across 5 seeds in `projects/001-predicting-molecular-dipole-moments/code/analysis/validate_variance.py` (SC-005)
+- [X] T052 [US1+US2+US3] Enforce memory constraint (< 8GB) across entire pipeline in `projects/001-predicting-molecular-dipole-moments/code/utils/memory_constraint.py` (FR-013)
+- [X] T053 [US1+US2+US3] Validate all cited literature URLs are accessible in `projects/001-predicting-molecular-dipole-moments/code/utils/validate_urls.py` (spec.md Assumptions)
 
 ---
 
@@ -154,7 +154,7 @@ description: "Task list template for feature implementation"
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T054 [P] Documentation updates in specs/001-predicting-molecular-dipole-moments/ (README.md, quickstart.md, research.md) per plan.md structure
+- [X] T054 [P] Documentation updates in specs/001-predicting-molecular-dipole-moments/ (README.md, quickstart.md, research.md) per plan.md structure
 - [ ] T055 [P] Code cleanup and refactoring across all modules (FR-001 through FR-013 traceability)
 - [ ] T056 [P] Additional unit tests in tests/unit/ for edge cases
 - [ ] T057 [P] Run quickstart.md validation to verify end-to-end pipeline in `specs/001-predicting-molecular-dipole-moments/quickstart.md` per plan.md structure

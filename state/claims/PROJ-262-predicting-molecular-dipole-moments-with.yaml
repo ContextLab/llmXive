@@ -54,3 +54,1578 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-06-24T15:51:00Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: QM9 dataset DOI 10.1038/sdata.2014.22
+  claim_id: c_56fd39c1
+  context: 'Goal: Download QM9 dataset, filter to 10k random subset, extract 3D coordinates
+    and 2D descriptors for baseline comparison'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: citation
+  raw_text: Implement QM9 download with integrity verification (DOI 10.1038/sdata.2014.22
+    via HuggingFace datasets.load_dataset())
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-24T20:50:12Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: RMSE variance less than 10% across 5 seeds
+  claim_id: c_78b6ae07
+  context: Validate RMSE variance < 10% threshold across 5 seeds in projects/001-predicting-molecular-dipole-moments/code/analysis/validate_variance.py
+    (SC-005)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/RMSE_variance_less_than_10%25_across_5_seeds
+  kind: magnitude
+  raw_text: Validate RMSE variance < 10% threshold across 5 seeds
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-24T20:50:25Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: 2305.18454 reported in arXiv:2305.18454
+  claim_id: c_7b2f9a47
+  context: Task T032 in the US2 implementation references a claim with the value 2305.18454
+    and cites the arXiv paper https://arxiv.org/abs/2305.18454.
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: citation
+  raw_text: '{{claim:c_1013b8b5}} (2305.18454, https://arxiv.org/abs/2305.18454)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-24T20:50:46Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: feature matrices have no missing values
+  claim_id: c_3815e4cc
+  context: 'Independent Test: Verify data files exist, subset size equals 10k, and
+    both 3D and 2D feature matrices are generated with no missing values'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Feature_matrices_have_no_missing_values
+  kind: entity_fact
+  raw_text: both 3D and 2D feature matrices are generated with no missing values
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-24T20:52:20Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: RMSE variance less than 10% across 5 seeds
+  claim_id: c_e2346088
+  context: Validate RMSE variance < 10% threshold across 5 seeds in `projects/001-predicting-molecular-dipole-moments/code/analysis/validate_variance.py`
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/RMSE_variance_less_than_10%25_across_5_seeds
+  kind: magnitude
+  raw_text: RMSE variance < 10% threshold across 5 seeds
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-24T20:52:36Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: 2305.18454 reported in arXiv:2305.18454
+  claim_id: c_51b7cd90
+  context: Task T032 references a claim with value 2305.18454 linked to the arXiv
+    paper 2305.18454 in the analysis module.
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+    status: not_found
+  kind: citation
+  raw_text: '{{claim:c_1013b8b5}} (2305.18454, https://arxiv.org/abs/2305.18454)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-24T20:52:54Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: QM9 dataset DOI 10.1038/sdata.2014.22
+  claim_id: c_6ff9659d
+  context: Task T015 specifies implementing QM9 download with integrity verification,
+    citing DOI 10.1038/sdata.2014.22.
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+    status: not_found
+  kind: citation
+  raw_text: Implement QM9 download with integrity verification (DOI 10.1038/sdata.2014.22
+    via HuggingFace datasets.load_dataset())
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-24T20:53:16Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: filter QM9 dataset to 10,000 random subset
+  claim_id: c_056feef7
+  context: Goal of User Story 1 is to download the QM9 dataset, filter to a 10k random
+    subset, and extract 3D coordinates and 2D descriptors for baseline comparison.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Download QM9 dataset, filter to 10k random subset, extract 3D coordinates
+    and 2D descriptors for baseline comparison
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-24T20:54:51Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: subset size equals 10k
+  claim_id: c_44d591c2
+  context: 'Goal: Download QM9 dataset, filter to 10k random subset, extract 3D coordinates
+    and 2D descriptors for baseline comparison'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: filter to 10k random subset
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-24T20:55:38Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: memory usage less than 8GB
+  claim_id: c_d62d44d9
+  context: Integration test for QM9 download pipeline with memory profiling (< 8GB
+    constraint) in `projects/001-predicting-molecular-dipole-moments/tests/integration/test_qm9_download.py`
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_less_than_8GB
+  kind: magnitude
+  raw_text: Integration test for QM9 download pipeline with memory profiling (< 8GB
+    constraint)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-24T20:56:00Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: GNN training uses 5 random seeds
+  claim_id: c_2222d716
+  context: Implement GNN training with 5 random seeds, 50 epochs, early stopping (patience=10)
+    in `projects/001-predicting-molecular-dipole-moments/code/training/train_gnn.py`
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement GNN training with 5 random seeds
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-24T20:56:26Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: GNN training runs for 50 epochs
+  claim_id: c_29f4a131
+  context: Implement GNN training with 5 random seeds, 50 epochs, early stopping (patience=10)
+    in `projects/001-predicting-molecular-dipole-moments/code/training/train_gnn.py`
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement GNN training with 50 epochs
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-24T20:56:52Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: Random Forest training uses 5 random seeds
+  claim_id: c_e79e8c2b
+  context: Implement Random Forest training with 5 random seeds in `projects/001-predicting-molecular-dipole-moments/code/training/train_rf.py`
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement Random Forest training with 5 random seeds
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-24T20:57:25Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: global CPU time limit of 6 hours
+  claim_id: c_9a0bfe15
+  context: Implement global 6h CPU time limit enforcement wrapper in `projects/001-predicting-molecular-dipole-moments/code/utils/pipeline_time_limit.py`
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: global 6h CPU time limit enforcement wrapper
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-24T20:57:48Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: CPU cores limited to 2
+  claim_id: c_30030739
+  context: Enforce 2 CPU cores constraint across entire pipeline in `projects/001-predicting-molecular-dipole-moments/code/utils/cpu_constraint.py`
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Enforce 2 CPU cores constraint across entire pipeline
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-24T20:59:50Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: RMSE variance less than 10 percent across 5 seeds
+  claim_id: c_0513e36d
+  context: Validate RMSE variance < 10% threshold across 5 seeds in `projects/001-predicting-molecular-dipole-moments/code/analysis/validate_variance.py`
+  evidence:
+    candidates:
+    - - Log in RMSE variance less than
+      - 10.0
+    - - RMSE variance less than 10 percent across
+      - 5.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/RMSE_variance_less_than_10_percent_across_5_seeds
+  kind: magnitude
+  raw_text: Validate RMSE variance < 10% threshold across 5 seeds
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-06-24T20:59:50Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: paired t-test significance level alpha equals 0.05
+  claim_id: c_89afd578
+  context: "Implement paired t-tests (\u03B1=0.05) comparing RMSE distributions in\
+    \ `projects/001-predicting-molecular-dipole-moments/code/analysis/statistical_tests.py`"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement paired t-tests (\u03B1=0.05) comparing RMSE distributions"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-24T21:00:00Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: confidence intervals at 95 percent for MAE and RMSE
+  claim_id: c_c8477af7
+  context: Compute confidence intervals (95%) for MAE and RMSE metrics in `projects/001-predicting-molecular-dipole-moments/code/analysis/confidence_intervals.py`
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Compute confidence intervals (95%) for MAE and RMSE metrics
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-24T21:00:00Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: arXiv paper 2305.18454
+  claim_id: c_1684084a
+  context: T032 {{claim:c_1013b8b5}} (2305.18454, https://arxiv.org/abs/2305.18454)
+    in `projects/001-predicting-molecular-dipole-moments/code/analysis/validate_dft.py`
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Reference to arXiv paper 2305.18454
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-24T21:00:11Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: QM9 dataset DOI 10.1038/sdata.2014.22
+  claim_id: c_6996ad4f
+  context: T015 [US1] Implement QM9 download with integrity verification in `projects/001-predicting-molecular-dipole-moments/code/data/download_qm9.py`
+    (FR-001, DOI 10.1038/sdata.2014.22 via HuggingFace datasets.load_dataset())
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+    status: not_found
+  kind: citation
+  raw_text: Implement QM9 download with integrity verification (DOI 10.1038/sdata.2014.22
+    via HuggingFace datasets.load_dataset())
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-24T21:01:02Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: '''arXiv:2305.18454'''
+  claim_id: c_5c38ffad
+  context: T032 {{claim:c_1013b8b5}} (2305.18454, https://arxiv.org/abs/2305.18454)
+    in `projects/001-predicting-molecular-dipole-moments/code/analysis/validate_dft.py`
+    (FR-011, during evaluation phase)
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: Reference to arXiv paper 2305.18454
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-24T21:01:04Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: QM9 dataset accessible via DOI 10.1038/sdata.2014.22
+  claim_id: c_f96b778c
+  context: Implement QM9 download with integrity verification in `projects/001-predicting-molecular-dipole-moments/code/data/download_qm9.py`
+    (FR-001, DOI 10.1038/sdata.2014.22 via HuggingFace datasets.load_dataset())
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: citation
+  raw_text: QM9 download with integrity verification (DOI 10.1038/sdata.2014.22 via
+    HuggingFace datasets.load_dataset())
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-24T21:03:00Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: arXiv 2305.18454
+  claim_id: c_d2e18448
+  context: T032 [US2] {{claim:c_1013b8b5}} (2305.18454, https://arxiv.org/abs/2305.18454)
+    in projects/001-predicting-molecular-dipole-moments/code/analysis/validate_dft.py
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: (2305.18454, https://arxiv.org/abs/2305.18454)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-24T21:03:27Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 2
+  canonical: QM9 dataset DOI 10.1038/sdata.2014.22
+  claim_id: c_dc44bb51
+  context: Implement QM9 download with integrity verification in projects/001-predicting-molecular-dipole-moments/code/data/download_qm9.py
+    (FR-001, DOI 10.1038/sdata.2014.22 via HuggingFace datasets.load_dataset())
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+    status: not_found
+  kind: citation
+  raw_text: DOI 10.1038/sdata.2014.22 via HuggingFace datasets.load_dataset()
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-24T21:03:53Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: 2305.18454 reported in arXiv 2305.18454
+  claim_id: c_1594ee70
+  context: T032 [US2] {{claim:c_1013b8b5}} (2305.18454, https://arxiv.org/abs/2305.18454)
+    in projects/001-predicting-molecular-dipole-moments/code/analysis/validate_dft.py
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: 2305.18454, https://arxiv.org/abs/2305.18454
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-24T21:03:55Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: subset size 10000
+  claim_id: c_315a3388
+  context: 'Goal: Download QM9 dataset, filter to 10k random subset, extract 3D coordinates
+    and 2D descriptors for baseline comparison'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: filter to 10k random subset
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-24T21:03:55Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: 10k random subset of QM9 dataset
+  claim_id: c_84543c32
+  context: 'Goal: Download QM9 dataset, filter to 10k random subset, extract 3D coordinates
+    and 2D descriptors for baseline comparison.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: filter to 10k random subset
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-24T21:04:33Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: QM9 dataset DOI 10.1038/sdata.2014.22
+  claim_id: c_018f4fa0
+  context: T015 implements QM9 download with integrity verification in code/data/download_qm9.py
+    (FR-001, DOI 10.1038/sdata.2014.22 via HuggingFace datasets.load_dataset()).
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+    status: not_found
+  kind: citation
+  raw_text: Implement QM9 download with integrity verification ... DOI 10.1038/sdata.2014.22
+    via HuggingFace datasets.load_dataset()
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-24T21:04:33Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: arXiv preprint 2305.18454
+  claim_id: c_d364fe4e
+  context: T032 includes a claim referencing arXiv preprint https://arxiv.org/abs/2305.18454.
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: '{{claim:c_1013b8b5}} (2305.18454, https://arxiv.org/abs/2305.18454)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-24T21:04:35Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: 10k random subset of QM9 dataset
+  claim_id: c_e1ded7b2
+  context: Goal of User Story 1 is to download the QM9 dataset and filter to a 10k
+    random subset for baseline feature extraction.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: filter to 10k random subset
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-24T21:05:00Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: QM9 dataset DOI 10.1038/sdata.2014.22
+  claim_id: c_65cdccaa
+  context: Task T015 implements QM9 download with integrity verification and cites
+    the QM9 dataset DOI 10.1038/sdata.2014.22.
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+    status: not_found
+  kind: citation
+  raw_text: Implement QM9 download with integrity verification using the dataset referenced
+    by DOI 10.1038/sdata.2014.22 via HuggingFace datasets.load_dataset()
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-24T21:05:37Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: QM9 dataset is available via DOI 10.1038/sdata.2014.22
+  claim_id: c_bb73f842
+  context: Implement QM9 download with integrity verification in `projects/001-predicting-molecular-dipole-moments/code/data/download_qm9.py`
+    (FR-001, DOI 10.1038/sdata.2014.22 via HuggingFace datasets.load_dataset())
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: citation
+  raw_text: Implement QM9 download with integrity verification ... DOI 10.1038/sdata.2014.22
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-24T21:06:11Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: GNN training with five random seeds
+  claim_id: c_1e376d1c
+  context: Implement GNN training with 5 random seeds, 50 epochs, early stopping (patience=10)
+    in `projects/001-predicting-molecular-dipole-moments/code/training/train_gnn.py`
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: GNN training uses 5 random seeds
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-24T21:06:39Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: GNN training with fifty epochs
+  claim_id: c_fe573d66
+  context: Implement GNN training with 5 random seeds, 50 epochs, early stopping (patience=10)
+    in `projects/001-predicting-molecular-dipole-moments/code/training/train_gnn.py`
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: GNN training runs for 50 epochs
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-24T21:07:06Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: Random Forest training with five random seeds
+  claim_id: c_4b4e9023
+  context: Implement Random Forest training with 5 random seeds in `projects/001-predicting-molecular-dipole-moments/code/training/train_rf.py`
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Random Forest training uses 5 random seeds
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-24T21:07:35Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: memory usage less than 8GB
+  claim_id: c_82650b11
+  context: Integration test for QM9 download pipeline with memory profiling (< 8GB
+    constraint) in projects/001-predicting-molecular-dipole-moments/tests/integration/test_qm9_download.py
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_less_than_8GB
+  kind: magnitude
+  raw_text: integration test for QM9 download pipeline with memory profiling (< 8GB
+    constraint)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-24T21:08:08Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: Random Forest training uses 5 random seeds
+  claim_id: c_8ebc60a0
+  context: Implement Random Forest training with 5 random seeds in projects/001-predicting-molecular-dipole-moments/code/training/train_rf.py
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Random Forest training with 5 random seeds
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-24T21:08:38Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: RMSE variance less than 10% across 5 seeds
+  claim_id: c_3ae8a2c0
+  context: Validate RMSE variance < 10% threshold across 5 seeds in projects/001-predicting-molecular-dipole-moments/code/analysis/validate_variance.py
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/RMSE_variance_less_than_10%25_across_5_seeds
+  kind: magnitude
+  raw_text: Validate RMSE variance < 10% threshold across 5 seeds
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-24T21:08:40Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: CPU time limit of 6 hours
+  claim_id: c_ec9cdc19
+  context: Implement global 6h CPU time limit enforcement wrapper in projects/001-predicting-molecular-dipole-moments/code/utils/pipeline_time_limit.py
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: global 6h CPU time limit enforcement wrapper
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-24T21:08:40Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: CPU cores limited to 2
+  claim_id: c_05e0cd8d
+  context: Enforce 2 CPU cores constraint across entire pipeline in projects/001-predicting-molecular-dipole-moments/code/utils/cpu_constraint.py
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: enforce 2 CPU cores constraint across entire pipeline
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-24T21:08:40Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: paired t-tests with significance level 0.05
+  claim_id: c_57d96acd
+  context: "Implement paired t-tests (\u03B1=0.05) comparing RMSE distributions in\
+    \ projects/001-predicting-molecular-dipole-moments/code/analysis/statistical_tests.py"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "paired t-tests (\u03B1=0.05) comparing RMSE distributions"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-24T21:09:04Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: confidence intervals at 95%
+  claim_id: c_f5120358
+  context: Compute confidence intervals (95%) for MAE and RMSE metrics in projects/001-predicting-molecular-dipole-moments/code/analysis/confidence_intervals.py
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: compute confidence intervals (95%) for MAE and RMSE metrics
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-24T21:09:05Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: all cited literature URLs are accessible
+  claim_id: c_65474703
+  context: Validate all cited literature URLs are accessible in projects/001-predicting-molecular-dipole-moments/code/utils/validate_urls.py
+  evidence:
+    entailment_evidence: All cited literature URLs are accessible - Wikipedia
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/All_cited_literature_URLs_are_accessible
+  kind: entity_fact
+  raw_text: validate all cited literature URLs are accessible
+  resolved_value: all cited literature URLs are accessible
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-24T21:09:07Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: QM9 dataset DOI is 10.1038/sdata.2014.22
+  claim_id: c_c8575cc5
+  context: Task T015 implements QM9 download with integrity verification referencing
+    DOI 10.1038/sdata.2014.22.
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: citation
+  raw_text: Implement QM9 download with integrity verification (DOI 10.1038/sdata.2014.22
+    via HuggingFace datasets.load_dataset())
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-24T21:09:26Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 0
+  canonical: arXiv:2305.18454
+  claim_id: c_ef11f60a
+  context: Task T032 includes a claim placeholder linking to https://arxiv.org/abs/2305.18454.
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: Reference to arXiv paper 2305.18454
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-24T21:09:45Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: QM9 dataset accessed via HuggingFace datasets.load_dataset with DOI 10.1038/sdata.2014.22
+  claim_id: c_08249eb0
+  context: Task T015 implements QM9 download with integrity verification in code/data/download_qm9.py
+    and cites DOI 10.1038/sdata.2014.22.
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: citation
+  raw_text: Implement QM9 download with integrity verification (DOI 10.1038/sdata.2014.22
+    via HuggingFace datasets.load_dataset())
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-24T21:09:48Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: subset size 10000 molecules
+  claim_id: c_5bd431bc
+  context: 'Independent Test: Verify data files exist, subset size equals 10k, and
+    both 3D and 2D feature matrices are generated with no missing values'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: subset size equals 10k
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-24T21:10:48Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: QM9 dataset DOI 10.1038/sdata.2014.22
+  claim_id: c_29eeede6
+  context: T015 [US1] Implement QM9 download with integrity verification in ... (FR-001,
+    DOI 10.1038/sdata.2014.22 via HuggingFace datasets.load_dataset())
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+    status: not_found
+  kind: citation
+  raw_text: QM9 download with integrity verification uses DOI 10.1038/sdata.2014.22
+    via HuggingFace datasets.load_dataset()
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-24T21:10:48Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: training uses 5 random seeds
+  claim_id: c_d61a2a50
+  context: T028 [US2] Implement GNN training with 5 random seeds, 50 epochs, early
+    stopping (patience=10) ...; T029 [US2] Implement Random Forest training with 5
+    random seeds
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: GNN and Random Forest training are performed with 5 random seeds
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-24T21:11:14Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 6
+  canonical: 10k random subset
+  claim_id: c_d8b303a0
+  context: 'Goal: Download QM9 dataset, filter to 10k random subset, extract 3D coordinates
+    and 2D descriptors for baseline comparison'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: filter to 10k random subset
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-24T21:11:35Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: 10k random subset of QM9 dataset
+  claim_id: c_dca51983
+  context: 'Goal of User Story 1: Download QM9 dataset, filter to 10k random subset,
+    extract 3D coordinates and 2D descriptors for baseline comparison.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: filter to 10k random subset
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-24T21:12:03Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: value 2305.18454 reported in arXiv:2305.18454
+  claim_id: c_0ae77140
+  context: Task T032 includes a claim with value 2305.18454 and links to https://arxiv.org/abs/2305.18454.
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: citation
+  raw_text: 2305.18454 (https://arxiv.org/abs/2305.18454)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-24T21:12:04Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: QM9 dataset DOI 10.1038/sdata.2014.22
+  claim_id: c_32c1f241
+  context: Implementation of QM9 download cites DOI 10.1038/sdata.2014.22 via HuggingFace
+    datasets.load_dataset().
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+    status: not_found
+  kind: citation
+  raw_text: QM9 dataset DOI 10.1038/sdata.2014.22
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-24T21:12:04Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: QM9 dataset DOI 10.1038/sdata.2014.22
+  claim_id: c_30e5bf2d
+  context: Task T015 implements QM9 download with integrity verification in code/data/download_qm9.py,
+    referencing DOI 10.1038/sdata.2014.22.
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+    status: not_found
+  kind: citation
+  raw_text: Implement QM9 download with integrity verification (DOI 10.1038/sdata.2014.22
+    via HuggingFace datasets.load_dataset())
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-24T21:12:28Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 0
+  canonical: 2305.18454 from arXiv 2305.18454
+  claim_id: c_6b92087e
+  context: Task T032 references a claim with value 2305.18454 linked to the arXiv
+    paper https://arxiv.org/abs/2305.18454.
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: '{{claim:c_1013b8b5}} (2305.18454, https://arxiv.org/abs/2305.18454)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-24T21:12:46Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: QM9 dataset accessible via DOI 10.1038/sdata.2014.22
+  claim_id: c_02034cfb
+  context: Implemented QM9 download with integrity verification in code/data/download_qm9.py
+    (FR-001, DOI 10.1038/sdata.2014.22 via HuggingFace datasets.load_dataset())
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+    status: not_found
+  kind: citation
+  raw_text: QM9 dataset, DOI 10.1038/sdata.2014.22 via HuggingFace datasets.load_dataset()
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-24T21:13:14Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: value 2305.18454 reported in arXiv:2305.18454
+  claim_id: c_81c261e8
+  context: T032 {{claim:c_1013b8b5}} (2305.18454, https://arxiv.org/abs/2305.18454)
+    in projects/001-predicting-molecular-dipole-moments/code/analysis/validate_dft.py
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+    status: not_found
+  kind: citation
+  raw_text: 2305.18454, https://arxiv.org/abs/2305.18454
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-24T21:13:14Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 2
+  canonical: 10,000 random subset of QM9 dataset
+  claim_id: c_edcbd5bc
+  context: 'Goal: Download QM9 dataset, filter to 10k random subset, extract 3D coordinates
+    and 2D descriptors for baseline comparison'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: filter to 10k random subset
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-24T21:13:38Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: arXiv:2305.18454
+  claim_id: c_cb7097f5
+  context: T032 {{claim:c_1013b8b5}} (2305.18454, https://arxiv.org/abs/2305.18454)
+    in projects/001-predicting-molecular-dipole-moments/code/analysis/validate_dft.py
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: Paper with arXiv ID 2305.18454
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-24T21:13:41Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: subset size equals 10000
+  claim_id: c_bc3fed19
+  context: Phase 3 defines an independent test that checks the subset size equals
+    10k among other checks.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Independent Test: Verify data files exist, subset size equals 10k, and
+    both 3D and 2D feature matrices are generated with no missing values'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-24T21:14:29Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: 10k random subset created
+  claim_id: c_0e4fda51
+  context: After downloading the QM9 dataset, a 10k random subset is created with
+    a reproducibility seed before feature extraction.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Create 10k random subset with reproducibility seed in `projects/001-predicting-molecular-dipole-moments/code/data/create_subset.py`
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-24T21:15:37Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: QM9 dataset downloaded via DOI 10.1038/sdata.2014.22
+  claim_id: c_020ef634
+  context: Implementation T015 specifies downloading the QM9 dataset with integrity
+    verification using the cited DOI.
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: citation
+  raw_text: Download QM9 dataset, DOI 10.1038/sdata.2014.22 via HuggingFace datasets.load_dataset()
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-24T21:16:05Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: 10,000 random subset created
+  claim_id: c_7b873718
+  context: Task T016 creates a random subset of the QM9 data containing 10k molecules.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Create 10k random subset with reproducibility seed
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-24T21:16:29Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: QM9 dataset accessed via DOI 10.1038/sdata.2014.22
+  claim_id: c_7bbe15de
+  context: Implement QM9 download with integrity verification in `projects/001-predicting-molecular-dipole-moments/code/data/download_qm9.py`
+    (FR-001, DOI 10.1038/sdata.2014.22 via HuggingFace datasets.load_dataset())
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: citation
+  raw_text: QM9 dataset ... DOI 10.1038/sdata.2014.22 via HuggingFace datasets.load_dataset()
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-24T21:16:56Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: value 2305.18454 reported in arXiv:2305.18454
+  claim_id: c_3519c87b
+  context: T032 {{claim:c_1013b8b5}} (2305.18454, https://arxiv.org/abs/2305.18454)
+    in `projects/001-predicting-molecular-dipole-moments/code/analysis/validate_dft.py`
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+    status: not_found
+  kind: citation
+  raw_text: 2305.18454, https://arxiv.org/abs/2305.18454
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-24T21:16:57Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: RMSE variance less than 10% across five seeds
+  claim_id: c_eb129488
+  context: 'Task T051: Validate RMSE variance < 10% threshold across 5 seeds in code/analysis/validate_variance.py'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/RMSE_variance_less_than_10%25_across_five_seeds
+  kind: magnitude
+  raw_text: Validate RMSE variance < 10% threshold across 5 seeds
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-24T21:17:23Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: doi 10.1038/sdata.2014.22
+  claim_id: c_5e17dca8
+  context: Implement QM9 download with integrity verification in `projects/001-predicting-molecular-dipole-moments/code/data/download_qm9.py`
+    (FR-001, DOI 10.1038/sdata.2014.22 via HuggingFace datasets.load_dataset())
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: DOI 10.1038/sdata.2014.22
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-24T21:17:54Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: arxiv 2305.18454
+  claim_id: c_235e480f
+  context: T032 includes a reference to (2305.18454, https://arxiv.org/abs/2305.18454)
+    in `projects/001-predicting-molecular-dipole-moments/code/analysis/validate_dft.py`
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: citation
+  raw_text: arXiv:2305.18454
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-24T21:17:55Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 2
+  canonical: subset size equals 10000
+  claim_id: c_87b43014
+  context: 'Independent Test: Verify data files exist, subset size equals 10k, and
+    both 3D and 2D feature matrices are generated with no missing values'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: subset size equals 10k
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-24T21:18:14Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: QM9 dataset DOI 10.1038/sdata.2014.22
+  claim_id: c_dd4b2cb6
+  context: Implemented QM9 download with integrity verification in code/data/download_qm9.py
+    (FR-001, DOI 10.1038/sdata.2014.22 via HuggingFace datasets.load_dataset())
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+    status: not_found
+  kind: citation
+  raw_text: QM9 dataset DOI 10.1038/sdata.2014.22 via HuggingFace datasets.load_dataset()
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-24T21:18:50Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: subset size 10000 random molecules
+  claim_id: c_3b0ccd00
+  context: 'Independent Test: Verify data files exist, subset size equals 10k, and
+    both 3D and 2D feature matrices are generated with no missing values'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: subset size equals 10k
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-24T21:19:16Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: QM9 dataset DOI 10.1038/sdata.2014.22
+  claim_id: c_3f8d3765
+  context: Implement QM9 download with integrity verification in `projects/001-predicting-molecular-dipole-moments/code/data/download_qm9.py`
+    (FR-001, DOI 10.1038/sdata.2014.22 via HuggingFace datasets.load_dataset())
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+    status: not_found
+  kind: citation
+  raw_text: QM9 dataset DOI 10.1038/sdata.2014.22 via HuggingFace datasets.load_dataset()
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-24T21:19:16Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/README.md
+  attempts: 1
+  canonical: QM9 dataset contains approximately 133000 molecules
+  claim_id: c_37addd39
+  context: "data/raw/ # Downloaded QM9 dataset (\u2248133k molecules)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Downloaded QM9 dataset (\u2248133k molecules)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-24T21:20:17Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/README.md
+  attempts: 1
+  canonical: 10,000 random subset of the QM9 dataset
+  claim_id: c_9c685cb6
+  context: "processed/ # 10\u202Fk random subset, feature matrices, etc."
+  evidence:
+    fill:
+      channel: oeis
+      conflicts:
+      - channel: oeis
+        source_id: A024167
+        url: https://oeis.org/A024167
+        value: '2342880'
+      - channel: oeis
+        source_id: A048993
+        url: https://oeis.org/A048993
+        value: '10'
+      - channel: oeis
+        source_id: A061121
+        url: https://oeis.org/A061121
+        value: '584640'
+      - channel: oeis
+        source_id: A061122
+        url: https://oeis.org/A061122
+        value: '453600'
+      - channel: oeis
+        source_id: A061125
+        url: https://oeis.org/A061125
+        value: '403200'
+      quote: 10 15
+      source_id: A008299
+      url: https://oeis.org/A008299
+      value: '15'
+    filled: true
+  kind: numeric
+  raw_text: "10\u202Fk random subset"
+  resolved_value: '15'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-24T21:20:41Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/README.md
+  attempts: 1
+  canonical: models trained across five random seeds
+  claim_id: c_bb7e3d45
+  context: "Model training \u2013 Train the GNN and Random Forest models across five\
+    \ random seeds."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Models_trained_across_five_random_seeds
+  kind: entity_fact
+  raw_text: Train the GNN and Random Forest models across five random seeds
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-24T21:21:17Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/quickstart.md
+  attempts: 1
+  canonical: 10k random subset of QM9 dataset
+  claim_id: c_dff82a5b
+  context: "After downloading the full QM9 dataset, the script creates a reproducible\
+    \ 10k random subset before extracting 3\u2011D coordinates."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Create a reproducible 10k random subset
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-24T21:21:59Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/quickstart.md
+  attempts: 1
+  canonical: train SchNet-style GNN using 5 seeds
+  claim_id: c_5b1ce5a7
+  context: "The training step runs the SchNet\u2011style graph neural network with\
+    \ five different random seeds and early stopping."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Train the SchNet\u2011style GNN (5 seeds, early stopping)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-24T21:22:31Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/quickstart.md
+  attempts: 1
+  canonical: train Random Forest baseline using 5 seeds
+  claim_id: c_bdf45a06
+  context: The Random Forest baseline model is trained using five random seeds.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train the Random Forest baseline (5 seeds)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-24T21:23:14Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/quickstart.md
+  attempts: 1
+  canonical: memory usage less than 8 GB
+  claim_id: c_121d794c
+  context: The pipeline includes a check that total memory consumption stays below
+    eight gigabytes.
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P12561: 5482060'
+      source_id: Q135076778
+      url: https://www.wikidata.org/wiki/Q135076778
+      value: '5482060'
+    filled: true
+  kind: magnitude
+  raw_text: "Verify memory (<8\u202FGB)"
+  resolved_value: '5482060'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-24T21:23:37Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/quickstart.md
+  attempts: 1
+  canonical: CPU core usage no more than 2 cores
+  claim_id: c_8375b5e0
+  context: The pipeline includes a check that it runs on at most two CPU cores.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/CPU_core_usage_no_more_than_2_cores
+  kind: magnitude
+  raw_text: "Verify CPU cores (\u22642)"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-24T21:24:12Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/quickstart.md
+  attempts: 1
+  canonical: total runtime no more than 6 hours
+  claim_id: c_b1bffbe1
+  context: The pipeline includes a check that total execution time stays within six
+    hours.
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts:
+      - channel: wikipedia
+        source_id: Dhurandhar
+        url: https://en.wikipedia.org/wiki/Dhurandhar
+        value: 214 minutes
+      quote: 'P1733: 3573760'
+      source_id: Q135076778
+      url: https://www.wikidata.org/wiki/Q135076778
+      value: '3573760'
+    filled: true
+  kind: magnitude
+  raw_text: "Verify total runtime (\u22646\u202Fh)"
+  resolved_value: '3573760'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-24T21:24:32Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/quickstart.md
+  attempts: 1
+  canonical: expected output files data/processed/molecules_10k.parquet, features_3d.parquet,
+    features_2d.parquet
+  claim_id: c_01a83c75
+  context: After preprocessing steps, the guide states that these three parquet files
+    will be present in the processed data directory.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Expected_output_files_data/processed/molecules_10k.parquet,
+  kind: entity_fact
+  raw_text: 'The following files should exist: data/processed/molecules_10k.parquet,
+    data/processed/features_3d.parquet, data/processed/features_2d.parquet'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-24T21:24:53Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/research.md
+  attempts: 1
+  canonical: state-of-the-art performance on QM9 by SchNet
+  claim_id: c_4d07b747
+  context: "SchNet (Sch\xFCtt et al., 2018) introduced continuous-filter convolutional\
+    \ networks for quantum chemistry, achieving state-of-the-art performance on QM9."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "SchNet (Sch\xFCtt et al., 2018) introduced continuous-filter convolutional\
+    \ networks for quantum chemistry, achieving state-of-the-art performance on QM9."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-24T21:25:57Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/research.md
+  attempts: 1
+  canonical: learned edge features can capture geometric information in Message-Passing
+    Neural Networks
+  claim_id: c_585910b2
+  context: Message-Passing Neural Networks (Gilmer et al., 2017) demonstrated that
+    learned edge features can capture geometric information.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Message-Passing Neural Networks (Gilmer et al., 2017) demonstrated that
+    learned edge features can capture geometric information.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-24T21:26:35Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/research.md
+  attempts: 1
+  canonical: Random Forest baselines using 2-D descriptors remain strong competitors
+    for many properties
+  claim_id: c_4477cfa5
+  context: Random Forest baselines using 2-D descriptors (Morgan fingerprints, Coulomb
+    matrices) remain strong competitors for many properties.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Random Forest baselines using 2-D descriptors (Morgan fingerprints, Coulomb
+    matrices) remain strong competitors for many properties.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-24T21:27:00Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/research.md
+  attempts: 1
+  canonical: importance of statistical significance testing when comparing ML models,
+    advocating paired t-tests and confidence interval reporting
+  claim_id: c_4b197242
+  context: Recent literature (e.g., c2023-18454) highlights the importance of statistical
+    significance testing when comparing ML models, advocating paired t-tests and confidence
+    interval reporting.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Recent literature (e.g., c2023-18454) highlights the importance of statistical
+    significance testing when comparing ML models, advocating paired t-tests and confidence
+    interval reporting.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-24T21:27:22Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/research.md
+  attempts: 1
+  canonical: QM9 dataset provides equilibrium geometries and quantum-chemical properties
+    for approximately 133000 small organic molecules
+  claim_id: c_b0d9db36
+  context: "The QM9 dataset (Ramakrishnan et al., 2014) provides equilibrium geometries\
+    \ and quantum-chemical properties for ~133\u202Fk small organic molecules."
+  evidence:
+    asserted: '9.0'
+    authority: scipy.constants.k (CODATA 2018, exact by SI definition)
+    constant: boltzmann
+    corrected: true
+    mode: approximate
+    true_value: 1.380649e-23
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?k
+  kind: numeric
+  raw_text: "The QM9 dataset (Ramakrishnan et al., 2014) provides equilibrium geometries\
+    \ and quantum-chemical properties for ~133\u202Fk small organic molecules."
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2bfb0d3513311088eea23af05f5f28fc2ef73a6a80811bbb243001626363f07f
+  source_type: external
+  status: verified
+  updated_at: '2026-06-24T21:27:22Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 0
+  canonical: arXiv paper 2305.18454
+  claim_id: c_7f5b2110
+  context: T032 {{claim:c_1013b8b5}} (2305.18454, https://arxiv.org/abs/2305.18454)
+    in code/analysis/validate_dft.py
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: 2305.18454, https://arxiv.org/abs/2305.18454
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-24T21:27:32Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 7
+  canonical: 10k random subset of QM9 dataset
+  claim_id: c_ab674af7
+  context: 'Goal: Download QM9 dataset, filter to 10k random subset, extract 3D coordinates
+    and 2D descriptors for baseline comparison'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Download QM9 dataset, filter to 10k random subset
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-24T21:27:32Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 2
+  canonical: QM9 dataset DOI 10.1038/sdata.2014.22
+  claim_id: c_6e54140a
+  context: Implement QM9 download with integrity verification in ... (FR-001, DOI
+    10.1038/sdata.2014.22 via HuggingFace datasets.load_dataset())
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+    status: not_found
+  kind: citation
+  raw_text: QM9 dataset is available via DOI 10.1038/sdata.2014.22
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-24T21:27:32Z'

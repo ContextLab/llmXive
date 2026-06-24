@@ -1,0 +1,26 @@
+# Schema for a molecule record used in the dipole‑moment prediction pipeline
+# The schema follows JSON‑Schema Draft‑07 expressed in YAML.
+$schema: "http://json-schema.org/draft-07/schema#"
+type: object
+required:
+  - id
+  - atoms
+  - coordinates
+  - dipole_moment
+properties:
+  id:
+    type: string
+    description: Unique identifier for the molecule (e.g., QM9 index)
+  atoms:
+    type: array
+    description: List of atomic symbols (e.g., ["C", "H", "O"])
+    items:
+      type: string
+  coordinates:
+    type: array
+    description: 3‑D Cartesian coordinates flattened as [x1, y1, z1, x2, y2, z2, …]
+    items:
+      type: number
+  dipole_moment:
+    type: number
+    description: Reference dipole moment (Debye) from quantum‑chemical calculation

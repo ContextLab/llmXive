@@ -1,154 +1,105 @@
-# Quickstart: Predicting Molecular Dipole Moments with Graph Neural Networks
+# Quickstart
 
-## Prerequisites
+This guide walks you through the end‑to‑end execution of the dipole‑moment prediction pipeline.
+All commands assume you are in the repository root and have a Python 3.11 environment
+with the packages listed in `projects/001-predicting-molecular-dipole-moments/code/requirements.txt`.
 
-- Python 3.11+
-- 2 CPU cores minimum
-- 8GB RAM minimum
-- 10GB disk space for data + checkpoints
-
-## Quick Start (5 minutes)
-
-### 1. Clone and Setup
+## 1. Set up the environment
 
 ```bash
-git clone <repository-url>
-cd projects/PROJ-262-predicting-molecular-dipole-moments-with
-python -m venv .venv
-source .venv/bin/activate
-pip install -r code/requirements.txt
+# Create and activate a virtual environment
+python -m venv.venv
+source.venv/bin/activate
+
+# Install required packages
+pip install -r projects/001-predicting-molecular-dipole-moments/code/requirements.txt
 ```
 
-### 2. Download and Verify Data
+## 2. Download and prepare the QM9 dataset
 
 ```bash
-python code/data/download_qm9.py
-# Output: data/raw/qm9.parquet with checksum verification
+# Download the full QM9 dataset (cached in data/raw/)
+python projects/001-predicting-molecular-dipole-moments/code/data/download_qm9.py
+
+# Create a reproducible 10k random subset [UNRESOLVED-CLAIM: c_dff82a5b — status=not_enough_info]
+python projects/001-predicting-molecular-dipole-moments/code/data/create_subset.py
+
+# Extract 3‑D coordinates and construct bond connectivity
+python projects/001-predicting-molecular-dipole-moments/code/data/preprocess_3d.py
+
+# Generate 2‑D Morgan fingerprints and Coulomb matrices
+python projects/001-predicting-molecular-dipole-moments/code/data/extract_2d_descriptors.py
 ```
 
-### 3. Run Full Pipeline
+After these steps the following files should exist:
+
+- `data/processed/molecules_10k.parquet`
+- `data/processed/features_3d.parquet`
+- `data/processed/features_2d.parquet`
+
+## 3. Train models
 
 ```bash
-# Extract features
-python code/data/preprocess_3d.py
-python code/data/extract_2d_descriptors.py
+# Train the SchNet‑style GNN (5 seeds, early stopping) [UNRESOLVED-CLAIM: c_5b1ce5a7 — status=not_enough_info]
+python projects/001-predicting-molecular-dipole-moments/code/training/train_gnn.py
 
-# Train models (5 seeds each)
-python code/training/train_gnn.py --seeds 42,123,456,789,101112
-python code/training/train_rf.py --seeds 42,123,456,789,101112
-
-# Evaluate and analyze
-python code/training/evaluate.py
-python code/attribution/permutation_importance.py
-python code/attribution/saliency_mapping.py
-python code/analysis/statistical_tests.py
+# Train the Random Forest baseline (5 seeds) [UNRESOLVED-CLAIM: c_bdf45a06 — status=not_enough_info]
+python projects/001-predicting-molecular-dipole-moments/code/training/train_rf.py
 ```
 
-### 4. View Results
+Checkpoints are saved under `data/checkpoints/` and metrics under `results/metrics.csv`.
+
+## 4. Evaluate performance
 
 ```bash
-cat results/metrics.csv
-cat results/significance.csv
-ls results/figures/
+python projects/001-predicting-molecular-dipole-moments/code/training/evaluate.py
+python projects/001-predicting-molecular-dipole-moments/code/analysis/generate_performance_plots.py
 ```
 
-## Expected Output
+The generated plots are stored in `results/figures/`.
 
-### Directory Structure After Completion
-
-```
-data/
-├── raw/
-│   └── qm9.parquet              # ~500MB, checksummed
-├── processed/
-│   ├── features_3d.parquet      # ~100MB
-│   ├── features_2d.parquet      # ~50MB
-│   └── molecules_10k.parquet    # ~30MB
-└── checkpoints/
-    ├── model_seed_42.pt         # GNN checkpoint
-    ├── model_seed_123.pt
-    ├── ...
-    ├── rf_seed_42.pkl           # RF checkpoint
-    └── ...
-
-results/
-├── metrics.csv                  # MAE, RMSE for all seeds
-├── attributions.json            # Feature importance rankings
-├── significance.csv             # Paired t-test results
-└── figures/
-    ├── importance_barplot.png
-    ├── molecule_saliency_001.png
-    └── rmse_distribution.png
-```
-
-### Sample Output (metrics.csv)
-
-```csv
-metric_name,model_type,seed,value,std_error
-MAE,schnet,42,0.142,0.008
-MAE,schnet,123,0.138,0.007
-MAE,schnet,456,0.145,0.009
-MAE,schnet,789,0.141,0.008
-MAE,schnet,101112,0.143,0.008
-MAE,random_forest,42,0.187,0.011
-MAE,random_forest,123,0.182,0.010
-MAE,random_forest,456,0.191,0.012
-MAE,random_forest,789,0.185,0.010
-MAE,random_forest,101112,0.189,0.011
-```
-
-### Sample Output (significance.csv)
-
-```csv
-test_statistic,p_value,significant,comparison
-t=4.23,p=0.0023,TRUE,schnet_vs_rf_mae
-t=3.87,p=0.0051,TRUE,schnet_vs_rf_rmse
-```
-
-## Troubleshooting
-
-### Dataset Download Fails
+## 5. Attribution & statistical significance
 
 ```bash
-# Try alternative verified source
-python code/data/download_qm9.py --source https://huggingface.co/datasets/lisn519010/QM9/resolve/main/data/full-00000-of-00001-e217b6ecfbeb7149.parquet
+# Permutation importance for Random Forest
+python projects/001-predicting-molecular-dipole-moments/code/attribution/permutation_importance.py
+
+# Saliency mapping for GNN
+python projects/001-predicting-molecular-dipole-moments/code/attribution/saliency_mapping.py
+
+# Paired t‑test across seeds
+python projects/001-predicting-molecular-dipole-moments/code/analysis/statistical_tests.py
 ```
 
-### Memory Error During Training
+Results:
+- `results/attributions.json` – Feature importance rankings.
+- `results/significance.csv` – p‑values for paired t‑tests.
+
+## 6. Validate pipeline constraints
 
 ```bash
-# Reduce batch size
-python code/training/train_gnn.py --batch-size 32
+# {{claim:c_121d794c}} (Wikidata Q135076778, https://www.wikidata.org/wiki/Q135076778), CPU cores (≤2), and total runtime (≤6 h)
+python projects/001-predicting-molecular-dipole-moments/code/utils/memory_constraint.py
+python projects/001-predicting-molecular-dipole-moments/code/utils/cpu_constraint.py
+python projects/001-predicting-molecular-dipole-moments/code/utils/pipeline_time_limit.py
 ```
 
-### Timeout (>6h Runtime)
+## 7. Run the full end‑to‑end demo
+
+For a single‑command demonstration that runs the entire pipeline (subject to the
+constraints above), execute:
 
 ```bash
-# Reduce seeds for quick test
-python code/training/train_gnn.py --seeds 42
-python code/training/train_rf.py --seeds 42
+bash scripts/run_full_pipeline.sh
 ```
 
-## Verification Commands
+The script orchestrates all steps, logs progress, and produces a final summary
+`results/summary.txt`.
+
+## 8. Testing
 
 ```bash
-# Verify data integrity
-python -c "import hashlib; f=open('data/raw/qm9.parquet','rb'); print(hashlib.sha256(f.read()).hexdigest())"
-
-# Verify 10k subset
-python -c "import pandas as pd; df=pd.read_parquet('data/processed/molecules_10k.parquet'); print(f'Molecules: {len(df)}')"
-
-# Verify no NaN values
-python -c "import pandas as pd; df=pd.read_parquet('data/processed/features_3d.parquet'); print(f'NaN count: {df.isna().sum().sum()}')"
-
-# Verify schema compliance
-pytest tests/contract/
+pytest -vv
 ```
 
-## Next Steps
-
-1. Review `research.md` for methodology details
-2. Check `data-model.md` for schema definitions
-3. Run `pytest tests/contract/` to verify data integrity
-4. Examine `results/figures/` for attribution visualizations
-5. Read `plan.md` for full implementation roadmap
+All unit, integration, and contract tests should pass.

@@ -1,0 +1,23 @@
+# Schema for model output records produced during evaluation
+$schema: "http://json-schema.org/draft-07/schema#"
+type: object
+required:
+  - molecule_id
+  - predicted_dipole
+  - true_dipole
+properties:
+  molecule_id:
+    type: string
+    description: Identifier of the evaluated molecule
+  predicted_dipole:
+    type: number
+    description: Dipole moment predicted by the model (Debye)
+  true_dipole:
+    type: number
+    description: Reference dipole moment from the dataset (Debye)
+  mae:
+    type: number
+    description: Mean Absolute Error for this single prediction (optional)
+  rmse:
+    type: number
+    description: Root‑Mean‑Square Error for this single prediction (optional)

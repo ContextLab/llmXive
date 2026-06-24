@@ -1,119 +1,70 @@
-# Research: Predicting Molecular Dipole Moments with Graph Neural Networks
+# Research Background
 
-## Research Question
+## 1. Motivation
 
-To what extent does 3D conformational geometry provide independent predictive information for molecular dipole moments beyond 2D connectivity and atom types?
+Molecular dipole moments are fundamental physicochemical properties that influence
+solubility, reactivity, intermolecular interactions, and material behavior. Accurate
+prediction of dipole moments from molecular structure enables rapid screening of
+candidate compounds in drug discovery, materials design, and catalysis.
 
-## Background
+Traditional quantum‑chemical calculations (e.g., DFT) provide high‑fidelity dipole
+moments but are computationally expensive for large libraries. Machine‑learning
+approaches, particularly Graph Neural Networks (GNNs) that operate on 3‑D molecular
+graphs, have shown promise in approximating quantum properties at a fraction of the
+cost.
 
-### Molecular Dipole Moments
+## 2. Prior Work
 
-The dipole moment is a vector quantity defined as the first moment of the charge distribution in a molecule. For a system of N point charges:
+- **SchNet** (Schütt *et al.*, 2018) introduced continuous‑filter convolutional
+ networks for quantum chemistry, achieving state‑of‑the‑art performance on QM9.
+- **Message‑Passing Neural Networks** (Gilmer *et al.*, 2017) demonstrated that
+ learned edge features can capture geometric information.
+- **Random Forest baselines** using 2‑D descriptors (Morgan fingerprints,
+ Coulomb matrices) remain strong competitors for many properties.
 
-$$\vec{\mu} = \sum_{i=1}^{N} q_i \vec{r}_i$$
+Recent literature (e.g., **c2023‑18454**) highlights the importance of statistical
+significance testing when comparing ML models, advocating paired t‑tests and
+confidence interval reporting.
 
-where $q_i$ is the charge of atom $i$ and $\vec{r}_i$ is its position vector. This formulation makes it clear that dipole moments depend fundamentally on spatial arrangement of charge centers, not merely atomic connectivity.
+## 3. Research Questions
 
-### QM9 Dataset
+1. **Performance Gap** – How much does explicit 3‑D geometry improve dipole‑moment
+ prediction over 2‑D descriptor baselines?
+2. **Statistical Significance** – Are observed performance differences robust across
+ multiple random seeds, and do they survive paired t‑tests at α = 0.05?
+3. **Feature Attribution** – Which structural motifs (e.g., electronegative atoms,
+ bond angles) drive model predictions, as revealed by permutation importance and
+ saliency mapping?
 
-The QM9 dataset contains 134k small organic molecules with quantum mechanical properties computed at the B3LYP/6-31G(2df,p) level. Each molecule includes:
-- 3D atomic coordinates (optimized geometry)
-- Atom types (C, N, O, F, H)
-- Bond connectivity
-- Dipole moment reference values (in Debye)
+## 4. Dataset
 
-**Dataset Strategy**:
+The **QM9** dataset (Ramakrishnan *et al.*, 2014) provides equilibrium geometries and
+quantum‑chemical properties for ~133 k small organic molecules. We extract a
+reproducible 10 k random subset for rapid experimentation while preserving
+diversity in atom types and functional groups.
 
-| Dataset | Source URL | Loader | Use Case | Notes |
-|---------|------------|--------|----------|-------|
-| QM9 (parquet) | https://huggingface.co/datasets/yairschiff/qm9/resolve/main/data/train-00000-of-00001-baa918c342229731.parquet | `datasets.load_dataset()` | Primary training data | Verified source per # Verified datasets block |
-| QM9 (parquet alt) | https://huggingface.co/datasets/lisn519010/QM9/resolve/main/data/full-00000-of-00001-e217b6ecfbeb7149.parquet | `datasets.load_dataset()` | Fallback if primary unavailable | Verified source per # Verified datasets block |
-| QM9 (parquet alt) | https://huggingface.co/datasets/hadoan/enthalpy-QM9-1k/resolve/main/data/train-00000-of-00001-ffd5f7908688c934.parquet | `datasets.load_dataset()` | Smaller subset option | Verified source per # Verified datasets block |
-| QM9 DOI | 10.1038/sdata.2014.22 | N/A | Citation reference only | NO verified source found; cite as DOI only |
+## 5. Validation Protocol
 
-**Note**: The DOI 10.1038/sdata.2014.22 is the original publication reference but has NO verified source in the # Verified datasets block. All programmatic loading MUST use the verified HuggingFace parquet URLs above.
+- **Metrics**: Mean Absolute Error (MAE) and Root Mean Square Error (RMSE) on a
+ held‑out test split.
+- **Variance Constraint**: RMSE variance across five seeds must be < 10 % to ensure
+ stability (Task T051).
+- **Resource Constraints**: Total pipeline runtime ≤ 6 h, ≤ 2 CPU cores, and
+ memory usage < 8 GB (Tasks T049, T050, T052).
+- **Reproducibility**: All random seeds are fixed and logged; data splits are
+ identical for GNN and Random Forest experiments (Task T030).
 
-### Literature Context
+## 6. Expected Contributions
 
-| Citation | Key Finding | Relevance |
-|----------|-------------|-----------|
-| SchNet (Schütt et al., 2017) | 3D-equivariant GNNs outperform 2D methods on quantum properties | Foundation for GNN architecture choice |
-| Coulomb Matrix (Rupp et al., 2012) | 2D descriptors can capture electronic structure | Baseline comparison target |
-| Morgan Fingerprints (Rogers & Hahn, 2010) | Standard 2D molecular fingerprints | RF baseline feature set |
+- A **fully reproducible end‑to‑end pipeline** that adheres to strict computational
+ constraints.
+- Empirical evidence quantifying the benefit of 3‑D geometry for dipole prediction.
+- Open‑source code and documentation enabling other researchers to extend the
+ methodology to larger datasets or alternative quantum properties.
 
-**Note**: Full bibliographic details with verified URLs to be added in paper artifact; DOI 10.1038/sdata.2014.22 cited for QM9 dataset origin.
+## 7. Future Work
 
-## Methodology
-
-### Data Pipeline
-
-1. **Download**: Fetch QM9 from verified HuggingFace source; verify checksum
-2. **Subset**: Random 10k molecules with fixed seed (42)
-3. **3D Extraction**: Atomic coordinates, atom types, bond connectivity
-4. **2D Descriptors**: Morgan fingerprints (radius=2, n_bits=2048), Coulomb matrices
-
-### Model Architecture
-
-**GNN (SchNet-style)**:
-- 3 interaction blocks
-- Gaussian distance expansion (50 bins, 0-10 Å)
-- 128-dimensional node embeddings
-- Readout: sum pooling + MLP head
-
-**Random Forest Baseline**:
-- 100 trees
-- Max depth: 10
-- Features: Morgan fingerprints + Coulomb matrix flattened
-
-### Training Protocol
-
-- 5 random seeds (42, 123, 456, 789, 101112)
-- 80/10/10 train/validation/test split
-- Early stopping (patience=10 epochs, min_delta=1e-4)
-- 50 epochs maximum
-- CPU-only mode (batch size=64)
-
-### Evaluation Metrics
-
-- MAE (mean absolute error) in Debye
-- RMSE (root mean square error) in Debye
-- Paired t-test (α=0.05) comparing RMSE distributions
-
-### Feature Attribution
-
-**Random Forest**: Permutation importance (5 repeats)
-
-**GNN**: Saliency mapping on node embeddings (gradient-based)
-
-**Interpretation**: Rank features by contribution to predictive variance; correlate with chemical intuition (electronegative atom placement, local bond angles)
-
-## Limitations & Assumptions
-
-### Explicit Limitations
-
-| Limitation | Impact | Mitigation |
-|------------|--------|------------|
-| QM9 gas-phase DFT only | No experimental validation | Documented as out-of-scope per spec |
-| Single conformer per molecule | Ignores conformational ensemble effects | Acknowledged as future work |
-| No hydration state modeling | May miss solvent effects on dipole | Cited as limitation in research.md |
-| CPU-only training | Limits model scale | Constrained by 6h runtime requirement |
-
-### Reviewer Feedback Integration
-
-**rosalind-franklin-simulated (hydration)**: Water content can shift molecular conformations (e.g., DNA A-form to B-form). QM9 molecules are gas-phase DFT calculations without explicit solvent. This is a known limitation; hydration effects are out-of-scope for this computational feature but should be addressed in future work with experimental validation.
-
-**rosalind-franklin-simulated (conformational ensembles)**: QM9 provides single lowest-energy conformers per molecule. True conformational ensemble modeling would require sampling multiple conformers at defined energy thresholds. This is documented as future work; current study isolates single-conformer geometry signal.
-
-**richard-feynman-simulated (feature attribution)**: Saliency mapping + permutation importance directly address "which part of the graph is doing the work." Physics-informed loss (Raissi PINN approach) noted as potential enhancement but out-of-scope for current feature scope.
-
-**richard-feynman-simulated (physical validation)**: Physical measurement validation (X-ray diffraction, dielectric spectroscopy) is explicitly out-of-scope per spec assumptions. Validation against QM9 DFT reference data (B3LYP/6-31G(2df,p)) serves as ground truth for this computational feature.
-
-## Success Criteria Alignment
-
-| Criterion | Measurement | Target |
-|-----------|-------------|--------|
-| SC-001: GNN MAE < RF MAE | Test set MAE comparison | Statistically significant (p < 0.05) |
-| SC-002: 3+ structural features | Attribution ranking | Top 3 features identifiable |
-| SC-003: Runtime < 6h | Wall-clock measurement | Complete on 2 CPU cores |
-| SC-004: Paired t-test significance | RMSE distribution comparison | p < 0.05 across 5 seeds |
-| SC-005: Reproducibility | RMSE variance across seeds | < 10% variance |
+- Incorporate **conformational ensembles** to assess the impact of molecular flexibility.
+- Validate predictions against **experimental dipole measurements** (e.g., dielectric
+ spectroscopy) for a curated benchmark set, addressing reviewer feedback on physical
+ validation.

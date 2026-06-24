@@ -1,0 +1,21 @@
+# Schema for a feature‑set record (both 3‑D and 2‑D descriptors) associated with a molecule
+$schema: "http://json-schema.org/draft-07/schema#"
+type: object
+required:
+  - molecule_id
+  - features_3d
+  - features_2d
+properties:
+  molecule_id:
+    type: string
+    description: Identifier linking back to the molecule entry
+  features_3d:
+    type: array
+    description: Numerical 3‑D features (e.g., atom types, bond connectivity, coordinates)
+    items:
+      type: number
+  features_2d:
+    type: array
+    description: Numerical 2‑D features (e.g., Morgan fingerprints, Coulomb matrix entries)
+    items:
+      type: number
