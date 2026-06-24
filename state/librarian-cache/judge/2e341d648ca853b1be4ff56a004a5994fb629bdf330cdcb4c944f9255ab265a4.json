@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2506.07594",
+  "judged_at": "2026-06-24T22:10:46Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "evaluating the effectiveness of llms for detecting code smells computer science",
+  "rationale": "The paper studies the same mechanism—using LLMs to detect (and refactor) code smells, specifically test smells—which is a subset of the broader code‑smell detection problem the user is investigating (acceptance category (a) same‑mechanism evidence). It provides empirical data on LLM detection accuracy, directly relevant to evaluating LLM effectiveness for code‑smell detection.",
+  "relevant": true
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2006.16189",
+  "judged_at": "2026-06-24T22:09:55Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "decoding emotional valence from facial emg patterns with machine learning neuroscience",
+  "rationale": "The paper discusses general recommendations for validating supervised machine learning in biology and does not address facial EMG, emotional valence decoding, or the specific neuroscience context; it lacks a direct methodological or empirical link to the user's question.",
+  "relevant": false
+}

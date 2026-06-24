@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2302.08893",
+  "judged_at": "2026-06-24T22:09:59Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "decoding emotional valence from facial emg patterns with machine learning neuroscience",
+  "rationale": "The paper surveys active‑learning techniques for data streams and does not address facial EMG, emotional valence, or neuroscience, nor does it provide a foundational method specifically used for decoding EMG signals; thus it is unrelated to the user's research question.",
+  "relevant": false
+}

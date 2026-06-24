@@ -1,0 +1,692 @@
+{
+  "fetched_at": "2026-06-24T22:10:00Z",
+  "field": "neuroscience",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "neuroscience",
+      "idea_body_excerpt": "Decoding Emotional Valence from Facial EMG Patterns with Machine Learning",
+      "target_n": 5
+    },
+    "duration_seconds": 54.347,
+    "ended_at": "2026-06-24T22:10:00Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "facial electromyography affective classification machine learning"
+        ],
+        [
+          2,
+          "affective state prediction using facial EMG and deep learning"
+        ],
+        [
+          3,
+          "emotion valence inference from facial muscle activity"
+        ],
+        [
+          4,
+          "machine learning‑based decoding of facial EMG signals"
+        ],
+        [
+          5,
+          "affective computing facial EMG pattern analysis"
+        ],
+        [
+          6,
+          "supervised learning for emotional valence from facial EMG"
+        ],
+        [
+          7,
+          "convolutional neural networks for facial EMG emotion detection"
+        ],
+        [
+          8,
+          "multivariate pattern analysis of facial EMG for valence"
+        ],
+        [
+          9,
+          "physiological signal decoding of affective valence"
+        ],
+        [
+          10,
+          "automated valence estimation from facial muscle recordings"
+        ],
+        [
+          11,
+          "emotion recognition from facial EMG using support vector machines"
+        ],
+        [
+          12,
+          "biofeedback emotion decoding with facial EMG"
+        ],
+        [
+          13,
+          "affective neuroscience facial EMG feature extraction"
+        ],
+        [
+          14,
+          "deep neural networks for facial EMG affect decoding"
+        ],
+        [
+          15,
+          "valence classification from peripheral facial EMG"
+        ],
+        [
+          16,
+          "facial EMG‑based affective state decoding"
+        ],
+        [
+          17,
+          "machine learning models for facial electromyography emotion analysis"
+        ],
+        [
+          18,
+          "valence detection from facial muscle activation patterns"
+        ],
+        [
+          19,
+          "affective signal processing of facial EMG"
+        ],
+        [
+          20,
+          "real‑time emotional valence decoding from facial EMG"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Decoding Emotional Valence from Facial EMG Patterns with Machine Learning neuroscience": 0,
+        "facial electromyography affective classification machine learning": 4
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "affect decoding facial EMG",
+      "DEAP facial EMG dataset",
+      "affective computing biosignal classification",
+      "valence prediction accuracy EMG",
+      "facial feedback hypothesis EMG"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2603.11715"
+      ]
+    },
+    "per_query_hit_count": {
+      "DEAP facial EMG dataset": 3,
+      "Decoding Emotional Valence from Facial EMG Patterns with Machine Learning neuroscience": 3,
+      "affect decoding facial EMG": 3,
+      "affective computing biosignal classification": 3,
+      "facial feedback hypothesis EMG": 2,
+      "valence prediction accuracy EMG": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 6,
+      "rejections": [
+        {
+          "primary_pointer": "1604.04334",
+          "rationale": "The paper focuses on visual geometric features and SVMs for facial expression recognition from video, not on facial EMG signals or decoding emotional valence from EMG patterns; it does not share the same biological measurement modality or variables required by the user's neuroscience question.",
+          "title": "Recognition of facial expressions based on salient geometric features and support vector machines"
+        },
+        {
+          "primary_pointer": "2601.06516",
+          "rationale": "The paper studies low‑cost, single‑lead EMG for control on embedded devices and does not involve facial EMG recordings, emotional valence, or affective decoding, which are the core variables of the user's question. It therefore falls outside the relevant domain and construct.",
+          "title": "Pareto-Optimal Model Selection for Low-Cost, Single-Lead EMG Control in Embedded Systems"
+        },
+        {
+          "primary_pointer": "2306.04338",
+          "rationale": "The paper discusses machine‑learning challenges in official statistics and data‑source drift, with no focus on facial electromyography, emotional valence, or neuroscience, thus it lacks any relevant mechanism, variable, or domain connection to the user's question.",
+          "title": "Changing Data Sources in the Age of Machine Learning for Official Statistics"
+        },
+        {
+          "primary_pointer": "2006.16189",
+          "rationale": "The paper discusses general recommendations for validating supervised machine learning in biology and does not address facial EMG, emotional valence decoding, or the specific neuroscience context; it lacks a direct methodological or empirical link to the user's question.",
+          "title": "DOME: Recommendations for supervised machine learning validation in biology"
+        },
+        {
+          "primary_pointer": "2201.12150",
+          "rationale": "The paper surveys learning‑curve methods for supervised machine learning and does not address facial EMG, emotional valence decoding, or any neuroscience‑related measurement, so it lacks relevance to the user’s question.",
+          "title": "Learning Curves for Decision Making in Supervised Machine Learning: A Survey"
+        },
+        {
+          "primary_pointer": "2302.08893",
+          "rationale": "The paper surveys active‑learning techniques for data streams and does not address facial EMG, emotional valence, or neuroscience, nor does it provide a foundational method specifically used for decoding EMG signals; thus it is unrelated to the user's research question.",
+          "title": "Active learning for data streams: a survey"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-24T22:09:05Z",
+    "term_input": {
+      "normalized": "decoding emotional valence from facial emg patterns with machine learning neuroscience",
+      "raw": "Decoding Emotional Valence from Facial EMG Patterns with Machine Learning neuroscience"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Data science has become increasingly essential for the production of official statistics, as it enables the automated collection, processing, and analysis of large amounts of data. With such data science practices in place, it enables more timely, more insightful and more flexible reporting. However, the quality and integrity of data-science-driven statistics rely on the accuracy and reliability of the data sources and the machine learning techniques that support them. In particular, changes in data sources are inevitable to occur and pose significant risks that are crucial to address in the context of machine learning for official statistics.\n  This paper gives an overview of the main risks, liabilities, and uncertainties associated with changing data sources in the context of machine learning for official statistics. We provide a checklist of the most prevalent origins and causes of changing data sources; not only on a technical level but also regarding ownership, ethics, regulation, and public perception. Next, we highlight the repercussions of changing data sources on statistical reporting. These include technical effects such as concept drift, bias, availability, validity, accuracy and completeness, but also the neutrality and potential discontinuation of the statistical offering. We offer a few important precautionary measures, such as enhancing robustness in both data sourcing and statistical techniques, and thorough monitoring. In doing so, machine learning-based official statistics can maintain integrity, reliability, consistency, and relevance in policy-making, decision-making, and public discourse.",
+          "claimed_authors": [
+            "Cedric De Boom",
+            "Michael Reusens"
+          ],
+          "claimed_title": "Changing Data Sources in the Age of Machine Learning for Official Statistics",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.04338"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Decoding Emotional Valence from Facial EMG Patterns with Machine Learning neuros', candidate_title='Changing Data Sources in the Age of Machine Learning for Official Statistics')",
+        "failed_at": "2026-06-24T22:09:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This article provides the first survey of computational models of emotion in reinforcement learning (RL) agents. The survey focuses on agent/robot emotions, and mostly ignores human user emotions. Emotions are recognized as functional in decision-making by influencing motivation and action selection. Therefore, computational emotion models are usually grounded in the agent's decision making architecture, of which RL is an important subclass. Studying emotions in RL-based agents is useful for three research fields. For machine learning (ML) researchers, emotion models may improve learning efficiency. For the interactive ML and human-robot interaction (HRI) community, emotions can communicate state and enhance user investment. Lastly, it allows affective modelling (AM) researchers to investigate their emotion theories in a successful AI agent class. This survey provides background on emotion theory and RL. It systematically addresses 1) from what underlying dimensions (e.g., homeostasis, appraisal) emotions can be derived and how these can be modelled in RL-agents, 2) what types of emotions have been derived from these dimensions, and 3) how these emotions may either influence the learning efficiency of the agent or be useful as social signals. We also systematically compare evaluation criteria, and draw connections to important RL sub-domains like (intrinsic) motivation and model-based RL. In short, this survey provides both a practical overview for engineers wanting to implement emotions in their RL agents, and identifies challenges and directions for future emotion-RL research.",
+          "claimed_authors": [
+            "Thomas M. Moerland",
+            "Joost Broekens",
+            "Catholijn M. Jonker"
+          ],
+          "claimed_title": "Emotion in Reinforcement Learning Agents and Robots: A Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1705.05172"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Decoding Emotional Valence from Facial EMG Patterns with Machine Learning neuros', candidate_title='Emotion in Reinforcement Learning Agents and Robots: A Survey')",
+        "failed_at": "2026-06-24T22:09:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Modern biology frequently relies on machine learning to provide predictions and improve decision processes. There have been recent calls for more scrutiny on machine learning performance and possible limitations. Here we present a set of community-wide recommendations aiming to help establish standards of supervised machine learning validation in biology. Adopting a structured methods description for machine learning based on data, optimization, model, evaluation (DOME) will aim to help both reviewers and readers to better understand and assess the performance and limitations of a method or outcome. The recommendations are formulated as questions to anyone wishing to pursue implementation of a machine learning algorithm. Answers to these questions can be easily included in the supplementary material of published papers.",
+          "claimed_authors": [
+            "Ian Walsh",
+            "Dmytro Fishman",
+            "Dario Garcia-Gasulla",
+            "Tiina Titma",
+            "Gianluca Pollastri",
+            "The ELIXIR Machine Learning focus group",
+            "Jen Harrow",
+            "Fotis E. Psomopoulos",
+            "Silvio C. E. Tosatto"
+          ],
+          "claimed_title": "DOME: Recommendations for supervised machine learning validation in biology",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2006.16189"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Decoding Emotional Valence from Facial EMG Patterns with Machine Learning neuros', candidate_title='DOME: Recommendations for supervised machine learning validation in biology')",
+        "failed_at": "2026-06-24T22:09:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent advances in deep learning (DL) and computational capacity have enabled facial affective behavior analysis (FABA) to progress from static images captured in controlled settings to fine-grained analysis of facial expressions in real-world video data. However, training accurate DL models for FABA typically requires large-scale, expert-annotated datasets, which are costly to obtain and inherently noisy due to the ambiguity of labeling subtle facial expressions and action units (AUs). To mitigate these challenges, weakly supervised learning (WSL) has emerged as a promising paradigm for training models with weak annotations. In this paper, we present a structured taxonomy of WSL scenarios for FABA, organized according to the type of weak annotation and the specific affective task. Building on this taxonomy, we provide a critical synthesis of representative WSL methods for both classification (expression and AU recognition) and regression (expression and AU intensity estimation) tasks, focusing on their core methodological ideas, strengths, and limitations. Furthermore, we systematically summarize the comparative performance of WSL approaches along with widely adopted experimental setups and evaluation protocols. Our critical assessment identifies key challenges and future research directions, including the need for efficient adaptation of foundation models and for the development of robust, scalable FABA systems suitable for real-world applications.",
+          "claimed_authors": [
+            "R. Gnana Praveen",
+            "Patrick Cardinal",
+            "Eric Granger"
+          ],
+          "claimed_title": "Weakly Supervised Learning for Facial Affective Behavior Analysis : A Review",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2101.09858"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Decoding Emotional Valence from Facial EMG Patterns with Machine Learning neuros', candidate_title='Weakly Supervised Learning for Facial Affective Behavior Analysis : A Review')",
+        "failed_at": "2026-06-24T22:09:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The RSNA Abdominal Traumatic Injury CT (RATIC) dataset is the largest publicly available collection of adult abdominal CT studies annotated for traumatic injuries. This dataset includes 4,274 studies from 23 institutions across 14 countries. The dataset is freely available for non-commercial use via Kaggle at https://www.kaggle.com/competitions/rsna-2023-abdominal-trauma-detection. Created for the RSNA 2023 Abdominal Trauma Detection competition, the dataset encourages the development of advanced machine learning models for detecting abdominal injuries on CT scans. The dataset encompasses detection and classification of traumatic injuries across multiple organs, including the liver, spleen, kidneys, bowel, and mesentery. Annotations were created by expert radiologists from the American Society of Emergency Radiology (ASER) and Society of Abdominal Radiology (SAR). The dataset is annotated at multiple levels, including the presence of injuries in three solid organs with injury grading, image-level annotations for active extravasations and bowel injury, and voxelwise segmentations of each of the potentially injured organs. With the release of this dataset, we hope to facilitate research and development in machine learning and abdominal trauma that can lead to improved patient care and outcomes.",
+          "claimed_authors": [
+            "Jeffrey D. Rudie",
+            "Hui-Ming Lin",
+            "Robyn L. Ball",
+            "Sabeena Jalal",
+            "Luciano M. Prevedello",
+            "Savvas Nicolaou",
+            "Brett S. Marinelli",
+            "Adam E. Flanders",
+            "Kirti Magudia",
+            "George Shih",
+            "Melissa A. Davis",
+            "John Mongan",
+            "Peter D. Chang",
+            "Ferco H. Berger",
+            "Sebastiaan Hermans",
+            "Meng Law",
+            "Tyler Richards",
+            "Jan-Peter Grunz",
+            "Andreas Steven Kunz",
+            "Shobhit Mathur",
+            "Sandro Galea-Soler",
+            "Andrew D. Chung",
+            "Saif Afat",
+            "Chin-Chi Kuo",
+            "Layal Aweidah",
+            "Ana Villanueva Campos",
+            "Arjuna Somasundaram",
+            "Felipe Antonio Sanchez Tijmes",
+            "Attaporn Jantarangkoon",
+            "Leonardo Kayat Bittencourt",
+            "Michael Brassil",
+            "Ayoub El Hajjami",
+            "Hakan Dogan",
+            "Muris Becircic",
+            "Agrahara G. Bharatkumar",
+            "Eduardo Moreno Júdice de Mattos Farina",
+            "Dataset Curator Group",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Errol Colak"
+          ],
+          "claimed_title": "The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.19595"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Decoding Emotional Valence from Facial EMG Patterns with Machine Learning neuros', candidate_title='The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset')",
+        "failed_at": "2026-06-24T22:09:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The DEAP-3600 experiment is located 2 km underground at SNOLAB, in Sudbury, Ontario. It is a single-phase detector that searches for dark matter particle interactions within a 1000-kg fiducial mass target of liquid argon. A first generation prototype detector (DEAP-1) with a 7-kg liquid argon target mass demonstrated a high level of pulse-shape discrimination (PSD) for reducing $β$/$γ$ backgrounds and helped to develop low radioactivity techniques to mitigate surface-related $α$ backgrounds. Construction of the DEAP-3600 detector is nearly complete and commissioning is starting in 2014. The target sensitivity to spin-independent scattering of Weakly Interacting Massive Particles (WIMPs) on nucleons of 10$^{-46}$ cm$^2$ will allow one order of magnitude improvement in sensitivity over current searches at 100 GeV WIMP mass. This paper presents an overview and status of the DEAP-3600 project and discusses plans for a future multi-tonne experiment, DEAP-50T.",
+          "claimed_authors": [
+            " DEAP Collaboration",
+            "P. -A. Amaudruz",
+            "M. Batygov",
+            "B. Beltran",
+            "J. Bonatt",
+            "M. G. Boulay",
+            "B. Broerman",
+            "J. F. Bueno",
+            "A. Butcher",
+            "B. Cai",
+            "M. Chen",
+            "R. Chouinard",
+            "B. T. Cleveland",
+            "K. Dering",
+            "J. DiGioseffo",
+            "F. Duncan",
+            "T. Flower",
+            "R. Ford",
+            "P. Giampa",
+            "P. Gorel",
+            "K. Graham",
+            "D. R. Grant",
+            "E. Guliyev",
+            "A. L. Hallin",
+            "M. Hamstra",
+            "P. Harvey",
+            "C. J. Jillings",
+            "M. Kuźniak",
+            "I. Lawson",
+            "O. Li",
+            "P. Liimatainen",
+            "P. Majewski",
+            "A. B. McDonald",
+            "T. McElroy",
+            "K. McFarlane",
+            "J. Monroe",
+            "A. Muir",
+            "C. Nantais",
+            "C. Ng",
+            "A. J. Noble",
+            "C. Ouellet",
+            "K. Palladino",
+            "P. Pasuthip",
+            "S. J. M. Peeters",
+            "T. Pollmann",
+            "W. Rau",
+            "F. Retière",
+            "N. Seeburn",
+            "K. Singhrao",
+            "P. Skensved",
+            "B. Smith",
+            "T. Sonley",
+            "J. Tang",
+            "E. Vázquez-Jáuregui",
+            "L. Veloce",
+            "J. Walding",
+            "M. Ward"
+          ],
+          "claimed_title": "DEAP-3600 Dark Matter Search",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1410.7673"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Decoding Emotional Valence from Facial EMG Patterns with Machine Learning neuros', candidate_title='DEAP-3600 Dark Matter Search')",
+        "failed_at": "2026-06-24T22:09:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The half-life of $^{39}$Ar is measured using the DEAP-3600 detector located 2 km underground at SNOLAB. Between 2016 and 2020, DEAP-3600 used a target mass of (3269 $\\pm$ 24) kg of liquid argon distilled from the atmosphere in a direct-detection dark matter search. Such an argon mass also enables direct measurements of argon isotope properties. The decay of $^{39}$Ar in DEAP-3600 is the dominant source of triggers by two orders of magnitude, ensuring high statistics and making DEAP-3600 well-suited for measuring this isotope's half-life. Use of the pulse-shape discrimination technique in DEAP-3600 allows powerful discrimination between nuclear recoils and electron recoils, resulting in the selection of a clean sample of $^{39}$Ar decays. Observing over a period of 3.4 years, the $^{39}$Ar half-life is measured to be $(302 \\pm 8_{\\rm stat} \\pm 6_{\\rm sys})$ years. This new direct measurement suggests that the half-life of $^{39}$Ar is significantly longer than the accepted value, with potential implications for measurements using this isotope's half-life as input.",
+          "claimed_authors": [
+            " DEAP Collaboration",
+            "P. Adhikari",
+            "R. Ajaj",
+            "M. Alpízar-Venegas",
+            "P. -A. Amaudruz",
+            "J. Anstey",
+            "D. J. Auty",
+            "M. Batygov",
+            "B. Beltran",
+            "M. A. Bigentini",
+            "C. E. Bina",
+            "W. M. Bonivento",
+            "M. G. Boulay",
+            "J. F. Bueno",
+            "M. Cadeddu",
+            "B. Cai",
+            "M. Cárdenas-Montes",
+            "S. Cavuoti",
+            "Y. Chen",
+            "S. Choudhary",
+            "B. T. Cleveland",
+            "R. Crampton",
+            "S. Daugherty",
+            "P. DelGobbo",
+            "P. Di Stefano",
+            "G. Dolganov",
+            "L. Doria",
+            "F. A. Duncan",
+            "M. Dunford",
+            "E. Ellingwood",
+            "A. Erlandson",
+            "S. S. Farahani",
+            "N. Fatemighomi",
+            "G. Fiorillo",
+            "R. J. Ford",
+            "D. Gahan",
+            "D. Gallacher",
+            "A. Garai",
+            "P. García Abia",
+            "S. Garg",
+            "P. Giampa",
+            "A. Giménez-Alcázar",
+            "D. Goeldi",
+            "V. V. Golovko",
+            "P. Gorel",
+            "K. Graham",
+            "A. Grobov",
+            "A. L. Hallin",
+            "M. Hamstra",
+            "S. Haskins",
+            "J. Hu",
+            "J. Hucker",
+            "T. Hugues",
+            "A. Ilyasov",
+            "B. Jigmeddorj",
+            "C. J. Jillings",
+            "A. Joy",
+            "G. Kaur",
+            "A. Kemp",
+            "M. Khoshraftar Yazdi",
+            "M. Kuźniak",
+            "F. La Zia",
+            "M. Lai",
+            "S. Langrock",
+            "B. Lehnert",
+            "J. LePage-Bourbonnais",
+            "N. Levashko",
+            "M. Lissia",
+            "L. Luzzi",
+            "I. Machulin",
+            "A. Maru",
+            "J. Mason",
+            "A. B. McDonald",
+            "T. McElroy",
+            "J. B. McLaughlin",
+            "C. Mielnichuk",
+            "L. Mirasola",
+            "A. Moharana",
+            "J. Monroe",
+            "A. Murray",
+            "C. Ng",
+            "G. Oliviéro",
+            "M. Olszewski",
+            "S. Pal",
+            "D. Papi",
+            "B. Park",
+            "M. Perry",
+            "V. Pesudo",
+            "T. R. Pollmann",
+            "F. Rad",
+            "C. Rethmeier",
+            "F. Retière",
+            "I. Rodríguez García",
+            "L. Roszkowski",
+            "R. Santorelli",
+            "F. G. Schuckman",
+            "S. Seth",
+            "V. Shalamova",
+            "P. Skensved",
+            "T. Smirnova",
+            "K. Sobotkiewich",
+            "T. Sonley",
+            "J. Sosiak",
+            "J. Soukup",
+            "R. Stainforth",
+            "M. Stringer",
+            "J. Tang",
+            "R. Turcotte-Tardif",
+            "E. Vázquez-Jáuregui",
+            "S. Viel",
+            "B. Vyas",
+            "M. Walczak",
+            "J. Walding",
+            "M. Ward",
+            "S. Westerdale",
+            "R. Wormington",
+            "A. Zuñiga-Reyes"
+          ],
+          "claimed_title": "Direct Measurement of the $^{39}$Ar Half-life from 3.4 Years of Data with the DEAP-3600 Detector",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2501.13196"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Decoding Emotional Valence from Facial EMG Patterns with Machine Learning neuros', candidate_title='Direct Measurement of the $^{39}$Ar Half-life from 3.4 Years of Data with the DEAP-3600 Detector')",
+        "failed_at": "2026-06-24T22:09:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper introduces BReG-NeXt, a residual-based network architecture using a function wtih bounded derivative instead of a simple shortcut path (a.k.a. identity mapping) in the residual units for automatic recognition of facial expressions based on the categorical and dimensional models of affect. Compared to ResNet, our proposed adaptive complex mapping results in a shallower network with less numbers of training parameters and floating point operations per second (FLOPs). Adding trainable parameters to the bypass function further improves fitting and training the network and hence recognizing subtle facial expressions such as contempt with a higher accuracy. We conducted comprehensive experiments on the categorical and dimensional models of affect on the challenging in-the-wild databases of AffectNet, FER2013, and Affect-in-Wild. Our experimental results show that our adaptive complex mapping approach outperforms the original ResNet consisting of a simple identity mapping as well as other state-of-the-art methods for Facial Expression Recognition (FER). Various metrics are reported in both affect models to provide a comprehensive evaluation of our method. In the categorical model, BReG-NeXt-50 with only 3.1M training parameters and 15 MFLOPs, achieves 68.50% and 71.53% accuracy on AffectNet and FER2013 databases, respectively. In the dimensional model, BReG-NeXt achieves 0.2577 and 0.2882 RMSE value on AffectNet and Affect-in-Wild databases, respectively.",
+          "claimed_authors": [
+            "Behzad Hasani",
+            "Pooran Singh Negi",
+            "Mohammad H. Mahoor"
+          ],
+          "claimed_title": "BReG-NeXt: Facial Affect Computing Using Adaptive Residual Networks With Bounded Gradient",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2004.08495"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Decoding Emotional Valence from Facial EMG Patterns with Machine Learning neuros', candidate_title='BReG-NeXt: Facial Affect Computing Using Adaptive Residual Networks With Bounded Gradient')",
+        "failed_at": "2026-06-24T22:09:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Video-based facial affect analysis has recently attracted increasing attention owing to its critical role in human-computer interaction. Previous studies mainly focus on developing various deep learning architectures and training them in a fully supervised manner. Although significant progress has been achieved by these supervised methods, the longstanding lack of large-scale high-quality labeled data severely hinders their further improvements. Motivated by the recent success of self-supervised learning in computer vision, this paper introduces a self-supervised approach, termed Self-supervised Video Facial Affect Perceiver (SVFAP), to address the dilemma faced by supervised methods. Specifically, SVFAP leverages masked facial video autoencoding to perform self-supervised pre-training on massive unlabeled facial videos. Considering that large spatiotemporal redundancy exists in facial videos, we propose a novel temporal pyramid and spatial bottleneck Transformer as the encoder of SVFAP, which not only largely reduces computational costs but also achieves excellent performance. To verify the effectiveness of our method, we conduct experiments on nine datasets spanning three downstream tasks, including dynamic facial expression recognition, dimensional emotion recognition, and personality recognition. Comprehensive results demonstrate that SVFAP can learn powerful affect-related representations via large-scale self-supervised pre-training and it significantly outperforms previous state-of-the-art methods on all datasets. Code is available at https://github.com/sunlicai/SVFAP.",
+          "claimed_authors": [
+            "Licai Sun",
+            "Zheng Lian",
+            "Kexin Wang",
+            "Yu He",
+            "Mingyu Xu",
+            "Haiyang Sun",
+            "Bin Liu",
+            "Jianhua Tao"
+          ],
+          "claimed_title": "SVFAP: Self-supervised Video Facial Affect Perceiver",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2401.00416"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Decoding Emotional Valence from Facial EMG Patterns with Machine Learning neuros', candidate_title='SVFAP: Self-supervised Video Facial Affect Perceiver')",
+        "failed_at": "2026-06-24T22:09:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "How could we gather affect annotations in a rapid, unobtrusive, and accessible fashion? How could we still make sure that these annotations are reliable enough for data-hungry affect modelling methods? This paper addresses these questions by introducing PAGAN, an accessible, general-purpose, online platform for crowdsourcing affect labels in videos. The design of PAGAN overcomes the accessibility limitations of existing annotation tools, which often require advanced technical skills or even the on-site involvement of the researcher. Such limitations often yield affective corpora that are restricted in size, scope and use, as the applicability of modern data-demanding machine learning methods is rather limited. The description of PAGAN is accompanied by an exploratory study which compares the reliability of three continuous annotation tools currently supported by the platform. Our key results reveal higher inter-rater agreement when annotation traces are processed in a relative manner and collected via unbounded labelling.",
+          "claimed_authors": [
+            "David Melhart",
+            "Antonios Liapis",
+            "Georgios N. Yannakakis"
+          ],
+          "claimed_title": "PAGAN: Video Affect Annotation Made Easy",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1907.01008"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Decoding Emotional Valence from Facial EMG Patterns with Machine Learning neuros', candidate_title='PAGAN: Video Affect Annotation Made Easy')",
+        "failed_at": "2026-06-24T22:09:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Pairing of valence electrons can lead to energy minimization of a crystal. It can be proved by use of representation of the valence electrons as plane waves in periodic potential of the crystal.",
+          "claimed_authors": [
+            "Dolgopolov Stanislav Olegovich"
+          ],
+          "claimed_title": "Pairing of valence electrons as necessary condition for energy minimization in a crystal",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1310.4767"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Decoding Emotional Valence from Facial EMG Patterns with Machine Learning neuros', candidate_title='Pairing of valence electrons as necessary condition for energy minimization in a crystal')",
+        "failed_at": "2026-06-24T22:09:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Outcome prediction is crucial for head and neck cancer patients as it can provide prognostic information for early treatment planning. Radiomics methods have been widely used for outcome prediction from medical images. However, these methods are limited by their reliance on intractable manual segmentation of tumor regions. Recently, deep learning methods have been proposed to perform end-to-end outcome prediction so as to remove the reliance on manual segmentation. Unfortunately, without segmentation masks, these methods will take the whole image as input, such that makes them difficult to focus on tumor regions and potentially unable to fully leverage the prognostic information within the tumor regions. In this study, we propose a radiomics-enhanced deep multi-task framework for outcome prediction from PET/CT images, in the context of HEad and neCK TumOR segmentation and outcome prediction challenge (HECKTOR 2022). In our framework, our novelty is to incorporate radiomics as an enhancement to our recently proposed Deep Multi-task Survival model (DeepMTS). The DeepMTS jointly learns to predict the survival risk scores of patients and the segmentation masks of tumor regions. Radiomics features are extracted from the predicted tumor regions and combined with the predicted survival risk scores for final outcome prediction, through which the prognostic information in tumor regions can be further leveraged. Our method achieved a C-index of 0.681 on the testing set, placing the 2nd on the leaderboard with only 0.00068 lower in C-index than the 1st place.",
+          "claimed_authors": [
+            "Mingyuan Meng",
+            "Lei Bi",
+            "Dagan Feng",
+            "Jinman Kim"
+          ],
+          "claimed_title": "Radiomics-enhanced Deep Multi-task Learning for Outcome Prediction in Head and Neck Cancer",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2211.05409"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Decoding Emotional Valence from Facial EMG Patterns with Machine Learning neuros', candidate_title='Radiomics-enhanced Deep Multi-task Learning for Outcome Prediction in Head and Neck Cancer')",
+        "failed_at": "2026-06-24T22:09:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper introduces a new control signal for facial motion generation: timeline control. Compared to audio and text signals, timelines provide more fine-grained control, such as generating specific facial motions with precise timing. Users can specify a multi-track timeline of facial actions arranged in temporal intervals, allowing precise control over the timing of each action. To model the timeline control capability, We first annotate the time intervals of facial actions in natural facial motion sequences at a frame-level granularity. This process is facilitated by Toeplitz Inverse Covariance-based Clustering to minimize human labor. Based on the annotations, we propose a diffusion-based generation model capable of generating facial motions that are natural and accurately aligned with input timelines. Our method supports text-guided motion generation by using ChatGPT to convert text into timelines. Experimental results show that our method can annotate facial action intervals with satisfactory accuracy, and produces natural facial motions accurately aligned with timelines.",
+          "claimed_authors": [
+            "Yifeng Ma",
+            "Jinwei Qi",
+            "Chaonan Ji",
+            "Peng Zhang",
+            "Bang Zhang",
+            "Zhidong Deng",
+            "Liefeng Bo"
+          ],
+          "claimed_title": "Exploring Timeline Control for Facial Motion Generation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2505.20861"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Decoding Emotional Valence from Facial EMG Patterns with Machine Learning neuros', candidate_title='Exploring Timeline Control for Facial Motion Generation')",
+        "failed_at": "2026-06-24T22:09:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Facial expressions are widely used in the behavioral interpretation of emotions, cognitive science, and social interactions. In this paper, we present a novel method for fully automatic facial expression recognition in facial image sequences. As the facial expression evolves over time facial landmarks are automatically tracked in consecutive video frames, using displacements based on elastic bunch graph matching displacement estimation. Feature vectors from individual landmarks, as well as pairs of landmarks tracking results are extracted, and normalized, with respect to the first frame in the sequence. The prototypical expression sequence for each class of facial expression is formed, by taking the median of the landmark tracking results from the training facial expression sequences. Multi-class AdaBoost with dynamic time warping similarity distance between the feature vector of input facial expression and prototypical facial expression, is used as a weak classifier to select the subset of discriminative feature vectors. Finally, two methods for facial expression recognition are presented, either by using multi-class AdaBoost with dynamic time warping, or by using support vector machine on the boosted feature vectors. The results on the Cohn-Kanade (CK+) facial expression database show a recognition accuracy of 95.17% and 97.35% using multi-class AdaBoost and support vector machines, respectively.",
+          "claimed_authors": [
+            "Deepak Ghimire",
+            "Joonwhoan Lee"
+          ],
+          "claimed_title": "Geometric Feature-Based Facial Expression Recognition in Image Sequences Using Multi-Class AdaBoost and Support Vector Machines",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1604.03225"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Decoding Emotional Valence from Facial EMG Patterns with Machine Learning neuros', candidate_title='Geometric Feature-Based Facial Expression Recognition in Image Sequences Using Multi-Class AdaBoost and Support Vector Machines')",
+        "failed_at": "2026-06-24T22:09:37Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Simon Pistrosch",
+            "Kleanthis Avramidis",
+            "Zhao Ren",
+            "Tiantian Feng",
+            "Jihwan Lee",
+            "Monica Gonzalez-Machorro",
+            "Anton Batliner",
+            "Tanja Schultz",
+            "Shrikanth Narayanan",
+            "Björn W. Schuller"
+          ],
+          "title": "Affect Decoding in Phonated and Silent Speech Production from Surface EMG",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2603.11715",
+        "summary": "The expression of affect is integral to spoken communication, yet, its link to underlying articulatory execution remains unclear. Measures of articulatory muscle activity such as EMG could reveal how speech production is modulated by emotion alongside acoustic speech analyses. We investigate affect decoding from facial and neck surface electromyography (sEMG) during phonated and silent speech production. For this purpose, we introduce a dataset comprising 2,780 utterances from 12 participants across 3 tasks, on which we evaluate both intra- and inter-subject decoding using a range of features and model embeddings. Our results reveal that EMG representations reliably discriminate frustration with up to 0.845 AUC, and generalize well across articulation modes. Our ablation study further demonstrates that affective signatures are embedded in facial motor activity and persist in the absence of phonation, highlighting the potential of EMG sensing for affect-aware silent speech interfaces.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2603.11715",
+          "http_status": 200,
+          "pdf_sample_score": 0.2131,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-24T22:09:35Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "decoding emotional valence from facial emg patterns with machine learning neuroscience",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

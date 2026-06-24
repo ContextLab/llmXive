@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1701.00108",
+  "judged_at": "2026-06-24T22:10:53Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "evaluating the effectiveness of llms for detecting code smells computer science",
+  "rationale": "The paper evaluates a tool’s ability to detect code smells (a dependent variable of interest) in Java programs, providing an empirical baseline for code‑smell detection effectiveness (category (b) and (c)), which is relevant background for studies assessing LLMs on the same task.",
+  "relevant": true
+}

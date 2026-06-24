@@ -1,0 +1,511 @@
+{
+  "fetched_at": "2026-06-24T22:11:02Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "Evaluating the Effectiveness of LLMs for Detecting Code Smells",
+      "target_n": 5
+    },
+    "duration_seconds": 55.005,
+    "ended_at": "2026-06-24T22:11:02Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "large language models for code smell detection"
+        ],
+        [
+          2,
+          "AI‑driven detection of software anti‑patterns"
+        ],
+        [
+          3,
+          "transformer‑based code quality analysis"
+        ],
+        [
+          4,
+          "machine learning approaches to code smell identification"
+        ],
+        [
+          5,
+          "pretrained language models for software maintenance tasks"
+        ],
+        [
+          6,
+          "deep neural networks for software defect and smell detection"
+        ],
+        [
+          7,
+          "benchmark study of LLMs on code smell datasets"
+        ],
+        [
+          8,
+          "evaluating GPT models for code smell classification"
+        ],
+        [
+          9,
+          "semantic code analysis using language models"
+        ],
+        [
+          10,
+          "automated static analysis with large language models"
+        ],
+        [
+          11,
+          "empirical assessment of LLMs for software refactoring cues"
+        ],
+        [
+          12,
+          "neural code representation for anti‑pattern detection"
+        ],
+        [
+          13,
+          "AI‑assisted code review for smell detection"
+        ],
+        [
+          14,
+          "code quality prediction with pretrained transformers"
+        ],
+        [
+          15,
+          "comparative evaluation of deep learning models for code smell detection"
+        ],
+        [
+          16,
+          "language model‑based detection of code anti‑patterns"
+        ],
+        [
+          17,
+          "performance analysis of LLMs on software smell benchmarks"
+        ],
+        [
+          18,
+          "deep learning for automated code smell identification"
+        ],
+        [
+          19,
+          "large‑scale evaluation of transformer models in software quality assessment"
+        ],
+        [
+          20,
+          "code smell detection using generative AI models"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Evaluating the Effectiveness of LLMs for Detecting Code Smells computer science": 0,
+        "large language models for code smell detection": 5
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "anti-pattern detection transformer",
+      "Qualitas corpus code smell",
+      "static analysis code smell",
+      "code smell detection F1",
+      "pretrained code model transfer learning"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2506.07594"
+      ]
+    },
+    "per_query_hit_count": {
+      "Evaluating the Effectiveness of LLMs for Detecting Code Smells computer science": 3,
+      "Qualitas corpus code smell": 2,
+      "anti-pattern detection transformer": 3,
+      "code smell detection F1": 3,
+      "pretrained code model transfer learning": 3,
+      "static analysis code smell": 2
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 5,
+      "rejections": [
+        {
+          "primary_pointer": "2605.22976",
+          "rationale": "The paper studies “LLM code smells” (issues arising from how LLMs are integrated) and evaluates a static analysis tool for detecting those, rather than assessing the effectiveness of LLMs themselves as detectors of conventional code smells. Hence it does not address the same mechanism or variables required by the user’s question.",
+          "title": "LLM Code Smells: A Taxonomy and Detection Approach"
+        },
+        {
+          "primary_pointer": "2508.19294",
+          "rationale": "The paper reviews multimodal vision‑language models for visual object detection, which is unrelated to using (text‑only) large language models for detecting code smells in software code; it does not address the same mechanism, variables, or domain. Hence it is off‑topic for the literature review.",
+          "title": "Object Detection with Multimodal Large Vision-Language Models: An In-depth Review"
+        },
+        {
+          "primary_pointer": "2306.08568",
+          "rationale": "The paper evaluates code LLMs on code generation benchmarks and does not study or measure LLM performance on detecting code smells, nor does it provide a baseline, methodology, or related construct for that specific task. Hence it is unrelated to the user's research question.",
+          "title": "WizardCoder: Empowering Code Large Language Models with Evol-Instruct"
+        },
+        {
+          "primary_pointer": "2312.05434",
+          "rationale": "The paper studies LLM‑based detection of harmful memes—a multimodal social‑media task—not the detection of code smells in software code, nor does it provide baseline methods, foundational techniques, or empirical data relevant to the code‑smell domain. Hence it does not meet any inclusion criteria (a‑f).",
+          "title": "Beneath the Surface: Unveiling Harmful Memes with Multimodal Reasoning Distilled from Large Language Models"
+        },
+        {
+          "primary_pointer": "2501.05032",
+          "rationale": "The paper focuses on making LLMs more human-like in conversation and does not study LLMs applied to code analysis, code smell detection, or related effectiveness metrics, so it lacks any relevant mechanism, variable, or domain connection to the user's question.",
+          "title": "Enhancing Human-Like Responses in Large Language Models"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-24T22:10:07Z",
+    "term_input": {
+      "normalized": "evaluating the effectiveness of llms for detecting code smells computer science",
+      "raw": "Evaluating the Effectiveness of LLMs for Detecting Code Smells computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Context: Code smells are considered symptoms of poor design, leading to future problems, such as reduced maintainability. Except for anecdotal cases (e. g. code dropout), a code smell survives until it gets explicitly refactored or removed. This paper presents a longitudinal study on the survival of code smells for web apps built with PHP.\n  Objectives: RQ: (i) code smells survival depends on their scope? (ii) practitioners attitudes towards code smells removal in web apps have changed throughout time? (iii) how long code smells survive in web applications? (iv) are there sudden variations (anomalies) in the density of code smells through the evolution of web apps?\n  Method: We analyze the evolution of 6 code smells in 8 web applications written in PHP at the server side, across several years, using the survival analysis technique. We classify code smells according to scope in two categories: scattered and localized. Scattered code smells are expected to be more harmful since their influence is not circumscribed as in localized code smells. We split the observations for each web app into two equal and consecutive timeframes, to test the hypothesis that code smells awareness has increased throughout time. As for the anomalies, we standardize their detection criteria.\n  Results: We present some evidence that code smells survival depends on their scope: the average survival rate decreases in some of them, while the opposite is observed for the remainder. The survival of localized code smells is around 4 years, while the scattered ones live around 5 years. Around 60% of the smells are removed, and some live through all the application life. We also show how a graphical representation of anomalies found in the evolution of code smells allows unveiling the story of a development project and make managers aware of the need for enforcing regular refactoring practices.",
+          "claimed_authors": [
+            "Américo Rio",
+            "Fernando Brito e Abreu"
+          ],
+          "claimed_title": "PHP code smells in web apps: survival and anomalies",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2101.00090"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Evaluating the Effectiveness of LLMs for Detecting Code Smells computer science', candidate_title='PHP code smells in web apps: survival and anomalies')",
+        "failed_at": "2026-06-24T22:10:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Indoor radar perception has seen rising interest due to affordable costs driven by emerging automotive imaging radar developments and the benefits of reduced privacy concerns and reliability under hazardous conditions (e.g., fire and smoke). However, existing radar perception pipelines fail to account for distinctive characteristics of the multi-view radar setting. In this paper, we propose Radar dEtection TRansformer (RETR), an extension of the popular DETR architecture, tailored for multi-view radar perception. RETR inherits the advantages of DETR, eliminating the need for hand-crafted components for object detection and segmentation in the image plane. More importantly, RETR incorporates carefully designed modifications such as 1) depth-prioritized feature similarity via a tunable positional encoding (TPE); 2) a tri-plane loss from both radar and camera coordinates; and 3) a learnable radar-to-camera transformation via reparameterization, to account for the unique multi-view radar setting. Evaluated on two indoor radar perception datasets, our approach outperforms existing state-of-the-art methods by a margin of 15.38+ AP for object detection and 11.91+ IoU for instance segmentation, respectively. Our implementation is available at https://github.com/merlresearch/radar-detection-transformer.",
+          "claimed_authors": [
+            "Ryoma Yataka",
+            "Adriano Cardace",
+            "Pu Perry Wang",
+            "Petros Boufounos",
+            "Ryuhei Takahashi"
+          ],
+          "claimed_title": "RETR: Multi-View Radar Detection Transformer for Indoor Perception",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2411.10293"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Effectiveness of LLMs for Detecting Code Smells computer science', candidate_title='RETR: Multi-View Radar Detection Transformer for Indoor Perception')",
+        "failed_at": "2026-06-24T22:10:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Botnets, which consist of thousands of compromised machines, can cause significant threats to other systems by launching Distributed Denial of Service (SSoS) attacks, keylogging, and backdoors. In response to these threats, new effective techniques are needed to detect the presence of botnets. In this paper, we have used an interception technique to monitor Windows Application Programming Interface (API) functions calls made by communication applications and store these calls with their arguments in log files. Our algorithm detects botnets based on monitoring abnormal activity by correlating the changes in log file sizes from different hosts.",
+          "claimed_authors": [
+            "Yousof Al-Hammadi",
+            "Uwe Aickelin"
+          ],
+          "claimed_title": "Detecting Botnets Through Log Correlation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1001.2665"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Evaluating the Effectiveness of LLMs for Detecting Code Smells computer science', candidate_title='Detecting Botnets Through Log Correlation')",
+        "failed_at": "2026-06-24T22:10:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Transformer networks have achieved great progress for computer vision tasks. Transformer-in-Transformer (TNT) architecture utilizes inner transformer and outer transformer to extract both local and global representations. In this work, we present new TNT baselines by introducing two advanced designs: 1) pyramid architecture, and 2) convolutional stem. The new \"PyramidTNT\" significantly improves the original TNT by establishing hierarchical representations. PyramidTNT achieves better performances than the previous state-of-the-art vision transformers such as Swin Transformer. We hope this new baseline will be helpful to the further research and application of vision transformer. Code will be available at https://github.com/huawei-noah/CV-Backbones/tree/master/tnt_pytorch.",
+          "claimed_authors": [
+            "Kai Han",
+            "Jianyuan Guo",
+            "Yehui Tang",
+            "Yunhe Wang"
+          ],
+          "claimed_title": "PyramidTNT: Improved Transformer-in-Transformer Baselines with Pyramid Architecture",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2201.00978"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Evaluating the Effectiveness of LLMs for Detecting Code Smells computer science', candidate_title='PyramidTNT: Improved Transformer-in-Transformer Baselines with Pyramid Architecture')",
+        "failed_at": "2026-06-24T22:10:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Automatic temporal ordering of events described in discourse has been of great interest in recent years. Event orderings are conveyed in text via va rious linguistic mechanisms including the use of expressions such as \"before\", \"after\" or \"during\" that explicitly assert a temporal relation -- temporal signals. In this paper, we investigate the role of temporal signals in temporal relation extraction and provide a quantitative analysis of these expres sions in the TimeBank annotated corpus.",
+          "claimed_authors": [
+            "Leon Derczynski",
+            "Robert Gaizauskas"
+          ],
+          "claimed_title": "A Corpus-based Study of Temporal Signals",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1203.5066"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Effectiveness of LLMs for Detecting Code Smells computer science', candidate_title='A Corpus-based Study of Temporal Signals')",
+        "failed_at": "2026-06-24T22:10:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper introduces a new Romanian speech corpus from the ROBIN project, called ROBIN Technical Acquisition Speech Corpus (ROBINTASC). Its main purpose was to improve the behaviour of a conversational agent, allowing human-machine interaction in the context of purchasing technical equipment. The paper contains a detailed description of the acquisition process, corpus statistics as well as an evaluation of the corpus influence on a low-latency ASR system as well as a dialogue component.",
+          "claimed_authors": [
+            "Vasile Păiş",
+            "Radu Ion",
+            "Andrei-Marius Avram",
+            "Elena Irimia",
+            "Verginica Barbu Mititelu",
+            "Maria Mitrofan"
+          ],
+          "claimed_title": "Human-Machine Interaction Speech Corpus from the ROBIN project",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2111.11170"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Effectiveness of LLMs for Detecting Code Smells computer science', candidate_title='Human-Machine Interaction Speech Corpus from the ROBIN project')",
+        "failed_at": "2026-06-24T22:10:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Simulation modelling systems are routinely used to test or understand real-world scenarios in a controlled setting. They have found numerous applications in scientific research, engineering, and industrial operations. Due to their complex nature, the simulation systems could suffer from various code quality issues and technical debt. However, to date, there has not been any investigation into their code quality issues (e.g. code smells). In this paper, we conduct an empirical study investigating the prevalence, evolution, and impact of code smells in simulation software systems. First, we employ static analysis tools (e.g. Designite) to detect and quantify the prevalence of various code smells in 155 simulation and 327 traditional projects from Github. Our findings reveal that certain code smells (e.g. Long Statement, Magic Number) are more prevalent in simulation software systems than in traditional software systems. Second, we analyze the evolution of these code smells across multiple project versions and investigate their chances of survival. Our experiments show that some code smells such as Magic Number and Long Parameter List can survive a long time in simulation software systems. Finally, we examine any association between software bugs and code smells. Our experiments show that although Design and Architecture code smells are introduced simultaneously with bugs, there is no significant association between code smells and bugs in simulation systems.",
+          "claimed_authors": [
+            "Riasat Mahbub",
+            "Mohammad Masudur Rahman",
+            "Muhammad Ahsanul Habib"
+          ],
+          "claimed_title": "On the Prevalence, Evolution, and Impact of Code Smells in Simulation Modelling Software",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2409.03957"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Evaluating the Effectiveness of LLMs for Detecting Code Smells computer science', candidate_title='On the Prevalence, Evolution, and Impact of Code Smells in Simulation Modelling Software')",
+        "failed_at": "2026-06-24T22:10:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Understanding what drives code instability is essential for effective software maintenance, as unstable classes require larger or more frequent edits and increase the risk of unintended side effects. Although code smells are widely believed to harm maintainability, most prior stability studies examine only the smells within the class being modified. In practice, however, classes can change because their efferent neighbors (i.e., the classes they depend on) are modified due to ripple effects that propagate along static dependencies, even if the class itself is clean. Such ripple effects may be more severe when the efferent neighbor exhibits code smells. In addition, code smells rarely occur alone. They often appear together within a class or across classes connected by static dependencies, a phenomenon known as code smell interrelation. Such interrelation can lead to code smell interaction, where smells are directly connected through static dependencies and may further compound maintainability issues. However, the effect of code smell interrelation and interaction on code quality remains largely underexplored. Therefore, this study investigates whether the presence of code smells in a class's efferent neighbors affects its stability, considering the factor of code smell interrelation and interaction. To achieve this, we mine one year of commit history from 100 top-starred GitHub projects, detect code smells and static dependencies, determine code smell interrelation and interaction, and model these factors as predictors of class stability.",
+          "claimed_authors": [
+            "Zushuai Zhang",
+            "Elliott Wen",
+            "Ewan Tempero"
+          ],
+          "claimed_title": "The Influence of Code Smells in Efferent Neighbors on Class Stability",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2602.12950"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Evaluating the Effectiveness of LLMs for Detecting Code Smells computer science', candidate_title='The Influence of Code Smells in Efferent Neighbors on Class Stability')",
+        "failed_at": "2026-06-24T22:10:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Code smells are characteristics of the software that indicates a code or design problem which can make software hard to understand, evolve, and maintain. The code smell detection tools proposed in the literature produce different results, as smells are informally defined or are subjective in nature. To address the issue of tool subjectivity, machine learning techniques have been proposed which can learn and distinguish the characteristics of smelly and non-smelly source code elements (classes or methods). However, the existing machine learning techniques can only detect a single type of smell in the code element which does not correspond to a real-world scenario. In this paper, we have used multilabel classification methods to detect whether the given code element is affected by multiple smells or not. We have considered two code smell datasets for this work and converted them into a multilabel dataset. In our experimentation, Two multilabel methods performed on the converted dataset which demonstrates good performances in the 10-fold cross-validation, using ten repetitions.",
+          "claimed_authors": [
+            "Thirupathi Guggulothu"
+          ],
+          "claimed_title": "Code Smell Detection using Multilabel Classification Approach",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1902.03222"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Evaluating the Effectiveness of LLMs for Detecting Code Smells computer science', candidate_title='Code Smell Detection using Multilabel Classification Approach')",
+        "failed_at": "2026-06-24T22:10:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper presents GLITCH, a new technology-agnostic framework that enables automated polyglot code smell detection for Infrastructure as Code scripts. GLITCH uses an intermediate representation on which different code smell detectors can be defined. It currently supports the detection of nine security smells and nine design & implementation smells in scripts written in Ansible, Chef, Docker, Puppet, or Terraform. Studies conducted with GLITCH not only show that GLITCH can reduce the effort of writing code smell analyses for multiple IaC technologies, but also that it has higher precision and recall than current state-of-the-art tools. A video describing and demonstrating GLITCH is available at: https://youtu.be/E4RhCcZjWbk",
+          "claimed_authors": [
+            "Nuno Saavedra",
+            "João Gonçalves",
+            "Miguel Henriques",
+            "João F. Ferreira",
+            "Alexandra Mendes"
+          ],
+          "claimed_title": "Polyglot Code Smell Detection for Infrastructure as Code with GLITCH",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2308.09458"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Evaluating the Effectiveness of LLMs for Detecting Code Smells computer science', candidate_title='Polyglot Code Smell Detection for Infrastructure as Code with GLITCH')",
+        "failed_at": "2026-06-24T22:10:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The advent of federated learning has facilitated large-scale data exchange amongst machine learning models while maintaining privacy. Despite its brief history, federated learning is rapidly evolving to make wider use more practical. One of the most significant advancements in this domain is the incorporation of transfer learning into federated learning, which overcomes fundamental constraints of primary federated learning, particularly in terms of security. This chapter performs a comprehensive survey on the intersection of federated and transfer learning from a security point of view. The main goal of this study is to uncover potential vulnerabilities and defense mechanisms that might compromise the privacy and performance of systems that use federated and transfer learning.",
+          "claimed_authors": [
+            "Ehsan Hallaji",
+            "Roozbeh Razavi-Far",
+            "Mehrdad Saif"
+          ],
+          "claimed_title": "Federated and Transfer Learning: A Survey on Adversaries and Defense Mechanisms",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2207.02337"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Effectiveness of LLMs for Detecting Code Smells computer science', candidate_title='Federated and Transfer Learning: A Survey on Adversaries and Defense Mechanisms')",
+        "failed_at": "2026-06-24T22:10:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Pretrained transformer-based models have shown high performance in natural language generation task. However, a new wave of interest has surged: automatic programming language generation. This task consists of translating natural language instructions to a programming code. Despite the fact that well-known pretrained models on language generation have achieved good performance in learning programming languages, effort is still needed in automatic code generation. In this paper, we introduce JaCoText, a model based on Transformers neural network. It aims to generate java source code from natural language text. JaCoText leverages advantages of both natural language and code generation models. More specifically, we study some findings from the state of the art and use them to (1) initialize our model from powerful pretrained models, (2) explore additional pretraining on our java dataset, (3) carry out experiments combining the unimodal and bimodal data in the training, and (4) scale the input and output length during the fine-tuning of the model. Conducted experiments on CONCODE dataset show that JaCoText achieves new state-of-the-art results.",
+          "claimed_authors": [
+            "Jessica López Espejel",
+            "Mahaman Sanoussi Yahaya Alassan",
+            "Walid Dahhane",
+            "El Hassane Ettifouri"
+          ],
+          "claimed_title": "JaCoText: A Pretrained Model for Java Code-Text Generation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2303.12869"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Evaluating the Effectiveness of LLMs for Detecting Code Smells computer science', candidate_title='JaCoText: A Pretrained Model for Java Code-Text Generation')",
+        "failed_at": "2026-06-24T22:10:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The transfer learning toolkit wraps the codes of 17 transfer learning models and provides integrated interfaces, allowing users to use those models by calling a simple function. It is easy for primary researchers to use this toolkit and to choose proper models for real-world applications. The toolkit is written in Python and distributed under MIT open source license. In this paper, the current state of this toolkit is described and the necessary environment setting and usage are introduced.",
+          "claimed_authors": [
+            "Fuzhen Zhuang",
+            "Keyu Duan",
+            "Tongjia Guo",
+            "Yongchun Zhu",
+            "Dongbo Xi",
+            "Zhiyuan Qi",
+            "Qing He"
+          ],
+          "claimed_title": "Transfer Learning Toolkit: Primers and Benchmarks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1911.08967"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Effectiveness of LLMs for Detecting Code Smells computer science', candidate_title='Transfer Learning Toolkit: Primers and Benchmarks')",
+        "failed_at": "2026-06-24T22:10:38Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "E. G. Santana",
+            "Jander Pereira Santos Junior",
+            "Erlon P. Almeida",
+            "Iftekhar Ahmed",
+            "Paulo Anselmo da Mota Silveira Neto",
+            "Eduardo Santana de Almeida"
+          ],
+          "title": "Evaluating LLMs Effectiveness in Detecting and Correcting Test Smells: An Empirical Study",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2506.07594",
+        "summary": "Test smells indicate poor development practices in test code, reducing maintainability and reliability. While developers often struggle to prevent or refactor these issues, existing tools focus primarily on detection rather than automated refactoring. Large Language Models (LLMs) have shown strong potential in code understanding and transformation, but their ability to both identify and refactor test smells remains underexplored. We evaluated GPT-4-Turbo, LLaMA 3 70B, and Gemini-1.5 Pro on Python and Java test suites, using PyNose and TsDetect for initial smell detection, followed by LLM-driven refactoring. Gemini achieved the highest detection accuracy (74.35\\% Python, 80.32\\% Java), while LLaMA was lowest. All models could refactor smells, but effectiveness varied, sometimes introducing new smells. Gemini also improved test coverage, unlike GPT-4 and LLaMA, which often reduced it. These results highlight LLMs' potential for automated test smell refactoring, with Gemini as the strongest performer, though challenges remain across languages and smell types.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2506.07594",
+          "http_status": 200,
+          "pdf_sample_score": 0.2415,
+          "query_relevance_score": 0.7143,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-24T22:10:37Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Ashish Sureka"
+          ],
+          "title": "Parichayana: An Eclipse Plugin for Detecting Exception Handling Anti-Patterns and Code Smells in Java Programs",
+          "venue": "arXiv",
+          "year": 2016
+        },
+        "primary_pointer": "1701.00108",
+        "summary": "Anti-patterns and code-smells are signs in the source code which are not defects (does not prevent the program from functioning and does not cause compile errors) and are rather indicators of deeper and bigger problems. Exception handling is a programming construct de- signed to handle the occurrence of anomalous or exceptional conditions (that changes the normal flow of program execution). In this paper, we present an Eclipse plug-in (called as Parichayana) for detecting exception handling anti-patterns and code smells in Java programs. Parichayana is capable of automatically detecting several commonly occurring excep- tion handling programming mistakes. We extend the Eclipse IDE and create new menu entries and associated action via the Parichayana plug- in (free and open-source hosted on GitHub). We compare and contrast Parichayana with several code smell detection tools and demonstrate that our tool provides unique capabilities in context to existing tools. We have created an update site and developers can use the Eclipse up- date manager to install Parichayana from our site. We used Parichyana on several large open-source Java based projects and detected presence of exception handling anti-patterns",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1701.00108",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4286,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-24T22:10:37Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Saymon Souza",
+            "Amanda Santana",
+            "Eduardo Figueiredo",
+            "Igor Muzetti",
+            "João Eduardo Montandon",
+            "Lionel Briand"
+          ],
+          "title": "Beyond Strict Rules: Assessing the Effectiveness of Large Language Models for Code Smell Detection",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2601.09873",
+        "summary": "Code smells are symptoms of potential code quality problems that may affect software maintainability, thus increasing development costs and impacting software reliability. Large language models (LLMs) have shown remarkable capabilities for supporting various software engineering activities, but their use for detecting code smells remains underexplored. However, unlike the rigid rules of static analysis tools, LLMs can support flexible and adaptable detection strategies tailored to the unique properties of code smells. This paper evaluates the effectiveness of four LLMs -- DeepSeek-R1, GPT-5 mini, Llama-3.3, and Qwen2.5-Code -- for detecting nine code smells across 30 Java projects. For the empirical evaluation, we created a ground-truth dataset by asking 76 developers to manually inspect 268 code-smell candidates. Our results indicate that LLMs perform strongly for structurally straightforward smells, such as Large Class and Long Method. However, we also observed that different LLMs and tools fare better for distinct code smells. We then propose and evaluate a detection strategy that combines LLMs and static analysis tools. The proposed strategy outperforms LLMs and tools in five out of nine code smells in terms of F1-Score. However, it also generates more false positives for complex smells. Therefore, we conclude that the optimal strategy depends on whether Recall or Precision is the main priority for code smell detection.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2601.09873",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 1.0,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-24T22:10:44Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "evaluating the effectiveness of llms for detecting code smells computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

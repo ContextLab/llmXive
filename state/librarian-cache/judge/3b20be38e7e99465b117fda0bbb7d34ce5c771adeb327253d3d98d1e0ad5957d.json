@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2603.11715",
+  "judged_at": "2026-06-24T22:09:44Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "decoding emotional valence from facial emg patterns with machine learning neuroscience",
+  "rationale": "The paper decodes affect (including frustration) from facial and neck surface EMG using machine‑learning models, directly measuring the same biological signal (facial EMG) and emotional construct (valence) that the user’s question concerns, satisfying criterion (a) same‑mechanism evidence.",
+  "relevant": true
+}

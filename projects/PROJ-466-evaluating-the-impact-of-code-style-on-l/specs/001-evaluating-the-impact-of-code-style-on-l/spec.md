@@ -61,10 +61,12 @@ A researcher wants a concise, shareable report that includes tables, plots, and 
 ### Functional Requirements
 
 - **FR-001**: System MUST download and load the HumanEval benchmark subset (≤ 164 tasks) from the public HuggingFace repository.  
-- **FR-002**: System MUST support three configurable style profiles—Neutral, Strict PEP style, Aggressive Minification—each defined by a prompt template.  
+- **FR-002**: System MUST support three configurable style profiles—Neutral, Strict PEP8, Aggressive Minification—each defined by a prompt template stored as a separate file under `code/prompts/` and referenced by name in experiment configuration files.  
 - **FR-003**: System MUST generate **exactly 5** code samples per task per style using temperature sampling **T = 0.7**.  
-- **FR-004**: System MUST compute (a) token‑level n‑gram overlap and (b) AST edit distance for **all unordered pairs** of samples within the same style group, storing results in a structured CSV.  
-- **FR-005**: System MUST perform a Kruskal‑Wallis H‑test on the per‑style diversity score distributions and output the H statistic and associated p‑value.
+- **FR-004**: System MUST compute (a) token‑level n‑gram overlap and (b) AST edit distance for **all unordered pairs** of samples within the same style group, storing results in a structured CSV that includes columns for the style variant, sample identifiers, and the computed scores.  
+- **FR-005**: System MUST perform a Kruskal‑Wallis H‑test on the per‑task aggregated diversity scores (e.g., median AST edit distance) across styles, using significance threshold α defined in a version‑controlled `config/analysis.yaml` file, and output the H statistic and associated p‑value.  
+- **FR-006**: System MUST generate a summary report (PDF or HTML) that includes (a) average diversity metrics per style, (b) box‑plots of the metric distributions, and (c) the statistical test outcome, and must write the report to a user‑specified output directory.  
+- **FR-008**: System MUST set deterministic random seeds for all stochastic processes (e.g., code generation, statistical sampling) to a fixed integer (seed = 42) and record the seed value in the experiment log for reproducibility.
 
 ### Key Entities *(none required for this research‑only feature)*
 
@@ -75,6 +77,7 @@ A researcher wants a concise, shareable report that includes tables, plots, and 
 - **SC-001**: Average AST edit distance for the Strict PEP8 style is **≤ 80 %** of the average distance for the Neutral style (reference: Neutral baseline).  
 - **SC-002**: The Kruskal‑Wallis H‑test yields a **p‑value ≤ 0.05** when a statistically significant reduction in diversity is present (reference: significance threshold α = 0.05).  
 - **SC-003**: At least **[deferred]** of generated code samples compile successfully across all tasks (reference: compilation check against the Python interpreter).
+- **SC-004**: The exported summary report is produced without error, contains the required tables, plots, and statistical results, and its file size is ≥ 50 KB (reference: typical report size for comparable analyses).
 
 ## Assumptions
 
@@ -83,5 +86,4 @@ A researcher wants a concise, shareable report that includes tables, plots, and 
 - The HumanEval benchmark is freely downloadable from HuggingFace and does not require additional licensing.  
 - Researchers have a Python 3.10+ environment with `transformers`, `torch`, `astor`, and standard statistical libraries (`scipy`, `numpy`).  
 - All style templates are syntactically valid Python snippets; any conflict will be flagged during prompt validation.  
-
----
+- Random seeds are fixed (seed = 42) for all generation and analysis steps to ensure reproducibility (Constitution I).  

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2306.04338",
+  "judged_at": "2026-06-24T22:09:52Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "decoding emotional valence from facial emg patterns with machine learning neuroscience",
+  "rationale": "The paper discusses machine‑learning challenges in official statistics and data‑source drift, with no focus on facial electromyography, emotional valence, or neuroscience, thus it lacks any relevant mechanism, variable, or domain connection to the user's question.",
+  "relevant": false
+}

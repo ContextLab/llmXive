@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2601.06516",
+  "judged_at": "2026-06-24T22:09:51Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "decoding emotional valence from facial emg patterns with machine learning neuroscience",
+  "rationale": "The paper studies low‑cost, single‑lead EMG for control on embedded devices and does not involve facial EMG recordings, emotional valence, or affective decoding, which are the core variables of the user's question. It therefore falls outside the relevant domain and construct.",
+  "relevant": false
+}

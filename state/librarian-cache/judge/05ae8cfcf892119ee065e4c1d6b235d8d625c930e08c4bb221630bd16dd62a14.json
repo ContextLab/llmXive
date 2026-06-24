@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2501.05032",
+  "judged_at": "2026-06-24T22:11:01Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "evaluating the effectiveness of llms for detecting code smells computer science",
+  "rationale": "The paper focuses on making LLMs more human-like in conversation and does not study LLMs applied to code analysis, code smell detection, or related effectiveness metrics, so it lacks any relevant mechanism, variable, or domain connection to the user's question.",
+  "relevant": false
+}

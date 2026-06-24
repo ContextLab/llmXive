@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1604.04334",
+  "judged_at": "2026-06-24T22:09:47Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "decoding emotional valence from facial emg patterns with machine learning neuroscience",
+  "rationale": "The paper focuses on visual geometric features and SVMs for facial expression recognition from video, not on facial EMG signals or decoding emotional valence from EMG patterns; it does not share the same biological measurement modality or variables required by the user's neuroscience question.",
+  "relevant": false
+}

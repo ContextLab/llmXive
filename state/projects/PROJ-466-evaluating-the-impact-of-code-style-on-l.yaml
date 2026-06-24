@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-08T23:26:50.236559Z'
-current_stage: specified
+current_stage: flesh_out_in_progress
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-466-evaluating-the-impact-of-code-style-on-l
-last_run_id: a9ad0e0e-6534-4951-a231-64c8f9643a00
+last_run_id: 02d1aca2-86f0-4541-a37d-82d7ce72b4e0
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-466-evaluating-the-impact-of-code-style-on-l/specs/001-evaluating-the-impact-of-code-style-on-l
 title: Evaluating the Impact of Code Style on LLM Code Generation Diversity
-updated_at: '2026-06-24T14:40:44.143092Z'
+updated_at: '2026-06-24T22:16:29.642630Z'

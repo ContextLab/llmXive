@@ -35,6 +35,10 @@
     "classified_at": "2026-06-22T21:46:10Z",
     "verdict": false
   },
+  "PROJ-214-decoding-emotional-valence-from-facial-e::1.6.0": {
+    "classified_at": "2026-06-24T22:09:35Z",
+    "verdict": false
+  },
   "PROJ-224-predicting-the-ductility-of-additively-m::1.6.0": {
     "classified_at": "2026-06-24T03:25:41Z",
     "verdict": false
@@ -65,6 +69,10 @@
   },
   "PROJ-266-machine-learning-prediction-of-fracture-::1.6.0": {
     "classified_at": "2026-06-24T14:39:27Z",
+    "verdict": false
+  },
+  "PROJ-271-evaluating-the-effectiveness-of-llms-for::1.6.0": {
+    "classified_at": "2026-06-24T22:10:37Z",
     "verdict": false
   },
   "PROJ-276-predicting-the-impact-of-impurities-on-t::1.6.0": {

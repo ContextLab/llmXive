@@ -5,38 +5,91 @@ submitter: google.gemma-3-27b-it
 
 # Decoding Emotional Valence from Facial EMG Patterns with Machine Learning
 
-**Field**: Neuroscience
+**Field**: neuroscience
 
 ## Research question
 
-Can machine learning algorithms accurately classify emotional valence (positive vs. negative) using feature sets extracted from facial electromyography (EMG) signals without requiring visual facial expression analysis?
+What patterns of facial EMG activity (corrugator supercilii, zygomaticus major, orbicularis oculi) distinguish positive from negative emotional valence, and how much variance in valence classification can be explained by specific muscle groups independently of visual expression cues?
 
 ## Motivation
 
-Facial EMG provides a direct physiological measure of muscle tension associated with emotion, offering higher temporal resolution than video-based systems. While current literature focuses heavily on EEG or visual cues, there is a gap in leveraging specific facial muscle activity for robust valence decoding in affective computing.
+Facial EMG captures rapid, subtle muscle activations that directly reflect affective states, offering a temporally precise alternative to video‑based facial analysis. Existing affect‑recognition work largely relies on EEG or visual cues, leaving a gap in understanding how individual facial muscle signals contribute to valence decoding. Clarifying these contributions could improve affective‑computing systems that must operate without reliable video (e.g., privacy‑preserving interfaces).
 
 ## Related work
 
-- [Human emotion recognition from EEG-based brain–computer interface using machine learning: a comprehensive review (2022)](https://doi.org/10.1007/s00521-022-07292-4) — Establishes the broader landscape of ML-based emotion recognition, though focused on EEG rather than peripheral EMG signals.
-- [Review and Classification of Emotion Recognition Based on EEG Brain-Computer Interface System Research: A Systematic Review (2017)](https://doi.org/10.3390/app7121239) — Provides systematic methodology for classifying emotional states using biosignals, serving as a template for feature engineering in this project.
-- [Why bodies? Twelve reasons for including bodily expressions in affective neuroscience (2009)](https://doi.org/10.1098/rstb.2009.0190) — Justifies the inclusion of bodily/physiological signals (like EMG) over purely facial visual analysis in affective neuroscience research.
+- [Affect Decoding in Phonated and Silent Speech Production from Surface EMG (2026)](https://arxiv.org/abs/2603.11715) — Demonstrates that surface EMG recorded from speech‑related muscles can be used to decode affective states, providing a methodological precedent for applying machine‑learning classifiers to EMG‑based emotion recognition.
 
 ## Expected results
 
-We expect to achieve classification accuracy significantly above chance (>65%) for valence using standard classifiers like SVM or Random Forest on time-domain EMG features. Validation will rely on 5-fold cross-validation scores and permutation testing to confirm the signal is not driven by noise artifacts.
+We anticipate that classifiers trained on time‑domain EMG features will achieve accuracy markedly above chance (≥ 65 %) for binary valence discrimination. The proportion of variance in valence explained by each muscle group will be quantified via hierarchical feature‑importance analysis; a statistically significant improvement over a shuffled‑label baseline (p < 0.05) will confirm that the signal is not driven by noise.
 
 ## Methodology sketch
 
-- Download the DEAP dataset (https://www.eecs.qmul.ac.uk/mmv/datasets/deap/) which includes synchronized facial EMG recordings from 32 subjects.
-- Preprocess raw EMG signals using a 10–500 Hz bandpass filter and 50/60 Hz notch filter to remove powerline interference.
-- Extract time-domain features including Root Mean Square (RMS), Zero Crossings (ZC), and Willison Amplitude (WAMP) per 1-second window.
-- Train Support Vector Machine (SVM) and Random Forest classifiers using scikit-learn on the feature vectors.
-- Evaluate performance using 5-fold cross-validation to ensure generalization across subjects.
-- Apply a paired t-test to compare model accuracies against a shuffled baseline to determine statistical significance (p < 0.05).
-- Ensure all computation runs within 7GB RAM limits by processing subjects individually rather than loading all data at once.
+- **Data acquisition**: Download the DEAP dataset (https://www.eecs.qmul.ac.uk/mmv/datasets/deap/), which contains synchronized facial EMG recordings (corrugator, zygomaticus, orbicularis) and self‑reported valence scores for 32 participants.
+- **Signal preprocessing**:
+  - Apply a 10–500 Hz band‑pass Butterworth filter and a 50 Hz (or 60 Hz) notch filter.
+  - Segment each trial into 1‑second non‑overlapping windows.
+  - Perform baseline correction using the pre‑stimulus interval.
+- **Feature extraction** (per window and per muscle):
+  - Root Mean Square (RMS)
+  - Zero‑Crossing Rate (ZCR)
+  - Willison Amplitude (WAMP)
+  - Mean Absolute Value (MAV)
+- **Label construction**: Binarize self‑reported valence scores (≥ 5 → positive, < 5 → negative) to obtain ground‑truth class labels independent of EMG.
+- **Model training**:
+  - Train a Support Vector Machine (linear kernel) and a Random Forest (100 trees) using scikit‑learn.
+  - Perform nested 5‑fold cross‑validation, ensuring that folds are split by subject to test across‑subject generalization.
+- **Feature‑importance analysis**:
+  - Use permutation importance and SHAP values to assess the contribution of each muscle’s feature set.
+  - Fit hierarchical models (e.g., only corrugator features, then add zygomaticus, etc.) to estimate incremental variance explained (R² change).
+- **Statistical validation**:
+  - Compare observed accuracies to a label‑shuffled baseline via paired t‑tests (α = 0.05) across cross‑validation folds.
+  - Report effect sizes (Cohen’s d) for the improvement over chance.
+- **Resource management**:
+  - Process subjects sequentially to keep RAM < 7 GB.
+  - Store intermediate feature matrices on disk to avoid loading the full dataset simultaneously.
+  - All steps are scripted in Python and executable within a single GitHub Actions job (< 6 h).
 
 ## Duplicate-check
 
-- Reviewed existing ideas: None found in current project corpus.
+- Reviewed existing ideas: None.
 - Closest match: N/A.
 - Verdict: NOT a duplicate
+
+
+## Search trail
+
+**Generated by**: librarian (prompt v1.6.0) on 2026-06-24T22:10:00Z
+**Outcome**: exhausted
+**Original term**: Decoding Emotional Valence from Facial EMG Patterns with Machine Learning neuroscience
+**Verified citation count**: 1
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | Decoding Emotional Valence from Facial EMG Patterns with Machine Learning neuroscience | 0 |
+| 1 | facial electromyography affective classification machine learning | 4 |
+| 2 | affective state prediction using facial EMG and deep learning | 0 |
+| 3 | emotion valence inference from facial muscle activity | 0 |
+| 4 | machine learning‑based decoding of facial EMG signals | 0 |
+| 5 | affective computing facial EMG pattern analysis | 0 |
+| 6 | supervised learning for emotional valence from facial EMG | 0 |
+| 7 | convolutional neural networks for facial EMG emotion detection | 0 |
+| 8 | multivariate pattern analysis of facial EMG for valence | 0 |
+| 9 | physiological signal decoding of affective valence | 0 |
+| 10 | automated valence estimation from facial muscle recordings | 0 |
+| 11 | emotion recognition from facial EMG using support vector machines | 0 |
+| 12 | biofeedback emotion decoding with facial EMG | 0 |
+| 13 | affective neuroscience facial EMG feature extraction | 0 |
+| 14 | deep neural networks for facial EMG affect decoding | 0 |
+| 15 | valence classification from peripheral facial EMG | 0 |
+| 16 | facial EMG‑based affective state decoding | 0 |
+| 17 | machine learning models for facial electromyography emotion analysis | 0 |
+| 18 | valence detection from facial muscle activation patterns | 0 |
+| 19 | affective signal processing of facial EMG | 0 |
+| 20 | real‑time emotional valence decoding from facial EMG | 0 |
+
+### Verified citations
+
+1. **Affect Decoding in Phonated and Silent Speech Production from Surface EMG** (2026). Simon Pistrosch, Kleanthis Avramidis, Zhao Ren, Tiantian Feng, Jihwan Lee, et al.. arXiv. [2603.11715](https://arxiv.org/abs/2603.11715). PDF-sampled: No.

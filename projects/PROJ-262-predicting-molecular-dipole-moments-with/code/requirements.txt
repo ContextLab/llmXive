@@ -1,8 +1,8 @@
-# Core dependencies for the molecular dipole moment prediction project
+# Core dependencies for the project
 numpy
 pandas
 torch
 scikit-learn
 tqdm
-requests  # added for URL validation utility (T053) and potential future web checks
-# other dependencies are managed elsewhere or installed via environment files
+# Added for state‑tracking script
+pyyaml

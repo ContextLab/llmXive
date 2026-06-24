@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2312.05434",
+  "judged_at": "2026-06-24T22:10:59Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "evaluating the effectiveness of llms for detecting code smells computer science",
+  "rationale": "The paper studies LLM‑based detection of harmful memes—a multimodal social‑media task—not the detection of code smells in software code, nor does it provide baseline methods, foundational techniques, or empirical data relevant to the code‑smell domain. Hence it does not meet any inclusion criteria (a‑f).",
+  "relevant": false
+}

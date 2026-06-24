@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2605.22976",
+  "judged_at": "2026-06-24T22:10:49Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "evaluating the effectiveness of llms for detecting code smells computer science",
+  "rationale": "The paper studies “LLM code smells” (issues arising from how LLMs are integrated) and evaluates a static analysis tool for detecting those, rather than assessing the effectiveness of LLMs themselves as detectors of conventional code smells. Hence it does not address the same mechanism or variables required by the user’s question.",
+  "relevant": false
+}

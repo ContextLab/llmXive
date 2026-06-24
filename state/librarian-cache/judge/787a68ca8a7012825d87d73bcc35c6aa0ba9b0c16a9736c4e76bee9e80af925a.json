@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2601.09873",
+  "judged_at": "2026-06-24T22:11:02Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "evaluating the effectiveness of llms for detecting code smells computer science",
+  "rationale": "The paper directly studies the same mechanism—LLM performance on code‑smell detection—by measuring effectiveness (precision, recall, F1) of several LLMs on a ground‑truth dataset, satisfying criteria (a) and (b).",
+  "relevant": true
+}

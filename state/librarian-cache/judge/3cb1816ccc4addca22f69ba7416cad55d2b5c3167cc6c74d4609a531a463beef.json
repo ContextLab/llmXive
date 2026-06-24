@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2508.19294",
+  "judged_at": "2026-06-24T22:10:54Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "evaluating the effectiveness of llms for detecting code smells computer science",
+  "rationale": "The paper reviews multimodal vision‑language models for visual object detection, which is unrelated to using (text‑only) large language models for detecting code smells in software code; it does not address the same mechanism, variables, or domain. Hence it is off‑topic for the literature review.",
+  "relevant": false
+}
