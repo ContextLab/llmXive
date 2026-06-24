@@ -1,0 +1,493 @@
+{
+  "fetched_at": "2026-06-24T10:10:55Z",
+  "field": "psychology",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "psychology",
+      "idea_body_excerpt": "Social Memory Networks: Modeling Collective Remembering in Multi-Agent LLMs",
+      "target_n": 5
+    },
+    "duration_seconds": 61.998,
+    "ended_at": "2026-06-24T10:10:55Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "collective memory modeling in multi‑agent systems"
+        ],
+        [
+          2,
+          "shared memory networks for collaborative AI agents"
+        ],
+        [
+          3,
+          "group cognition and joint recall mechanisms"
+        ],
+        [
+          4,
+          "distributed memory representations in artificial societies"
+        ],
+        [
+          5,
+          "social cognition of memory in language model collectives"
+        ],
+        [
+          6,
+          "inter‑agent memory consolidation in large language models"
+        ],
+        [
+          7,
+          "collaborative remembering in networked AI agents"
+        ],
+        [
+          8,
+          "emergent collective remembering in multi‑agent LLMs"
+        ],
+        [
+          9,
+          "shared knowledge graphs for social memory in AI"
+        ],
+        [
+          10,
+          "joint recall processes in artificial social groups"
+        ],
+        [
+          11,
+          "social epistemology of memory in AI collectives"
+        ],
+        [
+          12,
+          "multi‑agent distributed cognition of episodic information"
+        ],
+        [
+          13,
+          "networked memory architectures for group‑level learning"
+        ],
+        [
+          14,
+          "collective intelligence and memory sharing in language models"
+        ],
+        [
+          15,
+          "social knowledge integration in multi‑agent neural networks"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Social Memory Networks: Modeling Collective Remembering in Multi-Agent LLMs psychology": 0,
+        "collective memory modeling in multi‑agent systems": 5
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "collective memory networks",
+      "LLM multi-agent simulation",
+      "memory conformity experiments",
+      "group recall accuracy",
+      "distributed cognition theory"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2412.06333"
+      ]
+    },
+    "per_query_hit_count": {
+      "LLM multi-agent simulation": 2,
+      "Social Memory Networks: Modeling Collective Remembering in Multi-Agent LLMs psychology": 3,
+      "collective memory networks": 3,
+      "distributed cognition theory": 3,
+      "group recall accuracy": 3,
+      "memory conformity experiments": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 6,
+      "rejections": [
+        {
+          "primary_pointer": "2310.03900",
+          "rationale": "The paper studies opinion dynamics via differential games in social networks, focusing on opinion formation and strategic behavior, which does not address collective remembering, memory mechanisms, or multi‑agent LLMs—none of the inclusion criteria (a‑f) are met.",
+          "title": "A Game Approach to Multi-dimensional Opinion Dynamics in Social Networks with Stubborn Strategist Agents"
+        },
+        {
+          "primary_pointer": "2601.05960",
+          "rationale": "The paper studies a single‑agent memory‑as‑a‑tool framework for incorporating feedback, without addressing collective or social memory mechanisms across multiple LLM agents, which is the core construct of the user's question. Hence it does not meet any inclusion criteria (a‑f).",
+          "title": "Distilling Feedback into Memory-as-a-Tool"
+        },
+        {
+          "primary_pointer": "2203.08975",
+          "rationale": "The paper surveys communication mechanisms in multi‑agent deep reinforcement learning, which does not address the psychological modeling of collective remembering or social memory networks in multi‑agent LLMs; it lacks the relevant mechanism, variables, or domain required for inclusion.",
+          "title": "A Survey of Multi-Agent Deep Reinforcement Learning with Communication"
+        },
+        {
+          "primary_pointer": "1311.5108",
+          "rationale": "The paper presents a generic methodology for engineering multi‑level multi‑agent simulations and does not address social memory, collective remembering, multi‑agent LLMs, or psychological aspects, so it lacks relevance to the user’s specific research question.",
+          "title": "A Methodology to Engineer and Validate Dynamic Multi-level Multi-agent Based Simulations"
+        },
+        {
+          "primary_pointer": "2510.13343",
+          "rationale": "The paper studies a transformer‑based multi‑agent reinforcement‑learning model that predicts the order of agents’ actions, without addressing social memory, collective remembering, multi‑agent LLMs, or psychological aspects; thus it does not match any of the inclusion criteria (a‑f).",
+          "title": "AOAD-MAT: Transformer-based multi-agent deep reinforcement learning model considering agents' order of action decisions"
+        },
+        {
+          "primary_pointer": "2602.04518",
+          "rationale": "The paper studies learning agents’ value systems via preference‑based and inverse reinforcement learning, which is unrelated to social memory, collective remembering, or multi‑agent LLM psychology; it does not address any of the mechanisms, variables, or domains specified in the user’s question.",
+          "title": "Learning the Value Systems of Agents with Preference-based and Inverse Reinforcement Learning"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-24T10:09:53Z",
+    "term_input": {
+      "normalized": "social memory networks: modeling collective remembering in multi-agent llms psychology",
+      "raw": "Social Memory Networks: Modeling Collective Remembering in Multi-Agent LLMs psychology"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Decentralized Online Social Networks (DOSNs) represent a growing trend in the social media landscape, as opposed to the well-known centralized peers, which are often in the spotlight due to privacy concerns and a vision typically focused on monetization through user relationships. By exploiting open-source software, DOSNs allow users to create their own servers, or instances, thus favoring the proliferation of platforms that are independent yet interconnected with each other in a transparent way. Nonetheless, the resulting cooperation model, commonly known as the Fediverse, still represents a world to be fully discovered, since existing studies have mainly focused on a limited number of structural aspects of interest in DOSNs. In this work, we aim to fill a lack of study on user relations and roles in DOSNs, by taking two main actions: understanding the impact of decentralization on how users relate to each other within their membership instance and/or across different instances, and unveiling user roles that can explain two interrelated axes of social behavioral phenomena, namely information consumption and boundary spanning. To this purpose, we build our analysis on user networks from Mastodon, since it represents the most widely used DOSN platform. We believe that the findings drawn from our study on Mastodon users' roles and information flow can pave a way for further development of fascinating research on DOSNs.",
+          "claimed_authors": [
+            "Lucio La Cava",
+            "Andrea Tagarelli"
+          ],
+          "claimed_title": "Information Consumption and Boundary Spanning in Decentralized Online Social Networks: the case of Mastodon Users",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2203.15752"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Social Memory Networks: Modeling Collective Remembering in Multi-Agent LLMs psyc', candidate_title='Information Consumption and Boundary Spanning in Decentralized Online Social Networks: the case of Mastodon Users')",
+        "failed_at": "2026-06-24T10:10:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Communication is an effective mechanism for coordinating the behaviors of multiple agents, broadening their views of the environment, and to support their collaborations. In the field of multi-agent deep reinforcement learning (MADRL), agents can improve the overall learning performance and achieve their objectives by communication. Agents can communicate various types of messages, either to all agents or to specific agent groups, or conditioned on specific constraints. With the growing body of research work in MADRL with communication (Comm-MADRL), there is a lack of a systematic and structural approach to distinguish and classify existing Comm-MADRL approaches. In this paper, we survey recent works in the Comm-MADRL field and consider various aspects of communication that can play a role in designing and developing multi-agent reinforcement learning systems. With these aspects in mind, we propose 9 dimensions along which Comm-MADRL approaches can be analyzed, developed, and compared. By projecting existing works into the multi-dimensional space, we discover interesting trends. We also propose some novel directions for designing future Comm-MADRL systems through exploring possible combinations of the dimensions.",
+          "claimed_authors": [
+            "Changxi Zhu",
+            "Mehdi Dastani",
+            "Shihan Wang"
+          ],
+          "claimed_title": "A Survey of Multi-Agent Deep Reinforcement Learning with Communication",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2203.08975"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Social Memory Networks: Modeling Collective Remembering in Multi-Agent LLMs psyc', candidate_title='A Survey of Multi-Agent Deep Reinforcement Learning with Communication')",
+        "failed_at": "2026-06-24T10:10:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The digital transformation of our societies and in particular information and communication technologies have revolutionized how we generate, communicate, and acquire information. Collective memory as a core and unifying force in our societies has not been an exception among many societal concepts which have been revolutionized through digital transformation. In this chapter, we have distinguished between \"the digitalized collective memory\" and \"collective memory in the digital age\". In addition to discussing these two main concepts, we discuss how digital tools and trace data can open doorways into the study of collective memory that is formed inside and outside of the digital space.",
+          "claimed_authors": [
+            "Taha Yasseri",
+            "Patrick Gildersleve",
+            "Lea David"
+          ],
+          "claimed_title": "Collective Memory in the Digital Age",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2207.01042"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Social Memory Networks: Modeling Collective Remembering in Multi-Agent LLMs psyc', candidate_title='Collective Memory in the Digital Age')",
+        "failed_at": "2026-06-24T10:10:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this appendix we provide additional supplementary material to \"A Collective, Probabilistic Approach to Schema Mapping.\" We include an additional extended example, supplementary experiment details, and proof for the complexity result stated in the main paper.",
+          "claimed_authors": [
+            "Angelika Kimmig",
+            "Alex Memory",
+            "Renee J. Miller",
+            "Lise Getoor"
+          ],
+          "claimed_title": "A Collective, Probabilistic Approach to Schema Mapping: Appendix",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1702.03447"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Social Memory Networks: Modeling Collective Remembering in Multi-Agent LLMs psyc', candidate_title='A Collective, Probabilistic Approach to Schema Mapping: Appendix')",
+        "failed_at": "2026-06-24T10:10:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We introduce memory association networks(MANs) that memorize and remember any data. This neural network has two memories. One consists of a queue-structured short-term memory to solve the class imbalance problem and long-term memory to store the distribution of objects, introducing the contents of storing and generating various datasets.",
+          "claimed_authors": [
+            "Seokjun Kim",
+            "Jaeeun Jang",
+            "Yeonju Jang",
+            "Seongyune Choi",
+            "Hyeoncheol Kim"
+          ],
+          "claimed_title": "Memory Association Networks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2111.02353"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Social Memory Networks: Modeling Collective Remembering in Multi-Agent LLMs psyc', candidate_title='Memory Association Networks')",
+        "failed_at": "2026-06-24T10:10:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This article proposes a methodology to model and simulate complex systems, based on IRM4MLS, a generic agent-based meta-model able to deal with multi-level systems. This methodology permits the engineering of dynamic multi-level agent-based models, to represent complex systems over several scales and domains of interest. Its goal is to simulate a phenomenon using dynamically the lightest representation to save computer resources without loss of information. This methodology is based on two mechanisms: (1) the activation or deactivation of agents representing different domain parts of the same phenomenon and (2) the aggregation or disaggregation of agents representing the same phenomenon at different scales.",
+          "claimed_authors": [
+            "Jean-Baptiste Soyez",
+            "Gildas Morvan",
+            "Daniel Dupont",
+            "Rochdi Merzouki"
+          ],
+          "claimed_title": "A Methodology to Engineer and Validate Dynamic Multi-level Multi-agent Based Simulations",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1311.5108"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Social Memory Networks: Modeling Collective Remembering in Multi-Agent LLMs psyc', candidate_title='A Methodology to Engineer and Validate Dynamic Multi-level Multi-agent Based Simulations')",
+        "failed_at": "2026-06-24T10:10:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Systematic exploration of Agent-Based Models (ABMs) is challenged by the curse of dimensionality and their inherent stochasticity. We present a multi-stage pipeline integrating the systematic design of experiments with machine learning surrogates. Using a predator-prey case study, our methodology proceeds in two steps. First, an automated model-based screening identifies dominant variables, assesses outcome variability, and segments the parameter space. Second, we train Machine Learning models to map the remaining nonlinear interaction effects. This approach automates the discovery of unstable regions where system outcomes are highly dependent on nonlinear interactions between many variables. Thus, this work provides modelers with a rigorous, hands-off framework for sensitivity analysis and policy testing, even when dealing with high-dimensional stochastic simulators.",
+          "claimed_authors": [
+            "Paul Saves",
+            "Matthieu Mastio",
+            "Nicolas Verstaevel",
+            "Benoit Gaudou"
+          ],
+          "claimed_title": "From Model-Based Screening to Data-Driven Surrogates: A Multi-Stage Workflow for Exploring Stochastic Agent-Based Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2604.03350"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Social Memory Networks: Modeling Collective Remembering in Multi-Agent LLMs psyc', candidate_title='From Model-Based Screening to Data-Driven Surrogates: A Multi-Stage Workflow for Exploring Stochastic Agent-Based Models')",
+        "failed_at": "2026-06-24T10:10:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The proposed European Artificial Intelligence Act (AIA) is the first attempt to elaborate a general legal framework for AI carried out by any major global economy. As such, the AIA is likely to become a point of reference in the larger discourse on how AI systems can (and should) be regulated. In this article, we describe and discuss the two primary enforcement mechanisms proposed in the AIA: the conformity assessments that providers of high-risk AI systems are expected to conduct, and the post-market monitoring plans that providers must establish to document the performance of high-risk AI systems throughout their lifetimes. We argue that AIA can be interpreted as a proposal to establish a Europe-wide ecosystem for conducting AI auditing, albeit in other words. Our analysis offers two main contributions. First, by describing the enforcement mechanisms included in the AIA in terminology borrowed from existing literature on AI auditing, we help providers of AI systems understand how they can prove adherence to the requirements set out in the AIA in practice. Second, by examining the AIA from an auditing perspective, we seek to provide transferable lessons from previous research about how to refine further the regulatory approach outlined in the AIA. We conclude by highlighting seven aspects of the AIA where amendments (or simply clarifications) would be helpful. These include, above all, the need to translate vague concepts into verifiable criteria and to strengthen the institutional safeguards concerning conformity assessments based on internal checks.",
+          "claimed_authors": [
+            "Jakob Mokander",
+            "Maria Axente",
+            "Federico Casolari",
+            "Luciano Floridi"
+          ],
+          "claimed_title": "Conformity Assessments and Post-market Monitoring: A Guide to the Role of Auditing in the Proposed European AI Regulation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2111.05071"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Social Memory Networks: Modeling Collective Remembering in Multi-Agent LLMs psyc', candidate_title='Conformity Assessments and Post-market Monitoring: A Guide to the Role of Auditing in the Proposed European AI Regulation')",
+        "failed_at": "2026-06-24T10:10:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Both the first evidence and the first discoveries of neutrino flavor transformation have come from experiments which use neutrino beams provided by Nature. These discoveries were remarkable not only because they were unexpected--they were discoveries in the purest sense--but that they were made initially by experiments whose primary goals were aimed at other physics. Future solar and atmospheric neutrino experiments will also be sensitive to a broad range of physics and thus to new and unexpected phenomena. We discuss here the physics which can be done by new solar and atmospheric neutrino experiments and what we believe to be the highest priorities for the next generation of detectors.",
+          "claimed_authors": [
+            "Solar / Atmospheric Neutrino Experiments Working Group"
+          ],
+          "claimed_title": "Report of the Solar and Atmospheric Neutrino Experiments Working Group of the APS Multidivisional Neutrino Study",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2004,
+          "primary_pointer": "hep-ex/0412016"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Social Memory Networks: Modeling Collective Remembering in Multi-Agent LLMs psyc', candidate_title='Report of the Solar and Atmospheric Neutrino Experiments Working Group of the APS Multidivisional Neutrino Study')",
+        "failed_at": "2026-06-24T10:10:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The experiments at Run 2 of the Tevatron have each accumulated over 1 inverse femtobarn of high-transverse momentum data. Such a dataset allows for the first precision (i.e. comparisons between theory and experiment at the few percent level) tests of QCD at a hadron collider. While the Large Hadron Collider has been designed as a discovery machine, basic QCD analyses will still need to be performed to understand the working environment. The Tevatron-for-LHC workshop was conceived as a communication link to pass on the expertise of the Tevatron and to test new analysis ideas coming from the LHC community. The TeV4LHC QCD Working Group focussed on important aspects of QCD at hadron colliders: jet definitions, extraction and use of Parton Distribution Functions, the underlying event, Monte Carlo tunes, and diffractive physics. This report summarizes some of the results achieved during this workshop.",
+          "claimed_authors": [
+            " TeV4LHC QCD Working Group",
+            "M. Albrow",
+            "M. Begel",
+            "D. Bourilkov",
+            "M. Campanelli",
+            "F. Chlebana",
+            "A. De Roeck",
+            "J. R. Dittmann",
+            "S. D. Ellis",
+            "B. Field",
+            "R. Field",
+            "M. Gallinaro",
+            "W. Giele",
+            "K. Goulianos",
+            "R. C. Group",
+            "K. Hatakeyama",
+            "Z. Hubacek",
+            "J. Huston",
+            "W. Kilgore",
+            "T. Kluge",
+            "S. W. Lee",
+            "A. Moraes",
+            "S. Mrenna",
+            "F. Olness",
+            "J. Proudfoot",
+            "K. Rabbertz",
+            "C. Royon",
+            "T. Sjostrand",
+            "P. Skands",
+            "J. Smith",
+            "W. K. Tung",
+            "M. R. Whalley",
+            "M. Wobisch",
+            "M. Zielinski"
+          ],
+          "claimed_title": "Tevatron-for-LHC Report of the QCD Working Group",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2006,
+          "primary_pointer": "hep-ph/0610012"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Social Memory Networks: Modeling Collective Remembering in Multi-Agent LLMs psyc', candidate_title='Tevatron-for-LHC Report of the QCD Working Group')",
+        "failed_at": "2026-06-24T10:10:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Graphs data is crucial for many applications, and much of it exists in the relations described in textual format. As a result, being able to accurately recall and encode a graph described in earlier text is a basic yet pivotal ability that LLMs need to demonstrate if they are to perform reasoning tasks that involve graph-structured information. Human performance at graph recall has been studied by cognitive scientists for decades, and has been found to often exhibit certain structural patterns of bias that align with human handling of social relationships. To date, however, we know little about how LLMs behave in analogous graph recall tasks: do their recalled graphs also exhibit certain biased patterns, and if so, how do they compare with humans and affect other graph reasoning tasks? In this work, we perform the first systematical study of graph recall by LLMs, investigating the accuracy and biased microstructures (local structural patterns) in their recall. We find that LLMs not only underperform often in graph recall, but also tend to favor more triangles and alternating 2-paths. Moreover, we find that more advanced LLMs have a striking dependence on the domain that a real-world graph comes from -- by yielding the best recall accuracy when the graph is narrated in a language style consistent with its original domain.",
+          "claimed_authors": [
+            "Yanbang Wang",
+            "Hejie Cui",
+            "Jon Kleinberg"
+          ],
+          "claimed_title": "Microstructures and Accuracy of Graph Recall by Large Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2402.11821"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Social Memory Networks: Modeling Collective Remembering in Multi-Agent LLMs psyc', candidate_title='Microstructures and Accuracy of Graph Recall by Large Language Models')",
+        "failed_at": "2026-06-24T10:10:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A group G is called special p-group of rank k if the commutator subgroup [G,G] and centre Z(G) are equal, which is elementary abelian p-group of rank k and G/[G,G] is also elementary abelian p-group. In this article we determine the Schur multiplier of special p-groups of rank 2 explicitly.",
+          "claimed_authors": [
+            "Sumana Hatui"
+          ],
+          "claimed_title": "Schur multipliers of special p-groups of rank 2",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1908.06409"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Social Memory Networks: Modeling Collective Remembering in Multi-Agent LLMs psyc', candidate_title='Schur multipliers of special p-groups of rank 2')",
+        "failed_at": "2026-06-24T10:10:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The functional Schrodinger picture formulation of quantum field theory and the variational Gaussian approximation method based on the formulation are briefly reviewed. After presenting recent attempts to improve the variational approximation, we introduce a new systematic method based on the background field method, which enables one to compute the order-by-order correction terms to the Gaussian approximation of the effective action.",
+          "claimed_authors": [
+            "Jae Hyung Yee"
+          ],
+          "claimed_title": "Variational Approach to Quantum Field Theory: Gaussian Approximation and the Perturbative Expansion around It",
+          "claimed_venue": "arXiv",
+          "claimed_year": 1997,
+          "primary_pointer": "hep-th/9707234"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Social Memory Networks: Modeling Collective Remembering in Multi-Agent LLMs psyc', candidate_title='Variational Approach to Quantum Field Theory: Gaussian Approximation and the Perturbative Expansion around It')",
+        "failed_at": "2026-06-24T10:10:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "AI governance still tends to assume that the relevant object is a bounded model or a bounded agent. That assumption is getting weaker. Real systems increasingly distribute cognition across models, tools, humans, context stores, retrieval layers, runtime policies, authorization boundaries, and delegated institutional roles. In such systems, the central governance problem is no longer only what the system did, but whether later institutions can still read what the system was. This paper introduces the khipu problem for distributed AI: the record can survive while the reading practice needed to interpret it decays. Logs, traces, model versions, tool calls, outputs, and approval artifacts may remain available while the institutional capacity to read them as parts of one coherent cognitive episode disappears. We argue that this failure is better understood as loss of interpretive continuity than as ordinary lack of observability. The result is a distinct governance failure. Institutions must classify, trust, audit, and constrain systems whose relevant identity is distributed across components and whose legibility depends on surrounding interpretive scaffolding. The problem is not merely missing data. It is a structural mismatch between what can be represented and what must still be decided under consequential conditions. We therefore argue that governance for distributed AI requires preservation of interpretive continuity, not only trace retention. The paper distinguishes missing evidence, ambiguous evidence, and structurally unreadable evidence; argues that many consequential outcomes are better understood as distributed cognitive episodes than as bounded model outputs; and proposes governance workspaces together with receipt-bearing governance surfaces as interpretive infrastructure for preserving action identity, authority, boundary truth, evidential scope, and consequential outcomes.",
+          "claimed_authors": [
+            "Krti Tallam"
+          ],
+          "claimed_title": "The Khipu Problem: Institutional Legibility Under Distributed Cognition",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.12414"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Social Memory Networks: Modeling Collective Remembering in Multi-Agent LLMs psyc', candidate_title='The Khipu Problem: Institutional Legibility Under Distributed Cognition')",
+        "failed_at": "2026-06-24T10:10:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Thalamus has traditionally been considered as only a relay source of cortical inputs, with hierarchically organized cortical circuits serially transforming thalamic signals to cognitively-relevant representations. Given the absence of local excitatory connections within the thalamus, the notion of thalamic `relay' seemed like a reasonable description over the last several decades. Recent advances in experimental approaches and theory provide a broader perspective on the role of the thalamus in cognitively-relevant cortical computations, and suggest that only a subset of thalamic circuit motifs fit the relay description. Here, we discuss this perspective and highlight the potential role for the thalamus -- and specifically mediodorsal (MD) nucleus -- in dynamic selection of cortical representations through a combination of intrinsic thalamic computations and output signals that change cortical network functional parameters. We suggest that through the contextual modulation of cortical computation, thalamus and cortex jointly optimize the information/cost tradeoff in an emergent fashion. We emphasize that coordinated experimental and theoretical efforts will provide a path to understanding the role of the thalamus in cognition, along with an understanding to augment cognitive capacity in health and disease.",
+          "claimed_authors": [
+            "Nima Dehghani",
+            "Ralf D. Wimmer"
+          ],
+          "claimed_title": "A computational perspective of the role of Thalamus in cognition",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1803.00997"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Social Memory Networks: Modeling Collective Remembering in Multi-Agent LLMs psyc', candidate_title='A computational perspective of the role of Thalamus in cognition')",
+        "failed_at": "2026-06-24T10:10:24Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "F. Bredell",
+            "H. A. Engelbrecht",
+            "J. C. Schoeman"
+          ],
+          "title": "Augmenting the action space with conventions to improve multi-agent cooperation in Hanabi",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2412.06333",
+        "summary": "The card game Hanabi is considered a strong medium for the testing and development of multi-agent reinforcement learning (MARL) algorithms, due to its cooperative nature, partial observability, limited communication and remarkable complexity. Previous research efforts have explored the capabilities of MARL algorithms within Hanabi, focusing largely on advanced architecture design and algorithmic manipulations to achieve state-of-the-art performance for various number of cooperators. However, this often leads to complex solution strategies with high computational cost and requiring large amounts of training data. For humans to solve the Hanabi game effectively, they require the use of conventions, which often allows for a means to implicitly convey ideas or knowledge based on a predefined, and mutually agreed upon, set of \"rules\" or principles. Multi-agent problems containing partial observability, especially when limited communication is present, can benefit greatly from the use of implicit knowledge sharing. In this paper, we propose a novel approach to augmenting an agent's action space using conventions, which act as a sequence of special cooperative actions that span over and include multiple time steps and multiple agents, requiring agents to actively opt in for it to reach fruition. These conventions are based on existing human conventions, and result in a significant improvement on the performance of existing techniques for self-play and cross-play for various number of cooperators within Hanabi.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2412.06333",
+          "http_status": 200,
+          "pdf_sample_score": 0.3026,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-24T10:10:29Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "social memory networks: modeling collective remembering in multi-agent llms psychology",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

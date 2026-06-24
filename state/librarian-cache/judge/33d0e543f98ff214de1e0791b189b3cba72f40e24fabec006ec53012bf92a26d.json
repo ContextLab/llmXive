@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2601.05960",
+  "judged_at": "2026-06-24T10:10:37Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "social memory networks: modeling collective remembering in multi-agent llms psychology",
+  "rationale": "The paper studies a single‑agent memory‑as‑a‑tool framework for incorporating feedback, without addressing collective or social memory mechanisms across multiple LLM agents, which is the core construct of the user's question. Hence it does not meet any inclusion criteria (a‑f).",
+  "relevant": false
+}

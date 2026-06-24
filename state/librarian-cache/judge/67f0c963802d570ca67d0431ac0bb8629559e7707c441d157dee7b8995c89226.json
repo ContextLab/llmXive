@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2510.13343",
+  "judged_at": "2026-06-24T10:10:48Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "social memory networks: modeling collective remembering in multi-agent llms psychology",
+  "rationale": "The paper studies a transformer‑based multi‑agent reinforcement‑learning model that predicts the order of agents’ actions, without addressing social memory, collective remembering, multi‑agent LLMs, or psychological aspects; thus it does not match any of the inclusion criteria (a‑f).",
+  "relevant": false
+}

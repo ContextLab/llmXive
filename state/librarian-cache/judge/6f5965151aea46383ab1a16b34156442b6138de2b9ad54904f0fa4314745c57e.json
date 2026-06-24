@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2602.04518",
+  "judged_at": "2026-06-24T10:10:55Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "social memory networks: modeling collective remembering in multi-agent llms psychology",
+  "rationale": "The paper studies learning agents’ value systems via preference‑based and inverse reinforcement learning, which is unrelated to social memory, collective remembering, or multi‑agent LLM psychology; it does not address any of the mechanisms, variables, or domains specified in the user’s question.",
+  "relevant": false
+}

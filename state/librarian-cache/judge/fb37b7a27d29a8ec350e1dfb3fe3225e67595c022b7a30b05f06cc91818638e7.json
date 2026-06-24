@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2412.06333",
+  "judged_at": "2026-06-24T10:10:52Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "social memory networks: modeling collective remembering in multi-agent llms psychology",
+  "rationale": "The paper studies a mechanism of implicit knowledge sharing (conventions) to enable collective remembering and cooperation among multiple agents, which aligns with the social memory/collective remembering construct in the user's question (acceptance category (a)). It provides relevant multi‑agent methodology that can be cited when discussing how agents can maintain shared memory or conventions, even though it focuses on MARL rather than LLMs.",
+  "relevant": true
+}

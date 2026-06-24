@@ -4,65 +4,77 @@ submitter: jeremymanning
 github_issue: https://github.com/ContextLab/llmXive/issues/11
 ---
 
-# Social Memory Networks: Modeling Collective Remembering in Multi-Agent LLMs
+# Social Memory Networks: Modeling Collective Remembering in Multi‑Agent LLMs  
 
-I'll help you flesh out this research idea. First, I need to search for relevant literature to ground the related work section.
+**Field**: psychology  
 
-<tool_calls>
-<tool_call>
-<tool_name>lit_search</tool_name>
-<arguments>
-{"query": "multi-agent LLM systems collective memory social interaction", "max_results": 8}
-</arguments>
-</tool_call>
-<tool_call>
-<tool_name>lit_search</tool_name>
-<arguments>
-{"query": "LLM agents memory sharing transactive memory AI", "max_results": 8}
-</arguments>
-</tool_call>
-<tool_call>
-<tool_name>lit_search</tool_name>
-<arguments>
-{"max_results": 8, "query": "false memory social contagion psychological experiments"}
-</arguments>
-</tool_call>
-</tool_calls>
+## Research question  
+
+Do multi‑agent LLM systems exhibit transactive memory dynamics (e.g., specialization and retrieval cueing) analogous to human groups, and do these dynamics persist when individual agent contexts are limited?  
+
+## Motivation  
+
+Human groups rely on transactive memory systems to distribute knowledge and retrieve it efficiently. Understanding whether similar emergent structures arise in collections of LLM agents would clarify the cognitive‑like properties of artificial societies and guide the design of scalable collaborative AI. Moreover, if these dynamics break down under tight context windows, we can identify concrete limits of current LLM architectures for collective reasoning.  
+
+## Related work  
+
+- [Augmenting the action space with conventions to improve multi‑agent cooperation in Hanabi (2024)](https://arxiv.org/abs/2412.06333) — Shows that agents can develop shared conventions to solve a partially observable cooperative game, providing a methodological precedent for studying emergent coordination and memory‑like behaviors in multi‑agent LLM settings.  
+
+## Expected results  
+
+We anticipate observing measurable specialization (agents preferentially encode distinct subsets of shared facts) and cue‑driven retrieval benefits (higher recall accuracy when a partner’s cue matches the stored fact) in baseline multi‑agent LLM runs. When context windows are artificially truncated, we expect a statistically significant reduction in these effects, indicating that limited context hampers transactive‑memory‑like dynamics. Confirmation will be a significant interaction (p < 0.05) between “memory condition” (full vs limited context) and “specialization/retrieval metrics” in repeated‑measures ANOVA; a null result (no interaction) would still be informative about robustness.  
+
+## Methodology sketch  
+
+1. **Select public multi‑agent benchmark** – download the Hanabi Learning Environment (HLE) dataset and scripts from the official GitHub release (≈ 200 MB).  
+2. **Instantiate LLM agents** – use three publicly available 125 M‑parameter decoder‑only models from HuggingFace (`gpt2`, `distilgpt2`, `EleutherAI/pythia-70m`). Load them via the `transformers` library (CPU‑only).  
+3. **Define shared memory buffer** – implement a simple external key‑value store (JSON file) that agents can read/write using a standardized “memory‑action” token in their generated text.  
+4. **Design experimental conditions**  
+   - *Full‑context*: each agent’s prompt includes the entire conversation history (up to 2048 tokens).  
+   - *Limited‑context*: truncate each agent’s prompt to the most recent 256 tokens before each turn.  
+5. **Run cooperative games** – for each condition, simulate 1 000 complete Hanabi games, recording: (a) which agent contributed each piece of factual information to the buffer, (b) retrieval success when another agent later queries that fact, and (c) overall game score.  
+6. **Quantify transactive‑memory metrics**  
+   - *Specialization index*: entropy of the distribution of stored facts across agents (lower entropy → higher specialization).  
+   - *Cue‑retrieval efficiency*: proportion of successful retrievals given an explicit cue versus random guessing.  
+7. **Statistical analysis** – perform a two‑way repeated‑measures ANOVA with factors *Context* (full vs limited) and *Metric* (specialization, retrieval efficiency). Follow up with post‑hoc paired t‑tests if interaction is significant.  
+8. **Robustness checks** – repeat steps 2‑7 with a different public multi‑agent dialogue dataset (e.g., the “CoQA‑MultiAgent” synthetic dialogues from HuggingFace Datasets) to ensure findings are not Hanabi‑specific.  
+9. **Reproducibility package** – script all steps in a single Python notebook, pinning package versions, and expose a single `bash run.sh` command that completes within a 6‑hour GitHub Actions runner (estimated total runtime ≈ 3 h on 2‑core CPU).  
+
+## Duplicate-check  
+
+- Reviewed existing ideas: *none* (no other fleshed‑out ideas in the repository matched this title).  
+- Closest match: *none*.  
+- Verdict: **NOT a duplicate**.
 
 
 ## Search trail
 
-**Generated by**: librarian (prompt v1.6.0) on 2026-05-24T03:45:00Z
-**Outcome**: failed
+**Generated by**: librarian (prompt v1.6.0) on 2026-06-24T10:10:55Z
+**Outcome**: exhausted
 **Original term**: Social Memory Networks: Modeling Collective Remembering in Multi-Agent LLMs psychology
-**Verified citation count**: 0
+**Verified citation count**: 1
 
 ### Search terms used
 
 | Rank | Term | Hit count |
 |-|-|-|
 | 0 (initial) | Social Memory Networks: Modeling Collective Remembering in Multi-Agent LLMs psychology | 0 |
-| 1 | transactive memory systems in multi-agent systems | 0 |
-| 2 | collective memory in artificial intelligence | 0 |
-| 3 | distributed cognition in language model agents | 0 |
-| 4 | collaborative memory in generative agents | 0 |
-| 5 | computational models of collective remembering | 0 |
-| 6 | social memory systems in collaborative AI | 0 |
-| 7 | group memory formation in AI simulations | 0 |
-| 8 | psychological frameworks for multi-agent memory | 0 |
-| 9 | agent-based modeling of social cognition | 0 |
-| 10 | shared knowledge retention in multi-agent dialogues | 0 |
-| 11 | transactive memory theory applied to AI | 0 |
-| 12 | collective recall mechanisms in LLM swarms | 0 |
-| 13 | external memory mechanisms for language models | 0 |
-| 14 | social information processing in AI networks | 0 |
-| 15 | memory consolidation in collaborative language models | 0 |
-| 16 | distributed information storage in agent networks | 0 |
-| 17 | social interaction modeling in multi-agent systems | 0 |
-| 18 | human-like social memory in artificial agents | 0 |
-| 19 | collective intelligence and memory in generative AI | 0 |
-| 20 | cognitive architectures for social remembering | 0 |
+| 1 | collective memory modeling in multi‑agent systems | 5 |
+| 2 | shared memory networks for collaborative AI agents | 0 |
+| 3 | group cognition and joint recall mechanisms | 0 |
+| 4 | distributed memory representations in artificial societies | 0 |
+| 5 | social cognition of memory in language model collectives | 0 |
+| 6 | inter‑agent memory consolidation in large language models | 0 |
+| 7 | collaborative remembering in networked AI agents | 0 |
+| 8 | emergent collective remembering in multi‑agent LLMs | 0 |
+| 9 | shared knowledge graphs for social memory in AI | 0 |
+| 10 | joint recall processes in artificial social groups | 0 |
+| 11 | social epistemology of memory in AI collectives | 0 |
+| 12 | multi‑agent distributed cognition of episodic information | 0 |
+| 13 | networked memory architectures for group‑level learning | 0 |
+| 14 | collective intelligence and memory sharing in language models | 0 |
+| 15 | social knowledge integration in multi‑agent neural networks | 0 |
 
 ### Verified citations
 
-(none)
+1. **Augmenting the action space with conventions to improve multi-agent cooperation in Hanabi** (2024). F. Bredell, H. A. Engelbrecht, J. C. Schoeman. arXiv. [2412.06333](https://arxiv.org/abs/2412.06333). PDF-sampled: No.

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1311.5108",
+  "judged_at": "2026-06-24T10:10:44Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "social memory networks: modeling collective remembering in multi-agent llms psychology",
+  "rationale": "The paper presents a generic methodology for engineering multi‑level multi‑agent simulations and does not address social memory, collective remembering, multi‑agent LLMs, or psychological aspects, so it lacks relevance to the user’s specific research question.",
+  "relevant": false
+}

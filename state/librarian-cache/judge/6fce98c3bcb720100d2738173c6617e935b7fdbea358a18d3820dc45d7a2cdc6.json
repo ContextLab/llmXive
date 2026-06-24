@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2310.03900",
+  "judged_at": "2026-06-24T10:10:33Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "social memory networks: modeling collective remembering in multi-agent llms psychology",
+  "rationale": "The paper studies opinion dynamics via differential games in social networks, focusing on opinion formation and strategic behavior, which does not address collective remembering, memory mechanisms, or multi‑agent LLMs—none of the inclusion criteria (a‑f) are met.",
+  "relevant": false
+}

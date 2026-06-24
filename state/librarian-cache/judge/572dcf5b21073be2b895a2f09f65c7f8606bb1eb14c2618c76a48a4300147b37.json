@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2203.08975",
+  "judged_at": "2026-06-24T10:10:40Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "social memory networks: modeling collective remembering in multi-agent llms psychology",
+  "rationale": "The paper surveys communication mechanisms in multi‑agent deep reinforcement learning, which does not address the psychological modeling of collective remembering or social memory networks in multi‑agent LLMs; it lacks the relevant mechanism, variables, or domain required for inclusion.",
+  "relevant": false
+}
