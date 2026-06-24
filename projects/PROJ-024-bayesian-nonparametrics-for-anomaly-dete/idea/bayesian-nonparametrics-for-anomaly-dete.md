@@ -9,40 +9,109 @@ submitter: google.gemma-3-27b-it
 
 ## Research question
 
-Can a Dirichlet process Gaussian mixture model (DPGMM), updated incrementally with each new observation, effectively detect anomalies in univariate time series without assuming a fixed number of latent states?
+Can an incrementally updated Dirichlet‑process Gaussian mixture model (DP‑GMM) detect anomalies in univariate time‑series streams without pre‑specifying the number of latent mixture components?
 
 ## Motivation
 
-Existing anomaly detection methods often require pre-specifying the number of clusters or assume stationary distributions, limiting their adaptability to evolving data streams. Bayesian nonparametrics offer a principled way to model unknown complexity while providing probabilistic anomaly scores. This approach addresses the gap between flexible nonparametric modeling and real-time detection requirements in streaming applications.
+Many existing anomaly‑detection pipelines require a fixed number of clusters or assume stationary distributions, which limits adaptability to evolving data streams. Bayesian non‑parametric models such as the DP‑GMM automatically infer the appropriate number of mixture components and provide probabilistic anomaly scores, offering a principled way to handle non‑stationarity while keeping the hyper‑parameter burden low.
 
 ## Related work
 
-- [Monte Carlo EM for Deep Time Series Anomaly Detection](http://arxiv.org/abs/2112.14436v1) — Demonstrates variational inference for anomaly detection but relies on deep learning architectures requiring GPU resources.
-- [RobustTAD: Robust Time Series Anomaly Detection via Decomposition and Convolutional Neural Networks](http://arxiv.org/abs/2002.09545v2) — Proposes decomposition-based CNN approach, highlighting the need for robust methods that handle contaminated training data.
-- [Time Series Foundational Models: Their Role in Anomaly Detection and Prediction](http://arxiv.org/abs/2412.19286v1) — Reviews modern TSFM applications in anomaly detection, noting limited exploration of Bayesian nonparametric approaches.
-- [Maximally Divergent Intervals for Anomaly Detection](http://arxiv.org/abs/1610.06761v1) — Introduces KL-divergence based batch anomaly detection for multivariate series, relevant for comparison metrics.
-- [Non-Parametric Estimation of a Multivariate Probability Density](https://doi.org/10.1137/1114019) — Foundational work on nonparametric density estimation, supporting theoretical basis for DPGMM approach.
-- [BEAST 2.5: An advanced software platform for Bayesian evolutionary analysis](https://doi.org/10.1371/journal.pcbi.1006650) — Provides Bayesian inference infrastructure examples, though focused on phylogenetic rather than time series data.
+- [An Encode‑then‑Decompose Approach to Unsupervised Time Series Anomaly Detection on Contaminated Training Data (2025)](https://arxiv.org/abs/2510.18998) — Shows that unsupervised, contamination‑robust pipelines can achieve strong detection performance, motivating a Bayesian‑non‑parametric alternative that is also unsupervised.  
+- [Maximally Divergent Intervals for Anomaly Detection (2016)](https://arxiv.org/abs/1610.06761) — Introduces KL‑divergence‑based batch detection; provides a useful baseline metric for comparing our online DP‑GMM scores.  
+- [Multiple Change Point Detection and Validation in Autoregressive Time Series Data (2019)](https://arxiv.org/abs/1912.07775) — Discusses change‑point detection in AR models, highlighting the need for methods that can adapt to abrupt regime shifts—exactly what a DP‑GMM can capture.  
+- [Time Series Foundational Models: Their Role in Anomaly Detection and Prediction (2024)](https://arxiv.org/abs/2412.19286) — Reviews modern transformer‑based TSFMs and notes the scarcity of Bayesian non‑parametric approaches, underscoring the research gap.  
+- [Monte Carlo EM for Deep Time Series Anomaly Detection (2021)](https://arxiv.org/abs/2112.14436) — Demonstrates deep‑learning‑based inference but requires GPUs; our approach stays within CPU‑only constraints while retaining probabilistic scoring.
 
 ## Expected results
 
-The DPGMM-based detector should achieve comparable or superior F1-scores to baseline methods (moving average, ARIMA) on public benchmarks while requiring fewer hyperparameters. We expect to observe that the posterior probability threshold for anomaly flagging can be calibrated without labeled data. Evidence will be measured through precision-recall curves and computational efficiency metrics on UCI time series datasets.
+The DP‑GMM detector is expected to achieve F1‑scores comparable to or better than strong baselines (moving‑average z‑score, ARIMA) on public univariate benchmarks, while using fewer hand‑tuned hyper‑parameters. Success will be demonstrated by (1) higher precision‑recall AUC, (2) runtime < 30 min per dataset, and (3) peak memory consumption < 7 GB. Calibration of the anomaly‑score threshold at the 95th percentile of the posterior‑probability distribution will be validated across injected anomaly rates (1 %–5 %).
 
 ## Methodology sketch
 
-- Download 3-5 univariate time series datasets from UCI Machine Learning Repository (e.g., Electricity, Traffic, or Synthetic Anomaly datasets) using `wget`/`curl`.
-- Implement incremental DPGMM using PyMC or Stan with variational inference (ADVI) to stay within 7GB RAM limits.
-- Preprocess each series: normalize to zero mean/unit variance, create sliding windows of length 10-50 for local distribution estimation.
-- Train baseline models (ARIMA, moving average with z-score threshold) for comparison using `statsmodels` and `scikit-learn`.
-- Run DPGMM with stick-breaking construction, updating posterior mixture weights after each new observation in streaming mode.
-- Compute anomaly scores as negative log posterior probability for each test point; flag as anomaly if score exceeds adaptive threshold.
-- Apply statistical comparison: paired t-test on F1-scores across datasets, with Bonferroni correction for multiple comparisons.
-- Generate ROC/PR curves and confusion matrices; save figures as PNG for reproducibility.
-- Profile memory usage and runtime per 1000 observations to verify GHA compatibility (target <30 minutes per dataset).
-- Document all hyperparameters and random seeds in `config.yaml` for exact replication.
+- **Data acquisition (≥ 1000 observations per series)**  
+  - Download three public univariate time‑series datasets from the UCI repository (e.g., *Electricity Load Diagrams*, *Air Quality*, *Synthetic Anomaly*).  
+  - Verify each series contains at least 1 000 time points; discard any that do not meet this threshold (SC‑002).  
+
+- **Synthetic anomaly injection for independent validation**  
+  - Inject point anomalies at random positions with magnitudes drawn from a Gaussian tail (1 %–5 % of points).  
+  - Ground‑truth anomaly labels are stored separately, ensuring validation independence from model inputs.  
+
+- **Pre‑processing**  
+  - Normalize each series to zero mean / unit variance.  
+  - Construct overlapping sliding windows (length = 30, stride = 1) to form local observation vectors.  
+
+- **Incremental DP‑GMM implementation**  
+  - Use PyMC 4 with ADVI variational inference to fit a stick‑breaking DP‑GMM.  
+  - After each new window, update the posterior mixture weights online (streaming mode).  
+  - Constrain the number of mixture components implicitly via the concentration parameter α.  
+
+- **Prior‑sensitivity analysis (FR‑024)**  
+  - Run the model with three α‑grid values (0.1, 1.0, 10.0) and corresponding Gamma hyper‑priors for component covariances.  
+  - Record ELBO trajectories; report mean and variance across runs.  
+
+- **ELBO variance exclusion (FR‑025)**  
+  - Exclude ELBO variance from the final performance metric; instead, use the stabilized ELBO mean after convergence as a model‑fit indicator.  
+
+- **Anomaly‑score computation & threshold calibration (SC‑010)**  
+  - Compute the negative log posterior predictive probability for each new observation.  
+  - Calibrate a static threshold at the 95th percentile of scores on a held‑out clean segment.  
+  - Implement an adaptive update: after every 500 observations, recompute the percentile on the most recent clean window.  
+
+- **Baseline models**  
+  - Fit ARIMA (using `statsmodels`) and a moving‑average z‑score detector (window = 30) on the same streams.  
+
+- **Performance evaluation**  
+  - Compute precision, recall, F1, and PR‑AUC for each method against the injected ground truth.  
+  - Perform a paired t‑test on F1‑scores across datasets; apply Bonferroni correction for the three pairwise comparisons (DP‑GMM vs. ARIMA, DP‑GMM vs. MA, ARIMA vs. MA).  
+
+- **Resource validation (SC‑007, SC‑008, User Story 5)**  
+  - Profile memory with `memory_profiler`; assert peak RAM < 7 GB.  
+  - Time the full end‑to‑end pipeline (download → training → evaluation) and assert total runtime < 30 min per dataset on the GitHub Actions free‑tier runner.  
+
+- **Reproducibility**  
+  - Save all hyper‑parameters, random seeds, and environment specifications (`environment.yml`).  
+  - Export results (metrics, plots) to a `results/` directory; generate ROC/PR curves and confusion matrices as PNG files.  
 
 ## Duplicate-check
 
-- Reviewed existing ideas: None provided in input (no `existing_idea_paths` available).
-- Closest match: N/A (insufficient context to assess duplication).
-- Verdict: NOT a duplicate (requires existing_idea_paths for full validation).
+- Reviewed existing ideas: none.
+- Closest match: N/A.
+- Verdict: NOT a duplicate.
+
+
+## Search trail
+
+**Generated by**: librarian (prompt v1.6.0) on 2026-06-24T18:40:49Z
+**Outcome**: success_after_expansion
+**Original term**: Bayesian Nonparametrics for Anomaly Detection in Time Series computational statistics
+**Verified citation count**: 5
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | Bayesian Nonparametrics for Anomaly Detection in Time Series computational statistics | 0 |
+| 1 | Dirichlet process mixture models for time‑series anomaly detection | 5 |
+| 2 | Infinite hidden Markov models for temporal outlier identification | 0 |
+| 3 | Gaussian process change‑point detection in streaming data | 0 |
+| 4 | Nonparametric Bayesian change‑point models for fault detection | 0 |
+| 5 | Hierarchical Dirichlet process clustering of multivariate time series anomalies | 0 |
+| 6 | Bayesian nonparametric state‑space models for anomaly scoring | 0 |
+| 7 | Stick‑breaking process priors for online anomaly detection in temporal data | 0 |
+| 8 | Chinese restaurant process for sequential outlier detection | 0 |
+| 9 | Adaptive Bayesian nonparametric models for streaming time‑series monitoring | 0 |
+| 10 | Bayesian nonparametric density estimation for anomaly ranking in temporal datasets | 0 |
+| 11 | Sequential Monte Carlo inference for Bayesian nonparametric anomaly detectors | 0 |
+| 12 | Bayesian nonparametric regression approaches to time‑series outlier detection | 0 |
+| 13 | Nonparametric Bayesian forecasting methods for early anomaly warning | 0 |
+| 14 | Bayesian nonparametric process‑control charts for temporal quality monitoring | 0 |
+| 15 | Bayesian nonparametric kernel methods for detecting anomalies in sensor time series | 0 |
+
+### Verified citations
+
+1. **An Encode-then-Decompose Approach to Unsupervised Time Series Anomaly Detection on Contaminated Training Data--Extended Version** (2025). Buang Zhang, Tung Kieu, Xiangfei Qiu, Chenjuan Guo, Jilin Hu, et al.. arXiv. [2510.18998](https://arxiv.org/abs/2510.18998). PDF-sampled: No.
+2. **Maximally Divergent Intervals for Anomaly Detection** (2016). Erik Rodner, Björn Barz, Yanira Guanche, Milan Flach, Miguel Mahecha, et al.. arXiv. [1610.06761](https://arxiv.org/abs/1610.06761). PDF-sampled: No.
+3. **Multiple Change Point Detection and Validation in Autoregressive Time Series Data** (2019). Lijing Ma, Andrew Grant, Georgy Sofronov. arXiv. [1912.07775](https://arxiv.org/abs/1912.07775). PDF-sampled: No.
+4. **Time Series Foundational Models: Their Role in Anomaly Detection and Prediction** (2024). Chathurangi Shyalika, Harleen Kaur Bagga, Ahan Bhatt, Renjith Prasad, Alaa Al Ghazo, et al.. arXiv. [2412.19286](https://arxiv.org/abs/2412.19286). PDF-sampled: No.
+5. **Monte Carlo EM for Deep Time Series Anomaly Detection** (2021). François-Xavier Aubet, Daniel Zügner, Jan Gasthaus. arXiv. [2112.14436](https://arxiv.org/abs/2112.14436). PDF-sampled: No.

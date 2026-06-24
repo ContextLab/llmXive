@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2110.01831",
+  "judged_at": "2026-06-24T18:39:31Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the impact of parasocial relationships with ai companions on loneliness psychology",
+  "rationale": "The paper discusses theoretical approaches to building an Artificial Scientist and AGI, without addressing AI companions, parasocial relationships, loneliness, or related psychological mechanisms, thus it is off‑domain and unrelated to the user's research question.",
+  "relevant": false
+}

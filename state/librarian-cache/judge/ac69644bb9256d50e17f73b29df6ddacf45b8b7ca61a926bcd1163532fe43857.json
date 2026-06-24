@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2304.04780",
+  "judged_at": "2026-06-24T18:39:37Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the impact of parasocial relationships with ai companions on loneliness psychology",
+  "rationale": "The paper reviews explainable AI methods for healthcare and does not examine parasocial relationships, AI companions, loneliness, or related psychological mechanisms, so it lacks any of the inclusion criteria (a‑f).",
+  "relevant": false
+}

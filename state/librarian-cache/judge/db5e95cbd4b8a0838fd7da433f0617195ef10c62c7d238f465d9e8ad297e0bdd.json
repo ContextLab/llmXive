@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1912.07775",
+  "judged_at": "2026-06-24T18:40:38Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "bayesian nonparametrics for anomaly detection in time series computational statistics",
+  "rationale": "The paper studies detection of structural changes (change points) in autoregressive time series, which constitutes a form of anomaly detection on the same domain (time‑series data). Thus it measures a dependent variable of interest (anomaly detection) for the user's problem, satisfying criterion (b).",
+  "relevant": true
+}

@@ -1,0 +1,496 @@
+{
+  "fetched_at": "2026-06-24T18:40:49Z",
+  "field": "computational statistics",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computational statistics",
+      "idea_body_excerpt": "Bayesian Nonparametrics for Anomaly Detection in Time Series",
+      "target_n": 5
+    },
+    "duration_seconds": 59.643,
+    "ended_at": "2026-06-24T18:40:49Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "Dirichlet process mixture models for time‑series anomaly detection"
+        ],
+        [
+          2,
+          "Infinite hidden Markov models for temporal outlier identification"
+        ],
+        [
+          3,
+          "Gaussian process change‑point detection in streaming data"
+        ],
+        [
+          4,
+          "Nonparametric Bayesian change‑point models for fault detection"
+        ],
+        [
+          5,
+          "Hierarchical Dirichlet process clustering of multivariate time series anomalies"
+        ],
+        [
+          6,
+          "Bayesian nonparametric state‑space models for anomaly scoring"
+        ],
+        [
+          7,
+          "Stick‑breaking process priors for online anomaly detection in temporal data"
+        ],
+        [
+          8,
+          "Chinese restaurant process for sequential outlier detection"
+        ],
+        [
+          9,
+          "Adaptive Bayesian nonparametric models for streaming time‑series monitoring"
+        ],
+        [
+          10,
+          "Bayesian nonparametric density estimation for anomaly ranking in temporal datasets"
+        ],
+        [
+          11,
+          "Sequential Monte Carlo inference for Bayesian nonparametric anomaly detectors"
+        ],
+        [
+          12,
+          "Bayesian nonparametric regression approaches to time‑series outlier detection"
+        ],
+        [
+          13,
+          "Nonparametric Bayesian forecasting methods for early anomaly warning"
+        ],
+        [
+          14,
+          "Bayesian nonparametric process‑control charts for temporal quality monitoring"
+        ],
+        [
+          15,
+          "Bayesian nonparametric kernel methods for detecting anomalies in sensor time series"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Bayesian Nonparametrics for Anomaly Detection in Time Series computational statistics": 0,
+        "Dirichlet process mixture models for time‑series anomaly detection": 5
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "Dirichlet process anomaly detection",
+      "NAB benchmark time series",
+      "change point detection time series",
+      "ROC AUC anomaly detection",
+      "posterior consistency nonparametric Bayes"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "1912.07775"
+      ]
+    },
+    "per_query_hit_count": {
+      "Bayesian Nonparametrics for Anomaly Detection in Time Series computational statistics": 3,
+      "Dirichlet process anomaly detection": 3,
+      "NAB benchmark time series": 2,
+      "ROC AUC anomaly detection": 1,
+      "change point detection time series": 2,
+      "posterior consistency nonparametric Bayes": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 2,
+      "rejections": [
+        {
+          "primary_pointer": "2406.16308",
+          "rationale": "The paper focuses on using large language models for anomaly detection in tabular data, which does not involve Bayesian nonparametric methods, time‑series data, or the computational‑statistics framework of the user's question, so it does not meet any inclusion criteria (a‑f).",
+          "title": "Anomaly Detection of Tabular Data Using LLMs"
+        },
+        {
+          "primary_pointer": "2507.22692",
+          "rationale": "The paper focuses on image anomaly detection using diffusion generative models, not on Bayesian nonparametric methods or time‑series data; thus it does not address the same mechanism, variables, or domain required for the user's question.",
+          "title": "Zero-Shot Image Anomaly Detection Using Generative Foundation Models"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-24T18:39:49Z",
+    "term_input": {
+      "normalized": "bayesian nonparametrics for anomaly detection in time series computational statistics",
+      "raw": "Bayesian Nonparametrics for Anomaly Detection in Time Series computational statistics"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This extended preface [to the Book `Bayesian Nonparametrics', Cambridge University Press, 2010, by NL Hjort, CC Holmes, P Mueller, SG Walker] is meant to explain why you are right to be curious about Bayesian nonparametrics -- why you may actually need it and how you can manage to understand it and use it. The preface also serves as an introductory chapter, giving an overview of the aims and contents of the book. We also explain the background for how the book came into existence, delve briefly on the history of the still relatively young field of Bayesian nonparametrics, and offer some concluding remarks, pertaining to various challenges and likely future developments of the area.",
+          "claimed_authors": [
+            "Nils Lid Hjort",
+            "Chris Holmes",
+            "Peter Mueller",
+            "Stephen G. Walker"
+          ],
+          "claimed_title": "Bayesian Nonparametrics: Principles and Practice",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2605.22253"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Bayesian Nonparametrics for Anomaly Detection in Time Series computational stati', candidate_title='Bayesian Nonparametrics: Principles and Practice')",
+        "failed_at": "2026-06-24T18:40:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A novel methodology is proposed for clustering multivariate time series data using energy distance defined in Székely and Rizzo (2013). Specifically, a dissimilarity matrix is formed using the energy distance statistic to measure separation between the finite dimensional distributions for the component time series. Once the pairwise dissimilarity matrix is calculated, a hierarchical clustering method is then applied to obtain the dendrogram. This procedure is completely nonparametric as the dissimilarities between stationary distributions are directly calculated without making any model assumptions. In order to justify this procedure, asymptotic properties of the energy distance estimates are derived for general stationary and ergodic time series. The method is illustrated in a simulation study for various component time series that are either linear or nonlinear. Finally the methodology is applied to two examples; one involves GDP of selected countries and the other is population size of various states in the U.S.A. in the years 1900 -1999.",
+          "claimed_authors": [
+            "Richard A. Davis",
+            "Leon Fernandes",
+            "Konstantinos Fokianos"
+          ],
+          "claimed_title": "Clustering Multivariate Time Series using Energy Distance",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2303.14295"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Bayesian Nonparametrics for Anomaly Detection in Time Series computational stati', candidate_title='Clustering Multivariate Time Series using Energy Distance')",
+        "failed_at": "2026-06-24T18:40:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large language models (LLMs) have shown their potential in long-context understanding and mathematical reasoning. In this paper, we study the problem of using LLMs to detect tabular anomalies and show that pre-trained LLMs are zero-shot batch-level anomaly detectors. That is, without extra distribution-specific model fitting, they can discover hidden outliers in a batch of data, demonstrating their ability to identify low-density data regions. For LLMs that are not well aligned with anomaly detection and frequently output factual errors, we apply simple yet effective data-generating processes to simulate synthetic batch-level anomaly detection datasets and propose an end-to-end fine-tuning strategy to bring out the potential of LLMs in detecting real anomalies. Experiments on a large anomaly detection benchmark (ODDS) showcase i) GPT-4 has on-par performance with the state-of-the-art transductive learning-based anomaly detection methods and ii) the efficacy of our synthetic dataset and fine-tuning strategy in aligning LLMs to this task.",
+          "claimed_authors": [
+            "Aodong Li",
+            "Yunhan Zhao",
+            "Chen Qiu",
+            "Marius Kloft",
+            "Padhraic Smyth",
+            "Maja Rudolph",
+            "Stephan Mandt"
+          ],
+          "claimed_title": "Anomaly Detection of Tabular Data Using LLMs",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2406.16308"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Bayesian Nonparametrics for Anomaly Detection in Time Series computational stati', candidate_title='Anomaly Detection of Tabular Data Using LLMs')",
+        "failed_at": "2026-06-24T18:40:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Anomaly detection has a wide range of real-world applications, such as bank fraud detection and cyber intrusion detection. In the past decade, a variety of anomaly detection models have been developed, which lead to big progress towards accurately detecting various anomalies. Despite the successes, anomaly detection models still face many limitations. The most significant one is whether we can trust the detection results from the models. In recent years, the research community has spent a great effort to design trustworthy machine learning models, such as developing trustworthy classification models. However, the attention to anomaly detection tasks is far from sufficient. Considering that many anomaly detection tasks are life-changing tasks involving human beings, labeling someone as anomalies or fraudsters should be extremely cautious. Hence, ensuring the anomaly detection models conducted in a trustworthy fashion is an essential requirement to deploy the models to conduct automatic decisions in the real world. In this brief survey, we summarize the existing efforts and discuss open problems towards trustworthy anomaly detection from the perspectives of interpretability, fairness, robustness, and privacy-preservation.",
+          "claimed_authors": [
+            "Shuhan Yuan",
+            "Xintao Wu"
+          ],
+          "claimed_title": "Trustworthy Anomaly Detection: A Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2202.07787"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Bayesian Nonparametrics for Anomaly Detection in Time Series computational stati', candidate_title='Trustworthy Anomaly Detection: A Survey')",
+        "failed_at": "2026-06-24T18:40:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The space-time foliation Sigma compatible with the gravitational field g on a 4-manifold M determines a fibration pi of M, pi : M -> N is a surjective submersion over the 1-dimensional leaves space N. M is then written as a disjoint union of the leaves of Sigma, which are 3-dimensional spacelike surfaces on M.\n  The decomposition, TM=Sigma + T^0 M, also implies that we can define a lift of the curves on N to curves (non-spacelike) on M.\n  The stable causality condition M coincides with Sigma being a causal space-time distribution, generated by an exact timelike 1-form omega^0 = dt where t is some real function on M. In this case M is written as a disjoint union of a family of spacelike 3-surfaces of constant t, which cover D^+(S) of a initial 3-surface S of M.",
+          "claimed_authors": [
+            "Mihaela Time"
+          ],
+          "claimed_title": "Space-time distributions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 1998,
+          "primary_pointer": "gr-qc/9810059"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Bayesian Nonparametrics for Anomaly Detection in Time Series computational stati', candidate_title='Space-time distributions')",
+        "failed_at": "2026-06-24T18:40:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A reliable and efficient representation of multivariate time series is crucial in various downstream machine learning tasks. In multivariate time series forecasting, each variable depends on its historical values and there are inter-dependencies among variables as well. Models have to be designed to capture both intra- and inter-relationships among the time series. To move towards this goal, we propose the Time Series Attention Transformer (TSAT) for multivariate time series representation learning. Using TSAT, we represent both temporal information and inter-dependencies of multivariate time series in terms of edge-enhanced dynamic graphs. The intra-series correlations are represented by nodes in a dynamic graph; a self-attention mechanism is modified to capture the inter-series correlations by using the super-empirical mode decomposition (SMD) module. We applied the embedded dynamic graphs to times series forecasting problems, including two real-world datasets and two benchmark datasets. Extensive experiments show that TSAT clearly outerperforms six state-of-the-art baseline methods in various forecasting horizons. We further visualize the embedded dynamic graphs to illustrate the graph representation power of TSAT. We share our code at https://github.com/RadiantResearch/TSAT.",
+          "claimed_authors": [
+            "William T. Ng",
+            "K. Siu",
+            "Albert C. Cheung",
+            "Michael K. Ng"
+          ],
+          "claimed_title": "Expressing Multivariate Time Series as Graphs with Time Series Attention Transformer",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2208.09300"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Bayesian Nonparametrics for Anomaly Detection in Time Series computational stati', candidate_title='Expressing Multivariate Time Series as Graphs with Time Series Attention Transformer')",
+        "failed_at": "2026-06-24T18:40:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This chapter overviews some of the work on detecting and estimating the location of a single change. We first consider the most common change-point problem, namely that of detecting a change in mean, before looking at extensions to detecting other types of change. The intuition from the problem of detecting a single change-point is helpful for understanding the variety of methods for detecting multiple changes.",
+          "claimed_authors": [
+            "Paul Fearnhead",
+            "Piotr Fryzlewicz"
+          ],
+          "claimed_title": "Detecting A Single Change-point",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2210.07066"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Bayesian Nonparametrics for Anomaly Detection in Time Series computational stati', candidate_title='Detecting A Single Change-point')",
+        "failed_at": "2026-06-24T18:40:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Prompting has emerged as a practical way to adapt frozen vision-language models (VLMs) for video anomaly detection (VAD). Yet, existing prompts are often overly abstract, overlooking the fine-grained human-object interactions or action semantics that define complex anomalies in surveillance videos. We propose ASK-Hint, a structured prompting framework that leverages action-centric knowledge to elicit more accurate and interpretable reasoning from frozen VLMs. Our approach organizes prompts into semantically coherent groups (e.g. violence, property crimes, public safety) and formulates fine-grained guiding questions that align model predictions with discriminative visual cues. Extensive experiments on UCF-Crime and XD-Violence show that ASK-Hint consistently improves AUC over prior baselines, achieving state-of-the-art performance compared to both fine-tuned and training-free methods. Beyond accuracy, our framework provides interpretable reasoning traces towards anomaly and demonstrates strong generalization across datasets and VLM backbones. These results highlight the critical role of prompt granularity and establish ASK-Hint as a new training-free and generalizable solution for explainable video anomaly detection.",
+          "claimed_authors": [
+            "Shu Zou",
+            "Xinyu Tian",
+            "Lukas Wesemann",
+            "Fabian Waschkowski",
+            "Zhaoyuan Yang",
+            "Jing Zhang"
+          ],
+          "claimed_title": "Unlocking Vision-Language Models for Video Anomaly Detection via Fine-Grained Prompting",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2510.02155"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Bayesian Nonparametrics for Anomaly Detection in Time Series computational stati', candidate_title='Unlocking Vision-Language Models for Video Anomaly Detection via Fine-Grained Prompting')",
+        "failed_at": "2026-06-24T18:40:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A nonparametric model using a sequence of Bernstein polynomials is constructed to approximate arbitrary isotropic covariance functions valid in $\\mathbb{R}^\\infty$ and related approximation properties are investigated using the popular $L_{\\infty}$ norm and $L_2$ norms. A computationally efficient sieve maximum likelihood (sML) estimation is then developed to nonparametrically estimate the unknown isotropic covaraince function valid in $\\mathbb{R}^\\infty$. Consistency of the proposed sieve ML estimator is established under increasing domain regime. The proposed methodology is compared numerically with couple of existing nonparametric as well as with commonly used parametric methods. Numerical results based on simulated data show that our approach outperforms the parametric methods in reducing bias due to model misspecification and also the nonparametric methods in terms of having significantly lower values of expected $L_{\\infty}$ and $L_2$ norms. Application to precipitation data is illustrated to showcase a real case study. Additional technical details and numerical illustrations are also made available.",
+          "claimed_authors": [
+            "Yiming Wang",
+            "Sujit K. Ghosh"
+          ],
+          "claimed_title": "Nonparametric Estimation of Isotropic Covariance Function",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2604.22320"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Bayesian Nonparametrics for Anomaly Detection in Time Series computational stati', candidate_title='Nonparametric Estimation of Isotropic Covariance Function')",
+        "failed_at": "2026-06-24T18:40:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This note is an invited discussion of the article \"Confidence Intervals for Nonparametric Empirical Bayes Analysis\" by Ignatiadis and Wager. In this discussion, I review some goals of empirical Bayes data analysis and the contribution of Ignatiadis and Wager. Differences between across-group inference and group-specific inference are discussed. Standard empirical Bayes interval procedures focus on controlling the across-group average coverage rate. However, if group-specific inferences are of primary interest, confidence intervals with group-specific coverage control may be preferable.",
+          "claimed_authors": [
+            "Peter Hoff"
+          ],
+          "claimed_title": "Coverage Properties of Empirical Bayes Intervals",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2203.02569"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Bayesian Nonparametrics for Anomaly Detection in Time Series computational stati', candidate_title='Coverage Properties of Empirical Bayes Intervals')",
+        "failed_at": "2026-06-24T18:40:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study the posterior contraction rates of a Bayesian method with Gaussian process priors in nonparametric regression and its plug-in property for differential operators. For a general class of kernels, we establish convergence rates of the posterior measure of the regression function and its derivatives, which are both minimax optimal up to a logarithmic factor for functions in certain classes. Our calculation shows that the rate-optimal estimation of the regression function and its derivatives share the same choice of hyperparameter, indicating that the Bayes procedure remarkably adapts to the order of derivatives and enjoys a generalized plug-in property that extends real-valued functionals to function-valued functionals. This leads to a practically simple method for estimating the regression function and its derivatives, whose finite sample performance is assessed using simulations.\n  Our proof shows that, under certain conditions, to any convergence rate of Bayes estimators there corresponds the same convergence rate of the posterior distributions (i.e., posterior contraction rate), and vice versa. This equivalence holds for a general class of Gaussian processes and covers the regression function and its derivative functionals, under both the $L_2$ and $L_{\\infty}$ norms. In addition to connecting these two fundamental large sample properties in Bayesian and non-Bayesian regimes, such equivalence enables a new routine to establish posterior contraction rates by calculating convergence rates of nonparametric point estimators.\n  At the core of our argument is an operator-theoretic framework for kernel ridge regression and equivalent kernel techniques. We derive a range of sharp non-asymptotic bounds that are pivotal in establishing convergence rates of nonparametric point estimators and the equivalence theory, which may be of independent interest.",
+          "claimed_authors": [
+            "Zejian Liu",
+            "Meng Li"
+          ],
+          "claimed_title": "Equivalence of Convergence Rates of Posterior Distributions and Bayes Estimators for Functions and Nonparametric Functionals",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2011.13967"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Bayesian Nonparametrics for Anomaly Detection in Time Series computational stati', candidate_title='Equivalence of Convergence Rates of Posterior Distributions and Bayes Estimators for Functions and Nonparametric Functionals')",
+        "failed_at": "2026-06-24T18:40:20Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Buang Zhang",
+            "Tung Kieu",
+            "Xiangfei Qiu",
+            "Chenjuan Guo",
+            "Jilin Hu",
+            "Aoying Zhou",
+            "Christian S. Jensen",
+            "Bin Yang"
+          ],
+          "title": "An Encode-then-Decompose Approach to Unsupervised Time Series Anomaly Detection on Contaminated Training Data--Extended Version",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2510.18998",
+        "summary": "Time series anomaly detection is important in modern large-scale systems and is applied in a variety of domains to analyze and monitor the operation of diverse systems. Unsupervised approaches have received widespread interest, as they do not require anomaly labels during training, thus avoiding potentially high costs and having wider applications. Among these, autoencoders have received extensive attention. They use reconstruction errors from compressed representations to define anomaly scores. However, representations learned by autoencoders are sensitive to anomalies in training time series, causing reduced accuracy. We propose a novel encode-then-decompose paradigm, where we decompose the encoded representation into stable and auxiliary representations, thereby enhancing the robustness when training with contaminated time series. In addition, we propose a novel mutual information based metric to replace the reconstruction errors for identifying anomalies. Our proposal demonstrates competitive or state-of-the-art performance on eight commonly used multi- and univariate time series benchmarks and exhibits robustness to time series with different contamination ratios.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2510.18998",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-24T18:40:18Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Erik Rodner",
+            "Björn Barz",
+            "Yanira Guanche",
+            "Milan Flach",
+            "Miguel Mahecha",
+            "Paul Bodesheim",
+            "Markus Reichstein",
+            "Joachim Denzler"
+          ],
+          "title": "Maximally Divergent Intervals for Anomaly Detection",
+          "venue": "arXiv",
+          "year": 2016
+        },
+        "primary_pointer": "1610.06761",
+        "summary": "We present new methods for batch anomaly detection in multivariate time series. Our methods are based on maximizing the Kullback-Leibler divergence between the data distribution within and outside an interval of the time series. An empirical analysis shows the benefits of our algorithms compared to methods that treat each time step independently from each other without optimizing with respect to all possible intervals.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1610.06761",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-24T18:40:19Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Lijing Ma",
+            "Andrew Grant",
+            "Georgy Sofronov"
+          ],
+          "title": "Multiple Change Point Detection and Validation in Autoregressive Time Series Data",
+          "venue": "arXiv",
+          "year": 2019
+        },
+        "primary_pointer": "1912.07775",
+        "summary": "It is quite common that the structure of a time series changes abruptly. Identifying these change points and describing the model structure in the segments between these change points is of interest. In this paper, time series data is modelled assuming each segment is an autoregressive time series with possibly different autoregressive parameters. This is achieved using two main steps. The first step is to use a likelihood ratio scan based estimation technique to identify these potential change points to segment the time series. Once these potential change points are identified, modified parametric spectral discrimination tests are used to validate the proposed segments. A numerical study is conducted to demonstrate the performance of the proposed method across various scenarios and compared against other contemporary techniques.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1912.07775",
+          "http_status": 200,
+          "pdf_sample_score": 0.1918,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-24T18:40:19Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Chathurangi Shyalika",
+            "Harleen Kaur Bagga",
+            "Ahan Bhatt",
+            "Renjith Prasad",
+            "Alaa Al Ghazo",
+            "Amit Sheth"
+          ],
+          "title": "Time Series Foundational Models: Their Role in Anomaly Detection and Prediction",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2412.19286",
+        "summary": "Time series foundational models (TSFM) have gained prominence in time series forecasting, promising state-of-the-art performance across various applications. However, their application in anomaly detection and prediction remains underexplored, with growing concerns regarding their black-box nature, lack of interpretability and applicability. This paper critically evaluates the efficacy of TSFM in anomaly detection and prediction tasks. We systematically analyze TSFM across multiple datasets, including those characterized by the absence of discernible patterns, trends and seasonality. Our analysis shows that while TSFMs can be extended for anomaly detection and prediction, traditional statistical and deep learning models often match or outperform TSFM in these tasks. Additionally, TSFMs require high computational resources but fail to capture sequential dependencies effectively or improve performance in few-shot or zero-shot scenarios. \\noindent The preprocessed datasets, codes to reproduce the results and supplementary materials are available at https://github.com/smtmnfg/TSFM.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2412.19286",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.625,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-24T18:40:25Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "François-Xavier Aubet",
+            "Daniel Zügner",
+            "Jan Gasthaus"
+          ],
+          "title": "Monte Carlo EM for Deep Time Series Anomaly Detection",
+          "venue": "arXiv",
+          "year": 2021
+        },
+        "primary_pointer": "2112.14436",
+        "summary": "Time series data are often corrupted by outliers or other kinds of anomalies. Identifying the anomalous points can be a goal on its own (anomaly detection), or a means to improving performance of other time series tasks (e.g. forecasting). Recent deep-learning-based approaches to anomaly detection and forecasting commonly assume that the proportion of anomalies in the training data is small enough to ignore, and treat the unlabeled data as coming from the nominal data distribution. We present a simple yet effective technique for augmenting existing time series models so that they explicitly account for anomalies in the training data. By augmenting the training data with a latent anomaly indicator variable whose distribution is inferred while training the underlying model using Monte Carlo EM, our method simultaneously infers anomalous points while improving model performance on nominal data. We demonstrate the effectiveness of the approach by combining it with a simple feed-forward forecasting model. We investigate how anomalies in the train set affect the training of forecasting models, which are commonly used for time series anomaly detection, and show that our method improves the training of the model.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2112.14436",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.625,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-24T18:40:26Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "bayesian nonparametrics for anomaly detection in time series computational statistics",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

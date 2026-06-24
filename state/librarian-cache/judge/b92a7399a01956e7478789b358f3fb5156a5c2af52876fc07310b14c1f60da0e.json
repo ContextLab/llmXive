@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2508.15748",
+  "judged_at": "2026-06-24T18:39:27Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the impact of parasocial relationships with ai companions on loneliness psychology",
+  "rationale": "The paper investigates parasocial relationships with AI chatbots—the same social construct central to the user’s question—though it focuses on detection/prevention rather than loneliness outcomes, satisfying inclusion criterion (a) same‑mechanism evidence.",
+  "relevant": true
+}

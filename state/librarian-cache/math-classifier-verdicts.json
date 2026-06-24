@@ -1,4 +1,8 @@
 {
+  "PROJ-024-bayesian-nonparametrics-for-anomaly-dete::1.6.0": {
+    "classified_at": "2026-06-24T18:40:18Z",
+    "verdict": false
+  },
   "PROJ-043-leveraging-large-language-models-for-aut::1.6.0": {
     "classified_at": "2026-06-24T18:07:15Z",
     "verdict": false
@@ -57,6 +61,10 @@
   },
   "PROJ-282-evaluating-the-effectiveness-of-llms-for::1.6.0": {
     "classified_at": "2026-06-19T18:39:16Z",
+    "verdict": false
+  },
+  "PROJ-426-the-impact-of-parasocial-relationships-w::1.6.0": {
+    "classified_at": "2026-06-24T18:39:12Z",
     "verdict": false
   },
   "PROJ-463-predicting-plant-defense-allocation-from::1.6.0": {

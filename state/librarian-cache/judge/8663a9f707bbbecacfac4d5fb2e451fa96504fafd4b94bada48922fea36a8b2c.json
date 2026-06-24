@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2604.03470",
+  "judged_at": "2026-06-24T18:39:29Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the impact of parasocial relationships with ai companions on loneliness psychology",
+  "rationale": "The paper investigates how LLM‑powered chatbots (AI companions) affect adolescent loneliness, directly measuring the same independent variable (AI companion interaction) and dependent variable (loneliness) as the user's question, satisfying inclusion criterion (b).",
+  "relevant": true
+}

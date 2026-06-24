@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2110.01835",
+  "judged_at": "2026-06-24T18:39:33Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the impact of parasocial relationships with ai companions on loneliness psychology",
+  "rationale": "The paper discusses theoretical issues of AGI communication, compression, and the Fermi paradox, without addressing parasocial relationships, AI companions, loneliness, or related psychological mechanisms, thus it is off‑domain and unrelated to the user's research question.",
+  "relevant": false
+}

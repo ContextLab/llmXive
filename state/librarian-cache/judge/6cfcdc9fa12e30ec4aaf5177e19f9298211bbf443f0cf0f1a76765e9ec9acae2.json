@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2507.22692",
+  "judged_at": "2026-06-24T18:40:45Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "bayesian nonparametrics for anomaly detection in time series computational statistics",
+  "rationale": "The paper focuses on image anomaly detection using diffusion generative models, not on Bayesian nonparametric methods or time‑series data; thus it does not address the same mechanism, variables, or domain required for the user's question.",
+  "relevant": false
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2602.12476",
+  "judged_at": "2026-06-24T18:39:24Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the impact of parasocial relationships with ai companions on loneliness psychology",
+  "rationale": "The paper investigates how loneliness relates to intimacy (a form of parasocial/one‑sided relationship) with AI companions, measuring loneliness and AI‑companion intimacy among users, thus providing same‑mechanism evidence (a) and covering a key variable of the research question (b).",
+  "relevant": true
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2406.16308",
+  "judged_at": "2026-06-24T18:40:40Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "bayesian nonparametrics for anomaly detection in time series computational statistics",
+  "rationale": "The paper focuses on using large language models for anomaly detection in tabular data, which does not involve Bayesian nonparametric methods, time‑series data, or the computational‑statistics framework of the user's question, so it does not meet any inclusion criteria (a‑f).",
+  "relevant": false
+}

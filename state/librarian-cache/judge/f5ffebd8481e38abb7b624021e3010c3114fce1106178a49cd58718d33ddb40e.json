@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1301.2158",
+  "judged_at": "2026-06-24T18:39:38Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the impact of parasocial relationships with ai companions on loneliness psychology",
+  "rationale": "The paper studies AI decision‑making frameworks for clinical treatment planning and cost outcomes, which bears no relation to parasocial relationships, AI companions, loneliness, or psychological effects, thus it does not meet any inclusion criteria (a‑f).",
+  "relevant": false
+}

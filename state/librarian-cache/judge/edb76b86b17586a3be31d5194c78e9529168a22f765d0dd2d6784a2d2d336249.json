@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2412.19286",
+  "judged_at": "2026-06-24T18:40:43Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "bayesian nonparametrics for anomaly detection in time series computational statistics",
+  "rationale": "The paper studies anomaly detection performance on time‑series data, providing an empirical baseline and comparative analysis of methods (category (b): it measures a dependent variable of interest—anomaly detection—in the same domain, even though it does not use Bayesian nonparametrics).",
+  "relevant": true
+}

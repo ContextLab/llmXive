@@ -1,0 +1,507 @@
+{
+  "fetched_at": "2026-06-24T18:39:39Z",
+  "field": "psychology",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "psychology",
+      "idea_body_excerpt": "The Impact of Parasocial Relationships with AI Companions on Loneliness",
+      "target_n": 5
+    },
+    "duration_seconds": 56.713,
+    "ended_at": "2026-06-24T18:39:39Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "parasocial interaction with artificial intelligence companions and loneliness"
+        ],
+        [
+          2,
+          "human‑AI companionship and perceived social isolation"
+        ],
+        [
+          3,
+          "social presence of chatbots and loneliness reduction"
+        ],
+        [
+          4,
+          "AI chatbot friendships and mental health outcomes"
+        ],
+        [
+          5,
+          "digital companion relationships and emotional well‑being"
+        ],
+        [
+          6,
+          "attachment to virtual agents and loneliness mitigation"
+        ],
+        [
+          7,
+          "social support from embodied AI agents and psychological health"
+        ],
+        [
+          8,
+          "virtual relational agents and feelings of loneliness"
+        ],
+        [
+          9,
+          "loneliness alleviation through conversational AI"
+        ],
+        [
+          10,
+          "human–machine parasocial bonds and well‑being"
+        ],
+        [
+          11,
+          "AI pet companionship and social isolation"
+        ],
+        [
+          12,
+          "social robotics as a buffer against loneliness"
+        ],
+        [
+          13,
+          "virtual relationship therapy for loneliness"
+        ],
+        [
+          14,
+          "digital social support networks and mental health"
+        ],
+        [
+          15,
+          "affective computing of AI companions and parasocial ties"
+        ],
+        [
+          16,
+          "social cognition of artificial agents in lonely individuals"
+        ],
+        [
+          17,
+          "online social presence of AI companions and loneliness"
+        ],
+        [
+          18,
+          "human‑computer interaction parasocial effects on well‑being"
+        ],
+        [
+          19,
+          "AI‑driven social interaction and psychological outcomes"
+        ],
+        [
+          20,
+          "loneliness in the age of AI‑mediated companionship"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "The Impact of Parasocial Relationships with AI Companions on Loneliness psychology": 0,
+        "parasocial interaction with artificial intelligence companions and loneliness": 5
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "one-sided attachment AI chatbot",
+      "older adults AI companion loneliness",
+      "social presence virtual agent",
+      "UCLA loneliness scale chatbot",
+      "parasocial interaction theory AI companion"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2602.12476"
+      ]
+    },
+    "per_query_hit_count": {
+      "The Impact of Parasocial Relationships with AI Companions on Loneliness psychology": 3,
+      "UCLA loneliness scale chatbot": 3,
+      "older adults AI companion loneliness": 1,
+      "one-sided attachment AI chatbot": 3,
+      "parasocial interaction theory AI companion": 3,
+      "social presence virtual agent": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 5,
+      "rejections": [
+        {
+          "primary_pointer": "2110.01831",
+          "rationale": "The paper discusses theoretical approaches to building an Artificial Scientist and AGI, without addressing AI companions, parasocial relationships, loneliness, or related psychological mechanisms, thus it is off‑domain and unrelated to the user's research question.",
+          "title": "The Artificial Scientist: Logicist, Emergentist, and Universalist Approaches to Artificial General Intelligence"
+        },
+        {
+          "primary_pointer": "2110.01835",
+          "rationale": "The paper discusses theoretical issues of AGI communication, compression, and the Fermi paradox, without addressing parasocial relationships, AI companions, loneliness, or related psychological mechanisms, thus it is off‑domain and unrelated to the user's research question.",
+          "title": "Compression, The Fermi Paradox and Artificial Super-Intelligence"
+        },
+        {
+          "primary_pointer": "2204.10358",
+          "rationale": "The paper surveys creative problem‑solving methods in autonomous AI agents and does not examine parasocial relationships, AI companions, loneliness, or related psychological constructs, thus it lacks any of the inclusion criteria (a‑f).",
+          "title": "Creative Problem Solving in Artificially Intelligent Agents: A Survey and Framework"
+        },
+        {
+          "primary_pointer": "2304.04780",
+          "rationale": "The paper reviews explainable AI methods for healthcare and does not examine parasocial relationships, AI companions, loneliness, or related psychological mechanisms, so it lacks any of the inclusion criteria (a‑f).",
+          "title": "A Review on Explainable Artificial Intelligence for Healthcare: Why, How, and When?"
+        },
+        {
+          "primary_pointer": "1301.2158",
+          "rationale": "The paper studies AI decision‑making frameworks for clinical treatment planning and cost outcomes, which bears no relation to parasocial relationships, AI companions, loneliness, or psychological effects, thus it does not meet any inclusion criteria (a‑f).",
+          "title": "Artificial Intelligence Framework for Simulating Clinical Decision-Making: A Markov Decision Process Approach"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-24T18:38:42Z",
+    "term_input": {
+      "normalized": "the impact of parasocial relationships with ai companions on loneliness psychology",
+      "raw": "The Impact of Parasocial Relationships with AI Companions on Loneliness psychology"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Artificial intelligence (AI) is understood to affect the content of people's decisions. Here, using a behavioral implementation of the classic Newcomb's paradox in 1,305 participants, we show that AI can also change how people decide. In this paradigm, belief in predictive authority can lead individuals to constrain decision-making, forgoing a guaranteed reward. Over 40% of participants treated AI as such a predictive authority. This significantly increased the odds of forgoing the guaranteed reward by a factor of 3.39 (95% CI: 2.45-4.70) compared with random framing, and reduced earnings by 10.7-42.9%. The effect appeared across AI presentations and decision contexts and persisted even when predictions failed. When people believe AI can predict their behavior, they may self-constrain it in anticipation of that prediction.",
+          "claimed_authors": [
+            "Aoi Naito",
+            "Hirokazu Shirado"
+          ],
+          "claimed_title": "AI prediction leads people to forgo guaranteed rewards",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.28944"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Parasocial Relationships with AI Companions on Loneliness psycholo', candidate_title='AI prediction leads people to forgo guaranteed rewards')",
+        "failed_at": "2026-06-24T18:39:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The chapter discusses the foundational impact of modern generative AI models on information access (IA) systems. In contrast to traditional AI, the large-scale training and superior data modeling of generative AI models enable them to produce high-quality, human-like responses, which brings brand new opportunities for the development of IA paradigms. In this chapter, we identify and introduce two of them in details, i.e., information generation and information synthesis. Information generation allows AI to create tailored content addressing user needs directly, enhancing user experience with immediate, relevant outputs. Information synthesis leverages the ability of generative AI to integrate and reorganize existing information, providing grounded responses and mitigating issues like model hallucination, which is particularly valuable in scenarios requiring precision and external knowledge. This chapter delves into the foundational aspects of generative models, including architecture, scaling, and training, and discusses their applications in multi-modal scenarios. Additionally, it examines the retrieval-augmented generation paradigm and other methods for corpus modeling and understanding, demonstrating how generative AI can enhance information access systems. It also summarizes potential challenges and fruitful directions for future studies.",
+          "claimed_authors": [
+            "Qingyao Ai",
+            "Jingtao Zhan",
+            "Yiqun Liu"
+          ],
+          "claimed_title": "Foundations of GenIR",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2501.02842"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Parasocial Relationships with AI Companions on Loneliness psycholo', candidate_title='Foundations of GenIR')",
+        "failed_at": "2026-06-24T18:39:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Introduction. AI Ethics is framed distinctly across actors and stakeholder groups. We report results from a case study of OpenAI analysing ethical AI discourse. Method. Research addressed: How has OpenAI's public discourse leveraged 'ethics', 'safety', 'alignment' and adjacent related concepts over time, and what does discourse signal about framing in practice? A structured corpus, differentiating between communication for a general audience and communication with an academic audience, was assembled from public documentation. Analysis. Qualitative content analysis of ethical themes combined inductively derived and deductively applied codes. Quantitative analysis leveraged computational content analysis methods via NLP to model topics and quantify changes in rhetoric over time. Visualizations report aggregate results. For reproducible results, we have released our code at https://github.com/famous-blue-raincoat/AI_Ethics_Discourse. Results. Results indicate that safety and risk discourse dominate OpenAI's public communication and documentation, without applying academic and advocacy ethics frameworks or vocabularies. Conclusions. Implications for governance are presented, along with discussion of ethics-washing practices in industry.",
+          "claimed_authors": [
+            "Melissa Wilfley",
+            "Mengting Ai",
+            "Madelyn Rose Sanfilippo"
+          ],
+          "claimed_title": "Competing Visions of Ethical AI: A Case Study of OpenAI",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2601.16513"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Parasocial Relationships with AI Companions on Loneliness psycholo', candidate_title='Competing Visions of Ethical AI: A Case Study of OpenAI')",
+        "failed_at": "2026-06-24T18:39:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "AI assistants are increasingly integrated into older adults' daily lives, offering new opportunities for social support and accessibility while raising important questions about privacy, autonomy, and trust. As these systems become embedded in caregiving and social networks, older adults must navigate trade-offs between usability, data privacy, and personal agency across different interaction contexts. Although prior work has explored AI assistants' potential benefits, further research is needed to understand how perceived usefulness and risk shape adoption and engagement. This paper examines these dynamics and advocates for participatory design approaches that position older adults as active decision makers in shaping AI assistant functionality. By advancing a framework for privacy-aware, user-centered AI design, this work contributes to ongoing discussions on developing ethical and transparent AI systems that enhance well-being without compromising user control.",
+          "claimed_authors": [
+            "Karina LaRubbio",
+            "Malcolm Grba",
+            "Diana Freed"
+          ],
+          "claimed_title": "Navigating Privacy and Trust: AI Assistants as Social Support for Older Adults",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2505.02975"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Parasocial Relationships with AI Companions on Loneliness psycholo', candidate_title='Navigating Privacy and Trust: AI Assistants as Social Support for Older Adults')",
+        "failed_at": "2026-06-24T18:39:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In the domain of Human-Computer Interaction, focus groups represent a widely utilised yet resource-intensive methodology, often demanding the expertise of skilled moderators and meticulous preparatory efforts. This study introduces the ``Focus Agent,'' a Large Language Model (LLM) powered framework that simulates both the focus group (for data collection) and acts as a moderator in a focus group setting with human participants. To assess the data quality derived from the Focus Agent, we ran five focus group sessions with a total of 23 human participants as well as deploying the Focus Agent to simulate these discussions with AI participants. Quantitative analysis indicates that Focus Agent can generate opinions similar to those of human participants. Furthermore, the research exposes some improvements associated with LLMs acting as moderators in focus group discussions that include human participants.",
+          "claimed_authors": [
+            "Taiyu Zhang",
+            "Xuesong Zhang",
+            "Robbe Cools",
+            "Adalberto L. Simeone"
+          ],
+          "claimed_title": "Focus Agent: LLM-Powered Virtual Focus Group",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2409.01907"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Parasocial Relationships with AI Companions on Loneliness psycholo', candidate_title='Focus Agent: LLM-Powered Virtual Focus Group')",
+        "failed_at": "2026-06-24T18:39:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "All online sharing systems gather data that reflects users' collective behaviour and their shared activities. This data can be used to extract different kinds of relationships, which can be grouped into layers, and which are basic components of the multidimensional social network proposed in the paper. The layers are created on the basis of two types of relations between humans, i.e. direct and object-based ones which respectively correspond to either social or semantic links between individuals. For better understanding of the complexity of the social network structure, layers and their profiles were identified and studied on two, spanned in time, snapshots of the Flickr population. Additionally, for each layer, a separate strength measure was proposed. The experiments on the Flickr photo sharing system revealed that the relationships between users result either from semantic links between objects they operate on or from social connections of these users. Moreover, the density of the social network increases in time. The second part of the study is devoted to building a social recommender system that supports the creation of new relations between users in a multimedia sharing system. Its main goal is to generate personalized suggestions that are continuously adapted to users' needs depending on the personal weights assigned to each layer in the multidimensional social network. The conducted experiments confirmed the usefulness of the proposed model.",
+          "claimed_authors": [
+            "Przemyslaw Kazienko",
+            "Katarzyna Musial",
+            "Tomasz Kajdanowicz"
+          ],
+          "claimed_title": "Multidimensional Social Network in the Social Recommender System",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1303.0093"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='The Impact of Parasocial Relationships with AI Companions on Loneliness psycholo', candidate_title='Multidimensional Social Network in the Social Recommender System')",
+        "failed_at": "2026-06-24T18:39:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Bots have been playing a crucial role in online platform ecosystems, as efficient and automatic tools to generate content and diffuse information to the social media human population. In this chapter, we will discuss the role of social bots in content spreading dynamics in social media. In particular, we will first investigate some differences between diffusion dynamics of content generated by bots, as opposed to humans, in the context of political communication, then study the characteristics of bots behind the diffusion dynamics of social media spam campaigns.",
+          "claimed_authors": [
+            "Emilio Ferrara"
+          ],
+          "claimed_title": "Measuring social spam and the effect of bots on information diffusion in social media",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1708.08134"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Parasocial Relationships with AI Companions on Loneliness psycholo', candidate_title='Measuring social spam and the effect of bots on information diffusion in social media')",
+        "failed_at": "2026-06-24T18:39:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Companion chatbots offer a potential solution to the growing epidemic of loneliness, but their impact on users' psychosocial well-being remains poorly understood, raising critical ethical questions about their deployment and design. This study presents a large-scale survey (n = 404) of regular users of companion chatbots, investigating the relationship between chatbot usage and loneliness. We develop a model explaining approximately 50% of variance in loneliness; while usage does not directly predict loneliness, we identify factors including neuroticism, social network size, and problematic use. Through cluster analysis and mixed-methods thematic analysis combining manual coding with automated theme extraction, we identify seven distinct user profiles demonstrating that companion chatbots can either enhance or potentially harm psychological well-being depending on user characteristics. Different usage patterns can lead to markedly different outcomes, with some users experiencing enhanced social confidence while others risk further isolation. These findings have significant implications for responsible AI development, suggesting that one-size-fits-all approaches to AI companionship may be ethically problematic. Our work contributes to the ongoing dialogue about the role of AI in social and emotional support, offering insights for developing more targeted and ethical approaches to AI companionship that complement rather than replace human connections.",
+          "claimed_authors": [
+            "Auren R. Liu",
+            "Pat Pataranutaporn",
+            "Pattie Maes"
+          ],
+          "claimed_title": "Chatbot Companionship: A Mixed-Methods Study of Companion Chatbot Usage Patterns and Their Relationship to Loneliness in Active Users",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2410.21596"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='The Impact of Parasocial Relationships with AI Companions on Loneliness psycholo', candidate_title='Chatbot Companionship: A Mixed-Methods Study of Companion Chatbot Usage Patterns and Their Relationship to Loneliness in Active Users')",
+        "failed_at": "2026-06-24T18:39:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Innovation is a key component in trying new solutions for the students to learn efficiently and in ways that correspond to their own experience, where chatbots are one of these new solutions. One of the main problem that chatbots face today is to mimic human language, where they try to find the best answer to an input, which is not how a human conversation usually works, rather taking into account the previous messages and building onto them. Extreme programming methodology was chosen to use integrate ChatterBot, Pyside2, web scraping and Tampermonkey into Blackboard as a test case. Problems occurred with the bot and more training was needed for the bot to work perfectly, but the integration and web scraping worked, giving us a chatbot that was able to talk with. We showed the plausibility of integrating an AI bot in an educational setting.",
+          "claimed_authors": [
+            "Dimitrios Chaskopoulos",
+            "Jonas Eilertsen Hægdahl",
+            "Petter Sagvold",
+            "Claire Trinquet",
+            "Maryam Edalati"
+          ],
+          "claimed_title": "Implementing a Chatbot Solution for Learning Management System",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2206.13187"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Parasocial Relationships with AI Companions on Loneliness psycholo', candidate_title='Implementing a Chatbot Solution for Learning Management System')",
+        "failed_at": "2026-06-24T18:39:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "While generative artificial intelligence (Gen AI) increasingly transforms academic environments, a critical gap exists in understanding and mitigating human biases in AI interactions, such as anchoring and confirmation bias. This position paper advocates for metacognitive AI literacy interventions to help university students critically engage with AI and address biases across the Human-AI interaction workflows. The paper presents the importance of considering (1) metacognitive support with deliberate friction focusing on human bias; (2) bi-directional Human-AI interaction intervention addressing both input formulation and output interpretation; and (3) adaptive scaffolding that responds to diverse user engagement patterns. These frameworks are illustrated through ongoing work on \"DeBiasMe,\" AIED (AI in Education) interventions designed to enhance awareness of cognitive biases while empowering user agency in AI interactions. The paper invites multiple stakeholders to engage in discussions on design and evaluation methods for scaffolding mechanisms, bias visualization, and analysis frameworks. This position contributes to the emerging field of AI-augmented learning by emphasizing the critical role of metacognition in helping students navigate the complex interaction between human, statistical, and systemic biases in AI use while highlighting how cognitive adaptation to AI systems must be explicitly integrated into comprehensive AI literacy frameworks.",
+          "claimed_authors": [
+            "Chaeyeon Lim"
+          ],
+          "claimed_title": "DeBiasMe: De-biasing Human-AI Interactions with Metacognitive AIED (AI in Education) Interventions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.16770"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Parasocial Relationships with AI Companions on Loneliness psycholo', candidate_title='DeBiasMe: De-biasing Human-AI Interactions with Metacognitive AIED (AI in Education) Interventions')",
+        "failed_at": "2026-06-24T18:39:14Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "High stakes decision-making often requires a continuous interplay between evolving evidence and shifting hypotheses, a dynamic that is not well supported by current AI decision support systems. In this paper, we introduce a mixed-initiative framework for AI assisted decision making that is grounded in the data-frame theory of sensemaking and the evaluative AI paradigm. Our approach enables both humans and AI to collaboratively construct, validate, and adapt hypotheses. We demonstrate our framework with an AI-assisted skin cancer diagnosis prototype that leverages a concept bottleneck model to facilitate interpretable interactions and dynamic updates to diagnostic hypotheses.",
+          "claimed_authors": [
+            "Chengbo Zheng",
+            "Tim Miller",
+            "Alina Bialkowski",
+            "H Peter Soyer",
+            "Monika Janda"
+          ],
+          "claimed_title": "Supporting Data-Frame Dynamics in AI-assisted Decision Making",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.15894"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Parasocial Relationships with AI Companions on Loneliness psycholo', candidate_title='Supporting Data-Frame Dynamics in AI-assisted Decision Making')",
+        "failed_at": "2026-06-24T18:39:14Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Real-time reflection plays a vital role in synchronous communication. It enables users to adjust their communication strategies dynamically, thereby improving the effectiveness of their communication. Generative AI holds significant potential to enhance real-time reflection due to its ability to comprehensively understand the current context and generate personalized and nuanced content. However, it is challenging to design the way of interaction and information presentation to support the real-time workflow rather than disrupt it. In this position paper, we present a review of existing research on systems designed for reflection in different synchronous communication scenarios. Based on that, we discuss design implications on how to design human-AI interaction to support reflection in real time.",
+          "claimed_authors": [
+            "Yi Wen",
+            "Meng Xia"
+          ],
+          "claimed_title": "Promoting Real-Time Reflection in Synchronous Communication with Generative AI",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.15647"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Parasocial Relationships with AI Companions on Loneliness psycholo', candidate_title='Promoting Real-Time Reflection in Synchronous Communication with Generative AI')",
+        "failed_at": "2026-06-24T18:39:14Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Julian De Freitas",
+            "Ahmet K Uguralp",
+            "Zeliha O Uguralp",
+            "Puntoni Stefano"
+          ],
+          "title": "AI Companions Reduce Loneliness",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2407.19096",
+        "summary": "Chatbots are now able to engage in sophisticated conversations with consumers in the domain of relationships, providing a potential coping solution to widescale societal loneliness. Behavioral research provides little insight into whether these applications are effective at alleviating loneliness. We address this question by focusing on AI companions applications designed to provide consumers with synthetic interaction partners. Studies 1 and 2 find suggestive evidence that consumers use AI companions to alleviate loneliness, by employing a novel methodology for fine tuning large language models to detect loneliness in conversations and reviews. Study 3 finds that AI companions successfully alleviate loneliness on par only with interacting with another person, and more than other activities such watching YouTube videos. Moreover, consumers underestimate the degree to which AI companions improve their loneliness. Study 4 uses a longitudinal design and finds that an AI companion consistently reduces loneliness over the course of a week. Study 5 provides evidence that both the chatbots' performance and, especially, whether it makes users feel heard, explain reductions in loneliness. Study 6 provides an additional robustness check for the loneliness alleviating benefits of AI companions.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2407.19096",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-24T18:39:12Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Raffaele Ciriello",
+            "Uri Gal",
+            "Ofir Turel"
+          ],
+          "title": "Not a Silver Bullet for Loneliness: How Attachment and Age Shape Intimacy with AI Companions",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2602.12476",
+        "summary": "Artificial intelligence (AI) companions are increasingly promoted as solutions for loneliness, often overlooking how personal dispositions and life-stage conditions shape artificial intimacy. Because intimacy is a primary coping mechanism for loneliness that varies by attachment style and age, we examine how different types of users form intimate relationships with AI companions in response to loneliness. Drawing on a hermeneutic literature review and a survey of 277 active AI companion users, we develop and test a model in which loneliness predicts intimacy, moderated by attachment insecurity and conditioned by age. Although the cross-sectional data limits causal inference, the results reveal a differentiated pattern. Loneliness is paradoxically associated with reduced intimacy for securely attached users but with increased intimacy for avoidant and ambivalent users, while anxious users show mixed effects. Older adults report higher intimacy even at lower loneliness levels. These findings challenge portrayals of AI companions as universal remedies for loneliness. Instead, artificial intimacy emerges as a sociotechnical process shaped by psychological dispositions and demographic conditions. The study clarifies who is most likely to form intimate relationships with AI companions and highlights ethical risks in commercial models that may capitalise on user vulnerability.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2602.12476",
+          "http_status": 200,
+          "pdf_sample_score": 0.2713,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-24T18:39:13Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Emma Rath",
+            "Stuart Armstrong",
+            "Rebecca Gorman"
+          ],
+          "title": "AI Chaperones Are (Really) All You Need to Prevent Parasocial Relationships with Chatbots",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2508.15748",
+        "summary": "Emerging reports of the harms caused to children and adults by AI sycophancy and by parasocial ties with chatbots point to an urgent need for safeguards against such risks. Yet, preventing such dynamics is challenging: parasocial cues often emerge gradually in private conversations between chatbots and users, and we lack effective methods to mitigate these risks. We address this challenge by introducing a simple response evaluation framework (an AI chaperone agent) created by repurposing a state-of-the-art language model to evaluate ongoing conversations for parasocial cues. We constructed a small synthetic dataset of thirty dialogues spanning parasocial, sycophantic, and neutral conversations. Iterative evaluation with five-stage testing successfully identified all parasocial conversations while avoiding false positives under a unanimity rule, with detection typically occurring within the first few exchanges. These findings provide preliminary evidence that AI chaperones can be a viable solution for reducing the risk of parasocial relationships.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2508.15748",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-24T18:39:13Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Jinyao Liu",
+            "Di Fu"
+          ],
+          "title": "Messages in a Digital Bottle: A Youth-Coauthored Perspective on LLM Chatbots and Adolescent Loneliness",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2604.03470",
+        "summary": "Adolescent loneliness is a growing concern in digitally mediated social environments. This work-in-progress presents a youth-authored critical synthesis on chatbots powered by Large Language Model (LLM) and adolescent loneliness. The first author is a 16-year-old Chinese student who recently migrated to the UK. She wrote the first draft of this paper from her lived experience, supervised by the second author. Rather than treating the youth perspective as one data point among many, we foreground it as the primary interpretive lens, grounded in interdisciplinary literature from social computing, developmental psychology, and Human-Computer Interaction (HCI). We examine how chatbots shape experiences of loneliness differently across adolescent subgroups, including those with anxiety or depression, neurodivergent youth, and immigrant adolescents, and identify both conditions under which they may temporarily reduce isolation and breakdowns that risk deepening it. We derive three population-sensitive design implications. The next phase of this work will expand the youth authorship model to a panel of adolescents across these subgroups, empirically validating the framework presented here.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2604.03470",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-24T18:39:13Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "the impact of parasocial relationships with ai companions on loneliness psychology",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

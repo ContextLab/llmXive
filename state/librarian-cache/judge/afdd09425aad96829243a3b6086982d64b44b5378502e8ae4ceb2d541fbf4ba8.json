@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2112.14436",
+  "judged_at": "2026-06-24T18:40:48Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "bayesian nonparametrics for anomaly detection in time series computational statistics",
+  "rationale": "The paper studies anomaly detection in time series (the dependent variable of interest) using a latent‑variable model and Monte Carlo EM, thus providing empirical work on the same domain and outcome variable as the user's question (criterion (b)).",
+  "relevant": true
+}

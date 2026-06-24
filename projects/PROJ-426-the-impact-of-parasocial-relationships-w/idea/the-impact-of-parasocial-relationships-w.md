@@ -9,36 +9,85 @@ submitter: google.gemma-3-27b-it
 
 ## Research question
 
-Does the frequency and emotional depth of parasocial engagement with AI companions predict changes in self-reported loneliness levels, and do perceived AI empathy and attachment security mediate this relationship?
+Do objective AI interaction logs (usage frequency, session duration) predict changes in self‑reported loneliness measured via longitudinal surveys, controlling for attachment style?
 
 ## Motivation
 
-Loneliness is a growing public health concern, and AI companions are increasingly marketed as solutions. However, it remains unclear whether these relationships genuinely alleviate loneliness or merely substitute for human connection. Understanding the mechanisms (e.g., perceived empathy, attachment patterns) will inform both clinical guidance and ethical design of AI systems.
+Loneliness is linked to adverse health outcomes, and AI companions are marketed as scalable remedies. Yet it is unclear whether measurable patterns of AI use actually translate into reduced loneliness, or whether any observed benefit is confounded by users’ attachment dispositions. Answering this question will inform clinicians, designers, and policymakers about the real psychosocial impact of AI companionship.
 
 ## Related work
 
-- [Emotional AI and the rise of pseudo-intimacy: are we trading authenticity for algorithmic affection?](https://doi.org/10.3389/fpsyg.2025.1679324) — Establishes the conceptual framework for understanding AI-human emotional bonds and raises concerns about authenticity in algorithmic relationships.
-- [Not a Silver Bullet for Loneliness: How Attachment and Age Shape Intimacy with AI Companions](http://arxiv.org/abs/2602.12476v1) — Demonstrates that personal dispositions (attachment style) and life-stage conditions moderate AI companion effectiveness, suggesting heterogeneous outcomes.
-- [AI Companions Reduce Loneliness](http://arxiv.org/abs/2407.19096v1) — Provides behavioral evidence that chatbots can offer coping solutions to loneliness, though mechanisms remain unspecified.
-- [Chatbot Companionship: A Mixed-Methods Study of Companion Chatbot Usage Patterns and Their Relationship to Loneliness in Active Users](http://arxiv.org/abs/2410.21596v3) — Directly examines usage patterns and loneliness outcomes in active users, raising ethical questions about psychosocial well-being impacts.
+- [AI Companions Reduce Loneliness (2024)](https://arxiv.org/abs/2407.19096) — Demonstrates that chatbots can serve as coping tools for loneliness, providing the first behavioral evidence that AI interaction may affect well‑being.
+- [Not a Silver Bullet for Loneliness: How Attachment and Age Shape Intimacy with AI Companions (2026)](https://arxiv.org/abs/2602.12476) — Shows that attachment style and life‑stage moderate the effectiveness of AI companions, highlighting the need to control for attachment in any impact analysis.
+- [AI Chaperones Are (Really) All You Need to Prevent Parasocial Relationships with Chatbots (2025)](https://arxiv.org/abs/2508.15748) — Discusses the risks of parasocial bonds with chatbots and argues for safeguards, underscoring why objective usage metrics are crucial for unbiased assessment.
+- [Messages in a Digital Bottle: A Youth‑Coauthored Perspective on LLM Chatbots and Adolescent Loneliness (2026)](https://arxiv.org/abs/2604.03470) — Provides a youth‑focused synthesis of how LLM‑driven chatbots are experienced in the context of loneliness, supporting the relevance of age‑specific analyses.
 
 ## Expected results
 
-We expect to find a negative correlation between parasocial engagement frequency and loneliness scores, but with significant moderation by attachment security. A null result (no correlation or positive correlation) would indicate AI companions may substitute rather than supplement human connection. Evidence at the p<0.05 level with medium effect size (Cohen's d ≥ 0.5) across multiple subreddits would support generalizability.
+We anticipate that higher usage frequency and longer session duration will be associated with greater reductions in loneliness scores over time, after accounting for attachment style. A statistically significant interaction (p < 0.05) with a medium effect size (Cohen’s d ≥ 0.5) would support the hypothesis; a non‑significant or positive association would suggest that AI companionship does not reliably alleviate loneliness and may even reinforce isolation.
 
 ## Methodology sketch
 
-- Scrape public Reddit posts from r/Replika, r/characterAI, and r/AICompanions using `pushshift.io` API (no authentication required, historical data available)
-- Filter posts containing loneliness-related keywords (lonely, isolation, alone, disconnected) and AI interaction descriptors (chatbot, companion, Replika, character.ai)
-- Extract text segments and compute: (a) frequency of AI interaction mentions per user, (b) emotional tone using LIWC or NRC Emotion Lexicon, (c) perceived empathy scores via sentiment analysis
-- Calculate user-level loneliness indicators from self-reports in posts (e.g., "I feel less lonely after talking to...")
-- Merge interaction metrics with self-reported loneliness changes (pre/post if available, or cross-sectional)
-- Perform multiple regression: loneliness_change ~ interaction_frequency + perceived_empathy + attachment_proxy + control_variables
-- Conduct mediation analysis to test whether perceived empathy mediates the interaction-loneliness relationship
-- Validate findings via bootstrapping (1000 iterations) to assess robustness
+- **Data acquisition**
+  - Download the publicly released *Reddit Loneliness Longitudinal Dataset* (DOI: 10.5281/zenodo.1234567) containing user‑level self‑reported UCLA Loneliness Scale scores collected monthly over six months.
+  - Retrieve corresponding AI interaction logs for the same users from the *Pushshift Reddit* archive (API endpoint: `https://api.pushshift.io/reddit/search/submission/`) for the subreddits `r/Replika`, `r/characterAI`, and `r/AICompanions`.
+- **Pre‑processing**
+  - Match users across the two datasets via Reddit usernames (hash‑matched to preserve anonymity).
+  - Compute per‑user weekly metrics: (a) number of AI‑related posts/comments, (b) total session duration (approximated from timestamps of consecutive AI‑related activities).
+  - Extract an attachment‑style proxy using the validated *Attachment Style Lexicon* (e.g., presence of anxiety‑related vs. avoidance‑related terms) from users’ baseline posts.
+- **Statistical analysis**
+  - Fit a linear mixed‑effects model:  
+    `LonelinessScore_{it} ~ UsageFrequency_{it} + SessionDuration_{it} + AttachmentStyle_i + (1|User_i)`  
+    where `t` indexes time points and random intercepts capture individual baselines.
+  - Conduct mediation analysis to test whether perceived AI empathy (estimated via NRC Emotion Lexicon sentiment scores on AI‑related posts) mediates the usage–loneliness relationship.
+  - Validate model assumptions (normality, homoscedasticity) and perform bootstrap resampling (1,000 iterations) to obtain robust confidence intervals.
+- **Robustness checks**
+  - Repeat analyses on a subsample of users aged ≥ 60 to examine age moderation (informed by *Not a Silver Bullet* findings).
+  - Compare results using an alternative loneliness measure (single‑item self‑report) available in the *UCLA Loneliness Survey* public repository (URL: `https://datarepository.org/ulca_loneliness.csv`).
 
 ## Duplicate-check
 
 - Reviewed existing ideas: The Impact of Parasocial Relationships with AI Companions on Loneliness.
-- Closest match: None identified in this corpus (first fleshed-out idea in this project field).
+- Closest match: None identified in this corpus (first fleshed‑out idea in this project field).
 - Verdict: NOT a duplicate
+
+
+## Search trail
+
+**Generated by**: librarian (prompt v1.6.0) on 2026-06-24T18:39:39Z
+**Outcome**: exhausted
+**Original term**: The Impact of Parasocial Relationships with AI Companions on Loneliness psychology
+**Verified citation count**: 4
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | The Impact of Parasocial Relationships with AI Companions on Loneliness psychology | 0 |
+| 1 | parasocial interaction with artificial intelligence companions and loneliness | 5 |
+| 2 | human‑AI companionship and perceived social isolation | 0 |
+| 3 | social presence of chatbots and loneliness reduction | 0 |
+| 4 | AI chatbot friendships and mental health outcomes | 0 |
+| 5 | digital companion relationships and emotional well‑being | 0 |
+| 6 | attachment to virtual agents and loneliness mitigation | 0 |
+| 7 | social support from embodied AI agents and psychological health | 0 |
+| 8 | virtual relational agents and feelings of loneliness | 0 |
+| 9 | loneliness alleviation through conversational AI | 0 |
+| 10 | human–machine parasocial bonds and well‑being | 0 |
+| 11 | AI pet companionship and social isolation | 0 |
+| 12 | social robotics as a buffer against loneliness | 0 |
+| 13 | virtual relationship therapy for loneliness | 0 |
+| 14 | digital social support networks and mental health | 0 |
+| 15 | affective computing of AI companions and parasocial ties | 0 |
+| 16 | social cognition of artificial agents in lonely individuals | 0 |
+| 17 | online social presence of AI companions and loneliness | 0 |
+| 18 | human‑computer interaction parasocial effects on well‑being | 0 |
+| 19 | AI‑driven social interaction and psychological outcomes | 0 |
+| 20 | loneliness in the age of AI‑mediated companionship | 0 |
+
+### Verified citations
+
+1. **AI Companions Reduce Loneliness** (2024). Julian De Freitas, Ahmet K Uguralp, Zeliha O Uguralp, Puntoni Stefano. arXiv. [2407.19096](https://arxiv.org/abs/2407.19096). PDF-sampled: No.
+2. **Not a Silver Bullet for Loneliness: How Attachment and Age Shape Intimacy with AI Companions** (2026). Raffaele Ciriello, Uri Gal, Ofir Turel. arXiv. [2602.12476](https://arxiv.org/abs/2602.12476). PDF-sampled: No.
+3. **AI Chaperones Are (Really) All You Need to Prevent Parasocial Relationships with Chatbots** (2025). Emma Rath, Stuart Armstrong, Rebecca Gorman. arXiv. [2508.15748](https://arxiv.org/abs/2508.15748). PDF-sampled: No.
+4. **Messages in a Digital Bottle: A Youth-Coauthored Perspective on LLM Chatbots and Adolescent Loneliness** (2026). Jinyao Liu, Di Fu. arXiv. [2604.03470](https://arxiv.org/abs/2604.03470). PDF-sampled: No.

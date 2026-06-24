@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1610.06761",
+  "judged_at": "2026-06-24T18:40:34Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "bayesian nonparametrics for anomaly detection in time series computational statistics",
+  "rationale": "The paper studies anomaly detection in multivariate time series, providing methods and empirical evaluation of the detection outcome (the dependent variable of interest) on the same domain, satisfying inclusion criterion (b).",
+  "relevant": true
+}
