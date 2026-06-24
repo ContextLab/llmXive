@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-07T10:50:38.083225Z'
-current_stage: validated
+current_stage: project_initialized
 failed_stage: null
 field: psychology
 human_escalation_reason: null
 id: PROJ-392-the-impact-of-simulated-social-exclusion
-last_run_id: b401fb35-e1fb-4b7b-a68c-e3ca0c19794d
+last_run_id: c32d1cef-9b4c-417e-8893-2b77db218c6f
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: The Impact of Simulated Social Exclusion on Neural Responses to Reward
-updated_at: '2026-06-14T00:10:11.559171Z'
+updated_at: '2026-06-24T23:16:53.154571Z'

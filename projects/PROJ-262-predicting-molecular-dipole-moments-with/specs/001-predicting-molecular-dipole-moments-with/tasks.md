@@ -55,7 +55,7 @@ description: "Task list template for feature implementation"
 
 **Goal**: Download QM9 dataset, Download QM9 dataset, Download QM9 dataset, Download QM9 dataset, Download QM9 dataset, Download QM9 dataset, filter to 10k random subset, extract 3D coordinates and 2D descriptors for baseline comparison
 
-**Independent Test**: Verify data files exist, subset size equals 10k [UNRESOLVED-CLAIM: c_54644b71 — status=not_enough_info], and {{claim:c_f03012ef}}
+**Independent Test**: Verify data files exist, subset size equals 10k, and {{claim:c_f03012ef}}
 
 ### Tests for User Story 1
 
@@ -65,17 +65,17 @@ description: "Task list template for feature implementation"
 - [X] T011 [P] [US1] Contract test for feature_set schema in `projects/001-predicting-molecular-dipole-moments/tests/contract/test_feature_set_schema.py`
 - [X] T012 [P] [US1] Integration test for QM9 download pipeline with memory profiling (< 8GB constraint) in `projects/001-predicting-molecular-dipole-moments/tests/integration/test_qm9_download.py`
 - [X] T013 [P] [US1] Unit test for 3D coordinate extraction in `projects/001-predicting-molecular-dipole-moments/tests/unit/test_extract_3d_coords.py`
-- [ ] T014 [P] [US1] Unit test for 2D descriptor generation in `projects/001-predicting-molecular-dipole-moments/tests/unit/test_extract_2d_descriptors.py`
+- [X] T014 [P] [US1] Unit test for 2D descriptor generation in `projects/001-predicting-molecular-dipole-moments/tests/unit/test_extract_2d_descriptors.py`
 
 ### Implementation for User Story 1
 
-- [ ] T015 [US1] Implement QM9 download with integrity verification in `projects/001-predicting-molecular-dipole-moments/code/data/download_qm9.py` (FR-001, DOI 10.1038/sdata.2014.22 via HuggingFace datasets.load_dataset())
-- [ ] T016 [US1] Create 10k random subset with reproducibility seed in `projects/001-predicting-molecular-dipole-moments/code/data/create_subset.py` (MUST precede T017/T018 per spec computational efficiency requirement FR-010)
-- [ ] T017 [US1] Implement 3D coordinate, atom type, and bond connectivity extraction in `projects/001-predicting-molecular-dipole-moments/code/data/preprocess_3d.py` (FR-002, depends on T016)
-- [ ] T018 [US1] Implement 2D Morgan fingerprints and Coulomb matrix generation in `projects/001-predicting-molecular-dipole-moments/code/data/extract_2d_descriptors.py` (FR-003, depends on T016)
+- [X] T015 [US1] Implement QM9 download with integrity verification in `projects/001-predicting-molecular-dipole-moments/code/data/download_qm9.py` (FR-001, DOI 10.1038/sdata.2014.22 via HuggingFace datasets.load_dataset())
+- [X] T016 [US1] Create 10k random subset with reproducibility seed in `projects/001-predicting-molecular-dipole-moments/code/data/create_subset.py` (MUST precede T017/T018 per spec computational efficiency requirement FR-010)
+- [X] T017 [US1] Implement 3D coordinate, atom type, and bond connectivity extraction in `projects/001-predicting-molecular-dipole-moments/code/data/preprocess_3d.py` (FR-002, depends on T016)
+- [X] T018 [US1] Implement 2D Morgan fingerprints and Coulomb matrix generation in `projects/001-predicting-molecular-dipole-moments/code/data/extract_2d_descriptors.py` (FR-003, depends on T016)
 - [X] T019 [US1] Add validation for missing 3D coordinates handling in `projects/001-predicting-molecular-dipole-moments/code/data/handle_missing_coords.py` (edge case acceptance criteria)
-- [ ] T020 [US1] Generate output files: data/processed/molecules_10k.parquet, features_3d.parquet, features_2d.parquet
-- [ ] T021 [US1] Handle QM9 DOI link inaccessible edge case with retry/fallback in `projects/001-predicting-molecular-dipole-moments/code/data/download_qm9.py` (Edge Case: DOI inaccessible)
+- [X] T020 [US1] Generate output files: data/processed/molecules_10k.parquet, features_3d.parquet, features_2d.parquet
+- [X] T021 [US1] Handle QM9 DOI link inaccessible edge case with retry/fallback in `projects/001-predicting-molecular-dipole-moments/code/data/download_qm9.py` (Edge Case: DOI inaccessible)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -102,7 +102,7 @@ description: "Task list template for feature implementation"
 - [X] T029 [US2] Implement Random Forest training with 5 random seeds in `projects/001-predicting-molecular-dipole-moments/code/training/train_rf.py` (FR-005)
 - [X] T030 [US2] Implement identical train/test split generation across seeds in `projects/001-predicting-molecular-dipole-moments/code/training/split_data.py`
 - [X] T031 [US2] Implement MAE and RMSE metric computation in `projects/001-predicting-molecular-dipole-moments/code/training/evaluate.py` (FR-006)
-- [X] T032 [US2] {{claim:c_1013b8b5}} (2305.18454, https://arxiv.org/abs/2305.18454) [UNRESOLVED-CLAIM: c_892c1307 — status=verified] in `projects/001-predicting-molecular-dipole-moments/code/analysis/validate_dft.py` (FR-011, during evaluation phase)
+- [X] T032 [US2] {{claim:c_1013b8b5}} (2305.18454, https://arxiv.org/abs/2305.18454) in `projects/001-predicting-molecular-dipole-moments/code/analysis/validate_dft.py` (FR-011, during evaluation phase)
 - [X] T033 [US2] Save model checkpoints to data/checkpoints/model_seed_{N}.pt and rf_seed_{N}.pkl
 - [X] T034 [US2] Generate results/metrics.csv with performance across all 5 seeds (SC-005, FR-006)
 

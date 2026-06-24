@@ -1,0 +1,720 @@
+{
+  "fetched_at": "2026-06-24T23:15:40Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "Consciousness Bootstrapping: Self-Aware AI Through Recursive Introspection",
+      "target_n": 5
+    },
+    "duration_seconds": 71.687,
+    "ended_at": "2026-06-24T23:15:40Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "Recursive self‑modeling architectures for AI"
+        ],
+        [
+          2,
+          "Meta‑cognitive frameworks in artificial agents"
+        ],
+        [
+          3,
+          "Bootstrapped self‑awareness in neural networks"
+        ],
+        [
+          4,
+          "Self‑referential learning systems"
+        ],
+        [
+          5,
+          "Intrinsic introspection mechanisms for machine cognition"
+        ],
+        [
+          6,
+          "Reflective cognition models in AI"
+        ],
+        [
+          7,
+          "Auto‑epistemic AI architectures"
+        ],
+        [
+          8,
+          "Self‑monitoring and self‑diagnostic AI designs"
+        ],
+        [
+          9,
+          "Hierarchical self‑representation learning"
+        ],
+        [
+          10,
+          "Self‑supervised introspective representation learning"
+        ],
+        [
+          11,
+          "Metacognitive reinforcement learning agents"
+        ],
+        [
+          12,
+          "Theory of mind implementation in artificial systems"
+        ],
+        [
+          13,
+          "Cognitive bootstrapping for artificial agents"
+        ],
+        [
+          14,
+          "Recursive mental‑state inference in AI"
+        ],
+        [
+          15,
+          "Self‑modeling robotics and embodied agents"
+        ],
+        [
+          16,
+          "Self‑referential neural dynamics"
+        ],
+        [
+          17,
+          "Introspective consciousness models for machines"
+        ],
+        [
+          18,
+          "Emergent consciousness through bootstrapping processes"
+        ],
+        [
+          19,
+          "Self‑aware agent design principles"
+        ],
+        [
+          20,
+          "Reflective meta‑learning in deep learning systems"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Bootstrapped self‑awareness in neural networks": 5,
+        "Consciousness Bootstrapping: Self-Aware AI Through Recursive Introspection computer science": 0,
+        "Meta‑cognitive frameworks in artificial agents": 1,
+        "Recursive self‑modeling architectures for AI": 1
+      },
+      "total_queries_issued": 3
+    },
+    "extracted_queries": [
+      "meta-cognitive architectures self-modeling",
+      "cognitive architecture introspection benchmark",
+      "global workspace theory AI",
+      "metacognitive accuracy evaluation",
+      "integrated information theory recursive"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2306.14753"
+      ]
+    },
+    "per_query_hit_count": {
+      "Consciousness Bootstrapping: Self-Aware AI Through Recursive Introspection computer science": 3,
+      "cognitive architecture introspection benchmark": 3,
+      "global workspace theory AI": 3,
+      "integrated information theory recursive": 3,
+      "meta-cognitive architectures self-modeling": 3,
+      "metacognitive accuracy evaluation": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": true,
+      "rejected_count": 7,
+      "rejections": [
+        {
+          "primary_pointer": "2512.09458",
+          "rationale": "The paper focuses on architectural reliability of agentic AI (goal‑directed, tool‑using systems) and does not investigate self‑awareness, consciousness bootstrapping, or recursive introspection, which are the core constructs of the user's question. It therefore lacks the required mechanism or variable relevance.",
+          "title": "Architectures for Building Agentic AI"
+        },
+        {
+          "primary_pointer": "2204.10358",
+          "rationale": "The paper surveys creative problem‑solving methods in AI and does not address self‑awareness, recursive introspection, or consciousness bootstrapping; it lacks any of the mechanisms, variables, or foundational work relevant to the user’s question.",
+          "title": "Creative Problem Solving in Artificially Intelligent Agents: A Survey and Framework"
+        },
+        {
+          "primary_pointer": "2306.14753",
+          "rationale": "The paper focuses on applying arbitrary polynomial chaos theory to deep neural networks and does not address self‑awareness, recursive introspection, or consciousness bootstrapping, which are the core constructs of the user's question. It falls outside the relevant mechanisms, variables, and domain of self‑aware AI.",
+          "title": "The Deep Arbitrary Polynomial Chaos Neural Network or how Deep Artificial Neural Networks could benefit from Data-Driven Homogeneous Chaos Theory"
+        },
+        {
+          "primary_pointer": "2307.05639",
+          "rationale": "The paper focuses on Gaussian RBF neural networks for feature importance and dimensionality reduction, which bears no relation to self‑aware AI, recursive introspection, or consciousness bootstrapping, and thus does not meet any inclusion criteria.",
+          "title": "Learning Active Subspaces and Discovering Important Features with Gaussian Radial Basis Functions Neural Networks"
+        },
+        {
+          "primary_pointer": "1901.06610",
+          "rationale": "The paper studies hierarchical attention networks for document classification and does not address self‑awareness, recursive introspection, or consciousness bootstrapping in AI, nor does it share any relevant mechanism, variable, or domain with the user's question. Hence it is off‑topic.",
+          "title": "Hierarchical Attentional Hybrid Neural Networks for Document Classification"
+        },
+        {
+          "primary_pointer": "1905.05918",
+          "rationale": "The paper focuses on prognostics for mechanical systems using neural networks and evolutionary optimization, which bears no relation to consciousness, self‑awareness, or recursive introspection in AI; thus it is off‑domain and lacks any relevant mechanism, variable, or empirical setting for the user's question.",
+          "title": "A Neural Network-Evolutionary Computational Framework for Remaining Useful Life Estimation of Mechanical Systems"
+        },
+        {
+          "primary_pointer": "1906.10015",
+          "rationale": "The paper surveys neural network models of psychiatric disorders and does not investigate self‑aware AI, recursive introspection, or consciousness bootstrapping, nor does it provide foundational methods or empirical baselines relevant to that domain. It therefore lacks any of the accepted relevance categories (a‑f).",
+          "title": "A Review on Neural Network Models of Schizophrenia and Autism Spectrum Disorder"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-24T23:14:29Z",
+    "term_input": {
+      "normalized": "consciousness bootstrapping: self-aware ai through recursive introspection computer science",
+      "raw": "Consciousness Bootstrapping: Self-Aware AI Through Recursive Introspection computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A quite general interaction process of a multi-component system is analysed by the extended effective potential method liberated from usual limitations of perturbation theory or integrable model. The obtained causally complete solution of the many-body problem reveals the phenomenon of dynamic multivaluedness, or redundance, of emerging, incompatible system realisations and dynamic entanglement of system components within each realisation. The ensuing concept of dynamic complexity (and related intrinsic chaoticity) is absolutely universal and can be applied to the problem of (natural and artificial) intelligence and consciousness that dynamically emerge now as a high enough, properly specified levels of unreduced complexity of a suitable interaction process. Emergent consciousness can be identified with the appearance of bound, permanently localised states in the multivalued brain dynamics from strongly chaotic states of unconscious intelligence, by analogy with classical behaviour emergence from quantum states at the lowest levels of complex world dynamics. We show that the main properties of this dynamically emerging consciousness (and intelligence, at the preceding complexity level) correspond to empirically derived properties of natural consciousness and obtain causally substantiated conclusions about their artificial realisation, including the fundamentally justified paradigm of genuine machine consciousness. This rigorously defined machine consciousness is different from both natural consciousness and any mechanistic, dynamically single-valued imitation of the latter. We use then the same, truly universal concept of complexity to derive equally rigorous conclusions about mental and social implications of this complex-dynamic consciousness concept, demonstrating its critical importance for further progress of science and civilisation.",
+          "claimed_authors": [
+            "Andrei P. Kirilyuk"
+          ],
+          "claimed_title": "Complex-Dynamic Origin of Consciousness and the Critical Choice of Sustainability Transition",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2004,
+          "primary_pointer": "physics/0409140"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Consciousness Bootstrapping: Self-Aware AI Through Recursive Introspection compu', candidate_title='Complex-Dynamic Origin of Consciousness and the Critical Choice of Sustainability Transition')",
+        "failed_at": "2026-06-24T23:14:59Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This article introduces S-AI-Recursive, a bio-inspired Sparse Artificial Intelligence architecture in which reasoning is operationalized as a hormonal closed-loop iteration rather than a single feed-forward pass. Building upon the S-AI foundational framework [1], the hormonal-probabilistic unification doctrine [2], and the formal mathematical methodology established in S-AI-IoT [3], the present work formalizes the Recursive Reasoning Cycle (RRC) as a dynamical system governed by two novel hormones: Clarifine, a convergence signal, and Confusionin, an uncertainty detector, whose antagonistic regulation drives iterative state refinement toward a stable cognitive equilibrium. The complete mathematical framework is developed, including recursive state dynamics, Lyapunov stability proof, entropic contraction theorem, hormonal stopping criterion with finite-time termination guarantee, Euler-Maruyama discretization with projection, primal-dual agent selection under iteration budget, and recursive engram memory with warm-start acceleration. Experimental validation on the SAI-UT+ testbench demonstrates that S-AI-Recursive achieves competitive reasoning performance on abstract and symbolic benchmarks with fewer than ten million parameters, confirming the central principle of temporal parsimony: iterative cognitive depth substitutes for architectural width.",
+          "claimed_authors": [
+            "Said Slaoui"
+          ],
+          "claimed_title": "S-AI-Recursive: A Bio-Inspired and Temporal Sparse AI Architecture for Iterative, Introspective, and Energy-Frugal Reasoning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2605.13872"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Consciousness Bootstrapping: Self-Aware AI Through Recursive Introspection compu', candidate_title='S-AI-Recursive: A Bio-Inspired and Temporal Sparse AI Architecture for Iterative, Introspective, and Energy-Frugal Reasoning')",
+        "failed_at": "2026-06-24T23:14:59Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Generative AI has recently had a profound impact on various fields, including daily life, research, and education. To explore its efficient utilization in data-driven materials science, we organized a hackathon -- AIMHack2024 -- in July 2024. In this hackathon, researchers from fields such as materials science, information science, bioinformatics, and condensed matter physics worked together to explore how generative AI can facilitate research and education. Based on the results of the hackathon, this paper presents topics related to (1) conducting AI-assisted software trials, (2) building AI tutors for software, and (3) developing GUI applications for software. While generative AI continues to evolve rapidly, this paper provides an early record of its application in data-driven materials science and highlights strategies for integrating AI into research and education.",
+          "claimed_authors": [
+            "Takahiro Misawa",
+            "Ai Koizumi",
+            "Ryo Tamura",
+            "Kazuyoshi Yoshimi"
+          ],
+          "claimed_title": "Exploring utilization of generative AI for research and education in data-driven materials science",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.08817"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Consciousness Bootstrapping: Self-Aware AI Through Recursive Introspection compu', candidate_title='Exploring utilization of generative AI for research and education in data-driven materials science')",
+        "failed_at": "2026-06-24T23:14:59Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Knowledge editing enables multimodal large language models (MLLMs) to efficiently update outdated or incorrect information. However, existing benchmarks primarily emphasize cognitive-level modifications while lacking a focus on deeper meta-cognitive processes. To bridge this gap, we introduce CogEdit, a novel benchmark designed to evaluate MLLMs' meta-cognitive knowledge editing abilities across three levels: (1) Counterfactual-Driven Editing, assessing self-awareness of knowledge correctness changes; (2) Boundary Constraint Editing, ensuring appropriate generalization without unintended interference; and (3) Noise-Robust Editing, promoting reflective evaluation of uncertain information. To advance meta-cognitive editing, we propose MIND (Meta-cognitive INtegrated Dynamic Knowledge Editing), a framework that constructs a meta-knowledge memory for self-awareness, employs game-theoretic interactions to monitor knowledge activation, and incorporates label refinement for noise-robust updates. Extensive experiments show that MIND significantly outperforms existing cognitive editing approaches, achieving strong performance on both traditional and meta-cognitive knowledge editing benchmarks.",
+          "claimed_authors": [
+            "Zhaoyu Fan",
+            "Kaihang Pan",
+            "Mingze Zhou",
+            "Bosheng Qin",
+            "Juncheng Li",
+            "Shengyu Zhang",
+            "Wenqiao Zhang",
+            "Siliang Tang",
+            "Fei Wu",
+            "Yueting Zhuang"
+          ],
+          "claimed_title": "Towards Meta-Cognitive Knowledge Editing for Multimodal LLMs",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2509.05714"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Consciousness Bootstrapping: Self-Aware AI Through Recursive Introspection compu', candidate_title='Towards Meta-Cognitive Knowledge Editing for Multimodal LLMs')",
+        "failed_at": "2026-06-24T23:14:59Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper considers meta-cognitive radars in an adversarial setting. A cognitive radar optimally adapts its waveform (response) in response to maneuvers (probes) of a possibly adversarial moving target. A meta-cognitive radar is aware of the adversarial nature of the target and seeks to mitigate the adversarial target. How should the meta-cognitive radar choose its responses to sufficiently confuse the adversary trying to estimate the radar's utility function? This paper abstracts the radar's meta-cognition problem in terms of the spectra (eigenvalues) of the state and observation noise covariance matrices, and embeds the algebraic Riccati equation into an economics-based utility maximization setup. This adversarial target is an inverse reinforcement learner. By observing a noisy sequence of radar's responses (waveforms), the adversarial target uses a statistical hypothesis test to detect if the radar is a utility maximizer. In turn, the meta-cognitive radar deliberately chooses sub-optimal responses that increasing its Type-I error probability of the adversary's detector. We call this counter-adversarial step taken by the meta-cognitive radar as inverse inverse reinforcement learning (I-IRL). We illustrate the meta-cognition results of this paper via simple numerical examples. Our approach for meta-cognition in this paper is based on revealed preference theory in micro-economics and inspired by results in differential privacy and adversarial obfuscation in machine learning.",
+          "claimed_authors": [
+            "Kunal Pattanayak",
+            "Vikram Krishnamurthy",
+            "Christopher Berry"
+          ],
+          "claimed_title": "Meta-Cognition. An Inverse-Inverse Reinforcement Learning Approach for Cognitive Radars",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2205.01794"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Consciousness Bootstrapping: Self-Aware AI Through Recursive Introspection compu', candidate_title='Meta-Cognition. An Inverse-Inverse Reinforcement Learning Approach for Cognitive Radars')",
+        "failed_at": "2026-06-24T23:14:59Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Previous research has primarily focused on the cognitive error detection capabilities of Large Language Models (LLMs), often prompting them to analyze mistakes in reasoning chains. However, few studies have examined the meta-cognitive abilities of LLMs (e.g., their self-awareness of step errors), which are crucial for their reliability. While studies on LLM self-evaluation present some measures, such as perplexity, which can reflect the answer correctness and be viewed as the lens of meta-cognition, they lack step-level analysis and adaptation. This paper studies the evaluation of LLM meta-cognition using the current lenses and how to improve these lenses. Specifically, we propose AutoMeco, an Automated Meta-cognition Evaluation framework for benchmarking the existing lenses. Furthermore, a training-free Markovian Intrinsic Reward Adjustment strategy, MIRA, is proposed to boost current meta-cognition lenses. Experimental results on three mathematical reasoning datasets and three LLMs show the reasonableness of AutoMeco by comparing it with Best-of-N verification. Moreover, the meta-cognition ability of LLMs can be better evaluated using MIRA.",
+          "claimed_authors": [
+            "Ziyang Ma",
+            "Qingyue Yuan",
+            "Zhenglin Wang",
+            "Deyu Zhou"
+          ],
+          "claimed_title": "Large Language Models Have Intrinsic Meta-Cognition, but Need a Good Lens",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.08410"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Consciousness Bootstrapping: Self-Aware AI Through Recursive Introspection compu', candidate_title='Large Language Models Have Intrinsic Meta-Cognition, but Need a Good Lens')",
+        "failed_at": "2026-06-24T23:14:59Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Neuroethology has been an active field of study for more than a century now. Out of some of the most interesting species that has been studied so far, weakly electric fish is a fascinating one. It performs communication, echo-location and inter-species detection efficiently with an interesting configuration of sensors, neu-rons and a simple brain. In this paper we propose a cognitive architecture inspired by the way these fishes handle and process information. We believe that it is eas-ier to understand and mimic the neural architectures of a simpler species than that of human. Hence, the proposed architecture is expected to both help research in cognitive robotics and also help understand more complicated brains like that of human beings.",
+          "claimed_authors": [
+            "Amit Kumar Mishra"
+          ],
+          "claimed_title": "WEBCA: Weakly-Electric-Fish Bioinspired Cognitive Architecture",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1806.11401"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Consciousness Bootstrapping: Self-Aware AI Through Recursive Introspection compu', candidate_title='WEBCA: Weakly-Electric-Fish Bioinspired Cognitive Architecture')",
+        "failed_at": "2026-06-24T23:14:59Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present an initial set of factors, features, and constraints for developing a Computational Auditory System (CAS, aka less formally an artificial ear, AE) for use by cognitive architectures. We start to define a CAS and what tasks it should be able to perform. We then outline the features of a CAS for use by a cognitive architecture and factors that influence its performance. We conclude with an update on what has been created so far and insights on how to create and use a CAS in a cognitive architecture and include a set of functionalities for an artificial ear.",
+          "claimed_authors": [
+            "Frank E. Ritter",
+            "Mathieu Brener"
+          ],
+          "claimed_title": "An Initial Description of Capabilities and Constraints for a Computational Auditory System (an Artificial Ear) for Cognitive Architectures",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2202.05332"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Consciousness Bootstrapping: Self-Aware AI Through Recursive Introspection compu', candidate_title='An Initial Description of Capabilities and Constraints for a Computational Auditory System (an Artificial Ear) for Cognitive Architectures')",
+        "failed_at": "2026-06-24T23:14:59Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The primary tasks of a cognitive system is to survive and to maximize a life-long utility function, like the number of offsprings. A direct computational maximization of life-long utility is however not possible in complex environments, especially in the context, of real-world time constraints. The central role of emotions is to serve as an intermediate layer in the space of policies available to agents and animals, leading to a large dimensional reduction of complexity.\n  We review our current understanding of the functional role of emotions, stressing the role of the neuromodulators mediating emotions for the diffusive homeostatic control system of the brain. We discuss a recent proposal, that emotional diffusive control is characterized, in contrast to neutral diffusive control, by interaction effects, viz by interferences between emotional arousal and reward signaling. Several proposals for the realization of synthetic emotions are discussed in this context, together with key open issues regarding the interplay between emotional motivational drives and diffusive control.",
+          "claimed_authors": [
+            "Claudius Gros"
+          ],
+          "claimed_title": "Cognition and Emotion: Perspectives of a Closing Gap",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.3035"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Consciousness Bootstrapping: Self-Aware AI Through Recursive Introspection compu', candidate_title='Cognition and Emotion: Perspectives of a Closing Gap')",
+        "failed_at": "2026-06-24T23:14:59Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Artificial intelligence (AI) is understood to affect the content of people's decisions. Here, using a behavioral implementation of the classic Newcomb's paradox in 1,305 participants, we show that AI can also change how people decide. In this paradigm, belief in predictive authority can lead individuals to constrain decision-making, forgoing a guaranteed reward. Over 40% of participants treated AI as such a predictive authority. This significantly increased the odds of forgoing the guaranteed reward by a factor of 3.39 (95% CI: 2.45-4.70) compared with random framing, and reduced earnings by 10.7-42.9%. The effect appeared across AI presentations and decision contexts and persisted even when predictions failed. When people believe AI can predict their behavior, they may self-constrain it in anticipation of that prediction.",
+          "claimed_authors": [
+            "Aoi Naito",
+            "Hirokazu Shirado"
+          ],
+          "claimed_title": "AI prediction leads people to forgo guaranteed rewards",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.28944"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Consciousness Bootstrapping: Self-Aware AI Through Recursive Introspection compu', candidate_title='AI prediction leads people to forgo guaranteed rewards')",
+        "failed_at": "2026-06-24T23:14:59Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The chapter discusses the foundational impact of modern generative AI models on information access (IA) systems. In contrast to traditional AI, the large-scale training and superior data modeling of generative AI models enable them to produce high-quality, human-like responses, which brings brand new opportunities for the development of IA paradigms. In this chapter, we identify and introduce two of them in details, i.e., information generation and information synthesis. Information generation allows AI to create tailored content addressing user needs directly, enhancing user experience with immediate, relevant outputs. Information synthesis leverages the ability of generative AI to integrate and reorganize existing information, providing grounded responses and mitigating issues like model hallucination, which is particularly valuable in scenarios requiring precision and external knowledge. This chapter delves into the foundational aspects of generative models, including architecture, scaling, and training, and discusses their applications in multi-modal scenarios. Additionally, it examines the retrieval-augmented generation paradigm and other methods for corpus modeling and understanding, demonstrating how generative AI can enhance information access systems. It also summarizes potential challenges and fruitful directions for future studies.",
+          "claimed_authors": [
+            "Qingyao Ai",
+            "Jingtao Zhan",
+            "Yiqun Liu"
+          ],
+          "claimed_title": "Foundations of GenIR",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2501.02842"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Consciousness Bootstrapping: Self-Aware AI Through Recursive Introspection compu', candidate_title='Foundations of GenIR')",
+        "failed_at": "2026-06-24T23:14:59Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The emergence of cognition requires a framework that bridges evolutionary principles with neurocomputational mechanisms. This paper introduces the novel \"thoughtseed\" framework, proposing that cognition arises from the dynamic interaction of self-organizing units of embodied knowledge called \"thoughtseeds\" within the Global Workspace of consciousness. Leveraging foundational concepts from evolutionary theory, neuronal packets, and free energy principle, we propose a hierarchical model of cognitive states, comprising Neuronal Packet Domains (NPDs), Knowledge Domains (KDs), the thoughtseed network, and meta-cognition. This hierarchical interplay, mediated by nested Markov blankets and reciprocal message passing, facilitates the emergence of thoughtseeds as coherent patterns of activity that guide perception, action, and learning. Thoughtseeds, posited as fundamental units of thought, compete for dominance within the Global Workspace, with the dominant thoughtseed shaping conscious experience and guiding behavior. We present a mathematical framework grounded in active inference and dynamical systems theory to model thoughtseed dynamics and their contribution to the unitary nature of consciousness. The thoughtseed framework offers a promising step towards a novel, biologically-grounded model for understanding the organizing principles and emergence of embodied cognition, offering a unified account of cognitive phenomena, with potential applications in understanding consciousness, attention, and decision-making.",
+          "claimed_authors": [
+            "Prakash Chandra Kavi",
+            "Gorka Zamora-López",
+            "Daniel Ari Friedman"
+          ],
+          "claimed_title": "From Neuronal Packets to Thoughtseeds: A Hierarchical Model of Embodied Cognition in the Global Workspace",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2408.15982"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Consciousness Bootstrapping: Self-Aware AI Through Recursive Introspection compu', candidate_title='From Neuronal Packets to Thoughtseeds: A Hierarchical Model of Embodied Cognition in the Global Workspace')",
+        "failed_at": "2026-06-24T23:14:59Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We introduce a cross-domain behavioural assay of monitoring-control coupling in LLMs, grounded in the Nelson and Narens (1990) metacognitive framework and applying human psychometric methodology to LLM evaluation. The battery comprises 524 items across six cognitive domains (learning, metacognitive calibration, social cognition, attention, executive function, prospective regulation), each grounded in an established experimental paradigm. Tasks T1-T5 were pre-registered on OSF prior to data collection; T6 was added as an exploratory extension. After every forced-choice response, dual probes adapted from Koriat and Goldsmith (1996) ask the model to KEEP or WITHDRAW its answer and to BET or decline. The critical metric is the withdraw delta: the difference in withdrawal rate between incorrect and correct items. Applied to 20 frontier LLMs (10,480 evaluations), the battery discriminates three profiles consistent with the Nelson-Narens architecture: blanket confidence, blanket withdrawal, and selective sensitivity. Accuracy rank and metacognitive sensitivity rank are largely inverted. Retrospective monitoring and prospective regulation appear dissociable (r = .17, 95% CI wide given n=20; exemplar-based evidence is the primary support). Scaling on metacognitive calibration is architecture-dependent: monotonically decreasing (Qwen), monotonically increasing (GPT-5.4), or flat (Gemma). Behavioural findings converge structurally with an independent Type-2 SDT approach, providing preliminary cross-method construct validity. All items, data, and code: https://github.com/synthiumjp/metacognitive-monitoring-battery.",
+          "claimed_authors": [
+            "Jon-Paul Cacioli"
+          ],
+          "claimed_title": "The Metacognitive Monitoring Battery: A Cross-Domain Benchmark for LLM Self-Monitoring",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2604.15702"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Consciousness Bootstrapping: Self-Aware AI Through Recursive Introspection compu', candidate_title='The Metacognitive Monitoring Battery: A Cross-Domain Benchmark for LLM Self-Monitoring')",
+        "failed_at": "2026-06-24T23:14:59Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In deductive domains, three metacognitive knowledge types in ascending order are declarative, procedural, and conditional learning. This work leverages Deep Reinforcement Learning (DRL) in providing adaptive metacognitive interventions to bridge the gap between the three knowledge types and prepare students for future learning across Intelligent Tutoring Systems (ITSs). Students received these interventions that taught how and when to use a backward-chaining (BC) strategy on a logic tutor that supports a default forward-chaining strategy. Six weeks later, we trained students on a probability tutor that only supports BC without interventions. Our results show that on both ITSs, DRL bridged the metacognitive knowledge gap between students and significantly improved their learning performance over their control peers. Furthermore, the DRL policy adapted to the metacognitive development on the logic tutor across declarative, procedural, and conditional students, causing their strategic decisions to be more autonomous.",
+          "claimed_authors": [
+            "Mark Abdelshiheed",
+            "John Wesley Hostetter",
+            "Tiffany Barnes",
+            "Min Chi"
+          ],
+          "claimed_title": "Bridging Declarative, Procedural, and Conditional Metacognitive Knowledge Gap Using Deep Reinforcement Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2304.11739"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Consciousness Bootstrapping: Self-Aware AI Through Recursive Introspection compu', candidate_title='Bridging Declarative, Procedural, and Conditional Metacognitive Knowledge Gap Using Deep Reinforcement Learning')",
+        "failed_at": "2026-06-24T23:14:59Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "For AI agents to emulate human behavior, they must be able to perceive, meaningfully interpret, store, and use large amounts of information about the world, themselves, and other agents. Metacognition is a necessary component of all of these processes. In this paper, we briefly a) introduce content-centric computational cognitive (C4) modeling for next-generation AI agents; b) review the long history of developing C4 agents at RPI's LEIA (Language-Endowed Intelligent Agents) Lab; c) discuss our current work on extending LEIAs' cognitive capabilities to cognitive robotic applications developed using a neuro symbolic processing model; and d) sketch plans for future developments in this paradigm that aim to overcome underappreciated limitations of currently popular, LLM-driven methods in AI.",
+          "claimed_authors": [
+            "Sergei Nirenburg",
+            "Marjorie McShane",
+            "Sanjay Oruganti"
+          ],
+          "claimed_title": "Metacognition in Content-Centric Computational Cognitive C4 Modeling",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2503.17822"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Consciousness Bootstrapping: Self-Aware AI Through Recursive Introspection compu', candidate_title='Metacognition in Content-Centric Computational Cognitive C4 Modeling')",
+        "failed_at": "2026-06-24T23:14:59Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this article we review Tononi's (2008) theory of consciousness as integrated information. We argue that previous formalizations of integrated information (e.g. Griffith, 2014) depend on information loss. Since lossy integration would necessitate continuous damage to existing memories, we propose it is more natural to frame consciousness as a lossless integrative process and provide a formalization of this idea using algorithmic information theory. We prove that complete lossless integration requires noncomputable functions. This result implies that if unitary consciousness exists, it cannot be modelled computationally.",
+          "claimed_authors": [
+            "Phil Maguire",
+            "Philippe Moser",
+            "Rebecca Maguire",
+            "Virgil Griffith"
+          ],
+          "claimed_title": "Is Consciousness Computable? Quantifying Integrated Information Using Algorithmic Information Theory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1405.0126"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Consciousness Bootstrapping: Self-Aware AI Through Recursive Introspection compu', candidate_title='Is Consciousness Computable? Quantifying Integrated Information Using Algorithmic Information Theory')",
+        "failed_at": "2026-06-24T23:14:59Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The group testing problem concerns discovering a small number of defective items within a large population by performing tests on pools of items. A test is positive if the pool contains at least one defective, and negative if it contains no defectives. This is a sparse inference problem with a combinatorial flavour, with applications in medical testing, biology, telecommunications, information technology, data science, and more. In this monograph, we survey recent developments in the group testing problem from an information-theoretic perspective. We cover several related developments: efficient algorithms with practical storage and computation requirements, achievability bounds for optimal decoding methods, and algorithm-independent converse bounds. We assess the theoretical guarantees not only in terms of scaling laws, but also in terms of the constant factors, leading to the notion of the {\\em rate} of group testing, indicating the amount of information learned per test. For the noiseless setting, we present a series of results leading to optimal rates, which in turn imply optimality and suboptimality results of various algorithms depending on the sparsity regime. We also survey analogous developments in noisy settings. In addition, we survey results concerning a number of variations on the standard group testing problem, including approximate recovery criteria, adaptive algorithms with a limited number of stages, sublinear-time algorithms, and settings with additional prior information, among others.",
+          "claimed_authors": [
+            "Matthew Aldridge",
+            "Oliver Johnson",
+            "Jonathan Scarlett"
+          ],
+          "claimed_title": "Group Testing: An Information Theory Perspective",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1902.06002"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Consciousness Bootstrapping: Self-Aware AI Through Recursive Introspection compu', candidate_title='Group Testing: An Information Theory Perspective')",
+        "failed_at": "2026-06-24T23:14:59Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The functional Schrodinger picture formulation of quantum field theory and the variational Gaussian approximation method based on the formulation are briefly reviewed. After presenting recent attempts to improve the variational approximation, we introduce a new systematic method based on the background field method, which enables one to compute the order-by-order correction terms to the Gaussian approximation of the effective action.",
+          "claimed_authors": [
+            "Jae Hyung Yee"
+          ],
+          "claimed_title": "Variational Approach to Quantum Field Theory: Gaussian Approximation and the Perturbative Expansion around It",
+          "claimed_venue": "arXiv",
+          "claimed_year": 1997,
+          "primary_pointer": "hep-th/9707234"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Consciousness Bootstrapping: Self-Aware AI Through Recursive Introspection compu', candidate_title='Variational Approach to Quantum Field Theory: Gaussian Approximation and the Perturbative Expansion around It')",
+        "failed_at": "2026-06-24T23:14:59Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Sławomir Nowaczyk"
+          ],
+          "title": "Architectures for Building Agentic AI",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2512.09458",
+        "summary": "This chapter argues that the reliability of agentic and generative AI is chiefly an architectural property. We define agentic systems as goal-directed, tool-using decision makers operating in closed loops, and show how reliability emerges from principled componentisation (goal manager, planner, tool-router, executor, memory, verifiers, safety monitor, telemetry), disciplined interfaces (schema-constrained, validated, least-privilege tool calls), and explicit control and assurance loops. Building on classical foundations, we propose a practical taxonomy-tool-using agents, memory-augmented agents, planning and self-improvement agents, multi-agent systems, and embodied or web agents - and analyse how each pattern reshapes the reliability envelope and failure modes. We distil design guidance on typed schemas, idempotency, permissioning, transactional semantics, memory provenance and hygiene, runtime governance (budgets, termination conditions), and simulate-before-actuate safeguards.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2512.09458",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-24T23:15:04Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Evana Gizzi",
+            "Lakshmi Nair",
+            "Sonia Chernova",
+            "Jivko Sinapov"
+          ],
+          "title": "Creative Problem Solving in Artificially Intelligent Agents: A Survey and Framework",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2022
+        },
+        "primary_pointer": "2204.10358",
+        "summary": "Creative Problem Solving (CPS) is a sub-area within Artificial Intelligence (AI) that focuses on methods for solving off-nominal, or anomalous problems in autonomous systems. Despite many advancements in planning and learning, resolving novel problems or adapting existing knowledge to a new context, especially in cases where the environment may change in unpredictable ways post deployment, remains a limiting factor in the safe and useful integration of intelligent systems. The emergence of increasingly autonomous systems dictates the necessity for AI agents to deal with environmental uncertainty through creativity. To stimulate further research in CPS, we present a definition and a framework of CPS, which we adopt to categorize existing AI methods in this field. Our framework consists of four main components of a CPS problem, namely, 1) problem formulation, 2) knowledge representation, 3) method of knowledge manipulation, and 4) method of evaluation. We conclude our survey with open research questions, and suggested directions for the future.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2204.10358",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-24T23:15:09Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Sergey Oladyshkin",
+            "Timothy Praditia",
+            "Ilja Kröker",
+            "Farid Mohammadi",
+            "Wolfgang Nowak",
+            "Sebastian Otte"
+          ],
+          "title": "The Deep Arbitrary Polynomial Chaos Neural Network or how Deep Artificial Neural Networks could benefit from Data-Driven Homogeneous Chaos Theory",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2306.14753",
+        "summary": "Artificial Intelligence and Machine learning have been widely used in various fields of mathematical computing, physical modeling, computational science, communication science, and stochastic analysis. Approaches based on Deep Artificial Neural Networks (DANN) are very popular in our days. Depending on the learning task, the exact form of DANNs is determined via their multi-layer architecture, activation functions and the so-called loss function. However, for a majority of deep learning approaches based on DANNs, the kernel structure of neural signal processing remains the same, where the node response is encoded as a linear superposition of neural activity, while the non-linearity is triggered by the activation functions. In the current paper, we suggest to analyze the neural signal processing in DANNs from the point of view of homogeneous chaos theory as known from polynomial chaos expansion (PCE). From the PCE perspective, the (linear) response on each node of a DANN could be seen as a $1^{st}$ degree multi-variate polynomial of single neurons from the previous layer, i.e. linear weighted sum of monomials. From this point of view, the conventional DANN structure relies implicitly (but erroneously) on a Gaussian distribution of neural signals. Additionally, this view revels that by design DANNs do not necessarily fulfill any orthogonality or orthonormality condition for a majority of data-driven applications. Therefore, the prevailing handling of neural signals in DANNs could lead to redundant representation as any neural signal could contain some partial information from other neural signals. To tackle that challenge, we suggest to employ the data-driven generalization of PCE theory known as arbitrary polynomial chaos (aPC) to construct a corresponding multi-variate orthonormal representations on each node of a DANN to obtain Deep arbitrary polynomial chaos neural networks.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2306.14753",
+          "http_status": 200,
+          "pdf_sample_score": 0.3663,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-24T23:15:14Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Danny D'Agostino",
+            "Ilija Ilievski",
+            "Christine Annette Shoemaker"
+          ],
+          "title": "Learning Active Subspaces and Discovering Important Features with Gaussian Radial Basis Functions Neural Networks",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2307.05639",
+        "summary": "Providing a model that achieves a strong predictive performance and is simultaneously interpretable by humans is one of the most difficult challenges in machine learning research due to the conflicting nature of these two objectives. To address this challenge, we propose a modification of the radial basis function neural network model by equipping its Gaussian kernel with a learnable precision matrix. We show that precious information is contained in the spectrum of the precision matrix that can be extracted once the training of the model is completed. In particular, the eigenvectors explain the directions of maximum sensitivity of the model revealing the active subspace and suggesting potential applications for supervised dimensionality reduction. At the same time, the eigenvectors highlight the relationship in terms of absolute variation between the input and the latent variables, thereby allowing us to extract a ranking of the input variables based on their importance to the prediction task enhancing the model interpretability. We conducted numerical experiments for regression, classification, and feature selection tasks, comparing our model against popular machine learning models, the state-of-the-art deep learning-based embedding feature selection techniques, and a transformer model for tabular data. Our results demonstrate that the proposed model does not only yield an attractive prediction performance compared to the competitors but also provides meaningful and interpretable results that potentially could assist the decision-making process in real-world applications. A PyTorch implementation of the model is available on GitHub at the following link. https://github.com/dannyzx/Gaussian-RBFNN",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2307.05639",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-24T23:15:14Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Jader Abreu",
+            "Luis Fred",
+            "David Macêdo",
+            "Cleber Zanchettin"
+          ],
+          "title": "Hierarchical Attentional Hybrid Neural Networks for Document Classification",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2019
+        },
+        "primary_pointer": "1901.06610",
+        "summary": "Document classification is a challenging task with important applications. The deep learning approaches to the problem have gained much attention recently. Despite the progress, the proposed models do not incorporate the knowledge of the document structure in the architecture efficiently and not take into account the contexting importance of words and sentences. In this paper, we propose a new approach based on a combination of convolutional neural networks, gated recurrent units, and attention mechanisms for document classification tasks. The main contribution of this work is the use of convolution layers to extract more meaningful, generalizable and abstract features by the hierarchical representation. The proposed method in this paper improves the results of the current attention-based approaches for document classification.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1901.06610",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-24T23:15:15Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "David Laredo",
+            "Zhaoyin Chen",
+            "Oliver Schütze",
+            "Jian-Qiao Sun"
+          ],
+          "title": "A Neural Network-Evolutionary Computational Framework for Remaining Useful Life Estimation of Mechanical Systems",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2019
+        },
+        "primary_pointer": "1905.05918",
+        "summary": "This paper presents a framework for estimating the remaining useful life (RUL) of mechanical systems. The framework consists of a multi-layer perceptron and an evolutionary algorithm for optimizing the data-related parameters. The framework makes use of a strided time window to estimate the RUL for mechanical components. Tuning the data-related parameters can become a very time consuming task. The framework presented here automatically reshapes the data such that the efficiency of the model is increased. Furthermore, the complexity of the model is kept low, e.g. neural networks with few hidden layers and few neurons at each layer. Having simple models has several advantages like short training times and the capacity of being in environments with limited computational resources such as embedded systems. The proposed method is evaluated on the publicly available C-MAPSS dataset, its accuracy is compared against other state-of-the art methods for the same dataset.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1905.05918",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-24T23:15:15Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Pablo Lanillos",
+            "Daniel Oliva",
+            "Anja Philippsen",
+            "Yuichi Yamashita",
+            "Yukie Nagai",
+            "Gordon Cheng"
+          ],
+          "title": "A Review on Neural Network Models of Schizophrenia and Autism Spectrum Disorder",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2019
+        },
+        "primary_pointer": "1906.10015",
+        "summary": "This survey presents the most relevant neural network models of autism spectrum disorder and schizophrenia, from the first connectionist models to recent deep network architectures. We analyzed and compared the most representative symptoms with its neural model counterpart, detailing the alteration introduced in the network that generates each of the symptoms, and identifying their strengths and weaknesses. We additionally cross-compared Bayesian and free-energy approaches, as they are widely applied to modeling psychiatric disorders and share basic mechanisms with neural networks. Models of schizophrenia mainly focused on hallucinations and delusional thoughts using neural dysconnections or inhibitory imbalance as the predominating alteration. Models of autism rather focused on perceptual difficulties, mainly excessive attention to environment details, implemented as excessive inhibitory connections or increased sensory precision. We found an excessive tight view of the psychopathologies around one specific and simplified effect, usually constrained to the technical idiosyncrasy of the used network architecture. Recent theories and evidence on sensorimotor integration and body perception combined with modern neural network architectures could offer a broader and novel spectrum to approach these psychopathologies. This review emphasizes the power of artificial neural networks for modeling some symptoms of neurological disorders but also calls for further developing these techniques in the field of computational psychiatry.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1906.10015",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-24T23:15:16Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "consciousness bootstrapping: self-aware ai through recursive introspection computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

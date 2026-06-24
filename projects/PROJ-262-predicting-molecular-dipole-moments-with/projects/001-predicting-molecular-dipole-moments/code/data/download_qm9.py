@@ -1,135 +1,81 @@
 """
 download_qm9.py
+----------------
+Downloads the QM9 dataset using the 🤗 Datasets library and stores it as a Parquet file
+in the project's raw data directory.
 
-This script downloads the QM9 dataset. The primary source is the original
-DOI-hosted zip file (https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/qm9.zip).
-In environments where that URL is inaccessible (e.g. network restrictions or
-a broken link), the script falls back to the HuggingFace ``datasets`` library,
-which provides a reliable mirror of QM9.
-
-The final output is a Parquet file stored at ``data/raw/qm9.parquet``.
-Downstream pipelines (create_subset, preprocess_3d, etc.) expect this file.
+The script is idempotent: if the target file already exists it will be left untouched.
+It is also safe to call from downstream scripts (e.g., ``create_subset.py``) which
+may need the raw data but do not want to depend on a separate download step.
 """
 
 from __future__ import annotations
 
-import os
-import sys
-import time
-import urllib.error
-import urllib.request
+import argparse
 from pathlib import Path
 
+from datasets import load_dataset
 import pandas as pd
-
-# Optional import: HuggingFace datasets is used only for the fallback.
-# It is listed in ``requirements.txt``.
-try:
-    from datasets import load_dataset
-except Exception as exc:  # pragma: no cover
-    load_dataset = None  # type: ignore
 
 # --------------------------------------------------------------------------- #
 # Configuration
 # --------------------------------------------------------------------------- #
-PRIMARY_URL = (
-    "https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/qm9.zip"
-)
-MAX_RETRIES = 4
-RETRY_BACKOFF_FACTOR = 2  # exponential back‑off (seconds)
-RAW_DATA_DIR = Path(__file__).resolve().parents[2] / "raw"
-OUTPUT_PARQUET = RAW_DATA_DIR / "qm9.parquet"
+RAW_DATA_DIR = Path(__file__).resolve().parents[2] / "data" / "raw"
+RAW_PARQUET_PATH = RAW_DATA_DIR / "qm9.parquet"
 
 # --------------------------------------------------------------------------- #
 # Helper functions
 # --------------------------------------------------------------------------- #
-def _ensure_dir(path: Path) -> None:
-    """Create parent directories if they do not exist."""
-    path.parent.mkdir(parents=True, exist_ok=True)
+def ensure_raw_dir() -> None:
+    """Create the raw data directory if it does not exist."""
+    RAW_DATA_DIR.mkdir(parents=True, exist_ok=True)
 
-def _download_with_retries(url: str, dest: Path) -> bool:
+def download_and_save() -> Path:
     """
-    Attempt to download ``url`` to ``dest`` using a simple exponential back‑off.
+    Download the QM9 dataset from the HuggingFace hub and write it to a Parquet file.
 
-    Returns ``True`` if the download succeeded, ``False`` otherwise.
+    Returns
+    -------
+    Path
+        Path to the written Parquet file.
     """
-    for attempt in range(1, MAX_RETRIES + 1):
-        try:
-            print(f"[download_qm9] Attempt {attempt}/{MAX_RETRIES} downloading {url}...")
-            urllib.request.urlretrieve(url, dest)  # type: ignore[arg-type]
-            print("[download_qm9] Download succeeded.")
-            return True
-        except urllib.error.HTTPError as e:
-            print(f"[download_qm9] HTTP error: {e}. Retrying in {RETRY_BACKOFF_FACTOR ** (attempt-1)}s...", file=sys.stderr)
-        except urllib.error.URLError as e:
-            print(f"[download_qm9] URL error: {e}. Retrying in {RETRY_BACKOFF_FACTOR ** (attempt-1)}s...", file=sys.stderr)
-        except Exception as e:  # pragma: no cover
-            print(f"[download_qm9] Unexpected error: {e}. Retrying...", file=sys.stderr)
+    # The QM9 dataset on the hub is available under the identifier "qm9".
+    # It contains a single split named "train".  We load the entire split,
+    # convert it to a pandas DataFrame and store it as Parquet (which is
+    # efficient and supported by downstream code).
+    dataset = load_dataset("qm9", split="train")
+    df: pd.DataFrame = dataset.to_pandas()
 
-        time.sleep(RETRY_BACKOFF_FACTOR ** (attempt - 1))
-
-    return False
-
-def _extract_qm9_from_zip(zip_path: Path) -> pd.DataFrame:
-    """
-    The original QM9 zip contains a ``gdb9.sdf`` file and a ``properties.npy``
-    file. For the purposes of the downstream pipeline we only need the tabular
-    properties (the dipole moment is among them). ``datasets.load_dataset`` already
-    provides a clean DataFrame, so we simply delegate to the fallback implementation.
-    """
-    raise RuntimeError(
-        "Direct extraction from the original zip is not implemented. "
-        "The fallback via ``datasets`` will be used instead."
-    )
-
-def _load_via_huggingface() -> pd.DataFrame:
-    """
-    Load QM9 using the HuggingFace ``datasets`` library and convert to a pandas
-    DataFrame. The dataset contains 133,885 molecules with 19 properties; the
-    column ``mu`` corresponds to the dipole moment (Debye).
-    """
-    if load_dataset is None:
-        raise ImportError(
-            "The 'datasets' package is required for the fallback download. "
-            "Please ensure it is listed in requirements.txt."
-        )
-    print("[download_qm9] Falling back to HuggingFace datasets library...")
-    ds = load_dataset("qm9", split="train")
-    df = pd.DataFrame(ds)
-    return df
+    ensure_raw_dir()
+    df.to_parquet(RAW_PARQUET_PATH, index=False)
+    return RAW_PARQUET_PATH
 
 # --------------------------------------------------------------------------- #
-# Main orchestration
+# CLI entry point
 # --------------------------------------------------------------------------- #
 def main() -> None:
     """
-    Download QM9 (primary URL with retry) or fall back to HuggingFace.
-    The resulting DataFrame is written to ``data/raw/qm9.parquet``.
+    Command‑line interface.
+
+    The script can be invoked directly:
+        python -m code.data.download_qm9
     """
-    _ensure_dir(OUTPUT_PARQUET)
+    parser = argparse.ArgumentParser(
+        description="Download the QM9 dataset and store it as Parquet."
+    )
+    parser.add_argument(
+        "--force",
+        action="store_true",
+        help="Force re‑download even if the Parquet file already exists.",
+    )
+    args = parser.parse_args()
 
-    # 1️⃣ Try the primary URL.
-    zip_path = RAW_DATA_DIR / "qm9.zip"
-    primary_success = _download_with_retries(PRIMARY_URL, zip_path)
-
-    if primary_success:
-        try:
-            df = _extract_qm9_from_zip(zip_path)
-        except Exception as e:  # pragma: no cover
-            print(
-                f"[download_qm9] Extraction from zip failed ({e}); "
-                "using fallback via HuggingFace.",
-                file=sys.stderr,
-            )
-            df = _load_via_huggingface()
+    if RAW_PARQUET_PATH.is_file() and not args.force:
+        print(f"Raw QM9 Parquet already exists at {RAW_PARQUET_PATH}")
     else:
-        print("[download_qm9] Primary download failed after retries.", file=sys.stderr)
-        df = _load_via_huggingface()
-
-    # 2️⃣ Write to parquet.
-    print(f"[download_qm9] Writing parquet to {OUTPUT_PARQUET} ...")
-    df.to_parquet(OUTPUT_PARQUET, index=False)
-    print("[download_qm9] Done.")
+        print("Downloading QM9 dataset...")
+        path = download_and_save()
+        print(f"QM9 dataset written to {path}")
 
 if __name__ == "__main__":
     main()

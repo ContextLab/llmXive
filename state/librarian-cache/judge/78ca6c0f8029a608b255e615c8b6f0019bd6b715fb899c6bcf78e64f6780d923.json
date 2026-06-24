@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1901.06610",
+  "judged_at": "2026-06-24T23:15:32Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "consciousness bootstrapping: self-aware ai through recursive introspection computer science",
+  "rationale": "The paper studies hierarchical attention networks for document classification and does not address self‑awareness, recursive introspection, or consciousness bootstrapping in AI, nor does it share any relevant mechanism, variable, or domain with the user's question. Hence it is off‑topic.",
+  "relevant": false
+}

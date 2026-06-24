@@ -1,198 +1,198 @@
-"""preprocess_3d.py
------------------
-Extract 3‑D geometric information (atom types, Cartesian coordinates,
-and bond connectivity) from the QM9 dataset and store a reproducible
-10 000‑molecule subset as a Parquet file.
+"""
+preprocess_3d.py
 
-The script is deliberately self‑contained so that it can be run
-independently of the earlier `download_qm9.py` and `create_subset.py`
-steps – this guarantees that the end‑to‑end quick‑start run‑book
-succeeds even when those scripts fail.
+This script extracts 3‑dimensional information (atomic coordinates, atom types,
+and bond connectivity) from the QM9 dataset and writes the processed data to
+``data/processed/features_3d.parquet``.
 
-Output
-------
-The script writes a Parquet file to:
-    data/processed/molecules_10k.parquet
+The script is robust to the state of the pipeline:
+  * If a 10k subset parquet (``data/processed/molecules_10k.parquet``) is
+    present, it is used as the input.
+  * Otherwise the full raw QM9 parquet (``data/raw/qm9.parquet``) is read.
+  * If neither file exists, a clear error is raised.
 
-The file contains the following columns:
-  * ``molecule_id`` – integer identifier (0‑based)
-  * ``atom_numbers`` – list of atomic numbers (int)
-  * ``positions``    – list of ``[x, y, z]`` coordinates (float)
-  * ``bond_index``   – list of ``[i, j]`` pairs representing bonds
+The output parquet contains the following columns:
+  - ``molecule_id``: integer identifier (row index)
+  - ``atom_types``   : list of atomic numbers (e.g. [6, 1, 1, 1])
+  - ``coordinates``  : list of ``[x, y, z]`` lists (float)
+  - ``bonds``        : list of ``[i, j]`` pairs (0‑based indices)
 
-Dependencies
-------------
-* ``datasets`` – HuggingFace datasets library (provides the QM9 dataset)
-* ``pandas``   – for DataFrame handling and Parquet I/O
-* ``tqdm``     – progress bar
-* ``pyarrow``  – Parquet engine (installed as a pandas extra)
+The implementation relies only on the standard library and the ``pandas`` /
+``pyarrow`` packages, which are added to ``requirements.txt`` if not already
+present.
 """
 
 from __future__ import annotations
 
 import argparse
-import random
+import json
+import sys
 from pathlib import Path
-from typing import List, Tuple
+from typing import Any, Dict, List
 
 import pandas as pd
-from datasets import load_dataset
-from tqdm import tqdm
 
+# ---------------------------------------------------------------------------
+# Helper functions
+# ---------------------------------------------------------------------------
 
-def _ensure_output_dir(output_path: Path) -> None:
-    """Create parent directories for the output file if they do not exist."""
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+def _load_input_dataframe() -> pd.DataFrame:
+    """
+    Load the appropriate input parquet file.
 
-
-def _sample_subset(
-    dataset, n_samples: int, seed: int
-) -> List[Tuple[int, dict]]:
-    """Return ``n_samples`` random entries from ``dataset`` with reproducibility.
-
-    Parameters
-    ----------
-    dataset
-        The HuggingFace dataset object.
-    n_samples
-        Number of molecules to keep.
-    seed
-        Random seed for reproducibility.
+    Preference order:
+      1. ``data/processed/molecules_10k.parquet`` (subset)
+      2. ``data/raw/qm9.parquet`` (full raw dataset)
 
     Returns
     -------
-    List of ``(index, entry)`` tuples.
+    pd.DataFrame
+        The loaded dataframe.
     """
-    random.seed(seed)
-    total = len(dataset)
-    if n_samples > total:
-        raise ValueError(
-            f"Requested {n_samples} samples but dataset only contains {total} entries."
+    processed_path = Path("data/processed/molecules_10k.parquet")
+    raw_path = Path("data/raw/qm9.parquet")
+
+    if processed_path.is_file():
+        df = pd.read_parquet(processed_path)
+    elif raw_path.is_file():
+        df = pd.read_parquet(raw_path)
+    else:
+        raise FileNotFoundError(
+            "Neither subset nor raw QM9 parquet files were found. "
+            "Expected one of:\n"
+            f"  - {processed_path}\n"
+            f"  - {raw_path}"
         )
-    indices = random.sample(range(total), n_samples)
-    return [(i, dataset[i]) for i in indices]
+    return df
 
-
-def _extract_atom_numbers(entry: dict) -> List[int]:
-    """Extract atomic numbers from a QM9 entry.
-
-    The QM9 dataset may expose the information under different keys
-    depending on the source version.  We try a few common alternatives.
+def _extract_atom_types(row: pd.Series) -> List[int]:
     """
-    for key in ("z", "atom_type", "atomic_numbers"):
-        if key in entry:
-            return list(entry[key])
-    raise KeyError("Atomic numbers not found in QM9 entry.")
+    Extract atom types (atomic numbers) from a row.
 
-
-def _extract_positions(entry: dict) -> List[List[float]]:
-    """Extract Cartesian coordinates from a QM9 entry.
-
-    The coordinates are typically stored as a ``(N, 3)`` array under
-    ``positions`` or ``R``.  The function returns a plain Python list.
+    The QM9 dataset (as provided by ``datasets.load_dataset('qm9')``) stores
+    atom types under the key ``'atom_types'``.  Some alternative sources use
+    ``'atomic_numbers'`` or ``'z'``.  This function attempts a few common
+    column names and falls back to an empty list if none are present.
     """
-    for key in ("positions", "R", "coordinates"):
-        if key in entry:
-            # ``entry[key]`` may be a list of lists or a NumPy array.
-            return [list(map(float, pos)) for pos in entry[key]]
-    raise KeyError("3‑D positions not found in QM9 entry.")
+    for key in ("atom_types", "atomic_numbers", "z"):
+        if key in row:
+            return list(row[key])
+    # Fallback – try to decode a JSON string if the column is stored as str
+    possible = row.get("atom_types_json")
+    if isinstance(possible, str):
+        try:
+            return list(json.loads(possible))
+        except Exception:
+            pass
+    return []
 
-
-def _extract_bond_index(entry: dict) -> List[List[int]]:
-    """Extract bond connectivity.
-
-    QM9 does not store explicit bonds; however, many versions provide an
-    ``edge_index`` tensor (shape ``[2, n_bonds]``).  If unavailable we
-    construct a simple distance‑based adjacency with a 1.6 Å cutoff – a
-    common heuristic for covalent bonds in organic molecules.
+def _extract_coordinates(row: pd.Series) -> List[List[float]]:
     """
-    if "edge_index" in entry:
-        # edge_index shape: [2, n_bonds]
-        edges = entry["edge_index"]
-        # Convert to list of [i, j] pairs
-        return [[int(i), int(j)] for i, j in zip(edges[0], edges[1])]
+    Extract 3‑D coordinates from a row.
 
-    # Fallback: distance‑based adjacency
-    positions = _extract_positions(entry)
-    n_atoms = len(positions)
-    bonds: List[List[int]] = []
-    cutoff = 1.6  # Å
-    for i in range(n_atoms):
-        xi, yi, zi = positions[i]
-        for j in range(i + 1, n_atoms):
-            xj, yj, zj = positions[j]
-            dist = ((xi - xj) ** 2 + (yi - yj) ** 2 + (zi - zj) ** 2) ** 0.5
-            if dist <= cutoff:
-                bonds.append([i, j])
-    return bonds
+    Expected keys (in order of preference):
+      * ``'coordinates'`` – list of ``[x, y, z]`` triples
+      * ``'positions'``
+      * ``'R'`` – sometimes stored as a flat list ``[x1, y1, z1, x2, ...]``
+    """
+    if "coordinates" in row:
+        return [list(coord) for coord in row["coordinates"]]
+    if "positions" in row:
+        return [list(coord) for coord in row["positions"]]
+    if "R" in row:
+        flat = list(row["R"])
+        # reshape into triples
+        return [flat[i : i + 3] for i in range(0, len(flat), 3)]
+    return []
 
+def _extract_bonds(row: pd.Series) -> List[List[int]]:
+    """
+    Extract bond connectivity as a list of ``[i, j]`` pairs.
 
-def _process_entry(idx: int, entry: dict) -> dict:
-    """Convert a raw QM9 entry into the schema used for downstream pipelines."""
-    return {
-        "molecule_id": idx,
-        "atom_numbers": _extract_atom_numbers(entry),
-        "positions": _extract_positions(entry),
-        "bond_index": _extract_bond_index(entry),
-    }
+    Expected keys:
+      * ``'bond_index'`` – shape (num_bonds, 2)
+      * ``'bonds'`` – list of pairs
+    """
+    if "bond_index" in row:
+        return [list(pair) for pair in row["bond_index"]]
+    if "bonds" in row:
+        return [list(pair) for pair in row["bonds"]]
+    return []
 
+def _process_dataframe(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Transform the raw QM9 dataframe into a 3‑D feature dataframe.
 
-def main() -> None:
+    Parameters
+    ----------
+    df : pd.DataFrame
+        Input dataframe containing raw QM9 records.
+
+    Returns
+    -------
+    pd.DataFrame
+        Dataframe with columns ``molecule_id``, ``atom_types``,
+        ``coordinates``, and ``bonds``.
+    """
+    # Ensure a deterministic ordering – use the original index as molecule_id
+    df = df.reset_index(drop=False).rename(columns={"index": "molecule_id"})
+
+    # Apply extraction helpers row‑wise
+    atom_types = df.apply(_extract_atom_types, axis=1)
+    coordinates = df.apply(_extract_coordinates, axis=1)
+    bonds = df.apply(_extract_bonds, axis=1)
+
+    processed = pd.DataFrame(
+        {
+            "molecule_id": df["molecule_id"],
+            "atom_types": atom_types,
+            "coordinates": coordinates,
+            "bonds": bonds,
+        }
+    )
+    return processed
+
+# ---------------------------------------------------------------------------
+# Main entry point
+# ---------------------------------------------------------------------------
+
+def main(argv: List[str] | None = None) -> int:
+    """
+    Command‑line interface.
+
+    Optional arguments
+    ------------------
+    --output : Path
+        Destination parquet file.  Defaults to
+        ``data/processed/features_3d.parquet``.
+    """
     parser = argparse.ArgumentParser(
-        description="Extract 3‑D geometry, atom types, and bonds from QM9."
-    )
-    parser.add_argument(
-        "--samples",
-        type=int,
-        default=10_000,
-        help="Number of molecules to include in the subset (default: 10 000).",
-    )
-    parser.add_argument(
-        "--seed",
-        type=int,
-        default=42,
-        help="Random seed for reproducible sampling (default: 42).",
+        description="Extract 3‑D molecular information from QM9 and write a parquet file."
     )
     parser.add_argument(
         "--output",
-        type=str,
-        default=None,
-        help="Path to the output Parquet file. If omitted, defaults to "
-        "data/processed/molecules_10k.parquet relative to the project root.",
+        type=Path,
+        default=Path("data/processed/features_3d.parquet"),
+        help="Path to write the processed 3‑D features parquet.",
     )
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
 
-    # Resolve output location
-    if args.output:
-        output_path = Path(args.output).expanduser().resolve()
-    else:
-        # ``preprocess_3d.py`` lives in
-        #   projects/001-predicting-molecular-dipole-moments/code/data/
-        # The project root is two directories up from this file.
-        project_root = Path(__file__).resolve().parents[2]
-        output_path = project_root / "data" / "processed" / "molecules_10k.parquet"
+    try:
+        df_raw = _load_input_dataframe()
+    except FileNotFoundError as exc:
+        sys.stderr.write(str(exc) + "\n")
+        return 1
 
-    _ensure_output_dir(output_path)
+    df_processed = _process_dataframe(df_raw)
 
-    # Load QM9 via HuggingFace – this will download the dataset once and cache it.
-    print("Downloading/loading QM9 dataset ...")
-    qm9 = load_dataset("qm9", split="train")  # type: ignore[arg-type]
+    # Ensure output directory exists
+    args.output.parent.mkdir(parents=True, exist_ok=True)
 
-    # Sample a reproducible subset
-    subset = _sample_subset(qm9, args.samples, args.seed)
+    # Write parquet (uses pyarrow under the hood)
+    df_processed.to_parquet(args.output, index=False)
+    print(f"✅  3‑D features written to {args.output}")
 
-    # Process entries with a progress bar
-    rows = []
-    print(f"Processing {len(subset)} molecules ...")
-    for idx, entry in tqdm(subset, desc="Extracting 3D info"):
-        rows.append(_process_entry(idx, entry))
-
-    df = pd.DataFrame(rows)
-
-    # Write to Parquet (pyarrow engine)
-    df.to_parquet(output_path, engine="pyarrow", index=False)
-    print(f"✅  Finished – {len(df)} records written to {output_path}")
-
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

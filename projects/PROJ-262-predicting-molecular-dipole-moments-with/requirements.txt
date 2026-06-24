@@ -1,0 +1,4 @@
+# Project dependencies
+pandas>=2.0
+pyarrow>=12.0
+numpy>=1.24

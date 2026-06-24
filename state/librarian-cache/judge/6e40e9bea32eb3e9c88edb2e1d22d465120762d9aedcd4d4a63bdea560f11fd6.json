@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2306.14753",
+  "judged_at": "2026-06-24T23:15:27Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "consciousness bootstrapping: self-aware ai through recursive introspection computer science",
+  "rationale": "The paper focuses on applying arbitrary polynomial chaos theory to deep neural networks and does not address self‑awareness, recursive introspection, or consciousness bootstrapping, which are the core constructs of the user's question. It falls outside the relevant mechanisms, variables, and domain of self‑aware AI.",
+  "relevant": false
+}

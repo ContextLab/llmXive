@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1905.05918",
+  "judged_at": "2026-06-24T23:15:36Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "consciousness bootstrapping: self-aware ai through recursive introspection computer science",
+  "rationale": "The paper focuses on prognostics for mechanical systems using neural networks and evolutionary optimization, which bears no relation to consciousness, self‑awareness, or recursive introspection in AI; thus it is off‑domain and lacks any relevant mechanism, variable, or empirical setting for the user's question.",
+  "relevant": false
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1906.10015",
+  "judged_at": "2026-06-24T23:15:40Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "consciousness bootstrapping: self-aware ai through recursive introspection computer science",
+  "rationale": "The paper surveys neural network models of psychiatric disorders and does not investigate self‑aware AI, recursive introspection, or consciousness bootstrapping, nor does it provide foundational methods or empirical baselines relevant to that domain. It therefore lacks any of the accepted relevance categories (a‑f).",
+  "relevant": false
+}

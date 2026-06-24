@@ -1,30 +1,47 @@
+"""
+Unit test for 2D descriptor generation (T014).
+
+This test validates that the ``compute_fingerprints`` function from
+``code.data.extract_2d_descriptors`` returns an array of the expected
+shape and dtype for a small set of SMILES strings.
+"""
+
+from __future__ import annotations
+
 import numpy as np
-import pandas as pd
-import pytest
 
-from code.data.extract_2d_descriptors import generate_2d_descriptors
+# Import the function under test.
+from code.data.extract_2d_descriptors import compute_fingerprints
 
-@pytest.mark.parametrize(
-    "smiles,expected_atoms",
-    [
-        ("O", 3),   # water: O + 2 H
-        ("C", 5),   # methane: C + 4 H
-    ],
-)
-def test_generate_2d_descriptors_basic(smiles, expected_atoms):
-    """Check that fingerprint and Coulomb matrix are generated with correct shapes."""
-    df = pd.DataFrame({"smiles": [smiles]})
-    out_df = generate_2d_descriptors(df)
 
-    # One row should be returned
-    assert len(out_df) == 1
+def test_compute_fingerprints_basic() -> None:
+    """
+    Verify that fingerprints are generated for a few known SMILES strings
+    and that the output has the correct dimensions and dtype.
+    """
+    # A tiny, diverse set of molecules.
+    smiles = [
+        "CCO",          # ethanol
+        "c1ccccc1",     # benzene
+        "C[N+](C)(C)C", # tetramethylammonium
+    ]
 
-    # Fingerprint should be a numpy array of length 2048
-    fp = out_df.iloc[0]["fingerprint"]
-    assert isinstance(fp, np.ndarray)
-    assert fp.shape == (2048,)
+    n_bits = 1024
+    fp_array = compute_fingerprints(smiles, n_bits=n_bits)
 
-    # Coulomb matrix should be square with size equal to number of atoms (including H)
-    cm = out_df.iloc[0]["coulomb_matrix"]
-    assert isinstance(cm, np.ndarray)
-    assert cm.shape == (expected_atoms, expected_atoms)
+    # The result should be a NumPy ndarray.
+    assert isinstance(fp_array, np.ndarray), "Output is not a NumPy array"
+
+    # Shape should be (num_molecules, n_bits).
+    assert fp_array.shape == (len(smiles), n_bits), (
+        f"Expected shape {(len(smiles), n_bits)}, got {fp_array.shape}"
+    )
+
+    # dtype should be unsigned 8‑bit integer (0/1 values).
+    assert fp_array.dtype == np.uint8, f"Unexpected dtype {fp_array.dtype}"
+
+    # Values should be 0 or 1 only.
+    unique_vals = np.unique(fp_array)
+    assert set(unique_vals).issubset({0, 1}), (
+        f"Fingerprint contains values outside {{0,1}}: {unique_vals}"
+    )

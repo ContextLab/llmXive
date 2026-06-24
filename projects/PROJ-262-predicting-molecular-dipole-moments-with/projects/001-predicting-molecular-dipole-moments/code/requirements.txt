@@ -1,10 +1,14 @@
-# Core dependencies for the QM9 pipeline
+# Core dependencies for the QM9 pipeline and downstream analysis
 pandas
 pyarrow
+numpy
+requests
+# The primary source uses the HuggingFace datasets library
 datasets
-# Existing project dependencies (if any) – add them below
-# e.g., torch, scikit-learn, tqdm, etc.
-torch
-scikit-learn
-tqdm
-# The above list ensures the download script can run in the CI environment.
+# Fallback source (DeepChem NumPy archive) does not require additional
+# packages beyond those listed above, but the libraries are kept here for
+# completeness and future extensions.
+# torch and torch_geometric are optional – not required for the current
+# fallback implementation.
+# torch
+# torch_geometric
