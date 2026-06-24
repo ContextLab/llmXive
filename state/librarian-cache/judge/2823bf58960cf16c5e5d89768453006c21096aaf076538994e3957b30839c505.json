@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2310.03210",
+  "judged_at": "2026-06-24T18:23:04Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "socratic transformers: dialogue-based self-teaching through adversarial questioning computer science",
+  "rationale": "The paper investigates how language models (including transformer‑based models) can use the Socratic method—i.e., dialogue‑based, question‑driven teaching—to guide users toward solutions, which matches the same mechanism (Socratic questioning/self‑teaching) queried by the user (criterion a). It therefore provides relevant prior work for a literature review on Socratic Transformers.",
+  "relevant": true
+}

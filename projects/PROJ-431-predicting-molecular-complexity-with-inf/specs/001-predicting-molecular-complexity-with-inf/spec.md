@@ -13,18 +13,19 @@ A researcher wants to generate entropy‑based complexity scores for a curated s
 
 **Why this priority**: Without the core scores, no further modelling or interpretation is possible; this is the fundamental data product of the project.
 
-**Independent Test**: Provide a CSV containing 100 SMILES strings; run the pipeline and verify that a new CSV with two additional columns (`atom_entropy`, `bond_entropy`) is produced, each containing numeric values for every input molecule.
+**Independent Test**: Provide a CSV containing a representative set of SMILES strings; run the pipeline and verify that a new CSV with two additional columns (`atom_entropy`, `bond_entropy`) is produced, each containing numeric values for every input molecule.
 
 **Acceptance Scenarios**:
 
-1. **Given** a valid CSV file with a `smiles` column, **When** the user executes the `compute_entropy` command, **Then** the system outputs a CSV with the original columns plus `atom_entropy` and `bond_entropy` for each row.
+1. **Given** a valid CSV file with a `smiles` column, **When** the user executes the `compute_entropy` command, **Then** the system outputs a CSV with the original columns plus `atom_entropy` and `bond_entropy` for each row **and** SC‑005 (see Success Criteria) is satisfied.
 2. **Given** a CSV where some SMILES strings are malformed, **When** the command runs, **Then** the system logs a warning for each malformed entry and skips them, leaving the rest of the output intact.
+3. **Given** a CSV containing **10 000** valid molecules, **When** the `compute_entropy` command is executed on a single‑CPU machine, **Then** the processing completes within **30 minutes**, satisfying **SC‑003**.
 
 ---
 
 ### User Story 2 – Train & Evaluate Ridge Regression Models (Priority: P2)
 
-A chemoinformatics analyst wants to assess whether the entropy scores predict aqueous solubility (logS) and octanol‑water partition coefficient (logP) using a simple regression model.
+A chemoinformatics analyst wants to assess whether the entropy scores predict aqueous solubility (logS) and octanol‑water partition coefficient (logP) using a simple regression model. **logP is employed as a widely accepted proxy for membrane permeability**, reflecting the compound's ability to cross lipid bilayers.
 
 **Why this priority**: This story validates the scientific hypothesis and produces the quantitative results required for the project’s expected outcomes.
 
@@ -32,8 +33,8 @@ A chemoinformatics analyst wants to assess whether the entropy scores predict aq
 
 **Acceptance Scenarios**:
 
-1. **Given** a dataset split 80/20 (train/test), **When** the analyst runs `train_model --target logS`, **Then** the system trains a Ridge Regression model, saves `ridge_logS.pkl`, and writes a report where RMSE ≤ 1.0 log units and |Pearson r| ≥ 0.3 (if the hypothesis holds).
-2. **Given** the same dataset but targeting `logP`, **When** the command is executed, **Then** analogous artifacts (`ridge_logP.pkl` and report) are produced with the same performance thresholds.
+1. **Given** a dataset split 80/20 (train/test), **When** the analyst runs `train_model --target logS`, **Then** the system trains a Ridge Regression model, saves `ridge_logS.pkl`, and writes a report where **RMSE ≤ 1.0 log units** (see **SC‑002**) and **|Pearson r| ≥ 0.3** (see **SC‑001**) after Bonferroni correction.
+2. **Given** the same dataset but targeting `logP`, **When** the command is executed, **Then** analogous artifacts (`ridge_logP.pkl` and report) are produced with performance thresholds **RMSE ≤ 1.0 log units** (see **SC‑007**) and **|Pearson r| ≥ 0.3** (see **SC‑006**) after Bonferroni correction.
 
 ---
 
@@ -47,15 +48,15 @@ A data scientist wants quick visual confirmation of the relationship between ent
 
 **Acceptance Scenarios**:
 
-1. **Given** the model report and the enriched CSV, **When** the user runs `plot_correlation --property logS`, **Then** the system saves `entropy_vs_logS.png` showing atom/bond entropy on the x‑axis and logS on the y‑axis, with a line of best fit and R² displayed.
-2. **Given** the same inputs for `logP`, **When** the command is executed, **Then** `entropy_vs_logP.png` is generated with analogous content.
+1. **Given** the model report and the enriched CSV, **When** the user runs `plot_correlation --property logS`, **Then** the system saves `entropy_vs_logS.png` showing atom/bond entropy on the x‑axis and logS on the y‑axis, with a line of best fit and R² displayed, **satisfying SC‑004**.
+2. **Given** the same inputs for `logP`, **When** the command is executed, **Then** `entropy_vs_logP.png` is generated with analogous content, **satisfying SC‑004**.
 
 ---
 
 ### Edge Cases
 
 - What happens when the input CSV contains **zero** molecules?  
-  *System SHOULD emit a clear error message and abort without creating output files.*
+  *System SHALL emit a clear error message and abort without creating output files.*
 
 - How does the system handle **non‑ASCII characters** or **invalid atom symbols** in SMILES strings?  
   *System MUST log the offending rows, skip them, and continue processing the remainder.*
@@ -67,23 +68,19 @@ A data scientist wants quick visual confirmation of the relationship between ent
 
 ### Functional Requirements
 
-- **FR-001**: System MUST ingest a CSV file containing a `smiles` column with up to **[deferred]** rows.
-- **FR-002**: System MUST compute the **Shannon entropy** of the atom‑type frequency distribution for each molecule and store it as `atom_entropy`.
-- **FR-003**: System MUST compute the **Shannon entropy** of the bond‑type frequency distribution for each molecule and store it as `bond_entropy`.
+- **FR-001**: System MUST ingest a CSV file containing a `smiles` column with up to **10 000** rows.
+- **FR-002**: System MUST compute the **Shannon entropy** of the atom‑type frequency distribution for each molecule and store it as `atom_entropy`. (Implemented via RDKit atom type counting.)
+- **FR-003**: System MUST compute the **Shannon entropy** of the bond‑type frequency distribution for each molecule and store it as `bond_entropy`. (Implemented via RDKit bond type counting.)
 - **FR-004**: System MUST join each molecule with its experimentally measured physicochemical labels (`logS`, `logP`) from the provided metadata columns.
-- **FR-005**: System MUST split the enriched dataset into **[deferred] training** and **[deferred] testing** partitions using a reproducible random seed.
+- **FR-005**: System MUST split the enriched dataset into an **[deferred]** training and **[deferred]** testing partition using a reproducible random seed **42**.
 - **FR-006**: System MUST train a **Ridge Regression** model (α = 1.0 by default) for each target property and output:
   - a serialized model file (`*.pkl`),
   - a JSON report containing **RMSE** and **Pearson correlation coefficient** on the test set.
-- **FR-007**: System MUST generate PNG scatter‑plot visualizations of each entropy metric versus each target property, overlaying a linear regression line and reporting R².
+- **FR-007**: System MUST generate PNG scatter‑plot visualizations of each entropy metric versus each target property, overlaying a linear regression line and reporting **R²**.
 - **FR-008**: System MUST log warnings for malformed SMILES and missing property values, and abort with an informative error if the input file is empty.  
 - **FR-009**: System MUST expose a command‑line interface with sub‑commands `compute_entropy`, `train_model`, and `plot_correlation`.  
 
-*Clarification needed*:
-
-- **FR-010**: System MUST compute **[NEEDS CLARIFICATION: which information‑theoretic measures beyond atom‑type and bond‑type Shannon entropy? Options include joint graph entropy, degree‑distribution entropy, mutual information between atom and bond types, or algorithmic complexity approximations.]**
-
-### Key Entities
+### Key Entities *(include if feature involves data)*
 
 - **MoleculeRecord**: Represents a single molecule with attributes `smiles`, `atom_entropy`, `bond_entropy`, `logS`, `logP`.
 - **RegressionModel**: Serialized Ridge Regression estimator tied to a specific target property.
@@ -93,10 +90,15 @@ A data scientist wants quick visual confirmation of the relationship between ent
 
 ### Measurable Outcomes
 
-- **SC-001**: Pearson correlation coefficient (|r|) between *any* entropy metric and *any* target property must be **≥ 0.30** on the test set (reference: hypothesis‑driven expectation of a moderate relationship).
-- **SC-002**: Root‑Mean‑Square Error for the Ridge Regression model predicting `logS` must be **≤ 1.0** log units on the test set (reference: baseline simple linear model using molecular weight).
-- **SC-003**: The pipeline must successfully process a **[deferred]‑molecule** dataset in **≤ 30 minutes** on a single‑CPU machine (reference: CPU‑only RDKit performance benchmarks).
-- **SC-004**: Generated correlation plots must be saved as PNG files with a resolution of **≥ 300 dpi** and include axis labels, regression line, and R² annotation (reference: standard scientific figure quality).
+- **SC-001**: Pearson correlation coefficient (|r|) between **atom_entropy** and **logS** on the test set must be **≥ 0.30** after applying a Bonferroni correction for the two evaluated pairs (atom_entropy–logS, bond_entropy–logS).  
+- **SC-002**: Root‑Mean‑Square Error for the Ridge Regression model predicting `logS` must be **≤ 1.0** log units on the test set (reference: baseline simple linear model using molecular weight).  
+- **SC-003**: The pipeline must successfully process a **10 000‑molecule** dataset in **≤ 30 minutes** on a single‑CPU machine (reference: CPU‑only RDKit performance benchmarks).  
+- **SC-004**: Generated correlation plots must be saved as PNG files with a resolution of **≥ 300 dpi** and include axis labels, regression line, and R² annotation (reference: standard scientific figure quality).  
+- **SC-005**: The CSV output produced by `compute_entropy` must contain **both** `atom_entropy` and `bond_entropy` columns for every valid input molecule.  
+- **SC-006**: Pearson correlation coefficient (|r|) between **atom_entropy** and **logP** on the test set must be **≥ 0.30** after Bonferroni correction for the evaluated pairs (atom_entropy–logP, bond_entropy–logP).  
+- **SC-007**: Root‑Mean‑Square Error for the Ridge Regression model predicting `logP` must be **≤ 1.0** log units on the test set (reference: baseline simple linear model using molecular weight).  
+- **SC-008**: Pearson correlation coefficient (|r|) between **bond_entropy** and **logS** on the test set must be **≥ 0.30** after Bonferroni correction for the evaluated pairs (bond_entropy–logS, atom_entropy–logS).  
+- **SC-009**: Pearson correlation coefficient (|r|) between **bond_entropy** and **logP** on the test set must be **≥ 0.30** after Bonferroni correction for the evaluated pairs (bond_entropy–logP, atom_entropy–logP).  
 
 ## Assumptions
 

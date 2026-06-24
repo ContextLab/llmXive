@@ -1,0 +1,626 @@
+{
+  "fetched_at": "2026-06-24T18:23:10Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "Socratic Transformers: Dialogue-Based Self-Teaching Through Adversarial Questioning",
+      "target_n": 5
+    },
+    "duration_seconds": 62.345,
+    "ended_at": "2026-06-24T18:23:10Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "Socratic self‑teaching for language models"
+        ],
+        [
+          2,
+          "adversarial questioning in transformer pretraining"
+        ],
+        [
+          3,
+          "dialogue‑driven self‑supervision for NLP"
+        ],
+        [
+          4,
+          "question‑based curriculum learning for transformers"
+        ],
+        [
+          5,
+          "interactive self‑training via AI‑generated questions"
+        ],
+        [
+          6,
+          "self‑questioning language model frameworks"
+        ],
+        [
+          7,
+          "conversational self‑instruction with transformers"
+        ],
+        [
+          8,
+          "adversarial QA prompting for model improvement"
+        ],
+        [
+          9,
+          "teacher‑student dialogue models for self‑learning"
+        ],
+        [
+          10,
+          "meta‑learning through Socratic dialogue"
+        ],
+        [
+          11,
+          "self‑consistency via iterative questioning"
+        ],
+        [
+          12,
+          "dual‑agent transformer questioning systems"
+        ],
+        [
+          13,
+          "reinforcement learning from adversarial dialogue"
+        ],
+        [
+          14,
+          "self‑instruct through AI‑generated Socratic prompts"
+        ],
+        [
+          15,
+          "dialogue‑based curriculum pretraining for transformers"
+        ],
+        [
+          16,
+          "question‑driven self‑supervised learning in NLP"
+        ],
+        [
+          17,
+          "adversarial self‑play for language model refinement"
+        ],
+        [
+          18,
+          "Socratic method applied to neural networks"
+        ],
+        [
+          19,
+          "interactive curriculum generation via questioning"
+        ],
+        [
+          20,
+          "self‑guided knowledge acquisition through dialogue"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Socratic Transformers: Dialogue-Based Self-Teaching Through Adversarial Questioning computer science": 0,
+        "Socratic self‑teaching for language models": 5
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "self-consistency prompting",
+      "Wizard of Wikipedia dialogues",
+      "self-instruct instruction tuning",
+      "dialogue consistency metric",
+      "adversarial curriculum learning"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2503.21676"
+      ]
+    },
+    "per_query_hit_count": {
+      "Socratic Transformers: Dialogue-Based Self-Teaching Through Adversarial Questioning computer science": 3,
+      "Wizard of Wikipedia dialogues": 3,
+      "adversarial curriculum learning": 3,
+      "dialogue consistency metric": 3,
+      "self-consistency prompting": 3,
+      "self-instruct instruction tuning": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 2,
+      "rejections": [
+        {
+          "primary_pointer": "2009.10149",
+          "rationale": "The paper studies adversarial example generation for prognostics models in manufacturing, not dialogue-based self‑teaching, Socratic questioning, or transformer architectures, so it does not meet any inclusion criteria (a‑f) for the user's question.",
+          "title": "Crafting Adversarial Examples for Deep Learning Based Prognostics (Extended Version)"
+        },
+        {
+          "primary_pointer": "2409.02228",
+          "rationale": "The paper investigates targeted forgetting and its generalization in language models, which does not address dialogue‑based self‑teaching, adversarial questioning, or Socratic Transformer mechanisms, and thus lacks relevance to the user's research focus.",
+          "title": "Unforgettable Generalization in Language Models"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-24T18:22:07Z",
+    "term_input": {
+      "normalized": "socratic transformers: dialogue-based self-teaching through adversarial questioning computer science",
+      "raw": "Socratic Transformers: Dialogue-Based Self-Teaching Through Adversarial Questioning computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Socratic Transformers: Dialogue-Based Self-Teaching Through Adversarial Question', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-06-24T18:22:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Socratic Transformers: Dialogue-Based Self-Teaching Through Adversarial Question', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-06-24T18:22:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Socratic Transformers: Dialogue-Based Self-Teaching Through Adversarial Question', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-06-24T18:22:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We introduce Meta Prompting (MP), a framework that elevates the reasoning capabilities of large language models (LLMs) by focusing on the formal structure of a task rather than content-specific examples. We establish a theoretical foundation for this paradigm, formalizing MP as a functor that maps a category of tasks to a category of structured prompts, thereby guaranteeing that compositional problem-solving strategies can be systematically decomposed into modular prompt structures. We extend this concept to Recursive Meta Prompting (RMP), an automated process where an LLM can generate and refine its own prompts. We model this self-improvement loop formally as a monad, providing a principled framework for automated prompt engineering. Our claims are validated through extensive experiments demonstrating that a Qwen-72B base model, guided by a single, example-agnostic meta-prompt, achieves state-of-the-art results on MATH, GSM8K, and Game of 24. These results are achieved with substantial token efficiency gains over traditional few-shot methods. Project Page: https://github.com/meta-prompting/meta-prompting.",
+          "claimed_authors": [
+            "Yifan Zhang",
+            "Yang Yuan",
+            "Andrew Chi-Chih Yao"
+          ],
+          "claimed_title": "Meta Prompting for AI Systems",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2311.11482"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Socratic Transformers: Dialogue-Based Self-Teaching Through Adversarial Question', candidate_title='Meta Prompting for AI Systems')",
+        "failed_at": "2026-06-24T18:22:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Fokker-Planck equation (FPE) is the partial differential equation that governs the density evolution of the Itô process and is of great importance to the literature of statistical physics and machine learning. The FPE can be regarded as a continuity equation where the change of the density is completely determined by a time varying velocity field. Importantly, this velocity field also depends on the current density function. As a result, the ground-truth velocity field can be shown to be the solution of a fixed-point equation, a property that we call self-consistency. In this paper, we exploit this concept to design a potential function of the hypothesis velocity fields, and prove that, if such a function diminishes to zero during the training procedure, the trajectory of the densities generated by the hypothesis velocity fields converges to the solution of the FPE in the Wasserstein-2 sense. The proposed potential function is amenable to neural-network based parameterization as the stochastic gradient with respect to the parameter can be efficiently computed. Once a parameterized model, such as Neural Ordinary Differential Equation is trained, we can generate the entire trajectory to the FPE.",
+          "claimed_authors": [
+            "Zebang Shen",
+            "Zhenfu Wang",
+            "Satyen Kale",
+            "Alejandro Ribeiro",
+            "Amin Karbasi",
+            "Hamed Hassani"
+          ],
+          "claimed_title": "Self-Consistency of the Fokker-Planck Equation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2206.00860"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Socratic Transformers: Dialogue-Based Self-Teaching Through Adversarial Question', candidate_title='Self-Consistency of the Fokker-Planck Equation')",
+        "failed_at": "2026-06-24T18:22:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We introduce meta-prompting, an effective scaffolding technique designed to enhance the functionality of language models (LMs). This approach transforms a single LM into a multi-faceted conductor, adept at managing and integrating multiple independent LM queries. By employing high-level instructions, meta-prompting guides the LM to break down complex tasks into smaller, more manageable subtasks. These subtasks are then handled by distinct \"expert\" instances of the same LM, each operating under specific, tailored instructions. Central to this process is the LM itself, in its role as the conductor, which ensures seamless communication and effective integration of the outputs from these expert models. It additionally employs its inherent critical thinking and robust verification processes to refine and authenticate the end result. This collaborative prompting approach empowers a single LM to simultaneously act as a comprehensive orchestrator and a panel of diverse experts, significantly enhancing its performance across a wide array of tasks. The zero-shot, task-agnostic nature of meta-prompting greatly simplifies user interaction by obviating the need for detailed, task-specific instructions. Furthermore, our research demonstrates the seamless integration of external tools, such as a Python interpreter, into the meta-prompting framework, thereby broadening its applicability and utility. Through rigorous experimentation with GPT-4, we establish the superiority of meta-prompting over conventional scaffolding methods: When averaged across all tasks, including the Game of 24, Checkmate-in-One, and Python Programming Puzzles, meta-prompting, augmented with a Python interpreter functionality, surpasses standard prompting by 17.1%, expert (dynamic) prompting by 17.3%, and multipersona prompting by 15.2%.",
+          "claimed_authors": [
+            "Mirac Suzgun",
+            "Adam Tauman Kalai"
+          ],
+          "claimed_title": "Meta-Prompting: Enhancing Language Models with Task-Agnostic Scaffolding",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2401.12954"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Socratic Transformers: Dialogue-Based Self-Teaching Through Adversarial Question', candidate_title='Meta-Prompting: Enhancing Language Models with Task-Agnostic Scaffolding')",
+        "failed_at": "2026-06-24T18:22:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Wikipedia can be considered as an extreme form of a self-managing team, as a means of labour division. One could expect that this bottom-up approach, with the absense of top-down organisational control, would lead to a chaos, but our analysis shows that this is not the case. In the Dutch Wikipedia, an integrated and coherent data structure is created, while at the same time users succeed in distributing roles by self-selection. Some users focus on an area of expertise, while others edit over the whole encyclopedic range. This constitutes our conclusion that Wikipedia, in general, is a successful example of a self-managing team.",
+          "claimed_authors": [
+            "Sander Spek",
+            "Eric Postma",
+            "H. Jaap van den Herik"
+          ],
+          "claimed_title": "Wikipedia: organisation from a bottom-up approach",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2006,
+          "primary_pointer": "cs/0611068"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Socratic Transformers: Dialogue-Based Self-Teaching Through Adversarial Question', candidate_title='Wikipedia: organisation from a bottom-up approach')",
+        "failed_at": "2026-06-24T18:22:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We conducted a global comparative analysis of the coverage of American topics in different language versions of Wikipedia, using over 90 million Wikidata items and 40 million Wikipedia articles in 58 languages. Our study aimed to investigate whether Americanization is more or less dominant in different regions and cultures and to determine whether interest in American topics is universal.",
+          "claimed_authors": [
+            "Piotr Konieczny",
+            "Włodzimierz Lewoniewski"
+          ],
+          "claimed_title": "Measuring Americanization: A Global Quantitative Study of Interest in American Topics on Wikipedia",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2307.14401"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Socratic Transformers: Dialogue-Based Self-Teaching Through Adversarial Question', candidate_title='Measuring Americanization: A Global Quantitative Study of Interest in American Topics on Wikipedia')",
+        "failed_at": "2026-06-24T18:22:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Wikipedia is a goldmine of information; not just for its many readers, but also for the growing community of researchers who recognize it as a resource of exceptional scale and utility. It represents a vast investment of manual effort and judgment: a huge, constantly evolving tapestry of concepts and relations that is being applied to a host of tasks.\n  This article provides a comprehensive description of this work. It focuses on research that extracts and makes use of the concepts, relations, facts and descriptions found in Wikipedia, and organizes the work into four broad categories: applying Wikipedia to natural language processing; using it to facilitate information retrieval and information extraction; and as a resource for ontology building. The article addresses how Wikipedia is being used as is, how it is being improved and adapted, and how it is being combined with other structures to create entirely new resources. We identify the research groups and individuals involved, and how their work has developed in the last few years. We provide a comprehensive list of the open-source software they have produced.",
+          "claimed_authors": [
+            "Olena Medelyan",
+            "David Milne",
+            "Catherine Legg",
+            "Ian H. Witten"
+          ],
+          "claimed_title": "Mining Meaning from Wikipedia",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2008,
+          "primary_pointer": "0809.4530"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Socratic Transformers: Dialogue-Based Self-Teaching Through Adversarial Question', candidate_title='Mining Meaning from Wikipedia')",
+        "failed_at": "2026-06-24T18:22:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Despite vision-language models' (VLMs) remarkable capabilities as versatile visual assistants, two substantial challenges persist within the existing VLM frameworks: (1) lacking task diversity in pretraining and visual instruction tuning, and (2) annotation error and bias in GPT-4 synthesized instruction tuning data. Both challenges lead to issues such as poor generalizability, hallucination, and catastrophic forgetting. To address these challenges, we construct Vision-Flan, the most diverse publicly available visual instruction tuning dataset to date, comprising 187 diverse tasks and 1,664,261 instances sourced from academic datasets, and each task is accompanied by an expert-written instruction. In addition, we propose a two-stage instruction tuning framework, in which VLMs are firstly finetuned on Vision-Flan and further tuned on GPT-4 synthesized data. We find this two-stage tuning framework significantly outperforms the traditional single-stage visual instruction tuning framework and achieves the state-of-the-art performance across a wide range of multi-modal evaluation benchmarks. Finally, we conduct in-depth analyses to understand visual instruction tuning and our findings reveal that: (1) GPT-4 synthesized data does not substantially enhance VLMs' capabilities but rather modulates the model's responses to human-preferred formats; (2) A minimal quantity (e.g., 1,000) of GPT-4 synthesized data can effectively align VLM responses with human-preference; (3) Visual instruction tuning mainly helps large-language models (LLMs) to understand visual features.",
+          "claimed_authors": [
+            "Zhiyang Xu",
+            "Chao Feng",
+            "Rulin Shao",
+            "Trevor Ashby",
+            "Ying Shen",
+            "Di Jin",
+            "Yu Cheng",
+            "Qifan Wang",
+            "Lifu Huang"
+          ],
+          "claimed_title": "Vision-Flan: Scaling Human-Labeled Tasks in Visual Instruction Tuning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2402.11690"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Socratic Transformers: Dialogue-Based Self-Teaching Through Adversarial Question', candidate_title='Vision-Flan: Scaling Human-Labeled Tasks in Visual Instruction Tuning')",
+        "failed_at": "2026-06-24T18:22:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Although most current large multimodal models (LMMs) can already understand photos of natural scenes and portraits, their understanding of abstract images, e.g., charts, maps, or layouts, and visual reasoning capabilities remains quite rudimentary. They often struggle with simple daily tasks, such as reading time from a clock, understanding a flowchart, or planning a route using a road map. In light of this, we design a multi-modal self-instruct, utilizing large language models and their code capabilities to synthesize massive abstract images and visual reasoning instructions across daily scenarios. Our strategy effortlessly creates a multimodal benchmark with 11,193 instructions for eight visual scenarios: charts, tables, simulated maps, dashboards, flowcharts, relation graphs, floor plans, and visual puzzles. \\textbf{This benchmark, constructed with simple lines and geometric elements, exposes the shortcomings of most advanced LMMs} like Claude-3.5-Sonnet and GPT-4o in abstract image understanding, spatial relations reasoning, and visual element induction. Besides, to verify the quality of our synthetic data, we fine-tune an LMM using 62,476 synthetic chart, table and road map instructions. The results demonstrate improved chart understanding and map navigation performance, and also demonstrate potential benefits for other visual reasoning tasks. Our code is available at: \\url{https://github.com/zwq2018/Multi-modal-Self-instruct}.",
+          "claimed_authors": [
+            "Wenqi Zhang",
+            "Zhenglin Cheng",
+            "Yuanyu He",
+            "Mengna Wang",
+            "Yongliang Shen",
+            "Zeqi Tan",
+            "Guiyang Hou",
+            "Mingqian He",
+            "Yanna Ma",
+            "Weiming Lu",
+            "Yueting Zhuang"
+          ],
+          "claimed_title": "Multimodal Self-Instruct: Synthetic Abstract Image and Visual Reasoning Instruction Using Language Model",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2407.07053"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Socratic Transformers: Dialogue-Based Self-Teaching Through Adversarial Question', candidate_title='Multimodal Self-Instruct: Synthetic Abstract Image and Visual Reasoning Instruction Using Language Model')",
+        "failed_at": "2026-06-24T18:22:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Instruction tuning significantly enhances the performance of large language models (LLMs) across various tasks. However, the procedure to optimizing the mixing of instruction datasets for LLM fine-tuning is still poorly understood. This study categorizes instructions into three primary types: NLP downstream tasks, coding, and general chat. We explore the effects of instruction tuning on different combinations of datasets on LLM performance, and find that certain instruction types are more advantageous for specific applications but can negatively impact other areas. This work provides insights into instruction mixtures, laying the foundations for future research.",
+          "claimed_authors": [
+            "Renxi Wang",
+            "Haonan Li",
+            "Minghao Wu",
+            "Yuxia Wang",
+            "Xudong Han",
+            "Chiyu Zhang",
+            "Timothy Baldwin"
+          ],
+          "claimed_title": "Demystifying Instruction Mixing for Fine-tuning Large Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2312.10793"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Socratic Transformers: Dialogue-Based Self-Teaching Through Adversarial Question', candidate_title='Demystifying Instruction Mixing for Fine-tuning Large Language Models')",
+        "failed_at": "2026-06-24T18:22:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper, we introduce Dependency Dialogue Acts (DDA), a novel framework for capturing the structure of speaker-intentions in multi-party dialogues. DDA combines and adapts features from existing dialogue annotation frameworks, and emphasizes the multi-relational response structure of dialogues in addition to the dialogue acts and rhetorical relations. It represents the functional, discourse, and response structure in multi-party multi-threaded conversations. A few key features distinguish DDA from existing dialogue annotation frameworks such as SWBD-DAMSL and the ISO 24617-2 standard. First, DDA prioritizes the relational structure of the dialogue units and the dialog context, annotating both dialog acts and rhetorical relations as response relations to particular utterances. Second, DDA embraces overloading in dialogues, encouraging annotators to specify multiple response relations and dialog acts for each dialog unit. Lastly, DDA places an emphasis on adequately capturing how a speaker is using the full dialog context to plan and organize their speech. With these features, DDA is highly expressive and recall-oriented with regard to conversation dynamics between multiple speakers. In what follows, we present the DDA annotation framework and case studies annotating DDA structures in multi-party, multi-threaded conversations.",
+          "claimed_authors": [
+            "Jon Z. Cai",
+            "Brendan King",
+            "Margaret Perkoff",
+            "Shiran Dudy",
+            "Jie Cao",
+            "Marie Grace",
+            "Natalia Wojarnik",
+            "Ananya Ganesh",
+            "James H. Martin",
+            "Martha Palmer",
+            "Marilyn Walker",
+            "Jeffrey Flanigan"
+          ],
+          "claimed_title": "Dependency Dialogue Acts -- Annotation Scheme and Case Study",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2302.12944"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Socratic Transformers: Dialogue-Based Self-Teaching Through Adversarial Question', candidate_title='Dependency Dialogue Acts -- Annotation Scheme and Case Study')",
+        "failed_at": "2026-06-24T18:22:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper describes our dialogue system submitted to Dialogue Robot Competition 2023. The system's task is to help a user at a travel agency decide on a plan for visiting two sightseeing spots in Kyoto City that satisfy the user. Our dialogue system is flexible and stable and responds to user requirements by controlling dialogue flow according to dialogue scenarios. We also improved user satisfaction by introducing motion and speech control based on system utterances and user situations. In the preliminary round, our system was ranked fifth in the impression evaluation and sixth in the plan evaluation among all 12 teams.",
+          "claimed_authors": [
+            "Hiroki Onozeki",
+            "Zhiyang Qi",
+            "Kazuma Akiyama",
+            "Ryutaro Asahara",
+            "Takumasa Kaneko",
+            "Michimasa Inaba"
+          ],
+          "claimed_title": "Enhancing Consistency in Multimodal Dialogue System Using LLM with Dialogue Scenario",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2312.12808"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Socratic Transformers: Dialogue-Based Self-Teaching Through Adversarial Question', candidate_title='Enhancing Consistency in Multimodal Dialogue System Using LLM with Dialogue Scenario')",
+        "failed_at": "2026-06-24T18:22:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Today, as seen in smart speakers, spoken dialogue technology is rapidly advancing to enable human-like interaction. However, current dialogue systems cannot pay attention not only to the content of speech, but also to the way of speaking and eye contact and facial expressions, while watching the facial expressions of the person with whom one is speaking. Therefore, this study participated in a Japanese competition called the \"Dialogue Robot Competition\" and attempted to develop a dialogue system that includes control of not only the content of speech but also the robot's facial expressions and gaze in order to realize a humanoid robot that can naturally interact with humans.",
+          "claimed_authors": [
+            "Koki Inoue",
+            "Shuichiro Ogake",
+            "Hayato Kawamura",
+            "Naoki Igo"
+          ],
+          "claimed_title": "Dialogue system with humanoid robot",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2210.10151"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Socratic Transformers: Dialogue-Based Self-Teaching Through Adversarial Question', candidate_title='Dialogue system with humanoid robot')",
+        "failed_at": "2026-06-24T18:22:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Quantum machine learning (QML) requires significant quantum resources to address practical real-world problems. When the underlying quantum information exhibits hierarchical structures in the data, limitations persist in training complexity and generalization. Research should prioritize both the efficient design of quantum architectures and the development of learning strategies to optimize resource usage. We propose a framework called quantum curriculum learning (Q-CurL) for quantum data, where the curriculum introduces simpler tasks or data to the learning model before progressing to more challenging ones. Q-CurL exhibits robustness to noise and data limitations, which is particularly relevant for current and near-term noisy intermediate-scale quantum devices. We achieve this through a curriculum design based on quantum data density ratios and a dynamic learning schedule that prioritizes the most informative quantum data. Empirical evidence shows that Q-CurL significantly enhances training convergence and generalization for unitary learning and improves the robustness of quantum phase recognition tasks. Q-CurL is effective with physical learning applications in physics and quantum chemistry.",
+          "claimed_authors": [
+            "Quoc Hoan Tran",
+            "Yasuhiro Endo",
+            "Hirotaka Oshima"
+          ],
+          "claimed_title": "Quantum Curriculum Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2407.02419"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Socratic Transformers: Dialogue-Based Self-Teaching Through Adversarial Question', candidate_title='Quantum Curriculum Learning')",
+        "failed_at": "2026-06-24T18:22:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Latest Generative Adversarial Networks (GANs) are gathering outstanding results through a large-scale training, thus employing models composed of millions of parameters requiring extensive computational capabilities. Building such huge models undermines their replicability and increases the training instability. Moreover, multi-channel data, such as images or audio, are usually processed by realvalued convolutional networks that flatten and concatenate the input, often losing intra-channel spatial relations. To address these issues related to complexity and information loss, we propose a family of quaternion-valued generative adversarial networks (QGANs). QGANs exploit the properties of quaternion algebra, e.g., the Hamilton product, that allows to process channels as a single entity and capture internal latent relations, while reducing by a factor of 4 the overall number of parameters. We show how to design QGANs and to extend the proposed approach even to advanced models.We compare the proposed QGANs with real-valued counterparts on several image generation benchmarks. Results show that QGANs are able to obtain better FID scores than real-valued GANs and to generate visually pleasing images. Furthermore, QGANs save up to 75% of the training parameters. We believe these results may pave the way to novel, more accessible, GANs capable of improving performance and saving computational resources.",
+          "claimed_authors": [
+            "Eleonora Grassucci",
+            "Edoardo Cicero",
+            "Danilo Comminiello"
+          ],
+          "claimed_title": "Quaternion Generative Adversarial Networks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2104.09630"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Socratic Transformers: Dialogue-Based Self-Teaching Through Adversarial Question', candidate_title='Quaternion Generative Adversarial Networks')",
+        "failed_at": "2026-06-24T18:22:36Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yuyang Ding",
+            "Hanglei Hu",
+            "Jie Zhou",
+            "Qin Chen",
+            "Bo Jiang",
+            "Liang He"
+          ],
+          "title": "Boosting Large Language Models with Socratic Method for Conversational Mathematics Teaching",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2407.17349",
+        "summary": "With the introduction of large language models (LLMs), automatic math reasoning has seen tremendous success. However, current methods primarily focus on providing solutions or using techniques like Chain-of-Thought to enhance problem-solving accuracy. In this paper, we focus on improving the capability of mathematics teaching via a Socratic teaching-based LLM (\\texttt{SocraticLLM}), which guides learners toward profound thinking with clarity and self-discovery via conversation. We collect and release a high-quality mathematical teaching dataset, named \\texttt{SocraticMATH}, which provides Socratic-style conversations of problems with extra knowledge. Also, we propose a knowledge-enhanced LLM as a strong baseline to generate reliable responses with review, guidance/heuristic, rectification, and summarization. Experimental results show the great advantages of \\texttt{SocraticLLM} by comparing it with several strong generative models. The codes and datasets are available on \\url{https://github.com/ECNU-ICALK/SocraticMath}.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2407.17349",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 1.0,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-24T18:22:47Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Nicolas Zucchet",
+            "Jörg Bornschein",
+            "Stephanie Chan",
+            "Andrew Lampinen",
+            "Razvan Pascanu",
+            "Soham De"
+          ],
+          "title": "How do language models learn facts? Dynamics, curricula and hallucinations",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2503.21676",
+        "summary": "Large language models accumulate vast knowledge during pre-training, yet the dynamics governing this acquisition remain poorly understood. This work investigates the learning dynamics of language models on a synthetic factual recall task, uncovering three key findings: First, language models learn in three phases, exhibiting a performance plateau before acquiring precise factual knowledge. Mechanistically, this plateau coincides with the formation of attention-based circuits that support recall. Second, the training data distribution significantly impacts learning dynamics, as imbalanced distributions lead to shorter plateaus. Finally, hallucinations emerge simultaneously with knowledge, and integrating new knowledge into the model through fine-tuning is challenging, as it quickly corrupts its existing parametric memories. Our results emphasize the importance of data distribution in knowledge acquisition and suggest novel data scheduling strategies to accelerate neural network training.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2503.21676",
+          "http_status": 200,
+          "pdf_sample_score": 0.1978,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-24T18:22:47Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Erfan Al-Hossami",
+            "Razvan Bunescu",
+            "Justin Smith",
+            "Ryan Teehan"
+          ],
+          "title": "Can Language Models Employ the Socratic Method? Experiments with Code Debugging",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2310.03210",
+        "summary": "When employing the Socratic method of teaching, instructors guide students toward solving a problem on their own rather than providing the solution directly. While this strategy can substantially improve learning outcomes, it is usually time-consuming and cognitively demanding. Automated Socratic conversational agents can augment human instruction and provide the necessary scale, however their development is hampered by the lack of suitable data for training and evaluation. In this paper, we introduce a manually created dataset of multi-turn Socratic advice that is aimed at helping a novice programmer fix buggy solutions to simple computational problems. The dataset is then used for benchmarking the Socratic debugging abilities of a number of language models, ranging from fine-tuning the instruction-based text-to-text transformer Flan-T5 to zero-shot and chain of thought prompting of the much larger GPT-4. The code and datasets are made freely available for research at the link below. https://github.com/taisazero/socratic-debugging-benchmark",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2310.03210",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-24T18:22:49Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Jingyuan Qi",
+            "Zhiyang Xu",
+            "Ying Shen",
+            "Minqian Liu",
+            "Di Jin",
+            "Qifan Wang",
+            "Lifu Huang"
+          ],
+          "title": "The Art of SOCRATIC QUESTIONING: Recursive Thinking with Large Language Models",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2305.14999",
+        "summary": "Chain-of-Thought (CoT) prompting enables large language models to solve complex reasoning problems by generating intermediate steps. However, confined by its inherent single-pass and sequential generation process, CoT heavily relies on the initial decisions, causing errors in early steps to accumulate and impact the final answers. In contrast, humans adopt recursive thinking when tackling complex reasoning problems, i.e., iteratively breaking the original problem into approachable sub-problems and aggregating their answers to resolve the original one. Inspired by the human cognitive process, we propose SOCRATIC QUESTIONING, a divide-and-conquer style algorithm that mimics the recursive thinking process. Specifically, SOCRATIC QUESTIONING leverages large language models to raise and answer sub-questions until collecting enough information to tackle the original question. Unlike CoT, SOCRATIC QUESTIONING explicitly navigates the thinking space, stimulates effective recursive thinking, and is more robust towards errors in the thinking process. Extensive experiments on several complex reasoning tasks, including MMLU, MATH, LogiQA, and visual question-answering demonstrate significant performance improvements over the state-of-the-art prompting methods, such as CoT, and Tree-of-Thought. The qualitative analysis clearly shows that the intermediate reasoning steps elicited by SOCRATIC QUESTIONING are similar to humans' recursively thinking process of complex reasoning problems.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2305.14999",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-24T18:22:50Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "socratic transformers: dialogue-based self-teaching through adversarial questioning computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2009.10149",
+  "judged_at": "2026-06-24T18:22:54Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "socratic transformers: dialogue-based self-teaching through adversarial questioning computer science",
+  "rationale": "The paper studies adversarial example generation for prognostics models in manufacturing, not dialogue-based self‑teaching, Socratic questioning, or transformer architectures, so it does not meet any inclusion criteria (a‑f) for the user's question.",
+  "relevant": false
+}

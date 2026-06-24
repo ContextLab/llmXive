@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-07T22:30:05.227838Z'
-current_stage: validated
+current_stage: project_initialized
 failed_stage: null
 field: neuroscience
 human_escalation_reason: null
 id: PROJ-416-investigating-the-relationship-between-b
-last_run_id: f55176e4-d749-4cf9-a2ba-bde9d6600faf
+last_run_id: 1eb6656b-a466-4e13-a94c-a40ddda5107e
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: null
 title: Investigating the Relationship Between Brain Network Dynamics and Response
   to Virtual Reality Exposure Therapy
-updated_at: '2026-06-14T13:20:53.712795Z'
+updated_at: '2026-06-24T18:23:29.418346Z'

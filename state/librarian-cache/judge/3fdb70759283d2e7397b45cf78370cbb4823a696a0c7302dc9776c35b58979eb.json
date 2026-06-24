@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2305.14999",
+  "judged_at": "2026-06-24T18:23:06Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "socratic transformers: dialogue-based self-teaching through adversarial questioning computer science",
+  "rationale": "The paper studies the same mechanism—Socratic/question‑based recursive prompting of large language models—to improve reasoning, which aligns with the “Socratic Transformers: Dialogue‑Based Self‑Teaching Through Adversarial Questioning” theme (acceptance category a).",
+  "relevant": true
+}

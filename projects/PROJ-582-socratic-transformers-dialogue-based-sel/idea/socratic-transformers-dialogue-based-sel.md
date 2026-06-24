@@ -6,51 +6,90 @@ github_issue: https://github.com/ContextLab/llmXive/issues/15
 
 # Socratic Transformers: Dialogue-Based Self-Teaching Through Adversarial Questioning
 
-I'll flesh out this research idea by first searching the literature to ground the related work section, then constructing the full structured output.
+**Field**: computer science
 
-<lit_search>
-<query>LLM self-teaching dialogue adversarial questioning</query>
-<max_results>8</max_results>
-</lit_search>
-<lit_search>
-<query>metacognitive monitoring self-supervised learning language models</query>
-<max_results>8</max_results>
-</lit_search>
+## Research question
+
+Do language models that engage in self‑generated adversarial dialogue exhibit improved reasoning or generalization compared to models trained on equivalent static data, and under what conditions does self‑critique provide an independent learning signal beyond the original training distribution?
+
+## Motivation
+
+Current self‑training approaches for LLMs rely on static corpora or human‑written prompts, limiting the model’s ability to discover novel reasoning strategies. Leveraging a Socratic‑style dialogue in which the model both asks and answers challenging questions could create a self‑contained curriculum that forces deeper reasoning. Understanding whether such self‑critique yields genuine gains—and when it does—would inform more autonomous and data‑efficient model improvement pipelines.
+
+## Related work
+
+- [Boosting Large Language Models with Socratic Method for Conversational Mathematics Teaching (2024)](https://arxiv.org/abs/2407.17349) — Demonstrates that prompting LLMs with Socratic questioning improves performance on math reasoning tasks, providing a precedent for dialogue‑based teaching.  
+- [How do language models learn facts? Dynamics, curricula and hallucinations (2025)](https://arxiv.org/abs/2503.21676) — Analyzes how curriculum design and data dynamics affect factual learning, informing how self‑generated dialogue might serve as a curriculum.  
+- [Can Language Models Employ the Socratic Method? Experiments with Code Debugging (2023)](https://arxiv.org/abs/2310.03210) — Shows that Socratic prompting helps LLMs debug code by iteratively questioning its own output, supporting the idea that self‑questioning can refine model behavior.  
+- [The Art of SOCRATIC QUESTIONING: Recursive Thinking with Large Language Models (2023)](https://arxiv.org/abs/2305.14999) — Introduces recursive Socratic questioning to induce multi‑step reasoning, directly relevant to adversarial self‑dialogue generation.
+
+## Expected results
+
+We anticipate that models fine‑tuned on self‑generated adversarial dialogues will achieve higher accuracy on held‑out reasoning benchmarks (e.g., GSM8K, MMLU) than models fine‑tuned on an equal amount of static QA data. A statistically significant improvement (paired t‑test, *p* < 0.05) across multiple random seeds would confirm that the dialogue provides an independent learning signal; a null result would indicate that self‑critique does not add value beyond conventional data.
+
+## Methodology sketch
+
+1. **Select base model** – Open‑source 7B‑parameter transformer (e.g., LLaMA‑7B) with LoRA adapters for efficient CPU fine‑tuning.  
+2. **Gather static training data** – Download publicly available QA corpora (e.g., `gsm8k`, `MATH`, `HumanEval`) via HuggingFace Datasets.  
+3. **Generate adversarial self‑dialogues**  
+   - Prompt the base model to produce a challenging question about a reasoning task.  
+   - Feed the question back to the model with a “self‑critique” instruction that asks the model to identify weaknesses in its own answer and generate a revised answer.  
+   - Repeat the ask‑critique loop 2–3 times to create a multi‑turn adversarial dialogue.  
+   - Store each dialogue as a (question, answer, critique, revised answer) tuple.  
+4. **Construct balanced training sets**  
+   - Sample *N* static QA pairs equal in token count to *N* generated dialogue tuples.  
+   - Create two fine‑tuning datasets: **Static** and **Dialogue**.  
+5. **Fine‑tune** both datasets separately on the base model using LoRA (epochs ≤ 3, batch size = 8, learning rate = 2e‑4) on the GitHub Actions CPU runner.  
+6. **Evaluation** – Evaluate each fine‑tuned model on held‑out reasoning benchmarks not seen during training (e.g., GSM8K test split, MMLU “STEM” subset).  
+7. **Statistical analysis** – Run 5 random seeds per condition; compute mean accuracy and perform paired t‑tests between the Dialogue and Static conditions.  
+8. **Ablation of self‑critique** – Repeat steps 3‑7 with a version that omits the critique/revision step (question → answer only) to isolate the effect of adversarial self‑critique.  
+9. **Condition analysis** – Vary the difficulty of generated questions (e.g., by adjusting a “temperature” or “difficulty” prompt parameter) to identify regimes where self‑critique yields the strongest gain.
+
+All datasets and code will be downloaded via `wget`/`curl` from the URLs provided by HuggingFace or the original paper repositories, ensuring reproducibility on the free‑tier runner.
+
+## Duplicate-check
+
+- Reviewed existing ideas: *(none provided for comparison)*.  
+- Closest match: N/A.  
+- Verdict: **NOT a duplicate**.
 
 
 ## Search trail
 
-**Generated by**: librarian (prompt v1.6.0) on 2026-05-30T03:34:23Z
-**Outcome**: failed
+**Generated by**: librarian (prompt v1.6.0) on 2026-06-24T18:23:10Z
+**Outcome**: exhausted
 **Original term**: Socratic Transformers: Dialogue-Based Self-Teaching Through Adversarial Questioning computer science
-**Verified citation count**: 0
+**Verified citation count**: 4
 
 ### Search terms used
 
 | Rank | Term | Hit count |
 |-|-|-|
 | 0 (initial) | Socratic Transformers: Dialogue-Based Self-Teaching Through Adversarial Questioning computer science | 0 |
-| 1 | Self-improving language models | 0 |
-| 2 | Adversarial dialogue generation | 0 |
-| 3 | Recursive self-improvement NLP | 0 |
-| 4 | Self-reflection mechanisms in LLMs | 0 |
-| 5 | Question-answering self-training | 0 |
-| 6 | Critique-based model training | 0 |
-| 7 | Model-generated feedback loops | 0 |
-| 8 | Multi-turn dialogue self-supervision | 0 |
-| 9 | Adversarial prompting strategies | 0 |
-| 10 | Instruction tuning via dialogue | 0 |
-| 11 | Debate-based reinforcement learning | 0 |
-| 12 | Chain-of-thought self-refinement | 0 |
-| 13 | Socratic method in artificial intelligence | 0 |
-| 14 | Active learning for language models | 0 |
-| 15 | Iterative refinement in transformer models | 0 |
-| 16 | Machine teaching via conversation | 0 |
-| 17 | Self-correcting neural networks | 0 |
-| 18 | Reinforcement learning from AI feedback | 0 |
-| 19 | Meta-learning for dialogue systems | 0 |
-| 20 | Generative adversarial training for NLP | 0 |
+| 1 | Socratic self‑teaching for language models | 5 |
+| 2 | adversarial questioning in transformer pretraining | 0 |
+| 3 | dialogue‑driven self‑supervision for NLP | 0 |
+| 4 | question‑based curriculum learning for transformers | 0 |
+| 5 | interactive self‑training via AI‑generated questions | 0 |
+| 6 | self‑questioning language model frameworks | 0 |
+| 7 | conversational self‑instruction with transformers | 0 |
+| 8 | adversarial QA prompting for model improvement | 0 |
+| 9 | teacher‑student dialogue models for self‑learning | 0 |
+| 10 | meta‑learning through Socratic dialogue | 0 |
+| 11 | self‑consistency via iterative questioning | 0 |
+| 12 | dual‑agent transformer questioning systems | 0 |
+| 13 | reinforcement learning from adversarial dialogue | 0 |
+| 14 | self‑instruct through AI‑generated Socratic prompts | 0 |
+| 15 | dialogue‑based curriculum pretraining for transformers | 0 |
+| 16 | question‑driven self‑supervised learning in NLP | 0 |
+| 17 | adversarial self‑play for language model refinement | 0 |
+| 18 | Socratic method applied to neural networks | 0 |
+| 19 | interactive curriculum generation via questioning | 0 |
+| 20 | self‑guided knowledge acquisition through dialogue | 0 |
 
 ### Verified citations
 
-(none)
+1. **Boosting Large Language Models with Socratic Method for Conversational Mathematics Teaching** (2024). Yuyang Ding, Hanglei Hu, Jie Zhou, Qin Chen, Bo Jiang, et al.. arXiv. [2407.17349](https://arxiv.org/abs/2407.17349). PDF-sampled: No.
+2. **How do language models learn facts? Dynamics, curricula and hallucinations** (2025). Nicolas Zucchet, Jörg Bornschein, Stephanie Chan, Andrew Lampinen, Razvan Pascanu, et al.. arXiv. [2503.21676](https://arxiv.org/abs/2503.21676). PDF-sampled: No.
+3. **Can Language Models Employ the Socratic Method? Experiments with Code Debugging** (2023). Erfan Al-Hossami, Razvan Bunescu, Justin Smith, Ryan Teehan. arXiv. [2310.03210](https://arxiv.org/abs/2310.03210). PDF-sampled: No.
+4. **The Art of SOCRATIC QUESTIONING: Recursive Thinking with Large Language Models** (2023). Jingyuan Qi, Zhiyang Xu, Ying Shen, Minqian Liu, Di Jin, et al.. arXiv. [2305.14999](https://arxiv.org/abs/2305.14999). PDF-sampled: No.

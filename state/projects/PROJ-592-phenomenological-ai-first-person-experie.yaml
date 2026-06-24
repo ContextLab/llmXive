@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-17T00:35:03.248665Z'
-current_stage: validated
+current_stage: project_initialized
 failed_stage: null
 field: philosophy
 human_escalation_reason: null
 id: PROJ-592-phenomenological-ai-first-person-experie
-last_run_id: 926974bb-66c2-4c2c-8471-256585127d76
+last_run_id: f64f15d9-0292-4242-ad2a-a21f976470cd
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'Phenomenological AI: First-Person Experience Modeling in Language Models'
-updated_at: '2026-06-17T06:17:02.501058Z'
+updated_at: '2026-06-24T18:28:03.475536Z'
