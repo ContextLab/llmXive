@@ -1,7 +1,0 @@
-# Tasks
-
-- [ ] T001 [REV] Address action item **[b7512022cb4d]** (severity: writing): Checksum Manifest: Retain a single authoritative checksum file (e.g., checksums.json), remove/deprecate checksums.csv and checksums.sha256, and update all documentation to reference the single manifest.
-- [ ] T002 [REV] Address action item **[1c87066999b5]** (severity: writing): Duplicate‑Record Check: Implement a duplicate‑ID detection step in code/data/validator.py, run it on the full dataset, and record the result (expected 0) in data_quality_report.md.
-- [ ] T003 [REV] Address action item **[2288689e59d1]** (severity: writing): Sample‑Size Documentation: Populate validation_scope.md (or sample_size_adequacy.md) with a concrete table of knot counts per crossing number, and explicitly state that each stratified group meets the ≥ 5 % null‑field threshold and has enough records for descriptive statistics.
-- [ ] T004 [REV] Address action item **[8e496dd74e41]** (severity: writing): Hyperbolic Volume Cross‑Check: Complete hyperbolic_volume_validation.md with the actual coverage percentage, match rate, and a discussion of source independence (e.g., whether Knot Atlas and KnotInfo share underlying data).
-- [ ] T005 [REV] Address action item **[fd4ad1d5f921]** (severity: writing): Artifact Hash: Provide the SHA‑256 hash of the primary artifact (tasks.md) so the review can be processed automatically.
