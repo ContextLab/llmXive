@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1603.03238",
+  "judged_at": "2026-06-24T22:48:00Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting plant stress response from publicly available metabolomic data and environmental factors biology",
+  "rationale": "The paper focuses on numerical plant models and multi‑objective optimization for designing ideotypes based on trait correlations and performance metrics, without addressing metabolomic data, plant stress responses, or the integration of environmental factors for stress prediction. It does not match any of the inclusion criteria (a‑f).",
+  "relevant": false
+}

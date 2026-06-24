@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1709.09496",
+  "judged_at": "2026-06-24T22:47:51Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting plant stress response from publicly available metabolomic data and environmental factors biology",
+  "rationale": "The paper studies the dependent variable of interest—plant stress response (drought stress classification)—in the same biological domain (plants), even though it uses 3D imaging rather than metabolomic or environmental data, satisfying criterion (b).",
+  "relevant": true
+}

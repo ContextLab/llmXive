@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2009.01081",
+  "judged_at": "2026-06-24T22:47:57Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting plant stress response from publicly available metabolomic data and environmental factors biology",
+  "rationale": "The paper focuses on domain‑adaptation methods for image‑based plant organ counting, which involves computer‑vision and density‑map estimation, not metabolomic data, environmental factors, or plant stress response prediction. It therefore does not address any of the variables, mechanisms, or population relevant to the user's question.",
+  "relevant": false
+}

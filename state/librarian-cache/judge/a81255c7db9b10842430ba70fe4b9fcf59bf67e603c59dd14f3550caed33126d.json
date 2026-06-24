@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2506.06962",
+  "judged_at": "2026-06-24T22:46:40Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "evaluating the effectiveness of retrieval-augmented generation for code search computer science",
+  "rationale": "The paper studies retrieval‑augmented generation applied to image generation, not to code search; it does not measure any variables or mechanisms specific to the code search domain, so it falls outside the relevant literature for evaluating RAG effectiveness in code search.",
+  "relevant": false
+}

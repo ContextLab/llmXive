@@ -1,0 +1,629 @@
+{
+  "fetched_at": "2026-06-24T22:48:03Z",
+  "field": "biology",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "biology",
+      "idea_body_excerpt": "Predicting Plant Stress Response from Publicly Available Metabolomic Data and Environmental Factors",
+      "target_n": 5
+    },
+    "duration_seconds": 55.303,
+    "ended_at": "2026-06-24T22:48:03Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "metabolomics‑based prediction of plant stress"
+        ],
+        [
+          2,
+          "plant phenotypic stress modeling using metabolite profiles"
+        ],
+        [
+          3,
+          "machine learning for plant stress metabolomics"
+        ],
+        [
+          4,
+          "predictive modeling of abiotic stress with public metabolite datasets"
+        ],
+        [
+          5,
+          "metabolite biomarkers of plant stress response"
+        ],
+        [
+          6,
+          "data‑driven plant stress forecasting with environmental covariates"
+        ],
+        [
+          7,
+          "integrative omics for crop stress tolerance prediction"
+        ],
+        [
+          8,
+          "AI‑driven assessment of plant stress from metabolite and weather data"
+        ],
+        [
+          9,
+          "metabolic signatures of drought tolerance in plants"
+        ],
+        [
+          10,
+          "metabolic signatures of heat stress in crops"
+        ],
+        [
+          11,
+          "multi‑omics inference of plant stress resilience"
+        ],
+        [
+          12,
+          "statistical modeling of plant stress using metabolite and climate variables"
+        ],
+        [
+          13,
+          "systems biology of plant stress: metabolome‑environment integration"
+        ],
+        [
+          14,
+          "meta‑analysis of plant metabolomics under stress conditions"
+        ],
+        [
+          15,
+          "remote sensing combined with metabolomics for early plant stress detection"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Predicting Plant Stress Response from Publicly Available Metabolomic Data and Environmental Factors biology": 0,
+        "metabolomics‑based prediction of plant stress": 4,
+        "plant phenotypic stress modeling using metabolite profiles": 2
+      },
+      "total_queries_issued": 2
+    },
+    "extracted_queries": [
+      "metabolite fingerprinting abiotic stress",
+      "Arabidopsis metabolomics stress dataset",
+      "multi-omics integration stress prediction",
+      "stress tolerance index metabolomics",
+      "metabolic pathway perturbation abiotic stress"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "1709.09496"
+      ]
+    },
+    "per_query_hit_count": {
+      "Arabidopsis metabolomics stress dataset": 3,
+      "Predicting Plant Stress Response from Publicly Available Metabolomic Data and Environmental Factors biology": 3,
+      "metabolic pathway perturbation abiotic stress": 3,
+      "metabolite fingerprinting abiotic stress": 3,
+      "multi-omics integration stress prediction": 3,
+      "stress tolerance index metabolomics": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 4,
+      "rejections": [
+        {
+          "primary_pointer": "2009.01081",
+          "rationale": "The paper focuses on domain‑adaptation methods for image‑based plant organ counting, which involves computer‑vision and density‑map estimation, not metabolomic data, environmental factors, or plant stress response prediction. It therefore does not address any of the variables, mechanisms, or population relevant to the user's question.",
+          "title": "Unsupervised Domain Adaptation For Plant Organ Counting"
+        },
+        {
+          "primary_pointer": "1603.03238",
+          "rationale": "The paper focuses on numerical plant models and multi‑objective optimization for designing ideotypes based on trait correlations and performance metrics, without addressing metabolomic data, plant stress responses, or the integration of environmental factors for stress prediction. It does not match any of the inclusion criteria (a‑f).",
+          "title": "Using numerical plant models and phenotypic correlation space to design achievable ideotypes"
+        },
+        {
+          "primary_pointer": "2212.10263",
+          "rationale": "The paper focuses on weakly supervised 3D point‑cloud segmentation of plant shoots and extraction of geometric phenotypes, without addressing metabolomic data, environmental factors, or prediction of plant stress responses, thus it does not relate to the user's research question.",
+          "title": "Eff-3DPSeg: 3D organ-level plant shoot segmentation using annotation-efficient point clouds"
+        },
+        {
+          "primary_pointer": "1012.3276",
+          "rationale": "The paper studies the impact of branching on source‑sink relationships in cotton using a functional‑structural model, without addressing metabolomic data, environmental factors, or plant stress responses, thus it does not match any of the inclusion criteria.",
+          "title": "Modeling branching effects on source-sink relationships of the cotton plant"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-24T22:47:08Z",
+    "term_input": {
+      "normalized": "predicting plant stress response from publicly available metabolomic data and environmental factors biology",
+      "raw": "Predicting Plant Stress Response from Publicly Available Metabolomic Data and Environmental Factors biology"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Background: Many mathematical models have now been employed across every area of systems biology. These models increasingly involve large numbers of unknown parameters, have complex structure which can result in substantial evaluation time relative to the needs of the analysis, and need to be compared to observed data. The correct analysis of such models usually requires a global parameter search, over a high dimensional parameter space, that incorporates and respects the most important sources of uncertainty. This can be an extremely difficult task, but it is essential for any meaningful inference or prediction to be made about any biological system. It hence represents a fundamental challenge for the whole of systems biology.\n  Results: Bayesian statistical methodology for the uncertainty analysis of complex models is introduced, which is designed to address the high dimensional global parameter search problem. Bayesian emulators that mimic the systems biology model but which are extremely fast to evaluate are embedded within an iterative history match: an efficient method to search high dimensional spaces within a more formal statistical setting, while incorporating major sources of uncertainty. The approach is demonstrated via application to two models of hormonal crosstalk in Arabidopsis root development, which have 32 rate parameters, for which we identify the sets of rate parameter values that lead to acceptable matches to observed trend data. The biological consequences of the resulting comparison, including the evaluation of gene functions, are described.",
+          "claimed_authors": [
+            "Ian Vernon",
+            "Junli Liu",
+            "Michael Goldstein",
+            "James Rowe",
+            "Jen Topping",
+            "Keith Lindsey"
+          ],
+          "claimed_title": "Bayesian uncertainty analysis for complex systems biology models: emulation, global parameter searches and evaluation of gene functions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1607.06358"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Predicting Plant Stress Response from Publicly Available Metabolomic Data and En', candidate_title='Bayesian uncertainty analysis for complex systems biology models: emulation, global parameter searches and evaluation of gene functions')",
+        "failed_at": "2026-06-24T22:47:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper we use H II starburst galaxy apparent magnitude versus redshift data from Siegel et al. (2005) to constrain dark energy cosmological model parameters. These constraints are generally consistent with those derived using other data sets, but are not as restrictive as the tightest currently available constraints.",
+          "claimed_authors": [
+            "Data Mania",
+            "Bharat Ratra"
+          ],
+          "claimed_title": "Constraints on dark energy from H II starburst galaxy apparent magnitude versus redshift data",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1110.5626"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Predicting Plant Stress Response from Publicly Available Metabolomic Data and En', candidate_title='Constraints on dark energy from H II starburst galaxy apparent magnitude versus redshift data')",
+        "failed_at": "2026-06-24T22:47:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed optimization in the presence of Byzantine adversaries, where both data and computation are distributed among $m$ worker machines, $t$ of which may be corrupt. The compromised nodes may collaboratively and arbitrarily deviate from their pre-specified programs, and a designated (master) node iteratively computes the model/parameter vector for generalized linear models. In this work, we primarily focus on two iterative algorithms: Proximal Gradient Descent (PGD) and Coordinate Descent (CD). Gradient descent (GD) is a special case of these algorithms. PGD is typically used in the data-parallel setting, where data is partitioned across different samples, whereas, CD is used in the model-parallelism setting, where data is partitioned across the parameter space.\n  In this paper, we propose a method based on data encoding and error correction over real numbers to combat adversarial attacks. We can tolerate up to $t\\leq \\lfloor\\frac{m-1}{2}\\rfloor$ corrupt worker nodes, which is information-theoretically optimal. We give deterministic guarantees, and our method does not assume any probability distribution on the data. We develop a {\\em sparse} encoding scheme which enables computationally efficient data encoding and decoding. We demonstrate a trade-off between the corruption threshold and the resource requirements (storage, computational, and communication complexity). As an example, for $t\\leq\\frac{m}{3}$, our scheme incurs only a {\\em constant} overhead on these resources, over that required by the plain distributed PGD/CD algorithms which provide no adversarial protection. To the best of our knowledge, ours is the first paper that makes CD secure against adversarial attacks.\n  Our encoding scheme extends efficiently to the data streaming model and for stochastic gradient descent (SGD). We also give experimental results to show the efficacy of our proposed schemes.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Linqi Song",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Data Encoding for Byzantine-Resilient Distributed Optimization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1907.02664"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Predicting Plant Stress Response from Publicly Available Metabolomic Data and En', candidate_title='Data Encoding for Byzantine-Resilient Distributed Optimization')",
+        "failed_at": "2026-06-24T22:47:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Service fingerprinting (i.e. the identification of network services and other applications on computing systems) is an essential part of penetration tests. The main contribution of this paper is a study on the improvement of fingerprinting tools. By applying mutation-based fuzzing as a fingerprint generation method, subtle differences in response messages can be identified. These differences in response messages provide means for the differentiation and identification of network services. To prove the feasibility of the approach, an implementation of a fingerprinting tool for ftp servers is presented and compared to preexisting fingerprinting tools. As a result of this study it is shown that mutation-based fuzzing is an appropriate method for service fingerprinting that even offers advantages over preexisting methods.",
+          "claimed_authors": [
+            "Michael Hanspach",
+            "Ralf Schumann",
+            "Stefan Schemmer",
+            "Sebastian Vandersee"
+          ],
+          "claimed_title": "Service-Fingerprinting mittels Fuzzing",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1403.0766"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Predicting Plant Stress Response from Publicly Available Metabolomic Data and En', candidate_title='Service-Fingerprinting mittels Fuzzing')",
+        "failed_at": "2026-06-24T22:47:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Indoor localization plays a vital role in the era of the IoT and robotics, with WiFi technology being a prominent choice due to its ubiquity. We present a method for creating WiFi fingerprinting datasets to enhance indoor localization systems and address the gap in WiFi fingerprinting dataset creation. We used the Simultaneous Localization And Mapping (SLAM) algorithm and employed a robotic platform to construct precise maps and localize robots in indoor environments. We developed software applications to facilitate data acquisition, fingerprinting dataset collection, and accurate ground truth map building. Subsequently, we aligned the spatial information generated via the SLAM with the WiFi scans to create a comprehensive WiFi fingerprinting dataset. The created dataset was used to train a deep neural network (DNN) for indoor localization, which can prove the usefulness of grid density. We conducted experimental validation within our office environment to demonstrate the proposed method's effectiveness, including a heatmap from the dataset showcasing the spatial distribution of WiFi signal strengths for the testing access points placed within the environment. Notably, our method offers distinct advantages over existing approaches as it eliminates the need for a predefined map of the environment, requires no preparatory steps, lessens human intervention, creates a denser fingerprinting dataset, and reduces the WiFi fingerprinting dataset creation time. Our method achieves 26% more accurate localization than the other methods and can create a six times denser fingerprinting dataset in one-third of the time compared to the traditional method. In summary, using WiFi RSSI Fingerprinting data surveyed by the SLAM-Enabled Robotic Platform, we can adapt our trained DNN model to indoor localization in any dynamic environment and enhance its scalability and applicability in real-world scenarios.",
+          "claimed_authors": [
+            "Seyed Alireza Rahimi Azghadi",
+            "Atah Nuh Mih",
+            "Asfia Kawnine",
+            "Monica Wachowicz",
+            "Francis Palma",
+            "Hung Cao"
+          ],
+          "claimed_title": "An Adaptive Indoor Localization Approach Using WiFi RSSI Fingerprinting with SLAM-Enabled Robotic Platform and Deep Neural Networks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2407.09242"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Predicting Plant Stress Response from Publicly Available Metabolomic Data and En', candidate_title='An Adaptive Indoor Localization Approach Using WiFi RSSI Fingerprinting with SLAM-Enabled Robotic Platform and Deep Neural Networks')",
+        "failed_at": "2026-06-24T22:47:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In recent years, there have been several works that use website fingerprinting techniques to enable a local adversary to determine which website a Tor user visits. While the current state-of-the-art attack, which uses deep learning, outperforms prior art with medium to large amounts of data, it attains marginal to no accuracy improvements when both use small amounts of training data. In this work, we propose Var-CNN, a website fingerprinting attack that leverages deep learning techniques along with novel insights specific to packet sequence classification. In open-world settings with large amounts of data, Var-CNN attains over $1\\%$ higher true positive rate (TPR) than state-of-the-art attacks while achieving $4\\times$ lower false positive rate (FPR). Var-CNN's improvements are especially notable in low-data scenarios, where it reduces the FPR of prior art by $3.12\\%$ while increasing the TPR by $13\\%$. Overall, insights used to develop Var-CNN can be applied to future deep learning based attacks, and substantially reduce the amount of training data needed to perform a successful website fingerprinting attack. This shortens the time needed for data collection and lowers the likelihood of having data staleness issues.",
+          "claimed_authors": [
+            "Sanjit Bhat",
+            "David Lu",
+            "Albert Kwon",
+            "Srinivas Devadas"
+          ],
+          "claimed_title": "Var-CNN: A Data-Efficient Website Fingerprinting Attack Based on Deep Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1802.10215"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Predicting Plant Stress Response from Publicly Available Metabolomic Data and En', candidate_title='Var-CNN: A Data-Efficient Website Fingerprinting Attack Based on Deep Learning')",
+        "failed_at": "2026-06-24T22:47:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The RSNA Abdominal Traumatic Injury CT (RATIC) dataset is the largest publicly available collection of adult abdominal CT studies annotated for traumatic injuries. This dataset includes 4,274 studies from 23 institutions across 14 countries. The dataset is freely available for non-commercial use via Kaggle at https://www.kaggle.com/competitions/rsna-2023-abdominal-trauma-detection. Created for the RSNA 2023 Abdominal Trauma Detection competition, the dataset encourages the development of advanced machine learning models for detecting abdominal injuries on CT scans. The dataset encompasses detection and classification of traumatic injuries across multiple organs, including the liver, spleen, kidneys, bowel, and mesentery. Annotations were created by expert radiologists from the American Society of Emergency Radiology (ASER) and Society of Abdominal Radiology (SAR). The dataset is annotated at multiple levels, including the presence of injuries in three solid organs with injury grading, image-level annotations for active extravasations and bowel injury, and voxelwise segmentations of each of the potentially injured organs. With the release of this dataset, we hope to facilitate research and development in machine learning and abdominal trauma that can lead to improved patient care and outcomes.",
+          "claimed_authors": [
+            "Jeffrey D. Rudie",
+            "Hui-Ming Lin",
+            "Robyn L. Ball",
+            "Sabeena Jalal",
+            "Luciano M. Prevedello",
+            "Savvas Nicolaou",
+            "Brett S. Marinelli",
+            "Adam E. Flanders",
+            "Kirti Magudia",
+            "George Shih",
+            "Melissa A. Davis",
+            "John Mongan",
+            "Peter D. Chang",
+            "Ferco H. Berger",
+            "Sebastiaan Hermans",
+            "Meng Law",
+            "Tyler Richards",
+            "Jan-Peter Grunz",
+            "Andreas Steven Kunz",
+            "Shobhit Mathur",
+            "Sandro Galea-Soler",
+            "Andrew D. Chung",
+            "Saif Afat",
+            "Chin-Chi Kuo",
+            "Layal Aweidah",
+            "Ana Villanueva Campos",
+            "Arjuna Somasundaram",
+            "Felipe Antonio Sanchez Tijmes",
+            "Attaporn Jantarangkoon",
+            "Leonardo Kayat Bittencourt",
+            "Michael Brassil",
+            "Ayoub El Hajjami",
+            "Hakan Dogan",
+            "Muris Becircic",
+            "Agrahara G. Bharatkumar",
+            "Eduardo Moreno Júdice de Mattos Farina",
+            "Dataset Curator Group",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Errol Colak"
+          ],
+          "claimed_title": "The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.19595"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Predicting Plant Stress Response from Publicly Available Metabolomic Data and En', candidate_title='The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset')",
+        "failed_at": "2026-06-24T22:47:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Radiological Society of North America (RSNA) Lumbar Degenerative Imaging Spine Classification (LumbarDISC) dataset is the largest publicly available dataset of adult MRI lumbar spine examinations annotated for degenerative changes. The dataset includes 2,697 patients with a total of 8,593 image series from 8 institutions across 6 countries and 5 continents. The dataset is available for free for non-commercial use via Kaggle and RSNA Medical Imaging Resource of AI (MIRA). The dataset was created for the RSNA 2024 Lumbar Spine Degenerative Classification competition where competitors developed deep learning models to grade degenerative changes in the lumbar spine. The degree of spinal canal, subarticular recess, and neural foraminal stenosis was graded at each intervertebral disc level in the lumbar spine. The images were annotated by expert volunteer neuroradiologists and musculoskeletal radiologists from the RSNA, American Society of Neuroradiology, and the American Society of Spine Radiology. This dataset aims to facilitate research and development in machine learning and lumbar spine imaging to lead to improved patient care and clinical efficiency.",
+          "claimed_authors": [
+            "Tyler J. Richards",
+            "Adam E. Flanders",
+            "Errol Colak",
+            "Luciano M. Prevedello",
+            "Robyn L. Ball",
+            "Felipe Kitamura",
+            "John Mongan",
+            "Maryam Vazirabad",
+            "Hui-Ming Lin",
+            "Anne Kendell",
+            "Thanat Kanthawang",
+            "Salita Angkurawaranon",
+            "Emre Altinmakas",
+            "Hakan Dogan",
+            "Paulo Eduardo de Aguiar Kuriki",
+            "Arjuna Somasundaram",
+            "Christopher Ruston",
+            "Deniz Bulja",
+            "Naida Spahovic",
+            "Jennifer Sommer",
+            "Sirui Jiang",
+            "Eduardo Moreno Judice de Mattos Farina",
+            "Eduardo Caminha Nunes",
+            "Michael Brassil",
+            "Megan McNamara",
+            "Johanna Ortiz",
+            "Jacob Peoples",
+            "Vinson L. Uytana",
+            "Anthony Kam",
+            "Venkata N. S. Dola",
+            "Daniel Murphy",
+            "David Vu",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Competition Data Notebook Group",
+            "Jason F. Talbott"
+          ],
+          "claimed_title": "The RSNA Lumbar Degenerative Imaging Spine Classification (LumbarDISC) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.09162"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Predicting Plant Stress Response from Publicly Available Metabolomic Data and En', candidate_title='The RSNA Lumbar Degenerative Imaging Spine Classification (LumbarDISC) Dataset')",
+        "failed_at": "2026-06-24T22:47:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Gene expression levels exhibit stochastic variations among genetically identical organisms under the same environmental conditions (called gene expression \"noise\" or phenotype \"fluctuation\"). In yeast and Escherichia coli, positive correlations have been found between such gene expression noise and \"plasticity\" with environmental variations. To determine the universality of such correlations in both unicellular and multicellular organisms, we focused on the relationships between gene expression \"noise\" and \"plasticity\" in Arabidopsis thaliana, a multicellular model organism. In recent studies on yeast and E. coli, only some gene groups with specific properties of promoter architecture, average expression levels, and functions exhibited strong noise-plasticity correlations. However, we found strong noise-plasticity correlations for most gene groups in Arabidopsis; additionally, promoter architecture, functional essentiality of genes, and circadian rhythm appeared to have only a weak influence on the correlation strength. The differences in the characteristics of noise-plasticity correlations may result from three-dimensional chromosomal structures and/or circadian rhythm.",
+          "claimed_authors": [
+            "Koudai Hirao",
+            "Atsushi J Nagano",
+            "Akinori Awazu"
+          ],
+          "claimed_title": "Noise-plasticity correlations of gene expression in the multicellular organism Arabidopsis thaliana",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2015,
+          "primary_pointer": "1511.03840"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Predicting Plant Stress Response from Publicly Available Metabolomic Data and En', candidate_title='Noise-plasticity correlations of gene expression in the multicellular organism Arabidopsis thaliana')",
+        "failed_at": "2026-06-24T22:47:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The integration of spatial multi-omics data from single tissues is crucial for advancing biological research. However, a significant data imbalance impedes progress: while spatial transcriptomics data is relatively abundant, spatial proteomics data remains scarce due to technical limitations and high costs. To overcome this challenge we propose STProtein, a novel framework leveraging graph neural networks with multi-task learning strategy. STProtein is designed to accurately predict unknown spatial protein expression using more accessible spatial multi-omics data, such as spatial transcriptomics. We believe that STProtein can effectively addresses the scarcity of spatial proteomics, accelerating the integration of spatial multi-omics and potentially catalyzing transformative breakthroughs in life sciences. This tool enables scientists to accelerate discovery by identifying complex and previously hidden spatial patterns of proteins within tissues, uncovering novel relationships between different marker genes, and exploring the biological \"Dark Matter\".",
+          "claimed_authors": [
+            "Zhaorui Jiang",
+            "Yingfang Yuan",
+            "Lei Hu",
+            "Wei Pang"
+          ],
+          "claimed_title": "STProtein: predicting spatial protein expression from multi-omics data",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2602.05811"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Predicting Plant Stress Response from Publicly Available Metabolomic Data and En', candidate_title='STProtein: predicting spatial protein expression from multi-omics data')",
+        "failed_at": "2026-06-24T22:47:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Cancer survival prediction is important for developing personalized treatments and inducing disease-causing mechanisms. Multi-omics data integration is attracting widespread interest in cancer research for providing information for understanding cancer progression at multiple genetic levels. Many works, however, are limited because of the high dimensionality and heterogeneity of multi-omics data. In this paper, we propose a novel method to integrate multi-omics data for cancer survival prediction, called Stacked AutoEncoder-based Survival Prediction Neural Network (SAEsurv-net). In the cancer survival prediction for TCGA cases, SAEsurv-net addresses the curse of dimensionality with a two-stage dimensionality reduction strategy and handles multi-omics heterogeneity with a stacked autoencoder model. The two-stage dimensionality reduction strategy achieves a balance between computation complexity and information exploiting. The stacked autoencoder model removes most heterogeneities such as data's type and size in the first group of autoencoders, and integrates multiple omics data in the second autoencoder. The experiments show that SAEsurv-net outperforms models based on a single type of data as well as other state-of-the-art methods.",
+          "claimed_authors": [
+            "Xing Wu",
+            "Qiulian Fang"
+          ],
+          "claimed_title": "Stacked Autoencoder Based Multi-Omics Data Integration for Cancer Survival Prediction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2207.04878"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Predicting Plant Stress Response from Publicly Available Metabolomic Data and En', candidate_title='Stacked Autoencoder Based Multi-Omics Data Integration for Cancer Survival Prediction')",
+        "failed_at": "2026-06-24T22:47:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Genomics, especially multi-omics, has made precision medicine feasible. The completion and publicly accessible multi-omics resource with clinical outcome, such as The Cancer Genome Atlas (TCGA) is a great test bed for developing computational methods that integrate multi-omics data to predict patient cancer phenotypes. We have been utilizing TCGA multi-omics data to predict cancer patient survival, using a variety of approaches, including prior-biological knowledge (such as pathways), and more recently, deep-learning methods. Over time, we have developed methods such as Cox-nnet, DeepProg, and two-stage Cox-nnet, to address the challenges due to multi-omics and multi-modality. Despite the limited sample size (hundreds to thousands) in the training datasets as well as the heterogeneity nature of human populations, these methods have shown significance and robustness at predicting patient survival in independent population cohorts. In the following, we would describe in detail these methodologies, the modeling results, and important biological insights revealed by these methods.",
+          "claimed_authors": [
+            "Lana X Garmire"
+          ],
+          "claimed_title": "Strategies to integrate multi-omics data for patient survival prediction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2008.12455"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Predicting Plant Stress Response from Publicly Available Metabolomic Data and En', candidate_title='Strategies to integrate multi-omics data for patient survival prediction')",
+        "failed_at": "2026-06-24T22:47:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In dynamic systems that adapt to users' needs and changing environments, dependability needs cannot be avoided. This paper proposes an orthogonal fault tolerance model as a means to manage and reason about multiple fault tolerance mechanisms that co-exist in dynamically adaptive systems. One of the key challenges associated with dynamically evolving fault tolerance needs is the feature interaction problem arising from the integration of fault tolerance features. The proposed approach provides a separation of fault tolerance concerns to study the effects of integrated fault tolerance on the system. This approach uses state machine and operational semantics to reason about these interactions and inconsistencies. The proposed approach is supported by the tool NuSMV to simulate and verify the state machines against logic statements.",
+          "claimed_authors": [
+            "Sobia K Khan"
+          ],
+          "claimed_title": "Orthogonal Fault Tolerance for Dynamically Adaptive Systems",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1404.6830"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Plant Stress Response from Publicly Available Metabolomic Data and En', candidate_title='Orthogonal Fault Tolerance for Dynamically Adaptive Systems')",
+        "failed_at": "2026-06-24T22:47:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We develop a theory of insertion and deletion tolerance for point processes. A process is insertion-tolerant if adding a suitably chosen random point results in a point process that is absolutely continuous in law with respect to the original process. This condition and the related notion of deletion-tolerance are extensions of the so-called finite energy condition for discrete random processes. We prove several equivalent formulations of each condition, including versions involving Palm processes. Certain other seemingly natural variants of the conditions turn out not to be equivalent. We illustrate the concepts in the context of a number of examples, including Gaussian zero processes and randomly perturbed lattices, and we provide applications to continuum percolation and stable matching.",
+          "claimed_authors": [
+            "Alexander E. Holroyd",
+            "Terry Soo"
+          ],
+          "claimed_title": "Insertion and Deletion Tolerance of Point Processes",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1007.3538"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Plant Stress Response from Publicly Available Metabolomic Data and En', candidate_title='Insertion and Deletion Tolerance of Point Processes')",
+        "failed_at": "2026-06-24T22:47:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The fruit fly D. melanogaster is increasingly used as a model organism for studying acute hypoxia tolerance and for studying aging, but the interactions between these two factors are not well known. Here we show that hypoxia tolerance degrades with age in post-hypoxic recovery of whole-body movement, heart rate and ATP content. We previously used 1H NMR metabolomics and a constraint-based model of ATP-generating metabolism to discover the end products of hypoxic metabolism in flies and generate hypotheses for the biological mechanisms. We expand the reactions in the model using tissue- and age-specific microarray data from the literature, and then examine metabolomic profiles of thoraxes after 4 hours at 0.5% O2 and after 5 minutes of recovery in 40- versus 3-day-old flies. Model simulations were constrained to fluxes calculated from these data. Simulations suggest that the decreased ATP production during reoxygenation seen in aging flies can be attributed to reduced recovery of mitochondrial respiration pathways and concomitant over-dependence on the acetate production pathway as an energy source.",
+          "claimed_authors": [
+            "Laurence Coquin",
+            "Jacob D. Feala",
+            "Andrew D. McCulloch",
+            "Giovanni Paternostro"
+          ],
+          "claimed_title": "Metabolomic and flux-balance analysis of age-related decline of hypoxia tolerance in Drosophila muscle tissue",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2008,
+          "primary_pointer": "0811.2015"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Predicting Plant Stress Response from Publicly Available Metabolomic Data and En', candidate_title='Metabolomic and flux-balance analysis of age-related decline of hypoxia tolerance in Drosophila muscle tissue')",
+        "failed_at": "2026-06-24T22:47:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In silico tools are important for generating novel hypotheses and exploring alternatives in de novo metabolic pathway design. However, while many computational frameworks have been proposed for retrobiosynthesis, few successful examples of algorithm-guided xenobiotic biochemical retrosynthesis have been reported in the literature. Deep learning has improved the quality of synthesis and retrosynthesis in organic chemistry applications. Inspired by this progress, we explored combining deep learning of biochemical transformations with the traditional retrobiosynthetic workflow to improve in silico synthetic metabolic pathway designs. To develop our computational biosynthetic pathway design framework, we assembled metabolic reaction and enzymatic template data from public databases. A data augmentation procedure, adapted from literature, was carried out to enrich the assembled reaction dataset with artificial metabolic reactions generated by enzymatic reaction templates. Two neural network-based pathway ranking models were trained as binary classifiers to distinguish assembled reactions from artificial counterparts; each model output a scalar quantifying the plausibility of a 1-step or 2-step pathway. Combining these two models with enzymatic templates, we built a multistep retrobiosynthesis pipeline and validated it by reproducing some natural and non-natural pathways computationally.",
+          "claimed_authors": [
+            "Peter Zhiping Zhang",
+            "Jeffrey D. Varner"
+          ],
+          "claimed_title": "Computational framework for multistep metabolic pathway design",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2604.13471"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Predicting Plant Stress Response from Publicly Available Metabolomic Data and En', candidate_title='Computational framework for multistep metabolic pathway design')",
+        "failed_at": "2026-06-24T22:47:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Pathway Tools is a bioinformatics software environment with a broad set of capabilities. The software provides genome-informatics tools such as a genome browser, sequence alignments, a genome-variant analyzer, and comparative-genomics operations. It offers metabolic-informatics tools, such as metabolic reconstruction, quantitative metabolic modeling, prediction of reaction atom mappings, and metabolic route search. Pathway Tools also provides regulatory-informatics tools, such as the ability to represent and visualize a wide range of regulatory interactions. The software creates and manages a type of organism-specific database called a Pathway/Genome Database (PGDB), which the software enables database curators to interactively edit. It supports web publishing of PGDBs and provides a large number of query, visualization, and omics-data analysis tools. Scientists around the world have created more than 45,000 PGDBs by using Pathway Tools, many of which are curated databases for important model organisms. Those PGDBs can be exchanged using a peer-to-peer database-sharing system called the PGDB Registry.",
+          "claimed_authors": [
+            "Peter D. Karp",
+            "Suzanne M. Paley",
+            "Markus Krummenacker",
+            "Anamika Kothari",
+            "Peter E. Midford",
+            "Pallavi Subhraveti",
+            "Austin Swart",
+            "Lisa Moore",
+            "Ron Caspi"
+          ],
+          "claimed_title": "Pathway Tools version 28.0: Integrated Software for Pathway/Genome Informatics and Systems Biology",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2015,
+          "primary_pointer": "1510.03964"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Predicting Plant Stress Response from Publicly Available Metabolomic Data and En', candidate_title='Pathway Tools version 28.0: Integrated Software for Pathway/Genome Informatics and Systems Biology')",
+        "failed_at": "2026-06-24T22:47:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Sulfur is a redox active element that may have helped mediate an electron flow that kickstarted life and which presently is an essential element for all life on Earth. Despite current uncertainties in global sulfur fluxes, modeling sulfur's abiotic cycling through Earth's deep history is important for understanding the impact of a planet wide biosphere on sulfur geochemical cycling and availability and vice versa. We present here an open-source, dynamical box model for estimating global sulfur fluxes and concentrations among surface and deep Earth reservoirs over Earth history, allowing tracking and estimation of the sulfur distribution in planetary reservoirs over deep time in the absence of life. While the main model presented here does not take into account the abrupt evolution of redox-shunting biosynthetic pathways such as oxygenic photosynthesis, we also modeled the abiotic sulfur cycle before and after a Great Oxidation Event-like transition on Earth-like planets. Our results suggest a considerably distinct chemical makeup of sulfur content in marine sediments in the absence of life on an Earth-like planet, leading to a marine sediment sulfate content two orders of magnitude larger than on present-day Earth and a marine sediment sulfide content 4 orders of magnitude lower than on present day Earth, attributable to the lack of microbial sulfur metabolism. This model could be useful for understanding sulfur cycling on potentially habitable exoplanets.",
+          "claimed_authors": [
+            "Rafael Rianço-Silva",
+            "Javed Akhter Mondal",
+            "Matthew A. Pasek",
+            "Henry Jurney",
+            "Marcos Jusino-Maldonado",
+            "Henderson James Cleaves"
+          ],
+          "claimed_title": "Global Abiotic Sulfur Cycling on Earth-like Terrestrial Planets",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.06124"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Plant Stress Response from Publicly Available Metabolomic Data and En', candidate_title='Global Abiotic Sulfur Cycling on Earth-like Terrestrial Planets')",
+        "failed_at": "2026-06-24T22:47:38Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Siddharth Srivastava",
+            "Swati Bhugra",
+            "Brejesh Lall",
+            "Santanu Chaudhury"
+          ],
+          "title": "Drought Stress Classification using 3D Plant Models",
+          "venue": "arXiv",
+          "year": 2017
+        },
+        "primary_pointer": "1709.09496",
+        "summary": "Quantification of physiological changes in plants can capture different drought mechanisms and assist in selection of tolerant varieties in a high throughput manner. In this context, an accurate 3D model of plant canopy provides a reliable representation for drought stress characterization in contrast to using 2D images. In this paper, we propose a novel end-to-end pipeline including 3D reconstruction, segmentation and feature extraction, leveraging deep neural networks at various stages, for drought stress study. To overcome the high degree of self-similarities and self-occlusions in plant canopy, prior knowledge of leaf shape based on features from deep siamese network are used to construct an accurate 3D model using structure from motion on wheat plants. The drought stress is characterized with a deep network based feature aggregation. We compare the proposed methodology on several descriptors, and show that the network outperforms conventional methods.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1709.09496",
+          "http_status": 200,
+          "pdf_sample_score": 0.2201,
+          "query_relevance_score": 0.75,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-24T22:47:42Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Gwenaëlle Marchand",
+            "Baptiste Mayjonade",
+            "Didier Varès",
+            "Nicolas Blanchet",
+            "Marie-Claude Boniface",
+            "Pierre Maury",
+            "Fety Andrianasolo Nambinina",
+            "Philippe Burger",
+            "Philippe Debaeke",
+            "Pierre Casadebaig",
+            "Patrick Vincourt",
+            "Nicolas B. Langlade"
+          ],
+          "title": "A biomarker based on gene expression indicates plant water status in controlled and natural environments",
+          "venue": "arXiv",
+          "year": 2013
+        },
+        "primary_pointer": "1310.2542",
+        "summary": "Plant or soil water status are required in many scientific fields to understand plant responses to drought. Because the transcriptomic response to abiotic conditions, such as water deficit, reflects plant water status, genomic tools could be used to develop a new type of molecular biomarker. Using the sunflower (Helianthus annuus L.) as a model species to study the transcriptomic response to water deficit both in greenhouse and field conditions, we specifically identified three genes that showed an expression pattern highly correlated to plant water status as estimated by the pre-dawn leaf water potential, fraction of transpirable soil water, soil water content or fraction of total soil water in controlled conditions. We developed a generalized linear model to estimate these classical water status indicators from the expression levels of the three selected genes under controlled conditions. This estimation was independent of the four tested genotypes and the stage (pre- or post-flowering) of the plant. We further validated this gene expression biomarker under field conditions for four genotypes in three different trials, over a large range of water status, and we were able to correct their expression values for a large diurnal sampling period.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1310.2542",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-24T22:47:42Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "predicting plant stress response from publicly available metabolomic data and environmental factors biology",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

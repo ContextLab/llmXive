@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2212.10263",
+  "judged_at": "2026-06-24T22:48:01Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting plant stress response from publicly available metabolomic data and environmental factors biology",
+  "rationale": "The paper focuses on weakly supervised 3D point‑cloud segmentation of plant shoots and extraction of geometric phenotypes, without addressing metabolomic data, environmental factors, or prediction of plant stress responses, thus it does not relate to the user's research question.",
+  "relevant": false
+}

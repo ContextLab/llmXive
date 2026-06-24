@@ -19,6 +19,10 @@
     "classified_at": "2026-06-13T04:35:32Z",
     "verdict": false
   },
+  "PROJ-094-evaluating-the-effectiveness-of-retrieva::1.6.0": {
+    "classified_at": "2026-06-24T22:46:29Z",
+    "verdict": false
+  },
   "PROJ-114-the-impact-of-ambient-noise-on-cognitive::1.6.0": {
     "classified_at": "2026-06-16T05:23:46Z",
     "verdict": false
@@ -89,6 +93,10 @@
   },
   "PROJ-307-machine-learning-prediction-of-crack-pro::1.6.0": {
     "classified_at": "2026-06-24T18:58:07Z",
+    "verdict": false
+  },
+  "PROJ-310-predicting-plant-stress-response-from-pu::1.6.0": {
+    "classified_at": "2026-06-24T22:47:38Z",
     "verdict": false
   },
   "PROJ-426-the-impact-of-parasocial-relationships-w::1.6.0": {

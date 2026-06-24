@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2411.18583",
+  "judged_at": "2026-06-24T22:46:47Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "evaluating the effectiveness of retrieval-augmented generation for code search computer science",
+  "rationale": "The paper evaluates retrieval‑augmented generation for automating literature reviews, not for code search; it does not measure RAG effectiveness in the code‑search domain, so it lacks relevance to the user's specific research question.",
+  "relevant": false
+}

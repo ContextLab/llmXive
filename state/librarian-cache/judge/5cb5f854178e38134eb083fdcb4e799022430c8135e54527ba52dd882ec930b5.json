@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2509.25716",
+  "judged_at": "2026-06-24T22:46:44Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "evaluating the effectiveness of retrieval-augmented generation for code search computer science",
+  "rationale": "The paper studies retrieval‑augmented generation in the code domain (retrieving APIs to guide code generation), providing empirical results on retrieval accuracy and a RAG pipeline, which matches the same‑mechanism evidence (category a) relevant to evaluating RAG effectiveness for code‑related tasks such as code search.",
+  "relevant": true
+}

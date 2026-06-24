@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1909.09436",
+  "judged_at": "2026-06-24T22:46:53Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "evaluating the effectiveness of retrieval-augmented generation for code search computer science",
+  "rationale": "The paper provides an empirical benchmark and baseline evaluations for semantic code search, measuring the same dependent variable (code‑search effectiveness) on the relevant domain, which serves as a foundational baseline that any study of retrieval‑augmented generation for code search would need to cite. (Criteria b & c).",
+  "relevant": true
+}

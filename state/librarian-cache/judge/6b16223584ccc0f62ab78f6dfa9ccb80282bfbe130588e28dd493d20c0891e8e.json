@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1310.2542",
+  "judged_at": "2026-06-24T22:47:55Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting plant stress response from publicly available metabolomic data and environmental factors biology",
+  "rationale": "The paper provides an empirical study of plant water‑status stress response (a key plant stress phenotype) using molecular biomarkers, thus representing a canonical investigation of the dependent variable (plant stress response) in the relevant plant domain (category e).",
+  "relevant": true
+}

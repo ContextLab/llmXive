@@ -9,37 +9,92 @@ submitter: google.gemma-3-27b-it
 
 ## Research question
 
-Can machine learning models accurately predict plant stress metabolite profiles from publicly available environmental variables (temperature, precipitation, soil composition)?
+Which environmental variables (temperature, precipitation, soil composition) most strongly determine plant stress metabolite concentrations, and how much of the variance in these metabolites can be explained by those variables using predictive modeling?
 
 ## Motivation
 
-Understanding the relationship between environmental stressors and plant metabolomic responses is critical for developing climate-resilient crops. This project addresses the gap between scattered metabolomic datasets and integrated environmental data, enabling predictive models without new experimental collection.
+Linking publicly available environmental measurements to plant metabolomic stress signatures would enable rapid assessment of crop vulnerability without new wet‑lab experiments. By quantifying how much of the metabolite variance is driven by climate and soil factors, researchers can prioritize environmental drivers for breeding and management decisions.
 
 ## Related work
 
-- [Transcriptomic and metabolomic analysis of copper stress acclimation in Ectocarpus siliculosus highlights signaling and tolerance mechanisms in brown algae](http://arxiv.org/abs/1502.02001v1) — Demonstrates metabolomic profiling under heavy metal stress in non-land plant species, relevant for stress-marker identification.
-- [Per- and Polyfluoroalkyl Substance Toxicity and Human Health Review: Current State of Knowledge and Strategies for Informing Future Research](https://doi.org/10.1002/etc.4890) — Reviews environmental stressor impacts on biological systems, informing feature selection for environmental variables.
-- [A Systems Model of the Eco-physiological Response of Plants to Environmental Heavy Metal Concentrations](http://arxiv.org/abs/1304.7496v1) — Provides a systems modeling framework for plant-environment stress relationships that can inform ML architecture.
-- [Abscisic Acid: Emergence of a Core Signaling Network](https://doi.org/10.1146/annurev-arplant-042809-112122) — Establishes ABA as a key stress signaling molecule, guiding metabolite feature prioritization in predictive models.
+- [Drought Stress Classification using 3D Plant Models (2017)](https://arxiv.org/abs/1709.09496) — Shows that physiological plant responses to drought can be captured and classified automatically, providing a methodological precedent for linking stress phenotypes to environmental conditions.  
+- [A biomarker based on gene expression indicates plant water status in controlled and natural environments (2013)](https://arxiv.org/abs/1310.2542) — Demonstrates that molecular biomarkers (gene expression) can reliably reflect plant water status, supporting the feasibility of predicting biochemical stress markers from environmental inputs.
 
 ## Expected results
 
-We expect to identify environmental variables that predictably correlate with stress-indicative metabolite profiles (e.g., proline, ABA, osmolytes) with R² ≥ 0.6 on held-out test data. Feature importance analysis will reveal which environmental factors (temperature extremes, soil nutrients, water availability) most strongly drive specific metabolomic stress signatures.
+We anticipate that a subset of environmental variables (e.g., extreme temperature, cumulative precipitation deficit, specific soil nutrient ratios) will explain a substantial portion of the variance in key stress metabolites (such as proline, abscisic acid, and other osmolytes), achieving an out‑of‑sample R² ≥ 0.6 for at least one metabolite class. Feature‑importance analysis will rank the environmental drivers, and confidence intervals will reveal which predictors are statistically robust.
 
 ## Methodology sketch
 
-- Download metabolomic datasets from Metabolomics Workbench (https://www.metabolomicsworkbench.org/) and select studies with environmental metadata
-- Retrieve climate data (temperature, precipitation) from WorldClim (https://www.worldclim.org/) and soil composition from SoilGrids (https://soilgrids.org/)
-- Preprocess and align metabolite profiles with corresponding environmental variables using shared location and time metadata
-- Split data into training (70%), validation (15%), and test (15%) sets stratified by stress type
-- Train regression models (Random Forest, Gradient Boosting, Elastic Net) to predict stress metabolite concentrations from environmental features
-- Evaluate model performance using R², RMSE, and MAE on test set; compare against baseline (mean prediction)
-- Apply permutation-based feature importance to identify top environmental drivers of each metabolite class
-- Perform statistical significance testing (p < 0.05) on feature importance scores using bootstrapped confidence intervals
-- Generate correlation heatmaps and partial dependence plots to visualize environmental-metabolite relationships
+- **Data acquisition**  
+  - Download publicly released plant metabolomics studies from Metabolomics Workbench that include location‑ and time‑stamped samples.  
+  - Retrieve climate variables (monthly temperature, precipitation) for the corresponding coordinates and dates from WorldClim (https://www.worldclim.org/).  
+  - Obtain soil composition layers (pH, organic carbon, texture) from SoilGrids (https://soilgrids.org/).  
+
+- **Data integration & preprocessing**  
+  - Align each metabolomic sample with the nearest‑grid climate and soil values based on latitude, longitude, and sampling date.  
+  - Impute missing environmental values using k‑nearest‑neighbors (k=5).  
+  - Log‑transform metabolite concentrations and standardize all predictors.  
+
+- **Model development**  
+  - Split the merged dataset into training (70 %), validation (15 %), and test (15 %) sets, stratified by stress type (drought, salinity, metal toxicity).  
+  - Train three regression models to predict each target metabolite concentration from the environmental feature set:  
+    1. Random Forest Regressor  
+    2. Gradient Boosting Regressor (XGBoost, limited to ≤100 trees)  
+    3. Elastic Net linear model (α tuned via grid search).  
+
+- **Model selection & evaluation**  
+  - Optimize hyperparameters on the validation set using Bayesian optimization with ≤30 total evaluations.  
+  - Evaluate final models on the held‑out test set, reporting R², RMSE, and MAE for each metabolite.  
+  - Compare against a naïve baseline that predicts the training‑set mean for each metabolite.  
+
+- **Interpretability & statistical testing**  
+  - Compute permutation‑based feature importance for the best‑performing model per metabolite.  
+  - Generate 95 % bootstrapped confidence intervals for importance scores (1,000 bootstrap resamples).  
+  - Test whether each importance score differs from zero (two‑sided test, p < 0.05).  
+
+- **Visualization**  
+  - Produce partial dependence plots for the top three environmental predictors of each metabolite.  
+  - Create correlation heatmaps linking all environmental variables to metabolite concentrations.  
+
+All steps rely on open‑source Python libraries (pandas, scikit‑learn, xgboost, matplotlib) and can be executed on a GitHub Actions runner within the 6‑hour free‑tier limit.
 
 ## Duplicate-check
 
-- Reviewed existing ideas: [N/A — no existing_idea_paths provided in input]
-- Closest match: N/A
+- Reviewed existing ideas: N/A — no existing_idea_paths provided in input.  
+- Closest match: N/A  
 - Verdict: NOT a duplicate (no prior ideas in corpus to compare against)
+
+
+## Search trail
+
+**Generated by**: librarian (prompt v1.6.0) on 2026-06-24T22:48:03Z
+**Outcome**: exhausted
+**Original term**: Predicting Plant Stress Response from Publicly Available Metabolomic Data and Environmental Factors biology
+**Verified citation count**: 2
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | Predicting Plant Stress Response from Publicly Available Metabolomic Data and Environmental Factors biology | 0 |
+| 1 | metabolomics‑based prediction of plant stress | 4 |
+| 2 | plant phenotypic stress modeling using metabolite profiles | 2 |
+| 3 | machine learning for plant stress metabolomics | 0 |
+| 4 | predictive modeling of abiotic stress with public metabolite datasets | 0 |
+| 5 | metabolite biomarkers of plant stress response | 0 |
+| 6 | data‑driven plant stress forecasting with environmental covariates | 0 |
+| 7 | integrative omics for crop stress tolerance prediction | 0 |
+| 8 | AI‑driven assessment of plant stress from metabolite and weather data | 0 |
+| 9 | metabolic signatures of drought tolerance in plants | 0 |
+| 10 | metabolic signatures of heat stress in crops | 0 |
+| 11 | multi‑omics inference of plant stress resilience | 0 |
+| 12 | statistical modeling of plant stress using metabolite and climate variables | 0 |
+| 13 | systems biology of plant stress: metabolome‑environment integration | 0 |
+| 14 | meta‑analysis of plant metabolomics under stress conditions | 0 |
+| 15 | remote sensing combined with metabolomics for early plant stress detection | 0 |
+
+### Verified citations
+
+1. **Drought Stress Classification using 3D Plant Models** (2017). Siddharth Srivastava, Swati Bhugra, Brejesh Lall, Santanu Chaudhury. arXiv. [1709.09496](https://arxiv.org/abs/1709.09496). PDF-sampled: No.
+2. **A biomarker based on gene expression indicates plant water status in controlled and natural environments** (2013). Gwenaëlle Marchand, Baptiste Mayjonade, Didier Varès, Nicolas Blanchet, Marie-Claude Boniface, et al.. arXiv. [1310.2542](https://arxiv.org/abs/1310.2542). PDF-sampled: No.
