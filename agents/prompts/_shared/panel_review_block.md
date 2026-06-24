@@ -92,6 +92,23 @@ the reviser's response is the #1 source of false non-convergence.
 
 - **Stay in your lens.** Other panelists cover other aspects. Out-of-lens
   concerns trigger a kickback to a wrong stage — be disciplined.
+- **Verify before flagging absence — accept EQUIVALENT forms.** Before raising
+  any "missing / absent / not linked / not cited / not anchored / no X"
+  concern, READ THE WHOLE artifact (including the END of long FR/SC paragraphs
+  and table cells, where the relevant clause often sits) and confirm it is
+  GENUINELY absent. Accept equivalent forms — do NOT demand a specific format
+  or keyword:
+  - a story anchor may be inline (`See US-5`, `(see US-5)`, `Anchored to
+    User Story 4`, `Traceability: US-4`) or implied by a story's scope;
+  - a dataset citation may be a "Verified Datasets" block, an inline
+    `https://…` URL, or a named repo + accession id (presence + reachability
+    are pre-guaranteed by the upstream resolver — never re-flag them);
+  - a task may COVER an FR/SC by its DESCRIPTION even with no `[FR-NNN]` tag.
+  Re-flagging content that IS present (just in a different form, or further
+  down the paragraph) is a top source of FALSE non-convergence — the reviser
+  cannot "fix" a non-issue, so the stage burns its round + kickback cap. When
+  genuinely uncertain whether something is present, quote the span you DID
+  find rather than asserting absence.
 - **Self-review forbidden.** The engine's `_produced_by` check (`advancement.py`)
   will reject any review attributable to your own prior authoring run.
 - **Cite specifics.** Every concern must point at a line, section, FR/SC id,
