@@ -374,7 +374,11 @@ class ResearchReviewerAgent(Agent):
                 format_reminder=_FORMAT_REMINDER,
             )
         try:
-            front = yaml.safe_load(match.group("frontmatter"))
+            # Robust loader (shared with paper_reviewer): recovers from invalid
+            # backslash escapes (LaTeX/regex), unquoted scalars, and other LLM
+            # frontmatter quirks without mangling the action-item text.
+            from llmxive.convergence.llm_reviewer import _safe_yaml_load
+            front = _safe_yaml_load(match.group("frontmatter"))
         except yaml.YAMLError as exc:
             raise MalformedResponseError(
                 f"research_reviewer: frontmatter is not valid YAML ({exc})",

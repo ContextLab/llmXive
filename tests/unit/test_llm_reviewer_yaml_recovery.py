@@ -326,3 +326,46 @@ def test_block_mapping_indent_error_falls_back_gracefully():
         # still says "frontmatter is not valid YAML" + the original
         # diagnostic. That's the contract.
         pass
+
+
+def test_safe_yaml_load_recovers_latex_backslash_escapes():
+    """A paper reviewer quoting LaTeX (`\\cite{...}`, `\\ref{...}`) inside a
+    double-quoted scalar produces an INVALID YAML escape that crashes plain
+    yaml.safe_load — the #1 paper-review parse failure that walled the paper
+    track. `_safe_yaml_load` doubles the invalid backslash so it survives as a
+    literal, WITHOUT mangling the scalar (the block-scalar repair lost the text).
+    """
+    bad = (
+        "verdict: minor_revision\n"
+        "action_items:\n"
+        '  - text: "Citation formatting is inconsistent (e.g., \\cite{gibson} vs \\citep{x})"\n'
+        "    severity: writing\n"
+    )
+    # plain loader crashes
+    raised = False
+    try:
+        yaml.safe_load(bad)
+    except yaml.YAMLError:
+        raised = True
+    assert raised, "precondition: plain safe_load must reject the invalid escape"
+    # robust loader recovers WITH content intact
+    out = _safe_yaml_load(bad)
+    assert out["verdict"] == "minor_revision"
+    items = out["action_items"]
+    assert len(items) == 1, items
+    assert items[0]["severity"] == "writing"
+    assert "\\cite{gibson}" in items[0]["text"]
+    assert "\\citep{x}" in items[0]["text"]
+
+
+def test_fix_invalid_dq_escapes_leaves_valid_escapes_untouched():
+    """Valid escapes (\\n, \\t, \\", \\\\) must be preserved; only INVALID ones
+    (\\c, \\s, ...) are doubled."""
+    from llmxive.convergence.llm_reviewer import _fix_invalid_dq_escapes
+    src = r'key: "line\nbreak and a quote \" and a path C:\section"'
+    fixed = _fix_invalid_dq_escapes(src)
+    loaded = yaml.safe_load(fixed)
+    val = loaded["key"]
+    assert "\n" in val            # \n stayed a real newline
+    assert '"' in val             # \" stayed a literal quote
+    assert r"\section" in val     # \s was invalid -> doubled -> literal backslash

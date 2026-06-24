@@ -602,7 +602,12 @@ class PaperReviewerAgent(Agent):
                 format_reminder=_FORMAT_REMINDER,
             )
         try:
-            front = yaml.safe_load(match.group("frontmatter"))
+            # Robust loader: recovers from invalid backslash escapes (LaTeX —
+            # `\cite`/`\ref`, which a paper reviewer quotes constantly and which
+            # crash plain yaml.safe_load) + other LLM-frontmatter quirks, without
+            # mangling the action-item text. The #1 paper-review parse failure.
+            from llmxive.convergence.llm_reviewer import _safe_yaml_load
+            front = _safe_yaml_load(match.group("frontmatter"))
         except yaml.YAMLError as exc:
             raise MalformedResponseError(
                 f"paper_reviewer: frontmatter is not valid YAML ({exc})",

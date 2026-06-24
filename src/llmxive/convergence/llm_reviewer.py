@@ -316,28 +316,70 @@ def _force_block_scalar_all_freetext_keys(yaml_text: str) -> str:
     return "\n".join(out) + ("\n" if yaml_text.endswith("\n") else "")
 
 
+# Characters that may legally follow a backslash inside a YAML double-quoted
+# scalar (YAML 1.1 escape set + whitespace/line-continuation). Anything else —
+# notably a LaTeX command like ``\cite`` / ``\ref`` / ``\section`` (``\c``,
+# ``\r``→ wait, ``\r`` is valid; ``\c``/``\s`` are not) — is an INVALID escape
+# that makes ``yaml.safe_load`` reject the whole frontmatter. Paper reviewers
+# quote LaTeX constantly, so this is the #1 paper-review parse failure.
+_VALID_DQ_ESCAPE = set('0abtnvfre"\\/N_LPxuU \t\r\n')
+_DQ_SPAN_RE = re.compile(r'"(?:[^"\\]|\\.)*"', re.S)
+
+
+def _fix_invalid_dq_escapes(yaml_text: str) -> str:
+    """Double any INVALID backslash escape inside a double-quoted scalar so the
+    backslash survives as a literal (``\\cite`` -> ``\\\\cite`` -> parses to the
+    literal ``\\cite``). Content-preserving — unlike the block-scalar repair it
+    keeps the scalar's text intact, so a LaTeX-quoting reviewer's action items
+    are not lost."""
+    def _fix(m: re.Match[str]) -> str:
+        inner = m.group(0)[1:-1]
+        out: list[str] = []
+        i = 0
+        while i < len(inner):
+            ch = inner[i]
+            if ch == "\\":
+                nxt = inner[i + 1] if i + 1 < len(inner) else ""
+                if nxt and nxt in _VALID_DQ_ESCAPE:
+                    out.append(ch + nxt)
+                    i += 2
+                    continue
+                out.append("\\\\")  # lone/invalid backslash -> literal backslash
+                i += 1
+                continue
+            out.append(ch)
+            i += 1
+        return '"' + "".join(out) + '"'
+
+    return _DQ_SPAN_RE.sub(_fix, yaml_text)
+
+
 def _safe_yaml_load(yaml_text: str) -> object:
     """Robust YAML loader for LLM frontmatter.
 
-    Three-stage recovery cascade:
+    Recovery cascade (most content-preserving first):
 
     1. Try the standard ``yaml.safe_load``.
-    2. If that fails, run the CONSERVATIVE repair
-       ``_reformat_unquoted_scalars`` (only re-quotes scalars that
-       contain problematic chars or are followed by mis-indented
-       continuation). Try ``yaml.safe_load`` again.
-    3. If that ALSO fails, run the AGGRESSIVE repair
-       ``_force_block_scalar_all_freetext_keys`` (rewrites EVERY
-       ``text``/``location``/``response``/``what_changed`` line as a
-       block scalar regardless of what it looks like). Final attempt.
-    4. If all three attempts fail, raise the ORIGINAL ``YAMLError``
-       so the caller's error message points at the LLM's actual
-       output, not at the repaired version.
+    2. Double INVALID backslash escapes in double-quoted scalars
+       (``_fix_invalid_dq_escapes``) — fixes LaTeX (``\\cite``) quoting
+       WITHOUT mangling the scalar. Try again.
+    3. CONSERVATIVE repair ``_reformat_unquoted_scalars``. Try again.
+    4. AGGRESSIVE repair ``_force_block_scalar_all_freetext_keys`` (rewrites
+       free-text keys as block scalars). Final attempt.
+    5. If all fail, raise the ORIGINAL ``YAMLError`` so the caller's message
+       points at the LLM's actual output, not the repaired version.
     """
     try:
         return yaml.safe_load(yaml_text)
     except yaml.YAMLError as orig_err:
-        # Stage 2: conservative repair.
+        # Stage 2: fix invalid double-quoted backslash escapes (LaTeX).
+        deescaped = _fix_invalid_dq_escapes(yaml_text)
+        if deescaped != yaml_text:
+            try:
+                return yaml.safe_load(deescaped)
+            except yaml.YAMLError:
+                pass
+        # Stage 3: conservative repair (also re-run on the de-escaped text).
         conservative = _reformat_unquoted_scalars(yaml_text)
         if conservative != yaml_text:
             try:
