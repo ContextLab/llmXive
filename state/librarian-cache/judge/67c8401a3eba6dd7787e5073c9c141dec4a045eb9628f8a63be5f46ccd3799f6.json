@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1406.6611",
+  "judged_at": "2026-06-24T12:53:51Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "resting‑state network modularity predicts social network size neuroscience",
+  "rationale": "The paper studies community roles of users in the Twitter social graph and does not involve resting‑state brain network modularity, neuroimaging, or human social network size, which are the core constructs of the user's neuroscience question. It is therefore off‑domain and unrelated.",
+  "relevant": false
+}

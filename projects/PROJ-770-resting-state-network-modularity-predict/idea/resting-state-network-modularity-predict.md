@@ -7,4 +7,77 @@ submitter: openai.gpt-oss-120b
 
 **Field**: neuroscience  
 
-Recent large‑scale neuroimaging studies suggest that the modular organization of intrinsic brain networks relates to social cognition, yet it remains unclear whether individual differences in the *size* of real‑world social networks are reflected in resting‑state connectivity architecture. This project will re‑analyze the publicly available Human Connectome Project (HCP) 1200‑subject release, extracting whole‑brain functional connectivity matrices from the minimally preprocessed resting‑state fMRI runs. Community detection (e.g., Louvain algorithm) will be applied to each matrix to compute a modularity quality index (Q). HCP includes questionnaire data on participants’ reported number of close friends and acquaintances, providing a quantitative proxy for social network size. Using linear mixed‑effects models that control for age, sex, head motion, and total brain connectivity strength, we will test whether higher modularity predicts larger self‑reported social networks. The analysis (data download, preprocessing, graph construction, and statistical testing) can be completed on a GitHub Actions runner within an hour, leveraging only open‑source Python packages (e.g., Nilearn, NetworkX, statsmodels). Findings could illuminate how the brain’s intrinsic community structure supports the maintenance of expansive social relationships, offering a parsimonious neural marker for social integration.
+## Research question  
+
+Does higher resting‑state functional network modularity, quantified by the Louvain‐derived modularity quality index (Q), associate with a larger self‑reported social network size in healthy adults?  
+
+## Motivation  
+
+Individual differences in the architecture of intrinsic brain networks have been linked to social cognition, but it is unknown whether the *extent* of real‑world social connections is reflected in the brain’s modular organization. Demonstrating such a relationship would provide a parsimonious neural marker for social integration and inform theories of how large‑scale network segregation supports complex social behavior.  
+
+## Related work  
+
+- [Fractal‑driven distortion of resting state functional networks in fMRI: a simulation study (2012)](https://arxiv.org/abs/1208.0924) — Shows how intrinsic resting‑state networks exhibit scale‑invariant properties, underscoring the importance of robust graph‑theoretic metrics (e.g., modularity) for characterizing their topology.  
+- [Uniqueness Analysis of Controllability Scores and Their Application to Brain Networks (2024)](https://arxiv.org/abs/2408.03023) — Provides a methodological precedent for computing and statistically comparing network‑level measures (controllability, centrality) across subjects, supporting the use of community‑detection algorithms on HCP functional connectivity matrices.  
+- [Identifying the Community Roles of Social Capitalists in the Twitter Network (2014)](https://arxiv.org/abs/1406.6611) — Examines how community structure relates to social influence in online networks, offering a conceptual bridge between graph‑based community metrics and measures of social network size.  
+
+## Expected results  
+
+We anticipate observing a statistically reliable positive association between modularity Q and the number of self‑reported close friends/acquaintances, after controlling for age, sex, head motion, and overall connectivity strength. A significant regression coefficient (p < 0.05) would confirm the hypothesis; a null finding would suggest that modular segregation does not directly index real‑world social network size.  
+
+## Methodology sketch  
+
+- **Data acquisition**: `wget` the minimally preprocessed resting‑state fMRI (4 × 15 min runs) and the demographic/behavioral CSV files from the HCP 1200‑subject release (use the public S3 bucket).  
+- **Subject selection**: Randomly select 200 participants (balanced for age and sex) to keep runtime < 30 min on a GitHub Actions runner.  
+- **Preprocessing**: Use Nilearn to load the fMRI NIfTI files, apply a standard band‑pass filter (0.01–0.1 Hz) and regress out motion parameters and the global signal.  
+- **Parcellation**: Extract region‑wise time series using the 200‑node Schaefer cortical atlas (available via `nilearn.datasets.fetch_atlas_schaefer_200`).  
+- **Functional connectivity**: Compute Pearson correlation matrices for each subject, then Fisher‑z transform and retain the upper triangle.  
+- **Graph construction**: Threshold each matrix at the top 10 % of strongest positive edges to obtain a sparse, weighted adjacency matrix.  
+- **Community detection**: Apply the Louvain algorithm (via `networkx` / `python‑louvain`) to each adjacency matrix and record the modularity quality index Q.  
+- **Social network size**: Extract the “Number of close friends” and “Number of acquaintances” items from the HCP behavioral CSV; sum or treat separately as the dependent variable.  
+- **Statistical modeling**: Fit a linear mixed‑effects model (`statsmodels.MixedLM`) with Q as the fixed effect, subject ID as a random intercept, and covariates for age, sex, mean framewise displacement, and total connectivity strength.  
+- **Multiple‑comparison control**: If separate models are run for friends vs. acquaintances, adjust p‑values using the Benjamini‑Hochberg procedure.  
+- **Robustness checks**: Repeat the analysis with (a) an alternative parcellation (e.g., 100‑node atlas) and (b) a proportional threshold of 15 % to confirm stability of results.  
+- **Output**: Save regression tables, effect‑size plots (modularity vs. social size), and a brief README describing how to reproduce the analysis.  
+
+## Duplicate-check  
+
+- Reviewed existing ideas: none.  
+- Closest match: none (no similar fleshed‑out project found).  
+- Verdict: **NOT a duplicate**
+
+
+## Search trail
+
+**Generated by**: librarian (prompt v1.6.0) on 2026-06-24T12:53:51Z
+**Outcome**: exhausted
+**Original term**: Resting‑State Network Modularity Predicts Social Network Size neuroscience
+**Verified citation count**: 4
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | Resting‑State Network Modularity Predicts Social Network Size neuroscience | 0 |
+| 1 | resting‑state functional connectivity modularity and social network size | 1 |
+| 2 | intrinsic brain network segregation predicting social network size | 1 |
+| 3 | default mode network community structure and social relationships | 2 |
+| 4 | graph‑theoretical modularity of resting‑state networks and social integration | 0 |
+| 5 | brain network modular organization and social network complexity | 0 |
+| 6 | functional brain network community detection in relation to social network size | 0 |
+| 7 | resting‑state network efficiency as a predictor of social network size | 0 |
+| 8 | intrinsic connectivity modularity and social group size | 0 |
+| 9 | connectome modularity correlates of social network size | 0 |
+| 10 | functional segregation of resting‑state networks and social behavior | 0 |
+| 11 | neural correlates of social network size using resting‑state fMRI | 0 |
+| 12 | brain network topology metrics and social network size | 0 |
+| 13 | modular organization of intrinsic connectivity predicting social integration | 0 |
+| 14 | resting‑state network hub connectivity and social network size | 0 |
+| 15 | graph metrics of resting‑state functional networks and social connectivity | 0 |
+
+### Verified citations
+
+1. **Fractal-driven distortion of resting state functional networks in fMRI: a simulation study** (2012). Wonsang You, Jörg Stadler. arXiv. [1208.0924](https://arxiv.org/abs/1208.0924). PDF-sampled: No. ⚠️ *topically marginal — admitted as fallback when judge rejected all stricter matches*
+2. **Uniqueness Analysis of Controllability Scores and Their Application to Brain Networks** (2024). Kazuhiro Sato, Ryohei Kawamura. arXiv. [2408.03023](https://arxiv.org/abs/2408.03023). PDF-sampled: No. ⚠️ *topically marginal — admitted as fallback when judge rejected all stricter matches*
+3. **Community-Aware Social Community Recommendation** (2025). Runhao Jiang, Renchi Yang, Wenqing Lin. arXiv. [2508.05107](https://arxiv.org/abs/2508.05107). PDF-sampled: No. ⚠️ *topically marginal — admitted as fallback when judge rejected all stricter matches*
+4. **Identifying the Community Roles of Social Capitalists in the Twitter Network** (2014). Vincent Labatut, Nicolas Dugué, Anthony Perez. arXiv. [1406.6611](https://arxiv.org/abs/1406.6611). PDF-sampled: No. ⚠️ *topically marginal — admitted as fallback when judge rejected all stricter matches*

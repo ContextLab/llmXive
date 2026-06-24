@@ -442,5 +442,9 @@
   "PROJ-768-memslides-a-hierarchical-memory-driven-a::1.6.0": {
     "classified_at": "2026-06-23T11:24:52Z",
     "verdict": false
+  },
+  "PROJ-770-resting-state-network-modularity-predict::1.6.0": {
+    "classified_at": "2026-06-24T12:52:35Z",
+    "verdict": false
   }
 }

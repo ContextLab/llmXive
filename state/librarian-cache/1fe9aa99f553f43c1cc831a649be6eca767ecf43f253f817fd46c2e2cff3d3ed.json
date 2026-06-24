@@ -1,0 +1,449 @@
+{
+  "fetched_at": "2026-06-24T12:53:51Z",
+  "field": "neuroscience",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "neuroscience",
+      "idea_body_excerpt": "Resting‑State Network Modularity Predicts Social Network Size",
+      "target_n": 5
+    },
+    "duration_seconds": 475.499,
+    "ended_at": "2026-06-24T12:53:51Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "resting‑state functional connectivity modularity and social network size"
+        ],
+        [
+          2,
+          "intrinsic brain network segregation predicting social network size"
+        ],
+        [
+          3,
+          "default mode network community structure and social relationships"
+        ],
+        [
+          4,
+          "graph‑theoretical modularity of resting‑state networks and social integration"
+        ],
+        [
+          5,
+          "brain network modular organization and social network complexity"
+        ],
+        [
+          6,
+          "functional brain network community detection in relation to social network size"
+        ],
+        [
+          7,
+          "resting‑state network efficiency as a predictor of social network size"
+        ],
+        [
+          8,
+          "intrinsic connectivity modularity and social group size"
+        ],
+        [
+          9,
+          "connectome modularity correlates of social network size"
+        ],
+        [
+          10,
+          "functional segregation of resting‑state networks and social behavior"
+        ],
+        [
+          11,
+          "neural correlates of social network size using resting‑state fMRI"
+        ],
+        [
+          12,
+          "brain network topology metrics and social network size"
+        ],
+        [
+          13,
+          "modular organization of intrinsic connectivity predicting social integration"
+        ],
+        [
+          14,
+          "resting‑state network hub connectivity and social network size"
+        ],
+        [
+          15,
+          "graph metrics of resting‑state functional networks and social connectivity"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Resting‑State Network Modularity Predicts Social Network Size neuroscience": 0,
+        "default mode network community structure and social relationships": 2,
+        "intrinsic brain network segregation predicting social network size": 1,
+        "resting‑state functional connectivity modularity and social network size": 1
+      },
+      "total_queries_issued": 3
+    },
+    "extracted_queries": [
+      "functional segregation resting-state",
+      "Human Connectome Project social network",
+      "default mode network community detection",
+      "social network size questionnaire",
+      "social brain hypothesis modularity"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2408.03023"
+      ]
+    },
+    "per_query_hit_count": {
+      "Human Connectome Project social network": 0,
+      "Resting‑State Network Modularity Predicts Social Network Size neuroscience": 3,
+      "default mode network community detection": 3,
+      "functional segregation resting-state": 3,
+      "social brain hypothesis modularity": 2,
+      "social network size questionnaire": 0
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": true,
+      "rejected_count": 4,
+      "rejections": [
+        {
+          "primary_pointer": "1208.0924",
+          "rationale": "The paper studies fractal-induced distortions of resting‑state network metrics in simulated macaque data and does not measure resting‑state modularity, social network size, or their relationship, nor does it provide a foundational method or baseline for those constructs. Hence it is unrelated to the user's question.",
+          "title": "Fractal-driven distortion of resting state functional networks in fMRI: a simulation study"
+        },
+        {
+          "primary_pointer": "2408.03023",
+          "rationale": "The paper studies controllability centrality measures in brain networks and does not address resting‑state network modularity, social network size, or their relationship, nor does it provide a baseline or methodology relevant to those constructs. Hence it is unrelated to the user's question.",
+          "title": "Uniqueness Analysis of Controllability Scores and Their Application to Brain Networks"
+        },
+        {
+          "primary_pointer": "2508.05107",
+          "rationale": "The paper studies algorithmic community recommendation using social‑network modularity in a recommender‑system context, not resting‑state brain network modularity or its relationship to human social network size; it addresses a different construct despite sharing the word “modularity.” Hence it is off‑domain for the neuroscience question.",
+          "title": "Community-Aware Social Community Recommendation"
+        },
+        {
+          "primary_pointer": "1406.6611",
+          "rationale": "The paper studies community roles of users in the Twitter social graph and does not involve resting‑state brain network modularity, neuroimaging, or human social network size, which are the core constructs of the user's neuroscience question. It is therefore off‑domain and unrelated.",
+          "title": "Identifying the Community Roles of Social Capitalists in the Twitter Network"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-24T12:45:56Z",
+    "term_input": {
+      "normalized": "resting‑state network modularity predicts social network size neuroscience",
+      "raw": "Resting‑State Network Modularity Predicts Social Network Size neuroscience"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "All online sharing systems gather data that reflects users' collective behaviour and their shared activities. This data can be used to extract different kinds of relationships, which can be grouped into layers, and which are basic components of the multidimensional social network proposed in the paper. The layers are created on the basis of two types of relations between humans, i.e. direct and object-based ones which respectively correspond to either social or semantic links between individuals. For better understanding of the complexity of the social network structure, layers and their profiles were identified and studied on two, spanned in time, snapshots of the Flickr population. Additionally, for each layer, a separate strength measure was proposed. The experiments on the Flickr photo sharing system revealed that the relationships between users result either from semantic links between objects they operate on or from social connections of these users. Moreover, the density of the social network increases in time. The second part of the study is devoted to building a social recommender system that supports the creation of new relations between users in a multimedia sharing system. Its main goal is to generate personalized suggestions that are continuously adapted to users' needs depending on the personal weights assigned to each layer in the multidimensional social network. The conducted experiments confirmed the usefulness of the proposed model.",
+          "claimed_authors": [
+            "Przemyslaw Kazienko",
+            "Katarzyna Musial",
+            "Tomasz Kajdanowicz"
+          ],
+          "claimed_title": "Multidimensional Social Network in the Social Recommender System",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1303.0093"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Resting‑State Network Modularity Predicts Social Network Size neuroscience', candidate_title='Multidimensional Social Network in the Social Recommender System')",
+        "failed_at": "2026-06-24T12:52:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In 2016, a network of social media accounts animated by Russian operatives attempted to divert political discourse within the American public around the presidential elections. This was a coordinated effort, part of a Russian-led complex information operation. Utilizing the anonymity and outreach of social media platforms Russian operatives created an online astroturf that is in direct contact with regular Americans, promoting Russian agenda and goals. The elusiveness of this type of adversarial approach rendered security agencies helpless, stressing the unique challenges this type of intervention presents. Building on existing scholarship on the functions within influence networks on social media, we suggest a new approach to map those types of operations. We argue that pretending to be legitimate social actors obliges the network to adhere to social expectations, leaving a social footprint. To test the robustness of this social footprint we train artificial intelligence to identify it and create a predictive model. We use Twitter data identified as part of the Russian influence network for training the artificial intelligence and to test the prediction. Our model attains 88% prediction accuracy for the test set. Testing our prediction on two additional models results in 90.7% and 90.5% accuracy, validating our model. The predictive and validation results suggest that building a machine learning model around social functions within the Russian influence network can be used to map its actors and functions.",
+          "claimed_authors": [
+            "Ori Swed",
+            "Sachith Dassanayaka",
+            "Dimitri Volchenkov"
+          ],
+          "claimed_title": "Keeping it Authentic: The Social Footprint of the Trolls Network",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2409.07720"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Resting‑State Network Modularity Predicts Social Network Size neuroscience', candidate_title='Keeping it Authentic: The Social Footprint of the Trolls Network')",
+        "failed_at": "2026-06-24T12:52:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A new method of feature extraction in the social network for within-network classification is proposed in the paper. The method provides new features calculated by combination of both: network structure information and class labels assigned to nodes. The influence of various features on classification performance has also been studied. The experiments on real-world data have shown that features created owing to the proposed method can lead to significant improvement of classification accuracy.",
+          "claimed_authors": [
+            "Tomasz Kajdanowicz",
+            "Przemyslaw Kazienko",
+            "Piotr Doskocz"
+          ],
+          "claimed_title": "Label-dependent Feature Extraction in Social Networks for Node Classification",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1303.0095"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Resting‑State Network Modularity Predicts Social Network Size neuroscience', candidate_title='Label-dependent Feature Extraction in Social Networks for Node Classification')",
+        "failed_at": "2026-06-24T12:52:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The most studies on functional connectivity have been done by analyzing the brain's hemodynamic response to a stimulation. On the other hand, the low-frequency spontaneous fluctuations in the blood oxygen level dependent (BOLD) signals of functional MRI have been observed in the resting state. However, the BOLD signals in resting state are significantly corrupted by huge noises arising from cardiac pulsation, respiration, subject motion, scanner, and so forth. Especially, the noise compounds are stronger in the rat brain than in the human brain. To overcome such an artifact, we assumed that fractal behavior in BOLD signals reflects low frequency neural activity, and applied the theorem such that the wavelet correlation spectrum between long memory processes is scale-invariant over low frequency scales. Here, we report an experiment that shows special correlation patterns not only in correlation of scaling coefficients in very low-frequency band (less than 0.0078Hz) but also in asymptotic wavelet correlation. In addition, we show the distribution of the Hurst exponents in the rat brain.",
+          "claimed_authors": [
+            "Wonsang You",
+            "Joerg Stadler"
+          ],
+          "claimed_title": "Fractal-based Correlation Analysis for Resting State Functional Connectivity of the Rat Brain in Functional MRI",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1202.4751"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Resting‑State Network Modularity Predicts Social Network Size neuroscience', candidate_title='Fractal-based Correlation Analysis for Resting State Functional Connectivity of the Rat Brain in Functional MRI')",
+        "failed_at": "2026-06-24T12:53:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Segregation is a widely recognised phenomenon with profound implications for societies worldwide. From political science and gender studies to anthropology and urban studies, it has garnered considerable attention across numerous scientific fields due to its multifaceted nature. However, what makes segregation such a far-reaching phenomenon? In fact, how many forms of segregation exist? Have different disciplines engaged in segregation research uncovered all its facets? This article systematically explores the landscape of segregation research spanning over a century. We analyzed 10,754 documents from the Scopus database to unveil the dynamics of the discovery of segregation forms through several findings. We identify (1) the exponential growth and increasing diversification of segregation forms, driven by combinatorial and exploratory work and increasing transdisciplinarity and intersectionality in research; (2) the evolution and structure of the field in hierarchies and clusters of segregation forms, revealing trends, persistence, and shifts over time; (3) the timing and geographical distribution of first publications on segregation forms, along with contextual variations across world regions and countries; (4) path dependencies in the historical and geographical shaping of segregation research; and (5) the structure of knowledge production. Aiming to contribute semantic organization to an increasingly complex field, we explore these findings to introduce a bottom-up ontology of segregation, marking the first comprehensive effort of its kind.",
+          "claimed_authors": [
+            "Vini Netto",
+            "Kimon Krenz",
+            "Maria Fiszon",
+            "Otávio Peres",
+            "Desirée Rosalino"
+          ],
+          "claimed_title": "Decoding Segregation: Navigating a century of segregation research across disciplines and introducing a bottom-up ontology",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2410.08374"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Resting‑State Network Modularity Predicts Social Network Size neuroscience', candidate_title='Decoding Segregation: Navigating a century of segregation research across disciplines and introducing a bottom-up ontology')",
+        "failed_at": "2026-06-24T12:53:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A precise definition of what constitutes a community in networks has remained elusive. Consequently, network scientists have compared community detection algorithms on benchmark networks with a particular form of community structure and classified them based on the mathematical techniques they employ. However, this comparison can be misleading because apparent similarities in their mathematical machinery can disguise different reasons for why we would want to employ community detection in the first place. Here we provide a focused review of these different motivations that underpin community detection. This problem-driven classification is useful in applied network science, where it is important to select an appropriate algorithm for the given purpose. Moreover, highlighting the different approaches to community detection also delineates the many lines of research and points out open directions and avenues for future research.",
+          "claimed_authors": [
+            "Martin Rosvall",
+            "Jean-Charles Delvenne",
+            "Michael T. Schaub",
+            "Renaud Lambiotte"
+          ],
+          "claimed_title": "Different approaches to community detection",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1712.06468"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Resting‑State Network Modularity Predicts Social Network Size neuroscience', candidate_title='Different approaches to community detection')",
+        "failed_at": "2026-06-24T12:53:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Over the past decade, community detection in overlapping un-weighted networks, where nodes can belong to multiple communities, has been one of the most popular topics in modern network science. However, community detection in overlapping weighted networks, where edge weights can be any real value, remains challenging. In this article, we propose a generative model called the weighted degree-corrected mixed membership (WDCMM) model to model such weighted networks. This model adopts the same factorization for the expectation of the adjacency matrix as the previous degree-corrected mixed membership (DCMM) model. Our WDCMM extends the DCMM from un-weighted networks to weighted networks by allowing the elements of the adjacency matrix to be generated from distributions beyond Bernoulli. We first address the community membership estimation of the model by applying a spectral algorithm and establishing a theoretical guarantee of consistency. Then, we propose overlapping weighted modularity to measure the quality of overlapping community detection for both assortative and dis-assortative weighted networks. To determine the number of communities, we incorporate the algorithm into the proposed modularity. We demonstrate the advantages of the model and the modularity through applications to simulated data and real-world networks.",
+          "claimed_authors": [
+            "Huan Qing"
+          ],
+          "claimed_title": "Overlapping community detection in weighted networks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2211.00894"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Resting‑State Network Modularity Predicts Social Network Size neuroscience', candidate_title='Overlapping community detection in weighted networks')",
+        "failed_at": "2026-06-24T12:53:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "An important challenge in big data analysis nowadays is detection of cohesive groups in large-scale networks, including social networks, genetic networks, communication networks and so. In this paper, we propose LabelRank, an efficient algorithm detecting communities through label propagation. A set of operators is introduced to control and stabilize the propagation dynamics. These operations resolve the randomness issue in traditional label propagation algorithms (LPA), stabilizing the discovered communities in all runs of the same network. Tests on real-world networks demonstrate that LabelRank significantly improves the quality of detected communities compared to LPA, as well as other popular algorithms.",
+          "claimed_authors": [
+            "Jierui Xie",
+            "Boleslaw K. Szymanski"
+          ],
+          "claimed_title": "LabelRank: A Stabilized Label Propagation Algorithm for Community Detection in Networks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1303.0868"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Resting‑State Network Modularity Predicts Social Network Size neuroscience', candidate_title='LabelRank: A Stabilized Label Propagation Algorithm for Community Detection in Networks')",
+        "failed_at": "2026-06-24T12:53:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The characterisation of CMB polarisation is one of the next challenge in observationnal cosmology. This is especially true for the so-called B-modes that are at least 3 order of magnitude lower than CMB temperature fluctuations. A precise measurement of the angular power spectrum of these B-modes will give important constraints on inflation parameters. In this talk, I will describe two complementary experiments, BRAIN and CLOVER, dedicated to CMB polarisation measurement. These experiments are proposed to be installed in Dome-C, Antarctica, to take advantage of the extreme dryness of the atmosphere and to allow long integration time.",
+          "claimed_authors": [
+            "M. Piat",
+            "C. Rosset",
+            "the BRAIN",
+            "CLOVER Collaboration"
+          ],
+          "claimed_title": "Precise measurement of CMB polarisation from Dome-C: the BRAIN and CLOVER experiments",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2004,
+          "primary_pointer": "astro-ph/0412590"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Resting‑State Network Modularity Predicts Social Network Size neuroscience', candidate_title='Precise measurement of CMB polarisation from Dome-C: the BRAIN and CLOVER experiments')",
+        "failed_at": "2026-06-24T12:53:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Bots have been playing a crucial role in online platform ecosystems, as efficient and automatic tools to generate content and diffuse information to the social media human population. In this chapter, we will discuss the role of social bots in content spreading dynamics in social media. In particular, we will first investigate some differences between diffusion dynamics of content generated by bots, as opposed to humans, in the context of political communication, then study the characteristics of bots behind the diffusion dynamics of social media spam campaigns.",
+          "claimed_authors": [
+            "Emilio Ferrara"
+          ],
+          "claimed_title": "Measuring social spam and the effect of bots on information diffusion in social media",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1708.08134"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Resting‑State Network Modularity Predicts Social Network Size neuroscience', candidate_title='Measuring social spam and the effect of bots on information diffusion in social media')",
+        "failed_at": "2026-06-24T12:53:00Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Wonsang You",
+            "Jörg Stadler"
+          ],
+          "title": "Fractal-driven distortion of resting state functional networks in fMRI: a simulation study",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2012
+        },
+        "primary_pointer": "1208.0924",
+        "summary": "Fractals are self-similar and scale-invariant patterns found ubiquitously in nature. A lot of evidences implying fractal properties such as 1/f power spectrums have been also observed in resting state fMRI time series. To explain the fractal behavior in rs-fMRI, we have proposed the fractal-based model of resting state hemodynamic response function (rs-HRF) whose properties can be summarized by a fractal exponent. Here we show, through a simulation studies, that the fractal behavior of cerebral hemodynamics may cause significant distortion of network properties between neuronal activities and BOLD signals. We simulated neuronal population activities based on the stochastic neural field model from the Macaque brain network, and then obtained their corresponding BOLD signals by convolving them with the rs-HRF filter. The precision of centrality estimated in each node was deteriorated overall in three networks based on transfer entropy, mutual information, and Pearson correlation; particularly the distortion of transfer entropy was more sensitive to the standard deviation of fractal exponents. A node with high centrality was resilient to desynchronized fractal dynamics over all frequencies while a node with small centrality exhibited huge distortion of both wavelet correlation and centrality over low frequencies. This theoretical expectation indicates that the difference of fractal exponents between brain regions leads to discrepancy of statistical network properties, especially at nodes with small centrality, between neuronal activities and BOLD signals, and that the traditional definitions of resting state functional connectivity may not effectively reflect the dynamics of spontaneous neuronal activities.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1208.0924",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-24T12:52:35Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Kazuhiro Sato",
+            "Ryohei Kawamura"
+          ],
+          "title": "Uniqueness Analysis of Controllability Scores and Their Application to Brain Networks",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2408.03023",
+        "summary": "Assessing centrality in network systems is critical for understanding node importance and guiding decision-making processes. In dynamic networks, incorporating a controllability perspective is essential for identifying key nodes. In this paper, we study two control theoretic centrality measures -- the Volumetric Controllability Score (VCS) and Average Energy Controllability Score (AECS) -- to quantify node importance in linear time-invariant network systems. We prove the uniqueness of VCS and AECS for almost all specified terminal times, thereby enhancing their applicability beyond previously recognized cases. This ensures their interpretability, comparability, and reproducibility. Our analysis reveals substantial differences between VCS and AECS in linear systems with symmetric and skew-symmetric transition matrices. We also investigate the dependence of VCS and AECS on the terminal time and prove that when this parameter is extremely small, both scores become essentially uniform. Additionally, we prove that a sequence generated by a projected gradient method for computing VCS and AECS converges linearly to both measures under several assumptions. Finally, evaluations on brain networks modeled via Laplacian dynamics using real data reveal contrasting evaluation tendencies and correlations for VCS and AECS, with AECS favoring brain regions associated with cognitive and motor functions, while VCS emphasizes sensory and emotional regions.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2408.03023",
+          "http_status": 200,
+          "pdf_sample_score": 0.3368,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-24T12:53:25Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Runhao Jiang",
+            "Renchi Yang",
+            "Wenqing Lin"
+          ],
+          "title": "Community-Aware Social Community Recommendation",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2508.05107",
+        "summary": "Social recommendation, which seeks to leverage social ties among users to alleviate the sparsity issue of user-item interactions, has emerged as a popular technique for elevating personalized services in recommender systems. Despite being effective, existing social recommendation models are mainly devised for recommending regular items such as blogs, images, and products, and largely fail for community recommendations due to overlooking the unique characteristics of communities. Distinctly, communities are constituted by individuals, who present high dynamicity and relate to rich structural patterns in social networks. To our knowledge, limited research has been devoted to comprehensively exploiting this information for recommending communities.\n  To bridge this gap, this paper presents CASO, a novel and effective model specially designed for social community recommendation. Under the hood, CASO harnesses three carefully-crafted encoders for user embedding, wherein two of them extract community-related global and local structures from the social network via social modularity maximization and social closeness aggregation, while the third one captures user preferences using collaborative filtering with observed user-community affiliations. To further eliminate feature redundancy therein, we introduce a mutual exclusion between social and collaborative signals. Finally, CASO includes a community detection loss in the model optimization, thereby producing community-aware embeddings for communities. Our extensive experiments evaluating CASO against nine strong baselines on six real-world social networks demonstrate its consistent and remarkable superiority over the state of the art in terms of community recommendation performance.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2508.05107",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4286,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-24T12:53:40Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Vincent Labatut",
+            "Nicolas Dugué",
+            "Anthony Perez"
+          ],
+          "title": "Identifying the Community Roles of Social Capitalists in the Twitter Network",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2014
+        },
+        "primary_pointer": "1406.6611",
+        "summary": "In the context of Twitter, social capitalists are specific users trying to increase their number of followers and interactions by any means. These users are not healthy for the Twitter network since they flaw notions of influence and visibility. Indeed, it has recently been observed that they are real and active users that can help malicious users such as spammers gaining influence. Studying their behavior and understanding their position in Twitter is thus of important interest. A recent work provided an efficient way to detect social capitalists using two simple topological measures. Based on this detection method, we study how social capitalists are distributed over Twitter's friend-to-follower network. We are especially interested in analyzing how they are organized, and how their links spread across the network. Answering these questions allows to know whether the social capitalism methods increase the actual visibility on the service. To that aim, we study the position of social capitalists on Twitter w.r.t. the community structure of the network. We base our work on the concept of community role of a node, which describes its position in a network depending on its connectivity at the community level. The topological measures originally defined to characterize these roles consider only some aspects of community-related connectivity and rely on a set of empirically fixed thresholds. We first show the limitations of such measures and then extend and generalize them by considering new aspects of the community-related connectivity. Moreover, we use an unsupervised approach to distinguish the roles, in order to provide more flexibility relatively to the studied system. We then apply our method to the case of social capitalists and show that they are highly visible on Twitter, due to the specific roles they occupy.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1406.6611",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5714,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-24T12:53:40Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "resting‑state network modularity predicts social network size neuroscience",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

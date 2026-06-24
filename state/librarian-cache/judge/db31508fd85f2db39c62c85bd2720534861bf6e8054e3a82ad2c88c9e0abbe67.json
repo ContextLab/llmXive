@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2508.05107",
+  "judged_at": "2026-06-24T12:53:49Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "resting‑state network modularity predicts social network size neuroscience",
+  "rationale": "The paper studies algorithmic community recommendation using social‑network modularity in a recommender‑system context, not resting‑state brain network modularity or its relationship to human social network size; it addresses a different construct despite sharing the word “modularity.” Hence it is off‑domain for the neuroscience question.",
+  "relevant": false
+}

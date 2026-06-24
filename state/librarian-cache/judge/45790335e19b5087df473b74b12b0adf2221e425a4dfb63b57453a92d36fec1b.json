@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2408.03023",
+  "judged_at": "2026-06-24T12:53:46Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "resting‑state network modularity predicts social network size neuroscience",
+  "rationale": "The paper studies controllability centrality measures in brain networks and does not address resting‑state network modularity, social network size, or their relationship, nor does it provide a baseline or methodology relevant to those constructs. Hence it is unrelated to the user's question.",
+  "relevant": false
+}
