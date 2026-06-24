@@ -1,4 +1,4 @@
-resolved_at: '2026-06-24T07:15:30.346356+00:00'
+resolved_at: '2026-06-24T18:18:33.330712+00:00'
 datasets:
 - intent: OSF
   status: verified
@@ -37,23 +37,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/preprint/Toward_Precision_Antipsychotic_Prescribing_Development_of_a_Ki_DDD_TWAS_Lipid-Metabolic_Liability_Index/32778231
+  - url: https://figshare.com/articles/journal_contribution/_Notarios_y_juristas_al_servicio_de_la_German_a_i_Estudis_i_26_Valencia_A_o_2000_Departamento_de_Historia_Moderna_Facultad_de_Geograf_a_e_Historia_Universitat_de_Val_ncia_pp_203-225/32785785
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/_b_Time-series_telemetry_dataset_from_an_underwater_acoustic_sensor_array_b_/32776920
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_Household_sand_filters_for_heavy_metal_removal_exhibit_limited_nitrification_and_risk_of_nitrate_contamination_pdf/32785833
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/_b_Multi-omics_datasets_of_airway_epithelial_cells_A549_and_16HBE_treated_with_CARDS_protein_b_/32614455
+  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Highly_Accurate_Centroid_Tracking_for_Real-Time_Event-Based_Shack-Hartmann_Wavefront_Sensing_-_7849701_pdf/32605239
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/conference_contribution/Navigating_the_Complexities_Challenges_and_Impact_Measurement_for_Women_Changemakers_in_Iran_After_the_Women_Life_Freedom_Movement/32778228
+  - url: https://figshare.com/articles/figure/Genetic_and_pharmacologic_modulations_elucidate_NRF2_protective_role_in_acute_pancreatitis/32775357
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Inter_observer_variability_assessment_through_ordered_weighted_belief_divergence_measure_in_MAGDM/32778249
+  - url: https://acs.figshare.com/articles/journal_contribution/Lipophilic_Grape_Seed_Proanthocyanidin_Attenuates_High-Fat_Diet-Induced_Hyperlipidemia_by_Modulating_Gut_Microbiota_and_Metabolic_Profiles/32785797
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -65,35 +65,35 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/3554292
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/7032367
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10821345
+  - url: https://zenodo.org/records/3554292
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://osf.io/2euf9/
+  - url: https://zenodo.org/records/7599158
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/j9r47/
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://osf.io/wx2g5/
+  - url: https://osf.io/ncwqu/
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://osf.io/4c28b/
+  - url: https://osf.io/yd4tb/
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://osf.io/qmhxt/
+  - url: https://osf.io/uxzbd/
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://osf.io/nf6vc/
+  - url: https://osf.io/n6x2a/
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -142,23 +142,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/preprint/Toward_Precision_Antipsychotic_Prescribing_Development_of_a_Ki_DDD_TWAS_Lipid-Metabolic_Liability_Index/32778231
+  - url: https://figshare.com/articles/journal_contribution/_Notarios_y_juristas_al_servicio_de_la_German_a_i_Estudis_i_26_Valencia_A_o_2000_Departamento_de_Historia_Moderna_Facultad_de_Geograf_a_e_Historia_Universitat_de_Val_ncia_pp_203-225/32785785
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/_b_Time-series_telemetry_dataset_from_an_underwater_acoustic_sensor_array_b_/32776920
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_Household_sand_filters_for_heavy_metal_removal_exhibit_limited_nitrification_and_risk_of_nitrate_contamination_pdf/32785833
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/_b_Multi-omics_datasets_of_airway_epithelial_cells_A549_and_16HBE_treated_with_CARDS_protein_b_/32614455
+  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Highly_Accurate_Centroid_Tracking_for_Real-Time_Event-Based_Shack-Hartmann_Wavefront_Sensing_-_7849701_pdf/32605239
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/conference_contribution/Navigating_the_Complexities_Challenges_and_Impact_Measurement_for_Women_Changemakers_in_Iran_After_the_Women_Life_Freedom_Movement/32778228
+  - url: https://figshare.com/articles/figure/Genetic_and_pharmacologic_modulations_elucidate_NRF2_protective_role_in_acute_pancreatitis/32775357
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Inter_observer_variability_assessment_through_ordered_weighted_belief_divergence_measure_in_MAGDM/32778249
+  - url: https://acs.figshare.com/articles/journal_contribution/Lipophilic_Grape_Seed_Proanthocyanidin_Attenuates_High-Fat_Diet-Induced_Hyperlipidemia_by_Modulating_Gut_Microbiota_and_Metabolic_Profiles/32785797
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -174,26 +174,22 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
+  - url: https://www.mdpi.com/2227-9032/10/10/1861
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
   - url: https://zenodo.org/records/10019046
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/4750888
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://arxiv.org/abs/2605.26643
+  - url: https://toubkal.imist.ma/handle/123456789/19369
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://osf.io/2zhkx/
+  - url: https://toubkal.imist.ma/handle/123456789/30814
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://conservancy.umn.edu/handle/11299/280931
-    source: datacite
-    status: wrong_format
-    reason: HTTP 403
   - url: https://air.unimi.it/handle/2434/155477
     source: datacite
     status: wrong_format
@@ -202,35 +198,39 @@ datasets:
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20828381
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
 - intent: FR-001
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://figshare.com/articles/preprint/Toward_Precision_Antipsychotic_Prescribing_Development_of_a_Ki_DDD_TWAS_Lipid-Metabolic_Liability_Index/32778231
+  - url: https://figshare.com/articles/journal_contribution/_Notarios_y_juristas_al_servicio_de_la_German_a_i_Estudis_i_26_Valencia_A_o_2000_Departamento_de_Historia_Moderna_Facultad_de_Geograf_a_e_Historia_Universitat_de_Val_ncia_pp_203-225/32785785
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/_b_Time-series_telemetry_dataset_from_an_underwater_acoustic_sensor_array_b_/32776920
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_Household_sand_filters_for_heavy_metal_removal_exhibit_limited_nitrification_and_risk_of_nitrate_contamination_pdf/32785833
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/_b_Multi-omics_datasets_of_airway_epithelial_cells_A549_and_16HBE_treated_with_CARDS_protein_b_/32614455
+  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Highly_Accurate_Centroid_Tracking_for_Real-Time_Event-Based_Shack-Hartmann_Wavefront_Sensing_-_7849701_pdf/32605239
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/conference_contribution/Navigating_the_Complexities_Challenges_and_Impact_Measurement_for_Women_Changemakers_in_Iran_After_the_Women_Life_Freedom_Movement/32778228
+  - url: https://figshare.com/articles/figure/Genetic_and_pharmacologic_modulations_elucidate_NRF2_protective_role_in_acute_pancreatitis/32775357
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Inter_observer_variability_assessment_through_ordered_weighted_belief_divergence_measure_in_MAGDM/32778249
+  - url: https://acs.figshare.com/articles/journal_contribution/Lipophilic_Grape_Seed_Proanthocyanidin_Attenuates_High-Fat_Diet-Induced_Hyperlipidemia_by_Modulating_Gut_Microbiota_and_Metabolic_Profiles/32785797
     source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/19059431
-    source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/17936025
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19059431
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -292,23 +292,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/preprint/Toward_Precision_Antipsychotic_Prescribing_Development_of_a_Ki_DDD_TWAS_Lipid-Metabolic_Liability_Index/32778231
+  - url: https://acs.figshare.com/articles/journal_contribution/Accelerating_Free_Energy_Exploration_Using_Parallelizable_Gaussian_Accelerated_Molecular_Dynamics_ParGaMD_/32785837
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/_b_Time-series_telemetry_dataset_from_an_underwater_acoustic_sensor_array_b_/32776920
+  - url: https://figshare.com/articles/journal_contribution/_Notarios_y_juristas_al_servicio_de_la_German_a_i_Estudis_i_26_Valencia_A_o_2000_Departamento_de_Historia_Moderna_Facultad_de_Geograf_a_e_Historia_Universitat_de_Val_ncia_pp_203-225/32785785
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/_b_Multi-omics_datasets_of_airway_epithelial_cells_A549_and_16HBE_treated_with_CARDS_protein_b_/32614455
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_Household_sand_filters_for_heavy_metal_removal_exhibit_limited_nitrification_and_risk_of_nitrate_contamination_pdf/32785833
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/conference_contribution/Navigating_the_Complexities_Challenges_and_Impact_Measurement_for_Women_Changemakers_in_Iran_After_the_Women_Life_Freedom_Movement/32778228
+  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Highly_Accurate_Centroid_Tracking_for_Real-Time_Event-Based_Shack-Hartmann_Wavefront_Sensing_-_7849701_pdf/32605239
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Inter_observer_variability_assessment_through_ordered_weighted_belief_divergence_measure_in_MAGDM/32778249
+  - url: https://figshare.com/articles/figure/Genetic_and_pharmacologic_modulations_elucidate_NRF2_protective_role_in_acute_pancreatitis/32775357
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -320,35 +320,35 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/8056637
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/15420758
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/19980220
+  - url: https://zenodo.org/records/8056637
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/An_examination_and_explanation_of_the_factors_influencing_the_emergence_and_persistence_of_the_Syrian_crisis_based_on_Brecher_s_research_model/32778402
+  - url: https://zenodo.org/records/18961168
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20835167
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20824822
+  - url: https://zenodo.org/records/20835167
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20824822
+  - url: https://refubium.fu-berlin.de/handle/fub188/51839
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://repository.mu.edu.et/handle/123456789/1262
+  - url: https://refubium.fu-berlin.de/handle/fub188/51753
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://oparu.uni-ulm.de//handle/123456789/60429
+  - url: https://refubium.fu-berlin.de/handle/fub188/51578
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -374,27 +374,31 @@ datasets:
     source: huggingface
     status: verified
     format: csv
+  - url: https://cas-bridge.xethub.hf.co/xet-bridge-us/681d8185cab567891deec21a/3f16cda3c324546bc557374e15858d10ab9388b9cc692511ce53758cc6242e85?Expires=1782328643&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9jYXMtYnJpZGdlLnhldGh1Yi5oZi5jby94ZXQtYnJpZGdlLXVzLzY4MWQ4MTg1Y2FiNTY3ODkxZGVlYzIxYS8zZjE2Y2RhM2MzMjQ1NDZiYzU1NzM3NGUxNTg1OGQxMGFiOTM4OGI5Y2M2OTI1MTFjZTUzNzU4Y2M2MjQyZTg1KiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc4MjMyODY0M319fV19&Signature=MEUCIFnlY4NU7TSypEmXrapNHYHtwXMpjpSrGj2j5FjeAKDXAiEAzQqPfFlGRIHSblQudWevU0ZvD087wCLFTXyDvJQK5pg_&Key-Pair-Id=K1LYXO563TGWFU&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27danbooru_tags.csv%3B+filename%3D%22danbooru_tags.csv%22%3B&X-Xet-Cas-Uid=public&response-content-type=text%2Fcsv&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=cas%2F20260624%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260624T181723Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=9b58dd1676f1c8e93ac27b92598f183a2577367533f6d244ddad27e61cc1b706
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://huggingface.co/datasets/nateraw/dummy-csv-dataset/resolve/main/data.csv
     source: huggingface
     status: verified
     format: csv
-  - url: https://figshare.com/articles/preprint/Toward_Precision_Antipsychotic_Prescribing_Development_of_a_Ki_DDD_TWAS_Lipid-Metabolic_Liability_Index/32778231
+  - url: https://acs.figshare.com/articles/journal_contribution/Accelerating_Free_Energy_Exploration_Using_Parallelizable_Gaussian_Accelerated_Molecular_Dynamics_ParGaMD_/32785837
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/_b_Time-series_telemetry_dataset_from_an_underwater_acoustic_sensor_array_b_/32776920
+  - url: https://figshare.com/articles/journal_contribution/_Notarios_y_juristas_al_servicio_de_la_German_a_i_Estudis_i_26_Valencia_A_o_2000_Departamento_de_Historia_Moderna_Facultad_de_Geograf_a_e_Historia_Universitat_de_Val_ncia_pp_203-225/32785785
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/_b_Multi-omics_datasets_of_airway_epithelial_cells_A549_and_16HBE_treated_with_CARDS_protein_b_/32614455
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_Household_sand_filters_for_heavy_metal_removal_exhibit_limited_nitrification_and_risk_of_nitrate_contamination_pdf/32785833
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/conference_contribution/Navigating_the_Complexities_Challenges_and_Impact_Measurement_for_Women_Changemakers_in_Iran_After_the_Women_Life_Freedom_Movement/32778228
+  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Highly_Accurate_Centroid_Tracking_for_Real-Time_Event-Based_Shack-Hartmann_Wavefront_Sensing_-_7849701_pdf/32605239
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Inter_observer_variability_assessment_through_ordered_weighted_belief_divergence_measure_in_MAGDM/32778249
+  - url: https://figshare.com/articles/figure/Genetic_and_pharmacologic_modulations_elucidate_NRF2_protective_role_in_acute_pancreatitis/32775357
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -406,35 +410,35 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/3681161
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/6144837
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/6557219
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20819647
+  - url: https://zenodo.org/records/8021374
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16712241
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20835258
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://datadryad.org/dataset/doi:10.5061/dryad.ht76hdrz6
+  - url: https://zenodo.org/records/20650853
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/17585419
+  - url: https://zenodo.org/records/20652235
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/_b_Time-series_telemetry_dataset_from_an_underwater_acoustic_sensor_array_b_/32776920/1
+  - url: https://zenodo.org/records/20681392
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/_b_Time-series_telemetry_dataset_from_an_underwater_acoustic_sensor_array_b_/32776920
+  - url: https://zenodo.org/records/20421365
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -475,23 +479,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/preprint/Toward_Precision_Antipsychotic_Prescribing_Development_of_a_Ki_DDD_TWAS_Lipid-Metabolic_Liability_Index/32778231
+  - url: https://acs.figshare.com/articles/journal_contribution/Exploring_the_Origin_of_Molecular_Chirality_A_Standalone_Suite_of_Tools_to_Visualize_and_Analyze_Transition_Current_Density/32785840
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/_b_Time-series_telemetry_dataset_from_an_underwater_acoustic_sensor_array_b_/32776920
+  - url: https://acs.figshare.com/articles/journal_contribution/Accelerating_Free_Energy_Exploration_Using_Parallelizable_Gaussian_Accelerated_Molecular_Dynamics_ParGaMD_/32785837
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/_b_Multi-omics_datasets_of_airway_epithelial_cells_A549_and_16HBE_treated_with_CARDS_protein_b_/32614455
+  - url: https://figshare.com/articles/journal_contribution/_Notarios_y_juristas_al_servicio_de_la_German_a_i_Estudis_i_26_Valencia_A_o_2000_Departamento_de_Historia_Moderna_Facultad_de_Geograf_a_e_Historia_Universitat_de_Val_ncia_pp_203-225/32785785
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/conference_contribution/Navigating_the_Complexities_Challenges_and_Impact_Measurement_for_Women_Changemakers_in_Iran_After_the_Women_Life_Freedom_Movement/32778228
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_Household_sand_filters_for_heavy_metal_removal_exhibit_limited_nitrification_and_risk_of_nitrate_contamination_pdf/32785833
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Inter_observer_variability_assessment_through_ordered_weighted_belief_divergence_measure_in_MAGDM/32778249
+  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Highly_Accurate_Centroid_Tracking_for_Real-Time_Event-Based_Shack-Hartmann_Wavefront_Sensing_-_7849701_pdf/32605239
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -511,27 +515,27 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/3873027
+  - url: https://zenodo.org/records/4622435
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20730974
+  - url: https://radar.kit.edu/radar/en/dataset/bx5337kcykte438h
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20730974
+  - url: https://toubkal.imist.ma/handle/123456789/36692
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20824145
+  - url: https://toubkal.imist.ma/handle/123456789/37229
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20824145
+  - url: https://toubkal.imist.ma/handle/123456789/37230
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/18090957
+  - url: https://data.mendeley.com/datasets/kpswgmnxhy/1
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content

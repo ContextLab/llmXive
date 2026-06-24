@@ -1,10 +1,9 @@
 # Quickstart: The Impact of Self‑Compassion on Resilience to Negative Feedback
 
 ## Prerequisites
-
-- Git ≥ 2.40  
-- Python 3.11 (or later)  
-- Internet access (to download the OSF dataset)  
+- **Python** 3.11 (or later) installed.  
+- **Git** to clone the repository.  
+- **Internet** access to download the OSF dataset (≈ 2 MB) that includes the required outcome measures.
 
 ## Setup
 
@@ -21,39 +20,47 @@ source .venv/bin/activate   # on Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-## Run the Full Pipeline
+## Running the Full Pipeline
 
 ```bash
-# Set reproducible seed (FR-012)
+# Set the random seed (ensured by the script, but can be overridden)
 export PYTHONHASHSEED=42
 
-# Execute the analysis driver
-python -m src.main
+# Execute the end‑to‑end analysis
+python src/main.py run_all
 ```
 
-The driver performs the following steps automatically:
+The command performs, in order:
 
-1. Downloads `data/raw/osf_dataset.csv` (FR‑001).  
-2. Cleans the data → `data/clean/cleaned_osf.parquet` (FR‑002‑FR‑004).  
-3. Fits ANCOVA models for anxiety, rumination, and self‑efficacy (FR‑005‑FR‑006).  
-4. Computes HC3 robust SEs and flags heteroskedasticity (FR‑009).  
-5. Runs bootstrap robustness (FR‑008) and alternative‑moderator analysis (FR‑014).  
-6. Generates simple‑slope PNGs under `results/plots/`.  
-7. Produces `results/report.html` (FR‑010).  
+1. **Download** the raw OSF Parquet (`data/raw/osf_feedback.parquet`).  
+2. **Compute and record** a SHA‑256 checksum of the downloaded file (Principle III).  
+3. **Clean** the data, produce `data/clean/cleaned_osf.csv`.  
+4. **Fit** ANCOVA models for anxiety, rumination, and self‑efficacy (including robust HC3 SEs).  
+5. **Bootstrap** the interaction term (5 000 resamples).  
+6. **Run** robustness analysis with the rumination subscale.  
+7. **Generate** simple‑slope PNGs (`outputs/figures/*.png`).  
+8. **Create** the HTML report (`outputs/report.html`).  
 
-## Verify Success
+All artefacts are logged in `outputs/logs/` and checksummed in `state/projects/...yaml`.
 
-- **Regression tables**: check `results/models/*.json` for the interaction term `C(feedback)[T.2]:SCS_z`.  
-- **Bootstrap**: ensure `bootstrap_ci` fields are present and non‑zero.  
-- **Plots**: three PNG files per outcome in `results/plots/`.  
-- **HTML report**: open `results/report.html` in Chrome/Firefox; all sections should render without errors.  
-
-## Testing (Contract Validation)
+## Verifying the Result (Contract Test)
 
 ```bash
-pytest -q
+pytest tests/contract/test_analysis_result.py
 ```
 
-All contract tests should pass, confirming that the output conforms to `contracts/analysis_result.schema.yaml`.
+The test loads `outputs/analysis/analysis_result.json` and validates it against `contracts/analysis_result.schema.yaml`. A passing test confirms that:
 
----
+- The interaction coefficient is present with a p‑value < 0.05 (SC‑001).  
+- Partial η² ≥ 0.02 (SC‑002).  
+- Bootstrap CI excludes zero and overlaps the parametric CI (SC‑003).  
+- Simple‑slope PNGs exist for each outcome with three distinct lines (SC).  
+- The HTML report renders in Chrome/Firefox and includes all required sections (SC‑005).
+
+## Common Issues
+
+| Symptom | Likely Cause | Remedy |
+|---------|--------------|--------|
+| “Dataset not found” error | OSF URL changed or network block | Verify connectivity; the script falls back to the verified OSF URL. |
+| “Insufficient sample size” abort | After cleaning < 92 participants remain | Review missing‑data log; consider relaxing exclusion criteria only after ethical review. |
+| “Heteroskedasticity flag = true” | Breusch‑Pagan p < 0.10 | Results are still reported; note the flag in the HTML report. |

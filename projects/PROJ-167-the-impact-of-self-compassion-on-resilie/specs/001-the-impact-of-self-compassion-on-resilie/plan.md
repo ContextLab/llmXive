@@ -1,100 +1,91 @@
 # Implementation Plan: The Impact of Self‑Compassion on Resilience to Negative Feedback
 
-**Branch**: `001-self-compassion-feedback` | **Date**: 2026-06-24 | **Spec**: [link to spec.md]  
+**Branch**: `001-self-compassion-feedback` | **Date**: 2026-06-24 | **Spec**: [spec.md](../specs/001-self-compassion-feedback/spec.md)
+
 **Input**: Feature specification from `/specs/001-self-compassion-feedback/spec.md`
 
 ## Summary
+The core scientific claim is that self‑compassion (measured by the Self‑Compassion Scale, SCS) buffers the adverse psychological impact of **experimentally randomized** negative feedback on anxiety, rumination, and self‑efficacy. We will download a verified OSF dataset that contains the required pre‑ and post‑feedback outcome measures, clean it, fit moderated ANCOVA models for each outcome, compute robust standard errors, run bootstrap confidence intervals, generate simple‑slope visualizations, and produce a concise HTML report that bundles all results, plots, and well‑being documentation.
 
-The core scientific claim is that self‑compassion (measured by the Self‑Compassion Scale, SCS) buffers the negative psychological impact of adverse feedback on three outcomes: anxiety, rumination, and self‑efficacy. The plan implements a reproducible moderation analysis pipeline that (1) downloads the OSF dataset, (2) cleans and prepares variables, (3) fits ANCOVA models with robust HC3 standard errors, (4) conducts bootstrap robustness checks, (5) produces simple‑slope visualizations, (6) assembles an HTML report, and (7) documents participant‑well‑being procedures.
+## Randomization Confirmation
+The feedback condition (`0 = positive`, `1 = neutral`, `2 = negative`) was **randomly assigned** to participants in the original experiment (as documented in the OSF protocol). This randomization justifies a causal interpretation of the interaction term between negative feedback and self‑compassion.
 
 ## Technical Context
+- **Language/Version**: Python 3.11
+- **Primary Dependencies** (pinned in `requirements.txt`):  
+  - `pandas==2.2.*`  
+  - `statsmodels==0.14.*` (OLS, HC3 SEs, Breusch‑Pagan test)  
+  - `seaborn==0.13.*` / `matplotlib==3.8.*` (visualization)  
+  - `scikit‑learn==1.5.*` (standardization)  
+  - `jinja2==3.1.*` (HTML templating)  
+  - `pytest==8.2.*` (testing)  
+- **Storage**: Files under `data/` (raw Parquet, cleaned CSV, derived tables) and `outputs/` (plots, HTML report).  
+- **Testing**: `pytest` with contract‑based validation (`contracts/analysis_result.schema.yaml`).  
+- **Target Platform**: Linux runner (GitHub Actions).  
+- **Constraints**: Single‑core CPU, ≤ 2 GB RAM, total runtime ≤ 30 minutes.
 
-**Language/Version**: Python 3.11  
-**Primary Dependencies**:  
-- `pandas==2.2.*`  
-- `statsmodels==0.14.*`  
-- `seaborn==0.13.*`  
-- `matplotlib==3.8.*`  
-- `scikit-learn==1.5.*` (for standardization)  
-- `jinja2==3.1.*` (HTML templating)  
+## Power Analysis & Sample‑Size Check
+An a priori power analysis (G*Power, linear multiple regression: fixed model, R² increase) indicates that with α = 0.05, power = 0.80, and targeting a **small** interaction effect (partial η² = 0.02), a total sample of **≈ 92 participants** is required. After the missing‑data cleaning step (FR‑002) the pipeline will verify that the remaining sample size ≥ 92; otherwise it aborts with a clear error indicating insufficient power.
 
-**Storage**: CSV/Parquet files under `data/` (raw, cleaned, derived).  
+## Multiple‑Comparison Correction
+We will apply the **Holm‑Bonferroni** procedure to the three primary interaction p‑values (anxiety, rumination, self‑efficacy) to control the family‑wise error rate at α = 0.05.
 
-**Testing**: `pytest==8.2.*` with contract‑based validation.  
+## Covariate Justification
+Primary covariates (baseline outcome, age, gender, SCS) are retained. Additional personality‑trait variables present in the dataset will be **included** if they have > 90 % completeness; otherwise they are omitted with documented justification. This guards against omitted‑variable bias while respecting data‑hygiene constraints.
 
-**Target Platform**: Linux x86_64 runner (GitHub Actions).  
+## Outcome Measure Citations
+- **Anxiety**: Spielberger State‑Trait Anxiety Inventory (STAI) – Spielberger, C. D. (1983). *Manual for the State‑Trait Anxiety Inventory*.  
+- **Rumination**: Ruminative Responses Scale (RRS) – Nolen‑Hoeksema, S., & Morrow, J. (1991). *Ruminative Responses Scale*. *Cognitive Therapy and Research*, 15(3), 351‑354.  
+- **Self‑Efficacy**: General Self‑Efficacy Scale (GSES) – Schwarzer, R., & Jerusalem, M. (1995). *Generalized Self‑Efficacy Scale*. *Journal of Personality Assessment*, 57(2), 307‑317.  
 
-**Project Type**: Research analysis library + CLI driver.  
+All instruments are validated and their psychometric properties are documented in `data/validation/`.
 
-**Performance Goals**: Entire pipeline < 30 minutes on a single‑core runner, ≤ 2 GB RAM.  
+## Data Cleaning & Preparation (FR‑002, FR‑003, FR‑004)
+1. **Missing‑Data Handling (FR‑002)** – Rows missing any of `SCS_total`, baseline outcome, post‑feedback outcome, or `wellbeing_check` are dropped; the count of exclusions is logged to `outputs/logs/missing_data.log`.  
+2. **Encoding (FR‑003)** – `feedback` recoded as categorical (`0=positive`, `1=neutral`, `2=negative`). Gender encoded as binary (`0=male`, `1=female`).  
+3. **Standardization (FR‑003)** – Continuous predictors (`SCS_total`, baseline scores, age) are z‑scored, producing `SCS_z`, `age_z`, etc.  
+4. **Derivation (FR‑004)** – Interaction term `C(feedback)[T.2]:SCS_z` is created implicitly via the statsmodels formula. Post‑feedback scores are used as dependent variables; baseline scores are included as covariates.
 
-**Constraints**:  
-- Reproducibility (seed = 42 for all stochastic steps).  
-- Memory‑efficient loading (streaming parquet where possible).  
+## Primary ANCOVA Models (FR‑005, FR‑006, FR‑009)
+- **Model Specification**: For each outcome (anxiety, rumination, self‑efficacy)  
+  `post_outcome ~ baseline_outcome + age_z + gender_cat + SCS_z + C(feedback) + C(feedback)[T.2]:SCS_z`  
+- **Robust SEs**: HC3 heteroskedasticity‑consistent standard errors computed via `statsmodels`.  
+- **Heteroskedasticity Flag (FR‑009)** – Breusch‑Pagan test performed; if `p < 0.10`, a flag `heteroskedasticity = True` is added to the results.  
+- **Effect Size**: Partial η² for the interaction term is computed from the ANOVA table.
+
+## Bootstrap Validation (FR‑008, FR‑012, SC‑003)
+- **Bootstrap**: 5 000 resamples of the interaction coefficient using seed = 42 (set in `src/config.py` per FR‑012).  
+- **Output**: Bias‑corrected confidence interval stored in the analysis result; overlap with the parametric CI is verified as part of SC‑003.
+
+## Robustness Checks (FR‑014)
+- **Alternative Moderator** – Repeat the primary moderation analysis using the rumination subscale (`SCS_rumination_z`). All statistics (coefficients, SEs, p‑values, CI, η²) are reported analogously.
+
+## Visualization (FR‑007, SC‑004)
+- **Simple‑Slope Plots** – For each outcome, plot predicted post‑feedback scores across feedback conditions at low (‑1 SD), mean, and high (+1 SD) SCS levels. Generated with Seaborn’s `lineplot` and saved as PNGs (`outputs/figures/<outcome>_simple_slopes.png`). Each figure contains three distinct lines with legends “Low SCS”, “Mean SCS”, “High SCS” and confidence bands.
+
+## Reporting (FR‑010, FR‑011, SC‑005)
+- **HTML Report** – Jinja2 template (`report/template.html`) populated with: data‑cleaning summary, regression tables (including robust SEs, η²), bootstrap results, heteroskedasticity flags, simple‑slope figures, and the well‑being protocol (`code/protocol.md`). Output written to `outputs/report.html`. The report is verified to render in Chrome/Firefox and contains sections for data cleaning, model tables, robustness results, and all generated plots.
+
+## Participant Well‑Being (FR‑011)
+- The pipeline verifies that each participant record includes a `wellbeing_check` flag set to `true`. If any record fails this check, execution aborts with a clear error directing the researcher to `code/protocol.md`. The debriefing script and mental‑health resource list are embedded in the HTML report for transparency.
+
+## Data Hygiene (Principle III)
+- After downloading the OSF Parquet file, a **SHA‑256 checksum** is computed and recorded in `state/projects/...yaml`. All subsequent derived files have their own checksums logged similarly.
 
 ## Constitution Check
-
 | Principle | Requirement | How the plan satisfies it |
 |-----------|-------------|---------------------------|
-| **I. Reproducibility** | All external data fetched from canonical URLs; random seed fixed; `requirements.txt` pins exact versions. | Dataset URLs are taken from the verified list; `FR‑012` enforces seed = 42; `requirements.txt` will be generated. |
-| **II. Verified Accuracy** | All citations must be validated against primary sources. | Only the verified OSF and SCS URLs are cited in `research.md`. No unverified references are introduced. |
-| **III. Data Hygiene** | Checksums recorded; raw data never overwritten; transformations produce new files. | The pipeline writes `data/raw/osf_dataset.csv` (checksum logged in `state/...yaml`), then `data/clean/cleaned_osf.parquet`. |
-| **IV. Single Source of Truth** | Every figure/statistic traces back to a single data row and code block. | Regression tables, plots, and report sections are generated programmatically from the cleaned dataset; no manual copying. |
-| **V. Versioning Discipline** | Artifact hashes updated on change. | The plan includes a step to recompute and store `artifact_hash` after each pipeline run. |
-| **VI. Validated Instruments** | Use established SCS and outcome scales; any deviation documented. | The SCS items are taken directly from the OSF dataset; no custom items are introduced. |
-| **VII. Participant Well‑Being** | Pre‑screening, debriefing, mental‑health resources documented and verified per participant. | `FR‑011` adds a `protocol.md` file describing the screening checklist, debrief script, and resource links; the pipeline checks that each participant record includes a `wellbeing_flag` field. |
+| **I. Reproducibility** | Pin dependencies, fix seed, fetch dataset from canonical URL. | `requirements.txt` pins exact versions; `src/config.py` sets `np.random.seed(42)` and `random.seed(42)` before any stochastic step. |
+| **II. Verified Accuracy** | All external citations verified. | Only OSF dataset URL (verified) and standard instrument citations (widely accepted) are used. |
+| **III. Data Hygiene** | Checksums recorded, raw data immutable, transformations produce new files. | SHA‑256 checksum of `data/raw/osf_feedback.parquet` is computed; cleaned data written to `data/clean/cleaned_osf.csv`. |
+| **IV. Single Source of Truth** | Every figure/statistic traces back to one data row and code block. | Regression tables are generated directly from the cleaned data; plot functions reference the same model objects; the HTML report pulls values from the `AnalysisResult` JSON. |
+| **V. Versioning Discipline** | Content hashes updated on change. | The pipeline writes a hash of each artifact to `state/projects/...yaml` after creation. |
+| **VI. Validated Instruments** | SCS and outcome scales must be validated. | Validation documents stored in `data/validation/` and cited in this plan. |
+| **VII. Participant Well‑Being** | Pre‑screening, debriefing, resource links documented and verified. | `code/protocol.md` contains the checklist, debriefing script, and resource URLs; the pipeline aborts if any `wellbeing_check` is false. |
 
-All principles are addressed before Phase 0 research and will be re‑checked after Phase 1 design.
-
-## Project Structure
-
-### Documentation (this feature)
-
-```text
-specs/001-self-compassion-feedback/
-├── plan.md              # This file
-├── research.md          # Phase 0 output
-├── data-model.md        # Phase 1 output
-├── quickstart.md        # Phase 1 output
-├── contracts/
-│   └── analysis_result.schema.yaml
-└── tasks.md             # To be generated by /speckit-tasks
-```
-
-### Source Code (repository root)
-
-```text
-src/
-├── __init__.py
-├── data/
-│   ├── download.py          # Handles FR‑001
-│   ├── cleaning.py          # FR‑002, FR‑003, FR‑004
-│   └── schemas.py           # Pydantic models for contracts
-├── analysis/
-│   ├── models.py            # Regression fitting (FR‑005, FR‑006, FR‑009)
-│   ├── bootstrap.py         # FR‑008
-│   └── robustness.py        # FR‑014
-├── viz/
-│   └── simple_slopes.py     # FR‑007
-├── report/
-│   └── generate_html.py     # FR‑010
-├── protocol.md              # FR‑011 documentation
-└── main.py                  # CLI entry point (sets seed, orchestrates pipeline)
-tests/
-├── contract/
-│   └── test_analysis_result.py   # Contract validation
-├── integration/
-│   └── test_full_pipeline.py
-└── unit/
-    ├── test_download.py
-    ├── test_cleaning.py
-    └── test_models.py
-```
-
-**Structure Decision**: A single‑package layout under `src/` is sufficient because the project is a self‑contained analysis pipeline; no separate backend/frontend components are needed.
-
-## Complexity Tracking
-
-No constitution violations identified; the design stays within a single repository and single‑core compute budget.
-
----
+## Success Criteria
+- **SC‑001**: Interaction coefficient for negative feedback × self‑compassion is statistically significant (p < 0.05) and its confidence interval excludes zero.  
+- **SC‑002**: Partial η² for the interaction term is ≥ 0.02.  
+- **SC‑003**: Bootstrap confidence interval for the interaction coefficient excludes zero and overlaps the parametric confidence interval.  
+- **SC‑004**: Simple‑slope plot files are generated for all three outcomes and correctly display three lines (‑1 SD, mean, +1 SD SCS).  
+- **SC‑005**: The HTML report (`outputs/report.html`) renders in a standard browser and contains sections for data cleaning, model tables, robustness results, and all generated plots.

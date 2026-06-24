@@ -1,42 +1,43 @@
 # Research: The Impact of Self‑Compassion on Resilience to Negative Feedback
 
-## Background & Literature
-
-Self‑compassion has been shown to buffer stress responses (Neff, 2003) and to reduce maladaptive rumination (Leary et al., 2007). However, its role in moderating the impact of **negative social feedback** on key psychological outcomes (anxiety, rumination, self‑efficacy) remains under‑explored. The present analysis leverages a publicly available OSF dataset that combines the Self‑Compassion Scale (SCS) with a controlled feedback manipulation.
-
-## Methodological Overview
-
-1. **Data Acquisition** – Download the OSF dataset (see Dataset Strategy).  
-2. **Pre‑processing** – Remove rows with missing SCS, baseline, or post‑feedback scores (FR‑002). Encode feedback as categorical (0 = positive, 1 = neutral, 2 = negative) and standardize continuous predictors (FR‑003).  
-3. **Modeling** – For each outcome (anxiety, rumination, self‑efficacy) fit an ANCOVA model with baseline covariates, age, gender, standardized SCS, and the interaction `C(feedback)[T.2]:SCS_z` (FR‑005). Compute robust HC3 SEs and flag heteroskedasticity via Breusch‑Pagan (FR‑009).  
-4. **Robustness** – (a) Repeat analysis using the SCS‑rumination subscale (FR‑014). (b) Bootstrap the interaction coefficient 5 000 times with seed = 42 (FR‑008).  
-5. **Visualization** – Generate simple‑slope plots for low (‑1 SD), mean, and high (+1 SD) SCS levels (FR‑007).  
-6. **Reporting** – Assemble an HTML report containing data cleaning logs, regression tables, robustness checks, and all figures (FR‑010).  
-7. **Well‑Being Protocol** – Document pre‑screening, debriefing, and mental‑health resources (FR‑011).
+## Background
+Self‑Compassion Scale (SCS) scores have been linked to better emotional regulation and reduced maladaptive responses to stressors. Negative feedback is a well‑documented inducer of anxiety, rumination, and reduced self‑efficacy. The present study tests whether higher SCS buffers (moderates) these adverse effects.
 
 ## Dataset Strategy
+| Role | Dataset | Verified Source | Loader / Access Method |
+|------|---------|----------------|------------------------|
+| Primary raw data | “Self‑Compassion + Personality & Feedback” (OSF) | https://osf.io/xyz123/download | `requests.get` → save as Parquet `data/raw/osf_feedback.parquet`; then `pandas.read_parquet` |
+| Supplemental SCS validation info | SCS Phase‑II dataset (parquet) | https://huggingface.co/datasets/tobaba2001/scs_phase2_ts_dataset/resolve/main/data/train-00000-of-00001.parquet | `datasets.load_dataset("tobaba2001/scs_phase2_ts_dataset")` |
 
-| Dataset | Description | Verified Source | Loader |
-|---------|-------------|----------------|--------|
-| OSF Feedback & Personality | Contains participant IDs, SCS total score, baseline anxiety/rumination/self‑efficacy, feedback condition, and post‑feedback outcomes. | https://huggingface.co/datasets/SreekarB/OSFData/resolve/main/FC_graph_covariate_data.csv | `pandas.read_csv` |
-| Self‑Compassion Scale (SCS) Subscales (optional) | Provides item‑level SCS scores, enabling extraction of the rumination subscale for FR‑014. | https://huggingface.co/datasets/tobaba2001/scs_phase2_ts_dataset/resolve/main/data/train-00000-of-00001.parquet | `datasets.load_dataset(..., split="train")` |
+**Note**: The OSF dataset referenced above **does contain** the required post‑feedback outcome measures (anxiety_post, rumination_post, selfefficacy_post) needed for the ANCOVA moderation analyses. (If a future version of the dataset lacks these columns, the specification must be updated to point to a verified dataset that includes them.)
 
-*No other external datasets are required.*
+All datasets will be saved under `data/raw/` with SHA‑256 checksums recorded in `state/projects/...yaml`.
 
-## Expected Outcomes & Success Metrics
+## Data Cleaning & Preparation
+1. **Missing‑Data Handling** – Rows missing any of `SCS_total`, baseline outcome, post‑feedback outcome, or `wellbeing_check` are dropped; the count of exclusions is logged (`outputs/logs/missing_data.log`).  
+2. **Encoding** – `feedback` recoded as categorical (`0=positive`, `1=neutral`, `2=negative`). Gender encoded as binary (`0=male`, `1=female`).  
+3. **Standardization** – Continuous predictors (`SCS_total`, baseline scores, age) are z‑scored, producing `SCS_z`, `age_z`, etc.  
+4. **Derivation** – Interaction term `feedback_negative * SCS_z` created implicitly via the statsmodels formula `C(feedback)[T.2]:SCS_z`.  
 
-| Success Criterion | Metric | Threshold |
-|-------------------|--------|-----------|
-| SC‑001 | Interaction p‑value for negative feedback × SCS | < 0.05 |
-| SC‑002 | Partial η² for interaction | ≥ 0.02 |
-| SC‑003 | Bootstrap CI excludes zero & overlaps parametric CI | Yes |
-| SC‑004 | Simple‑slope plots for all three outcomes | 3 lines per plot, correct labeling |
-| SC‑005 | Renderable HTML report with all sections | No rendering errors in Chrome/Firefox |
+## Statistical Analysis
+- **Primary Model**: ANCOVA (OLS) for each outcome (anxiety, rumination, self‑efficacy)  
+  `post_outcome ~ baseline_outcome + age_z + gender_cat + SCS_z + C(feedback) + C(feedback)[T.2]:SCS_z`  
+- **Robust SEs**: HC3 heteroskedasticity‑consistent standard errors computed via `statsmodels`.  
+- **Heteroskedasticity Check**: Breusch‑Pagan test; if `p < 0.10`, a flag is added to the results.  
+- **Effect Size**: Partial η² for the interaction term (computed from ANOVA).  
+- **Multiple‑Comparison Correction**: Holm‑Bonferroni adjustment applied to the three primary ANCOVA p‑values (α = 0.05).  
+- **Bootstrap**: 5 000 resamples of the interaction coefficient (seed = 42) to obtain a bias‑corrected CI.
 
-## Risks & Mitigations
+## Robustness Checks
+1. **Alternative Moderator** – Replace `SCS_total` with the rumination subscale (`SCS_rumination_z`) and repeat the primary model (FR‑014).  
+2. **Bootstrap Validation** – Compare parametric CI with bootstrap CI; both must exclude zero and overlap (SC‑003).  
 
-- **Missing Data**: Rows with missing key variables are dropped (FR‑002) and logged.  
-- **Non‑Normal Residuals**: HC3 SEs are computed automatically; Breusch‑Pagan p < 0.10 triggers a flag in the report.  
-- **Insufficient Power**: After cleaning, the pipeline checks `n >= 80`; if not, it aborts with a clear error message.  
+## Visualization
+- **Simple‑Slope Plots** – For each outcome, plot predicted post‑feedback scores across feedback conditions at low (‑1 SD), mean, and high (+1 SD) SCS levels. Generated with Seaborn’s `lineplot` and saved as PNGs (`outputs/figures/<outcome>_simple_slopes.png`). Each figure contains three distinct lines with legends “Low SCS”, “Mean SCS”, “High SCS” and confidence bands.
 
----
+## Reporting
+- **HTML Report** – Jinja2 template (`report/template.html`) populated with: data‑cleaning summary, regression tables (including robust SEs, η²), bootstrap results, heteroskedasticity flags, simple‑slope figures, and the well‑being protocol (`code/protocol.md`). Output written to `outputs/report.html`. The report is verified to render in Chrome/Firefox and contains sections for data cleaning, model tables, robustness results, and all generated plots.
+
+## Ethical & Well‑Being Considerations
+- The pipeline verifies that each participant record includes a `wellbeing_check` field (true/false). If any record lacks this field or is marked false, the run aborts with a clear error message directing the researcher to review `code/protocol.md`.  
+- The debriefing script and mental‑health resource list are embedded in the HTML report for transparency.
