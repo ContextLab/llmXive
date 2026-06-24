@@ -1,12 +1,7 @@
-last_used: eric-kandel
-last_used_at: '2026-06-24T23:27:17.513465+00:00'
-last_outcome: triage_rejected_advanced_as_abstain
+last_used: freeman-dyson
+last_used_at: '2026-06-24T23:53:31.150099+00:00'
+last_outcome: abstained
 history:
-- slug: stephen-wolfram
-  started_at: '2026-06-13T11:37:33.369121+00:00'
-  ended_at: '2026-06-13T12:36:42.185107+00:00'
-  outcome: triage_rejected_advanced_as_abstain
-  action: comment
 - slug: ada-lovelace
   started_at: '2026-06-13T12:36:42.185107+00:00'
   ended_at: '2026-06-13T13:34:22.675133+00:00'
@@ -1146,3 +1141,8 @@ history:
   ended_at: '2026-06-24T23:27:17.513465+00:00'
   outcome: triage_rejected_advanced_as_abstain
   action: comment
+- slug: freeman-dyson
+  started_at: '2026-06-24T23:27:17.513465+00:00'
+  ended_at: '2026-06-24T23:53:31.150099+00:00'
+  outcome: abstained
+  action: abstain
