@@ -1,0 +1,387 @@
+{
+  "fetched_at": "2026-06-24T21:10:25Z",
+  "field": "physics",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "physics",
+      "idea_body_excerpt": "Investigating the Relationship Between Cosmic Ray Anisotropy and Solar Cycle Variations",
+      "target_n": 5
+    },
+    "duration_seconds": 64.054,
+    "ended_at": "2026-06-24T21:10:25Z",
+    "expansion": null,
+    "extracted_queries": [
+      "pitch-angle distribution heliospheric modulation",
+      "neutron monitor solar cycle",
+      "diurnal anisotropy solar activity",
+      "anisotropy amplitude solar modulation",
+      "gradient drift heliospheric magnetic field"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "1311.7387"
+      ]
+    },
+    "per_query_hit_count": {
+      "Investigating the Relationship Between Cosmic Ray Anisotropy and Solar Cycle Variations physics": 3,
+      "anisotropy amplitude solar modulation": 0,
+      "diurnal anisotropy solar activity": 3,
+      "gradient drift heliospheric magnetic field": 3,
+      "neutron monitor solar cycle": 3,
+      "pitch-angle distribution heliospheric modulation": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 0,
+      "rejections": []
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-24T21:09:21Z",
+    "term_input": {
+      "normalized": "investigating the relationship between cosmic ray anisotropy and solar cycle variations physics",
+      "raw": "Investigating the Relationship Between Cosmic Ray Anisotropy and Solar Cycle Variations physics"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In most astrophysical processes involving synchrotron radiation, the pitch-angle distribution of the electrons is assumed to be isotropic. However, if electrons are accelerated anisotropically, e.g, in a relativistic shock wave with an ordered magnetic field or in magnetic reconnection regions, the electron pitch angles might be anisotropic. In this work, we study synchrotron radiation from electrons with a pitch-angle distribution with respect to a large-scale uniform magnetic field. Assuming that the pitch-angle distribution is normal with a scatter of $σ_p$ and that the viewing direction is where the pitch-angle direction peaks, we find that for electrons with a Lorentz factor $γ$, the observed flux satisfies $F_ν\\proptoν^{2/3}$ for $ν\\llν_{\\rm cr}$ ($ν_{\\rm cr}$ is the critical frequency of synchrotron), if $σ_p\\lesssim1/γ$ is satisfied. On the other hand, if $σ_p\\gg1/γ$, the spectrum below $ν_{\\rm cr}$ is a broken power law with a break frequency $ν_{\\rm br}\\sim2ν_{\\rm cr}/σ_p^3γ^3$, e.g., $F_ν\\proptoν^{2/3}$ for $ν\\llν_{\\rm br}$ and $F_ν\\proptoν^{1/3}$ for $ν_{\\rm br}\\llν\\llν_{\\rm cr}$. Thus the ultimate synchrotron line of death is $F_ν\\proptoν^{2/3}$. We discuss the application of this theory to blazars and gamma-ray bursts (GRBs).",
+          "claimed_authors": [
+            "Yuan-Pei Yang",
+            "Bing Zhang"
+          ],
+          "claimed_title": "Synchrotron radiation from electrons with a pitch-angle distribution",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1808.05170"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Investigating the Relationship Between Cosmic Ray Anisotropy and Solar Cycle Var', candidate_title='Synchrotron radiation from electrons with a pitch-angle distribution')",
+        "failed_at": "2026-06-24T21:09:52Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent modelling of solar energetic particles (SEPs) propagation through the heliospheric turbulence, also discussed in this workshop, has investigated the role of the pitch-angle scattering and the perpendicular transport in spreading particles in heliolongitude, as shown by multi-spacecraft measurements (STEREO A/B, ACE, SOHO, etc.) at 1 AU in various energy ranges. In some events the first-order pitch-angle anisotropy of the particles distribution is not-negligible. We calculate the average perpendicular displacement due to the gradient/curvature drift in an inhomogeneous turbulence accounting for pitch-angle dependence for two MHD turbulence models: (a) 3-D isotropic, (b) anisotropic as conjectured by Goldreich-Sridhar. We find in both cases that the drift scales as $(1-μ^2)^2$ with the cosine of pitch-angle $μ$, in contrast with previous models for transport of SEPs. This result can impact the models of propagation of SEPs through the heliosphere.",
+          "claimed_authors": [
+            "F. Fraschetti"
+          ],
+          "claimed_title": "Cross-field transport and pitch-angle anisotropy of solar energetic particles in MHD turbulence",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2015,
+          "primary_pointer": "1512.08973"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Investigating the Relationship Between Cosmic Ray Anisotropy and Solar Cycle Var', candidate_title='Cross-field transport and pitch-angle anisotropy of solar energetic particles in MHD turbulence')",
+        "failed_at": "2026-06-24T21:09:52Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Aims. The process of pitch-angle isotropization is important for many applications ranging from diffusive shock acceleration to large-scale cosmic-ray transport. Here, the basic analytical description is revisited on the basis of recent simulation results. Methods. Both an analytical and a numerical investigation were undertaken of the Fokker-Planck equation for pitch-angle scattering. Additional test-particle simulations obtained with the help of a Monte-Carlo code were used to verify the conclusions. Results. It is shown that the usual definition of the pitch-angle Fokker-Planck coefficient via the mean-square displacement is flawed. The reason can be traced back to the assumption of homogeneity in time which does not hold for pitch-angle scattering. Conclusions. Calculating the mean free path via the Fokker-Planck coefficient has often proven to give an accurate description. For numerical purposes, accordingly, it is the definition that has to be exchanged in favor of the pitch-angle correlation function.",
+          "claimed_authors": [
+            "R. C. Tautz"
+          ],
+          "claimed_title": "Pitch-angle scattering in magnetostatic turbulence. II. Analytical considerations and pitch-angle isotropization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1309.7838"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Investigating the Relationship Between Cosmic Ray Anisotropy and Solar Cycle Var', candidate_title='Pitch-angle scattering in magnetostatic turbulence. II. Analytical considerations and pitch-angle isotropization')",
+        "failed_at": "2026-06-24T21:09:52Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Sun drives a supersonic wind which inflates a giant plasma bubble in our very local interstellar neighborhood, the heliosphere. It is bathed in an extremely variable background of energetic ions and electrons which originate from a number of sources. Solar energetic particles (SEPs) are accelerated in the vicinity of the Sun, whereas shocks driven by solar disturbances are observed to accelerate energetic storm particles (ESPs). Moreover, a dilute population with a distinct composition forms the anomalous cosmic rays (ACRs) which are of a mixed interstellar-heliospheric origin. Particles are also accelerated at planetary bow shocks. We will present recent observations of energetic particles by Solar Orbiter and Parker Solar Probe, as well as other spacecraft that allow us to study the acceleration and transport of energetic particles at multiple locations in the inner heliosphere.",
+          "claimed_authors": [
+            "Robert F. Wimmer-Schweingruber",
+            "Javier Rodriguez-Pacheco",
+            "George C. Ho",
+            "Christina M. Cohen",
+            "Glenn M. Mason",
+            "the Solar Orbiter EPD",
+            "Parker Solar Probe ISIS teams"
+          ],
+          "claimed_title": "SEP environment in the inner heliosphere from Solar Orbiter and Parker Solar Probe",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2408.02330"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Investigating the Relationship Between Cosmic Ray Anisotropy and Solar Cycle Var', candidate_title='SEP environment in the inner heliosphere from Solar Orbiter and Parker Solar Probe')",
+        "failed_at": "2026-06-24T21:09:54Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this study, the non-potential magnetic field parameters of active region NOAA 9077 are investigated; this AR experienced a super-strong X5.7 solar flare. Using advanced extrapolation techniques, the 3D magnetic field structure from vector magnetograms is obtained from the Solar Magnetic Field Telescope (SMFT) at Huairou Solar Observing Station (HSOS). Then various non-potential parameters are calculated, including current density, shear angle, quasi-separatrix layers (QSLs), twist, and field line helicity. By analyzing the spatial and temporal distributions of these parameters, we aim to shed light on the relationship between magnetic field properties and solar flare occurrence. Our findings reveal that high twist and complex magnetic field configurations are prevalent before flares, while these features tend to weaken after the eruption. Additionally, we observe decreases in helicity and free energy after the flare, while the free energy peaks approximately 1.5 days prior to the onset of the flare. Furthermore, we investigate the distribution of quasi-separatrix layers and twist, finding high degrees of complexity before flares. Multiple patterns of high current density regions suggest unstable magnetic structures prone to flaring, coinciding with shear angle distribution. Relative field line helicity patterns exhibit distinct characteristics compared to current density, concentrating before flares and diverging afterward. Overall, our results highlight the contrasting nature of current density and relative field line helicity patterns in relation to solar flares, in addition to the aforementioned feature in the set of commonly derived non-potential parameters for this particular event.",
+          "claimed_authors": [
+            "Liu Suo",
+            "Shahid Idrees",
+            "Liu Dian",
+            "Zeng Shuguang"
+          ],
+          "claimed_title": "The Properties of Non-Potential Magnetic Field Parameters in a Super-Active Region with Complex Structures and Strong Solar Flares",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.13022"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Investigating the Relationship Between Cosmic Ray Anisotropy and Solar Cycle Var', candidate_title='The Properties of Non-Potential Magnetic Field Parameters in a Super-Active Region with Complex Structures and Strong Solar Flares')",
+        "failed_at": "2026-06-24T21:09:54Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "It is demonstrated how the right hand sides of the Lorentz Transformation equations may be written, in a Lorentz invariant manner, as 4--vector scalar products. This implies the existence of invariant length intervals analogous to invariant proper time intervals. This formalism, making essential use of the 4-vector electromagnetic potential concept, provides a short derivation of the Lorentz force law of classical electrodynamics, the conventional definition of the magnetic field, in terms of spatial derivatives of the 4--vector potential and the Faraday-Lenz Law. An important distinction between the physical meanings of the space-time and energy-momentum 4--vectors is pointed out.",
+          "claimed_authors": [
+            "J. H. Field"
+          ],
+          "claimed_title": "Derivation of the Lorentz Force Law, the Magnetic Field Concept and the Faraday-Lenz Law using an Invariant Formulation of the Lorentz Transformation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2004,
+          "primary_pointer": "physics/0409103"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Investigating the Relationship Between Cosmic Ray Anisotropy and Solar Cycle Var', candidate_title='Derivation of the Lorentz Force Law, the Magnetic Field Concept and the Faraday-Lenz Law using an Invariant Formulation of the Lorentz Transformation')",
+        "failed_at": "2026-06-24T21:09:54Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "It is demonstrated how the right hand sides of the Lorentz Transformation equations may be written, in a Lorentz invariant manner, as 4--vector scalar products. The formalism is shown to provide a short derivation, in which the 4--vector electromagnetic potential plays a crucial role, of the Lorentz force law of classical electrodynamics, and the conventional definition of the magnetic field in terms spatial derivatives of the 4--vector potential. The time component of the relativistic generalisation of the Lorentz force law is discussed. An important physical distinction between the space-time and energy-momentum 4--vectors is also pointed out.",
+          "claimed_authors": [
+            "J. H. Field"
+          ],
+          "claimed_title": "Derivation of the Lorentz Force Law and the Magnetic Field Concept using an Invariant Formulation of the Lorentz Transformation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2003,
+          "primary_pointer": "physics/0307133"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Investigating the Relationship Between Cosmic Ray Anisotropy and Solar Cycle Var', candidate_title='Derivation of the Lorentz Force Law and the Magnetic Field Concept using an Invariant Formulation of the Lorentz Transformation')",
+        "failed_at": "2026-06-24T21:09:54Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A detailed study is made of the space-time transformation properties of intercharge forces and the associated electric and magnetic force fields, both in classical electrodynamics and in a recently developed relativistic classical electrodynamical theory. Important differences are found and serious errors are found in the traditional treatment of special-relativistic effects in classical electromagnetism. Fields associated with radiation processes are also considered and classical and quantum mechanical predictions are compared. An important, though trivial, mathematical error in the derivation of the retarded Liénard-Wiechert retarded potentials is pointed out. It is also shown why electric and magnetic fields produced by moving source charges or current distributions are not `classical fields', and that they do not, in general, constitute an antisymmetic second-rank tensor, as is usually assumed.",
+          "claimed_authors": [
+            "J. H. Field"
+          ],
+          "claimed_title": "Space-time transformation properties of inter-charge forces and dipole radiation: Breakdown of the classical field concept in relativistic electrodynamics",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2006,
+          "primary_pointer": "physics/0604089"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Investigating the Relationship Between Cosmic Ray Anisotropy and Solar Cycle Var', candidate_title='Space-time transformation properties of inter-charge forces and dipole radiation: Breakdown of the classical field concept in relativistic electrodynamics')",
+        "failed_at": "2026-06-24T21:09:54Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "M. V. Alania",
+            "R. Modzelewska",
+            "A. Wawrzynczak"
+          ],
+          "title": "On the relationship of the 27-day variations of the solar wind velocity and galactic cosmic ray intensity in minimum epoch of solar activity",
+          "venue": "arXiv",
+          "year": 2015
+        },
+        "primary_pointer": "1504.00778",
+        "summary": "We study the relationship of the 27-day variation of the galactic cosmic ray intensity with similar changes of the solar wind velocity and the interplanetary magnetic field based on the experimental data for the Bartels rotation period 2379 of 23 November 2007-19 December 2007. We develop a three dimensional (3-D) model of the 27-day variation of galactic cosmic ray intensity based on the heliolongitudinally dependent solar wind velocity. A consistent, divergence-free interplanetary magnetic field is derived by solving Maxwells equations with a heliolongitudinally dependent 27-day variation of the solar wind velocity reproducing in situ observations. We consider two types of 3-D models of the 27-day variation of galactic cosmic ray intensity - (1) with a plane heliospheric neutral sheet, and (2)- with the sector structure of the interplanetary magnetic field. The theoretical calculation shows that the sector structure does not influence significantly on the 27-day variation of galactic cosmic ray intensity as it was shown before based on the experimental data. Also a good agreement is found between the time profiles of the theoretically expected and experimentally obtained first harmonic waves of the 27-day variation of the galactic cosmic ray intensity (correlation coefficient equals 0.98 0.02). The expected 27-day variation of the galactic cosmic ray intensity is inversely correlated with the modulation parameter z (correlation coefficient equals -0.91 0.05) which is proportional to the product of the solar wind velocity V and the strength of the interplanetary magnetic field B (z VB). The high anticorrelation between these quantities indicates that the predictable 27-day variation of the galactic cosmic ray intensity mainly is caused by this basic modulation effect.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1504.00778",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.625,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-24T21:09:51Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "O. P. M. Aslam",
+            " Badruddin"
+          ],
+          "title": "Solar Modulation of Cosmic Rays during the Declining and Minimum Phases of Solar Cycle 23: Comparison with Past Three Solar Cycles",
+          "venue": "arXiv",
+          "year": 2013
+        },
+        "primary_pointer": "1311.7387",
+        "summary": "We study solar modulation of galactic cosmic rays (GCRs) during the deep solar minimum, including the declining phase, of solar cycle 23 and compare the results of this unusual period with the results obtained during similar phases of the previous solar cycles 20, 21, and 22. These periods consist of two epochs each of negative and positive polarities of the heliospheric magnetic field from the north polar region of the Sun. In addition to cosmic ray data, we utilize simultaneous solar and interplanetary plasma/field data including the tilt angle of the heliospheric current sheet. We study the relation between simultaneous variations in cosmic ray intensity and solar/interplanetary parameters during the declining and the minimum phases of cycle 23. We compare these relations with those obtained for the same phases in the three previous solar cycles. We observe certain peculiar features in cosmic ray modulation during the minimum of solar cycle 23 including the record high GCR intensity. We find, during this unusual minimum, that the correlation of GCR intensity is poor with sunspot number (R = -0.41), better with interplanetary magnetic field (R = -0.66), still better with solar wind velocity (R = -0.80) and much better with the tilt angle of the heliospheric current sheet (R = -0.92). In our view, it is not the diffusion or the drift alone, but the solar wind convection is the most likely additional effect responsible for the record high GCR intensity observed during the deep minimum of solar cycle 23.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1311.7387",
+          "http_status": 200,
+          "pdf_sample_score": 0.312,
+          "query_relevance_score": 0.625,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-24T21:09:51Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "R. Modzelewska",
+            "M. V. Alania"
+          ],
+          "title": "On the 27-day Variations of Cosmic Ray Intensity in Recent Solar Minimum 23/24",
+          "venue": "arXiv",
+          "year": 2015
+        },
+        "primary_pointer": "1504.00180",
+        "summary": "We have studied the 27-day variations and their harmonics of the galactic cosmic ray (GCR) intensity, solar wind velocity, and interplanetary magnetic field (IMF) components in the recent prolonged solar minimum 23 24. The time evolution of the quasi-periodicity in these parameters connected with the Suns rotation reveals that their synodic period is stable and is aprox 26-27 days. This means that the changes in the solar wind speed and IMF are related to the Suns near equatorial regions in considering the differential rotation of the Sun. However, the solar wind parameters observed near the Earths orbit provide only the conditions in the limited local vicinity of the equatorial region in the heliosphere (within in latitude). We also demonstrate that the observed period of the GCR intensity connected with the Suns rotation increased up to aprox 33-36 days in 2009. This means that the process driving the 27-day variations of the GCR intensity takes place not only in the limited local surroundings of the equatorial region but in the global 3-D space of the heliosphere, covering also higher latitude regions. A relatively long period ( aprox 34 days) found for 2009 in the GCR intensity gives possible evidence of the onset of cycle 24 due to active regions at higher latitudes and rotating slowly because of the Suns differential rotation. We also discuss the effect of differential rotation on the theoretical model of the 27-day variations of the GCR intensity.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1504.00180",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.625,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-24T21:09:52Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "David H. Hathaway"
+          ],
+          "title": "The Solar Cycle",
+          "venue": "arXiv",
+          "year": 2015
+        },
+        "primary_pointer": "1502.07020",
+        "summary": "The Solar Cycle is reviewed. The 11-year cycle of solar activity is characterized by the rise and fall in the numbers and surface area of sunspots. A number of other solar activity indicators also vary in association with the sunspots including; the 10.7cm radio flux, the total solar irradiance, the magnetic field, flares and coronal mass ejections, geomagnetic activity, galactic cosmic ray fluxes, and radioisotopes in tree rings and ice cores. Individual solar cycles are characterized by their maxima and minima, cycle periods and amplitudes, cycle shape, the equatorward drift of the active latitudes, hemispheric asymmetries, and active longitudes. Cycle-to-cycle variability includes the Maunder Minimum, the Gleissberg Cycle, and the Gnevyshev-Ohl (even-odd) Rule. Short-term variability includes the 154-day periodicity, quasi-biennial variations, and double-peaked maxima. We conclude with an examination of prediction techniques for the solar cycle and a closer look at cycles 23 and 24.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1502.07020",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.625,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-24T21:09:52Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "J. Javaraiah"
+          ],
+          "title": "Will Solar Cycles 25 and 26 Be Weaker than Cycle 24 ?",
+          "venue": "arXiv",
+          "year": 2017
+        },
+        "primary_pointer": "1711.04117",
+        "summary": "The study of variations in solar activity is important for understanding the underlying mechanism of solar activity and for predicting the level of activity in view of the activity impact on space weather and global climate. Here we have used the amplitudes (the peak values of the 13-month smoothed international sunspot number) of Solar Cycles 1-24 to predict the relative amplitudes of the solar cycles during the rising phase of the upcoming Gleissberg cycle. We fitted a cosine function to the amplitudes and times of the solar cycles after subtracting a linear fit of the amplitudes. The best cosine fit shows overall properties (periods, maxima, minima, etc.) of Gleissberg cycles, but with large uncertainties. We obtain a pattern of the rising phase of the upcoming Gleissberg cycle, but there is considerable ambiguity. Using the epochs of violations of the Gnevyshev-Ohl rule (G-O rule) and the `tentative inverse G-O rule' of solar cycles during the period 1610-2015, and also using the epochs where the orbital angular momentum of the Sun is steeply decreased during the period 1600-2099, we infer that Solar Cycle 25 will be weaker than Cycle 24. Cycles 25 and 26 will have almost same strength, and their epochs are at the minimum between the current and upcoming Gleissberg cycles. In addition, Cycle 27 is expected to be stronger than Cycle 26 and weaker than Cycle 28, and Cycle 29 is expected to be stronger than both Cycles 28 and 30. The maximum of Cycle 29 is expected to represent the next Gleissberg maximum. Our analysis also suggests a much lower value (30-40) for the maximum amplitude of the upcoming Cycle 25.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1711.04117",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-24T21:09:52Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Markus J. Aschwanden"
+          ],
+          "title": "The State of Self-Organized Criticality of the Sun During the Last 3 Solar Cycles. I. Observations",
+          "venue": "arXiv",
+          "year": 2010
+        },
+        "primary_pointer": "1006.4861",
+        "summary": "We analyze the occurrence frequency distributions of peak fluxes $P$, total fluxes $E$, and durations $T$ of solar flares over the last three solar cycles (during 1980--2010) from hard X-ray data of HXRBS/SMM, BATSE/CGRO, and RHESSI. From the synthesized data we find powerlaw slopes with mean values of $α_P=1.72\\pm0.08$ for the peak flux, $α_E=1.60\\pm0.14$ for the total flux, and $α_T=1.98\\pm0.35$ for flare durations. We find a systematic anti-correlation of the powerlaw slope of peak fluxes as a function of the solar cycle, varying with an approximate sinusoidal variation $α_P(t)=α_0+Δα\\cos{[2π(t-t_0)/T_{cycle}]}$, with a mean of $α_0=1.73$, a variation of $Δα=0.14$, a solar cycle period $T_{cycle}=12.6$ yrs, and a cycle minimum time $t_0=1984.1$. The powerlaw slope is flattest during the maximum of a solar cycle, which indicates a higher magnetic complexity of the solar corona that leads to an overproportional rate of powerful flares.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1006.4861",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-24T21:09:53Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "O. P. M. Aslam",
+            " Badruddin"
+          ],
+          "title": "Similarities and Distinctions in Cosmic-Ray Modulation during Different Phases of Solar and Magnetic Activity Cycles",
+          "venue": "arXiv",
+          "year": 2013
+        },
+        "primary_pointer": "1312.2002",
+        "summary": "We study the solar-activity and solar-polarity dependence of galactic cosmic-ray intensity (CRI) on the solar and heliospheric parameters playing a significant role in solar modulation. We utilize the data for cosmic-ray intensity as measured by neutron monitors, solar activity as measured by sunspot number (SSN), interplanetary plasma/field parameters, solar-wind velocity [V] and magnetic field [B], as well as the tilt of the heliospheric current sheet [Λ] and analyse these data for Solar Cycles 20 - 24 (1965 - 2011). We divide individual Solar Cycles into four phases, i.e. low, high, increasing, and decreasing solar activity. We perform regression analysis to calculate and compare the CRI-response to changes in different solar/interplanetary parameters during (i) different phases of solar activity and (ii) similar activity phases but different polarity states. We find that the CRI-response is different during negative (A<0) as compared to positive (A>0) polarity states not only with SSN and Λ but also with B and V. The relative CRI-response to changes in various parameters, in negative (A<0) as compared to positive (A>0) state, is solar-activity dependent; it is ~2 to 3 times higher in low solar activity, ~1.5 to 2 times higher in moderate (increasing/decreasing) activity, and it is nearly equal in high solar-activity conditions. Although our results can be ascribed to preferential entry of charged particles via the equatorial/polar regions of the heliosphere as predicted by drift models, these results also suggest that we should look for, any polarity-dependent response of solar wind and transport parameters in modulating CRI in the heliosphere.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1312.2002",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-24T21:09:53Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "investigating the relationship between cosmic ray anisotropy and solar cycle variations physics",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

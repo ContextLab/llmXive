@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1006.4861",
+  "judged_at": "2026-06-24T21:10:19Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "investigating the relationship between cosmic ray anisotropy and solar cycle variations physics",
+  "rationale": "The paper quantifies solar‑cycle variations (power‑law slopes of flare properties) across three cycles, thus providing an independent‑variable measurement relevant to the solar‑cycle side of the cosmic‑ray anisotropy relationship (acceptance criterion (b)).",
+  "relevant": true
+}

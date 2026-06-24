@@ -1,0 +1,560 @@
+{
+  "fetched_at": "2026-06-24T21:08:48Z",
+  "field": "chemistry",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "chemistry",
+      "idea_body_excerpt": "Predicting Catalytic Activity from Electronic Structure and Reaction Path Features",
+      "target_n": 5
+    },
+    "duration_seconds": 59.002,
+    "ended_at": "2026-06-24T21:08:48Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "machine‑learning models for catalytic activity prediction using electronic descriptors"
+        ],
+        [
+          2,
+          "descriptor‑based catalyst activity prediction from DFT electronic structure"
+        ],
+        [
+          3,
+          "data‑driven catalyst design with reaction‑path features"
+        ],
+        [
+          4,
+          "quantum‑chemical descriptors for predicting turnover frequencies"
+        ],
+        [
+          5,
+          "structure–activity relationships in heterogeneous catalysis via electronic parameters"
+        ],
+        [
+          6,
+          "computational screening of catalysts using electronic structure and reaction coordinates"
+        ],
+        [
+          7,
+          "reaction‑pathway feature engineering for catalyst performance estimation"
+        ],
+        [
+          8,
+          "DFT‑derived adsorption energy descriptors for activity volcano plots"
+        ],
+        [
+          9,
+          "machine‑learned structure–activity maps for catalytic selectivity"
+        ],
+        [
+          10,
+          "high‑throughput quantum chemistry screening of catalytic activity"
+        ],
+        [
+          11,
+          "graph neural networks for predicting catalyst activity from electronic structure"
+        ],
+        [
+          12,
+          "multi‑scale modeling of catalytic kinetics with electronic and pathway descriptors"
+        ],
+        [
+          13,
+          "feature extraction from reaction pathways for catalyst activity forecasting"
+        ],
+        [
+          14,
+          "predictive modeling of active‑site energetics using electronic structure data"
+        ],
+        [
+          15,
+          "data‑centric identification of catalytic active sites via quantum‑mechanical descriptors"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Predicting Catalytic Activity from Electronic Structure and Reaction Path Features chemistry": 0,
+        "machine‑learning models for catalytic activity prediction using electronic descriptors": 4
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "turnover frequency DFT descriptors",
+      "Open Catalyst dataset",
+      "adsorption energy GNN catalyst",
+      "activation energy regression",
+      "d-band center activity correlation"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2111.02435"
+      ]
+    },
+    "per_query_hit_count": {
+      "Open Catalyst dataset": 3,
+      "Predicting Catalytic Activity from Electronic Structure and Reaction Path Features chemistry": 3,
+      "activation energy regression": 1,
+      "adsorption energy GNN catalyst": 3,
+      "d-band center activity correlation": 3,
+      "turnover frequency DFT descriptors": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 5,
+      "rejections": [
+        {
+          "primary_pointer": "2604.07560",
+          "rationale": "The paper focuses on predicting medicinal‑chemistry activity cliffs (potency changes) using matched molecular pairs and pharmacophore features, not on catalytic activity, electronic structure, or reaction‑path descriptors relevant to chemistry catalysis. It addresses a different construct and domain, so it would not be cited in a review of predicting catalytic activity from electronic structure and reaction‑path features.",
+          "title": "Predicting Activity Cliffs for Autonomous Medicinal Chemistry"
+        },
+        {
+          "primary_pointer": "2302.08893",
+          "rationale": "The paper surveys active learning for data streams, a machine‑learning methodology unrelated to catalytic activity, electronic structure, or reaction‑path features in chemistry, and thus does not address any of the variables or mechanisms of the user's question.",
+          "title": "Active learning for data streams: a survey"
+        },
+        {
+          "primary_pointer": "2201.12150",
+          "rationale": "The paper surveys learning‑curve methods for supervised machine learning and does not address catalytic activity, electronic structure, reaction‑path features, or any chemistry‑specific prediction task, so it lacks any relevant mechanism, variable, or domain connection.",
+          "title": "Learning Curves for Decision Making in Supervised Machine Learning: A Survey"
+        },
+        {
+          "primary_pointer": "1705.05172",
+          "rationale": "The paper surveys computational models of emotion in reinforcement‑learning agents, which is unrelated to predicting catalytic activity, electronic structure, or reaction‑path features in chemistry; it shares no relevant mechanism, variable, or domain with the user's question.",
+          "title": "Emotion in Reinforcement Learning Agents and Robots: A Survey"
+        },
+        {
+          "primary_pointer": "2304.02381",
+          "rationale": "The paper focuses on interpreting machine‑learning models via loss‑landscape analysis and does not address catalytic activity prediction, electronic structure, or reaction‑path features, nor does it provide a baseline or foundational method specific to catalysis prediction. It is therefore unrelated to the user's research question.",
+          "title": "Physics-Inspired Interpretability Of Machine Learning Models"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-24T21:07:49Z",
+    "term_input": {
+      "normalized": "predicting catalytic activity from electronic structure and reaction path features chemistry",
+      "raw": "Predicting Catalytic Activity from Electronic Structure and Reaction Path Features chemistry"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The electronic structure of the $f$-based superconductor $\\mathrm{CeIr_3}$ was studied by photoelectron spectroscopy. The energy distribution of the $\\mathrm{Ce}~4f$ states were revealed by the $\\mathrm{Ce}~3d-4f$ resonant photoelectron spectroscopy. The $\\mathrm{Ce}~4f$ states were mostly distributed in the vicinity of the Fermi energy, suggesting the itinerant character of the $\\mathrm{Ce}~4f$ states. The contribution of the $\\mathrm{Ce}~4f$ states to the density of states (DOS) at the Fermi energy was estimated to be nearly half of that of the $\\mathrm{Ir}~5d$ states, implying that the $\\mathrm{Ce}~4f$ states have a considerable contribution to the DOS at the Fermi energy. The $\\mathrm{Ce}~3d$ core-level and $\\mathrm{Ce}~3d$ X-ray absorption spectra were analyzed based on a single-impurity Anderson model. The number of the $\\mathrm{Ce}~4f$ states in the ground state was estimated to be $0.8-0.9$, which is much larger than the values obtained in the previous studies (i.e., $0-0.4$).",
+          "claimed_authors": [
+            "Shin-ichi Fujimori",
+            "Ikuto Kawasaki",
+            "Yukiharu Takeda",
+            "Hiroshi Yamagami",
+            "Norimasa Sasabe",
+            "Yoshiki J. Sato",
+            "Ai Nakamura",
+            "Yusei Shimizu",
+            "Arvind Maurya",
+            "Yoshiya Homma",
+            "Dexin Li",
+            "Fuminori Honda",
+            "Dai Aoki"
+          ],
+          "claimed_title": "Impact of the Ce $4f$ states in the electronic structure of the intermediate-valence superconductor CeIr$_3$",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2311.03640"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Predicting Catalytic Activity from Electronic Structure and Reaction Path Featur', candidate_title='Impact of the Ce $4f$ states in the electronic structure of the intermediate-valence superconductor CeIr$_3$')",
+        "failed_at": "2026-06-24T21:08:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "BACKGROUND. Epidemic models of STIs are often used to characterize the contribution of risk groups to overall transmission by projecting the transmission population attributable fraction (tPAF) of unmet prevention and treatment needs within risk groups. However, evidence suggests that STI risk is dynamic over an individual's sexual life course, which manifests as turnover between risk groups. We sought to examine the mechanisms by which turnover influences modelled projections of the tPAF of high risk groups. METHODS. We developed a unifying, data-guided framework to simulate risk group turnover in deterministic, compartmental transmission models. We applied the framework to an illustrative model of an STI and examined the mechanisms by which risk group turnover influenced equilibrium prevalence across risk groups. We then fit a model with and without turnover to the same risk-stratified STI prevalence targets and compared the inferred level of risk heterogeneity and tPAF of the highest risk group projected by the two models. RESULTS. The influence of turnover on group-specific prevalence was mediated by three main phenomena: movement of infectious individuals between risk groups; changes to herd immunity; and changes in discordant partnerships. Faster turnover led to a smaller ratio of STI prevalence between the highest and lowest risk groups. Compared to the fitted model without turnover, the fitted model with turnover inferred greater risk heterogeneity and consistently projected a larger tPAF of the highest risk group over time. IMPLICATIONS. If turnover is not captured in epidemic models, the projected contribution of high risk groups, and thus, the potential impact of prioritizing interventions to address their needs, could be underestimated. To aid the next generation of tPAF models, data collection efforts to parameterize risk group turnover should be prioritized.",
+          "claimed_authors": [
+            "Jesse Knight",
+            "Stefan D. Baral",
+            "Sheree Schwartz",
+            "Linwei Wang",
+            "Huiting Ma",
+            "Katherine Young",
+            "Harry Hausler",
+            "Sharmistha Mishra"
+          ],
+          "claimed_title": "Contribution of high risk groups' unmet needs may be underestimated in epidemic models without risk turnover: a mechanistic modelling analysis",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2001.02744"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Catalytic Activity from Electronic Structure and Reaction Path Featur', candidate_title=\"Contribution of high risk groups' unmet needs may be underestimated in epidemic models without risk turnover: a mechanistic modelling analysis\")",
+        "failed_at": "2026-06-24T21:08:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A goal for pathfinder intensity mapping (IM) surveys will be detecting features in the neutral hydrogen (HI) power spectrum, which serve as conclusive evidence of cosmological signals. Observing such features at the expected scales in HI IM auto-correlations, where contribution from systematics is uncertain, will provide a more convincing cosmological detection. We demonstrate how the turnover, i.e. the peak of the power spectrum at ultra-large scales, can be detected with HI IM. We find that a MeerKAT 4,000$\\,{\\rm deg}^2$ survey using the UHF-band is capable of a $3.1σ$ detection of the turnover, relative to a null model power spectrum with no turnover. This should exceed what is capable by current galaxy surveys in optical and near-infrared. The detection significance falls to ${\\sim}1σ$ in MeerKAT's L-band but can reach ${\\sim}13σ$ with the SKAO, which should easily surpass the constraints from future Stage-IV-like spectroscopic galaxy surveys. We also propose a new model-independent methodology for constraining the precise turnover scale ($k_0$) and our tests on UHF-band simulated data achieved a precision of 10%. This improved to 2.4% when using the full SKAO. We demonstrate how the results are robust to foreground contamination by using transfer functions, even when an incorrect cosmology has been assumed in their construction. Given that the turnover is related to the horizon scale at matter-radiation equality, a sufficiently precise constraint of $k_0$ presents the possibility for a novel probe of cosmology. We therefore present a potential methodology for constructing a standard-ruler-based distance measurement, independent of the sound horizon, using the turnover location in the HI power spectrum.",
+          "claimed_authors": [
+            "Steven Cunnington"
+          ],
+          "claimed_title": "Detecting the power spectrum turnover with HI intensity mapping",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2202.13828"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting Catalytic Activity from Electronic Structure and Reaction Path Featur', candidate_title='Detecting the power spectrum turnover with HI intensity mapping')",
+        "failed_at": "2026-06-24T21:08:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper proposes a novel approach to semantic ontology alignment using contextual descriptors. A formalization was developed that enables the integration of essential and contextual descriptors to create a comprehensive knowledge model. The hierarchical structure of the semantic approach and the mathematical apparatus for analyzing potential conflicts between concepts, particularly in the example of \"Transparency\" and \"Privacy\" in the context of artificial intelligence, are demonstrated. Experimental studies showed a significant improvement in ontology alignment metrics after the implementation of contextual descriptors, especially in the areas of privacy, responsibility, and freedom & autonomy. The application of contextual descriptors achieved an average overall improvement of approximately 4.36%. The results indicate the effectiveness of the proposed approach for more accurately reflecting the complexity of knowledge and its contextual dependence.",
+          "claimed_authors": [
+            "Eduard Manziuk",
+            "Oleksander Barmak",
+            "Pavlo Radiuk",
+            "Vladislav Kuznetsov",
+            "Iurii Krak",
+            "Sergiy Yakovlev"
+          ],
+          "claimed_title": "Integration of Contextual Descriptors in Ontology Alignment for Enrichment of Semantic Correspondence",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2411.19113"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting Catalytic Activity from Electronic Structure and Reaction Path Featur', candidate_title='Integration of Contextual Descriptors in Ontology Alignment for Enrichment of Semantic Correspondence')",
+        "failed_at": "2026-06-24T21:08:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The RSNA Abdominal Traumatic Injury CT (RATIC) dataset is the largest publicly available collection of adult abdominal CT studies annotated for traumatic injuries. This dataset includes 4,274 studies from 23 institutions across 14 countries. The dataset is freely available for non-commercial use via Kaggle at https://www.kaggle.com/competitions/rsna-2023-abdominal-trauma-detection. Created for the RSNA 2023 Abdominal Trauma Detection competition, the dataset encourages the development of advanced machine learning models for detecting abdominal injuries on CT scans. The dataset encompasses detection and classification of traumatic injuries across multiple organs, including the liver, spleen, kidneys, bowel, and mesentery. Annotations were created by expert radiologists from the American Society of Emergency Radiology (ASER) and Society of Abdominal Radiology (SAR). The dataset is annotated at multiple levels, including the presence of injuries in three solid organs with injury grading, image-level annotations for active extravasations and bowel injury, and voxelwise segmentations of each of the potentially injured organs. With the release of this dataset, we hope to facilitate research and development in machine learning and abdominal trauma that can lead to improved patient care and outcomes.",
+          "claimed_authors": [
+            "Jeffrey D. Rudie",
+            "Hui-Ming Lin",
+            "Robyn L. Ball",
+            "Sabeena Jalal",
+            "Luciano M. Prevedello",
+            "Savvas Nicolaou",
+            "Brett S. Marinelli",
+            "Adam E. Flanders",
+            "Kirti Magudia",
+            "George Shih",
+            "Melissa A. Davis",
+            "John Mongan",
+            "Peter D. Chang",
+            "Ferco H. Berger",
+            "Sebastiaan Hermans",
+            "Meng Law",
+            "Tyler Richards",
+            "Jan-Peter Grunz",
+            "Andreas Steven Kunz",
+            "Shobhit Mathur",
+            "Sandro Galea-Soler",
+            "Andrew D. Chung",
+            "Saif Afat",
+            "Chin-Chi Kuo",
+            "Layal Aweidah",
+            "Ana Villanueva Campos",
+            "Arjuna Somasundaram",
+            "Felipe Antonio Sanchez Tijmes",
+            "Attaporn Jantarangkoon",
+            "Leonardo Kayat Bittencourt",
+            "Michael Brassil",
+            "Ayoub El Hajjami",
+            "Hakan Dogan",
+            "Muris Becircic",
+            "Agrahara G. Bharatkumar",
+            "Eduardo Moreno Júdice de Mattos Farina",
+            "Dataset Curator Group",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Errol Colak"
+          ],
+          "claimed_title": "The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.19595"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Catalytic Activity from Electronic Structure and Reaction Path Featur', candidate_title='The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset')",
+        "failed_at": "2026-06-24T21:08:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Radiological Society of North America (RSNA) Lumbar Degenerative Imaging Spine Classification (LumbarDISC) dataset is the largest publicly available dataset of adult MRI lumbar spine examinations annotated for degenerative changes. The dataset includes 2,697 patients with a total of 8,593 image series from 8 institutions across 6 countries and 5 continents. The dataset is available for free for non-commercial use via Kaggle and RSNA Medical Imaging Resource of AI (MIRA). The dataset was created for the RSNA 2024 Lumbar Spine Degenerative Classification competition where competitors developed deep learning models to grade degenerative changes in the lumbar spine. The degree of spinal canal, subarticular recess, and neural foraminal stenosis was graded at each intervertebral disc level in the lumbar spine. The images were annotated by expert volunteer neuroradiologists and musculoskeletal radiologists from the RSNA, American Society of Neuroradiology, and the American Society of Spine Radiology. This dataset aims to facilitate research and development in machine learning and lumbar spine imaging to lead to improved patient care and clinical efficiency.",
+          "claimed_authors": [
+            "Tyler J. Richards",
+            "Adam E. Flanders",
+            "Errol Colak",
+            "Luciano M. Prevedello",
+            "Robyn L. Ball",
+            "Felipe Kitamura",
+            "John Mongan",
+            "Maryam Vazirabad",
+            "Hui-Ming Lin",
+            "Anne Kendell",
+            "Thanat Kanthawang",
+            "Salita Angkurawaranon",
+            "Emre Altinmakas",
+            "Hakan Dogan",
+            "Paulo Eduardo de Aguiar Kuriki",
+            "Arjuna Somasundaram",
+            "Christopher Ruston",
+            "Deniz Bulja",
+            "Naida Spahovic",
+            "Jennifer Sommer",
+            "Sirui Jiang",
+            "Eduardo Moreno Judice de Mattos Farina",
+            "Eduardo Caminha Nunes",
+            "Michael Brassil",
+            "Megan McNamara",
+            "Johanna Ortiz",
+            "Jacob Peoples",
+            "Vinson L. Uytana",
+            "Anthony Kam",
+            "Venkata N. S. Dola",
+            "Daniel Murphy",
+            "David Vu",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Competition Data Notebook Group",
+            "Jason F. Talbott"
+          ],
+          "claimed_title": "The RSNA Lumbar Degenerative Imaging Spine Classification (LumbarDISC) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.09162"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Catalytic Activity from Electronic Structure and Reaction Path Featur', candidate_title='The RSNA Lumbar Degenerative Imaging Spine Classification (LumbarDISC) Dataset')",
+        "failed_at": "2026-06-24T21:08:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Panoptic image segmentation is the computer vision task of finding groups of pixels in an image and assigning semantic classes and object instance identifiers to them. Research in image segmentation has become increasingly popular due to its critical applications in robotics and autonomous driving. The research community thereby relies on publicly available benchmark dataset to advance the state-of-the-art in computer vision. Due to the high costs of densely labeling the images, however, there is a shortage of publicly available ground truth labels that are suitable for panoptic segmentation. The high labeling costs also make it challenging to extend existing datasets to the video domain and to multi-camera setups. We therefore present the Waymo Open Dataset: Panoramic Video Panoptic Segmentation Dataset, a large-scale dataset that offers high-quality panoptic segmentation labels for autonomous driving. We generate our dataset using the publicly available Waymo Open Dataset, leveraging the diverse set of camera images. Our labels are consistent over time for video processing and consistent across multiple cameras mounted on the vehicles for full panoramic scene understanding. Specifically, we offer labels for 28 semantic categories and 2,860 temporal sequences that were captured by five cameras mounted on autonomous vehicles driving in three different geographical locations, leading to a total of 100k labeled camera images. To the best of our knowledge, this makes our dataset an order of magnitude larger than existing datasets that offer video panoptic segmentation labels. We further propose a new benchmark for Panoramic Video Panoptic Segmentation and establish a number of strong baselines based on the DeepLab family of models. We will make the benchmark and the code publicly available. Find the dataset at https://waymo.com/open.",
+          "claimed_authors": [
+            "Jieru Mei",
+            "Alex Zihao Zhu",
+            "Xinchen Yan",
+            "Hang Yan",
+            "Siyuan Qiao",
+            "Yukun Zhu",
+            "Liang-Chieh Chen",
+            "Henrik Kretzschmar",
+            "Dragomir Anguelov"
+          ],
+          "claimed_title": "Waymo Open Dataset: Panoramic Video Panoptic Segmentation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2206.07704"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Catalytic Activity from Electronic Structure and Reaction Path Featur', candidate_title='Waymo Open Dataset: Panoramic Video Panoptic Segmentation')",
+        "failed_at": "2026-06-24T21:08:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We describe the Dark Energy Survey (DES), a proposed optical-near infrared survey of 5000 sq. deg of the South Galactic Cap to ~24th magnitude in SDSS griz, that would use a new 3 sq. deg CCD camera to be mounted on the Blanco 4-m telescope at Cerro Telolo Inter-American Observatory (CTIO). The survey data will allow us to measure the dark energy and dark matter densities and the dark energy equation of state through four independent methods: galaxy clusters, weak gravitational lensing tomography, galaxy angular clustering, and supernova distances. These methods are doubly complementary: they constrain different combinations of cosmological model parameters and are subject to different systematic errors. By deriving the four sets of measurements from the same data set with a common analysis framework, we will obtain important cross checks of the systematic errors and thereby make a substantial and robust advance in the precision of dark energy measurements.",
+          "claimed_authors": [
+            " The Dark Energy Survey Collaboration"
+          ],
+          "claimed_title": "The Dark Energy Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2005,
+          "primary_pointer": "astro-ph/0510346"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Catalytic Activity from Electronic Structure and Reaction Path Featur', candidate_title='The Dark Energy Survey')",
+        "failed_at": "2026-06-24T21:08:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting Catalytic Activity from Electronic Structure and Reaction Path Featur', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-06-24T21:08:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "As a core technology for green chemical synthesis and electrochemical energy storage, electrocatalysis is central to decarbonization strategies aimed at combating climate change. In this context, computational and machine learning driven catalyst discovery has emerged as a major research focus. These approaches frequently use the thermodynamic overpotential, calculated from adsorption free energies of reaction intermediates, as a key parameter in their analysis. In this paper, we explore the large-scale applicability of such overpotential estimates for identifying good catalyst candidates by using datasets from the Open Catalyst Project (OC20 and OC22). We start by quantifying the uncertainty in predicting adsorption energies using \\textit{ab initio} methods and find that $\\sim$0.3-0.5 eV is a conservative estimate for a single adsorption energy prediction. We then compute the overpotential of all materials in the OC20 and OC22 datasets for the hydrogen and oxygen evolution reactions. We find that while the overpotential allows the identification of known good catalysts such as platinum and iridium oxides, the uncertainty is large enough to misclassify a broad fraction of the datasets as ``good'', which limits its value as a screening criterion. These results question the reliance on overpotential estimation as a primary evaluation metric to sort through catalyst candidates and calls for a shift in focus in the computational catalysis and machine learning communities towards other metrics such as synthesizability, stability, lifetime or affordability.",
+          "claimed_authors": [
+            "Shahana Chatterjee",
+            "Alexander Davis",
+            "Lena Podina",
+            "Divya Sharma",
+            "Yoshua Bengio",
+            "Alexandre Duval",
+            "Oleksandr Voznyy",
+            "Alex Hernández-Garcia",
+            "David Rolnick",
+            "Félix Therrien"
+          ],
+          "claimed_title": "Adsorption energies are necessary but not sufficient to identify good catalysts",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.05938"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting Catalytic Activity from Electronic Structure and Reaction Path Featur', candidate_title='Adsorption energies are necessary but not sufficient to identify good catalysts')",
+        "failed_at": "2026-06-24T21:08:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper gives an overview of the proposed Gemini/Subaru Wide-Field Multi-Object Spectrograph (WFMOS) and the proposed redshift surveys of 2.6 million galaxies with 0.5<z<3.3 over 2000 deg^2 of sky. These surveys will probe the baryonic acoustic oscillations in the galaxy power spectrum with unprecedented precision and over a range of redshifts and deliver dark energy w(z) constraints an order of magnitude better than current limits. We discuss the requirements on precursor observations and on calibrations, the systematics in the method and the quantitative precision obtainaible in distance-redshift and expansion-rate-redshift measurements which feed in to the w(z) precision. We also outline the technological and scientific strengths and risks which might be associated with the project and the relationship of WFMOS to other baryon oscillation experiments.",
+          "claimed_authors": [
+            "Karl Glazebrook",
+            "Daniel Eisenstein",
+            "Arjun Dey",
+            "Bob Nichol",
+            "The WFMOS Feasibility Study Dark Energy Team"
+          ],
+          "claimed_title": "Dark Energy and Cosmic Sound: w(z) Surveys with the Gemini/Subaru Wide-Field Multi-Object Spectrograph",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2005,
+          "primary_pointer": "astro-ph/0507457"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Catalytic Activity from Electronic Structure and Reaction Path Featur', candidate_title='Dark Energy and Cosmic Sound: w(z) Surveys with the Gemini/Subaru Wide-Field Multi-Object Spectrograph')",
+        "failed_at": "2026-06-24T21:08:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "3I/ATLAS is the third known interstellar object to pass through our Solar System. NASA's Transiting Exoplanet Survey Satellite (TESS) made dedicated observations of 3I/ATLAS between 15 -- 22 January 2026 (Sector 1751), capturing high-cadence observations at 200s and 20s cadence. We present two High Level Science Products (HLSPs): (1) comet-centered image time series, corrected for background scattered light and stars; and (2) aperture light curves extracted from the corrected images. We created these data products using the official TESS products and they are publicly available at the Mikulski Archive for Space Telescopes (MAST). TESS's high-precision, near-continuous photometry will provide unique insights into the comet's activity following its closest approach to the Sun. The TESS Science Support Center (TSSC) has created these data products to facilitate scientific analyses by the TESS and Solar System communities.",
+          "claimed_authors": [
+            "Jorge Martinez-Palomera",
+            "Amy Tuson",
+            "TESS Science Support Center"
+          ],
+          "claimed_title": "TSSC comet-centered data products from TESS 3I/ATLAS observations",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2602.12364"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting Catalytic Activity from Electronic Structure and Reaction Path Featur', candidate_title='TSSC comet-centered data products from TESS 3I/ATLAS observations')",
+        "failed_at": "2026-06-24T21:08:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The d-band center model of Hammer and Nørskov is widely used in understanding and predicting catalytic activity on transition metal (TM) surfaces. Here, we demonstrate that this model is inadequate for capturing the complete catalytic activity of the magnetically polarized TM surfaces and propose its generalization. We validate the generalized model through comparison of adsorption energies of the NH$_3$ molecule on the surfaces of 3d TMs (V, Cr, Mn, Fe, Co, Ni, Cu and Zn) determined with spin-polarized density functional theory (DFT)-based methods with the predictions of our model. Compared to the conventional d-band model, where the nature of the metal-adsorbate interaction is entirely determined through the energy and the occupation of the d-band center, we emphasize that for the surfaces with high spin polarization, the metal-adsorbate system can be stabilized through a competition of the spin-dependent metal-adsorbate interactions.",
+          "claimed_authors": [
+            "Satadeep Bhattacharjee",
+            "Umesh V Waghmare",
+            "S. C. Lee"
+          ],
+          "claimed_title": "An improved d-band model of the catalytic activity of magnetic transition metal surfaces",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1610.01746"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Predicting Catalytic Activity from Electronic Structure and Reaction Path Featur', candidate_title='An improved d-band model of the catalytic activity of magnetic transition metal surfaces')",
+        "failed_at": "2026-06-24T21:08:20Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Guowei Li",
+            "Yuanfeng Xu",
+            "Zhida Song",
+            "Qun Yang",
+            "Uttam Gupta",
+            "Vicky Sü\\b{eta}",
+            "Yan Sun",
+            "Paolo Sessi",
+            "Stuart S. P. Parkin",
+            "B. Andrei Bernevig",
+            "Claudia Felser"
+          ],
+          "title": "Obstructed surface states as the origin of catalytic activity in inorganic heterogeneous catalysts",
+          "venue": "arXiv",
+          "year": 2021
+        },
+        "primary_pointer": "2111.02435",
+        "summary": "The discovery of new catalysts that are efficient, sustainable, and low-cost is a major research endeavor for many industrial chemical processes. This requires an understanding and determination of the catalytic origins for the given catalysts, which still remains a challenge. Here we describe a novel method to identify new catalysts based on searching for crystalline symmetry-protected obstructed atomic insulators (OAIs) that have metallic surface states on otherwise semiconducting or insulating compounds. The Wannier charge centers in OAIs are pinned by symmetries at some empty Wyckoff positions so that surfaces that accommodate these sites are guaranteed to have metallic obstructed surface states (OSSs). Beyond the well-studied 2H-MoS2, we further verified our theory on the catalysts, 2H-MoTe2, and 1T'-MoTe2, whose catalytic active sites are consistent with our calculations of obstructed Wannier charge centers (OWCCs) and OSSs. In addition, we have predicted the location of catalytic active sites and confirmed these predictions by exploring the hydrogen evolution reaction on NiPS3 bulk single crystals, which we find to be one of the most promising new catalysts with high activity and, moreover, of low cost. Most importantly, we successfully identified several high-efficient catalysts just by considering the number of OWCCs and the crystal symmetry of the OAIs. Using the real space invariant theory and high-throughput computational methods applied to a database of 34013 topologically trivial insulators, we have identified 1788 unique OAIs (3383 ICSDs), of which 465 are potential high-quality catalysts for heterogeneous reactions. The Miller indices of the active surfaces are also obtained. Our new methodology will facilitate and accelerate the discovery of new catalysts for a wide range of heterogeneous redox reactions, where sustainability, toxicity, and cost must be considered.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2111.02435",
+          "http_status": 200,
+          "pdf_sample_score": 0.3305,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-24T21:08:20Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Wen Qiao",
+            "Shiming Yan",
+            "Deyou Jin",
+            "Xiaoyong Xu",
+            "Wenbo Mi",
+            "Dunhui Wang"
+          ],
+          "title": "Vertical-orbital band center as an activity descriptor for hydrogen evolution reaction on single-atom-anchored 2D catalysts",
+          "venue": "arXiv",
+          "year": 2021
+        },
+        "primary_pointer": "2102.06335",
+        "summary": "The d-band center descriptor based on the adsorption strength of adsorbate has been widely used in understanding and predicting the catalytic activity in various metal catalysts. However, its applicability is unsure for the single-atom-anchored two-dimensional (2D) catalysts. Here, taking the hydrogen (H) adsorption on the single-atom-anchored 2D basal plane as example, we examine the influence of orbitals interaction on the bond strength of hydrogen adsorption. We find that the adsorption of H is formed mainly via the hybridization between the 1s orbital of H and the vertical dz2 orbital of anchored atoms. The other four projected d orbitals (dxy/dx2-y2, dxz/dyz) have no contribution to the H chemical bond. There is an explicit linear relation between the dz2-band center and the H bond strength. The dz2-band center is proposed as an activity descriptor for hydrogen evolution reaction (HER). We demonstrate that the dz2-band center is valid for the single-atom active sites on a single facet, such as the basal plane of 2D nanosheets. For the surface with multiple facets, such as the surface of three-dimensional (3D) polyhedral nanoparticles, the d-band center is more suitable.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2102.06335",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-24T21:08:20Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "predicting catalytic activity from electronic structure and reaction path features chemistry",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2111.02435",
+  "judged_at": "2026-06-24T21:08:33Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting catalytic activity from electronic structure and reaction path features chemistry",
+  "rationale": "The paper provides a methodology that predicts catalytic activity directly from electronic‑structure descriptors (obstructed atomic insulators, Wannier charge centers, metallic surface states), which aligns with the user’s focus on predicting activity from electronic structure (acceptance category a). It serves as a canonical example of using electronic‑structure features to identify and rationalize catalytic performance.",
+  "relevant": true
+}

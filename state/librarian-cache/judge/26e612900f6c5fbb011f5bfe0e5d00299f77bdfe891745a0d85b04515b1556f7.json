@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2302.08893",
+  "judged_at": "2026-06-24T21:08:39Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting catalytic activity from electronic structure and reaction path features chemistry",
+  "rationale": "The paper surveys active learning for data streams, a machine‑learning methodology unrelated to catalytic activity, electronic structure, or reaction‑path features in chemistry, and thus does not address any of the variables or mechanisms of the user's question.",
+  "relevant": false
+}

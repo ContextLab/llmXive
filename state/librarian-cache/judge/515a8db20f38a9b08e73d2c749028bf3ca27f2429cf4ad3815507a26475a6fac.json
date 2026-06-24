@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1311.7387",
+  "judged_at": "2026-06-24T21:10:03Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "investigating the relationship between cosmic ray anisotropy and solar cycle variations physics",
+  "rationale": "The paper investigates solar modulation of galactic cosmic rays across solar cycle phases, directly studying how solar‑cycle variations affect a cosmic‑ray observable (intensity). This addresses the same underlying mechanism—solar‑cycle–driven modulation of cosmic rays—that the user’s question concerns (anisotropy), satisfying inclusion criterion (a) (same‑mechanism evidence).",
+  "relevant": true
+}

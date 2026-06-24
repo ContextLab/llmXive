@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1504.00778",
+  "judged_at": "2026-06-24T21:09:58Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "investigating the relationship between cosmic ray anisotropy and solar cycle variations physics",
+  "rationale": "The paper studies how solar‑wind and interplanetary magnetic‑field variations (which are proxies for solar‑cycle activity) affect galactic cosmic‑ray intensity, thus providing empirical data on a key independent variable (solar activity) within the same cosmic‑ray domain that the user’s question concerns. This satisfies inclusion criterion (b).",
+  "relevant": true
+}

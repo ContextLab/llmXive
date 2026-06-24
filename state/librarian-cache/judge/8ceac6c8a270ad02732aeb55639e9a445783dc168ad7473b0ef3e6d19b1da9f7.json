@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1705.05172",
+  "judged_at": "2026-06-24T21:08:43Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting catalytic activity from electronic structure and reaction path features chemistry",
+  "rationale": "The paper surveys computational models of emotion in reinforcement‑learning agents, which is unrelated to predicting catalytic activity, electronic structure, or reaction‑path features in chemistry; it shares no relevant mechanism, variable, or domain with the user's question.",
+  "relevant": false
+}

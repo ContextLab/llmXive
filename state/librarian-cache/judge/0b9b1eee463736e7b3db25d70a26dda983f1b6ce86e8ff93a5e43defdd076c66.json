@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1002.1998",
+  "judged_at": "2026-06-24T21:12:52Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "residue distribution of euler's totient function modulo small primes mathematics",
+  "rationale": "The paper focuses on an inequality for the totient function and its connection to prime distribution, without studying the residues of φ(n) modulo small primes, so it lacks relevance to the user's specific question about residue distribution.",
+  "relevant": false
+}

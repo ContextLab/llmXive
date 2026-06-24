@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2603.11114",
+  "judged_at": "2026-06-24T21:06:18Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "rethinking cross-layer information routing in diffusion transformers computer science",
+  "rationale": "The paper studies routing signatures across layers in transformer models, providing same‑mechanism evidence (category a) for cross‑layer information routing, albeit in sparse Mixture‑of‑Experts transformers rather than diffusion transformers. This makes it a relevant prior work for a literature review on cross‑layer routing in transformer‑based architectures.",
+  "relevant": true
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1312.2002",
+  "judged_at": "2026-06-24T21:10:23Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "investigating the relationship between cosmic ray anisotropy and solar cycle variations physics",
+  "rationale": "The paper investigates how galactic cosmic‑ray intensity (a cosmic‑ray observable) varies with solar‑cycle parameters (sunspot number, solar wind, magnetic field, etc.), thus measuring one of the user’s variables (solar‑cycle variation) in the same domain of cosmic‑ray physics, satisfying criterion (b).",
+  "relevant": true
+}

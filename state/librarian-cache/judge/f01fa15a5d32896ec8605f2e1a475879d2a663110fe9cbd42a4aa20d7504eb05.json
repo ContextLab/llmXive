@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2605.22586",
+  "judged_at": "2026-06-24T21:06:32Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "rethinking cross-layer information routing in diffusion transformers computer science",
+  "rationale": "The tutorial focuses on the mathematical foundations of diffusion models (ODE/SDE, score matching) and does not discuss diffusion transformers, cross‑layer information routing, or related architectural mechanisms, so it lacks relevance to the user's specific question.",
+  "relevant": false
+}

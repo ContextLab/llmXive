@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2003.05997",
+  "judged_at": "2026-06-24T21:06:21Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "rethinking cross-layer information routing in diffusion transformers computer science",
+  "rationale": "The paper introduces the Routing Transformer, a foundational method for dynamic sparse attention routing within transformers, which provides a canonical reference for any work investigating information routing mechanisms (including cross‑layer routing) in transformer‑based models such as diffusion transformers. This satisfies acceptance criterion (d).",
+  "relevant": true
+}

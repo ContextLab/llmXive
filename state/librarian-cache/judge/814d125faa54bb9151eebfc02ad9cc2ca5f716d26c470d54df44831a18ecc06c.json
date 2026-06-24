@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2110.13179",
+  "judged_at": "2026-06-24T21:06:23Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "rethinking cross-layer information routing in diffusion transformers computer science",
+  "rationale": "The paper focuses on hierarchical probabilistic time‑series forecasting using deep Poisson mixture networks, which is unrelated to diffusion transformers or cross‑layer information routing in transformer architectures; it does not share the same mechanism, variables, or domain.",
+  "relevant": false
+}

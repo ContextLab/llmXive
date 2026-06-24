@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1207.4446",
+  "judged_at": "2026-06-24T21:12:50Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "residue distribution of euler's totient function modulo small primes mathematics",
+  "rationale": "The paper studies which even numbers lie in the image of Euler’s totient function and the structure of its preimages, but it does not investigate the residues of φ(n) modulo small primes, which is the specific focus of the user's question. Hence it lacks the required connection to the residue‑distribution topic.",
+  "relevant": false
+}

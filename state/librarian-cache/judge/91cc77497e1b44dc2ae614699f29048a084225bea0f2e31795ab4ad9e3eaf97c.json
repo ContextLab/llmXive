@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2304.02381",
+  "judged_at": "2026-06-24T21:08:45Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting catalytic activity from electronic structure and reaction path features chemistry",
+  "rationale": "The paper focuses on interpreting machine‑learning models via loss‑landscape analysis and does not address catalytic activity prediction, electronic structure, or reaction‑path features, nor does it provide a baseline or foundational method specific to catalysis prediction. It is therefore unrelated to the user's research question.",
+  "relevant": false
+}

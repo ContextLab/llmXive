@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2201.12150",
+  "judged_at": "2026-06-24T21:08:41Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting catalytic activity from electronic structure and reaction path features chemistry",
+  "rationale": "The paper surveys learning‑curve methods for supervised machine learning and does not address catalytic activity, electronic structure, reaction‑path features, or any chemistry‑specific prediction task, so it lacks any relevant mechanism, variable, or domain connection.",
+  "relevant": false
+}

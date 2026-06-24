@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1502.07020",
+  "judged_at": "2026-06-24T21:10:11Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "investigating the relationship between cosmic ray anisotropy and solar cycle variations physics",
+  "rationale": "The paper provides a comprehensive review of solar‑cycle variations (the independent variable in the user's question) and discusses related cosmic‑ray fluxes, thereby covering at least one of the key variables on the relevant domain (criterion b).",
+  "relevant": true
+}

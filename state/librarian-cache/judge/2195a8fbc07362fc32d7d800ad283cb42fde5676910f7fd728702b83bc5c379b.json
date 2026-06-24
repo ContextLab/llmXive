@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2105.12850",
+  "judged_at": "2026-06-24T21:12:57Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "residue distribution of euler's totient function modulo small primes mathematics",
+  "rationale": "The paper studies the distribution of Euler’s totient function φ(n) in residue classes modulo primes p, directly addressing the same mechanism (residue distribution of φ) that the user’s question concerns (category (a)). It even treats small primes (p bounded by a power of log x), making it a canonical reference for this topic.",
+  "relevant": true
+}

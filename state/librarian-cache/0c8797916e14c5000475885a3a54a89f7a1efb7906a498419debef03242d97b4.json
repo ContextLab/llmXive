@@ -1,0 +1,356 @@
+{
+  "fetched_at": "2026-06-24T21:13:09Z",
+  "field": "mathematics",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "mathematics",
+      "idea_body_excerpt": "Residue Distribution of Euler's Totient Function Modulo Small Primes",
+      "target_n": 5
+    },
+    "duration_seconds": 103.773,
+    "ended_at": "2026-06-24T21:13:09Z",
+    "expansion": null,
+    "extracted_queries": [
+      "phi function congruence distribution",
+      "natural numbers totient residues",
+      "phi arithmetic progression residues",
+      "residue class density totient",
+      "probabilistic model totient distribution"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": false,
+      "verdict": null
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2402.16266"
+      ]
+    },
+    "per_query_hit_count": {
+      "Residue Distribution of Euler's Totient Function Modulo Small Primes mathematics": 3,
+      "natural numbers totient residues": 1,
+      "phi arithmetic progression residues": 3,
+      "phi function congruence distribution": 3,
+      "probabilistic model totient distribution": 1,
+      "residue class density totient": 0
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 5,
+      "rejections": [
+        {
+          "primary_pointer": "1207.4446",
+          "rationale": "The paper studies which even numbers lie in the image of Euler’s totient function and the structure of its preimages, but it does not investigate the residues of φ(n) modulo small primes, which is the specific focus of the user's question. Hence it lacks the required connection to the residue‑distribution topic.",
+          "title": "Some remarks on Euler's totient function"
+        },
+        {
+          "primary_pointer": "1002.1998",
+          "rationale": "The paper focuses on an inequality for the totient function and its connection to prime distribution, without studying the residues of φ(n) modulo small primes, so it lacks relevance to the user's specific question about residue distribution.",
+          "title": "A Totient Function Inequality"
+        },
+        {
+          "primary_pointer": "2105.00790",
+          "rationale": "The paper studies an asymptotic sum involving the Euler totient function over shifted primes, but it does not investigate the residues of φ(n) modulo small primes, nor provide baseline or methodology for that specific distribution problem. Hence it does not meet any inclusion criteria (a‑f).",
+          "title": "Euler Totient Function And The Largest Integer Function Over The Shifted Primes"
+        },
+        {
+          "primary_pointer": "2303.14043",
+          "rationale": "The paper investigates the distribution of Carmichael’s λ‑function modulo integers, not the residue distribution of Euler’s totient function φ(n) modulo small primes, and therefore does not provide evidence, baseline, or methodology directly relevant to the user’s specific question.",
+          "title": "Two problems on the distribution of Carmichael's lambda function"
+        },
+        {
+          "primary_pointer": "2004.10418",
+          "rationale": "The paper studies prime number theorems in regular Toeplitz subshifts and only mentions Euler’s totient function in a dynamical‑systems context, not the distribution of φ(n) modulo small primes; it does not address the number‑theoretic mechanism or variables of the user's question.",
+          "title": "Prime number theorem for regular Toeplitz subshifts"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-24T21:11:25Z",
+    "term_input": {
+      "normalized": "residue distribution of euler's totient function modulo small primes mathematics",
+      "raw": "Residue Distribution of Euler's Totient Function Modulo Small Primes mathematics"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In the push for exascale computing, energy efficiency is of utmost concern. System architectures often adopt accelerators to hasten application execution at the cost of power. The Intel Xeon Phi co-processor is unique accelerator that offers application designers high degrees of parallelism, energy-efficient cores, and various execution modes. To explore the vast number of available configurations, a model must be developed to predict execution time, power, and energy for the CPU and Xeon Phi. An experimentation method has been developed which measures power for the CPU and Xeon Phi separately, as well as total system power. Execution time and performance are also captured for two experiments conducted in this work. The experiments, frequency scaling and strong scaling, will help validate the adopted model and assist in the development of a model which defines the host and Xeon Phi. The proxy applications investigated, representative of large-scale real-world applications, are Co-Design Molecular Dynamics (CoMD) and Livermore Unstructured Lagrangian Explicit Shock Hydrodynamics (LULESH). The frequency experiment discussed in this work is used to determine the time on-chip and off-chip to measure the compute- or latencyboundedness of the application. Energy savings were not obtained in symmetric mode for either application.",
+          "claimed_authors": [
+            "Gary Lawson",
+            "Masha Sosonkina",
+            "Yuzhong Shen"
+          ],
+          "claimed_title": "Towards Modeling Energy Consumption of Xeon Phi",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2015,
+          "primary_pointer": "1505.06539"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query=\"Residue Distribution of Euler's Totient Function Modulo Small Primes mathematics\", candidate_title='Towards Modeling Energy Consumption of Xeon Phi')",
+        "failed_at": "2026-06-24T21:12:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A sharper estimate for the summatory Euler phi function $\\sum_{n \\leq x} \\varphi(n)$ is presented in this work. It improves the established estimate in the current mathematical literature. In addition, an estimate for its reciprocal $\\sum_{n \\leq x} 1/\\varphi(n)$ is also determined.",
+          "claimed_authors": [
+            "N. A. Carella"
+          ],
+          "claimed_title": "The Error Term of the Summatory Euler Phi Function",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1206.2792"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query=\"Residue Distribution of Euler's Totient Function Modulo Small Primes mathematics\", candidate_title='The Error Term of the Summatory Euler Phi Function')",
+        "failed_at": "2026-06-24T21:12:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We solve the higher version of Hilbert's Third Problem for one-dimensional geometries, and in higher dimensions we reduce the problem to a computation in group homology. Our central result concerns the scissors congruence $K$-theory spectrum of Zakharevich, whose homotopy groups are the correct higher version of the classical scissors congruence groups. We prove that this spectrum is a Thom spectrum, whose base space is the homotopy orbit space of a Tits complex. The relevant computations quickly follow from this more foundational result.",
+          "claimed_authors": [
+            "Cary Malkiewich"
+          ],
+          "claimed_title": "On higher scissors congruence",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2210.08082"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query=\"Residue Distribution of Euler's Totient Function Modulo Small Primes mathematics\", candidate_title='On higher scissors congruence')",
+        "failed_at": "2026-06-24T21:12:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This note determines an effective asymptotic formula for the number of squarefree totients $p-1$ with a fixed primitive root $u\\ne \\pm 1, v^2$.",
+          "claimed_authors": [
+            "N. A. Carella"
+          ],
+          "claimed_title": "Density of Squarefree Totients $p-1$ and Primitive Roots",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2410.03683"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query=\"Residue Distribution of Euler's Totient Function Modulo Small Primes mathematics\", candidate_title='Density of Squarefree Totients $p-1$ and Primitive Roots')",
+        "failed_at": "2026-06-24T21:12:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Let $p$ be a large odd prime, let $x=\\log p)(\\log\\log p)^{3+\\varepsilon}$ and let $q\\ll\\log\\log p$ be an integer, where $\\varepsilon>0$ is a small number. This note proves the existence of small prime quadratic residues and small prime quadratic nonresidues in the arithmetic progression $a+qm\\ll x$, with relatively prime $1\\leq a<q$, unconditionally. The same results are generalized to small prime $k$th power residues and nonresidues, where $k\\mid p-1$ and $k\\ll\\log\\log p$.",
+          "claimed_authors": [
+            "N. A. Carella"
+          ],
+          "claimed_title": "Small Prime $k$th Power Residues and Nonresidues in Arithmetic Progressions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.13159"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query=\"Residue Distribution of Euler's Totient Function Modulo Small Primes mathematics\", candidate_title='Small Prime $k$th Power Residues and Nonresidues in Arithmetic Progressions')",
+        "failed_at": "2026-06-24T21:12:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We develop a theory of residues for arithmetic surfaces, establish the reciprocity law around a point, and use the residue maps to explicitly construct the dualizing sheaf of the surface. These are generalisations of known results for surfaces over a perfect field. In an appendix, explicit local ramification theory is used to recover the fact that in the case of a local complete intersection the dualizing and canonical sheaves coincide.",
+          "claimed_authors": [
+            "Matthew Morrow"
+          ],
+          "claimed_title": "An explicit approach to residues on and dualizing sheaves of arithmetic surfaces",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2009,
+          "primary_pointer": "0911.0590"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query=\"Residue Distribution of Euler's Totient Function Modulo Small Primes mathematics\", candidate_title='An explicit approach to residues on and dualizing sheaves of arithmetic surfaces')",
+        "failed_at": "2026-06-24T21:12:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this Note, we try to study the relations between the Goldbach Conjecture and the least prime number in an arithmetic progression. We give a new weakened form of the Goldbach Conjecture. We prove that this weakened form and a weakened form of the Chowla Hypothesis imply that every sufficiently large even integer may be written as the sum of two distinct primes.\n  Résumé\n  La conjecture de Goldbach et le plus petit nombre premier dans une progression arithmétique\n  Dans ce document, nous essayons d'étudier les relations entre la conjecture de Goldbach et le plus petit nombre premier dans une progression arithmétique. Nous donnons une nouvelle forme faible de la conjecture de Goldbach. Nous prouvons que cette forme affaiblie et une forme affaiblie de l'hypothèse de Chowla impliquent que tout entier pair suffisamment grand peut être écrit comme une somme de deux nombres premiers distincts.",
+          "claimed_authors": [
+            "Shaohua Zhang"
+          ],
+          "claimed_title": "Goldbach Conjecture and the least prime number in an arithmetic progression",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2008,
+          "primary_pointer": "0812.4610"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query=\"Residue Distribution of Euler's Totient Function Modulo Small Primes mathematics\", candidate_title='Goldbach Conjecture and the least prime number in an arithmetic progression')",
+        "failed_at": "2026-06-24T21:12:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this chapter, we explore how (Type-2) computable distributions can be used to give both (algorithmic) sampling and distributional semantics to probabilistic programs with continuous distributions. Towards this end, we sketch an encoding of computable distributions in a fragment of Haskell and show how topological domains can be used to model the resulting PCF-like language. We also examine the implications that a (Type-2) computable semantics has for implementing conditioning. We hope to draw out the connection between an approach based on (Type-2) computability and ordinary programming throughout the chapter as well as highlight the relation with constructive mathematics (via realizability).",
+          "claimed_authors": [
+            "Daniel Huang",
+            "Greg Morrisett",
+            "Bas Spitters"
+          ],
+          "claimed_title": "An Application of Computable Distributions to the Semantics of Probabilistic Programs",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1806.07966"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query=\"Residue Distribution of Euler's Totient Function Modulo Small Primes mathematics\", candidate_title='An Application of Computable Distributions to the Semantics of Probabilistic Programs')",
+        "failed_at": "2026-06-24T21:12:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "We provide upper bounds on the largest subsets of $\\{1,2,\\dots,N\\}$ with no differences of the form $h_1(n_1)+\\cdots+h_{\\ell}(n_{\\ell})$ with $n_i\\in \\mathbb{N}$ or $h_1(p_1)+\\cdots+h_{\\ell}(p_{\\ell})$ with $p_i$ prime, where $h_i\\in \\mathbb{Z}[x]$ lie in in the classes of so-called intersective and $\\mathcal{P}$-intersective polynomials, respectively. For example, we show that a subset of $\\{1,2,\\dots,N\\}$ free of nonzero differences of the form $n^j+m^k$ for fixed $j,k\\in \\mathbb{N}$ has density at most $e^{-(\\log N)^μ}$ for some $μ=μ(j,k)>0$. Our results, obtained by adapting two Fourier analytic, circle method-driven strategies, either recover or improve upon all previous results for a single polynomial.\n  UPDATE: While the results and proofs in this preprint are correct, the main result (Theorem 1.1) has been superseded prior to publication by a new paper ( https://arxiv.org/abs/1612.01760 ) that provides better results with considerably less technicality, to which the interested reader should refer.",
+          "claimed_authors": [
+            "Neil Lyall",
+            "Alex Rice"
+          ],
+          "claimed_title": "Difference Sets and Polynomials",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2015,
+          "primary_pointer": "1504.04904"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query=\"Residue Distribution of Euler's Totient Function Modulo Small Primes mathematics\", candidate_title='Difference Sets and Polynomials')",
+        "failed_at": "2026-06-24T21:12:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "The strong probable primality test is an important practical tool for discovering prime numbers. Its effectiveness derives from the following fact: for any odd composite number $n$, if a base $a$ is chosen at random, the algorithm is unlikely to claim that $n$ is prime. If this does happen we call $a$ a liar. In 1986, Erdős and Pomerance computed the normal and average number of liars, over all $n \\leq x$. We continue this theme and use a variety of techniques to count $n \\leq x$ with exactly two strong liars, those being the $n$ for which the strong test is maximally effective. We evaluate this count asymptotically and give an improved algorithm to determine it exactly. We also provide asymptotic counts for the restricted case in which $n$ has two prime factors, and for the $n$ with exactly two Euler liars.",
+          "claimed_authors": [
+            "Eric Bach",
+            "Andrew Shallue"
+          ],
+          "claimed_title": "Counting composites with two strong liars",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1308.0880"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query=\"Residue Distribution of Euler's Totient Function Modulo Small Primes mathematics\", candidate_title='Counting composites with two strong liars')",
+        "failed_at": "2026-06-24T21:12:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "In this paper, we used the principle of sieve function transformation to improve sieve method and the prime number theorem in the arithmetic sequence.For this, we proved General Riemann Hypothesis and Riemann Hypothesis to be true. further, we improved Selberg's line sieve method and proved Goldbach Conjecture and Twin Prime Conjecture to be true. However, we basically solved Hilbert's eighth problems.",
+          "claimed_authors": [
+            "Jinzhu Han"
+          ],
+          "claimed_title": "Study on Hilbert's Eighth Problems",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2007,
+          "primary_pointer": "0706.1929"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query=\"Residue Distribution of Euler's Totient Function Modulo Small Primes mathematics\", candidate_title=\"Study on Hilbert's Eighth Problems\")",
+        "failed_at": "2026-06-24T21:12:47Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Noah Lebowitz-Lockard",
+            "Paul Pollack",
+            "Akash Singha Roy"
+          ],
+          "title": "Distribution mod $p$ of Euler's totient and the sum of proper divisors",
+          "venue": "arXiv",
+          "year": 2021
+        },
+        "primary_pointer": "2105.12850",
+        "summary": "We consider the distribution in residue classes modulo primes $p$ of Euler's totient function $φ(n)$ and the sum-of-proper-divisors function $s(n):=σ(n)-n$. We prove that the values $φ(n)$, for $n\\le x$, that are coprime to $p$ are asymptotically uniformly distributed among the $p-1$ coprime residue classes modulo $p$, uniformly for $5 \\le p \\le (\\log{x})^A$ (with $A$ fixed but arbitrary). We also show that the values of $s(n)$, for $n$ composite, are uniformly distributed among all $p$ residue classes modulo every $p\\le (\\log{x})^A$. These appear to be the first results of their kind where the modulus is allowed to grow substantially with $x$.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "theoremsearch",
+          "final_url": "https://arxiv.org/abs/2105.12850",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.7778,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-24T21:12:46Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Paul Pollack",
+            "Akash Singha Roy"
+          ],
+          "title": "Mean values of multiplicative functions and applications to residue-class distribution",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2402.16266",
+        "summary": "We provide a uniform bound on the partial sums of multiplicative functions under very general hypotheses. As an application, we give a nearly optimal estimate for the count of $n \\le x$ for which the Alladi-Erdős function $A(n) = \\sum_{p^k \\parallel n} k p$ takes values in a given residue class modulo $q$, where $q$ varies uniformly up to a fixed power of $\\log x$. We establish a similar result for the equidistribution of the Euler totient function $φ(n)$ among the coprime residues to the \"correct\" moduli $q$ that vary uniformly in a similar range, and also quantify the failure of equidistribution of the values of $φ(n)$ among the coprime residue classes to the \"incorrect\" moduli.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "theoremsearch",
+          "final_url": "https://arxiv.org/abs/2402.16266",
+          "http_status": 200,
+          "pdf_sample_score": 0.18,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-24T21:12:46Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Paul Pollack",
+            "Akash Singha Roy"
+          ],
+          "title": "Distribution in coprime residue classes of polynomially-defined multiplicative functions",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2303.14600",
+        "summary": "An integer-valued multiplicative function $f$ is said to be polynomially-defined if there is a nonconstant separable polynomial $F(T)\\in \\mathbb{Z}[T]$ with $f(p)=F(p)$ for all primes $p$. We study the distribution in coprime residue classes of polynomially-defined multiplicative functions, establishing equidistribution results allowing a wide range of uniformity in the modulus $q$. For example, we show that the values $φ(n)$, sampled over integers $n \\le x$ with $φ(n)$ coprime to $q$, are asymptotically equidistributed among the coprime classes modulo $q$, uniformly for moduli $q$ coprime to $6$ that are bounded by a fixed power of $\\log{x}$.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "theoremsearch",
+          "final_url": "https://arxiv.org/abs/2303.14600",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5556,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-24T21:12:46Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "residue distribution of euler's totient function modulo small primes mathematics",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

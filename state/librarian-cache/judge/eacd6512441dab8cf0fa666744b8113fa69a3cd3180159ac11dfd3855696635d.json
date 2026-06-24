@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2605.20708",
+  "judged_at": "2026-06-24T21:06:14Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "rethinking cross-layer information routing in diffusion transformers computer science",
+  "rationale": "The paper investigates the same mechanism—cross‑layer information routing—in diffusion transformers, providing systematic analysis and a novel routing method, which directly aligns with the user’s research focus (acceptance category a).",
+  "relevant": true
+}

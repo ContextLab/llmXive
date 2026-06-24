@@ -19,6 +19,14 @@
     "classified_at": "2026-06-16T05:23:46Z",
     "verdict": false
   },
+  "PROJ-121-investigating-the-relationship-between-c::1.6.0": {
+    "classified_at": "2026-06-24T21:09:51Z",
+    "verdict": false
+  },
+  "PROJ-170-predicting-catalytic-activity-from-elect::1.6.0": {
+    "classified_at": "2026-06-24T21:08:19Z",
+    "verdict": false
+  },
   "PROJ-191-investigating-the-validity-of-the-invers::1.6.0": {
     "classified_at": "2026-06-16T08:26:08Z",
     "verdict": false
@@ -221,6 +229,10 @@
   },
   "PROJ-612-a-survey-of-large-audio-language-models::1.6.0": {
     "classified_at": "2026-06-08T16:44:19Z",
+    "verdict": false
+  },
+  "PROJ-625-https-arxiv-org-abs-2605-20708::1.6.0": {
+    "classified_at": "2026-06-24T21:06:03Z",
     "verdict": false
   },
   "PROJ-628-foundation-protocol-a-coordination-layer::1.6.0": {

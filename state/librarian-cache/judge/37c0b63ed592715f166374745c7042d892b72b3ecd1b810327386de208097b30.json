@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2312.03397",
+  "judged_at": "2026-06-24T21:06:40Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "rethinking cross-layer information routing in diffusion transformers computer science",
+  "rationale": "The paper focuses on a joint training objective for energy‑based and diffusion models via generalized contrastive divergence and inverse reinforcement learning, without addressing transformer architectures, cross‑layer information routing, or related mechanisms central to the user's question. Hence it does not meet any inclusion criteria (a‑f).",
+  "relevant": false
+}

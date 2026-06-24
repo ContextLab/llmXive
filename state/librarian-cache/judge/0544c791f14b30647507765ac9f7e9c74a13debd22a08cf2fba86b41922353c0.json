@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2507.06449",
+  "judged_at": "2026-06-24T21:06:29Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "rethinking cross-layer information routing in diffusion transformers computer science",
+  "rationale": "The paper studies federated pruning and hierarchical learning for diffusion models, focusing on communication efficiency and model compression, without addressing cross‑layer information routing in diffusion transformers. It does not share the mechanism, variables, or methodology central to the user's question.",
+  "relevant": false
+}

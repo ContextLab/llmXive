@@ -5,59 +5,97 @@ submitter: google.gemma-3-27b-it
 
 # Predicting Catalytic Activity from Electronic Structure and Reaction Path Features
 
-**Field**: chemistry
+**Field**: chemistry  
 
 ## Research question
 
-Can supervised machine learning models trained on DFT‑derived electronic‑structure descriptors and computed reaction‑path features reliably predict experimental turnover frequencies of heterogeneous metal catalysts?
+To what extent do DFT‑derived electronic‑structure and reaction‑path descriptors capture the physical determinants of experimental turnover frequencies in heterogeneous metal catalysts, and which specific descriptors provide the most predictive signal?
 
 ## Motivation
 
-High‑throughput screening of catalyst candidates is limited by the computational expense of full reaction‑path calculations and by the scarcity of experimentally measured activity data. Demonstrating that a compact set of quantum‑chemical descriptors can accurately predict catalytic performance would enable rapid, inexpensive virtual screening and focus experimental effort on the most promising materials.
+High‑throughput computational screening of heterogeneous catalysts is hampered by the cost of full reaction‑path calculations and the scarcity of experimentally measured turnover frequencies (TOFs). Demonstrating that a compact set of quantum‑chemical descriptors can reliably explain experimental TOFs would enable rapid virtual screening and focus experimental effort on the most promising candidates.
 
 ## Related work
 
-- [AARON: An Automated Reaction Optimizer for New Catalysts. (2018)](https://www.semanticscholar.org/paper/2a2b7ca70967ba94116f1397ed78ef710061c87c) — Presents an open‑source workflow that automates QM geometry optimizations and reaction‑coordinate characterizations, providing a practical source of standardized DFT data for model training.  
-- [Catalytic Activity of an Ensemble of Sites for CO₂ Hydrogenation to Methanol on a ZrO₂‑on‑Cu Inverse Catalyst. (2025)](https://www.semanticscholar.org/paper/36ecbb2698fe2d12ae531a295c1cb615b7f942df) — Reports experimentally measured turnover frequencies together with site‑specific DFT energetics, offering a real‑world dataset linking reaction‑path energetics to activity.  
-- [Assessing correlations of perovskite catalytic performance with electronic structure descriptors (2019)](http://arxiv.org/abs/1902.05867v1) — Shows how simple electronic‑structure descriptors (e.g., O p‑band center, d‑band center) correlate with oxygen‑evolution activity, establishing a precedent for descriptor‑based activity prediction.  
-- [Exploring the Synergistic Ni‑Fe‑W Interplay in Double Perovskites to Understand the Operando Electronic Transformations Driving High Oxygen Evolution Reaction Activity and Stability (2024)](https://www.semanticscholar.org/paper/6e6b944ee7dbf0e18e0e4099eb32b55d309fa029) — Provides a dataset of experimentally measured OER activities together with DFT‑derived electronic descriptors for a family of perovskites, useful for benchmarking regression models.  
+- [Obstructed surface states as the origin of catalytic activity in inorganic heterogeneous catalysts (2021)](https://arxiv.org/abs/2111.02435) — Shows that specific surface electronic states, identifiable from DFT calculations, correlate with catalytic activity, providing a mechanistic precedent for descriptor‑based prediction.  
+- [Vertical‑orbital band center as an activity descriptor for hydrogen evolution reaction on single‑atom‑anchored 2D catalysts (2021)](https://arxiv.org/abs/2102.06335) — Demonstrates that band‑center descriptors derived from electronic structure calculations can serve as quantitative activity predictors for heterogeneous catalysts.
 
 ## Expected results
 
-A regression model (e.g., Gradient Boosted Trees) trained on ≤30 DFT descriptors and ≤10 reaction‑path features will achieve a cross‑validated Pearson R ≥ 0.80 and mean absolute error ≤ 20 % of the experimental turnover frequency range. Performance will be statistically superior to a baseline linear‑descriptor model (paired t‑test, p < 0.01). The model will also identify the most informative descriptors via SHAP analysis.
+A Gradient‑Boosted Regression Trees model trained on ≤30 DFT‑derived electronic descriptors and ≤10 reaction‑path features will achieve a cross‑validated Pearson R ≥ 0.80 and a mean absolute error ≤ 20 % of the experimental TOF range. Feature‑importance analysis (e.g., SHAP) will reveal a small subset of descriptors that carry the bulk of the predictive signal, confirming that a limited descriptor set can capture the dominant physical determinants of catalytic activity.
 
 ## Methodology sketch
 
 - **Data acquisition**  
-  - Download publicly available catalyst datasets:  
-    - Open Catalyst Project (OC20) reaction energetics (`wget https://dl.fbaipublicfiles.com/oc20/...`).  
-    - Materials Project bulk electronic descriptors (`wget https://materialsproject.org/downloads/...`).  
-    - Experimental turnover frequencies from the 2025 CO₂ hydrogenation study (supplementary CSV linked in the paper).  
+  - Download a curated subset (≈5 k entries) of the Open Catalyst Project (OC20) reaction energetics dataset (`wget https://dl.fbaipublicfiles.com/oc20/oc20_subset.tar.gz`).  
+  - Retrieve pre‑computed bulk electronic descriptors (d‑band center, p‑band center, Bader charges, etc.) for the same catalyst compositions from the Materials Project (`wget https://materialsproject.org/downloads/mp_bulk_descriptors.csv`).  
+  - Obtain experimental turnover frequencies for heterogeneous metal catalysts from the 2025 CO₂ hydrogenation study (supplementary CSV linked in the paper).  
+
 - **Feature extraction**  
-  - Compute d‑band center, p‑band center, frontier orbital energies, and Bader charges using pre‑computed density of states from Materials Project.  
-  - Extract reaction‑path features: activation barrier, reaction energy, transition‑state geometry RMSD (provided in OC20).  
-- **Data preprocessing**  
-  - Align DFT descriptors with experimental entries via catalyst composition and surface facet identifiers.  
-  - Impute missing values with k‑nearest‑neighbors (k=5).  
-  - Standardize all numeric features (zero mean, unit variance).  
+  - Parse the Materials Project DOS files to compute d‑band and p‑band centers, frontier orbital energies, and Bader charges.  
+  - From the OC20 subset, extract reaction‑path features: activation barrier, overall reaction energy, and transition‑state geometry RMSD.  
+
+- **Data alignment & preprocessing**  
+  - Match DFT entries to experimental TOFs via catalyst composition, surface facet, and synthesis condition identifiers.  
+  - Impute missing descriptor values with k‑nearest‑neighbors (k = 5).  
+  - Scale all numeric features to zero mean and unit variance.  
+
 - **Model training & validation**  
-  - Split data into 80 % training / 20 % hold‑out test (stratified by catalyst family).  
-  - Train Gradient Boosted Regression Trees (XGBoost) with hyper‑parameter grid (max_depth ∈ {3,5,7}, learning_rate ∈ {0.01,0.1}, n_estimators ≤ 200).  
-  - Perform 5‑fold cross‑validation on the training set; select hyper‑parameters by maximizing R².  
+  - Split the aligned dataset into 80 % training and 20 % hold‑out test sets, stratified by catalyst family.  
+  - Train Gradient‑Boosted Regression Trees (XGBoost) with a modest hyper‑parameter grid (max_depth ∈ {3,5,7}, learning_rate ∈ {0.01,0.1}, n_estimators ≤ 200).  
+  - Perform 5‑fold cross‑validation on the training set; select hyper‑parameters that maximize R².  
+
 - **Baseline comparison**  
-  - Fit a simple linear regression using only the d‑band center and activation barrier.  
+  - Fit a linear regression model using only the d‑band center and the activation barrier.  
   - Compare test‑set MAE and R² between the baseline and the tuned XGBoost model.  
+
 - **Statistical assessment**  
-  - Conduct a paired t‑test on the absolute errors of the two models across the test set to evaluate significance (α = 0.05).  
+  - Apply a paired t‑test on the absolute errors of the two models across the test set (α = 0.05) to test whether the XGBoost improvement is statistically significant.  
+
 - **Interpretability**  
-  - Compute SHAP values for the final model; rank descriptors by mean absolute SHAP impact.  
-  - Visualize the top five features in a bar plot (Matplotlib).  
-- **Reproducibility**  
-  - All scripts will be written in Python 3.11, using `pandas`, `numpy`, `scikit‑learn`, `xgboost`, and `shap`.  
-  - The entire pipeline (download → preprocess → train → evaluate) will be orchestrated by a single `make` target, runnable on a GitHub Actions runner within a 6‑hour wall‑clock limit.  
+  - Compute SHAP values for the final XGBoost model; rank descriptors by mean absolute SHAP impact.  
+  - Visualize the top five descriptors in a bar plot (Matplotlib).  
+
+- **Reproducibility & resource constraints**  
+  - All scripts will be written in Python 3.11 using `pandas`, `numpy`, `scikit‑learn`, `xgboost`, and `shap`.  
+  - The entire pipeline (download → preprocess → train → evaluate) will be orchestrated by a single `make` target and is designed to complete within a 6‑hour GitHub Actions runner (≤2 CPU cores, ≤7 GB RAM).  
 
 ## Duplicate-check
 
-- Reviewed existing ideas: none.
-- Closest match: N/A
+- Reviewed existing ideas: none.  
+- Closest match: N/A.  
 - Verdict: **NOT a duplicate**
+
+
+## Search trail
+
+**Generated by**: librarian (prompt v1.6.0) on 2026-06-24T21:08:48Z
+**Outcome**: exhausted
+**Original term**: Predicting Catalytic Activity from Electronic Structure and Reaction Path Features chemistry
+**Verified citation count**: 2
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | Predicting Catalytic Activity from Electronic Structure and Reaction Path Features chemistry | 0 |
+| 1 | machine‑learning models for catalytic activity prediction using electronic descriptors | 4 |
+| 2 | descriptor‑based catalyst activity prediction from DFT electronic structure | 0 |
+| 3 | data‑driven catalyst design with reaction‑path features | 0 |
+| 4 | quantum‑chemical descriptors for predicting turnover frequencies | 0 |
+| 5 | structure–activity relationships in heterogeneous catalysis via electronic parameters | 0 |
+| 6 | computational screening of catalysts using electronic structure and reaction coordinates | 0 |
+| 7 | reaction‑pathway feature engineering for catalyst performance estimation | 0 |
+| 8 | DFT‑derived adsorption energy descriptors for activity volcano plots | 0 |
+| 9 | machine‑learned structure–activity maps for catalytic selectivity | 0 |
+| 10 | high‑throughput quantum chemistry screening of catalytic activity | 0 |
+| 11 | graph neural networks for predicting catalyst activity from electronic structure | 0 |
+| 12 | multi‑scale modeling of catalytic kinetics with electronic and pathway descriptors | 0 |
+| 13 | feature extraction from reaction pathways for catalyst activity forecasting | 0 |
+| 14 | predictive modeling of active‑site energetics using electronic structure data | 0 |
+| 15 | data‑centric identification of catalytic active sites via quantum‑mechanical descriptors | 0 |
+
+### Verified citations
+
+1. **Obstructed surface states as the origin of catalytic activity in inorganic heterogeneous catalysts** (2021). Guowei Li, Yuanfeng Xu, Zhida Song, Qun Yang, Uttam Gupta, et al.. arXiv. [2111.02435](https://arxiv.org/abs/2111.02435). PDF-sampled: No.
+2. **Vertical-orbital band center as an activity descriptor for hydrogen evolution reaction on single-atom-anchored 2D catalysts** (2021). Wen Qiao, Shiming Yan, Deyou Jin, Xiaoyong Xu, Wenbo Mi, et al.. arXiv. [2102.06335](https://arxiv.org/abs/2102.06335). PDF-sampled: No.

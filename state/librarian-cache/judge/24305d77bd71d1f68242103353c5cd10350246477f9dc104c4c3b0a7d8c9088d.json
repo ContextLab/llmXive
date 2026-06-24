@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2402.16266",
+  "judged_at": "2026-06-24T21:13:00Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "residue distribution of euler's totient function modulo small primes mathematics",
+  "rationale": "The paper studies the equidistribution of the Euler totient function φ(n) in residue classes modulo various moduli, which directly includes the case of small prime moduli, matching the user's focus on residue distribution of φ(n) modulo small primes (acceptance category (a)).",
+  "relevant": true
+}

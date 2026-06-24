@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2105.00790",
+  "judged_at": "2026-06-24T21:12:55Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "residue distribution of euler's totient function modulo small primes mathematics",
+  "rationale": "The paper studies an asymptotic sum involving the Euler totient function over shifted primes, but it does not investigate the residues of φ(n) modulo small primes, nor provide baseline or methodology for that specific distribution problem. Hence it does not meet any inclusion criteria (a‑f).",
+  "relevant": false
+}

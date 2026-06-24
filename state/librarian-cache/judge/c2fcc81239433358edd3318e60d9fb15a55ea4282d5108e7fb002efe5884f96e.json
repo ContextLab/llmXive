@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2604.07560",
+  "judged_at": "2026-06-24T21:08:30Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting catalytic activity from electronic structure and reaction path features chemistry",
+  "rationale": "The paper focuses on predicting medicinal‑chemistry activity cliffs (potency changes) using matched molecular pairs and pharmacophore features, not on catalytic activity, electronic structure, or reaction‑path descriptors relevant to chemistry catalysis. It addresses a different construct and domain, so it would not be cited in a review of predicting catalytic activity from electronic structure and reaction‑path features.",
+  "relevant": false
+}

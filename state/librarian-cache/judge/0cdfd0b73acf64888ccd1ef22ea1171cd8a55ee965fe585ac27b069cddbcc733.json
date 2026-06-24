@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1711.04117",
+  "judged_at": "2026-06-24T21:10:16Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "investigating the relationship between cosmic ray anisotropy and solar cycle variations physics",
+  "rationale": "The paper provides measurements and analysis of solar‑cycle amplitudes (a key independent variable in the user’s question), satisfying criterion (b): it measures one of the variables (solar cycle variation) on the relevant domain, even though it does not address cosmic‑ray anisotropy.",
+  "relevant": true
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2102.06335",
+  "judged_at": "2026-06-24T21:08:37Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting catalytic activity from electronic structure and reaction path features chemistry",
+  "rationale": "The paper links an electronic-structure descriptor (dz2‑band center) to catalytic activity for HER, providing a mechanistic correlation between electronic structure and activity—fulfilling acceptance criterion (a) (same‑mechanism evidence) and (b) (measures both electronic structure and catalytic performance).",
+  "relevant": true
+}

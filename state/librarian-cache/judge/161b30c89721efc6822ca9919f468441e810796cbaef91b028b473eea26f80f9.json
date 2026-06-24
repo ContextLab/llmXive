@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2311.03335",
+  "judged_at": "2026-06-24T21:06:37Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "rethinking cross-layer information routing in diffusion transformers computer science",
+  "rationale": "The paper focuses on a cross‑image attention mechanism for appearance transfer in diffusion models, not on cross‑layer information routing within diffusion transformers; it does not address the same mechanism, variables, or methodological focus required by the user's question.",
+  "relevant": false
+}
