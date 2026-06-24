@@ -696,18 +696,30 @@ class DartmouthBackend(BaseBackend):
             # to a non-reasoning model.
             meta = getattr(reply, "response_metadata", {}) or {}
             finish_reason = meta.get("finish_reason")
-            if not text_out.strip() and finish_reason == "length":
+            if not text_out.strip():
+                reply_kwargs = getattr(reply, "additional_kwargs", {}) or {}
+                refusal = reply_kwargs.get("refusal")
+                if refusal:
+                    # A genuine content-filter refusal — the model WON'T produce
+                    # this no matter how often we ask. Skip to the next peer.
+                    raise PermanentBackendError(
+                        f"Dartmouth model {model!r} refused (refusal={refusal!r}, "
+                        f"finish_reason={finish_reason!r})"
+                    )
+                # Empty content WITHOUT a refusal — `length` (reasoning budget
+                # exhausted) OR `stop`/None (a transient hiccup where the model
+                # returned nothing despite stopping normally). Both are TRANSIENT:
+                # retry / fall through to a PEER model. Previously a `stop`+empty
+                # reply was misclassified PERMANENT, abandoning the whole dartmouth
+                # backend and failing the step (observed live on PROJ-018's
+                # clarifier: gpt-oss-120b returned '' + finish_reason='stop',
+                # refusal=None → the step died instead of retrying a peer).
                 usage = meta.get("token_usage", {}) or {}
                 raise TransientBackendError(
                     f"Dartmouth model {model!r} returned empty content "
-                    f"(finish_reason=length, completion_tokens={usage.get('completion_tokens')}); "
-                    "reasoning budget exhausted — retry with larger max_tokens or fall through to a non-reasoning model"
-                )
-            if not text_out.strip():
-                # Other empty replies (filter, refusal, etc.) — surface loudly.
-                raise PermanentBackendError(
-                    f"Dartmouth model {model!r} returned empty content "
-                    f"(finish_reason={finish_reason!r}, additional_kwargs={getattr(reply, 'additional_kwargs', {})})"
+                    f"(finish_reason={finish_reason!r}, "
+                    f"completion_tokens={usage.get('completion_tokens')}) "
+                    "— transient empty reply; retry / fall through to a peer model"
                 )
 
             # Free models cost 0.0; an opted-in paid call reports its real
