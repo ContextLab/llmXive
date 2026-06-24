@@ -92,14 +92,17 @@ def test_every_eligible_stage_gets_a_nonvanishing_share(population: Path) -> Non
         )
 
 
-def test_late_stage_preference_is_kept_but_bounded(population: Path) -> None:
-    """Late stages still lead (finish-what-is-started), but no longer
-    absorb effectively everything: the deep, stale idea queue's share must
-    be meaningfully ABOVE its floor, and paper_review must be below 90%."""
+def test_load_balancing_drains_the_overfull_stage(population: Path) -> None:
+    """Load-balancing policy (replaces the old late-stage 'finish-what-is-
+    started' bias): the most OVER-target stage — the 80-deep flesh_out_complete
+    queue — gets the dominant share so it drains toward the equal-per-stage
+    target, while every UNDER-target stage (paper_review, in_progress,
+    brainstormed) just coasts at the MIN_STAGE_SHARE floor."""
     shares = _stage_shares(population)
-    assert shares.get(Stage.PAPER_REVIEW, 0.0) > shares.get(Stage.BRAINSTORMED, 0.0)
-    assert shares.get(Stage.PAPER_REVIEW, 0.0) < 0.90
-    assert shares.get(Stage.FLESH_OUT_COMPLETE, 0.0) > 0.03
+    foc = shares.get(Stage.FLESH_OUT_COMPLETE, 0.0)
+    assert foc > 0.6, shares  # the overfull stage is drained the most
+    for s in (Stage.PAPER_REVIEW, Stage.IN_PROGRESS, Stage.BRAINSTORMED):
+        assert shares.get(s, 0.0) < foc  # under-target stages coast at the floor
 
 
 def test_never_pick_stages_stay_excluded(population: Path) -> None:
@@ -121,42 +124,39 @@ def test_stage_restricted_pick_unchanged(population: Path) -> None:
         assert p.current_stage == Stage.FLESH_OUT_COMPLETE
 
 
-def test_stage_weight_counterweights() -> None:
-    """Depth and staleness both increase a stage's weight; the rank
-    preference is capped at STAGE_RANK_CAP."""
+def test_balancer_weights_overflow_with_brainstorm_headroom() -> None:
+    """`_stage_weights_with_floor` weights each stage by how far its queue
+    exceeds the equal-share target, and `brainstormed` carries +25% headroom
+    before the balancer starts draining it."""
+    from llmxive.pipeline.scheduler import (
+        BRAINSTORM_HEADROOM,
+        _stage_weights_with_floor,
+    )
+
+    assert BRAINSTORM_HEADROOM == 1.25
     now = datetime.now(UTC)
 
-    def proj(i: int, stage: Stage, days: float) -> Project:
-        pid = f"PROJ-{7000 + i}-w"
-        return Project(
-            id=pid,
-            title="w",
-            field="test",
-            current_stage=stage,
-            created_at=now - timedelta(days=days),
-            updated_at=now - timedelta(days=days),
-            artifact_hashes={},
-            speckit_research_dir=f"projects/{pid}/specs/001-t",
-            speckit_paper_dir=f"projects/{pid}/paper/specs/001-p",
-        )
+    counter = [8000]
 
-    shallow = [proj(0, Stage.FLESH_OUT_COMPLETE, 1.0)]
-    deep = [proj(i, Stage.FLESH_OUT_COMPLETE, 1.0) for i in range(100)]
-    assert scheduler.stage_weight(
-        Stage.FLESH_OUT_COMPLETE, deep, now=now
-    ) > scheduler.stage_weight(Stage.FLESH_OUT_COMPLETE, shallow, now=now)
+    def projs(stage: Stage, n: int) -> list[Project]:
+        out = []
+        for _ in range(n):
+            counter[0] += 1
+            out.append(Project(
+                id=f"PROJ-{counter[0]}-w", title="t", field="t",
+                current_stage=stage, created_at=now, updated_at=now,
+                artifact_hashes={},
+            ))
+        return out
 
-    fresh = [proj(0, Stage.FLESH_OUT_COMPLETE, 0.1)]
-    stale = [proj(1, Stage.FLESH_OUT_COMPLETE, 30.0)]
-    assert scheduler.stage_weight(
-        Stage.FLESH_OUT_COMPLETE, stale, now=now
-    ) > scheduler.stage_weight(Stage.FLESH_OUT_COMPLETE, fresh, now=now)
-
-    # Rank preference saturates at the cap: PAPER_REVIEW (rank 18) and the
-    # capped rank stage weigh the same per-queue, all else equal.
-    capped_stage = scheduler.STAGE_PROGRESSION[scheduler.STAGE_RANK_CAP]
-    a = [proj(0, Stage.PAPER_REVIEW, 1.0)]
-    b = [proj(1, capped_stage, 1.0)]
-    assert scheduler.stage_weight(Stage.PAPER_REVIEW, a, now=now) == pytest.approx(
-        scheduler.stage_weight(capped_stage, b, now=now)
-    )
+    # base target = 210 / 3 = 70. validated & brainstormed both 100 (over base);
+    # flesh_out_complete 10 (under). brainstorm target 70*1.25=87.5, validated's 70.
+    by_stage = {
+        Stage.VALIDATED: projs(Stage.VALIDATED, 100),
+        Stage.BRAINSTORMED: projs(Stage.BRAINSTORMED, 100),
+        Stage.FLESH_OUT_COMPLETE: projs(Stage.FLESH_OUT_COMPLETE, 10),
+    }
+    w = _stage_weights_with_floor(by_stage)
+    assert w[Stage.VALIDATED] > w[Stage.FLESH_OUT_COMPLETE]  # over-target drains first
+    assert w[Stage.VALIDATED] > w[Stage.BRAINSTORMED]   # +25% headroom -> drained less
+    assert w[Stage.FLESH_OUT_COMPLETE] > 0              # floor keeps it pickable

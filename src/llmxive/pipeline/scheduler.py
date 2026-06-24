@@ -232,18 +232,46 @@ def stage_weight(
     return pref * depth_term * staleness_term
 
 
+#: Brainstorm is the funnel mouth; allow it to carry up to 25% MORE than the
+#: per-stage target before the balancer starts draining it (user policy).
+BRAINSTORM_HEADROOM: float = 1.25
+
+
+def _stage_target(stage: Stage, base_target: float) -> float:
+    """Per-stage target population for the load balancer."""
+    return base_target * (BRAINSTORM_HEADROOM if stage == Stage.BRAINSTORMED else 1.0)
+
+
 def _stage_weights_with_floor(
     by_stage: dict[Stage, list[Project]], *, now: datetime | None = None
 ) -> dict[Stage, float]:
-    """Stage weights with the MIN_STAGE_SHARE floor applied (FR-006)."""
-    weights = {
-        s: stage_weight(s, cands, now=now) for s, cands in by_stage.items()
+    """LOAD-BALANCING stage weights (user policy): drive every pipeline stage
+    toward an EQUAL share of the active population, with up to +25% headroom at
+    `brainstormed`.
+
+    A stage's weight is how far its queue exceeds its target — so the fullest
+    stages drain first and the populations equalize. When every stage is at or
+    under target (already balanced) we fall back to draining proportional to
+    queue depth so flow still advances. The MIN_STAGE_SHARE floor keeps every
+    eligible stage pickable so nothing is ever fully starved (FR-006); the
+    within-stage pick (`priority_score`) handles staleness/oldest-first.
+    """
+    counts = {s: len(c) for s, c in by_stage.items()}
+    total = sum(counts.values())
+    nstages = len(by_stage)
+    if total <= 0 or nstages == 0:
+        return {s: 0.0 for s in by_stage}
+    base_target = total / nstages
+    over = {
+        s: max(0.0, counts[s] - _stage_target(s, base_target)) for s in by_stage
     }
-    total = sum(weights.values())
-    if total <= 0:
-        return weights
-    floor = MIN_STAGE_SHARE * total
-    return {s: max(w, floor) for s, w in weights.items()}
+    if sum(over.values()) <= 0:  # already balanced → keep flow moving by depth
+        over = {s: float(counts[s]) for s in by_stage}
+    total_over = sum(over.values())
+    if total_over <= 0:
+        return over
+    floor = MIN_STAGE_SHARE * total_over
+    return {s: max(w, floor) for s, w in over.items()}
 
 
 def _pick_within_stage(

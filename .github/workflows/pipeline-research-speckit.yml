@@ -24,21 +24,11 @@ jobs:
         with: { python-version: "3.11", cache: pip }
       - run: pip install -e ".[dev]"
       - run: python -m llmxive preflight
-      # Each speckit stage gets an explicit, stage-filtered pass so the chain
-      # actually DRAINS (the prior single unfiltered `run` relied on the
-      # counterweighted roulette, which starved the populous `validated` entry
-      # stage — hundreds of validated ideas piled up, never entering research).
-      # Ordered so a project can advance several stages within one tick.
-      - name: project_initializer (validated -> project_initialized)
-        run: python -m llmxive run --max-tasks 12 --stage validated
-      - name: specifier (project_initialized -> specified)
-        run: python -m llmxive run --max-tasks 8 --stage project_initialized
-      - name: clarifier (specified -> clarified)
-        run: python -m llmxive run --max-tasks 8 --stage specified
-      - name: planner (clarified -> planned)
-        run: python -m llmxive run --max-tasks 8 --stage clarified
-      - name: tasker (planned -> tasked)
-        run: python -m llmxive run --max-tasks 8 --stage planned
+      # Load-balanced: the scheduler advances the most over-target stages,
+      # draining the speckit chain (validated -> project_initialized -> ... ->
+      # tasked) toward an equal per-stage population. No per-stage filter.
+      - name: Balanced advance pass
+        run: python -m llmxive run --max-tasks 16
       - run: python -c "from llmxive.agents.status_reporter import regenerate_web_data; from pathlib import Path; regenerate_web_data(repo_root=Path('.'))"
       - name: Commit + push
         id: commit

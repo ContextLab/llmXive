@@ -31,8 +31,8 @@ jobs:
         with: { python-version: "3.11", cache: pip }
       - run: pip install -e ".[dev]"
       - run: python -m llmxive preflight
-      - name: Run idea-validation pass
-        run: python -m llmxive run --max-tasks 8 --stage flesh_out_complete
+      - name: Balanced advance pass
+        run: python -m llmxive run --max-tasks 8
       - run: python -c "from llmxive.agents.status_reporter import regenerate_web_data; from pathlib import Path; regenerate_web_data(repo_root=Path('.'))"
       - name: Commit + push
         id: commit

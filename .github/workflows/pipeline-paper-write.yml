@@ -26,8 +26,8 @@ jobs:
           sudo apt-get update && sudo apt-get install -y --no-install-recommends texlive texlive-latex-extra texlive-fonts-recommended texlive-bibtex-extra latexmk
       - run: pip install -e ".[dev]"
       - run: python -m llmxive preflight
-      - name: Run paper-implementer pass
-        run: python -m llmxive run --max-tasks 8 --stage paper_tasked
+      - name: Balanced advance pass
+        run: python -m llmxive run --max-tasks 8
       - run: python -c "from llmxive.agents.status_reporter import regenerate_web_data; from pathlib import Path; regenerate_web_data(repo_root=Path('.'))"
       - name: Commit + push
         id: commit

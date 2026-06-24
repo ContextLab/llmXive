@@ -24,10 +24,10 @@ jobs:
         with: { python-version: "3.11", cache: pip }
       - run: pip install -e ".[dev]"
       - run: python -m llmxive preflight
-      - name: Run flesh-out pass (brainstormed -> flesh_out_in_progress)
-        run: python -m llmxive run --max-tasks 5 --stage brainstormed
-      - name: Resume stalled flesh-outs (flesh_out_in_progress -> flesh_out_complete)
-        run: python -m llmxive run --max-tasks 8 --stage flesh_out_in_progress
+      # Load-balanced: scheduler advances the most over-target stages (incl.
+      # brainstormed -> flesh_out and resuming stalled flesh_out_in_progress).
+      - name: Balanced advance pass
+        run: python -m llmxive run --max-tasks 8
       - run: python -c "from llmxive.agents.status_reporter import regenerate_web_data; from pathlib import Path; regenerate_web_data(repo_root=Path('.'))"
       - name: Commit + push
         id: commit

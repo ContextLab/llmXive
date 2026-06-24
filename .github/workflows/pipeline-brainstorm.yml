@@ -39,8 +39,8 @@ jobs:
           if deficit:
               subprocess.run([sys.executable, '-m', 'llmxive', 'brainstorm', '-n', str(deficit)], check=False)
           "
-      - name: Advance brainstormed projects (flesh-out)
-        run: python -m llmxive run --max-tasks 5 --stage brainstormed
+      - name: Balanced advance pass
+        run: python -m llmxive run --max-tasks 6
       - name: Regenerate web data
         run: python -c "from llmxive.agents.status_reporter import regenerate_web_data; from pathlib import Path; regenerate_web_data(repo_root=Path('.'))"
       - name: Commit + push
