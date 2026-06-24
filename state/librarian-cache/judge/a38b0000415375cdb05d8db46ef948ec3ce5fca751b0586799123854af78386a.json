@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1301.4614",
+  "judged_at": "2026-06-24T18:04:04Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "statistical modeling of temporal dependence in cryptocurrency price fluctuations statistics",
+  "rationale": "The paper studies ambiguous volatility and continuous‑time asset pricing theory, without focusing on statistical time‑series models of price dynamics or on cryptocurrency markets; it does not address temporal dependence in crypto price fluctuations, nor provide a baseline or methodology relevant to that specific domain. Hence it falls outside the scope of the user's question.",
+  "relevant": false
+}

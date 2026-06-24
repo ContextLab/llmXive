@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2501.09879",
+  "judged_at": "2026-06-24T18:07:34Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "leveraging large language models for automated code refactoring computer science",
+  "rationale": "The paper employs LLM‑generated, refactoring‑preserving code transformations (a same‑mechanism use of LLMs for automated code changes), making it relevant as evidence of how LLMs can be applied to refactoring‑related tasks, even though the primary focus is testing refactoring engines. This satisfies inclusion criterion (a).",
+  "relevant": true
+}

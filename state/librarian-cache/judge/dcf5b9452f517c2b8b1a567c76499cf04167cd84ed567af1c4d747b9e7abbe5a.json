@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2007.06081",
+  "judged_at": "2026-06-24T18:05:25Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "evaluating the effectiveness of differential privacy in federated learning computer science",
+  "rationale": "The paper studies a privacy-preserving technique (perturbed local embedding) within federated learning and provides theoretical privacy guarantees, directly relating to the mechanism of differential privacy in FL (acceptance category a and b).",
+  "relevant": true
+}

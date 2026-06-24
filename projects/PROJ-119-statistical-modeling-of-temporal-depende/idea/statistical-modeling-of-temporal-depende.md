@@ -9,36 +9,84 @@ submitter: google.gemma-3-27b-it
 
 ## Research question
 
-Does incorporating higher‑order Markov or stochastic‑volatility time‑series models capture serial correlation in Bitcoin and Ethereum prices enough to yield statistically significant improvements over a naïve random‑walk forecast for short‑term price movements?
+What is the magnitude and structure of serial correlation in Bitcoin and Ethereum returns across different time horizons, and can this dependence be distinguished from random noise using out-of-sample forecast accuracy?
 
 ## Motivation
 
-Cryptocurrency markets are highly liquid and exhibit rapid price swings, yet many forecasting studies assume independent price changes. Demonstrating that temporal dependence can be exploited would provide a principled statistical edge for short‑term prediction without resorting to external sentiment or macro‑economic variables.
+Cryptocurrency markets generate high‑frequency price data, yet most short‑term forecasting efforts assume independent price changes. Quantifying the true extent of serial correlation and showing whether it yields measurable predictive gains would clarify whether statistical models can exploit temporal dependence without resorting to external sentiment or macro‑economic signals.
 
 ## Related work
 
-- [Statistical Modeling of Spatial Extremes (2012)](http://arxiv.org/abs/1208.3378v1) — Illustrates advanced hierarchical models for dependent extremes, offering methodological inspiration for handling heavy‑tailed financial returns.  
-- [Statistics, Causality and Bell's Theorem (2012)](http://arxiv.org/abs/1207.5103v6) — Discusses causal inference frameworks that can be adapted to assess whether observed temporal dependence is spurious or genuine.  
-- [Statistical Modeling of RNA‑Seq Data (2011)](http://arxiv.org/abs/1106.3211v1) — Presents flexible count‑based models and over‑dispersion handling, relevant for modeling the heavy‑tailed distribution of cryptocurrency returns.  
-- [The Statistical Analysis of fMRI Data (2009)](http://arxiv.org/abs/0906.3662v1) — Reviews time‑series approaches for correlated spatial data, providing analogues for multivariate (Bitcoin & Ethereum) price series.
+- [Time Series Analysis for Education: Methods, Applications, and Future Directions (2024)](https://arxiv.org/abs/2408.13960) — Provides a modern overview of time‑series modeling techniques (state‑space, hierarchical, Bayesian) that can be adapted as methodological precedents for modeling serial dependence in financial returns.  
+- [Bayesian Dynamic Modeling of Realized Volatility in Financial Asset Price Forecasting (2026)](https://arxiv.org/abs/2605.12099) — Introduces Bayesian dynamic models for bivariate realized‑volatility series and demonstrates out‑of‑sample forecasting improvements, directly relevant to evaluating dependence in Bitcoin and Ethereum price dynamics.
 
 ## Expected results
 
-We anticipate that a second‑order Markov chain or a stochastic volatility model will reduce out‑of‑sample MAE and RMSE by at least 5 % relative to the random‑walk benchmark, with the improvement confirmed by a Diebold‑Mariano test (p < 0.05). Failure to achieve this margin would suggest that short‑term serial correlation is too weak to exploit with these models.
+We expect to observe statistically significant serial correlation in daily (and multi‑day) log‑returns of Bitcoin and Ethereum, manifested as non‑zero autocorrelation coefficients and transition structures that differ from a pure random walk. Forecasting models that incorporate this dependence (e.g., higher‑order Markov chains, stochastic‑volatility or Bayesian dynamic models) should achieve at least a 5 % reduction in out‑of‑sample MAE/RMSE relative to a naïve random‑walk benchmark, with significance confirmed by a Diebold‑Mariano test (p < 0.05). A failure to meet this margin would suggest that short‑term dependence is too weak for practical exploitation.
 
 ## Methodology sketch
 
-- **Data acquisition**: `wget` daily OHLCV CSV files for Bitcoin (BTC) and Ethereum (ETH) from CoinGecko’s public API (e.g., `https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?...`).  
-- **Preprocessing**: Compute log‑returns, remove weekends/holidays, align both series on a common date index, and split into training (first 80 %) and test (last 20 %) periods.  
-- **Baseline model**: Fit a naïve random‑walk forecast (zero‑mean return) on the training set; generate 1‑day ahead forecasts for the test set.  
-- **Higher‑order Markov model**: Discretize returns into three states (negative, near‑zero, positive). Estimate transition matrices for order‑2 chains using maximum likelihood; forecast the most probable next state and map back to expected return.  
-- **Stochastic volatility (SV) model**: Use the `arch` Python package (or R’s `stochvol`) to estimate a SV model with Gaussian innovations on the training returns. Generate 1‑day ahead predictive densities and use the posterior mean as the point forecast.  
-- **Evaluation**: Compute Mean Absolute Error (MAE) and Root Mean Squared Error (RMSE) for each model on the test set. Apply the Diebold‑Mariano test to compare each sophisticated model against the baseline.  
-- **Robustness checks**: Repeat the analysis with alternative horizons (2‑day, 5‑day) and with a multivariate Vector‑Autoregressive (VAR) specification to capture cross‑asset dependence.  
-- **Reproducibility**: All code will be in a single Python notebook (`analysis.ipynb`) using only `pandas`, `numpy`, `statsmodels`, `arch`, and `scipy`; the notebook will be executable on a GitHub Actions runner within the 6‑hour limit.
+- **Data acquisition**: `wget` daily OHLCV CSV files for Bitcoin (BTC) and Ethereum (ETH) from the public CoinGecko API (e.g., `https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?...`).  
+- **Preprocessing**:  
+  - Compute log‑returns from closing prices.  
+  - Align BTC and ETH series on a common calendar, removing missing days.  
+  - Split the joint dataset into training (first 80 %) and test (last 20 %) periods.  
+- **Baseline model**: Fit a naïve random‑walk forecast (zero‑mean return) on the training set; generate 1‑day‑ahead point forecasts for the test set.  
+- **Higher‑order Markov model**:  
+  - Discretize returns into three states (negative, near‑zero, positive).  
+  - Estimate second‑order transition matrices via maximum likelihood.  
+  - Forecast the most probable next state and map it to the expected return.  
+- **Stochastic volatility (SV) model**:  
+  - Use the Python `arch` package to estimate a univariate SV model for each asset’s training returns.  
+  - Produce 1‑day‑ahead predictive densities; use the posterior mean as the point forecast.  
+- **Bayesian dynamic volatility model**:  
+  - Implement the model from *Bayesian Dynamic Modeling of Realized Volatility* (2026) using `pymc3`/`numpyro`.  
+  - Fit a bivariate dynamic‑gamma process to the realized‑volatility series (computed as squared returns).  
+  - Generate joint 1‑day forecasts for BTC and ETH.  
+- **Evaluation**:  
+  - Compute MAE and RMSE for each model on the test set.  
+  - Apply the Diebold‑Mariano test to compare each sophisticated model against the baseline, assessing whether forecast improvements are statistically distinguishable from random noise.  
+- **Robustness checks**:  
+  - Repeat the analysis for 2‑day and 5‑day horizons.  
+  - Fit a Vector‑Autoregressive (VAR) model to capture cross‑asset dependence and compare its performance.  
+- **Reproducibility**: All code will reside in a single Jupyter notebook (`analysis.ipynb`) using only `pandas`, `numpy`, `statsmodels`, `arch`, `pymc3`/`numpyro`, and `scipy`. The notebook is designed to run end‑to‑end on a GitHub Actions free‑tier runner within the 6‑hour time limit.
 
 ## Duplicate-check
 
 - Reviewed existing ideas: none.
-- Closest match: none (no similar cryptocurrency‑time‑series project found in the corpus).
+- Closest match: none.
 - Verdict: NOT a duplicate.
+
+
+## Search trail
+
+**Generated by**: librarian (prompt v1.6.0) on 2026-06-24T18:04:05Z
+**Outcome**: exhausted
+**Original term**: Statistical Modeling of Temporal Dependence in Cryptocurrency Price Fluctuations statistics
+**Verified citation count**: 2
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | Statistical Modeling of Temporal Dependence in Cryptocurrency Price Fluctuations statistics | 0 |
+| 1 | time series analysis of cryptocurrency returns | 3 |
+| 2 | volatility modeling for digital asset prices | 3 |
+| 3 | GARCH and EGARCH models applied to Bitcoin price dynamics | 0 |
+| 4 | stochastic volatility models in crypto markets | 0 |
+| 5 | autoregressive conditional heteroskedasticity for cryptocurrency | 0 |
+| 6 | long‑memory and fractional integration in crypto price series | 0 |
+| 7 | high‑frequency dependence structures of cryptocurrency prices | 0 |
+| 8 | Markov‑switching regimes in digital currency price movements | 0 |
+| 9 | state‑space and Kalman filter approaches to crypto price evolution | 0 |
+| 10 | cointegration and error‑correction models for multiple cryptocurrencies | 0 |
+| 11 | multivariate copula models for joint cryptocurrency returns | 0 |
+| 12 | nonlinear time‑series models capturing crypto price bubbles | 0 |
+| 13 | machine‑learning based time‑series forecasting of blockchain asset prices | 0 |
+| 14 | Bayesian dynamic hierarchical models for cryptocurrency price trends | 0 |
+| 15 | event‑driven volatility spillovers in cryptocurrency markets | 0 |
+
+### Verified citations
+
+1. **Time Series Analysis for Education: Methods, Applications, and Future Directions** (2024). Shengzhong Mao, Chaoli Zhang, Yichi Song, Jindong Wang, Xiao-Jun Zeng, et al.. arXiv. [2408.13960](https://arxiv.org/abs/2408.13960). PDF-sampled: No.
+2. **Bayesian Dynamic Modeling of Realized Volatility in Financial Asset Price Forecasting** (2026). Patrick Woitschig, Mike West. arXiv. [2605.12099](https://arxiv.org/abs/2605.12099). PDF-sampled: No.

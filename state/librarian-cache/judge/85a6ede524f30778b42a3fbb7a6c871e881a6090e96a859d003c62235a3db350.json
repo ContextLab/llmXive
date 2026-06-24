@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2411.19444",
+  "judged_at": "2026-06-24T18:03:59Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "statistical modeling of temporal dependence in cryptocurrency price fluctuations statistics",
+  "rationale": "The paper focuses on extending the CAPM for equities using size and volatility factors and does not study cryptocurrency price series, temporal dependence, or related statistical models; thus it is off‑domain and lacks any of the inclusion criteria (a‑f).",
+  "relevant": false
+}

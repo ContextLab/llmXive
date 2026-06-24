@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2209.14086",
+  "judged_at": "2026-06-24T18:05:30Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "evaluating the effectiveness of differential privacy in federated learning computer science",
+  "rationale": "The paper studies the same mechanism—local differential privacy applied within federated learning—and proposes a specific algorithm (momentum gradient descent) to assess its performance, satisfying criterion (a) same‑mechanism evidence for evaluating DP effectiveness in FL.",
+  "relevant": true
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2605.12099",
+  "judged_at": "2026-06-24T18:04:02Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "statistical modeling of temporal dependence in cryptocurrency price fluctuations statistics",
+  "rationale": "The paper studies Bayesian dynamic models for temporal dependence in asset price and volatility series, providing the same methodological mechanism (dynamic time‑series modeling) that the user’s question seeks for cryptocurrency price fluctuations, even though the empirical application is to equities. This satisfies criterion (a) (same‑mechanism evidence) and also serves as a foundational methodological reference for dynamic financial‑time‑series modeling.",
+  "relevant": true
+}

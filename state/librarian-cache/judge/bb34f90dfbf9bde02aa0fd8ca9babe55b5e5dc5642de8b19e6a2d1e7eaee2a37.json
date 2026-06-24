@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1910.04956",
+  "judged_at": "2026-06-24T18:05:32Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "evaluating the effectiveness of differential privacy in federated learning computer science",
+  "rationale": "The paper focuses on server‑free federated learning over trust‑based social networks and does not study differential privacy or its effectiveness, so it lacks the relevant mechanism, variable, or baseline needed for the user's question.",
+  "relevant": false
+}

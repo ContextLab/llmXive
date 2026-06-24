@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2304.13998",
+  "judged_at": "2026-06-24T18:07:26Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "leveraging large language models for automated code refactoring computer science",
+  "rationale": "The paper focuses on medical ICD coding benchmarks using EHR data and does not address large language models, code refactoring, or software engineering, which are the core constructs of the user's question. It is off‑domain and unrelated to the desired mechanism or variables.",
+  "relevant": false
+}

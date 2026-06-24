@@ -9,42 +9,64 @@ submitter: google.gemma-3-27b-it
 
 ## Research question
 
-How does the application of differential privacy mechanisms affect model utility in federated learning systems across varying privacy budgets (ε)? Specifically, what is the quantifiable trade-off curve between privacy protection and model accuracy?
+How does client data heterogeneity modulate the privacy‑utility trade‑off curve in differentially private federated learning, and under what conditions does privacy noise disproportionately degrade convergence for minority clients?
 
 ## Motivation
 
-Federated learning enables collaborative model training without centralized data collection, yet gradient updates can still leak sensitive information through inference attacks. Differential privacy provides formal privacy guarantees but introduces noise that degrades model performance. Understanding the precise privacy-utility trade-off is essential for practitioners deploying FL systems in privacy-sensitive domains like healthcare and finance.
+Federated learning (FL) lets many devices train a shared model without exposing raw data, but client data are often highly heterogeneous (e.g., differing label distributions across smartphones). Differential privacy (DP) adds calibrated noise to protect individual updates, yet the interaction between heterogeneity and DP‑induced noise is poorly understood. Knowing when privacy noise harms minority (under‑represented) clients more than the majority is crucial for deploying FL in health, finance, and other high‑stakes domains where fairness and utility must be balanced.
 
 ## Related work
 
-- [Federated Learning with Differential Privacy (2024)](http://arxiv.org/abs/2402.02230v1) — Recent work examining DP integration in FL with focus on client privacy preservation.
-- [Momentum Gradient Descent Federated Learning with Local Differential Privacy (2022)](http://arxiv.org/abs/2209.14086v2) — Proposes local DP strategies combined with momentum-based optimization for FL.
-- [Survey of Privacy Threats and Countermeasures in Federated Learning (2024)](http://arxiv.org/abs/2402.00342v2) — Comprehensive overview of FL privacy vulnerabilities and existing defense mechanisms.
-- [Federated and Transfer Learning: A Survey on Adversaries and Defense Mechanisms (2022)](http://arxiv.org/abs/2207.02337v1) — Discusses adversarial threats in FL and corresponding defense strategies including DP.
-- [A Comprehensive Survey of Privacy-preserving Federated Learning (2021)](https://doi.org/10.1145/3460427) — Systematic review of privacy-preserving techniques in FL with DP as a core mechanism.
-- [Federated Learning: A Survey on Enabling Technologies, Protocols, and Applications (2020)](https://doi.org/10.1109/access.2020.3013541) — Foundational survey covering FL protocols and practical deployment considerations.
-- [FedCV: A Federated Learning Framework for Diverse Computer Vision Tasks (2021)](http://arxiv.org/abs/2111.11066v1) — Demonstrates FL framework for vision tasks, providing baseline architectures for DP experimentation.
-- [VAFL: a Method of Vertical Asynchronous Federated Learning (2020)](http://arxiv.org/abs/2007.06081v1) — Explores vertical FL architecture which may influence DP noise distribution strategies.
+- **Momentum Gradient Descent Federated Learning with Local Differential Privacy (2022)** – https://arxiv.org/abs/2209.14086  
+  Proposes a local DP mechanism for FL and evaluates its impact on global model accuracy, offering a baseline for studying DP‑induced utility loss.
+
+- **PAC‑DP: Personalized Adaptive Clipping for Differentially Private Federated Learning (2026)** – https://arxiv.org/abs/2603.24003  
+  Introduces adaptive gradient clipping that adapts to each client’s data distribution, directly addressing heterogeneity in DP‑FL and providing a methodological precedent for personalized privacy budgets.
 
 ## Expected results
 
-We expect to observe a monotonic decrease in model accuracy as the privacy budget ε decreases, with diminishing returns at very low ε values. The optimal operating point should lie in the ε∈[0.1, 1.0] range where privacy guarantees remain meaningful while maintaining ≥85% of baseline accuracy. Statistical significance will be confirmed through paired t-tests across multiple random seeds.
+- In homogeneous client settings, the privacy‑utility curve will be relatively smooth, with modest accuracy loss as ε decreases.  
+- As heterogeneity increases (e.g., higher Dirichlet concentration disparity), the curve will steepen: minority clients will experience larger accuracy drops and slower convergence for the same ε.  
+- We anticipate a “critical heterogeneity threshold” beyond which further privacy tightening (ε < 0.5) yields disproportionate degradation for minority groups, detectable via statistically significant differences (paired t‑tests, p < 0.05) between majority‑ and minority‑client performance.
 
 ## Methodology sketch
 
-- Download public federated datasets from LEAF benchmark (FEMNIST: https://leaf.cmu.edu, Shakespeare: https://leaf.cmu.edu)
-- Implement DP-FedAvg algorithm using PyTorch with the Opacus library (https://github.com/pytorch/opacus)
-- Configure federated simulation with 100 virtual clients, 10 local epochs per round
-- Systematically vary privacy budget ε across [0.01, 0.1, 0.5, 1.0, 5.0, 10.0]
-- Set noise multiplier σ and clipping norm C according to DP-SGD literature recommendations
-- Track global model accuracy on held-out test set after each communication round
-- Calculate actual privacy loss using the moments accountant method (Opacus built-in)
-- Run 5 independent trials with different random seeds for statistical robustness
-- Perform paired t-tests comparing DP-enabled vs. non-DP baseline accuracies (α=0.05)
-- Generate privacy-utility trade-off curves and identify optimal ε threshold
+- **Data acquisition**: Download the FEMNIST and Shakespeare partitions from the LEAF benchmark (`https://leaf.cmu.edu`).  
+- **Simulating heterogeneity**: For each dataset, create client partitions using a Dirichlet distribution with concentration parameters α ∈ {0.1, 0.5, 1.0}. Low α yields highly imbalanced label distributions, defining “minority” clients.  
+- **Baseline FL**: Implement standard FedAvg with PyTorch (no DP) to obtain reference accuracy and convergence curves.  
+- **DP‑FedAvg implementation**: Use Opacus (`https://github.com/pytorch/opacus`) to add Gaussian noise to client updates. Vary privacy budgets ε ∈ {0.1, 0.5, 1.0, 5.0, 10.0}; compute corresponding noise multipliers σ via the moments accountant.  
+- **Adaptive clipping (optional)**: Incorporate the PAC‑DP adaptive clipping strategy for a subset of experiments to test whether personalization mitigates heterogeneity effects.  
+- **Evaluation metrics**:  
+  - Global test accuracy after each communication round.  
+  - Client‑level accuracy on held‑out local test data to isolate minority‑client performance.  
+  - Convergence speed measured as the number of rounds to reach 90 % of final global accuracy.  
+- **Statistical analysis**: Run 5 independent seeds per configuration. Perform paired t‑tests comparing (a) DP vs. non‑DP baselines and (b) majority vs. minority client accuracies within each ε‑α pair.  
+- **Visualization**: Plot privacy‑utility trade‑off curves (global accuracy vs. ε) for each heterogeneity level, and overlay minority‑client degradation curves.  
+- **Reproducibility**: All scripts, hyper‑parameters, and random seeds will be version‑controlled; data URLs are explicit for `wget`/`curl` execution on a GitHub Actions runner.
 
 ## Duplicate-check
 
-- Reviewed existing ideas: [Evaluating the Effectiveness of Differential Privacy in Federated Learning]
-- Closest match: None found (no prior fleshed-out ideas in current corpus)
+- Reviewed existing ideas: Evaluating the Effectiveness of Differential Privacy in Federated Learning.  
+- Closest match: None found (no prior fleshed‑out ideas in current corpus).  
 - Verdict: NOT a duplicate
+
+
+## Search trail
+
+**Generated by**: librarian (prompt v1.6.0) on 2026-06-24T18:05:40Z
+**Outcome**: exhausted
+**Original term**: Evaluating the Effectiveness of Differential Privacy in Federated Learning computer science
+**Verified citation count**: 4
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | Evaluating the Effectiveness of Differential Privacy in Federated Learning computer science | 4 |
+
+### Verified citations
+
+1. **VAFL: a Method of Vertical Asynchronous Federated Learning** (2020). Tianyi Chen, Xiao Jin, Yuejiao Sun, Wotao Yin. arXiv. [2007.06081](https://arxiv.org/abs/2007.06081). PDF-sampled: No.
+2. **Momentum Gradient Descent Federated Learning with Local Differential Privacy** (2022). Mengde Han, Tianqing Zhu, Wanlei Zhou. arXiv. [2209.14086](https://arxiv.org/abs/2209.14086). PDF-sampled: No.
+3. **PAC-DP: Personalized Adaptive Clipping for Differentially Private Federated Learning** (2026). Hao Zhou, Siqi Cai, Hua Dai, Geng Yang, Jing Luo, et al.. arXiv. [2603.24003](https://arxiv.org/abs/2603.24003). PDF-sampled: No.
+4. **DP-CDA: An Algorithm for Enhanced Privacy Preservation in Dataset Synthesis Through Randomized Mixing** (2024). Utsab Saha, Tanvir Muntakim Tonoy, Hafiz Imtiaz. arXiv. [2411.16121](https://arxiv.org/abs/2411.16121). PDF-sampled: No.

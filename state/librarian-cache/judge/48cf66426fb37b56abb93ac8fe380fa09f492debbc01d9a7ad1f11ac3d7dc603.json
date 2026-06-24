@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2306.08568",
+  "judged_at": "2026-06-24T18:07:25Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "leveraging large language models for automated code refactoring computer science",
+  "rationale": "The paper introduces a key instruction‑fine‑tuning method (Evol‑Instruct) for code LLMs, serving as a foundational methodology (category d) that researchers would cite when discussing how to leverage LLMs for code‑related transformations such as automated refactoring.",
+  "relevant": true
+}

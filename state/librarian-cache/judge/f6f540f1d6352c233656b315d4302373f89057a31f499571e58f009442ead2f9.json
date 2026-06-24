@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1208.3378",
+  "judged_at": "2026-06-24T18:03:49Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "statistical modeling of temporal dependence in cryptocurrency price fluctuations statistics",
+  "rationale": "The paper studies spatial extreme-value models for environmental data (rainfall), which is unrelated to temporal dependence modeling of cryptocurrency price fluctuations; it does not address the same mechanism, variables, or domain required for inclusion.",
+  "relevant": false
+}

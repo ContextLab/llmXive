@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2603.24003",
+  "judged_at": "2026-06-24T18:05:33Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "evaluating the effectiveness of differential privacy in federated learning computer science",
+  "rationale": "The paper investigates differential privacy within federated learning, proposing an adaptive clipping mechanism and empirically evaluating privacy‑utility trade‑offs (accuracy, convergence) under DP budgets, thus providing same‑mechanism evidence (category a) and measuring effectiveness of DP in FL.",
+  "relevant": true
+}

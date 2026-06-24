@@ -1,0 +1,394 @@
+{
+  "fetched_at": "2026-06-24T18:07:34Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "Leveraging Large Language Models for Automated Code Refactoring",
+      "target_n": 5
+    },
+    "duration_seconds": 50.561,
+    "ended_at": "2026-06-24T18:07:34Z",
+    "expansion": null,
+    "extracted_queries": [
+      "neural code rewriting",
+      "CodeSearchNet benchmark",
+      "semantic code transformation",
+      "behavior preservation metric",
+      "prompt engineering code refactoring"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2604.26615"
+      ]
+    },
+    "per_query_hit_count": {
+      "CodeSearchNet benchmark": 3,
+      "Leveraging Large Language Models for Automated Code Refactoring computer science": 3,
+      "behavior preservation metric": 3,
+      "neural code rewriting": 3,
+      "prompt engineering code refactoring": 3,
+      "semantic code transformation": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 4,
+      "rejections": [
+        {
+          "primary_pointer": "2509.22287",
+          "rationale": "The paper studies LLM‑driven robot tutoring for preschool language learning, which is unrelated to the software engineering task of automated code refactoring; it does not address the same mechanism, variables, or domain required for the user's question.",
+          "title": "Leveraging Large Language Models for Robot-Assisted Learning of Morphological Structures in Preschool Children with Language Vulnerabilities"
+        },
+        {
+          "primary_pointer": "2410.16349",
+          "rationale": "The paper reviews LLMs in computer science education and does not investigate or provide baseline data on using LLMs for automated code refactoring, nor does it address the relevant mechanism, variables, or population for that task. Hence it is not pertinent to the user's research focus.",
+          "title": "Large Language Models in Computer Science Education: A Systematic Literature Review"
+        },
+        {
+          "primary_pointer": "2304.13998",
+          "rationale": "The paper focuses on medical ICD coding benchmarks using EHR data and does not address large language models, code refactoring, or software engineering, which are the core constructs of the user's question. It is off‑domain and unrelated to the desired mechanism or variables.",
+          "title": "Mimic-IV-ICD: A new benchmark for eXtreme MultiLabel Classification"
+        },
+        {
+          "primary_pointer": "2605.07422",
+          "rationale": "The paper studies LLM prompt engineering for qualitative coding of psychological‑safety text, not for automated code transformation or refactoring; it addresses a different construct within software engineering and thus does not provide relevant evidence for leveraging LLMs in code refactoring.",
+          "title": "Prompt Engineering Strategies for LLM-based Qualitative Coding of Psychological Safety in Software Engineering Communities: A Controlled Empirical Study"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-24T18:06:43Z",
+    "term_input": {
+      "normalized": "leveraging large language models for automated code refactoring computer science",
+      "raw": "Leveraging Large Language Models for Automated Code Refactoring computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Artificial Intelligence and Machine learning have been widely used in various fields of mathematical computing, physical modeling, computational science, communication science, and stochastic analysis. Approaches based on Deep Artificial Neural Networks (DANN) are very popular in our days. Depending on the learning task, the exact form of DANNs is determined via their multi-layer architecture, activation functions and the so-called loss function. However, for a majority of deep learning approaches based on DANNs, the kernel structure of neural signal processing remains the same, where the node response is encoded as a linear superposition of neural activity, while the non-linearity is triggered by the activation functions. In the current paper, we suggest to analyze the neural signal processing in DANNs from the point of view of homogeneous chaos theory as known from polynomial chaos expansion (PCE). From the PCE perspective, the (linear) response on each node of a DANN could be seen as a $1^{st}$ degree multi-variate polynomial of single neurons from the previous layer, i.e. linear weighted sum of monomials. From this point of view, the conventional DANN structure relies implicitly (but erroneously) on a Gaussian distribution of neural signals. Additionally, this view revels that by design DANNs do not necessarily fulfill any orthogonality or orthonormality condition for a majority of data-driven applications. Therefore, the prevailing handling of neural signals in DANNs could lead to redundant representation as any neural signal could contain some partial information from other neural signals. To tackle that challenge, we suggest to employ the data-driven generalization of PCE theory known as arbitrary polynomial chaos (aPC) to construct a corresponding multi-variate orthonormal representations on each node of a DANN to obtain Deep arbitrary polynomial chaos neural networks.",
+          "claimed_authors": [
+            "Sergey Oladyshkin",
+            "Timothy Praditia",
+            "Ilja Kröker",
+            "Farid Mohammadi",
+            "Wolfgang Nowak",
+            "Sebastian Otte"
+          ],
+          "claimed_title": "The Deep Arbitrary Polynomial Chaos Neural Network or how Deep Artificial Neural Networks could benefit from Data-Driven Homogeneous Chaos Theory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.14753"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Leveraging Large Language Models for Automated Code Refactoring computer science', candidate_title='The Deep Arbitrary Polynomial Chaos Neural Network or how Deep Artificial Neural Networks could benefit from Data-Driven Homogeneous Chaos Theory')",
+        "failed_at": "2026-06-24T18:07:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present a Haskell library for first-order term rewriting covering basic operations on positions, terms, contexts, substitutions and rewrite rules. This effort is motivated by the increasing number of term rewriting tools that are written in Haskell.",
+          "claimed_authors": [
+            "Bertram Felgenhauer",
+            "Martin Avanzini",
+            "Christian Sternagel"
+          ],
+          "claimed_title": "A Haskell Library for Term Rewriting",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1307.2328"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Leveraging Large Language Models for Automated Code Refactoring computer science', candidate_title='A Haskell Library for Term Rewriting')",
+        "failed_at": "2026-06-24T18:07:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Random Neural Networks (RNNs) are a class of Neural Networks (NNs) that can also be seen as a specific type of queuing network. They have been successfully used in several domains during the last 25 years, as queuing networks to analyze the performance of resource sharing in many engineering areas, as learning tools and in combinatorial optimization, where they are seen as neural systems, and also as models of neurological aspects of living beings. In this article we focus on their learning capabilities, and more specifically, we present a practical guide for using the RNN to solve supervised learning problems. We give a general description of these models using almost indistinctly the terminology of Queuing Theory and the neural one. We present the standard learning procedures used by RNNs, adapted from similar well-established improvements in the standard NN field. We describe in particular a set of learning algorithms covering techniques based on the use of first order and, then, of second order derivatives. We also discuss some issues related to these objects and present new perspectives about their use in supervised learning problems. The tutorial describes their most relevant applications, and also provides a large bibliography.",
+          "claimed_authors": [
+            "Sebastián Basterrech",
+            "Gerardo Rubino"
+          ],
+          "claimed_title": "A Tutorial about Random Neural Networks in Supervised Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1609.04846"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Leveraging Large Language Models for Automated Code Refactoring computer science', candidate_title='A Tutorial about Random Neural Networks in Supervised Learning')",
+        "failed_at": "2026-06-24T18:07:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Semantic code search is the task of retrieving relevant code given a natural language query. While related to other information retrieval tasks, it requires bridging the gap between the language used in code (often abbreviated and highly technical) and natural language more suitable to describe vague concepts and ideas.\n  To enable evaluation of progress on code search, we are releasing the CodeSearchNet Corpus and are presenting the CodeSearchNet Challenge, which consists of 99 natural language queries with about 4k expert relevance annotations of likely results from CodeSearchNet Corpus. The corpus contains about 6 million functions from open-source code spanning six programming languages (Go, Java, JavaScript, PHP, Python, and Ruby). The CodeSearchNet Corpus also contains automatically generated query-like natural language for 2 million functions, obtained from mechanically scraping and preprocessing associated function documentation. In this article, we describe the methodology used to obtain the corpus and expert labels, as well as a number of simple baseline solutions for the task.\n  We hope that CodeSearchNet Challenge encourages researchers and practitioners to study this interesting task further and will host a competition and leaderboard to track the progress on the challenge. We are also keen on extending CodeSearchNet Challenge to more queries and programming languages in the future.",
+          "claimed_authors": [
+            "Hamel Husain",
+            "Ho-Hsiang Wu",
+            "Tiferet Gazit",
+            "Miltiadis Allamanis",
+            "Marc Brockschmidt"
+          ],
+          "claimed_title": "CodeSearchNet Challenge: Evaluating the State of Semantic Code Search",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1909.09436"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Leveraging Large Language Models for Automated Code Refactoring computer science', candidate_title='CodeSearchNet Challenge: Evaluating the State of Semantic Code Search')",
+        "failed_at": "2026-06-24T18:07:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Advancements in ultra-low-power tiny machine learning (TinyML) systems promise to unlock an entirely new class of smart applications. However, continued progress is limited by the lack of a widely accepted and easily reproducible benchmark for these systems. To meet this need, we present MLPerf Tiny, the first industry-standard benchmark suite for ultra-low-power tiny machine learning systems. The benchmark suite is the collaborative effort of more than 50 organizations from industry and academia and reflects the needs of the community. MLPerf Tiny measures the accuracy, latency, and energy of machine learning inference to properly evaluate the tradeoffs between systems. Additionally, MLPerf Tiny implements a modular design that enables benchmark submitters to show the benefits of their product, regardless of where it falls on the ML deployment stack, in a fair and reproducible manner. The suite features four benchmarks: keyword spotting, visual wake words, image classification, and anomaly detection.",
+          "claimed_authors": [
+            "Colby Banbury",
+            "Vijay Janapa Reddi",
+            "Peter Torelli",
+            "Jeremy Holleman",
+            "Nat Jeffries",
+            "Csaba Kiraly",
+            "Pietro Montino",
+            "David Kanter",
+            "Sebastian Ahmed",
+            "Danilo Pau",
+            "Urmish Thakker",
+            "Antonio Torrini",
+            "Peter Warden",
+            "Jay Cordaro",
+            "Giuseppe Di Guglielmo",
+            "Javier Duarte",
+            "Stephen Gibellini",
+            "Videet Parekh",
+            "Honson Tran",
+            "Nhan Tran",
+            "Niu Wenxu",
+            "Xu Xuesong"
+          ],
+          "claimed_title": "MLPerf Tiny Benchmark",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2106.07597"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Leveraging Large Language Models for Automated Code Refactoring computer science', candidate_title='MLPerf Tiny Benchmark')",
+        "failed_at": "2026-06-24T18:07:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The popularity of the Semantic Web (SW) encourages organizations to organize and publish semantic data using the RDF model. This growth poses new requirements to Business Intelligence (BI) technologies to enable On-Line Analytical Processing (OLAP)-like analysis over semantic data. The incorporation of semantic data into a Data Warehouse (DW) is not supported by the traditional Extract-Transform-Load (ETL) tools because they do not consider semantic issues in the integration process. In this paper, we propose a layer-based integration process and a set of high-level RDF-based ETL constructs required to define, map, extract, process, transform, integrate, update, and load (multidimensional) semantic data. Different to other ETL tools, we automate the ETL data flows by creating metadata at the schema level. Therefore, it relieves ETL developers from the burden of manual mapping at the ETL operation level. We create a prototype, named Semantic ETL Construct (SETLCONSTRUCT), based on the innovative ETL constructs proposed here. To evaluate SETLCONSTRUCT, we create a multidimensional semantic DW by integrating a Danish Business dataset and an EU Subsidy dataset using it and compare it with the previous programmable framework SETLPROG in terms of productivity, development time and performance. The evaluation shows that 1) SETLCONSTRUCT uses 92% fewer Number of Typed Characters (NOTC) than SETLPROG, and SETLAUTO (the extension of SETLCONSTRUCT for generating ETL execution flow automatically) further reduces the Number of Used Concepts (NOUC) by another 25%; 2) using SETLCONSTRUCT, the development time is almost cut in half compared to SETLPROG, and is cut by another 27% using SETLAUTO; 3) SETLCONSTRUCT is scalable and has similar performance compared to SETLPROG.",
+          "claimed_authors": [
+            "Rudra Pratap Deb Nath",
+            "Oscar Romero",
+            "Torben Bach Pedersen",
+            "Katja Hose"
+          ],
+          "claimed_title": "High-Level ETL for Semantic Data Warehouses -- Full Version",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2006.07180"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Leveraging Large Language Models for Automated Code Refactoring computer science', candidate_title='High-Level ETL for Semantic Data Warehouses -- Full Version')",
+        "failed_at": "2026-06-24T18:07:16Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The semantic expert recommender extension for the Jira bug tracking system semantically searches for similar tickets in Jira and recommends experts and links to existing organizational (Wiki) knowledge for each ticket. This helps to avoid redundant work and supports the search and collaboration with experts in the project management and maintenance phase based on semantically enriched tickets in Jira.",
+          "claimed_authors": [
+            "Velten Heyn",
+            "Adrian Paschke"
+          ],
+          "claimed_title": "Semantic Jira - Semantic Expert Finder in the Bug Tracking Tool Jira",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1312.5150"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Leveraging Large Language Models for Automated Code Refactoring computer science', candidate_title='Semantic Jira - Semantic Expert Finder in the Bug Tracking Tool Jira')",
+        "failed_at": "2026-06-24T18:07:16Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present AceWiki, a prototype of a new kind of semantic wiki using the controlled natural language Attempto Controlled English (ACE) for representing its content. ACE is a subset of English with a restricted grammar and a formal semantics. The use of ACE has two important advantages over existing semantic wikis. First, we can improve the usability and achieve a shallow learning curve. Second, ACE is more expressive than the formal languages of existing semantic wikis. Our evaluation shows that people who are not familiar with the formal foundations of the Semantic Web are able to deal with AceWiki after a very short learning phase and without the help of an expert.",
+          "claimed_authors": [
+            "Tobias Kuhn"
+          ],
+          "claimed_title": "AceWiki: A Natural and Expressive Semantic Wiki",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2008,
+          "primary_pointer": "0807.4618"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Leveraging Large Language Models for Automated Code Refactoring computer science', candidate_title='AceWiki: A Natural and Expressive Semantic Wiki')",
+        "failed_at": "2026-06-24T18:07:16Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper, for a metrizable space $Z$, we consider the space of metrics that generate the same topology of $Z$, and that space of metrics is equipped with the supremum metrics. For a metrizable space $X$ and a closed subset $A$ of it, we construct a map $E$ from the space of metrics on $A$ into the space of metrics on $X$ such that $E$ is an extension of metrics and preserves the supremum metrics between metrics.",
+          "claimed_authors": [
+            "Yoshito Ishiki"
+          ],
+          "claimed_title": "An isometric extensor of metrics",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2407.03030"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Leveraging Large Language Models for Automated Code Refactoring computer science', candidate_title='An isometric extensor of metrics')",
+        "failed_at": "2026-06-24T18:07:16Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The notion of the metric measure foliation is introduced by Galaz-García, Kell, Mondino, and Sosa. They studied the relation between a metric measure space with a metric measure foliation and its quotient space. They showed that the curvature-dimension condition and the Cheeger energy functional preserve from a such space to its quotient space. Via the metric measure foliation, we investigate the convergence theory for a sequence of metric measure spaces whose dimensions are unbounded.",
+          "claimed_authors": [
+            "Daisuke Kazukawa"
+          ],
+          "claimed_title": "Convergence of energy functionals and stability of lower bounds of Ricci curvature via metric measure foliation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1804.00407"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Leveraging Large Language Models for Automated Code Refactoring computer science', candidate_title='Convergence of energy functionals and stability of lower bounds of Ricci curvature via metric measure foliation')",
+        "failed_at": "2026-06-24T18:07:16Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Let $G$ be a group and let $S$ be a generating set of $G$. In this article, we introduce a metric $d_C$ on $G$ with respect to $S$, called the cardinal metric. We then compare geometric structures of $(G, d_C)$ and $(G, d_W)$, where $d_W$ denotes the word metric. In particular, we prove that if $S$ is finite, then $(G, d_C)$ and $(G, d_W)$ are not quasi-isometric in the case when $(G, d_W)$ has infinite diameter and they are bi-Lipschitz equivalent otherwise. We also give an alternative description of cardinal metrics by using Cayley color graphs. It turns out that color-permuting and color-preserving automorphisms of Cayley digraphs are isometries with respect to cardinal metrics.",
+          "claimed_authors": [
+            "Teerapong Suksumran"
+          ],
+          "claimed_title": "Geometry of generated groups with metrics induced by their Cayley color graphs",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1810.08762"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Leveraging Large Language Models for Automated Code Refactoring computer science', candidate_title='Geometry of generated groups with metrics induced by their Cayley color graphs')",
+        "failed_at": "2026-06-24T18:07:16Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Ziyang Luo",
+            "Can Xu",
+            "Pu Zhao",
+            "Qingfeng Sun",
+            "Xiubo Geng",
+            "Wenxiang Hu",
+            "Chongyang Tao",
+            "Jing Ma",
+            "Qingwei Lin",
+            "Daxin Jiang"
+          ],
+          "title": "WizardCoder: Empowering Code Large Language Models with Evol-Instruct",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2306.08568",
+        "summary": "Code Large Language Models (Code LLMs), such as StarCoder, have demonstrated exceptional performance in code-related tasks. However, most existing models are solely pre-trained on extensive raw code data without instruction fine-tuning. In this paper, we introduce WizardCoder, which empowers Code LLMs with complex instruction fine-tuning, by adapting the Evol-Instruct method to the domain of code. Through comprehensive experiments on four prominent code generation benchmarks, namely HumanEval, HumanEval+, MBPP, and DS-1000, we unveil the exceptional capabilities of our model. It surpasses all other open-source Code LLMs by a substantial margin. Moreover, our model even outperforms the largest closed LLMs, Anthropic's Claude and Google's Bard, on HumanEval and HumanEval+. Our code, model weights, and data are public at https://github.com/nlpxucan/WizardLM",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2306.08568",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4444,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-24T18:07:15Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Tarlan Hasanli",
+            "Shahbaz Siddeeq",
+            "Bishwash Khanal",
+            "Pyry Kotilainen",
+            "Tommi Mikkonen",
+            "Pekka Abrahamsson"
+          ],
+          "title": "TDD Governance for Multi-Agent Code Generation via Prompt Engineering",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2604.26615",
+        "summary": "Large language models (LLMs) accelerate software development but often exhibit instability, non-determinism, and weak adherence to development discipline in unconstrained workflows. While test-driven development (TDD) provides a structured Red-Green-Refactor process, existing LLM-based approaches typically use tests as auxiliary inputs rather than enforceable process constraints. We present an AI-native TDD framework that operationalizes classical TDD principles as structured prompt-level and workflow-level governance mechanisms. Extracted principles are formalized in a machine-readable manifesto and distributed across planning, generation, repair, and validation stages within a layered architecture that separates model proposal from deterministic engine authority. The system enforces phase ordering, bounded repair loops, validation gates, and atomic mutation control to improve stability and reproducibility. We describe architecture and discuss encoding software engineering discipline directly into prompt orchestration, which we think offers a promising direction for reliable LLM-assisted development.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2604.26615",
+          "http_status": 200,
+          "pdf_sample_score": 0.2004,
+          "query_relevance_score": 0.4444,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-24T18:07:16Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Haibo Wang",
+            "Zhuolin Xu",
+            "Shin Hwei Tan"
+          ],
+          "title": "Testing Refactoring Engine via Historical Bug Report driven LLM",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2501.09879",
+        "summary": "Refactoring is the process of restructuring existing code without changing its external behavior while improving its internal structure. Refactoring engines are integral components of modern Integrated Development Environments (IDEs) and can automate or semi-automate this process to enhance code readability, reduce complexity, and improve the maintainability of software products. Similar to traditional software systems such as compilers, refactoring engines may also contain bugs that can lead to unexpected behaviors. In this paper, we propose a novel approach called RETESTER, a LLM-based framework for automated refactoring engine testing. Specifically, by using input program structure templates extracted from historical bug reports and input program characteristics that are error-prone, we design chain-of-thought (CoT) prompts to perform refactoring-preserving transformations. The generated variants are then tested on the latest version of refactoring engines using differential testing. We evaluate RETESTER on two most popular modern refactoring engines (i.e., ECLIPSE, and INTELLIJ IDEA). It successfully revealed 18 new bugs in the latest version of those refactoring engines. By the time we submit our paper, seven of them were confirmed by their developers, and three were fixed.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2501.09879",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-24T18:07:16Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "leveraging large language models for automated code refactoring computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

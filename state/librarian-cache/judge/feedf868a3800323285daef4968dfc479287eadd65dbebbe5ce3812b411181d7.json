@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2303.14295",
+  "judged_at": "2026-06-24T18:03:52Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "statistical modeling of temporal dependence in cryptocurrency price fluctuations statistics",
+  "rationale": "The paper focuses on a non‑parametric clustering method for multivariate time series using energy distance and applies it to GDP and population data; it does not model temporal dependence of cryptocurrency price series nor address that specific domain, so it falls outside the relevant construct and domain.",
+  "relevant": false
+}

@@ -9,33 +9,84 @@ submitter: google.gemma-3-27b-it
 
 ## Research question
 
-Can publicly available Code Large Language Models (Code LLMs) improve code readability and maintainability metrics when prompted to refactor open-source Python code without fine-tuning?
+Which structural characteristics of Python functions (e.g., length, nesting depth, naming conventions) predict the magnitude of readability and maintainability improvements achieved by zero‑shot prompting of publicly available Code LLMs for refactoring?
 
 ## Motivation
 
-Technical debt accumulates rapidly in software projects, and manual refactoring is time-consuming. While Code LLMs show promise in generation, their efficacy in *improving* existing code quality via refactoring remains under-quantified against static analysis metrics. This study addresses the gap by measuring specific quality improvements using standard tools.
+Technical debt in large codebases is often addressed through manual refactoring, a labor‑intensive activity. While Code LLMs can generate or modify code, it is unclear which aspects of a function’s original structure make it most amenable to improvement when refactored via zero‑shot prompting. Identifying predictive structural cues would enable targeted application of LLM‑based refactoring tools, maximizing return on computational resources.
 
 ## Related work
 
-- [WizardCoder: Empowering Code Large Language Models with Evol-Instruct (2023)](http://arxiv.org/abs/2306.08568v2) — Establishes that instruction tuning significantly improves Code LLM performance on code-related tasks, supporting the use of prompted models for refactoring.
-- [Large Language Models in Computer Science Education: A Systematic Literature Review (2024)](http://arxiv.org/abs/2410.16349v1) — Provides context on general LLM capabilities within computer science domains, validating the feasibility of automated code manipulation.
+- [WizardCoder: Empowering Code Large Language Models with Evol‑Instruct (2023)](https://arxiv.org/abs/2306.08568) — Shows that instruction‑tuned Code LLMs can follow natural‑language prompts to perform code‑related tasks, establishing feasibility of zero‑shot refactoring.  
+- [TDD Governance for Multi‑Agent Code Generation via Prompt Engineering (2026)](https://arxiv.org/abs/2604.26615) — Explores prompt‑engineering techniques that improve stability and correctness of LLM‑generated code, providing methodological guidance for designing refactoring prompts.  
+- [Testing Refactoring Engine via Historical Bug Report driven LLM (2025)](https://arxiv.org/abs/2501.09879) — Presents an LLM‑driven refactoring engine evaluated on code‑quality metrics, directly relevant to measuring the impact of LLM‑based refactoring.
 
 ## Expected results
 
-We expect refactored code to show statistically significant reductions in cyclomatic complexity and pylint warnings compared to baseline code. Evidence will be measured via paired t-tests on metric improvements across a sample of N=200 functions, requiring p < 0.05 to confirm efficacy.
+We anticipate that a subset of structural predictors (e.g., function length > 30 LOC, nesting depth ≥ 3) will explain a significant portion of variance in metric improvements (Δ cyclomatic complexity, Δ pylint score). A linear regression model with these predictors is expected to achieve an adjusted R² ≥ 0.30 on a held‑out test set, and the overall improvement distribution will be significantly positive (paired t‑test, p < 0.05).
 
 ## Methodology sketch
 
-- Download the Python subset of the BigCode dataset from HuggingFace Datasets (public URL).
-- Filter and select 200 functions with initial cyclomatic complexity >10 to ensure refactoring potential.
-- Use the HuggingFace Inference API (e.g., WizardCoder-Python-13B) to generate refactored versions via zero-shot prompting to avoid local GPU/RAM constraints.
-- Run `pylint` and `radon` static analysis tools on both original and refactored code to extract complexity and style metrics.
-- Perform a paired t-test to determine if metric improvements are statistically significant (p < 0.05).
-- Generate summary plots comparing baseline vs. refactored metrics using `matplotlib`.
-- Ensure all steps complete within 6 hours on 2 CPU cores by limiting batch size to 10 functions per API call.
+- **Data acquisition**  
+  - Download the Python subset of the *BigCode* dataset via the HuggingFace Datasets hub (`https://huggingface.co/datasets/bigcode/python`).  
+  - Randomly sample 400 distinct functions; reserve 200 for analysis (training + testing) and 200 as a backup set.
+
+- **Compute structural characteristics (predictors)** for each original function using static analysis (`radon`, custom AST parser):  
+  - Lines of code (LOC)  
+  - Maximum nesting depth  
+  - Number of parameters  
+  - Naming‑style adherence score (PEP‑8 compliance)  
+  - Presence of docstrings, type hints, and comments.
+
+- **Zero‑shot prompting and refactoring**  
+  - For each function, construct a concise prompt: “Refactor the following Python function to improve readability and maintainability while preserving behavior.”  
+  - Invoke the publicly hosted WizardCoder‑Python‑13B model through the HuggingFace Inference API (no local GPU required).  
+  - Store the returned refactored code.
+
+- **Quality metric extraction (outcomes)**  
+  - Run `pylint` and `radon` on both original and refactored versions.  
+  - Record: cyclomatic complexity, pylint warning count, and a readability score (e.g., `radon`’s “maintainability index”).  
+  - Compute improvement magnitudes: ΔComplexity = Complexity_original − Complexity_refactored, etc.
+
+- **Modeling predictive relationship**  
+  - Split the 200‑function dataset into 5‑fold cross‑validation folds.  
+  - Fit a multiple linear regression (or ridge regression) predicting each Δ metric from the structural predictors.  
+  - Evaluate predictive performance via adjusted R² and mean absolute error on held‑out folds.
+
+- **Statistical validation**  
+  - Perform a paired t‑test comparing original vs. refactored metric values across all functions (null hypothesis: no improvement).  
+  - Report effect sizes (Cohen’s d) and 95 % confidence intervals.
+
+- **Result synthesis and reporting**  
+  - Generate box‑plots and scatter plots (original predictor vs. Δ improvement) using `matplotlib`.  
+  - Summarize which predictors are statistically significant (p < 0.05) in the regression coefficients.
+
+- **Resource budgeting**  
+  - Limit API calls to batches of ≤10 functions to stay within the 6‑hour, 2‑CPU‑core GitHub Actions runtime.  
+  - Cache all intermediate results to avoid redundant API requests.
 
 ## Duplicate-check
 
-- Reviewed existing ideas: None provided.
+- Reviewed existing ideas: None.
 - Closest match: None.
 - Verdict: NOT a duplicate
+
+
+## Search trail
+
+**Generated by**: librarian (prompt v1.6.0) on 2026-06-24T18:07:34Z
+**Outcome**: exhausted
+**Original term**: Leveraging Large Language Models for Automated Code Refactoring computer science
+**Verified citation count**: 3
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | Leveraging Large Language Models for Automated Code Refactoring computer science | 3 |
+
+### Verified citations
+
+1. **WizardCoder: Empowering Code Large Language Models with Evol-Instruct** (2023). Ziyang Luo, Can Xu, Pu Zhao, Qingfeng Sun, Xiubo Geng, et al.. arXiv. [2306.08568](https://arxiv.org/abs/2306.08568). PDF-sampled: No.
+2. **TDD Governance for Multi-Agent Code Generation via Prompt Engineering** (2026). Tarlan Hasanli, Shahbaz Siddeeq, Bishwash Khanal, Pyry Kotilainen, Tommi Mikkonen, et al.. arXiv. [2604.26615](https://arxiv.org/abs/2604.26615). PDF-sampled: No.
+3. **Testing Refactoring Engine via Historical Bug Report driven LLM** (2025). Haibo Wang, Zhuolin Xu, Shin Hwei Tan. arXiv. [2501.09879](https://arxiv.org/abs/2501.09879). PDF-sampled: No.

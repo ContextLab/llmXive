@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2604.26615",
+  "judged_at": "2026-06-24T18:07:29Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "leveraging large language models for automated code refactoring computer science",
+  "rationale": "The paper studies how large language models can be guided (via prompt engineering and TDD governance) to perform code generation and refactoring, directly addressing the mechanism of LLM‑driven automated refactoring (category (a) – same‑mechanism evidence).",
+  "relevant": true
+}

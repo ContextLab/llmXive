@@ -1,0 +1,344 @@
+{
+  "fetched_at": "2026-06-24T18:05:40Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "Evaluating the Effectiveness of Differential Privacy in Federated Learning",
+      "target_n": 5
+    },
+    "duration_seconds": 49.584,
+    "ended_at": "2026-06-24T18:05:40Z",
+    "expansion": null,
+    "extracted_queries": [
+      "privacy budget utility tradeoff",
+      "EMNIST federated learning",
+      "gradient clipping DP federated",
+      "model accuracy privacy loss",
+      "Gaussian mechanism composition theorem"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2603.24003"
+      ]
+    },
+    "per_query_hit_count": {
+      "EMNIST federated learning": 1,
+      "Evaluating the Effectiveness of Differential Privacy in Federated Learning computer science": 3,
+      "Gaussian mechanism composition theorem": 3,
+      "gradient clipping DP federated": 2,
+      "model accuracy privacy loss": 3,
+      "privacy budget utility tradeoff": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 3,
+      "rejections": [
+        {
+          "primary_pointer": "2207.02337",
+          "rationale": "The paper is a broad survey of security threats and defenses for federated and transfer learning and does not specifically evaluate or measure the effectiveness of differential privacy in federated learning, nor does it focus on DP as a primary mechanism. Hence it does not directly address the user's research question.",
+          "title": "Federated and Transfer Learning: A Survey on Adversaries and Defense Mechanisms"
+        },
+        {
+          "primary_pointer": "1910.04956",
+          "rationale": "The paper focuses on server‑free federated learning over trust‑based social networks and does not study differential privacy or its effectiveness, so it lacks the relevant mechanism, variable, or baseline needed for the user's question.",
+          "title": "Central Server Free Federated Learning over Single-sided Trust Social Networks"
+        },
+        {
+          "primary_pointer": "2209.00564",
+          "rationale": "The paper studies a quantum federated learning algorithm (natural gradient descent) and does not investigate differential privacy, its effectiveness, or related privacy mechanisms, thus it lacks any of the accepted relevance criteria for the user's question.",
+          "title": "Federated Quantum Natural Gradient Descent for Quantum Federated Learning"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-24T18:04:51Z",
+    "term_input": {
+      "normalized": "evaluating the effectiveness of differential privacy in federated learning computer science",
+      "raw": "Evaluating the Effectiveness of Differential Privacy in Federated Learning computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A privacy-utility tradeoff is developed for an arbitrary set of finite-alphabet source distributions. Privacy is quantified using differential privacy (DP), and utility is quantified using expected Hamming distortion maximized over the set of distributions. The family of source distribution sets (source sets) is categorized into three classes, based on different levels of prior knowledge they capture. For source sets whose convex hull includes the uniform distribution, symmetric DP mechanisms are optimal. For source sets whose probability values have a fixed monotonic ordering, asymmetric DP mechanisms are optimal. For all other source sets, general upper and lower bounds on the optimal privacy leakage are developed and a necessary and sufficient condition for tightness are established. Differentially private leakage is an upper bound on mutual information (MI) leakage: the two criteria are compared analytically and numerically to illustrate the effect of adopting a stronger privacy criterion.",
+          "claimed_authors": [
+            "Kousha Kalantari",
+            "Lalitha Sankar",
+            "Anand Sarwate"
+          ],
+          "claimed_title": "Robust Privacy-Utility Tradeoffs under Differential Privacy and Hamming Distortion",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1601.06426"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Evaluating the Effectiveness of Differential Privacy in Federated Learning compu', candidate_title='Robust Privacy-Utility Tradeoffs under Differential Privacy and Hamming Distortion')",
+        "failed_at": "2026-06-24T18:05:21Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Ensuring the usefulness of electronic data sources while providing necessary privacy guarantees is an important unsolved problem. This problem drives the need for an analytical framework that can quantify the safety of personally identifiable information (privacy) while still providing a quantifable benefit (utility) to multiple legitimate information consumers. This paper presents an information-theoretic framework that promises an analytical model guaranteeing tight bounds of how much utility is possible for a given level of privacy and vice-versa. Specific contributions include: i) stochastic data models for both categorical and numerical data; ii) utility-privacy tradeoff regions and the encoding (sanization) schemes achieving them for both classes and their practical relevance; and iii) modeling of prior knowledge at the user and/or data source and optimal encoding schemes for both cases.",
+          "claimed_authors": [
+            "Lalitha Sankar",
+            "S. Raj Rajagopalan",
+            "H. Vincent Poor"
+          ],
+          "claimed_title": "Utility-Privacy Tradeoff in Databases: An Information-theoretic Approach",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1102.3751"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Evaluating the Effectiveness of Differential Privacy in Federated Learning compu', candidate_title='Utility-Privacy Tradeoff in Databases: An Information-theoretic Approach')",
+        "failed_at": "2026-06-24T18:05:21Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Privacy risks in differentially private (DP) systems increase significantly when data is correlated, as standard DP metrics often underestimate the resulting privacy leakage, leaving sensitive information vulnerable. Given the ubiquity of dependencies in real-world databases, this oversight poses a critical challenge for privacy protections. Bayesian differential privacy (BDP) extends DP to account for these correlations, yet current BDP mechanisms indicate notable utility loss, limiting its adoption.\n  In this work, we address whether BDP can be realistically implemented in common data structures without sacrificing utility -- a key factor for its applicability. By analyzing arbitrary and structured correlation models, including Gaussian multivariate distributions and Markov chains, we derive practical utility guarantees for BDP. Our contributions include theoretical links between DP and BDP and a novel methodology for adapting DP mechanisms to meet the BDP requirements. Through evaluations on real-world databases, we demonstrate that our novel theorems enable the design of BDP mechanisms that maintain competitive utility, paving the way for practical privacy-preserving data practices in correlated settings.",
+          "claimed_authors": [
+            "Martin Lange",
+            "Patricia Guerra-Balboa",
+            "Javier Parra-Arnau",
+            "Thorsten Strufe"
+          ],
+          "claimed_title": "Balancing Privacy and Utility in Correlated Data: A Study of Bayesian Differential Privacy",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.21308"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Evaluating the Effectiveness of Differential Privacy in Federated Learning compu', candidate_title='Balancing Privacy and Utility in Correlated Data: A Study of Bayesian Differential Privacy')",
+        "failed_at": "2026-06-24T18:05:21Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Organizations use privacy policies to communicate their data collection practices to their clients. A privacy policy is a set of statements that specifies how an organization gathers, uses, discloses, and maintains a client's data. However, most privacy policies lack a clear, complete explanation of how data providers' information is used. We propose a modeling methodology, called the Privacy Policy Permission Model (PPPM), that provides a uniform, easy-to-understand representation of privacy policies, which can accurately and clearly show how data is used within an organization's practice. Using this methodology, a privacy policy is captured as a diagram. The diagram is capable of highlighting inconsistencies and inaccuracies in the privacy policy. The methodology supports privacy officers in properly and clearly articulating an organization's privacy policy.",
+          "claimed_authors": [
+            "Maryam Majedi",
+            "Ken Barker"
+          ],
+          "claimed_title": "The Privacy Policy Permission Model: A Unified View of Privacy Policies",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2403.17414"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Evaluating the Effectiveness of Differential Privacy in Federated Learning compu', candidate_title='The Privacy Policy Permission Model: A Unified View of Privacy Policies')",
+        "failed_at": "2026-06-24T18:05:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Differential privacy is a definition of \"privacy'\" for algorithms that analyze and publish information about statistical databases. It is often claimed that differential privacy provides guarantees against adversaries with arbitrary side information. In this paper, we provide a precise formulation of these guarantees in terms of the inferences drawn by a Bayesian adversary. We show that this formulation is satisfied by both \"vanilla\" differential privacy as well as a relaxation known as (epsilon,delta)-differential privacy. Our formulation follows the ideas originally due to Dwork and McSherry [Dwork 2006]. This paper is, to our knowledge, the first place such a formulation appears explicitly. The analysis of the relaxed definition is new to this paper, and provides some concrete guidance for setting parameters when using (epsilon,delta)-differential privacy.",
+          "claimed_authors": [
+            "Shiva Prasad Kasiviswanathan",
+            "Adam Smith"
+          ],
+          "claimed_title": "On the `Semantics' of Differential Privacy: A Bayesian Formulation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2008,
+          "primary_pointer": "0803.3946"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Evaluating the Effectiveness of Differential Privacy in Federated Learning compu', candidate_title=\"On the `Semantics' of Differential Privacy: A Bayesian Formulation\")",
+        "failed_at": "2026-06-24T18:05:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The optimal dimensional synthesis for planar mechanisms using differential evolution (DE) is demonstrated. Four examples are included: in the first case, the synthesis of a mechanism for hybrid-tasks, considering path generation, function generation, and motion generation, is carried out. The second and third cases pertain to path generation, with and without prescribed timing. Finally, the synthesis of an Ackerman mechanism is reported. Order defect problem is solved by manipulating individuals instead of penalizing or discretizing the search space for the parameters. A technique that consists in applying a transformation in order to satisfy the Grashof and crank conditions to generate an initial elitist population is introduced. As a result, the evolutionary algorithm increases its efficiency.",
+          "claimed_authors": [
+            "F. Penunuri",
+            "R. Peon-Escalante",
+            "C. Villanueva",
+            "D. Pech-Oy"
+          ],
+          "claimed_title": "Synthesis of Mechanism for single- and hybrid-tasks using Differential Evolution",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1102.2017"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Evaluating the Effectiveness of Differential Privacy in Federated Learning compu', candidate_title='Synthesis of Mechanism for single- and hybrid-tasks using Differential Evolution')",
+        "failed_at": "2026-06-24T18:05:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The problem of path generation for the spherical 4R mechanism is solved using the Differential Evolution algorithm (DE). Formulas for the spherical geodesics are employed in order to obtain the parametric equation for the generated trajectory. Direct optimization of the objective function gives the solution to the path generation task without prescribed timing. Therefore, there is no need to separate this task into two stages to make the optimization. Moreover, the order defect problem can be solved without difficulty by means of manipulations of the individuals in the DE algorithm. Two examples of optimum synthesis showing the simplicity and effectiveness of this approach are included.",
+          "claimed_authors": [
+            "F. Penunuri",
+            "R. Peon-Escalante",
+            "C. Villanueva",
+            "Carlos A. Cruz-Villar"
+          ],
+          "claimed_title": "Synthesis of Spherical 4R Mechanism for Path Generation using Differential Evolution",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1112.2954"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Evaluating the Effectiveness of Differential Privacy in Federated Learning compu', candidate_title='Synthesis of Spherical 4R Mechanism for Path Generation using Differential Evolution')",
+        "failed_at": "2026-06-24T18:05:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Legged robots are being used to explore rough terrains as they are capable of traversing gaps and obstacles. In this paper, a new mechanism is designed to replicate a robotic lizard using integrated five-bar mechanisms. There are two five bar mechanisms from which two more are formed by connecting the links in a particular order. The legs are attached to the links of the five bar mechanism such that, when the mechanism is actuated, they move the robot forward. Position analysis using vector loop approach has been done for the mechanism. A prototype has been built and controlled using servo motors to verify the robotic lizard mechanism.",
+          "claimed_authors": [
+            "Rajashekhar V S",
+            "Dinakar Raj C K",
+            "Vishwesh S",
+            "Selva Perumal E",
+            "Nirmal Kumar M"
+          ],
+          "claimed_title": "Design and Analysis of a Robotic Lizard using Five-Bar Mechanism",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2107.12614"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Effectiveness of Differential Privacy in Federated Learning compu', candidate_title='Design and Analysis of a Robotic Lizard using Five-Bar Mechanism')",
+        "failed_at": "2026-06-24T18:05:23Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Tianyi Chen",
+            "Xiao Jin",
+            "Yuejiao Sun",
+            "Wotao Yin"
+          ],
+          "title": "VAFL: a Method of Vertical Asynchronous Federated Learning",
+          "venue": "arXiv",
+          "year": 2020
+        },
+        "primary_pointer": "2007.06081",
+        "summary": "Horizontal Federated learning (FL) handles multi-client data that share the same set of features, and vertical FL trains a better predictor that combine all the features from different clients. This paper targets solving vertical FL in an asynchronous fashion, and develops a simple FL method. The new method allows each client to run stochastic gradient algorithms without coordination with other clients, so it is suitable for intermittent connectivity of clients. This method further uses a new technique of perturbed local embedding to ensure data privacy and improve communication efficiency. Theoretically, we present the convergence rate and privacy level of our method for strongly convex, nonconvex and even nonsmooth objectives separately. Empirically, we apply our method to FL on various image and healthcare datasets. The results compare favorably to centralized and synchronous FL methods.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2007.06081",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4286,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-24T18:05:21Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Mengde Han",
+            "Tianqing Zhu",
+            "Wanlei Zhou"
+          ],
+          "title": "Momentum Gradient Descent Federated Learning with Local Differential Privacy",
+          "venue": "arXiv",
+          "year": 2022
+        },
+        "primary_pointer": "2209.14086",
+        "summary": "Nowadays, the development of information technology is growing rapidly. In the big data era, the privacy of personal information has been more pronounced. The major challenge is to find a way to guarantee that sensitive personal information is not disclosed while data is published and analyzed. Centralized differential privacy is established on the assumption of a trusted third-party data curator. However, this assumption is not always true in reality. As a new privacy preservation model, local differential privacy has relatively strong privacy guarantees. Although federated learning has relatively been a privacy-preserving approach for distributed learning, it still introduces various privacy concerns. To avoid privacy threats and reduce communication costs, in this article, we propose integrating federated learning and local differential privacy with momentum gradient descent to improve the performance of machine learning models.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2209.14086",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5714,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-24T18:05:21Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Hao Zhou",
+            "Siqi Cai",
+            "Hua Dai",
+            "Geng Yang",
+            "Jing Luo",
+            "Hui Cai"
+          ],
+          "title": "PAC-DP: Personalized Adaptive Clipping for Differentially Private Federated Learning",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2603.24003",
+        "summary": "Differential privacy (DP) is crucial for safeguarding sensitive client information in federated learning (FL), yet traditional DP-FL methods rely predominantly on fixed gradient clipping thresholds. Such static clipping neglects significant client heterogeneity and varying privacy sensitivities, which may lead to an unfavorable privacy-utility trade-off. In this paper, we propose PAC-DP, a Personalized Adaptive Clipping framework for federated learning under record-level local differential privacy. PAC-DP introduces a Simulation-CurveFitting approach leveraging a server-hosted public proxy dataset to learn an effective mapping between personalized privacy budgets epsilon and gradient clipping thresholds C, which is then deployed online with a lightweight round-wise schedule. This design enables budget-conditioned threshold selection while avoiding data-dependent tuning during training. We provide theoretical analyses establishing convergence guarantees under the per-example clipping and Gaussian perturbation mechanism and a reproducible privacy accounting procedure. Extensive evaluations on multiple FL benchmarks show that PAC-DP surpasses conventional fixed-threshold approaches under matched privacy budgets, improving accuracy by up to 26% and accelerating convergence by up to 45.5% in our evaluated settings.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2603.24003",
+          "http_status": 200,
+          "pdf_sample_score": 0.2241,
+          "query_relevance_score": 0.5714,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-24T18:05:22Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Utsab Saha",
+            "Tanvir Muntakim Tonoy",
+            "Hafiz Imtiaz"
+          ],
+          "title": "DP-CDA: An Algorithm for Enhanced Privacy Preservation in Dataset Synthesis Through Randomized Mixing",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2411.16121",
+        "summary": "In recent years, the growth of data across various sectors, including healthcare, security, finance, and education, has created significant opportunities for analysis and informed decision-making. However, these datasets often contain sensitive and personal information, which raises serious privacy concerns. It has been shown in multiple works that a person's identity is intertwined with their data, even if the data is anonymized. Due to this lack of separation between a person's identity and their information, the patterns associated with an individual's information can uniquely identify them. Protecting individual privacy is crucial, yet many existing machine learning and data publishing algorithms struggle with high-dimensional data, facing challenges related to the trade-off between computational efficiency and privacy. To address these challenges, we introduce an effective data publishing algorithm \\emph{DP-CDA}. Our proposed algorithm generates synthetic data by randomly mixing the privacy-sensitive data in a class-specific manner and inducing carefully tuned randomness to ensure formal privacy guarantees. Our comprehensive privacy accounting shows that the proposed DP-CDA provides a stronger privacy guarantee compared to existing methods, allowing for better utility while maintaining a stricter level of privacy. To evaluate the effectiveness of DP-CDA, we examine the accuracy of predictive models trained on the synthetic data, which serves as a measure of dataset utility. Importantly, we identify an optimal order of mixing that balances privacy-utility trade-off. Our results indicate that synthetic datasets produced using the DP-CDA can achieve superior utility compared to those generated by conventional data publishing algorithms, even when subject to the same privacy requirements.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2411.16121",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4286,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-24T18:05:23Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "evaluating the effectiveness of differential privacy in federated learning computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

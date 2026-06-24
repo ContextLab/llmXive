@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2605.07422",
+  "judged_at": "2026-06-24T18:07:31Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "leveraging large language models for automated code refactoring computer science",
+  "rationale": "The paper studies LLM prompt engineering for qualitative coding of psychological‑safety text, not for automated code transformation or refactoring; it addresses a different construct within software engineering and thus does not provide relevant evidence for leveraging LLMs in code refactoring.",
+  "relevant": false
+}

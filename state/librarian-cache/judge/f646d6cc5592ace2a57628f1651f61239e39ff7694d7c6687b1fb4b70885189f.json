@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2509.22287",
+  "judged_at": "2026-06-24T18:07:19Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "leveraging large language models for automated code refactoring computer science",
+  "rationale": "The paper studies LLM‑driven robot tutoring for preschool language learning, which is unrelated to the software engineering task of automated code refactoring; it does not address the same mechanism, variables, or domain required for the user's question.",
+  "relevant": false
+}

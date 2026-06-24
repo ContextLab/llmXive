@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2408.13960",
+  "judged_at": "2026-06-24T18:03:55Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "statistical modeling of temporal dependence in cryptocurrency price fluctuations statistics",
+  "rationale": "The paper provides a comprehensive review of time‑series analysis methods—forecasting, classification, clustering, anomaly detection—that constitute the same statistical mechanisms used to model temporal dependence, satisfying criterion (a) (same‑mechanism evidence) and (d) (foundational methodology) even though the application domain is education rather than cryptocurrency prices.",
+  "relevant": true
+}

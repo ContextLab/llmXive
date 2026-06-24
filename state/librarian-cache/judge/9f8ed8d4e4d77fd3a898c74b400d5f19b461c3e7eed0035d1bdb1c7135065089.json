@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2403.07090",
+  "judged_at": "2026-06-24T18:03:57Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "statistical modeling of temporal dependence in cryptocurrency price fluctuations statistics",
+  "rationale": "The paper applies time‑series analysis to social‑media narrative data, not to cryptocurrency price data; it does not measure any variable related to crypto price fluctuations, nor does it provide a foundational method specific to that domain. Hence it is off‑topic for the user's question.",
+  "relevant": false
+}

@@ -1,0 +1,670 @@
+{
+  "fetched_at": "2026-06-24T18:04:05Z",
+  "field": "statistics",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "statistics",
+      "idea_body_excerpt": "Statistical Modeling of Temporal Dependence in Cryptocurrency Price Fluctuations",
+      "target_n": 5
+    },
+    "duration_seconds": 116.701,
+    "ended_at": "2026-06-24T18:04:05Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "time series analysis of cryptocurrency returns"
+        ],
+        [
+          2,
+          "volatility modeling for digital asset prices"
+        ],
+        [
+          3,
+          "GARCH and EGARCH models applied to Bitcoin price dynamics"
+        ],
+        [
+          4,
+          "stochastic volatility models in crypto markets"
+        ],
+        [
+          5,
+          "autoregressive conditional heteroskedasticity for cryptocurrency"
+        ],
+        [
+          6,
+          "long‑memory and fractional integration in crypto price series"
+        ],
+        [
+          7,
+          "high‑frequency dependence structures of cryptocurrency prices"
+        ],
+        [
+          8,
+          "Markov‑switching regimes in digital currency price movements"
+        ],
+        [
+          9,
+          "state‑space and Kalman filter approaches to crypto price evolution"
+        ],
+        [
+          10,
+          "cointegration and error‑correction models for multiple cryptocurrencies"
+        ],
+        [
+          11,
+          "multivariate copula models for joint cryptocurrency returns"
+        ],
+        [
+          12,
+          "nonlinear time‑series models capturing crypto price bubbles"
+        ],
+        [
+          13,
+          "machine‑learning based time‑series forecasting of blockchain asset prices"
+        ],
+        [
+          14,
+          "Bayesian dynamic hierarchical models for cryptocurrency price trends"
+        ],
+        [
+          15,
+          "event‑driven volatility spillovers in cryptocurrency markets"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Statistical Modeling of Temporal Dependence in Cryptocurrency Price Fluctuations statistics": 0,
+        "time series analysis of cryptocurrency returns": 3,
+        "volatility modeling for digital asset prices": 3
+      },
+      "total_queries_issued": 2
+    },
+    "extracted_queries": [
+      "autocorrelation cryptocurrency returns",
+      "Bitcoin price time series",
+      "GARCH cryptocurrency volatility",
+      "forecast error crypto time series",
+      "price discovery cryptocurrency markets"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": false,
+      "verdict": null
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2605.12099"
+      ]
+    },
+    "per_query_hit_count": {
+      "Bitcoin price time series": 3,
+      "GARCH cryptocurrency volatility": 2,
+      "Statistical Modeling of Temporal Dependence in Cryptocurrency Price Fluctuations statistics": 3,
+      "autocorrelation cryptocurrency returns": 3,
+      "forecast error crypto time series": 3,
+      "price discovery cryptocurrency markets": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 5,
+      "rejections": [
+        {
+          "primary_pointer": "1208.3378",
+          "rationale": "The paper studies spatial extreme-value models for environmental data (rainfall), which is unrelated to temporal dependence modeling of cryptocurrency price fluctuations; it does not address the same mechanism, variables, or domain required for inclusion.",
+          "title": "Statistical Modeling of Spatial Extremes"
+        },
+        {
+          "primary_pointer": "2303.14295",
+          "rationale": "The paper focuses on a non‑parametric clustering method for multivariate time series using energy distance and applies it to GDP and population data; it does not model temporal dependence of cryptocurrency price series nor address that specific domain, so it falls outside the relevant construct and domain.",
+          "title": "Clustering Multivariate Time Series using Energy Distance"
+        },
+        {
+          "primary_pointer": "2403.07090",
+          "rationale": "The paper applies time‑series analysis to social‑media narrative data, not to cryptocurrency price data; it does not measure any variable related to crypto price fluctuations, nor does it provide a foundational method specific to that domain. Hence it is off‑topic for the user's question.",
+          "title": "Time Series Analysis of Key Societal Events as Reflected in Complex Social Media Data Streams"
+        },
+        {
+          "primary_pointer": "2411.19444",
+          "rationale": "The paper focuses on extending the CAPM for equities using size and volatility factors and does not study cryptocurrency price series, temporal dependence, or related statistical models; thus it is off‑domain and lacks any of the inclusion criteria (a‑f).",
+          "title": "Capital Asset Pricing Model with Size Factor and Normalizing by Volatility Index"
+        },
+        {
+          "primary_pointer": "1301.4614",
+          "rationale": "The paper studies ambiguous volatility and continuous‑time asset pricing theory, without focusing on statistical time‑series models of price dynamics or on cryptocurrency markets; it does not address temporal dependence in crypto price fluctuations, nor provide a baseline or methodology relevant to that specific domain. Hence it falls outside the scope of the user's question.",
+          "title": "Ambiguous volatility and asset pricing in continuous time"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-24T18:02:08Z",
+    "term_input": {
+      "normalized": "statistical modeling of temporal dependence in cryptocurrency price fluctuations statistics",
+      "raw": "Statistical Modeling of Temporal Dependence in Cryptocurrency Price Fluctuations statistics"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Statistics has moved beyond the frequentist-Bayesian controversies of the past. Where does this leave our ability to interpret results? I suggest that a philosophy compatible with statistical practice, labeled here statistical pragmatism, serves as a foundation for inference. Statistical pragmatism is inclusive and emphasizes the assumptions that connect statistical models with observed data. I argue that introductory courses often mischaracterize the process of statistical inference and I propose an alternative \"big picture\" depiction.",
+          "claimed_authors": [
+            "Robert E. Kass"
+          ],
+          "claimed_title": "Statistical Inference: The Big Picture",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1106.2895"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Statistical Modeling of Temporal Dependence in Cryptocurrency Price Fluctuations', candidate_title='Statistical Inference: The Big Picture')",
+        "failed_at": "2026-06-24T18:03:34Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Bell's [Physics 1 (1964) 195-200] theorem is popularly supposed to establish the nonlocality of quantum physics. Violation of Bell's inequality in experiments such as that of Aspect, Dalibard and Roger [Phys. Rev. Lett. 49 (1982) 1804-1807] provides empirical proof of nonlocality in the real world. This paper reviews recent work on Bell's theorem, linking it to issues in causality as understood by statisticians. The paper starts with a proof of a strong, finite sample, version of Bell's inequality and thereby also of Bell's theorem, which states that quantum theory is incompatible with the conjunction of three formerly uncontroversial physical principles, here referred to as locality, realism and freedom. Locality is the principle that the direction of causality matches the direction of time, and that causal influences need time to propagate spatially. Realism and freedom are directly connected to statistical thinking on causality: they relate to counterfactual reasoning, and to randomisation, respectively. Experimental loopholes in state-of-the-art Bell type experiments are related to statistical issues of post-selection in observational studies, and the missing at random assumption. They can be avoided by properly matching the statistical analysis to the actual experimental design, instead of by making untestable assumptions of independence between observed and unobserved variables. Methodological and statistical issues in the design of quantum Randi challenges (QRC) are discussed. The paper argues that Bell's theorem (and its experimental confirmation) should lead us to relinquish not locality, but realism.",
+          "claimed_authors": [
+            "Richard D. Gill"
+          ],
+          "claimed_title": "Statistics, Causality and Bell's Theorem",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1207.5103"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Statistical Modeling of Temporal Dependence in Cryptocurrency Price Fluctuations', candidate_title=\"Statistics, Causality and Bell's Theorem\")",
+        "failed_at": "2026-06-24T18:03:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper is the first of a series of short articles that explore the efficiency of major cryptocurrency markets. A number of statistical tests and properties of statistical distributions will be used to assess if cryptocurrency markets are efficient, and how their efficiency changes over time. In this paper, we analyze autocorrelation of returns in major cryptocurrency markets using the following methods: Pearson's autocorrelation coefficient of different orders, Ljung-Box test, and first-order Pearson's autocorrelation coefficient in a rolling window. All experiments are conducted on the BTC/USD, ETH/USD, ETH/BTC markets on Bitfinex exchange, and the XBT/USD market on Bitmex exchange, each on 5-minute, 1-hour, 1-day, and 1-week time frames. The results are represented visually on charts. Statistically significant autocorrelation is persistently present on the 5m and 1H time frames on all markets. The tests disagree on the 1D and 1W time frames. The results of this article are fully reproducible. Used datasets, source code, and a runnable Jupyter Notebook are available on GitHub.",
+          "claimed_authors": [
+            "Eugene Tartakovsky",
+            "Ksenia Plesovskikh",
+            "Anastasiia Sarmakeeva",
+            "Alexander Bibik"
+          ],
+          "claimed_title": "Autocorrelation of returns in major cryptocurrency markets",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2003.13517"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Statistical Modeling of Temporal Dependence in Cryptocurrency Price Fluctuations', candidate_title='Autocorrelation of returns in major cryptocurrency markets')",
+        "failed_at": "2026-06-24T18:03:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Correlation networks were used to detect characteristics which, although fixed over time, have an important influence on the evolution of prices over time. Potentially important features were identified using the websites and whitepapers of cryptocurrencies with the largest userbases. These were assessed using two datasets to enhance robustness: one with fourteen cryptocurrencies beginning from 9 November 2017, and a subset with nine cryptocurrencies starting 9 September 2016, both ending 6 March 2018. Separately analysing the subset of cryptocurrencies raised the number of data points from 115 to 537, and improved robustness to changes in relationships over time. Excluding USD Tether, the results showed a positive association between different cryptocurrencies that was statistically significant. Robust, strong positive associations were observed for six cryptocurrencies where one was a fork of the other; Bitcoin / Bitcoin Cash was an exception. There was evidence for the existence of a group of cryptocurrencies particularly associated with Cardano, and a separate group correlated with Ethereum. The data was not consistent with a token's functionality or creation mechanism being the dominant determinants of the evolution of prices over time but did suggest that factors other than speculation contributed to the price.",
+          "claimed_authors": [
+            "Andrew Burnie"
+          ],
+          "claimed_title": "Exploring the Interconnectedness of Cryptocurrencies using Correlation Networks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1806.06632"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Statistical Modeling of Temporal Dependence in Cryptocurrency Price Fluctuations', candidate_title='Exploring the Interconnectedness of Cryptocurrencies using Correlation Networks')",
+        "failed_at": "2026-06-24T18:03:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Over the past few years, there has been a growth in activity, public knowledge, and awareness of cryptocurrencies and related blockchain technology. As the industry has grown, there has also been an increase in scams looking to steal unsuspecting individuals cryptocurrency. Many of the scams operate on visually similar but seemingly unconnected websites, advertised by malicious social media accounts, which either attempt an advance-fee scam or operate as phishing websites. This paper analyses public online and blockchain-based data to provide a deeper understanding of these cryptocurrency scams. The clustering technique DBSCAN is applied to the content of scam websites to discover a typology of advance-fee and phishing scams. It is found that the same entities are running multiple instances of similar scams, revealed by their online infrastructure and blockchain activity. The entities also manufacture public blockchain activity to create the appearance that their scams are genuine. Through source and destination of funds analysis, it is observed that victims usually send funds from fiat-accepting exchanges. The entities running these scams cash-out or launder their proceeds using a variety of avenues including exchanges, gambling sites, and mixers.",
+          "claimed_authors": [
+            "R. Phillips",
+            "H. Wilder"
+          ],
+          "claimed_title": "Tracing Cryptocurrency Scams: Clustering Replicated Advance-Fee and Phishing Websites",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2005.14440"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Statistical Modeling of Temporal Dependence in Cryptocurrency Price Fluctuations', candidate_title='Tracing Cryptocurrency Scams: Clustering Replicated Advance-Fee and Phishing Websites')",
+        "failed_at": "2026-06-24T18:03:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This is the first paper that estimates the price determinants of BitCoin in a Generalised Autoregressive Conditional Heteroscedasticity framework using high frequency data. Derived from a theoretical model, we estimate BitCoin transaction demand and speculative demand equations in a GARCH framework using hourly data for the period 2013-2018. In line with the theoretical model, our empirical results confirm that both the BitCoin transaction demand and speculative demand have a statistically significant impact on the BitCoin price formation. The BitCoin price responds negatively to the BitCoin velocity, whereas positive shocks to the BitCoin stock, interest rate and the size of the BitCoin economy exercise an upward pressure on the BitCoin price.",
+          "claimed_authors": [
+            "Pavel Ciaian",
+            "d'Artis Kancs",
+            "Miroslava Rajcaniova"
+          ],
+          "claimed_title": "The Price of BitCoin: GARCH Evidence from High Frequency Data",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1812.09452"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Statistical Modeling of Temporal Dependence in Cryptocurrency Price Fluctuations', candidate_title='The Price of BitCoin: GARCH Evidence from High Frequency Data')",
+        "failed_at": "2026-06-24T18:03:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper evaluates the performance of classical time series models in forecasting Bitcoin prices, focusing on ARIMA, SARIMA, GARCH, and EGARCH. Daily price data from 2010 to 2020 were analyzed, with models trained on the first 90 percent and tested on the final 10 percent. Forecast accuracy was assessed using MAE, RMSE, AIC, and BIC. The results show that ARIMA provided the strongest forecasts for short-run log-price dynamics, while EGARCH offered the best fit for volatility by capturing asymmetry in responses to shocks. These findings suggest that despite Bitcoin's extreme volatility, classical time series models remain valuable for short-run forecasting. The study contributes to understanding cryptocurrency predictability and sets the stage for future work integrating machine learning and macroeconomic variables.",
+          "claimed_authors": [
+            "Anmar Kareem",
+            "Alexander Aue"
+          ],
+          "claimed_title": "Bitcoin Forecasting with Classical Time Series Models on Prices and Volatility",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2511.06224"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Statistical Modeling of Temporal Dependence in Cryptocurrency Price Fluctuations', candidate_title='Bitcoin Forecasting with Classical Time Series Models on Prices and Volatility')",
+        "failed_at": "2026-06-24T18:03:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper analyses the relationship between BitCoin price and supply-demand fundamentals of BitCoin, global macro-financial indicators and BitCoin attractiveness for investors. Using daily data for the period 2009-2014 and applying time-series analytical mechanisms, we find that BitCoin market fundamentals and BitCoin attractiveness for investors have a significant impact on BitCoin price. Our estimates do not support previous findings that the macro-financial developments are driving BitCoin price.",
+          "claimed_authors": [
+            "Pavel Ciaian",
+            "Miroslava Rajcaniova",
+            "d'Artis Kancs"
+          ],
+          "claimed_title": "The Economics of BitCoin Price Formation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1405.4498"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Statistical Modeling of Temporal Dependence in Cryptocurrency Price Fluctuations', candidate_title='The Economics of BitCoin Price Formation')",
+        "failed_at": "2026-06-24T18:03:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recently, cryptocurrencies have attracted a growing interest from investors, practitioners and researchers. Nevertheless, few studies have focused on the predictability of them. In this paper we propose a new and comprehensive study about cryptocurrency market, evaluating the forecasting performance for three of the most important cryptocurrencies (Bitcoin, Ethereum and Litecoin) in terms of market capitalization. At this aim, we consider non-Gaussian GARCH volatility models, which form a class of stochastic recursive systems commonly adopted for financial predictions. Results show that the best specification and forecasting accuracy are achieved under the Skewed Generalized Error Distribution when Bitcoin/USD and Litecoin/USD exchange rates are considered, while the best performances are obtained for skewed Distribution in the case of Ethereum/USD exchange rate. The obtain findings state the effectiveness -- in terms of prediction performance -- of relaxing the normality assumption and considering skewed distributions.",
+          "claimed_authors": [
+            "Roy Cerqueti",
+            "Massimiliano Giacalone",
+            "Raffaele Mattera"
+          ],
+          "claimed_title": "Skewed non-Gaussian GARCH models for cryptocurrencies volatility modelling",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2004.11674"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Statistical Modeling of Temporal Dependence in Cryptocurrency Price Fluctuations', candidate_title='Skewed non-Gaussian GARCH models for cryptocurrencies volatility modelling')",
+        "failed_at": "2026-06-24T18:03:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The advantages of sequential Monte Carlo (SMC) are exploited to develop parameter estimation and model selection methods for GARCH (Generalized AutoRegressive Conditional Heteroskedasticity) style models. It provides an alternative method for quantifying estimation uncertainty relative to classical inference. Even with long time series, it is demonstrated that the posterior distribution of model parameters are non-normal, highlighting the need for a Bayesian approach and an efficient posterior sampling method. Efficient approaches for both constructing the sequence of distributions in SMC, and leave-one-out cross-validation, for long time series data are also proposed. Finally, an unbiased estimator of the likelihood is developed for the Bad Environment-Good Environment model, a complex GARCH-type model, which permits exact Bayesian inference not previously available in the literature.",
+          "claimed_authors": [
+            "Dan Li",
+            "Adam Clements",
+            "Christopher Drovandi"
+          ],
+          "claimed_title": "Efficient Bayesian estimation for GARCH-type models via Sequential Monte Carlo",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1906.03828"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Modeling of Temporal Dependence in Cryptocurrency Price Fluctuations', candidate_title='Efficient Bayesian estimation for GARCH-type models via Sequential Monte Carlo')",
+        "failed_at": "2026-06-24T18:03:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A novel methodology is proposed for clustering multivariate time series data using energy distance defined in Székely and Rizzo (2013). Specifically, a dissimilarity matrix is formed using the energy distance statistic to measure separation between the finite dimensional distributions for the component time series. Once the pairwise dissimilarity matrix is calculated, a hierarchical clustering method is then applied to obtain the dendrogram. This procedure is completely nonparametric as the dissimilarities between stationary distributions are directly calculated without making any model assumptions. In order to justify this procedure, asymptotic properties of the energy distance estimates are derived for general stationary and ergodic time series. The method is illustrated in a simulation study for various component time series that are either linear or nonlinear. Finally the methodology is applied to two examples; one involves GDP of selected countries and the other is population size of various states in the U.S.A. in the years 1900 -1999.",
+          "claimed_authors": [
+            "Richard A. Davis",
+            "Leon Fernandes",
+            "Konstantinos Fokianos"
+          ],
+          "claimed_title": "Clustering Multivariate Time Series using Energy Distance",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2303.14295"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Modeling of Temporal Dependence in Cryptocurrency Price Fluctuations', candidate_title='Clustering Multivariate Time Series using Energy Distance')",
+        "failed_at": "2026-06-24T18:03:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Time series forecasting remains a challenging task, particularly in the context of complex multiscale temporal patterns. This study presents LLM-Mixer, a framework that improves forecasting accuracy through the combination of multiscale time-series decomposition with pre-trained LLMs (Large Language Models). LLM-Mixer captures both short-term fluctuations and long-term trends by decomposing the data into multiple temporal resolutions and processing them with a frozen LLM, guided by a textual prompt specifically designed for time-series data. Extensive experiments conducted on multivariate and univariate datasets demonstrate that LLM-Mixer achieves competitive performance, outperforming recent state-of-the-art models across various forecasting horizons. This work highlights the potential of combining multiscale analysis and LLMs for effective and scalable time-series forecasting.",
+          "claimed_authors": [
+            "Md Kowsher",
+            "Md. Shohanur Islam Sobuj",
+            "Nusrat Jahan Prottasha",
+            "E. Alejandro Alanis",
+            "Ozlem Ozmen Garibay",
+            "Niloofar Yousefi"
+          ],
+          "claimed_title": "LLM-Mixer: Multiscale Mixing in LLMs for Time Series Forecasting",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2410.11674"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Statistical Modeling of Temporal Dependence in Cryptocurrency Price Fluctuations', candidate_title='LLM-Mixer: Multiscale Mixing in LLMs for Time Series Forecasting')",
+        "failed_at": "2026-06-24T18:03:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Here, we propose a general method for probabilistic time series forecasting. We combine an autoregressive recurrent neural network to model temporal dynamics with Implicit Quantile Networks to learn a large class of distributions over a time-series target. When compared to other probabilistic neural forecasting models on real- and simulated data, our approach is favorable in terms of point-wise prediction accuracy as well as on estimating the underlying temporal distribution.",
+          "claimed_authors": [
+            "Adèle Gouttes",
+            "Kashif Rasul",
+            "Mateusz Koren",
+            "Johannes Stephan",
+            "Tofigh Naghibi"
+          ],
+          "claimed_title": "Probabilistic Time Series Forecasting with Implicit Quantile Networks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2107.03743"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Statistical Modeling of Temporal Dependence in Cryptocurrency Price Fluctuations', candidate_title='Probabilistic Time Series Forecasting with Implicit Quantile Networks')",
+        "failed_at": "2026-06-24T18:03:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Collective dynamics in financial markets can emerge through synchronized movements of large groups of assets. Motivated by analogies with interacting many-body systems, we introduce a spin-lattice representation for analyzing collective states in cryptocurrency markets. In this framework, assets are encoded as binary spin variables according to the sign of their returns, while correlations between assets determine effective interaction strengths. A correlation-based breadth-first search (CBFS) procedure embeds 169 cryptocurrencies into a $13 \\times 13$ lattice, enabling the construction of an Ising-like Hamiltonian describing the market configuration, which we call the \\emph{Market Crystal}. Macroscopic observables such as magnetization and energy provide a statistical-mechanical characterization of collective market states. The resulting phase-space structure highlights regimes of strong alignment and fragmentation among assets, with an energy--magnetization pattern suggestive of predominantly ferromagnetic interactions. This framework offers a statistical-mechanical viewpoint for studying collective behavior in financial systems.",
+          "claimed_authors": [
+            "Hamidreza Oliaei-Moghadam"
+          ],
+          "claimed_title": "The Market Crystal: A Spin-Lattice Model for Collective Cryptocurrency States",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.22017"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Statistical Modeling of Temporal Dependence in Cryptocurrency Price Fluctuations', candidate_title='The Market Crystal: A Spin-Lattice Model for Collective Cryptocurrency States')",
+        "failed_at": "2026-06-24T18:03:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper investigates the impact of dark pools on price discovery (the efficiency of prices on stock exchanges to aggregate information). Assets are traded in either an exchange or a dark pool, with the dark pool offering better prices but lower execution rates. Informed traders receive noisy and heterogeneous signals about an asset's fundamental. We find that informed traders use dark pools to mitigate their information risk and there is a sorting effect: in equilibrium, traders with strong signals trade in exchanges, traders with moderate signals trade in dark pools, and traders with weak signals do not trade. As a result, dark pools have an amplification effect on price discovery. That is, when information precision is high (information risk is low), the majority of informed traders trade in the exchange hence adding a dark pool enhances price discovery, whereas when information precision is low (information risk is high), the majority of the informed traders trade in the dark pool hence adding a dark pool impairs price discovery. The paper reconciles the conflicting empirical evidence and produces novel empirical predictions. The paper also provides regulatory suggestions with dark pools on current equity markets and in emerging markets.",
+          "claimed_authors": [
+            "Linlin Ye"
+          ],
+          "claimed_title": "Understanding the Impacts of Dark Pools on Price Discovery",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1612.08486"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Statistical Modeling of Temporal Dependence in Cryptocurrency Price Fluctuations', candidate_title='Understanding the Impacts of Dark Pools on Price Discovery')",
+        "failed_at": "2026-06-24T18:03:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This document analyzes price discovery in cryptocurrency markets by comparing centralized and decentralized exchanges, as well as spot and futures markets. The study focuses first on Ethereum (ETH) and then applies a similar approach to Bitcoin (BTC). Chapter 1 outlines the theoretical framework, emphasizing the structural differences between centralized exchanges and decentralized finance mechanisms, especially Automated Market Makers (AMMs). It also explains how to construct an order book from a liquidity pool in a decentralized setting for comparison with centralized exchanges. Chapter 2 describes the methodological tools used: Hasbrouck's Information Share, Gonzalo and Granger's Permanent-Transitory decomposition, and the Hayashi-Yoshida estimator. These are applied to explore lead-lag dynamics, cointegration, and price discovery across market types. Chapter 3 presents the empirical analysis. For ETH, it compares price dynamics on Binance and Uniswap v2 over a one-year period, focusing on five key events in 2024. For BTC, it analyzes the relationship between spot and futures prices on the CME. The study estimates lead-lag effects and cointegration in both cases. Results show that centralized markets typically lead in ETH price discovery. In futures markets, while they tend to lead overall, high-volatility periods produce mixed outcomes. The findings have key implications for traders and institutions regarding liquidity, arbitrage, and market efficiency. Various metrics are used to benchmark the performance of modified AMMs and to understand the interaction between decentralized and centralized structures.",
+          "claimed_authors": [
+            "Juan Plazuelo Pascual",
+            "Carlos Tardon Rubio",
+            "Juan Toro Cebada",
+            "Angel Hernando Veciana"
+          ],
+          "claimed_title": "Price Discovery in Cryptocurrency Markets",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.08718"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Statistical Modeling of Temporal Dependence in Cryptocurrency Price Fluctuations', candidate_title='Price Discovery in Cryptocurrency Markets')",
+        "failed_at": "2026-06-24T18:03:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "We propose an adaptive bandwidth selector via cross validation for local M-estimators in locally stationary processes. We prove asymptotic optimality of the procedure under mild conditions on the underlying parameter curves. The results are applicable to a wide range of locally stationary processes such linear and nonlinear processes. A simulation study shows that the method works fairly well also in misspecified situations.",
+          "claimed_authors": [
+            "Stefan Richter",
+            "Rainer Dahlhaus"
+          ],
+          "claimed_title": "Cross validation for locally stationary processes",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1705.10046"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Modeling of Temporal Dependence in Cryptocurrency Price Fluctuations', candidate_title='Cross validation for locally stationary processes')",
+        "failed_at": "2026-06-24T18:03:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "We suggest three superpositions of COGARCH (supCOGARCH) volatility processes driven by Lévy processes or Lévy bases. We investigate second-order properties, jump behaviour, and prove that they exhibit Pareto-like tails. Corresponding price processes are defined and studied. We find that the supCOGARCH models allow for more flexible autocovariance structures than the COGARCH. Moreover, other than most financial volatility models, the supCOGARCH processes do not exhibit a deterministic relationship between price and volatility jumps. Furthermore, in one supCOGARCH model not all volatility jumps entail a price jump, while in another supCOGARCH model not all price jumps necessarily lead to volatility jumps.",
+          "claimed_authors": [
+            "Anita Behme",
+            "Carsten Chong",
+            "Claudia Klüppelberg"
+          ],
+          "claimed_title": "Superposition of COGARCH processes",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1305.2296"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Statistical Modeling of Temporal Dependence in Cryptocurrency Price Fluctuations', candidate_title='Superposition of COGARCH processes')",
+        "failed_at": "2026-06-24T18:03:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "Classical spectral methods are subject to two fundamental limitations: they only can account for covariance-related serial dependencies, and they require second-order stationarity. Much attention has been devoted lately to quantile-based spectral methods that go beyond covariance-based serial dependence features. At the same time, covariance-based methods relaxing stationarity into much weaker {\\it local stationarity} conditions have been developed for a variety of time-series models. Here, we are combining those two approaches by proposing quantile-based spectral methods for locally stationary processes. We therefore introduce a time-varying version of the copula spectra that have been recently proposed in the literature, along with a suitable local lag-window estimator. We propose a new definition of local {\\it strict} stationarity that allows us to handle completely general non-linear processes without any moment assumptions, thus accommodating our quantile-based concepts and methods. We establish a central limit theorem for the new estimators, and illustrate the power of the proposed methodology by means of a simulation study. Moreover, in two empirical studies (namely of the Standard \\& Poor's 500 series and a temperature dataset recorded in Hohenpeissenberg) we demonstrate that the new approach detects important variations in serial dependence structures both across time and across quantiles. Such variations remain completely undetected, and are actually undetectable, via classical covariance-based spectral methods.",
+          "claimed_authors": [
+            "Stefan Birr",
+            "Stanislav Volgushev",
+            "Tobias Kley",
+            "Holger Dette",
+            "Marc Hallin"
+          ],
+          "claimed_title": "Quantile Spectral Analysis for Locally Stationary Time Series",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1404.4605"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Statistical Modeling of Temporal Dependence in Cryptocurrency Price Fluctuations', candidate_title='Quantile Spectral Analysis for Locally Stationary Time Series')",
+        "failed_at": "2026-06-24T18:03:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "We present a novel approach to test for heteroscedasticity of a non-stationary time series that is based on Gini's mean difference of logarithmic local sample variances. In order to analyse the large sample behaviour of our test statistic, we establish new limit theorems for U-statistics of dependent triangular arrays. We derive the asymptotic distribution of the test statistic under the null hypothesis of a constant variance and show that the test is consistent against a large class of alternatives, including multiple structural breaks in the variance. Our test is applicable even in the case of non-stationary processes, assuming a locally stationary mean function. The performance of the test and its comparatively low computation time are illustrated in an extensive simulation study. As an application, we analyse Google Trends data, monitoring the relative search interest for the topic \"global warming.\"",
+          "claimed_authors": [
+            "Sara Kristin Schmidt",
+            "Max Wornowizki",
+            "Roland Fried",
+            "Herold Dehling"
+          ],
+          "claimed_title": "An Asymptotic Test for Constancy of the Variance under Short-Range Dependence",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2002.10178"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Statistical Modeling of Temporal Dependence in Cryptocurrency Price Fluctuations', candidate_title='An Asymptotic Test for Constancy of the Variance under Short-Range Dependence')",
+        "failed_at": "2026-06-24T18:03:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "We study the consistency and weak convergence of the conditional tail function and conditional Hill estimators under broad dependence assumptions for a heavy-tailed response sequence and a covariate sequence. Consistency is established under $α$-mixing, while asymptotic normality follows from $β$-mixing and second-order conditions. A key aspect of our approach is its versatile functional formulation in terms of the conditional tail process. Simulations demonstrate its performance across dependence scenarios. We apply our method to extreme event modelling in the oil industry, revealing distinct tail behaviours under varying conditioning values.",
+          "claimed_authors": [
+            "Martin Bladt",
+            "Laurits Glargaard",
+            "Theodor Henningsen"
+          ],
+          "claimed_title": "Conditional Extreme Value Estimation for Dependent Time Series",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2503.22366"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Statistical Modeling of Temporal Dependence in Cryptocurrency Price Fluctuations', candidate_title='Conditional Extreme Value Estimation for Dependent Time Series')",
+        "failed_at": "2026-06-24T18:03:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "Temporal data are increasingly prevalent in modern data science. A fundamental question is whether two time series are related or not. Existing approaches often have limitations, such as relying on parametric assumptions, detecting only linear associations, and requiring multiple tests and corrections. While many non-parametric and universally consistent dependence measures have recently been proposed, directly applying them to temporal data can inflate the p-value and result in an invalid test. To address these challenges, this paper introduces the temporal dependence statistic with block permutation to test independence between temporal data. Under proper assumptions, the proposed procedure is asymptotically valid and universally consistent for testing independence between stationary time series, and capable of estimating the optimal dependence lag that maximizes the dependence. Moreover, it is compatible with a rich family of distance and kernel based dependence measures, eliminates the need for multiple testing, and exhibits excellent testing power in various simulation settings.",
+          "claimed_authors": [
+            "Cencheng Shen",
+            "Jaewon Chung",
+            "Ronak Mehta",
+            "Ting Xu",
+            "Joshua T. Vogelstein"
+          ],
+          "claimed_title": "Independence Testing for Temporal Data",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1908.06486"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Statistical Modeling of Temporal Dependence in Cryptocurrency Price Fluctuations', candidate_title='Independence Testing for Temporal Data')",
+        "failed_at": "2026-06-24T18:03:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "Stochastic volatility processes with heavy-tailed innovations are a well-known model for financial time series. In these models, the extremes of the log returns are mainly driven by the extremes of the i.i.d. innovation sequence which leads to a very strong form of asymptotic independence, that is, the coefficient of tail dependence is equal to $1/2$ for all positive lags. We propose an alternative class of stochastic volatility models with heavy-tailed volatilities and examine their extreme value behavior. In particular, it is shown that, while lagged extreme observations are typically asymptotically independent, their coefficient of tail dependence can take on any value between $1/2$ (corresponding to exact independence) and 1 (related to asymptotic dependence). Hence, this class allows for a much more flexible extremal dependence between consecutive observations than classical SV models and can thus describe the observed clustering of financial returns more realistically. The extremal dependence structure of lagged observations is analyzed in the framework of regular variation on the cone $(0,\\infty)^d$. As two auxiliary results which are of interest on their own we derive a new Breiman-type theorem about regular variation on $(0,\\infty)^d$ for products of a random matrix and a regularly varying random vector and a statement about the joint extremal behavior of products of i.i.d. regularly varying random variables.",
+          "claimed_authors": [
+            "Anja Janssen",
+            "Holger Drees"
+          ],
+          "claimed_title": "A stochastic volatility model with flexible extremal dependence structure",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1310.4621"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Statistical Modeling of Temporal Dependence in Cryptocurrency Price Fluctuations', candidate_title='A stochastic volatility model with flexible extremal dependence structure')",
+        "failed_at": "2026-06-24T18:03:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "We study randomized experiments in a service system when stochastic congestion can arise from temporarily limited supply or excess demand. Such congestion gives rise to cross-unit interference between the waiting customers, and analytic strategies that do not account for this interference may be biased. In current practice, one of the most widely used ways to address stochastic congestion is to use switchback experiments that alternatively turn a target intervention on and off for the whole system. We find, however, that under a queueing model for stochastic congestion, the standard way of analyzing switchbacks is inefficient, and that estimators that leverage the queueing model can be materially more accurate. Additionally, we show how the queueing model enables estimation of total policy gradients from unit-level randomized experiments, thus giving practitioners an alternative experimental approach they can use without needing to pre-commit to a fixed switchback length before data collection.",
+          "claimed_authors": [
+            "Shuangning Li",
+            "Ramesh Johari",
+            "Xu Kuang",
+            "Stefan Wager"
+          ],
+          "claimed_title": "Experimenting under Stochastic Congestion",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2302.12093"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Modeling of Temporal Dependence in Cryptocurrency Price Fluctuations', candidate_title='Experimenting under Stochastic Congestion')",
+        "failed_at": "2026-06-24T18:03:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "In this paper we consider a heavy-tailed stochastic volatility model, $X_t=σ_tZ_t$, $t\\in\\mathbb{Z}$, where the volatility sequence $(σ_t)$ and the i.i.d. noise sequence $(Z_t)$ are assumed independent, $(σ_t)$ is regularly varying with index $α>0$, and the $Z_t$'s have moments of order larger than $α$. In the literature (see Ann. Appl. Probab. 8 (1998) 664-675, J. Appl. Probab. 38A (2001) 93-104, In Handbook of Financial Time Series (2009) 355-364 Springer), it is typically assumed that $(\\logσ_t)$ is a Gaussian stationary sequence and the $Z_t$'s are regularly varying with some index $α$ (i.e., $(σ_t)$ has lighter tails than the $Z_t$'s), or that $(Z_t)$ is i.i.d. centered Gaussian. In these cases, we see that the sequence $(X_t)$ does not exhibit extremal clustering. In contrast to this situation, under the conditions of this paper, both situations are possible; $(X_t)$ may or may not have extremal clustering, depending on the clustering behavior of the $σ$-sequence.",
+          "claimed_authors": [
+            "Thomas Mikosch",
+            "Mohsen Rezapour"
+          ],
+          "claimed_title": "Stochastic volatility models with possible extremal clustering",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1312.2780"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Modeling of Temporal Dependence in Cryptocurrency Price Fluctuations', candidate_title='Stochastic volatility models with possible extremal clustering')",
+        "failed_at": "2026-06-24T18:03:36Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Shengzhong Mao",
+            "Chaoli Zhang",
+            "Yichi Song",
+            "Jindong Wang",
+            "Xiao-Jun Zeng",
+            "Zenglin Xu",
+            "Qingsong Wen"
+          ],
+          "title": "Time Series Analysis for Education: Methods, Applications, and Future Directions",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2408.13960",
+        "summary": "Recent advancements in the collection and analysis of sequential educational data have brought time series analysis to a pivotal position in educational research, highlighting its essential role in facilitating data-driven decision-making. However, there is a lack of comprehensive summaries that consolidate these advancements. To the best of our knowledge, this paper is the first to provide a comprehensive review of time series analysis techniques specifically within the educational context. We begin by exploring the landscape of educational data analytics, categorizing various data sources and types relevant to education. We then review four prominent time series methods-forecasting, classification, clustering, and anomaly detection-illustrating their specific application points in educational settings. Subsequently, we present a range of educational scenarios and applications, focusing on how these methods are employed to address diverse educational tasks, which highlights the practical integration of multiple time series methods to solve complex educational problems. Finally, we conclude with a discussion on future directions, including personalized learning analytics, multimodal data fusion, and the role of large language models (LLMs) in educational time series. The contributions of this paper include a detailed taxonomy of educational data, a synthesis of time series techniques with specific educational applications, and a forward-looking perspective on emerging trends and future research opportunities in educational analysis. The related papers and resources are available and regularly updated at the project page.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2408.13960",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-24T18:03:41Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Patrick Woitschig",
+            "Mike West"
+          ],
+          "title": "Bayesian Dynamic Modeling of Realized Volatility in Financial Asset Price Forecasting",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2605.12099",
+        "summary": "We present a new class of Bayesian dynamic models for bivariate price-realized volatility time series in financial forecasting. A novel dynamic gamma process model adopted for realized volatility is integrated with traditional Bayesian dynamic linear models (DLMs) for asset price series. This represents reduced-form volatility leverage and feedback effects through use of realized volatility proxies in conditional DLMs for prices or returns, coupled with the synthesis of higher frequency data to track and anticipate volatility fluctuations. Analysis is computationally straightforward, extending conjugate-form Bayesian analyses for sequential filtering and model monitoring with simple and direct simulation for forecasting. A main applied setting is equity return forecasting with daily prices and realized volatility from high-frequency, intraday data. Detailed empirical studies of multiple S&P sector ETFs highlight the improvements achievable in asset price forecasting relative to standard models and deliver contextual insights on the nature and practical relevance of volatility leverage and feedback effects. The analytic structure and negligible extra computational cost will enable scaling to higher dimensions for multivariate price series forecasting for decouple/recouple portfolio construction and risk management applications.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2605.12099",
+          "http_status": 200,
+          "pdf_sample_score": 0.2528,
+          "query_relevance_score": 0.8,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-24T18:03:46Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "statistical modeling of temporal dependence in cryptocurrency price fluctuations statistics",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2411.16121",
+  "judged_at": "2026-06-24T18:05:40Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "evaluating the effectiveness of differential privacy in federated learning computer science",
+  "rationale": "The paper evaluates the effectiveness of differential privacy (privacy‑utility trade‑off) using a DP‑based data synthesis algorithm, thus providing same‑mechanism evidence for DP even though the application domain (synthetic data generation) differs from federated learning. This aligns with inclusion criterion (a).",
+  "relevant": true
+}

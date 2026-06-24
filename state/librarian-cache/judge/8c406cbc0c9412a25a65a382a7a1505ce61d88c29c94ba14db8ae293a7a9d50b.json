@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2410.16349",
+  "judged_at": "2026-06-24T18:07:21Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "leveraging large language models for automated code refactoring computer science",
+  "rationale": "The paper reviews LLMs in computer science education and does not investigate or provide baseline data on using LLMs for automated code refactoring, nor does it address the relevant mechanism, variables, or population for that task. Hence it is not pertinent to the user's research focus.",
+  "relevant": false
+}

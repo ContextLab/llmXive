@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-04-30T15:42:00.428798Z'
-current_stage: flesh_out_in_progress
+current_stage: flesh_out_complete
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-044-evaluating-the-effectiveness-of-differen
-last_run_id: 3e246792-1079-49af-98c1-27001c4886cf
+last_run_id: d936152d-7e34-40cc-8534-d418b9605a4a
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: Evaluating the Effectiveness of Differential Privacy in Federated Learning
-updated_at: '2026-06-12T10:08:40.472962Z'
+updated_at: '2026-06-24T18:05:49.450655Z'

@@ -1,4 +1,12 @@
 {
+  "PROJ-043-leveraging-large-language-models-for-aut::1.6.0": {
+    "classified_at": "2026-06-24T18:07:15Z",
+    "verdict": false
+  },
+  "PROJ-044-evaluating-the-effectiveness-of-differen::1.6.0": {
+    "classified_at": "2026-06-24T18:05:21Z",
+    "verdict": false
+  },
   "PROJ-078-predicting-polymer-degradation-pathways-::1.6.0": {
     "classified_at": "2026-06-13T04:35:32Z",
     "verdict": false

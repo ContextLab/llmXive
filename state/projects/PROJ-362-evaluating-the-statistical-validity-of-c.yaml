@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-06T15:02:55.695387Z'
-current_stage: validated
+current_stage: project_initialized
 failed_stage: null
 field: statistics
 human_escalation_reason: null
 id: PROJ-362-evaluating-the-statistical-validity-of-c
-last_run_id: 1f4e443a-89c8-4387-9590-034f316f0a6c
+last_run_id: bc05728b-f594-43be-8f71-47d4e224dd25
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: Evaluating the Statistical Validity of Common Ranking Metrics
-updated_at: '2026-06-13T06:11:33.813075Z'
+updated_at: '2026-06-24T18:05:57.754412Z'
