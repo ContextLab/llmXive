@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1503.05225",
+  "judged_at": "2026-06-24T22:39:27Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "statistical evaluation of dimensionality reduction techniques on gene expression data statistics",
+  "rationale": "The paper focuses on theoretical sketching, embedding, and dimensionality‑reduction methods for information‑theoretic distances, without any empirical evaluation on gene‑expression datasets or statistical assessment of DR techniques in that domain. Hence it does not meet any inclusion criteria (a‑f) for the user's question.",
+  "relevant": false
+}

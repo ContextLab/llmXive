@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2406.05258",
+  "judged_at": "2026-06-24T22:39:15Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "statistical evaluation of dimensionality reduction techniques on gene expression data statistics",
+  "rationale": "The paper is a broad review of machine‑learning and statistical methods for scRNA‑seq annotation and does not provide a statistical evaluation of dimensionality‑reduction techniques on gene‑expression data, nor does it focus on the performance metrics or comparisons required by the user's question. It therefore lacks the necessary mechanism or variable assessment.",
+  "relevant": false
+}

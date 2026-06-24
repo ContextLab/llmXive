@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1703.10534",
+  "judged_at": "2026-06-24T22:39:21Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "statistical evaluation of dimensionality reduction techniques on gene expression data statistics",
+  "rationale": "The paper studies k‑means clustering and mixture‑model learning with reduced dimensionality, but it neither uses gene‑expression data nor evaluates dimensionality‑reduction techniques in that biological context, so it does not address the user’s domain or variables.",
+  "relevant": false
+}

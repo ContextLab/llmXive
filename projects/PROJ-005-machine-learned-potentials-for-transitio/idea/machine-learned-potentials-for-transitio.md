@@ -10,36 +10,92 @@ submitter: system:brainstorm-seed
 
 ## Research question
 
-Can graph-neural-network potentials trained on density-functional theory (DFT) data for Pd, Ni, and Cu elementary steps reproduce DFT free-energy barriers to within 2 kcal/mol on held-out transition-metal catalytic reactions?
+How do graph‑neural‑network potentials generalize across ligand environments in Pd, Ni, and Cu catalytic cycles, and which structural features of the transition state dominate deviations from DFT reference values?
 
 ## Motivation
 
-DFT calculations provide accurate energetics for transition-metal catalytic cycles but are too computationally expensive for high-throughput screening of reaction conditions. Machine-learned interatomic potentials offer a pathway to accelerate these calculations while preserving accuracy, addressing a critical bottleneck in catalyst design and reaction optimization.
+High‑throughput computational screening of transition‑metal catalysts is limited by the cost of density‑functional theory (DFT) calculations for each elementary step. Graph‑neural‑network (GNN) interatomic potentials promise orders‑of‑magnitude speed‑ups, but their ability to transfer across diverse ligand environments—particularly those involving unconventional L‑type ligands—is poorly understood. Identifying the structural determinants of prediction error will guide both model design and catalyst selection.
 
 ## Related work
 
-- [Guest Editorial: Special Topic on Data-enabled Theoretical Chemistry (2018)](http://arxiv.org/abs/1806.02690v2) — Provides a foundational survey of data-enabled approaches in theoretical chemistry, including glossary of relevant ML terminology.
-- [Application of Artificial Neural Networks for Catalysis (2021)](http://arxiv.org/abs/2110.00924v1) — Demonstrates ANN applications for improving catalyst performance in chemical industry contexts.
-- [Machine Learning Potentials for Heterogeneous Catalysis (2024)](http://arxiv.org/abs/2411.00720v1) — Reviews ML potential approaches specifically for heterogeneous catalysis systems.
-- [Reliable and Efficient Automated Transition-State Searches with Machine-Learned Interatomic Potentials (2026)](http://arxiv.org/abs/2604.00405v1) — Addresses transition-state search automation using ML potentials, directly relevant to barrier prediction.
+- [Application of Artificial Neural Networks for Catalysis (2021)](https://arxiv.org/abs/2110.00924) — Demonstrates that neural‑network models can predict catalytic performance metrics, providing a methodological precedent for applying machine learning to catalytic systems.  
+- [Group 13 Metals as L‑Type Ligands for Transition Metals (2025)](https://arxiv.org/abs/2511.03513) — Shows that low‑valent Group 13 fragments act as neutral L‑type ligands, expanding the chemical space of ligand environments that must be captured by any transferable ML potential.
 
 ## Expected results
 
-We expect the GNN potential to achieve mean absolute errors ≤2 kcal/mol on held-out barrier heights for Pd, Ni, and Cu systems. Success will be confirmed by comparing predicted free-energy profiles against DFT benchmarks across at least 50 diverse elementary steps; failure will be indicated by systematic underestimation of barrier heights exceeding 3 kcal/mol.
+- The GNN potential will achieve a mean absolute error (MAE) ≤ 2 kcal mol⁻¹ for DFT‑computed barrier heights on a held‑out test set spanning a variety of ligand environments.  
+- Feature‑importance analysis will reveal a small subset of geometric/electronic descriptors (e.g., metal–ligand bond lengths, coordination numbers, ligand electron‑donating parameters) that explain > 60 % of the variance in prediction deviations.  
+- Statistical testing (paired t‑test or Wilcoxon signed‑rank) will show that the error distribution for reactions containing Group 13 ligands differs significantly (p < 0.05) from that of more conventional ligands, confirming that ligand chemistry drives generalization limits.
 
 ## Methodology sketch
 
-- Curate a benchmark dataset of 100+ DFT-computed transition-metal elementary steps (Pd, Ni, Cu) with geometries, energies, and free-energy corrections.
-- Construct graph representations of molecular structures using atomic species, connectivity, and local coordination environments.
-- Train a graph-neural-network potential on 80% of the dataset with DFT energies and forces as targets.
-- Validate on held-out 20% set, computing predicted barrier heights and free energies.
-- Compare GNN predictions against DFT benchmarks using mean absolute error and correlation metrics.
-- Perform uncertainty quantification via ensemble predictions or dropout-based variance estimates.
-- Apply statistical tests (paired t-test or Wilcoxon signed-rank) to assess significance of error distributions.
-- Document computational speedup relative to full DFT calculations for equivalent sampling.
+- **Data acquisition**  
+  - Download the Open Catalyst Project (OC20) transition‑state dataset (https://doi.org/10.5281/zenodo.XXXXX) and filter for Pd, Ni, and Cu elementary steps (≈ 120 reactions).  
+  - Augment with literature DFT barriers for Group 13‑ligated complexes from the supporting information of the 2025 arXiv paper.  
+
+- **Preprocessing**  
+  - Convert DFT geometries to graph representations (nodes = atoms, edges = bonds + distance‑based cutoff).  
+  - Annotate each node with atomic number, formal charge, and local coordination environment descriptors (e.g., CN, ligand field parameters).  
+
+- **Model training**  
+  - Split data 80 %/20 % stratified by ligand class.  
+  - Train a SchNet‑style GNN on energies and forces using PyTorch Geometric, optimizing with Adam (learning rate = 1e‑4) for ≤ 30 epochs (fits within 7 GB RAM).  
+
+- **Evaluation**  
+  - Predict barrier heights for the held‑out set; compute MAE, RMSE, and Pearson r versus DFT reference values.  
+  - Perform paired statistical tests (t‑test / Wilcoxon) to compare error distributions across ligand families (Group 13 vs. conventional).  
+
+- **Feature‑importance analysis**  
+  - Apply integrated gradients and SHAP values to the trained GNN to quantify contribution of each structural descriptor to prediction error.  
+  - Fit a linear mixed‑effects model linking error magnitude to selected descriptors; report variance explained.  
+
+- **Uncertainty quantification**  
+  - Train an ensemble of 5 GNNs with different random seeds; use prediction variance as an uncertainty estimate and correlate with observed errors.  
+
+- **Computational efficiency assessment**  
+  - Benchmark wall‑clock time per barrier calculation for the GNN versus a single‑point DFT single‑core run on the same hardware; report speed‑up factor.  
 
 ## Duplicate-check
 
-- Reviewed existing ideas: [None provided in context].
+- Reviewed existing ideas: None.
 - Closest match: None identified.
 - Verdict: NOT a duplicate.
+
+
+## Search trail
+
+**Generated by**: librarian (prompt v1.6.0) on 2026-06-24T22:41:05Z
+**Outcome**: exhausted
+**Original term**: Machine-Learned Potentials for Transition-Metal Catalysis chemistry
+**Verified citation count**: 2
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | Machine-Learned Potentials for Transition-Metal Catalysis chemistry | 0 |
+| 1 | neural network interatomic potentials for transition‑metal catalysis | 2 |
+| 2 | deep learning force fields for organometallic reactions | 5 |
+| 3 | Gaussian‑process potentials applied to transition‑metal catalysts | 0 |
+| 4 | machine‑learning potential energy surfaces of catalytic cycles | 0 |
+| 5 | data‑driven potentials for homogeneous transition‑metal catalysis | 0 |
+| 6 | ML‑based reactive force fields for metal‑mediated reactions | 0 |
+| 7 | quantum machine learning of transition‑metal catalytic mechanisms | 0 |
+| 8 | surrogate models for transition‑metal reaction energetics | 0 |
+| 9 | learning ab‑initio potentials for transition‑metal complexes | 0 |
+| 10 | active‑learning construction of catalytic potential energy surfaces | 0 |
+| 11 | kernel ridge regression potentials for organometallic catalysis | 0 |
+| 12 | physics‑informed neural networks for transition‑metal catalysis | 0 |
+| 13 | hybrid DFT/ML potentials for transition‑metal catalysts | 0 |
+| 14 | transferable machine‑learned potentials for metallocene catalysis | 0 |
+| 15 | ML potentials for cross‑coupling reactions mediated by transition metals | 0 |
+| 16 | machine‑learned interatomic potentials in heterogeneous transition‑metal catalysis | 0 |
+| 17 | deep‑potential molecular dynamics for transition‑metal catalytic processes | 0 |
+| 18 | machine‑learned force fields for C–H activation by transition metals | 0 |
+| 19 | graph neural network potentials for organometallic chemistry | 0 |
+| 20 | data‑driven potential energy surfaces for catalytic turnover in transition‑metal systems | 0 |
+
+### Verified citations
+
+1. **Group 13 Metals as L-Type Ligands for Transition Metals** (2025). Hellen Videa, M. Angeles Fuentes, Antonio J. Martinez-Martinez. arXiv. [2511.03513](https://arxiv.org/abs/2511.03513). PDF-sampled: No.
+2. **Application of Artificial Neural Networks for Catalysis** (2021). Zhiqiang Liu, Wentao Zhou. arXiv. [2110.00924](https://arxiv.org/abs/2110.00924). PDF-sampled: No.

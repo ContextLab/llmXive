@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2603.29261",
+  "judged_at": "2026-06-24T22:41:04Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "machine-learned potentials for transition-metal catalysis chemistry",
+  "rationale": "The paper studies consumer price elasticity using a deep neural network model, which is unrelated to machine‑learned interatomic potentials, transition‑metal catalysis, or any chemical modeling domain. It falls under the off‑domain rejection rule.",
+  "relevant": false
+}

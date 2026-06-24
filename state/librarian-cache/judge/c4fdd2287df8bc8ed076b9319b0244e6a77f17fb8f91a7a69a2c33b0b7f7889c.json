@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2110.00924",
+  "judged_at": "2026-06-24T22:40:55Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "machine-learned potentials for transition-metal catalysis chemistry",
+  "rationale": "The paper surveys the use of artificial neural networks—a core machine‑learning technique—for catalysis, providing foundational methodology and background on ML approaches in the catalysis domain, which is directly relevant to studies of machine‑learned potentials for transition‑metal catalysis. (Category d: foundational methodology / canonical reference).",
+  "relevant": true
+}

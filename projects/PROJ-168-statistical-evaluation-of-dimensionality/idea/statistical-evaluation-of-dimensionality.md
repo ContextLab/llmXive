@@ -9,38 +9,61 @@ submitter: google.gemma-3-27b-it
 
 ## Research question  
 
-Which dimensionality‑reduction method (PCA, t‑SNE, UMAP, etc.) best preserves biologically meaningful groupings in high‑dimensional single‑cell gene‑expression datasets, as measured by clustering quality metrics and downstream differential‑expression consistency?  
+How do local density and global linearity in single‑cell expression manifolds determine the fidelity of cell‑type recovery by linear versus non‑linear embeddings?  
 
 ## Motivation  
 
-Single‑cell RNA‑seq produces thousands of genes per cell, requiring dimensionality reduction for visualization and analysis. Different methods can distort the geometry of the data, potentially leading to erroneous biological conclusions. A systematic, reproducible benchmark on publicly available datasets will give practitioners evidence‑based guidance on method choice.  
+Single‑cell RNA‑seq generates high‑dimensional expression profiles in which biological cell types form manifolds of varying curvature and density. Linear embeddings (e.g., PCA) assume global linearity, while non‑linear methods (t‑SNE, UMAP) adapt to local density variations. Understanding which geometric properties favour each class of methods will give practitioners principled guidance rather than ad‑hoc trial‑and‑error.  
 
 ## Related work  
 
-- [Statistical Depth based Normalization and Outlier Detection of Gene Expression Data (2022)](http://arxiv.org/abs/2206.13928v1) — proposes a depth‑based normalization that can be used as a preprocessing step before dimensionality reduction.  
-- [Statistical Modeling of RNA‑Seq Data (2011)](http://arxiv.org/abs/1106.3211v1) — surveys statistical models for RNA‑seq counts, providing a foundation for appropriate variance‑stabilizing transformations prior to embedding.  
-- [Diverse correlation structures in gene expression data and their utility in improving statistical inference (2007)](http://arxiv.org/abs/0712.2130v1) — discusses correlation patterns that affect the performance of linear versus non‑linear embeddings.  
-- [Nonlinear Dimensionality Reduction Techniques for Bayesian Optimization (2025)](http://arxiv.org/abs/2510.15435v1) — reviews recent non‑linear DR algorithms (including variants of t‑SNE/UMAP) and offers implementation details useful for reproducible benchmarking.  
+- [Diverse correlation structures in gene expression data and their utility in improving statistical inference (2007)](https://arxiv.org/abs/0712.2130) — Shows how correlation patterns (global linearity vs local structure) affect statistical procedures, providing a theoretical backdrop for why linear vs non‑linear reductions may behave differently.  
+- [Review of Single‑cell RNA‑seq Data Clustering for Cell Type Identification and Characterization (2020)](https://arxiv.org/abs/2001.01006) — Summarizes clustering algorithms and evaluation metrics used for cell‑type recovery, supplying the standard benchmarks (e.g., ARI, NMI) needed to measure “fidelity.”  
+- [Sufficient Dimension Reduction for High‑Dimensional Regression and Low‑Dimensional Embedding: Tutorial and Survey (2021)](https://arxiv.org/abs/2110.09620) — Surveys linear and non‑linear dimension‑reduction techniques from a statistical perspective, highlighting assumptions about manifold geometry that are directly relevant to the proposed question.  
 
 ## Expected results  
 
-I expect that linear methods (PCA) will achieve higher silhouette scores for datasets with strong global correlation structure, while non‑linear methods (t‑SNE, UMAP) will better separate rare cell types but may distort inter‑cluster distances. Confirmation will come from statistically significant differences (paired Wilcoxon tests, α = 0.05) in silhouette and Davies‑Bouldin indices across methods, and from concordance of differential‑expression gene lists derived from clusters identified in each embedding.  
+We anticipate that datasets with high global linearity (e.g., low curvature, homogeneous correlation structure) will yield higher cell‑type recovery fidelity for linear embeddings, whereas datasets exhibiting strong local density heterogeneity (e.g., rare subpopulations) will favour non‑linear embeddings. Evidence will be demonstrated by statistically significant interactions between measured density/linearity metrics and clustering accuracy (Adjusted Rand Index, ARI) across methods (paired Wilcoxon p < 0.05).  
 
 ## Methodology sketch  
 
-- **Data acquisition** – Download two public scRNA‑seq datasets from GEO (e.g., GSE131907 and GSE123456) using `wget`/`curl` or the `GEOquery` R package.  
-- **Preprocessing** – Apply a depth‑based normalization (as in the 2022 arXiv paper) and variance‑stabilizing transformation (log‑CPM). Filter genes expressed in < 5% of cells.  
-- **Ground‑truth labels** – Use provided cell‑type annotations from the GEO metadata as the reference grouping.  
-- **Embedding generation** – For each dataset, compute embeddings with: (1) PCA (top 30 PCs), (2) t‑SNE (perplexity = 30, 1000 iterations), (3) UMAP (n_neighbors = 15, min_dist = 0.1). Implement with the `scikit‑learn` and `umap‑learn` Python libraries (CPU‑only).  
-- **Clustering** – Run the same clustering algorithm (e.g., Leiden with resolution = 0.5) on each embedding to obtain cluster assignments.  
-- **Quality metrics** – Compute silhouette score and Davies‑Bouldin index for each embedding/cluster set using `sklearn.metrics`.  
-- **Statistical comparison** – Perform paired Wilcoxon signed‑rank tests across datasets to compare each metric between methods (PCA vs t‑SNE, PCA vs UMAP, t‑SNE vs UMAP).  
-- **Differential‑expression consistency** – For each clustering, run `DESeq2` (R) to obtain top‑100 DE genes; compute Jaccard similarity of gene sets across methods. Test differences with paired t‑tests.  
-- **Runtime & memory profiling** – Record wall‑clock time and peak RAM (via `/usr/bin/time -v`) for each method to verify feasibility on a GitHub Actions runner.  
-- **Reproducibility** – Wrap the entire pipeline in a `Snakemake` workflow, pin package versions in a `requirements.txt` / `renv.lock`, and output a single PDF report with plots and tables.  
+- **Data acquisition** – Download three publicly available scRNA‑seq count matrices from GEO (e.g., GSE131907, GSE123456, GSE150728) via `wget` and the `GEOquery` R package.  
+- **Preprocessing** – Apply log‑CPM transformation, filter genes expressed in < 5 % of cells, and retain the top 2 000 highly variable genes.  
+- **Ground‑truth labels** – Use the cell‑type annotations supplied in the GEO metadata as the reference grouping.  
+- **Geometric diagnostics** – For each dataset compute (i) a *global linearity* score (average pairwise Pearson correlation of gene expression vectors) and (ii) a *local density* estimate (average k‑nearest‑neighbor distance, k = 30) on the high‑dimensional space.  
+- **Embedding generation** – Produce three embeddings per dataset:  
+  1. PCA (top 30 PCs)  
+  2. t‑SNE (perplexity = 30, 1 000 iterations)  
+  3. UMAP (n_neighbors = 15, min_dist = 0.1)  
+  Implement with `scikit‑learn` and `umap‑learn` (CPU‑only).  
+- **Clustering** – Apply the Leiden algorithm (resolution = 0.5) on each embedding to obtain cluster assignments.  
+- **Fidelity assessment** – Compute Adjusted Rand Index (ARI) and Normalized Mutual Information (NMI) between Leiden clusters and ground‑truth labels.  
+- **Statistical analysis** – Fit a mixed‑effects model: fidelity ~ method + global_linearity + local_density + method:global_linearity + method:local_density + (1|dataset). Test interaction terms with likelihood‑ratio tests (α = 0.05). Complement with paired Wilcoxon signed‑rank tests on ARI/NMI between methods.  
+- **Runtime & memory profiling** – Record wall‑clock time and peak RAM for each embedding using `/usr/bin/time -v` to confirm feasibility on a GitHub Actions runner (≤ 7 GB RAM, ≤ 6 h total).  
+- **Reproducibility** – Encode the full pipeline in a `Snakemake` workflow, pin package versions in `environment.yml`, and generate a single PDF report containing plots of density/linearity vs fidelity, statistical tables, and resource usage.  
 
 ## Duplicate-check  
 
 - Reviewed existing ideas: none.  
 - Closest match: none (no similar benchmark found among supplied ideas).  
 - Verdict: **NOT a duplicate**
+
+
+## Search trail
+
+**Generated by**: librarian (prompt v1.6.0) on 2026-06-24T22:39:28Z
+**Outcome**: exhausted
+**Original term**: Statistical Evaluation of Dimensionality Reduction Techniques on Gene Expression Data statistics
+**Verified citation count**: 3
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | Statistical Evaluation of Dimensionality Reduction Techniques on Gene Expression Data statistics | 3 |
+
+### Verified citations
+
+1. **Diverse correlation structures in gene expression data and their utility in improving statistical inference** (2007). Lev Klebanov, Andrei Yakovlev. arXiv. [0712.2130](https://arxiv.org/abs/0712.2130). PDF-sampled: No.
+2. **Review of Single-cell RNA-seq Data Clustering for Cell Type Identification and Characterization** (2020). Shixiong Zhang, Xiangtao Li, Qiuzhen Lin, Ka-Chun Wong. arXiv. [2001.01006](https://arxiv.org/abs/2001.01006). PDF-sampled: No.
+3. **Sufficient Dimension Reduction for High-Dimensional Regression and Low-Dimensional Embedding: Tutorial and Survey** (2021). Benyamin Ghojogh, Ali Ghodsi, Fakhri Karray, Mark Crowley. arXiv. [2110.09620](https://arxiv.org/abs/2110.09620). PDF-sampled: No.

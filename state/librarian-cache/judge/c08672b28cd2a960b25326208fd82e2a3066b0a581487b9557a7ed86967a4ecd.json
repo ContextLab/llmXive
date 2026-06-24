@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2001.01006",
+  "judged_at": "2026-06-24T22:39:18Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "statistical evaluation of dimensionality reduction techniques on gene expression data statistics",
+  "rationale": "The paper reviews and evaluates dimension‑reduction methods applied to single‑cell RNA‑seq (gene expression) data, thus providing same‑mechanism evidence (category a) and measuring an independent variable (dimensionality‑reduction technique) on the relevant domain (gene expression data).",
+  "relevant": true
+}

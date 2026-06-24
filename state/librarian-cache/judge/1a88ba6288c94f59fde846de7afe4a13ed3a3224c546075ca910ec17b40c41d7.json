@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2511.03513",
+  "judged_at": "2026-06-24T22:40:53Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "machine-learned potentials for transition-metal catalysis chemistry",
+  "rationale": "The paper investigates the electronic and steric properties of Group 13 ligands and their impact on reactivity of transition‑metal complexes, thereby measuring a key dependent variable (catalytic activity/reactivity) within the transition‑metal catalysis domain, which satisfies inclusion criterion (b).",
+  "relevant": true
+}

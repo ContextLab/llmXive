@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1108.3180",
+  "judged_at": "2026-06-24T22:39:08Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "statistical evaluation of dimensionality reduction techniques on gene expression data statistics",
+  "rationale": "The paper proposes and evaluates a weighted statistic for meta‑analysis of differential gene expression, without discussing dimensionality reduction methods or their statistical evaluation on gene expression data, so it does not meet any inclusion criteria (a‑f).",
+  "relevant": false
+}

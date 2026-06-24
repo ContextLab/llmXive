@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2105.04026",
+  "judged_at": "2026-06-24T22:40:58Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "machine-learned potentials for transition-metal catalysis chemistry",
+  "rationale": "The paper discusses general mathematical theory of deep learning and does not address machine‑learned interatomic potentials, transition‑metal catalysis, or any related chemical modeling variables, so it lacks relevance to the user's domain or mechanism.",
+  "relevant": false
+}

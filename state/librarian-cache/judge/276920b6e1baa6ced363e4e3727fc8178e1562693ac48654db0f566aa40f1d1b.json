@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1711.00146",
+  "judged_at": "2026-06-24T22:41:05Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "machine-learned potentials for transition-metal catalysis chemistry",
+  "rationale": "The paper focuses on multitask deep learning for computer‑vision tasks (object detection, semantic segmentation) in embedded systems and does not address machine‑learned interatomic potentials, transition‑metal catalysis, or any related chemical modeling domain. It is off‑topic according to the rejection criteria.",
+  "relevant": false
+}

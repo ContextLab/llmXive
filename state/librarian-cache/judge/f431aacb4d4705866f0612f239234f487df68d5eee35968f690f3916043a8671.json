@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1206.6617",
+  "judged_at": "2026-06-24T22:39:12Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "statistical evaluation of dimensionality reduction techniques on gene expression data statistics",
+  "rationale": "The paper surveys statistical methods for next‑generation sequencing data but does not discuss dimensionality reduction techniques or their statistical evaluation on gene expression data, so it lacks the relevant mechanism, variables, or baseline needed for the user's question.",
+  "relevant": false
+}

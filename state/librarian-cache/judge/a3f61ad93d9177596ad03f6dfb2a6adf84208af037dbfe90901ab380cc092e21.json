@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2301.00942",
+  "judged_at": "2026-06-24T22:41:02Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "machine-learned potentials for transition-metal catalysis chemistry",
+  "rationale": "The lecture notes discuss general deep‑learning and computational‑physics concepts but do not address machine‑learned interatomic potentials, transition‑metal catalysis, or related methodologies, thus they lack any of the required connections (a‑f) to the user's specific research focus.",
+  "relevant": false
+}

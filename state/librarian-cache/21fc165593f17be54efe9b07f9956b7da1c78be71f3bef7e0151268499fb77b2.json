@@ -1,0 +1,570 @@
+{
+  "fetched_at": "2026-06-24T22:39:28Z",
+  "field": "statistics",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "statistics",
+      "idea_body_excerpt": "Statistical Evaluation of Dimensionality Reduction Techniques on Gene Expression Data",
+      "target_n": 5
+    },
+    "duration_seconds": 115.617,
+    "ended_at": "2026-06-24T22:39:28Z",
+    "expansion": null,
+    "extracted_queries": [
+      "latent variable modeling gene expression",
+      "single-cell RNA-seq dimensionality reduction",
+      "embedding quality metrics bioinformatics",
+      "explained variance reconstruction error",
+      "curse of dimensionality transcriptomics"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": false,
+      "verdict": null
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "0712.2130"
+      ]
+    },
+    "per_query_hit_count": {
+      "Statistical Evaluation of Dimensionality Reduction Techniques on Gene Expression Data statistics": 3,
+      "curse of dimensionality transcriptomics": 3,
+      "embedding quality metrics bioinformatics": 3,
+      "explained variance reconstruction error": 3,
+      "latent variable modeling gene expression": 3,
+      "single-cell RNA-seq dimensionality reduction": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 5,
+      "rejections": [
+        {
+          "primary_pointer": "1108.3180",
+          "rationale": "The paper proposes and evaluates a weighted statistic for meta‑analysis of differential gene expression, without discussing dimensionality reduction methods or their statistical evaluation on gene expression data, so it does not meet any inclusion criteria (a‑f).",
+          "title": "An adaptively weighted statistic for detecting differential gene expression when combining multiple transcriptomic studies"
+        },
+        {
+          "primary_pointer": "1206.6617",
+          "rationale": "The paper surveys statistical methods for next‑generation sequencing data but does not discuss dimensionality reduction techniques or their statistical evaluation on gene expression data, so it lacks the relevant mechanism, variables, or baseline needed for the user's question.",
+          "title": "Special section: Statistical methods for next-generation gene sequencing data"
+        },
+        {
+          "primary_pointer": "2406.05258",
+          "rationale": "The paper is a broad review of machine‑learning and statistical methods for scRNA‑seq annotation and does not provide a statistical evaluation of dimensionality‑reduction techniques on gene‑expression data, nor does it focus on the performance metrics or comparisons required by the user's question. It therefore lacks the necessary mechanism or variable assessment.",
+          "title": "Advances in Machine Learning, Statistical Methods, and AI for Single-Cell RNA Annotation Using Raw Count Matrices in scRNA-seq Data"
+        },
+        {
+          "primary_pointer": "1703.10534",
+          "rationale": "The paper studies k‑means clustering and mixture‑model learning with reduced dimensionality, but it neither uses gene‑expression data nor evaluates dimensionality‑reduction techniques in that biological context, so it does not address the user’s domain or variables.",
+          "title": "The Informativeness of K -Means for Learning Mixture Models"
+        },
+        {
+          "primary_pointer": "1503.05225",
+          "rationale": "The paper focuses on theoretical sketching, embedding, and dimensionality‑reduction methods for information‑theoretic distances, without any empirical evaluation on gene‑expression datasets or statistical assessment of DR techniques in that domain. Hence it does not meet any inclusion criteria (a‑f) for the user's question.",
+          "title": "Sketching, Embedding, and Dimensionality Reduction for Information Spaces"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-24T22:37:32Z",
+    "term_input": {
+      "normalized": "statistical evaluation of dimensionality reduction techniques on gene expression data statistics",
+      "raw": "Statistical Evaluation of Dimensionality Reduction Techniques on Gene Expression Data statistics"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Drug discovery relies on iterative expert workflows that are slow to parallelize and difficult to scale. Here we introduce Latent-Y, an AI agent that autonomously executes complete antibody design campaigns from text prompts, covering literature review, target analysis, epitope identification, candidate design, computational validation, and selection of lab-ready sequences. Latent-Y is integrated into the Latent Labs Platform, where it operates in the same environment as drug-discovery experts with access to bioinformatics tools, biological databases, and scientific literature. The agent can run fully autonomously end-to-end, or collaboratively, where researchers review progress, provide feedback, and direct subsequent steps. Candidate antibodies are generated using Latent-X2, our frontier generative model for drug-like antibody design. We demonstrate the agent's capability across three distinct campaign types: epitope discovery guided by therapeutic specifications, cross-species binder design, and autonomous design from a scientific publication targeting human transferrin receptor for blood-brain barrier crossing. Across nine targets, Latent-Y produced lab-confirmed nanobody binders against six, achieving a 67% target-level success rate with binding affinities reaching the single-digit nanomolar range, without human filtering or intervention. In user studies, experts working with Latent-Y completed design campaigns 56 times faster than independent expert time estimates, compressing weeks of work into hours. Because Latent-X2 is a general-purpose atomic-level model for biologics design, the same agent architecture naturally extends to macrocyclic peptide and mini-binder design campaigns, broadening autonomous discovery across therapeutic modalities. Latent-Y is available to selected partners at https://platform.latentlabs.com.",
+          "claimed_authors": [
+            " Latent Labs Team",
+            "Sebastian M. Schmon",
+            "Daniella Pretorius",
+            "Simon Mathis",
+            "Rebecca Bartke-Croughan",
+            "Aishaini Puvanendran",
+            "James Vuckovic",
+            "Henry Kenlay",
+            "Mária Vlachynská",
+            "Alex Bridgland",
+            "Ivan Grishin",
+            "Sven Over",
+            "David Li",
+            "Bridget Li",
+            "Jonathan Crabbé",
+            "Agrin Hilmkil",
+            "Alexander W. R. Nelson",
+            "David Yuan",
+            "Annette Obika",
+            "Simon A. A. Kohl"
+          ],
+          "claimed_title": "Latent-Y: A Lab-Validated Autonomous Agent for De Novo Drug Design",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.29727"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Evaluation of Dimensionality Reduction Techniques on Gene Expression', candidate_title='Latent-Y: A Lab-Validated Autonomous Agent for De Novo Drug Design')",
+        "failed_at": "2026-06-24T22:38:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Traditional drug discovery relies on rounds of screening millions of candidate molecules with low success rates, making drug discovery time and resource intensive. To overcome this screening bottleneck, we introduce Latent-X, an all-atom protein design model that enables a new paradigm of precision AI design. Given a target protein epitope, Latent-X jointly generates the all atom structure and sequence of the protein binder and target, directly modelling the non-covalent interactions essential for specific binding. We demonstrate its efficacy across two therapeutically relevant modalities through extensive wet lab experiments, testing as few as 30-100 designs per target. For macrocyclic peptides, Latent-X achieves experimental hit rates exceeding 90% on all evaluated benchmark targets. For mini-binders, it consistently produces potent candidates against all evaluated benchmark targets, with binding affinities reaching the low nanomolar and picomolar range - comparable to those of approved therapeutics - whilst also being highly specific in mammalian display. In direct comparisons with the state-of-the-art models AlphaProteo, RFdiffusion and RFpeptides under identical conditions demonstrates, Latent-X generates binders with higher hit rates and better binding affinities, and uniquely creates structurally diverse binders, including complex beta-sheet folds. Its end-to-end process is an order of magnitude faster than existing multi-step computational pipelines. By drastically improving the efficiency and success rate of de novo design, Latent-X represents a significant advance towards push-button biologics discovery and a valuable tool for protein engineers. Latent-X is available at https://platform.latentlabs.com, enabling users to reliably generate de novo binders without AI infrastructure or coding.",
+          "claimed_authors": [
+            " Latent Labs Team",
+            "Alex Bridgland",
+            "Jonathan Crabbé",
+            "Henry Kenlay",
+            "Daniella Pretorius",
+            "Sebastian M. Schmon",
+            "Agrin Hilmkil",
+            "Rebecca Bartke-Croughan",
+            "Robin Rombach",
+            "Michael Flashman",
+            "Tomas Matteson",
+            "Simon Mathis",
+            "Alexander W. R. Nelson",
+            "David Yuan",
+            "Annette Obika",
+            "Simon A. A. Kohl"
+          ],
+          "claimed_title": "Latent-X: An Atom-level Frontier Model for De Novo Protein Binder Design",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2507.19375"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Evaluation of Dimensionality Reduction Techniques on Gene Expression', candidate_title='Latent-X: An Atom-level Frontier Model for De Novo Protein Binder Design')",
+        "failed_at": "2026-06-24T22:38:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Drug discovery has long sought computational systems capable of designing drug-like molecules directly: developable and non-immunogenic from the start. Here we introduce Latent-X2, a frontier generative model that achieves this goal through zero-shot design of antibodies with strong binding affinities, drug-like properties, and, for the first time for any de novo generated antibody, confirmed low immunogenicity in human donor panels. Latent-X2 is an all-atom model conditioned on target structure, epitope specification, and optional antibody framework, jointly generating sequences and structures while modelling the bound complex. Testing only 4 to 24 designs per target in each modality, we successfully generated VHH and scFv antibodies against 9 of 18 evaluated targets, achieving a 50% target-level success rate with picomolar to nanomolar binding affinities. Designed molecules exhibit developability profiles that match or exceed those of approved antibody therapeutics, including expression yield, aggregation propensity, polyreactivity, hydrophobicity, and thermal stability, without optimization, filtering, or selection. In the first immunogenicity assessment of any AI-generated antibody, representative de novo VHH binders targeting TNFL9 exhibit both potent target engagement and low immunogenicity across T-cell proliferation and cytokine release assays. The model generalizes beyond antibodies: against K-Ras, long considered undruggable, we generated macrocyclic peptide binders competitive with trillion-scale mRNA display screens. These properties emerge directly from the model, demonstrating the therapeutic viability of zero-shot molecular design, now available without AI infrastructure or coding expertise at https://platform.latentlabs.com.",
+          "claimed_authors": [
+            " Latent Labs Team",
+            "Henry Kenlay",
+            "Daniella Pretorius",
+            "Jonathan Crabbé",
+            "Alex Bridgland",
+            "Sebastian M. Schmon",
+            "Agrin Hilmkil",
+            "James Vuckovic",
+            "Simon Mathis",
+            "Tomas Matteson",
+            "Rebecca Bartke-Croughan",
+            "Amir Motmaen",
+            "Robin Rombach",
+            "Mária Vlachynská",
+            "Alexander W. R. Nelson",
+            "David Yuan",
+            "Annette Obika",
+            "Simon A. A. Kohl"
+          ],
+          "claimed_title": "Drug-like antibodies with low immunogenicity in human panels designed with Latent-X2",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.20263"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Statistical Evaluation of Dimensionality Reduction Techniques on Gene Expression', candidate_title='Drug-like antibodies with low immunogenicity in human panels designed with Latent-X2')",
+        "failed_at": "2026-06-24T22:38:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Histopathology whole-slide images (WSIs) are routinely acquired in clinical practice and contain rich tissue morphology but lack direct molecular architecture and functional programs defining pathological states, whereas RNA sequencing (RNA-seq) provides genome-wide transcriptional profiles at substantial cost, thereby motivating WSI-based genome-wide transcriptomic prediction. Existing approaches for predicting gene expression from WSIs predominantly rely on deterministic regression with one-to-one mapping, limiting their ability to capture biological heterogeneity and predictive uncertainty. We propose RNA-FM, a flow-matching generative framework for genome-wide bulk RNA-seq prediction from WSIs. RNA-FM formulates transcriptomic prediction as a continuous-time conditional transport problem, learning a velocity field that maps a simple prior to the target gene expression distribution conditioned on morphologies. By integrating pathway-level structure, RNA-FM enables scalable and biologically interpretable genome-wide gene expression imputation. Extensive experiments demonstrate that RNA-FM consistently outperforms state-of-the-art approaches while maintaining biological meaningfulness. Code is available at https://github.com/YXSong000/RNA-FM.",
+          "claimed_authors": [
+            "Yaxuan Song",
+            "Jianan Fan",
+            "Tianyi Wang",
+            "Qiuyue Hu",
+            "Hang Chang",
+            "Heng Huang",
+            "Weidong Cai"
+          ],
+          "claimed_title": "RNA-FM: Flow-Matching Generative Model for Genome-wide RNA-Seq Prediction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2605.11622"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Statistical Evaluation of Dimensionality Reduction Techniques on Gene Expression', candidate_title='RNA-FM: Flow-Matching Generative Model for Genome-wide RNA-Seq Prediction')",
+        "failed_at": "2026-06-24T22:38:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In the era of big data, transformation of biomedical big data into valuable knowledge has been one of the most important challenges in bioinformatics. Deep learning has advanced rapidly since the early 2000s and now demonstrates state-of-the-art performance in various fields. Accordingly, application of deep learning in bioinformatics to gain insight from data has been emphasized in both academia and industry. Here, we review deep learning in bioinformatics, presenting examples of current research. To provide a useful and comprehensive perspective, we categorize research both by the bioinformatics domain (i.e., omics, biomedical imaging, biomedical signal processing) and deep learning architecture (i.e., deep neural networks, convolutional neural networks, recurrent neural networks, emergent architectures) and present brief descriptions of each study. Additionally, we discuss theoretical and practical issues of deep learning in bioinformatics and suggest future research directions. We believe that this review will provide valuable insights and serve as a starting point for researchers to apply deep learning approaches in their bioinformatics studies.",
+          "claimed_authors": [
+            "Seonwoo Min",
+            "Byunghan Lee",
+            "Sungroh Yoon"
+          ],
+          "claimed_title": "Deep Learning in Bioinformatics",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1603.06430"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Statistical Evaluation of Dimensionality Reduction Techniques on Gene Expression', candidate_title='Deep Learning in Bioinformatics')",
+        "failed_at": "2026-06-24T22:38:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Bioinformatics platforms have significantly changed clinical diagnostics by facilitating the analysis of genomic data, thereby advancing personalized medicine and improving patient care. This study examines the integration, usage patterns, challenges, and impact of the Galaxy platform within clinical diagnostics laboratories. We employed a convergent parallel mixed-methods design, collecting quantitative survey data and qualitative insights from structured interviews with fifteen participants across various clinical roles. The findings indicate a wide adoption of Galaxy, with participants expressing high satisfaction due to its user-friendly interface and notable improvements in workflow efficiency and diagnostic accuracy. Challenges such as data security and training needs were also identified, highlighting the platform's role in simplifying complex data analysis tasks. This study contributes to understanding the transformative potential of Galaxy in clinical practice and offers recommendations for optimizing its integration and functionality. These insights are crucial for advancing clinical diagnostics and enhancing patient outcomes.",
+          "claimed_authors": [
+            "Hadi Almohab",
+            "Ramzy Al-Othmany"
+          ],
+          "claimed_title": "Evaluation of Galaxy as a User-friendly Bioinformatics Tool for Enhancing Clinical Diagnostics in Genetics Laboratories",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2409.17253"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Statistical Evaluation of Dimensionality Reduction Techniques on Gene Expression', candidate_title='Evaluation of Galaxy as a User-friendly Bioinformatics Tool for Enhancing Clinical Diagnostics in Genetics Laboratories')",
+        "failed_at": "2026-06-24T22:38:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Many bioinformatics problems, such as sequence alignment, gene prediction, phylogenetic tree estimation and RNA secondary structure prediction, are often affected by the \"uncertainty\" of a solution; that is, the probability of the solution is extremely small. This situation arises for estimation problems on high-dimensional discrete spaces in which the number of possible discrete solutions is immense. In the analysis of biological data or the development of prediction algorithms, this uncertainty should be handled carefully and appropriately. In this review, I will explain several methods to combat this uncertainty, presenting a number of examples in bioinformatics. The methods include (i) avoiding point estimation, (ii) maximum expected accuracy (MEA) estimations, and (iii) several strategies to design a pipeline involving several prediction methods. I believe that the basic concepts and ideas described in this review will be generally useful for estimation problems in various areas of bioinformatics.",
+          "claimed_authors": [
+            "Michiaki Hamada"
+          ],
+          "claimed_title": "Fighting against uncertainty: An essential issue in bioinformatics",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1305.3655"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Statistical Evaluation of Dimensionality Reduction Techniques on Gene Expression', candidate_title='Fighting against uncertainty: An essential issue in bioinformatics')",
+        "failed_at": "2026-06-24T22:38:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Accurate brain tumor segmentation from MRI is vital for diagnosis and treatment planning. Although Monte Carlo (MC) Dropout is widely used to estimate model uncertainty, the effectiveness of variance-based uncertainty - computed as pixel-wise variance across stochastic forward passes - in identifying segmentation errors, particularly near tumor boundaries, remains insufficiently studied. This study empirically examines the relationship between variance-based MC Dropout uncertainty and segmentation error in 2D brain tumor MRI segmentation using a U-Net trained under four augmentation settings: none, horizontal flip, rotation, and scaling. Uncertainty was estimated as the pixel-wise variance across 50 stochastic forward passes and correlated with pixel-wise errors using Pearson and Spearman coefficients. Results show weak global correlations (r ~ 0.30-0.38) and negligible boundary correlations (|r| < 0.05). Although differences across augmentations were statistically significant (p < 0.001), they lacked practical relevance. These findings suggest that variance-based MC Dropout uncertainty provides limited cues for global and boundary error localization, and that the choice of uncertainty representation critically affects the utility of MC Dropout in medical image segmentation. Alternative representations such as predictive entropy or mutual information may better capture segmentation errors, particularly at boundaries.",
+          "claimed_authors": [
+            "Saumya B"
+          ],
+          "claimed_title": "An Empirical Study on Variance-based MC Dropout Uncertainty-Error Correlation in 2D Brain Tumor Segmentation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2510.15541"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Evaluation of Dimensionality Reduction Techniques on Gene Expression', candidate_title='An Empirical Study on Variance-based MC Dropout Uncertainty-Error Correlation in 2D Brain Tumor Segmentation')",
+        "failed_at": "2026-06-24T22:38:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "First-pass perfusion cardiac magnetic resonance (FPP-CMR) is becoming an essential non-invasive imaging method for detecting deficits of myocardial blood flow, allowing the assessment of coronary heart disease. Nevertheless, acquisitions suffer from relatively low spatial resolution and limited heart coverage. Compressed sensing (CS) methods have been proposed to accelerate FPP-CMR and achieve higher spatial resolution. However, the long reconstruction times have limited the widespread clinical use of CS in FPP-CMR. Deep learning techniques based on supervised learning have emerged as alternatives for speeding up reconstructions. However, these approaches require fully sampled data for training, which is not possible to obtain, particularly high-resolution FPP-CMR images. Here, we propose a physics-informed self-supervised deep learning FPP-CMR reconstruction approach for accelerating FPP-CMR scans and hence facilitate high spatial resolution imaging. The proposed method provides high-quality FPP-CMR images from 10x undersampled data without using fully sampled reference data.",
+          "claimed_authors": [
+            "Elena Martín-González",
+            "Ebraham Alskaf",
+            "Amedeo Chiribiri",
+            "Pablo Casaseca-de-la-Higuera",
+            "Carlos Alberola-López",
+            "Rita G Nunes",
+            "Teresa M Correia"
+          ],
+          "claimed_title": "Physics-informed self-supervised deep learning reconstruction for accelerated first-pass perfusion cardiac MRI",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2301.02033"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Statistical Evaluation of Dimensionality Reduction Techniques on Gene Expression', candidate_title='Physics-informed self-supervised deep learning reconstruction for accelerated first-pass perfusion cardiac MRI')",
+        "failed_at": "2026-06-24T22:38:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Krylov subspace methods are considered a standard tool to solve large systems of linear algebraic equations in many scientific disciplines such as image restoration or solving partial differential equations in mechanics of continuum. In the context of computer tomography however, the mostly used algebraic reconstruction techniques are based on classical iterative schemes. In this work we present software package that implements fully 3D cone beam projection operator and uses Krylov subspace methods, namely CGLS and LSQR to solve related tomographic reconstruction problems. It also implements basic preconditioning strategies. On the example of the cone beam CT reconstruction of 3D Shepp-Logan phantom we show that the speed of convergence of the CGLS clearly outperforms PSIRT algorithm. Therefore Krylov subspace methods present an interesting option for the reconstruction of large 3D cone beam CT problems.",
+          "claimed_authors": [
+            "Vojtěch Kulvait",
+            "Georg Rose"
+          ],
+          "claimed_title": "Software Implementation of the Krylov Methods Based Reconstruction for the 3D Cone Beam CT Operator",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2110.13526"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Statistical Evaluation of Dimensionality Reduction Techniques on Gene Expression', candidate_title='Software Implementation of the Krylov Methods Based Reconstruction for the 3D Cone Beam CT Operator')",
+        "failed_at": "2026-06-24T22:38:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent research observed a noteworthy phenomenon in large language models (LLMs), referred to as the ``reversal curse.'' The reversal curse is that when dealing with two entities, denoted as $a$ and $b$, connected by their relation $R$ and its inverse $R^{-1}$, LLMs excel in handling sequences in the form of ``$aRb$,'' but encounter challenges when processing ``$bR^{-1}a$,'' whether in generation or comprehension. For instance, GPT-4 can accurately respond to the query ``Tom Cruise's mother is?'' with ``Mary Lee Pfeiffer,'' but it struggles to provide a satisfactory answer when asked ``Mary Lee Pfeiffer's son is?'' In this paper, we undertake the first-ever study of how the reversal curse happens in LLMs. Our investigations reveal that the reversal curse can stem from the specific training objectives, which become particularly evident in the widespread use of next-token prediction within most causal language models. We hope this initial investigation can draw more attention to the reversal curse, as well as other underlying limitations in current LLMs.",
+          "claimed_authors": [
+            "Ang Lv",
+            "Kaiyi Zhang",
+            "Shufang Xie",
+            "Quan Tu",
+            "Yuhan Chen",
+            "Ji-Rong Wen",
+            "Rui Yan"
+          ],
+          "claimed_title": "An Analysis and Mitigation of the Reversal Curse",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2311.07468"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Evaluation of Dimensionality Reduction Techniques on Gene Expression', candidate_title='An Analysis and Mitigation of the Reversal Curse')",
+        "failed_at": "2026-06-24T22:38:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The stability of persistent homology has led to wide applications of the persistence diagram as a trusted topological descriptor in the presence of noise. However, with the increasing demand for high-dimension and low-sample-size data processing in modern science, it is questionable whether persistence diagrams retain their reliability in the presence of high-dimensional noise. This work aims to study the reliability of persistence diagrams in the high-dimension low-sample-size data setting. By analyzing the asymptotic behavior of persistence diagrams for high-dimensional random data, we show that persistence diagrams are no longer reliable descriptors of low-sample-size data under high-dimensional noise perturbations. We refer to this loss of reliability of persistence diagrams in such data settings as the curse of dimensionality on persistence diagrams. Next, we investigate the possibility of using normalized principal component analysis as a method for reducing the dimensionality of the high-dimensional observed data to resolve the curse of dimensionality. We show that this method can mitigate the curse of dimensionality on persistence diagrams. Our results shed some new light on the challenges of processing high-dimension low-sample-size data by persistence diagrams and provide a starting point for future research in this area.",
+          "claimed_authors": [
+            "Yasuaki Hiraoka",
+            "Yusuke Imoto",
+            "Shu Kanazawa",
+            "Enhao Liu"
+          ],
+          "claimed_title": "Curse of Dimensionality on Persistence Diagrams",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2404.18194"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Statistical Evaluation of Dimensionality Reduction Techniques on Gene Expression', candidate_title='Curse of Dimensionality on Persistence Diagrams')",
+        "failed_at": "2026-06-24T22:38:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The curse of dimensionality has been studied in different aspects. However, breaking the curse has been elusive. We show for the first time that it is possible to break the curse using the recently introduced Isolation Kernel. We show that only Isolation Kernel performs consistently well in indexed search, spectral & density peaks clustering, SVM classification and t-SNE visualization in both low and high dimensions, compared with distance, Gaussian and linear kernels. This is also supported by our theoretical analyses that Isolation Kernel is the only kernel that has the provable ability to break the curse, compared with existing metric-based Lipschitz continuous kernels.",
+          "claimed_authors": [
+            "Kai Ming Ting",
+            "Takashi Washio",
+            "Ye Zhu",
+            "Yang Xu"
+          ],
+          "claimed_title": "Breaking the curse of dimensionality with Isolation Kernel",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2109.14198"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Statistical Evaluation of Dimensionality Reduction Techniques on Gene Expression', candidate_title='Breaking the curse of dimensionality with Isolation Kernel')",
+        "failed_at": "2026-06-24T22:38:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "Humans can categorize with only a few samples despite the numerous features. To mimic this ability, we propose a novel dimension-reduced category representation using a mixture of probabilistic principal component analyzers (mPPCA). Tests on the ${\\tt CIFAR-10H}$ dataset demonstrate that mPPCA with only a single principal component for each category effectively predicts human categorization of natural images. We further impose a hierarchical prior on mPPCA to account for new category generalization. mPPCA captures human behavior in our experiments on images with simple size-color combinations. We also provide sufficient and necessary conditions when reducing dimensions in categorization is rational.",
+          "claimed_authors": [
+            "Yifan Hong",
+            "Chen Wang"
+          ],
+          "claimed_title": "A Rational Model of Dimension-reduced Human Categorization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2305.14383"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Evaluation of Dimensionality Reduction Techniques on Gene Expression', candidate_title='A Rational Model of Dimension-reduced Human Categorization')",
+        "failed_at": "2026-06-24T22:38:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "The development of neuromorphic hardware and modeling of biological neural networks requires algorithms with local learning rules. Artificial neural networks using local learning rules to perform principal subspace analysis (PSA) and clustering have recently been derived from principled objective functions. However, no biologically plausible networks exist for minor subspace analysis (MSA), a fundamental signal processing task. MSA extracts the lowest-variance subspace of the input signal covariance matrix. Here, we introduce a novel similarity matching objective for extracting the minor subspace, Minor Subspace Similarity Matching (MSSM). Moreover, we derive an adaptive MSSM algorithm that naturally maps onto a novel neural network with local learning rules and gives numerical results showing that our method converges at a competitive rate.",
+          "claimed_authors": [
+            "Yanis Bahroun",
+            "Dmitri B. Chklovskii"
+          ],
+          "claimed_title": "A Neural Network with Local Learning Rules for Minor Subspace Analysis",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2102.05501"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Evaluation of Dimensionality Reduction Techniques on Gene Expression', candidate_title='A Neural Network with Local Learning Rules for Minor Subspace Analysis')",
+        "failed_at": "2026-06-24T22:38:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "A large class of hyperbolic and advection-dominated PDEs can have solutions with discontinuities. This paper investigates, both theoretically and empirically, the operator learning of PDEs with discontinuous solutions. We rigorously prove, in terms of lower approximation bounds, that methods which entail a linear reconstruction step (e.g. DeepONet or PCA-Net) fail to efficiently approximate the solution operator of such PDEs. In contrast, we show that certain methods employing a non-linear reconstruction mechanism can overcome these fundamental lower bounds and approximate the underlying operator efficiently. The latter class includes Fourier Neural Operators and a novel extension of DeepONet termed shift-DeepONet. Our theoretical findings are confirmed by empirical results for advection equation, inviscid Burgers' equation and compressible Euler equations of aerodynamics.",
+          "claimed_authors": [
+            "Samuel Lanthaler",
+            "Roberto Molinaro",
+            "Patrik Hadorn",
+            "Siddhartha Mishra"
+          ],
+          "claimed_title": "Nonlinear Reconstruction for Operator Learning of PDEs with Discontinuities",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2210.01074"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Evaluation of Dimensionality Reduction Techniques on Gene Expression', candidate_title='Nonlinear Reconstruction for Operator Learning of PDEs with Discontinuities')",
+        "failed_at": "2026-06-24T22:38:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "We consider the problem of clustering datasets in the presence of arbitrary outliers. Traditional clustering algorithms such as k-means and spectral clustering are known to perform poorly for datasets contaminated with even a small number of outliers. In this paper, we develop a provably robust spectral clustering algorithm that applies a simple rounding scheme to denoise a Gaussian kernel matrix built from the data points and uses vanilla spectral clustering to recover the cluster labels of data points. We analyze the performance of our algorithm under the assumption that the \"good\" data points are generated from a mixture of sub-gaussians (we term these \"inliers\"), while the outlier points can come from any arbitrary probability distribution. For this general class of models, we show that the misclassification error decays at an exponential rate in the signal-to-noise ratio, provided the number of outliers is a small fraction of the inlier points. Surprisingly, this derived error bound matches with the best-known bound for semidefinite programs (SDPs) under the same setting without outliers. We conduct extensive experiments on a variety of simulated and real-world datasets to demonstrate that our algorithm is less sensitive to outliers compared to other state-of-the-art algorithms proposed in the literature.",
+          "claimed_authors": [
+            "Prateek R. Srivastava",
+            "Purnamrita Sarkar",
+            "Grani A. Hanasusanto"
+          ],
+          "claimed_title": "A Robust Spectral Clustering Algorithm for Sub-Gaussian Mixture Models with Outliers",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1912.07546"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Statistical Evaluation of Dimensionality Reduction Techniques on Gene Expression', candidate_title='A Robust Spectral Clustering Algorithm for Sub-Gaussian Mixture Models with Outliers')",
+        "failed_at": "2026-06-24T22:38:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "This paper presents a novel approach to Explainable AI (XAI) that combines contrastive explanations with differential privacy for clustering algorithms. Focusing on k-median and k-means problems, we calculate contrastive explanations as the utility difference between original clustering and clustering with a centroid fixed to a specific data point. This method provides personalized insights into centroid placement. Our key contribution is demonstrating that these differentially private explanations achieve essentially the same utility bounds as non-private explanations. Experiments across various datasets show that our approach offers meaningful, privacy-preserving, and individually relevant explanations without significantly compromising clustering utility. This work advances privacy-aware machine learning by balancing data protection, explanation quality, and personalization in clustering tasks.",
+          "claimed_authors": [
+            "Dung Nguyen",
+            "Ariel Vetzler",
+            "Sarit Kraus",
+            "Anil Vullikanti"
+          ],
+          "claimed_title": "Contrastive Explainable Clustering with Differential Privacy",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2406.04610"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Statistical Evaluation of Dimensionality Reduction Techniques on Gene Expression', candidate_title='Contrastive Explainable Clustering with Differential Privacy')",
+        "failed_at": "2026-06-24T22:38:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "Linear networks provide valuable insights into the workings of neural networks in general. This paper identifies conditions under which the gradient flow provably trains a linear network, in spite of the non-strict saddle points present in the optimization landscape. This paper also provides the computational complexity of training linear networks with gradient flow. To achieve these results, this work develops a machinery to provably identify the stable set of gradient flow, which then enables us to improve over the state of the art in the literature of linear networks (Bah et al., 2019;Arora et al., 2018a). Crucially, our results appear to be the first to break away from the lazy training regime which has dominated the literature of neural networks. This work requires the network to have a layer with one neuron, which subsumes the networks with a scalar output, but extending the results of this theoretical work to all linear networks remains a challenging open problem.",
+          "claimed_authors": [
+            "Armin Eftekhari"
+          ],
+          "claimed_title": "Training Linear Neural Networks: Non-Local Convergence and Complexity Results",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2002.09852"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Evaluation of Dimensionality Reduction Techniques on Gene Expression', candidate_title='Training Linear Neural Networks: Non-Local Convergence and Complexity Results')",
+        "failed_at": "2026-06-24T22:38:59Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Lev Klebanov",
+            "Andrei Yakovlev"
+          ],
+          "title": "Diverse correlation structures in gene expression data and their utility in improving statistical inference",
+          "venue": "arXiv",
+          "year": 2007
+        },
+        "primary_pointer": "0712.2130",
+        "summary": "It is well known that correlations in microarray data represent a serious nuisance deteriorating the performance of gene selection procedures. This paper is intended to demonstrate that the correlation structure of microarray data provides a rich source of useful information. We discuss distinct correlation substructures revealed in microarray gene expression data by an appropriate ordering of genes. These substructures include stochastic proportionality of expression signals in a large percentage of all gene pairs, negative correlations hidden in ordered gene triples, and a long sequence of weakly dependent random variables associated with ordered pairs of genes. The reported striking regularities are of general biological interest and they also have far-reaching implications for theory and practice of statistical methods of microarray data analysis. We illustrate the latter point with a method for testing differential expression of nonoverlapping gene pairs. While designed for testing a different null hypothesis, this method provides an order of magnitude more accurate control of type 1 error rate compared to conventional methods of individual gene expression profiling. In addition, this method is robust to the technical noise. Quantitative inference of the correlation structure has the potential to extend the analysis of microarray data far beyond currently practiced methods.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/0712.2130",
+          "http_status": 200,
+          "pdf_sample_score": 0.2222,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-24T22:38:57Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Shixiong Zhang",
+            "Xiangtao Li",
+            "Qiuzhen Lin",
+            "Ka-Chun Wong"
+          ],
+          "title": "Review of Single-cell RNA-seq Data Clustering for Cell Type Identification and Characterization",
+          "venue": "arXiv",
+          "year": 2020
+        },
+        "primary_pointer": "2001.01006",
+        "summary": "In recent years, the advances in single-cell RNA-seq techniques have enabled us to perform large-scale transcriptomic profiling at single-cell resolution in a high-throughput manner. Unsupervised learning such as data clustering has become the central component to identify and characterize novel cell types and gene expression patterns. In this study, we review the existing single-cell RNA-seq data clustering methods with critical insights into the related advantages and limitations. In addition, we also review the upstream single-cell RNA-seq data processing techniques such as quality control, normalization, and dimension reduction. We conduct performance comparison experiments to evaluate several popular single-cell RNA-seq clustering approaches on two single-cell transcriptomic datasets.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2001.01006",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.625,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-24T22:38:58Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Benyamin Ghojogh",
+            "Ali Ghodsi",
+            "Fakhri Karray",
+            "Mark Crowley"
+          ],
+          "title": "Sufficient Dimension Reduction for High-Dimensional Regression and Low-Dimensional Embedding: Tutorial and Survey",
+          "venue": "arXiv",
+          "year": 2021
+        },
+        "primary_pointer": "2110.09620",
+        "summary": "This is a tutorial and survey paper on various methods for Sufficient Dimension Reduction (SDR). We cover these methods with both statistical high-dimensional regression perspective and machine learning approach for dimensionality reduction. We start with introducing inverse regression methods including Sliced Inverse Regression (SIR), Sliced Average Variance Estimation (SAVE), contour regression, directional regression, Principal Fitted Components (PFC), Likelihood Acquired Direction (LAD), and graphical regression. Then, we introduce forward regression methods including Principal Hessian Directions (pHd), Minimum Average Variance Estimation (MAVE), Conditional Variance Estimation (CVE), and deep SDR methods. Finally, we explain Kernel Dimension Reduction (KDR) both for supervised and unsupervised learning. We also show that supervised KDR and supervised PCA are equivalent.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "theoremsearch",
+          "final_url": "https://arxiv.org/abs/2110.09620",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-24T22:38:58Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "statistical evaluation of dimensionality reduction techniques on gene expression data statistics",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

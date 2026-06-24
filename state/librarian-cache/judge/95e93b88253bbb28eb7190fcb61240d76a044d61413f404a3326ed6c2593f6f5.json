@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "0712.2130",
+  "judged_at": "2026-06-24T22:39:05Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "statistical evaluation of dimensionality reduction techniques on gene expression data statistics",
+  "rationale": "The paper provides a canonical empirical study of gene expression data—the same population referenced in the user’s question—fulfilling inclusion criterion (e) (empirical‑population canonical study). It characterizes correlation structures in microarray data, which is relevant background for any statistical evaluation of dimensionality‑reduction methods applied to such data.",
+  "relevant": true
+}

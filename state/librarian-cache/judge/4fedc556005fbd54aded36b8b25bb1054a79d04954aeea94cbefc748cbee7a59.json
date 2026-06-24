@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2306.11113",
+  "judged_at": "2026-06-24T22:41:01Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "machine-learned potentials for transition-metal catalysis chemistry",
+  "rationale": "The paper focuses on evidential deep learning and uncertainty quantification for generic neural networks, without addressing machine‑learned interatomic potentials, transition‑metal chemistry, or catalysis, and thus does not pertain to the user's domain or variables.",
+  "relevant": false
+}

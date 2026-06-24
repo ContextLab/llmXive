@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2110.09620",
+  "judged_at": "2026-06-24T22:39:25Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "statistical evaluation of dimensionality reduction techniques on gene expression data statistics",
+  "rationale": "The paper surveys and explains a broad class of dimensionality reduction methods (Sufficient Dimension Reduction), directly covering the same algorithmic mechanisms the user’s question concerns, even though it does not focus on gene‑expression data. This qualifies under category (a) (same‑mechanism evidence) and also serves as a foundational methodological reference (d) for any review of DR techniques.",
+  "relevant": true
+}

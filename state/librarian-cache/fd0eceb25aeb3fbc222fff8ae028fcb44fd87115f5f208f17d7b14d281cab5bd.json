@@ -1,0 +1,546 @@
+{
+  "fetched_at": "2026-06-24T22:41:05Z",
+  "field": "chemistry",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "chemistry",
+      "idea_body_excerpt": "Machine-Learned Potentials for Transition-Metal Catalysis",
+      "target_n": 5
+    },
+    "duration_seconds": 60.278,
+    "ended_at": "2026-06-24T22:41:05Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "neural network interatomic potentials for transition‑metal catalysis"
+        ],
+        [
+          2,
+          "deep learning force fields for organometallic reactions"
+        ],
+        [
+          3,
+          "Gaussian‑process potentials applied to transition‑metal catalysts"
+        ],
+        [
+          4,
+          "machine‑learning potential energy surfaces of catalytic cycles"
+        ],
+        [
+          5,
+          "data‑driven potentials for homogeneous transition‑metal catalysis"
+        ],
+        [
+          6,
+          "ML‑based reactive force fields for metal‑mediated reactions"
+        ],
+        [
+          7,
+          "quantum machine learning of transition‑metal catalytic mechanisms"
+        ],
+        [
+          8,
+          "surrogate models for transition‑metal reaction energetics"
+        ],
+        [
+          9,
+          "learning ab‑initio potentials for transition‑metal complexes"
+        ],
+        [
+          10,
+          "active‑learning construction of catalytic potential energy surfaces"
+        ],
+        [
+          11,
+          "kernel ridge regression potentials for organometallic catalysis"
+        ],
+        [
+          12,
+          "physics‑informed neural networks for transition‑metal catalysis"
+        ],
+        [
+          13,
+          "hybrid DFT/ML potentials for transition‑metal catalysts"
+        ],
+        [
+          14,
+          "transferable machine‑learned potentials for metallocene catalysis"
+        ],
+        [
+          15,
+          "ML potentials for cross‑coupling reactions mediated by transition metals"
+        ],
+        [
+          16,
+          "machine‑learned interatomic potentials in heterogeneous transition‑metal catalysis"
+        ],
+        [
+          17,
+          "deep‑potential molecular dynamics for transition‑metal catalytic processes"
+        ],
+        [
+          18,
+          "machine‑learned force fields for C–H activation by transition metals"
+        ],
+        [
+          19,
+          "graph neural network potentials for organometallic chemistry"
+        ],
+        [
+          20,
+          "data‑driven potential energy surfaces for catalytic turnover in transition‑metal systems"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Machine-Learned Potentials for Transition-Metal Catalysis chemistry": 0,
+        "deep learning force fields for organometallic reactions": 5,
+        "neural network interatomic potentials for transition‑metal catalysis": 2
+      },
+      "total_queries_issued": 2
+    },
+    "extracted_queries": [
+      "deep neural potential",
+      "Open Catalyst Project",
+      "graph neural network potential",
+      "adsorption energy error",
+      "transfer learning catalysis"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2110.00924"
+      ]
+    },
+    "per_query_hit_count": {
+      "Machine-Learned Potentials for Transition-Metal Catalysis chemistry": 3,
+      "Open Catalyst Project": 3,
+      "adsorption energy error": 3,
+      "deep neural potential": 3,
+      "graph neural network potential": 3,
+      "transfer learning catalysis": 2
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 5,
+      "rejections": [
+        {
+          "primary_pointer": "2105.04026",
+          "rationale": "The paper discusses general mathematical theory of deep learning and does not address machine‑learned interatomic potentials, transition‑metal catalysis, or any related chemical modeling variables, so it lacks relevance to the user's domain or mechanism.",
+          "title": "The Modern Mathematics of Deep Learning"
+        },
+        {
+          "primary_pointer": "2306.11113",
+          "rationale": "The paper focuses on evidential deep learning and uncertainty quantification for generic neural networks, without addressing machine‑learned interatomic potentials, transition‑metal chemistry, or catalysis, and thus does not pertain to the user's domain or variables.",
+          "title": "Learn to Accumulate Evidence from All Training Samples: Theory and Practice"
+        },
+        {
+          "primary_pointer": "2301.00942",
+          "rationale": "The lecture notes discuss general deep‑learning and computational‑physics concepts but do not address machine‑learned interatomic potentials, transition‑metal catalysis, or related methodologies, thus they lack any of the required connections (a‑f) to the user's specific research focus.",
+          "title": "Deep Learning and Computational Physics (Lecture Notes)"
+        },
+        {
+          "primary_pointer": "2603.29261",
+          "rationale": "The paper studies consumer price elasticity using a deep neural network model, which is unrelated to machine‑learned interatomic potentials, transition‑metal catalysis, or any chemical modeling domain. It falls under the off‑domain rejection rule.",
+          "title": "Monodense Deep Neural Model for Determining Item Price Elasticity"
+        },
+        {
+          "primary_pointer": "1711.00146",
+          "rationale": "The paper focuses on multitask deep learning for computer‑vision tasks (object detection, semantic segmentation) in embedded systems and does not address machine‑learned interatomic potentials, transition‑metal catalysis, or any related chemical modeling domain. It is off‑topic according to the rejection criteria.",
+          "title": "A multitask deep learning model for real-time deployment in embedded systems"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-24T22:40:05Z",
+    "term_input": {
+      "normalized": "machine-learned potentials for transition-metal catalysis chemistry",
+      "raw": "Machine-Learned Potentials for Transition-Metal Catalysis chemistry"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A survey of the contributions to the Special Topic on Data-enabled Theoretical Chemistry is given, including a glossary of relevant machine learning terms.",
+          "claimed_authors": [
+            "Matthias Rupp",
+            "O. Anatole von Lilienfeld",
+            "Kieron Burke"
+          ],
+          "claimed_title": "Guest Editorial: Special Topic on Data-enabled Theoretical Chemistry",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1806.02690"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Machine-Learned Potentials for Transition-Metal Catalysis chemistry', candidate_title='Guest Editorial: Special Topic on Data-enabled Theoretical Chemistry')",
+        "failed_at": "2026-06-24T22:40:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Catalyst, as an important material, plays a crucial role in the development of chemical industry. By improving the performance of the catalyst, the economic benefit can be greatly improved. Artificial neural network (ANN), as one of the most popular machine learning algorithms, relies on its good ability of nonlinear transformation, parallel processing, self-learning, self-adaptation and good associative memory, has been widely applied to various areas. Through the optimization of catalyst by ANN, the consumption of time and resources can be greatly reduced and greater economic benefits can be obtained. In this review, we show how this powerful technique helps people address the highly complicated problems and accelerate the progress of the catalysis community.",
+          "claimed_authors": [
+            "Zhiqiang Liu",
+            "Wentao Zhou"
+          ],
+          "claimed_title": "Application of Artificial Neural Networks for Catalysis",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2110.00924"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Machine-Learned Potentials for Transition-Metal Catalysis chemistry', candidate_title='Application of Artificial Neural Networks for Catalysis')",
+        "failed_at": "2026-06-24T22:40:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Deep neural networks and the ENO procedure are both efficient frameworks for approximating rough functions. We prove that at any order, the ENO interpolation procedure can be cast as a deep ReLU neural network. This surprising fact enables the transfer of several desirable properties of the ENO procedure to deep neural networks, including its high-order accuracy at approximating Lipschitz functions. Numerical tests for the resulting neural networks show excellent performance for approximating solutions of nonlinear conservation laws and at data compression.",
+          "claimed_authors": [
+            "Tim De Ryck",
+            "Siddhartha Mishra",
+            "Deep Ray"
+          ],
+          "claimed_title": "On the approximation of rough functions with deep neural networks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1912.06732"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Machine-Learned Potentials for Transition-Metal Catalysis chemistry', candidate_title='On the approximation of rough functions with deep neural networks')",
+        "failed_at": "2026-06-24T22:40:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Deep Neural Networks, often owing to the overparameterization, are shown to be capable of exactly memorizing even randomly labelled data. Empirical studies have also shown that none of the standard regularization techniques mitigate such overfitting. We investigate whether the choice of the loss function can affect this memorization. We empirically show, with benchmark data sets MNIST and CIFAR-10, that a symmetric loss function, as opposed to either cross-entropy or squared error loss, results in significant improvement in the ability of the network to resist such overfitting. We then provide a formal definition for robustness to memorization and provide a theoretical explanation as to why the symmetric losses provide this robustness. Our results clearly bring out the role loss functions alone can play in this phenomenon of memorization.",
+          "claimed_authors": [
+            "Deep Patel",
+            "P. S. Sastry"
+          ],
+          "claimed_title": "Memorization in Deep Neural Networks: Does the Loss Function matter?",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2107.09957"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Machine-Learned Potentials for Transition-Metal Catalysis chemistry', candidate_title='Memorization in Deep Neural Networks: Does the Loss Function matter?')",
+        "failed_at": "2026-06-24T22:40:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "These notes were compiled as lecture notes for a course developed and taught at the University of the Southern California. They should be accessible to a typical engineering graduate student with a strong background in Applied Mathematics.\n  The main objective of these notes is to introduce a student who is familiar with concepts in linear algebra and partial differential equations to select topics in deep learning. These lecture notes exploit the strong connections between deep learning algorithms and the more conventional techniques of computational physics to achieve two goals. First, they use concepts from computational physics to develop an understanding of deep learning algorithms. Not surprisingly, many concepts in deep learning can be connected to similar concepts in computational physics, and one can utilize this connection to better understand these algorithms. Second, several novel deep learning algorithms can be used to solve challenging problems in computational physics. Thus, they offer someone who is interested in modeling a physical phenomena with a complementary set of tools.",
+          "claimed_authors": [
+            "Deep Ray",
+            "Orazio Pinti",
+            "Assad A. Oberai"
+          ],
+          "claimed_title": "Deep Learning and Computational Physics (Lecture Notes)",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2301.00942"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Machine-Learned Potentials for Transition-Metal Catalysis chemistry', candidate_title='Deep Learning and Computational Physics (Lecture Notes)')",
+        "failed_at": "2026-06-24T22:40:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The book consists of a number of short articles that present achievements of the Araucaria members, collaborators, and friends, in various aspects of distance determinations and related topics. It celebrates the 20-year anniversary of the Araucaria Project, acknowledges the people who worked for its success, and popularises our methods and results among broader readership.\n  This book is a part of a project that has received funding from the European Union's Horizon 2020 research and innovation programme under grant agreement No 695099.",
+          "claimed_authors": [
+            "The Araucaria Project",
+            " :",
+            "G. Pietrzyński",
+            "W. Gieren",
+            "P. Karczmarek",
+            "M. Górski",
+            "B. Zgirski",
+            "P. Wielgórski",
+            "L. Breuval",
+            "K. Suchomska",
+            "A. Gallenne",
+            "P. Kervella",
+            "G. Hajdu",
+            "B. Pilecki",
+            "J. Storm",
+            "N. Nardetto",
+            "R. P. Kudritzki",
+            "M. Taormina",
+            "F. Bresolin",
+            "R. Smolec",
+            "W. Narloch",
+            "C. Gałan",
+            "M. Lewis",
+            "R. Chini"
+          ],
+          "claimed_title": "The Araucaria Project: Improving the cosmic distance scale",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2305.17247"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Machine-Learned Potentials for Transition-Metal Catalysis chemistry', candidate_title='The Araucaria Project: Improving the cosmic distance scale')",
+        "failed_at": "2026-06-24T22:40:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The ATLAS experiment, at the Large Hadron Collider, will incorporate discrete, high-resolution tracking sub-systems in the form of segmented silicon detectors with 40MHz radiation-hard readout electronics. In the region closest to the pp interaction point, the thin silicon tiles will be segmented into a pixel geometry providing two-dimensional space-point information. The current status of the ATLAS pixel project will be presented with an emphasis on the performance of the front-end electronics and prototype sensors.",
+          "claimed_authors": [
+            "John Richardson",
+            "representing the ATLAS Pixel Project"
+          ],
+          "claimed_title": "The ATLAS Pixel Project",
+          "claimed_venue": "arXiv",
+          "claimed_year": 1999,
+          "primary_pointer": "hep-ex/9903035"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Machine-Learned Potentials for Transition-Metal Catalysis chemistry', candidate_title='The ATLAS Pixel Project')",
+        "failed_at": "2026-06-24T22:40:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A fundamental unit of work in programming is the code contribution (\"commit\") that a developer makes to the code base of the project in work. An author's commit frequency describes how often that author commits. Knowing the distribution of all commit frequencies is a fundamental part of understanding software development processes. This paper presents a detailed quantitative analysis of commit frequencies in open-source software development. The analysis is based on a large sample of open source projects, and presents the overall distribution of commit frequencies. We analyze the data to show the differences between authors and projects by project size; we also includes a comparison of successful and non successful projects and we derive an activity indicator from these analyses. By measuring a fundamental dimension of programming we help improve software development tools and our understanding of software development. We also validate some fundamental assumptions about software development.",
+          "claimed_authors": [
+            "Carsten Kolassa",
+            "Dirk Riehle",
+            "Michel A. Salim"
+          ],
+          "claimed_title": "The Empirical Commit Frequency Distribution of Open Source Projects",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1408.4978"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Machine-Learned Potentials for Transition-Metal Catalysis chemistry', candidate_title='The Empirical Commit Frequency Distribution of Open Source Projects')",
+        "failed_at": "2026-06-24T22:40:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Random Neural Networks (RNNs) are a class of Neural Networks (NNs) that can also be seen as a specific type of queuing network. They have been successfully used in several domains during the last 25 years, as queuing networks to analyze the performance of resource sharing in many engineering areas, as learning tools and in combinatorial optimization, where they are seen as neural systems, and also as models of neurological aspects of living beings. In this article we focus on their learning capabilities, and more specifically, we present a practical guide for using the RNN to solve supervised learning problems. We give a general description of these models using almost indistinctly the terminology of Queuing Theory and the neural one. We present the standard learning procedures used by RNNs, adapted from similar well-established improvements in the standard NN field. We describe in particular a set of learning algorithms covering techniques based on the use of first order and, then, of second order derivatives. We also discuss some issues related to these objects and present new perspectives about their use in supervised learning problems. The tutorial describes their most relevant applications, and also provides a large bibliography.",
+          "claimed_authors": [
+            "Sebastián Basterrech",
+            "Gerardo Rubino"
+          ],
+          "claimed_title": "A Tutorial about Random Neural Networks in Supervised Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1609.04846"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Machine-Learned Potentials for Transition-Metal Catalysis chemistry', candidate_title='A Tutorial about Random Neural Networks in Supervised Learning')",
+        "failed_at": "2026-06-24T22:40:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Learning powerful data embeddings has become a center piece in machine learning, especially in natural language processing and computer vision domains. The crux of these embeddings is that they are pretrained on huge corpus of data in a unsupervised fashion, sometimes aided with transfer learning. However currently in the graph learning domain, embeddings learned through existing graph neural networks (GNNs) are task dependent and thus cannot be shared across different datasets. In this paper, we present a first powerful and theoretically guaranteed graph neural network that is designed to learn task-independent graph embeddings, thereafter referred to as deep universal graph embedding (DUGNN). Our DUGNN model incorporates a novel graph neural network (as a universal graph encoder) and leverages rich Graph Kernels (as a multi-task graph decoder) for both unsupervised learning and (task-specific) adaptive supervised learning. By learning task-independent graph embeddings across diverse datasets, DUGNN also reaps the benefits of transfer learning. Through extensive experiments and ablation studies, we show that the proposed DUGNN model consistently outperforms both the existing state-of-art GNN models and Graph Kernels by an increased accuracy of 3% - 8% on graph classification benchmark datasets.",
+          "claimed_authors": [
+            "Saurabh Verma",
+            "Zhi-Li Zhang"
+          ],
+          "claimed_title": "Learning Universal Graph Neural Network Embeddings With Aid Of Transfer Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1909.10086"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Machine-Learned Potentials for Transition-Metal Catalysis chemistry', candidate_title='Learning Universal Graph Neural Network Embeddings With Aid Of Transfer Learning')",
+        "failed_at": "2026-06-24T22:40:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Air pollution (AP) poses a great threat to human health, and people are paying more attention than ever to its prediction. Accurate prediction of AP helps people to plan for their outdoor activities and aids protecting human health. In this paper, long-short term memory (LSTM) recurrent neural networks (RNNs) have been used to predict the future concentration of air pollutants (APS) in Macau. Additionally, meteorological data and data on the concentration of APS have been utilized. Moreover, in Macau, some air quality monitoring stations (AQMSs) have less observed data in quantity, and, at the same time, some AQMSs recorded less observed data of certain types of APS. Therefore, the transfer learning and pre-trained neural networks have been employed to assist AQMSs with less observed data to build a neural network with high prediction accuracy. The experimental sample covers a period longer than 12-year and includes daily measurements from several APS as well as other more classical meteorological values. Records from five stations, four out of them are AQMSs and the remaining one is an automatic weather station, have been prepared from the aforesaid period and eventually underwent to computational intelligence techniques to build and extract a prediction knowledge-based system. As shown by experimentation, LSTM RNNs initialized with transfer learning methods have higher prediction accuracy; it incurred shorter training time than randomly initialized recurrent neural networks.",
+          "claimed_authors": [
+            "Iat Hang Fong",
+            "Tengyue Li",
+            "Simon Fong",
+            "Raymond K. Wong",
+            "Antonio J. Tallón-Ballesteros"
+          ],
+          "claimed_title": "Predicting concentration levels of air pollutants by transfer learning and recurrent neural network",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2502.01654"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Machine-Learned Potentials for Transition-Metal Catalysis chemistry', candidate_title='Predicting concentration levels of air pollutants by transfer learning and recurrent neural network')",
+        "failed_at": "2026-06-24T22:40:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We describe the Dark Energy Survey (DES), a proposed optical-near infrared survey of 5000 sq. deg of the South Galactic Cap to ~24th magnitude in SDSS griz, that would use a new 3 sq. deg CCD camera to be mounted on the Blanco 4-m telescope at Cerro Telolo Inter-American Observatory (CTIO). The survey data will allow us to measure the dark energy and dark matter densities and the dark energy equation of state through four independent methods: galaxy clusters, weak gravitational lensing tomography, galaxy angular clustering, and supernova distances. These methods are doubly complementary: they constrain different combinations of cosmological model parameters and are subject to different systematic errors. By deriving the four sets of measurements from the same data set with a common analysis framework, we will obtain important cross checks of the systematic errors and thereby make a substantial and robust advance in the precision of dark energy measurements.",
+          "claimed_authors": [
+            " The Dark Energy Survey Collaboration"
+          ],
+          "claimed_title": "The Dark Energy Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2005,
+          "primary_pointer": "astro-ph/0510346"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Machine-Learned Potentials for Transition-Metal Catalysis chemistry', candidate_title='The Dark Energy Survey')",
+        "failed_at": "2026-06-24T22:40:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Machine-Learned Potentials for Transition-Metal Catalysis chemistry', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-06-24T22:40:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper gives an overview of the proposed Gemini/Subaru Wide-Field Multi-Object Spectrograph (WFMOS) and the proposed redshift surveys of 2.6 million galaxies with 0.5<z<3.3 over 2000 deg^2 of sky. These surveys will probe the baryonic acoustic oscillations in the galaxy power spectrum with unprecedented precision and over a range of redshifts and deliver dark energy w(z) constraints an order of magnitude better than current limits. We discuss the requirements on precursor observations and on calibrations, the systematics in the method and the quantitative precision obtainaible in distance-redshift and expansion-rate-redshift measurements which feed in to the w(z) precision. We also outline the technological and scientific strengths and risks which might be associated with the project and the relationship of WFMOS to other baryon oscillation experiments.",
+          "claimed_authors": [
+            "Karl Glazebrook",
+            "Daniel Eisenstein",
+            "Arjun Dey",
+            "Bob Nichol",
+            "The WFMOS Feasibility Study Dark Energy Team"
+          ],
+          "claimed_title": "Dark Energy and Cosmic Sound: w(z) Surveys with the Gemini/Subaru Wide-Field Multi-Object Spectrograph",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2005,
+          "primary_pointer": "astro-ph/0507457"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Machine-Learned Potentials for Transition-Metal Catalysis chemistry', candidate_title='Dark Energy and Cosmic Sound: w(z) Surveys with the Gemini/Subaru Wide-Field Multi-Object Spectrograph')",
+        "failed_at": "2026-06-24T22:40:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The advent of federated learning has facilitated large-scale data exchange amongst machine learning models while maintaining privacy. Despite its brief history, federated learning is rapidly evolving to make wider use more practical. One of the most significant advancements in this domain is the incorporation of transfer learning into federated learning, which overcomes fundamental constraints of primary federated learning, particularly in terms of security. This chapter performs a comprehensive survey on the intersection of federated and transfer learning from a security point of view. The main goal of this study is to uncover potential vulnerabilities and defense mechanisms that might compromise the privacy and performance of systems that use federated and transfer learning.",
+          "claimed_authors": [
+            "Ehsan Hallaji",
+            "Roozbeh Razavi-Far",
+            "Mehrdad Saif"
+          ],
+          "claimed_title": "Federated and Transfer Learning: A Survey on Adversaries and Defense Mechanisms",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2207.02337"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Machine-Learned Potentials for Transition-Metal Catalysis chemistry', candidate_title='Federated and Transfer Learning: A Survey on Adversaries and Defense Mechanisms')",
+        "failed_at": "2026-06-24T22:40:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The transfer learning toolkit wraps the codes of 17 transfer learning models and provides integrated interfaces, allowing users to use those models by calling a simple function. It is easy for primary researchers to use this toolkit and to choose proper models for real-world applications. The toolkit is written in Python and distributed under MIT open source license. In this paper, the current state of this toolkit is described and the necessary environment setting and usage are introduced.",
+          "claimed_authors": [
+            "Fuzhen Zhuang",
+            "Keyu Duan",
+            "Tongjia Guo",
+            "Yongchun Zhu",
+            "Dongbo Xi",
+            "Zhiyuan Qi",
+            "Qing He"
+          ],
+          "claimed_title": "Transfer Learning Toolkit: Primers and Benchmarks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1911.08967"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Machine-Learned Potentials for Transition-Metal Catalysis chemistry', candidate_title='Transfer Learning Toolkit: Primers and Benchmarks')",
+        "failed_at": "2026-06-24T22:40:35Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Hellen Videa",
+            "M. Angeles Fuentes",
+            "Antonio J. Martinez-Martinez"
+          ],
+          "title": "Group 13 Metals as L-Type Ligands for Transition Metals",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2511.03513",
+        "summary": "Low-valent Group 13 fragments can serve as neutral two-electron L-type metalloligands to transition-metal (TM) centers, enabling heterometallic M-TM platforms with bonding and reactivity patterns distinct from classical CO, phosphine, and carbene ligation. This chapter develops a unifying, descriptor-based view of aluminylene Al(I), gallylene Ga(I), and indylene In(I) donors, and contrasts them with the limited L-type behavior of Tl(I). We map synthetic gateways to isolable M(I) donors, analyze their sigma-donation/pi-acceptance profiles, and extract periodic design rules in which the sigma-donor strength decreases Al > Ga > In, whereas Tl(I) has not yet been convincingly shown to engage in neutral L-type Tl->TM coordination. Borderline cases that blur L-, X-, and Z-type classifications are also examined to clarify descriptors and guide consistent usage across the series. This contribution links ligand sterics/electronics, ambiphilicity at M(I), and the chosen TM fragment to guide the rational design of M-TM platforms that harness Group-13 M(I) donors for small-molecule activation and cooperative catalysis.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2511.03513",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4286,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-24T22:40:35Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Zhiqiang Liu",
+            "Wentao Zhou"
+          ],
+          "title": "Application of Artificial Neural Networks for Catalysis",
+          "venue": "arXiv",
+          "year": 2021
+        },
+        "primary_pointer": "2110.00924",
+        "summary": "Catalyst, as an important material, plays a crucial role in the development of chemical industry. By improving the performance of the catalyst, the economic benefit can be greatly improved. Artificial neural network (ANN), as one of the most popular machine learning algorithms, relies on its good ability of nonlinear transformation, parallel processing, self-learning, self-adaptation and good associative memory, has been widely applied to various areas. Through the optimization of catalyst by ANN, the consumption of time and resources can be greatly reduced and greater economic benefits can be obtained. In this review, we show how this powerful technique helps people address the highly complicated problems and accelerate the progress of the catalysis community.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2110.00924",
+          "http_status": 200,
+          "pdf_sample_score": 0.2062,
+          "query_relevance_score": 0.4286,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-24T22:40:39Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "machine-learned potentials for transition-metal catalysis chemistry",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}
