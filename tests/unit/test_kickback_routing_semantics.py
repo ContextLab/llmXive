@@ -106,3 +106,41 @@ def test_all_routes_are_valid_transitions_and_dispatchable():
                 )
                 checked += 1
     assert checked >= 34, f"only {checked} routes checked"
+
+
+def test_full_revision_kickback_resets_revision_round_budget(tmp_path):
+    """A FULL-revision kickback (research_full_revision → clarified) must CLEAR
+    the project's revision-round budget so the redone analysis gets a fresh
+    review cycle. Without this, the project returns to research_review already
+    at the 3-round cap → kicks back again → loops to human escalation, never
+    addressing concerns that surface only after the early rounds (PROJ-552's
+    layered-review stall: rounds 1-3 on placeholder docs, the real data-quality
+    defect at round 4)."""
+    from datetime import UTC, datetime
+
+    import yaml
+
+    from llmxive.pipeline.graph import _decide_next_stage
+    from llmxive.types import Project, Stage
+
+    pid = "PROJ-942-knot"
+    repo = tmp_path
+    # pre-existing exhausted revision state
+    ar = repo / "specs" / "auto-revisions" / pid
+    (ar / "round-3").mkdir(parents=True)
+    (ar / "round-3" / "tasks.md").write_text("x", encoding="utf-8")
+    hist = repo / "projects" / pid / "paper"
+    hist.mkdir(parents=True)
+    (hist / "revision_history.yaml").write_text(
+        yaml.safe_dump({"project_id": pid, "rounds": [{"round_number": n} for n in (1, 2, 3)]}),
+        encoding="utf-8",
+    )
+    proj = Project(
+        id=pid, title="t", field="t", current_stage=Stage.RESEARCH_FULL_REVISION,
+        created_at=datetime.now(UTC), updated_at=datetime.now(UTC),
+        artifact_hashes={}, speckit_research_dir=f"projects/{pid}/specs/001-t",
+    )
+    nxt = _decide_next_stage(proj, repo / "projects" / pid, repo_root=repo)
+    assert nxt == Stage.CLARIFIED
+    assert not (ar).exists(), "auto-revisions rounds must be cleared on full-revision kickback"
+    assert not (hist / "revision_history.yaml").exists(), "revision_history must be cleared"
