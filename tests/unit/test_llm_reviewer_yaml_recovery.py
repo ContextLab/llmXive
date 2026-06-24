@@ -369,3 +369,30 @@ def test_fix_invalid_dq_escapes_leaves_valid_escapes_untouched():
     assert "\n" in val            # \n stayed a real newline
     assert '"' in val             # \" stayed a literal quote
     assert r"\section" in val     # \s was invalid -> doubled -> literal backslash
+
+
+def test_parse_response_accepts_json_review_object():
+    """A panel reviewer that emits its review as a JSON object (```json {...})
+    instead of YAML frontmatter must still parse — temperature=0 makes a
+    mis-formatted reply RECUR every retry, so the parser (not a re-prompt) has to
+    absorb it or the panel fails permanently (the PROJ-018 spec-panel R3 stall)."""
+    from llmxive.convergence.llm_reviewer import _parse_response, _try_json_review_object
+    js = (
+        "```json\n"
+        '{"verdict": "minor_revision", "concerns": '
+        '[{"severity": "writing", "location": "spec.md:FR-001", "text": "FR-001 is unclear"}]}\n'
+        "```"
+    )
+    verdict, concerns = _parse_response(
+        js, lens="requirements_coverage", stage="clarified", default_artifact="spec.md"
+    )
+    assert verdict == "minor_revision"
+    assert len(concerns) == 1 and "FR-001" in concerns[0].text
+    # a bare (unfenced) JSON review object also parses
+    bare = '{"verdict": "accept", "concerns": []}'
+    v2, c2 = _parse_response(bare, lens="scope", stage="clarified", default_artifact="spec.md")
+    assert v2 == "accept" and c2 == []
+    # the reviser's 'responses' format (no verdict) is NOT mistaken for a review
+    assert _try_json_review_object('```json\n{"responses": [{"concern_id": "x", "response": "ok"}]}\n```') is None
+    # a stray JSON snippet inside prose (no verdict key) is ignored
+    assert _try_json_review_object("see {\"foo\": 1} in the data") is None

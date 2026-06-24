@@ -88,6 +88,13 @@ Do NOT generate a fresh independent critique. This is a diff-check against
 your prior bar, not a full re-review. Producing fresh concerns that ignore
 the reviser's response is the #1 source of false non-convergence.
 
+**Output FORMAT (R3) is identical to Identify (R1): a YAML document with `---`
+frontmatter carrying `verdict:` + `concerns:`, then prose.** The reviser's
+responses are CONTEXT for your decision — do NOT echo them back. NEVER emit a
+JSON object, and NEVER output a `responses:`/`{"responses": [...]}` structure
+(that is the REVISER's format, not yours). Start your reply with `---` on the
+first line and put your `verdict` in the frontmatter.
+
 ## Constraints (apply to ALL panel reviewers)
 
 - **Stay in your lens.** Other panelists cover other aspects. Out-of-lens

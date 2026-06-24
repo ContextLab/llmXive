@@ -449,6 +449,32 @@ def _extract_frontmatter(candidate: str) -> str | None:
     return body  # nothing parsed cleanly — let downstream raise a precise error
 
 
+_JSON_FENCE_RE = re.compile(r"```(?:json)?\s*(\{.*\})\s*```", re.S)
+
+
+def _try_json_review_object(text: str) -> dict | None:
+    """A model that emits the review as a JSON object (fenced ```json {...} or a
+    bare leading object) rather than YAML frontmatter. Returns the parsed dict
+    IFF it carries a ``verdict`` key — the verdict gate avoids misreading a
+    stray JSON snippet in the prose body as the review. None otherwise."""
+    import json as _json
+
+    m = _JSON_FENCE_RE.search(text)
+    blob = m.group(1) if m else None
+    if blob is None:
+        s, e = text.find("{"), text.rfind("}")
+        if s == -1 or e <= s:
+            return None
+        blob = text[s:e + 1]
+    for loader in (_json.loads, _safe_yaml_load):
+        try:
+            obj = loader(blob)
+        except Exception:
+            continue
+        return obj if isinstance(obj, dict) and "verdict" in obj else None
+    return None
+
+
 def _parse_response(
     response_text: str, *, lens: str, stage: str, default_artifact: str,
 ) -> tuple[str, list[Concern]]:
@@ -490,18 +516,28 @@ def _parse_response(
         fence_m = _CODE_FENCE_RE.search(candidate)
         if fence_m is not None:
             frontmatter = _extract_frontmatter(fence_m.group(1).strip())
+    meta: object | None = None
     if frontmatter is None:
-        raise RuntimeError(
-            f"LLMReviewer[{lens}]: response has no YAML frontmatter "
-            f"(missing `---` delimiters). First 200 chars: "
-            f"{response_text[:200]!r}"
-        )
-    try:
-        meta = _safe_yaml_load(frontmatter) or {}
-    except yaml.YAMLError as exc:
-        raise RuntimeError(
-            f"LLMReviewer[{lens}]: frontmatter is not valid YAML: {exc}"
-        ) from exc
+        # JSON fallback. Some models emit the review as a JSON object
+        # (```json {"verdict": ..., "concerns": [...]}) instead of YAML
+        # frontmatter. temperature=0 (deterministic reviewers) makes such a
+        # mis-formatted reply RECUR identically on every retry, so the parser —
+        # not a re-prompt — must absorb it, or the panel fails PERMANENTLY
+        # (observed live: PROJ-018 spec panel, requirements_coverage R3).
+        meta = _try_json_review_object(candidate)
+        if meta is None:
+            raise RuntimeError(
+                f"LLMReviewer[{lens}]: response has no YAML frontmatter "
+                f"(missing `---` delimiters) and no JSON review object. "
+                f"First 200 chars: {response_text[:200]!r}"
+            )
+    if meta is None:
+        try:
+            meta = _safe_yaml_load(frontmatter) or {}
+        except yaml.YAMLError as exc:
+            raise RuntimeError(
+                f"LLMReviewer[{lens}]: frontmatter is not valid YAML: {exc}"
+            ) from exc
     if not isinstance(meta, dict):
         raise RuntimeError(
             f"LLMReviewer[{lens}]: frontmatter must be a YAML mapping; "
