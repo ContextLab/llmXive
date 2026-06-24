@@ -1,0 +1,34 @@
+- artifact_path: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/001-evaluating-the-impact-of-code-duplicatio/tasks.md
+  attempts: 1
+  canonical: codeparrot/github-code dataset subset size 500 MB
+  claim_id: c_46a4f222
+  context: "Implement `projects/PROJ-261-evaluating-the-impact-of-code-duplication/code/data_loader.py`\
+    \ to stream `codeparrot/github-code` (500\u202FMB subset) using HuggingFace datasets\
+    \ library with streaming mode enabled"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "stream `codeparrot/github-code` (500\u202FMB subset) using HuggingFace\
+    \ datasets library"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-24T07:27:57Z'
+- artifact_path: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/001-evaluating-the-impact-of-code-duplicatio/tasks.md
+  attempts: 1
+  canonical: HumanEval subset size 50 problems
+  claim_id: c_3f71ce75
+  context: "Implement `projects/PROJ-261-evaluating-the-impact-of-code-duplication/code/bug_detection.py`\
+    \ to load the 50\u2011problem HumanEval subset and compute pass@1 accuracy"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "load the 50\u2011problem HumanEval subset"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-24T07:28:18Z'

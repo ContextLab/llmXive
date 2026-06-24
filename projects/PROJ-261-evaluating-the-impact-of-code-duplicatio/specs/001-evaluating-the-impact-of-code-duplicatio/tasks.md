@@ -23,7 +23,7 @@
 
 - [X] T001 Create project structure per implementation plan in `projects/PROJ-261-evaluating-the-impact-of-code-duplication/`
 - [X] T002 Initialize Python 3.11 project with `requirements.txt` (datasets, transformers, bitsandbytes, scipy, matplotlib, pytest)
-- [ ] T003 [P] Configure linting and formatting tools (black, flake8, isort) in `.pre-commit-config.yaml`
+- [X] T003 [P] Configure linting and formatting tools (black, flake8, isort) in `.pre-commit-config.yaml`
 - [ ] T004 [P] Create `research.md` documentation artifact in `specs/001-evaluate-code-duplication-llm-understanding/` with literature review and research question justification
 - [ ] T005 [P] Create `data-model.md` documentation artifact in `specs/001-evaluate-code-duplication-llm-understanding/` with entity definitions and data flow diagrams
 
@@ -65,7 +65,7 @@
 
 ### Implementation Tasks (sequential – data flow requires order)
 
-- [ ] T018 [US1] Implement `projects/PROJ-261-evaluating-the-impact-of-code-duplication/code/data_loader.py` to stream `codeparrot/github-code` (500 MB subset) using HuggingFace datasets library with streaming mode enabled, outputting to `data/raw/github-code-sample.csv` (verify streaming=True in implementation)
+- [ ] T018 [US1] Implement `projects/PROJ-261-evaluating-the-impact-of-code-duplication/code/data_loader.py` to stream `codeparrot/github-code` (500 MB subset) using HuggingFace datasets library [UNRESOLVED-CLAIM: c_46a4f222 — status=not_enough_info] with streaming mode enabled, outputting to `data/raw/github-code-sample.csv` (verify streaming=True in implementation)
 - [ ] T017 [US1] Implement `projects/PROJ-261-evaluating-the-impact-of-code-duplication/code/pii_scanner.py` to scan all files under `data/` including `raw/`, `processed/`, and `analysis/` subdirectories for PII patterns per Constitution Principle III (must run after T018 completes)
 - [ ] T019 [US1] Implement `projects/PROJ-261-evaluating-the-impact-of-code-duplication/code/ast_cloner.py` to parse Python files via the built‑in `ast` module and compute clone density (stdlib only - verify no external dependencies in implementation)
 - [ ] T020 [US1] Implement `projects/PROJ-261-evaluating-the-impact-of-code-duplication/code/model_metrics.py` to load `Salesforce/codegen-350M-mono` in 8‑bit quantization using bitsandbytes and compute perplexity
@@ -95,7 +95,7 @@
 
 ### Implementation Tasks
 
-- [ ] T031 [US2] Implement `projects/PROJ-261-evaluating-the-impact-of-code-duplication/code/bug_detection.py` to load the 50‑problem HumanEval subset and compute pass@1 accuracy
+- [ ] T031 [US2] Implement `projects/PROJ-261-evaluating-the-impact-of-code-duplication/code/bug_detection.py` to load the 50‑problem HumanEval subset [UNRESOLVED-CLAIM: c_3f71ce75 — status=not_enough_info] and compute pass@1 accuracy
 - [ ] T032 [US2] Implement `projects/PROJ-261-evaluating-the-impact-of-code-duplication/code/correlation_analysis.py` to calculate Spearman rank correlation between duplication density and both perplexity and accuracy
 - [ ] T033 [US2] Join all intermediate metrics (clone, perplexity, bug‑detection) for correlation input
 - [ ] T034 [US2] Save correlation results with p‑values to `projects/PROJ-261-evaluating-the-impact-of-code-duplication/data/analysis/correlation_results.csv`

@@ -1,6 +1,6 @@
 # Knot Atlas Data License
 
-**Note:** Provenance information for this dataset is maintained centrally in `data/provenance.yaml`. This document does not duplicate provenance details.
+
 
 The Knot Atlas dataset included in this project is made available under the
 Creative Commons Attribution 4.0 International (CC BY 4.0) license.
