@@ -1,0 +1,369 @@
+{
+  "fetched_at": "2026-06-24T15:38:15Z",
+  "field": "chemistry",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "chemistry",
+      "idea_body_excerpt": "Predicting Molecular Interactions in Ionic Liquids via Machine Learning",
+      "target_n": 5
+    },
+    "duration_seconds": 56.382,
+    "ended_at": "2026-06-24T15:38:15Z",
+    "expansion": null,
+    "extracted_queries": [
+      "intermolecular potential ionic liquids",
+      "ILThermo dataset",
+      "graph neural network ionic liquids",
+      "solvation free energy prediction",
+      "machine-learned force field"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2312.09490"
+      ]
+    },
+    "per_query_hit_count": {
+      "ILThermo dataset": 3,
+      "Predicting Molecular Interactions in Ionic Liquids via Machine Learning chemistry": 3,
+      "graph neural network ionic liquids": 2,
+      "intermolecular potential ionic liquids": 3,
+      "machine-learned force field": 3,
+      "solvation free energy prediction": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 3,
+      "rejections": [
+        {
+          "primary_pointer": "2401.17330",
+          "rationale": "The paper studies charge delocalization and hyperpolarizability of ionic liquids using DFT calculations, without addressing molecular interactions or employing machine‑learning methods. It does not provide a baseline, methodology, or variable directly relevant to predicting molecular interactions in ionic liquids, so it is not appropriate for the literature review.",
+          "title": "Charge delocalization and hyperpolarizability in ionic liquids"
+        },
+        {
+          "primary_pointer": "2405.19595",
+          "rationale": "The paper describes a medical imaging dataset for abdominal trauma detection and has no connection to molecular interactions, ionic liquids, or machine‑learning methods applied to chemistry, thus it does not meet any inclusion criteria.",
+          "title": "The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset"
+        },
+        {
+          "primary_pointer": "2506.09162",
+          "rationale": "The paper concerns a medical imaging dataset for lumbar spine degeneration and does not involve molecular interactions, ionic liquids, or machine‑learning methods applied to chemical systems, thus it is off‑domain and unrelated to the user's research question.",
+          "title": "The RSNA Lumbar Degenerative Imaging Spine Classification (LumbarDISC) Dataset"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-24T15:37:19Z",
+    "term_input": {
+      "normalized": "predicting molecular interactions in ionic liquids via machine learning chemistry",
+      "raw": "Predicting Molecular Interactions in Ionic Liquids via Machine Learning chemistry"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Data science has become increasingly essential for the production of official statistics, as it enables the automated collection, processing, and analysis of large amounts of data. With such data science practices in place, it enables more timely, more insightful and more flexible reporting. However, the quality and integrity of data-science-driven statistics rely on the accuracy and reliability of the data sources and the machine learning techniques that support them. In particular, changes in data sources are inevitable to occur and pose significant risks that are crucial to address in the context of machine learning for official statistics.\n  This paper gives an overview of the main risks, liabilities, and uncertainties associated with changing data sources in the context of machine learning for official statistics. We provide a checklist of the most prevalent origins and causes of changing data sources; not only on a technical level but also regarding ownership, ethics, regulation, and public perception. Next, we highlight the repercussions of changing data sources on statistical reporting. These include technical effects such as concept drift, bias, availability, validity, accuracy and completeness, but also the neutrality and potential discontinuation of the statistical offering. We offer a few important precautionary measures, such as enhancing robustness in both data sourcing and statistical techniques, and thorough monitoring. In doing so, machine learning-based official statistics can maintain integrity, reliability, consistency, and relevance in policy-making, decision-making, and public discourse.",
+          "claimed_authors": [
+            "Cedric De Boom",
+            "Michael Reusens"
+          ],
+          "claimed_title": "Changing Data Sources in the Age of Machine Learning for Official Statistics",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.04338"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Predicting Molecular Interactions in Ionic Liquids via Machine Learning chemistr', candidate_title='Changing Data Sources in the Age of Machine Learning for Official Statistics')",
+        "failed_at": "2026-06-24T15:37:50Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Modern biology frequently relies on machine learning to provide predictions and improve decision processes. There have been recent calls for more scrutiny on machine learning performance and possible limitations. Here we present a set of community-wide recommendations aiming to help establish standards of supervised machine learning validation in biology. Adopting a structured methods description for machine learning based on data, optimization, model, evaluation (DOME) will aim to help both reviewers and readers to better understand and assess the performance and limitations of a method or outcome. The recommendations are formulated as questions to anyone wishing to pursue implementation of a machine learning algorithm. Answers to these questions can be easily included in the supplementary material of published papers.",
+          "claimed_authors": [
+            "Ian Walsh",
+            "Dmytro Fishman",
+            "Dario Garcia-Gasulla",
+            "Tiina Titma",
+            "Gianluca Pollastri",
+            "The ELIXIR Machine Learning focus group",
+            "Jen Harrow",
+            "Fotis E. Psomopoulos",
+            "Silvio C. E. Tosatto"
+          ],
+          "claimed_title": "DOME: Recommendations for supervised machine learning validation in biology",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2006.16189"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Predicting Molecular Interactions in Ionic Liquids via Machine Learning chemistr', candidate_title='DOME: Recommendations for supervised machine learning validation in biology')",
+        "failed_at": "2026-06-24T15:37:50Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Learning curves are a concept from social sciences that has been adopted in the context of machine learning to assess the performance of a learning algorithm with respect to a certain resource, e.g., the number of training examples or the number of training iterations. Learning curves have important applications in several machine learning contexts, most notably in data acquisition, early stopping of model training, and model selection. For instance, learning curves can be used to model the performance of the combination of an algorithm and its hyperparameter configuration, providing insights into their potential suitability at an early stage and often expediting the algorithm selection process. Various learning curve models have been proposed to use learning curves for decision making. Some of these models answer the binary decision question of whether a given algorithm at a certain budget will outperform a certain reference performance, whereas more complex models predict the entire learning curve of an algorithm. We contribute a framework that categorises learning curve approaches using three criteria: the decision-making situation they address, the intrinsic learning curve question they answer and the type of resources they use. We survey papers from the literature and classify them into this framework.",
+          "claimed_authors": [
+            "Felix Mohr",
+            "Jan N. van Rijn"
+          ],
+          "claimed_title": "Learning Curves for Decision Making in Supervised Machine Learning: A Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2201.12150"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Predicting Molecular Interactions in Ionic Liquids via Machine Learning chemistr', candidate_title='Learning Curves for Decision Making in Supervised Machine Learning: A Survey')",
+        "failed_at": "2026-06-24T15:37:50Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The variability of wind power supply can present substantial challenges to incorporating wind power into a grid system. Thus, Wind Power Forecasting (WPF) has been widely recognized as one of the most critical issues in wind power integration and operation. There has been an explosion of studies on wind power forecasting problems in the past decades. Nevertheless, how to well handle the WPF problem is still challenging, since high prediction accuracy is always demanded to ensure grid stability and security of supply. We present a unique Spatial Dynamic Wind Power Forecasting dataset: SDWPF, which includes the spatial distribution of wind turbines, as well as the dynamic context factors. Whereas, most of the existing datasets have only a small number of wind turbines without knowing the locations and context information of wind turbines at a fine-grained time scale. By contrast, SDWPF provides the wind power data of 134 wind turbines from a wind farm over half a year with their relative positions and internal statuses. We use this dataset to launch the Baidu KDD Cup 2022 to examine the limit of current WPF solutions. The dataset is released at https://aistudio.baidu.com/aistudio/competition/detail/152/0/datasets.",
+          "claimed_authors": [
+            "Jingbo Zhou",
+            "Xinjiang Lu",
+            "Yixiong Xiao",
+            "Jiantao Su",
+            "Junfu Lyu",
+            "Yanjun Ma",
+            "Dejing Dou"
+          ],
+          "claimed_title": "SDWPF: A Dataset for Spatial Dynamic Wind Power Forecasting Challenge at KDD Cup 2022",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2208.04360"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Interactions in Ionic Liquids via Machine Learning chemistr', candidate_title='SDWPF: A Dataset for Spatial Dynamic Wind Power Forecasting Challenge at KDD Cup 2022')",
+        "failed_at": "2026-06-24T15:37:51Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Random Neural Networks (RNNs) are a class of Neural Networks (NNs) that can also be seen as a specific type of queuing network. They have been successfully used in several domains during the last 25 years, as queuing networks to analyze the performance of resource sharing in many engineering areas, as learning tools and in combinatorial optimization, where they are seen as neural systems, and also as models of neurological aspects of living beings. In this article we focus on their learning capabilities, and more specifically, we present a practical guide for using the RNN to solve supervised learning problems. We give a general description of these models using almost indistinctly the terminology of Queuing Theory and the neural one. We present the standard learning procedures used by RNNs, adapted from similar well-established improvements in the standard NN field. We describe in particular a set of learning algorithms covering techniques based on the use of first order and, then, of second order derivatives. We also discuss some issues related to these objects and present new perspectives about their use in supervised learning problems. The tutorial describes their most relevant applications, and also provides a large bibliography.",
+          "claimed_authors": [
+            "Sebastián Basterrech",
+            "Gerardo Rubino"
+          ],
+          "claimed_title": "A Tutorial about Random Neural Networks in Supervised Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1609.04846"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting Molecular Interactions in Ionic Liquids via Machine Learning chemistr', candidate_title='A Tutorial about Random Neural Networks in Supervised Learning')",
+        "failed_at": "2026-06-24T15:37:51Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Learning powerful data embeddings has become a center piece in machine learning, especially in natural language processing and computer vision domains. The crux of these embeddings is that they are pretrained on huge corpus of data in a unsupervised fashion, sometimes aided with transfer learning. However currently in the graph learning domain, embeddings learned through existing graph neural networks (GNNs) are task dependent and thus cannot be shared across different datasets. In this paper, we present a first powerful and theoretically guaranteed graph neural network that is designed to learn task-independent graph embeddings, thereafter referred to as deep universal graph embedding (DUGNN). Our DUGNN model incorporates a novel graph neural network (as a universal graph encoder) and leverages rich Graph Kernels (as a multi-task graph decoder) for both unsupervised learning and (task-specific) adaptive supervised learning. By learning task-independent graph embeddings across diverse datasets, DUGNN also reaps the benefits of transfer learning. Through extensive experiments and ablation studies, we show that the proposed DUGNN model consistently outperforms both the existing state-of-art GNN models and Graph Kernels by an increased accuracy of 3% - 8% on graph classification benchmark datasets.",
+          "claimed_authors": [
+            "Saurabh Verma",
+            "Zhi-Li Zhang"
+          ],
+          "claimed_title": "Learning Universal Graph Neural Network Embeddings With Aid Of Transfer Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1909.10086"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Predicting Molecular Interactions in Ionic Liquids via Machine Learning chemistr', candidate_title='Learning Universal Graph Neural Network Embeddings With Aid Of Transfer Learning')",
+        "failed_at": "2026-06-24T15:37:51Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We describe the Dark Energy Survey (DES), a proposed optical-near infrared survey of 5000 sq. deg of the South Galactic Cap to ~24th magnitude in SDSS griz, that would use a new 3 sq. deg CCD camera to be mounted on the Blanco 4-m telescope at Cerro Telolo Inter-American Observatory (CTIO). The survey data will allow us to measure the dark energy and dark matter densities and the dark energy equation of state through four independent methods: galaxy clusters, weak gravitational lensing tomography, galaxy angular clustering, and supernova distances. These methods are doubly complementary: they constrain different combinations of cosmological model parameters and are subject to different systematic errors. By deriving the four sets of measurements from the same data set with a common analysis framework, we will obtain important cross checks of the systematic errors and thereby make a substantial and robust advance in the precision of dark energy measurements.",
+          "claimed_authors": [
+            " The Dark Energy Survey Collaboration"
+          ],
+          "claimed_title": "The Dark Energy Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2005,
+          "primary_pointer": "astro-ph/0510346"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Interactions in Ionic Liquids via Machine Learning chemistr', candidate_title='The Dark Energy Survey')",
+        "failed_at": "2026-06-24T15:37:51Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Interactions in Ionic Liquids via Machine Learning chemistr', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-06-24T15:37:51Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The accurate prediction of solvation free energies is critical for understanding various phenomena in the liquid phase, including reaction rates, equilibrium constants, activity coefficients, and partition coefficients. Despite extensive research, precise prediction of solvation free energies remains challenging. In this study, we introduce openCOSMO-RS 24a, an improved version of the open-source COSMO-RS model, capable of predicting solvation free energies alongside other liquid-phase properties. We parameterize openCOSMO-RS 24a using quantum chemical calculations from ORCA 6.0, leveraging a comprehensive dataset that includes solvation free energies, partition coefficients, and infinite dilution activity coefficients for various solutes and solvents at 25 °C. Additionally, we develop a Quantitative Structure-Property Relationships model to predict molar volumes of the solvents, an essential requirement for predicting solvation free energies from structure alone. Our results show that openCOSMO-RS 24a achieves an average absolute deviation of 0.45 kcal/mol for solvation free energies, 0.76 for partition coefficients, and 0.51 for infinite dilution activity coefficients, demonstrating improvements over the previous openCOSMO-RS 22 parameterization and comparable results to COSMOtherm 24 TZVP. A new command line interface for openCOSMO-RS 24a was developed which allows easy acces to the solvation energy model directly from within ORCA 6.0. This represents a significant advancement in the predictive modeling of solvation free energies and other solution-phase properties, providing researchers with a robust tool for applications in chemical and materials science.",
+          "claimed_authors": [
+            "Simon Müller",
+            "Thomas Nevolianis",
+            "Miquel Garcia-Ratés",
+            "Christoph Riplinger",
+            "Kai Leonhard",
+            "Irina Smirnova"
+          ],
+          "claimed_title": "Predicting solvation free energies for neutral molecules in any solvent with openCOSMO-RS",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2407.03434"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Interactions in Ionic Liquids via Machine Learning chemistr', candidate_title='Predicting solvation free energies for neutral molecules in any solvent with openCOSMO-RS')",
+        "failed_at": "2026-06-24T15:37:51Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "It is demonstrated how the right hand sides of the Lorentz Transformation equations may be written, in a Lorentz invariant manner, as 4--vector scalar products. The formalism is shown to provide a short derivation, in which the 4--vector electromagnetic potential plays a crucial role, of the Lorentz force law of classical electrodynamics, and the conventional definition of the magnetic field in terms spatial derivatives of the 4--vector potential. The time component of the relativistic generalisation of the Lorentz force law is discussed. An important physical distinction between the space-time and energy-momentum 4--vectors is also pointed out.",
+          "claimed_authors": [
+            "J. H. Field"
+          ],
+          "claimed_title": "Derivation of the Lorentz Force Law and the Magnetic Field Concept using an Invariant Formulation of the Lorentz Transformation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2003,
+          "primary_pointer": "physics/0307133"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Interactions in Ionic Liquids via Machine Learning chemistr', candidate_title='Derivation of the Lorentz Force Law and the Magnetic Field Concept using an Invariant Formulation of the Lorentz Transformation')",
+        "failed_at": "2026-06-24T15:37:52Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A detailed study is made of the space-time transformation properties of intercharge forces and the associated electric and magnetic force fields, both in classical electrodynamics and in a recently developed relativistic classical electrodynamical theory. Important differences are found and serious errors are found in the traditional treatment of special-relativistic effects in classical electromagnetism. Fields associated with radiation processes are also considered and classical and quantum mechanical predictions are compared. An important, though trivial, mathematical error in the derivation of the retarded Liénard-Wiechert retarded potentials is pointed out. It is also shown why electric and magnetic fields produced by moving source charges or current distributions are not `classical fields', and that they do not, in general, constitute an antisymmetic second-rank tensor, as is usually assumed.",
+          "claimed_authors": [
+            "J. H. Field"
+          ],
+          "claimed_title": "Space-time transformation properties of inter-charge forces and dipole radiation: Breakdown of the classical field concept in relativistic electrodynamics",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2006,
+          "primary_pointer": "physics/0604089"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Interactions in Ionic Liquids via Machine Learning chemistr', candidate_title='Space-time transformation properties of inter-charge forces and dipole radiation: Breakdown of the classical field concept in relativistic electrodynamics')",
+        "failed_at": "2026-06-24T15:37:52Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yong-Lei Wang",
+            "Sten Sarman",
+            "Mikhail Golets",
+            "Francesca Mocci",
+            "Zhong-Yuan Lu",
+            "Aatto Laaksonen"
+          ],
+          "title": "Multigranular modeling of ionic liquids",
+          "venue": "arXiv",
+          "year": 2019
+        },
+        "primary_pointer": "1905.11145",
+        "summary": "Ionic liquids are a special category of molten salts with melting points near ambient temperatures or by convention below 100 C. Owing to their numerous valuable physicochemical properties as bulk liquids, solvents, at surfaces and in confined environments, ILs have attracted increasing attention in both academic and industrial communities in a variety of application areas involving physics, chemistry, material science and engineering. Due to their nearly limitless number of combinations of cation and anion pairs and mixtures with cosolvents, a molecular level understanding of their hierarchical structures and dynamics, requiring strategies to connect several length and time scales, is of crucial significance for rational design of ILs with desired properties, and thereafter refining their functional performance in applications. As an invaluable compliment to experiments from synthesis to characterization, computational modelling and simulations have significantly increased our understanding on how physicochemical and structural properties of ILs can be controlled by their underlying chemical and molecular structures. In this chapter, we will give examples from our own modelling work based on selected IL systems, with focus on imidazolium based and tetraalkylphosphonium orthoborate ILs, studied at several spatiotemporal scales in different environments and with particular attention to applications of high technological interest.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1905.11145",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-24T15:37:50Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "C. D. Rodriguez-Fernandez",
+            "E. Lopez Lago",
+            "C. Schroder",
+            "L. M. Varela"
+          ],
+          "title": "Non-additive electronic polarizabilities of ionic liquids: Charge delocalization effects",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2401.16548",
+        "summary": "Electronic charge delocalization on the molecular backbones of ionic liquid-forming ions substantially impacts their molecular polarizabilities. Density functional theory calculations of polarizabilities and volumes of many cations and anions are reported and applied to yield refractive indices of 1216 ionic liquids. A novel expression for the precise estimation of the molecular volumes of the ionic liquids from simulation data is also introduced, adding quadratic corrections to the usual sum of atomic volumes. Our significant findings include i) that the usual assumption of uniform, additive atomic polarizabilities is challenged when highly mobile electrons in conjugated systems are present, and ii) that cations with conjugated large carbon chains can be used together with anions for the design of ionic liquids with very high refractive indices. A novel relation for the polarizability volume is reported together with a refractive index map made up of the studied ionic liquids",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2401.16548",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-24T15:37:51Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Junbao Hu",
+            "Liyang Zhou",
+            "Jian Jiang"
+          ],
+          "title": "Efficient Machine Learning Force Field for Large-Scale Molecular Simulations of Organic Systems",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2312.09490",
+        "summary": "To address the computational challenges of ab initio molecular dynamics and the accuracy limitations of empirical force fields, the introduction of machine learning force fields has proven effective in various systems including metals and inorganic materials. However, in large-scale organic systems, the application of machine learning force fields is often hindered by impediments such as the complexity of long-range intermolecular interactions and molecular conformations, as well as the instability in long-time molecular simulations. Therefore, we propose a universal multiscale higher-order equivariant model combined with active learning techniques, efficiently capturing the complex long-range intermolecular interactions and molecular conformations. Compared to existing equivariant models, our model achieves the highest predictive accuracy, and magnitude-level improvements in computational speed and memory efficiency. In addition, a bond length stretching method is designed to improve the stability of long-time molecular simulations. Utilizing only 901 samples from a dataset with 120 atoms, our model successfully extends high precision to systems with hundreds of thousands of atoms. These achievements guarantee high predictive accuracy, fast simulation speed, minimal memory consumption, and robust simulation stability, satisfying the requirements for high-precision and long-time molecular simulations in large-scale organic systems.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2312.09490",
+          "http_status": 200,
+          "pdf_sample_score": 0.2306,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-24T15:37:51Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "predicting molecular interactions in ionic liquids via machine learning chemistry",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

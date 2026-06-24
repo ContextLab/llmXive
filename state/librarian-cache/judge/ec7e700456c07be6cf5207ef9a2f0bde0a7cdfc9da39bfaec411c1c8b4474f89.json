@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "0811.0157",
+  "judged_at": "2026-06-24T15:36:58Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting molecular properties from quantum chemical calculations with limited computational resources chemistry",
+  "rationale": "The paper focuses on ab‑initio design of bulk β‑titanium alloys and predicts mechanical/thermodynamic properties of alloys, not molecular properties, and does not address limited‑resource quantum chemical prediction methods; it falls outside the domain of molecular property prediction.",
+  "relevant": false
+}

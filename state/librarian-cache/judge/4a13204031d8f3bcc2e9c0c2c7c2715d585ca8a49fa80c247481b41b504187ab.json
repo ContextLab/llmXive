@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2112.14193",
+  "judged_at": "2026-06-24T15:36:54Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting molecular properties from quantum chemical calculations with limited computational resources chemistry",
+  "rationale": "The paper presents a quantum algorithm that computes molecular excited‑state energies while explicitly aiming to reduce computational resource requirements, directly relating to the mechanism of predicting molecular properties under limited resources (category a). It therefore belongs in a literature review on efficient quantum‑chemical property prediction.",
+  "relevant": true
+}

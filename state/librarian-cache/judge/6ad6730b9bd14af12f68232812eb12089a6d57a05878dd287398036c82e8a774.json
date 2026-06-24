@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2506.09162",
+  "judged_at": "2026-06-24T15:38:12Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting molecular interactions in ionic liquids via machine learning chemistry",
+  "rationale": "The paper concerns a medical imaging dataset for lumbar spine degeneration and does not involve molecular interactions, ionic liquids, or machine‑learning methods applied to chemical systems, thus it is off‑domain and unrelated to the user's research question.",
+  "relevant": false
+}

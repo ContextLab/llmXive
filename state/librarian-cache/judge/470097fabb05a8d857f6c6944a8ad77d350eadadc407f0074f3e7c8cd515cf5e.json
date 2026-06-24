@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2510.08900",
+  "judged_at": "2026-06-24T15:37:06Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting molecular properties from quantum chemical calculations with limited computational resources chemistry",
+  "rationale": "The paper surveys few‑shot molecular property prediction methods, focusing on data scarcity rather than the limited‑computational‑resource quantum chemical calculations the user’s question concerns, and does not address the same mechanism, variables, or baseline. Hence it is off‑topic for this literature review.",
+  "relevant": false
+}

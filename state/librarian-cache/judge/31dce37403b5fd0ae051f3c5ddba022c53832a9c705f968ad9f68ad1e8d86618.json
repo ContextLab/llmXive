@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2312.09490",
+  "judged_at": "2026-06-24T15:38:14Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting molecular interactions in ionic liquids via machine learning chemistry",
+  "rationale": "The paper develops a machine‑learning force field that predicts complex long‑range intermolecular interactions in large organic systems, directly addressing the same mechanistic problem (ML‑based prediction of molecular interactions) that underlies the user’s focus on ionic liquids, and thus serves as a relevant methodological reference. (Acceptance category a and d)",
+  "relevant": true
+}

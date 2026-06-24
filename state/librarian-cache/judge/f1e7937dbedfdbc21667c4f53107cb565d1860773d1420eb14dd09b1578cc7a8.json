@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2402.08858",
+  "judged_at": "2026-06-24T15:36:52Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting molecular properties from quantum chemical calculations with limited computational resources chemistry",
+  "rationale": "The paper introduces a generalized spin‑coupled molecular orbital framework and discusses its suitability for quantum‑computer algorithms, but it does not provide methods, benchmarks, or insights specifically about predicting molecular properties under limited classical computational resources, nor does it serve as a foundational reference for low‑cost quantum chemical property prediction. Hence it does not meet any inclusion criteria (a‑f).",
+  "relevant": false
+}

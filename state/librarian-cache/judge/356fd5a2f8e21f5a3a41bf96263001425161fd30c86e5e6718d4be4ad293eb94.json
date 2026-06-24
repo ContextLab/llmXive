@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2405.19595",
+  "judged_at": "2026-06-24T15:38:10Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting molecular interactions in ionic liquids via machine learning chemistry",
+  "rationale": "The paper describes a medical imaging dataset for abdominal trauma detection and has no connection to molecular interactions, ionic liquids, or machine‑learning methods applied to chemistry, thus it does not meet any inclusion criteria.",
+  "relevant": false
+}

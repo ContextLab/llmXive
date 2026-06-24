@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2401.17330",
+  "judged_at": "2026-06-24T15:38:06Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting molecular interactions in ionic liquids via machine learning chemistry",
+  "rationale": "The paper studies charge delocalization and hyperpolarizability of ionic liquids using DFT calculations, without addressing molecular interactions or employing machine‑learning methods. It does not provide a baseline, methodology, or variable directly relevant to predicting molecular interactions in ionic liquids, so it is not appropriate for the literature review.",
+  "relevant": false
+}

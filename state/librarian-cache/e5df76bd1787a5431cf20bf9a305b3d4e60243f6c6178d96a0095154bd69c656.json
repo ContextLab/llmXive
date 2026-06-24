@@ -1,0 +1,488 @@
+{
+  "fetched_at": "2026-06-24T15:37:07Z",
+  "field": "chemistry",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "chemistry",
+      "idea_body_excerpt": "Predicting Molecular Properties from Quantum Chemical Calculations with Limited Computational Resources",
+      "target_n": 5
+    },
+    "duration_seconds": 61.997,
+    "ended_at": "2026-06-24T15:37:07Z",
+    "expansion": null,
+    "extracted_queries": [
+      "ab initio property prediction",
+      "QM9 dataset",
+      "graph neural network chemistry",
+      "MAE molecular property",
+      "delta learning quantum chemistry"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2205.14476"
+      ]
+    },
+    "per_query_hit_count": {
+      "MAE molecular property": 3,
+      "Predicting Molecular Properties from Quantum Chemical Calculations with Limited Computational Resources chemistry": 3,
+      "QM9 dataset": 3,
+      "ab initio property prediction": 3,
+      "delta learning quantum chemistry": 3,
+      "graph neural network chemistry": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 3,
+      "rejections": [
+        {
+          "primary_pointer": "2402.08858",
+          "rationale": "The paper introduces a generalized spin‑coupled molecular orbital framework and discusses its suitability for quantum‑computer algorithms, but it does not provide methods, benchmarks, or insights specifically about predicting molecular properties under limited classical computational resources, nor does it serve as a foundational reference for low‑cost quantum chemical property prediction. Hence it does not meet any inclusion criteria (a‑f).",
+          "title": "Spin-coupled molecular orbitals: chemical intuition meets quantum chemistry"
+        },
+        {
+          "primary_pointer": "0811.0157",
+          "rationale": "The paper focuses on ab‑initio design of bulk β‑titanium alloys and predicts mechanical/thermodynamic properties of alloys, not molecular properties, and does not address limited‑resource quantum chemical prediction methods; it falls outside the domain of molecular property prediction.",
+          "title": "Ab-initio simulation and experimental validation of beta-titanium alloys"
+        },
+        {
+          "primary_pointer": "2510.08900",
+          "rationale": "The paper surveys few‑shot molecular property prediction methods, focusing on data scarcity rather than the limited‑computational‑resource quantum chemical calculations the user’s question concerns, and does not address the same mechanism, variables, or baseline. Hence it is off‑topic for this literature review.",
+          "title": "Few-shot Molecular Property Prediction: A Survey"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-24T15:36:05Z",
+    "term_input": {
+      "normalized": "predicting molecular properties from quantum chemical calculations with limited computational resources chemistry",
+      "raw": "Predicting Molecular Properties from Quantum Chemical Calculations with Limited Computational Resources chemistry"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A classical spin model derived ab initio for rare-earth-based permanent magnet compounds is presented. Our target compound, NdFe$_{12}$N, is a material that goes beyond today's champion magnet compound Nd$_{2}$Fe$_{14}$B in its intrinsic magnetic properties with a simpler crystal structure. Calculated temperature dependence of the magnetization and the anisotropy field agree with the latest experimental results in the leading order. Having put the realistic observables under our numerical control, we propose that engineering $5d$-electron-mediated indirect exchange coupling between $4f$-electrons in Nd and $3d$-electrons from Fe would most critically help to enhance the material's utility over the operation-temperature range.",
+          "claimed_authors": [
+            "Munehisa Matsumoto",
+            "Hisazumi Akai",
+            "Yosuke Harashima",
+            "Shotaro Doi",
+            "Takashi Miyake"
+          ],
+          "claimed_title": "Relevance of $4f$-$3d$ exchange to finite-temperature magnetism of rare-earth permanent magnets: an ab-initio-based spin model approach for NdFe$_{12}$N",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2015,
+          "primary_pointer": "1504.06697"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Predicting Molecular Properties from Quantum Chemical Calculations with Limited ', candidate_title='Relevance of $4f$-$3d$ exchange to finite-temperature magnetism of rare-earth permanent magnets: an ab-initio-based spin model approach for NdFe$_{12}$N')",
+        "failed_at": "2026-06-24T15:36:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The RSNA Abdominal Traumatic Injury CT (RATIC) dataset is the largest publicly available collection of adult abdominal CT studies annotated for traumatic injuries. This dataset includes 4,274 studies from 23 institutions across 14 countries. The dataset is freely available for non-commercial use via Kaggle at https://www.kaggle.com/competitions/rsna-2023-abdominal-trauma-detection. Created for the RSNA 2023 Abdominal Trauma Detection competition, the dataset encourages the development of advanced machine learning models for detecting abdominal injuries on CT scans. The dataset encompasses detection and classification of traumatic injuries across multiple organs, including the liver, spleen, kidneys, bowel, and mesentery. Annotations were created by expert radiologists from the American Society of Emergency Radiology (ASER) and Society of Abdominal Radiology (SAR). The dataset is annotated at multiple levels, including the presence of injuries in three solid organs with injury grading, image-level annotations for active extravasations and bowel injury, and voxelwise segmentations of each of the potentially injured organs. With the release of this dataset, we hope to facilitate research and development in machine learning and abdominal trauma that can lead to improved patient care and outcomes.",
+          "claimed_authors": [
+            "Jeffrey D. Rudie",
+            "Hui-Ming Lin",
+            "Robyn L. Ball",
+            "Sabeena Jalal",
+            "Luciano M. Prevedello",
+            "Savvas Nicolaou",
+            "Brett S. Marinelli",
+            "Adam E. Flanders",
+            "Kirti Magudia",
+            "George Shih",
+            "Melissa A. Davis",
+            "John Mongan",
+            "Peter D. Chang",
+            "Ferco H. Berger",
+            "Sebastiaan Hermans",
+            "Meng Law",
+            "Tyler Richards",
+            "Jan-Peter Grunz",
+            "Andreas Steven Kunz",
+            "Shobhit Mathur",
+            "Sandro Galea-Soler",
+            "Andrew D. Chung",
+            "Saif Afat",
+            "Chin-Chi Kuo",
+            "Layal Aweidah",
+            "Ana Villanueva Campos",
+            "Arjuna Somasundaram",
+            "Felipe Antonio Sanchez Tijmes",
+            "Attaporn Jantarangkoon",
+            "Leonardo Kayat Bittencourt",
+            "Michael Brassil",
+            "Ayoub El Hajjami",
+            "Hakan Dogan",
+            "Muris Becircic",
+            "Agrahara G. Bharatkumar",
+            "Eduardo Moreno Júdice de Mattos Farina",
+            "Dataset Curator Group",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Errol Colak"
+          ],
+          "claimed_title": "The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.19595"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Properties from Quantum Chemical Calculations with Limited ', candidate_title='The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset')",
+        "failed_at": "2026-06-24T15:36:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Radiological Society of North America (RSNA) Lumbar Degenerative Imaging Spine Classification (LumbarDISC) dataset is the largest publicly available dataset of adult MRI lumbar spine examinations annotated for degenerative changes. The dataset includes 2,697 patients with a total of 8,593 image series from 8 institutions across 6 countries and 5 continents. The dataset is available for free for non-commercial use via Kaggle and RSNA Medical Imaging Resource of AI (MIRA). The dataset was created for the RSNA 2024 Lumbar Spine Degenerative Classification competition where competitors developed deep learning models to grade degenerative changes in the lumbar spine. The degree of spinal canal, subarticular recess, and neural foraminal stenosis was graded at each intervertebral disc level in the lumbar spine. The images were annotated by expert volunteer neuroradiologists and musculoskeletal radiologists from the RSNA, American Society of Neuroradiology, and the American Society of Spine Radiology. This dataset aims to facilitate research and development in machine learning and lumbar spine imaging to lead to improved patient care and clinical efficiency.",
+          "claimed_authors": [
+            "Tyler J. Richards",
+            "Adam E. Flanders",
+            "Errol Colak",
+            "Luciano M. Prevedello",
+            "Robyn L. Ball",
+            "Felipe Kitamura",
+            "John Mongan",
+            "Maryam Vazirabad",
+            "Hui-Ming Lin",
+            "Anne Kendell",
+            "Thanat Kanthawang",
+            "Salita Angkurawaranon",
+            "Emre Altinmakas",
+            "Hakan Dogan",
+            "Paulo Eduardo de Aguiar Kuriki",
+            "Arjuna Somasundaram",
+            "Christopher Ruston",
+            "Deniz Bulja",
+            "Naida Spahovic",
+            "Jennifer Sommer",
+            "Sirui Jiang",
+            "Eduardo Moreno Judice de Mattos Farina",
+            "Eduardo Caminha Nunes",
+            "Michael Brassil",
+            "Megan McNamara",
+            "Johanna Ortiz",
+            "Jacob Peoples",
+            "Vinson L. Uytana",
+            "Anthony Kam",
+            "Venkata N. S. Dola",
+            "Daniel Murphy",
+            "David Vu",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Competition Data Notebook Group",
+            "Jason F. Talbott"
+          ],
+          "claimed_title": "The RSNA Lumbar Degenerative Imaging Spine Classification (LumbarDISC) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.09162"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Properties from Quantum Chemical Calculations with Limited ', candidate_title='The RSNA Lumbar Degenerative Imaging Spine Classification (LumbarDISC) Dataset')",
+        "failed_at": "2026-06-24T15:36:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The variability of wind power supply can present substantial challenges to incorporating wind power into a grid system. Thus, Wind Power Forecasting (WPF) has been widely recognized as one of the most critical issues in wind power integration and operation. There has been an explosion of studies on wind power forecasting problems in the past decades. Nevertheless, how to well handle the WPF problem is still challenging, since high prediction accuracy is always demanded to ensure grid stability and security of supply. We present a unique Spatial Dynamic Wind Power Forecasting dataset: SDWPF, which includes the spatial distribution of wind turbines, as well as the dynamic context factors. Whereas, most of the existing datasets have only a small number of wind turbines without knowing the locations and context information of wind turbines at a fine-grained time scale. By contrast, SDWPF provides the wind power data of 134 wind turbines from a wind farm over half a year with their relative positions and internal statuses. We use this dataset to launch the Baidu KDD Cup 2022 to examine the limit of current WPF solutions. The dataset is released at https://aistudio.baidu.com/aistudio/competition/detail/152/0/datasets.",
+          "claimed_authors": [
+            "Jingbo Zhou",
+            "Xinjiang Lu",
+            "Yixiong Xiao",
+            "Jiantao Su",
+            "Junfu Lyu",
+            "Yanjun Ma",
+            "Dejing Dou"
+          ],
+          "claimed_title": "SDWPF: A Dataset for Spatial Dynamic Wind Power Forecasting Challenge at KDD Cup 2022",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2208.04360"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Properties from Quantum Chemical Calculations with Limited ', candidate_title='SDWPF: A Dataset for Spatial Dynamic Wind Power Forecasting Challenge at KDD Cup 2022')",
+        "failed_at": "2026-06-24T15:36:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Random Neural Networks (RNNs) are a class of Neural Networks (NNs) that can also be seen as a specific type of queuing network. They have been successfully used in several domains during the last 25 years, as queuing networks to analyze the performance of resource sharing in many engineering areas, as learning tools and in combinatorial optimization, where they are seen as neural systems, and also as models of neurological aspects of living beings. In this article we focus on their learning capabilities, and more specifically, we present a practical guide for using the RNN to solve supervised learning problems. We give a general description of these models using almost indistinctly the terminology of Queuing Theory and the neural one. We present the standard learning procedures used by RNNs, adapted from similar well-established improvements in the standard NN field. We describe in particular a set of learning algorithms covering techniques based on the use of first order and, then, of second order derivatives. We also discuss some issues related to these objects and present new perspectives about their use in supervised learning problems. The tutorial describes their most relevant applications, and also provides a large bibliography.",
+          "claimed_authors": [
+            "Sebastián Basterrech",
+            "Gerardo Rubino"
+          ],
+          "claimed_title": "A Tutorial about Random Neural Networks in Supervised Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1609.04846"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Properties from Quantum Chemical Calculations with Limited ', candidate_title='A Tutorial about Random Neural Networks in Supervised Learning')",
+        "failed_at": "2026-06-24T15:36:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Learning powerful data embeddings has become a center piece in machine learning, especially in natural language processing and computer vision domains. The crux of these embeddings is that they are pretrained on huge corpus of data in a unsupervised fashion, sometimes aided with transfer learning. However currently in the graph learning domain, embeddings learned through existing graph neural networks (GNNs) are task dependent and thus cannot be shared across different datasets. In this paper, we present a first powerful and theoretically guaranteed graph neural network that is designed to learn task-independent graph embeddings, thereafter referred to as deep universal graph embedding (DUGNN). Our DUGNN model incorporates a novel graph neural network (as a universal graph encoder) and leverages rich Graph Kernels (as a multi-task graph decoder) for both unsupervised learning and (task-specific) adaptive supervised learning. By learning task-independent graph embeddings across diverse datasets, DUGNN also reaps the benefits of transfer learning. Through extensive experiments and ablation studies, we show that the proposed DUGNN model consistently outperforms both the existing state-of-art GNN models and Graph Kernels by an increased accuracy of 3% - 8% on graph classification benchmark datasets.",
+          "claimed_authors": [
+            "Saurabh Verma",
+            "Zhi-Li Zhang"
+          ],
+          "claimed_title": "Learning Universal Graph Neural Network Embeddings With Aid Of Transfer Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1909.10086"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Properties from Quantum Chemical Calculations with Limited ', candidate_title='Learning Universal Graph Neural Network Embeddings With Aid Of Transfer Learning')",
+        "failed_at": "2026-06-24T15:36:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Air pollution (AP) poses a great threat to human health, and people are paying more attention than ever to its prediction. Accurate prediction of AP helps people to plan for their outdoor activities and aids protecting human health. In this paper, long-short term memory (LSTM) recurrent neural networks (RNNs) have been used to predict the future concentration of air pollutants (APS) in Macau. Additionally, meteorological data and data on the concentration of APS have been utilized. Moreover, in Macau, some air quality monitoring stations (AQMSs) have less observed data in quantity, and, at the same time, some AQMSs recorded less observed data of certain types of APS. Therefore, the transfer learning and pre-trained neural networks have been employed to assist AQMSs with less observed data to build a neural network with high prediction accuracy. The experimental sample covers a period longer than 12-year and includes daily measurements from several APS as well as other more classical meteorological values. Records from five stations, four out of them are AQMSs and the remaining one is an automatic weather station, have been prepared from the aforesaid period and eventually underwent to computational intelligence techniques to build and extract a prediction knowledge-based system. As shown by experimentation, LSTM RNNs initialized with transfer learning methods have higher prediction accuracy; it incurred shorter training time than randomly initialized recurrent neural networks.",
+          "claimed_authors": [
+            "Iat Hang Fong",
+            "Tengyue Li",
+            "Simon Fong",
+            "Raymond K. Wong",
+            "Antonio J. Tallón-Ballesteros"
+          ],
+          "claimed_title": "Predicting concentration levels of air pollutants by transfer learning and recurrent neural network",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2502.01654"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Predicting Molecular Properties from Quantum Chemical Calculations with Limited ', candidate_title='Predicting concentration levels of air pollutants by transfer learning and recurrent neural network')",
+        "failed_at": "2026-06-24T15:36:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Medical image segmentation remains a formidable challenge due to the label scarcity. Pre-training Vision Transformer (ViT) through masked image modeling (MIM) on large-scale unlabeled medical datasets presents a promising solution, providing both computational efficiency and model generalization for various downstream tasks. However, current ViT-based MIM pre-training frameworks predominantly emphasize local aggregation representations in output layers and fail to exploit the rich representations across different ViT layers that better capture fine-grained semantic information needed for more precise medical downstream tasks. To fill the above gap, we hereby present Hierarchical Encoder-driven MAE (Hi-End-MAE), a simple yet effective ViT-based pre-training solution, which centers on two key innovations: (1) Encoder-driven reconstruction, which encourages the encoder to learn more informative features to guide the reconstruction of masked patches; and (2) Hierarchical dense decoding, which implements a hierarchical decoding structure to capture rich representations across different layers. We pre-train Hi-End-MAE on a large-scale dataset of 10K CT scans and evaluated its performance across seven public medical image segmentation benchmarks. Extensive experiments demonstrate that Hi-End-MAE achieves superior transfer learning capabilities across various downstream tasks, revealing the potential of ViT in medical imaging applications. The code is available at: https://github.com/FengheTan9/Hi-End-MAE",
+          "claimed_authors": [
+            "Fenghe Tang",
+            "Qingsong Yao",
+            "Wenxin Ma",
+            "Chenxu Wu",
+            "Zihang Jiang",
+            "S. Kevin Zhou"
+          ],
+          "claimed_title": "Hi-End-MAE: Hierarchical encoder-driven masked autoencoders are stronger vision learners for medical image segmentation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2502.08347"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Predicting Molecular Properties from Quantum Chemical Calculations with Limited ', candidate_title='Hi-End-MAE: Hierarchical encoder-driven masked autoencoders are stronger vision learners for medical image segmentation')",
+        "failed_at": "2026-06-24T15:36:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We aim to characterize the U-band variability of young brown dwarfs in the Taurus Molecular Cloud and discuss its origin. We used the XMM-Newton Extended Survey of the Taurus Molecular Cloud, where a sample of 11 young bona fide brown dwarfs (spectral type later than M6) were observed simultaneously in X-rays with XMM-Newton and in the U-band with the XMM-Newton Optical/UV Monitor (OM). We obtained upper limits to the U-band emission of 10 brown dwarfs (U>19.6-20.6 mag), whereas 2MASSJ04141188+2811535 was detected in the U-band. Remarkably, the magnitude of this brown dwarf increased regularly from U~19.5 mag at the beginning of the observation, peaked 6h later at U~18.4 mag, and then decreased to U~18.65 mag in the next 2h. The first OM U-band measurement is consistent with the quiescent level observed about one year later thanks to ground follow-up observations. This brown dwarf was not detected in X-rays by XMM-Newton during the OM observation. We discuss the possible sources of U-band variability for this young brown dwarf, namely a magnetic flare, non-steady accretion onto the substellar surface, and rotational modulation of a hot spot. We conclude that this event is related to accretion from a circumsubstellar disk, where the mass accretion rate was about a factor of 3 higher than during the quiescent level.",
+          "claimed_authors": [
+            "Nicolas Grosso",
+            "Marc Audard",
+            "Jérôme Bouvier",
+            "Kevin R. Briggs",
+            "Manuel Güdel",
+            "the The XMM-Newton Extended Surveyof the Taurus Molecular Cloud",
+            " Collaboration"
+          ],
+          "claimed_title": "A U-band survey of brown dwarfs in the Taurus Molecular Cloud with the XMM-Newton Optical/UV Monitor",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2006,
+          "primary_pointer": "astro-ph/0609027"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Predicting Molecular Properties from Quantum Chemical Calculations with Limited ', candidate_title='A U-band survey of brown dwarfs in the Taurus Molecular Cloud with the XMM-Newton Optical/UV Monitor')",
+        "failed_at": "2026-06-24T15:36:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Identifying where quantum models may offer practical benefits in near term quantum machine learning (QML) requires moving beyond isolated algorithmic proposals toward systematic and empirical exploration across models, datasets, and hardware constraints. We introduce MerLin, an open-source framework designed as a discovery engine for photonic and hybrid quantum machine learning. MerLin integrates optimized strong simulation of linear optical circuits into standard PyTorch and scikit learn workflows, enabling end-to-end differentiable training of quantum layers.\n  MerLin is designed around systematic benchmarking and reproducibility. As an initial contribution, we reproduce eighteen state-of-the-art photonic and hybrid QML works spanning kernel methods, reservoir computing, convolutional and recurrent architectures, generative models, and modern training paradigms. These reproductions are released as reusable, modular experiments that can be directly extended and adapted, establishing a shared experimental baseline consistent with empirical benchmarking methodologies widely adopted in modern artificial intelligence.\n  By embedding photonic quantum models within established machine learning ecosystems, MerLin allows practitioners to leverage existing tooling for ablation studies, cross-modality comparisons, and hybrid classical-quantum workflows. The framework already implements hardware-aware features, allowing tests on available quantum hardware while enabling exploration beyond its current capabilities, positioning MerLin as a forward-looking co-design tool linking algorithms, benchmarks, and hardware.",
+          "claimed_authors": [
+            "Cassandre Notton",
+            "Benjamin Stott",
+            "Philippe Schoeb",
+            "Anthony Walsh",
+            "Grégoire Leboucher",
+            "Vincent Espitalier",
+            "Vassilis Apostolou",
+            "Louis-Félix Vigneux",
+            "Alexia Salavrakos",
+            "Jean Senellart"
+          ],
+          "claimed_title": "MerLin: A Discovery Engine for Photonic and Hybrid Quantum Machine Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2602.11092"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Predicting Molecular Properties from Quantum Chemical Calculations with Limited ', candidate_title='MerLin: A Discovery Engine for Photonic and Hybrid Quantum Machine Learning')",
+        "failed_at": "2026-06-24T15:36:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The advent of noisy intermediate-scale quantum (NISQ) computers raises a crucial challenge to design quantum neural networks for fully quantum learning tasks. To bridge the gap, this work proposes an end-to-end learning framework named QTN-VQC, by introducing a trainable quantum tensor network (QTN) for quantum embedding on a variational quantum circuit (VQC). The architecture of QTN is composed of a parametric tensor-train network for feature extraction and a tensor product encoding for quantum embedding. We highlight the QTN for quantum embedding in terms of two perspectives: (1) we theoretically characterize QTN by analyzing its representation power of input features; (2) QTN enables an end-to-end parametric model pipeline, namely QTN-VQC, from the generation of quantum embedding to the output measurement. Our experiments on the MNIST dataset demonstrate the advantages of QTN for quantum embedding over other quantum embedding approaches.",
+          "claimed_authors": [
+            "Jun Qi",
+            "Chao-Han Huck Yang",
+            "Pin-Yu Chen"
+          ],
+          "claimed_title": "QTN-VQC: An End-to-End Learning framework for Quantum Neural Networks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2110.03861"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Predicting Molecular Properties from Quantum Chemical Calculations with Limited ', candidate_title='QTN-VQC: An End-to-End Learning framework for Quantum Neural Networks')",
+        "failed_at": "2026-06-24T15:36:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Transformer residual streams evolve by additive accumulation: each layer appends a feature update to a shared hidden state, but has no direct mechanism for replacing content that has become obsolete or conflicting. We introduce Deep Delta Learning (DDL), a residual update rule that preserves the identity path while giving every layer the ability to selectively rewrite residual content. DDL reads the current state along a learned direction, compares it with a learned target value, and writes back a gated correction along the same direction. When the gate is closed, the update reduces to the identity; when the gate is fully open, the selected component is overwritten, yielding a depth-wise delta-rule generalization of standard residual addition. We integrate DDL in decoder-only language models with both scalar and expanded residual states, while keeping attention and MLP sublayers at the original compute width. Controlled pretraining and downstream evaluations show that residual rewrite operations improve language modeling quality relative to pure additive accumulation introduced in ResNet, suggesting that a learned delta-rule update is an effective mechanism for managing Transformer residual streams.",
+          "claimed_authors": [
+            "Yifan Zhang",
+            "Yifeng Liu",
+            "Mengdi Wang",
+            "Quanquan Gu"
+          ],
+          "claimed_title": "Deep Delta Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2601.00417"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Properties from Quantum Chemical Calculations with Limited ', candidate_title='Deep Delta Learning')",
+        "failed_at": "2026-06-24T15:36:47Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Cheng-Lin Hong",
+            "Ting Tsai",
+            "Jyh-Pin Chou",
+            "Peng-Jen Chen",
+            "Pei-Kai Tsai",
+            "Yu-Cheng Chen",
+            "En-Jui Kuo",
+            "David Srolovitz",
+            "Alice Hu",
+            "Yuan-Chung Cheng",
+            "Hsi-Sheng Goan"
+          ],
+          "title": "Accurate and Efficient Quantum Computations of Molecular Properties Using Daubechies Wavelet Molecular Orbitals: A Benchmark Study against Experimental Data",
+          "venue": "arXiv",
+          "year": 2022
+        },
+        "primary_pointer": "2205.14476",
+        "summary": "Although quantum computation (QC) is regarded as a promising numerical method for computational quantum chemistry, current applications of quantum-chemistry calculations on quantum computers are limited to small molecules. This limitation can be ascribed to technical problems in building and manipulating more qubits and the associated complicated operations of quantum gates in a quantum circuit when the size of the molecular system becomes large. As a result, reducing the number of required qubits is necessary to make QC practical. Currently, the minimal STO-3G basis set is commonly used in benchmark studies because it requires the minimum number of spin orbitals. Nonetheless, the accuracy of using STO-3G is generally low and thus cannot provide useful predictions. We propose to adopt Daubechies wavelet functions as an accurate and efficient method for QCs of molecular electronic properties. We demonstrate that a minimal basis set constructed from Daubechies wavelet basis can yield accurate results through a better description of the molecular Hamiltonian, while keeping the number of spin orbitals minimal. With the improved Hamiltonian through Daubechies wavelets, we calculate vibrational frequencies for H$_2$ and LiH using quantum-computing algorithm to show that the results are in excellent agreement with experimental data. As a result, we achieve quantum calculations in which accuracy is comparable with that of the full configuration interaction calculation using the cc-pVDZ basis set, whereas the computational cost is the same as that of a STO-3G calculation. Thus, our work provides a more efficient and accurate representation of the molecular Hamiltonian for efficient QCs of molecular systems, and for the first time demonstrates that predictions in agreement with experimental measurements are possible to be achieved with quantum resources available in near-term quantum computers.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2205.14476",
+          "http_status": 200,
+          "pdf_sample_score": 0.3287,
+          "query_relevance_score": 0.8889,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-24T15:36:46Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Jingwei Wen",
+            "Zhengan Wang",
+            "Chitong Chen",
+            "Junxiang Xiao",
+            "Hang Li",
+            "Ling Qian",
+            "Zhiguo Huang",
+            "Heng Fan",
+            "Shijie Wei",
+            "Guilu Long"
+          ],
+          "title": "A full circuit-based quantum algorithm for excited-states in quantum chemistry",
+          "venue": "arXiv",
+          "year": 2021
+        },
+        "primary_pointer": "2112.14193",
+        "summary": "Utilizing quantum computer to investigate quantum chemistry is an important research field nowadays. In addition to the ground-state problems that have been widely studied, the determination of excited-states plays a crucial role in the prediction and modeling of chemical reactions and other physical processes. Here, we propose a non-variational full circuit-based quantum algorithm for obtaining the excited-state spectrum of a quantum chemistry Hamiltonian. Compared with previous classical-quantum hybrid variational algorithms, our method eliminates the classical optimization process, reduces the resource cost caused by the interaction between different systems, and achieves faster convergence rate and stronger robustness against noise without barren plateau. The parameter updating for determining the next energy-level is naturally dependent on the energy measurement outputs of the previous energy-level and can be realized by only modifying the state preparation process of ancillary system, introducing little additional resource overhead. Numerical simulations of the algorithm with hydrogen, LiH, H2O and NH3 molecules are presented. Furthermore, we offer an experimental demonstration of the algorithm on a superconducting quantum computing platform, and the results show a good agreement with theoretical expectations. The algorithm can be widely applied to various Hamiltonian spectrum determination problems on the fault-tolerant quantum computers.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2112.14193",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-24T15:36:46Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Arnold I. Boothroyd",
+            "Peter G. Martin",
+            "Michael R. Peterson"
+          ],
+          "title": "An accurate analytic He-H2 potential energy surface from a greatly expanded set of ab initio energies",
+          "venue": "arXiv",
+          "year": 2003
+        },
+        "primary_pointer": "astro-ph/0305386",
+        "summary": "The interaction potential energy surface (PES) of He-H2 is of great importance for quantum chemistry, as the simplest test case for interactions between a molecule and a closed-shell atom. It is also required for a detailed understanding of certain astrophysical processes, namely collisional excitation and dissociation of H2 in molecular clouds, at densities too low to be accessible experimentally. A new set of 23703 ab initio energies was computed, for He-H2 geometries where the interaction energy was expected to be non-negligible. These have an estimated rms \"random\" error of about 0.2 millihartree and a systematic error of about 0.6 millihartree (0.4 kcal/mol). A new analytic He-H2 PES, with 112 parameters, was fitted to 20203 of these new ab initio energies (and to an additional 4862 points generated at large separations). This yielded an improvement by better than an order of magnitude in the fit to the interaction region, relative to the best previous surfaces (which were accurate only for near-equilibrium H2 molecule sizes). This new PES has an rms error of 0.95 millihartree (0.60 kcal/mole) relative to the the 14585 ab initio energies that lie below twice the H2 dissociation energy, and 2.97 millihartree (1.87 kcal/mole) relative to the full set of 20203 ab initio energies (the fitting procedure used a reduced weight for high energies, yielding a weighted rms error of 1.42 millihartree, i.e., 0.89 kcal/mole). These rms errors are comparable to the estimated error in the ab initio energies themselves; the conical intersection between the ground state and the first excited state is the largest source of error in the PES.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/astro-ph/0305386",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-24T15:36:47Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "predicting molecular properties from quantum chemical calculations with limited computational resources chemistry",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

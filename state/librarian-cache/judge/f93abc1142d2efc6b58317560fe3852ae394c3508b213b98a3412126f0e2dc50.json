@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2205.14476",
+  "judged_at": "2026-06-24T15:36:50Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting molecular properties from quantum chemical calculations with limited computational resources chemistry",
+  "rationale": "The paper studies the same mechanism—quantum‑chemical calculations of molecular properties—while explicitly targeting limited computational (qubit) resources, providing benchmarked predictions of vibrational frequencies. This matches category (a) (same‑mechanism evidence) and (b) (measures a dependent variable, molecular properties, under resource‑constrained conditions).",
+  "relevant": true
+}

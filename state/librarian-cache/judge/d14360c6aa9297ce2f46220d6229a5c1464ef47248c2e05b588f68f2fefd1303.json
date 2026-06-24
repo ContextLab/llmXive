@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "astro-ph/0305386",
+  "judged_at": "2026-06-24T15:37:03Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting molecular properties from quantum chemical calculations with limited computational resources chemistry",
+  "rationale": "The paper presents an analytically fitted He‑H₂ potential energy surface derived from extensive ab initio calculations, directly measuring a molecular property (interaction energy) using quantum‑chemical methods. This provides same‑mechanism evidence (category a) relevant to predicting molecular properties from quantum calculations, even though it focuses on a specific system.",
+  "relevant": true
+}

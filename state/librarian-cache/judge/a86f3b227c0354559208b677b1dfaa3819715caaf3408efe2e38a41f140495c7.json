@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2401.16548",
+  "judged_at": "2026-06-24T15:38:09Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting molecular interactions in ionic liquids via machine learning chemistry",
+  "rationale": "The paper supplies extensive DFT‑computed polarizabilities and related properties for a large set of ionic‑liquid ions, which constitute key molecular descriptors (independent variables) in the domain of ionic liquids. This empirical baseline of relevant physicochemical quantities is valuable for any machine‑learning effort to predict molecular interactions in ionic liquids (acceptance criterion (b)).",
+  "relevant": true
+}

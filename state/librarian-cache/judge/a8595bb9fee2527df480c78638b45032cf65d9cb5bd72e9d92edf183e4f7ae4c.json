@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1905.11145",
+  "judged_at": "2026-06-24T15:37:58Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting molecular interactions in ionic liquids via machine learning chemistry",
+  "rationale": "The paper investigates molecular‑level structures and interactions in ionic liquids through multigranular computational modeling, thus providing data on the same dependent variable (molecular interactions) within the same domain (ionic liquids). This satisfies criterion (b): it measures a key variable of interest even though it does not employ machine‑learning methods.",
+  "relevant": true
+}
