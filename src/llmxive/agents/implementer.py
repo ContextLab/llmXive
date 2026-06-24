@@ -560,26 +560,82 @@ def _result_numbers(text: str) -> set[str]:
     return {m.group(0).replace(",", "") for m in _RESULT_NUM_RE.finditer(text or "")}
 
 
+#: Skip artifacts larger than this when building the compute-and-fill context.
+#: Raw data dumps (e.g. PROJ-552's 190 MB knot_atlas_raw.json) hold no
+#: report-ready values and would be ruinous to load/parse on every fill task.
+_COMPUTE_FILE_MAX_BYTES = 8_000_000
+#: A small CSV/JSON is a computed REPORT (vif_report.csv, *_report.json) whose
+#: cell/leaf VALUES are the point — surface them verbatim and whitelist them.
+_COMPUTE_SMALL_CSV_ROWS = 60
+#: Recurse leaf-value extraction this deep into small JSON reports.
+_COMPUTE_JSON_DEPTH = 3
+
+
+def _collect_json_numbers(obj: object, *, depth: int) -> list[tuple[str, object]]:
+    """Flatten ``(dotted-key, scalar)`` pairs from a small JSON report up to
+    ``depth`` levels — so nested computed scalars (e.g. ``{"vif": {"crossing":
+    1.07}}``) are surfaced + whitelisted, not just top-level keys."""
+    out: list[tuple[str, object]] = []
+
+    def walk(o: object, prefix: str, d: int) -> None:
+        if d < 0:
+            return
+        if isinstance(o, dict):
+            for k, v in list(o.items())[:40]:
+                walk(v, f"{prefix}.{k}" if prefix else str(k), d - 1)
+        elif isinstance(o, list):
+            for i, v in enumerate(o[:20]):
+                walk(v, f"{prefix}[{i}]", d - 1)
+        elif isinstance(o, bool):
+            return
+        elif isinstance(o, (int, float, str)):
+            out.append((prefix, o))
+
+    walk(obj, "", depth)
+    return out
+
+
 def _computation_context(
     project_dir: Path, *, project_id: str, repo: Path, max_chars: int = 6000,
 ) -> tuple[str, set[str]]:
-    """Summarize the project's REAL execution artifacts into a compact block of
-    computed values, plus the set of result-like numeric tokens that literally
-    appear in them (the traceability whitelist). Returns ``("", set())`` when no
-    artifacts are recorded (the implementer then can't fill computed values —
-    and the guard rejects any it tries to invent)."""
+    """Summarize the project's REAL computed artifacts into a compact block of
+    values, plus the set of result-like numeric tokens that literally appear in
+    them (the traceability whitelist). Returns ``("", set())`` when nothing is
+    available (the implementer then can't fill computed values — and the guard
+    rejects any it tries to invent).
+
+    Sources the EXECUTION-recorded primary artifacts AND a bounded scan of the
+    project's ``data/`` tree: the analysis writes many computed report files
+    (``vif_report.csv``, ``*_report.json``, coverage/count tables) that are not
+    in the primary-artifacts list yet hold the EXACT values reviewers ask to
+    fill — the PROJ-552 placeholder stall, where VIF/coverage/excluded-count
+    placeholders could never be filled because their source files were invisible
+    to compute-and-fill.
+    """
     from llmxive.state import execution_status
 
     rec = execution_status.load(project_id, repo_root=repo) or {}
-    artifacts = rec.get("artifacts") or []
+    recorded = [str(a) for a in (rec.get("artifacts") or [])]
+    scanned: list[str] = []
+    data_dir = project_dir / "data"
+    if data_dir.is_dir():
+        for p in sorted(data_dir.rglob("*")):
+            if p.is_file() and p.suffix.lower() in (".csv", ".json"):
+                scanned.append(str(p.relative_to(project_dir)))
+    rels = list(dict.fromkeys(recorded + scanned))  # dedup, recorded first
+
     blocks: list[str] = []
     traceable: set[str] = set()
-    for rel in artifacts:
+    for rel in rels:
         p = (project_dir / rel)
         if not p.is_file():
             continue
         suf = p.suffix.lower()
         try:
+            if suf in (".csv", ".json") and p.stat().st_size > _COMPUTE_FILE_MAX_BYTES:
+                # Raw dump (e.g. 190 MB knot_atlas_raw.json): note it, don't parse.
+                blocks.append(f"- `{rel}`: large data file ({p.stat().st_size} bytes; not parsed)")
+                continue
             if suf in (".png", ".jpg", ".jpeg", ".pdf", ".svg"):
                 blocks.append(f"- `{rel}`: figure artifact")
             elif suf == ".csv":
@@ -596,19 +652,29 @@ def _computation_context(
                     continue
                 header = rows[0]
                 ndata = max(0, len(rows) - 1)
-                blocks.append(
-                    f"- `{rel}`: {ndata} data rows; columns: "
-                    f"{', '.join(header[:24])}"
-                )
                 traceable.add(str(ndata))
-                # Per-column non-empty count (enables real coverage/null stats).
-                for ci, col in enumerate(header[:24]):
-                    nonempty = sum(
-                        1 for r in rows[1:] if ci < len(r) and r[ci].strip() not in ("", "nan", "NaN", "NA")
+                if ndata <= _COMPUTE_SMALL_CSV_ROWS:
+                    # Small computed REPORT — the cell values ARE the result
+                    # (e.g. vif_report.csv: variable,VIF / crossing_number,1.078).
+                    # Surface every cell and whitelist its result-like numbers.
+                    blocks.append(f"- `{rel}` ({ndata} data rows):")
+                    for r in rows:
+                        line = " | ".join(r)
+                        blocks.append(f"    {line}")
+                        traceable |= _result_numbers(line)
+                else:
+                    blocks.append(
+                        f"- `{rel}`: {ndata} data rows; columns: "
+                        f"{', '.join(header[:24])}"
                     )
-                    if nonempty != ndata:
-                        blocks.append(f"    - column `{col}`: {nonempty}/{ndata} non-empty")
-                    traceable.add(str(nonempty))
+                    # Per-column non-empty count (real coverage/null stats).
+                    for ci, col in enumerate(header[:24]):
+                        nonempty = sum(
+                            1 for r in rows[1:] if ci < len(r) and r[ci].strip() not in ("", "nan", "NaN", "NA")
+                        )
+                        if nonempty != ndata:
+                            blocks.append(f"    - column `{col}`: {nonempty}/{ndata} non-empty")
+                        traceable.add(str(nonempty))
             elif suf == ".json":
                 import json as _json
 
@@ -617,10 +683,8 @@ def _computation_context(
                     blocks.append(f"- `{rel}`: JSON array of {len(d)} items")
                     traceable.add(str(len(d)))
                 elif isinstance(d, dict):
-                    blocks.append(f"- `{rel}`: JSON object; keys: {', '.join(list(d)[:24])}")
-                    for k, v in list(d.items())[:40]:
-                        if isinstance(v, bool):
-                            continue
+                    blocks.append(f"- `{rel}`: JSON report; values:")
+                    for k, v in _collect_json_numbers(d, depth=_COMPUTE_JSON_DEPTH):
                         if isinstance(v, (int, float)):
                             blocks.append(f"    - {k} = {v}")
                             traceable.add(str(v))

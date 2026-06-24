@@ -504,22 +504,41 @@ def test_compute_and_fill_context_and_trace_guard(tmp_path: Path) -> None:
     proj = "PROJ-903-compute"
     pdir = tmp_path / "projects" / proj
     (pdir / "data" / "processed").mkdir(parents=True)
-    # a real CSV artifact: 3 data rows, a partially-populated column
-    (pdir / "data" / "processed" / "knots.csv").write_text(
-        "name,volume,braid_index\nk1,2.5,3\nk2,3.1,\nk3,4.0,5\n", encoding="utf-8"
+    # a small computed REPORT CSV: its CELL VALUES are the result the reviewer
+    # wants filled (e.g. VIF). Small reports surface their cells verbatim and
+    # whitelist the result-like numbers (the PROJ-552 fix — placeholders for
+    # vif_report.csv values could never be filled when only counts were shown).
+    (pdir / "data" / "processed" / "vif_report.csv").write_text(
+        "variable,VIF\ncrossing_number,1.078\nbraid_index,2.314\n", encoding="utf-8"
     )
+    # a LARGE CSV (>60 rows) still gets the per-column non-empty coverage stat.
+    big = "name,volume,braid_index\n" + "".join(
+        f"k{i},{i}.5,{'' if i % 2 else i}\n" for i in range(80)
+    )
+    (pdir / "data" / "processed" / "knots.csv").write_text(big, encoding="utf-8")
     (pdir / "data" / "outliers.json").write_text(json.dumps([1, 2, 3, 4, 5]), encoding="utf-8")
+    # a report file NOT in the recorded artifacts — must still be surfaced via
+    # the data/ scan (the core PROJ-552 gap).
+    (pdir / "data" / "processed" / "coverage_report.json").write_text(
+        json.dumps({"summary": {"missing_braid_index": 9988}}), encoding="utf-8"
+    )
     execution_status.record(
         proj, ok=True, reason="ok",
-        artifacts=["data/processed/knots.csv", "data/outliers.json"],
+        artifacts=["data/processed/knots.csv", "data/outliers.json"],  # NOT vif/coverage
         failures=[], repo_root=tmp_path,
     )
 
     ctx, traceable = _computation_context(pdir, project_id=proj, repo=tmp_path)
-    assert "3 data rows" in ctx                       # real row count
-    assert "2/3 non-empty" in ctx                     # braid_index real coverage
+    assert "80 data rows" in ctx                      # large CSV row count
+    assert "non-empty" in ctx                         # large CSV per-column coverage
     assert "JSON array of 5 items" in ctx             # real array length
-    assert "3" in traceable and "5" in traceable and "2" in traceable
+    # Small report CSV cells surfaced + whitelisted (the fill source):
+    assert "1.078" in ctx and "2.314" in ctx
+    assert "1.078" in traceable and "2.314" in traceable
+    # A computed report NOT in execution_status.artifacts is still surfaced via
+    # the data/ scan, and its nested value is whitelisted:
+    assert "9988" in traceable
+    assert "5" in traceable and "80" in traceable
 
     # guard: a real count passes; a fabricated statistic is flagged
     before = "Coverage is TBD; VIF is TBD."
