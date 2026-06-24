@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-09T11:24:06.428066Z'
-current_stage: validated
+current_stage: project_initialized
 failed_stage: null
 field: neuroscience
 human_escalation_reason: null
 id: PROJ-489-investigating-the-impact-of-network-cent
-last_run_id: bf3d18c2-ca58-4b3a-9717-caa1ce8600eb
+last_run_id: 6c339a15-b279-4bd7-952c-21174606f4bb
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: null
 title: Investigating the Impact of Network Centrality on Neural Synchrony During Sleep
   Stages
-updated_at: '2026-06-12T08:15:53.310456Z'
+updated_at: '2026-06-24T13:31:32.647325Z'

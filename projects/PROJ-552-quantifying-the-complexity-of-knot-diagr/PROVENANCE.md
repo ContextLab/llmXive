@@ -1,4 +1,7 @@
 # Provenance
+All code and data in this repository are provided under the MIT License (see LICENSE).
+Third‑party components are covered by the licenses listed in LICENSES.md.
+The provenance of each dataset is documented in `data/provenance.yaml`.
 
 This project tracks provenance of data, code, and analysis artifacts.
 
