@@ -1,4 +1,4 @@
-- artifact_hash: d0375cbe57954c46072ee29d9e49a62b3c6acc13889e6744d048475b618f1ea8
+- artifact_hash: c17ef2d3be2806c1503f8e16593adbf7c84b9f8679eb02c795d98e449c586861
   artifact_path: projects/PROJ-167-the-impact-of-self-compassion-on-resilie/specs/001-the-impact-of-self-compassion-on-resilie/spec.md
   cite_id: c-001
   cited_authors: []
@@ -8,4 +8,4 @@
   value: https://osf.io/xyz123/download`
   verification_status: verified
   verified_against_url: https://osf.io/xyz123/download%60
-  verified_at: '2026-06-24T04:29:09.881486Z'
+  verified_at: '2026-06-24T06:22:46.821621Z'

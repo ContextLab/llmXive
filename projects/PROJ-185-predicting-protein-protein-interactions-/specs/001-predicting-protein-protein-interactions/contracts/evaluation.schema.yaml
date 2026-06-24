@@ -1,0 +1,34 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: Evaluation Metrics Schema
+type: object
+required:
+  - species
+  - auroc
+  - auprc
+  - baseline_auroc
+  - baseline_auprc
+properties:
+  species:
+    type: string
+    description: "Species identifier matching the configuration (e.g., Arabidopsis_thaliana)."
+  auroc:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "Area Under the Receiver Operating Characteristic curve for co‑expression predictions."
+  auprc:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "Area Under the Precision‑Recall Curve for co‑expression predictions."
+  baseline_auroc:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "AUROC of the degree‑preserving random‑graph baseline."
+  baseline_auprc:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "AUPRC of the random‑graph baseline."
+additionalProperties: false

@@ -1,0 +1,286 @@
+resolved_at: '2026-06-24T06:10:40.129496+00:00'
+datasets:
+- intent: SC-001
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Gene_profiling_identifies_commonalities_in_neuronal_pathways_in_excitotoxicity_evidence_favouring_cell_cycle_re-activation_in_concert_with_oxidative_stress/20960515
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Devario_regina_genome/32778096
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_Compliance_with_early_postoperative_ambulation_and_Its_associated_barriers_in_hepatobiliary_surgery_patients_within_an_enhanced_recovery_after_surgery_framework_pdf/32778120
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Thermo-Kinetic_Framework_for_TGA_Curve_Modeling_and_Evaporation_Enthalpy_Determination_in_Composite_Materials_The_Case_of_Bone-Derived_Hydroxyapatite/32778122
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/conference_contribution/_b_Beyond_Defection_An_Exploration_into_the_Disassociation_Trajectories_of_Former_ISIS_Foreign_Fighters_through_Narrative_Analysis_b_/32750337
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19059431
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17936025
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10389753
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8104865
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6532734
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20635092
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.mpg4f4rgk
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20512108
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.5281/zenodo.20470525
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
+      port=443): Read timed out. (read timeout=20.0)'
+  - url: https://zenodo.org/records/20469943
+    source: datacite
+    status: wrong_format
+    reason: 'HTTPSConnectionPool(host=''zenodo.org'', port=443): Read timed out. (read
+      timeout=20)'
+- intent: AUROC
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://acs.figshare.com/articles/journal_contribution/An_Optonanobody_for_Reversible_Photoactivation_of_Recombinant_and_Native_7_Nicotinic_Receptors/32778131
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Solid-State_3D_Electrochemiluminescence_Platform_Depth-Tuned_Ru_Complexes_Positioning_for_Label-Free_High-Resolution_Imaging/32778128
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/media/Solid-State_3D_Electrochemiluminescence_Platform_Depth-Tuned_Ru_Complexes_Positioning_for_Label-Free_High-Resolution_Imaging/32778125
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/Metrologia_de_los_Tiempos_Biblicos_/32777031
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Gene_profiling_identifies_commonalities_in_neuronal_pathways_in_excitotoxicity_evidence_favouring_cell_cycle_re-activation_in_concert_with_oxidative_stress/20960515
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20406559
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20088378
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18322530
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://link.springer.com/article/10.1186/s12933-025-02636-5
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://alz-journals.onlinelibrary.wiley.com/doi/10.1016/j.jalz.2017.11.015
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://mcgill.scholaris.ca/handle/20.500.14905/141099
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.24281
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.24251
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.24168
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.24102
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: STRING
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/polinaeterna/test_string_to_dict/resolve/main/data/train-00000-of-00001-3e7bb60eb6e19f8c.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 1301
+      parsed: true
+  - url: https://huggingface.co/datasets/yuanchuan/annotated_reference_strings/resolve/main/en/crossref-part-00001.jsonl.gz
+    source: huggingface
+    format: gzip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/yuanchuan/annotated_reference_strings/resolve/main/en/crossref-part-00001.jsonl.gz
+    source: huggingface
+    status: verified
+    format: gzip
+  - url: https://huggingface.co/api/resolve-cache/datasets/fernanda-dionello/good-reads-string/bfc723a1831e441b95d5604a266ab939b48dd4f2/raw%2Fgoodreads_train_reduced_final_string.csv?%2Fdatasets%2Ffernanda-dionello%2Fgood-reads-string%2Fresolve%2Fmain%2Fraw%2Fgoodreads_train_reduced_final_string.csv=&etag=%22c73a849d6bee90ff7edc77892efdd820d5bc4131%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/polinaeterna/test_string_to_dict/resolve/main/data/train-00000-of-00001-3e7bb60eb6e19f8c.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://acs.figshare.com/articles/journal_contribution/Topological_Entanglement_in_Intrinsically_Disordered_Proteins_Sequence_Structural_and_Functional_Determinants/32778134
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/An_Optonanobody_for_Reversible_Photoactivation_of_Recombinant_and_Native_7_Nicotinic_Receptors/32778131
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Solid-State_3D_Electrochemiluminescence_Platform_Depth-Tuned_Ru_Complexes_Positioning_for_Label-Free_High-Resolution_Imaging/32778128
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/media/Solid-State_3D_Electrochemiluminescence_Platform_Depth-Tuned_Ru_Complexes_Positioning_for_Label-Free_High-Resolution_Imaging/32778125
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/Metrologia_de_los_Tiempos_Biblicos_/32777031
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20053474
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17214381
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7268770
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6362200
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8173237
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20823899
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20823899
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20823703
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20823703
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/Problems_with_the_Quantum_Theory_of_Gravity/32777232
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: AUPRC
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/dataset/_b_Chromosome_level_genome_assembly_and_gene_evolution_of_electric_eel_b_b_i_Electrophorus_varii_i_b_b_b_/32778093
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Topological_Entanglement_in_Intrinsically_Disordered_Proteins_Sequence_Structural_and_Functional_Determinants/32778134
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/An_Optonanobody_for_Reversible_Photoactivation_of_Recombinant_and_Native_7_Nicotinic_Receptors/32778131
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Solid-State_3D_Electrochemiluminescence_Platform_Depth-Tuned_Ru_Complexes_Positioning_for_Label-Free_High-Resolution_Imaging/32778128
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/media/Solid-State_3D_Electrochemiluminescence_Platform_Depth-Tuned_Ru_Complexes_Positioning_for_Label-Free_High-Resolution_Imaging/32778125
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/11079682
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17949815
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19651558
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14843628
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20416488
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://mcgill.scholaris.ca/handle/20.500.14905/141099
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.24105
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20371629
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20371629
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.23172
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
