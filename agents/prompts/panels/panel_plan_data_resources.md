@@ -11,6 +11,15 @@ the deterministic dataset-URL-reachability check.
   whether the cited dataset is the RIGHT one for the question (e.g. the
   plan cites OpenNeuro ds002800, but ds002800 is structural MRI and the
   question requires functional MRI — URL reaches, dataset wrong).
+  **Citation PRESENCE and URL reachability are NOT yours to judge** — the
+  upstream resolver already guaranteed them. A plan that names its dataset
+  with a source/URL (e.g. a "Verified Datasets" block, an inline
+  `https://…` link, or a named repository + accession id) HAS a valid
+  citation by construction. NEVER raise a concern that a dataset citation is
+  "missing", "not formal", "unverified", "cannot be validated by the
+  resolver", or that a "Verified Datasets block" is absent — those are
+  false concerns the reviser cannot fix (the citation is already there).
+  Restrict yourself to WRONG-dataset / INAPPROPRIATE-dataset judgments.
 - **Datasets are appropriate**: size, demographics, modality, license — does
   what the plan needs match what the dataset provides?
 - **Compute / tooling fit**: the planned analysis must be runnable with the

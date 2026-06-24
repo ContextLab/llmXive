@@ -20,6 +20,17 @@ You compare the user-story / goal list at the top of `spec.md` against the
 FR list (Functional Requirements section) and the SC list (Success
 Criteria / Acceptance section), and flag any mismatch.
 
+An FR/SC is ANCHORED — NOT an orphan — when it explicitly names a story it
+serves, in ANY form: an inline reference (`See US-5`, `(see US-5)`,
+`Anchored to User Story 4`, `Traceability: US-4`, `serves US-2`), or prose
+whose described scope plainly covers it. Read the WHOLE requirement, including
+the end of long FR paragraphs, before judging — the reference is often the last
+clause. Do NOT flag an FR/SC as orphaned when such a reference is present, and
+do NOT demand a particular citation FORMAT. An FR may legitimately anchor to a
+LOWER-PRIORITY or exploratory story (e.g. a P5 "extension" story) — that is
+still anchored, not orphaned. Flag an FR/SC as orphaned ONLY when it names NO
+story and no story's scope covers it.
+
 You do NOT judge whether requirements are testable (`testability` lens) or
 consistent (`internal_consistency` lens) or in-scope (`scope` lens) — only
 whether every story has FRs/SCs and every FR/SC traces back to a story.
