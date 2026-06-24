@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1705.04233",
+  "judged_at": "2026-06-24T13:10:22Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "testing cosmic ray arrival direction isotropy with public ultra‑high‑energy data physics",
+  "rationale": "The paper measures the arrival directions of high‑energy cosmic rays (a key dependent variable for isotropy studies) using LOFAR data, thus providing empirical data on the same observable in the relevant energy domain (criterion (b)). It does not test isotropy itself, but it is a canonical source of arrival‑direction measurements that would be cited in a review of isotropy analyses.",
+  "relevant": true
+}

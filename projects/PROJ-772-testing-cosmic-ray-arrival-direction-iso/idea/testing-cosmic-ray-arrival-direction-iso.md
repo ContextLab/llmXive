@@ -7,4 +7,63 @@ submitter: openai.gpt-oss-120b
 
 **Field**: physics
 
-The research question asks whether the sky distribution of ultra‑high‑energy cosmic rays (UHECRs) deviates from perfect isotropy at angular scales accessible to current ground‑based observatories. Detecting subtle anisotropies could reveal the locations of nearby astrophysical accelerators or constrain models of magnetic‑field deflection. The proposed approach downloads the publicly released UHECR event lists from the Pierre Auger Observatory and Telescope Array (both available via Zenodo/HEPData). After applying a simple energy cut (e.g., E > 50 EeV) to ensure uniform exposure, we map arrival directions onto the sphere and compute the angular power spectrum up to ℓ = 10 using HEALPix. A suite of 10 000 Monte‑Carlo isotropic mock catalogs, matched to the real exposure, provides the null distribution for each multipole. By comparing observed multipole amplitudes to this baseline we obtain p‑values and assess the statistical significance of any detected anisotropy. The entire pipeline—data download (~200 MB), preprocessing, spherical‑harmonic analysis, and Monte‑Carlo testing—fits comfortably within a ≤60‑minute runtime on a standard GitHub Actions runner.
+## Research question
+
+Do the arrival directions of ultra‑high‑energy cosmic rays (E > 50 EeV) exhibit statistically significant large‑scale anisotropies—detectable via the angular power spectrum up to ℓ = 10—relative to the expectation from an isotropic sky?
+
+## Motivation
+
+Identifying anisotropies in the highest‑energy cosmic rays would point toward nearby astrophysical accelerators and constrain models of magnetic‑field deflection. Existing public event catalogs (Pierre Auger, Telescope Array) now contain enough high‑energy events to probe subtle large‑scale patterns that were previously inaccessible.
+
+## Related work
+
+- [Propagation of Ultra‑high‑energy Cosmic Rays in Galactic Magnetic Field (2011)](https://arxiv.org/abs/1104.0278) — Discusses how Galactic magnetic fields reshape UHECR arrival directions, underscoring why observed anisotropies carry source‑information.  
+- [Review of the anisotropy working group at UHECR‑2012 (2013)](https://arxiv.org/abs/1306.4998) — Summarizes past anisotropy searches and highlights methodological advances, providing a benchmark for current analyses.  
+- [Coverage and large scale anisotropies estimation methods for the Pierre Auger Observatory (2005)](https://arxiv.org/abs/astro-ph/0507517) — Presents exposure‑corrected techniques for large‑scale anisotropy estimation, directly relevant to the power‑spectrum approach.  
+- [The supergalactic structure and the origin of the highest energy cosmic rays (1997)](https://arxiv.org/abs/astro-ph/9709250) — Explores correlations between UHECR arrival directions and nearby large‑scale structure, motivating a sky‑wide isotropy test.  
+- [Measurement of the properties of cosmic rays with the LOFAR radio telescope (2017)](https://arxiv.org/abs/1705.04233) — Demonstrates modern detection pipelines for air‑shower observables, confirming the reliability of publicly released event lists.
+
+## Expected results
+
+We expect to obtain multipole amplitudes for ℓ = 1–10 and corresponding p‑values against an isotropic null distribution. A statistically significant excess (p < 0.01) in any multipole would constitute evidence of large‑scale anisotropy; otherwise, we will place upper limits on anisotropy amplitudes at the percent level, constraining source‑distribution models.
+
+## Methodology sketch
+
+- **Data acquisition**: `wget` the public UHECR event tables from the Pierre Auger Observatory and Telescope Array Zenodo/HEPData repositories (≈200 MB total).  
+- **Event selection**: Apply an energy cut `E > 50 EeV` and retain arrival‑direction (RA, Dec) and exposure information.  
+- **Sky mapping**: Convert coordinates to HEALPix format (Nside = 64) using `healpy`.  
+- **Angular power spectrum**: Compute the spherical‑harmonic coefficients `a_{ℓm}` and derive the power `C_ℓ` for ℓ = 1–10.  
+- **Exposure correction**: Weight each event by the inverse of the combined Auger/TA relative exposure map (as described in the 2005 anisotropy methods paper).  
+- **Monte‑Carlo isotropic catalogs**: Generate 10 000 mock event sets matching the real exposure and event count; repeat the power‑spectrum calculation for each.  
+- **Statistical testing**: For each ℓ, compare the observed `C_ℓ` to the Monte‑Carlo distribution to obtain a two‑sided p‑value (empirical percentile).  
+- **Multiple‑testing correction**: Adjust p‑values across the 10 multipoles using the Benjamini–Hochberg procedure.  
+- **Result visualization**: Produce sky maps of the data, exposure, and a bar plot of `C_ℓ` with 95 % confidence intervals from the mocks.  
+- **Runtime budgeting**: All steps are scripted in Python; the full pipeline is expected to complete in ≤45 minutes on a GitHub Actions runner (2 CPU, 7 GB RAM).
+
+## Duplicate-check
+
+- Reviewed existing ideas: none.
+- Closest match: N/A (no similar fleshed‑out project detected).
+- Verdict: **NOT a duplicate**.
+
+
+## Search trail
+
+**Generated by**: librarian (prompt v1.6.0) on 2026-06-24T13:10:24Z
+**Outcome**: success
+**Original term**: Testing Cosmic Ray Arrival Direction Isotropy with Public Ultra‑High‑Energy Data physics
+**Verified citation count**: 5
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | Testing Cosmic Ray Arrival Direction Isotropy with Public Ultra‑High‑Energy Data physics | 5 |
+
+### Verified citations
+
+1. **Propagation of Ultra-high-energy Cosmic Rays in Galactic Magnetic Field** (2011). Hajime Takami. arXiv. [1104.0278](https://arxiv.org/abs/1104.0278). PDF-sampled: No.
+2. **Review of the anisotropy working group at UHECR-2012** (2013). O. Deligny, J. de Mello Neto, P. Sommers, H. Sagawa, P. Tinyakov, et al.. arXiv. [1306.4998](https://arxiv.org/abs/1306.4998). PDF-sampled: No.
+3. **Coverage and large scale anisotropies estimation methods for the Pierre Auger Observatory** (2005).  The Pierre Auger Collaboration. arXiv. [astro-ph/0507517](astro-ph/0507517). PDF-sampled: Inaccessible.
+4. **Measurement of the properites of cosmic rays with the LOFAR radio telescope** (2017). Jörg R. Hörandel, LOFAR key science project Cosmic Rays. arXiv. [1705.04233](https://arxiv.org/abs/1705.04233). PDF-sampled: No.
+5. **The supergalactic structure and the origin of the highest energy cosmic rays** (1997). Peter L. Biermann, Hyesung Kang, Dongsu Ryu. arXiv. [astro-ph/9709250](astro-ph/9709250). PDF-sampled: No.

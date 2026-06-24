@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2306.14753",
+  "judged_at": "2026-06-24T13:09:07Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "astrocyte-inspired meta-learning: glial modulation of neural networks neuroscience",
+  "rationale": "The paper focuses on applying polynomial chaos theory to deep artificial neural networks and does not address astrocyte‑inspired meta‑learning, glial modulation, or any neuroscience mechanisms, making it off‑domain for the user's question.",
+  "relevant": false
+}

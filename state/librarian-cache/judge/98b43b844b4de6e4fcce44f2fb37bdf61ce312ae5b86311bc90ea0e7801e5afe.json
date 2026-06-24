@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "astro-ph/9812055",
+  "judged_at": "2026-06-24T13:10:07Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "testing cosmic ray arrival direction isotropy with public ultra‑high‑energy data physics",
+  "rationale": "The paper is a review of UHECR acceleration and interaction mechanisms and does not study or provide data on the isotropy of cosmic‑ray arrival directions, nor does it discuss methods or baselines for testing isotropy with public ultra‑high‑energy datasets. Hence it does not meet any inclusion criteria.",
+  "relevant": false
+}

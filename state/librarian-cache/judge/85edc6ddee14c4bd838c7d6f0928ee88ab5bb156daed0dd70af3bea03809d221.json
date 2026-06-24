@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "astro-ph/0507517",
+  "judged_at": "2026-06-24T13:10:19Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "testing cosmic ray arrival direction isotropy with public ultra‑high‑energy data physics",
+  "rationale": "The paper develops and evaluates methods for estimating the isotropic expectation and detecting large‑scale anisotropies in ultra‑high‑energy cosmic‑ray arrival directions, directly addressing the same mechanism (isotropy testing) and variables (arrival direction distribution) as the user's question. This makes it a canonical methodological reference for such analyses.",
+  "relevant": true
+}

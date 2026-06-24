@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "astro-ph/9709250",
+  "judged_at": "2026-06-24T13:10:24Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "testing cosmic ray arrival direction isotropy with public ultra‑high‑energy data physics",
+  "rationale": "The paper investigates the directional distribution of ultra‑high‑energy cosmic rays, reporting correlations with the supergalactic plane—i.e., it directly studies anisotropy (or lack thereof) in arrival directions, which matches the same‑mechanism evidence (category a) relevant to testing isotropy with public UHECR data.",
+  "relevant": true
+}

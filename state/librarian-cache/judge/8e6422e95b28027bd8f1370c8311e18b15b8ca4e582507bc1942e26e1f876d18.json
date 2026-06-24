@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1306.4998",
+  "judged_at": "2026-06-24T13:10:13Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "testing cosmic ray arrival direction isotropy with public ultra‑high‑energy data physics",
+  "rationale": "The paper discusses anisotropy (i.e., isotropy testing) of ultra‑high‑energy cosmic‑ray arrival directions, directly addressing the same mechanism and variable of interest (arrival‑direction isotropy) in the relevant domain, making it a canonical reference for such studies.",
+  "relevant": true
+}

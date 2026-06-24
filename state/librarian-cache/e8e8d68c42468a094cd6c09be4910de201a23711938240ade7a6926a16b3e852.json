@@ -1,0 +1,267 @@
+{
+  "fetched_at": "2026-06-24T13:09:19Z",
+  "field": "neuroscience",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "neuroscience",
+      "idea_body_excerpt": "Astrocyte-Inspired Meta-Learning: Glial Modulation of Neural Networks",
+      "target_n": 5
+    },
+    "duration_seconds": 43.681,
+    "ended_at": "2026-06-24T13:09:19Z",
+    "expansion": null,
+    "extracted_queries": [
+      "gliotransmission meta-learning",
+      "mouse astrocyte calcium imaging",
+      "tripartite synapse meta-learning",
+      "sample efficiency meta-learning",
+      "astrocyte homeostatic plasticity"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "1807.02514"
+      ]
+    },
+    "per_query_hit_count": {
+      "Astrocyte-Inspired Meta-Learning: Glial Modulation of Neural Networks neuroscience": 3,
+      "astrocyte homeostatic plasticity": 3,
+      "gliotransmission meta-learning": 3,
+      "mouse astrocyte calcium imaging": 3,
+      "sample efficiency meta-learning": 1,
+      "tripartite synapse meta-learning": 0
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 4,
+      "rejections": [
+        {
+          "primary_pointer": "2306.14753",
+          "rationale": "The paper focuses on applying polynomial chaos theory to deep artificial neural networks and does not address astrocyte‑inspired meta‑learning, glial modulation, or any neuroscience mechanisms, making it off‑domain for the user's question.",
+          "title": "The Deep Arbitrary Polynomial Chaos Neural Network or how Deep Artificial Neural Networks could benefit from Data-Driven Homogeneous Chaos Theory"
+        },
+        {
+          "primary_pointer": "2001.10696",
+          "rationale": "The paper focuses on spiking neural network architecture and STDP-based unsupervised learning, without addressing astrocyte or glial modulation, nor meta‑learning mechanisms inspired by glia; it does not match any inclusion criteria (a‑f).",
+          "title": "Spiking Inception Module for Multi-layer Unsupervised Spiking Neural Networks"
+        },
+        {
+          "primary_pointer": "2307.05639",
+          "rationale": "The paper focuses on Gaussian radial basis function neural networks, active subspace learning, and feature importance for generic machine‑learning tasks, without addressing astrocyte‑inspired meta‑learning, glial modulation, or any neuroscience context, thus it is off‑domain for the user's question.",
+          "title": "Learning Active Subspaces and Discovering Important Features with Gaussian Radial Basis Functions Neural Networks"
+        },
+        {
+          "primary_pointer": "1901.09890",
+          "rationale": "The paper focuses on generic few‑shot meta‑metric learning algorithms and does not address astrocyte or glial modulation, nor any neuroscience‑inspired mechanism; it therefore lacks relevance to the astrocyte‑inspired meta‑learning question.",
+          "title": "Few-shot Learning with Meta Metric Learners"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-24T13:08:35Z",
+    "term_input": {
+      "normalized": "astrocyte-inspired meta-learning: glial modulation of neural networks neuroscience",
+      "raw": "Astrocyte-Inspired Meta-Learning: Glial Modulation of Neural Networks neuroscience"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "While deep reinforcement learning (RL) has fueled multiple high-profile successes in machine learning, it is held back from more widespread adoption by its often poor data efficiency and the limited generality of the policies it produces. A promising approach for alleviating these limitations is to cast the development of better RL algorithms as a machine learning problem itself in a process called meta-RL. Meta-RL is most commonly studied in a problem setting where, given a distribution of tasks, the goal is to learn a policy that is capable of adapting to any new task from the task distribution with as little data as possible. In this survey, we describe the meta-RL problem setting in detail as well as its major variations. We discuss how, at a high level, meta-RL research can be clustered based on the presence of a task distribution and the learning budget available for each individual task. Using these clusters, we then survey meta-RL algorithms and applications. We conclude by presenting the open problems on the path to making meta-RL part of the standard toolbox for a deep RL practitioner.",
+          "claimed_authors": [
+            "Jacob Beck",
+            "Risto Vuorio",
+            "Evan Zheran Liu",
+            "Zheng Xiong",
+            "Luisa Zintgraf",
+            "Chelsea Finn",
+            "Shimon Whiteson"
+          ],
+          "claimed_title": "A Tutorial on Meta-Reinforcement Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2301.08028"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Astrocyte-Inspired Meta-Learning: Glial Modulation of Neural Networks neuroscien', candidate_title='A Tutorial on Meta-Reinforcement Learning')",
+        "failed_at": "2026-06-24T13:09:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent years have witnessed an abundance of new publications and approaches on meta-learning. This community-wide enthusiasm has sparked great insights but has also created a plethora of seemingly different frameworks, which can be hard to compare and evaluate. In this paper, we aim to provide a principled, unifying framework by revisiting and strengthening the connection between meta-learning and traditional supervised learning. By treating pairs of task-specific data sets and target models as (feature, label) samples, we can reduce many meta-learning algorithms to instances of supervised learning. This view not only unifies meta-learning into an intuitive and practical framework but also allows us to transfer insights from supervised learning directly to improve meta-learning. For example, we obtain a better understanding of generalization properties, and we can readily transfer well-understood techniques, such as model ensemble, pre-training, joint training, data augmentation, and even nearest neighbor based methods. We provide an intuitive analogy of these methods in the context of meta-learning and show that they give rise to significant improvements in model performance on few-shot learning.",
+          "claimed_authors": [
+            "Wei-Lun Chao",
+            "Han-Jia Ye",
+            "De-Chuan Zhan",
+            "Mark Campbell",
+            "Kilian Q. Weinberger"
+          ],
+          "claimed_title": "Revisiting Meta-Learning as Supervised Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2002.00573"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Astrocyte-Inspired Meta-Learning: Glial Modulation of Neural Networks neuroscien', candidate_title='Revisiting Meta-Learning as Supervised Learning')",
+        "failed_at": "2026-06-24T13:09:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Most of the functions performed by astrocytes in brain information processing are related to calcium waves. Experimental studies involving calcium waves present discrepant results, leading to gaps in the full understanding of the functions of these cells. The use of mathematical models help to understand the experimental results, identifying chemical mechanisms involved in calcium waves and the limits of experimental methods. The model is diffusion-based and uses receptors and channels as boundary conditions. The computer program developed was prepared to allow the study of complex geometries, with several astrocytes, each of them with several branches. The code structure allows easy adaptation to various experimental situations in which the model can be compared. The code was deposited in the ModelDB repository, and will be under number 266795 after publication. A sensitivity analysis showed the relative significance of the parameters and identifies the ideal range of values for each one. We showed that several sets of values can lead to the same calcium signaling dynamics. This encourages the questioning of parameters to model calcium signaling in astrocytes that are commonly used in the literature, and it suggests better experimental planning. In the final part of the work, the effects produced by the endoplasmic reticulum when located close to the extremities of the branches were evaluated. We conclude that when they are located close to the region of the glutamatergic stimulus, they favor local calcium dynamics. By contrast, when they are located at points away from the stimulated region, they accelerate the global spread of signaling.",
+          "claimed_authors": [
+            "Thais Appelt Peres Bartiê",
+            "Leonel Teixeira Pinto"
+          ],
+          "claimed_title": "Characterization of biophysical determinants of spatio-temporal calcium dynamics in astrocytes",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2107.03856"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Astrocyte-Inspired Meta-Learning: Glial Modulation of Neural Networks neuroscien', candidate_title='Characterization of biophysical determinants of spatio-temporal calcium dynamics in astrocytes')",
+        "failed_at": "2026-06-24T13:09:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Astrocytes express a large variety of G~protein-coupled receptors (GPCRs) which mediate the transduction of extracellular signals into intracellular calcium responses. This transduction is provided by a complex network of biochemical reactions which mobilizes a wealth of possible calcium-mobilizing second messenger molecules. Inositol 1,4,5-trisphosphate is probably the best known of these molecules whose enzymes for its production and degradation are nonetheless calcium-dependent. We present a biophysical modeling approach based on the assumption of Michaelis-Menten enzyme kinetics, to effectively describe GPCR-mediated astrocytic calcium signals. Our model is then used to study different mechanisms at play in stimulus encoding by shape and frequency of calcium oscillations in astrocytes.",
+          "claimed_authors": [
+            "Maurizio De Pittà",
+            "Eshel Ben-Jacob",
+            "Hugues Berry"
+          ],
+          "claimed_title": "G protein-coupled receptor-mediated calcium signaling in astrocytes",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1801.06606"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Astrocyte-Inspired Meta-Learning: Glial Modulation of Neural Networks neuroscien', candidate_title='G protein-coupled receptor-mediated calcium signaling in astrocytes')",
+        "failed_at": "2026-06-24T13:09:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Meta learning algorithms have been widely applied in many tasks for efficient learning, such as few-shot image classification and fast reinforcement learning. During meta training, the meta learner develops a common learning strategy, or experience, from a variety of learning tasks. Therefore, during meta test, the meta learner can use the learned strategy to quickly adapt to new tasks even with a few training samples. However, there is still a dark side about meta learning in terms of reliability and robustness. In particular, is meta learning vulnerable to adversarial attacks? In other words, would a well-trained meta learner utilize its learned experience to build wrong or likely useless knowledge, if an adversary unnoticeably manipulates the given training set? Without the understanding of this problem, it is extremely risky to apply meta learning in safety-critical applications. Thus, in this paper, we perform the initial study about adversarial attacks on meta learning under the few-shot classification problem. In particular, we formally define key elements of adversarial attacks unique to meta learning and propose the first attacking algorithm against meta learning under various settings. We evaluate the effectiveness of the proposed attacking strategy as well as the robustness of several representative meta learning algorithms. Experimental results demonstrate that the proposed attacking strategy can easily break the meta learner and meta learning is vulnerable to adversarial attacks. The implementation of the proposed framework will be released upon the acceptance of this paper.",
+          "claimed_authors": [
+            "Han Xu",
+            "Yaxin Li",
+            "Xiaorui Liu",
+            "Hui Liu",
+            "Jiliang Tang"
+          ],
+          "claimed_title": "Yet Meta Learning Can Adapt Fast, It Can Also Break Easily",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2009.01672"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Astrocyte-Inspired Meta-Learning: Glial Modulation of Neural Networks neuroscien', candidate_title='Yet Meta Learning Can Adapt Fast, It Can Also Break Easily')",
+        "failed_at": "2026-06-24T13:09:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Irreversible plastic forming of B19$^\\prime$ martensite of the NiTi shape memory alloy is discussed within the framework of continuum mechanics. It is suggested that the main mechanism arises from coupling between martensite reorientation and coordinated $[100](001)_{\\rm M}$ dislocation slip. A heuristic model is proposed, showing that the ${(20\\bar{1})_{\\rm M}}$ deformation-twin bands, commonly observed in experiments, can be interpreted as a combination of dislocation-mediated kink bands, appearing due to strong plastic anisotropy, and reversible twinning of martensite. We introduce a term 'kwinking' for this combination of reversible twinning and irreversible plastic kinking. The model is subsequently formulated using the tools of nonlinear elasticity theory of martensite and crystal plasticity, introducing 'kwink interfaces' as planar, kinematically compatible interfaces between two differently plastically slipped variants of martensite. It is shown that the ${(20\\bar{1})_{\\rm M}}$ kwink bands may be understood as resultsing from energy minimization, and that their nucleation and growth and their pairing with $(100)_{\\rm M}$ twins into specific patterns enables low-energy plastic forming of NiTi martensite. We conclude that kwinking makes plastic deformation of B19$^\\prime$ martensite in polycrystalline NiTi possible despite only one slip system being available.",
+          "claimed_authors": [
+            "Hanuš Seiner",
+            "Petr Sedlák",
+            "Miroslav Frost",
+            "Petr Šittner"
+          ],
+          "claimed_title": "Kwinking as the plastic forming mechanism of B19' NiTi martensite",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2305.07125"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Astrocyte-Inspired Meta-Learning: Glial Modulation of Neural Networks neuroscien', candidate_title=\"Kwinking as the plastic forming mechanism of B19' NiTi martensite\")",
+        "failed_at": "2026-06-24T13:09:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Thermal cycle environments involving repeated temperature changes are common conditions observed in modern engineering processes. Under such conditions, materials undergo repeated thermal expansion and contraction, forming complex thermal stress fields. Thermal-crystal plasticity simulations that account for stress fields and thermal conduction at the polycrystalline microstructure scale are an effective method for numerically reproducing thermal cycle environments. However, the influence of thermal cycle frequency on the temporal behavior of the stress field and plastic response has not yet been fully understood, partly because a systematic analysis method capable of simultaneously capturing spatial heterogeneity and temporal evolution remains limited. In this study, we predicted the thermal stress field generated under different thermal cycle frequencies using thermal-crystal plasticity simulations and investigated the effect of frequency on the spatiotemporal structure of the stress response. The present framework illustrates that the resulting thermal-mechanical response can be represented as a superposition of multiple effective temporal components, reflecting the increased complexity of the system behavior. By employing dynamic mode decomposition (DMD) as a diagnostic and post-processing technique, we demonstrate that the spatiotemporal structure of the stress field under thermal cycle conditions can be systematically extracted and compactly represented. This approach enables a quantitative characterization of frequency-dependent changes in the thermal stress response beyond conventional averaging or snapshot-based analyses. The results highlight the utility of DMD as a framework for organizing complex simulation data and for interpreting the temporal structure of plastic response under cyclic thermal loading.",
+          "claimed_authors": [
+            "Haruki Ohashi",
+            "Yoshiteru Aoyagi"
+          ],
+          "claimed_title": "Frequency-dependent stress response under thermal cycle: A thermal-crystal plasticity and dynamic mode decomposition study",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2605.19280"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Astrocyte-Inspired Meta-Learning: Glial Modulation of Neural Networks neuroscien', candidate_title='Frequency-dependent stress response under thermal cycle: A thermal-crystal plasticity and dynamic mode decomposition study')",
+        "failed_at": "2026-06-24T13:09:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper we present a biologically detailed mathematical model of tripartite synapses, where astrocytes modulate short-term synaptic plasticity. The model consists of a pre-synaptic bouton, a post-synaptic dendritic spine-head, a synaptic cleft and a peri-synaptic astrocyte controlling Ca2+ dynamics inside the synaptic bouton. This in turn controls glutamate release dynamics in the cleft. As a consequence of this, glutamate concentration in the cleft has been modeled, in which glutamate reuptake by astrocytes has also been incorporated. Finally, dendritic spine-head dynamics has been modeled. As an application, this model clearly shows synaptic potentiation in the hippocampal region, i.e., astrocyte Ca2+ mediates synaptic plasticity, which is in conformity with the majority of the recent findings (Perea & Araque, 2007; Henneberger et al., 2010; Navarrete et al., 2012).",
+          "claimed_authors": [
+            "Shivendra Tewari",
+            "Kaushik Majumdar"
+          ],
+          "claimed_title": "A Mathematical Model of Tripartite Synapse: Astrocyte Induced Synaptic Plasticity",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1105.0866"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Astrocyte-Inspired Meta-Learning: Glial Modulation of Neural Networks neuroscien', candidate_title='A Mathematical Model of Tripartite Synapse: Astrocyte Induced Synaptic Plasticity')",
+        "failed_at": "2026-06-24T13:09:05Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Ioannis Polykretis",
+            "Vladimir Ivanov",
+            "Konstantinos P. Michmizos"
+          ],
+          "title": "A Neural-Astrocytic Network Architecture: Astrocytic calcium waves modulate synchronous neuronal activity",
+          "venue": "arXiv",
+          "year": 2018
+        },
+        "primary_pointer": "1807.02514",
+        "summary": "Understanding the role of astrocytes in brain computation is a nascent challenge, promising immense rewards, in terms of new neurobiological knowledge that can be translated into artificial intelligence. In our ongoing effort to identify principles endow-ing the astrocyte with unique functions in brain computation, and translate them into neural-astrocytic networks (NANs), we propose a biophysically realistic model of an astrocyte that preserves the experimentally observed spatial allocation of its distinct subcellular compartments. We show how our model may encode, and modu-late, the extent of synchronous neural activity via calcium waves that propagate intracellularly across the astrocytic compartments. This relationship between neural activity and astrocytic calcium waves has long been speculated but it is still lacking a mechanistic explanation. Our model suggests an astrocytic \"calcium cascade\" mechanism for neuronal synchronization, which may empower NANs by imposing periodic neural modulation known to reduce coding errors. By expanding our notions of information processing in astrocytes, our work aims to solidify a computational role for non-neuronal cells and incorporate them into artificial networks.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1807.02514",
+          "http_status": 200,
+          "pdf_sample_score": 0.2073,
+          "query_relevance_score": 0.4444,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-24T13:09:05Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "astrocyte-inspired meta-learning: glial modulation of neural networks neuroscience",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

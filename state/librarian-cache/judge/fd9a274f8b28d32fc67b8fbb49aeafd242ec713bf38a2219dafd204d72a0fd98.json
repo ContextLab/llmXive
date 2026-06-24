@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2001.10696",
+  "judged_at": "2026-06-24T13:09:09Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "astrocyte-inspired meta-learning: glial modulation of neural networks neuroscience",
+  "rationale": "The paper focuses on spiking neural network architecture and STDP-based unsupervised learning, without addressing astrocyte or glial modulation, nor meta‑learning mechanisms inspired by glia; it does not match any inclusion criteria (a‑f).",
+  "relevant": false
+}

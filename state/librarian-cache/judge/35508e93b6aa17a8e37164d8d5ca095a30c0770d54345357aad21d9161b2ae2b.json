@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2502.08798",
+  "judged_at": "2026-06-24T13:10:17Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "testing cosmic ray arrival direction isotropy with public ultra‑high‑energy data physics",
+  "rationale": "The paper focuses on modifying hadronic interaction models and their impact on air‑shower observables (muon content, Xmax), without addressing the arrival‑direction distribution or isotropy tests of UHECR events, which is the core variable of the user's question. Hence it does not meet any inclusion criteria (a‑f).",
+  "relevant": false
+}

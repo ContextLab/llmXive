@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1104.0278",
+  "judged_at": "2026-06-24T13:10:09Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "testing cosmic ray arrival direction isotropy with public ultra‑high‑energy data physics",
+  "rationale": "The paper studies the arrival‑direction distribution of ultra‑high‑energy cosmic rays (a key dependent variable in isotropy tests) within the same domain (UHECR data) and discusses how Galactic magnetic fields affect those directions, providing relevant background for isotropy analyses (criterion b).",
+  "relevant": true
+}

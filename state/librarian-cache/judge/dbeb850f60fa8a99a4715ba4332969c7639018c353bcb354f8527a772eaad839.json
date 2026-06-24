@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1807.02514",
+  "judged_at": "2026-06-24T13:09:19Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "astrocyte-inspired meta-learning: glial modulation of neural networks neuroscience",
+  "rationale": "The paper studies the same mechanism of interest—astrocytic calcium waves modulating neuronal activity—and proposes a neural‑astrocytic network architecture, providing foundational evidence and methodology for glial‑inspired modulation of neural networks, which aligns with the user's astrocyte‑inspired meta‑learning focus.",
+  "relevant": true
+}

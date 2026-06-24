@@ -446,5 +446,9 @@
   "PROJ-770-resting-state-network-modularity-predict::1.6.0": {
     "classified_at": "2026-06-24T12:52:35Z",
     "verdict": false
+  },
+  "PROJ-772-testing-cosmic-ray-arrival-direction-iso::1.6.0": {
+    "classified_at": "2026-06-24T13:10:02Z",
+    "verdict": false
   }
 }

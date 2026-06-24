@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2307.05639",
+  "judged_at": "2026-06-24T13:09:12Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "astrocyte-inspired meta-learning: glial modulation of neural networks neuroscience",
+  "rationale": "The paper focuses on Gaussian radial basis function neural networks, active subspace learning, and feature importance for generic machine‑learning tasks, without addressing astrocyte‑inspired meta‑learning, glial modulation, or any neuroscience context, thus it is off‑domain for the user's question.",
+  "relevant": false
+}

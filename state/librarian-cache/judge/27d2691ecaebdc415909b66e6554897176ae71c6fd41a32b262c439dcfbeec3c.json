@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1104.0329",
+  "judged_at": "2026-06-24T13:10:11Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "testing cosmic ray arrival direction isotropy with public ultra‑high‑energy data physics",
+  "rationale": "The paper focuses on UHECR propagation, energy spectrum, and composition, without addressing arrival‑direction distributions or isotropy tests, so it does not provide evidence on the mechanism or variables central to the user's question.",
+  "relevant": false
+}

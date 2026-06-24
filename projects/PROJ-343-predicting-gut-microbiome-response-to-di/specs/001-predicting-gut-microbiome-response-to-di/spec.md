@@ -1,0 +1,97 @@
+# Feature Specification: Predicting Gut Microbiome Response to Dietary Interventions
+
+**Feature Branch**: `[###-feature-name]`  
+**Created**: 2026-06-24  
+**Status**: Draft  
+**Input**: User description: “Predict baseline gut microbial composition that determines the magnitude of taxonomic shift following a high‑fiber dietary intervention in healthy adults using publicly available 16S data.”
+
+## User Scenarios & Testing *(mandatory)*
+
+### User Story 1 – End‑to‑end Prediction Pipeline (Priority: P1)
+
+A researcher wants to run a reproducible, CPU‑only pipeline that downloads public 16S data, processes it, and outputs a trained model predicting the microbiome response to a fiber intervention.
+
+**Why this priority**: It delivers the core scientific value—producing the predictive map that addresses the research gap.
+
+**Independent Test**: Execute the pipeline on the American Gut dataset alone; verify that a model file and performance report are generated without manual intervention.
+
+**Acceptance Scenarios**:
+
+1. **Given** a list of study accession IDs, **when** the pipeline is invoked, **then** it downloads all raw FASTQ files and associated metadata to a designated workspace.  
+2. **Given** the downloaded data, **when** the pipeline finishes processing, **then** it outputs (a) a CSV of baseline diversity metrics, (b) a CSV of genus‑level abundances, (c) a trained Random Forest model file, and (d) a performance report containing cross‑validated R².
+
+---
+
+### User Story 2 – Model Evaluation Dashboard (Priority: P2)
+
+A researcher wants to quickly assess which baseline taxa drive the predicted response and how well the model performs.
+
+**Why this priority**: Enables interpretation of results and informs downstream experimental design.
+
+**Independent Test**: Run the pipeline, then launch the dashboard; verify that feature‑importance bar plots and a predicted‑vs‑observed scatter plot appear.
+
+**Acceptance Scenarios**:
+
+1. **Given** a completed pipeline run, **when** the researcher opens the HTML dashboard, **then** the dashboard displays (a) the most important taxa ranked by importance, (b) the cross‑validated R² value, and (c) a scatter plot with a regression line and [deferred] confidence interval.
+
+---
+
+### User Story 3 – Export & Reproducibility Package (Priority: P3)
+
+A researcher wants to export all results, figures, and code to a public repository for peer review and reuse.
+
+**Why this priority**: Aligns with open‑science requirements and ensures reproducibility.
+
+**Independent Test**: After a successful run, invoke the export command; verify that a zip archive containing data, figures, the model, and a README is produced.
+
+**Acceptance Scenarios**:
+
+1. **Given** a completed analysis, **when** the researcher runs the export utility, **then** a `gut_microbiome_prediction_<date>.zip` file is created containing (i) processed data tables, (ii) PNG/SVG figures, (iii) the serialized model (`.pkl`), and (iv) a reproducibility README with environment specifications.
+
+---
+
+### Edge Cases
+
+- **Missing Metadata**: What happens when a sample lacks a recorded dietary intervention label?  
+- **Insufficient Reads**: How does the system handle a sample that cannot be subsampled to [deferred] reads because the raw count is lower?
+- **Zero Response**: How is a situation handled where pre‑ and post‑intervention compositions are identical (Euclidean distance = 0)?
+
+## Requirements *(mandatory)*
+
+### Functional Requirements
+
+- **FR-001**: System MUST download raw 16S rRNA FASTQ files and associated metadata from the American Gut Project and any additional public repositories given a list of accession identifiers.  
+- **FR-002**: System MUST filter samples to retain only participants with both pre‑intervention and post‑intervention records for a high‑fiber dietary change.  
+- **FR-003**: System MUST process sequences with QIIME2/DADA2, performing quality filtering, denoising, and subsampling to **[deferred] reads per sample**, while never exceeding **7 GB RAM** on a single CPU node.
+- **FR-004**: System MUST compute baseline diversity metrics (Shannon index, Faith’s Phylogenetic Diversity) and genus‑level relative abundances for each retained sample.  
+- **FR-005**: System MUST define the response variable as the **Euclidean distance** between pre‑ and post‑intervention genus‑level composition vectors and train a **Random Forest regressor** (scikit‑learn, CPU‑only) to predict this distance from baseline features, using **5‑fold cross‑validation**.  
+- **FR-006**: System MUST perform **1000‑iteration permutation testing** to generate a null distribution of R² values and report a permutation‑adjusted p‑value.  
+- **FR-007**: System MUST generate a concise HTML dashboard summarizing (a) model performance (cross‑validated R², permutation p‑value), (b) top 10 predictive taxa with importance scores, and (c) a predicted‑vs‑observed scatter plot.  
+- **FR-008**: System MUST bundle all processed data, figures, model artefacts, and a reproducibility README into a single exportable archive.
+
+### Key Entities *(include if feature involves data)*
+
+- **Sample**: Represents an individual gut microbiome sequencing run; key attributes – `sample_id`, `subject_id`, `timepoint` (pre/post), `dietary_intervention` (high‑fiber vs. control), `raw_reads_path`.  
+- **BaselineFeatureSet**: Aggregated baseline metrics for a subject; attributes – `shannon`, `faith_pd`, `genus_abundances` (dict of genus → relative abundance).  
+- **ResponseMetric**: Euclidean distance value quantifying compositional shift between paired timepoints.  
+- **ModelArtifact**: Serialized Random Forest model file (`.pkl`) together with hyper‑parameters and training metadata.
+
+## Success Criteria *(mandatory)*
+
+### Measurable Outcomes
+
+- **SC-001**: Cross‑validated **R² ≥ 0.10** on the primary American Gut cohort.  
+- **SC-002**: Permutation test yields a **p‑value < 0.05** when comparing the model’s R² to the null distribution, and the same significance is achieved on **at least two** independent public cohorts (e.g., additional American Gut subsets or other open‑access 16S studies).  
+- **SC-003**: End‑to‑end pipeline completes within **48 hours** on a single CPU node with ≤ 7 GB RAM for a dataset of ≤ 200 paired samples.  
+- **SC-004**: Generated HTML dashboard loads in ≤ 5 seconds on a standard modern web browser (Chrome/Firefox) for the default result set.  
+- **SC-005**: Exported reproducibility archive contains all required artefacts and passes a checksum‑based integrity test (MD5 match) on the receiving end.
+
+## Assumptions
+
+- Public datasets provide **accurate, machine‑readable metadata** indicating dietary intervention type and sampling timepoints.  
+- “High‑fiber dietary intervention” is consistently defined across studies as **≥ 25 g fiber/day** for at least **2 weeks**; if definitions vary, the pipeline will use the study‑reported label without transformation. **[NEEDS CLARIFICATION: exact fiber threshold and duration across cohorts]**  
+- The Euclidean distance on genus‑level relative abundances is an appropriate proxy for “magnitude of taxonomic shift.” **[NEEDS CLARIFICATION: alternative distance metrics considered?]**  
+- Sufficient computational resources (single CPU core, ≤ 7 GB RAM) are available on the execution environment.  
+- Researchers have basic familiarity with Python, Conda environments, and command‑line execution.  
+- No protected health information (PHI) is present in the public datasets; thus, GDPR/HIPAA compliance is not required for this pipeline.  
+- The Random Forest implementation from scikit‑learn (v 1.5 or later) is acceptable for baseline modeling; hyper‑parameter tuning beyond default settings is out of scope for the MVP. **[NEEDS CLARIFICATION: extent of hyper‑parameter optimization]**
