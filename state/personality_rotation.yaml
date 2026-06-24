@@ -1,14 +1,7 @@
-last_used: albert-einstein
-last_used_at: '2026-06-24T20:09:58.258809+00:00'
-last_outcome: librarian_held
+last_used: dan-rockmore
+last_used_at: '2026-06-24T21:04:58.415507+00:00'
+last_outcome: abstained
 history:
-- slug: linus-pauling
-  started_at: '2026-06-13T05:31:42.045254+00:00'
-  ended_at: '2026-06-13T06:55:38.680060+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-511-predicting-molecular-packing-efficiency-/reviews/research/linus-pauling-simulated__2026-06-13__research.md
 - slug: marie-curie
   started_at: '2026-06-13T06:55:38.680060+00:00'
   ended_at: '2026-06-13T08:09:29.022505+00:00'
@@ -1148,3 +1141,8 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/reviews/research/_held/dan-rockmore-simulated__2026-06-24__research.1.md
+- slug: dan-rockmore
+  started_at: '2026-06-24T20:09:58.258809+00:00'
+  ended_at: '2026-06-24T21:04:58.415507+00:00'
+  outcome: abstained
+  action: abstain
