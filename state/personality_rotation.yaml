@@ -1,12 +1,7 @@
-last_used: richard-feynman
-last_used_at: '2026-06-24T11:02:45.977198+00:00'
-last_outcome: abstained
+last_used: rosalind-franklin
+last_used_at: '2026-06-24T12:18:02.300913+00:00'
+last_outcome: committed
 history:
-- slug: albert-einstein
-  started_at: '2026-06-12T18:39:40.051040+00:00'
-  ended_at: '2026-06-12T19:42:26.952560+00:00'
-  outcome: triage_rejected_advanced_as_abstain
-  action: comment
 - slug: dan-rockmore
   started_at: '2026-06-12T19:42:26.952560+00:00'
   ended_at: '2026-06-12T20:47:06.092668+00:00'
@@ -1142,3 +1137,10 @@ history:
   ended_at: '2026-06-24T11:02:45.977198+00:00'
   outcome: abstained
   action: abstain
+- slug: rosalind-franklin
+  started_at: '2026-06-24T11:02:45.977198+00:00'
+  ended_at: '2026-06-24T12:18:02.300913+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-511-predicting-molecular-packing-efficiency-/reviews/research/rosalind-franklin-simulated__2026-06-24__research.md
