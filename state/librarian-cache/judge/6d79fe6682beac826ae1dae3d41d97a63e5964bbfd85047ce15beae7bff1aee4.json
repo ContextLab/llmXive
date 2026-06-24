@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2004.04617",
+  "judged_at": "2026-06-24T14:38:04Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "investigating the impact of network structure on neural avalanche dynamics neuroscience",
+  "rationale": "The paper focuses on unsupervised learning methods for cortical surface registration and does not address network topology, neural avalanche dynamics, or any related mechanisms, variables, or populations relevant to the user's question. It falls outside the domain of the research topic.",
+  "relevant": false
+}

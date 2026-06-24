@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2403.18337",
+  "judged_at": "2026-06-24T14:39:39Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "machine learning prediction of fracture toughness from microstructure images materials science",
+  "rationale": "The paper focuses on semi‑supervised segmentation of macroscopic fracture‑surface images and crack‑size measurement, not on predicting fracture toughness from microstructure images; it does not address the same mechanism, variables, or domain of interest for the user's question.",
+  "relevant": false
+}

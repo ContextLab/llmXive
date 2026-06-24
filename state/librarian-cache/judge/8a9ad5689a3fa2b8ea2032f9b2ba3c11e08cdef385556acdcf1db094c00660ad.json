@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2502.01654",
+  "judged_at": "2026-06-24T14:37:58Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "investigating the impact of network structure on neural avalanche dynamics neuroscience",
+  "rationale": "The paper studies air‑pollution forecasting with LSTM networks and transfer learning, which is unrelated to neural avalanche dynamics, network structure, or neuroscience; it falls under the off‑domain rejection criterion.",
+  "relevant": false
+}

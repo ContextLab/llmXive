@@ -1,0 +1,768 @@
+{
+  "fetched_at": "2026-06-24T14:39:54Z",
+  "field": "materials science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "materials science",
+      "idea_body_excerpt": "Machine Learning Prediction of Fracture Toughness from Microstructure Images",
+      "target_n": 5
+    },
+    "duration_seconds": 56.966,
+    "ended_at": "2026-06-24T14:39:54Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "deep convolutional neural networks for fracture toughness prediction from micrographs"
+        ],
+        [
+          2,
+          "image‑based machine learning estimation of K_IC using scanning electron microscopy (SEM) images"
+        ],
+        [
+          3,
+          "computer‑vision regression of fracture resistance from metallographic microstructure images"
+        ],
+        [
+          4,
+          "data‑driven modeling of fracture toughness with grain‑size and texture features extracted from microscopy"
+        ],
+        [
+          5,
+          "supervised learning of mechanical properties from electron backscatter diffraction (EBSD) maps"
+        ],
+        [
+          6,
+          "neural‑network prediction of crack‑initiation toughness using high‑resolution microstructure images"
+        ],
+        [
+          7,
+          "transfer learning for toughness prediction from optical micrographs of alloys"
+        ],
+        [
+          8,
+          "graph neural networks linking microstructural topology to fracture toughness values"
+        ],
+        [
+          9,
+          "statistical learning of fracture toughness from texture and phase‑distribution image descriptors"
+        ],
+        [
+          10,
+          "AI‑enhanced assessment of K_IC using image‑derived microstructural metrics"
+        ],
+        [
+          11,
+          "machine‑vision regression of fracture toughness from high‑throughput microscopy datasets"
+        ],
+        [
+          12,
+          "deep learning‑based estimation of fracture resistance from grain boundary network images"
+        ],
+        [
+          13,
+          "multiscale machine learning framework coupling microstructure images to toughness predictions"
+        ],
+        [
+          14,
+          "predictive analytics of mechanical performance using convolutional feature extraction from micrographs"
+        ],
+        [
+          15,
+          "image classification of high‑toughness microstructures for materials design"
+        ],
+        [
+          16,
+          "reinforcement learning for optimizing microstructure‑toughness relationships from imaging data"
+        ],
+        [
+          17,
+          "hybrid physics‑informed neural networks predicting fracture toughness from microstructural images"
+        ],
+        [
+          18,
+          "unsupervised feature learning of microstructure patterns correlated with fracture toughness"
+        ],
+        [
+          19,
+          "Bayesian machine learning models for uncertainty‑quantified toughness prediction from microscopy"
+        ],
+        [
+          20,
+          "high‑throughput image‑driven regression of fracture toughness across compositional libraries"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Machine Learning Prediction of Fracture Toughness from Microstructure Images materials science": 0,
+        "deep convolutional neural networks for fracture toughness prediction from micrographs": 5
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "K_IC estimation image",
+      "SEM micrograph dataset steel",
+      "microstructure representation learning",
+      "fracture toughness RMSE",
+      "grain boundary strengthening ML"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2403.18337"
+      ]
+    },
+    "per_query_hit_count": {
+      "K_IC estimation image": 3,
+      "Machine Learning Prediction of Fracture Toughness from Microstructure Images materials science": 3,
+      "SEM micrograph dataset steel": 3,
+      "fracture toughness RMSE": 2,
+      "grain boundary strengthening ML": 3,
+      "microstructure representation learning": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": true,
+      "rejected_count": 8,
+      "rejections": [
+        {
+          "primary_pointer": "2306.04338",
+          "rationale": "The paper discusses machine‑learning challenges related to changing data sources in official statistics and does not address fracture toughness, microstructure imaging, or materials‑science prediction tasks, so it is off‑domain and unrelated to the user's research question.",
+          "title": "Changing Data Sources in the Age of Machine Learning for Official Statistics"
+        },
+        {
+          "primary_pointer": "2403.18337",
+          "rationale": "The paper focuses on semi‑supervised segmentation of macroscopic fracture‑surface images and crack‑size measurement, not on predicting fracture toughness from microstructure images; it does not address the same mechanism, variables, or domain of interest for the user's question.",
+          "title": "Macroscale fracture surface segmentation via semi-supervised learning considering the structural similarity"
+        },
+        {
+          "primary_pointer": "2506.09162",
+          "rationale": "The paper concerns a medical imaging dataset of lumbar spine MRIs for diagnosing degenerative changes, which is unrelated to materials‑science microstructure imaging or the prediction of fracture toughness; it shares no relevant mechanism, variables, or domain with the user's question.",
+          "title": "The RSNA Lumbar Degenerative Imaging Spine Classification (LumbarDISC) Dataset"
+        },
+        {
+          "primary_pointer": "2306.14753",
+          "rationale": "The paper focuses on theoretical enhancements to deep neural networks using polynomial chaos theory and does not address fracture toughness, microstructure imaging, or materials‑science applications, thus it lacks any relevant variable, mechanism, or domain connection to the user's question.",
+          "title": "The Deep Arbitrary Polynomial Chaos Neural Network or how Deep Artificial Neural Networks could benefit from Data-Driven Homogeneous Chaos Theory"
+        },
+        {
+          "primary_pointer": "1512.00242",
+          "rationale": "The paper focuses on dropout techniques for CNNs evaluated on digit and natural image benchmarks (MNIST, CIFAR), without any connection to fracture toughness, microstructure imaging, or materials‑science applications, so it does not meet any inclusion criteria (a‑f).",
+          "title": "Towards Dropout Training for Convolutional Neural Networks"
+        },
+        {
+          "primary_pointer": "2211.08482",
+          "rationale": "The paper predicts dynamic fracture behavior (crack propagation, speed) from time‑evolving frames, not the static fracture toughness property from microstructure images; thus it does not measure the same mechanism or the required independent/dependent variables for the user's question.",
+          "title": "DyFraNet: Forecasting and Backcasting Dynamic Fracture Mechanics in Space and Time Using a 2D-to-3D Deep Neural Network"
+        },
+        {
+          "primary_pointer": "2212.06370",
+          "rationale": "The paper proposes a neural‑network method for generating prediction intervals in generic regression tasks and evaluates it on synthetic, benchmark, and crop‑yield data. It does not involve fracture toughness, microstructure images, or materials‑science datasets, nor does it study any of the specific variables of interest, so it does not meet any inclusion criteria (a‑f).",
+          "title": "Dual Accuracy-Quality-Driven Neural Network for Prediction Interval Generation"
+        },
+        {
+          "primary_pointer": "2205.13273",
+          "rationale": "The paper studies hypercomplex CNNs for classifying blood‑smear images to detect leukemia, which is unrelated to predicting fracture toughness from material microstructure images; it does not share the relevant domain, variables, or mechanism required for inclusion.",
+          "title": "Acute Lymphoblastic Leukemia Detection Using Hypercomplex-Valued Convolutional Neural Networks"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-24T14:38:57Z",
+    "term_input": {
+      "normalized": "machine learning prediction of fracture toughness from microstructure images materials science",
+      "raw": "Machine Learning Prediction of Fracture Toughness from Microstructure Images materials science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Modern biology frequently relies on machine learning to provide predictions and improve decision processes. There have been recent calls for more scrutiny on machine learning performance and possible limitations. Here we present a set of community-wide recommendations aiming to help establish standards of supervised machine learning validation in biology. Adopting a structured methods description for machine learning based on data, optimization, model, evaluation (DOME) will aim to help both reviewers and readers to better understand and assess the performance and limitations of a method or outcome. The recommendations are formulated as questions to anyone wishing to pursue implementation of a machine learning algorithm. Answers to these questions can be easily included in the supplementary material of published papers.",
+          "claimed_authors": [
+            "Ian Walsh",
+            "Dmytro Fishman",
+            "Dario Garcia-Gasulla",
+            "Tiina Titma",
+            "Gianluca Pollastri",
+            "The ELIXIR Machine Learning focus group",
+            "Jen Harrow",
+            "Fotis E. Psomopoulos",
+            "Silvio C. E. Tosatto"
+          ],
+          "claimed_title": "DOME: Recommendations for supervised machine learning validation in biology",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2006.16189"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Machine Learning Prediction of Fracture Toughness from Microstructure Images mat', candidate_title='DOME: Recommendations for supervised machine learning validation in biology')",
+        "failed_at": "2026-06-24T14:39:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent deep learning models outperform standard lossy image compression codecs. However, applying these models on a patch-by-patch basis requires that each image patch be encoded and decoded independently. The influence from adjacent patches is therefore lost, leading to block artefacts at low bitrates. We propose the Binary Inpainting Network (BINet), an autoencoder framework which incorporates binary inpainting to reinstate interdependencies between adjacent patches, for improved patch-based compression of still images. When decoding a patch, BINet additionally uses the binarised encodings from surrounding patches to guide its reconstruction. In contrast to sequential inpainting methods where patches are decoded based on previons reconstructions, BINet operates directly on the binary codes of surrounding patches without access to the original or reconstructed image data. Encoding and decoding can therefore be performed in parallel. We demonstrate that BINet improves the compression quality of a competitive deep image codec across a range of compression levels.",
+          "claimed_authors": [
+            "André Nortje",
+            "Willie Brink",
+            "Herman A. Engelbrecht",
+            "Herman Kamper"
+          ],
+          "claimed_title": "BINet: a binary inpainting network for deep patch-based image compression",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1912.05189"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Machine Learning Prediction of Fracture Toughness from Microstructure Images mat', candidate_title='BINet: a binary inpainting network for deep patch-based image compression')",
+        "failed_at": "2026-06-24T14:39:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Image registration is a key task in medical imaging applications, allowing to represent medical images in a common spatial reference frame. Current approaches to image registration are generally based on the assumption that the content of the images is usually accessible in clear form, from which the spatial transformation is subsequently estimated. This common assumption may not be met in practical applications, since the sensitive nature of medical images may ultimately require their analysis under privacy constraints, preventing to openly share the image content.In this work, we formulate the problem of image registration under a privacy preserving regime, where images are assumed to be confidential and cannot be disclosed in clear. We derive our privacy preserving image registration framework by extending classical registration paradigms to account for advanced cryptographic tools, such as secure multi-party computation and homomorphic encryption, that enable the execution of operations without leaking the underlying data. To overcome the problem of performance and scalability of cryptographic tools in high dimensions, we propose several techniques to optimize the image registration operations by using gradient approximations, and by revisiting the use of homomorphic encryption trough packing, to allow the efficient encryption and multiplication of large matrices. We demonstrate our privacy preserving framework in linear and non-linear registration problems, evaluating its accuracy and scalability with respect to standard, non-private counterparts. Our results show that privacy preserving image registration is feasible and can be adopted in sensitive medical imaging applications.",
+          "claimed_authors": [
+            "Riccardo Taiello",
+            "Melek Önen",
+            "Francesco Capano",
+            "Olivier Humbert",
+            "Marco Lorenzi"
+          ],
+          "claimed_title": "Privacy Preserving Image Registration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2205.10120"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Machine Learning Prediction of Fracture Toughness from Microstructure Images mat', candidate_title='Privacy Preserving Image Registration')",
+        "failed_at": "2026-06-24T14:39:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Magnetic Resonance Spectroscopic Imaging (MRSI) is a non-invasive imaging technique for studying metabolism and has become a crucial tool for understanding neurological diseases, cancers and diabetes. High spatial resolution MRSI is needed to characterize lesions, but in practice MRSI is acquired at low resolution due to time and sensitivity restrictions caused by the low metabolite concentrations. Therefore, there is an imperative need for a post-processing approach to generate high-resolution MRSI from low-resolution data that can be acquired fast and with high sensitivity. Deep learning-based super-resolution methods provided promising results for improving the spatial resolution of MRSI, but they still have limited capability to generate accurate and high-quality images. Recently, diffusion models have demonstrated superior learning capability than other generative models in various tasks, but sampling from diffusion models requires iterating through a large number of diffusion steps, which is time-consuming. This work introduces a Flow-based Truncated Denoising Diffusion Model (FTDDM) for super-resolution MRSI, which shortens the diffusion process by truncating the diffusion chain, and the truncated steps are estimated using a normalizing flow-based network. The network is conditioned on upscaling factors to enable multi-scale super-resolution. To train and evaluate the deep learning models, we developed a 1H-MRSI dataset acquired from 25 high-grade glioma patients. We demonstrate that FTDDM outperforms existing generative models while speeding up the sampling process by over 9-fold compared to the baseline diffusion model. Neuroradiologists' evaluations confirmed the clinical advantages of our method, which also supports uncertainty estimation and sharpness adjustment, extending its potential clinical applications.",
+          "claimed_authors": [
+            "Siyuan Dong",
+            "Zhuotong Cai",
+            "Gilbert Hangel",
+            "Wolfgang Bogner",
+            "Georg Widhalm",
+            "Yaqing Huang",
+            "Qinghao Liang",
+            "Chenyu You",
+            "Chathura Kumaragamage",
+            "Robert K. Fulbright",
+            "Amit Mahajan",
+            "Amin Karbasi",
+            "John A. Onofrey",
+            "Robin A. de Graaf",
+            "James S. Duncan"
+          ],
+          "claimed_title": "A Flow-based Truncated Denoising Diffusion Model for Super-resolution Magnetic Resonance Spectroscopic Imaging",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2410.19288"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Machine Learning Prediction of Fracture Toughness from Microstructure Images mat', candidate_title='A Flow-based Truncated Denoising Diffusion Model for Super-resolution Magnetic Resonance Spectroscopic Imaging')",
+        "failed_at": "2026-06-24T14:39:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The RSNA Abdominal Traumatic Injury CT (RATIC) dataset is the largest publicly available collection of adult abdominal CT studies annotated for traumatic injuries. This dataset includes 4,274 studies from 23 institutions across 14 countries. The dataset is freely available for non-commercial use via Kaggle at https://www.kaggle.com/competitions/rsna-2023-abdominal-trauma-detection. Created for the RSNA 2023 Abdominal Trauma Detection competition, the dataset encourages the development of advanced machine learning models for detecting abdominal injuries on CT scans. The dataset encompasses detection and classification of traumatic injuries across multiple organs, including the liver, spleen, kidneys, bowel, and mesentery. Annotations were created by expert radiologists from the American Society of Emergency Radiology (ASER) and Society of Abdominal Radiology (SAR). The dataset is annotated at multiple levels, including the presence of injuries in three solid organs with injury grading, image-level annotations for active extravasations and bowel injury, and voxelwise segmentations of each of the potentially injured organs. With the release of this dataset, we hope to facilitate research and development in machine learning and abdominal trauma that can lead to improved patient care and outcomes.",
+          "claimed_authors": [
+            "Jeffrey D. Rudie",
+            "Hui-Ming Lin",
+            "Robyn L. Ball",
+            "Sabeena Jalal",
+            "Luciano M. Prevedello",
+            "Savvas Nicolaou",
+            "Brett S. Marinelli",
+            "Adam E. Flanders",
+            "Kirti Magudia",
+            "George Shih",
+            "Melissa A. Davis",
+            "John Mongan",
+            "Peter D. Chang",
+            "Ferco H. Berger",
+            "Sebastiaan Hermans",
+            "Meng Law",
+            "Tyler Richards",
+            "Jan-Peter Grunz",
+            "Andreas Steven Kunz",
+            "Shobhit Mathur",
+            "Sandro Galea-Soler",
+            "Andrew D. Chung",
+            "Saif Afat",
+            "Chin-Chi Kuo",
+            "Layal Aweidah",
+            "Ana Villanueva Campos",
+            "Arjuna Somasundaram",
+            "Felipe Antonio Sanchez Tijmes",
+            "Attaporn Jantarangkoon",
+            "Leonardo Kayat Bittencourt",
+            "Michael Brassil",
+            "Ayoub El Hajjami",
+            "Hakan Dogan",
+            "Muris Becircic",
+            "Agrahara G. Bharatkumar",
+            "Eduardo Moreno Júdice de Mattos Farina",
+            "Dataset Curator Group",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Errol Colak"
+          ],
+          "claimed_title": "The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.19595"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Machine Learning Prediction of Fracture Toughness from Microstructure Images mat', candidate_title='The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset')",
+        "failed_at": "2026-06-24T14:39:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Traditional member-based two-step design approaches included in current structural codes for steel structures, as well as more recent system-based direct-design alternatives, require building rigorous structural reliability frameworks for the calibration of partial coefficients (resistance factors) to achieve specified target reliability requirements. Key design parameters affecting the strength of structures and their random variations are generally modelled by nominal or characteristic values in design standards, which are combined with partial coefficients that need to be calibrated from measurements on real samples. While the statistical characterization of material and geometric properties of structural steels has been consolidated over the last decades, information about the characterization of structural stainless steels is virtually non-existent due to the limited pool of available data. Thus, this paper presents the basic ingredient for developing reliability frameworks for stainless steel structures and components by statistically characterizing the main random parameters affecting their strength through a comprehensive database collected from the literature. Based on the collected data, appropriate probabilistic models are proposed for geometric properties, material properties, imperfections and residual stresses of different stainless steel alloys and cross-section or product types. The data is equally applicable to member-based reliability analyses as described in existing codes and system-based analyses targeted at the direct-design of stainless steel structures by advanced analysis.",
+          "claimed_authors": [
+            "Itsaso Arrayago",
+            "Kim J. R. Rasmussen",
+            "Esther Real"
+          ],
+          "claimed_title": "Statistical analysis of the material, geometrical and imperfection characteristics of structural stainless steels and members",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2010.14777"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Machine Learning Prediction of Fracture Toughness from Microstructure Images mat', candidate_title='Statistical analysis of the material, geometrical and imperfection characteristics of structural stainless steels and members')",
+        "failed_at": "2026-06-24T14:39:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A significant roadblock in multilingual neural language modeling is the lack of labeled non-English data. One potential method for overcoming this issue is learning cross-lingual text representations that can be used to transfer the performance from training on English tasks to non-English tasks, despite little to no task-specific non-English data. In this paper, we explore a natural setup for learning cross-lingual sentence representations: the dual-encoder. We provide a comprehensive evaluation of our cross-lingual representations on a number of monolingual, cross-lingual, and zero-shot/few-shot learning tasks, and also give an analysis of different learned cross-lingual embedding spaces.",
+          "claimed_authors": [
+            "Muthuraman Chidambaram",
+            "Yinfei Yang",
+            "Daniel Cer",
+            "Steve Yuan",
+            "Yun-Hsuan Sung",
+            "Brian Strope",
+            "Ray Kurzweil"
+          ],
+          "claimed_title": "Learning Cross-Lingual Sentence Representations via a Multi-task Dual-Encoder Model",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1810.12836"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Machine Learning Prediction of Fracture Toughness from Microstructure Images mat', candidate_title='Learning Cross-Lingual Sentence Representations via a Multi-task Dual-Encoder Model')",
+        "failed_at": "2026-06-24T14:39:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "With the rising interest in graph representation learning, a variety of approaches have been proposed to effectively capture a graph's properties. While these approaches have improved performance in graph machine learning tasks compared to traditional graph techniques, they are still perceived as techniques with limited insight into the information encoded in these representations. In this work, we explore methods to interpret node embeddings and propose the creation of a robust evaluation framework for comparing graph representation learning algorithms and hyperparameters. We test our methods on graphs with different properties and investigate the relationship between embedding training parameters and the ability of the produced embedding to recover the structure of the original graph in a downstream task.",
+          "claimed_authors": [
+            "Antonia Gogoglou",
+            "C. Bayan Bruss",
+            "Keegan E. Hines"
+          ],
+          "claimed_title": "On the Interpretability and Evaluation of Graph Representation Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1910.03081"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Machine Learning Prediction of Fracture Toughness from Microstructure Images mat', candidate_title='On the Interpretability and Evaluation of Graph Representation Learning')",
+        "failed_at": "2026-06-24T14:39:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A continual learning agent should be able to build on top of existing knowledge to learn on new data quickly while minimizing forgetting. Current intelligent systems based on neural network function approximators arguably do the opposite---they are highly prone to forgetting and rarely trained to facilitate future learning. One reason for this poor behavior is that they learn from a representation that is not explicitly trained for these two goals. In this paper, we propose OML, an objective that directly minimizes catastrophic interference by learning representations that accelerate future learning and are robust to forgetting under online updates in continual learning. We show that it is possible to learn naturally sparse representations that are more effective for online updating. Moreover, our algorithm is complementary to existing continual learning strategies, such as MER and GEM. Finally, we demonstrate that a basic online updating strategy on representations learned by OML is competitive with rehearsal based methods for continual learning. We release an implementation of our method at https://github.com/khurramjaved96/mrcl .",
+          "claimed_authors": [
+            "Khurram Javed",
+            "Martha White"
+          ],
+          "claimed_title": "Meta-Learning Representations for Continual Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1905.12588"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Machine Learning Prediction of Fracture Toughness from Microstructure Images mat', candidate_title='Meta-Learning Representations for Continual Learning')",
+        "failed_at": "2026-06-24T14:39:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Fracture toughness is the material property characterizing resistance to failure. Predicting its value from the solid structure at the atomistic scale remains elusive, even in the simplest situations of brittle fracture. We report here numerical simulations of crack propagation in two-dimensional fuse networks of different periodic geometries, which are electrical analogs of bidimensional brittle crystals under antiplanar loading. Fracture energy is determined from Griffith's analysis of energy balance during crack propagation, and fracture toughness is determined from fits of the displacement fields with Williams' asymptotic solutions. Significant size dependencies are evidenced in small lattices, with fracture energy and fracture toughness both converging algebraically with system size toward well-defined material-constant values in the limit of infinite system size. The convergence speed depends on the loading conditions and is faster when the symmetry of the considered lattice increases. The material constants at infinity obey Irwin's relation and properly define the material resistance to failure. Their values are approached up to $\\sim$ 15 % using the recent analytical method proposed in Nguyen and Bonamy (Phys Rev Lett 123:205503, 2019). Nevertheless, the deviation remains finite and does not vanish when the system size goes to infinity. We finally show that this deviation is a consequence of the lattice discreetness and decreases when the super-singular terms of Williams' solutions (absent in a continuum medium but present here due to lattice discreetness) are taken into account.",
+          "claimed_authors": [
+            "Thuy Nguyen",
+            "Daniel Bonamy"
+          ],
+          "claimed_title": "Size-dependency and lattice-discreetness effect on fracture toughness in 2D crystals under antiplanar loading",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2410.21839"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Machine Learning Prediction of Fracture Toughness from Microstructure Images mat', candidate_title='Size-dependency and lattice-discreetness effect on fracture toughness in 2D crystals under antiplanar loading')",
+        "failed_at": "2026-06-24T14:39:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Linear Elastic Fracture Mechanics (LEFM) provides a consistent framework to evaluate quantitatively the energy flux released to the tip of a growing crack. Still, the way in which the crack selects its velocity in response to this energy flux remains far from completely understood. To uncover the underlying mechanisms, we experimentally studied damage and dissipation processes that develop during the dynamic failure of polymethylmethacrylate (PMMA), classically considered as the archetype of brittle amorphous materials. We evidenced a well-defined critical velocity along which failure switches from nominally-brittle to quasi-brittle, where crack propagation goes hand in hand with the nucleation and growth of microcracks. Via post-mortem analysis of the fracture surfaces, we were able to reconstruct the complete spatiotemporal microcracking dynamics with micrometer/nanosecond resolution. We demonstrated that the true local propagation speed of individual crack fronts is limited to a fairly low value, which can be much smaller than the apparent speed measured at the continuum-level scale. By coalescing with the main front, microcracks boost the macroscale velocity through an acceleration factor of geometrical origin. We discuss the key role of damage-related internal variables in the selection of macroscale fracture dynamics.",
+          "claimed_authors": [
+            "Davy Dalmas",
+            "Claudia Guerra",
+            "Julien Scheibert",
+            "Daniel Bonamy"
+          ],
+          "claimed_title": "Damage mechanisms in the dynamic fracture of nominally brittle polymers",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1304.6283"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Machine Learning Prediction of Fracture Toughness from Microstructure Images mat', candidate_title='Damage mechanisms in the dynamic fracture of nominally brittle polymers')",
+        "failed_at": "2026-06-24T14:39:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper, we present a continuum model for the dynamics of low angle grain boundaries in two dimensions based on the motion of constituent dislocations of the grain boundaries. The continuum model consists of an equation for the motion of grain boundaries (i.e., motion of the constituent dislocations in the grain boundary normal direction) and equations for the dislocation structure evolution on the grain boundaries. This model is derived from the discrete dislocation dynamics model. The long-range elastic interaction between dislocations is included in the continuum model, which ensures that the dislocation structure on a grain boundary is consistent with the Frank's formula. These evolution of the grain boundary and its dislocation structure are able to describe both normal motion and tangential translation of the grain boundary and grain rotation due to both coupling and sliding. Since the continuum model is based upon dislocation structure, it naturally accounts for the grain boundary shape change during the motion and rotation of the grain boundary by motion and reaction of the constituent dislocations. Using the derived continuum grain boundary dynamics model, simulations are performed for the dynamics of circular and non-circular two dimensional grain boundaries, and the results are validated by discrete dislocation dynamics simulations.",
+          "claimed_authors": [
+            "Luchan Zhang",
+            "Yang Xiang"
+          ],
+          "claimed_title": "Motion of grain boundaries incorporating dislocation structure",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1710.01856"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Machine Learning Prediction of Fracture Toughness from Microstructure Images mat', candidate_title='Motion of grain boundaries incorporating dislocation structure')",
+        "failed_at": "2026-06-24T14:39:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper, we present a continuum model to compute the energy of low angle grain boundaries for any given degrees of freedom (arbitrary rotation axis, rotation angle and boundary plane orientation) based on a continuum dislocation structure. In our continuum model, we minimize the grain boundary energy associated with the dislocation structure subject to the constraint of Frank's formula for dislocations with all possible Burgers vectors. This constrained minimization problem is solved by the penalty method by which it is turned into an unconstrained minimization problem. The grain boundary dislocation structure is approximated by a network of straight dislocations that predicts the energy and dislocation densities of the grain boundaries. The grain boundary energy based on the calculated dislocation structure is able to incorporate its anisotropic nature. We use our continuum model to systematically study the energy of $<111>$ low angle grain boundaries in fcc Al with any boundary plane orientation and all six possible Burgers vectors. Comparisons with results of the atomistic simulations show that our continuum model is able to give excellent predictions of the energy and dislocation densities of low angle grain boundaries. We also study the energy of low angle grain boundaries in fcc Al with varying rotation axis while the rest degrees of freedom are fixed. With minor modifications, our model can also apply to dislocation structures and energy of heterogeneous interfaces.",
+          "claimed_authors": [
+            "Luchan Zhang",
+            "Yejun Gu",
+            "Yang Xiang"
+          ],
+          "claimed_title": "Energy of low angle grain boundaries based on continuum dislocation structure",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1610.04318"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Machine Learning Prediction of Fracture Toughness from Microstructure Images mat', candidate_title='Energy of low angle grain boundaries based on continuum dislocation structure')",
+        "failed_at": "2026-06-24T14:39:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study the Grain Boundary (GB) migration based on the underlying disconnection structure and mechanism. Disconnections are line defects that lie solely within a GB and are characterized by both a Burgers vector and a step height, as set by the GB bicrystallography. Multiple disconnection modes can nucleate, as determined by their formation energy barriers and temperature, and move along the GB under different kinds of competing driving forces including shear stress and chemical potential jumps across the GBs. We present a continuum model in two dimensions for GB migration where the GB migrates via the thermally-activated nucleation and kinetically-driven motion of disconnections. We perform continuum numerical simulations for investigating the GB migration behavior in single and multi-mode disconnection limits in both a bicrystal (under two types of boundary conditions) and for a finite-length GB with pinned ends. The results clearly demonstrate the significance of including the coupling and competing between different disconnection modes and driving forces for describing the complex and diverse phenomena of GB migration within polycyrstalline microstructures.",
+          "claimed_authors": [
+            "Chaozhen Wei",
+            "Spencer L. Thomas",
+            "Jian Han",
+            "David J. Srolovitz",
+            "Yang Xiang"
+          ],
+          "claimed_title": "A Continuum Multi-Disconnection-Mode Model for Grain Boundary Migration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1905.13509"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Machine Learning Prediction of Fracture Toughness from Microstructure Images mat', candidate_title='A Continuum Multi-Disconnection-Mode Model for Grain Boundary Migration')",
+        "failed_at": "2026-06-24T14:39:28Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Cedric De Boom",
+            "Michael Reusens"
+          ],
+          "title": "Changing Data Sources in the Age of Machine Learning for Official Statistics",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2306.04338",
+        "summary": "Data science has become increasingly essential for the production of official statistics, as it enables the automated collection, processing, and analysis of large amounts of data. With such data science practices in place, it enables more timely, more insightful and more flexible reporting. However, the quality and integrity of data-science-driven statistics rely on the accuracy and reliability of the data sources and the machine learning techniques that support them. In particular, changes in data sources are inevitable to occur and pose significant risks that are crucial to address in the context of machine learning for official statistics.\n  This paper gives an overview of the main risks, liabilities, and uncertainties associated with changing data sources in the context of machine learning for official statistics. We provide a checklist of the most prevalent origins and causes of changing data sources; not only on a technical level but also regarding ownership, ethics, regulation, and public perception. Next, we highlight the repercussions of changing data sources on statistical reporting. These include technical effects such as concept drift, bias, availability, validity, accuracy and completeness, but also the neutrality and potential discontinuation of the statistical offering. We offer a few important precautionary measures, such as enhancing robustness in both data sourcing and statistical techniques, and thorough monitoring. In doing so, machine learning-based official statistics can maintain integrity, reliability, consistency, and relevance in policy-making, decision-making, and public discourse.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2306.04338",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-24T14:39:27Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Johannes Rosenberger",
+            "Johannes Tlatlik",
+            "Sebastian Münstermann"
+          ],
+          "title": "Macroscale fracture surface segmentation via semi-supervised learning considering the structural similarity",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2403.18337",
+        "summary": "To this date the safety assessment of materials, used for example in the nuclear power sector, commonly relies on a fracture mechanical analysis utilizing macroscopic concepts, where a global load quantity K or J is compared to the materials fracture toughness curve. Part of the experimental effort involved in these concepts is dedicated to the quantitative analysis of fracture surfaces. Within the scope of this study a methodology for the semi-supervised training of deep learning models for fracture surface segmentation on a macroscopic level was established. Therefore, three distinct and unique datasets were created to analyze the influence of structural similarity on the segmentation capability. The structural similarity differs due to the assessed materials and specimen, as well as imaging-induced variance due to fluctuations in image acquisition in different laboratories. The datasets correspond to typical isolated laboratory conditions, complex real-world circumstances, and a curated subset of the two. We implemented a weak-to-strong consistency regularization for semi-supervised learning. On the heterogeneous dataset we were able to train robust and well-generalizing models that learned feature representations from images across different domains without observing a significant drop in prediction quality. Furthermore, our approach reduced the number of labeled images required for training by a factor of 6. To demonstrate the success of our method and the benefit of our approach for the fracture mechanics assessment, we utilized the models for initial crack size measurements with the area average method. For the laboratory setting, the deep learning assisted measurements proved to have the same quality as manual measurements. For models trained on the heterogeneous dataset, very good measurement accuracies with mean deviations smaller than 1 % could be achieved...",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2403.18337",
+          "http_status": 200,
+          "pdf_sample_score": 0.3565,
+          "query_relevance_score": 0.625,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-24T14:39:28Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Tyler J. Richards",
+            "Adam E. Flanders",
+            "Errol Colak",
+            "Luciano M. Prevedello",
+            "Robyn L. Ball",
+            "Felipe Kitamura",
+            "John Mongan",
+            "Maryam Vazirabad",
+            "Hui-Ming Lin",
+            "Anne Kendell",
+            "Thanat Kanthawang",
+            "Salita Angkurawaranon",
+            "Emre Altinmakas",
+            "Hakan Dogan",
+            "Paulo Eduardo de Aguiar Kuriki",
+            "Arjuna Somasundaram",
+            "Christopher Ruston",
+            "Deniz Bulja",
+            "Naida Spahovic",
+            "Jennifer Sommer",
+            "Sirui Jiang",
+            "Eduardo Moreno Judice de Mattos Farina",
+            "Eduardo Caminha Nunes",
+            "Michael Brassil",
+            "Megan McNamara",
+            "Johanna Ortiz",
+            "Jacob Peoples",
+            "Vinson L. Uytana",
+            "Anthony Kam",
+            "Venkata N. S. Dola",
+            "Daniel Murphy",
+            "David Vu",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Competition Data Notebook Group",
+            "Jason F. Talbott"
+          ],
+          "title": "The RSNA Lumbar Degenerative Imaging Spine Classification (LumbarDISC) Dataset",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2506.09162",
+        "summary": "The Radiological Society of North America (RSNA) Lumbar Degenerative Imaging Spine Classification (LumbarDISC) dataset is the largest publicly available dataset of adult MRI lumbar spine examinations annotated for degenerative changes. The dataset includes 2,697 patients with a total of 8,593 image series from 8 institutions across 6 countries and 5 continents. The dataset is available for free for non-commercial use via Kaggle and RSNA Medical Imaging Resource of AI (MIRA). The dataset was created for the RSNA 2024 Lumbar Spine Degenerative Classification competition where competitors developed deep learning models to grade degenerative changes in the lumbar spine. The degree of spinal canal, subarticular recess, and neural foraminal stenosis was graded at each intervertebral disc level in the lumbar spine. The images were annotated by expert volunteer neuroradiologists and musculoskeletal radiologists from the RSNA, American Society of Neuroradiology, and the American Society of Spine Radiology. This dataset aims to facilitate research and development in machine learning and lumbar spine imaging to lead to improved patient care and clinical efficiency.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2506.09162",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-24T14:39:28Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Sergey Oladyshkin",
+            "Timothy Praditia",
+            "Ilja Kröker",
+            "Farid Mohammadi",
+            "Wolfgang Nowak",
+            "Sebastian Otte"
+          ],
+          "title": "The Deep Arbitrary Polynomial Chaos Neural Network or how Deep Artificial Neural Networks could benefit from Data-Driven Homogeneous Chaos Theory",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2306.14753",
+        "summary": "Artificial Intelligence and Machine learning have been widely used in various fields of mathematical computing, physical modeling, computational science, communication science, and stochastic analysis. Approaches based on Deep Artificial Neural Networks (DANN) are very popular in our days. Depending on the learning task, the exact form of DANNs is determined via their multi-layer architecture, activation functions and the so-called loss function. However, for a majority of deep learning approaches based on DANNs, the kernel structure of neural signal processing remains the same, where the node response is encoded as a linear superposition of neural activity, while the non-linearity is triggered by the activation functions. In the current paper, we suggest to analyze the neural signal processing in DANNs from the point of view of homogeneous chaos theory as known from polynomial chaos expansion (PCE). From the PCE perspective, the (linear) response on each node of a DANN could be seen as a $1^{st}$ degree multi-variate polynomial of single neurons from the previous layer, i.e. linear weighted sum of monomials. From this point of view, the conventional DANN structure relies implicitly (but erroneously) on a Gaussian distribution of neural signals. Additionally, this view revels that by design DANNs do not necessarily fulfill any orthogonality or orthonormality condition for a majority of data-driven applications. Therefore, the prevailing handling of neural signals in DANNs could lead to redundant representation as any neural signal could contain some partial information from other neural signals. To tackle that challenge, we suggest to employ the data-driven generalization of PCE theory known as arbitrary polynomial chaos (aPC) to construct a corresponding multi-variate orthonormal representations on each node of a DANN to obtain Deep arbitrary polynomial chaos neural networks.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2306.14753",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4286,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-24T14:39:33Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Haibing Wu",
+            "Xiaodong Gu"
+          ],
+          "title": "Towards Dropout Training for Convolutional Neural Networks",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2015
+        },
+        "primary_pointer": "1512.00242",
+        "summary": "Recently, dropout has seen increasing use in deep learning. For deep convolutional neural networks, dropout is known to work well in fully-connected layers. However, its effect in convolutional and pooling layers is still not clear. This paper demonstrates that max-pooling dropout is equivalent to randomly picking activation based on a multinomial distribution at training time. In light of this insight, we advocate employing our proposed probabilistic weighted pooling, instead of commonly used max-pooling, to act as model averaging at test time. Empirical evidence validates the superiority of probabilistic weighted pooling. We also empirically show that the effect of convolutional dropout is not trivial, despite the dramatically reduced possibility of over-fitting due to the convolutional architecture. Elaborately designing dropout training simultaneously in max-pooling and fully-connected layers, we achieve state-of-the-art performance on MNIST, and very competitive results on CIFAR-10 and CIFAR-100, relative to other approaches without data augmentation. Finally, we compare max-pooling dropout and stochastic pooling, both of which introduce stochasticity based on multinomial distributions at pooling stage.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1512.00242",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5714,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-24T14:39:34Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yu-Chuan Hsu",
+            "Markus J. Buehler"
+          ],
+          "title": "DyFraNet: Forecasting and Backcasting Dynamic Fracture Mechanics in Space and Time Using a 2D-to-3D Deep Neural Network",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2022
+        },
+        "primary_pointer": "2211.08482",
+        "summary": "The dynamics of materials failure is one of the most critical phenomena in a range of scientific and engineering fields, from healthcare to structural materials to transportation. In this paper we propose a specially designed deep neural network, DyFraNet, which can predict dynamic fracture behaviors by identifying a complete history of fracture propagation - from cracking onset, as a crack grows through the material, modeled as a series of frames evolving over time and dependent on each other. Furthermore, this model can not only forecast future fracture processes but also backcast to elucidate the past fracture history. In this scenario, once provided with the outcome of a fracture event, the model will elucidate past events that led to this state and will predict the future evolution of the failure process. By comparing the predicted results with atomistic-level simulations and theory, we show that DyFraNet can capture dynamic fracture mechanics by accurately predicting how cracks develop over time, including measures such as the crack speed, as well as when cracks become unstable. We use GradCAM to interpret how DyFraNet perceives the relationship between geometric conditions and fracture dynamics and we find DyFraNet pays special attention to the areas around crack tips, which have a critical influence in the early stage of fracture propagation. In later stages, the model pays increased attention to the existing or newly formed damage distribution in the material. The proposed approach offers significant potential to accelerate the exploration of the dynamics in material design against fracture failures and can be beneficially adapted for all kinds of dynamical engineering problems.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2211.08482",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4286,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-24T14:39:34Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Giorgio Morales",
+            "John W. Sheppard"
+          ],
+          "title": "Dual Accuracy-Quality-Driven Neural Network for Prediction Interval Generation",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2022
+        },
+        "primary_pointer": "2212.06370",
+        "summary": "Accurate uncertainty quantification is necessary to enhance the reliability of deep learning models in real-world applications. In the case of regression tasks, prediction intervals (PIs) should be provided along with the deterministic predictions of deep learning models. Such PIs are useful or \"high-quality\" as long as they are sufficiently narrow and capture most of the probability density. In this paper, we present a method to learn prediction intervals for regression-based neural networks automatically in addition to the conventional target predictions. In particular, we train two companion neural networks: one that uses one output, the target estimate, and another that uses two outputs, the upper and lower bounds of the corresponding PI. Our main contribution is the design of a novel loss function for the PI-generation network that takes into account the output of the target-estimation network and has two optimization objectives: minimizing the mean prediction interval width and ensuring the PI integrity using constraints that maximize the prediction interval probability coverage implicitly. Furthermore, we introduce a self-adaptive coefficient that balances both objectives within the loss function, which alleviates the task of fine-tuning. Experiments using a synthetic dataset, eight benchmark datasets, and a real-world crop yield prediction dataset showed that our method was able to maintain a nominal probability coverage and produce significantly narrower PIs without detriment to its target estimation accuracy when compared to those PIs generated by three state-of-the-art neural-network-based methods. In other words, our method was shown to produce higher-quality PIs.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2212.06370",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4286,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-24T14:39:34Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Guilherme Vieira",
+            "Marcos Eduardo Valle"
+          ],
+          "title": "Acute Lymphoblastic Leukemia Detection Using Hypercomplex-Valued Convolutional Neural Networks",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2022
+        },
+        "primary_pointer": "2205.13273",
+        "summary": "This paper features convolutional neural networks defined on hypercomplex algebras applied to classify lymphocytes in blood smear digital microscopic images. Such classification is helpful for the diagnosis of acute lymphoblast leukemia (ALL), a type of blood cancer. We perform the classification task using eight hypercomplex-valued convolutional neural networks (HvCNNs) along with real-valued convolutional networks. Our results show that HvCNNs perform better than the real-valued model, showcasing higher accuracy with a much smaller number of parameters. Moreover, we found that HvCNNs based on Clifford algebras processing HSV-encoded images attained the highest observed accuracies. Precisely, our HvCNN yielded an average accuracy rate of 96.6% using the ALL-IDB2 dataset with a 50% train-test split, a value extremely close to the state-of-the-art models but using a much simpler architecture with significantly fewer parameters.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2205.13273",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4286,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-24T14:39:35Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "machine learning prediction of fracture toughness from microstructure images materials science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2212.06370",
+  "judged_at": "2026-06-24T14:39:52Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "machine learning prediction of fracture toughness from microstructure images materials science",
+  "rationale": "The paper proposes a neural‑network method for generating prediction intervals in generic regression tasks and evaluates it on synthetic, benchmark, and crop‑yield data. It does not involve fracture toughness, microstructure images, or materials‑science datasets, nor does it study any of the specific variables of interest, so it does not meet any inclusion criteria (a‑f).",
+  "relevant": false
+}

@@ -1,0 +1,364 @@
+{
+  "fetched_at": "2026-06-24T14:38:07Z",
+  "field": "neuroscience",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "neuroscience",
+      "idea_body_excerpt": "Investigating the Impact of Network Structure on Neural Avalanche Dynamics",
+      "target_n": 5
+    },
+    "duration_seconds": 42.794,
+    "ended_at": "2026-06-24T14:38:07Z",
+    "expansion": null,
+    "extracted_queries": [
+      "critical cascades spontaneous bursts",
+      "cortical slice multielectrode array",
+      "rich-club organization avalanche",
+      "power-law exponent avalanche",
+      "self-organized criticality branching process"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "1704.03526"
+      ]
+    },
+    "per_query_hit_count": {
+      "Investigating the Impact of Network Structure on Neural Avalanche Dynamics neuroscience": 3,
+      "cortical slice multielectrode array": 3,
+      "critical cascades spontaneous bursts": 3,
+      "power-law exponent avalanche": 3,
+      "rich-club organization avalanche": 3,
+      "self-organized criticality branching process": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 3,
+      "rejections": [
+        {
+          "primary_pointer": "1609.04846",
+          "rationale": "The paper is a tutorial on Random Neural Networks for supervised learning and does not study brain network structure, neural avalanche dynamics, or related neuroscience mechanisms, thus it is unrelated to the user's question.",
+          "title": "A Tutorial about Random Neural Networks in Supervised Learning"
+        },
+        {
+          "primary_pointer": "2502.01654",
+          "rationale": "The paper studies air‑pollution forecasting with LSTM networks and transfer learning, which is unrelated to neural avalanche dynamics, network structure, or neuroscience; it falls under the off‑domain rejection criterion.",
+          "title": "Predicting concentration levels of air pollutants by transfer learning and recurrent neural network"
+        },
+        {
+          "primary_pointer": "2004.04617",
+          "rationale": "The paper focuses on unsupervised learning methods for cortical surface registration and does not address network topology, neural avalanche dynamics, or any related mechanisms, variables, or populations relevant to the user's question. It falls outside the domain of the research topic.",
+          "title": "Cortical surface registration using unsupervised learning"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-24T14:37:24Z",
+    "term_input": {
+      "normalized": "investigating the impact of network structure on neural avalanche dynamics neuroscience",
+      "raw": "Investigating the Impact of Network Structure on Neural Avalanche Dynamics neuroscience"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The gravitational-wave detectors LIGO and Virgo together with their electromagnetic partner facilities have transformed the modus operandi in which we seek information about the Universe. The first ever-observed neutron-star merger---GW170817---confirmed the association of short gamma-ray bursts with neutron-star mergers and the production of heavy (r-process) elements. Based on recent theoretical and observational developments, I briefly present and discuss a conjecture, namely that compact accretion disks in both short and long gamma-ray bursts synthesize most of the heavy r-process elements in the Universe. The upcoming era of multi-messenger astronomy may allow us to verify or falsify this conjecture.",
+          "claimed_authors": [
+            "Daniel M. Siegel"
+          ],
+          "claimed_title": "Heavy elements form short and long gamma-ray bursts",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2008.06078"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Investigating the Impact of Network Structure on Neural Avalanche Dynamics neuro', candidate_title='Heavy elements form short and long gamma-ray bursts')",
+        "failed_at": "2026-06-24T14:37:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A preponderance of evidence links long-duration, soft-spectrum gamma-ray bursts (GRBs) with the death of massive stars. The observations of the GRB-supernova (SN) connection present the most direct evidence of this physical link. We summarize 30 GRB-SN associations and focus on five ironclad cases, highlighting the subsequent insight into the progenitors enabled by detailed observations. We also address the SN association (or lack thereof) with several sub-classes of GRBs, finding that the X-ray Flash (XRF) population is likely associated with massive stellar death whereas short-duration events likely arise from an older population not readily capable of producing a SN concurrent with a GRB. Interestingly, a minority population of seemingly long-duration, soft-spectrum GRBs show no evidence for SN-like activity; this may be a natural consequence of the range of Ni-56 production expected in stellar deaths.",
+          "claimed_authors": [
+            "Jens Hjorth",
+            "Joshua S. Bloom"
+          ],
+          "claimed_title": "The Gamma-Ray Burst - Supernova Connection",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1104.2274"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Investigating the Impact of Network Structure on Neural Avalanche Dynamics neuro', candidate_title='The Gamma-Ray Burst - Supernova Connection')",
+        "failed_at": "2026-06-24T14:37:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In social networks, information and influence diffuse among users as cascades. While the importance of studying cascades has been recognized in various applications, it is difficult to observe the complete structure of cascades in practice. Moreover, much less is known on how to infer cascades based on partial observations. In this paper we study the cascade inference problem following the independent cascade model, and provide a full treatment from complexity to algorithms: (a) We propose the idea of consistent trees as the inferred structures for cascades; these trees connect source nodes and observed nodes with paths satisfying the constraints from the observed temporal information. (b) We introduce metrics to measure the likelihood of consistent trees as inferred cascades, as well as several optimization problems for finding them. (c) We show that the decision problems for consistent trees are in general NP-complete, and that the optimization problems are hard to approximate. (d) We provide approximation algorithms with performance guarantees on the quality of the inferred cascades, as well as heuristics. We experimentally verify the efficiency and effectiveness of our inference algorithms, using real and synthetic data.",
+          "claimed_authors": [
+            "Bo Zong",
+            "Yinghui Wu",
+            "Ambuj K. Singh",
+            "Xifeng Yan"
+          ],
+          "claimed_title": "Inferring the Underlying Structure of Information Cascades",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1210.3587"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Investigating the Impact of Network Structure on Neural Avalanche Dynamics neuro', candidate_title='Inferring the Underlying Structure of Information Cascades')",
+        "failed_at": "2026-06-24T14:37:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Beamforming is central to the processing function of all phased arrays and becomes particularly challenging with a large number of antenna element (e.g. >100,000). The ability to beamform efficiently with reasonable power requirements is discussed in this paper. Whilst the most appropriate beamforming technology will change over time due to semiconductor and processing developments, we present a hierarchical structure which is technology agnostic and describe both Radio-Frequency (RF) and digital hierarchical beamforming approaches. We present implementations of both RF and digital beamforming systems on two antenna array demonstrators, namely the Electronic Multi Beam Radio Astronomy ConcEpt (EMBRACE) and the dualpolarisation all-digital array (2-PAD). This paper will compare and contrast both digital and analogue implementations without considering the deep system design of these arrays.",
+          "claimed_authors": [
+            "A J Faulkner",
+            "K Zarb Adami",
+            "J. G. Bij de Vaate",
+            "G. W. Kant",
+            "P. Pickard"
+          ],
+          "claimed_title": "Beamforming Techniques for Large-N Aperture Arrays",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1008.4047"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Investigating the Impact of Network Structure on Neural Avalanche Dynamics neuro', candidate_title='Beamforming Techniques for Large-N Aperture Arrays')",
+        "failed_at": "2026-06-24T14:37:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Telescope Array is the largest experiment studying ultra-high energy cosmic rays in the northern hemisphere. The detection area of the experiment consists of an array of 507 surface detectors, and a fluorescence detector divided into three sites at the periphery. The viewing directions of the 38 fluorescence telescopes point over the air space above the surface array. In this paper, we describe a technique that we have developed for simulating the response of the array of surface detectors of the Telescope Array experiment. The two primary components of this method are (a) the generation of a detailed CORSIKA Monte Carlo simulation with all known characteristics of the data, and (b) the validation of the simulation by a direct comparison with the Telescope Array surface detector data. This technique allows us to make a very accurate calculation of the acceptance of the array. We also describe a study of systematic uncertainties in this acceptance calculation.",
+          "claimed_authors": [
+            " Telescope Array Collaboration"
+          ],
+          "claimed_title": "CORSIKA Simulation of the Telescope Array Surface Detector",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1403.0644"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Investigating the Impact of Network Structure on Neural Avalanche Dynamics neuro', candidate_title='CORSIKA Simulation of the Telescope Array Surface Detector')",
+        "failed_at": "2026-06-24T14:37:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Rich-club and page-club coefficients and their null models are introduced for directed graphs. Null models allow for a quantitative discussion of the rich-club and page-club phenomena. These coefficients are computed for four directed real-world networks: Arxiv High Energy Physics paper citation network, Web network (released from Google), Citation network among US Patents, and Email network from a EU research institution. The results show a high correlation between rich-club and page-club ordering. For journal paper citation network, we identify both rich-club and page-club ordering, showing that {}\"elite\" papers are cited by other {}\"elite\" papers. Google web network shows partial rich-club and page-club ordering up to some point and then a narrow declining of the corresponding normalized coefficients, indicating the lack of rich-club ordering and the lack of page-club ordering, i.e. high in-degree (PageRank) pages purposely avoid sharing links with other high in-degree (PageRank) pages. For UC patents citation network, we identify page-club and rich-club ordering providing a conclusion that {}\"elite\" patents are cited by other {}\"elite\" patents. Finally, for e-mail communication network we show lack of both rich-club and page-club ordering. We construct an example of synthetic network showing page-club ordering and the lack of rich-club ordering.",
+          "claimed_authors": [
+            "Daniel Smilkov",
+            "Ljupco Kocarev"
+          ],
+          "claimed_title": "Rich-club and page-club coefficients for directed graphs",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1103.2264"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Investigating the Impact of Network Structure on Neural Avalanche Dynamics neuro', candidate_title='Rich-club and page-club coefficients for directed graphs')",
+        "failed_at": "2026-06-24T14:37:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Rich-club ordering refers to the tendency of nodes with a high degree to be more interconnected than expected. In this paper we consider the concept of rich-club ordering when generalized to structural measures that differ from the node degree and to non-structural measures (i.e. to node metadata). The differences in considering rich-club ordering (RCO) with respect to both structural and non-structural measures is then discussed in terms of employed coefficients and of appropriate null models (link rewiring vs metadata reshuffling). Once a framework for the evaluation of generalized rich-club ordering (GRCO) is defined, we investigate such a phenomenon in real networks provided with node metadata. By considering different notions of node richness, we compare structural and non-structural rich-club ordering, observing how external information about the network nodes is able to validate the presence of rich-clubs in networked systems.",
+          "claimed_authors": [
+            "Matteo Cinelli"
+          ],
+          "claimed_title": "Generalized Rich-Club Ordering in Networks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1803.07000"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Investigating the Impact of Network Structure on Neural Avalanche Dynamics neuro', candidate_title='Generalized Rich-Club Ordering in Networks')",
+        "failed_at": "2026-06-24T14:37:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "For a long time, it has been known that the power spectrum of Barkhausen noise had a power-law decay at high frequencies. Up to now, the theoretical predictions for this decay have been incorrect, or have only applied to a small set of models. In this paper, we describe a careful derivation of the power spectrum exponent in avalanche models, and in particular, in variations of the zero-temperature random-field Ising model. We find that the naive exponent, (3-tau)/(sigma nu z), which has been derived in several other papers, is in general incorrect for small tau, when large avalanches are common. (tau is the exponent describing the distribution of avalanche sizes, and (sigma nu z) is the exponent describing the relationship between avalanche size and avalanche duration.) We find that for a large class of avalanche models, including several models of Barkhausen noise, the correct exponent for tau<2 is 1/(sigma nu z). We explicitly derive the mean-field exponent of 2. In the process, we calculate the average avalanche shape for avalanches of fixed duration and scaling forms for a number of physical properties.",
+          "claimed_authors": [
+            "Matthew C. Kuntz",
+            "James P. Sethna"
+          ],
+          "claimed_title": "Noise in disordered systems: The power spectrum and dynamic exponents in avalanche models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 1999,
+          "primary_pointer": "cond-mat/9911207"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Investigating the Impact of Network Structure on Neural Avalanche Dynamics neuro', candidate_title='Noise in disordered systems: The power spectrum and dynamic exponents in avalanche models')",
+        "failed_at": "2026-06-24T14:37:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Power-law distributions are essential in computational and statistical investigations of extreme events and complex systems. The usual technique to generate power-law distributed data is to first infer the scale exponent $α$ using the observed data of interest and then sample from the associated distribution. This approach has important limitations because it relies on a fixed $α$ (e.g., it has limited applicability in testing the {\\it family} of power-law distributions) and on the hypothesis of independent observations (e.g., it ignores temporal correlations and other constraints typically present in complex systems data). Here we propose a constrained surrogate method that overcomes these limitations by choosing uniformly at random from a set of sequences exactly as likely to be observed under a discrete power-law as the original sequence (i.e., regardless of $α$) and by showing how additional constraints can be imposed in the sequence (e.g., the Markov transition probability between states). This non-parametric approach involves redistributing observed prime factors to randomize values in accordance with a power-law model but without restricting ourselves to independent observations or to a particular $α$. We test our results in simulated and real data, ranging from the intensity of earthquakes to the number of fatalities in disasters.",
+          "claimed_authors": [
+            "Jack Murdoch Moore",
+            "Gang Yan",
+            "Eduardo G. Altmann"
+          ],
+          "claimed_title": "Non-parametric power-law surrogates",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2205.00219"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Investigating the Impact of Network Structure on Neural Avalanche Dynamics neuro', candidate_title='Non-parametric power-law surrogates')",
+        "failed_at": "2026-06-24T14:37:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Power-law type probability density functions spanning several orders of magnitude are found for different avalanche properties. We propose a methodology to overcome empirical constrains that limit the power-law range for the distributions of different avalanche observables like amplitude, energy, duration or size. By considering catalogs of events that cover different observation windows, maximum likelihood estimation of a global power-law exponent is computed. This methodology is applied to amplitude and energy distributions of acoustic emission avalanches in failure-under- compression experiments of a nanoporous silica glass, finding in some cases global exponents in an unprecedented broad range: 4.5 decades for amplitudes and 9.5 decades for energies. In the later case, however, strict statistical analysis suggests experimental limitations might alter the power-law behavior.",
+          "claimed_authors": [
+            "Víctor Navas-Portella",
+            "Isabel Serra",
+            "Álvaro Corral",
+            "Eduard Vives"
+          ],
+          "claimed_title": "Increasing power-law range in avalanche amplitude and energy distributions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1711.06007"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Investigating the Impact of Network Structure on Neural Avalanche Dynamics neuro', candidate_title='Increasing power-law range in avalanche amplitude and energy distributions')",
+        "failed_at": "2026-06-24T14:37:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this chapter of the e-book \"Self-Organized Criticality Systems\" we summarize some theoretical approaches to self-organized criticality (SOC) phenomena that involve percolation as an essential key ingredient. Scaling arguments, random walk models, linear-response theory, and fractional kinetic equations of the diffusion and relaxation type are presented on an equal footing with theoretical approaches of greater sophistication, such as the formalism of discrete Anderson nonlinear Schrödinger equation, Hamiltonian pseudochaos, conformal maps, and fractional derivative equations of the nonlinear Schrödinger and Ginzburg-Landau type. Several physical consequences are described which are relevant to transport processes in complex systems. It is shown that a state of self-organized criticality may be unstable against a bursting (\"fishbone\") mode when certain conditions are met. Finally we discuss SOC-associated phenomena, such as: self-organized turbulence in the Earth's magnetotail (in terms of the \"Sakura\" model), phase transitions in SOC systems, mixed SOC-coherent behavior, and periodic and auto-oscillatory patterns of behavior. Applications of the above pertain to phenomena of magnetospheric substorm, market crashes, and the global climate change and are also discussed in some detail. Finally we address the frontiers in the field in association with the emerging projects in fusion research and space exploration.",
+          "claimed_authors": [
+            "Alexander V. Milovanov"
+          ],
+          "claimed_title": "Percolation Models of Self-Organized Critical Phenomena",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1207.5389"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Investigating the Impact of Network Structure on Neural Avalanche Dynamics neuro', candidate_title='Percolation Models of Self-Organized Critical Phenomena')",
+        "failed_at": "2026-06-24T14:37:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this chapter 2 of the e-book \"Self-Organized Criticality Systems\" we summarize the classical cellular automaton models, which consist of a statistical aspect that is universal to all SOC systems, and a physical aspect that depends on the physical definition of the observable. Then we derive some general analytical formulations of SOC processes, such as the exponential-growth SOC model and the fractal-diffusive SOC model, which also have universal validity for SOC processes, while specific applications to observations require additional physical scaling laws (e.g., for astrophysical or geophysical observations). Finally we discuss alternative SOC processes, SOC-related, or non-SOC processes, such as: self-organization (without criticality), forced SOC model, Brownian motion or classical diffusion, hyper-diffusion and Levy flight, nonextensive Tsallis entropy, turbulence, percolation, phase transitions, network systems, and chaotic systems. We synthesize a metrics that specifies which observational SOC properties are shared by these processes.",
+          "claimed_authors": [
+            "Markus J. Aschwanden"
+          ],
+          "claimed_title": "Theoretical Models of Self-Organized Criticality (SOC) Systems",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1204.5119"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Investigating the Impact of Network Structure on Neural Avalanche Dynamics neuro', candidate_title='Theoretical Models of Self-Organized Criticality (SOC) Systems')",
+        "failed_at": "2026-06-24T14:37:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The statistics of natural catastrophes contains very counter-intuitive results. Using earthquakes as a working example, we show that the energy radiated by such events follows a power-law or Pareto distribution. This means, in theory, that the expected value of the energy does not exist (is infinite), and in practice, that the mean of a finite set of data in not representative of the full population. Also, the distribution presents scale invariance, which implies that it is not possible to define a characteristic scale for the energy. A simple model to account for this peculiar statistics is a branching process: the activation or slip of a fault segment can trigger other segments to slip, with a certain probability, and so on. Although not recognized initially by seismologists, this is a particular case of the stochastic process studied by Galton and Watson one hundred years in advance, in order to model the extinction of (prominent) families. Using the formalism of probability generating functions we will be able to derive, in an accessible way, the main properties of these models. Remarkably, a power-law distribution of energies is only recovered in a very special case, when the branching process is at the onset of attenuation and intensification, i.e., at criticality. In order to account for this fact, we introduce the self-organized critical models, in which, by means of some feedback mechanism, the critical state becomes an attractor in the evolution of such systems. Analogies with statistical physics are drawn. The bulk of the material presented here is self-contained, as only elementary probability and mathematics are needed to start to read.",
+          "claimed_authors": [
+            "Alvaro Corral",
+            "Francesc Font-Clos"
+          ],
+          "claimed_title": "Criticality and self-organization in branching processes: application to natural hazards",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1207.2589"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Investigating the Impact of Network Structure on Neural Avalanche Dynamics neuro', candidate_title='Criticality and self-organization in branching processes: application to natural hazards')",
+        "failed_at": "2026-06-24T14:37:56Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Elisa Ryyppö",
+            "Enrico Glerean",
+            "Elvira Brattico",
+            "Jari Saramäki",
+            "Onerva Korhonen"
+          ],
+          "title": "Regions of Interest as nodes of dynamic functional brain networks",
+          "venue": "arXiv",
+          "year": 2017
+        },
+        "primary_pointer": "1710.04056",
+        "summary": "The properties of functional brain networks strongly depend on how their nodes are chosen. Commonly, nodes are defined by Regions of Interest (ROIs), pre-determined groupings of fMRI measurement voxels. Earlier, we have demonstrated that the functional homogeneity of ROIs, captured by their spatial consistency, varies widely across ROIs in commonly-used brain atlases. Here, we ask how ROIs behave as nodes of dynamic brain networks. To this end, we use two measures: spatiotemporal consistency measures changes in spatial consistency across time and network turnover quantifies the changes in the local network structure around a ROI. We find that spatial consistency varies non-uniformly in space and time, which is reflected in the variation of spatiotemporal consistency across ROIs. Further, we see time-dependent changes in the network neighborhoods of the ROIs, reflected in high network turnover. Network turnover is nonuniformly distributed across ROIs: ROIs with high spatiotemporal consistency have low network turnover. Finally, we reveal that there is rich voxel-level correlation structure inside ROIs. Because the internal structure and the connectivity of ROIs vary in time, the common approach of using static node definitions may be surprisingly inaccurate. Therefore, network neuroscience would greatly benefit from node definition strategies tailored for dynamical networks.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1710.04056",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-24T14:37:55Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Alessandro Muscoloni",
+            "Carlo Vittorio Cannistraci"
+          ],
+          "title": "Rich-clubness test: how to determine whether a complex network has or doesn't have a rich-club?",
+          "venue": "arXiv",
+          "year": 2017
+        },
+        "primary_pointer": "1704.03526",
+        "summary": "The rich-club concept has been introduced in order to characterize the presence of a cohort of nodes with a large number of links (rich nodes) that tend to be well connected between each other, creating a tight group (club). Rich-clubness defines the extent to which a network displays a topological organization characterized by the presence of a node rich-club. It is crucial for the investigation of internal organization and function of networks arising in systems of disparate fields such as transportation, social, communication and neuroscience. Different methods have been proposed for assessing the rich-clubness and various null-models have been adopted for performing statistical tests. However, a procedure that assigns a unique value of rich-clubness significance to a given network is still missing. Our solution to this problem grows on the basis of three new pillars. We introduce: i) a null-model characterized by a lower rich-club coefficient; ii) a fair strategy to normalize the level of rich-clubness of a network in respect to the null-model; iii) a statistical test that, exploiting the maximum deviation of the normalized rich-club coefficient attributes a unique p-value of rich-clubness to a given network. In conclusion, this study proposes the first attempt to quantify, using a unique measure, whether a network presents a significant rich-club topological organization. The general impact of our study on engineering and science is that simulations investigating how the functional performance of a network is changing in relation to rich-clubness might be more easily tuned controlling one unique value: the proposed rich-clubness measure.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1704.03526",
+          "http_status": 200,
+          "pdf_sample_score": 0.3598,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-24T14:37:55Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "investigating the impact of network structure on neural avalanche dynamics neuroscience",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

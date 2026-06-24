@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2205.13273",
+  "judged_at": "2026-06-24T14:39:54Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "machine learning prediction of fracture toughness from microstructure images materials science",
+  "rationale": "The paper studies hypercomplex CNNs for classifying blood‑smear images to detect leukemia, which is unrelated to predicting fracture toughness from material microstructure images; it does not share the relevant domain, variables, or mechanism required for inclusion.",
+  "relevant": false
+}

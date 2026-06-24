@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1512.00242",
+  "judged_at": "2026-06-24T14:39:45Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "machine learning prediction of fracture toughness from microstructure images materials science",
+  "rationale": "The paper focuses on dropout techniques for CNNs evaluated on digit and natural image benchmarks (MNIST, CIFAR), without any connection to fracture toughness, microstructure imaging, or materials‑science applications, so it does not meet any inclusion criteria (a‑f).",
+  "relevant": false
+}

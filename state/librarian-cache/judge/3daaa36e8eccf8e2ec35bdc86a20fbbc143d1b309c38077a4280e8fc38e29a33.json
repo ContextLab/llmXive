@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2506.09162",
+  "judged_at": "2026-06-24T14:39:40Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "machine learning prediction of fracture toughness from microstructure images materials science",
+  "rationale": "The paper concerns a medical imaging dataset of lumbar spine MRIs for diagnosing degenerative changes, which is unrelated to materials‑science microstructure imaging or the prediction of fracture toughness; it shares no relevant mechanism, variables, or domain with the user's question.",
+  "relevant": false
+}

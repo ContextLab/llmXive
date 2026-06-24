@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2306.04338",
+  "judged_at": "2026-06-24T14:39:37Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "machine learning prediction of fracture toughness from microstructure images materials science",
+  "rationale": "The paper discusses machine‑learning challenges related to changing data sources in official statistics and does not address fracture toughness, microstructure imaging, or materials‑science prediction tasks, so it is off‑domain and unrelated to the user's research question.",
+  "relevant": false
+}

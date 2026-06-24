@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1609.04846",
+  "judged_at": "2026-06-24T14:37:57Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "investigating the impact of network structure on neural avalanche dynamics neuroscience",
+  "rationale": "The paper is a tutorial on Random Neural Networks for supervised learning and does not study brain network structure, neural avalanche dynamics, or related neuroscience mechanisms, thus it is unrelated to the user's question.",
+  "relevant": false
+}

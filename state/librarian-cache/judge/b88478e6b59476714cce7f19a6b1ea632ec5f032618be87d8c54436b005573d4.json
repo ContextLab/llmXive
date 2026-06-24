@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2211.08482",
+  "judged_at": "2026-06-24T14:39:48Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "machine learning prediction of fracture toughness from microstructure images materials science",
+  "rationale": "The paper predicts dynamic fracture behavior (crack propagation, speed) from time‑evolving frames, not the static fracture toughness property from microstructure images; thus it does not measure the same mechanism or the required independent/dependent variables for the user's question.",
+  "relevant": false
+}
