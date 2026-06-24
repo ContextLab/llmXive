@@ -22,8 +22,8 @@ jobs:
         with: { ref: main }
       - uses: actions/setup-python@v6
         with: { python-version: "3.11", cache: pip }
-      - run: |
-          sudo apt-get update && sudo apt-get install -y --no-install-recommends texlive texlive-latex-extra texlive-fonts-recommended texlive-bibtex-extra latexmk
+      - name: Install TeX Live (shared SSoT package set)
+        run: bash scripts/ci/install-texlive.sh
       - run: pip install -e ".[dev]"
       - run: python -m llmxive preflight
       - name: Balanced advance pass
