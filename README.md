@@ -136,10 +136,11 @@ against that project's scaffold.
 In parallel with the pipeline agents, a separate cron job runs the
 **`personality` agent** every 30 minutes (`.github/workflows/pipeline-personality.yml`).
 Each tick selects one simulated public-figure persona from
-[`agents/prompts/personalities/`](agents/prompts/personalities/) — David
-Krakauer, Geoffrey West, Dan Rockmore, Socrates, Aristotle, Daniel Kahneman,
-Ada Lovelace, Marie Curie, Rosalind Franklin, John von Neumann (and more,
-as new prompt files land). The selected persona looks at the project lanes
+[`agents/prompts/personalities/`](agents/prompts/personalities/) — Ada
+Lovelace, Alan Turing, Albert Einstein, Dan Rockmore, Daniel Kahneman, David
+Krakauer, Eric Kandel, Freeman Dyson, Geoffrey West, John von Neumann, Linus
+Pauling, Marie Curie, Richard Feynman, Rosalind Franklin, and Stephen Wolfram
+(extensible — drop in a new prompt file and the rotation picks it up). The selected persona looks at the project lanes
 and either comments on an existing artifact, makes a brief contribution
 (a clearer paragraph, a citation suggestion, an added edge case), or
 proposes a new arXiv paper for the platform to consider.
