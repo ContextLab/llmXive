@@ -1,0 +1,630 @@
+{
+  "fetched_at": "2026-06-24T23:37:27Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "MolmoMotion: Forecasting Point Trajectories in 3D with Language Instruction",
+      "target_n": 5
+    },
+    "duration_seconds": 68.157,
+    "ended_at": "2026-06-24T23:37:27Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "language‑conditioned 3D trajectory prediction"
+        ],
+        [
+          2,
+          "multimodal motion forecasting with textual prompts"
+        ],
+        [
+          3,
+          "point cloud trajectory prediction guided by language"
+        ],
+        [
+          4,
+          "text‑driven 3D motion synthesis"
+        ],
+        [
+          5,
+          "language‑based 3D trajectory generation"
+        ],
+        [
+          6,
+          "instruction‑aware motion forecasting in 3D space"
+        ],
+        [
+          7,
+          "natural language guided point trajectory forecasting"
+        ],
+        [
+          8,
+          "cross‑modal trajectory prediction using language embeddings"
+        ],
+        [
+          9,
+          "textual instruction for 3D motion planning"
+        ],
+        [
+          10,
+          "language‑to‑motion translation for point trajectories"
+        ],
+        [
+          11,
+          "multimodal trajectory generation from language cues"
+        ],
+        [
+          12,
+          "language‑informed 3D point cloud dynamics prediction"
+        ],
+        [
+          13,
+          "conditional motion forecasting with textual commands"
+        ],
+        [
+          14,
+          "language‑augmented 3D trajectory modeling"
+        ],
+        [
+          15,
+          "text‑conditioned spatiotemporal point prediction"
+        ],
+        [
+          16,
+          "vision‑language motion prediction for 3D points"
+        ],
+        [
+          17,
+          "neural trajectory forecasting with language input"
+        ],
+        [
+          18,
+          "language‑supervised 3D motion prediction"
+        ],
+        [
+          19,
+          "instruction‑driven point trajectory synthesis"
+        ],
+        [
+          20,
+          "multimodal language‑vision motion forecasting"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "MolmoMotion: Forecasting Point Trajectories in 3D with Language Instruction computer science": 0,
+        "language‑conditioned 3D trajectory prediction": 4
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "language-conditioned trajectory prediction",
+      "Waymo Open Motion dataset",
+      "goal-conditioned motion planning",
+      "average displacement error evaluation",
+      "cross-modal attention motion generation"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "1807.07006"
+      ]
+    },
+    "per_query_hit_count": {
+      "MolmoMotion: Forecasting Point Trajectories in 3D with Language Instruction computer science": 3,
+      "Waymo Open Motion dataset": 3,
+      "average displacement error evaluation": 3,
+      "cross-modal attention motion generation": 3,
+      "goal-conditioned motion planning": 3,
+      "language-conditioned trajectory prediction": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 1,
+      "rejections": [
+        {
+          "primary_pointer": "2202.10545",
+          "rationale": "The paper focuses on interactive exploration and filtering of existing 3D trajectories using geometric shape queries in VR, without addressing trajectory forecasting or language‑based instruction, which are the core mechanisms of the user's question. Hence it does not meet any inclusion criteria (a‑f).",
+          "title": "ReViVD: Exploration and Filtering of Trajectories in an Immersive Environment using 3D Shapes"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-24T23:36:19Z",
+    "term_input": {
+      "normalized": "molmomotion: forecasting point trajectories in 3d with language instruction computer science",
+      "raw": "MolmoMotion: Forecasting Point Trajectories in 3D with Language Instruction computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Instruction tuning significantly enhances the performance of large language models (LLMs) across various tasks. However, the procedure to optimizing the mixing of instruction datasets for LLM fine-tuning is still poorly understood. This study categorizes instructions into three primary types: NLP downstream tasks, coding, and general chat. We explore the effects of instruction tuning on different combinations of datasets on LLM performance, and find that certain instruction types are more advantageous for specific applications but can negatively impact other areas. This work provides insights into instruction mixtures, laying the foundations for future research.",
+          "claimed_authors": [
+            "Renxi Wang",
+            "Haonan Li",
+            "Minghao Wu",
+            "Yuxia Wang",
+            "Xudong Han",
+            "Chiyu Zhang",
+            "Timothy Baldwin"
+          ],
+          "claimed_title": "Demystifying Instruction Mixing for Fine-tuning Large Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2312.10793"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='MolmoMotion: Forecasting Point Trajectories in 3D with Language Instruction comp', candidate_title='Demystifying Instruction Mixing for Fine-tuning Large Language Models')",
+        "failed_at": "2026-06-24T23:36:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Training large language models (LLMs) with open-domain instruction following data brings colossal success. However, manually creating such instruction data is very time-consuming and labor-intensive. Moreover, humans may struggle to produce high-complexity instructions. In this paper, we show an avenue for creating large amounts of instruction data with varying levels of complexity using LLM instead of humans. Starting with an initial set of instructions, we use our proposed Evol-Instruct to rewrite them step by step into more complex instructions. Then, we mix all generated instruction data to fine-tune LLaMA. We call the resulting model WizardLM. Human evaluations on a complexity-balanced test bed and Vicuna's testset show that instructions from Evol-Instruct are superior to human-created ones. By analyzing the human evaluation results of the high complexity part, we demonstrate that outputs from our WizardLM are preferred to outputs from OpenAI ChatGPT. In GPT-4 automatic evaluation, WizardLM achieves more than 90\\% capacity of ChatGPT on 17 out of 29 skills. Even though WizardLM still lags behind ChatGPT in some aspects, our findings suggest that fine-tuning with AI-evolved instructions is a promising direction for enhancing LLMs. Our code and data are public at https://github.com/nlpxucan/WizardLM",
+          "claimed_authors": [
+            "Can Xu",
+            "Qingfeng Sun",
+            "Kai Zheng",
+            "Xiubo Geng",
+            "Pu Zhao",
+            "Jiazhan Feng",
+            "Chongyang Tao",
+            "Qingwei Lin",
+            "Daxin Jiang"
+          ],
+          "claimed_title": "WizardLM: Empowering large pre-trained language models to follow complex instructions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2304.12244"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='MolmoMotion: Forecasting Point Trajectories in 3D with Language Instruction comp', candidate_title='WizardLM: Empowering large pre-trained language models to follow complex instructions')",
+        "failed_at": "2026-06-24T23:36:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Predicting the trajectories of surrounding objects is a critical task for self-driving vehicles and many other autonomous systems. Recent works demonstrate that adversarial attacks on trajectory prediction, where small crafted perturbations are introduced to history trajectories, may significantly mislead the prediction of future trajectories and induce unsafe planning. However, few works have addressed enhancing the robustness of this important safety-critical task.In this paper, we present a novel adversarial training method for trajectory prediction. Compared with typical adversarial training on image tasks, our work is challenged by more random input with rich context and a lack of class labels. To address these challenges, we propose a method based on a semi-supervised adversarial autoencoder, which models disentangled semantic features with domain knowledge and provides additional latent labels for the adversarial training. Extensive experiments with different types of attacks demonstrate that our Semisupervised Semantics-guided Adversarial Training (SSAT) method can effectively mitigate the impact of adversarial attacks by up to 73% and outperform other popular defense methods. In addition, experiments show that our method can significantly improve the system's robust generalization to unseen patterns of attacks. We believe that such semantics-guided architecture and advancement on robust generalization is an important step for developing robust prediction models and enabling safe decision-making.",
+          "claimed_authors": [
+            "Ruochen Jiao",
+            "Xiangguo Liu",
+            "Takami Sato",
+            "Qi Alfred Chen",
+            "Qi Zhu"
+          ],
+          "claimed_title": "Semi-supervised Semantics-guided Adversarial Training for Trajectory Prediction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2205.14230"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='MolmoMotion: Forecasting Point Trajectories in 3D with Language Instruction comp', candidate_title='Semi-supervised Semantics-guided Adversarial Training for Trajectory Prediction')",
+        "failed_at": "2026-06-24T23:36:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent advances in large language models (LLMs) have sparked growing interest in integrating language-driven techniques into trajectory prediction. By leveraging their semantic and reasoning capabilities, LLMs are reshaping how autonomous systems perceive, model, and predict trajectories. This survey provides a comprehensive overview of this emerging field, categorizing recent work into five directions: (1) Trajectory prediction via language modeling paradigms, (2) Direct trajectory prediction with pretrained language models, (3) Language-guided scene understanding for trajectory prediction, (4) Language-driven data generation for trajectory prediction, (5) Language-based reasoning and interpretability for trajectory prediction. For each, we analyze representative methods, highlight core design choices, and identify open challenges. This survey bridges natural language processing and trajectory prediction, offering a unified perspective on how language can enrich trajectory prediction.",
+          "claimed_authors": [
+            "Yi Xu",
+            "Ruining Yang",
+            "Yitian Zhang",
+            "Jianglin Lu",
+            "Mingyuan Zhang",
+            "Yizhou Wang",
+            "Lili Su",
+            "Yun Fu"
+          ],
+          "claimed_title": "Trajectory Prediction Meets Large Language Models: A Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.03408"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='MolmoMotion: Forecasting Point Trajectories in 3D with Language Instruction comp', candidate_title='Trajectory Prediction Meets Large Language Models: A Survey')",
+        "failed_at": "2026-06-24T23:36:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In order to improve the vessel's capacity and ensure maritime traffic safety, vessel intelligent trajectory prediction plays an essential role in the vessel's smart navigation and intelligent collision avoidance system. However, current researchers only focus on short-term or long-term vessel trajectory prediction, which leads to insufficient accuracy of trajectory prediction and lack of in-depth mining of comprehensive historical trajectory data. This paper proposes an Automatic Identification System (AIS) data-driven long short-term memory (LSTM) method based on the fusion of the forward sub-network and the reverse sub-network (termed as FRA-LSTM) to predict the vessel trajectory. The forward sub-network in our method combines LSTM and attention mechanism to mine features of forward historical trajectory data. Simultaneously, the reverse sub-network combines bi-directional LSTM (BiLSTM) and attention mechanism to mine features of backward historical trajectory data. Finally, the final predicted trajectory is generated by fusing output features of the forward and reverse sub-network. Based on plenty of experiments, we prove that the accuracy of our proposed method in predicting short-term and mid-term trajectories has increased by 96.8% and 86.5% on average compared with the BiLSTM and Seq2seq. Furthermore, the average accuracy of our method is 90.1% higher than that of compared the BiLSTM and Seq2seq in predicting long-term trajectories.",
+          "claimed_authors": [
+            "Jin Chen",
+            "Xingchen Li",
+            "Ye Xiao",
+            "Hao Chen",
+            "Yong Zhao"
+          ],
+          "claimed_title": "FRA-LSTM: A Vessel Trajectory Prediction Method Based on Fusion of the Forward and Reverse Sub-Network",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2201.07606"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='MolmoMotion: Forecasting Point Trajectories in 3D with Language Instruction comp', candidate_title='FRA-LSTM: A Vessel Trajectory Prediction Method Based on Fusion of the Forward and Reverse Sub-Network')",
+        "failed_at": "2026-06-24T23:36:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this report, we present the 1st place solution for motion prediction track in 2022 Waymo Open Dataset Challenges. We propose a novel Motion Transformer framework for multimodal motion prediction, which introduces a small set of novel motion query pairs for generating better multimodal future trajectories by jointly performing the intention localization and iterative motion refinement. A simple model ensemble strategy with non-maximum-suppression is adopted to further boost the final performance. Our approach achieves the 1st place on the motion prediction leaderboard of 2022 Waymo Open Dataset Challenges, outperforming other methods with remarkable margins. Code will be available at https://github.com/sshaoshuai/MTR.",
+          "claimed_authors": [
+            "Shaoshuai Shi",
+            "Li Jiang",
+            "Dengxin Dai",
+            "Bernt Schiele"
+          ],
+          "claimed_title": "MTR-A: 1st Place Solution for 2022 Waymo Open Dataset Challenge -- Motion Prediction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2209.10033"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='MolmoMotion: Forecasting Point Trajectories in 3D with Language Instruction comp', candidate_title='MTR-A: 1st Place Solution for 2022 Waymo Open Dataset Challenge -- Motion Prediction')",
+        "failed_at": "2026-06-24T23:36:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this technical report, we detail our first-place solution for the 2024 Waymo Open Dataset Challenge's semantic segmentation track. We significantly enhanced the performance of Point Transformer V3 on the Waymo benchmark by implementing cutting-edge, plug-and-play training and inference technologies. Notably, our advanced version, Point Transformer V3 Extreme, leverages multi-frame training and a no-clipping-point policy, achieving substantial gains over the original PTv3 performance. Additionally, employing a straightforward model ensemble strategy further boosted our results. This approach secured us the top position on the Waymo Open Dataset semantic segmentation leaderboard, markedly outperforming other entries.",
+          "claimed_authors": [
+            "Xiaoyang Wu",
+            "Xiang Xu",
+            "Lingdong Kong",
+            "Liang Pan",
+            "Ziwei Liu",
+            "Tong He",
+            "Wanli Ouyang",
+            "Hengshuang Zhao"
+          ],
+          "claimed_title": "Point Transformer V3 Extreme: 1st Place Solution for 2024 Waymo Open Dataset Challenge in Semantic Segmentation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2407.15282"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='MolmoMotion: Forecasting Point Trajectories in 3D with Language Instruction comp', candidate_title='Point Transformer V3 Extreme: 1st Place Solution for 2024 Waymo Open Dataset Challenge in Semantic Segmentation')",
+        "failed_at": "2026-06-24T23:36:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Panoptic image segmentation is the computer vision task of finding groups of pixels in an image and assigning semantic classes and object instance identifiers to them. Research in image segmentation has become increasingly popular due to its critical applications in robotics and autonomous driving. The research community thereby relies on publicly available benchmark dataset to advance the state-of-the-art in computer vision. Due to the high costs of densely labeling the images, however, there is a shortage of publicly available ground truth labels that are suitable for panoptic segmentation. The high labeling costs also make it challenging to extend existing datasets to the video domain and to multi-camera setups. We therefore present the Waymo Open Dataset: Panoramic Video Panoptic Segmentation Dataset, a large-scale dataset that offers high-quality panoptic segmentation labels for autonomous driving. We generate our dataset using the publicly available Waymo Open Dataset, leveraging the diverse set of camera images. Our labels are consistent over time for video processing and consistent across multiple cameras mounted on the vehicles for full panoramic scene understanding. Specifically, we offer labels for 28 semantic categories and 2,860 temporal sequences that were captured by five cameras mounted on autonomous vehicles driving in three different geographical locations, leading to a total of 100k labeled camera images. To the best of our knowledge, this makes our dataset an order of magnitude larger than existing datasets that offer video panoptic segmentation labels. We further propose a new benchmark for Panoramic Video Panoptic Segmentation and establish a number of strong baselines based on the DeepLab family of models. We will make the benchmark and the code publicly available. Find the dataset at https://waymo.com/open.",
+          "claimed_authors": [
+            "Jieru Mei",
+            "Alex Zihao Zhu",
+            "Xinchen Yan",
+            "Hang Yan",
+            "Siyuan Qiao",
+            "Yukun Zhu",
+            "Liang-Chieh Chen",
+            "Henrik Kretzschmar",
+            "Dragomir Anguelov"
+          ],
+          "claimed_title": "Waymo Open Dataset: Panoramic Video Panoptic Segmentation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2206.07704"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='MolmoMotion: Forecasting Point Trajectories in 3D with Language Instruction comp', candidate_title='Waymo Open Dataset: Panoramic Video Panoptic Segmentation')",
+        "failed_at": "2026-06-24T23:36:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Offline Goal-Conditioned RL (GCRL) offers a feasible paradigm for learning general-purpose policies from diverse and multi-task offline datasets. Despite notable recent progress, the predominant offline GCRL methods, mainly model-free, face constraints in handling limited data and generalizing to unseen goals. In this work, we propose Goal-conditioned Offline Planning (GOPlan), a novel model-based framework that contains two key phases: (1) pretraining a prior policy capable of capturing multi-modal action distribution within the multi-goal dataset; (2) employing the reanalysis method with planning to generate imagined trajectories for funetuning policies. Specifically, we base the prior policy on an advantage-weighted conditioned generative adversarial network, which facilitates distinct mode separation, mitigating the pitfalls of out-of-distribution (OOD) actions. For further policy optimization, the reanalysis method generates high-quality imaginary data by planning with learned models for both intra-trajectory and inter-trajectory goals. With thorough experimental evaluations, we demonstrate that GOPlan achieves state-of-the-art performance on various offline multi-goal navigation and manipulation tasks. Moreover, our results highlight the superior ability of GOPlan to handle small data budgets and generalize to OOD goals.",
+          "claimed_authors": [
+            "Mianchu Wang",
+            "Rui Yang",
+            "Xi Chen",
+            "Hao Sun",
+            "Meng Fang",
+            "Giovanni Montana"
+          ],
+          "claimed_title": "GOPlan: Goal-conditioned Offline Reinforcement Learning by Planning with Learned Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2310.20025"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='MolmoMotion: Forecasting Point Trajectories in 3D with Language Instruction comp', candidate_title='GOPlan: Goal-conditioned Offline Reinforcement Learning by Planning with Learned Models')",
+        "failed_at": "2026-06-24T23:36:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Randomized sampling based algorithms are widely used in robot motion planning due to the problem's intractability, and are experimentally effective on a wide range of problem instances. Most variants do not sample uniformly at random, and instead bias their sampling using various heuristics for determining which samples will provide more information, or are more likely to participate in the final solution. In this work, we define the \\emph{motion planning guiding space}, which encapsulates many seemingly distinct prior works under the same framework. In addition, we suggest an information theoretic method to evaluate guided planning which places the focus on the quality of the resulting biased sampling. Finally, we analyze several motion planning algorithms in order to demonstrate the applicability of our definition and its evaluation.",
+          "claimed_authors": [
+            "Amnon Attali",
+            "Stav Ashur",
+            "Isaac Burton Love",
+            "Courtney McBeth",
+            "James Motes",
+            "Diane Uwacu",
+            "Marco Morales",
+            "Nancy M. Amato"
+          ],
+          "claimed_title": "Evaluating Guiding Spaces for Motion Planning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2210.08640"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='MolmoMotion: Forecasting Point Trajectories in 3D with Language Instruction comp', candidate_title='Evaluating Guiding Spaces for Motion Planning')",
+        "failed_at": "2026-06-24T23:36:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper aims to improve the path quality and computational efficiency of kinodynamic planners used for vehicular systems. It proposes a learning framework for identifying promising controls during the expansion process of sampling-based motion planners for systems with dynamics. Offline, the learning process is trained to return the highest-quality control that reaches a local goal state (i.e., a waypoint) in the absence of obstacles from an input difference vector between its current state and a local goal state. The data generation scheme provides bounds on the target dispersion and uses state space pruning to ensure high-quality controls. By focusing on the system's dynamics, this process is data efficient and takes place once for a dynamical system, so that it can be used for different environments with modular expansion functions. This work integrates the proposed learning process with a) an exploratory expansion function that generates waypoints with biased coverage over the reachable space, and b) proposes an exploitative expansion function for mobile robots, which generates waypoints using medial axis information. This paper evaluates the learning process and the corresponding planners for a first and second-order differential drive systems. The results show that the proposed integration of learning and planning can produce better quality paths than kinodynamic planning with random controls in fewer iterations and computation time.",
+          "claimed_authors": [
+            "Seth Karten",
+            "Aravind Sivaramakrishnan",
+            "Edgar Granados",
+            "Troy McMahon",
+            "Kostas E. Bekris"
+          ],
+          "claimed_title": "Data-Efficient Learning of High-Quality Controls for Kinodynamic Planning used in Vehicular Navigation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2201.02254"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='MolmoMotion: Forecasting Point Trajectories in 3D with Language Instruction comp', candidate_title='Data-Efficient Learning of High-Quality Controls for Kinodynamic Planning used in Vehicular Navigation')",
+        "failed_at": "2026-06-24T23:36:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present a new approach to evaluate computational models for the task of text understanding by the means of out-of-context error detection. Through the novel design of our automated modification process, existing large-scale data sources can be adopted for a vast number of text understanding tasks. The data is thereby altered on a semantic level, allowing models to be tested against a challenging set of modified text passages that require to comprise a broader narrative discourse. Our newly introduced task targets actual real-world problems of transcription and translation systems by inserting authentic out-of-context errors. The automated modification process is applied to the 2016 TEDTalk corpus. Entirely automating the process allows the adoption of complete datasets at low cost, facilitating supervised learning procedures and deeper networks to be trained and tested. To evaluate the quality of the modification algorithm a language model and a supervised binary classification model are trained and tested on the altered dataset. A human baseline evaluation is examined to compare the results with human performance. The outcome of the evaluation task indicates the difficulty to detect semantic errors for machine-learning algorithms and humans, showing that the errors cannot be identified when limited to a single sentence.",
+          "claimed_authors": [
+            "Patrick Huber",
+            "Jan Niehues",
+            "Alex Waibel"
+          ],
+          "claimed_title": "Automated Evaluation of Out-of-Context Errors",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1803.08983"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='MolmoMotion: Forecasting Point Trajectories in 3D with Language Instruction comp', candidate_title='Automated Evaluation of Out-of-Context Errors')",
+        "failed_at": "2026-06-24T23:36:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Continuous-time quantum error correction (CTQEC) is an approach to protecting quantum information from noise in which both the noise and the error correcting operations are treated as processes that are continuous in time. This chapter investigates CTQEC based on continuous weak measurements and feedback from the point of view of the subsystem principle, which states that protected quantum information is contained in a subsystem of the Hilbert space. We study how to approach the problem of constructing CTQEC protocols by looking at the evolution of the state of the system in an encoded basis in which the subsystem containing the protected information is explicit. This point of view allows us to reduce the problem to that of protecting a known state, and to design CTQEC procedures from protocols for the protection of a single qubit. We show how previously studied CTQEC schemes with both direct and indirect feedback can be obtained from strategies for the protection of a single qubit via weak measurements and weak unitary operations. We also review results on the performance of CTQEC with direct feedback in cases of Markovian and non-Markovian decoherence, where we have shown that due to the existence of a Zeno regime in non-Markovian dynamics, the performance of CTQEC can exhibit a quadratic improvement if the time resolution of the weak error-correcting operations is high enough to reveal the non-Markovian character of the noise process.",
+          "claimed_authors": [
+            "Ognyan Oreshkov"
+          ],
+          "claimed_title": "Continuous-time quantum error correction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1311.2485"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='MolmoMotion: Forecasting Point Trajectories in 3D with Language Instruction comp', candidate_title='Continuous-time quantum error correction')",
+        "failed_at": "2026-06-24T23:36:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Peer-evaluation based measures of group research quality such as the UK's Research Assessment Exercise (RAE), which do not employ bibliometric analyses, cannot directly avail of such methods to normalize research impact across disciplines. This is seen as a conspicuous flaw of such exercises and calls have been made to find a remedy. Here a simple, systematic solution is proposed based upon a mathematical model for the relationship between research quality and group quantity. This model manifests both the Matthew effect and a phenomenon akin to the Ringelmann effect and reveals the existence of two critical masses for each academic discipline: a lower value, below which groups are vulnerable, and an upper value beyond which the dependency of quality on quantity reduces and plateaus appear when the critical masses are large. A possible normalization procedure is then to pitch these plateaus at similar levels. We examine the consequences of this procedure at RAE for a multitude of academic disciplines, corresponding to a range of critical masses.",
+          "claimed_authors": [
+            "Ralph Kenna",
+            "Bertrand Berche"
+          ],
+          "claimed_title": "Normalization of peer-evaluation measures of group research quality across academic disciplines",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1006.3863"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='MolmoMotion: Forecasting Point Trajectories in 3D with Language Instruction comp', candidate_title='Normalization of peer-evaluation measures of group research quality across academic disciplines')",
+        "failed_at": "2026-06-24T23:36:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Cross-modal retrieval aims to enable flexible retrieval experience by combining multimedia data such as image, video, text, and audio. One core of unsupervised approaches is to dig the correlations among different object representations to complete satisfied retrieval performance without requiring expensive labels. In this paper, we propose a Graph Pattern Loss based Diversified Attention Network(GPLDAN) for unsupervised cross-modal retrieval to deeply analyze correlations among representations. First, we propose a diversified attention feature projector by considering the interaction between different representations to generate multiple representations of an instance. Then, we design a novel graph pattern loss to explore the correlations among different representations, in this graph all possible distances between different representations are considered. In addition, a modality classifier is added to explicitly declare the corresponding modalities of features before fusion and guide the network to enhance discrimination ability. We test GPLDAN on four public datasets. Compared with the state-of-the-art cross-modal retrieval methods, the experimental results demonstrate the performance and competitiveness of GPLDAN.",
+          "claimed_authors": [
+            "Xueying Chen",
+            "Rong Zhang",
+            "Yibing Zhan"
+          ],
+          "claimed_title": "Graph Pattern Loss based Diversified Attention Network for Cross-Modal Retrieval",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2106.13552"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='MolmoMotion: Forecasting Point Trajectories in 3D with Language Instruction comp', candidate_title='Graph Pattern Loss based Diversified Attention Network for Cross-Modal Retrieval')",
+        "failed_at": "2026-06-24T23:36:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent large vision-language models (LVLMs) have advanced capabilities in visual question answering (VQA). However, interpreting where LVLMs direct their visual attention remains a significant challenge, yet is essential for understanding model behavior. We introduce GLIMPSE (Gradient-Layer Importance Mapping for Prompted Visual Saliency Explanation), a lightweight, model-agnostic framework that jointly attributes LVLM outputs to the most relevant visual evidence and textual signals that support open-ended generation. GLIMPSE fuses gradient-weighted attention, adaptive layer propagation, and relevance-weighted token aggregation to produce holistic response-level heat maps for interpreting cross-modal reasoning, outperforming prior methods in faithfulness and pushing the state-of-the-art in human-attention alignment. We demonstrate an analytic approach to uncover fine-grained insights into LVLM cross-modal attribution, trace reasoning dynamics, analyze systematic misalignment, diagnose hallucination and bias, and ensure transparency.",
+          "claimed_authors": [
+            "Guanxi Shen"
+          ],
+          "claimed_title": "GLIMPSE: Holistic Cross-Modal Explainability for Large Vision-Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.18985"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='MolmoMotion: Forecasting Point Trajectories in 3D with Language Instruction comp', candidate_title='GLIMPSE: Holistic Cross-Modal Explainability for Large Vision-Language Models')",
+        "failed_at": "2026-06-24T23:36:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "With the flourishing of social media platforms, vision-language pre-training (VLP) recently has received great attention and many remarkable progresses have been achieved. The success of VLP largely benefits from the information complementation and enhancement between different modalities. However, most of recent studies focus on cross-modal contrastive learning (CMCL) to promote image-text alignment by pulling embeddings of positive sample pairs together while pushing those of negative pairs apart, which ignores the natural asymmetry property between different modalities and requires large-scale image-text corpus to achieve arduous progress. To mitigate this predicament, we propose CMAL, a Cross-Modal Associative Learning framework with anchor points detection and cross-modal associative learning for VLP. Specifically, we first respectively embed visual objects and textual tokens into separate hypersphere spaces to learn intra-modal hidden features, and then design a cross-modal associative prompt layer to perform anchor point masking and swap feature filling for constructing a hybrid cross-modal associative prompt. Afterwards, we exploit a unified semantic encoder to learn their cross-modal interactive features for context adaptation. Finally, we design an associative mapping classification layer to learn potential associative mappings between modalities at anchor points, within which we develop a fresh self-supervised associative mapping classification task to boost CMAL's performance. Experimental results verify the effectiveness of CMAL, showing that it achieves competitive performance against previous CMCL-based methods on four common downstream vision-and-language tasks, with significantly fewer corpus. Especially, CMAL obtains new state-of-the-art results on SNLI-VE and REC (testA).",
+          "claimed_authors": [
+            "Zhiyuan Ma",
+            "Jianjun Li",
+            "Guohui Li",
+            "Kaiyan Huang"
+          ],
+          "claimed_title": "CMAL: A Novel Cross-Modal Associative Learning Framework for Vision-Language Pre-Training",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2410.12595"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='MolmoMotion: Forecasting Point Trajectories in 3D with Language Instruction comp', candidate_title='CMAL: A Novel Cross-Modal Associative Learning Framework for Vision-Language Pre-Training')",
+        "failed_at": "2026-06-24T23:36:55Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Jianing Zhang",
+            "Chenhao Zheng",
+            "Yajun Yang",
+            "Max Argus",
+            "Rustin Soraki",
+            "Winson Han",
+            "Taira Anderson",
+            "Chun-Liang Li",
+            "Shuo Liu",
+            "Jiafei Duan",
+            "Zhongzheng Ren",
+            "Jieyu Zhang",
+            "Ranjay Krishna"
+          ],
+          "title": "MolmoMotion: Forecasting Point Trajectories in 3D with Language Instruction",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2606.18558",
+        "summary": "Motion forecasting is central to visual intelligence: agents must anticipate how objects will move in order to plan actions, reason about physical interactions, and synthesize realistic futures. We argue that 3D points in world coordinates provide a general representation that is class-agnostic, view-stable, compact, and directly useful for downstream tasks. We formalize the task of goal-conditioned 3D point motion forecasting: given a short visual history, a set of 3D query points on an object of interest, and a language description of the intended goal, the model predicts the future 3D trajectory of each point. We introduce a full stack to study this task at scale: (1) MolmoMotion-1M is a large corpus of action-described, object-grounded 3D point trajectories annotated from 1.16M unconstrained videos; (2) PointMotionBench is a human-verified benchmark spanning 111 object categories and 61 motion types; and (3) MolmoMotion is a general motion forecasting model that supports both autoregressive coordinate prediction and flow-matching-based trajectory generation. MolmoMotion accurately predicts diverse motion patterns with different language instructions, and significantly outperforms existing motion prediction baselines on PointMotionBench. Finally, we show that the learned 3D motion prior transfers well to downstream applications: it improves training efficiency and generalization for robot manipulation, and its predicted trajectories provide effective motion guidance for generative models to synthesize videos with more realistic object motion.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2606.18558",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.75,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-24T23:36:54Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Mahdi Mir"
+          ],
+          "title": "Cruise Missile Target Trajectory Movement Prediction based on Optimal 3D Kalman Filter with Firefly Algorithm",
+          "venue": "arXiv",
+          "year": 2018
+        },
+        "primary_pointer": "1807.07006",
+        "summary": "It is hoped that there will never be a war in the world, but one of the defensive requirements of any country during the war is the missiles used for destruction and defense. Todays, missiles movement from origin to destination is an important problem due to abundant application of missiles in wars. This is important because of the range of some missiles is low and other are very high. Parametric indeterminacy are several factors in missile movement prediction and trajectory such as speed, movement angle, accuracy, movement time, and situation and direct control. So this research trying to provide a method based on LQR controller with 3d Kalman filter and then set motion and specify path without deviations based on Firefly Algorithm. It is expected that the results of an appropriate evaluation can be obtained by simulating the MATLAB environment and graphic display of a cruise missile.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1807.07006",
+          "http_status": 200,
+          "pdf_sample_score": 0.2727,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-24T23:37:02Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Ruochen Jiao",
+            "Xiangguo Liu",
+            "Takami Sato",
+            "Qi Alfred Chen",
+            "Qi Zhu"
+          ],
+          "title": "Semi-supervised Semantics-guided Adversarial Training for Trajectory Prediction",
+          "venue": "arXiv",
+          "year": 2022
+        },
+        "primary_pointer": "2205.14230",
+        "summary": "Predicting the trajectories of surrounding objects is a critical task for self-driving vehicles and many other autonomous systems. Recent works demonstrate that adversarial attacks on trajectory prediction, where small crafted perturbations are introduced to history trajectories, may significantly mislead the prediction of future trajectories and induce unsafe planning. However, few works have addressed enhancing the robustness of this important safety-critical task.In this paper, we present a novel adversarial training method for trajectory prediction. Compared with typical adversarial training on image tasks, our work is challenged by more random input with rich context and a lack of class labels. To address these challenges, we propose a method based on a semi-supervised adversarial autoencoder, which models disentangled semantic features with domain knowledge and provides additional latent labels for the adversarial training. Extensive experiments with different types of attacks demonstrate that our Semisupervised Semantics-guided Adversarial Training (SSAT) method can effectively mitigate the impact of adversarial attacks by up to 73% and outperform other popular defense methods. In addition, experiments show that our method can significantly improve the system's robust generalization to unseen patterns of attacks. We believe that such semantics-guided architecture and advancement on robust generalization is an important step for developing robust prediction models and enabling safe decision-making.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2205.14230",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-24T23:37:02Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yi Xu",
+            "Ruining Yang",
+            "Yitian Zhang",
+            "Jianglin Lu",
+            "Mingyuan Zhang",
+            "Yizhou Wang",
+            "Lili Su",
+            "Yun Fu"
+          ],
+          "title": "Trajectory Prediction Meets Large Language Models: A Survey",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2506.03408",
+        "summary": "Recent advances in large language models (LLMs) have sparked growing interest in integrating language-driven techniques into trajectory prediction. By leveraging their semantic and reasoning capabilities, LLMs are reshaping how autonomous systems perceive, model, and predict trajectories. This survey provides a comprehensive overview of this emerging field, categorizing recent work into five directions: (1) Trajectory prediction via language modeling paradigms, (2) Direct trajectory prediction with pretrained language models, (3) Language-guided scene understanding for trajectory prediction, (4) Language-driven data generation for trajectory prediction, (5) Language-based reasoning and interpretability for trajectory prediction. For each, we analyze representative methods, highlight core design choices, and identify open challenges. This survey bridges natural language processing and trajectory prediction, offering a unified perspective on how language can enrich trajectory prediction.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2506.03408",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-24T23:37:03Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "molmomotion: forecasting point trajectories in 3d with language instruction computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

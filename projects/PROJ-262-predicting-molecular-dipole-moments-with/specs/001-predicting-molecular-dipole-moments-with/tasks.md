@@ -74,7 +74,7 @@ description: "Task list template for feature implementation"
 - [X] T017 [US1] Implement 3D coordinate, atom type, and bond connectivity extraction in `projects/001-predicting-molecular-dipole-moments/code/data/preprocess_3d.py` (FR-002, depends on T016)
 - [X] T018 [US1] Implement 2D Morgan fingerprints and Coulomb matrix generation in `projects/001-predicting-molecular-dipole-moments/code/data/extract_2d_descriptors.py` (FR-003, depends on T016)
 - [X] T019 [US1] Add validation for missing 3D coordinates handling in `projects/001-predicting-molecular-dipole-moments/code/data/handle_missing_coords.py` (edge case acceptance criteria)
-- [X] T020 [US1] Generate output files: data/processed/molecules_10k.parquet, features_3d.parquet, features_2d.parquet
+- [ ] T020 [US1] Generate output files: data/processed/molecules_10k.parquet, features_3d.parquet, features_2d.parquet
 - [X] T021 [US1] Handle QM9 DOI link inaccessible edge case with retry/fallback in `projects/001-predicting-molecular-dipole-moments/code/data/download_qm9.py` (Edge Case: DOI inaccessible)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -98,10 +98,10 @@ description: "Task list template for feature implementation"
 
 - [X] T026 [P] [US2] Implement SchNet-style GNN architecture in `projects/001-predicting-molecular-dipole-moments/code/models/schnet_gnn.py` (FR-004, CPU-only mode)
 - [X] T027 [P] [US2] Implement Random Forest baseline in `projects/001-predicting-molecular-dipole-moments/code/models/random_forest_baseline.py` (FR-005)
-- [X] T028 [US2] Implement GNN training with 5 random seeds, 50 epochs, early stopping (patience=10) in `projects/001-predicting-molecular-dipole-moments/code/training/train_gnn.py` (FR-005)
-- [X] T029 [US2] Implement Random Forest training with 5 random seeds in `projects/001-predicting-molecular-dipole-moments/code/training/train_rf.py` (FR-005)
+- [ ] T028 [US2] Implement GNN training with 5 random seeds, 50 epochs, early stopping (patience=10) in `projects/001-predicting-molecular-dipole-moments/code/training/train_gnn.py` (FR-005)
+- [ ] T029 [US2] Implement Random Forest training with 5 random seeds in `projects/001-predicting-molecular-dipole-moments/code/training/train_rf.py` (FR-005)
 - [X] T030 [US2] Implement identical train/test split generation across seeds in `projects/001-predicting-molecular-dipole-moments/code/training/split_data.py`
-- [X] T031 [US2] Implement MAE and RMSE metric computation in `projects/001-predicting-molecular-dipole-moments/code/training/evaluate.py` (FR-006)
+- [ ] T031 [US2] Implement MAE and RMSE metric computation in `projects/001-predicting-molecular-dipole-moments/code/training/evaluate.py` (FR-006)
 - [X] T032 [US2] {{claim:c_1013b8b5}} (2305.18454, https://arxiv.org/abs/2305.18454) in `projects/001-predicting-molecular-dipole-moments/code/analysis/validate_dft.py` (FR-011, during evaluation phase)
 - [X] T033 [US2] Save model checkpoints to data/checkpoints/model_seed_{N}.pt and rf_seed_{N}.pkl
 - [X] T034 [US2] Generate results/metrics.csv with performance across all 5 seeds (SC-005, FR-006)

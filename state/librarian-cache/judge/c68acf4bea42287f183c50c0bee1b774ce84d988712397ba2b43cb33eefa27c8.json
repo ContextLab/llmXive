@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2506.03408",
+  "judged_at": "2026-06-24T23:37:23Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "molmomotion: forecasting point trajectories in 3d with language instruction computer science",
+  "rationale": "The survey discusses the integration of large language models with trajectory prediction, directly covering the same mechanism (language instruction for 3D point trajectory forecasting) that the user’s question concerns, satisfying acceptance criterion (a).",
+  "relevant": true
+}

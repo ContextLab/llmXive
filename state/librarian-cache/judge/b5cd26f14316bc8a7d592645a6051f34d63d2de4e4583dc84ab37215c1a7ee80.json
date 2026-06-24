@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1807.07006",
+  "judged_at": "2026-06-24T23:37:13Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "molmomotion: forecasting point trajectories in 3d with language instruction computer science",
+  "rationale": "The paper studies 3‑D trajectory forecasting (missile target motion) using a Kalman filter and optimization, which addresses the same core mechanism—predicting point trajectories in three dimensions—as the user's question, even though it does not involve language instructions (acceptance under criterion (a): same‑mechanism evidence).",
+  "relevant": true
+}

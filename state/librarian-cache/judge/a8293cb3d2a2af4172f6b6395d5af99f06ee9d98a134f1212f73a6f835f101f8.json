@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2606.18558",
+  "judged_at": "2026-06-24T23:37:08Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "molmomotion: forecasting point trajectories in 3d with language instruction computer science",
+  "rationale": "The paper introduces and evaluates the exact task of goal‑conditioned 3D point trajectory forecasting with language instructions, providing the dataset, benchmark, and model—directly matching the mechanism and serving as the foundational reference for this research area (categories (a) and (d)).",
+  "relevant": true
+}

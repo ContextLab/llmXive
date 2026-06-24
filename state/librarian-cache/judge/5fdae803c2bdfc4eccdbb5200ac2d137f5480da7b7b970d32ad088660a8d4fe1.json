@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2205.14230",
+  "judged_at": "2026-06-24T23:37:18Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "molmomotion: forecasting point trajectories in 3d with language instruction computer science",
+  "rationale": "The paper studies trajectory prediction—i.e., it measures the same dependent variable (future point trajectories in 3D space) that the user’s question concerns, even though it does not involve language instruction. This satisfies criterion (b): it provides empirical work on one of the key variables (trajectory forecasting) within the relevant domain of autonomous systems.",
+  "relevant": true
+}

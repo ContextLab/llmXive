@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-19T09:11:36.693208Z'
-current_stage: validated
+current_stage: project_initialized
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-600-https-arxiv-org-abs-2605-15298
-last_run_id: ad03891b-c9cc-42b7-a2c5-92760d805e99
+last_run_id: 7a277b37-ccc3-450b-91c6-8e2487ab25f1
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: PhysBrain 1.0 Technical Report
-updated_at: '2026-06-16T19:01:26.385345Z'
+updated_at: '2026-06-24T23:36:18.218438Z'

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2202.10545",
+  "judged_at": "2026-06-24T23:37:26Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "molmomotion: forecasting point trajectories in 3d with language instruction computer science",
+  "rationale": "The paper focuses on interactive exploration and filtering of existing 3D trajectories using geometric shape queries in VR, without addressing trajectory forecasting or language‑based instruction, which are the core mechanisms of the user's question. Hence it does not meet any inclusion criteria (a‑f).",
+  "relevant": false
+}
