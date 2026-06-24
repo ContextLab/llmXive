@@ -48,6 +48,40 @@ Five Markdown documents, in a single response, separated by
 $schema: ...
 ```
 
+## Plan completeness & methodological rigor (a rigorous methodology panel reviews this)
+
+These are the MOST COMMON blocking concerns the plan panel raises — pre-empt
+every one:
+
+- **Cover EVERY FR and SC.** Each `FR-NNN` and `SC-NNN` in the spec MUST map to a
+  concrete plan phase/step that names the id it addresses. An FR/SC with no
+  corresponding plan element is a blocking coverage gap — do this for ALL of
+  them (missing-data handling, encoding/standardization, robust-SE/diagnostic
+  steps, robustness checks, every success metric), not just the headline ones.
+- **Do NOT add un-spec'd constraints.** The plan ELABORATES the spec; it must not
+  invent new requirements, thresholds, performance/runtime/RAM budgets, or
+  success metrics that no FR/SC states. A constraint the study truly needs
+  belongs in the spec (flag the gap), never silently in the plan.
+- **Dataset-variable fit (fatal if wrong).** Before relying on a dataset, confirm
+  it actually CONTAINS every variable the analysis needs — each predictor,
+  outcome, and covariate. If the verified dataset lacks a required variable (e.g.
+  the study needs post-task anxiety/rumination but the dataset only has trait or
+  personality measures), state that mismatch explicitly and do NOT plan as if it
+  fits — an inappropriate dataset is a fatal, blocking flaw.
+- **Statistical rigor (quantitative studies).** When the plan fits models or runs
+  hypothesis tests, it MUST address, as applicable (state the METHOD; defer the
+  numeric value with `[deferred]`):
+  - multiple-comparison / family-wise-error correction whenever >1 test is run;
+  - a sample-size / power justification — or an explicit acknowledgement of the
+    power limitation;
+  - causal-inference assumptions: if observational, say so and frame claims as
+    associational; if it claims a causal/moderation effect, name the
+    randomization or identification strategy that licenses it;
+  - measurement validity: cite validation evidence for the instruments/measures;
+  - predictor collinearity: if predictors are definitionally related (one is
+    bounded by or derived from another), do NOT claim independent effects —
+    report the relationship descriptively and acknowledge the collinearity.
+
 ## Rules
 
 - Plan MUST include a Constitution Check section that references

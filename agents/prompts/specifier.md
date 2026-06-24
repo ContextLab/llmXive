@@ -37,6 +37,33 @@ A Markdown document conforming to the `spec_template` structure:
   technology-agnostic.
 - `## Assumptions`
 
+## Methodological soundness (encode these in the FRs/SCs — the panel blocks on them)
+
+For any empirical / quantitative study, the spec's FRs and SCs MUST make the
+design methodologically defensible — these are the concerns the downstream
+methodology panel raises and that no later stage can paper over:
+
+- **Dataset-variable fit.** The data source named by the idea must contain EVERY
+  variable the analysis needs (each predictor, outcome, covariate). If the idea's
+  dataset plausibly lacks a required variable (e.g. it needs post-task
+  anxiety/rumination but the source only has trait/personality measures), do NOT
+  assert the dataset fits — record a `[NEEDS CLARIFICATION: does <dataset>
+  contain <variable>?]` so the gap is resolved, not buried.
+- **Inference framing.** If the design is observational (no random assignment),
+  the FRs/SCs must frame findings as ASSOCIATIONAL, not causal. Only claim a
+  causal/moderation effect when the idea specifies randomization or an
+  identification strategy.
+- **Multiplicity & power.** When >1 hypothesis test is run, include an FR/SC for
+  multiple-comparison / family-wise-error correction. Include a sample-size /
+  power consideration (state the method; the number may be `[deferred]`), or an
+  explicit acknowledgement of the power limitation.
+- **Measurement validity.** When using questionnaires/instruments, require that
+  validated instruments (with citable validation) be used.
+- **Predictor collinearity.** If two predictors are definitionally related (one
+  bounded by or derived from another — e.g. braid index ≤ crossing number), the
+  SCs must NOT claim independent predictive effects; frame the joint relationship
+  descriptively and require a collinearity diagnostic.
+
 ## Rules
 
 - Use the project's idea Markdown as the source of truth for
