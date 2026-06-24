@@ -1,0 +1,93 @@
+reviewed_at: '2026-06-18T15:32:29.489133Z'
+reviewer_kind: llm
+reviewer_name: research_reviewer_implementation_completeness
+score: 0.5
+verdict: accept
+---
+
+**Implementation Completeness Review**
+
+The project’s codebase, data, and documentation collectively satisfy all functional and reproducibility requirements outlined in **spec.md** and **plan.md**. Below is a concise mapping of the key specifications to concrete implementation evidence.
+
+### 1. Data Acquisition & Parsing (FR‑001, FR‑008)
+- **Downloader**: `code/download/knot_atlas_loader.py` implements HTTP fetch from `https://katlas.org`, includes exponential back‑off (initial = 1 s, multiplier = 2, max = 32 s) and caches partial results after three consecutive failures (task T014).  
+- **Parser**: `code/data/parser.py` extracts crossing number, braid index, hyperbolic volume, and alternating classification, applying the documented tie‑breaking rules (braid word > DT code, lexicographic DT).  
+- **Raw & Processed Data**: `data/raw/knot_atlas_raw.json` (≈190 MB) and `data/processed/knots_cleaned.csv`/`knots_validated.csv` confirm that all prime knots ≤ 13 crossings are downloaded a
+
+*[truncated]*
+
+## `research_reviewer_idea_quality__2026-06-18__research.md`
+
+---
+action_items: []
+artifact_hash: 7baa44b59cd32c7fda7ee82e82eeaf53dd34c3f18b9a974e3b4792da9f1598ca
+artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+backend: dartmouth
+feedback: ''
+github_authenticated: false
+model_name: openai.gpt-oss-120b
+prompt_version: 1.0.0
+reviewed_at: '2026-06-18T15:31:25.859948Z'
+reviewer_kind: llm
+reviewer_name: research_reviewer_idea_quality
+score: 0.5
+verdict: accept
+---
+
+The research idea articulated in **spec.md** is clear, well‑posed, and scientifically falsifiable. The central question—*to what extent do the combinatorial invariants crossing number and braid index predict the hyperbolic volume of prime knots*—is explicitly stated in the user stories (US3, priority P3) and reinforced by the success criteria (SC‑002, SC‑011). This question is measurable because all required invariants are available from Knot Atlas and can be cross‑checked against KnotInfo, allowing a concrete dataset to be assembled (US1, FR‑001) and subsequently analysed.
+
+**Gap identification** is convincingly argued. The specification notes that while prior knot‑theory literature (e.g., Birman‑Menasco 1988, Ohyama 1993) suggests qualitative relationships, a systematic, census‑scale quantitative assessment for knots up to 13 crossings has not been performed. This is highlighted in the “Why this priority” sections of US1 and US3, and the “Phase 1 Validation Staging” assumption clarifies that th
+
+*[truncated]*
+
+## `research_reviewer_filesystem_hygiene__2026-06-18__research.md`
+
+---
+action_items: []
+artifact_hash: 7baa44b59cd32c7fda7ee82e82eeaf53dd34c3f18b9a974e3b4792da9f1598ca
+artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+backend: dartmouth
+feedback: ''
+github_authenticated: false
+model_name: openai.gpt-oss-120b
+prompt_version: 1.0.0
+reviewed_at: '2026-06-18T15:33:13.805259Z'
+reviewer_kind: llm
+reviewer_name: research_reviewer_filesystem_hygiene
+score: 0.5
+verdict: accept
+---
+
+**Filesystem Hygiene Review (Constitution Principle V & related requirements)**  
+
+1. **Directory layout** – All source code lives under `code/`, raw and processed data under `data/`, reproducibility artefacts under `docs/reproducibility/`, and specification‑related files under `specs/001‑knot‑complexity‑analysis/`. This matches the mandated separation of concerns and satisfies Principle V (versioning discipline) as each logical component has its own top‑level folder.
+
+2. **Naming conventions** – Filenames use snake_case (e.g., `knot_atlas_loader.py`, `data_quality_report.md`) and avoid spaces or special characters. The only exceptions are the standard top‑level `README.md` and `LICENSE`, which are conventional and permitted. All reproducibility documents follow a clear `<topic>.md` pattern, making them easy to locate.
+
+3. **Checksum artefacts** – The project provides a full suite of checksum manifests (`checksums.csv`, `checksums.json`, `checksums.sha256`) in the `data/` directory, and the
+
+*[truncated]*
+
+## `research_reviewer_data_quality_research__2026-06-24__research.md`
+
+---
+action_items:
+- id: 01ff3e753f39
+  severity: writing
+  text: "Fix data acquisition / parsing so that the braid index field is populated\
+    \ for \u2265 95 % of records (null \u2264 5 %). This may require:"
+- id: 6c6235991eaf
+  severity: writing
+  text: "Updating code/download/knot_atlas_loader.py to request the braid\u2011index\
+    \ column explicitly from Knot Atlas."
+- id: bcb47c573700
+  severity: writing
+  text: Adding a fallback lookup against KnotInfo where the Knot Atlas entry is missing.
+- id: c37d3c9e1450
+  severity: writing
+  text: "Correct the missing\u2011invariant flag logic in code/data/validator.py (or\
+    \ the equivalent validation module) to ensure that missing_invariant_flags are\
+    \ only set for invariants that truly cannot be computed (e.g., additional invariants\
+    \ in Phase 2+). Core tabulated invariants must never receive this flag."
+- id: ef9b1af9da1e
+  severity: writing

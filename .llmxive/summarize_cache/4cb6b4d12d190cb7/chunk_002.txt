@@ -1,0 +1,17 @@
+  text: "Regenerate the data\u2011quality reports (docs/reproducibility/data_quality_report.md,\
+    \ docs/reproducibility/invariant_coverage.md) after the above fixes so that they\
+    \ accurately reflect:"
+- id: 1e269932fa8b
+  severity: writing
+  text: "Null percentages \u2264 5 % for all required fields."
+- id: a902f0003ce8
+  severity: writing
+  text: Correct counts for data_quality_flags and missing_invariant_flags.
+- id: cba7e754d1f0
+  severity: writing
+  text: 'Verify and update the checksum manifest:'
+- id: 136b081e7a7a
+  severity: writing
+  text: Run code/reprod
+
+*[truncated]*

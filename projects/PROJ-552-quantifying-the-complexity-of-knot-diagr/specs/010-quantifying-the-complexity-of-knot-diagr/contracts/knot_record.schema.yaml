@@ -1,46 +1,79 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "KnotRecord"
-description: "Schema for a single prime knot record with invariants"
-type: "object"
+type: object
+required:
+  - knot_id
+  - name
+  - crossing_number
+  - braid_index
+  - hyperbolic_volume
+  - alternating
+  - source
+  - source_timestamp
+  - checksum_sha256
 properties:
   knot_id:
-    type: "string"
-    description: "Unique identifier for the knot (e.g., '8_19')"
+    type: string
+    description: "Unique identifier, e.g., '4_1'."
+  name:
+    type: string
+    description: "Human‑readable name or Rolfsen notation."
   crossing_number:
-    type: "integer"
-    description: "Number of crossings in the minimal diagram"
-  braid_index:
-    type: "integer"
-    description: "Minimum number of strands in a braid representation"
-    nullable: true
-  hyperbolic_volume:
-    type: "number"
-    description: "Hyperbolic volume of the knot complement"
-    nullable: true
+    type: integer
     minimum: 0
-  is_alternating:
-    type: "boolean"
-    description: "Classification as alternating or non-alternating"
-    nullable: true
-  data_quality_flags:
-    type: "array"
-    description: "Flags for general data quality issues"
-    items:
-      type: "string"
-  missing_invariant_flags:
-    type: "array"
-    description: "Flags for invariants not computable from representations"
-    items:
-      type: "string"
+    description: "Minimal crossing number (c)."
+  braid_index:
+    type: integer
+    minimum: 0
+    description: "Braid index (b)."
+  hyperbolic_volume:
+    type: number
+    minimum: 0
+    description: "Hyperbolic volume; zero for non‑hyperbolic knots."
+  alternating:
+    type: ["boolean", "null"]
+    description: "True if alternating, false if non‑alternating, null if ambiguous."
   source:
-    type: "string"
-    description: "Data source (e.g., 'knot_atlas')"
-  checksum:
-    type: "string"
-    description: "SHA-256 checksum of the raw record"
-required:
-  - "knot_id"
-  - "crossing_number"
-  - "source"
-  - "checksum"
+    type: object
+    required:
+      - database
+      - version
+      - url
+      - accessed_at
+    properties:
+      database:
+        type: string
+        description: "Name of the source database (e.g., 'Knot Atlas')."
+      version:
+        type: string
+        description: "Version string or commit hash of the source dump."
+      url:
+        type: string
+        format: uri
+        description: "Canonical URL of the source."
+      accessed_at:
+        type: string
+        format: date-time
+        description: "Timestamp when the source was accessed."
+  source_timestamp:
+    type: string
+    format: date-time
+    description: "Timestamp when this record was created from the source."
+  checksum_sha256:
+    type: string
+    pattern: "^[a-fA-F0-9]{64}$"
+    description: "SHA‑256 checksum of the raw source record."
+  data_quality_flags:
+    type: array
+    items:
+      type: string
+    description: "Flags from FR‑002 (e.g., 'null_crossing_number')."
+  missing_invariant_flags:
+    type: array
+    items:
+      type: string
+    description: "Flags from FR‑009 for invariants that could not be computed."
+  classification_flag:
+    type: ["string", "null"]
+    description: "Set to 'unclassifiable' when alternating status is ambiguous (FR‑010)."
 additionalProperties: false

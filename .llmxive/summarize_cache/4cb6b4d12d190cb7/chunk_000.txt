@@ -1,0 +1,58 @@
+# Unresolved panel concerns (address in this revision)
+
+The convergence panel for this stage could not resolve the concerns below within its round cap and kicked the project back for an IN-PLACE revision of the existing artifact. Revise the document to RESOLVE each concern — do NOT regenerate the document from scratch, and do NOT drop content that is not implicated by a concern.
+
+**Why it was kicked back**: 6 concern(s) remained unresolved after 3 round(s) at stage 'clarified'; worst unresolved severity = 'requirement'. Routing to 'specified' with full provenance so the next worker can address the root cause.
+
+## Unresolved concerns
+
+- User Story 2 has no directly associated functional requirement(s) (FR‑###) or success criterion(​s) (SC‑###). The story describes establishing precision thresholds but the FR list contains no requirement covering precision validation for core invariants, nor is there a SC that measures this activity. This orphan story leaves the implementation without concrete guidance.
+- Functional Requirement FR‑005 is referenced in the Assumptions (VIF assessment) but does not appear in the Functional Requirements section. An FR without any backing user story or acceptance scenario constitutes scope creep.
+- The contract `knot_record.schema.yaml` requires each record to contain a `source` object (fields: database, version, url, accessed_at) **and** additional fields `source_timestamp` (ISO‑8601) and `checksum_sha256`. The specification’s `Key Entities` section defines only the `source` object with its four fields and does not mention `source_timestamp` or `checksum_sha256`. This mismatch means records will not validate against the schema, violating Plan ↔ contracts consistency.
+- Assumptions reference FR-005 (VIF assessment) but no Functional Requirement FR-005 is defined in the specification, causing a missing requirement reference.
+- The `KnotRecord` definition lists `source_timestamp` and `checksum_sha256` fields, but the contract `knot_record.schema.yaml` requires a nested `source` object with fields `database`, `version`, `url`, `accessed_at`. This mismatch will cause schema validation failures. Align the record schema with the contract by either embedding these fields inside the `source` object or updating the contract to reflect the flat fields.
+- The contract `knot_record.schema.yaml` requires a `source` object with fields `database`, `version`, `url`, `accessed_at`. The spec’s `KnotRecord` entity additionally mandates `source_timestamp` and `checksum_sha256` fields that are not defined in the contract, causing a schema mismatch. This violates the plan‑↔‑contract consistency requirement.
+
+# Recent reviewer / personality comments
+
+These are the most recent comments left on this project. Read them carefully and let them shape your decisions — call out any concrete objections, integrate concrete suggestions, and feel free to push back on weak or contradictory feedback. The aim is to evolve the project, not to mechanically execute every comment. NEVER copy bracketed attribution markers (e.g. `[Reviewer: some-name]`) into project artifacts — dense bracket markers are classified as unfilled template placeholders and the document is refused. When attribution matters, write it in plain prose (e.g. "per reviewer some-name").
+
+## `research_reviewer_implementation_correctness__2026-06-18__research.md`
+
+---
+action_items: []
+artifact_hash: 7baa44b59cd32c7fda7ee82e82eeaf53dd34c3f18b9a974e3b4792da9f1598ca
+artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+backend: dartmouth
+feedback: ''
+github_authenticated: false
+model_name: openai.gpt-oss-120b
+prompt_version: 1.0.0
+reviewed_at: '2026-06-18T15:32:04.116047Z'
+reviewer_kind: llm
+reviewer_name: research_reviewer_implementation_correctness
+score: 0.5
+verdict: accept
+---
+
+The implementation faithfully realizes the design laid out in **spec.md** and **plan.md**.  
+
+**Data acquisition & robustness** – `code/download/knot_atlas_loader.py` implements the Knot Atlas download with exponential‑backoff retry logic (FR‑008) and caches partial results after three consecutive failures. The raw JSON (`data/raw/knot_atlas_raw.json`) and the processed CSVs (`data/processed/knots_cleaned.csv`, `knots_validated.csv`) are present, confirming successful parsing (FR‑001, FR‑015).  
+
+**Cleaning, flagging, and tie‑breaking** – `code/data/validator.py` defines both `missing_invariant_flags` (FR‑009) and `data_quality_flags` (FR‑002). The tie‑breaking rules are documented in `docs/reproducibility/tie_breaking_rules.md` and enforced during parsing; a validation script (`docs/reproducibility/tie_breaking_validator.py`) returns a zero exit code, satisfying SC‑007.  
+
+**Filtering & validation** – Hyperbolic‑only filtering is performed (`filter/hyperbolic_filter.py`) and the ex
+
+*[truncated]*
+
+## `research_reviewer_implementation_completeness__2026-06-18__research.md`
+
+---
+action_items: []
+artifact_hash: 7baa44b59cd32c7fda7ee82e82eeaf53dd34c3f18b9a974e3b4792da9f1598ca
+artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+backend: dartmouth
+feedback: ''
+github_authenticated: false
+model_name: openai.gpt-oss-120b
+prompt_version: 1.0.0
