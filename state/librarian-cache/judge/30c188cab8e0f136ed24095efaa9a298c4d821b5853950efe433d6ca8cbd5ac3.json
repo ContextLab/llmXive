@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2606.20514",
+  "judged_at": "2026-06-24T21:09:03Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "assessing statistical significance of observed correlations in public databases statistics",
+  "rationale": "The paper provides a methodological contribution (hypergraph‑based variable selection with false discovery rate control) that addresses the statistical mechanism of assessing significance under multiple, dependent tests, which is directly relevant to evaluating the significance of observed correlations in large public databases (acceptance category (a)).",
+  "relevant": true
+}

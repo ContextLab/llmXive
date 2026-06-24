@@ -32,3 +32,228 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-06-24T07:28:18Z'
+- artifact_path: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/001-evaluating-the-impact-of-code-duplicatio/research.md
+  attempts: 1
+  canonical: clones constitute up to 17% of code in popular open-source projects
+  claim_id: c_eeb0294e
+  context: "Literature review cites Sajnani et al. (2016) reporting clone prevalence\
+    \ in open\u2011source code."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Sajnani et al. (2016) demonstrated that clones constitute up to 17\u202F\
+    % of code in popular open\u2011source projects, emphasizing their significance\
+    \ for any empirical study."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-24T20:55:44Z'
+- artifact_path: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/001-evaluating-the-impact-of-code-duplicatio/research.md
+  attempts: 1
+  canonical: developers spend about 30% more time scanning duplicated fragments
+  claim_id: c_840b7ced
+  context: Literature review cites Liu et al. (2019) on the cognitive impact of duplicated
+    code.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Liu et al. (2019) measured eye\u2011tracking data and concluded that\
+    \ developers spend \u224830\u202F% more time scanning duplicated fragments."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-24T20:58:44Z'
+- artifact_path: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/001-evaluating-the-impact-of-code-duplicatio/research.md
+  attempts: 1
+  canonical: Codex achieves human-level code generation on HumanEval benchmark
+  claim_id: c_94732ec1
+  context: Section on LLMs and code understanding references Chen et al. (2021) performance
+    claim.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Chen et al. (2021) introduced Codex, demonstrating that transformer\u2011\
+    based LLMs can achieve human\u2011level code generation on benchmarks such as\
+    \ HumanEval."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-24T20:59:10Z'
+- artifact_path: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/001-evaluating-the-impact-of-code-duplicatio/research.md
+  attempts: 1
+  canonical: lower perplexity strongly correlates with higher functional correctness
+  claim_id: c_ae78b467
+  context: Literature review cites Li et al. (2023) linking perplexity to code correctness.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Li et al. (2023) evaluated perplexity as a proxy for code understandability,
+    showing a strong correlation between lower perplexity and higher functional correctness.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-24T21:00:11Z'
+- artifact_path: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/001-evaluating-the-impact-of-code-duplicatio/research.md
+  attempts: 1
+  canonical: noisy or poorly formatted code inflates perplexity and harms downstream
+    tasks
+  claim_id: c_316e5c76
+  context: Literature review cites Zhang & Liu (2024) on code quality impact.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Zhang & Liu (2024) examined the effect of code quality on LLM performance,
+    reporting that noisy or poorly formatted code inflates perplexity and harms downstream
+    tasks.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-24T21:02:00Z'
+- artifact_path: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/001-evaluating-the-impact-of-code-duplicatio/tasks.md
+  attempts: 1
+  canonical: 500 MB subset of codeparrot/github-code
+  claim_id: c_91b1e79c
+  context: "Implement data_loader.py to stream codeparrot/github-code (500\u202FMB\
+    \ subset) using HuggingFace datasets library."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "stream `codeparrot/github-code` (500\u202FMB subset)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-24T21:02:24Z'
+- artifact_path: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/001-evaluating-the-impact-of-code-duplicatio/tasks.md
+  attempts: 1
+  canonical: process at least 1000 code segments
+  claim_id: c_f539faaf
+  context: "Add validation task to verify SC\u2011003 (at least 1000 code segments\
+    \ processed with valid clone density and perplexity measurements)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Process_at_least_1000_code_segments
+  kind: magnitude
+  raw_text: at least 1000 code segments processed with valid clone density and perplexity
+    measurements
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-24T21:02:47Z'
+- artifact_path: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/001-evaluating-the-impact-of-code-duplicatio/tasks.md
+  attempts: 1
+  canonical: load 50 problem HumanEval subset
+  claim_id: c_7f8894af
+  context: "Implement bug_detection.py to load the 50\u2011problem HumanEval subset\
+    \ and compute pass@1 accuracy."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "load the 50\u2011problem HumanEval subset"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-24T21:03:09Z'
+- artifact_path: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/001-evaluating-the-impact-of-code-duplicatio/data-model.md
+  attempts: 1
+  canonical: 500 MB sub-sample of codeparrot/github-code dataset
+  claim_id: c_ab82b230
+  context: "The Raw Corpus entity stores a sub\u2011sample (\u2248500\u202FMB) of\
+    \ the codeparrot/github-code dataset streamed from HuggingFace."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Sub\u2011sample (\u2248500\u202FMB) of the `codeparrot/github-code` dataset\
+    \ streamed from HuggingFace."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-24T21:03:41Z'
+- artifact_path: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/001-evaluating-the-impact-of-code-duplicatio/tasks.md
+  attempts: 1
+  canonical: stream 500 MB subset of codeparrot/github-code dataset
+  claim_id: c_c7a57884
+  context: "Task T018 specifies implementing data_loader.py to stream the codeparrot/github-code\
+    \ dataset (500\u202FMB subset) with streaming=True."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement data_loader.py to stream codeparrot/github-code (500\u202F\
+    MB subset) using HuggingFace datasets library with streaming mode enabled"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-24T21:05:21Z'
+- artifact_path: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/001-evaluating-the-impact-of-code-duplicatio/tasks.md
+  attempts: 1
+  canonical: pipeline integration test uses small sample of 10 files
+  claim_id: c_a1165f83
+  context: "Task T015b defines an integration test that runs the pipeline on a small\
+    \ sample (10 files) and checks the clone\u2011density and perplexity CSV outputs."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Integration test for pipeline on a small sample (10 files) verifying\
+    \ clone\u2011density and perplexity CSV output"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-24T21:06:08Z'
+- artifact_path: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/001-evaluating-the-impact-of-code-duplicatio/tasks.md
+  attempts: 1
+  canonical: bug detection loads 50-problem HumanEval subset
+  claim_id: c_00af626a
+  context: "Task T031 requires bug_detection.py to load a 50\u2011problem HumanEval\
+    \ subset and calculate pass@1 accuracy."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement bug_detection.py to load the 50\u2011problem HumanEval subset\
+    \ and compute pass@1 accuracy"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-24T21:06:39Z'
+- artifact_path: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/001-evaluating-the-impact-of-code-duplicatio/tasks.md
+  attempts: 1
+  canonical: at least 1000 code segments processed with valid metrics
+  claim_id: c_3ee220ff
+  context: "Task T026 adds a validation to verify SC\u2011003, which mandates processing\
+    \ at least 1000 code segments with valid clone density and perplexity metrics."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/At_least_1000_code_segments_processed_with_valid_metrics
+  kind: magnitude
+  raw_text: "SC\u2011003 requires at least 1000 code segments processed with valid\
+    \ clone density and perplexity measurements"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-24T21:07:02Z'

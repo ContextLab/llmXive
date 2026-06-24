@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2002.12321",
+  "judged_at": "2026-06-24T21:09:06Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "assessing statistical significance of observed correlations in public databases statistics",
+  "rationale": "The paper provides methods for controlling the false discovery rate in multiple hypothesis testing, which is a core mechanism for assessing the statistical significance of many observed correlations (even if not specific to public databases). This matches the same‑mechanism evidence criterion (a).",
+  "relevant": true
+}

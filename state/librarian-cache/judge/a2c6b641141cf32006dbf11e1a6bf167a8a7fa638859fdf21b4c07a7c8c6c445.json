@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2105.13952",
+  "judged_at": "2026-06-24T21:08:53Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "assessing statistical significance of observed correlations in public databases statistics",
+  "rationale": "The paper presents a permutation‑based method for testing the statistical significance of variables (i.e., observed associations) in high‑dimensional public datasets, directly addressing the mechanism of assessing significance of correlations (category (a) same‑mechanism evidence).",
+  "relevant": true
+}

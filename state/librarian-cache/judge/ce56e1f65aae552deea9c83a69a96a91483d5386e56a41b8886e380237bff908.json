@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2109.05633",
+  "judged_at": "2026-06-24T21:08:51Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "assessing statistical significance of observed correlations in public databases statistics",
+  "rationale": "The paper focuses on synthetic 3D garment dataset generation and sewing pattern modeling, which bears no relation to statistical significance assessment, correlation analysis, or public database statistics; it is off‑domain and lacks any relevant mechanism, variable, or methodology.",
+  "relevant": false
+}

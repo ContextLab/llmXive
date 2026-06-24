@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1712.03305",
+  "judged_at": "2026-06-24T21:09:00Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "assessing statistical significance of observed correlations in public databases statistics",
+  "rationale": "The paper provides theoretical results on Benjamini‑Hochberg false‑discovery control for a large set of pairwise tests, which shares the same statistical mechanism (multiple‑testing significance assessment) that underlies evaluating many observed correlations in public databases. This qualifies under acceptance criterion (a) – same‑mechanism evidence.",
+  "relevant": true
+}

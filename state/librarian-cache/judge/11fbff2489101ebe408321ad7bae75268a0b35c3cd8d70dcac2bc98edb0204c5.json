@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1411.7565",
+  "judged_at": "2026-06-24T21:08:55Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "assessing statistical significance of observed correlations in public databases statistics",
+  "rationale": "The paper provides foundational methodology for exact permutation testing, a core statistical technique for assessing significance of observed associations (including correlations) in large datasets, satisfying criterion (a) same‑mechanism evidence and (d) canonical methodological reference.",
+  "relevant": true
+}

@@ -24,8 +24,8 @@
 - [X] T001 Create project structure per implementation plan in `projects/PROJ-261-evaluating-the-impact-of-code-duplication/`
 - [X] T002 Initialize Python 3.11 project with `requirements.txt` (datasets, transformers, bitsandbytes, scipy, matplotlib, pytest)
 - [X] T003 [P] Configure linting and formatting tools (black, flake8, isort) in `.pre-commit-config.yaml`
-- [ ] T004 [P] Create `research.md` documentation artifact in `specs/001-evaluate-code-duplication-llm-understanding/` with literature review and research question justification
-- [ ] T005 [P] Create `data-model.md` documentation artifact in `specs/001-evaluate-code-duplication-llm-understanding/` with entity definitions and data flow diagrams
+- [X] T004 [P] Create `research.md` documentation artifact in `specs/001-evaluate-code-duplication-llm-understanding/` with literature review and research question justification
+- [X] T005 [P] Create `data-model.md` documentation artifact in `specs/001-evaluate-code-duplication-llm-understanding/` with entity definitions and data flow diagrams
 
 ---
 
@@ -35,10 +35,10 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T006 [P] Implement `projects/PROJ-261-evaluating-the-impact-of-code-duplication/code/config.py` for seeds, thresholds, and model parameters
-- [ ] T007 [P] Setup data directory structure (`projects/PROJ-261-evaluating-the-impact-of-code-duplication/data/raw`, `.../processed`, `.../analysis`)
-- [ ] T008 [P] Configure logging infrastructure for parse failures (logs to `projects/PROJ-261-evaluating-the-impact-of-code-duplication/data/parse_failures.csv`)
-- [ ] T009 [P] Create checksum state manifest infrastructure in `projects/PROJ-261-evaluating-the-impact-of-code-duplication/code/checksum_manifest.py` with `artifact_hashes` tracking
+- [X] T006 [P] Implement `projects/PROJ-261-evaluating-the-impact-of-code-duplication/code/config.py` for seeds, thresholds, and model parameters
+- [X] T007 [P] Setup data directory structure (`projects/PROJ-261-evaluating-the-impact-of-code-duplication/data/raw`, `.../processed`, `.../analysis`)
+- [X] T008 [P] Configure logging infrastructure for parse failures (logs to `projects/PROJ-261-evaluating-the-impact-of-code-duplication/data/parse_failures.csv`)
+- [X] T009 [P] Create checksum state manifest infrastructure in `projects/PROJ-261-evaluating-the-impact-of-code-duplication/code/checksum_manifest.py` with `artifact_hashes` tracking
 - [ ] T010 [P] Create contract schema files: `clone_metrics.schema.yaml`, `model_metrics.schema.yaml`, `correlation_results.schema.yaml`, `pipeline_config.schema.yaml` in `specs/001-evaluate-code-duplication-llm-understanding/contracts/`
 - [ ] T011 [P] Implement contract tests for all schemas in `projects/PROJ-261-evaluating-the-impact-of-code-duplication/tests/contract/`
 
@@ -58,14 +58,14 @@
 - [ ] T013 [US1] Unit test for NaN/infinite perplexity value detection (`projects/PROJ-261-evaluating-the-impact-of-code-duplication/tests/unit/test_model_metrics.py`) using pytest
 - [ ] T014 [US1] Unit test for PII scan detection (`projects/PROJ-261-evaluating-the-impact-of-code-duplication/tests/unit/test_pii_scanner.py`) using pytest
 - [ ] T015a [US1] Integration test for HuggingFace rate‑limiting and network‑interruption handling during 500 MB download (`projects/PROJ-261-evaluating-the-impact-of-code-duplication/tests/integration/test_data_loader.py`) using pytest
-- [ ] T015b [US1] Integration test for pipeline on a small sample (10 files) verifying clone‑density and perplexity CSV output (`projects/PROJ-261-evaluating-the-impact-of-code-duplication/tests/integration/test_us1_small_sample.py`) using pytest
+- [ ] T015b [US1] Integration test for pipeline on a small sample (10 files) verifying clone‑density and perplexity CSV output [UNRESOLVED-CLAIM: c_a1165f83 — status=not_enough_info] (`projects/PROJ-261-evaluating-the-impact-of-code-duplication/tests/integration/test_us1_small_sample.py`) using pytest
 - [ ] T016a [US1] Edge‑case test for parse‑failure logging (`projects/PROJ-261-evaluating-the-impact-of-code-duplication/tests/unit/test_parse_failures.py`) using pytest
 - [ ] T016b [US1] Edge‑case test for zero‑clone‑density handling (`projects/PROJ-261-evaluating-the-impact-of-code-duplication/tests/unit/test_zero_clone_density.py`) using pytest
 - [ ] T016c [US1] Edge‑case test for model‑loading failure in 8‑bit quantization (`projects/PROJ-261-evaluating-the-impact-of-code-duplication/tests/unit/test_model_loading_failure.py`) using pytest
 
 ### Implementation Tasks (sequential – data flow requires order)
 
-- [ ] T018 [US1] Implement `projects/PROJ-261-evaluating-the-impact-of-code-duplication/code/data_loader.py` to stream `codeparrot/github-code` (500 MB subset) using HuggingFace datasets library [UNRESOLVED-CLAIM: c_46a4f222 — status=not_enough_info] with streaming mode enabled, outputting to `data/raw/github-code-sample.csv` (verify streaming=True in implementation)
+- [ ] T018 [US1] Implement `projects/PROJ-261-evaluating-the-impact-of-code-duplication/code/data_loader.py` to stream `codeparrot/github-code` (500 MB subset) using HuggingFace datasets library with streaming mode enabled, outputting to `data/raw/github-code-sample.csv` (verify streaming=True in implementation)
 - [ ] T017 [US1] Implement `projects/PROJ-261-evaluating-the-impact-of-code-duplication/code/pii_scanner.py` to scan all files under `data/` including `raw/`, `processed/`, and `analysis/` subdirectories for PII patterns per Constitution Principle III (must run after T018 completes)
 - [ ] T019 [US1] Implement `projects/PROJ-261-evaluating-the-impact-of-code-duplication/code/ast_cloner.py` to parse Python files via the built‑in `ast` module and compute clone density (stdlib only - verify no external dependencies in implementation)
 - [ ] T020 [US1] Implement `projects/PROJ-261-evaluating-the-impact-of-code-duplication/code/model_metrics.py` to load `Salesforce/codegen-350M-mono` in 8‑bit quantization using bitsandbytes and compute perplexity
@@ -95,7 +95,7 @@
 
 ### Implementation Tasks
 
-- [ ] T031 [US2] Implement `projects/PROJ-261-evaluating-the-impact-of-code-duplication/code/bug_detection.py` to load the 50‑problem HumanEval subset [UNRESOLVED-CLAIM: c_3f71ce75 — status=not_enough_info] and compute pass@1 accuracy
+- [ ] T031 [US2] Implement `projects/PROJ-261-evaluating-the-impact-of-code-duplication/code/bug_detection.py` to load the 50‑problem HumanEval subset and compute pass@1 accuracy
 - [ ] T032 [US2] Implement `projects/PROJ-261-evaluating-the-impact-of-code-duplication/code/correlation_analysis.py` to calculate Spearman rank correlation between duplication density and both perplexity and accuracy
 - [ ] T033 [US2] Join all intermediate metrics (clone, perplexity, bug‑detection) for correlation input
 - [ ] T034 [US2] Save correlation results with p‑values to `projects/PROJ-261-evaluating-the-impact-of-code-duplication/data/analysis/correlation_results.csv`

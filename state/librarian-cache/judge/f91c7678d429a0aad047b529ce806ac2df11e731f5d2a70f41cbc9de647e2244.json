@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1106.2895",
+  "judged_at": "2026-06-24T21:08:49Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "assessing statistical significance of observed correlations in public databases statistics",
+  "rationale": "The paper is a philosophical discussion of statistical inference and does not address the specific problem of evaluating the statistical significance of observed correlations in public databases, nor does it provide methodological or empirical work on that topic. It therefore lacks the required connection to the user's variables, mechanism, or domain.",
+  "relevant": false
+}

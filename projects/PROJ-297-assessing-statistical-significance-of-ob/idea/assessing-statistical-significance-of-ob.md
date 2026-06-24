@@ -9,37 +9,73 @@ submitter: google.gemma-3-27b-it
 
 ## Research question
 
-How can we quantify the probability of observing a correlation network with specific structural properties (e.g., average correlation strength, network density) by chance in public databases, and what is the most effective statistical framework for distinguishing spurious from genuine correlations?
+Do correlation network structures in public databases (e.g., average correlation strength, network density) exceed what would be expected by chance, and which types of datasets show the strongest evidence of genuine correlation patterns beyond random artifacts?
 
 ## Motivation
 
-Public databases contain many variables where pairwise correlations may appear significant individually but could arise from multiple testing or random chance at the network level. Current methods focus on individual correlation significance without adequately addressing the overall network structure. This gap makes it difficult to assess whether observed correlation patterns reflect genuine relationships or statistical artifacts.
+Large public repositories (UCI, OpenML, etc.) host many multivariate datasets where researchers often report individual pairwise correlations. However, the overall topology of the resulting correlation networks—such as average edge strength or density—may arise simply from random variation and multiple‑testing effects. A principled statistical framework for assessing the significance of whole‑network properties would help distinguish truly informative correlation patterns from artifacts, guiding downstream analyses that rely on network structure.
 
 ## Related work
 
-- [Statistics, Causality and Bell's Theorem (2012)](http://arxiv.org/abs/1207.5103v6) — Discusses fundamental limits on inferring causal relationships from statistical correlations, relevant to distinguishing spurious from genuine associations.
-
-- [Statistical Inference: The Big Picture (2011)](http://arxiv.org/abs/1106.2895v2) — Addresses interpretational challenges in modern statistical practice, including multiple testing and inference frameworks applicable to correlation network analysis.
+- [Generalized Permutation Framework for Testing Model Variable Significance (2021)](https://arxiv.org/abs/2105.13952) — Provides a flexible permutation‑based testing scheme that can be adapted to evaluate the significance of aggregate statistics such as network‑level correlation measures.  
+- [Exact testing with random permutations (2014)](https://arxiv.org/abs/1411.7565) — Discusses theoretical guarantees and practical considerations when using a limited number of random permutations, directly informing the design of an efficient null‑distribution generator for network statistics.  
+- [Asymptotic false discovery control of the Benjamini-Hochberg procedure for pairwise comparisons (2017)](https://arxiv.org/abs/1712.03305) — Analyzes FDR control in massive pairwise testing settings, offering guidance for correcting multiple network‑level tests across many datasets.  
+- [Hypergraph Variable Selection with False Discovery Rate Control (2026)](https://arxiv.org/abs/2606.20514) — Extends FDR control to settings with complex dependence structures, relevant for handling the inter‑dependent edges of correlation networks.  
 
 ## Expected results
 
-We expect to develop a permutation-based framework that generates null distributions for network-level correlation statistics, demonstrating that certain correlation structures occur with non-negligible probability under random sampling. The measurement will compare observed network statistics against 10,000+ permuted datasets, requiring p-values below 0.05 to claim genuine structure beyond chance.
+We anticipate that a permutation‑based null model will reveal that many observed network statistics (e.g., average absolute correlation, density above a threshold) are not significantly larger than expected under random shuffling, while a subset of datasets—particularly those with strong underlying latent factors—will show network‑level statistics that exceed the 95 % confidence bounds of the null distribution. Empirical p‑values < 0.05 after Benjamini‑Hochberg correction will constitute evidence of genuine correlation structure.
 
 ## Methodology sketch
 
-- Download 5-10 public datasets from UCI Machine Learning Repository (https://archive.ics.uci.edu/ml/datasets.php) with ≥20 numeric variables each
-- Compute pairwise Pearson/Spearman correlation matrices for each dataset using scikit-learn or scipy
-- Extract network statistics: average absolute correlation, network density (correlations |r|>0.3), maximum correlation, and clustering coefficient
-- Implement permutation testing: randomly shuffle variable values 10,000 times per dataset while preserving marginal distributions
-- Generate null distributions for each network statistic from permuted data
-- Calculate empirical p-values by comparing observed statistics against null distributions
-- Perform multiple testing correction (Benjamini-Hochberg) across all statistics and datasets
-- Visualize results using correlation heatmaps and null distribution plots
-- Validate method on synthetic datasets with known embedded correlation structures
-- Profile runtime to ensure completion within 6-hour GitHub Actions limit (target: ≤4 hours for full pipeline)
+- **Data acquisition**: Download 6 publicly available multivariate datasets from the UCI Machine Learning Repository (e.g., *Wine*, *Abalone*, *Breast Cancer Wisconsin*, *Student Performance*, *Air Quality*, *Concrete Compressive Strength*) each containing ≥20 continuous variables. URLs are provided in the repository’s `data/` directory.  
+- **Correlation computation**: For each dataset, compute Pearson and Spearman correlation matrices using `scipy.stats`.  
+- **Network construction**: Threshold absolute correlations at |r| > 0.3 to create an undirected weighted graph; compute network statistics: (a) mean absolute correlation, (b) edge density, (c) maximum absolute correlation, (d) average clustering coefficient (via `networkx`).  
+- **Permutation null model**: For each dataset, perform 2 000 random permutations of each variable’s values independently (preserving marginal distributions). Re‑compute the four network statistics for every permuted replicate, yielding empirical null distributions.  
+- **Significance assessment**: Calculate two‑sided empirical p‑values by locating the observed statistic within its null distribution. Apply the Benjamini‑Hochberg procedure across all statistics and datasets to control the false discovery rate at 0.05.  
+- **Synthetic validation**: Generate synthetic datasets with known latent correlation structures (e.g., block‑diagonal covariance) to confirm that the pipeline correctly detects true network‑level signals.  
+- **Runtime profiling**: Benchmark each step on a GitHub Actions runner (2 CPU, 7 GB RAM) and adjust the number of permutations or dataset size if total runtime exceeds 4 hours.  
+- **Visualization & reporting**: Produce heatmaps of observed vs. null correlation matrices, histograms of null distributions with observed values overlaid, and a summary table of significant network statistics per dataset.  
 
 ## Duplicate-check
 
-- Reviewed existing ideas: None available in current corpus (this is the first fleshed-out idea in this field).
-- Closest match: N/A (no prior ideas in statistics field)
-- Verdict: NOT a duplicate
+- Reviewed existing ideas: None.
+- Closest match: N/A.
+- Verdict: NOT a duplicate.
+
+
+## Search trail
+
+**Generated by**: librarian (prompt v1.6.0) on 2026-06-24T21:09:06Z
+**Outcome**: success_after_expansion
+**Original term**: Assessing Statistical Significance of Observed Correlations in Public Databases statistics
+**Verified citation count**: 5
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | Assessing Statistical Significance of Observed Correlations in Public Databases statistics | 0 |
+| 1 | permutation test for correlation significance in large datasets | 3 |
+| 2 | false discovery rate control for pairwise associations in public databases | 3 |
+| 3 | bootstrap confidence intervals for Pearson and Spearman correlations | 0 |
+| 4 | multiple testing correction for correlation matrices in high‑throughput data | 0 |
+| 5 | empirical null distribution of correlation coefficients across repositories | 0 |
+| 6 | Bayesian inference of correlation significance in omics databases | 0 |
+| 7 | p‑value computation for gene co‑expression networks in public archives | 0 |
+| 8 | partial correlation significance assessment in multi‑variable databases | 0 |
+| 9 | Monte Carlo significance testing of observed associations in big data | 0 |
+| 10 | robust correlation significance under heteroscedasticity in database studies | 0 |
+| 11 | adjusted significance thresholds for correlation analysis in large‑scale repositories | 0 |
+| 12 | statistical power analysis for detecting correlations in public datasets | 0 |
+| 13 | network‑based significance evaluation of observed pairwise links | 0 |
+| 14 | meta‑analysis of correlation strengths across multiple public studies | 0 |
+| 15 | Benjamini‑Hochberg procedure for controlling false discoveries in correlation tests. | 0 |
+
+### Verified citations
+
+1. **Generalized Permutation Framework for Testing Model Variable Significance** (2021). Yue Wu, Ted Spaide, Kenji Nakamichi, Russell Van Gelder, Aaron Lee. arXiv. [2105.13952](https://arxiv.org/abs/2105.13952). PDF-sampled: No.
+2. **Exact testing with random permutations** (2014). Jesse Hemerik, Jelle Goeman. arXiv. [1411.7565](https://arxiv.org/abs/1411.7565). PDF-sampled: No.
+3. **Asymptotic false discovery control of the Benjamini-Hochberg procedure for pairwise comparisons** (2017). Weidong Liu, Dennis Leung, Qiman Shao. arXiv. [1712.03305](https://arxiv.org/abs/1712.03305). PDF-sampled: No.
+4. **Hypergraph Variable Selection with False Discovery Rate Control** (2026). Sarah Organ, Toby Kenney, Hong Gu. arXiv. [2606.20514](https://arxiv.org/abs/2606.20514). PDF-sampled: No.
+5. **PAPRIKA: Private Online False Discovery Rate Control** (2020). Wanrong Zhang, Gautam Kamath, Rachel Cummings. arXiv. [2002.12321](https://arxiv.org/abs/2002.12321). PDF-sampled: No.
