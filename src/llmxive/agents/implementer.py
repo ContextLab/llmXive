@@ -710,6 +710,81 @@ def _untraceable_result_numbers(
     return {n for n in introduced if n not in ok}
 
 
+# --- Regenerate a stale GENERATED report by running its producer script -------
+# Reproducibility docs (docs/reproducibility/*.md) are written by project
+# scripts (code/analysis/*.py). When a generator EXISTS but was never wired into
+# the run-book, its doc ships as a placeholder stub the data-quality reviewer
+# (correctly) blocks on — and for a DERIVED value (e.g. a coverage %) the
+# anti-fabrication guard rightly forbids the LLM to compute it. The fix is not to
+# hand-edit the doc but to RUN its generator: the values then come from the
+# project's own analysis of its real data (no hallucination). Fully general — any
+# project with a stale generated report.
+_PLACEHOLDER_RE = re.compile(
+    r"PLACEHOLDER|\bTBD\b|\bTKTK\b|\bFIXME\b|\bXXX\b|<[A-Z_]{3,}>", re.I
+)
+
+
+def _doc_generator(project_dir: Path, doc_rel: str) -> Path | None:
+    """Return the UNIQUE ``code/**/*.py`` script whose source references this
+    doc's path/basename (it writes the doc), or None when absent/ambiguous."""
+    code_dir = project_dir / "code"
+    if not code_dir.is_dir():
+        return None
+    rel_posix = Path(doc_rel).as_posix()
+    base = Path(doc_rel).name
+    exact: list[Path] = []
+    by_name: list[Path] = []
+    for p in code_dir.rglob("*.py"):
+        sp = str(p)
+        if "/.venv/" in sp or "__pycache__" in sp:
+            continue
+        try:
+            src = p.read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            continue
+        if rel_posix in src:
+            exact.append(p)
+        elif base in src:
+            by_name.append(p)
+    if len(exact) == 1:
+        return exact[0]
+    if not exact and len(by_name) == 1:
+        return by_name[0]
+    return None
+
+
+def _regenerate_generated_doc(
+    project_dir: Path, doc_path: Path, *, timeout_s: int = 600,
+) -> tuple[bool, str]:
+    """Run the script that produces ``doc_path`` in the project venv to refresh
+    it with REAL computed values. Returns (regenerated_with_fewer_placeholders,
+    log). Never raises — a missing generator / failed run just returns False."""
+    from llmxive import sandbox
+
+    rel = doc_path.relative_to(project_dir).as_posix()
+    gen = _doc_generator(project_dir, rel)
+    if gen is None:
+        return False, f"no unique generator script found for {rel}"
+    before = doc_path.read_text(encoding="utf-8", errors="replace") if doc_path.is_file() else ""
+    before_ph = len(_PLACEHOLDER_RE.findall(before))
+    gen_rel = gen.relative_to(project_dir).as_posix()
+    try:
+        res = sandbox.run_in_venv(
+            project_dir=project_dir, args=[gen_rel], timeout_s=timeout_s,
+            extra_env={"PYTHONPATH": str((project_dir / "code").resolve())},
+        )
+    except Exception as exc:  # never propagate — fall back to the LLM edit
+        return False, f"generator `{gen_rel}` errored: {exc}"
+    tail = ((res.stdout or "") + "\n" + (res.stderr or ""))[-600:]
+    if not res.ok:
+        return False, f"generator `{gen_rel}` exited {res.returncode}: {tail}"
+    after = doc_path.read_text(encoding="utf-8", errors="replace") if doc_path.is_file() else ""
+    after_ph = len(_PLACEHOLDER_RE.findall(after))
+    return (after != before and after_ph < before_ph), (
+        f"ran `{gen_rel}` (placeholders {before_ph} -> {after_ph})"
+    )
+
+
 def _classify_edit_operation(text: str) -> str | None:
     """Best-effort intent → edit-kind hint key: 'prune' | 'relocate' | 'create'
     | None (modify/default). Prune outranks create (a 'consolidate' concern names
@@ -1462,6 +1537,53 @@ class LLMXiveImplementer(Agent):
             from llmxive.agents.research_reviewer import _summarize_tree
 
             pdir = project_dir if project_dir is not None else source_dir.parent.parent
+            # Regenerate-first: a compute-fill concern that targets a GENERATED
+            # doc still carrying placeholders is best fixed by RUNNING the doc's
+            # producer script (real values from the project's own analysis), not
+            # by hand-editing — especially for DERIVED values (e.g. a coverage %)
+            # the anti-fabrication guard rightly won't let the LLM invent. This
+            # resolves the stale-generated-report stall (a generator that exists
+            # but was never wired into the run-book) for ANY project.
+            if _is_compute_required(item_text):
+                for _m in _RESEARCH_FILE_RE.finditer(item_text):
+                    _ref = _m.group(1)
+                    if not _ref.endswith((".md", ".rst", ".txt")):
+                        continue
+                    _cand: Path | None = pdir / _ref
+                    if not _cand.is_file():
+                        _hits = [
+                            p for p in pdir.rglob(Path(_ref).name)
+                            if p.is_file() and "/.venv/" not in str(p)
+                        ]
+                        _cand = _hits[0] if len(_hits) == 1 else None
+                    if _cand is None:
+                        continue
+                    try:
+                        _txt = _cand.read_text(encoding="utf-8", errors="replace")
+                    except OSError:
+                        continue
+                    if not _PLACEHOLDER_RE.search(_txt):
+                        continue
+                    _before_b = _cand.read_bytes()
+                    _regenerated, _gen_log = _regenerate_generated_doc(pdir, _cand)
+                    logger.info(
+                        "%s: regenerate-first for %s — %s",
+                        project_id, _ref, _gen_log,
+                    )
+                    if _regenerated:
+                        _after_b = _cand.read_bytes()
+                        _rel = str(_cand)
+                        return ImplementerLogEntry(
+                            task_id=task_id,
+                            status="done",
+                            action_item_severity=cast(Literal["writing", "science"], severity) if severity in {"writing", "science"} else None,
+                            action_item_text=item_text,
+                            files_modified=[_rel],
+                            before_hashes={_rel: _sha256(_before_b)},
+                            after_hashes={_rel: _sha256(_after_b)},
+                            duration_s=time.monotonic() - t_started,
+                            error_reason=f"regenerated via producer script: {_gen_log}",
+                        )
             # Compute-and-fill: when the concern needs an analysis-computed value,
             # surface the project's REAL execution-artifact values so the
             # implementer fills from DATA, never invention. comp_traceable is the

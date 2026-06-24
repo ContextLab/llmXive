@@ -573,3 +573,56 @@ def test_rerun_analysis_after_code_revision_records_and_never_crashes(tmp_path: 
     assert ok is False                       # nothing to run -> not ok
     assert rec is not None and rec["ok"] is False
     assert "quickstart" in rec["reason"]     # the run error is RECORDED for review
+
+
+def test_doc_generator_finds_unique_producer(tmp_path: Path) -> None:
+    """regenerate-first: locate the UNIQUE code/ script that writes a doc, so a
+    stale generated report can be refreshed with real values rather than
+    hand-filled (the PROJ-552 invariant_coverage stall)."""
+    from llmxive.agents.implementer import _doc_generator
+
+    proj = tmp_path / "projects" / "PROJ-700-gen"
+    (proj / "code" / "analysis").mkdir(parents=True)
+    (proj / "docs" / "reproducibility").mkdir(parents=True)
+    # the producer references the doc's relative path
+    (proj / "code" / "analysis" / "coverage.py").write_text(
+        "OUT = 'docs/reproducibility/invariant_coverage.md'\n"
+        "open(OUT, 'w').write('real values')\n", encoding="utf-8",
+    )
+    # an unrelated script
+    (proj / "code" / "analysis" / "other.py").write_text("x = 1\n", encoding="utf-8")
+    gen = _doc_generator(proj, "docs/reproducibility/invariant_coverage.md")
+    assert gen is not None and gen.name == "coverage.py"
+
+    # absent -> None
+    assert _doc_generator(proj, "docs/reproducibility/nonexistent.md") is None
+
+    # ambiguous (two scripts reference the same doc path) -> None (don't guess)
+    (proj / "code" / "analysis" / "coverage2.py").write_text(
+        "open('docs/reproducibility/invariant_coverage.md','w').write('x')\n",
+        encoding="utf-8",
+    )
+    assert _doc_generator(proj, "docs/reproducibility/invariant_coverage.md") is None
+
+
+def test_regenerate_generated_doc_graceful_when_no_producer(tmp_path: Path) -> None:
+    """No producer script -> (False, reason), never raises (falls back to the
+    LLM edit). Does not touch the venv."""
+    from llmxive.agents.implementer import _regenerate_generated_doc
+
+    proj = tmp_path / "projects" / "PROJ-701-gen"
+    (proj / "docs").mkdir(parents=True)
+    doc = proj / "docs" / "report.md"
+    doc.write_text("Total: PLACEHOLDER_TOTAL\n", encoding="utf-8")
+    ok, msg = _regenerate_generated_doc(proj, doc)
+    assert ok is False and "no unique generator" in msg
+    # doc untouched
+    assert "PLACEHOLDER_TOTAL" in doc.read_text(encoding="utf-8")
+
+
+def test_placeholder_re_matches_common_stub_tokens() -> None:
+    from llmxive.agents.implementer import _PLACEHOLDER_RE
+    for tok in ("PLACEHOLDER_TOTAL", "**PLACEHOLDER_VIF**", "value is TBD", "FIXME", "<TOTAL_COUNT>"):
+        assert _PLACEHOLDER_RE.search(tok), tok
+    for ok in ("computed value 1.078", "coverage 99%", "total knots 12967"):
+        assert not _PLACEHOLDER_RE.search(ok), ok
