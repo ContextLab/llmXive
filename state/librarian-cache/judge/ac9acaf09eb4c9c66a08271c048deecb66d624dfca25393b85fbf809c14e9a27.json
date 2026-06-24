@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2304.07995",
+  "judged_at": "2026-06-24T21:19:09Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "qwen-image-flash: beyond objective design computer science",
+  "rationale": "The paper studies symbolic instruction tuning for language models (SQL execution, table reasoning) and does not address multimodal models, image processing, or the design aspects of Qwen-Image-Flash, thus it is off‑domain and unrelated to the user's question.",
+  "relevant": false
+}

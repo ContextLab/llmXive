@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2310.04793",
+  "judged_at": "2026-06-24T21:19:05Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "qwen-image-flash: beyond objective design computer science",
+  "rationale": "The paper focuses on instruction tuning and benchmarking of open-source large language models for financial text tasks, which bears no relevance to Qwen-Image-Flash, multimodal or image‑based model design in computer science. It does not share the mechanism, variables, or domain of the user's question.",
+  "relevant": false
+}

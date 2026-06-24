@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2309.13070",
+  "judged_at": "2026-06-24T21:25:47Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "residue distribution of euler's totient function modulo small primes mathematics",
+  "rationale": "The paper investigates sums of distinct biquadratic residues of a polynomial modulo primes, which is unrelated to the distribution of Euler’s totient function values modulo small primes; it shares no mechanism, variable, or domain with the user’s question.",
+  "relevant": false
+}

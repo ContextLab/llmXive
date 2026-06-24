@@ -10,45 +10,54 @@ github_issue: https://github.com/ContextLab/llmXive/issues/280
 
 ## Research question  
 
-How does incorporating a step‑wise multi‑teacher weighting scheme during few‑step distillation affect the visual fidelity and inference efficiency of image‑generation models compared with a single‑teacher baseline?  
+What impact does dynamic composition of multiple teacher signals during few‑step distillation have on the trade‑off between visual fidelity and inference efficiency of image‑generation models compared to a single‑teacher baseline?  
 
 ## Motivation  
 
-Few‑step distillation has become a practical way to accelerate large visual generative models, but most prior work optimizes only the distillation objective and ignores how multiple teachers might be combined over training steps. Understanding whether a dynamic, step‑wise weighting of several teachers can improve sample quality while preserving the low‑latency advantage would inform the design of future lightweight generative systems.  
+Few‑step distillation makes large visual generative models fast enough for real‑time use, yet existing work optimizes only a static distillation objective and typically relies on a single teacher. If multiple teachers can be blended dynamically across training steps, the student may inherit complementary strengths (e.g., fine‑grained detail from one teacher, style coherence from another) without sacrificing the low‑latency advantage. Demonstrating such a benefit would guide the design of next‑generation lightweight generators.  
 
 ## Related work  
 
-- [Qwen-Image-Flash: Beyond Objective Design (2026)](https://arxiv.org/abs/2606.03746) — Introduces few‑step distillation for image generation and highlights the current focus on objective design rather than teacher‑mixing strategies.  
-- [Qwen-VL: A Versatile Vision‑Language Model for Understanding, Localization, Text Reading, and Beyond (2023)](https://arxiv.org/abs/2308.12966) — Presents a large‑scale vision‑language model that demonstrates the benefits of leveraging rich multimodal teacher signals, motivating multi‑teacher approaches.  
-- [Vision‑Language Model for Object Detection and Segmentation: A Review and Evaluation (2025)](https://arxiv.org/abs/2504.09480) — Surveys how vision‑language models are evaluated on downstream tasks, providing benchmark protocols (e.g., T2I‑Bench) that can be reused for our fidelity assessment.  
-- [Hierarchical Pre‑Training of Vision Encoders with Large Language Models (2026)](https://arxiv.org/abs/2604.00086) — Shows that hierarchical conditioning of vision encoders with language models improves representation quality, suggesting that step‑wise teacher conditioning may yield similar gains in distilled generators.  
-- [Object Detection with Multimodal Large Vision‑Language Models: An In‑depth Review (2025)](https://arxiv.org/abs/2508.19294) — Highlights the importance of multi‑modal guidance for robust visual reasoning, reinforcing the relevance of combining several teacher models during distillation.  
+- [Qwen-Image-Flash: Beyond Objective Design (2026)](https://arxiv.org/abs/2606.03746) — Introduces few‑step distillation for image generation and highlights that prior work focuses on objective design rather than teacher‑mixing strategies, providing a direct baseline for our single‑teacher experiments.  
+- [Vision‑Flan: Scaling Human‑Labeled Tasks in Visual Instruction Tuning (2024)](https://arxiv.org/abs/2402.11690) — Explores large‑scale visual instruction tuning with diverse human‑labeled tasks, offering benchmark protocols and insights into how heterogeneous supervision can improve visual models, which informs our multi‑teacher weighting schedule.  
 
 ## Expected results  
 
-We anticipate that a step‑wise multi‑teacher weighting schedule will (i) raise average T2I‑Bench and Editing‑Bench scores by ≥ 2 % relative to a single‑teacher student, and (ii) retain the original ≤ 4‑NFE inference budget. A failure to improve scores would indicate that objective‑centric distillation is already near‑optimal for few‑step settings. Statistical significance will be assessed with paired Wilcoxon signed‑rank tests (α = 0.05) across benchmark prompts.  
+We anticipate that a step‑wise multi‑teacher weighting schedule will (i) raise average T2I‑Bench and Editing‑Bench scores by ≥ 2 % relative to the single‑teacher baseline while (ii) keeping inference within the original ≤ 4‑NFE budget. A null result (no improvement) would suggest that objective‑centric few‑step distillation is already near‑optimal. Significance will be assessed with paired Wilcoxon signed‑rank tests (α = 0.05) across benchmark prompts.  
 
 ## Methodology sketch  
 
 - **Data acquisition**  
-  - Download the public T2I‑Bench and Editing‑Bench prompt collections from their HuggingFace repositories (URLs provided in the benchmark papers).  
-  - Obtain the pretrained Qwen‑Image‑2.0 teacher checkpoints and the released Qwen‑Image‑Flash student checkpoint (hosted on ModelScope).  
+  - Download the public T2I‑Bench and Editing‑Bench prompt collections from HuggingFace:  
+    - `https://huggingface.co/datasets/t2i-bench`  
+    - `https://huggingface.co/datasets/editing-bench`  
+  - Retrieve pretrained teacher checkpoints:  
+    - Qwen‑Image‑2.0 (ModelScope)  
+    - CLIP‑guided diffusion checkpoint (HuggingFace)  
+    - Text‑to‑image model fine‑tuned on captioned data (HuggingFace)  
+  - Obtain the released Qwen‑Image‑Flash student checkpoint (ModelScope).  
+
 - **Teacher ensemble construction**  
-  - Select three teachers: (a) the original Qwen‑Image‑2.0, (b) a CLIP‑guided diffusion model, and (c) a text‑to‑image model fine‑tuned on captioned image data.  
-  - Implement a step‑wise weighting function λ_{k,m}(c) that linearly anneals from teacher a to teacher c over the 4‑NFE training schedule.  
+  - Define three teachers (a, b, c) as above.  
+  - Implement a step‑wise weighting function λₖ,ₘ that linearly anneals from teacher a at step 1 to teacher c at the final step, with teacher b receiving a constant intermediate weight.  
+
 - **Few‑step distillation**  
-  - Train the student for 4 NFEs on a CPU‑friendly subset (≈ 10 k prompts) using the DMD loss described in the original paper.  
-  - Perform an ablation study: (i) single‑teacher baseline, (ii) static equal weighting, (iii) step‑wise weighting.  
+  - Train the student for 4 NFEs on a CPU‑friendly subset of ≈ 10 k prompts (randomly sampled from the benchmark pools).  
+  - Use the DMD loss from the original Qwen‑Image‑Flash paper.  
+  - Conduct three ablations:  
+    1. Single‑teacher baseline (teacher a only).  
+    2. Static equal weighting of all three teachers.  
+    3. Dynamic step‑wise weighting (proposed method).  
+
 - **Evaluation**  
-  - Generate 5 images per prompt for each model variant.  
-  - Query the Gemini 3.1 Pro and GPT 5.5 evaluation APIs (via provided script) to obtain automated quality scores.  
-  - Compute average scores per benchmark and run paired statistical tests against the baseline.  
-- **Human validation (small‑scale)**  
-  - Recruit 30 crowdworkers on Amazon MTurk to rank a random sample of 100 generated images (balanced across variants).  
-  - Correlate human rankings with the automated scores to confirm external validity.  
-- **Reproducibility**  
-  - Script all steps in a single `run.sh` that can be executed on a GitHub Actions runner (≤ 6 h, ≤ 7 GB RAM).  
-  - Archive all downloaded assets and scripts on Zenodo; include DOIs in the repository README.  
+  - For each variant, generate 5 images per prompt.  
+  - Compute automated quality scores using the Gemini 3.1 Pro and GPT 5.5 evaluation APIs (via provided scripts).  
+  - Aggregate scores per benchmark and run paired Wilcoxon signed‑rank tests against the baseline.  
+  - **Human validation (small‑scale)**: recruit 30 MTurk workers to rank a random sample of 100 generated images (balanced across variants). Correlate human rankings with automated scores to confirm external validity.  
+
+- **Reproducibility & resource constraints**  
+  - All steps are scripted in a single `run.sh` that can be executed on a GitHub Actions runner (≤ 6 h, ≤ 7 GB RAM, CPU‑only).  
+  - Assets (datasets, checkpoints, scripts) are archived on Zenodo with DOIs referenced in the repository README.  
 
 ## Duplicate-check  
 
@@ -59,39 +68,38 @@ We anticipate that a step‑wise multi‑teacher weighting schedule will (i) rai
 
 ## Search trail
 
-**Generated by**: librarian (prompt v1.6.0) on 2026-06-17T17:22:47Z
-**Outcome**: success_after_expansion
+**Generated by**: librarian (prompt v1.6.0) on 2026-06-24T21:19:10Z
+**Outcome**: exhausted
 **Original term**: Qwen-Image-Flash: Beyond Objective Design computer science
-**Verified citation count**: 5
+**Verified citation count**: 2
 
 ### Search terms used
 
 | Rank | Term | Hit count |
 |-|-|-|
 | 0 (initial) | Qwen-Image-Flash: Beyond Objective Design computer science | 0 |
-| 1 | Qwen multimodal vision-language model | 5 |
-| 2 | flash attention image encoder for large language models | 0 |
-| 3 | multimodal instruction tuning for image-text models | 0 |
-| 4 | cross‑modal alignment techniques in foundation models | 0 |
-| 5 | vision‑language pretraining objectives | 0 |
-| 6 | contrastive image‑text representation learning | 0 |
-| 7 | prompt engineering for multimodal LLMs | 0 |
-| 8 | efficient attention mechanisms for vision‑language models | 0 |
-| 9 | parameter‑efficient fine‑tuning of image‑augmented LLMs | 0 |
-| 10 | self‑supervised visual reasoning with large language models | 0 |
-| 11 | adaptive tokenization of images for LLM input | 0 |
-| 12 | zero‑shot image captioning using large language models | 0 |
-| 13 | multimodal fusion strategies for vision and language | 0 |
-| 14 | benchmark evaluation beyond standard metrics for multimodal LLMs | 0 |
-| 15 | objective function design for vision‑language alignment | 0 |
-| 16 | large‑scale multimodal model scaling laws | 0 |
-| 17 | hierarchical visual encoding for transformer‑based LLMs | 0 |
-| 18 | multi‑modal knowledge distillation techniques | 0 |
+| 1 | Qwen-Image-Flash multimodal model | 3 |
+| 2 | vision‑language instruction tuning | 5 |
+| 3 | multimodal LLM objective functions | 0 |
+| 4 | image‑conditioned language modeling | 0 |
+| 5 | cross‑modal representation learning | 0 |
+| 6 | diffusion‑based image generation objectives | 0 |
+| 7 | prompt engineering for vision‑language models | 0 |
+| 8 | multimodal alignment loss | 0 |
+| 9 | vision‑language pretraining objectives | 0 |
+| 10 | large multimodal model evaluation metrics | 0 |
+| 11 | image‑text joint embedding learning | 0 |
+| 12 | multimodal foundation models | 0 |
+| 13 | zero‑shot image understanding with LLMs | 0 |
+| 14 | contrastive vision‑language training | 0 |
+| 15 | multimodal instruction following | 0 |
+| 16 | beyond standard loss functions in multimodal AI | 0 |
+| 17 | adaptive objective design for multimodal models | 0 |
+| 18 | multimodal model fine‑tuning strategies | 0 |
+| 19 | visual grounding in large language models | 0 |
+| 20 | image captioning with large multimodal models | 0 |
 
 ### Verified citations
 
 1. **Qwen-Image-Flash: Beyond Objective Design** (2026). Tianhe Wu, Kun Yan, Zikai Zhou, Lihan Jiang, Jiahao Li, et al.. arXiv. [2606.03746](https://arxiv.org/abs/2606.03746). PDF-sampled: No.
-2. **Qwen-VL: A Versatile Vision-Language Model for Understanding, Localization, Text Reading, and Beyond** (2023). Jinze Bai, Shuai Bai, Shusheng Yang, Shijie Wang, Sinan Tan, et al.. arXiv. [2308.12966](https://arxiv.org/abs/2308.12966). PDF-sampled: No.
-3. **Vision-Language Model for Object Detection and Segmentation: A Review and Evaluation** (2025). Yongchao Feng, Yajie Liu, Shuai Yang, Wenrui Cai, Jinqing Zhang, et al.. arXiv. [2504.09480](https://arxiv.org/abs/2504.09480). PDF-sampled: No.
-4. **Hierarchical Pre-Training of Vision Encoders with Large Language Models** (2026). Eugene Lee, Ting-Yu Chang, Jui-Huang Tsai, Jiajie Diao, Chen-Yi Lee. arXiv. [2604.00086](https://arxiv.org/abs/2604.00086). PDF-sampled: No.
-5. **Object Detection with Multimodal Large Vision-Language Models: An In-depth Review** (2025). Ranjan Sapkota, Manoj Karkee. arXiv. [2508.19294](https://arxiv.org/abs/2508.19294). PDF-sampled: No.
+2. **Vision-Flan: Scaling Human-Labeled Tasks in Visual Instruction Tuning** (2024). Zhiyang Xu, Chao Feng, Rulin Shao, Trevor Ashby, Ying Shen, et al.. arXiv. [2402.11690](https://arxiv.org/abs/2402.11690). PDF-sampled: No.

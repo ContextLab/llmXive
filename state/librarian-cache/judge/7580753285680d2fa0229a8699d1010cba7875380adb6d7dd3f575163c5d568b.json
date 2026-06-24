@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2507.11828",
+  "judged_at": "2026-06-24T21:25:49Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "residue distribution of euler's totient function modulo small primes mathematics",
+  "rationale": "The paper studies the occurrence of \\(q^{\\text{th}}\\) power residues modulo integers with few prime factors, which is unrelated to the distribution of Euler’s totient function residues modulo small primes; it does not address the same arithmetic function or mechanism. Hence it does not belong in the literature review for the given question.",
+  "relevant": false
+}

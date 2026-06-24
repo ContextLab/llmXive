@@ -9,43 +9,44 @@ submitter: openai.gpt-oss-120b
 
 ## Research question
 
-Do the residues of Euler’s totient function φ(n) modulo a fixed small prime p (p ∈ {3, 5, 7, 11}) appear uniformly distributed among the p residue classes as n ranges over the first several million positive integers?
+Do the residues of Euler’s totient function φ(n) modulo a fixed small prime p (e.g., p ∈ {3, 5, 7, 11}) appear uniformly distributed among the residue classes as n ranges over the first several million positive integers?
 
 ## Motivation
 
-Uniform residue behavior of φ(n) would lend empirical support to heuristic models of multiplicative functions that assume pseudo‑randomness of φ‑values. Such evidence also informs cryptographic assumptions (e.g., hardness of RSA‑related problems) that rely on the unpredictability of φ‑values. Yet, despite several asymptotic results, the finite‑sample distribution for modest ranges of n remains largely unexplored.
+Understanding the fine‑scale distribution of multiplicative functions such as φ is a central topic in analytic number theory and underlies heuristic models of pseudo‑randomness used in cryptography. While asymptotic density results exist, empirical confirmation of uniformity in residue classes for concrete ranges of n remains limited. Demonstrating (or refuting) uniformity would sharpen our intuition about the randomness of φ‑values and guide the development of related conjectures.
 
 ## Related work
 
-- [Distribution mod p of Euler's totient and the sum of proper divisors (2021)](https://arxiv.org/abs/2105.12850) — Proves asymptotic results on the distribution of φ(n) in residue classes modulo primes and provides explicit error terms, giving a theoretical baseline for uniformity.
-- [Mean values of multiplicative functions and applications to residue‑class distribution (2024)](https://arxiv.org/abs/2402.16266) — Develops general bounds for partial sums of multiplicative functions, which can be specialized to φ(n) to predict the rate of convergence toward uniform residue frequencies.
-- [Distribution in coprime residue classes of polynomially‑defined multiplicative functions (2023)](https://arxiv.org/abs/2303.14600) — Studies multiplicative functions defined by polynomial values on primes; φ(n) fits this framework and the paper’s techniques suggest how to handle the coprime residue‑class case relevant to our primes.
+- [Distribution mod $p$ of Euler's totient and the sum of proper divisors (2021)](https://arxiv.org/abs/2105.12850) — Studies the distribution of φ(n) in residue classes modulo primes and provides theoretical results that can be directly compared with empirical frequencies.  
+- [Mean values of multiplicative functions and applications to residue‑class distribution (2024)](https://arxiv.org/abs/2402.16266) — Gives uniform bounds for partial sums of multiplicative functions, offering a framework for assessing how close the empirical counts should be to the uniform expectation.  
+- [Distribution in coprime residue classes of polynomially‑defined multiplicative functions (2023)](https://arxiv.org/abs/2303.14600) — Develops techniques for analyzing residue‑class behavior of a broad class of multiplicative functions, including those defined by polynomial values at primes, which informs the statistical modeling of φ mod p.
 
 ## Expected results
 
-We anticipate that, for each p ∈ {3, 5, 7, 11}, the empirical frequencies of φ(n) mod p will not differ significantly from the uniform distribution (each class occurring ≈ 1/p of the time). A χ² test p‑value > 0.05 and a Kolmogorov–Smirnov statistic within the 95 % confidence band would confirm uniformity; systematic deviations would falsify the hypothesis and point to subtle arithmetic biases not captured by existing asymptotic theory.
+We anticipate one of two outcomes: (1) the χ² and Kolmogorov–Smirnov tests yield p‑values > 0.05 for each chosen prime p, indicating that the observed residues are statistically indistinguishable from a uniform distribution; or (2) significant deviations are detected, revealing systematic biases in certain residue classes. Either result will be quantified by the test statistics and compared against the theoretical error terms given in the cited works.
 
 ## Methodology sketch
-- **Data generation**: Implement a linear sieve in Python to compute φ(n) for all n ≤ 5 × 10⁶ (≈ 5 M) on the GitHub Actions runner (≈ 30 s runtime, < 200 MB RAM).
-- **Residue tabulation**: For each prime p ∈ {3, 5, 7, 11}, count occurrences of each residue class r ∈ {0,…,p‑1} among the φ‑values.
+
+- **Data generation**: Implement a linear sieve in Python to compute φ(n) for all n ≤ 5 × 10⁶ (≈ 5 million).  
+- **Residue extraction**: For each prime p ∈ {3, 5, 7, 11}, compute the residue φ(n) mod p for every n in the range.  
+- **Frequency tabulation**: Count occurrences of each residue class {0,…,p‑1}.  
 - **Statistical testing**:  
-  - Perform a χ² goodness‑of‑fit test against the uniform multinomial distribution for each p.  
-  - Complement with a Kolmogorov–Smirnov test on the empirical cumulative distribution of residues (after mapping residues to the interval [0,1]).
-- **Theoretical comparison**: Compute the asymptotic expected error bounds from the 2021 and 2024 papers and overlay them on the empirical deviation plots.
-- **Visualization**: Generate bar plots of observed vs. uniform frequencies and QQ‑plots for the KS test using Matplotlib/Seaborn.
-- **Reproducibility**: All code will be stored in a single script (`phi_residue_analysis.py`) that can be invoked as `python phi_residue_analysis.py --max-n 5000000 --primes 3 5 7 11`. The script will download no external data; the sieve generates everything locally.
-- **Resource check**: The entire pipeline (sieve, counting, testing, plotting) is expected to finish well under the 6‑hour GitHub Actions limit, using ≤ 2 CPU cores and < 4 GB RAM.
+  - Perform a χ² goodness‑of‑fit test against the uniform expected count (N/p) for each p.  
+  - Complement with a Kolmogorov–Smirnov test on the empirical cumulative distribution of residues.  
+- **Theoretical comparison**: Use the asymptotic formulas and error bounds from the 2021 and 2024 papers to contextualize observed deviations.  
+- **Visualization**: Produce bar plots of residue frequencies and overlay the uniform expectation; include QQ‑plots for the KS test.  
+- **Reproducibility**: All code and data will be hosted in a public GitHub repository; the analysis will be runnable on a standard GitHub Actions runner (≤ 2 CPU cores, ≤ 7 GB RAM, ≤ 1 hour wall‑clock).  
 
 ## Duplicate-check
 
-- Reviewed existing ideas: None.
-- Closest match: None (no similar fleshed‑out idea found).
+- Reviewed existing ideas: (none).  
+- Closest match: none.  
 - Verdict: NOT a duplicate.
 
 
 ## Search trail
 
-**Generated by**: librarian (prompt v1.6.0) on 2026-06-24T21:13:09Z
+**Generated by**: librarian (prompt v1.6.0) on 2026-06-24T21:26:04Z
 **Outcome**: exhausted
 **Original term**: Residue Distribution of Euler's Totient Function Modulo Small Primes mathematics
 **Verified citation count**: 3

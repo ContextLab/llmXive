@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2402.11690",
+  "judged_at": "2026-06-24T21:18:59Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "qwen-image-flash: beyond objective design computer science",
+  "rationale": "The paper investigates visual instruction tuning objectives and a two‑stage tuning framework for vision‑language models, directly addressing the design of training objectives for multimodal systems—a core mechanism relevant to “beyond objective design” in models such as Qwen‑Image‑Flash (acceptance category (a)).",
+  "relevant": true
+}

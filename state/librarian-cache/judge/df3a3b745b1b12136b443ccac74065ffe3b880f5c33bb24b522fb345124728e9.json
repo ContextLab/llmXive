@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2312.10793",
+  "judged_at": "2026-06-24T21:19:03Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "qwen-image-flash: beyond objective design computer science",
+  "rationale": "The paper studies instruction mixing for fine‑tuning LLMs, which does not address the design, objectives, or multimodal aspects of Qwen‑Image‑Flash; it is unrelated to the “beyond objective design” focus of the user's question.",
+  "relevant": false
+}

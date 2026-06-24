@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2304.03277",
+  "judged_at": "2026-06-24T21:19:07Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "qwen-image-flash: beyond objective design computer science",
+  "rationale": "The paper focuses on instruction tuning of language models using GPT‑4‑generated data, which does not address the mechanisms, objectives, or design aspects of Qwen‑Image‑Flash or related multimodal model design in computer science. It falls outside the domain of the user's question.",
+  "relevant": false
+}

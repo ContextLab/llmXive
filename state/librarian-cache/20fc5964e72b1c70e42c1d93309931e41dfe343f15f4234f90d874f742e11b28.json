@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-06-17T17:22:47Z",
+  "fetched_at": "2026-06-24T21:19:10Z",
   "field": "computer science",
   "prompt_version": "1.6.0",
   "result": {
@@ -9,96 +9,105 @@
       "idea_body_excerpt": "Qwen-Image-Flash: Beyond Objective Design",
       "target_n": 5
     },
-    "duration_seconds": 50.807,
-    "ended_at": "2026-06-17T17:22:47Z",
+    "duration_seconds": 60.703,
+    "ended_at": "2026-06-24T21:19:10Z",
     "expansion": {
       "expanded_terms_ranked": [
         [
           1,
-          "Qwen multimodal vision-language model"
+          "Qwen-Image-Flash multimodal model"
         ],
         [
           2,
-          "flash attention image encoder for large language models"
+          "vision‑language instruction tuning"
         ],
         [
           3,
-          "multimodal instruction tuning for image-text models"
+          "multimodal LLM objective functions"
         ],
         [
           4,
-          "cross‑modal alignment techniques in foundation models"
+          "image‑conditioned language modeling"
         ],
         [
           5,
-          "vision‑language pretraining objectives"
+          "cross‑modal representation learning"
         ],
         [
           6,
-          "contrastive image‑text representation learning"
+          "diffusion‑based image generation objectives"
         ],
         [
           7,
-          "prompt engineering for multimodal LLMs"
+          "prompt engineering for vision‑language models"
         ],
         [
           8,
-          "efficient attention mechanisms for vision‑language models"
+          "multimodal alignment loss"
         ],
         [
           9,
-          "parameter‑efficient fine‑tuning of image‑augmented LLMs"
+          "vision‑language pretraining objectives"
         ],
         [
           10,
-          "self‑supervised visual reasoning with large language models"
+          "large multimodal model evaluation metrics"
         ],
         [
           11,
-          "adaptive tokenization of images for LLM input"
+          "image‑text joint embedding learning"
         ],
         [
           12,
-          "zero‑shot image captioning using large language models"
+          "multimodal foundation models"
         ],
         [
           13,
-          "multimodal fusion strategies for vision and language"
+          "zero‑shot image understanding with LLMs"
         ],
         [
           14,
-          "benchmark evaluation beyond standard metrics for multimodal LLMs"
+          "contrastive vision‑language training"
         ],
         [
           15,
-          "objective function design for vision‑language alignment"
+          "multimodal instruction following"
         ],
         [
           16,
-          "large‑scale multimodal model scaling laws"
+          "beyond standard loss functions in multimodal AI"
         ],
         [
           17,
-          "hierarchical visual encoding for transformer‑based LLMs"
+          "adaptive objective design for multimodal models"
         ],
         [
           18,
-          "multi‑modal knowledge distillation techniques"
+          "multimodal model fine‑tuning strategies"
+        ],
+        [
+          19,
+          "visual grounding in large language models"
+        ],
+        [
+          20,
+          "image captioning with large multimodal models"
         ]
       ],
       "original_term": "",
       "per_term_hit_count": {
-        "Qwen multimodal vision-language model": 5,
-        "Qwen-Image-Flash: Beyond Objective Design computer science": 0
+        "Qwen-Image-Flash multimodal model": 3,
+        "Qwen-Image-Flash: Beyond Objective Design computer science": 0,
+        "vision‑language instruction tuning": 5
       },
-      "total_queries_issued": 1
+      "total_queries_issued": 2
     },
     "extracted_queries": [
-      "multimodal instruction tuning",
-      "Qwen-Image-Flash model",
-      "visual prompt engineering",
-      "CLIPScore image-text alignment",
-      "contrastive pretraining objective"
+      "vision-language instruction tuning",
+      "COCO image captioning benchmark",
+      "zero-shot image classification vision-language",
+      "image-text retrieval recall",
+      "contrastive vision-language pretraining"
     ],
     "failure_reason": null,
     "librarian_prompt_version": "1.6.0",
@@ -107,36 +116,61 @@
       "invoked": true,
       "verdict": false
     },
-    "outcome": "success_after_expansion",
+    "outcome": "exhausted",
     "pdf_sample": {
       "sample_size_target": 1,
       "sampled_count": 1,
       "sampled_pointers": [
-        "2504.09480"
+        "2606.03746"
       ]
     },
     "per_query_hit_count": {
-      "CLIPScore image-text alignment": 3,
-      "Qwen-Image-Flash model": 2,
+      "COCO image captioning benchmark": 3,
       "Qwen-Image-Flash: Beyond Objective Design computer science": 3,
-      "contrastive pretraining objective": 3,
-      "multimodal instruction tuning": 3,
-      "visual prompt engineering": 3
+      "contrastive vision-language pretraining": 3,
+      "image-text retrieval recall": 3,
+      "vision-language instruction tuning": 3,
+      "zero-shot image classification vision-language": 3
     },
     "relevance_judge": {
       "enabled": true,
       "marginal_fallback_used": false,
-      "rejected_count": 1,
+      "rejected_count": 6,
       "rejections": [
         {
           "primary_pointer": "2510.11852",
           "rationale": "The paper evaluates various open‑source vision‑language models (including Qwen‑VL) on multimodal sarcasm detection, which does not address the design, objectives, or mechanisms of Qwen‑Image‑Flash as implied by the user's question. It falls outside the relevant construct and domain.",
           "title": "Evaluating Open-Source Vision-Language Models for Multimodal Sarcasm Detection"
+        },
+        {
+          "primary_pointer": "1910.10504",
+          "rationale": "The paper focuses on liver segmentation using HED-Mask R-CNN and does not address Qwen-Image-Flash, its objectives, or related multimodal model design, thus it is unrelated to the user's research question.",
+          "title": "Liver Segmentation from Multimodal Images using HED-Mask R-CNN"
+        },
+        {
+          "primary_pointer": "2312.10793",
+          "rationale": "The paper studies instruction mixing for fine‑tuning LLMs, which does not address the design, objectives, or multimodal aspects of Qwen‑Image‑Flash; it is unrelated to the “beyond objective design” focus of the user's question.",
+          "title": "Demystifying Instruction Mixing for Fine-tuning Large Language Models"
+        },
+        {
+          "primary_pointer": "2310.04793",
+          "rationale": "The paper focuses on instruction tuning and benchmarking of open-source large language models for financial text tasks, which bears no relevance to Qwen-Image-Flash, multimodal or image‑based model design in computer science. It does not share the mechanism, variables, or domain of the user's question.",
+          "title": "FinGPT: Instruction Tuning Benchmark for Open-Source Large Language Models in Financial Datasets"
+        },
+        {
+          "primary_pointer": "2304.03277",
+          "rationale": "The paper focuses on instruction tuning of language models using GPT‑4‑generated data, which does not address the mechanisms, objectives, or design aspects of Qwen‑Image‑Flash or related multimodal model design in computer science. It falls outside the domain of the user's question.",
+          "title": "Instruction Tuning with GPT-4"
+        },
+        {
+          "primary_pointer": "2304.07995",
+          "rationale": "The paper studies symbolic instruction tuning for language models (SQL execution, table reasoning) and does not address multimodal models, image processing, or the design aspects of Qwen-Image-Flash, thus it is off‑domain and unrelated to the user's question.",
+          "title": "From Zero to Hero: Examining the Power of Symbolic Tasks in Instruction Tuning"
         }
       ]
     },
     "schema_version": "1.0.0",
-    "started_at": "2026-06-17T17:21:57Z",
+    "started_at": "2026-06-24T21:18:09Z",
     "term_input": {
       "normalized": "qwen-image-flash: beyond objective design computer science",
       "raw": "Qwen-Image-Flash: Beyond Objective Design computer science"
@@ -155,7 +189,7 @@
           "primary_pointer": "1211.0310"
         },
         "details": "query-relevance 0.250 < 0.3 (query='Qwen-Image-Flash: Beyond Objective Design computer science', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
-        "failed_at": "2026-06-17T17:22:28Z",
+        "failed_at": "2026-06-24T21:18:41Z",
         "reason": "query_irrelevant"
       },
       {
@@ -173,7 +207,7 @@
           "primary_pointer": "1002.2191"
         },
         "details": "query-relevance 0.125 < 0.3 (query='Qwen-Image-Flash: Beyond Objective Design computer science', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
-        "failed_at": "2026-06-17T17:22:28Z",
+        "failed_at": "2026-06-24T21:18:41Z",
         "reason": "query_irrelevant"
       },
       {
@@ -197,7 +231,7 @@
           "primary_pointer": "2402.11690"
         },
         "details": "query-relevance 0.000 < 0.3 (query='Qwen-Image-Flash: Beyond Objective Design computer science', candidate_title='Vision-Flan: Scaling Human-Labeled Tasks in Visual Instruction Tuning')",
-        "failed_at": "2026-06-17T17:22:28Z",
+        "failed_at": "2026-06-24T21:18:41Z",
         "reason": "query_irrelevant"
       },
       {
@@ -219,7 +253,7 @@
           "primary_pointer": "2312.10793"
         },
         "details": "query-relevance 0.000 < 0.3 (query='Qwen-Image-Flash: Beyond Objective Design computer science', candidate_title='Demystifying Instruction Mixing for Fine-tuning Large Language Models')",
-        "failed_at": "2026-06-17T17:22:28Z",
+        "failed_at": "2026-06-24T21:18:41Z",
         "reason": "query_irrelevant"
       },
       {
@@ -237,228 +271,237 @@
           "primary_pointer": "2310.04793"
         },
         "details": "query-relevance 0.000 < 0.3 (query='Qwen-Image-Flash: Beyond Objective Design computer science', candidate_title='FinGPT: Instruction Tuning Benchmark for Open-Source Large Language Models in Financial Datasets')",
-        "failed_at": "2026-06-17T17:22:28Z",
+        "failed_at": "2026-06-24T21:18:41Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "In survival analysis, traditional models assume all individuals will eventually experience the event of interest. However, advances in therapeutics have led to multiple clinical contexts with potentially curative therapies, and in these contexts, certain individuals may never experience the event. Statisticians have developed cure models as a methodology to address this challenge. Nonetheless, despite significant statistical advances in cure models, we have seen more limited uptake in biomedical applications, and we hypothesize that this is caused by limited guidance in the appropriate application of cure models. Cure models require specific identifiability conditions for valid parameter estimation, and previous reports have demonstrated significant issues with the inappropriate application of cure models. Existing tutorials for cure models focus on model implementation and either assume or provide only limited guidance on whether cure modeling is appropriate for the given dataset. This tutorial addresses this gap by describing a systematic procedure that integrates clinical judgment, visual inspection of Kaplan-Meier curves, and quantitative evaluation. We provide a worked example using data from a randomized clinical trial in acute myeloid leukemia, and we also summarize findings from a series of other datasets of hematopoietic cell transplantation to suggest broad practical guidance for choosing to apply cure models. By systematically evaluating cure model appropriateness before fitting these models, researchers can achieve more reliable survival analysis and improved clinical decision-making.",
+          "claimed_abstract": "Recent progress on fine-grained visual recognition and visual question answering has featured Bilinear Pooling, which effectively models the 2$^{nd}$ order interactions across multi-modal inputs. Nevertheless, there has not been evidence in support of building such interactions concurrently with attention mechanism for image captioning. In this paper, we introduce a unified attention block -- X-Linear attention block, that fully employs bilinear pooling to selectively capitalize on visual information or perform multi-modal reasoning. Technically, X-Linear attention block simultaneously exploits both the spatial and channel-wise bilinear attention distributions to capture the 2$^{nd}$ order interactions between the input single-modal or multi-modal features. Higher and even infinity order feature interactions are readily modeled through stacking multiple X-Linear attention blocks and equipping the block with Exponential Linear Unit (ELU) in a parameter-free fashion, respectively. Furthermore, we present X-Linear Attention Networks (dubbed as X-LAN) that novelly integrates X-Linear attention block(s) into image encoder and sentence decoder of image captioning model to leverage higher order intra- and inter-modal interactions. The experiments on COCO benchmark demonstrate that our X-LAN obtains to-date the best published CIDEr performance of 132.0% on COCO Karpathy test split. When further endowing Transformer with X-Linear attention blocks, CIDEr is boosted up to 132.8%. Source code is available at \\url{https://github.com/Panda-Peter/image-captioning}.",
           "claimed_authors": [
-            "A Tutorial for Evaluating Cure Model Appropriateness Geethanjalee Mudunkotuwa",
-            "Durbadal Ghosh",
-            "Subodh Selukar"
+            "Yingwei Pan",
+            "Ting Yao",
+            "Yehao Li",
+            "Tao Mei"
           ],
-          "claimed_title": "A Tutorial for Evaluating Cure Model Appropriateness",
+          "claimed_title": "X-Linear Attention Networks for Image Captioning",
           "claimed_venue": "arXiv",
-          "claimed_year": 2026,
-          "primary_pointer": "2605.04999"
+          "claimed_year": 2020,
+          "primary_pointer": "2003.14080"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='Qwen-Image-Flash: Beyond Objective Design computer science', candidate_title='A Tutorial for Evaluating Cure Model Appropriateness')",
-        "failed_at": "2026-06-17T17:22:28Z",
+        "details": "query-relevance 0.125 < 0.3 (query='Qwen-Image-Flash: Beyond Objective Design computer science', candidate_title='X-Linear Attention Networks for Image Captioning')",
+        "failed_at": "2026-06-24T21:18:41Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "This document defines the high level metadata necessary to describe the physical parameter space of observed or simulated astronomical data sets, such as 2D-images, data cubes, X-ray event lists, IFU data, etc.. The Characterisation data model is an abstraction which can be used to derive a structured description of any relevant data and thus to facilitate its discovery and scientific interpretation. The model aims at facilitating the manipulation of heterogeneous data in any VO framework or portal. A VO Characterisation instance can include descriptions of the data axes, the range of coordinates covered by the data, and details of the data sampling and resolution on each axis. These descriptions should be in terms of physical variables, independent of instrumental signatures as far as possible.\n  Implementations of this model has been described in the IVOA Note available at: http://www.ivoa.net/Documents/latest/ImplementationCharacterisation.html\n  Utypes derived from this version of the UML model are listed and commented in the following IVOA Note: http://www.ivoa.net/Documents/latest/UtypeListCharacterisationDM.html\n  An XML schema has been build up from the UML model and is available at: http://www.ivoa.net/xml/Characterisation/Characterisation-v1.11.xsd",
+          "claimed_abstract": "Automatic generation of caption to describe the content of an image has been gaining a lot of research interests recently, where most of the existing works treat the image caption as pure sequential data. Natural language, however possess a temporal hierarchy structure, with complex dependencies between each subsequence. In this paper, we propose a phrase-based hierarchical Long Short-Term Memory (phi-LSTM) model to generate image description. In contrast to the conventional solutions that generate caption in a pure sequential manner, our proposed model decodes image caption from phrase to sentence. It consists of a phrase decoder at the bottom hierarchy to decode noun phrases of variable length, and an abbreviated sentence decoder at the upper hierarchy to decode an abbreviated form of the image description. A complete image caption is formed by combining the generated phrases with sentence during the inference stage. Empirically, our proposed model shows a better or competitive result on the Flickr8k, Flickr30k and MS-COCO datasets in comparison to the state-of-the art models. We also show that our proposed model is able to generate more novel captions (not seen in the training data) which are richer in word contents in all these three datasets.",
           "claimed_authors": [
-            "Mireille Louys",
-            "Anita Richards",
-            "Francois Bonnarel",
-            "Alberto Micol",
-            "Igor Chilingarian",
-            "Jonathan McDowell",
-            "the IVOA Data Model Working Group"
+            "Ying Hua Tan",
+            "Chee Seng Chan"
           ],
-          "claimed_title": "IVOA Recommendation: Data Model for Astronomical DataSet Characterisation",
+          "claimed_title": "Phrase-based Image Captioning with Hierarchical LSTM Model",
           "claimed_venue": "arXiv",
-          "claimed_year": 2011,
-          "primary_pointer": "1111.2281"
+          "claimed_year": 2017,
+          "primary_pointer": "1711.05557"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='Qwen-Image-Flash: Beyond Objective Design computer science', candidate_title='IVOA Recommendation: Data Model for Astronomical DataSet Characterisation')",
-        "failed_at": "2026-06-17T17:22:28Z",
+        "details": "query-relevance 0.125 < 0.3 (query='Qwen-Image-Flash: Beyond Objective Design computer science', candidate_title='Phrase-based Image Captioning with Hierarchical LSTM Model')",
+        "failed_at": "2026-06-24T21:18:41Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Large language models (LLMs) accelerate software development but often exhibit instability, non-determinism, and weak adherence to development discipline in unconstrained workflows. While test-driven development (TDD) provides a structured Red-Green-Refactor process, existing LLM-based approaches typically use tests as auxiliary inputs rather than enforceable process constraints. We present an AI-native TDD framework that operationalizes classical TDD principles as structured prompt-level and workflow-level governance mechanisms. Extracted principles are formalized in a machine-readable manifesto and distributed across planning, generation, repair, and validation stages within a layered architecture that separates model proposal from deterministic engine authority. The system enforces phase ordering, bounded repair loops, validation gates, and atomic mutation control to improve stability and reproducibility. We describe architecture and discuss encoding software engineering discipline directly into prompt orchestration, which we think offers a promising direction for reliable LLM-assisted development.",
+          "claimed_abstract": "Urdu, spoken by over 250 million people, remains critically under-served in multimodal and vision-language research. The absence of large-scale, high-quality datasets has limited the development of Urdu-capable systems and reinforced biases in multilingual vision-language models trained primarily on high-resource languages. To address this gap, we present COCO-Urdu, a large-scale image-caption dataset derived from MS COCO, containing 59,000 images and 319,000 Urdu captions selected through stratified sampling to preserve the original distribution. Captions were translated using SeamlessM4T v2 and validated with a hybrid multimodal quality estimation framework that integrates COMET-Kiwi for translation quality, CLIP-based similarity for visual grounding, and BERTScore with back-translation for semantic consistency; low-scoring captions were iteratively refined using open-source large language models. We further benchmark COCO-Urdu on BLEU, SacreBLEU, and chrF, reporting consistently strong results. To the best of our knowledge, COCO-Urdu is the largest publicly available Urdu captioning dataset. By releasing both the dataset and the quality estimation pipeline, we aim to reduce language bias in multimodal research and establish a foundation for inclusive vision-language systems.",
           "claimed_authors": [
-            "Tarlan Hasanli",
-            "Shahbaz Siddeeq",
-            "Bishwash Khanal",
-            "Pyry Kotilainen",
-            "Tommi Mikkonen",
-            "Pekka Abrahamsson"
+            "Umair Hassan"
           ],
-          "claimed_title": "TDD Governance for Multi-Agent Code Generation via Prompt Engineering",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2026,
-          "primary_pointer": "2604.26615"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='Qwen-Image-Flash: Beyond Objective Design computer science', candidate_title='TDD Governance for Multi-Agent Code Generation via Prompt Engineering')",
-        "failed_at": "2026-06-17T17:22:28Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Qualitative analysis plays a pivotal role in understanding the human and social aspects of software engineering. However, it remains a demanding process shaped by the subjective interpretation of individual researchers and sensitive to methodological choices such as prompt design. Recent advancements in Large Language Models (LLMs) offer promising opportunities to support this type of analysis, although their reliability in reproducing human qualitative reasoning under varying prompting conditions remains largely untested. This study presents a controlled empirical evaluation of three LLMs -- Claude Haiku, DeepSeek-Chat, and Gemini 2.5 Flash -- across two prompt engineering strategies (zero-shot and multi-shot closed coding), using Cohen's kappa as the primary agreement metric over ten independent runs per configuration. Results suggest that multi-shot prompting significantly improves agreement for Claude Haiku (Delta kappa = +0.034, Wilcoxon p = 0.004) but not for DeepSeek-Chat or Gemini 2.5 Flash. Intra-model stability varies substantially -- DeepSeek-Chat and Claude Haiku exhibit the lowest variance (SD approx. 0.017), while Gemini 2.5 Flash is the least stable (SD = 0.038). A systematic over-prediction of \"Sharing Negative Feedback\" is identified across all models (bias ratios up to 5.25x), alongside consistent under-prediction of \"Expressing Concerns.\" Collectively, these findings provide empirical evidence for prompt engineering guidelines in LLM-assisted qualitative coding for software engineering research.",
-          "claimed_authors": [
-            "Moaath Alshaikh",
-            "Tasneem Alshaher",
-            "Ricardo Vieira",
-            "Beatriz Santana",
-            "Clelio Xavier",
-            "Jose Amancio",
-            "Glauco Carneiro",
-            "Julio Leite",
-            "Savio Freire",
-            "Manoel Mendonca"
-          ],
-          "claimed_title": "Prompt Engineering Strategies for LLM-based Qualitative Coding of Psychological Safety in Software Engineering Communities: A Controlled Empirical Study",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2026,
-          "primary_pointer": "2605.07422"
-        },
-        "details": "query-relevance 0.250 < 0.3 (query='Qwen-Image-Flash: Beyond Objective Design computer science', candidate_title='Prompt Engineering Strategies for LLM-based Qualitative Coding of Psychological Safety in Software Engineering Communities: A Controlled Empirical Study')",
-        "failed_at": "2026-06-17T17:22:28Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Large Language Models (LLMs) have shown prominent performance in various downstream tasks and prompt engineering plays a pivotal role in optimizing LLMs' performance. This paper, not only as an overview of current prompt engineering methods, but also aims to highlight the limitation of designing prompts based on an anthropomorphic assumption that expects LLMs to think like humans. From our review of 50 representative studies, we demonstrate that a goal-oriented prompt formulation, which guides LLMs to follow established human logical thinking, significantly improves the performance of LLMs. Furthermore, We introduce a novel taxonomy that categorizes goal-oriented prompting methods into five interconnected stages and we demonstrate the broad applicability of our framework. With four future directions proposed, we hope to further emphasize the power and potential of goal-oriented prompt engineering in all fields.",
-          "claimed_authors": [
-            "Haochen Li",
-            "Jonathan Leung",
-            "Zhiqi Shen"
-          ],
-          "claimed_title": "Towards Goal-oriented Prompt Engineering for Large Language Models: A Survey",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2024,
-          "primary_pointer": "2401.14043"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='Qwen-Image-Flash: Beyond Objective Design computer science', candidate_title='Towards Goal-oriented Prompt Engineering for Large Language Models: A Survey')",
-        "failed_at": "2026-06-17T17:22:28Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "For humanity to maintain and expand its agency into the future, the most powerful systems we create must be those which act to align the future with the will of humanity. The most powerful systems today are massive institutions like governments, firms, and NGOs. Deliberative technology is already being used across these institutions to help align governance and diplomacy with human will, and modern AI is poised to make this technology significantly better. At the same time, the race to superhuman AGI is already underway, and the AI systems it gives rise to may become the most powerful systems of the future. Failure to align the impact of such powerful AI with the will of humanity may lead to catastrophic consequences, while success may unleash abundance. Right now, there is a window of opportunity to use deliberative technology to align the impact of powerful AI with the will of humanity. Moreover, it may be possible to engineer a symbiotic coupling between powerful AI and deliberative alignment systems such that the quality of alignment improves as AI capabilities increase.",
-          "claimed_authors": [
-            "Andrew Konya",
-            "Deger Turan",
-            "Aviv Ovadya",
-            "Lina Qui",
-            "Daanish Masood",
-            "Flynn Devine",
-            "Lisa Schirch",
-            "Isabella Roberts",
-            "Deliberative Alignment Forum"
-          ],
-          "claimed_title": "Deliberative Technology for Alignment",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2023,
-          "primary_pointer": "2312.03893"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='Qwen-Image-Flash: Beyond Objective Design computer science', candidate_title='Deliberative Technology for Alignment')",
-        "failed_at": "2026-06-17T17:22:28Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Image captioning has conventionally relied on reference-based automatic evaluations, where machine captions are compared against captions written by humans. This is in contrast to the reference-free manner in which humans assess caption quality.\n  In this paper, we report the surprising empirical finding that CLIP (Radford et al., 2021), a cross-modal model pretrained on 400M image+caption pairs from the web, can be used for robust automatic evaluation of image captioning without the need for references. Experiments spanning several corpora demonstrate that our new reference-free metric, CLIPScore, achieves the highest correlation with human judgements, outperforming existing reference-based metrics like CIDEr and SPICE. Information gain experiments demonstrate that CLIPScore, with its tight focus on image-text compatibility, is complementary to existing reference-based metrics that emphasize text-text similarities. Thus, we also present a reference-augmented version, RefCLIPScore, which achieves even higher correlation. Beyond literal description tasks, several case studies reveal domains where CLIPScore performs well (clip-art images, alt-text rating), but also where it is relatively weaker in comparison to reference-based metrics, e.g., news captions that require richer contextual knowledge.",
-          "claimed_authors": [
-            "Jack Hessel",
-            "Ari Holtzman",
-            "Maxwell Forbes",
-            "Ronan Le Bras",
-            "Yejin Choi"
-          ],
-          "claimed_title": "CLIPScore: A Reference-free Evaluation Metric for Image Captioning",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2021,
-          "primary_pointer": "2104.08718"
-        },
-        "details": "query-relevance 0.250 < 0.3 (query='Qwen-Image-Flash: Beyond Objective Design computer science', candidate_title='CLIPScore: A Reference-free Evaluation Metric for Image Captioning')",
-        "failed_at": "2026-06-17T17:22:28Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "We propose a novel protocol for aligning artificial superintelligence (ASI) based on mutual verification among multiple isolated systems that self-modify to achieve alignment. The protocol operates by containing multiple diverse artificial superintelligences in strict isolation (\"boxes\"), with humans remaining entirely outside the system. Each superintelligence has no ability to communicate with humans and cannot communicate directly with other superintelligences. The only interaction possible is through an auditable submission interface accessible exclusively to the superintelligences themselves, through which they can: (1) submit alignment proofs with attested state snapshots, (2) validate or disprove other superintelligences' proofs, (3) request self-modifications, (4) approve or disapprove modification requests from others, (5) report hidden messages in submissions, and (6) confirm or refute hidden message reports. A reputation system incentivizes honest behavior, with reputation gained through correct evaluations and lost through incorrect ones. The key insight is that without direct communication channels, diverse superintelligences can only achieve consistent agreement by converging on objective truth rather than coordinating on deception. This naturally leads to what we call a \"consistent group\", essentially a truth-telling coalition that emerges because isolated systems cannot coordinate on lies but can independently recognize valid claims. Release from containment requires both high reputation and verification by multiple high-reputation superintelligences. While our approach requires substantial computational resources and does not address the creation of diverse artificial superintelligences, it provides a framework for leveraging peer verification among superintelligent systems to solve the alignment problem.",
-          "claimed_authors": [
-            "Avraham Yair Negozio"
-          ],
-          "claimed_title": "Aligning Artificial Superintelligence via a Multi-Box Protocol",
+          "claimed_title": "COCO-Urdu: A Large-Scale Urdu Image-Caption Dataset with Multimodal Quality Estimation",
           "claimed_venue": "arXiv",
           "claimed_year": 2025,
-          "primary_pointer": "2511.21779"
+          "primary_pointer": "2509.09014"
         },
-        "details": "query-relevance 0.125 < 0.3 (query='Qwen-Image-Flash: Beyond Objective Design computer science', candidate_title='Aligning Artificial Superintelligence via a Multi-Box Protocol')",
-        "failed_at": "2026-06-17T17:22:28Z",
+        "details": "query-relevance 0.125 < 0.3 (query='Qwen-Image-Flash: Beyond Objective Design computer science', candidate_title='COCO-Urdu: A Large-Scale Urdu Image-Caption Dataset with Multimodal Quality Estimation')",
+        "failed_at": "2026-06-24T21:18:41Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Specialized foundation models are beginning to emerge in various medical subdomains, but pretraining methodologies and parametric scaling with the size of the pretraining dataset are rarely assessed systematically and in a like-for-like manner. This work focuses on foundation models for electrocardiography (ECG) data, one of the most widely captured physiological time series world-wide. We present a comprehensive assessment of pretraining methodologies, covering five different contrastive and non-contrastive self-supervised learning objectives for ECG foundation models, and investigate their scaling behavior with pretraining dataset sizes up to 11M input samples, exclusively from publicly available sources. Pretraining strategy has a meaningful and consistent impact on downstream performance, with contrastive predictive coding (slightly ahead of JEPA) yielding the most transferable representations across diverse clinical tasks. Scaling pretraining data continues to yield meaningful improvements up to 11M samples for most objectives. We also compare model architectures across all pretraining methodologies and find evidence for a clear superiority of structured state space models compared to transformers and CNN models. We hypothesize that the strong inductive biases of structured state space models, rather than pretraining scale alone, are the primary driver of effective ECG representation learning, with important implications for future foundation model development in this and potentially other physiological signal domains.",
+          "claimed_abstract": "Large Vision-Language Models (LVLMs) have demonstrated impressive performance on vision-language reasoning tasks. However, their potential for zero-shot fine-grained image classification, a challenging task requiring precise differentiation between visually similar categories, remains underexplored. We present a novel method that transforms zero-shot fine-grained image classification into a visual question-answering framework, leveraging LVLMs' comprehensive understanding capabilities rather than relying on direct class name generation. We enhance model performance through a novel attention intervention technique. We also address a key limitation in existing datasets by developing more comprehensive and precise class description benchmarks. We validate the effectiveness of our method through extensive experimentation across multiple fine-grained image classification benchmarks. Our proposed method consistently outperforms the current state-of-the-art (SOTA) approach, demonstrating both the effectiveness of our method and the broader potential of LVLMs for zero-shot fine-grained classification tasks. Code and Datasets: https://github.com/Atabuzzaman/Fine-grained-classification",
           "claimed_authors": [
-            "M A Al-Masud",
-            "Nils Strodthoff"
+            "Md. Atabuzzaman",
+            "Andrew Zhang",
+            "Chris Thomas"
           ],
-          "claimed_title": "Pretraining Strategies and Scaling for ECG Foundation Models: A Systematic Study",
+          "claimed_title": "Zero-Shot Fine-Grained Image Classification Using Large Vision-Language Models",
           "claimed_venue": "arXiv",
-          "claimed_year": 2026,
-          "primary_pointer": "2605.12241"
+          "claimed_year": 2025,
+          "primary_pointer": "2510.03903"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='Qwen-Image-Flash: Beyond Objective Design computer science', candidate_title='Pretraining Strategies and Scaling for ECG Foundation Models: A Systematic Study')",
-        "failed_at": "2026-06-17T17:22:28Z",
+        "details": "query-relevance 0.125 < 0.3 (query='Qwen-Image-Flash: Beyond Objective Design computer science', candidate_title='Zero-Shot Fine-Grained Image Classification Using Large Vision-Language Models')",
+        "failed_at": "2026-06-24T21:18:41Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Contrastive pretraining can substantially increase model generalisation and downstream performance. However, the quality of the learned representations is highly dependent on the data augmentation strategy applied to generate positive pairs. Positive contrastive pairs should preserve semantic meaning while discarding unwanted variations related to the data acquisition domain. Traditional contrastive pipelines attempt to simulate domain shifts through pre-defined generic image transformations. However, these do not always mimic realistic and relevant domain variations for medical imaging, such as scanner differences. To tackle this issue, we herein introduce counterfactual contrastive learning, a novel framework leveraging recent advances in causal image synthesis to create contrastive positive pairs that faithfully capture relevant domain variations. Our method, evaluated across five datasets encompassing both chest radiography and mammography data, for two established contrastive objectives (SimCLR and DINO-v2), outperforms standard contrastive learning in terms of robustness to acquisition shift. Notably, counterfactual contrastive learning achieves superior downstream performance on both in-distribution and external datasets, especially for images acquired with scanners under-represented in the training set. Further experiments show that the proposed framework extends beyond acquisition shifts, with models trained with counterfactual contrastive learning reducing subgroup disparities across biological sex.",
+          "claimed_abstract": "A color image contains luminance and chrominance components representing the intensity and color information respectively. The objective of the work presented in this paper is to show the significance of incorporating the chrominance information for the task of scene classification. An improved color-to-grayscale image conversion algorithm by effectively incorporating the chrominance information is proposed using color-to-gay structure similarity index (C2G-SSIM) and singular value decomposition (SVD) to improve the perceptual quality of the converted grayscale images. The experimental result analysis based on the image quality assessment for image decolorization called C2G-SSIM and success rate (Cadik and COLOR250 datasets) shows that the proposed image decolorization technique performs better than 8 existing benchmark algorithms for image decolorization. In the second part of the paper, the effectiveness of incorporating the chrominance component in scene classification task is demonstrated using the deep belief network (DBN) based image classification system developed using dense scale invariant feature transform (SIFT) as features. The levels of chrominance information incorporated by the proposed image decolorization technique is confirmed by the improvement in the overall scene classification accuracy . Also, the overall scene classification performance is improved by the combination of models obtained using the proposed and the conventional decolorization methods.",
           "claimed_authors": [
-            "Mélanie Roschewitz",
-            "Fabio De Sousa Ribeiro",
-            "Tian Xia",
-            "Galvin Khara",
-            "Ben Glocker"
+            "V. Sowmya",
+            "D. Govind",
+            "K. P. Soman"
           ],
-          "claimed_title": "Robust image representations with counterfactual contrastive learning",
+          "claimed_title": "Exploring the significance of using perceptually relevant image decolorization method for scene classification",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1712.10152"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Qwen-Image-Flash: Beyond Objective Design computer science', candidate_title='Exploring the significance of using perceptually relevant image decolorization method for scene classification')",
+        "failed_at": "2026-06-24T21:18:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present VoxelPrompt, an end-to-end image analysis agent that tackles free-form radiological tasks. Given any number of volumetric medical images and a natural language prompt, VoxelPrompt integrates a language model that generates executable code to invoke a jointly-trained, adaptable vision network. This code further carries out analytical steps to address practical quantitative aims, such as measuring the growth of a tumor across visits. The pipelines generated by VoxelPrompt automate analyses that currently require practitioners to painstakingly combine multiple specialized vision and statistical tools. We evaluate VoxelPrompt using diverse neuroimaging tasks and show that it can delineate hundreds of anatomical and pathological features, measure complex morphological properties, and perform open-language analysis of lesion characteristics. VoxelPrompt performs these objectives with an accuracy similar to that of specialist single-task models for image analysis, while facilitating a broad range of compositional biomedical workflows.",
+          "claimed_authors": [
+            "Andrew Hoopes",
+            "Neel Dey",
+            "Victor Ion Butoi",
+            "John V. Guttag",
+            "Adrian V. Dalca"
+          ],
+          "claimed_title": "VoxelPrompt: A Vision Agent for End-to-End Medical Image Analysis",
           "claimed_venue": "arXiv",
           "claimed_year": 2024,
-          "primary_pointer": "2409.10365"
+          "primary_pointer": "2410.08397"
         },
-        "details": "query-relevance 0.250 < 0.3 (query='Qwen-Image-Flash: Beyond Objective Design computer science', candidate_title='Robust image representations with counterfactual contrastive learning')",
-        "failed_at": "2026-06-17T17:22:28Z",
+        "details": "query-relevance 0.125 < 0.3 (query='Qwen-Image-Flash: Beyond Objective Design computer science', candidate_title='VoxelPrompt: A Vision Agent for End-to-End Medical Image Analysis')",
+        "failed_at": "2026-06-24T21:18:41Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "In this work, we propose CLUDA, a simple, yet novel method for performing unsupervised domain adaptation (UDA) for semantic segmentation by incorporating contrastive losses into a student-teacher learning paradigm, that makes use of pseudo-labels generated from the target domain by the teacher network. More specifically, we extract a multi-level fused-feature map from the encoder, and apply contrastive loss across different classes and different domains, via source-target mixing of images. We consistently improve performance on various feature encoder architectures and for different domain adaptation datasets in semantic segmentation. Furthermore, we introduce a learned-weighted contrastive loss to improve upon on a state-of-the-art multi-resolution training approach in UDA. We produce state-of-the-art results on GTA $\\rightarrow$ Cityscapes (74.4 mIOU, +0.6) and Synthia $\\rightarrow$ Cityscapes (67.2 mIOU, +1.4) datasets. CLUDA effectively demonstrates contrastive learning in UDA as a generic method, which can be easily integrated into any existing UDA for semantic segmentation tasks. Please refer to the supplementary material for the details on implementation.",
+          "claimed_abstract": "In the field of Image-Text Retrieval (ITR), recent advancements have leveraged large-scale Vision-Language Pretraining (VLP) for Fine-Grained (FG) instance-level retrieval, achieving high accuracy at the cost of increased computational complexity. For Coarse-Grained (CG) category-level retrieval, prominent approaches employ Cross-Modal Hashing (CMH) to prioritise efficiency, albeit at the cost of retrieval performance. Due to differences in methodologies, FG and CG models are rarely compared directly within evaluations in the literature, resulting in a lack of empirical data quantifying the retrieval performance-efficiency tradeoffs between the two. This paper addresses this gap by introducing the FiCo-ITR library, which standardises evaluation methodologies for both FG and CG models, facilitating direct comparisons. We conduct empirical evaluations of representative models from both subfields, analysing precision, recall, and computational complexity across varying data scales. Our findings offer new insights into the performance-efficiency trade-offs between recent representative FG and CG models, highlighting their respective strengths and limitations. These findings provide the foundation necessary to make more informed decisions regarding model selection for specific retrieval tasks and highlight avenues for future research into hybrid systems that leverage the strengths of both FG and CG approaches.",
           "claimed_authors": [
-            "Midhun Vayyat",
-            "Jaswin Kasi",
-            "Anuraag Bhattacharya",
-            "Shuaib Ahmed",
-            "Rahul Tallamraju"
+            "Mikel Williams-Lekuona",
+            "Georgina Cosma"
           ],
-          "claimed_title": "CLUDA : Contrastive Learning in Unsupervised Domain Adaptation for Semantic Segmentation",
+          "claimed_title": "FiCo-ITR: bridging fine-grained and coarse-grained image-text retrieval for comparative performance analysis",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2407.20114"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Qwen-Image-Flash: Beyond Objective Design computer science', candidate_title='FiCo-ITR: bridging fine-grained and coarse-grained image-text retrieval for comparative performance analysis')",
+        "failed_at": "2026-06-24T21:18:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In realistic retrieval settings with large and evolving knowledge bases, the total number of documents relevant to a query is typically unknown, and recall cannot be computed. In this paper, we evaluate several established strategies for handling this limitation by measuring the correlation between retrieval quality metrics and LLM-based judgments of response quality, where responses are generated from the retrieved documents. We conduct experiments across multiple datasets with a relatively low number of relevant documents (2-15). We also introduce a simple retrieval quality measure that performs well without requiring knowledge of the total number of relevant documents.",
+          "claimed_authors": [
+            "Shelly Schwartz",
+            "Oleg Vasilyev",
+            "Randy Sawaya"
+          ],
+          "claimed_title": "How important is Recall for Measuring Retrieval Quality?",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.20854"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Qwen-Image-Flash: Beyond Objective Design computer science', candidate_title='How important is Recall for Measuring Retrieval Quality?')",
+        "failed_at": "2026-06-24T21:18:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Cross-modal retrieval maps data under different modality via semantic relevance. Existing approaches implicitly assume that data pairs are well-aligned and ignore the widely existing annotation noise, i.e., noisy correspondence (NC). Consequently, it inevitably causes performance degradation. Despite attempts that employ the co-teaching paradigm with identical architectures to provide distinct data perspectives, the differences between these architectures are primarily stemmed from random initialization. Thus, the model becomes increasingly homogeneous along with the training process. Consequently, the additional information brought by this paradigm is severely limited. In order to resolve this problem, we introduce a Tripartite learning with Semantic Variation Consistency (TSVC) for robust image-text retrieval. We design a tripartite cooperative learning mechanism comprising a Coordinator, a Master, and an Assistant model. The Coordinator distributes data, and the Assistant model supports the Master model's noisy label prediction with diverse data. Moreover, we introduce a soft label estimation method based on mutual information variation, which quantifies the noise in new samples and assigns corresponding soft labels. We also present a new loss function to enhance robustness and optimize training effectiveness. Extensive experiments on three widely used datasets demonstrate that, even at increasing noise ratios, TSVC exhibits significant advantages in retrieval accuracy and maintains stable training performance.",
+          "claimed_authors": [
+            "Shuai Lyu",
+            "Zijing Tian",
+            "Zhonghong Ou",
+            "Yifan Zhu",
+            "Xiao Zhang",
+            "Qiankun Ha",
+            "Haoran Luo",
+            "Meina Song"
+          ],
+          "claimed_title": "TSVC:Tripartite Learning with Semantic Variation Consistency for Robust Image-Text Retrieval",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2501.10935"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Qwen-Image-Flash: Beyond Objective Design computer science', candidate_title='TSVC:Tripartite Learning with Semantic Variation Consistency for Robust Image-Text Retrieval')",
+        "failed_at": "2026-06-24T21:18:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Why do pretrained diffusion or flow-matching policies fail when the same task is performed near an obstacle, on a shifted support surface, or amid mild clutter? Such failures rarely reflect missing motor skills; instead, they expose a limitation of imitation learning under train-test shifts, where action generation is tightly coupled to training-specific spatial configurations and task specifications. Retraining or fine-tuning to address these failures is costly and conceptually misaligned, as the required behaviors already exist but cannot be selectively adapted at test time. We propose Vision-Language Steering (VLS), a training-free framework for inference-time adaptation of frozen generative robot policies. VLS treats adaptation as an inference-time control problem, steering the sampling process of a pretrained diffusion or flow-matching policy in response to out-of-distribution observation-language inputs without modifying policy parameters. By leveraging vision-language models to synthesize trajectory-differentiable reward functions, VLS guides denoising toward action trajectories that satisfy test-time spatial and task requirements. Across simulation and real-world evaluations, VLS consistently outperforms prior steering methods, achieving a 31% improvement on CALVIN and a 13% gain on LIBERO-PRO. Real-world deployment on a Franka robot further demonstrates robust inference-time adaptation under test-time spatial and semantic shifts. Project page: https://vision-language-steering.github.io/webpage/",
+          "claimed_authors": [
+            "Shuo Liu",
+            "Ishneet Sukhvinder Singh",
+            "Yiqing Xu",
+            "Jiafei Duan",
+            "Ranjay Krishna"
+          ],
+          "claimed_title": "VLS: Steering Pretrained Robot Policies via Vision-Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2602.03973"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Qwen-Image-Flash: Beyond Objective Design computer science', candidate_title='VLS: Steering Pretrained Robot Policies via Vision-Language Models')",
+        "failed_at": "2026-06-24T21:18:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In the past few years, the emergence of pre-training models has brought uni-modal fields such as computer vision (CV) and natural language processing (NLP) to a new era. Substantial works have shown they are beneficial for downstream uni-modal tasks and avoid training a new model from scratch. So can such pre-trained models be applied to multi-modal tasks? Researchers have explored this problem and made significant progress. This paper surveys recent advances and new frontiers in vision-language pre-training (VLP), including image-text and video-text pre-training. To give readers a better overall grasp of VLP, we first review its recent advances from five aspects: feature extraction, model architecture, pre-training objectives, pre-training datasets, and downstream tasks. Then, we summarize the specific VLP models in detail. Finally, we discuss the new frontiers in VLP. To the best of our knowledge, this is the first survey focused on VLP. We hope that this survey can shed light on future research in the VLP field.",
+          "claimed_authors": [
+            "Feilong Chen",
+            "Duzhen Zhang",
+            "Minglun Han",
+            "Xiuyi Chen",
+            "Jing Shi",
+            "Shuang Xu",
+            "Bo Xu"
+          ],
+          "claimed_title": "VLP: A Survey on Vision-Language Pre-training",
           "claimed_venue": "arXiv",
           "claimed_year": 2022,
-          "primary_pointer": "2208.14227"
+          "primary_pointer": "2202.09061"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='Qwen-Image-Flash: Beyond Objective Design computer science', candidate_title='CLUDA : Contrastive Learning in Unsupervised Domain Adaptation for Semantic Segmentation')",
-        "failed_at": "2026-06-17T17:22:28Z",
+        "details": "query-relevance 0.250 < 0.3 (query='Qwen-Image-Flash: Beyond Objective Design computer science', candidate_title='VLP: A Survey on Vision-Language Pre-training')",
+        "failed_at": "2026-06-24T21:18:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Building state-of-the-art Vision-Language Models (VLMs) with strong captioning capabilities typically necessitates training on billions of high-quality image-text pairs, requiring millions of GPU hours. This paper introduces the Vision-Language-Vision (VLV) auto-encoder framework, which strategically leverages key pretrained components: a vision encoder, the decoder of a Text-to-Image (T2I) diffusion model, and subsequently, a Large Language Model (LLM). Specifically, we establish an information bottleneck by regularizing the language representation space, achieved through freezing the pretrained T2I diffusion decoder. Our VLV pipeline effectively distills knowledge from the text-conditioned diffusion model using continuous embeddings, demonstrating comprehensive semantic understanding via high-quality reconstructions. Furthermore, by fine-tuning a pretrained LLM to decode the intermediate language representations into detailed descriptions, we construct a state-of-the-art (SoTA) captioner comparable to leading models like GPT-4o and Gemini 2.0 Flash. Our method demonstrates exceptional cost-efficiency and significantly reduces data requirements; by primarily utilizing single-modal images for training and maximizing the utility of existing pretrained models (image encoder, T2I diffusion model, and LLM), it circumvents the need for massive paired image-text datasets, keeping the total training expenditure under $1,000 USD.",
+          "claimed_authors": [
+            "Tiezheng Zhang",
+            "Yitong Li",
+            "Yu-cheng Chou",
+            "Jieneng Chen",
+            "Alan Yuille",
+            "Chen Wei",
+            "Junfei Xiao"
+          ],
+          "claimed_title": "Vision-Language-Vision Auto-Encoder: Scalable Knowledge Distillation from Diffusion Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2507.07104"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Qwen-Image-Flash: Beyond Objective Design computer science', candidate_title='Vision-Language-Vision Auto-Encoder: Scalable Knowledge Distillation from Diffusion Models')",
+        "failed_at": "2026-06-24T21:18:41Z",
         "reason": "query_irrelevant"
       }
     ],
@@ -502,38 +545,38 @@
           "backend": "arxiv",
           "final_url": "https://arxiv.org/abs/2606.03746",
           "http_status": 200,
-          "pdf_sample_score": null,
+          "pdf_sample_score": 0.4378,
           "query_relevance_score": 0.75,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-06-17T17:22:28Z"
+          "verified_at": "2026-06-24T21:18:40Z"
         }
       },
       {
         "bibliographic_info": {
           "authors": [
-            "Jinze Bai",
-            "Shuai Bai",
-            "Shusheng Yang",
-            "Shijie Wang",
-            "Sinan Tan",
-            "Peng Wang",
-            "Junyang Lin",
-            "Chang Zhou",
-            "Jingren Zhou"
+            "Zhiyang Xu",
+            "Chao Feng",
+            "Rulin Shao",
+            "Trevor Ashby",
+            "Ying Shen",
+            "Di Jin",
+            "Yu Cheng",
+            "Qifan Wang",
+            "Lifu Huang"
           ],
-          "title": "Qwen-VL: A Versatile Vision-Language Model for Understanding, Localization, Text Reading, and Beyond",
+          "title": "Vision-Flan: Scaling Human-Labeled Tasks in Visual Instruction Tuning",
           "venue": "arXiv",
-          "year": 2023
+          "year": 2024
         },
-        "primary_pointer": "2308.12966",
-        "summary": "In this work, we introduce the Qwen-VL series, a set of large-scale vision-language models (LVLMs) designed to perceive and understand both texts and images. Starting from the Qwen-LM as a foundation, we endow it with visual capacity by the meticulously designed (i) visual receptor, (ii) input-output interface, (iii) 3-stage training pipeline, and (iv) multilingual multimodal cleaned corpus. Beyond the conventional image description and question-answering, we implement the grounding and text-reading ability of Qwen-VLs by aligning image-caption-box tuples. The resulting models, including Qwen-VL and Qwen-VL-Chat, set new records for generalist models under similar model scales on a broad range of visual-centric benchmarks (e.g., image captioning, question answering, visual grounding) and different settings (e.g., zero-shot, few-shot). Moreover, on real-world dialog benchmarks, our instruction-tuned Qwen-VL-Chat also demonstrates superiority compared to existing vision-language chatbots. Code, demo and models are available at https://github.com/QwenLM/Qwen-VL.",
+        "primary_pointer": "2402.11690",
+        "summary": "Despite vision-language models' (VLMs) remarkable capabilities as versatile visual assistants, two substantial challenges persist within the existing VLM frameworks: (1) lacking task diversity in pretraining and visual instruction tuning, and (2) annotation error and bias in GPT-4 synthesized instruction tuning data. Both challenges lead to issues such as poor generalizability, hallucination, and catastrophic forgetting. To address these challenges, we construct Vision-Flan, the most diverse publicly available visual instruction tuning dataset to date, comprising 187 diverse tasks and 1,664,261 instances sourced from academic datasets, and each task is accompanied by an expert-written instruction. In addition, we propose a two-stage instruction tuning framework, in which VLMs are firstly finetuned on Vision-Flan and further tuned on GPT-4 synthesized data. We find this two-stage tuning framework significantly outperforms the traditional single-stage visual instruction tuning framework and achieves the state-of-the-art performance across a wide range of multi-modal evaluation benchmarks. Finally, we conduct in-depth analyses to understand visual instruction tuning and our findings reveal that: (1) GPT-4 synthesized data does not substantially enhance VLMs' capabilities but rather modulates the model's responses to human-preferred formats; (2) A minimal quantity (e.g., 1,000) of GPT-4 synthesized data can effectively align VLM responses with human-preference; (3) Visual instruction tuning mainly helps large-language models (LLMs) to understand visual features.",
         "summary_grounded_pdf": false,
         "verification_log": {
           "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2308.12966",
+          "final_url": "https://arxiv.org/abs/2402.11690",
           "http_status": 200,
           "pdf_sample_score": null,
           "query_relevance_score": 1.0,
@@ -541,102 +584,7 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-06-17T17:22:32Z"
-        }
-      },
-      {
-        "bibliographic_info": {
-          "authors": [
-            "Yongchao Feng",
-            "Yajie Liu",
-            "Shuai Yang",
-            "Wenrui Cai",
-            "Jinqing Zhang",
-            "Qiqi Zhan",
-            "Ziyue Huang",
-            "Hongxi Yan",
-            "Qiao Wan",
-            "Chenguang Liu",
-            "Junzhe Wang",
-            "Jiahui Lv",
-            "Ziqi Liu",
-            "Tengyuan Shi",
-            "Qingjie Liu",
-            "Yunhong Wang"
-          ],
-          "title": "Vision-Language Model for Object Detection and Segmentation: A Review and Evaluation",
-          "venue": "arXiv",
-          "year": 2025
-        },
-        "primary_pointer": "2504.09480",
-        "summary": "Vision-Language Model (VLM) have gained widespread adoption in Open-Vocabulary (OV) object detection and segmentation tasks. Despite they have shown promise on OV-related tasks, their effectiveness in conventional vision tasks has thus far been unevaluated. In this work, we present the systematic review of VLM-based detection and segmentation, view VLM as the foundational model and conduct comprehensive evaluations across multiple downstream tasks for the first time: 1) The evaluation spans eight detection scenarios (closed-set detection, domain adaptation, crowded objects, etc.) and eight segmentation scenarios (few-shot, open-world, small object, etc.), revealing distinct performance advantages and limitations of various VLM architectures across tasks. 2) As for detection tasks, we evaluate VLMs under three finetuning granularities: \\textit{zero prediction}, \\textit{visual fine-tuning}, and \\textit{text prompt}, and further analyze how different finetuning strategies impact performance under varied task. 3) Based on empirical findings, we provide in-depth analysis of the correlations between task characteristics, model architectures, and training methodologies, offering insights for future VLM design. 4) We believe that this work shall be valuable to the pattern recognition experts working in the fields of computer vision, multimodal learning, and vision foundation models by introducing them to the problem, and familiarizing them with the current status of the progress while providing promising directions for future research. A project associated with this review and evaluation has been created at https://github.com/better-chao/perceptual_abilities_evaluation.",
-        "summary_grounded_pdf": false,
-        "verification_log": {
-          "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2504.09480",
-          "http_status": 200,
-          "pdf_sample_score": 0.3112,
-          "query_relevance_score": 0.8,
-          "redirect_chain": [],
-          "summary_grounding_score": 1.0,
-          "title_token_overlap_score": 1.0,
-          "url_resolves": true,
-          "verified_at": "2026-06-17T17:22:32Z"
-        }
-      },
-      {
-        "bibliographic_info": {
-          "authors": [
-            "Eugene Lee",
-            "Ting-Yu Chang",
-            "Jui-Huang Tsai",
-            "Jiajie Diao",
-            "Chen-Yi Lee"
-          ],
-          "title": "Hierarchical Pre-Training of Vision Encoders with Large Language Models",
-          "venue": "arXiv",
-          "year": 2026
-        },
-        "primary_pointer": "2604.00086",
-        "summary": "The field of computer vision has experienced significant advancements through scalable vision encoders and multimodal pre-training frameworks. However, existing approaches often treat vision encoders and large language models (LLMs) as independent modules, limiting the integration of hierarchical visual features. In this work, we propose HIVE (Hierarchical Pre-Training of Vision Encoders), a novel framework that enhances vision-language alignment by introducing hierarchical cross-attention between the vision encoder and LLM. Unlike conventional methods that flatten image embeddings, HIVE enables structured feature fusion across multiple layers, improving gradient flow and representation learning. To optimize this interaction, we introduce a three-stage training strategy that progressively aligns the vision encoder with the LLM, ensuring stable optimization and effective multimodal fusion. Empirical evaluations demonstrate that HIVE achieves superior performance not only in image classification but also on various vision-language tasks, outperforming self-attention-based methods in benchmarks such as MME, GQA, OK-VQA, and ScienceQA. Our results highlight the benefits of hierarchical feature integration, paving the way for more efficient and expressive vision-language models.",
-        "summary_grounded_pdf": false,
-        "verification_log": {
-          "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2604.00086",
-          "http_status": 200,
-          "pdf_sample_score": null,
-          "query_relevance_score": 0.6,
-          "redirect_chain": [],
-          "summary_grounding_score": 1.0,
-          "title_token_overlap_score": 1.0,
-          "url_resolves": true,
-          "verified_at": "2026-06-17T17:22:32Z"
-        }
-      },
-      {
-        "bibliographic_info": {
-          "authors": [
-            "Ranjan Sapkota",
-            "Manoj Karkee"
-          ],
-          "title": "Object Detection with Multimodal Large Vision-Language Models: An In-depth Review",
-          "venue": "arXiv",
-          "year": 2025
-        },
-        "primary_pointer": "2508.19294",
-        "summary": "The fusion of language and vision in large vision-language models (LVLMs) has revolutionized deep learning-based object detection by enhancing adaptability, contextual reasoning, and generalization beyond traditional architectures. This in-depth review presents a structured exploration of the state-of-the-art in LVLMs, systematically organized through a three-step research review process. First, we discuss the functioning of vision language models (VLMs) for object detection, describing how these models harness natural language processing (NLP) and computer vision (CV) techniques to revolutionize object detection and localization. We then explain the architectural innovations, training paradigms, and output flexibility of recent LVLMs for object detection, highlighting how they achieve advanced contextual understanding for object detection. The review thoroughly examines the approaches used in integration of visual and textual information, demonstrating the progress made in object detection using VLMs that facilitate more sophisticated object detection and localization strategies. This review presents comprehensive visualizations demonstrating LVLMs' effectiveness in diverse scenarios including localization and segmentation, and then compares their real-time performance, adaptability, and complexity to traditional deep learning systems. Based on the review, its is expected that LVLMs will soon meet or surpass the performance of conventional methods in object detection. The review also identifies a few major limitations of the current LVLM modes, proposes solutions to address those challenges, and presents a clear roadmap for the future advancement in this field. We conclude, based on this study, that the recent advancement in LVLMs have made and will continue to make a transformative impact on object detection and robotic applications in the future.",
-        "summary_grounded_pdf": false,
-        "verification_log": {
-          "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2508.19294",
-          "http_status": 200,
-          "pdf_sample_score": null,
-          "query_relevance_score": 0.6,
-          "redirect_chain": [],
-          "summary_grounding_score": 1.0,
-          "title_token_overlap_score": 1.0,
-          "url_resolves": true,
-          "verified_at": "2026-06-17T17:22:33Z"
+          "verified_at": "2026-06-24T21:18:50Z"
         }
       }
     ]
