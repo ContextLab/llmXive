@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1008.3001",
+  "judged_at": "2026-06-24T10:08:57Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting the impact of alloying on magnetic properties via public data materials science",
+  "rationale": "The paper studies substitutional energies and lattice relaxations of alloying elements in bcc Fe under volume changes, but it does not examine magnetic properties or their prediction, so it lacks the relevant independent/dependent variables or mechanisms needed for the user's question.",
+  "relevant": false
+}

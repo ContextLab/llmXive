@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2508.04952",
+  "judged_at": "2026-06-24T10:09:12Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting the impact of alloying on magnetic properties via public data materials science",
+  "rationale": "The paper discusses how alloying (independent variable) influences magnetic anisotropy—a key magnetic property—providing mechanistic insight and empirical examples that are directly relevant to predicting alloying effects on magnetic behavior, satisfying criterion (a) same‑mechanism evidence.",
+  "relevant": true
+}

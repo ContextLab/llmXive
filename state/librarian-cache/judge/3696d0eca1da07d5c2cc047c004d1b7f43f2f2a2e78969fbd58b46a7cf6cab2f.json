@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2006.03172",
+  "judged_at": "2026-06-24T10:09:03Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting the impact of alloying on magnetic properties via public data materials science",
+  "rationale": "The paper studies cosmic magnetic fields using radio astronomy data (SKA) and does not address alloying, magnetic properties of materials, or public materials science datasets, thus it is off-domain and unrelated to the user's research question.",
+  "relevant": false
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2304.06533",
+  "judged_at": "2026-06-24T10:09:01Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting the impact of alloying on magnetic properties via public data materials science",
+  "rationale": "The paper provides same‑mechanism evidence (category a): it experimentally investigates how compositional substitution (Mg/Al alloying) in iron‑rich van der Waals minerals influences magnetic ordering and transition temperatures, directly relating alloying to magnetic properties.",
+  "relevant": true
+}

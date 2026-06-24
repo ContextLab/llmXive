@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1110.5737",
+  "judged_at": "2026-06-24T10:09:08Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting the impact of alloying on magnetic properties via public data materials science",
+  "rationale": "The paper measures key magnetic properties (coercive field, remanence) in magnetic materials, providing data on the dependent variables of interest for the user's alloy‑impact prediction question, satisfying acceptance criterion (b).",
+  "relevant": true
+}

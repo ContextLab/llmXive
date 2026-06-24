@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2003.00012",
+  "judged_at": "2026-06-24T10:09:19Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting the impact of alloying on magnetic properties via public data materials science",
+  "rationale": "The paper supplies a high‑throughput, public‑data database of magnetic material properties and demonstrates a methodology for predicting magnetic behavior from first‑principles calculations, serving as an empirical baseline and canonical reference for magnetic property prediction (criteria c and d), even though it does not specifically study alloying.",
+  "relevant": true
+}

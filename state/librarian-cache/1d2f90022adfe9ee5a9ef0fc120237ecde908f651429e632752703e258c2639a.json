@@ -1,0 +1,457 @@
+{
+  "fetched_at": "2026-06-24T10:09:19Z",
+  "field": "materials science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "materials science",
+      "idea_body_excerpt": "Predicting the Impact of Alloying on Magnetic Properties via Public Data",
+      "target_n": 5
+    },
+    "duration_seconds": 62.657,
+    "ended_at": "2026-06-24T10:09:19Z",
+    "expansion": null,
+    "extracted_queries": [
+      "composition dependent magnetism",
+      "Materials Project magnetic properties",
+      "Curie temperature alloy prediction",
+      "magnetic moment regression",
+      "Stoner criterion alloy magnetism"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2304.06533"
+      ]
+    },
+    "per_query_hit_count": {
+      "Curie temperature alloy prediction": 3,
+      "Materials Project magnetic properties": 3,
+      "Predicting the Impact of Alloying on Magnetic Properties via Public Data materials science": 3,
+      "Stoner criterion alloy magnetism": 2,
+      "composition dependent magnetism": 3,
+      "magnetic moment regression": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 2,
+      "rejections": [
+        {
+          "primary_pointer": "1008.3001",
+          "rationale": "The paper studies substitutional energies and lattice relaxations of alloying elements in bcc Fe under volume changes, but it does not examine magnetic properties or their prediction, so it lacks the relevant independent/dependent variables or mechanisms needed for the user's question.",
+          "title": "Contraction and expansion effects on the substitution-defect properties of thirteen alloying elements in bcc Fe"
+        },
+        {
+          "primary_pointer": "2006.03172",
+          "rationale": "The paper studies cosmic magnetic fields using radio astronomy data (SKA) and does not address alloying, magnetic properties of materials, or public materials science datasets, thus it is off-domain and unrelated to the user's research question.",
+          "title": "Magnetism Science with the Square Kilometre Array"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-24T10:08:17Z",
+    "term_input": {
+      "normalized": "predicting the impact of alloying on magnetic properties via public data materials science",
+      "raw": "Predicting the Impact of Alloying on Magnetic Properties via Public Data materials science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Via is a forthcoming all-sky spectroscopic survey that will achieve 100 m s$^{-1}$ radial velocity stability for millions of faint ($G \\lesssim 21$) stars while reaching LSST's single-visit depth ($r \\approx 24$) for transient spectroscopy, opening new regimes in near-field cosmology and time-domain astrophysics. Via will deploy identical fiber-fed, multi-object spectrographs on the 6.5m MMT and Magellan/Clay telescopes for a five-year, dual-hemisphere survey of $>2{,}000{,}000$ stars beginning in 2027 - timed to complement LSST. Each instrument has 576 robotically positioned fibers over a $1^\\circ$ field of view, feeding two spectrographs: Viaspec ($R \\approx 15{,}000$; 505-595 nm; 540 fibers) and Boombox ($R \\approx 1{,}000$; 360-1010 nm; 36 fibers). Four key goals drive the survey: (1) a comprehensive survey of velocity perturbations in cold stellar streams, sensitive to $M \\lesssim 10^7$ subhalos below the threshold of galaxy formation, a stringent test of the particle nature of dark matter; (2) a chemodynamical census of Milky Way satellite galaxies to understand the formation of the faintest galaxies; (3) the first 3D tomographic maps of cold gas in the circumgalactic medium via NaI absorption; and (4) the rapid characterization of thousands of transients to the single-epoch survey depth of LSST. Ancillary science - including the Ly$α$ forest at $z \\approx 3$-$4$, polluted white dwarfs, exoplanet host characterization, fast radio burst host galaxies, and extragalactic dwarf galaxies - will leverage spare fibers in every pointing. The Via Project is a collaboration between the Center for Astrophysics $|$ Harvard & Smithsonian, Carnegie Observatories, Stanford University, and Yale University.",
+          "claimed_authors": [
+            " The Via Collaboration"
+          ],
+          "claimed_title": "The Via Project: Overview of the Science, Instrument, and Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.18332"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Predicting the Impact of Alloying on Magnetic Properties via Public Data materia', candidate_title='The Via Project: Overview of the Science, Instrument, and Survey')",
+        "failed_at": "2026-06-24T10:08:51Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We reported a systematic change in the average magnetic relaxation rate, after the application and removal of a 5 T magnetic field, in a polycrystalline sample of La0.5Ca0.5MnO3. Magnetic relaxation measurements and magnetization versus field curves were taken from 10 K to 160 K. The long time behavior of the relaxation curves was approximately logarithmic in all cases. Keywords: Charge Ordering, Relaxation, Magnetic measurements",
+          "claimed_authors": [
+            "J. Lopez",
+            "P. N. Lisboa-Filho",
+            "W. A. C. Passos",
+            "W. A. Ortiz",
+            "F. M. Araujo-Moreira"
+          ],
+          "claimed_title": "Magnetic relaxation and magnetization field dependence measurements in La0.5Ca0.5MnO3",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2000,
+          "primary_pointer": "cond-mat/0004460"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting the Impact of Alloying on Magnetic Properties via Public Data materia', candidate_title='Magnetic relaxation and magnetization field dependence measurements in La0.5Ca0.5MnO3')",
+        "failed_at": "2026-06-24T10:08:53Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The book consists of a number of short articles that present achievements of the Araucaria members, collaborators, and friends, in various aspects of distance determinations and related topics. It celebrates the 20-year anniversary of the Araucaria Project, acknowledges the people who worked for its success, and popularises our methods and results among broader readership.\n  This book is a part of a project that has received funding from the European Union's Horizon 2020 research and innovation programme under grant agreement No 695099.",
+          "claimed_authors": [
+            "The Araucaria Project",
+            " :",
+            "G. Pietrzyński",
+            "W. Gieren",
+            "P. Karczmarek",
+            "M. Górski",
+            "B. Zgirski",
+            "P. Wielgórski",
+            "L. Breuval",
+            "K. Suchomska",
+            "A. Gallenne",
+            "P. Kervella",
+            "G. Hajdu",
+            "B. Pilecki",
+            "J. Storm",
+            "N. Nardetto",
+            "R. P. Kudritzki",
+            "M. Taormina",
+            "F. Bresolin",
+            "R. Smolec",
+            "W. Narloch",
+            "C. Gałan",
+            "M. Lewis",
+            "R. Chini"
+          ],
+          "claimed_title": "The Araucaria Project: Improving the cosmic distance scale",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2305.17247"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Impact of Alloying on Magnetic Properties via Public Data materia', candidate_title='The Araucaria Project: Improving the cosmic distance scale')",
+        "failed_at": "2026-06-24T10:08:53Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This study presents a machine learning approach to predict the Curie temperature in binary alloys, specifically focusing on the Fe-Pt, Fe-Ni, Fe-Pd, and Co-Pt compounds within a concentration range of 10 to 90 atomic percent. The optimal mathematical algorithm for this task is the Voting Ensemble algorithm, which combines the predictions from multiple individual models to produce a final prediction. The results are validated against classical methods for calculating Curie temperatures. The experimental findings indicate that factors such as external pressure, atomic ordering, and alloy composition have a significant influence on the Curie temperatures in all examined binary systems. These factors can be leveraged to design alloys with specific Curie temperatures. Moreover, the proposed features, feature analysis algorithms, and computational methods pave the way for advancements across various materials, including ternary alloys, bulk materials, and nanomaterials, inspiring innovation in the field.",
+          "claimed_authors": [
+            "Svitlana Ponomarova",
+            "Oleksandr Ponomarov",
+            "Yurii Koval"
+          ],
+          "claimed_title": "Machine Learning Approach to Predict Curie Temperature in Binary Alloys",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2509.17843"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting the Impact of Alloying on Magnetic Properties via Public Data materia', candidate_title='Machine Learning Approach to Predict Curie Temperature in Binary Alloys')",
+        "failed_at": "2026-06-24T10:08:54Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Various techniques can be employed to determine the temperature of magnetic transformation, whether it be the Curie or Neel temperature. The standard procedure typically involves creating alloys with defined compositions and performing measurements experimentally. Alternatively, these temperatures can be predicted based on a material known physical and chemical properties prior to experiments. We identified an optimal feature set and selected the most effective algorithm. Our findings show that the Voting Ensemble model, when combined with Monte Carlo cross-validation, achieves the highest prediction accuracy. The normalized root mean squared error serves as the primary performance metric. For implementation, we utilize the Azure Machine Learning framework for its robust computational and integration capabilities. This approach offers an efficient and reliable strategy for designing and predicting the Curie temperature of ternary alloys. The paper also highlights potential applications of the model and its extensions for other systems.",
+          "claimed_authors": [
+            "Svitlana Ponomarova",
+            "Oleksandr Ponomarov",
+            "Yurii Koval"
+          ],
+          "claimed_title": "Machine Learning Approach to Predict the Curie Temperature of Fe- and Pt-Based Alloys",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2511.06827"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Predicting the Impact of Alloying on Magnetic Properties via Public Data materia', candidate_title='Machine Learning Approach to Predict the Curie Temperature of Fe- and Pt-Based Alloys')",
+        "failed_at": "2026-06-24T10:08:54Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Using first-principles electronic structure calculations, we have studied the dependence of the Curie temperature on external hydrostatic pressure for random Ni2MnSn Heusler alloys doped with Cu and Pd atoms, over the entire range of dopant concentrations. The Curie temperatures are calculated by applying random-phase approximation to the Heisenberg Hamiltonian whose parameters are determined using the linear response and multiple scattering methods, based on density-functional theory. In (Ni1-x,Pdx)2MnSn alloys, the Curie temperature is found to increase with applied pressure over the whole concentration range. The crossover from the increase to the decrease of the Curie temperature with pressure takes place for Cu concentrations larger than about 70% in (Ni1-x,Cux)2MnSn Heusler alloys. The results for the reference Ni2MnSn Heusler alloy agree well with a previous theoretical study of E. Sasioglu, L. M. Sandratskii and P. Bruno Phys. Rev. B 71 214412 (2005) and also reasonably well with available experimental data. Results for the spin-disorder-induced part of the resistivity in (Ni1-x,Pdx)2MnSn Heusler alloys, calculated by using the disordered local moment model, are also presented. Finally, a qualitative understanding of the results, based on Anderson's superexchange interaction and Stearn's model of the indirect exchange interaction between localized and itinerant d electrons, is provided.",
+          "claimed_authors": [
+            "S. K. Bose",
+            "J. Kudrnovsky",
+            "V. Drchal",
+            "I. Turek"
+          ],
+          "claimed_title": "Pressure dependence of Curie temperature and resistivity in complex Heusler alloys",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1010.3025"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting the Impact of Alloying on Magnetic Properties via Public Data materia', candidate_title='Pressure dependence of Curie temperature and resistivity in complex Heusler alloys')",
+        "failed_at": "2026-06-24T10:08:54Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The nonrelativistic quark model predicts that the spin and the magnetic moment of proton are not parallel. Based on, the modifications are outlined that sound crucial for the analysis of the data out of scattering off the protons.",
+          "claimed_authors": [
+            "Amir H. Fatollahi"
+          ],
+          "claimed_title": "On non-parallelism of spin and magnetic moment of proton",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1105.4357"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Predicting the Impact of Alloying on Magnetic Properties via Public Data materia', candidate_title='On non-parallelism of spin and magnetic moment of proton')",
+        "failed_at": "2026-06-24T10:08:54Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Using an effective lagrangian approach, we identify a class of models in which the loop-induced magnetic moment form-factors of muon are enhanced by possibly large factors (Λ^2_F/Λ^2)(m_τ/m_μ)\\ln(m_τ^2/Λ^2) or (Λ^2_F/Λ^2)\\ln(m_μ^2/Λ^2), where Λis the scale of new physics and Λ_F is the Fermi scale. These follow from left- and right-chirality mixing dimension-8 operators which for relatively small Λ, as required to explain the new (g_μ-2) measurement, dominate over dimension-6 operators. Thus significant enhancement of new physics contributions to (g_μ-2) and, in the presence of intergenerational couplings, also to the μ\\to eγdecay rate is possible. We discuss the compatibility of the (g_μ-2) and μ\\to eγexperimental data in this case and comment on the enhancement of the electron anomalous magnetic moment. An explicit model is presented to illustrate the general results.",
+          "claimed_authors": [
+            "Martti Raidal"
+          ],
+          "claimed_title": "Enhancement of Radiatively Induced Magnetic Moment Form-Factors of Muon: an Effective Lagrangian Approach",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2001,
+          "primary_pointer": "hep-ph/0103224"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Predicting the Impact of Alloying on Magnetic Properties via Public Data materia', candidate_title='Enhancement of Radiatively Induced Magnetic Moment Form-Factors of Muon: an Effective Lagrangian Approach')",
+        "failed_at": "2026-06-24T10:08:54Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recently more generalized four-fermion interactions of neutrinos such as tensor and scalar interactions (TSIs) have been extensively studied in response to forthcoming precision measurements of neutrino interactions. In this letter, we show that due to the chirality-flipping nature, at the 1-loop level TSIs typically generate much larger ($10^{7}\\sim10^{10}$) neutrino magnetic moments ($ν$MMs) than the vector case. For some cases, the large $ν$MMs generated by TSIs may reach or exceed the known bounds, which implies potentially important interplay between probing TSIs and searching for $ν$MMs in current and future neutrino experiments.",
+          "claimed_authors": [
+            "Xun-Jie Xu"
+          ],
+          "claimed_title": "Tensor and scalar interactions of neutrinos may lead to observable neutrino magnetic moments",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1901.00482"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting the Impact of Alloying on Magnetic Properties via Public Data materia', candidate_title='Tensor and scalar interactions of neutrinos may lead to observable neutrino magnetic moments')",
+        "failed_at": "2026-06-24T10:08:54Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This article is devoted to the development of the central ideas in the field of magnetism. The presentation is semi-technical in nature and it roughly follows the chronological order. The key contributions of Van Vleck, Dorfman, Pauli, Heisenberg, and Landau are presented. Then the advent of the field of itinerant electron magnetism starting with the investigations of Bloch and Wigner, and more successful formulation by Slater and Stoner is presented. The physical basis of the Slater-Stoner theory is discussed and its problems are summarized. Then, an overview of the debate between itinerant electron view of Stoner and localized electron view of Heisenberg is presented. Connected with this debate are the issues of exchange interactions. The issues related to the origin of exchange interaction in Stoner model are discussed. We review the \"middle-road\" theory of van Vleck and Hurwitz--the very first theory which takes into account the electron correlation effects in the itinerant model. We close our presentation with the discussion of the very important issue of strong electron correlation in the itinerant picture.",
+          "claimed_authors": [
+            "Navinder Singh"
+          ],
+          "claimed_title": "The story of magnetism: from Heisenberg, Slater, and Stoner to Van Vleck, and the issues of exchange and correlation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1807.11291"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Impact of Alloying on Magnetic Properties via Public Data materia', candidate_title='The story of magnetism: from Heisenberg, Slater, and Stoner to Van Vleck, and the issues of exchange and correlation')",
+        "failed_at": "2026-06-24T10:08:54Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Spin gapped metals have recently emerged as promising candidates for spintronic and nanoelectronic applications, enabling functionalities such as sub-60mV/dec switching, negative differential resistance, and non-local spin-valve effects in field-effect transistors. Realizing these functionalities, however, requires a deeper understanding of their magnetic behavior, which is governed by a subtle interplay between localized and itinerant magnetism. This interplay is particularly complex in spin gapped metallic half-Heusler compounds, whose magnetic properties remain largely unexplored despite previous studies of their electronic structure. In this work, we systematically investigate the magnetic behavior of spin gapped metallic half-Heusler compounds XYZ (X = Fe, Co, Ni, Rh, Ir, Pd, Pt; Y = Ti, V, Zr, Hf, Nb, Ta; Z = In, Sn, Sb), revealing clear trends. Co- and Ni-based compounds predominantly exhibit itinerant magnetism, whereas Ti-, V-, and Fe-based systems may host localized moments, itinerant moments, or a coexistence of both. To uncover the origin of magnetism, we apply the Stoner model, with the Stoner parameter I estimated from Coulomb interaction parameters (Hubbard U and Hund's exchange J) computed using the constrained random phase approximation (cRPA). Our analysis shows that compounds not satisfying the Stoner criterion tend to remain non-magnetic. On the contrary compounds, which satisfy the Stoner criterion, generally exhibit magnetic ordering highlighting the crucial role of electronic correlations and band structure effects in the emergence of magnetism. For compounds with magnetic ground states, we compute Heisenberg exchange parameters, estimate Curie temperatures (T_C), and analyze spin-wave properties, including magnon dispersions and stiffness constants.",
+          "claimed_authors": [
+            "E. Sasıoglu",
+            "W. Beida",
+            "S. Ghosh",
+            "M. Tas",
+            "B. Sanyal",
+            "S. Lounis",
+            "S. Blugel",
+            "I. Mertig",
+            "I. Galanakis"
+          ],
+          "claimed_title": "Itinerant versus localized magnetism in spin gapped metallic half-Heusler compounds: Stoner criterion and magnetic interactions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.03416"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Predicting the Impact of Alloying on Magnetic Properties via Public Data materia', candidate_title='Itinerant versus localized magnetism in spin gapped metallic half-Heusler compounds: Stoner criterion and magnetic interactions')",
+        "failed_at": "2026-06-24T10:08:54Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Muhammad Zubair Khan",
+            "Oleg E. Peil",
+            "Apoorva Sharma",
+            "Oleksandr Selyshchev",
+            "Sergio Valencia",
+            "Florian Kronast",
+            "Maik Zimmermann",
+            "Muhammad Awais Aslam",
+            "Johann G. Raith",
+            "Christian Teichert",
+            "Dietrich R. T. Zahn",
+            "Georgeta Salvan",
+            "Aleksandar Matković",
+            "Chair of Physics",
+            "Department Physics",
+            " Mechanics",
+            "Electrical engineering",
+            "Montanuniversität Leoben",
+            " 8700",
+            " Leoben",
+            " Austria.",
+            "Materials Center Leoben Forschung GmbH",
+            " 8700",
+            " Leoben",
+            " Austria.",
+            "Semiconductor Physics",
+            "Chemnitz University of Technology",
+            " D-09107",
+            " Chemnitz",
+            " Germany.",
+            "Department of Spin",
+            "Topology in Quantum Materials",
+            "Helmholtz-Zentrum Berlin",
+            "Albert-Einstein-Str. 15",
+            " D-12489",
+            " Berlin",
+            " Germany.",
+            "Chair of Resource Mineralogy",
+            "Montanuniversität Leoben",
+            " 8700",
+            " Leoben",
+            " Austria.",
+            "Centre for Materials",
+            " Architecture",
+            "Integration of Nanomembranes",
+            "Chemnitz University of Technology",
+            " 09126",
+            " Chemnitz",
+            " Germany"
+          ],
+          "title": "Probing magnetic ordering in air stable iron-rich van der Waals minerals",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2304.06533",
+        "summary": "In the rapidly expanding field of two-dimensional materials, magnetic monolayers show great promise for the future applications in nanoelectronics, data storage, and sensing. The research in intrinsically magnetic two-dimensional materials mainly focuses on synthetic iodide and telluride based compounds, which inherently suffer from the lack of ambient stability. So far, naturally occurring layered magnetic materials have been vastly overlooked. These minerals offer a unique opportunity to explore air-stable complex layered systems with high concentration of local moment bearing ions. We demonstrate magnetic ordering in iron-rich two-dimensional phyllosilicates, focusing on mineral species of minnesotaite, annite, and biotite. These are naturally occurring van der Waals magnetic materials which integrate local moment baring ions of iron via magnesium/aluminium substitution in their octahedral sites. Due to self-inherent capping by silicate/aluminate tetrahedral groups, ultra-thin layers are air-stable. Chemical characterization, quantitative elemental analysis, and iron oxidation states were determined via Raman spectroscopy, wavelength disperse X-ray spectroscopy, X-ray absorption spectroscopy, and X-ray photoelectron spectroscopy. Superconducting quantum interference device magnetometry measurements were performed to examine the magnetic ordering. These layered materials exhibit paramagnetic or superparamagnetic characteristics at room temperature. At low temperature ferrimagnetic or antiferromagnetic ordering occurs, with the critical ordering temperature of 38.7 K for minnesotaite, 36.1 K for annite, and 4.9 K for biotite. In-field magnetic force microscopy on iron bearing phyllosilicates confirmed the paramagnetic response at room temperature, present down to monolayers.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2304.06533",
+          "http_status": 200,
+          "pdf_sample_score": 0.2931,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-24T10:08:51Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "V. Russier",
+            "K. Younsi",
+            "L. Bessais"
+          ],
+          "title": "Nanostructured exchange coupled hard / soft composites: from the local magnetization profile to an extended 3D simple model",
+          "venue": "arXiv",
+          "year": 2011
+        },
+        "primary_pointer": "1110.5737",
+        "summary": "In nanocomposite magnetic materials the exchange coupling between phases plays a central role in the determination of the extrinsic magnetic properties of the material: coercive field, remanence magnetization. Exchange coupling is therefore of crucial importance in composite systems made of magnetically hard and soft grains or in partially crystallized media including nanosized crystallites in a soft matrix. It has been shown also to be a key point in the control of stratified hard / soft media coercive field in the research for optimized recording media. A signature of the exchange coupling due to the nanostructure is generally obtained on the magnetization curve $M(H)$ with a plateau characteristic of the domain wall compression at the hard/soft interface ending at the depinning of the wall inside the hard phase. This compression / depinning behavior is clearly evidenced through one dimensional description of the interface, which is rigorously possible only in stratified media. Starting from a local description of the hard/soft interface in a model for nanocomposite system we show that one can extend this kind of behavior for system of hard crystallites embedded in a soft matrix.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1110.5737",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-24T10:08:53Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yusheng Hou",
+            "Ruqian Wu"
+          ],
+          "title": "Magnetic Anisotropy in Two-dimensional van der Waals Magnetic Materials and Their Heterostructures: Importance, Mechanisms, and Opportunities",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2508.04952",
+        "summary": "Two-dimensional (2D) magnetism in atomically thin van der Waals (vdW) monolayers and heterostructures has attracted significant attention due to its promising potential for next-generation spintronic and quantum technologies. A key factor in stabilizing long-range magnetic order in these systems is magnetic anisotropy, which plays a crucial role in overcoming the limitations imposed by the Mermin-Wagner theorem. This review provides a comprehensive theoretical and experimental overview of the importance of magnetic anisotropy in enabling intrinsic 2D magnetism and shaping the electronic, magnetic, and topological properties of 2D vdW materials. We begin by summarizing the fundamental mechanisms that determine magnetic anisotropy, emphasizing the contributions from strong ligand spin-orbit coupling of ligand atoms and unquenched orbital magnetic moments. We then examine a range of material engineering approaches, including alloying, doping, electrostatic gating, strain, and pressure, that have been employed to effectively tune magnetic anisotropy in these materials. Finally, we discuss open challenges and promising future directions in this rapidly advancing field. By presenting a broad perspective on the role of magnetic anisotropy in 2D magnetism, this review aims to stimulate ongoing efforts and new ideas toward the realization of robust, room-temperature applications based on 2D vdW magnetic materials and their heterostructures.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2508.04952",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-24T10:08:53Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yuanfeng Xu",
+            "Luis Elcoro",
+            "Zhida Song",
+            "Benjamin J. Wieder",
+            "M. G. Vergniory",
+            "Nicolas Regnault",
+            "Yulin Chen",
+            "Claudia Felser",
+            "B. Andrei Bernevig"
+          ],
+          "title": "High-throughput calculations of magnetic topological materials",
+          "venue": "arXiv",
+          "year": 2020
+        },
+        "primary_pointer": "2003.00012",
+        "summary": "The discoveries of intrinsically magnetic topological materials, including semimetals with a large anomalous Hall effect and axion insulators, have directed fundamental research in solid-state materials. Topological quantum chemistry has enabled the understanding of and the search for paramagnetic topological materials. Using magnetic topological indices obtained from magnetic topological quantum chemistry (MTQC), here we perform a high-throughput search for magnetic topological materials based on first-principles calculations. We use as our starting point the Magnetic Materials Database on the Bilbao Crystallographic Server, which contains more than 549 magnetic compounds with magnetic structures deduced from neutron-scattering experiments, and identify 130 enforced semimetals (for which the band crossings are implied by symmetry eigenvalues), and topological insulators. For each compound, we perform complete electronic structure calculations, which include complete topological phase diagrams using different values of the Hubbard potential. Using a custom code to find the magnetic co-representations of all bands in all magnetic space groups, we generate data to be fed into the algorithm of MTQC to determine the topology of each magnetic material. Several of these materials display previously unknown topological phases, including symmetry-indicated magnetic semimetals, three-dimensional anomalous Hall insulators and higher-order magnetic semimetals. We analyse topological trends in the materials under varying interactions: 60 per cent of the 130 topological materials have topologies sensitive to interactions, and the others have stable topologies under varying interactions. We provide a materials database for future experimental studies and open-source code for diagnosing topologies of magnetic materials.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2003.00012",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-24T10:08:53Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "predicting the impact of alloying on magnetic properties via public data materials science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}
