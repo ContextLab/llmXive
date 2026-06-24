@@ -41,7 +41,7 @@ description: "Task list template for feature implementation"
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T004 Setup data directory structure (data/raw/, data/processed/, data/checkpoints/) per plan.md in `projects/001-predicting-molecular-dipole-moments/`
-- [ ] T005 [P] Initialize state tracking with state/projects/001-predicting-molecular-dipole-moments.yaml
+- [X] T005 [P] Initialize state tracking with state/projects/001-predicting-molecular-dipole-moments.yaml
 - [ ] T006 [P] Configure pytest 7.4.3 with contract test framework in `projects/001-predicting-molecular-dipole-moments/tests/`
 - [ ] T007 [P] Create YAML contract schema files in `projects/001-predicting-molecular-dipole-moments/tests/contracts/` (molecule.schema.yaml, feature_set.schema.yaml, model_output.schema.yaml)
 - [ ] T008 Configure environment configuration management with.env.example and config.py in `projects/001-predicting-molecular-dipole-moments/code/`
@@ -53,7 +53,7 @@ description: "Task list template for feature implementation"
 
 ## Phase 3: User Story 1 - Dataset Preparation and Baseline Feature Extraction (Priority: P1) 🎯 MVP
 
-**Goal**: Download QM9 dataset, filter to 10k random subset, extract 3D coordinates and 2D descriptors for baseline comparison
+**Goal**: Download QM9 dataset, filter to 10k random subset [UNRESOLVED-CLAIM: c_de2e9e30 — status=not_enough_info], extract 3D coordinates and 2D descriptors for baseline comparison
 
 **Independent Test**: Verify data files exist, subset size equals 10k, and both 3D and 2D feature matrices are generated with no missing values
 

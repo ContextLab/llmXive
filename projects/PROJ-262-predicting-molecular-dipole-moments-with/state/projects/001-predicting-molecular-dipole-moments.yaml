@@ -1,0 +1,10 @@
+project: predicting-molecular-dipole-moments
+initialized: true
+timestamp: 2026-06-24T00:00:00Z
+tasks:
+  T001: completed
+  T002: completed
+  T003: completed
+  T004: completed
+  T005: pending
+  # Future tasks will be updated here as they are completed.
