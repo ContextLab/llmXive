@@ -8,6 +8,10 @@ on:
         description: "Optional stage to target (e.g. in_progress). Blank = load-balanced over all stages."
         required: false
         default: ""
+      project:
+        description: "Optional single project id to target (e.g. PROJ-262-...). Blank = scheduler picks."
+        required: false
+        default: ""
       max_tasks:
         description: "Scheduler ticks this run (each implement tick batches many tasks)."
         required: false
@@ -41,10 +45,12 @@ jobs:
         run: |
           ARGS=(run --max-tasks "${MAX_TASKS:-10}")
           if [ -n "${STAGE}" ]; then ARGS+=(--stage "${STAGE}"); fi
+          if [ -n "${PROJECT}" ]; then ARGS+=(--project "${PROJECT}"); fi
           echo "llmxive ${ARGS[*]}"
           python -m llmxive "${ARGS[@]}"
         env:
           STAGE: ${{ github.event.inputs.stage }}
+          PROJECT: ${{ github.event.inputs.project }}
           MAX_TASKS: ${{ github.event.inputs.max_tasks }}
       - run: python -c "from llmxive.agents.status_reporter import regenerate_web_data; from pathlib import Path; regenerate_web_data(repo_root=Path('.'))"
       - name: Commit + push
