@@ -15,6 +15,10 @@
     "classified_at": "2026-06-22T21:46:10Z",
     "verdict": false
   },
+  "PROJ-224-predicting-the-ductility-of-additively-m::1.6.0": {
+    "classified_at": "2026-06-24T03:25:41Z",
+    "verdict": false
+  },
   "PROJ-244-predicting-the-impact-of-strain-rate-on-::1.6.0": {
     "classified_at": "2026-06-19T13:50:19Z",
     "verdict": false
