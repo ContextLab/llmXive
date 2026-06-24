@@ -53,7 +53,7 @@ description: "Task list template for feature implementation"
 
 ## Phase 3: User Story 1 - Dataset Preparation and Baseline Feature Extraction (Priority: P1) 🎯 MVP
 
-**Goal**: Download QM9 dataset, Download QM9 dataset, Download QM9 dataset, Download QM9 dataset, Download QM9 dataset, filter to 10k random subset [UNRESOLVED-CLAIM: c_ab674af7 — status=not_enough_info], extract 3D coordinates and 2D descriptors for baseline comparison
+**Goal**: Download QM9 dataset, Download QM9 dataset, Download QM9 dataset, Download QM9 dataset, Download QM9 dataset, filter to 10k random subset [UNRESOLVED-CLAIM: c_4573f8bc — status=not_enough_info], extract 3D coordinates and 2D descriptors for baseline comparison
 
 **Independent Test**: Verify data files exist, subset size equals 10k, and both 3D and 2D feature matrices are generated with no missing values
 
@@ -102,7 +102,7 @@ description: "Task list template for feature implementation"
 - [X] T029 [US2] Implement Random Forest training with 5 random seeds in `projects/001-predicting-molecular-dipole-moments/code/training/train_rf.py` (FR-005)
 - [X] T030 [US2] Implement identical train/test split generation across seeds in `projects/001-predicting-molecular-dipole-moments/code/training/split_data.py`
 - [X] T031 [US2] Implement MAE and RMSE metric computation in `projects/001-predicting-molecular-dipole-moments/code/training/evaluate.py` (FR-006)
-- [X] T032 [US2] {{claim:c_1013b8b5}} (2305.18454, https://arxiv.org/abs/2305.18454 [UNRESOLVED-CLAIM: c_7f5b2110 — status=verified]) in `projects/001-predicting-molecular-dipole-moments/code/analysis/validate_dft.py` (FR-011, during evaluation phase)
+- [X] T032 [US2] {{claim:c_1013b8b5}} (2305.18454, https://arxiv.org/abs/2305.18454) in `projects/001-predicting-molecular-dipole-moments/code/analysis/validate_dft.py` (FR-011, during evaluation phase)
 - [X] T033 [US2] Save model checkpoints to data/checkpoints/model_seed_{N}.pt and rf_seed_{N}.pkl
 - [X] T034 [US2] Generate results/metrics.csv with performance across all 5 seeds (SC-005, FR-006)
 
@@ -155,11 +155,11 @@ description: "Task list template for feature implementation"
 **Purpose**: Improvements that affect multiple user stories
 
 - [X] T054 [P] Documentation updates in specs/001-predicting-molecular-dipole-moments/ (README.md, quickstart.md, research.md) per plan.md structure
-- [ ] T055 [P] Code cleanup and refactoring across all modules (FR-001 through FR-013 traceability)
-- [ ] T056 [P] Additional unit tests in tests/unit/ for edge cases
-- [ ] T057 [P] Run quickstart.md validation to verify end-to-end pipeline in `specs/001-predicting-molecular-dipole-moments/quickstart.md` per plan.md structure
-- [ ] T058 [P] Generate final results summary with all metrics, attributions, and visualizations
-- [ ] T059 [P] Update state/projects/001-predicting-molecular-dipole-moments.yaml with completion timestamps and content hashes
+- [X] T055 [P] Code cleanup and refactoring across all modules (FR-001 through FR-013 traceability)
+- [X] T056 [P] Additional unit tests in tests/unit/ for edge cases
+- [X] T057 [P] Run quickstart.md validation to verify end-to-end pipeline in `specs/001-predicting-molecular-dipole-moments/quickstart.md` per plan.md structure
+- [X] T058 [P] Generate final results summary with all metrics, attributions, and visualizations
+- [X] T059 [P] Update state/projects/001-predicting-molecular-dipole-moments.yaml with completion timestamps and content hashes
 
 ---
 

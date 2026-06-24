@@ -1,4 +1,13 @@
-# Existing dependencies (if any) would be listed here.
-# Added requirement for DFT validation script.
-pandas>=2.0.0
-# Note: other project dependencies are assumed to be present already.
+# Core dependencies
+numpy
+pandas
+torch
+scikit-learn
+tqdm
+joblib
+matplotlib
+seaborn
+scipy
+
+# Added for state YAML handling
+pyyaml
