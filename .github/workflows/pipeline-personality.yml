@@ -60,31 +60,7 @@ jobs:
       - name: Commit state + run-log + web data
         id: commit
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add state/personality_rotation.yaml || true
-          git add state/run-log || true
-          git add projects || true
-          git add state/personality-submissions || true
-          git add web/data/ || true
-          git add specs/ || true
-          if git diff --cached --quiet; then
-            echo "no changes"
-            echo "pushed=false" >> $GITHUB_OUTPUT
-          else
-            git commit -m "pipeline(personality): 30m tick"
-
-            for i in 1 2 3 4 5; do
-
-              git pull --rebase origin main && git push && break
-
-              echo "push attempt $i failed; retrying..." >&2
-
-              sleep $((5 * i))
-
-            done
-            echo "pushed=true" >> $GITHUB_OUTPUT
-          fi
+          bash scripts/ci/commit-and-push.sh "pipeline(personality): 30m tick"
 
       - name: Trigger Pages deploy
         # GitHub deliberately suppresses workflow triggers for pushes made with

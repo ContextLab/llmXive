@@ -1,0 +1,77 @@
+#!/usr/bin/env bash
+# Single source of truth for the pipeline crons' commit + push.
+#
+# WHY THIS EXISTS (the bug it fixes)
+# ----------------------------------
+# ~14 workflows commit to `main` on overlapping schedules. The old inline
+# pattern was:
+#
+#     git commit -m "..."
+#     for i in 1..5; do git pull --rebase origin main && git push && break; done
+#     echo "pushed=true"
+#
+# When a CONCURRENT run had already pushed (almost always touching the
+# wholesale-regenerated web/data/projects.json), `git pull --rebase` hit a
+# conflict and LEFT THE TREE CONFLICTED. Every subsequent retry then died with
+# "Pulling is not possible because you have unmerged files", so the loop never
+# recovered — the tick's work (e.g. a full in_progress task-batch drain) was
+# SILENTLY LOST and the step STILL EXITED 0 (`pushed=true`), masking the loss.
+#
+# THE FIX
+# -------
+# * Rebase our single tick-commit onto the latest origin/main with `-X theirs`
+#   — during a rebase git reverses ours/theirs, so "theirs" is OUR replayed
+#   commit; conflicts resolve toward THIS tick deterministically (no conflict
+#   markers ever reach the tree). The only routine conflict is the regenerated
+#   web/data/* which is rebuilt next tick regardless.
+# * Always `git rebase --abort` before each attempt so we NEVER operate on a
+#   conflicted tree.
+# * FAIL LOUD (exit 1) if we still can't push after the retries — the project
+#   state on origin is then simply unchanged (no corruption); it stays
+#   schedulable and a later tick re-does the work. A masked success is worse
+#   than a visible miss.
+#
+# Usage:  bash scripts/ci/commit-and-push.sh "pipeline(implement): 8h tick"
+# Emits `pushed=true|false` to $GITHUB_OUTPUT (for the pages-deploy gate).
+set -uo pipefail
+
+msg="${1:?usage: commit-and-push.sh <commit-message>}"
+
+emit() { [ -n "${GITHUB_OUTPUT:-}" ] && echo "pushed=$1" >> "$GITHUB_OUTPUT"; return 0; }
+
+git config user.name "github-actions[bot]"
+git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+# Stage every pipeline output present in this fresh CI checkout. -A is safe
+# here: the only working-tree changes are what this run produced.
+git add -A
+if git diff --cached --quiet; then
+  echo "no changes to commit"
+  emit false
+  exit 0
+fi
+
+git commit -m "$msg"
+
+for i in 1 2 3 4 5 6 7 8; do
+  git rebase --abort 2>/dev/null || true   # guarantee a clean, non-conflicted tree
+  if ! git fetch origin main --quiet; then
+    echo "fetch failed (attempt $i); retrying" >&2; sleep $((3 * i)); continue
+  fi
+  if git rebase -X theirs origin/main >/dev/null 2>&1; then
+    if git push origin HEAD:main --quiet; then
+      echo "pushed on attempt $i"
+      emit true
+      exit 0
+    fi
+  else
+    git rebase --abort 2>/dev/null || true
+  fi
+  echo "push attempt $i failed; retrying..." >&2
+  sleep $((3 * i))
+done
+
+echo "ERROR: could not push after 8 attempts — this tick's work was NOT persisted." >&2
+echo "origin/main is unchanged (no corruption); the project stays schedulable and a later tick re-does the work." >&2
+emit false
+exit 1
