@@ -1,0 +1,16 @@
+{
+  "project_id": "PROJ-262-predicting-molecular-dipole-moments-with",
+  "ok": false,
+  "reason": "6 command(s) failed: python projects/001-predicting-molecular-dipole-moments/code/data/download_qm9.py (rc=1); python projects/001-predicting-molecular-dipole-moments/code/data/create_subset.py (rc=1); python projects/001-predicting-molecular-dipole-moments/code/data/preprocess_3d.py (rc=1); 1 declared deliverable(s) absent: data/processed/molecules_10k.parquet",
+  "artifacts": [],
+  "failures": [
+    "python projects/001-predicting-molecular-dipole-moments/code/data/download_qm9.py -> rc=1\n    \"/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/.venv/lib/python3.11/site-packages/datasets/load.py\", line 1168, in dataset_module_factory\n    raise DatasetNotFoundError(f\"Dataset '{path}' doesn't exist on the Hub or cannot be accessed.\") from e\ndatasets.exceptions.DatasetNotFoundError: Dataset 'qm9' doesn't exist on the Hub or cannot be accessed.",
+    "python projects/001-predicting-molecular-dipole-moments/code/data/create_subset.py -> rc=1\n    ts/code/data/create_subset.py\", line 55, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/projects/001-predicting-molecular-dipole-moments/code/data/create_subset.py\", line 38, in main\n    raise FileNotFoundError(f\"Raw QM9 parquet not found at {raw_path}\")\nFileNotFoundError: Raw QM9 parquet not found at data/raw/qm9.parquet",
+    "python projects/001-predicting-molecular-dipole-moments/code/data/preprocess_3d.py -> rc=1\n    \"/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/.venv/lib/python3.11/site-packages/datasets/load.py\", line 1168, in dataset_module_factory\n    raise DatasetNotFoundError(f\"Dataset '{path}' doesn't exist on the Hub or cannot be accessed.\") from e\ndatasets.exceptions.DatasetNotFoundError: Dataset 'qm9' doesn't exist on the Hub or cannot be accessed.",
+    "python projects/001-predicting-molecular-dipole-moments/code/data/extract_2d_descriptors.py -> rc=1\n    Subset parquet not found at data/processed/molecules_10k.parquet",
+    "python code/analysis/generate_performance_plots.py -> rc=1\n     line 138, in generate_plots\n    df = load_metrics(metrics_csv)\n         ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/analysis/generate_performance_plots.py\", line 46, in load_metrics\n    raise FileNotFoundError(f\"Metrics file not found: {csv_path}\")\nFileNotFoundError: Metrics file not found: results/metrics.csv",
+    "python code/generate_summary.py -> rc=1\n    ^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/generate_summary.py\", line 42, in read_metrics\n    raise FileNotFoundError(f\"Metrics file not found: {csv_path}\")\nFileNotFoundError: Metrics file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/results/metrics.csv"
+  ],
+  "fix_rounds": 3,
+  "updated_at": "2026-06-24T22:30:15Z"
+}

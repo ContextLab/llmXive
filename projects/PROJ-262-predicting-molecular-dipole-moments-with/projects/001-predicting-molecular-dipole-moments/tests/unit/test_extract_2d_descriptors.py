@@ -1,40 +1,30 @@
-"""
-Unit test for the 2‑D descriptor extraction pipeline.
-
-The test intentionally checks for non‑empty output and the presence of a
-``fingerprint`` column. The current placeholder implementation in
-``extract_2d_descriptors.py`` returns an empty DataFrame, so this test will
-fail until a proper descriptor extraction routine is implemented.
-"""
-
-import pytest
+import numpy as np
 import pandas as pd
+import pytest
 
-# Import the function under test. The project root is on the PYTHONPATH
-# when pytest runs, so we can import via the package-relative path.
-from code.data.extract_2d_descriptors import extract_2d_descriptors
+from code.data.extract_2d_descriptors import generate_2d_descriptors
 
+@pytest.mark.parametrize(
+    "smiles,expected_atoms",
+    [
+        ("O", 3),   # water: O + 2 H
+        ("C", 5),   # methane: C + 4 H
+    ],
+)
+def test_generate_2d_descriptors_basic(smiles, expected_atoms):
+    """Check that fingerprint and Coulomb matrix are generated with correct shapes."""
+    df = pd.DataFrame({"smiles": [smiles]})
+    out_df = generate_2d_descriptors(df)
 
-def test_extract_2d_descriptors_nonempty():
-    """
-    Verify that the descriptor extraction returns a non‑empty DataFrame with
-    expected columns.
+    # One row should be returned
+    assert len(out_df) == 1
 
-    The placeholder implementation returns an empty DataFrame, causing this
-    test to fail. Once the real implementation is added, the test should
-    pass.
-    """
-    # Provide a minimal dummy molecule representation; the concrete type is
-    # irrelevant for the placeholder implementation.
-    dummy_molecules = ["CC"]  # Simple ethane SMILES as a stand‑in.
+    # Fingerprint should be a numpy array of length 2048
+    fp = out_df.iloc[0]["fingerprint"]
+    assert isinstance(fp, np.ndarray)
+    assert fp.shape == (2048,)
 
-    df = extract_2d_descriptors(dummy_molecules)
-
-    # The result should be a pandas DataFrame.
-    assert isinstance(df, pd.DataFrame), "Result should be a pandas DataFrame"
-
-    # Expect at least one row (one per input molecule).
-    assert not df.empty, "Descriptor DataFrame should not be empty"
-
-    # Expect a column named 'fingerprint' (common for Morgan fingerprints).
-    assert "fingerprint" in df.columns, "Missing expected column 'fingerprint'"
+    # Coulomb matrix should be square with size equal to number of atoms (including H)
+    cm = out_df.iloc[0]["coulomb_matrix"]
+    assert isinstance(cm, np.ndarray)
+    assert cm.shape == (expected_atoms, expected_atoms)

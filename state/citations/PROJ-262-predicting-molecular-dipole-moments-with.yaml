@@ -31,18 +31,7 @@
   verification_status: unreachable
   verified_against_url: https://oeis.org/A008299
   verified_at: '2026-06-24T21:21:17.157543Z'
-- artifact_hash: 4b3cddacabdc47fcb7881e9b14eec467933259a3f589e3d86dc1b2252a78fea5
-  artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/quickstart.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: 'Verify: Please prove that you are human - Wikidata'
-  kind: url
-  value: https://www.wikidata.org/wiki/Q135076778
-  verification_status: verified
-  verified_against_url: https://www.wikidata.org/wiki/Q135076778
-  verified_at: '2026-06-24T21:24:53.272950Z'
-- artifact_hash: 6c129d4cfd39c9730cea2777feadececb38949ec317a47318c403dbe1b760a7b
+- artifact_hash: 5fedc50164c37fdda97b23d0ffdd48b78bd633156c06ee518f9b36d087cb513d
   artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -53,8 +42,8 @@
   value: https://arxiv.org/abs/2305.18454
   verification_status: verified
   verified_against_url: https://arxiv.org/abs/2305.18454
-  verified_at: '2026-06-24T22:13:50.296827Z'
-- artifact_hash: 6c129d4cfd39c9730cea2777feadececb38949ec317a47318c403dbe1b760a7b
+  verified_at: '2026-06-24T22:29:47.338521Z'
+- artifact_hash: 5fedc50164c37fdda97b23d0ffdd48b78bd633156c06ee518f9b36d087cb513d
   artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -64,4 +53,4 @@
   value: 10.1038/sdata.2014.22
   verification_status: verified
   verified_against_url: https://doi.org/10.1038/sdata.2014.22
-  verified_at: '2026-06-24T22:13:50.296827Z'
+  verified_at: '2026-06-24T22:29:47.338521Z'

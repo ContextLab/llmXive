@@ -1,0 +1,9 @@
+status: none
+intent: deepchem download preprocess QM9 dataset as python package dataset
+required_fields:
+- molecule_id
+- atom_positions_3d
+- atom_types
+- bond_connectivity
+- morgan_fingerprint
+- coulomb_matrix

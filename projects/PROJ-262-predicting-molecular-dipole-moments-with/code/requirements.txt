@@ -1,8 +1,17 @@
-# Core dependencies for the project
+# Core dependencies for the predicting molecular dipole moments project
 numpy
+scipy
 pandas
 torch
-scikit-learn
 tqdm
-# Added for state‑tracking script
-pyyaml
+scikit-learn
+joblib
+# Added for memory constraint enforcement
+psutil
+# Existing dependencies for other parts of the pipeline (datasets, rdkit, matplotlib)
+datasets
+rdkit
+matplotlib
+models  # auto-added: imported by run-book but missing from venv
+mpl_toolkits  # auto-added: imported by run-book but missing from venv
+requests  # auto-added: imported by run-book but missing from venv

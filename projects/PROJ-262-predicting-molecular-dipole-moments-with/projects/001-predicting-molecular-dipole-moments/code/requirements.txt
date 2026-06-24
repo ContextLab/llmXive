@@ -1,13 +1,10 @@
-# Core dependencies
-numpy
+# Core dependencies for the QM9 pipeline
 pandas
+pyarrow
+datasets
+# Existing project dependencies (if any) – add them below
+# e.g., torch, scikit-learn, tqdm, etc.
 torch
 scikit-learn
 tqdm
-joblib
-matplotlib
-seaborn
-scipy
-
-# Added for state YAML handling
-pyyaml
+# The above list ensures the download script can run in the CI environment.
