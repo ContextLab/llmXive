@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-19T11:34:49.468130Z'
-current_stage: paper_review
+current_stage: brainstormed
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-741-molmomotion-forecasting-point-trajectori
-last_run_id: null
+last_run_id: c613c462-a521-48bd-b767-3126d5e1a33a
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'MolmoMotion: Forecasting Point Trajectories in 3D with Language Instruction'
-updated_at: '2026-06-19T11:34:49.921320Z'
+updated_at: '2026-06-24T15:41:33.701946Z'
