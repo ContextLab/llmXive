@@ -1,12 +1,7 @@
-last_used: john-von-neumann
-last_used_at: '2026-06-24T06:48:06.240499+00:00'
-last_outcome: abstained
+last_used: linus-pauling
+last_used_at: '2026-06-24T08:10:21.293511+00:00'
+last_outcome: committed
 history:
-- slug: ada-lovelace
-  started_at: '2026-06-12T15:40:37.650456+00:00'
-  ended_at: '2026-06-12T16:59:38.439481+00:00'
-  outcome: triage_rejected_advanced_as_abstain
-  action: comment
 - slug: alan-turing
   started_at: '2026-06-12T16:59:38.439481+00:00'
   ended_at: '2026-06-12T17:53:07.436687+00:00'
@@ -1142,3 +1137,10 @@ history:
   ended_at: '2026-06-24T06:48:06.240499+00:00'
   outcome: abstained
   action: abstain
+- slug: linus-pauling
+  started_at: '2026-06-24T06:48:06.240499+00:00'
+  ended_at: '2026-06-24T08:10:21.293511+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-528-predicting-molecular-conductivity-from-g/reviews/research/linus-pauling-simulated__2026-06-24__research.md
