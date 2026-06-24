@@ -626,3 +626,41 @@ def test_placeholder_re_matches_common_stub_tokens() -> None:
         assert _PLACEHOLDER_RE.search(tok), tok
     for ok in ("computed value 1.078", "coverage 99%", "total knots 12967"):
         assert not _PLACEHOLDER_RE.search(ok), ok
+
+
+def test_editresult_drops_invalid_after_hash_entries() -> None:
+    """A malformed/empty hash value must be DROPPED, not stored — the
+    `ImplementerLogEntry.after_hashes` Sha256Field crashes the entire revision
+    round on a single bad value, which (deterministically re-derived) bricked
+    PROJ-552 at the research stage. Absence signals removal/unknown, never a
+    fabricated hash, never a crash."""
+    from llmxive.agents.implementer import EditResult
+    from llmxive.types import ImplementerLogEntry
+
+    er = EditResult(
+        True,
+        ["/p/data.csv", "/p/ok.py"],
+        {"/p/ok.py": "a" * 64},
+        {"/p/data.csv": "", "/p/ok.py": "b" * 64, "/p/bad": "not-hex"},
+    )
+    assert er.after_hashes == {"/p/ok.py": "b" * 64}
+    assert er.before_hashes == {"/p/ok.py": "a" * 64}
+    # The entry that used to raise ValidationError now builds cleanly.
+    ImplementerLogEntry(
+        task_id="t", status="done", duration_s=0.0,
+        files_modified=er.files_modified,
+        before_hashes=er.before_hashes, after_hashes=er.after_hashes,
+    )
+
+
+def test_compile_paper_defers_when_lualatex_absent(monkeypatch) -> None:
+    """The per-task paper compile gate must DEFER (keep the edit) when lualatex
+    is absent instead of raising FileNotFoundError — a missing tool in the main
+    pipeline lane crashed every paper revision (13x PROJ-641). Mirrors the
+    final-recompile defer (FR-010)."""
+    from pathlib import Path
+    import llmxive.agents.implementer as impl
+
+    monkeypatch.setattr(impl.shutil, "which", lambda _name: None)
+    ok, tail = impl._compile_paper(Path("/tmp/whatever"))
+    assert ok is True and "deferred" in tail

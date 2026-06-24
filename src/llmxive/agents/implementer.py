@@ -50,6 +50,7 @@ from llmxive.state import project as project_state
 from llmxive.state import revision_history as rh_state
 from llmxive.state import runlog
 from llmxive.types import (
+    SHA256_RE,
     AuthorEntry,
     BackendName,
     ImplementerLog,
@@ -90,6 +91,25 @@ class EditResult:
     before_hashes: dict[str, str]
     after_hashes: dict[str, str]
     reject_reason: str | None = None
+
+    def __post_init__(self) -> None:
+        # SINGLE chokepoint: drop any hash entry whose value is not a valid
+        # 64-hex SHA-256. `ImplementerLogEntry.{before,after}_hashes` are
+        # `Sha256Field` (pattern '^[a-f0-9]{64}$'); a single malformed/empty
+        # value makes Pydantic raise `ValidationError` at entry construction,
+        # which crashes the ENTIRE revision round (tasks_done=0) and — because
+        # determinism re-derives the same bad edit every tick — bricks the
+        # project permanently (the live PROJ-552 stall: an after_hash of '').
+        # The documented convention is that ABSENCE from after_hashes signals
+        # removal/unknown (see apply_delete_file), so dropping an unhashable
+        # entry is the sanctioned, lossless-where-it-matters behavior — never
+        # an invented hash, never a crash.
+        self.before_hashes = {
+            k: v for k, v in self.before_hashes.items() if SHA256_RE.match(v)
+        }
+        self.after_hashes = {
+            k: v for k, v in self.after_hashes.items() if SHA256_RE.match(v)
+        }
 
 
 # --- Edit-application helpers (T018, T019) ---------------------------------
@@ -430,6 +450,16 @@ def _compile_paper(source_dir: Path, *, timeout: float = 300.0) -> tuple[bool, s
     publisher's final compile (T040 onward) does the full bibtex +
     multi-pass dance.
     """
+    # lualatex unavailable in this lane (the main pipeline cron job carries no
+    # TeXLive; the dedicated paper-compile workflow does). subprocess.run would
+    # raise FileNotFoundError and crash the ENTIRE revision run (the live 13x
+    # PROJ-641 stall). DEFER instead — mirror the final-recompile defer (FR-010,
+    # `compile_deferred = shutil.which("lualatex") is None`): return ok so the
+    # already-applied edit is KEPT, never rolled back. A missing tool must not
+    # silently discard every paper revision. The deferral is logged, not hidden.
+    if shutil.which("lualatex") is None:
+        logger.warning("lualatex absent — deferring per-task compile gate (edit kept)")
+        return True, "lualatex absent — compile gate deferred"
     main_tex = source_dir / "main.tex"
     if not main_tex.is_file():
         # Try main-llmxive.tex as a fallback name used by the restyle.
