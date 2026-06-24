@@ -1,34 +1,34 @@
-resolved_at: '2026-06-24T06:10:40.129496+00:00'
+resolved_at: '2026-06-24T20:25:31.106630+00:00'
 datasets:
 - intent: SC-001
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://dro.deakin.edu.au/articles/journal_contribution/Gene_profiling_identifies_commonalities_in_neuronal_pathways_in_excitotoxicity_evidence_favouring_cell_cycle_re-activation_in_concert_with_oxidative_stress/20960515
+  - url: https://figshare.com/articles/dataset/R_scripts_for_producing_figures_and_tables_of_Lesven_et_al_submitted_to_i_Palaeogeography_Palaeoclimatology_Palaeoecology_i_/31946169
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/Devario_regina_genome/32778096
+  - url: https://figshare.com/articles/dataset/Drought-dependent_shifts_in_soil_carbon_fractions_in_mixed_forests_a_global_meta-analysis/32786127
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_Compliance_with_early_postoperative_ambulation_and_Its_associated_barriers_in_hepatobiliary_surgery_patients_within_an_enhanced_recovery_after_surgery_framework_pdf/32778120
+  - url: https://acs.figshare.com/articles/journal_contribution/From_Computationally_Guided_Hapten_Design_to_Monoclonal_Antibody_Production_A_Novel_Strategy_for_Rapid_and_Sensitive_Detection_of_Flusilazole_Residues/32786173
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Thermo-Kinetic_Framework_for_TGA_Curve_Modeling_and_Evaporation_Enthalpy_Determination_in_Composite_Materials_The_Case_of_Bone-Derived_Hydroxyapatite/32778122
+  - url: https://acs.figshare.com/articles/journal_contribution/Fast-Scan_Voltammetry-Driven_Nanoprobes_for_the_Intracellular_PTP1B_Activity_Assay_and_Invasiveness_Evaluation_of_Single_Tumor_Cells/32786170
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/conference_contribution/_b_Beyond_Defection_An_Exploration_into_the_Disassociation_Trajectories_of_Former_ISIS_Foreign_Fighters_through_Narrative_Analysis_b_/32750337
+  - url: https://acs.figshare.com/articles/journal_contribution/Inhalable_Polymeric_PROTAC_Nanococktail_for_Targeted_Protein_Degradation_in_Idiopathic_Pulmonary_Fibrosis/32786155
     source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/19059431
-    source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/17936025
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19059431
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -64,29 +64,28 @@ datasets:
   - url: https://zenodo.org/records/20469943
     source: datacite
     status: wrong_format
-    reason: 'HTTPSConnectionPool(host=''zenodo.org'', port=443): Read timed out. (read
-      timeout=20)'
+    reason: unrecognized/non-dataset content
 - intent: AUROC
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://acs.figshare.com/articles/journal_contribution/An_Optonanobody_for_Reversible_Photoactivation_of_Recombinant_and_Native_7_Nicotinic_Receptors/32778131
+  - url: https://figshare.com/articles/dataset/R_scripts_for_producing_figures_and_tables_of_Lesven_et_al_submitted_to_i_Palaeogeography_Palaeoclimatology_Palaeoecology_i_/31946169
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Solid-State_3D_Electrochemiluminescence_Platform_Depth-Tuned_Ru_Complexes_Positioning_for_Label-Free_High-Resolution_Imaging/32778128
+  - url: https://figshare.com/articles/dataset/Drought-dependent_shifts_in_soil_carbon_fractions_in_mixed_forests_a_global_meta-analysis/32786127
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/media/Solid-State_3D_Electrochemiluminescence_Platform_Depth-Tuned_Ru_Complexes_Positioning_for_Label-Free_High-Resolution_Imaging/32778125
+  - url: https://acs.figshare.com/articles/journal_contribution/From_Computationally_Guided_Hapten_Design_to_Monoclonal_Antibody_Production_A_Novel_Strategy_for_Rapid_and_Sensitive_Detection_of_Flusilazole_Residues/32786173
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/Metrologia_de_los_Tiempos_Biblicos_/32777031
+  - url: https://acs.figshare.com/articles/journal_contribution/Fast-Scan_Voltammetry-Driven_Nanoprobes_for_the_Intracellular_PTP1B_Activity_Assay_and_Invasiveness_Evaluation_of_Single_Tumor_Cells/32786170
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://dro.deakin.edu.au/articles/journal_contribution/Gene_profiling_identifies_commonalities_in_neuronal_pathways_in_excitotoxicity_evidence_favouring_cell_cycle_re-activation_in_concert_with_oxidative_stress/20960515
+  - url: https://acs.figshare.com/articles/journal_contribution/Inhalable_Polymeric_PROTAC_Nanococktail_for_Targeted_Protein_Degradation_in_Idiopathic_Pulmonary_Fibrosis/32786155
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -110,23 +109,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: HTTP 403
-  - url: https://mcgill.scholaris.ca/handle/20.500.14905/141099
+  - url: https://publications.cispa.de/articles/conference_contribution/Deepfake_Detection_that_Generalizes_Across_Benchmarks/32781444/1
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://arxiv.org/abs/2606.24281
+  - url: https://publications.cispa.de/articles/conference_contribution/Deepfake_Detection_that_Generalizes_Across_Benchmarks/32781444
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://arxiv.org/abs/2606.24251
+  - url: https://zenodo.org/records/20829083
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://arxiv.org/abs/2606.24168
+  - url: https://zenodo.org/records/20829083
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://arxiv.org/abs/2606.24102
+  - url: https://publications.cispa.de/articles/preprint/Deepfake_Detection_that_Generalizes_Across_Benchmarks/32781279
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -160,23 +159,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://acs.figshare.com/articles/journal_contribution/Topological_Entanglement_in_Intrinsically_Disordered_Proteins_Sequence_Structural_and_Functional_Determinants/32778134
+  - url: https://figshare.com/articles/dataset/R_scripts_for_producing_figures_and_tables_of_Lesven_et_al_submitted_to_i_Palaeogeography_Palaeoclimatology_Palaeoecology_i_/31946169
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/An_Optonanobody_for_Reversible_Photoactivation_of_Recombinant_and_Native_7_Nicotinic_Receptors/32778131
+  - url: https://figshare.com/articles/dataset/Drought-dependent_shifts_in_soil_carbon_fractions_in_mixed_forests_a_global_meta-analysis/32786127
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Solid-State_3D_Electrochemiluminescence_Platform_Depth-Tuned_Ru_Complexes_Positioning_for_Label-Free_High-Resolution_Imaging/32778128
+  - url: https://acs.figshare.com/articles/journal_contribution/From_Computationally_Guided_Hapten_Design_to_Monoclonal_Antibody_Production_A_Novel_Strategy_for_Rapid_and_Sensitive_Detection_of_Flusilazole_Residues/32786173
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/media/Solid-State_3D_Electrochemiluminescence_Platform_Depth-Tuned_Ru_Complexes_Positioning_for_Label-Free_High-Resolution_Imaging/32778125
+  - url: https://acs.figshare.com/articles/journal_contribution/Fast-Scan_Voltammetry-Driven_Nanoprobes_for_the_Intracellular_PTP1B_Activity_Assay_and_Invasiveness_Evaluation_of_Single_Tumor_Cells/32786170
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/Metrologia_de_los_Tiempos_Biblicos_/32777031
+  - url: https://acs.figshare.com/articles/journal_contribution/Inhalable_Polymeric_PROTAC_Nanococktail_for_Targeted_Protein_Degradation_in_Idiopathic_Pulmonary_Fibrosis/32786155
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -192,31 +191,31 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/6362200
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/8173237
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20823899
+  - url: https://zenodo.org/records/3257730
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20807263
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20823899
+  - url: https://zenodo.org/records/20807263
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20823703
+  - url: https://zenodo.org/records/20836016
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20823703
+  - url: https://zenodo.org/records/20836016
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/online_resource/Problems_with_the_Quantum_Theory_of_Gravity/32777232
+  - url: https://zenodo.org/records/20812214
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -224,23 +223,23 @@ datasets:
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://figshare.com/articles/dataset/_b_Chromosome_level_genome_assembly_and_gene_evolution_of_electric_eel_b_b_i_Electrophorus_varii_i_b_b_b_/32778093
+  - url: https://figshare.com/articles/dataset/R_scripts_for_producing_figures_and_tables_of_Lesven_et_al_submitted_to_i_Palaeogeography_Palaeoclimatology_Palaeoecology_i_/31946169
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Topological_Entanglement_in_Intrinsically_Disordered_Proteins_Sequence_Structural_and_Functional_Determinants/32778134
+  - url: https://figshare.com/articles/dataset/Drought-dependent_shifts_in_soil_carbon_fractions_in_mixed_forests_a_global_meta-analysis/32786127
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/An_Optonanobody_for_Reversible_Photoactivation_of_Recombinant_and_Native_7_Nicotinic_Receptors/32778131
+  - url: https://acs.figshare.com/articles/journal_contribution/From_Computationally_Guided_Hapten_Design_to_Monoclonal_Antibody_Production_A_Novel_Strategy_for_Rapid_and_Sensitive_Detection_of_Flusilazole_Residues/32786173
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Solid-State_3D_Electrochemiluminescence_Platform_Depth-Tuned_Ru_Complexes_Positioning_for_Label-Free_High-Resolution_Imaging/32778128
+  - url: https://acs.figshare.com/articles/journal_contribution/Fast-Scan_Voltammetry-Driven_Nanoprobes_for_the_Intracellular_PTP1B_Activity_Assay_and_Invasiveness_Evaluation_of_Single_Tumor_Cells/32786170
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/media/Solid-State_3D_Electrochemiluminescence_Platform_Depth-Tuned_Ru_Complexes_Positioning_for_Label-Free_High-Resolution_Imaging/32778125
+  - url: https://acs.figshare.com/articles/journal_contribution/Inhalable_Polymeric_PROTAC_Nanococktail_for_Targeted_Protein_Degradation_in_Idiopathic_Pulmonary_Fibrosis/32786155
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -264,6 +263,14 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20827876
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20827876
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://mcgill.scholaris.ca/handle/20.500.14905/141099
     source: datacite
     status: wrong_format
@@ -273,14 +280,6 @@ datasets:
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/20371629
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20371629
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://arxiv.org/abs/2606.23172
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content

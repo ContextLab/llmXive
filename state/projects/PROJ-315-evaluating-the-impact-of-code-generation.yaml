@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-05T13:44:49.200792Z'
-current_stage: validated
+current_stage: project_initialized
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-315-evaluating-the-impact-of-code-generation
-last_run_id: fd9f816c-e2d4-4b23-83e5-09fcf3686996
+last_run_id: fccf8b23-ca52-4c94-8b02-d7b506e7bad2
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: Evaluating the Impact of Code Generation on Code Review Quality
-updated_at: '2026-06-12T10:07:27.134233Z'
+updated_at: '2026-06-24T20:21:58.736920Z'

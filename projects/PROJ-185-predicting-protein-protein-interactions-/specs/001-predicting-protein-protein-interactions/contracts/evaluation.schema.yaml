@@ -7,6 +7,7 @@ required:
   - auprc
   - baseline_auroc
   - baseline_auprc
+  - baseline_p
 properties:
   species:
     type: string
@@ -30,5 +31,10 @@ properties:
     type: number
     minimum: 0.0
     maximum: 1.0
-    description: "AUPRC of the random‑graph baseline."
+    description: "Baseline AUPRC."
+  baseline_p:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "Empirical p‑value of the observed AUROC against the baseline distribution."
 additionalProperties: false

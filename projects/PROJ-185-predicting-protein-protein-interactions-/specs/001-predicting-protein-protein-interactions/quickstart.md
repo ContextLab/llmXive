@@ -1,88 +1,80 @@
-# Quickstart: Predict Plant PPIs from Co‑expression
+# Quickstart: Predict Protein‑Protein Interactions from Co‑expression Networks
 
 ## Prerequisites
-
-1. **GitHub Actions runner** (or local Linux environment) with:
- - Python 3.11
- - R 4.2 and Bioconductor packages (`DESeq2`, `org.At.tair.db`, `biomaRt`, `GEOquery`, `sva`)
-2. **Git** access to the repository.
-3. Internet connectivity (to download GEO and STRING files).
+- **Operating System**: Linux (Ubuntu 22.04 recommended) on a GitHub Actions runner or local machine with Docker.
+- **Python**: ≥ 3.11 (managed via `requirements.txt`).
+- **R**: ≥ 4.2 with `renv` lockfile (automatically restored).
+- **Git**: to clone the repository.
 
 ## Setup
 
 ```bash
-# Clone the repository
-git clone
-cd plant-ppi-pipeline
+# 1. Clone the repository
+git clone https://github.com/yourorg/ppi-coexpression.git
+cd ppi-coexpression
 
-# Create a virtual environment and install Python dependencies
-python -m venv.venv
-source.venv/bin/activate
+# 2. Create a Python virtual environment and install deps
+python -m venv .venv
+source .venv/bin/activate
 pip install -r requirements.txt
 
-# Install R dependencies via renv (executed once)
-R -e "renv::restore()"
+# 3. Initialise the R environment (install packages from renv.lock)
+Rscript -e 'renv::restore()'
 ```
 
 ## Configuration
-
-Edit `src/config/species.yaml` to list GEO series per species. Example (default includes Arabidopsis):
-
-```yaml
-Arabidopsis_thaliana:
- - GSEXXXXX # replace with actual accession numbers
- - GSEYYYYY
-```
-
-Adjust thresholds or seed in `src/config/parameters.yaml` if needed:
+Edit `config/species.yaml` to list GEO series per species (default contains *Arabidopsis thaliana* `GSEXXXXX`).  
+Edit `config/parameters.yaml` to change optional parameters:
 
 ```yaml
-correlation_threshold: 0.8 # must be >= 0.8
-random_seed: 42
-normalization: "TPM" # or "VST"
+norm_method: "tpm"          # or "vst"
+correlation_threshold: 0.8   # cannot be < 0.8
+seed: 42
+corr_method: "pearson"      # "spearman" or "biweight"
+batch_correct: false        # set true to apply limma batch correction
 ```
 
-## Running the Full Pipeline
+## Run the Full Pipeline
 
 ```bash
-# Execute all steps (download → batch correction → normalize → filter → predict → evaluate → enrich)
+# Execute all steps (download → enrichment) on the default species
 make all
 ```
 
-The Makefile targets:
+This will produce, for each species:
 
-| Target | Description |
-|--------|-------------|
-| `all` | Runs the complete pipeline for every species listed in `species.yaml`. |
-| `evaluate` | Computes AUROC/AUPRC against STRING and writes `results/evaluation_metrics.json`. |
-| `enrich` | Performs GO enrichment; outputs `results/go_enrichment_<species>.tsv`. |
-| `validate` | Runs schema validation against `contracts/evaluation.schema.yaml` and `contracts/predicted_ppi.schema.yaml`. |
-| `clean` | Removes all derived files (keeps raw downloads). |
-
-All output files will appear in `results/`:
-
-- `predicted_ppi_<species>.tsv` – edge list with Pearson r.
-- `evaluation_metrics.json` – AUROC/AUPRC plus baseline.
+- `results/predicted_ppi_<species>.tsv` – predicted edges with STRING protein IDs.
+- `evaluation_metrics.json` **(AUROC > 0.70, AUPRC ≥ 0.65, baseline p‑value < 0.05)**.
 - `go_enrichment_<species>.tsv` – GO terms with adjusted p‑values.
-- `pipeline.log` – timestamped log of the run (ISO‑8601 format).
+- `pipeline.log` – full execution log with timestamps.
 
-## Reproducibility Check
-
-Rerun with the same seed to verify identical outputs:
+## Validation & Reproducibility Checks
 
 ```bash
-make clean
-make all SEED=42
+# Verify that outputs meet success criteria
+make validate
 ```
 
-The resulting `evaluation_metrics.json` and `go_enrichment_*.tsv` should be byte‑identical to the previous run.
+`make validate` re‑runs the pipeline with the same `--seed` and checks that hashes of `evaluation_metrics.json` and `go_enrichment_<species>.tsv` match the reference hashes stored in `data/checksums.yaml`.  
 
-## Troubleshooting
+## Performance Benchmark
 
-- **Insufficient samples**: If a GEO series has fewer than 20 samples, the pipeline aborts that series and logs `Insufficient sample count (<20)` in `pipeline.log`.
-- **Mapping failures**: Unmapped genes generate `mapping_warnings_<species>.log`; the edge list simply omits those genes.
-- **No edges meet threshold**: An empty `predicted_ppi_<species>.tsv` (header only) is written and evaluation for that species is skipped, with a warning in `pipeline.log`.
-- **Validation errors**: If `make validate` reports schema violations, inspect the offending file and fix the formatting before re‑running.
+```bash
+make benchmark
+```
+The benchmark target prints **total wall‑clock time**; CI will fail if it exceeds **6 hours**.  
 
----
+## Common Issues
 
+| Symptom | Resolution |
+|---------|------------|
+| `Insufficient sample count (<20)` | Check `config/species.yaml` accession list; replace with a series that has ≥ 20 samples. |
+| `STRING reference not found or unreadable` | Verify internet connectivity; the STRING parquet file is downloaded automatically by `datasets.load_dataset`. |
+| No edges meeting threshold | Lower the `correlation_threshold` (must stay ≥ 0.8) or verify that the RNA‑seq data have sufficient variability. |
+| High memory usage | The pipeline automatically pre‑selects a sizable set of the most variable genes to keep the correlation matrix manageable. |
+| Unexpected correlations | Try alternative `--corr-method` options (`spearman`, `biweight`). |
+| Missing output files | Run `make validate` which will invoke `test_outputs.py` to pinpoint missing artifacts. |
+
+For further details, see the full documentation in `docs/` or run `make help` for a list of Makefile targets.
+
+--- 

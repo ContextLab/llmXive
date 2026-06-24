@@ -1,0 +1,37 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Predicted Co‑expression Edge List"
+type: object
+required:
+  - header
+  - rows
+properties:
+  header:
+    type: string
+    const: "gene_a\tgene_b\tpearson_r\tp_value\tfdr"
+  rows:
+    type: array
+    items:
+      type: object
+      required:
+        - gene_a
+        - gene_b
+        - pearson_r
+        - p_value
+        - fdr
+      properties:
+        gene_a:
+          type: string
+        gene_b:
+          type: string
+        pearson_r:
+          type: number
+          minimum: 0.8
+        p_value:
+          type: number
+          minimum: 0.0
+          maximum: 1.0
+        fdr:
+          type: number
+          minimum: 0.0
+          maximum: 1.0
+additionalProperties: false

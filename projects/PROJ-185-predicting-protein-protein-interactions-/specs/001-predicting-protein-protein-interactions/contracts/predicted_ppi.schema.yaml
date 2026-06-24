@@ -1,5 +1,5 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: Predicted PPI Edge List Schema
+title: "Predicted PPI Edge List"
 type: object
 required:
   - protein_a
@@ -8,13 +8,12 @@ required:
 properties:
   protein_a:
     type: string
-    description: "STRING protein identifier for the first node (e.g., 9606.ENSP00000354547)."
+    description: "STRING protein identifier for the first node."
   protein_b:
     type: string
     description: "STRING protein identifier for the second node."
   correlation:
     type: number
-    description: "Pearson correlation coefficient between the two genes' expression profiles."
-    minimum: -1.0
-    maximum: 1.0
+    minimum: 0.8
+    description: "Pearson correlation coefficient between the two genes."
 additionalProperties: false
