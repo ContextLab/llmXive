@@ -1,0 +1,622 @@
+{
+  "fetched_at": "2026-06-24T19:19:24Z",
+  "field": "materials science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "materials science",
+      "idea_body_excerpt": "Predicting the Impact of Surface Roughness on Tribological Properties",
+      "target_n": 5
+    },
+    "duration_seconds": 48.155,
+    "ended_at": "2026-06-24T19:19:24Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "machine learning prediction of wear based on surface roughness"
+        ],
+        [
+          2,
+          "statistical modeling of surface roughness effects on friction coefficient"
+        ],
+        [
+          3,
+          "influence of surface topography on tribological performance"
+        ],
+        [
+          4,
+          "effect of surface asperities on friction and wear behavior"
+        ],
+        [
+          5,
+          "tribology of engineered surface textures and roughness parameters"
+        ],
+        [
+          6,
+          "predictive modeling of tribological properties from surface morphology"
+        ],
+        [
+          7,
+          "micro‑roughness impact on lubrication and wear resistance"
+        ],
+        [
+          8,
+          "correlation between Ra (average roughness) and coefficient of friction"
+        ],
+        [
+          9,
+          "multiscale simulation of rough surface contact in tribology"
+        ],
+        [
+          10,
+          "data‑driven analysis of roughness‑tribology relationships"
+        ],
+        [
+          11,
+          "surface finish influence on tribological lifetime and wear rate"
+        ],
+        [
+          12,
+          "nano‑scale surface roughness effects on adhesion and sliding friction"
+        ],
+        [
+          13,
+          "contact mechanics of rough surfaces for wear prediction"
+        ],
+        [
+          14,
+          "comparative tribological assessment of polished versus rough surfaces"
+        ],
+        [
+          15,
+          "computational modeling of surface roughness impact on frictional behavior"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Predicting the Impact of Surface Roughness on Tribological Properties materials science": 0,
+        "machine learning prediction of wear based on surface roughness": 5
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "surface topography friction coefficient",
+      "pin-on-disk tribometer dataset",
+      "power spectral density tribology",
+      "wear rate prediction machine learning",
+      "Greenwood-Williamson asperity contact"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2011.10774"
+      ]
+    },
+    "per_query_hit_count": {
+      "Greenwood-Williamson asperity contact": 3,
+      "Predicting the Impact of Surface Roughness on Tribological Properties materials science": 3,
+      "pin-on-disk tribometer dataset": 3,
+      "power spectral density tribology": 3,
+      "surface topography friction coefficient": 3,
+      "wear rate prediction machine learning": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 5,
+      "rejections": [
+        {
+          "primary_pointer": "1008.3001",
+          "rationale": "The paper studies substitutional defect energetics in bcc Fe under volume changes and does not address surface roughness, friction, wear, or any tribological property, which are the core variables of the user's question. Hence it falls outside the relevant mechanism, variables, and domain.",
+          "title": "Contraction and expansion effects on the substitution-defect properties of thirteen alloying elements in bcc Fe"
+        },
+        {
+          "primary_pointer": "2306.04338",
+          "rationale": "The paper discusses machine‑learning data‑source issues in official statistics and does not address surface roughness, tribological properties, or any related materials‑science mechanisms, variables, or populations. It is off‑domain and has no measurable connection to the user's research question.",
+          "title": "Changing Data Sources in the Age of Machine Learning for Official Statistics"
+        },
+        {
+          "primary_pointer": "2006.16189",
+          "rationale": "The paper discusses machine‑learning validation guidelines for biological studies and does not address surface roughness, tribological properties, or any related materials‑science mechanisms, variables, or populations. It is off‑domain and unrelated to the user's research question.",
+          "title": "DOME: Recommendations for supervised machine learning validation in biology"
+        },
+        {
+          "primary_pointer": "2404.12511",
+          "rationale": "The paper focuses on machine‑learning evaluation using Shannon entropy and rough set theory and does not address surface roughness, tribological properties, or materials‑science contexts, thus it is off‑domain and unrelated to the user's research question.",
+          "title": "Generalizing Machine Learning Evaluation through the Integration of Shannon Entropy and Rough Set Theory"
+        },
+        {
+          "primary_pointer": "2201.12150",
+          "rationale": "The paper surveys learning curves for machine‑learning decision making and does not address surface roughness, tribological properties, or any related materials‑science mechanisms, variables, or populations; it is off‑domain with no measurable connection to the user's question.",
+          "title": "Learning Curves for Decision Making in Supervised Machine Learning: A Survey"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-24T19:18:35Z",
+    "term_input": {
+      "normalized": "predicting the impact of surface roughness on tribological properties materials science",
+      "raw": "Predicting the Impact of Surface Roughness on Tribological Properties materials science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In the rapidly expanding field of two-dimensional materials, magnetic monolayers show great promise for the future applications in nanoelectronics, data storage, and sensing. The research in intrinsically magnetic two-dimensional materials mainly focuses on synthetic iodide and telluride based compounds, which inherently suffer from the lack of ambient stability. So far, naturally occurring layered magnetic materials have been vastly overlooked. These minerals offer a unique opportunity to explore air-stable complex layered systems with high concentration of local moment bearing ions. We demonstrate magnetic ordering in iron-rich two-dimensional phyllosilicates, focusing on mineral species of minnesotaite, annite, and biotite. These are naturally occurring van der Waals magnetic materials which integrate local moment baring ions of iron via magnesium/aluminium substitution in their octahedral sites. Due to self-inherent capping by silicate/aluminate tetrahedral groups, ultra-thin layers are air-stable. Chemical characterization, quantitative elemental analysis, and iron oxidation states were determined via Raman spectroscopy, wavelength disperse X-ray spectroscopy, X-ray absorption spectroscopy, and X-ray photoelectron spectroscopy. Superconducting quantum interference device magnetometry measurements were performed to examine the magnetic ordering. These layered materials exhibit paramagnetic or superparamagnetic characteristics at room temperature. At low temperature ferrimagnetic or antiferromagnetic ordering occurs, with the critical ordering temperature of 38.7 K for minnesotaite, 36.1 K for annite, and 4.9 K for biotite. In-field magnetic force microscopy on iron bearing phyllosilicates confirmed the paramagnetic response at room temperature, present down to monolayers.",
+          "claimed_authors": [
+            "Muhammad Zubair Khan",
+            "Oleg E. Peil",
+            "Apoorva Sharma",
+            "Oleksandr Selyshchev",
+            "Sergio Valencia",
+            "Florian Kronast",
+            "Maik Zimmermann",
+            "Muhammad Awais Aslam",
+            "Johann G. Raith",
+            "Christian Teichert",
+            "Dietrich R. T. Zahn",
+            "Georgeta Salvan",
+            "Aleksandar Matković",
+            "Chair of Physics",
+            "Department Physics",
+            " Mechanics",
+            "Electrical engineering",
+            "Montanuniversität Leoben",
+            " 8700",
+            " Leoben",
+            " Austria.",
+            "Materials Center Leoben Forschung GmbH",
+            " 8700",
+            " Leoben",
+            " Austria.",
+            "Semiconductor Physics",
+            "Chemnitz University of Technology",
+            " D-09107",
+            " Chemnitz",
+            " Germany.",
+            "Department of Spin",
+            "Topology in Quantum Materials",
+            "Helmholtz-Zentrum Berlin",
+            "Albert-Einstein-Str. 15",
+            " D-12489",
+            " Berlin",
+            " Germany.",
+            "Chair of Resource Mineralogy",
+            "Montanuniversität Leoben",
+            " 8700",
+            " Leoben",
+            " Austria.",
+            "Centre for Materials",
+            " Architecture",
+            "Integration of Nanomembranes",
+            "Chemnitz University of Technology",
+            " 09126",
+            " Chemnitz",
+            " Germany"
+          ],
+          "claimed_title": "Probing magnetic ordering in air stable iron-rich van der Waals minerals",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2304.06533"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Predicting the Impact of Surface Roughness on Tribological Properties materials ', candidate_title='Probing magnetic ordering in air stable iron-rich van der Waals minerals')",
+        "failed_at": "2026-06-24T19:19:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Predicting the Impact of Surface Roughness on Tribological Properties materials ', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-06-24T19:19:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A thermal model of kinetic friction is assigned to a classical loaded particle moving on a fluctuating smooth surface. A sinusoidal wave resembles surface fluctuations with a relaxation time. The Hamiltonian is approximated to the mean energy of the wave describing a system of Harmonic oscillators. The quantization of amplitudes yields in terms of annihilation and creation operators multiplied by a quantum phase. Further, we consider acoustic dispersion relation and evaluate the friction coefficient from the force autocorrelation function. While the sliding particle remains classical describing a nano-particle or a tip with negligible quantum effects like tunneling or delocalization in the wave function, the quantized model of the surface fluctuations results in the temperature dependence of the kinetic friction coefficient. It follows an asymptotic value for higher temperatures and supperslipperiness at low temperatures.",
+          "claimed_authors": [
+            "Rasoul Kheiri"
+          ],
+          "claimed_title": "Quantum \"contact\" friction: the contribution of kinetic friction coefficient from thermal fluctuations",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2202.12717"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Predicting the Impact of Surface Roughness on Tribological Properties materials ', candidate_title='Quantum \"contact\" friction: the contribution of kinetic friction coefficient from thermal fluctuations')",
+        "failed_at": "2026-06-24T19:19:06Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A two-dimensional \\underline{Frenkel-Kontorova model} under a steady external force is used to study the nonlinear sliding friction between flat macroscopic surfaces with a lubricant layer in between. The nonequilibrium properties of the model are simulated by a Brownian molecular dynamics and results are obtained as a function of temperature and a microscopic friction parameter $η$.",
+          "claimed_authors": [
+            "E. Granato",
+            "M. R. Baldan",
+            "S. C. Ying"
+          ],
+          "claimed_title": "Sliding Friction in the Frenkel-Kontorova Model",
+          "claimed_venue": "arXiv",
+          "claimed_year": 1995,
+          "primary_pointer": "cond-mat/9510058"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Predicting the Impact of Surface Roughness on Tribological Properties materials ', candidate_title='Sliding Friction in the Frenkel-Kontorova Model')",
+        "failed_at": "2026-06-24T19:19:06Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The RSNA Abdominal Traumatic Injury CT (RATIC) dataset is the largest publicly available collection of adult abdominal CT studies annotated for traumatic injuries. This dataset includes 4,274 studies from 23 institutions across 14 countries. The dataset is freely available for non-commercial use via Kaggle at https://www.kaggle.com/competitions/rsna-2023-abdominal-trauma-detection. Created for the RSNA 2023 Abdominal Trauma Detection competition, the dataset encourages the development of advanced machine learning models for detecting abdominal injuries on CT scans. The dataset encompasses detection and classification of traumatic injuries across multiple organs, including the liver, spleen, kidneys, bowel, and mesentery. Annotations were created by expert radiologists from the American Society of Emergency Radiology (ASER) and Society of Abdominal Radiology (SAR). The dataset is annotated at multiple levels, including the presence of injuries in three solid organs with injury grading, image-level annotations for active extravasations and bowel injury, and voxelwise segmentations of each of the potentially injured organs. With the release of this dataset, we hope to facilitate research and development in machine learning and abdominal trauma that can lead to improved patient care and outcomes.",
+          "claimed_authors": [
+            "Jeffrey D. Rudie",
+            "Hui-Ming Lin",
+            "Robyn L. Ball",
+            "Sabeena Jalal",
+            "Luciano M. Prevedello",
+            "Savvas Nicolaou",
+            "Brett S. Marinelli",
+            "Adam E. Flanders",
+            "Kirti Magudia",
+            "George Shih",
+            "Melissa A. Davis",
+            "John Mongan",
+            "Peter D. Chang",
+            "Ferco H. Berger",
+            "Sebastiaan Hermans",
+            "Meng Law",
+            "Tyler Richards",
+            "Jan-Peter Grunz",
+            "Andreas Steven Kunz",
+            "Shobhit Mathur",
+            "Sandro Galea-Soler",
+            "Andrew D. Chung",
+            "Saif Afat",
+            "Chin-Chi Kuo",
+            "Layal Aweidah",
+            "Ana Villanueva Campos",
+            "Arjuna Somasundaram",
+            "Felipe Antonio Sanchez Tijmes",
+            "Attaporn Jantarangkoon",
+            "Leonardo Kayat Bittencourt",
+            "Michael Brassil",
+            "Ayoub El Hajjami",
+            "Hakan Dogan",
+            "Muris Becircic",
+            "Agrahara G. Bharatkumar",
+            "Eduardo Moreno Júdice de Mattos Farina",
+            "Dataset Curator Group",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Errol Colak"
+          ],
+          "claimed_title": "The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.19595"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Impact of Surface Roughness on Tribological Properties materials ', candidate_title='The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset')",
+        "failed_at": "2026-06-24T19:19:06Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Radiological Society of North America (RSNA) Lumbar Degenerative Imaging Spine Classification (LumbarDISC) dataset is the largest publicly available dataset of adult MRI lumbar spine examinations annotated for degenerative changes. The dataset includes 2,697 patients with a total of 8,593 image series from 8 institutions across 6 countries and 5 continents. The dataset is available for free for non-commercial use via Kaggle and RSNA Medical Imaging Resource of AI (MIRA). The dataset was created for the RSNA 2024 Lumbar Spine Degenerative Classification competition where competitors developed deep learning models to grade degenerative changes in the lumbar spine. The degree of spinal canal, subarticular recess, and neural foraminal stenosis was graded at each intervertebral disc level in the lumbar spine. The images were annotated by expert volunteer neuroradiologists and musculoskeletal radiologists from the RSNA, American Society of Neuroradiology, and the American Society of Spine Radiology. This dataset aims to facilitate research and development in machine learning and lumbar spine imaging to lead to improved patient care and clinical efficiency.",
+          "claimed_authors": [
+            "Tyler J. Richards",
+            "Adam E. Flanders",
+            "Errol Colak",
+            "Luciano M. Prevedello",
+            "Robyn L. Ball",
+            "Felipe Kitamura",
+            "John Mongan",
+            "Maryam Vazirabad",
+            "Hui-Ming Lin",
+            "Anne Kendell",
+            "Thanat Kanthawang",
+            "Salita Angkurawaranon",
+            "Emre Altinmakas",
+            "Hakan Dogan",
+            "Paulo Eduardo de Aguiar Kuriki",
+            "Arjuna Somasundaram",
+            "Christopher Ruston",
+            "Deniz Bulja",
+            "Naida Spahovic",
+            "Jennifer Sommer",
+            "Sirui Jiang",
+            "Eduardo Moreno Judice de Mattos Farina",
+            "Eduardo Caminha Nunes",
+            "Michael Brassil",
+            "Megan McNamara",
+            "Johanna Ortiz",
+            "Jacob Peoples",
+            "Vinson L. Uytana",
+            "Anthony Kam",
+            "Venkata N. S. Dola",
+            "Daniel Murphy",
+            "David Vu",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Competition Data Notebook Group",
+            "Jason F. Talbott"
+          ],
+          "claimed_title": "The RSNA Lumbar Degenerative Imaging Spine Classification (LumbarDISC) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.09162"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Impact of Surface Roughness on Tribological Properties materials ', candidate_title='The RSNA Lumbar Degenerative Imaging Spine Classification (LumbarDISC) Dataset')",
+        "failed_at": "2026-06-24T19:19:06Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The variability of wind power supply can present substantial challenges to incorporating wind power into a grid system. Thus, Wind Power Forecasting (WPF) has been widely recognized as one of the most critical issues in wind power integration and operation. There has been an explosion of studies on wind power forecasting problems in the past decades. Nevertheless, how to well handle the WPF problem is still challenging, since high prediction accuracy is always demanded to ensure grid stability and security of supply. We present a unique Spatial Dynamic Wind Power Forecasting dataset: SDWPF, which includes the spatial distribution of wind turbines, as well as the dynamic context factors. Whereas, most of the existing datasets have only a small number of wind turbines without knowing the locations and context information of wind turbines at a fine-grained time scale. By contrast, SDWPF provides the wind power data of 134 wind turbines from a wind farm over half a year with their relative positions and internal statuses. We use this dataset to launch the Baidu KDD Cup 2022 to examine the limit of current WPF solutions. The dataset is released at https://aistudio.baidu.com/aistudio/competition/detail/152/0/datasets.",
+          "claimed_authors": [
+            "Jingbo Zhou",
+            "Xinjiang Lu",
+            "Yixiong Xiao",
+            "Jiantao Su",
+            "Junfu Lyu",
+            "Yanjun Ma",
+            "Dejing Dou"
+          ],
+          "claimed_title": "SDWPF: A Dataset for Spatial Dynamic Wind Power Forecasting Challenge at KDD Cup 2022",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2208.04360"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Impact of Surface Roughness on Tribological Properties materials ', candidate_title='SDWPF: A Dataset for Spatial Dynamic Wind Power Forecasting Challenge at KDD Cup 2022')",
+        "failed_at": "2026-06-24T19:19:06Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Consider an elliptic self-adjoint pseudodifferential operator $A$ acting on $m$-columns of half-densities on a closed manifold $M$, whose principal symbol is assumed to have simple eigenvalues. We show that the spectrum of $A$ decomposes, up to an error with superpolynomial decay, into $m$ distinct series, each associated with one of the eigenvalues of the principal symbol of $A$. These spectral results are then applied to the study of propagation of singularities in hyperbolic systems. The key technical ingredient is the use of the carefully devised pseudodifferential projections introduced in the first part of this work, which decompose $L^2(M)$ into almost-orthogonal almost-invariant subspaces under the action of both $A$ and the hyperbolic evolution.",
+          "claimed_authors": [
+            "Matteo Capoferri",
+            "Dmitri Vassiliev"
+          ],
+          "claimed_title": "Invariant subspaces of elliptic systems II: spectral theory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2103.14334"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Impact of Surface Roughness on Tribological Properties materials ', candidate_title='Invariant subspaces of elliptic systems II: spectral theory')",
+        "failed_at": "2026-06-24T19:19:06Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The spectral behavior of the difference between the resolvents of two realizations $\\tilde A_1$ and $\\tilde A_2$ of a second-order strongly elliptic symmetric differential operator $A$, defined by different Robin conditions $νu=b_1γ_0u$ and $νu=b_2γ_0u$, can in the case where all coefficients are $C^\\infty$ be determined by use of a general result by the author in 1984 on singular Green operators. We here treat the problem for nonsmooth $b_i$. Using a Krein resolvent formula, we show that if $b_1$ and $b_2$ are in $L_\\infty$, the s-numbers $s_j$ of $(\\tilde A_1 -λ)^{-1}-(\\tilde A_2 -λ)^{-1}$ satisfy $s_j j^{3/(n-1)}\\le C$ for all $j$; this improves a recent result for $A=-Δ$ by Behrndt et al., that $\\sum_js_j ^p<\\infty$ for $p>(n-1)/3$. A sharper estimate is obtained when $b_1$ and $b_2$ are in $C^ε$ for some $ε>0$, with jumps at a smooth hypersurface, namely that $s_j j^{3/(n-1)}\\to c$ for $j\\to \\infty$, with a constant $c$ defined from the principal symbol of $A$ and $b_2-b_1$.\n  As an auxiliary result we show that the usual principal spectral asymptotic estimate for pseudodifferential operators of negative order on a closed manifold extends to products of pseudodifferential operators interspersed with piecewise continuous functions.",
+          "claimed_authors": [
+            "Gerd Grubb"
+          ],
+          "claimed_title": "Spectral asymptotics for Robin problems with a discontinuous coefficient",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1009.0997"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Impact of Surface Roughness on Tribological Properties materials ', candidate_title='Spectral asymptotics for Robin problems with a discontinuous coefficient')",
+        "failed_at": "2026-06-24T19:19:06Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We consider an elliptic self-adjoint first order pseudodifferential operator acting on columns of complex-valued half-densities over a connected compact manifold without boundary. The eigenvalues of the principal symbol are assumed to be simple but no assumptions are made on their sign, so the operator is not necessarily semi-bounded. We study the following objects: the propagator (time-dependent operator which solves the Cauchy problem for the dynamic equation), the spectral function (sum of squares of Euclidean norms of eigenfunctions evaluated at a given point of the manifold, with summation carried out over all eigenvalues between zero and a positive lambda) and the counting function (number of eigenvalues between zero and a positive lambda). We derive explicit two-term asymptotic formulae for all three. For the propagator \"asymptotic\" is understood as asymptotic in terms of smoothness, whereas for the spectral and counting functions \"asymptotic\" is understood as asymptotic with respect to lambda tending to plus infinity.",
+          "claimed_authors": [
+            "Olga Chervova",
+            "Robert J. Downes",
+            "Dmitri Vassiliev"
+          ],
+          "claimed_title": "The spectral function of a first order elliptic system",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1208.6015"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Impact of Surface Roughness on Tribological Properties materials ', candidate_title='The spectral function of a first order elliptic system')",
+        "failed_at": "2026-06-24T19:19:06Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Data science has become increasingly essential for the production of official statistics, as it enables the automated collection, processing, and analysis of large amounts of data. With such data science practices in place, it enables more timely, more insightful and more flexible reporting. However, the quality and integrity of data-science-driven statistics rely on the accuracy and reliability of the data sources and the machine learning techniques that support them. In particular, changes in data sources are inevitable to occur and pose significant risks that are crucial to address in the context of machine learning for official statistics.\n  This paper gives an overview of the main risks, liabilities, and uncertainties associated with changing data sources in the context of machine learning for official statistics. We provide a checklist of the most prevalent origins and causes of changing data sources; not only on a technical level but also regarding ownership, ethics, regulation, and public perception. Next, we highlight the repercussions of changing data sources on statistical reporting. These include technical effects such as concept drift, bias, availability, validity, accuracy and completeness, but also the neutrality and potential discontinuation of the statistical offering. We offer a few important precautionary measures, such as enhancing robustness in both data sourcing and statistical techniques, and thorough monitoring. In doing so, machine learning-based official statistics can maintain integrity, reliability, consistency, and relevance in policy-making, decision-making, and public discourse.",
+          "claimed_authors": [
+            "Cedric De Boom",
+            "Michael Reusens"
+          ],
+          "claimed_title": "Changing Data Sources in the Age of Machine Learning for Official Statistics",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.04338"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Predicting the Impact of Surface Roughness on Tribological Properties materials ', candidate_title='Changing Data Sources in the Age of Machine Learning for Official Statistics')",
+        "failed_at": "2026-06-24T19:19:06Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Modern biology frequently relies on machine learning to provide predictions and improve decision processes. There have been recent calls for more scrutiny on machine learning performance and possible limitations. Here we present a set of community-wide recommendations aiming to help establish standards of supervised machine learning validation in biology. Adopting a structured methods description for machine learning based on data, optimization, model, evaluation (DOME) will aim to help both reviewers and readers to better understand and assess the performance and limitations of a method or outcome. The recommendations are formulated as questions to anyone wishing to pursue implementation of a machine learning algorithm. Answers to these questions can be easily included in the supplementary material of published papers.",
+          "claimed_authors": [
+            "Ian Walsh",
+            "Dmytro Fishman",
+            "Dario Garcia-Gasulla",
+            "Tiina Titma",
+            "Gianluca Pollastri",
+            "The ELIXIR Machine Learning focus group",
+            "Jen Harrow",
+            "Fotis E. Psomopoulos",
+            "Silvio C. E. Tosatto"
+          ],
+          "claimed_title": "DOME: Recommendations for supervised machine learning validation in biology",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2006.16189"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Impact of Surface Roughness on Tribological Properties materials ', candidate_title='DOME: Recommendations for supervised machine learning validation in biology')",
+        "failed_at": "2026-06-24T19:19:06Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Learning curves are a concept from social sciences that has been adopted in the context of machine learning to assess the performance of a learning algorithm with respect to a certain resource, e.g., the number of training examples or the number of training iterations. Learning curves have important applications in several machine learning contexts, most notably in data acquisition, early stopping of model training, and model selection. For instance, learning curves can be used to model the performance of the combination of an algorithm and its hyperparameter configuration, providing insights into their potential suitability at an early stage and often expediting the algorithm selection process. Various learning curve models have been proposed to use learning curves for decision making. Some of these models answer the binary decision question of whether a given algorithm at a certain budget will outperform a certain reference performance, whereas more complex models predict the entire learning curve of an algorithm. We contribute a framework that categorises learning curve approaches using three criteria: the decision-making situation they address, the intrinsic learning curve question they answer and the type of resources they use. We survey papers from the literature and classify them into this framework.",
+          "claimed_authors": [
+            "Felix Mohr",
+            "Jan N. van Rijn"
+          ],
+          "claimed_title": "Learning Curves for Decision Making in Supervised Machine Learning: A Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2201.12150"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Impact of Surface Roughness on Tribological Properties materials ', candidate_title='Learning Curves for Decision Making in Supervised Machine Learning: A Survey')",
+        "failed_at": "2026-06-24T19:19:06Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Contact analysis without adhesion is still a challenging problem, mainly owing to the multiscale and self-fractal characteristics of rough surfaces. Up to now, theories for analyzing contact behavior of rough surfaces in literature can be generally categorized into two groups: the asperity-based Hertz contact models initiated by Greenwood and Williamson (G-W model), which is shown more accurate under small indentation distance, and the magnification-based pressure diffusion theory initiated by Persson, which is shown to work well under full contact conditions. The aim of this paper is to propose a theoretical model that can effectively formulate the contact status of rough surfaces during the entire compression process. This is achieved by integrating the idea of magnification, or evolving resolution into an asperity representation of rough surfaces, and a magnification-based multi-asperity model is thus established. In the derived model, the originally complex contact problem is decomposed into a family of sub-problems each defined on a morphologically simpler contact islands. Benefiting from the explicit results given by Greenwood and Williamson, the proposed method is relatively easy for numerical implementation. Compared to other G-W type models, the proposed method has especially shown its strength in the computation of the contact area. Moreover, the G-W and Persson models are found well connected by the proposed method. For its validation, the proposed model is well compared with existing numerical, theoretical and experimental results. In particular, the proposed model has shown its excellency through comparison with representative theoretical, numerical and experimental data compiled in the contact challenge test by Mueser et al.",
+          "claimed_authors": [
+            "Xu Guo",
+            "Benben Ma",
+            "Yichao Zhu"
+          ],
+          "claimed_title": "A magnification-based multi-asperity (MBMA) model of rough contact where the Greenwood-Williamson and Persson theories meet",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1712.06264"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Impact of Surface Roughness on Tribological Properties materials ', candidate_title='A magnification-based multi-asperity (MBMA) model of rough contact where the Greenwood-Williamson and Persson theories meet')",
+        "failed_at": "2026-06-24T19:19:06Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recently, it has been shown that while asperity models show correctly qualitative features of rough contact problems (linearity in area-load, negative exponential dependence of load on separation which means also linearity of stiffness with load), the exact value of the coefficients are not precise for the idealized case of Gaussian distribution of heigths. This is due to the intrinsic simplifications, neglecting asperity coalescence and interaction effects. However, the issue of Gaussianity has not been proved or experimentally verified in many cases, and here we show that, for example, assuming a Weibull distribution of asperity heigths, the area-load linear coefficient is not much affected, while the relationships load-separation and therefore also stiffness-load do change largely, particularly when considering bounded distributions of asperity heigths. It is suggested that Gaussianity of surfaces should be further tested in experiments, before applying the most sophisticated rough contact models based on the Gaussian assumption.",
+          "claimed_authors": [
+            "M. Ciavarella"
+          ],
+          "claimed_title": "On the significance of asperity models predictions of rough contact with respect to recent alternative theories",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1602.07521"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Impact of Surface Roughness on Tribological Properties materials ', candidate_title='On the significance of asperity models predictions of rough contact with respect to recent alternative theories')",
+        "failed_at": "2026-06-24T19:19:06Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The underlying mechanisms responsible for triboelectricity have yet to be completely understood. We have previously proposed a model which explains charge transfer in non-metals via band bending due to electromechanical, especially flexoelectric, effects at deformed asperities coupled with work function differences. Here, we investigate whether the shape of asperities is important for triboelectricity. The results indicate that the shape is important in general, since how the electromechanical response scales with force and asperity size depends on the shape. This is qualitatively in agreement with experimental results. Further, we discuss how the impact of the shape depends on material, geometric, and electronic transport details. Additionally, gradient elasticity is incorporated into the model. As asperity contact is a nanoscale phenomenon, size-dependent mechanics can become significant and give more physically reasonable results. In some cases, the impact of gradient elasticity terms on the electromechanical potentials is very large, indicating that standard elasticity theory is not enough to cover some relevant cases in modelling triboelectricity.",
+          "claimed_authors": [
+            "Karl P. Olson",
+            "Laurence D. Marks"
+          ],
+          "claimed_title": "Asperity Shape and Gradient Elasticity in Flexoelectric/Triboelectric Contacts",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2211.13275"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Impact of Surface Roughness on Tribological Properties materials ', candidate_title='Asperity Shape and Gradient Elasticity in Flexoelectric/Triboelectric Contacts')",
+        "failed_at": "2026-06-24T19:19:06Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Tevis Jacobs",
+            "Till Junge",
+            "Lars Pastewka"
+          ],
+          "title": "Quantitative characterization of surface topography using spectral analysis",
+          "venue": "arXiv",
+          "year": 2016
+        },
+        "primary_pointer": "1607.03040",
+        "summary": "Roughness determines many functional properties of surfaces, such as adhesion, friction, and (thermal and electrical) contact conductance. Recent analytical models and simulations enable quantitative prediction of these properties from knowledge of the power spectral density (PSD) of the surface topography. The utility of the PSD is that it contains statistical information that is unbiased by the particular scan size and pixel resolution chosen by the researcher. In this article, we first review the mathematical definition of the PSD, including the one- and two-dimensional cases, and common variations of each. We then discuss strategies for reconstructing an accurate PSD of a surface using topography measurements at different size scales. Finally, we discuss detecting and mitigating artifacts at the smallest scales, and computing upper/lower bounds on functional properties obtained from models. We accompany our discussion with virtual measurements on computer-generated surfaces. This discussion summarizes how to analyze topography measurements to reconstruct a reliable PSD. Analytical models demonstrate the potential for tuning functional properties by rationally tailoring surface topography - however, this potential can only be achieved through the accurate, quantitative reconstruction of the power spectral density of real-world surfaces.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1607.03040",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-24T19:19:05Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Son Pham-Ba",
+            "Jean-François Molinari"
+          ],
+          "title": "Creation and evolution of roughness on silica under unlubricated wear",
+          "venue": "arXiv",
+          "year": 2020
+        },
+        "primary_pointer": "2011.10774",
+        "summary": "Friction and wear are important phenomena occurring in all devices with moving parts. While their origin and the way they evolve over time are not fully understood, they are both intimately linked to surface roughness. Guided by pin-on-disc experiments, we present the steps giving rise to the formation of surface roughness on silica, first by the creation of roughly spherical wear particles whose size is related to a critical length scale governing the transition between ductile and brittle behavior, then by the accumulation of these small particles into a larger third body layer, or gouge. We show that, for the explored range of loading conditions, the surface roughness evolves toward a common steady state under unlubricated wear regardless of the initial surface roughness, hinting toward the possible predictability of roughness evolution in wearing components. The friction coefficient is shown to be related to the surface roughness and its time evolution is discussed as well.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2011.10774",
+          "http_status": 200,
+          "pdf_sample_score": 0.2306,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-24T19:19:10Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "predicting the impact of surface roughness on tribological properties materials science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

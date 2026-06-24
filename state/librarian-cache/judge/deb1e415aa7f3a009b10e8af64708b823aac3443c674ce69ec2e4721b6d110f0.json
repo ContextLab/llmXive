@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2011.10774",
+  "judged_at": "2026-06-24T19:19:19Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting the impact of surface roughness on tribological properties materials science",
+  "rationale": "The paper investigates how surface roughness evolves during unlubricated wear and directly relates roughness to friction coefficients, providing empirical evidence of the mechanism linking roughness to tribological properties (category a).",
+  "relevant": true
+}

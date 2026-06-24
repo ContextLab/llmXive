@@ -9,37 +9,83 @@ submitter: google.gemma-3-27b-it
 
 ## Research question
 
-How can surface topography parameters (e.g., Sa, Sq, Ssk) combined with material properties be used to predict the coefficient of friction and wear rate in tribological contacts using machine learning regression models?
+What surface topography parameters and material properties most strongly predict coefficient of friction and wear rate in tribological contacts, and how do these relationships vary across different material pairings?
 
 ## Motivation
 
-Surface roughness significantly impacts friction and wear in tribological contacts, but quantifying this relationship across diverse material pairings remains challenging. Existing literature demonstrates the potential of data-driven approaches for material property estimation, yet a focused ML pipeline for roughness-to-tribology prediction is lacking. This project addresses that gap by developing a reproducible model using public datasets, which could accelerate the design of surfaces with optimized wear resistance without requiring extensive experimental trials.
+Surface roughness governs friction and wear, yet quantitative links between specific roughness metrics, material properties, and tribological performance remain poorly understood across diverse material pairs. Establishing data‑driven models that reveal the most predictive parameters can guide surface engineering without costly trial‑and‑error experiments, accelerating the design of durable, low‑friction components.
 
 ## Related work
 
-- [Mining experimental data from Materials Science literature with Large Language Models: an evaluation study (2024)](http://arxiv.org/abs/2401.11052v3) — Demonstrates LLMs can extract structured tribological data from scientific documents, supporting automated dataset curation for this project.
-- [Efficient Estimation of Material Property Curves and Surfaces via Active Learning (2020)](http://arxiv.org/abs/2010.06896v1) — Provides methodology for estimating material property surfaces using active learning, applicable to modeling roughness-tribology relationships.
-- [Fiber-Reinforced Polymer Composites: Manufacturing, Properties, and Applications (2019)](https://doi.org/10.3390/polym11101667) — Illustrates how manufacturing-induced surface characteristics affect composite material performance, relevant for surface feature extraction.
+- [Quantitative characterization of surface topography using spectral analysis (2016)](https://arxiv.org/abs/1607.03040) — Provides analytical and spectral methods for extracting quantitative roughness descriptors, establishing a foundation for rigorous feature computation.  
+- [Creation and evolution of roughness on silica under unlubricated wear (2020)](https://arxiv.org/abs/2011.10774) — Investigates how friction and wear are linked to evolving surface roughness, demonstrating the physical relevance of topography metrics for tribological outcomes.
 
 ## Expected results
 
-A regression model achieving R² > 0.7 on held-out test data for coefficient of friction prediction, with feature importance analysis identifying 3-5 dominant roughness parameters. Cross-validation on at least 200 data points from public repositories will provide statistical evidence of model generalizability across material pairings.
+A regression suite (linear, random‑forest, gradient‑boosting) that attains **R² ≥ 0.7** for predicting both coefficient of friction and wear rate on a held‑out test set of ≥200 publicly sourced data points. Feature‑importance analysis (e.g., SHAP) will identify a concise subset (3–5) of roughness and material descriptors that consistently drive performance, and statistical tests will confirm that model improvements over baseline are significant (p < 0.05).
 
 ## Methodology sketch
 
-- Download surface roughness and tribology datasets from OpenML (ID: 42123) and NIST Materials Data Repository (https://www.nist.gov/mml/mmd/material-data-portal)
-- Extract surface parameters (Sa, Sq, Ssk, Sku, Sp, Sv) using Python's `scikit-surface` or `pySurf` libraries
-- Clean and normalize data; handle missing values via median imputation
-- Split dataset into 70% training / 15% validation / 15% test sets
-- Train baseline regression models (Linear Regression, Random Forest, Gradient Boosting) using `scikit-learn`
-- Perform hyperparameter tuning via 5-fold cross-validation on validation set
-- Evaluate models using R², MAE, and RMSE metrics on test set
-- Conduct feature importance analysis using SHAP values to identify dominant roughness parameters
-- Generate visualization plots (feature importance bar chart, predicted vs. actual scatter)
-- Document all code and results in a reproducible Jupyter notebook
+- **Data acquisition**  
+  - Download the “Surface Roughness & Tribology” dataset from OpenML (ID 42123) and the NIST Materials Data Repository’s tribology collection (e.g., `https://doi.org/10.18434/T4C54V`).  
+  - Retrieve supplementary material property tables (elastic modulus, hardness, hardness‑to‑elastic‑modulus ratio) from the Materials Project API (`https://materialsproject.org`).
+- **Feature extraction**  
+  - Use `pySurf` to compute standard areal roughness parameters (Sa, Sq, Ssk, Sku, Sp, Sv) and spectral moments from the raw profilometry files.  
+  - Merge these with material‑property vectors for each material pairing.
+- **Pre‑processing**  
+  - Perform outlier removal (±3 σ) and median imputation for missing values.  
+  - Standardize all numeric features (zero mean, unit variance) using scikit‑learn’s `StandardScaler`.
+- **Dataset split**  
+  - Stratify by material pair to ensure representation, then split 70 % training, 15 % validation, 15 % test.
+- **Model training**  
+  - Train three regression algorithms: Ordinary Least Squares, Random Forest Regressor, Gradient Boosting Regressor (`scikit‑learn`).  
+  - Conduct hyperparameter tuning with 5‑fold cross‑validation on the validation set (grid search over tree depth, learning rate, number of estimators).
+- **Evaluation**  
+  - Compute R², MAE, and RMSE on the independent test set for both target variables (µ = coefficient of friction, wear rate).  
+  - Apply paired‑t tests to compare each model against the linear baseline (α = 0.05).
+- **Interpretability**  
+  - Generate SHAP value plots to rank the contribution of each roughness and material descriptor.  
+  - Visualize predicted vs. actual scatter plots for each target, colored by material pair.
+- **Reproducibility**  
+  - Package the entire pipeline in a Jupyter notebook, with a `requirements.txt` listing `numpy`, `pandas`, `scikit-learn`, `pySurf`, `shap`, `matplotlib`, and `requests`.  
+  - Provide a `Makefile` target that runs the notebook end‑to‑end within a 6‑hour GitHub Actions job.
 
 ## Duplicate-check
 
-- Reviewed existing ideas: None provided in input.
+- Reviewed existing ideas: None.
 - Closest match: None identified.
 - Verdict: NOT a duplicate
+
+
+## Search trail
+
+**Generated by**: librarian (prompt v1.6.0) on 2026-06-24T19:19:24Z
+**Outcome**: exhausted
+**Original term**: Predicting the Impact of Surface Roughness on Tribological Properties materials science
+**Verified citation count**: 2
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | Predicting the Impact of Surface Roughness on Tribological Properties materials science | 0 |
+| 1 | machine learning prediction of wear based on surface roughness | 5 |
+| 2 | statistical modeling of surface roughness effects on friction coefficient | 0 |
+| 3 | influence of surface topography on tribological performance | 0 |
+| 4 | effect of surface asperities on friction and wear behavior | 0 |
+| 5 | tribology of engineered surface textures and roughness parameters | 0 |
+| 6 | predictive modeling of tribological properties from surface morphology | 0 |
+| 7 | micro‑roughness impact on lubrication and wear resistance | 0 |
+| 8 | correlation between Ra (average roughness) and coefficient of friction | 0 |
+| 9 | multiscale simulation of rough surface contact in tribology | 0 |
+| 10 | data‑driven analysis of roughness‑tribology relationships | 0 |
+| 11 | surface finish influence on tribological lifetime and wear rate | 0 |
+| 12 | nano‑scale surface roughness effects on adhesion and sliding friction | 0 |
+| 13 | contact mechanics of rough surfaces for wear prediction | 0 |
+| 14 | comparative tribological assessment of polished versus rough surfaces | 0 |
+| 15 | computational modeling of surface roughness impact on frictional behavior | 0 |
+
+### Verified citations
+
+1. **Quantitative characterization of surface topography using spectral analysis** (2016). Tevis Jacobs, Till Junge, Lars Pastewka. arXiv. [1607.03040](https://arxiv.org/abs/1607.03040). PDF-sampled: No.
+2. **Creation and evolution of roughness on silica under unlubricated wear** (2020). Son Pham-Ba, Jean-François Molinari. arXiv. [2011.10774](https://arxiv.org/abs/2011.10774). PDF-sampled: No.

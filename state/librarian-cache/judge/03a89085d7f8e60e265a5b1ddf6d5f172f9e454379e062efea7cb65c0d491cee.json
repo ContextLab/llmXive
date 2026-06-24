@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2006.16189",
+  "judged_at": "2026-06-24T19:19:17Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting the impact of surface roughness on tribological properties materials science",
+  "rationale": "The paper discusses machine‑learning validation guidelines for biological studies and does not address surface roughness, tribological properties, or any related materials‑science mechanisms, variables, or populations. It is off‑domain and unrelated to the user's research question.",
+  "relevant": false
+}

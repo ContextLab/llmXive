@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2404.12511",
+  "judged_at": "2026-06-24T19:19:20Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting the impact of surface roughness on tribological properties materials science",
+  "rationale": "The paper focuses on machine‑learning evaluation using Shannon entropy and rough set theory and does not address surface roughness, tribological properties, or materials‑science contexts, thus it is off‑domain and unrelated to the user's research question.",
+  "relevant": false
+}

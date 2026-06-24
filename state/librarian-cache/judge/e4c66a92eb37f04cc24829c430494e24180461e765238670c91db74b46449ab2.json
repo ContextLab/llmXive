@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2201.12150",
+  "judged_at": "2026-06-24T19:19:21Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting the impact of surface roughness on tribological properties materials science",
+  "rationale": "The paper surveys learning curves for machine‑learning decision making and does not address surface roughness, tribological properties, or any related materials‑science mechanisms, variables, or populations; it is off‑domain with no measurable connection to the user's question.",
+  "relevant": false
+}

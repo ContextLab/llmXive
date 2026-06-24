@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1607.03040",
+  "judged_at": "2026-06-24T19:19:15Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting the impact of surface roughness on tribological properties materials science",
+  "rationale": "The paper studies the same mechanism—using the power spectral density of surface topography to predict functional (including tribological) properties such as friction—directly relevant to predicting the impact of surface roughness, satisfying acceptance criterion (a) and also serving as a foundational methodology (d).",
+  "relevant": true
+}

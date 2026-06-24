@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-06T13:43:59.792620Z'
-current_stage: validated
+current_stage: project_initialized
 failed_stage: null
 field: neuroscience
 human_escalation_reason: null
 id: PROJ-359-investigating-the-relationship-between-b
-last_run_id: 6dd7dffe-fbc1-4297-913d-07e0e7d7e496
+last_run_id: a4fd08ee-4ea6-409a-8b02-63bca55932a1
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: null
 title: Investigating the Relationship Between Brain Network Dynamics and Response
   to Cognitive Training
-updated_at: '2026-06-14T23:09:58.377710Z'
+updated_at: '2026-06-24T19:19:52.497005Z'
