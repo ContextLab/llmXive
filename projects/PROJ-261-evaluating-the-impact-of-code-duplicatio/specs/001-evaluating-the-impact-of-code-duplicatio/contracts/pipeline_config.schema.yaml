@@ -1,37 +1,24 @@
-$schema: "http://json-schema.org/draft-07/schema#"
 type: object
-description: "Schema for pipeline configuration"
+description: Schema for the overall pipeline configuration.
 properties:
-  seed:
+  random_seed:
     type: integer
-    minimum: 0
-    description: "Random seed for reproducibility"
-  dataset_subset_size:
-    type: string
-    pattern: "^[0-9]+[MBGB]$"
-    description: "Size of codeparrot/github-code subset"
+    description: Seed for all random number generators to ensure reproducibility.
   clone_threshold:
     type: number
-    minimum: 0
-    maximum: 1
-    description: "Clone detection threshold"
+    description: Minimum similarity threshold for considering two code fragments as clones.
   model_name:
     type: string
-    description: "Pre-trained model path"
-  human_eval_subset:
-    type: integer
-    minimum: 1
-    maximum: 164
-    description: "Number of problems to evaluate"
-  memory_limit_gb:
-    type: number
-    minimum: 1
-    description: "Maximum memory usage in GB"
+    description: Identifier of the language model used for perplexity computation.
+  data_path:
+    type: string
+    description: Root directory where raw and processed data reside.
+  output_dir:
+    type: string
+    description: Directory where pipeline outputs (CSV files, figures) are stored.
 required:
-  - seed
-  - dataset_subset_size
+  - random_seed
   - clone_threshold
   - model_name
-  - human_eval_subset
-  - memory_limit_gb
-additionalProperties: false
+  - data_path
+  - output_dir

@@ -1,0 +1,9 @@
+0.05|add documented sc significance task validation verify:
+  quote: In the "lady tasting tea" example (below), Fisher required the lady to properly
+    categorize all of the cups of tea to justify the conclusion that the result was
+    unlikely to result from chance. His test revealed that if the lady was effectively
+    guessing at random (the null hypothesis), there was a 1.4% chance that the observed
+    results (perfectly ordered tea) would occur.
+  source_id: Statistical hypothesis test
+  url: https://en.wikipedia.org/wiki/Statistical_hypothesis_test
+  value: 1.4%

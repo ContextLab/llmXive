@@ -39,8 +39,8 @@
 - [X] T007 [P] Setup data directory structure (`projects/PROJ-261-evaluating-the-impact-of-code-duplication/data/raw`, `.../processed`, `.../analysis`)
 - [X] T008 [P] Configure logging infrastructure for parse failures (logs to `projects/PROJ-261-evaluating-the-impact-of-code-duplication/data/parse_failures.csv`)
 - [X] T009 [P] Create checksum state manifest infrastructure in `projects/PROJ-261-evaluating-the-impact-of-code-duplication/code/checksum_manifest.py` with `artifact_hashes` tracking
-- [ ] T010 [P] Create contract schema files: `clone_metrics.schema.yaml`, `model_metrics.schema.yaml`, `correlation_results.schema.yaml`, `pipeline_config.schema.yaml` in `specs/001-evaluate-code-duplication-llm-understanding/contracts/`
-- [ ] T011 [P] Implement contract tests for all schemas in `projects/PROJ-261-evaluating-the-impact-of-code-duplication/tests/contract/`
+- [X] T010 [P] Create contract schema files: `clone_metrics.schema.yaml`, `model_metrics.schema.yaml`, `correlation_results.schema.yaml`, `pipeline_config.schema.yaml` in `specs/001-evaluate-code-duplication-llm-understanding/contracts/`
+- [X] T011 [P] Implement contract tests for all schemas in `projects/PROJ-261-evaluating-the-impact-of-code-duplication/tests/contract/`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -54,11 +54,11 @@
 
 ### Test Tasks (must appear **before** any implementation tasks)
 
-- [ ] T012 [US1] Unit test for syntax‑error handling in Python files (`projects/PROJ-261-evaluating-the-impact-of-code-duplication/tests/unit/test_ast_cloner.py`) using pytest
-- [ ] T013 [US1] Unit test for NaN/infinite perplexity value detection (`projects/PROJ-261-evaluating-the-impact-of-code-duplication/tests/unit/test_model_metrics.py`) using pytest
-- [ ] T014 [US1] Unit test for PII scan detection (`projects/PROJ-261-evaluating-the-impact-of-code-duplication/tests/unit/test_pii_scanner.py`) using pytest
-- [ ] T015a [US1] Integration test for HuggingFace rate‑limiting and network‑interruption handling during 500 MB download (`projects/PROJ-261-evaluating-the-impact-of-code-duplication/tests/integration/test_data_loader.py`) using pytest
-- [ ] T015b [US1] Integration test for pipeline on a small sample (10 files) verifying clone‑density and perplexity CSV output [UNRESOLVED-CLAIM: c_a1165f83 — status=not_enough_info] (`projects/PROJ-261-evaluating-the-impact-of-code-duplication/tests/integration/test_us1_small_sample.py`) using pytest
+- [X] T012 [US1] Unit test for syntax‑error handling in Python files (`projects/PROJ-261-evaluating-the-impact-of-code-duplication/tests/unit/test_ast_cloner.py`) using pytest
+- [X] T013 [US1] Unit test for NaN/infinite perplexity value detection (`projects/PROJ-261-evaluating-the-impact-of-code-duplication/tests/unit/test_model_metrics.py`) using pytest
+- [X] T014 [US1] Unit test for PII scan detection (`projects/PROJ-261-evaluating-the-impact-of-code-duplication/tests/unit/test_pii_scanner.py`) using pytest
+- [X] T015a [US1] Integration test for HuggingFace rate‑limiting and network‑interruption handling during 500 MB download (`projects/PROJ-261-evaluating-the-impact-of-code-duplication/tests/integration/test_data_loader.py`) using pytest
+- [ ] T015b [US1] Integration test for pipeline on a small sample (10 files) verifying clone‑density and perplexity CSV output (`projects/PROJ-261-evaluating-the-impact-of-code-duplication/tests/integration/test_us1_small_sample.py`) using pytest
 - [ ] T016a [US1] Edge‑case test for parse‑failure logging (`projects/PROJ-261-evaluating-the-impact-of-code-duplication/tests/unit/test_parse_failures.py`) using pytest
 - [ ] T016b [US1] Edge‑case test for zero‑clone‑density handling (`projects/PROJ-261-evaluating-the-impact-of-code-duplication/tests/unit/test_zero_clone_density.py`) using pytest
 - [ ] T016c [US1] Edge‑case test for model‑loading failure in 8‑bit quantization (`projects/PROJ-261-evaluating-the-impact-of-code-duplication/tests/unit/test_model_loading_failure.py`) using pytest

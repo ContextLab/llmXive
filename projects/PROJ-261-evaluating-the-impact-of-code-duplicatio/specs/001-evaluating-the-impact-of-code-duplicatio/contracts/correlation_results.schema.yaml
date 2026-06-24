@@ -1,32 +1,20 @@
-$schema: "http://json-schema.org/draft-07/schema#"
 type: object
-description: "Schema for statistical correlation results"
+description: Schema for correlation analysis results between duplication and model metrics.
 properties:
-  metric_pair:
+  metric_x:
     type: string
-    pattern: "^[a-zA-Z_]+,[a-zA-Z_]+$"
-    description: "Pair of metrics being correlated"
-  spearman_coefficient:
+    description: Name of the first metric (e.g., clone_density).
+  metric_y:
+    type: string
+    description: Name of the second metric (e.g., perplexity).
+  correlation_coefficient:
     type: number
-    minimum: -1
-    maximum: 1
-    description: "Spearman's rank correlation coefficient"
+    description: Spearman rank correlation coefficient.
   p_value:
     type: number
-    minimum: 0
-    maximum: 1
-    description: "Statistical significance"
-  sample_size:
-    type: integer
-    minimum: 1
-    description: "Number of data points in correlation"
-  significance:
-    type: boolean
-    description: "Whether p < 0.05"
+    description: Two‑tailed p‑value associated with the correlation.
 required:
-  - metric_pair
-  - spearman_coefficient
+  - metric_x
+  - metric_y
+  - correlation_coefficient
   - p_value
-  - sample_size
-  - significance
-additionalProperties: false

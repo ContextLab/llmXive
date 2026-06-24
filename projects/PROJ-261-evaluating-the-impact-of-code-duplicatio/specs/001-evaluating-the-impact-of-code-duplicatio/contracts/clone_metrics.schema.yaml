@@ -1,33 +1,16 @@
-$schema: "http://json-schema.org/draft-07/schema#"
 type: object
-description: "Schema for clone density metrics output"
+description: Schema for clone metrics generated per source file.
 properties:
-  segment_id:
+  file_path:
     type: string
-    description: "Unique identifier for code segment"
-    pattern: "^[a-zA-Z0-9_.-]+:[0-9]+:[0-9]+$"
+    description: Relative path to the source code file.
   clone_density:
     type: number
-    minimum: 0
-    maximum: 100
-    description: "Percentage of duplicate subtrees"
-  threshold:
-    type: number
-    minimum: 0
-    maximum: 1
-    description: "Clone detection threshold used"
-  duplicate_count:
+    description: Proportion of code that participates in clones (0.0 – 1.0).
+  total_clones:
     type: integer
-    minimum: 0
-    description: "Number of matching subtrees"
-  total_subtrees:
-    type: integer
-    minimum: 1
-    description: "Total subtrees analyzed"
+    description: Number of distinct clone groups detected in the file.
 required:
-  - segment_id
+  - file_path
   - clone_density
-  - threshold
-  - duplicate_count
-  - total_subtrees
-additionalProperties: false
+  - total_clones
