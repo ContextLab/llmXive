@@ -623,6 +623,15 @@ class LLMReviewer:
         # completion tokens; 32_768 is ~3x headroom. 128K invites the reasoning
         # model to keep thinking past the wall-clock deadline (→ hang/thrash).
         max_tokens: int | None = 32_768,
+        # DETERMINISTIC by default (temperature 0). A non-zero temperature makes
+        # the panel emit a DIFFERENT crop of concerns every round — the spec/plan
+        # convergence then oscillates (24→10→3→5→4→1→11 instead of converging)
+        # and the in-place reviser can never satisfy a moving target, so the
+        # stage burns its whole round + kickback cap re-flagging (often FALSE)
+        # concerns — e.g. "FR-003 not anchored to a User Story" when the spec
+        # plainly says "See US-5". The research/paper reviewers already pin
+        # temperature=0; the convergence panels must too.
+        temperature: float = 0.0,
     ) -> None:
         self.name = lens
         self._lens = lens
@@ -630,6 +639,7 @@ class LLMReviewer:
         self._backend = backend
         self._repo_root = Path(repo_root)
         self._model = model
+        self._temperature = temperature
         # Spec 015: qwen3.5-122b is a *reasoning* model — its hidden
         # chain-of-thought tokens count against the response budget. The
         # 512-default of OpenAI-shaped APIs is far too small (reasoning
@@ -848,6 +858,7 @@ class LLMReviewer:
             messages,
             model=self._model,
             max_tokens=self._max_tokens,
+            temperature=self._temperature,
         )
         return getattr(response, "text", "") or ""
 

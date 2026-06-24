@@ -110,3 +110,36 @@ def test_primary_transient_walks_to_peer():
     assert "openai.gpt-oss-120b" in models
     # The reasoning-safe budget reached the PEER too.
     assert backend.calls[-1]["max_tokens"] == 32_768
+
+
+def test_convergence_reviewer_is_deterministic_temperature_zero():
+    """Spec/plan convergence panels MUST run at temperature 0. A non-zero
+    temperature makes each round emit a different crop of concerns, so the
+    in-place reviser chases a moving target and the stage burns its round +
+    kickback cap re-flagging (often false) concerns instead of converging
+    (the PROJ-552 spec/plan oscillation). research/paper reviewers already pin 0."""
+    from dataclasses import dataclass, field
+
+    from llmxive.backends.base import ChatResponse
+
+    @dataclass
+    class _RecordingBackend:
+        calls: list = field(default_factory=list)
+
+        def chat(self, messages, *, model, max_tokens=None, temperature=None):
+            self.calls.append({"model": model, "temperature": temperature})
+            return ChatResponse(
+                text=(
+                    "---\nverdict: accept\nconcerns: []\n---\nlgtm\n"
+                ),
+                model=model,
+                backend="dartmouth",
+            )
+
+    be = _RecordingBackend()
+    rev = _reviewer(be)
+    rev.identify(_ARTIFACTS, constitution=None, advisory=[])
+    assert be.calls, "reviewer must call the backend"
+    assert all(c["temperature"] == 0.0 for c in be.calls), be.calls
+    # default is deterministic
+    assert rev._temperature == 0.0
