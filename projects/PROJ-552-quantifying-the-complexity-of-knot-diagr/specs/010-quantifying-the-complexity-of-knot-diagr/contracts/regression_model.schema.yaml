@@ -2,61 +2,6 @@ $schema: "http://json-schema.org/draft-07/schema#"
 title: "RegressionModel"
 description: "Represents fitted model with attributes including model type, coefficients, goodness-of-fit metrics"
 type: "object"
-properties:
-  model_id:
-    type: "string"
-    description: "Unique identifier"
-  model_type:
-    type: "string"
-    description: "Model type: linear, polynomial, or logarithmic"
-    enum:
-      - "linear"
-      - "polynomial"
-      - "logarithmic"
-  predictors:
-    type: "array"
-    description: "Predictor variables (e.g., [\"crossing_number\", \"braid_index\"])"
-    items:
-      type: "string"
-  target:
-    type: "string"
-    description: "Target variable (e.g., \"hyperbolic_volume\")"
-  coefficients:
-    type: "object"
-    description: "Model coefficients"
-    additionalProperties:
-      type: "number"
-  r_squared:
-    type: "number"
-    description: "R² goodness-of-fit metric"
-    minimum: 0
-    maximum: 1
-  aic:
-    type: "number"
-    description: "Akaike Information Criterion"
-  bic:
-    type: "number"
-    description: "Bayesian Information Criterion"
-  mae:
-    type: "number"
-    description: "Mean Absolute Error"
-    minimum: 0
-  vif_scores:
-    type: "object"
-    description: "Variance Inflation Factor for each predictor"
-    additionalProperties:
-      type: "number"
-  residual_outliers:
-    type: "array"
-    description: "Knot IDs with residuals ≥ 2 standard deviations"
-    items:
-      type: "string"
-  alternating_control:
-    type: "boolean"
-    description: "Whether alternating/non-alternating classification is included as control variable"
-  braid_index_uncertainty:
-    type: "boolean"
-    description: "Whether braid index uncertainty is propagated in model results (Phase 0/1 exploratory)"
 required:
   - model_id
   - model_type
@@ -71,4 +16,46 @@ required:
   - residual_outliers
   - alternating_control
   - braid_index_uncertainty
+properties:
+  model_id:
+    type: "string"
+  model_type:
+    type: "string"
+    enum:
+      - "linear"
+      - "polynomial"
+      - "logarithmic"
+  predictors:
+    type: "array"
+    items:
+      type: "string"
+  target:
+    type: "string"
+  coefficients:
+    type: "object"
+    additionalProperties:
+      type: "number"
+  r_squared:
+    type: "number"
+    minimum: 0
+    maximum: 1
+  aic:
+    type: "number"
+  bic:
+    type: "number"
+  mae:
+    type: "number"
+    minimum: 0
+  vif_scores:
+    type: "object"
+    additionalProperties:
+      type: "number"
+  residual_outliers:
+    type: "array"
+    items:
+      type: "string"
+  alternating_control:
+    type: "boolean"
+  braid_index_uncertainty:
+    type: "boolean"
 additionalProperties: false

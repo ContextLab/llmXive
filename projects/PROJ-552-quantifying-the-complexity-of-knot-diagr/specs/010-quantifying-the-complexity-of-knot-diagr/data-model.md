@@ -1,62 +1,21 @@
-# Data Model: Quantifying the Complexity of Knot Diagrams via Crossing Number and Braid Index
+# Data Model: Knot Complexity Analysis
 
-**Feature Branch**: `001-knot-complexity-analysis`  
-**Date**: 2026-06-12  
+## Core Entity: KnotRecord
+| Field | Type | Description |
+|-------|------|-------------|
+| `knot_id` | string | Unique identifier (e.g., `"3_1"` for the trefoil). |
+| `crossing_number` | integer | Minimum crossing number (c). |
+| `braid_index` | integer | Minimal braid index (b). |
+| `hyperbolic_volume` | float | Hyperbolic volume (V); not applicable for non‑hyperbolic knots. |
+| `alternating` | boolean | `true` if the knot is alternating, `false` otherwise. |
+| `data_quality_flags` | list[string] | Flags from FR‑002 (e.g., `"null_crossing_number"`). |
+| `missing_invariant_flags` | list[string] | Flags from FR‑009 (e.g., `"missing_braid_index"`). |
+| `source_timestamp` | string (ISO‑8601) | Time of download from Knot Atlas. |
+| `checksum_sha256` | string | SHA‑256 of the raw JSON entry for this knot. |
 
-## Entity Definitions
+## Derived Datasets
+1. **knots_cleaned.csv** – Contains all `KnotRecord` fields after parsing and tie‑breaking; no flags applied.
+2. **knots_validated.csv** – Same schema plus `data_quality_flags` and `missing_invariant_flags`; filtered to `hyperbolic_volume > 0` for modeling.
+3. **regression_summary.csv** – One row per fitted model type with columns: `model_type`, `R2`, `AIC`, `BIC`, `MAE`, `VIF_crossing`, `VIF_braid`.
 
-### KnotRecord
-
-Represents a single prime knot with attributes including crossing number, braid index, alternating classification, and hyperbolic volume.
-
-**Attributes**:
-- `knot_id`: String (e.g., "8_19")
-- `crossing_number`: Integer
-- `braid_index`: Integer (nullable)
-- `hyperbolic_volume`: Float (nullable, > 0 for hyperbolic)
-- `is_alternating`: Boolean (nullable)
-- `data_quality_flags`: List[String] (e.g., "missing_braid_index", "volume_zero")
-- `missing_invariant_flags`: List[String] (e.g., "no_representation_available")
-- `source`: String ("knot_atlas")
-- `checksum`: String (SHA-256 of raw record)
-
-### InvariantsDataset
-
-Aggregated collection of `KnotRecord` entities with computed relationships and metadata.
-
-**File Path**: `data/processed/cleaned_knots.parquet`  
-**Schema**: Validated against `contracts/knot_record.schema.yaml`
-
-### RegressionModel
-
-Represents fitted model with attributes including model type, coefficients, goodness-of-fit metrics, and training/validation split information.
-
-**Attributes**:
-- `model_type`: String ("linear", "polynomial", "logarithmic")
-- `predictors`: List[String]
-- `target`: String
-- `coefficients`: Dict[String, Float]
-- `r_squared`: Float
-- `aic`: Float
-- `bic`: Float
-- `mae`: Float
-
-**File Path**: `data/processed/regression_results.json`
-
-## Data Hygiene & Transformations
-
-All data transformations follow Constitution Principle III (Data Hygiene):
-
-1.  **Raw Data**: `data/raw/knot_atlas_raw.json` (immutable, checksummed).
-2.  **Derived Data**: `data/processed/cleaned_knots.parquet` (new file, no in-place modification).
-3.  **Checksums**: SHA-256 recorded in `data/` directory manifest.
-4.  **Logs**: Timestamped logs stored in `docs/reproducibility/`.
-
-## File Paths
-
-| Artifact | Path | Description |
-|----------|------|-------------|
-| Raw Data | `data/raw/knot_atlas_raw.json` | Unmodified download from Knot Atlas |
-| Cleaned Data | `data/processed/cleaned_knots.parquet` | Validated, filtered, cleaned dataset |
-| Plots | `data/plots/crossing_vs_braid.png` | Exploratory scatter plots |
-| Reproducibility | `docs/reproducibility/` | Checksums, logs, derivation notes |
+All datasets are stored under `data/processed/` and accompanied by a checksum manifest `data/checksums.sha256`.

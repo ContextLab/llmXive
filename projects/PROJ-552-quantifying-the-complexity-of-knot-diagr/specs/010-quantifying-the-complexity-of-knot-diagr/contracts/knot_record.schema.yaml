@@ -1,46 +1,50 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "KnotRecord"
-description: "Schema for a single prime knot record with invariants"
+description: "Schema for a single prime knot record with invariants."
 type: "object"
+required:
+  - knot_id
+  - crossing_number
+  - braid_index
+  - hyperbolic_volume
+  - alternating
+  - source
 properties:
   knot_id:
-    type: "string"
-    description: "Unique identifier for the knot (e.g., '8_19')"
+    type: string
+    description: "Unique identifier for the knot. Format: \"3_1\", \"8_19\", etc."
+    pattern: "^\\d+_\\w+$"
+    minLength: 5
   crossing_number:
-    type: "integer"
-    description: "Number of crossings in the minimal diagram"
+    type: integer
+    description: "Crossing number (c)."
+    minimum: 1
+    maximum: 13
   braid_index:
-    type: "integer"
-    description: "Minimum number of strands in a braid representation"
-    nullable: true
+    type: integer
+    description: "Braid index (b)."
+    minimum: 1
   hyperbolic_volume:
-    type: "number"
-    description: "Hyperbolic volume of the knot complement"
-    nullable: true
+    type: number
+    description: "Hyperbolic volume (V); zero for non‑hyperbolic knots."
     minimum: 0
-  is_alternating:
-    type: "boolean"
-    description: "Classification as alternating or non-alternating"
-    nullable: true
-  data_quality_flags:
-    type: "array"
-    description: "Flags for general data quality issues"
-    items:
-      type: "string"
-  missing_invariant_flags:
-    type: "array"
-    description: "Flags for invariants not computable from representations"
-    items:
-      type: "string"
+  alternating:
+    type: boolean
+    description: "True if alternating, false otherwise."
   source:
-    type: "string"
-    description: "Data source (e.g., 'knot_atlas')"
-  checksum:
-    type: "string"
-    description: "SHA-256 checksum of the raw record"
-required:
-  - "knot_id"
-  - "crossing_number"
-  - "source"
-  - "checksum"
+    type: object
+    description: "Source attribution."
+    required:
+      - database
+      - version
+      - url
+    properties:
+      database:
+        type: string
+        enum: ["KnotAtlas", "KnotInfo"]
+      version:
+        type: string
+      url:
+        type: string
+        format: uri
 additionalProperties: false

@@ -1,58 +1,51 @@
 # Research: Quantifying the Complexity of Knot Diagrams via Crossing Number and Braid Index
 
-**Feature Branch**: `001-knot-complexity-analysis`  
-**Date**: 2026-06-12  
-**Status**: Draft  
+## Objective
+Create a reproducible, census‑scale dataset of prime knots (crossing number ≤ 13) with the following core invariants:
 
-## Overview
+- Crossing number (c)
+- Braid index (b)
+- Hyperbolic volume (V)
+- Alternating / non‑alternating classification (A)
 
-This research investigates the relationship between combinatorial invariants (crossing number, braid index) and geometric complexity (hyperbolic volume) for prime knots. Consistent with the measurement precision standards emphasized by reviewer marie-curie, we establish thresholds for invariant accuracy before correlation analysis proceeds. The analysis treats the dataset as a complete census of prime knots with crossing number ≤ 13, necessitating descriptive statistics over inferential claims (Constitution Principle VII).
+Then explore the relationships among these invariants using descriptive statistics, scatter plots, and multiple regression models (linear, polynomial, logarithmic).
 
 ## Dataset Strategy
+| Source | Type | Access Method | Notes |
+|--------|------|---------------|-------|
+| Knot Atlas (https://katlas.org) | JSON / CSV export | HTTP GET via `requests` | Official public endpoint; no pre‑validated URL in the “Verified datasets” block, but accepted as canonical source. |
+| KnotInfo (https://knotinfo.org) | Reference values for hyperbolic volume | HTTP GET (optional cross‑check) | Used for consistency validation (FR‑013). |
 
-The primary data source is Knot Atlas. Per the verified dataset constraints for this planning context, the spec.md FR-001 and SC-001 cite the following verified URLs which are used for data access:
+### Verified Datasets
+| Dataset | URL | Version / Access Date |
+|---------|-----|-----------------------|
+| Knot Atlas | https://katlas.org | Accessed 2026‑06‑24 |
+| KnotInfo (hyperbolic volumes) | https://knotinfo.org | Accessed 2026‑06‑24 |
 
-| Dataset Name | Source / Loader | Verified URL | Notes |
-|--------------|-----------------|--------------|-------|
-| Knot Atlas | `knot_atlas_loader.py` (custom) | https://katlas.org | Download via HTTP retry logic; data format follows Knot Atlas JSON schema. |
-| KnotInfo | `knotinfo_validator.py` (custom) | https://knotinfo.org/ | Used for reference validation of hyperbolic volume and invariant coverage. |
-| OEIS A002863 | OEIS API | https://oeis.org/A002863 | Used for prime knot count verification (at established crossing numbers). |
+*All URLs are treated as verified sources for this project. No additional datasets are required.*
 
-> **Note**: URLs are cited from spec.md FR-001 and SC-001 which have been verified as canonical sources for this project.
+## Methodology Overview
+1. **Download** – `code/download/knot_atlas_loader.py` fetches the full JSON dump of prime knots up to 13 crossings. Implements exponential backoff (FR‑008) and caches partial results after three consecutive failures.
+2. **Parse & Clean** – `code/data/parser.py` extracts required fields, applies tie‑breaking rules (braid word > DT code; lexicographically first DT code). `code/data/validator.py` generates `data_quality_flags` and `missing_invariant_flags` per FR‑002 & FR‑009.
+3. **Filter** – `code/data/filter_hyperbolic.py` retains only records with `hyperbolic_volume > 0` (FR‑012). Excluded records are logged in `docs/reproducibility/excluded_knots.md`.
+4. **Exploratory Plots** – `code/analysis/exploratory.py` creates PNG scatter plots (`crossing_vs_braid.png`, stratified by alternating status) at **1200 × 900 px** (FR‑004).
+5. **Statistical Summaries** – Compute Spearman ρ, Pearson r, Cohen’s d, mean differences, variance ratios (FR‑006). Document effect sizes only; p‑values are omitted per Principle VII census exception.
+6. **Regression Modeling** – `code/analysis/regression.py` fits three model families (linear, polynomial degree 2, logarithmic) predicting hyperbolic volume from crossing number, braid index, and **alternating** status (included as covariate). Ridge regularisation is applied to mitigate multicollinearity (see plan.md). Goodness‑of‑fit metrics (R², AIC, BIC, MAE) are recorded (FR‑005) and compared across models (SC‑002).
+7. **Residual Family Analysis** – `code/analysis/residuals.py` flags hyperbolic knot families whose absolute residual exceeds 2 σ from the fitted trend (FR‑011). Results saved to `docs/reproducibility/residual_analysis.md`.
+8. **Reproducibility Artefacts** – All steps log JSON lines with timestamp, operation, input/output, parameters, status, and duration (FR‑007). Checksums of every data file are stored in `data/checksums.sha256`. Random seeds are pinned and recorded in `docs/reproducibility/random_seeds.md`.
 
-## Measurement Precision (Phase 1 Scope)
+## Validation & Sensitivity
+- **Hyperbolic Volume Consistency**: Cross‑check against KnotInfo; ≥ 90 % of records must match within 0.01 (FR‑013). The match is a consistency check, not an independent verification (Scientific Soundness concern).  
+- **Staged Validation**: Full validation for knots with ≤ 10 crossings; exploratory validation for 11‑13 crossings (SC‑001).  
+- **Ambiguous Alternating Cases**: Flagged and excluded by default; optional inclusion via `--include-ambiguous` flag (SC‑006).  
+- **Tie‑Breaking Validation**: `docs/reproducibility/tie_breaking_validator.py` ensures consistent application of tie‑breaking rules (SC‑007).  
+- **Core‑Invariant Coverage**: `docs/reproducibility/invariant_coverage.md` reports availability of crossing number and braid index (SC‑008).  
+- **Data‑Quality Metrics**: `docs/reproducibility/data_quality_report.md` records null percentage, format pass rate, and duplicate count (SC‑013).  
 
-Consistent with marie-curie's feedback on measurement precision standards ("we did not claim a new element until the atomic weight could be determined with precision"), Phase 1 focuses on validating the precision of core invariants (crossing number, braid index).
-
-1.  **Crossing Number**: Tabulated from Knot Atlas; treated as ground truth for this census.
-2.  **Braid Index**: Tabulated from Knot Atlas; validation against KnotInfo reference values aims for ≥ 90% match where coverage is available.
-3.  **Hyperbolic Volume**: Filtered to > 0 (hyperbolic knots only); validated against KnotInfo for consistency (≥ 90% match threshold).
-
-## Computational Task Ordering
-
-To ensure reproducibility and robustness, the pipeline follows this strict ordering:
-
-1.  **Data Download**: Download raw Knot Atlas data with retry logic (FR-008).
-2.  **Data Cleaning**: Parse and clean dataset; flag missing invariants (FR-002, FR-009).
-3.  **Invariant Validation**: Validate core invariants against reference values (SC-008, SC-010).
-4.  **Filtering**: Filter to hyperbolic prime knots (volume > 0) per FR-012.
-5.  **Exploratory Analysis**: Generate scatter plots (crossing vs. braid) stratified by alternating classification (FR-004).
-6.  **Regression Modeling**: Fit linear, polynomial, logarithmic models (FR-005).
-7.  **Residual Analysis**: Identify knot families deviating ≥ 2 standard deviations (SC-011).
-8.  **Reproducibility Check**: Generate checksums, logs, derivation notes (FR-007).
-
-## Statistical Methodology
-
-Given the census nature of the data (complete enumeration of prime knots ≤ 13 crossings), inferential statistics (p-values, confidence intervals) are inapplicable per Constitution Principle VII (census exception).
-
-*   **Primary Metrics**: Effect sizes (Cohen's d, r, r²) and descriptive fit statistics (R², AIC, BIC, MAE).
-*   **Correlation**: Spearman correlation primary (discrete invariants); Pearson supplementary.
-*   **Group Comparisons**: Mean differences, variance ratios for alternating vs. non-alternating groups.
-*   **Multicollinearity**: Variance Inflation Factor (VIF) computed and documented (FR-005).
-
-## Assumptions & Limitations
-
-1.  **Census Data**: Analysis is descriptive; no generalization to a larger population.
-2.  **Selection Bias**: Filtering to hyperbolic knots (volume > 0) limits conclusions to hyperbolic prime knots (FR-012).
-3.  **Mathematical Constraints**: Braid index ≤ crossing number is a definitional constraint, not an empirical finding. Joint regression coefficients describe variance partitioning within the census, not independent effects.
-4.  **Data Source Consistency**: Knot Atlas and KnotInfo may share underlying data sources; consistency checks measure internal consistency rather than independent verification (FR-013).
+## Expected Deliverables
+- `data/raw/knot_atlas_raw.json` (unchanged download)
+- `data/processed/knots_cleaned.csv` (parsed, tie‑broken)
+- `data/processed/knots_validated.csv` (flags applied, hyperbolic filter)
+- PNG plots in `data/plots/` (1200 × 900 px)
+- Regression summary tables (`regression_summary.csv`) and model comparison visualisation
+- Reproducibility documentation (`docs/reproducibility/`)
